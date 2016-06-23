@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.wizards;
 import java.io.Serializable;
 import org.apache.wicket.PageReference;
 import org.apache.syncope.client.console.panels.WizardModalPanel;
+import org.apache.wicket.event.IEventSink;
 
 public interface ModalPanelBuilder<T extends Serializable> extends Serializable {
 
@@ -46,4 +47,7 @@ public interface ModalPanelBuilder<T extends Serializable> extends Serializable 
      */
     ModalPanelBuilder<T> setItem(T item);
 
+    ModalPanelBuilder<T> setEventSink(IEventSink eventSink);
+
+    IEventSink getEventSink();
 }

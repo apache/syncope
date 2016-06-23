@@ -18,13 +18,15 @@
  */
 package org.apache.syncope.common.lib.patch;
 
+import java.util.HashSet;
+import java.util.Set;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.to.MembershipTO;
+import org.apache.syncope.common.lib.to.AttrTO;
 
 @XmlRootElement(name = "membershipPatch")
 @XmlType
-public class MembershipPatch extends AbstractPatch {
+public class MembershipPatch extends AbstractPatch implements AttributablePatch {
 
     private static final long serialVersionUID = -6783121761221554433L;
 
@@ -35,20 +37,33 @@ public class MembershipPatch extends AbstractPatch {
             return new MembershipPatch();
         }
 
-        public Builder membershipTO(final MembershipTO membershipTO) {
-            getInstance().setMembershipTO(membershipTO);
+        public Builder group(final String group) {
+            getInstance().setGroup(group);
             return this;
         }
     }
 
-    private MembershipTO membershipTO;
+    private String group;
 
-    public MembershipTO getMembershipTO() {
-        return membershipTO;
+    private final Set<AttrPatch> plainAttrs = new HashSet<>();
+
+    private final Set<AttrTO> virAttrs = new HashSet<>();
+
+    public String getGroup() {
+        return group;
     }
 
-    public void setMembershipTO(final MembershipTO membershipTO) {
-        this.membershipTO = membershipTO;
+    public void setGroup(final String group) {
+        this.group = group;
     }
 
+    @Override
+    public Set<AttrPatch> getPlainAttrs() {
+        return plainAttrs;
+    }
+
+    @Override
+    public Set<AttrTO> getVirAttrs() {
+        return virAttrs;
+    }
 }

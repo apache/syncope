@@ -28,12 +28,12 @@ import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.wicket.PageReference;
 
-public final class GroupSelectionDirectoryPanel extends AnySelectionDirectoryPanel<GroupTO> {
+public final class GroupSelectionDirectoryPanel extends AnySelectionDirectoryPanel<GroupTO, GroupRestClient> {
 
     private static final long serialVersionUID = -1100228004207271271L;
 
-    private GroupSelectionDirectoryPanel(final String id, final Builder builder) {
-        super(id, builder, GroupTO.class);
+    private GroupSelectionDirectoryPanel(final String id, final Builder builder, final boolean wizardInModal) {
+        super(id, builder, GroupTO.class, wizardInModal);
     }
 
     @Override
@@ -61,7 +61,7 @@ public final class GroupSelectionDirectoryPanel extends AnySelectionDirectoryPan
         return Constants.PREF_GROUP_DER_ATTRS_VIEW;
     }
 
-    public static final class Builder extends AnySelectionDirectoryPanel.Builder<GroupTO> {
+    public static final class Builder extends AnySelectionDirectoryPanel.Builder<GroupTO, GroupRestClient> {
 
         private static final long serialVersionUID = -8774023867045850683L;
 
@@ -72,8 +72,8 @@ public final class GroupSelectionDirectoryPanel extends AnySelectionDirectoryPan
         }
 
         @Override
-        protected WizardMgtPanel<AnyWrapper<GroupTO>> newInstance(final String id) {
-            return new GroupSelectionDirectoryPanel(id, this);
+        protected WizardMgtPanel<AnyWrapper<GroupTO>> newInstance(final String id, final boolean wizardInModal) {
+            return new GroupSelectionDirectoryPanel(id, this, wizardInModal);
         }
     }
 }

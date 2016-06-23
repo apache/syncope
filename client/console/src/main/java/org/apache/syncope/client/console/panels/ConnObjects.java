@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.panels;
 
 import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.client.console.commons.Constants;
@@ -49,18 +50,27 @@ public class ConnObjects extends Panel implements ModalPanel {
 
         super(BaseModal.CONTENT_ID);
 
-        anyTypes = new AjaxDropDownChoicePanel<>("anyTypes", "anyTypes", new Model<String>(), true);
-        anyTypes.setChoices(CollectionUtils.collect(new ResourceRestClient().read(resource).getProvisions(),
-                new Transformer<ProvisionTO, String>() {
+        List<String> availableAnyTypes = CollectionUtils.
+                collect(new ResourceRestClient().read(resource).getProvisions(),
+                        new Transformer<ProvisionTO, String>() {
 
-            @Override
-            public String transform(final ProvisionTO provision) {
-                return provision.getAnyType();
-            }
-        }, new ArrayList<String>()));
+                    @Override
+                    public String transform(final ProvisionTO provision) {
+                        return provision.getAnyType();
+                    }
+                }, new ArrayList<String>());
+
+        anyTypes = new AjaxDropDownChoicePanel<>("anyTypes", "anyTypes", new Model<String>(), true);
+        anyTypes.setChoices(availableAnyTypes);
         anyTypes.hideLabel();
         anyTypes.setNullValid(false);
-        anyTypes.setDefaultModelObject(AnyTypeKind.USER.name());
+        if (availableAnyTypes.contains(AnyTypeKind.USER.name())) {
+            anyTypes.setDefaultModelObject(AnyTypeKind.USER.name());
+        } else if (availableAnyTypes.contains(AnyTypeKind.GROUP.name())) {
+            anyTypes.setDefaultModelObject(AnyTypeKind.GROUP.name());
+        } else if (!availableAnyTypes.isEmpty()) {
+            anyTypes.setDefaultModelObject(availableAnyTypes.get(0));
+        }
         add(anyTypes);
 
         connObjects = new MultilevelPanel("connObjects") {
@@ -94,9 +104,13 @@ public class ConnObjects extends Panel implements ModalPanel {
         });
     }
 
-    private class NextableConnObjectDirectoryPanel extends ConnObjectDirectoryPanel {
+    private class NextableConnObjectDirectoryPanel extends ConnObjectListViewPanel {
 
         private static final long serialVersionUID = 956427874406567048L;
+
+        private final BaseModal<?> baseModal;
+
+        private final PageReference pageRef;
 
         NextableConnObjectDirectoryPanel(
                 final BaseModal<?> baseModal,
@@ -105,7 +119,9 @@ public class ConnObjects extends Panel implements ModalPanel {
                 final String anyType,
                 final PageReference pageRef) {
 
-            super(baseModal, multiLevelPanelRef, resource, anyType, pageRef);
+            super(MultilevelPanel.FIRST_LEVEL_ID, resource, anyType, pageRef);
+            this.baseModal = baseModal;
+            this.pageRef = pageRef;
         }
 
         @Override

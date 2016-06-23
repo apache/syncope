@@ -22,7 +22,6 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.syncope.common.lib.patch.MembershipPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
-import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
@@ -70,7 +69,7 @@ public class SetUMembershipsJob extends AbstractInterruptableJob {
                             userPatch.getMemberships().add(
                                     new MembershipPatch.Builder().
                                     operation(PatchOperation.ADD_REPLACE).
-                                    membershipTO(new MembershipTO.Builder().group(groupKey).build()).
+                                    group(groupKey).
                                     build());
                         }
 

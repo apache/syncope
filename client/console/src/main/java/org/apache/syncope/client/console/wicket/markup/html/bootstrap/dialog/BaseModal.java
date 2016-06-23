@@ -45,6 +45,10 @@ import org.apache.wicket.model.IModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.syncope.client.console.panels.SubmitableModalPanel;
+import org.apache.syncope.client.console.wicket.ajax.form.IndicatorModalCloseBehavior;
+import org.apache.wicket.ajax.AjaxEventBehavior;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
 
 public class BaseModal<T extends Serializable> extends Modal<T> {
 
@@ -73,6 +77,8 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
 
     private final DefaultModalCloseButton defaultModalCloseButton;
 
+    private AjaxEventBehavior closeBehavior;
+
     public BaseModal(final String id) {
         super(id);
 
@@ -90,7 +96,7 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
 
         form.add(content);
 
-        setUseCloseHandler(true);
+        useCloseHandler(true);
         this.windowClosedCallback = null;
         components = new ArrayList<>();
 
@@ -265,4 +271,71 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
             return target;
         }
     }
+
+    //--------------------------------------------------------
+    // Reqired for SYNCOPE-846
+    //--------------------------------------------------------
+    /**
+     * Sets whether the close handler is used or not. Default is false.
+     *
+     * @param useCloseHandler True if close handler should be used
+     * @return This
+     */
+    public final Modal<T> useCloseHandler(final boolean useCloseHandler) {
+        if (useCloseHandler) {
+            if (closeBehavior == null) {
+                closeBehavior = new IndicatorModalCloseBehavior() {
+
+                    private static final long serialVersionUID = -4955472558917915340L;
+
+                    @Override
+                    protected void onEvent(final AjaxRequestTarget target) {
+                        if (isVisible()) {
+                            onClose(target);
+                            appendCloseDialogJavaScript(target);
+                        }
+                    }
+                };
+                add(closeBehavior);
+            }
+        } else if (closeBehavior != null) {
+            remove(closeBehavior);
+            closeBehavior = null;
+        }
+        return this;
+    }
+
+    @Override
+    public void renderHead(final IHeaderResponse response) {
+        super.renderHead(response);
+        response.render(OnDomReadyHeaderItem.forScript(createInitializerScript(getMarkupId(true))));
+    }
+
+    /**
+     * creates the initializer script of the modal dialog.
+     *
+     * @param markupId The component's markup id
+     * @return initializer script
+     */
+    private String createInitializerScript(final String markupId) {
+        return addCloseHandlerScript(markupId, createBasicInitializerScript(markupId));
+    }
+
+    /**
+     * adds close handler to initializer script, if use of close handler has been defined.
+     *
+     * @param markupId markup id
+     * @param script base script to prepend
+     * @return close handler script
+     */
+    private String addCloseHandlerScript(final String markupId, final String script) {
+        if (closeBehavior != null) {
+            return script + ";$('#" + markupId + "').on('hidden', function () { "
+                    + "  Wicket.Ajax.ajax({'u':'" + closeBehavior.getCallbackUrl() + "','c':'" + markupId + "'});"
+                    + "})";
+        }
+
+        return script;
+    }
+    //--------------------------------------------------------
 }

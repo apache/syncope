@@ -24,7 +24,6 @@ status VARCHAR(5));
 
 INSERT INTO test VALUES ('testuser1', 'password', 'false');
 
--- this table must be created in order to provide a specific test for issueSYNCOPE68
 DROP TABLE test2 IF EXISTS;
 CREATE TABLE test2 (
 id VARCHAR(50) PRIMARY KEY,
@@ -35,18 +34,17 @@ INSERT INTO test2 VALUES ('testuser2', 'password321', 'false');
 INSERT INTO test2 VALUES ('rossini', 'password321', 'true');
 INSERT INTO test2 VALUES ('verdi', 'password321', 'true');
 
--- this table is for issueSYNCOPE230
 DROP TABLE testpull IF EXISTS;
 CREATE TABLE testpull (
 id CHAR(36) PRIMARY KEY,
 username VARCHAR(80),
 surname VARCHAR(80),
-email VARCHAR(80));
-
-INSERT INTO testpull VALUES ('a54b3794-b231-47be-b24a-11e1a42949f6', 'issuesyncope230', 'Surname', 'syncope230@syncope.apache.org');
+email VARCHAR(80),
+lastModification TIMESTAMP);
 
 DROP TABLE testPRINTER IF EXISTS;
 CREATE TABLE testPRINTER (
 id CHAR(36) PRIMARY KEY,
+printername VARCHAR(80),
 location VARCHAR(80),
 lastModification TIMESTAMP);

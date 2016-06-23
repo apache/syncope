@@ -34,6 +34,7 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.SchemaTypePanel.SchemaProvider;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
@@ -70,10 +71,12 @@ public class SchemaTypePanel extends TypesDirectoryPanel<AbstractSchemaTO, Schem
         private static final long serialVersionUID = 3109256773218160485L;
 
         {
-            put(SchemaType.PLAIN, Arrays.asList(new String[] { "key", "type",
-                "mandatoryCondition", "uniqueConstraint", "multivalue", "readonly" }));
-            put(SchemaType.DERIVED, Arrays.asList(new String[] { "key", "expression" }));
-            put(SchemaType.VIRTUAL, Arrays.asList(new String[] { "key", "provision", "extAttrName", "readonly" }));
+            put(SchemaType.PLAIN, Arrays.asList(new String[] {
+                "key", "type", "mandatoryCondition", "uniqueConstraint", "multivalue", "readonly" }));
+            put(SchemaType.DERIVED, Arrays.asList(new String[] {
+                "key", "expression" }));
+            put(SchemaType.VIRTUAL, Arrays.asList(new String[] {
+                "key", "resource", "anyType", "extAttrName", "readonly" }));
         }
     };
 
@@ -96,6 +99,7 @@ public class SchemaTypePanel extends TypesDirectoryPanel<AbstractSchemaTO, Schem
                 @Override
                 public WizardModalPanel<AbstractSchemaTO> build(
                         final String id, final int index, final AjaxWizard.Mode mode) {
+
                     final AbstractSchemaTO modelObject = newModelObject();
                     return new SchemaModalPanel(modal, modelObject, pageRef) {
 
@@ -112,13 +116,15 @@ public class SchemaTypePanel extends TypesDirectoryPanel<AbstractSchemaTO, Schem
                                             SchemaService.class).update(schemaType, modelObject);
                                 }
 
-                                info(getString(Constants.OPERATION_SUCCEEDED));
+                                SchemaTypePanel.this.updateResultTable(target);
+                                SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                                 modal.close(target);
                             } catch (Exception e) {
                                 LOG.error("While creating or updating {}", modelObject, e);
-                                error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+                                SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().
+                                        getName() : e.getMessage());
                             }
-                            SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                            ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                         }
                     };
                 }
@@ -218,14 +224,14 @@ public class SchemaTypePanel extends TypesDirectoryPanel<AbstractSchemaTO, Schem
                                             break;
                                     }
 
-                                    info(getString(Constants.OPERATION_SUCCEEDED));
+                                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                                     target.add(container);
                                 } catch (Exception e) {
                                     LOG.error("While deleting {}", model.getObject(), e);
-                                    error(StringUtils.isBlank(e.getMessage())
+                                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
                                             ? e.getClass().getName() : e.getMessage());
                                 }
-                                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                             }
                         }, ActionLink.ActionType.DELETE, StandardEntitlement.SCHEMA_DELETE).
                         build(componentId);

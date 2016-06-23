@@ -41,61 +41,61 @@ public class LogsITCase extends AbstractConsoleITCase {
     @Before
     public void login() {
         doLogin(ADMIN_UNAME, ADMIN_PWD);
-        wicketTester.clickLink("body:configurationLI:configurationUL:logsLI:logs");
-        wicketTester.assertRenderedPage(Logs.class);
+        TESTER.clickLink("body:configurationLI:configurationUL:logsLI:logs");
+        TESTER.assertRenderedPage(Logs.class);
     }
 
     @Test
     public void readCoreLogs() {
-        wicketTester.clickLink("body:content:tabbedPanel:tabs-container:tabs:0:link");
-        wicketTester.assertComponent(CONTAINER_PATH, WebMarkupContainer.class);
+        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:0:link");
+        TESTER.assertComponent(CONTAINER_PATH, WebMarkupContainer.class);
 
         assertNotNull(searchLog(KEY, CONTAINER_PATH, "org.apache.camel"));
     }
 
     @Test
     public void updateCoreLogs() {
-        wicketTester.clickLink("body:content:tabbedPanel:tabs-container:tabs:0:link");
-        wicketTester.assertComponent(CONTAINER_PATH, WebMarkupContainer.class);
+        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:0:link");
+        TESTER.assertComponent(CONTAINER_PATH, WebMarkupContainer.class);
 
         Component result = searchLog(KEY, CONTAINER_PATH, "org.apache.camel");
         assertNotNull(result);
 
-        wicketTester.getRequest().addParameter(
+        TESTER.getRequest().addParameter(
                 result.getPageRelativePath() + ":fields:1:field:dropDownChoiceField", "6");
-        wicketTester.assertComponent(
+        TESTER.assertComponent(
                 result.getPageRelativePath() + ":fields:1:field:dropDownChoiceField", DropDownChoice.class);
-        wicketTester.executeAjaxEvent(result.getPageRelativePath() + ":fields:1:field:dropDownChoiceField", "onchange");
+        TESTER.executeAjaxEvent(result.getPageRelativePath() + ":fields:1:field:dropDownChoiceField", "onchange");
 
-        wicketTester.assertInfoMessages("Operation executed successfully");
+        TESTER.assertInfoMessages("Operation executed successfully");
     }
 
     @Test
     public void readConsoleLogs() {
-        wicketTester.assertComponent("body:content:tabbedPanel:tabs-container:tabs:1:link", AjaxFallbackLink.class);
-        wicketTester.clickLink("body:content:tabbedPanel:tabs-container:tabs:1:link");
-        wicketTester.assertComponent(CONTAINER_PATH, WebMarkupContainer.class);
+        TESTER.assertComponent("body:content:tabbedPanel:tabs-container:tabs:1:link", AjaxFallbackLink.class);
+        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:1:link");
+        TESTER.assertComponent(CONTAINER_PATH, WebMarkupContainer.class);
 
         assertNotNull(searchLog(KEY, CONTAINER_PATH, "org.apache.syncope.fit"));
     }
 
     @Test
     public void updateConsoleLogs() {
-        wicketTester.clickLink("body:content:tabbedPanel:tabs-container:tabs:1:link");
-        wicketTester.assertComponent(CONTAINER_PATH, WebMarkupContainer.class);
+        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:1:link");
+        TESTER.assertComponent(CONTAINER_PATH, WebMarkupContainer.class);
 
         Component result = searchLog(KEY, CONTAINER_PATH, "org.apache.syncope.fit");
         assertNotNull(result);
 
-        wicketTester.getRequest().addParameter(
+        TESTER.getRequest().addParameter(
                 result.getPageRelativePath() + ":fields:1:field:dropDownChoiceField", "6");
-        wicketTester.executeAjaxEvent(result.getPageRelativePath() + ":fields:1:field:dropDownChoiceField", "onchange");
+        TESTER.executeAjaxEvent(result.getPageRelativePath() + ":fields:1:field:dropDownChoiceField", "onchange");
 
-        wicketTester.assertInfoMessages("Operation executed successfully");
+        TESTER.assertInfoMessages("Operation executed successfully");
     }
 
     private Component searchLog(final String property, final String searchPath, final String key) {
-        Component component = wicketTester.getComponentFromLastRenderedPage(searchPath);
+        Component component = TESTER.getComponentFromLastRenderedPage(searchPath);
 
         Component result = component.getPage().
                 visitChildren(ListItem.class, new IVisitor<ListItem<LoggerTO>, Component>() {

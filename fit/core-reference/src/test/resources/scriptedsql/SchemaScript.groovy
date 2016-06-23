@@ -42,6 +42,7 @@ idAIB.setRequired(true);
 
 orgAttrsInfo = new HashSet<AttributeInfo>();
 orgAttrsInfo.add(idAIB.build());
+orgAttrsInfo.add(AttributeInfoBuilder.build("PRINTERNAME", String.class));
 orgAttrsInfo.add(AttributeInfoBuilder.build("LOCATION", String.class));
 // Create the organization Object class
 ObjectClassInfo ociOrg = new ObjectClassInfoBuilder().setType("__PRINTER__").addAllAttributeInfo(orgAttrsInfo).build();

@@ -29,6 +29,7 @@ public enum EntityViolationType {
     InvalidConnInstanceLocation("org.apache.syncope.core.persistence.validation.conninstance.location"),
     InvalidConnPoolConf("org.apache.syncope.core.persistence.validation.conninstance.poolConf"),
     InvalidMapping("org.apache.syncope.core.persistence.validation.mapping"),
+    InvalidKey("org.apache.syncope.core.persistence.validation.key"),
     InvalidName("org.apache.syncope.core.persistence.validation.name"),
     InvalidNotification("org.apache.syncope.core.persistence.validation.notification"),
     InvalidPassword("org.apache.syncope.core.persistence.validation.user.password"),
@@ -43,9 +44,7 @@ public enum EntityViolationType {
     InvalidSchemaMultivalueUnique("org.apache.syncope.core.persistence.validation.schema.multivalueUnique"),
     InvalidSchedTask("org.apache.syncope.core.persistence.validation.schedtask"),
     InvalidProvisioningTask("org.apache.syncope.core.persistence.validation.provisioningtask"),
-    InvalidPlainSchema("org.apache.syncope.core.persistence.validation.attrvalue.plainSchema"),
-    InvalidDerSchema("org.apache.syncope.core.persistence.validation.attrvalue.derSchema"),
-    InvalidVirSchema("org.apache.syncope.core.persistence.validation.attrvalue.virSchema"),
+    InvalidPlainAttr("org.apache.syncope.core.persistence.validation.plainattr"),
     InvalidUsername("org.apache.syncope.core.persistence.validation.user.username"),
     InvalidValueList("org.apache.syncope.core.persistence.validation.attr.valueList"),
     MoreThanOneNonNull("org.apache.syncope.core.persistence.validation.attrvalue.moreThanOneNonNull");

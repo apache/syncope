@@ -28,7 +28,7 @@ public class TestPasswordRuleConf extends AbstractPasswordRuleConf {
 
     private static final long serialVersionUID = -1803947511928491978L;
 
-    private String mustEndWith = "XXX";
+    private final String mustEndWith = "XXX";
 
     public String getMustEndWith() {
         return mustEndWith;

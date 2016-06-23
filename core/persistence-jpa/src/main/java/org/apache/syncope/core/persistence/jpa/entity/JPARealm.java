@@ -30,11 +30,14 @@ import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.Size;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
@@ -45,9 +48,12 @@ import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAccountPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPasswordPolicy;
+import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResource;
 import org.apache.syncope.core.persistence.jpa.validation.entity.RealmCheck;
+import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 
 @Entity
 @Table(name = JPARealm.TABLE, uniqueConstraints =
@@ -81,6 +87,13 @@ public class JPARealm extends AbstractGeneratedKeyEntity implements Realm {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "realm")
     private List<JPAAnyTemplateRealm> templates = new ArrayList<>();
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(joinColumns =
+            @JoinColumn(name = "realm_id"),
+            inverseJoinColumns =
+            @JoinColumn(name = "resource_id"))
+    private List<JPAExternalResource> resources = new ArrayList<>();
 
     @Override
     public String getName() {
@@ -157,5 +170,22 @@ public class JPARealm extends AbstractGeneratedKeyEntity implements Realm {
     @Override
     public List<? extends AnyTemplateRealm> getTemplates() {
         return templates;
+    }
+
+    @Override
+    public boolean add(final ExternalResource resource) {
+        checkType(resource, JPAExternalResource.class);
+        return resources.add((JPAExternalResource) resource);
+    }
+
+    @Override
+    public List<String> getResourceKeys() {
+        return CollectionUtils.collect(
+                getResources(), EntityUtils.<ExternalResource>keyTransformer(), new ArrayList<String>());
+    }
+
+    @Override
+    public List<? extends ExternalResource> getResources() {
+        return resources;
     }
 }

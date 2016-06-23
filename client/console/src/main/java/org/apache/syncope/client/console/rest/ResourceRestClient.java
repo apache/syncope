@@ -61,34 +61,31 @@ public class ResourceRestClient extends BaseRestClient {
         return getService(ResourceService.class).readConnObject(resource, anyTypeKey, anyKey);
     }
 
-    public List<ConnObjectTO> listConnObjects(
+    public Pair<String, List<ConnObjectTO>> listConnObjects(
             final String resource,
             final String anyTypeKey,
+            final int size,
+            final String pagedResultCookie,
             final SortParam<String> sort) {
 
-        ConnObjectTOListQuery.Builder builder = new ConnObjectTOListQuery.Builder().size(100).orderBy(toOrderBy(sort));
+        ConnObjectTOListQuery.Builder builder = new ConnObjectTOListQuery.Builder().
+                pagedResultsCookie(pagedResultCookie).
+                size(size).
+                orderBy(toOrderBy(sort));
 
-        List<ConnObjectTO> result = new ArrayList<>();
+        final List<ConnObjectTO> result = new ArrayList<>();
+        String nextPageResultCookie = null;
+
         PagedConnObjectTOResult list;
         try {
-            do {
-                list = getService(ResourceService.class).listConnObjects(resource, anyTypeKey, builder.build());
-                result.addAll(list.getResult());
-
-                // TMP - see SYNCOPE-829
-                if (result.size() >= 100) {
-                    break;
-                }
-
-                if (list.getPagedResultsCookie() != null) {
-                    builder.pagedResultsCookie(list.getPagedResultsCookie());
-                }
-            } while (list.getPagedResultsCookie() != null);
+            list = getService(ResourceService.class).listConnObjects(resource, anyTypeKey, builder.build());
+            result.addAll(list.getResult());
+            nextPageResultCookie = list.getPagedResultsCookie();
         } catch (Exception e) {
             LOG.error("While listing objects on {} for any type {}", resource, anyTypeKey, e);
         }
 
-        return result;
+        return Pair.of(nextPageResultCookie, result);
     }
 
     public ResourceTO read(final String name) {

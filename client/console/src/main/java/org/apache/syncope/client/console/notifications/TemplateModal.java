@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.notifications;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.AbstractModalPanel;
 import org.apache.syncope.client.console.rest.TemplateRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
@@ -38,7 +39,7 @@ public class TemplateModal<T extends EntityTO, F> extends AbstractModalPanel<T> 
 
     private final T templateTO;
 
-    private TemplateRestClient<T, F> restClient;
+    private final TemplateRestClient<T, F> restClient;
 
     public TemplateModal(
             final BaseModal<T> modal,
@@ -64,13 +65,13 @@ public class TemplateModal<T extends EntityTO, F> extends AbstractModalPanel<T> 
     public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
         try {
             restClient.createTemplate(templateTO);
-            info(getString(Constants.OPERATION_SUCCEEDED));
-            modal.show(false);
+            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
             modal.close(target);
         } catch (SyncopeClientException e) {
             LOG.error("While creating template for {}", templateTO.getKey(), e);
-            error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.
+                    getMessage());
         }
-        SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
     }
 }

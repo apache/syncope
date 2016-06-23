@@ -21,7 +21,9 @@ package org.apache.syncope.core.logic;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
@@ -34,11 +36,14 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.patch.GroupPatch;
 import org.apache.syncope.common.lib.patch.StringPatchItem;
+import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.BulkMembersActionType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.JobType;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
@@ -52,8 +57,20 @@ import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
+import org.apache.syncope.core.persistence.api.dao.ConfDAO;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
+import org.apache.syncope.core.persistence.api.dao.TaskDAO;
+import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.provisioning.api.LogicActions;
+import org.apache.syncope.core.provisioning.api.data.TaskDataBinder;
+import org.apache.syncope.core.provisioning.api.job.JobManager;
+import org.apache.syncope.core.provisioning.api.job.JobNamer;
+import org.apache.syncope.core.provisioning.java.job.GroupMemberProvisionTaskJobDelegate;
+import org.apache.syncope.core.provisioning.java.job.TaskJob;
+import org.quartz.JobDataMap;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -75,10 +92,28 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
     protected AnySearchDAO searchDAO;
 
     @Autowired
+    protected TaskDAO taskDAO;
+
+    @Autowired
+    protected ConfDAO confDAO;
+
+    @Autowired
     protected GroupDataBinder binder;
 
     @Autowired
     protected GroupProvisioningManager provisioningManager;
+
+    @Autowired
+    protected TaskDataBinder taskDataBinder;
+
+    @Autowired
+    protected JobManager jobManager;
+
+    @Autowired
+    protected SchedulerFactoryBean scheduler;
+
+    @Autowired
+    protected EntityFactory entityFactory;
 
     @Override
     protected void securityChecks(final Set<String> effectiveRealms, final String realm, final String key) {
@@ -353,7 +388,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
         List<PropagationStatus> statuses = provisioningManager.deprovision(key, resources, nullPriorityAsync);
 
         ProvisioningResult<GroupTO> result = new ProvisioningResult<>();
-        result.setAny(binder.getGroupTO(key));
+        result.setEntity(binder.getGroupTO(key));
         result.getPropagationStatuses().addAll(statuses);
         return result;
     }
@@ -377,8 +412,55 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
         List<PropagationStatus> statuses = provisioningManager.provision(key, resources, nullPriorityAsync);
 
         ProvisioningResult<GroupTO> result = new ProvisioningResult<>();
-        result.setAny(binder.getGroupTO(key));
+        result.setEntity(binder.getGroupTO(key));
         result.getPropagationStatuses().addAll(statuses);
+        return result;
+    }
+
+    @PreAuthorize("hasRole('" + StandardEntitlement.TASK_CREATE + "') "
+            + "and hasRole('" + StandardEntitlement.TASK_EXECUTE + "')")
+    @Transactional
+    public ExecTO bulkMembersAction(final String key, final BulkMembersActionType actionType) {
+        Group group = groupDAO.find(key);
+        if (group == null) {
+            throw new NotFoundException("Group " + key);
+        }
+
+        SchedTask task = entityFactory.newEntity(SchedTask.class);
+        task.setName("Bulk member provision for group " + group.getName());
+        task.setActive(true);
+        task.setJobDelegateClassName(GroupMemberProvisionTaskJobDelegate.class.getName());
+        task = taskDAO.save(task);
+
+        try {
+            Map<String, Object> jobDataMap = jobManager.register(
+                    task,
+                    null,
+                    confDAO.find("tasks.interruptMaxRetries", "1").getValues().get(0).getLongValue());
+
+            jobDataMap.put(TaskJob.DRY_RUN_JOBDETAIL_KEY, false);
+            jobDataMap.put(GroupMemberProvisionTaskJobDelegate.GROUP_KEY_JOBDETAIL_KEY, key);
+            jobDataMap.put(GroupMemberProvisionTaskJobDelegate.ACTION_TYPE_JOBDETAIL_KEY, actionType);
+
+            scheduler.getScheduler().triggerJob(
+                    JobNamer.getJobKey(task),
+                    new JobDataMap(jobDataMap));
+        } catch (Exception e) {
+            LOG.error("While executing task {}", task, e);
+
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Scheduling);
+            sce.getElements().add(e.getMessage());
+            throw sce;
+        }
+
+        ExecTO result = new ExecTO();
+        result.setJobType(JobType.TASK);
+        result.setRefKey(task.getKey());
+        result.setRefDesc(taskDataBinder.buildRefDesc(task));
+        result.setStart(new Date());
+        result.setStatus("JOB_FIRED");
+        result.setMessage("Job fired; waiting for results...");
+
         return result;
     }
 

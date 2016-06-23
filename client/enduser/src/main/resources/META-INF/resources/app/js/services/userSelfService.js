@@ -42,6 +42,7 @@ angular.module('login')
                       .then(function (response) {
                         console.debug("response save: ", response);
                         var username = response;
+                        return username;
                       }, function (response) {
                         console.error("Something went wrong during user self creation, exit with status: ", response);
                         return $q.reject(response.data || response.statusText);

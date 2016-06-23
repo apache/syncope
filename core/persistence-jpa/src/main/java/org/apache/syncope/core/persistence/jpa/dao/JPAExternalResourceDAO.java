@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Set;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
-import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
@@ -88,11 +87,6 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implem
     @Override
     public ExternalResource find(final String name) {
         return entityManager().find(JPAExternalResource.class, name);
-    }
-
-    @Override
-    public Provision findProvision(final String key) {
-        return entityManager().find(JPAProvision.class, key);
     }
 
     @Override
@@ -165,16 +159,11 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implem
 
     @Override
     @SuppressWarnings("unchecked")
-    public void deleteMapping(final String intAttrName, final IntMappingType intMappingType) {
-        if (IntMappingType.getEmbedded().contains(intMappingType)) {
-            return;
-        }
-
+    public void deleteMapping(final String intAttrName) {
         TypedQuery<MappingItem> query = entityManager().createQuery(
                 "SELECT m FROM " + JPAMappingItem.class.getSimpleName()
-                + " m WHERE m.intAttrName=:intAttrName AND m.intMappingType=:intMappingType", MappingItem.class);
+                + " m WHERE m.intAttrName=:intAttrName", MappingItem.class);
         query.setParameter("intAttrName", intAttrName);
-        query.setParameter("intMappingType", intMappingType);
 
         Set<String> itemKeys = new HashSet<>();
         for (MappingItem item : query.getResultList()) {

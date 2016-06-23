@@ -38,7 +38,6 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
-import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.core.persistence.api.entity.AnyAbout;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
@@ -73,10 +72,6 @@ public class JPANotification extends AbstractGeneratedKeyEntity implements Notif
             @JoinColumn(name = "notification_id", referencedColumnName = "id"))
     @Column(name = "staticRecipients")
     private List<String> staticRecipients;
-
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    private IntMappingType recipientAttrType;
 
     @NotNull
     private String recipientAttrName;
@@ -136,16 +131,6 @@ public class JPANotification extends AbstractGeneratedKeyEntity implements Notif
     @Override
     public void setRecipientAttrName(final String recipientAttrName) {
         this.recipientAttrName = recipientAttrName;
-    }
-
-    @Override
-    public IntMappingType getRecipientAttrType() {
-        return recipientAttrType;
-    }
-
-    @Override
-    public void setRecipientAttrType(final IntMappingType recipientAttrType) {
-        this.recipientAttrType = recipientAttrType;
     }
 
     @Override

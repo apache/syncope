@@ -28,12 +28,13 @@ import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.wicket.PageReference;
 
-public final class AnyObjectSelectionDirectoryPanel extends AnySelectionDirectoryPanel<AnyObjectTO> {
+public final class AnyObjectSelectionDirectoryPanel
+        extends AnySelectionDirectoryPanel<AnyObjectTO, AnyObjectRestClient> {
 
     private static final long serialVersionUID = -1100228004207271272L;
 
-    private AnyObjectSelectionDirectoryPanel(final String id, final Builder builder) {
-        super(id, builder, AnyObjectTO.class);
+    private AnyObjectSelectionDirectoryPanel(final String id, final Builder builder, final boolean wizardInModal) {
+        super(id, builder, AnyObjectTO.class, wizardInModal);
     }
 
     @Override
@@ -61,7 +62,7 @@ public final class AnyObjectSelectionDirectoryPanel extends AnySelectionDirector
         return String.format(Constants.PREF_ANY_OBJECT_DER_ATTRS_VIEW, type);
     }
 
-    public static final class Builder extends AnySelectionDirectoryPanel.Builder<AnyObjectTO> {
+    public static final class Builder extends AnySelectionDirectoryPanel.Builder<AnyObjectTO, AnyObjectRestClient> {
 
         private static final long serialVersionUID = 5155811461060452446L;
 
@@ -72,8 +73,8 @@ public final class AnyObjectSelectionDirectoryPanel extends AnySelectionDirector
         }
 
         @Override
-        protected WizardMgtPanel<AnyWrapper<AnyObjectTO>> newInstance(final String id) {
-            return new AnyObjectSelectionDirectoryPanel(id, this);
+        protected WizardMgtPanel<AnyWrapper<AnyObjectTO>> newInstance(final String id, final boolean wizardInModal) {
+            return new AnyObjectSelectionDirectoryPanel(id, this, wizardInModal);
         }
     }
 }

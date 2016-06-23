@@ -27,14 +27,16 @@ under the License.
                wicket:id="mappingContainer">
           <tbody>
             <tr>
-              <th><wicket:message key="entity"/></th>
-              <th><wicket:message key="intMappingTypes"/></th>
-              <th><wicket:message key="intAttrNames"/></th>
-              <th><wicket:message key="extAttrNames"/></th>
+              <th>
+                <wicket:message key="intAttrName"/>
+                <span id="intAttrNameInfo" wicket:id="intAttrNameInfo" class="glyphicon glyphicon-info-sign"></span>
+              </th>
+              <th><wicket:message key="extAttrName"/></th>
+              <th><i class="fa fa-repeat"></i></th>
               <th><i class="fa fa-magic"></i></th>
               <th>
                 <wicket:message key="mandatoryCondition"/>
-                <span id="popover" wicket:id="jexlInfo" class="glyphicon glyphicon-info-sign"></span>
+                <span id="jexlInfo" wicket:id="jexlInfo" class="glyphicon glyphicon-info-sign"></span>
               </th>
               <th><wicket:message key="connObjectKey"/></th>
               <th><label wicket:id="passwordLabel"/></th>
@@ -43,20 +45,19 @@ under the License.
             </tr>
             <tr wicket:id="mappings">
               <td>
-                <span wicket:id="entities">[entities]</span>
-              </td>
-              <td>
-                <span wicket:id="intMappingTypes">[intMappingTypes]</span>
-              </td>
-              <td>
-                <span wicket:id="intAttrNames">[intAttrNames]</span>
+                <span wicket:id="intAttrName">[intAttrNames]</span>
               </td>
               <td>
                 <span wicket:id="extAttrName">[extAttrName]</span>
               </td>
               <td>
                 <div class="alert-widget dropdown tasks-menu">
-                  <span wicket:id="transformers">[Mapping Item Transformes]</span>
+                  <span wicket:id="jexlTransformers">[JEXL Transformers]</span>
+                </div>
+              </td>
+              <td>
+                <div class="alert-widget dropdown tasks-menu">
+                  <span wicket:id="mappingItemTransformers">[Mapping Item Transformers]</span>
                 </div>
               </td>
               <td>

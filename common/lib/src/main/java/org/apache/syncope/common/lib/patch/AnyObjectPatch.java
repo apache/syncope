@@ -32,9 +32,19 @@ public class AnyObjectPatch extends AnyPatch {
 
     private static final long serialVersionUID = -1644118942622556097L;
 
+    private StringReplacePatchItem name;
+
     private final Set<RelationshipPatch> relationships = new HashSet<>();
 
     private final Set<MembershipPatch> memberships = new HashSet<>();
+
+    public StringReplacePatchItem getName() {
+        return name;
+    }
+
+    public void setName(final StringReplacePatchItem name) {
+        this.name = name;
+    }
 
     @XmlElementWrapper(name = "relationships")
     @XmlElement(name = "relationship")

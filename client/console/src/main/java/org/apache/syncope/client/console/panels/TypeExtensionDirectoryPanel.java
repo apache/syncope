@@ -27,6 +27,7 @@ import java.util.List;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.TypeExtensionDirectoryPanel.TypeExtensionDataProvider;
 import org.apache.syncope.client.console.rest.BaseRestClient;
 import org.apache.syncope.client.console.rest.GroupRestClient;
@@ -35,7 +36,7 @@ import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.Bas
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
-import org.apache.syncope.client.console.wizards.TypeExtensionWizardBuilder;
+import org.apache.syncope.client.console.wizards.any.TypeExtensionWizardBuilder;
 import org.apache.syncope.common.lib.patch.GroupPatch;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.TypeExtensionTO;
@@ -78,7 +79,6 @@ public class TypeExtensionDirectoryPanel
                 new StringResourceModel("anyType", this).getObject(),
                 new StringResourceModel("auxClasses", this).getObject(),
                 pageRef);
-        builder.setEventSink(this);
         this.addNewItemPanelBuilder(builder, true);
 
         setShowResultPage(false);
@@ -97,19 +97,19 @@ public class TypeExtensionDirectoryPanel
             this.baseModal.show(false);
             this.baseModal.close(target);
 
-            info(getString(Constants.OPERATION_SUCCEEDED));
+            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
         } catch (Exception e) {
             LOG.error("Group update failure", e);
-            error(getString(Constants.ERROR) + ": " + e.getMessage());
+            SyncopeConsoleSession.get().error(getString(Constants.ERROR) + ": " + e.getMessage());
 
         }
-        SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
     }
 
     @Override
     public void onError(final AjaxRequestTarget target, final Form<?> form) {
-        error(getString(Constants.OPERATION_ERROR));
-        SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+        SyncopeConsoleSession.get().error(getString(Constants.OPERATION_ERROR));
+        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
     }
 
     @Override

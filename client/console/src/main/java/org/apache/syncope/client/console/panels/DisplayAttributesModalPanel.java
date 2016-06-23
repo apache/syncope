@@ -25,6 +25,7 @@ import java.util.Map;
 import org.apache.syncope.client.console.PreferenceManager;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.common.lib.search.SearchableFields;
@@ -152,7 +153,7 @@ public abstract class DisplayAttributesModalPanel<T extends Serializable> extend
     @Override
     public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
         if (selectedDetails.size() + selectedPlainSchemas.size() + selectedDerSchemas.size() > MAX_SELECTIONS) {
-            error(getString("tooManySelections"));
+            SyncopeConsoleSession.get().error(getString("tooManySelections"));
             onError(target, form);
         } else {
             final Map<String, List<String>> prefs = new HashMap<>();
@@ -162,9 +163,9 @@ public abstract class DisplayAttributesModalPanel<T extends Serializable> extend
             prefs.put(getPrefDerivedAttributeView(), selectedDerSchemas);
             prefMan.setList(getRequest(), getResponse(), prefs);
 
-            info(getString(Constants.OPERATION_SUCCEEDED));
+            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
             modal.close(target);
-            SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+            ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
         }
     }
 

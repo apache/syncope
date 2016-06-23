@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.wicket.markup.html.form;
 import java.util.List;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.wicket.ajax.markup.html.IndicatorAjaxSubmitLink;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
@@ -109,9 +110,9 @@ public abstract class AbstractMultiPanel<INNER> extends AbstractFieldPanel<List<
 
             @Override
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                error(getString(Constants.OPERATION_ERROR));
+                SyncopeConsoleSession.get().error(getString(Constants.OPERATION_ERROR));
                 super.onError(target, form);
-                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                ((BasePage) getPage()).getNotificationPanel().refresh(target);
             }
 
         };

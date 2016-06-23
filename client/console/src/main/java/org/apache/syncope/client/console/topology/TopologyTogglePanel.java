@@ -24,12 +24,14 @@ import java.text.MessageFormat;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.ConnObjects;
 import org.apache.syncope.client.console.wizards.resources.ConnectorWizardBuilder;
 import org.apache.syncope.client.console.wizards.resources.ResourceWizardBuilder;
 import org.apache.syncope.client.console.panels.TogglePanel;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
+import org.apache.syncope.client.console.status.ResourceStatusModal;
 import org.apache.syncope.client.console.tasks.PropagationTasks;
 import org.apache.syncope.client.console.tasks.PushTasks;
 import org.apache.syncope.client.console.tasks.SchedTasks;
@@ -65,21 +67,35 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
     private final WebMarkupContainer container;
 
-    protected final BaseModal<Serializable> taskModal;
+    protected final BaseModal<Serializable> propTaskModal;
+
+    protected final BaseModal<Serializable> schedTaskModal;
 
     protected final BaseModal<Serializable> provisionModal;
 
     public TopologyTogglePanel(final String id, final PageReference pageRef) {
-        super(id);
-        this.pageRef = pageRef;
+        super(id, pageRef);
 
         modal.size(Modal.Size.Large);
         setFooterVisibility(false);
         setWindowClosedReloadCallback(modal);
 
-        taskModal = new BaseModal<>("outer");
-        taskModal.size(Modal.Size.Large);
-        addOuterObject(taskModal);
+        propTaskModal = new BaseModal<>("outer");
+        propTaskModal.size(Modal.Size.Large);
+        addOuterObject(propTaskModal);
+
+        schedTaskModal = new BaseModal<Serializable>("outer") {
+
+            private static final long serialVersionUID = 389935548143327858L;
+
+            @Override
+            protected void onConfigure() {
+                super.onConfigure();
+                setFooterVisible(false);
+            }
+        };
+        schedTaskModal.size(Modal.Size.Large);
+        addOuterObject(schedTaskModal);
 
         provisionModal = new BaseModal<>("outer");
         provisionModal.size(Modal.Size.Large);
@@ -126,30 +142,49 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
     }
 
     private Fragment getSyncopeFragment(final PageReference pageRef) {
-        final Fragment fragment = new Fragment("actions", "syncopeActions", this);
+        Fragment fragment = new Fragment("actions", "syncopeActions", this);
 
-        final AjaxLink<String> tasks = new IndicatingAjaxLink<String>("tasks") {
+        AjaxLink<String> reload = new IndicatingOnConfirmAjaxLink<String>("reload", "connectors.confirm.reload", true) {
+
+            private static final long serialVersionUID = -2075933173666007020L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+                try {
+                    connectorRestClient.reload();
+                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                } catch (Exception e) {
+                    LOG.error("While reloading all connectors", e);
+                    SyncopeConsoleSession.get().error(
+                            StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+                }
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+            }
+        };
+        fragment.add(reload);
+        MetaDataRoleAuthorizationStrategy.authorize(reload, ENABLE, StandardEntitlement.CONNECTOR_RELOAD);
+
+        AjaxLink<String> tasks = new IndicatingAjaxLink<String>("tasks") {
 
             private static final long serialVersionUID = 3776750333491622263L;
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                target.add(taskModal.setContent(new SchedTasks(taskModal, pageRef)));
-                taskModal.header(new ResourceModel("task.custom.list"));
-                taskModal.show(true);
+                target.add(propTaskModal.setContent(new SchedTasks(propTaskModal, pageRef)));
+                propTaskModal.header(new ResourceModel("task.custom.list"));
+                propTaskModal.show(true);
             }
         };
         fragment.add(tasks);
-
         MetaDataRoleAuthorizationStrategy.authorize(tasks, ENABLE, StandardEntitlement.TASK_LIST);
 
         return fragment;
     }
 
     private Fragment getLocationFragment(final TopologyNode node, final PageReference pageRef) {
-        final Fragment fragment = new Fragment("actions", "locationActions", this);
+        Fragment fragment = new Fragment("actions", "locationActions", this);
 
-        final AjaxLink<String> create = new IndicatingAjaxLink<String>("create") {
+        AjaxLink<String> create = new IndicatingAjaxLink<String>("create") {
 
             private static final long serialVersionUID = 3776750333491622263L;
 
@@ -173,7 +208,6 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             }
         };
         fragment.add(create);
-
         MetaDataRoleAuthorizationStrategy.authorize(create, ENABLE, StandardEntitlement.CONNECTOR_CREATE);
 
         return fragment;
@@ -191,13 +225,14 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 try {
                     connectorRestClient.delete(String.class.cast(node.getKey()));
                     target.appendJavaScript(String.format("jsPlumb.remove('%s');", node.getKey()));
-                    info(getString(Constants.OPERATION_SUCCEEDED));
+                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     toggle(target, false);
                 } catch (SyncopeClientException e) {
                     LOG.error("While deleting resource {}", node.getKey(), e);
-                    error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.
+                            getMessage());
                 }
-                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
         };
         MetaDataRoleAuthorizationStrategy.authorize(delete, ENABLE, StandardEntitlement.CONNECTOR_DELETE);
@@ -270,13 +305,14 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 try {
                     resourceRestClient.delete(node.getKey().toString());
                     target.appendJavaScript(String.format("jsPlumb.remove('%s');", node.getKey()));
-                    info(getString(Constants.OPERATION_SUCCEEDED));
+                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     toggle(target, false);
                 } catch (SyncopeClientException e) {
                     LOG.error("While deleting resource {}", node.getKey(), e);
-                    error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.
+                            getMessage());
                 }
-                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
         };
         MetaDataRoleAuthorizationStrategy.authorize(delete, ENABLE, StandardEntitlement.RESOURCE_DELETE);
@@ -306,6 +342,22 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
         };
         MetaDataRoleAuthorizationStrategy.authorize(edit, ENABLE, StandardEntitlement.RESOURCE_UPDATE);
         fragment.add(edit);
+
+        AjaxLink<String> status = new IndicatingAjaxLink<String>("status") {
+
+            private static final long serialVersionUID = 3776750333491622263L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+                ResourceTO modelObject = resourceRestClient.read(node.getKey().toString());
+                target.add(propTaskModal.setContent(
+                        new ResourceStatusModal(propTaskModal, pageRef, modelObject, false)));
+                propTaskModal.header(new ResourceModel("resource.provisioning.status", "Provisioning Status"));
+                propTaskModal.show(true);
+            }
+        };
+        MetaDataRoleAuthorizationStrategy.authorize(status, ENABLE, StandardEntitlement.USER_UPDATE);
+        fragment.add(status);
 
         AjaxLink<String> provision = new IndicatingAjaxLink<String>("provision") {
 
@@ -337,9 +389,9 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                target.add(taskModal.setContent(new ConnObjects(taskModal, node.getKey().toString(), pageRef)));
-                taskModal.header(new StringResourceModel("resource.explore.list", Model.of(node)));
-                taskModal.show(true);
+                target.add(propTaskModal.setContent(new ConnObjects(propTaskModal, node.getKey().toString(), pageRef)));
+                propTaskModal.header(new StringResourceModel("resource.explore.list", Model.of(node)));
+                propTaskModal.show(true);
             }
         };
         MetaDataRoleAuthorizationStrategy.authorize(explore, ENABLE, StandardEntitlement.RESOURCE_LIST_CONNOBJECT);
@@ -352,9 +404,10 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             @Override
             @SuppressWarnings("unchecked")
             public void onClick(final AjaxRequestTarget target) {
-                target.add(taskModal.setContent(new PropagationTasks(taskModal, node.getKey().toString(), pageRef)));
-                taskModal.header(new ResourceModel("task.propagation.list"));
-                taskModal.show(true);
+                target.add(propTaskModal.setContent(
+                        new PropagationTasks(propTaskModal, node.getKey().toString(), pageRef)));
+                propTaskModal.header(new ResourceModel("task.propagation.list"));
+                propTaskModal.show(true);
             }
         };
         MetaDataRoleAuthorizationStrategy.authorize(propagation, ENABLE, StandardEntitlement.TASK_LIST);
@@ -366,9 +419,9 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                target.add(taskModal.setContent(new PullTasks(taskModal, pageRef, node.getKey().toString())));
-                taskModal.header(new ResourceModel("task.pull.list"));
-                taskModal.show(true);
+                target.add(schedTaskModal.setContent(new PullTasks(schedTaskModal, pageRef, node.getKey().toString())));
+                schedTaskModal.header(new ResourceModel("task.pull.list"));
+                schedTaskModal.show(true);
             }
         };
         MetaDataRoleAuthorizationStrategy.authorize(pull, ENABLE, StandardEntitlement.TASK_LIST);
@@ -380,9 +433,9 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                target.add(taskModal.setContent(new PushTasks(taskModal, pageRef, node.getKey().toString())));
-                taskModal.header(new ResourceModel("task.push.list"));
-                taskModal.show(true);
+                target.add(schedTaskModal.setContent(new PushTasks(schedTaskModal, pageRef, node.getKey().toString())));
+                schedTaskModal.header(new ResourceModel("task.push.list"));
+                schedTaskModal.show(true);
             }
         };
         MetaDataRoleAuthorizationStrategy.authorize(push, ENABLE, StandardEntitlement.TASK_LIST);

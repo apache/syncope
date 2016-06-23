@@ -160,8 +160,7 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
                             getAuthorities());
                     token.setDetails(authentication.getDetails());
 
-                    dataAccessor.audit(
-                            AuditElements.EventCategoryType.REST,
+                    dataAccessor.audit(AuditElements.EventCategoryType.LOGIC,
                             AuditElements.AUTHENTICATION_CATEGORY,
                             null,
                             AuditElements.LOGIN_EVENT,
@@ -181,8 +180,7 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
 
                 @Override
                 public Void exec() {
-                    dataAccessor.audit(
-                            AuditElements.EventCategoryType.REST,
+                    dataAccessor.audit(AuditElements.EventCategoryType.LOGIC,
                             AuditElements.AUTHENTICATION_CATEGORY,
                             null,
                             AuditElements.LOGIN_EVENT,

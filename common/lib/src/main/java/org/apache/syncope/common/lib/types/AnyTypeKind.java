@@ -37,7 +37,7 @@ public enum AnyTypeKind {
         this.toClass = toClass;
     }
 
-    public Class<? extends AnyTO> getToClass() {
+    public Class<? extends AnyTO> getTOClass() {
         return toClass;
     }
 

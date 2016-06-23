@@ -26,7 +26,8 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.types.IntMappingType;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.SchemaType;
 
 @XmlRootElement(name = "groupReportletConf")
 @XmlType
@@ -47,13 +48,13 @@ public class GroupReportletConf extends AbstractAnyReportletConf {
 
     }
 
-    @Schema(type = IntMappingType.GroupPlainSchema)
+    @Schema(anyTypeKind = AnyTypeKind.GROUP, type = { SchemaType.PLAIN })
     private final List<String> plainAttrs = new ArrayList<>();
 
-    @Schema(type = IntMappingType.GroupDerivedSchema)
+    @Schema(anyTypeKind = AnyTypeKind.GROUP, type = { SchemaType.DERIVED })
     private final List<String> derAttrs = new ArrayList<>();
 
-    @Schema(type = IntMappingType.GroupVirtualSchema)
+    @Schema(anyTypeKind = AnyTypeKind.GROUP, type = { SchemaType.VIRTUAL })
     private final List<String> virAttrs = new ArrayList<>();
 
     @SearchCondition(type = "GROUP")

@@ -19,18 +19,25 @@
 package org.apache.syncope.client.enduser;
 
 import java.text.DateFormat;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MediaType;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.lib.SyncopeClient;
-import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.info.PlatformInfo;
+import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.types.AttrSchemaType;
+import org.apache.syncope.common.lib.types.SchemaType;
+import org.apache.syncope.common.rest.api.beans.SchemaQuery;
+import org.apache.syncope.common.rest.api.service.SchemaService;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.wicket.Session;
 import org.apache.wicket.protocol.http.WebSession;
@@ -58,6 +65,8 @@ public class SyncopeEnduserSession extends WebSession {
 
     private final PlatformInfo platformInfo;
 
+    private final List<PlainSchemaTO> datePlainSchemas;
+
     private UserTO selfTO;
 
     private final CookieUtils cookieUtils;
@@ -77,6 +86,16 @@ public class SyncopeEnduserSession extends WebSession {
                 SyncopeEnduserApplication.get().getAnonymousUser(),
                 SyncopeEnduserApplication.get().getAnonymousKey());
         platformInfo = anonymousClient.getService(SyncopeService.class).platform();
+
+        datePlainSchemas = anonymousClient.getService(SchemaService.class).
+                list(new SchemaQuery.Builder().type(SchemaType.PLAIN).build());
+        CollectionUtils.filter(datePlainSchemas, new Predicate<PlainSchemaTO>() {
+
+            @Override
+            public boolean evaluate(final PlainSchemaTO object) {
+                return object.getType() == AttrSchemaType.Date;
+            }
+        });
     }
 
     public boolean authenticate(final String username, final String password) {
@@ -102,14 +121,10 @@ public class SyncopeEnduserSession extends WebSession {
         return authenticated;
     }
 
-    public <T> void resetClient(final Class<T> service) {
-        T serviceInstance = getService(service);
-        WebClient.client(serviceInstance).reset();
-    }
-
     public <T> T getService(final Class<T> serviceClass) {
-        return (client == null || !isAuthenticated()) ? anonymousClient.getService(serviceClass) : client.
-                getService(serviceClass);
+        return (client == null || !isAuthenticated())
+                ? anonymousClient.getService(serviceClass)
+                : client.getService(serviceClass);
     }
 
     public <T> T getService(final String etag, final Class<T> serviceClass) {
@@ -118,23 +133,6 @@ public class SyncopeEnduserSession extends WebSession {
                 type(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON);
 
         return serviceInstance;
-    }
-
-    public <T> T getService(final MediaType mediaType, final Class<T> serviceClass) {
-        T service;
-
-        synchronized (SyncopeEnduserApplication.get().getClientFactory()) {
-            SyncopeClientFactoryBean.ContentType preType = SyncopeEnduserApplication.get().getClientFactory().
-                    getContentType();
-
-            SyncopeEnduserApplication.get().getClientFactory().
-                    setContentType(SyncopeClientFactoryBean.ContentType.fromString(mediaType.toString()));
-            service = SyncopeEnduserApplication.get().getClientFactory().
-                    create(username, password).getService(serviceClass);
-            SyncopeEnduserApplication.get().getClientFactory().setContentType(preType);
-        }
-
-        return service;
     }
 
     public String getUsername() {
@@ -147,6 +145,10 @@ public class SyncopeEnduserSession extends WebSession {
 
     public PlatformInfo getPlatformInfo() {
         return platformInfo;
+    }
+
+    public List<PlainSchemaTO> getDatePlainSchemas() {
+        return datePlainSchemas;
     }
 
     public UserTO getSelfTO() {

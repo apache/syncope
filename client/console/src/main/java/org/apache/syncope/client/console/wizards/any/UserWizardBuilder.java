@@ -20,13 +20,16 @@ package org.apache.syncope.client.console.wizards.any;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.commons.status.StatusUtils;
 import org.apache.syncope.client.console.layout.UserForm;
 import org.apache.syncope.client.console.layout.UserFormLayoutInfo;
 import org.apache.syncope.client.console.rest.UserRestClient;
+import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
@@ -65,6 +68,19 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> implements UserF
                     : StringUtils.isNotBlank(inner.getPassword()));
         } else {
             UserPatch patch = AnyOperations.diff(inner, getOriginalItem().getInnerObject(), false);
+
+            Set<String> origResourceSet = getOriginalItem().getInnerObject().getResources();
+            Set<String> newResourceSet = new HashSet<>(inner.getResources());
+
+            newResourceSet.removeAll(origResourceSet);
+            for (StatusBean sb : statusModel.getObject()) {
+                newResourceSet.remove(sb.getResourceName());
+            }
+
+            for (String res : newResourceSet) {
+                statusModel.getObject().add(new StatusBean(inner, res));
+            }
+
             if (!statusModel.getObject().isEmpty()) {
                 patch.setPassword(StatusUtils.buildPasswordPatch(inner.getPassword(), statusModel.getObject()));
             }
@@ -72,7 +88,7 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> implements UserF
             // update just if it is changed
             if (patch.isEmpty()) {
                 actual = new ProvisioningResult<>();
-                actual.setAny(inner);
+                actual.setEntity(inner);
             } else {
                 actual = userRestClient.update(getOriginalItem().getInnerObject().getETagValue(), patch);
             }
@@ -86,7 +102,7 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> implements UserF
             final AnyWrapper<UserTO> modelObject, final WizardModel wizardModel) {
 
         wizardModel.add(new UserDetails(
-                UserWrapper.class.cast(modelObject), statusModel, false,
+                UserWrapper.class.cast(modelObject), statusModel, mode == AjaxWizard.Mode.TEMPLATE,
                 modelObject.getInnerObject().getKey() != null,
                 UserFormLayoutInfo.class.cast(formLayoutInfo).isPasswordManagement(),
                 pageRef));

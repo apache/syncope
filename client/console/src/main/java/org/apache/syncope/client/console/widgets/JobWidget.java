@@ -201,8 +201,8 @@ public class JobWidget extends BaseWidget {
                 private static final long serialVersionUID = 8769126634538601689L;
 
                 @Override
-                protected WizardMgtPanel<JobTO> newInstance(final String id) {
-                    return new AvailableJobsPanel(id, pageRef);
+                protected WizardMgtPanel<JobTO> newInstance(final String id, final boolean wizardInModal) {
+                    throw new UnsupportedOperationException();
                 }
             }.disableCheckBoxes().hidePaginator());
 
@@ -308,8 +308,8 @@ public class JobWidget extends BaseWidget {
                 private static final long serialVersionUID = 8769126634538601689L;
 
                 @Override
-                protected WizardMgtPanel<ExecTO> newInstance(final String id) {
-                    return new RecentExecPanel(id, pageRef);
+                protected WizardMgtPanel<ExecTO> newInstance(final String id, final boolean wizardInModal) {
+                    throw new UnsupportedOperationException();
                 }
             }.disableCheckBoxes().hidePaginator());
 
@@ -399,8 +399,8 @@ public class JobWidget extends BaseWidget {
                 ThreadContext.setSession(session);
 
                 WebSocketSettings webSocketSettings = WebSocketSettings.Holder.get(application);
-                WebSocketPushBroadcaster broadcaster =
-                        new WebSocketPushBroadcaster(webSocketSettings.getConnectionRegistry());
+                WebSocketPushBroadcaster broadcaster = new WebSocketPushBroadcaster(webSocketSettings.
+                        getConnectionRegistry());
                 broadcaster.broadcast(
                         new ConnectedMessage(application, session.getId(), key),
                         new JobWidgetMessage(getAvailable(session), getRecent(session)));

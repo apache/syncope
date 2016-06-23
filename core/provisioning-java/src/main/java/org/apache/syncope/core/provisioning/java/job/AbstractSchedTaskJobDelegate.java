@@ -29,6 +29,7 @@ import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
+import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,7 +74,9 @@ public abstract class AbstractSchedTaskJobDelegate implements SchedTaskJobDelega
 
     @Transactional
     @Override
-    public void execute(final String taskKey, final boolean dryRun) throws JobExecutionException {
+    public void execute(final String taskKey, final boolean dryRun, final JobExecutionContext context)
+            throws JobExecutionException {
+
         task = taskDAO.find(taskKey);
         if (task == null) {
             throw new JobExecutionException("Task " + taskKey + " not found");

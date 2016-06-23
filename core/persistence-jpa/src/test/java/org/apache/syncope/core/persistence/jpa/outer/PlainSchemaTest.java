@@ -23,11 +23,15 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import javax.persistence.EntityExistsException;
+import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
+import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
@@ -54,10 +58,30 @@ public class PlainSchemaTest extends AbstractTest {
     private PlainSchemaDAO plainSchemaDAO;
 
     @Autowired
+    private DerSchemaDAO derSchemaDAO;
+
+    @Autowired
     private PlainAttrDAO plainAttrDAO;
 
     @Autowired
     private ExternalResourceDAO resourceDAO;
+
+    @Test
+    public void checkIdUniqueness() {
+        assertNotNull(derSchemaDAO.find("cn"));
+
+        PlainSchema schema = entityFactory.newEntity(PlainSchema.class);
+        schema.setKey("cn");
+        schema.setType(AttrSchemaType.String);
+        plainSchemaDAO.save(schema);
+
+        try {
+            plainSchemaDAO.flush();
+            fail();
+        } catch (Exception e) {
+            assertTrue(e instanceof EntityExistsException);
+        }
+    }
 
     @Test
     public void deleteFullname() {

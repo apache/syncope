@@ -25,7 +25,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.syncope.client.console.panels.search.SearchClause;
 import org.apache.syncope.client.console.panels.search.SearchUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
-import org.apache.syncope.common.lib.search.AbstractFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.to.GroupTO;
 
 public class GroupWrapper extends AnyWrapper<GroupTO> {
@@ -68,7 +67,7 @@ public class GroupWrapper extends AnyWrapper<GroupTO> {
         if (CollectionUtils.isEmpty(this.uDynClauses)) {
             return null;
         } else {
-            return getFIQLString(this.uDynClauses, SyncopeClient.getUserSearchConditionBuilder());
+            return SearchUtils.buildFIQL(this.uDynClauses, SyncopeClient.getUserSearchConditionBuilder());
         }
     }
 
@@ -77,17 +76,13 @@ public class GroupWrapper extends AnyWrapper<GroupTO> {
         if (this.aDynClauses != null && !this.aDynClauses.isEmpty()) {
             for (Map.Entry<String, List<SearchClause>> entry : this.aDynClauses.entrySet()) {
                 if (CollectionUtils.isNotEmpty(entry.getValue())) {
-                    res.put(entry.getKey(), getFIQLString(entry.getValue(),
+                    res.put(entry.getKey(), SearchUtils.buildFIQL(entry.getValue(),
                             SyncopeClient.getAnyObjectSearchConditionBuilder(entry.getKey())));
                 }
             }
         }
 
         return res;
-    }
-
-    private String getFIQLString(final List<SearchClause> clauses, final AbstractFiqlSearchConditionBuilder bld) {
-        return SearchUtils.buildFIQL(clauses, bld);
     }
 
     public GroupTO fillDynamicConditions() {

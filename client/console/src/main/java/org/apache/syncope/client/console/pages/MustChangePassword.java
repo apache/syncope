@@ -97,7 +97,8 @@ public class MustChangePassword extends WebPage {
                 } catch (Exception e) {
                     LOG.error("While changing password for {}",
                             SyncopeConsoleSession.get().getSelfTO().getUsername(), e);
-                    error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.
+                            getMessage());
                     notificationPanel.refresh(target);
                 }
             }

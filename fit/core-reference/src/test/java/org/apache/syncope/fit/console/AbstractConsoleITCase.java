@@ -28,13 +28,16 @@ import org.apache.syncope.client.console.init.MIMETypesLoader;
 import org.apache.syncope.client.console.pages.Login;
 import org.apache.syncope.fit.AbstractITCase;
 import org.apache.wicket.Component;
+import org.apache.wicket.MarkupContainer;
+import org.apache.wicket.behavior.AbstractAjaxBehavior;
+import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.core.util.lang.PropertyResolver;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.util.tester.FormTester;
 import org.apache.wicket.util.tester.WicketTester;
 import org.apache.wicket.util.visit.IVisit;
 import org.apache.wicket.util.visit.IVisitor;
-import org.junit.Before;
+import org.junit.BeforeClass;
 
 public abstract class AbstractConsoleITCase extends AbstractITCase {
 
@@ -42,37 +45,37 @@ public abstract class AbstractConsoleITCase extends AbstractITCase {
 
     protected static final String SCHEMA = "schema";
 
-    protected WicketTester wicketTester;
+    protected static WicketTester TESTER;
 
-    protected SyncopeConsoleApplication testApplicaton;
+    @BeforeClass
+    public static void setUp() {
+        synchronized (KEY) {
+            if (TESTER == null) {
+                TESTER = new WicketTester(new SyncopeConsoleApplication() {
 
-    @Before
-    public void setUp() {
-        testApplicaton = new SyncopeConsoleApplication() {
+                    @Override
+                    protected void init() {
+                        ServletContext ctx = getServletContext();
+                        ClassPathScanImplementationLookup lookup = new ClassPathScanImplementationLookup();
+                        lookup.load();
+                        ctx.setAttribute(ConsoleInitializer.CLASSPATH_LOOKUP, lookup);
 
-            @Override
-            protected void init() {
-                final ServletContext ctx = getServletContext();
-                final ClassPathScanImplementationLookup lookup = new ClassPathScanImplementationLookup();
-                lookup.load();
-                ctx.setAttribute(ConsoleInitializer.CLASSPATH_LOOKUP, lookup);
+                        MIMETypesLoader mimeTypes = new MIMETypesLoader();
+                        mimeTypes.load();
+                        ctx.setAttribute(ConsoleInitializer.MIMETYPES_LOADER, mimeTypes);
 
-                final MIMETypesLoader mimeTypes = new MIMETypesLoader();
-                mimeTypes.load();
-                ctx.setAttribute(ConsoleInitializer.MIMETYPES_LOADER, mimeTypes);
-
-                super.init();
+                        super.init();
+                    }
+                });
             }
-        };
-
-        wicketTester = new WicketTester(testApplicaton);
+        }
     }
 
     protected void doLogin(final String user, final String passwd) {
-        wicketTester.startPage(Login.class);
-        wicketTester.assertRenderedPage(Login.class);
+        TESTER.startPage(Login.class);
+        TESTER.assertRenderedPage(Login.class);
 
-        FormTester formTester = wicketTester.newFormTester("login");
+        FormTester formTester = TESTER.newFormTester("login");
         formTester.setValue("username", user);
         formTester.setValue("password", passwd);
         formTester.submit("submit");
@@ -81,7 +84,8 @@ public abstract class AbstractConsoleITCase extends AbstractITCase {
     protected <V extends Serializable> Component findComponentByProp(
             final String property, final String searchPath, final V key) {
 
-        return wicketTester.getComponentFromLastRenderedPage(searchPath).getPage().
+        Component component = TESTER.getComponentFromLastRenderedPage(searchPath);
+        return (component instanceof MarkupContainer ? MarkupContainer.class.cast(component) : component.getPage()).
                 visitChildren(ListItem.class, new IVisitor<ListItem<?>, Component>() {
 
                     @Override
@@ -96,5 +100,27 @@ public abstract class AbstractConsoleITCase extends AbstractITCase {
                         }
                     }
                 });
+    }
+
+    protected Component findComponentById(final String searchPath, final String id) {
+        Component component = TESTER.getComponentFromLastRenderedPage(searchPath);
+        return (component instanceof MarkupContainer ? MarkupContainer.class.cast(component) : component.getPage()).
+                visitChildren(Component.class, new IVisitor<Component, Component>() {
+
+                    @Override
+                    public void component(final Component object, final IVisit<Component> visit) {
+                        if (object.getId().equals(id)) {
+                            visit.stop(object);
+                        }
+                    }
+                });
+    }
+
+    protected void closeCallBack(final Component modal) {
+        for (Behavior behavior : modal.getBehaviors()) {
+            if (behavior instanceof AbstractAjaxBehavior) {
+                TESTER.executeBehavior((AbstractAjaxBehavior) behavior);
+            }
+        }
     }
 }

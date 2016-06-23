@@ -60,7 +60,7 @@ public class GroupDeprovisionProcessor implements Processor {
                 AnyTypeKind.GROUP,
                 key,
                 propByRes,
-                CollectionUtils.removeAll(groupDAO.authFind(key).getResourceNames(), resources));
+                CollectionUtils.removeAll(groupDAO.authFind(key).getResourceKeys(), resources));
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
         taskExecutor.execute(tasks, propagationReporter, nullPriorityAsync);

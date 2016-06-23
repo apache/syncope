@@ -45,7 +45,6 @@ import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.event.IEventSink;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -59,6 +58,8 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
     private static final long serialVersionUID = 5945391813567245081L;
 
     private final TaskRestClient taskRestClient = new TaskRestClient();
+
+    private PushTaskWrapper wrapper = null;
 
     private final LoadableDetachableModel<List<String>> realms = new LoadableDetachableModel<List<String>>() {
 
@@ -87,6 +88,10 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
 
     @Override
     protected Serializable onApplyInternal(final SchedTaskTO modelObject) {
+        if (modelObject instanceof PushTaskTO && wrapper != null) {
+            wrapper.fillFilterConditions();
+        }
+
         if (modelObject.getKey() == null) {
             taskRestClient.create(modelObject);
         } else {
@@ -98,6 +103,10 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
     @Override
     protected WizardModel buildModelSteps(final SchedTaskTO modelObject, final WizardModel wizardModel) {
         wizardModel.add(new Profile(modelObject));
+        if (modelObject instanceof PushTaskTO) {
+            wrapper = new PushTaskWrapper(PushTaskTO.class.cast(modelObject));
+            wizardModel.add(new PushTaskFilters(wrapper));
+        }
         wizardModel.add(new Schedule(modelObject));
         return wizardModel;
     }
@@ -116,8 +125,8 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
             }
         };
 
-        private final IModel<List<String>> reconciliationFilterBuilderClasses
-                = new LoadableDetachableModel<List<String>>() {
+        private final IModel<List<String>> reconciliationFilterBuilderClasses =
+                new LoadableDetachableModel<List<String>>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
@@ -271,9 +280,9 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
                     "performDelete", "performDelete", new PropertyModel<Boolean>(taskTO, "performDelete"), false);
             provisioningTaskSpecifics.add(performDelete);
 
-            AjaxCheckBoxPanel pullStatus = new AjaxCheckBoxPanel(
-                    "pullStatus", "pullStatus", new PropertyModel<Boolean>(taskTO, "pullStatus"), false);
-            provisioningTaskSpecifics.add(pullStatus);
+            AjaxCheckBoxPanel syncStatus = new AjaxCheckBoxPanel(
+                    "syncStatus", "syncStatus", new PropertyModel<Boolean>(taskTO, "syncStatus"), false);
+            provisioningTaskSpecifics.add(syncStatus);
         }
     }
 
@@ -285,11 +294,5 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
             add(new CrontabPanel(
                     "schedule", new PropertyModel<String>(taskTO, "cronExpression"), taskTO.getCronExpression()));
         }
-
-    }
-
-    public SchedTaskWizardBuilder<T> setEventSink(final IEventSink eventSink) {
-        this.eventSink = eventSink;
-        return this;
     }
 }

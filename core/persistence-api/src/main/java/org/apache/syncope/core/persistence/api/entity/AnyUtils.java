@@ -21,7 +21,7 @@ package org.apache.syncope.core.persistence.api.entity;
 import java.util.Set;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.IntMappingType;
+import org.apache.syncope.core.persistence.api.dao.AllowedSchemas;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 
 public interface AnyUtils {
@@ -29,6 +29,8 @@ public interface AnyUtils {
     AnyTypeKind getAnyTypeKind();
 
     <T extends Any<?>> Class<T> anyClass();
+
+    boolean isFieldName(String name);
 
     <T extends PlainAttr<?>> Class<T> plainAttrClass();
 
@@ -42,15 +44,9 @@ public interface AnyUtils {
 
     <T extends PlainAttrValue> T newPlainAttrUniqueValue();
 
-    IntMappingType plainIntMappingType();
-
-    IntMappingType derIntMappingType();
-
-    IntMappingType virIntMappingType();
-
     <T extends AnyTO> T newAnyTO();
 
     Set<ExternalResource> getAllResources(Any<?> any);
 
-    <S extends Schema> Set<S> getAllowedSchemas(Any<?> any, Class<S> reference);
+    <S extends Schema> AllowedSchemas<S> getAllowedSchemas(Any<?> any, Class<S> reference);
 }

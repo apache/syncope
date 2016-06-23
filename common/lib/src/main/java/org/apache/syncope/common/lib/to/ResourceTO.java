@@ -57,6 +57,8 @@ public class ResourceTO extends AbstractBaseBean implements EntityTO {
 
     private final List<ProvisionTO> provisions = new ArrayList<>();
 
+    private OrgUnitTO orgUnit;
+
     private Integer propagationPriority;
 
     private boolean randomPwdIfNotProvided;
@@ -69,7 +71,7 @@ public class ResourceTO extends AbstractBaseBean implements EntityTO {
 
     private TraceLevel deleteTraceLevel = TraceLevel.ALL;
 
-    private TraceLevel pullTraceLevel = TraceLevel.ALL;
+    private TraceLevel provisioningTraceLevel = TraceLevel.ALL;
 
     private String passwordPolicy;
 
@@ -202,6 +204,14 @@ public class ResourceTO extends AbstractBaseBean implements EntityTO {
         return provisions;
     }
 
+    public OrgUnitTO getOrgUnit() {
+        return orgUnit;
+    }
+
+    public void setOrgUnit(final OrgUnitTO orgUnit) {
+        this.orgUnit = orgUnit;
+    }
+
     @XmlElementWrapper(name = "confOverride")
     @XmlElement(name = "property")
     @JsonProperty("confOverride")
@@ -224,12 +234,12 @@ public class ResourceTO extends AbstractBaseBean implements EntityTO {
         return capabilitiesOverride;
     }
 
-    public TraceLevel getPullTraceLevel() {
-        return pullTraceLevel;
+    public TraceLevel getProvisioningTraceLevel() {
+        return provisioningTraceLevel;
     }
 
-    public void setPullTraceLevel(final TraceLevel pullTraceLevel) {
-        this.pullTraceLevel = pullTraceLevel;
+    public void setProvisioningTraceLevel(final TraceLevel provisioningTraceLevel) {
+        this.provisioningTraceLevel = provisioningTraceLevel;
     }
 
     @XmlElementWrapper(name = "propagationActionsClassNames")

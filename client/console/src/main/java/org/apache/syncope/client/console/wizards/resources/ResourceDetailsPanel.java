@@ -114,9 +114,9 @@ public class ResourceDetailsPanel extends WizardStep {
                 setChoices(Arrays.asList(TraceLevel.values())));
 
         container.add(new AjaxDropDownChoicePanel<>(
-                "pullTraceLevel",
-                new ResourceModel("pullTraceLevel", "pullTraceLevel").getObject(),
-                new PropertyModel<TraceLevel>(resourceTO, "pullTraceLevel"),
+                "provisioningTraceLevel",
+                new ResourceModel("provisioningTraceLevel", "provisioningTraceLevel").getObject(),
+                new PropertyModel<TraceLevel>(resourceTO, "provisioningTraceLevel"),
                 false).
                 setChoices(Arrays.asList(TraceLevel.values())));
 

@@ -119,6 +119,27 @@ public interface ResourceService extends JAXRSService {
     void update(@NotNull ResourceTO resourceTO);
 
     /**
+     * Queries the connector underlying the given resource for the latest sync token value associated to the given any
+     * type and stores the value internally, for later usage.
+     *
+     * @param key resource
+     * @param anyTypeKey any type
+     */
+    @POST
+    @Path("{key}/{anyTypeKey}")
+    void setLatestSyncToken(@NotNull @PathParam("key") String key, @NotNull @PathParam("anyTypeKey") String anyTypeKey);
+
+    /**
+     * Removes the sync token value associated to the given any type from the given resource.
+     *
+     * @param key resource
+     * @param anyTypeKey any type
+     */
+    @DELETE
+    @Path("{key}/{anyTypeKey}")
+    void removeSyncToken(@NotNull @PathParam("key") String key, @NotNull @PathParam("anyTypeKey") String anyTypeKey);
+
+    /**
      * Deletes the resource matching the given name.
      *
      * @param key name of resource to be deleted

@@ -23,7 +23,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import java.util.List;
-import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.MailTemplateDAO;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
@@ -78,7 +77,6 @@ public class NotificationTest extends AbstractTest {
         notification.setRecipientsFIQL("fake recipients");
 
         notification.setRecipientAttrName("email");
-        notification.setRecipientAttrType(IntMappingType.UserPlainSchema);
 
         notification.setSender("syncope@syncope.apache.org");
         notification.setSubject("Test notification");
@@ -109,7 +107,6 @@ public class NotificationTest extends AbstractTest {
         notification.setRecipientsFIQL("fake search condition");
 
         notification.setRecipientAttrName("email");
-        notification.setRecipientAttrType(IntMappingType.UserPlainSchema);
 
         notification.getStaticRecipients().add("syncope445@syncope.apache.org");
 
@@ -127,7 +124,7 @@ public class NotificationTest extends AbstractTest {
     @Test
     public void issueSYNCOPE446() {
         Notification notification = entityFactory.newEntity(Notification.class);
-        notification.getEvents().add("[REST]:[GroupLogic]:[]:[create]:[SUCCESS]");
+        notification.getEvents().add("[LOGIC]:[GroupLogic]:[]:[create]:[SUCCESS]");
 
         AnyAbout about = entityFactory.newEntity(AnyAbout.class);
         about.setNotification(notification);
@@ -136,7 +133,6 @@ public class NotificationTest extends AbstractTest {
         about.set("fake search condition");
 
         notification.setRecipientAttrName("email");
-        notification.setRecipientAttrType(IntMappingType.UserPlainSchema);
 
         notification.getStaticRecipients().add("syncope446@syncope.apache.org");
 

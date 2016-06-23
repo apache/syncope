@@ -79,10 +79,10 @@ public class PropagationByResource implements Serializable {
      * Add an element.
      *
      * @param type resource operation type
-     * @param resourceName target resource
+     * @param resourceKey target resource
      * @return whether the operation was successful or not
      */
-    public final boolean add(final ResourceOperation type, final String resourceName) {
+    public final boolean add(final ResourceOperation type, final String resourceKey) {
         Set<String> set;
         switch (type) {
             case CREATE:
@@ -99,17 +99,17 @@ public class PropagationByResource implements Serializable {
                 break;
         }
 
-        return set.add(resourceName);
+        return set.add(resourceKey);
     }
 
     /**
      * Add some elements.
      *
      * @param type resource operation type
-     * @param resourceNames target resources
+     * @param resourceKeys target resources
      * @return whether the operation was successful or not
      */
-    public boolean addAll(final ResourceOperation type, final Collection<String> resourceNames) {
+    public boolean addAll(final ResourceOperation type, final Collection<String> resourceKeys) {
         Set<String> set;
         switch (type) {
             case CREATE:
@@ -126,30 +126,30 @@ public class PropagationByResource implements Serializable {
                 break;
         }
 
-        return set.addAll(resourceNames);
+        return set.addAll(resourceKeys);
     }
 
     /**
      * Remove an element.
      *
      * @param type resource operation type
-     * @param resourceName target resource
+     * @param resourceKey target resource
      * @return whether the operation was successful or not
      */
-    public final boolean remove(final ResourceOperation type, final String resourceName) {
+    public final boolean remove(final ResourceOperation type, final String resourceKey) {
         boolean result = false;
 
         switch (type) {
             case CREATE:
-                result = toBeCreated.remove(resourceName);
+                result = toBeCreated.remove(resourceKey);
                 break;
 
             case UPDATE:
-                result = toBeUpdated.remove(resourceName);
+                result = toBeUpdated.remove(resourceKey);
                 break;
 
             case DELETE:
-                result = toBeDeleted.remove(resourceName);
+                result = toBeDeleted.remove(resourceKey);
                 break;
 
             default:
@@ -162,10 +162,10 @@ public class PropagationByResource implements Serializable {
      * Remove some elements.
      *
      * @param type resource operation type
-     * @param resourceNames target resources
+     * @param resourceKeys target resources
      * @return whether the operation was successful or not
      */
-    public boolean removeAll(final ResourceOperation type, final Set<String> resourceNames) {
+    public boolean removeAll(final ResourceOperation type, final Set<String> resourceKeys) {
         Set<String> set;
         switch (type) {
             case CREATE:
@@ -182,51 +182,51 @@ public class PropagationByResource implements Serializable {
                 break;
         }
 
-        return set.removeAll(resourceNames);
+        return set.removeAll(resourceKeys);
     }
 
     /**
      * Removes only the resource names in the underlying resource name sets that are contained in the specified
      * collection.
      *
-     * @param resourceNames collection containing resource names to be retained in the underlying resource name sets
+     * @param resourceKeys collection containing resource names to be retained in the underlying resource name sets
      * @return <tt>true</tt> if the underlying resource name sets changed as a result of the call
      * @see Collection#removeAll(java.util.Collection)
      */
-    public boolean removeAll(final Collection<String> resourceNames) {
-        return toBeCreated.removeAll(resourceNames)
-                | toBeUpdated.removeAll(resourceNames)
-                | toBeDeleted.removeAll(resourceNames);
+    public boolean removeAll(final Collection<String> resourceKeys) {
+        return toBeCreated.removeAll(resourceKeys)
+                | toBeUpdated.removeAll(resourceKeys)
+                | toBeDeleted.removeAll(resourceKeys);
     }
 
     /**
      * Retains only the resource names in the underlying resource name sets that are contained in the specified
      * collection.
      *
-     * @param resourceNames collection containing resource names to be retained in the underlying resource name sets
+     * @param resourceKeys collection containing resource names to be retained in the underlying resource name sets
      * @return <tt>true</tt> if the underlying resource name sets changed as a result of the call
      * @see Collection#retainAll(java.util.Collection)
      */
-    public boolean retainAll(final Collection<String> resourceNames) {
-        return toBeCreated.retainAll(resourceNames)
-                | toBeUpdated.retainAll(resourceNames)
-                | toBeDeleted.retainAll(resourceNames);
+    public boolean retainAll(final Collection<String> resourceKeys) {
+        return toBeCreated.retainAll(resourceKeys)
+                | toBeUpdated.retainAll(resourceKeys)
+                | toBeDeleted.retainAll(resourceKeys);
     }
 
-    public boolean contains(final ResourceOperation type, final String resourceName) {
+    public boolean contains(final ResourceOperation type, final String resourceKey) {
         boolean result = false;
 
         switch (type) {
             case CREATE:
-                result = toBeCreated.contains(resourceName);
+                result = toBeCreated.contains(resourceKey);
                 break;
 
             case UPDATE:
-                result = toBeUpdated.contains(resourceName);
+                result = toBeUpdated.contains(resourceKey);
                 break;
 
             case DELETE:
-                result = toBeDeleted.contains(resourceName);
+                result = toBeDeleted.contains(resourceKey);
                 break;
 
             default:
@@ -266,8 +266,8 @@ public class PropagationByResource implements Serializable {
     public Map<String, ResourceOperation> asMap() {
         Map<String, ResourceOperation> result = new HashMap<>();
         for (ResourceOperation operation : ResourceOperation.values()) {
-            for (String resourceName : get(operation)) {
-                result.put(resourceName, operation);
+            for (String resourceKey : get(operation)) {
+                result.put(resourceKey, operation);
             }
         }
 
@@ -278,24 +278,24 @@ public class PropagationByResource implements Serializable {
      * Set resources for a given resource operation type.
      *
      * @param type resource operation type
-     * @param resourceNames to be set
+     * @param resourceKeys to be set
      */
-    public final void set(final ResourceOperation type, final Collection<String> resourceNames) {
+    public final void set(final ResourceOperation type, final Collection<String> resourceKeys) {
 
         switch (type) {
             case CREATE:
                 toBeCreated.clear();
-                toBeCreated.addAll(resourceNames);
+                toBeCreated.addAll(resourceKeys);
                 break;
 
             case UPDATE:
                 toBeUpdated.clear();
-                toBeUpdated.addAll(resourceNames);
+                toBeUpdated.addAll(resourceKeys);
                 break;
 
             case DELETE:
                 toBeDeleted.clear();
-                toBeDeleted.addAll(resourceNames);
+                toBeDeleted.addAll(resourceKeys);
                 break;
 
             default:
@@ -346,22 +346,22 @@ public class PropagationByResource implements Serializable {
     /**
      * Fetch old connObjectKey for given resource name.
      *
-     * @param resourceName resource name
+     * @param resourceKey resource name
      * @return old connObjectKey; can be null
      */
-    public String getOldConnObjectKey(final String resourceName) {
-        return oldConnObjectKeys.get(resourceName);
+    public String getOldConnObjectKey(final String resourceKey) {
+        return oldConnObjectKeys.get(resourceKey);
     }
 
     /**
      * Add old ConnObjectKey for a given resource name.
      *
-     * @param resourceName resourceName resource name
+     * @param resourceKey resourceKey resource name
      * @param oldConnObjectKey old ConnObjectKey
      */
-    public void addOldConnObjectKey(final String resourceName, final String oldConnObjectKey) {
-        if (resourceName != null && oldConnObjectKey != null) {
-            oldConnObjectKeys.put(resourceName, oldConnObjectKey);
+    public void addOldConnObjectKey(final String resourceKey, final String oldConnObjectKey) {
+        if (resourceKey != null && oldConnObjectKey != null) {
+            oldConnObjectKeys.put(resourceKey, oldConnObjectKey);
         }
     }
 

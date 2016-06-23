@@ -33,7 +33,7 @@ import org.apache.syncope.common.lib.types.PullMode;
 @XmlRootElement(name = "pullTask")
 @XmlType
 @XmlAccessorType(XmlAccessType.FIELD)
-public class PullTaskTO extends AbstractProvisioningTaskTO {
+public class PullTaskTO extends AbstractProvisioningTaskTO implements TemplatableTO {
 
     private static final long serialVersionUID = -2143537546915809017L;
 
@@ -72,6 +72,7 @@ public class PullTaskTO extends AbstractProvisioningTaskTO {
     }
 
     @JsonProperty
+    @Override
     public Map<String, AnyTO> getTemplates() {
         return templates;
     }

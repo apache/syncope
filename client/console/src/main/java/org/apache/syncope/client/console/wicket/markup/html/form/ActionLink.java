@@ -42,9 +42,11 @@ public abstract class ActionLink<T extends Serializable> implements Serializable
 
         MAPPING("update"),
         MUSTCHANGEPASSWORD("update"),
-        RESET_TIME("update"),
+        SET_LATEST_SYNC_TOKEN("update"),
+        REMOVE_SYNC_TOKEN("update"),
         CLONE("create"),
         CREATE("create"),
+        TEMPLATE("read"),
         EDIT("read"),
         TYPE_EXTENSIONS("read"),
         FO_EDIT("read"),
@@ -56,6 +58,7 @@ public abstract class ActionLink<T extends Serializable> implements Serializable
         ENABLE("update"),
         NOT_FOND("read"),
         VIEW("view"),
+        MEMBERS("members"),
         SEARCH("search"),
         DELETE("delete"),
         EXECUTE("execute"),
@@ -79,6 +82,8 @@ public abstract class ActionLink<T extends Serializable> implements Serializable
         ASSIGN("update"),
         DEPROVISION("update"),
         PROVISION("update"),
+        DEPROVISION_MEMBERS("update"),
+        PROVISION_MEMBERS("update"),
         MANAGE_RESOURCES("update"),
         MANAGE_USERS("update"),
         MANAGE_GROUPS("update"),
@@ -127,5 +132,9 @@ public abstract class ActionLink<T extends Serializable> implements Serializable
 
     public final boolean isEnabled(final T modelObject) {
         return this.enabled && statusCondition(modelObject);
+    }
+
+    public boolean isIndicatorEnabled() {
+        return true;
     }
 }

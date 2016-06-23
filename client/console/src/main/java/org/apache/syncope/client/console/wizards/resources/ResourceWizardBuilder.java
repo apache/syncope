@@ -20,8 +20,6 @@ package org.apache.syncope.client.console.wizards.resources;
 
 import java.io.Serializable;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.topology.TopologyNode;
@@ -64,14 +62,8 @@ public class ResourceWizardBuilder extends AbstractResourceWizardBuilder<Resourc
             private static final long serialVersionUID = -1128269449868933504L;
 
             @Override
-            protected void check(final AjaxRequestTarget target) {
-                Pair<Boolean, String> result = resourceRestClient.check(modelObject);
-                if (result.getLeft()) {
-                    info(getString(Constants.OPERATION_SUCCEEDED));
-                } else {
-                    error(getString("error_connection") + ": " + result.getRight());
-                }
-                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+            protected Pair<Boolean, String> check(final AjaxRequestTarget target) {
+                return resourceRestClient.check(modelObject);
             }
 
             @Override

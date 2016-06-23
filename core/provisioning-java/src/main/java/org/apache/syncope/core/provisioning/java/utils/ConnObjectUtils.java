@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java.utils;
 
-import org.apache.syncope.core.provisioning.java.MappingManagerImpl;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -222,7 +221,7 @@ public class ConnObjectUtils {
 
         // 1. fill with data from connector object
         anyTO.setRealm(pullTask.getDestinatioRealm().getFullPath());
-        for (MappingItem item : MappingManagerImpl.getPullMappingItems(provision)) {
+        for (MappingItem item : MappingUtils.getPullMappingItems(provision)) {
             mappingManager.setIntValues(item, obj.getAttributeByName(item.getExtAttrName()), anyTO, anyUtils);
         }
 
@@ -260,7 +259,7 @@ public class ConnObjectUtils {
                     }
                 }
 
-                connObjectTO.getPlainAttrs().add(attrTO);
+                connObjectTO.getAttrs().add(attrTO);
             }
         }
 

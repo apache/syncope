@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.approvals;
 
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.rest.UserWorkflowRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
@@ -40,10 +41,13 @@ public class ApprovalModal extends Panel implements SubmitableModalPanel, Wizard
 
     private final WorkflowFormTO formTO;
 
+    private final PageReference pageRef;
+
     public ApprovalModal(final BaseModal<?> modal, final PageReference pageRef, final WorkflowFormTO formTO) {
         super(BaseModal.CONTENT_ID);
         this.modal = modal;
         this.formTO = formTO;
+        this.pageRef = pageRef;
 
         final MultilevelPanel mlp = new MultilevelPanel("approval");
         add(mlp);
@@ -67,16 +71,16 @@ public class ApprovalModal extends Panel implements SubmitableModalPanel, Wizard
             this.modal.show(false);
             this.modal.close(target);
 
-            info(getString(Constants.OPERATION_SUCCEEDED));
+            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
         } catch (SyncopeClientException e) {
-            error(getString(Constants.ERROR) + ": " + e.getMessage());
+            SyncopeConsoleSession.get().error(getString(Constants.ERROR) + ": " + e.getMessage());
         }
-        SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
     }
 
     @Override
     public void onError(final AjaxRequestTarget target, final Form<?> form) {
-        SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
     }
 
     @Override

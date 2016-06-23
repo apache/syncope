@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
-import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
@@ -154,23 +154,23 @@ public class LDAPMembershipPullActions extends SchedulingPullActions {
      * {@inheritDoc}
      */
     @Override
-    public <A extends AnyTO> void after(
+    public void after(
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
-            final A any,
+            final EntityTO entity,
             final ProvisioningReport result) throws JobExecutionException {
 
         if (!(profile.getTask() instanceof PullTask)) {
             return;
         }
 
-        if (!(any instanceof GroupTO)
+        if (!(entity instanceof GroupTO)
                 || profile.getTask().getResource().getProvision(anyTypeDAO.findUser()) == null
                 || profile.getTask().getResource().getProvision(anyTypeDAO.findUser()).getMapping() == null) {
 
-            super.after(profile, delta, any, result);
+            super.after(profile, delta, entity, result);
         } else {
-            populateMemberships(profile, delta, (GroupTO) any);
+            populateMemberships(profile, delta, (GroupTO) entity);
         }
     }
 

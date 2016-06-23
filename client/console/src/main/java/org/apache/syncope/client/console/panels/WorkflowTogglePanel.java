@@ -46,7 +46,7 @@ public class WorkflowTogglePanel extends TogglePanel<String> {
     protected final BaseModal<String> modal;
 
     public WorkflowTogglePanel(final String id, final PageReference pageRef, final Image workflowDefDiagram) {
-        super(id);
+        super(id, pageRef);
         modal = new BaseModal<>("outer");
         addOuterObject(modal);
         modal.size(Modal.Size.Large);
@@ -55,8 +55,8 @@ public class WorkflowTogglePanel extends TogglePanel<String> {
         container.setOutputMarkupPlaceholderTag(true);
         addInnerObject(container);
 
-        BookmarkablePageLink<Void> activitiModeler =
-                new BookmarkablePageLink<>("activitiModeler", ActivitiModelerPopupPage.class);
+        BookmarkablePageLink<Void> activitiModeler = new BookmarkablePageLink<>("activitiModeler",
+                ActivitiModelerPopupPage.class);
         activitiModeler.setPopupSettings(new VeilPopupSettings().setHeight(600).setWidth(800));
         MetaDataRoleAuthorizationStrategy.authorize(activitiModeler, ENABLE, StandardEntitlement.WORKFLOW_DEF_READ);
         container.add(activitiModeler);

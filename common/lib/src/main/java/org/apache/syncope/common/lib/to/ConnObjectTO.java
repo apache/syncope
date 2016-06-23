@@ -29,19 +29,20 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.syncope.common.lib.AbstractBaseBean;
 
 @XmlRootElement(name = "connObject")
 @XmlType
-public class ConnObjectTO extends AbstractAnnotatedBean {
+public class ConnObjectTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = 5139554911265442497L;
 
     private final Set<AttrTO> attrs = new LinkedHashSet<>();
 
-    @XmlElementWrapper(name = "plainAttrs")
+    @XmlElementWrapper(name = "attrs")
     @XmlElement(name = "attribute")
-    @JsonProperty("plainAttrs")
-    public Set<AttrTO> getPlainAttrs() {
+    @JsonProperty("attrs")
+    public Set<AttrTO> getAttrs() {
         return attrs;
     }
 

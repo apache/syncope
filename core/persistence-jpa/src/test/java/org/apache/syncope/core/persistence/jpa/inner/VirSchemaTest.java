@@ -107,7 +107,7 @@ public class VirSchemaTest extends AbstractTest {
             virSchemaDAO.save(schema);
             fail();
         } catch (InvalidEntityException e) {
-            assertTrue(e.hasViolation(EntityViolationType.InvalidName));
+            assertTrue(e.hasViolation(EntityViolationType.InvalidKey));
         }
     }
 }

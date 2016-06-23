@@ -21,9 +21,14 @@ package org.apache.syncope.client.console.tasks;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.common.lib.to.PullTaskTO;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.wicket.PageReference;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.model.IModel;
 
 public abstract class PullTaskDirectoryPanel extends ProvisioningTaskDirectoryPanel<PullTaskTO> {
 
@@ -45,5 +50,19 @@ public abstract class PullTaskDirectoryPanel extends ProvisioningTaskDirectoryPa
     @Override
     protected ProvisioningTasksProvider<PullTaskTO> dataProvider() {
         return new ProvisioningTasksProvider<>(reference, TaskType.PULL, rows);
+    }
+
+    @Override
+    protected void addFurtherActions(final ActionLinksPanel.Builder<PullTaskTO> panel, final IModel<PullTaskTO> model) {
+        panel.add(new ActionLink<PullTaskTO>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final PullTaskTO ignore) {
+                templates.setTargetObject(model.getObject());
+                templates.toggle(target, true);
+            }
+        }, ActionLink.ActionType.TEMPLATE, StandardEntitlement.TASK_UPDATE);
     }
 }

@@ -159,7 +159,7 @@ public class PolicyITCase extends AbstractITCase {
 
     @Test
     public void getCorrelationRules() {
-        assertEquals(2, syncopeService.platform().getPullCorrelationRules().size());
+        assertEquals(1, syncopeService.platform().getPullCorrelationRules().size());
     }
 
     @Test
@@ -180,7 +180,7 @@ public class PolicyITCase extends AbstractITCase {
     public void issueSYNCOPE682() {
         AccountPolicyTO policy = new AccountPolicyTO();
         policy.setDescription("SYNCOPE682");
-        policy.getResources().add(RESOURCE_NAME_LDAP);
+        policy.getPassthroughResources().add(RESOURCE_NAME_LDAP);
 
         DefaultAccountRuleConf ruleConf = new DefaultAccountRuleConf();
         ruleConf.setMinLength(3);

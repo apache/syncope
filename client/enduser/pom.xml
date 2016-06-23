@@ -32,18 +32,15 @@ under the License.
   <groupId>org.apache.syncope.client</groupId>
   <artifactId>syncope-client-enduser</artifactId>
   <packaging>jar</packaging>
-  
   <properties>
     <rootpom.basedir>${basedir}/../..</rootpom.basedir>
   </properties>
-  
   <dependencies>
     <dependency> 
       <groupId>javax.servlet</groupId> 
       <artifactId>javax.servlet-api</artifactId>
       <scope>provided</scope>
     </dependency>
-    
     <dependency>
       <groupId>org.apache.wicket</groupId>
       <artifactId>wicket</artifactId>
@@ -86,6 +83,18 @@ under the License.
     <dependency>
       <groupId>org.webjars.bower</groupId>
       <artifactId>angular-treasure-overlay-spinner</artifactId>      
+    </dependency>
+    <dependency>
+      <groupId>org.webjars.bower</groupId>
+      <artifactId>angular-translate</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.webjars.bower</groupId>
+      <artifactId>angular-translate-loader-partial</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.webjars.bower</groupId>
+      <artifactId>angular-translate-storage-cookie</artifactId>
     </dependency>
     <dependency>
       <groupId>org.webjars.bower</groupId>
@@ -141,14 +150,6 @@ under the License.
     <dependency>
       <groupId>org.webjars.bower</groupId>
       <artifactId>FileSaver.js</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.webjars.npm</groupId>
-      <artifactId>moment</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.webjars.npm</groupId>
-      <artifactId>moment-jdateformatparser</artifactId>
     </dependency>
 
     <!--Jquery-->

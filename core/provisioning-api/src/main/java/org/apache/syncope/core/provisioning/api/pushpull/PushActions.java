@@ -18,146 +18,136 @@
  */
 package org.apache.syncope.core.provisioning.api.pushpull;
 
-import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.quartz.JobExecutionException;
 
 /**
  * Interface for actions to be performed during push.
- * All methods can throw {@link IgnoreProvisionException} to make the current any ignored by the push process.
+ * All methods can throw {@link IgnoreProvisionException} to make the current entity ignored by the push process.
  */
 public interface PushActions extends ProvisioningActions {
 
     /**
-     * Action to be executed before to assign (link &amp; provision) a synchronized any object to the resource.
+     * Action to be executed before to assign (link &amp; provision) a pushed entity to the resource.
      *
-     * @param <A> concrete any object
      * @param profile profile of the push being executed.
-     * @param any any object to be created.
-     * @return any.
+     * @param entity entity to be created.
+     * @return entity.
      * @throws JobExecutionException in case of generic failure
      */
-    <A extends Any<?>> A beforeAssign(
+    Entity beforeAssign(
             ProvisioningProfile<?, ?> profile,
-            A any) throws JobExecutionException;
+            Entity entity) throws JobExecutionException;
 
     /**
-     * Action to be executed before to provision a synchronized any object to the resource.
+     * Action to be executed before to provision a pushed entity to the resource.
      *
-     * @param <A> concrete any object
      * @param profile profile of the push being executed.
-     * @param any any object to be created.
-     * @return any.
+     * @param entity entity to be created.
+     * @return entity.
      * @throws JobExecutionException in case of generic failure
      */
-    <A extends Any<?>> A beforeProvision(
+    Entity beforeProvision(
             ProvisioningProfile<?, ?> profile,
-            A any) throws JobExecutionException;
+            Entity entity) throws JobExecutionException;
 
     /**
-     * Action to be executed before to update a synchronized any object on the resource.
+     * Action to be executed before to update a pushed entity on the resource.
      *
-     * @param <A> concrete any object
      * @param profile profile of the push being executed.
-     * @param any any object to be updated.
-     * @return any.
+     * @param entity entity to be updated.
+     * @return entity.
      * @throws JobExecutionException in case of generic failure
      */
-    <A extends Any<?>> A beforeUpdate(
+    Entity beforeUpdate(
             ProvisioningProfile<?, ?> profile,
-            A any) throws JobExecutionException;
+            Entity entity) throws JobExecutionException;
 
     /**
-     * Action to be executed before to link a synchronized any object to the resource.
+     * Action to be executed before to link a pushed entity to the resource.
      *
-     * @param <A> concrete any object
      * @param profile profile of the push being executed.
-     * @param any any object to be created.
-     * @return any.
+     * @param entity entity to be created.
+     * @return entity.
      * @throws JobExecutionException in case of generic failure
      */
-    <A extends Any<?>> A beforeLink(
+    Entity beforeLink(
             ProvisioningProfile<?, ?> profile,
-            A any) throws JobExecutionException;
+            Entity entity) throws JobExecutionException;
 
     /**
-     * Action to be executed before to unlink a synchronized any object from the resource.
+     * Action to be executed before to unlink a pushed entity from the resource.
      *
-     * @param <A> concrete any object
      * @param profile profile of the push being executed.
-     * @param any any object to be created.
-     * @return any.
+     * @param entity entity to be created.
+     * @return entity.
      * @throws JobExecutionException in case of generic failure
      */
-    <A extends Any<?>> A beforeUnlink(
+    Entity beforeUnlink(
             ProvisioningProfile<?, ?> profile,
-            A any) throws JobExecutionException;
+            Entity entity) throws JobExecutionException;
 
     /**
-     * Action to be executed before to unassign a synchronized any object from the resource.
+     * Action to be executed before to unassign a pushed entity from the resource.
      *
-     * @param <A> concrete any object
      * @param profile profile of the push being executed.
-     * @param any any object to be created.
-     * @return any.
+     * @param entity entity to be created.
+     * @return entity.
      * @throws JobExecutionException in case of generic failure
      */
-    <A extends Any<?>> A beforeUnassign(
+    Entity beforeUnassign(
             ProvisioningProfile<?, ?> profile,
-            A any) throws JobExecutionException;
+            Entity entity) throws JobExecutionException;
 
     /**
-     * Action to be executed before to unassign a synchronized any object from the resource.
+     * Action to be executed before to unassign a pushed entity from the resource.
      *
-     * @param <A> concrete any object
      * @param profile profile of the push being executed.
-     * @param any any object to be created.
-     * @return any.
+     * @param entity entity to be created.
+     * @return entity.
      * @throws JobExecutionException in case of generic failure
      */
-    <A extends Any<?>> A beforeDeprovision(
+    Entity beforeDeprovision(
             ProvisioningProfile<?, ?> profile,
-            A any) throws JobExecutionException;
+            Entity entity) throws JobExecutionException;
 
     /**
-     * Action to be executed before delete a synchronized any object locally and from the resource.
+     * Action to be executed before delete a pushed entity locally and from the resource.
      *
-     * @param <A> concrete any object
      * @param profile profile of the push being executed.
-     * @param any any object to be created.
-     * @return any.
+     * @param entity entity to be created.
+     * @return entity.
      * @throws JobExecutionException in case of generic failure
      */
-    <A extends Any<?>> A beforeDelete(
+    Entity beforeDelete(
             ProvisioningProfile<?, ?> profile,
-            A any) throws JobExecutionException;
+            Entity entity) throws JobExecutionException;
 
     /**
-     * Action to be executed after any object push goes on error.
+     * Action to be executed after entity push goes on error.
      *
-     * @param <A> concrete any object
      * @param profile profile of the push being executed.
-     * @param any synchronized any object.
+     * @param entity pushed entity.
      * @param result operation result.
      * @param error error being reported
      * @throws JobExecutionException in case of generic failure
      */
-    <A extends Any<?>> void onError(
+    void onError(
             ProvisioningProfile<?, ?> profile,
-            A any,
+            Entity entity,
             ProvisioningReport result,
             Exception error) throws JobExecutionException;
 
     /**
-     * Action to be executed after each local any object push.
+     * Action to be executed after each local entity push.
      *
-     * @param <A> concrete any object
      * @param profile profile of the push being executed.
-     * @param any synchronized any object.
+     * @param entity pushed entity.
      * @param result operation result.
      * @throws JobExecutionException in case of generic failure
      */
-    <A extends Any<?>> void after(
+    void after(
             ProvisioningProfile<?, ?> profile,
-            A any,
+            Entity entity,
             ProvisioningReport result) throws JobExecutionException;
 }

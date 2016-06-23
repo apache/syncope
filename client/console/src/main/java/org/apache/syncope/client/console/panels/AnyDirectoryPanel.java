@@ -54,8 +54,8 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.util.ListModel;
 
-public abstract class AnyDirectoryPanel<A extends AnyTO>
-        extends DirectoryPanel<A, AnyWrapper<A>, AnyDataProvider<A>, AbstractAnyRestClient<A, ?>> {
+public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRestClient<A, ?>>
+        extends DirectoryPanel<A, AnyWrapper<A>, AnyDataProvider<A>, E> {
 
     private static final long serialVersionUID = -1100228004207271270L;
 
@@ -82,8 +82,12 @@ public abstract class AnyDirectoryPanel<A extends AnyTO>
 
     protected final BaseModal<Serializable> utilityModal = new BaseModal<>("outer");
 
-    protected AnyDirectoryPanel(final String id, final Builder<A> builder) {
-        super(id, builder);
+    protected AnyDirectoryPanel(final String id, final Builder<A, E> builder) {
+        this(id, builder, true);
+    }
+
+    protected AnyDirectoryPanel(final String id, final Builder<A, E> builder, final boolean wizardInModal) {
+        super(id, builder, wizardInModal);
         this.realm = builder.realm;
         this.type = builder.type;
         this.fiql = builder.fiql;
@@ -153,8 +157,8 @@ public abstract class AnyDirectoryPanel<A extends AnyTO>
         List<AnyTypeClassTO> getAnyTypeClassTOs();
     }
 
-    public abstract static class Builder<A extends AnyTO>
-            extends DirectoryPanel.Builder<A, AnyWrapper<A>, AbstractAnyRestClient<A, ?>>
+    public abstract static class Builder<A extends AnyTO, E extends AbstractAnyRestClient<A, ?>>
+            extends DirectoryPanel.Builder<A, AnyWrapper<A>, E>
             implements AnyDirectoryPanelBuilder {
 
         private static final long serialVersionUID = -6828423611982275640L;
@@ -173,7 +177,7 @@ public abstract class AnyDirectoryPanel<A extends AnyTO>
 
         public Builder(
                 final List<AnyTypeClassTO> anyTypeClassTOs,
-                final AbstractAnyRestClient<A, ?> restClient,
+                final E restClient,
                 final String type,
                 final PageReference pageRef) {
 
@@ -182,7 +186,7 @@ public abstract class AnyDirectoryPanel<A extends AnyTO>
             this.type = type;
         }
 
-        public Builder<A> setRealm(final String realm) {
+        public Builder<A, E> setRealm(final String realm) {
             this.realm = realm;
             return this;
         }
@@ -202,7 +206,7 @@ public abstract class AnyDirectoryPanel<A extends AnyTO>
 
         return new StatusPanel(
                 panelId,
-                ((ProvisioningResult<A>) result).getAny(),
+                ((ProvisioningResult<A>) result).getEntity(),
                 new ListModel<>(new ArrayList<StatusBean>()),
                 CollectionUtils.collect(
                         ((ProvisioningResult<A>) result).getPropagationStatuses(),
@@ -214,7 +218,7 @@ public abstract class AnyDirectoryPanel<A extends AnyTO>
                     public Pair<ConnObjectTO, ConnObjectWrapper> transform(final PropagationStatus input) {
                         ConnObjectTO before = input.getBeforeObj();
                         ConnObjectWrapper afterObjWrapper = new ConnObjectWrapper(
-                                ((ProvisioningResult<A>) result).getAny(),
+                                ((ProvisioningResult<A>) result).getEntity(),
                                 input.getResource(),
                                 input.getAfterObj());
                         return Pair.of(before, afterObjWrapper);

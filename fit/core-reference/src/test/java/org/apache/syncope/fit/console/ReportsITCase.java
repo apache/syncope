@@ -22,9 +22,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.Reports;
 import org.apache.wicket.Component;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.util.tester.FormTester;
 import org.junit.Before;
@@ -35,33 +35,40 @@ import org.junit.runners.MethodSorters;
 @FixMethodOrder(MethodSorters.JVM)
 public class ReportsITCase extends AbstractConsoleITCase {
 
-    private void createReport(final String name) {
-        wicketTester.clickLink("body:content:tabbedPanel:panel:firstLevelContainer:first:container:content:add");
+    @Before
+    public void login() {
+        doLogin(ADMIN_UNAME, ADMIN_PWD);
+        TESTER.clickLink("body:reportsLI:reports");
+        TESTER.assertRenderedPage(Reports.class);
+    }
 
-        wicketTester.assertComponent(
+    private void createReport(final String name) {
+        TESTER.clickLink("body:content:tabbedPanel:panel:firstLevelContainer:first:container:content:add");
+
+        TESTER.assertComponent(
                 "body:content:tabbedPanel:panel:firstLevelContainer:first:outerObjectsRepeater:0:outer", Modal.class);
 
-        FormTester formTester = wicketTester.newFormTester(
+        FormTester formTester = TESTER.newFormTester(
                 "body:content:tabbedPanel:panel:firstLevelContainer:first:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:form:view:name:textField", name);
         formTester.setValue("content:form:view:template:dropDownChoiceField", "0");
         formTester.submit("content:form:buttons:next");
 
-        wicketTester.assertComponent("body:content:tabbedPanel:panel:firstLevelContainer:first:outerObjectsRepeater"
+        TESTER.assertComponent("body:content:tabbedPanel:panel:firstLevelContainer:first:outerObjectsRepeater"
                 + ":0:outer:form:content:form:view:schedule:seconds:textField", TextField.class);
 
-        formTester = wicketTester.newFormTester(
+        formTester = TESTER.newFormTester(
                 "body:content:tabbedPanel:panel:firstLevelContainer:first:outerObjectsRepeater:0:outer:form");
         formTester.submit("content:form:buttons:finish");
 
-        wicketTester.assertInfoMessages("Operation executed successfully");
-        wicketTester.cleanupFeedbackMessages();
+        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.cleanupFeedbackMessages();
 
-        wicketTester.clickLink("body:reportsLI:reports");
+        TESTER.clickLink("body:reportsLI:reports");
     }
 
     private void delete(final String name) {
-        wicketTester.clickLink("body:reportsLI:reports");
+        TESTER.clickLink("body:reportsLI:reports");
 
         Component result = findComponentByProp(
                 "name", "body:content:tabbedPanel:panel:firstLevelContainer:first:container:"
@@ -69,16 +76,15 @@ public class ReportsITCase extends AbstractConsoleITCase {
 
         assertNotNull(result);
 
-        wicketTester.getRequest().addParameter("confirm", "true");
-        wicketTester.clickLink(
-                wicketTester.getComponentFromLastRenderedPage(
-                        result.getPageRelativePath() + ":cells:10:cell:panelDelete:deleteLink"));
+        TESTER.getRequest().addParameter("confirm", "true");
+        TESTER.clickLink(TESTER.getComponentFromLastRenderedPage(
+                result.getPageRelativePath() + ":cells:10:cell:panelDelete:deleteLink"));
 
-        wicketTester.executeAjaxEvent(wicketTester.getComponentFromLastRenderedPage(
-                result.getPageRelativePath() + ":cells:10:cell:panelDelete:deleteLink"), "onclick");
+        TESTER.executeAjaxEvent(TESTER.getComponentFromLastRenderedPage(
+                result.getPageRelativePath() + ":cells:10:cell:panelDelete:deleteLink"), Constants.ON_CLICK);
 
-        wicketTester.assertInfoMessages("Operation executed successfully");
-        wicketTester.cleanupFeedbackMessages();
+        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.cleanupFeedbackMessages();
 
         assertNull(findComponentByProp(
                 "name", "body:content:tabbedPanel:panel:firstLevelContainer:first:container:"
@@ -86,7 +92,7 @@ public class ReportsITCase extends AbstractConsoleITCase {
     }
 
     private void deleteReportlet(final String report, final String reportlet) {
-        wicketTester.clickLink("body:reportsLI:reports");
+        TESTER.clickLink("body:reportsLI:reports");
 
         Component result = findComponentByProp(
                 "name", "body:content:tabbedPanel:panel:firstLevelContainer:first:container:"
@@ -94,7 +100,7 @@ public class ReportsITCase extends AbstractConsoleITCase {
 
         assertNotNull(result);
 
-        wicketTester.clickLink(result.getPageRelativePath() + ":cells:10:cell:panelCompose:composeLink");
+        TESTER.clickLink(result.getPageRelativePath() + ":cells:10:cell:panelCompose:composeLink");
 
         result = findComponentByProp("name", "body:content:tabbedPanel:panel:firstLevelContainer:first:"
                 + "outerObjectsRepeater:0:outer:form:content:container:content:searchContainer:resultTable:tablePanel:"
@@ -102,23 +108,16 @@ public class ReportsITCase extends AbstractConsoleITCase {
 
         assertNotNull(result);
 
-        wicketTester.getRequest().addParameter("confirm", "true");
-        wicketTester.clickLink(wicketTester.getComponentFromLastRenderedPage(
+        TESTER.getRequest().addParameter("confirm", "true");
+        TESTER.clickLink(TESTER.getComponentFromLastRenderedPage(
                 result.getPageRelativePath() + ":cells:3:cell:panelDelete:deleteLink"));
 
-        wicketTester.assertInfoMessages("Operation executed successfully");
-        wicketTester.cleanupFeedbackMessages();
+        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.cleanupFeedbackMessages();
 
         assertNull(findComponentByProp("name", "body:content:tabbedPanel:panel:firstLevelContainer:first:"
                 + "outerObjectsRepeater:0:outer:form:content:container:content:searchContainer:resultTable:tablePanel:"
                 + "groupForm:checkgroup:dataTable", reportlet));
-    }
-
-    @Before
-    public void login() {
-        doLogin(ADMIN_UNAME, ADMIN_PWD);
-        wicketTester.clickLink("body:reportsLI:reports");
-        wicketTester.assertRenderedPage(Reports.class);
     }
 
     @Test
@@ -129,19 +128,21 @@ public class ReportsITCase extends AbstractConsoleITCase {
 
         assertNotNull(result);
 
-        wicketTester.clickLink(result.getPageRelativePath() + ":cells:10:cell:panelView:viewLink");
+        TESTER.clickLink(result.getPageRelativePath() + ":cells:10:cell:panelView:viewLink");
 
+        TESTER.assertModelValue(
+                "body:content:tabbedPanel:panel:secondLevelContainer:title", "Executions of report 'test'");
         result = findComponentByProp("status", "body:content:tabbedPanel:panel:secondLevelContainer:second:executions:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:groupForm:"
                 + "checkgroup:dataTable", "SUCCESS");
 
         assertNotNull(result);
 
-        wicketTester.clickLink(result.getPageRelativePath() + ":cells:6:cell:panelView:viewLink");
-        wicketTester.clickLink(
+        TESTER.clickLink(result.getPageRelativePath() + ":cells:6:cell:panelView:viewLink");
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:secondLevelContainer:second:executions:secondLevelContainer:back");
 
-        wicketTester.clickLink("body:content:tabbedPanel:panel:secondLevelContainer:back");
+        TESTER.clickLink("body:content:tabbedPanel:panel:secondLevelContainer:back");
 
         assertNotNull(findComponentByProp(
                 "name", "body:content:tabbedPanel:panel:firstLevelContainer:first:container:"
@@ -159,30 +160,30 @@ public class ReportsITCase extends AbstractConsoleITCase {
 
         assertNotNull(result);
 
-        wicketTester.clickLink(result.getPageRelativePath() + ":cells:10:cell:panelCompose:composeLink");
+        TESTER.clickLink(result.getPageRelativePath() + ":cells:10:cell:panelCompose:composeLink");
 
         result = findComponentByProp("name", "body:content:tabbedPanel:panel:firstLevelContainer:first:"
                 + "outerObjectsRepeater:0:outer:form:content:container:content:searchContainer:resultTable:tablePanel:"
                 + "groupForm:checkgroup:dataTable", "testUserReportlet");
 
         assertNotNull(result);
-        wicketTester.clickLink(result.getPageRelativePath() + ":cells:3:cell:panelClone:cloneLink");
+        TESTER.clickLink(result.getPageRelativePath() + ":cells:3:cell:panelClone:cloneLink");
 
-        FormTester formTester = wicketTester.newFormTester("body:content:tabbedPanel:panel:firstLevelContainer:first:"
+        FormTester formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:firstLevelContainer:first:"
                 + "outerObjectsRepeater:0:outer:form:content:container:content:wizard:form");
 
         formTester.setValue("view:name:textField", reportlet);
         formTester.submit("buttons:finish");
 
-        wicketTester.assertInfoMessages("Operation executed successfully");
-        wicketTester.cleanupFeedbackMessages();
+        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.cleanupFeedbackMessages();
 
         deleteReportlet(report, reportlet);
 
-        wicketTester.clickLink("body:content:tabbedPanel:panel:firstLevelContainer:first:outerObjectsRepeater:0:"
+        TESTER.clickLink("body:content:tabbedPanel:panel:firstLevelContainer:first:outerObjectsRepeater:0:"
                 + "outer:form:content:container:content:exit");
 
-        wicketTester.assertRenderedPage(Reports.class);
+        TESTER.assertRenderedPage(Reports.class);
     }
 
     @Test
@@ -196,31 +197,31 @@ public class ReportsITCase extends AbstractConsoleITCase {
 
         assertNotNull(result);
 
-        wicketTester.clickLink(result.getPageRelativePath() + ":cells:10:cell:panelCompose:composeLink");
+        TESTER.clickLink(result.getPageRelativePath() + ":cells:10:cell:panelCompose:composeLink");
 
-        wicketTester.clickLink("body:content:tabbedPanel:panel:firstLevelContainer:first:outerObjectsRepeater:0:"
+        TESTER.clickLink("body:content:tabbedPanel:panel:firstLevelContainer:first:outerObjectsRepeater:0:"
                 + "outer:form:content:container:content:add");
 
-        FormTester formTester = wicketTester.newFormTester("body:content:tabbedPanel:panel:firstLevelContainer:first:"
+        FormTester formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:firstLevelContainer:first:"
                 + "outerObjectsRepeater:0:outer:form:content:container:content:wizard:form");
 
         formTester.setValue("view:name:textField", reportlet);
         formTester.setValue("view:configuration:dropDownChoiceField", "1");
         formTester.submit("buttons:next");
 
-        formTester = wicketTester.newFormTester("body:content:tabbedPanel:panel:firstLevelContainer:first:"
+        formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:firstLevelContainer:first:"
                 + "outerObjectsRepeater:0:outer:form:content:container:content:wizard:form");
         formTester.submit("buttons:finish");
 
-        wicketTester.assertInfoMessages("Operation executed successfully");
-        wicketTester.cleanupFeedbackMessages();
+        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.cleanupFeedbackMessages();
 
         deleteReportlet(report, reportlet);
 
-        wicketTester.clickLink("body:content:tabbedPanel:panel:firstLevelContainer:first:outerObjectsRepeater:0:"
+        TESTER.clickLink("body:content:tabbedPanel:panel:firstLevelContainer:first:outerObjectsRepeater:0:"
                 + "outer:form:content:container:content:exit");
 
-        wicketTester.assertRenderedPage(Reports.class);
+        TESTER.assertRenderedPage(Reports.class);
     }
 
     @Test
@@ -230,18 +231,21 @@ public class ReportsITCase extends AbstractConsoleITCase {
                 "name", "body:content:tabbedPanel:panel:firstLevelContainer:first:container:"
                 + "content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "updateReport");
 
-        wicketTester.clickLink(result.getPageRelativePath() + ":cells:10:cell:panelEdit:editLink");
+        TESTER.clickLink(result.getPageRelativePath() + ":cells:10:cell:panelEdit:editLink");
 
-        FormTester formTester = wicketTester.newFormTester(
+        TESTER.assertModelValue("body:content:tabbedPanel:panel:firstLevelContainer:first:outerObjectsRepeater:"
+                + "0:outer:dialog:header:header-label", "Edit Report updateReport");
+
+        FormTester formTester = TESTER.newFormTester(
                 "body:content:tabbedPanel:panel:firstLevelContainer:first:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:form:view:template:dropDownChoiceField", "1");
 
-        formTester = wicketTester.newFormTester(
+        formTester = TESTER.newFormTester(
                 "body:content:tabbedPanel:panel:firstLevelContainer:first:outerObjectsRepeater:0:outer:form");
         formTester.submit("content:form:buttons:finish");
 
-        wicketTester.assertInfoMessages("Operation executed successfully");
-        wicketTester.cleanupFeedbackMessages();
+        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.cleanupFeedbackMessages();
 
         delete("updateReport");
     }

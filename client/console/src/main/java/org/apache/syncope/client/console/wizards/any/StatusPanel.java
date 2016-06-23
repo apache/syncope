@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.SerializableTransformer;
 import org.apache.syncope.client.console.commons.status.ConnObjectWrapper;
 import org.apache.syncope.client.console.commons.status.Status;
@@ -31,7 +32,7 @@ import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.commons.status.StatusUtils;
 import org.apache.syncope.client.console.panels.ListViewPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
-import org.apache.syncope.client.console.panels.MultilevelPanel.SecondLevel;
+import org.apache.syncope.client.console.panels.RemoteObjectPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
@@ -99,7 +100,7 @@ public class StatusPanel extends Panel {
         final List<StatusBean> statusBeans = new ArrayList<>(connObjects.size() + 1);
         initialStatusBeanMap = new LinkedHashMap<>(connObjects.size() + 1);
 
-        final StatusBean syncope = new StatusBean(any, "syncope");
+        final StatusBean syncope = new StatusBean(any, Constants.SYNCOPE);
 
         if (any instanceof UserTO) {
             syncope.setConnObjectLink(((UserTO) any).getUsername());
@@ -161,15 +162,15 @@ public class StatusPanel extends Panel {
 
             @Override
             protected boolean statusCondition(final StatusBean bean) {
-                final Pair<ConnObjectTO, ConnObjectTO> pair =
-                        getConnObjectTO(bean.getAnyKey(), bean.getResourceName(), connObjects);
+                final Pair<ConnObjectTO, ConnObjectTO> pair
+                        = getConnObjectTO(bean.getAnyKey(), bean.getResourceName(), connObjects);
 
                 return pair != null && pair.getRight() != null;
             }
 
             @Override
             public void onClick(final AjaxRequestTarget target, final StatusBean bean) {
-                mlp.next(bean.getResourceName(), new RemoteObjectPanel(bean, connObjects), target);
+                mlp.next(bean.getResourceName(), new RemoteAnyPanel(bean, connObjects), target);
             }
         }, ActionLink.ActionType.VIEW, StandardEntitlement.RESOURCE_GET_CONNOBJECT);
 
@@ -185,8 +186,9 @@ public class StatusPanel extends Panel {
         return initialStatusBeanMap;
     }
 
-    private Pair<ConnObjectTO, ConnObjectTO> getConnObjectTO(
-            final String anyKey, final String resourceName, final List<Pair<ConnObjectTO, ConnObjectWrapper>> objects) {
+    protected Pair<ConnObjectTO, ConnObjectTO> getConnObjectTO(
+            final String anyKey, final String resourceName,
+            final List<Pair<ConnObjectTO, ConnObjectWrapper>> objects) {
 
         for (Pair<ConnObjectTO, ConnObjectWrapper> object : objects) {
             if (anyKey.equals(object.getRight().getAny().getKey())
@@ -199,14 +201,24 @@ public class StatusPanel extends Panel {
         return null;
     }
 
-    public class RemoteObjectPanel extends SecondLevel {
+    public class RemoteAnyPanel extends RemoteObjectPanel {
 
         private static final long serialVersionUID = 4303365227411467563L;
 
-        public RemoteObjectPanel(final StatusBean bean, final List<Pair<ConnObjectTO, ConnObjectWrapper>> connObjects) {
-            final Pair<ConnObjectTO, ConnObjectTO> res =
-                    getConnObjectTO(bean.getAnyKey(), bean.getResourceName(), connObjects);
-            add(new ConnObjectPanel("remoteObject", res == null ? null : res));
+        private final StatusBean bean;
+
+        private final List<Pair<ConnObjectTO, ConnObjectWrapper>> connObjects;
+
+        public RemoteAnyPanel(final StatusBean bean, final List<Pair<ConnObjectTO, ConnObjectWrapper>> connObjects) {
+            this.bean = bean;
+            this.connObjects = connObjects;
+
+            add(new ConnObjectPanel(REMOTE_OBJECT_PANEL_ID, getConnObjectTO()));
+        }
+
+        @Override
+        protected final Pair<ConnObjectTO, ConnObjectTO> getConnObjectTO() {
+            return StatusPanel.this.getConnObjectTO(bean.getAnyKey(), bean.getResourceName(), connObjects);
         }
     }
 }

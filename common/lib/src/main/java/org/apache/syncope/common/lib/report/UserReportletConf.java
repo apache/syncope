@@ -26,7 +26,8 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.types.IntMappingType;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.SchemaType;
 
 @XmlRootElement(name = "userReportletConf")
 @XmlType
@@ -34,13 +35,13 @@ public class UserReportletConf extends AbstractAnyReportletConf {
 
     private static final long serialVersionUID = 6602717600064602764L;
 
-    @Schema(type = IntMappingType.UserPlainSchema)
+    @Schema(anyTypeKind = AnyTypeKind.USER, type = { SchemaType.PLAIN })
     private final List<String> plainAttrs = new ArrayList<>();
 
-    @Schema(type = IntMappingType.UserDerivedSchema)
+    @Schema(anyTypeKind = AnyTypeKind.USER, type = { SchemaType.DERIVED })
     private final List<String> derAttrs = new ArrayList<>();
 
-    @Schema(type = IntMappingType.UserVirtualSchema)
+    @Schema(anyTypeKind = AnyTypeKind.USER, type = { SchemaType.VIRTUAL })
     private final List<String> virAttrs = new ArrayList<>();
 
     @XmlEnum
@@ -51,7 +52,10 @@ public class UserReportletConf extends AbstractAnyReportletConf {
         username,
         workflowId,
         status,
+        creator,
         creationDate,
+        lastModifier,
+        lastChangeDate,
         lastLoginDate,
         changePwdDate,
         passwordHistorySize,

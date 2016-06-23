@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.notifications;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.tasks.NotificationTaskDirectoryPanel;
@@ -67,7 +68,7 @@ public class NotificationTasks extends Panel implements ModalPanel {
             @Override
             protected void viewTask(final NotificationTaskTO taskTO, final AjaxRequestTarget target) {
                 mlp.next(
-                        new StringResourceModel("task.view", this, new Model<>(taskTO)).getObject(),
+                        new StringResourceModel("task.view", this, new Model<>(Pair.of(null, taskTO))).getObject(),
                         new TaskExecutionDetails<>(null, taskTO, pageReference), target);
             }
         });

@@ -40,7 +40,6 @@ public class NotificationResultManager extends CommonsResultManager {
         System.out.println("    recipient attribute name: " + notificationTO.getRecipientAttrName());
         System.out.println("    template: " + notificationTO.getTemplate());
         System.out.println("    abouts: " + notificationTO.getAbouts());
-        System.out.println("    recipient attribute types: " + notificationTO.getRecipientAttrType());
         System.out.println("    static recipient: " + notificationTO.getStaticRecipients());
         System.out.println("    trace level: " + notificationTO.getTraceLevel());
         System.out.println("    active: " + notificationTO.isActive());

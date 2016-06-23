@@ -99,7 +99,7 @@ public class RESTITCase extends AbstractITCase {
     public void ifMatch() {
         UserTO userTO = userService.create(UserITCase.getUniqueSampleTO("ifmatch@syncope.apache.org"), true).
                 readEntity(new GenericType<ProvisioningResult<UserTO>>() {
-                }).getAny();
+                }).getEntity();
         assertNotNull(userTO);
         assertNotNull(userTO.getKey());
 
@@ -111,7 +111,7 @@ public class RESTITCase extends AbstractITCase {
         userPatch.setKey(userTO.getKey());
         userPatch.setUsername(new StringReplacePatchItem.Builder().value(userTO.getUsername() + "XX").build());
         userTO = userService.update(userPatch).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
-        }).getAny();
+        }).getEntity();
         assertTrue(userTO.getUsername().endsWith("XX"));
         EntityTag etag1 = adminClient.getLatestEntityTag(userService);
         assertFalse(etag.getValue().equals(etag1.getValue()));

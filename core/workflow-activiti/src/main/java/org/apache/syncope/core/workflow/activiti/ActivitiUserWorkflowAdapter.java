@@ -162,7 +162,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
         List<Task> tasks = engine.getTaskService().createTaskQuery().processInstanceId(user.getWorkflowId()).list();
         if (tasks.isEmpty() || tasks.size() > 1) {
-            LOG.warn("While checking if form task: unexpected task number ({})", tasks.size());
+            LOG.debug("While checking if form task: unexpected task number ({})", tasks.size());
         } else {
             try {
                 TaskFormData formData = engine.getFormService().getTaskFormData(tasks.get(0).getId());
@@ -688,8 +688,8 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
                     taskCandidateOrAssigned(user.getKey())));
 
             List<String> candidateGroups = new ArrayList<>();
-            for (String groupKey : userDAO.findAllGroupKeys(user)) {
-                candidateGroups.add(groupKey);
+            for (String groupName : userDAO.findAllGroupNames(user)) {
+                candidateGroups.add(groupName);
             }
             if (!candidateGroups.isEmpty()) {
                 forms.addAll(getForms(engine.getTaskService().createTaskQuery().

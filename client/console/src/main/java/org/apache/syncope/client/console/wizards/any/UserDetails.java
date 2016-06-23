@@ -24,7 +24,6 @@ import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.panels.ListViewPanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
@@ -59,10 +58,12 @@ public class UserDetails extends Details<UserTO> {
         // ------------------------
         // Username
         // ------------------------
-        final FieldPanel<String> username = new AjaxTextFieldPanel(
+        final AjaxTextFieldPanel username = new AjaxTextFieldPanel(
                 "username", "username", new PropertyModel<String>(userTO, "username"), false);
 
-        if (!templateMode) {
+        if (templateMode) {
+            username.enableJexlHelp();
+        } else {
             username.addRequiredLabel();
         }
         add(username);

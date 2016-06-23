@@ -35,6 +35,7 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.event.IEvent;
+import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
@@ -116,7 +117,7 @@ public abstract class DirectoryPanel<
             private static final long serialVersionUID = -8424727765826509309L;
 
             @Override
-            protected WizardMgtPanel<W> newInstance(final String id) {
+            protected WizardMgtPanel<W> newInstance(final String id, final boolean wizardInModal) {
                 throw new UnsupportedOperationException("Not supported yet.");
             }
         }.setFiltered(false), wizardInModal);
@@ -134,6 +135,7 @@ public abstract class DirectoryPanel<
         addOuterObject(altDefaultModal);
         addOuterObject(displayAttributeModal);
 
+        setPageRef(builder.getPageRef());
         this.page = (BasePage) builder.getPageRef().getPage();
 
         this.filtered = builder.filtered;
@@ -152,6 +154,22 @@ public abstract class DirectoryPanel<
         setWindowClosedReloadCallback(modal);
         setWindowClosedReloadCallback(altDefaultModal);
         setWindowClosedReloadCallback(displayAttributeModal);
+
+        displayAttributeModal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+
+            private static final long serialVersionUID = 8804221891699487139L;
+
+            @Override
+            public void onClose(final AjaxRequestTarget target) {
+                final EventDataWrapper data = new EventDataWrapper();
+                data.setTarget(target);
+                data.setRows(rows);
+
+                send(DirectoryPanel.this, Broadcast.EXACT, data);
+
+                modal.show(false);
+            }
+        });
 
         altDefaultModal.size(Modal.Size.Medium);
         displayAttributeModal.size(Modal.Size.Medium);
@@ -203,6 +221,13 @@ public abstract class DirectoryPanel<
 
     public void search(final AjaxRequestTarget target) {
         target.add(container);
+    }
+
+    public void updateResultTable(final AjaxRequestTarget target) {
+        updateResultTable(false);
+        if (DirectoryPanel.this.container.isVisibleInHierarchy()) {
+            target.add(DirectoryPanel.this.container);
+        }
     }
 
     private void updateResultTable(final boolean create) {
@@ -267,7 +292,7 @@ public abstract class DirectoryPanel<
     }
 
     @Override
-    protected void customActionOnCloseCallback(final AjaxRequestTarget target) {
+    protected void customActionOnFinishCallback(final AjaxRequestTarget target) {
         final EventDataWrapper data = new EventDataWrapper();
         data.setTarget(target);
         data.setRows(rows);

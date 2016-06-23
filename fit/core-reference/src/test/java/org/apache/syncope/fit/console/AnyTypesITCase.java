@@ -40,20 +40,20 @@ public class AnyTypesITCase extends AbstractTypesITCase {
     @Test
     public void read() {
         browsingToAnyTypes();
-        wicketTester.assertComponent(
+        TESTER.assertComponent(
                 DATATABLE_PATH
                 + ":tablePanel:groupForm:"
                 + "checkgroup:dataTable:body:rows:1:cells:1:cell", Label.class);
 
         Component result = findComponentByProp(KEY, DATATABLE_PATH, "GROUP");
 
-        wicketTester.assertComponent(
+        TESTER.assertComponent(
                 result.getPageRelativePath() + ":cells:4:cell:panelEdit:editLink", IndicatingAjaxLink.class);
 
-        wicketTester.clickLink(
+        TESTER.clickLink(
                 result.getPageRelativePath() + ":cells:4:cell:panelEdit:editLink");
 
-        wicketTester.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer", BaseModal.class);
+        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer", BaseModal.class);
     }
 
     @Test
@@ -61,29 +61,30 @@ public class AnyTypesITCase extends AbstractTypesITCase {
         browsingToAnyTypes();
         final String anyTypeTest = "anyTypeTest2";
 
-        wicketTester.clickLink("body:content:tabbedPanel:panel:container:content:add");
+        TESTER.clickLink("body:content:tabbedPanel:panel:container:content:add");
 
-        wicketTester.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer", Modal.class);
+        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer", Modal.class);
 
-        final FormTester formTester = wicketTester.newFormTester(
+        final FormTester formTester = TESTER.newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:anyTypeDetailsPanel:container:form:key:textField", anyTypeTest);
         formTester.setValue("content:anyTypeDetailsPanel:container:form:classes:paletteField:recorder", "csv");
 
-        wicketTester.clickLink(
+        TESTER.clearFeedbackMessages();
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
-        wicketTester.assertInfoMessages("Operation executed successfully");
+        TESTER.assertInfoMessages("Operation executed successfully");
 
-        wicketTester.clearFeedbackMessages();
-        wicketTester.assertRenderedPage(Types.class);
+        TESTER.clearFeedbackMessages();
+        TESTER.assertRenderedPage(Types.class);
 
-        wicketTester.clickLink("body:content:tabbedPanel:tabs-container:tabs:1:link");
-        wicketTester.assertComponent(DATATABLE_PATH, AjaxDataTablePanel.class);
+        TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:1:link");
+        TESTER.assertComponent(DATATABLE_PATH, AjaxDataTablePanel.class);
 
         Component result = findComponentByProp(KEY, DATATABLE_PATH, anyTypeTest);
 
-        wicketTester.assertLabel(result.getPageRelativePath() + ":cells:1:cell", anyTypeTest);
-        wicketTester.assertLabel(result.getPageRelativePath() + ":cells:3:cell", "[csv]");
+        TESTER.assertLabel(result.getPageRelativePath() + ":cells:1:cell", anyTypeTest);
+        TESTER.assertLabel(result.getPageRelativePath() + ":cells:3:cell", "[csv]");
     }
 
     @Test
@@ -92,23 +93,24 @@ public class AnyTypesITCase extends AbstractTypesITCase {
         createAnyTypeClassWithoutSchema(name);
         browsingToAnyTypes();
 
-        wicketTester.assertComponent(
+        TESTER.assertComponent(
                 DATATABLE_PATH
                 + ":tablePanel:groupForm:checkgroup:dataTable:"
                 + "body:rows:1:cells:4:cell:panelEdit:editLink", IndicatingAjaxLink.class);
 
-        wicketTester.clickLink(
+        TESTER.clickLink(
                 DATATABLE_PATH
                 + ":tablePanel:groupForm:checkgroup:dataTable:body:rows:1:cells:4:cell:panelEdit:editLink");
 
-        final FormTester formTester = wicketTester.newFormTester(
+        final FormTester formTester = TESTER.newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.setValue(
                 "content:anyTypeDetailsPanel:container:form:classes:paletteField:recorder", name + ",minimal group");
 
-        wicketTester.clickLink(
+        TESTER.clearFeedbackMessages();
+        TESTER.clickLink(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
-        wicketTester.assertInfoMessages("Operation executed successfully");
+        TESTER.assertInfoMessages("Operation executed successfully");
     }
 
     @Test
@@ -117,24 +119,23 @@ public class AnyTypesITCase extends AbstractTypesITCase {
         createAnyType(name);
         browsingToAnyTypes();
 
-        wicketTester.assertComponent(DATATABLE_PATH, AjaxDataTablePanel.class);
+        TESTER.assertComponent(DATATABLE_PATH, AjaxDataTablePanel.class);
         Component result = findComponentByProp(KEY, DATATABLE_PATH, name);
 
         assertNotNull(result);
-        wicketTester.assertComponent(
+        TESTER.assertComponent(
                 result.getPageRelativePath() + ":cells:4:cell:panelDelete:deleteLink",
                 IndicatingOnConfirmAjaxLink.class);
 
-        wicketTester.getRequest().addParameter("confirm", "true");
-        wicketTester.clickLink(
-                wicketTester.getComponentFromLastRenderedPage(
+        TESTER.getRequest().addParameter("confirm", "true");
+        TESTER.clickLink(TESTER.getComponentFromLastRenderedPage(
                         result.getPageRelativePath() + ":cells:4:cell:panelDelete:deleteLink"));
 
-        wicketTester.executeAjaxEvent(wicketTester.getComponentFromLastRenderedPage(
+        TESTER.executeAjaxEvent(TESTER.getComponentFromLastRenderedPage(
                 result.getPageRelativePath() + ":cells:4:cell:panelDelete:deleteLink"), "onclick");
-        wicketTester.assertInfoMessages("Operation executed successfully");
+        TESTER.assertInfoMessages("Operation executed successfully");
 
-        wicketTester.cleanupFeedbackMessages();
+        TESTER.cleanupFeedbackMessages();
         result = findComponentByProp(KEY, DATATABLE_PATH, name);
 
         assertNull(result);

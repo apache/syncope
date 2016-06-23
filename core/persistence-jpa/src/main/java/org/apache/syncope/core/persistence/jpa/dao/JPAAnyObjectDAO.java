@@ -27,6 +27,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import org.apache.commons.collections4.CollectionUtils;
@@ -40,6 +41,7 @@ import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
@@ -54,6 +56,7 @@ import org.apache.syncope.core.persistence.jpa.entity.JPAAnyUtilsFactory;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAADynGroupMembership;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAARelationship;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAURelationship;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -124,6 +127,38 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
     }
 
     @Override
+    public AnyObject findByName(final String name) {
+        TypedQuery<AnyObject> query = entityManager().createQuery(
+                "SELECT e FROM " + JPAAnyObject.class.getSimpleName() + " e WHERE e.name = :name", AnyObject.class);
+        query.setParameter("name", name);
+
+        AnyObject result = null;
+        try {
+            result = query.getSingleResult();
+        } catch (NoResultException e) {
+            LOG.debug("No any object found with name {}", name, e);
+        }
+
+        return result;
+    }
+
+    @Override
+    public AnyObject authFindByName(final String name) {
+        if (name == null) {
+            throw new NotFoundException("Null name");
+        }
+
+        AnyObject anyObject = findByName(name);
+        if (anyObject == null) {
+            throw new NotFoundException("Any Object " + name);
+        }
+
+        securityChecks(anyObject);
+
+        return anyObject;
+    }
+
+    @Override
     public List<ARelationship> findARelationships(final AnyObject anyObject) {
         TypedQuery<ARelationship> query = entityManager().createQuery(
                 "SELECT e FROM " + JPAARelationship.class.getSimpleName()
@@ -177,12 +212,29 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
     public List<Group> findDynGroupMemberships(final AnyObject anyObject) {
-        TypedQuery<Group> query = entityManager().createQuery(
-                "SELECT e.group FROM " + JPAADynGroupMembership.class.getSimpleName()
-                + " e WHERE :anyObject MEMBER OF e.anyObjects", Group.class);
-        query.setParameter("anyObject", anyObject);
+        Query query = entityManager().createNativeQuery(
+                "SELECT t2.id FROM " + JPAADynGroupMembership.TABLE + " t0 "
+                + "INNER JOIN ADynGroupMembership_AnyObject t1 "
+                + "ON t0.id = t1.aDynGroupMembership_id "
+                + "LEFT OUTER JOIN " + JPAGroup.TABLE + " t2 "
+                + "ON t0.GROUP_ID = t2.id "
+                + "WHERE t1.anyObject_id = ?1");
+        query.setParameter(1, anyObject.getKey());
 
-        return query.getResultList();
+        List<Group> result = new ArrayList<>();
+        for (Object key : query.getResultList()) {
+            String actualKey = key instanceof Object[]
+                    ? (String) ((Object[]) key)[0]
+                    : ((String) key);
+
+            Group group = groupDAO.find(actualKey);
+            if (group == null) {
+                LOG.error("Could not find group with id {}, even though returned by the native query", actualKey);
+            } else if (!result.contains(group)) {
+                result.add(group);
+            }
+        }
+        return result;
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)

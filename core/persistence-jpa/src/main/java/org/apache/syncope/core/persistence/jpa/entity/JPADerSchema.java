@@ -18,22 +18,20 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
-import javax.persistence.Cacheable;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.OneToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
-import org.apache.syncope.core.persistence.jpa.validation.entity.SchemaKeyCheck;
 
 @Entity
 @Table(name = JPADerSchema.TABLE)
-@Cacheable
-@SchemaKeyCheck
-public class JPADerSchema extends AbstractProvidedKeyEntity implements DerSchema {
+@PrimaryKeyJoinColumn(name = "id", referencedColumnName = "id")
+public class JPADerSchema extends AbstractSchema implements DerSchema {
 
     private static final long serialVersionUID = -6173643493348674060L;
 

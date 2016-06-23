@@ -17,14 +17,15 @@
  * under the License.
  */
 
+/* global message, component, $state, rootScope */
+
 'use strict';
 
-angular.module("self").controller("UserController", ['$scope', '$rootScope', '$location', '$compile', 'AuthService',
-  'UserSelfService', 'SchemaService', 'RealmService', 'ResourceService', 'SecurityQuestionService', 'CaptchaService',
-  'GroupService', 'AnyService', 'UserUtil', 'GenericUtil', "ValidationExecutor",
-  function ($scope, $rootScope, $location, $compile, AuthService, UserSelfService, SchemaService, RealmService,
-          ResourceService, SecurityQuestionService, CaptchaService, GroupService, AnyService, UserUtil, GenericUtil,
-          ValidationExecutor) {
+angular.module("self").controller("UserController", ['$scope', '$rootScope', '$location', '$compile', "$state", 'AuthService',
+  'UserSelfService', 'SchemaService', 'RealmService', 'ResourceService', 'SecurityQuestionService', 'GroupService',
+  'AnyService', 'UserUtil', 'GenericUtil', "ValidationExecutor",
+  function ($scope, $rootScope, $location, $compile, $state, AuthService, UserSelfService, SchemaService, RealmService,
+          ResourceService, SecurityQuestionService, GroupService, AnyService, UserUtil, GenericUtil, ValidationExecutor) {
 
     $scope.user = {};
     $scope.confirmPassword = {
@@ -42,7 +43,6 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
     };
 
     $scope.initUser = function () {
-
       $scope.dynamicForm = {
         plainSchemas: [],
         derSchemas: [],
@@ -78,17 +78,13 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
       var initSchemaValues = function (schemas) {
         // initialize plain attributes
         for (var i = 0; i < schemas.plainSchemas.length; i++) {
-
           var plainSchemaKey = schemas.plainSchemas[i].key;
-
           if (!$scope.user.plainAttrs[plainSchemaKey]) {
-
             $scope.user.plainAttrs[plainSchemaKey] = {
               schema: plainSchemaKey,
               values: [],
               readonly: schemas.plainSchemas[i].readonly
             };
-
             // initialize multivalue schema and support table: create mode, only first value
             if (schemas.plainSchemas[i].multivalue) {
               $scope.dynamicForm.attributeTable[schemas.plainSchemas[i].key] = {
@@ -109,27 +105,20 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
 
         // initialize derived attributes
         for (var i = 0; i < schemas.derSchemas.length; i++) {
-
           var derSchemaKey = schemas.derSchemas[i].key;
-
           if (!$scope.user.derAttrs[derSchemaKey]) {
-
             $scope.user.derAttrs[derSchemaKey] = {
               schema: derSchemaKey,
               values: [],
               readonly: true
             };
-
           }
         }
 
         // initialize virtual attributes
         for (var i = 0; i < schemas.virSchemas.length; i++) {
-
           var virSchemaKey = schemas.virSchemas[i].key;
-
           if (!$scope.user.virAttrs[virSchemaKey]) {
-
             $scope.user.virAttrs[virSchemaKey] = {
               schema: virSchemaKey,
               values: [],
@@ -255,8 +244,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
           }
           if ($scope.user.mustChangePassword) {
             $location.path('/mustchangepassword')
-          }
-          else {
+          } else {
             initProperties();
           }
         }, function (e) {
@@ -331,20 +319,18 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
         // read user from syncope core
         readUser();
       }
-
     };
 
     $scope.saveUser = function (user) {
       console.debug("Save user: ", user);
-
       var wrappedUser = UserUtil.getWrappedUser(user);
 
       if ($scope.createMode) {
-
         UserSelfService.create(wrappedUser, $scope.captchaInput.value).then(function (response) {
-          console.info("Created user: ", response);
-          $scope.showSuccess("User " + $scope.user.username + " successfully created", $scope.notification);
-          $location.path('/self');
+          console.info("User " + $scope.user.username + " SUCCESSFULLY_CREATED");
+          $rootScope.currentUser = $scope.user.username;
+          $rootScope.currentOp = "SUCCESSFULLY_CREATED";
+          $state.go('success');
         }, function (response) {
           console.error("Error during user creation: ", response);
           var errorMessage;
@@ -355,15 +341,15 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
           }
           $scope.showError("Error: " + (errorMessage || response), $scope.notification);
         });
-
       } else {
-
         UserSelfService.update(wrappedUser, $scope.captchaInput.value).then(function (response) {
           console.debug("Updated user: ", response);
           AuthService.logout().then(function (response) {
             console.info("LOGOUT SUCCESS: ", response);
-            $location.path('/self');
-            $scope.showSuccess("User " + $scope.user.username + " successfully updated", $scope.notification);
+            console.info("User " + $scope.user.username + " SUCCESSFULLY_UPDATED");
+            $rootScope.currentUser = $scope.user.username;
+            $rootScope.currentOp = "SUCCESSFULLY_UPDATED";
+            $state.go('success');
           }, function () {
             console.error("LOGOUT FAILED");
           });
@@ -395,8 +381,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
             }
             $scope.showError("Error retrieving user security question: " + errorMessage, $scope.notification);
           });
-        }
-        else {
+        } else {
           $scope.userSecurityQuestion = "";
         }
       }
@@ -405,8 +390,10 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
       if (user && user.username) {
         $scope.retrieveSecurityQuestion(user);
         UserSelfService.passwordReset(user, $scope.captchaInput.value).then(function (data) {
-          $scope.showSuccess(data, $scope.notification);
-          $location.path('/self');
+          console.info("User " + $scope.user.username);
+          $rootScope.currentUser = $scope.user.username;
+          $rootScope.currentOp = "PASSWORD_UPDATED";
+          $state.go('success');
         }, function (response) {
           var errorMessage;
           // parse error response 

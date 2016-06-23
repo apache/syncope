@@ -18,7 +18,18 @@
  */
 package org.apache.syncope.client.console.pages;
 
+import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbedPanel;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
+import org.apache.syncope.client.console.policies.AccountPolicyDirectoryPanel;
+import org.apache.syncope.client.console.policies.PasswordPolicyDirectoryPanel;
+import org.apache.syncope.client.console.policies.PullPolicyDirectoryPanel;
+import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
+import org.apache.wicket.extensions.markup.html.tabs.ITab;
+import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 public class Policies extends BasePage {
@@ -29,5 +40,47 @@ public class Policies extends BasePage {
         super(parameters);
 
         body.add(BookmarkablePageLinkBuilder.build("dashboard", "dashboardBr", Dashboard.class));
+
+        WebMarkupContainer content = new WebMarkupContainer("content");
+        content.setOutputMarkupId(true);
+        content.setMarkupId("policies");
+        content.add(new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList()));
+        body.add(content);
+    }
+
+    private List<ITab> buildTabList() {
+        final List<ITab> tabs = new ArrayList<>();
+
+        tabs.add(new AbstractTab(new ResourceModel("policy.account")) {
+
+            private static final long serialVersionUID = -6815067322125799251L;
+
+            @Override
+            public Panel getPanel(final String panelId) {
+                return new AccountPolicyDirectoryPanel(panelId, getPageReference());
+            }
+        });
+
+        tabs.add(new AbstractTab(new ResourceModel("policy.password")) {
+
+            private static final long serialVersionUID = -6815067322125799251L;
+
+            @Override
+            public Panel getPanel(final String panelId) {
+                return new PasswordPolicyDirectoryPanel(panelId, getPageReference());
+            }
+        });
+
+        tabs.add(new AbstractTab(new ResourceModel("policy.pull")) {
+
+            private static final long serialVersionUID = -6815067322125799251L;
+
+            @Override
+            public Panel getPanel(final String panelId) {
+                return new PullPolicyDirectoryPanel(panelId, getPageReference());
+            }
+        });
+
+        return tabs;
     }
 }

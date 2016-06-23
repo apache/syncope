@@ -127,7 +127,7 @@ public class TaskResultManager extends CommonsResultManager {
         System.out.println("     is perform create: " + pushTaskTO.isPerformCreate());
         System.out.println("     is perform delete: " + pushTaskTO.isPerformDelete());
         System.out.println("     is perform update: " + pushTaskTO.isPerformUpdate());
-        System.out.println("     is pull status: " + pushTaskTO.isPullStatus());
+        System.out.println("     is pull status: " + pushTaskTO.isSyncStatus());
         System.out.println("     start date: " + pushTaskTO.getStart());
         System.out.println("     end date: " + pushTaskTO.getEnd());
         System.out.println("     last execution: " + pushTaskTO.getLastExec());
@@ -168,7 +168,7 @@ public class TaskResultManager extends CommonsResultManager {
         System.out.println("     perform create: " + pullTaskTO.isPerformCreate());
         System.out.println("     perform delete: " + pullTaskTO.isPerformDelete());
         System.out.println("     perform update: " + pullTaskTO.isPerformUpdate());
-        System.out.println("     pull status: " + pullTaskTO.isPullStatus());
+        System.out.println("     pull status: " + pullTaskTO.isSyncStatus());
         System.out.println("     TEMPLATES:");
         printTemplates(pullTaskTO.getTemplates());
         System.out.println("     start date: " + pullTaskTO.getStart());

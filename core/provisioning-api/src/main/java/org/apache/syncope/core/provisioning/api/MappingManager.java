@@ -41,14 +41,15 @@ public interface MappingManager {
     String getConnObjectKeyValue(Any<?> any, Provision provision);
 
     /**
-     * Get attribute values for the given {@link MappingItem} and any objects.
+     * Get attribute values for the given {@link MappingItem} and any object.
      *
      * @param provision provision information
-     * @param mappingItem mapping item
-     * @param anys any objects
+     * @param mapItem mapping item
+     * @param intAttrName int attr name
+     * @param any any object
      * @return attribute values.
      */
-    List<PlainAttrValue> getIntValues(Provision provision, MappingItem mappingItem, List<Any<?>> anys);
+    List<PlainAttrValue> getIntValues(Provision provision, MappingItem mapItem, IntAttrName intAttrName, Any<?> any);
 
     /**
      * Prepare attributes for sending to a connector instance.
@@ -68,11 +69,11 @@ public interface MappingManager {
      * connector.
      *
      * @param <T> any object
-     * @param mappingItem mapping item
+     * @param mapItem mapping item
      * @param attr attribute received from connector
      * @param anyTO any object
      * @param anyUtils any utils
      */
-    <T extends AnyTO> void setIntValues(MappingItem mappingItem, Attribute attr, T anyTO, AnyUtils anyUtils);
+    <T extends AnyTO> void setIntValues(MappingItem mapItem, Attribute attr, T anyTO, AnyUtils anyUtils);
 
 }

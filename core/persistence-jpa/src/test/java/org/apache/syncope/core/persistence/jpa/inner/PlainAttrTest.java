@@ -170,7 +170,7 @@ public class PlainAttrTest extends AbstractTest {
         // for attribute
         assertTrue(iee.hasViolation(EntityViolationType.InvalidValueList));
         // for uauv
-        assertTrue(iee.hasViolation(EntityViolationType.InvalidPlainSchema));
+        assertTrue(iee.hasViolation(EntityViolationType.InvalidPlainAttr));
     }
 
     @Test

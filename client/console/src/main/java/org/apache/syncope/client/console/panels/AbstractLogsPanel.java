@@ -23,6 +23,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.common.lib.AbstractBaseBean;
@@ -76,13 +77,14 @@ public abstract class AbstractLogsPanel<T extends AbstractBaseBean> extends Pane
                             try {
                                 loggerTO.setLevel(loggerTOs.getModelObject());
                                 update(loggerTO);
-                                info(getString(Constants.OPERATION_SUCCEEDED));
+                                SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                                 target.add(loggerTOs);
                             } catch (SyncopeClientException e) {
                                 LOG.error("Error updating the logger level", e);
-                                error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+                                SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().
+                                        getName() : e.getMessage());
                             }
-                            SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                            ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                         }
                     });
                     return loggerTOs;

@@ -18,16 +18,13 @@ under the License.
 -->
 <div ng-cloak class="container">
   <div class="login-container" ng-controller="UserController" ng-init="initUser();" style="box-sizing: border-box; ">
-
     <div id="form-container" class="col-md-6 col-md-offset-3" style="box-sizing: border-box; background-color: #F7F7F7;">
-
       <div>
         <div class="page-header" style="text-align: left; font-weight: 700;">          
-          <span ng-show="createMode">New User</span>
-          <span ng-show="!createMode">User {{user.username}}</span>
+          <span ng-show="createMode">{{'NEWUSER'| translate}}</span>
+          <span ng-show="!createMode">{{'USER'| translate}} {{user.username}}</span>
         </div>
         <div class="breadcrumb-header text-center">
-
           <!-- the links to our nested states using relative paths -->
           <!-- add the active class if the state matches our ui-sref -->
           <!--<div id="status-buttons" class="text-center">-->
@@ -38,29 +35,13 @@ under the License.
               <a class="btn btn-default" ng-show="!createMode" ng-click="logout()"><i class="glyphicon glyphicon-off"style="color:red"></i></a>
               <!--add class breadcrumb-disabled-link to buttons to prevent click-->              
               <a ng-repeat="(key, value) in wizard" ui-sref-active="active" ui-sref=".{{key}}" class="btn btn-default" 
-                 ng-class="createMode ? 'disable-link' : ''">{{key}}</a>       
+                 ng-class="createMode ? 'disable-link' : ''">{{key | translate}}</a>       
             </div>
           </div>
         </div>
         <form class="signup-form" name="userForm" ng-submit="saveUser(user)" novalidate>
-
           <div id="form-views" ui-view>
-
-            <!--            <div class="form-group row">
-                          <div class="col-xs-6 col-xs-offset-3">
-                            <a id="next" ui-sref="create.credentials" class="btn btn-block btn-signin">
-                              Start <span class="glyphicon glyphicon-circle-arrow-right"></span>
-                            </a> 
-                            <a id="cancel" href="#/self" class="btn btn-link">Cancel</a>
-                          </div>
-                        </div>-->
-
           </div>
-          <!--            <div class="form-actions">
-                        <button type="submit" ng-disabled="form.$invalid || vm.dataLoading" class="btn btn-primary" ng-click="saveUser()">Register</button>
-                        <img ng-if="vm.dataLoading" src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==" />
-                        <a href="#/self" class="btn btn-link">Cancel</a>
-                      </div>-->
         </form>
       </div>
     </div>

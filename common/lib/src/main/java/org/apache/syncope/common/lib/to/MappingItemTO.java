@@ -26,7 +26,6 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.AbstractBaseBean;
-import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 
 @XmlRootElement(name = "mappingItem")
@@ -42,11 +41,6 @@ public class MappingItemTO extends AbstractBaseBean implements EntityTO {
      * different aliases, to different resource attributes.
      */
     private String intAttrName;
-
-    /**
-     * Schema type to be mapped.
-     */
-    private IntMappingType intMappingType;
 
     /**
      * External resource's field to be mapped.
@@ -72,6 +66,16 @@ public class MappingItemTO extends AbstractBaseBean implements EntityTO {
      * Mapping purposes.
      */
     private MappingPurpose purpose;
+
+    /**
+     * (Optional) JEXL expression to apply to values before propagation.
+     */
+    private String propagationJEXLTransformer;
+
+    /**
+     * (Optional) JEXL expression to apply to values before pull.
+     */
+    private String pullJEXLTransformer;
 
     private final List<String> mappingItemTransformerClassNames = new ArrayList<>();
 
@@ -125,20 +129,28 @@ public class MappingItemTO extends AbstractBaseBean implements EntityTO {
         this.intAttrName = intAttrName;
     }
 
-    public IntMappingType getIntMappingType() {
-        return intMappingType;
-    }
-
-    public void setIntMappingType(final IntMappingType intMappingType) {
-        this.intMappingType = intMappingType;
-    }
-
     public MappingPurpose getPurpose() {
         return purpose;
     }
 
     public void setPurpose(final MappingPurpose purpose) {
         this.purpose = purpose;
+    }
+
+    public String getPropagationJEXLTransformer() {
+        return propagationJEXLTransformer;
+    }
+
+    public void setPropagationJEXLTransformer(final String propagationJEXLTransformer) {
+        this.propagationJEXLTransformer = propagationJEXLTransformer;
+    }
+
+    public String getPullJEXLTransformer() {
+        return pullJEXLTransformer;
+    }
+
+    public void setPullJEXLTransformer(final String pullJEXLTransformer) {
+        this.pullJEXLTransformer = pullJEXLTransformer;
     }
 
     @XmlElementWrapper(name = "mappingItemTransformerClassNames")

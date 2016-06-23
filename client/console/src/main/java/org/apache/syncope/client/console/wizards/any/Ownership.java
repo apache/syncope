@@ -57,6 +57,7 @@ import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.util.ListModel;
 
 public class Ownership extends WizardStep {
@@ -93,6 +94,7 @@ public class Ownership extends WizardStep {
 
     public Ownership(final GroupWrapper groupWrapper, final PageReference pageRef) {
         super();
+        setTitleModel(new ResourceModel("group.ownership"));
         this.wrapper = groupWrapper;
 
         isGroupOwnership = Model.of(groupWrapper.getInnerObject().getGroupOwner() != null);

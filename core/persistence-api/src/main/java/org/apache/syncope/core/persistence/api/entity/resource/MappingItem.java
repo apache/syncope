@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.api.entity.resource;
 
 import java.util.List;
-import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 
@@ -37,10 +36,6 @@ public interface MappingItem extends Entity {
 
     void setIntAttrName(String intAttrName);
 
-    IntMappingType getIntMappingType();
-
-    void setIntMappingType(IntMappingType intMappingType);
-
     String getMandatoryCondition();
 
     void setMandatoryCondition(String condition);
@@ -56,6 +51,14 @@ public interface MappingItem extends Entity {
     boolean isPassword();
 
     void setPassword(boolean password);
+
+    String getPropagationJEXLTransformer();
+
+    void setPropagationJEXLTransformer(String propagationJEXLTransformer);
+
+    String getPullJEXLTransformer();
+
+    void setPullJEXLTransformer(String pullJEXLTransformer);
 
     List<String> getMappingItemTransformerClassNames();
 

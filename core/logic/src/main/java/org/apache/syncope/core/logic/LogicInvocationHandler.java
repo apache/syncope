@@ -81,8 +81,7 @@ public class LogicInvocationHandler {
             LOG.debug("After throwing {}.{}", clazz.getSimpleName(), event);
             throw t;
         } finally {
-            notificationManager.createTasks(
-                    AuditElements.EventCategoryType.REST,
+            notificationManager.createTasks(AuditElements.EventCategoryType.LOGIC,
                     category,
                     null,
                     event,
@@ -91,8 +90,7 @@ public class LogicInvocationHandler {
                     output,
                     input);
 
-            auditManager.audit(
-                    AuditElements.EventCategoryType.REST,
+            auditManager.audit(AuditElements.EventCategoryType.LOGIC,
                     category,
                     null,
                     event,

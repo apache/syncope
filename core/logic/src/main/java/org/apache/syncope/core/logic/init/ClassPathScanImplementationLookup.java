@@ -55,6 +55,9 @@ import org.springframework.util.ClassUtils;
 import org.apache.syncope.core.provisioning.api.pushpull.ReconciliationFilterBuilder;
 import org.apache.syncope.core.provisioning.api.pushpull.PullCorrelationRule;
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
+import org.apache.syncope.core.provisioning.java.data.JEXLMappingItemTransformerImpl;
+import org.apache.syncope.core.provisioning.java.job.GroupMemberProvisionTaskJobDelegate;
+import org.apache.syncope.core.provisioning.java.pushpull.PlainAttrsPullCorrelationRule;
 
 /**
  * Cache class names for all implementations of Syncope interfaces found in classpath, for later usage.
@@ -121,28 +124,35 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                 }
 
                 if (AccountRule.class.isAssignableFrom(clazz) && !isAbsractClazz) {
-                    classNames.get(Type.ACCOUNT_RULE).add(clazz.getName());
-
                     AccountRuleConfClass annotation = clazz.getAnnotation(AccountRuleConfClass.class);
-                    if (annotation != null) {
+                    if (annotation == null) {
+                        LOG.warn("Found account policy rule {} without declared configuration", clazz.getName());
+                    } else {
+                        classNames.get(Type.ACCOUNT_RULE_CONF).add(annotation.value().getName());
                         accountRuleClasses.put(annotation.value(), (Class<? extends AccountRule>) clazz);
                     }
                 }
+
                 if (PasswordRule.class.isAssignableFrom(clazz) && !isAbsractClazz) {
-                    classNames.get(Type.PASSWORD_RULE).add(clazz.getName());
                     PasswordRuleConfClass annotation = clazz.getAnnotation(PasswordRuleConfClass.class);
-                    if (annotation != null) {
+                    if (annotation == null) {
+                        LOG.warn("Found password policy rule {} without declared configuration", clazz.getName());
+                    } else {
+                        classNames.get(Type.PASSWORD_RULE_CONF).add(annotation.value().getName());
                         passwordRuleClasses.put(annotation.value(), (Class<? extends PasswordRule>) clazz);
                     }
                 }
 
-                if (MappingItemTransformer.class.isAssignableFrom(clazz) && !isAbsractClazz) {
+                if (MappingItemTransformer.class.isAssignableFrom(clazz) && !isAbsractClazz
+                        && !clazz.equals(JEXLMappingItemTransformerImpl.class)) {
+
                     classNames.get(Type.MAPPING_ITEM_TRANSFORMER).add(clazz.getName());
                 }
 
                 if (SchedTaskJobDelegate.class.isAssignableFrom(clazz) && !isAbsractClazz
                         && !PullJobDelegate.class.isAssignableFrom(clazz)
-                        && !PushJobDelegate.class.isAssignableFrom(clazz)) {
+                        && !PushJobDelegate.class.isAssignableFrom(clazz)
+                        && !GroupMemberProvisionTaskJobDelegate.class.isAssignableFrom(clazz)) {
 
                     classNames.get(Type.TASKJOBDELEGATE).add(bd.getBeanClassName());
                 }
@@ -167,7 +177,8 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                     classNames.get(Type.PUSH_ACTIONS).add(bd.getBeanClassName());
                 }
 
-                if (PullCorrelationRule.class.isAssignableFrom(clazz) && !isAbsractClazz) {
+                if (PullCorrelationRule.class.isAssignableFrom(clazz) && !isAbsractClazz
+                        && !PlainAttrsPullCorrelationRule.class.isAssignableFrom(clazz)) {
                     classNames.get(Type.PULL_CORRELATION_RULE).add(bd.getBeanClassName());
                 }
 

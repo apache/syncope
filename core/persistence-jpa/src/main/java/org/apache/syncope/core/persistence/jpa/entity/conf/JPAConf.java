@@ -47,7 +47,7 @@ public class JPAConf extends AbstractProvidedKeyEntity implements Conf {
 
     public static final String TABLE = "SyncopeConf";
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "owner")
     @Valid
     private List<JPACPlainAttr> plainAttrs = new ArrayList<>();
 
@@ -55,6 +55,12 @@ public class JPAConf extends AbstractProvidedKeyEntity implements Conf {
     public boolean add(final CPlainAttr attr) {
         checkType(attr, JPACPlainAttr.class);
         return plainAttrs.add((JPACPlainAttr) attr);
+    }
+
+    @Override
+    public boolean remove(final CPlainAttr attr) {
+        checkType(attr, JPACPlainAttr.class);
+        return plainAttrs.remove((JPACPlainAttr) attr);
     }
 
     @Override
@@ -80,7 +86,7 @@ public class JPAConf extends AbstractProvidedKeyEntity implements Conf {
     }
 
     @Override
-    public List<String> getResourceNames() {
+    public List<String> getResourceKeys() {
         return Collections.emptyList();
     }
 

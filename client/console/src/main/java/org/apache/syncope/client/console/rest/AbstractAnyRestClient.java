@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.console.rest;
 
-import static org.apache.syncope.client.console.rest.BaseRestClient.getService;
-
 import java.util.List;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
@@ -45,14 +43,9 @@ public abstract class AbstractAnyRestClient<TO extends AnyTO, P extends AnyPatch
 
     protected abstract Class<? extends AnyService<TO, P>> getAnyServiceClass();
 
-    public abstract int count(String realm, String type);
-
-    public abstract List<TO> list(String realm, int page, int size, SortParam<String> sort, String type);
-
     public abstract int searchCount(String realm, String fiql, String type);
 
-    public abstract List<TO> search(
-            String realm, String fiql, int page, int size, SortParam<String> sort, String type);
+    public abstract List<TO> search(String realm, String fiql, int page, int size, SortParam<String> sort, String type);
 
     public TO read(final String key) {
         return getService(getAnyServiceClass()).read(key);

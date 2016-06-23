@@ -28,7 +28,7 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "accountPolicy")
 @XmlType
-public class AccountPolicyTO extends AbstractPolicyTO {
+public class AccountPolicyTO extends AbstractPolicyTO implements ComposablePolicy<AbstractAccountRuleConf> {
 
     private static final long serialVersionUID = -1557150042828800134L;
 
@@ -38,7 +38,7 @@ public class AccountPolicyTO extends AbstractPolicyTO {
 
     private final List<AbstractAccountRuleConf> ruleConfs = new ArrayList<>();
 
-    private final List<String> resources = new ArrayList<>();
+    private final List<String> passthroughResources = new ArrayList<>();
 
     public boolean isPropagateSuspension() {
         return propagateSuspension;
@@ -59,14 +59,15 @@ public class AccountPolicyTO extends AbstractPolicyTO {
     @XmlElementWrapper(name = "ruleConfs")
     @XmlElement(name = "ruleConf")
     @JsonProperty("ruleConfs")
+    @Override
     public List<AbstractAccountRuleConf> getRuleConfs() {
         return ruleConfs;
     }
 
-    @XmlElementWrapper(name = "resources")
-    @XmlElement(name = "resource")
-    @JsonProperty("resources")
-    public List<String> getResources() {
-        return resources;
+    @XmlElementWrapper(name = "passthroughResources")
+    @XmlElement(name = "passthroughResource")
+    @JsonProperty("passthroughResources")
+    public List<String> getPassthroughResources() {
+        return passthroughResources;
     }
 }

@@ -193,9 +193,7 @@ public final class JexlUtils {
         return Boolean.parseBoolean(evaluate(mandatoryCondition, jexlContext));
     }
 
-    public static String evaluate(final String expression, final AnyTO anyTO) {
-        final JexlContext context = new MapContext();
-
+    public static String evaluate(final String expression, final AnyTO anyTO, final JexlContext context) {
         addFieldsToContext(anyTO, context);
 
         for (AttrTO plainAttr : anyTO.getPlainAttrs()) {

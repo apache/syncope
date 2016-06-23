@@ -19,6 +19,10 @@
 package org.apache.syncope.client.console.wizards.resources;
 
 import java.util.List;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.wicket.markup.html.list.ConnConfPropertyListView;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
@@ -56,7 +60,13 @@ public abstract class AbstractConnConfPanel<T extends AbstractBaseBean> extends 
 
             @Override
             public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-                check(target);
+                final Pair<Boolean, String> result = check(target);
+                if (result.getLeft()) {
+                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                } else {
+                    SyncopeConsoleSession.get().error(getString("error_connection") + ": " + result.getRight());
+                }
+                ((BasePage) getPage()).getNotificationPanel().refresh(target);
             }
         };
         propertiesContainer.add(check);
@@ -67,7 +77,7 @@ public abstract class AbstractConnConfPanel<T extends AbstractBaseBean> extends 
                 "connectorProperties", model, withOverridable).setOutputMarkupId(true));
     }
 
-    protected abstract void check(final AjaxRequestTarget taget);
+    protected abstract Pair<Boolean, String> check(final AjaxRequestTarget taget);
 
     protected abstract List<ConnConfProperty> getConnProperties(final T instance);
 }

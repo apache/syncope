@@ -89,43 +89,40 @@ public class MigrateConf {
         return value;
     }
 
-    private static String toNewIntMappingType(final String oldIntMappingType) {
-        String newIntMappingType;
-        switch (oldIntMappingType) {
+    private static void writeIntAttrName(
+            final String intMappingType,
+            final String intAttrNameKey,
+            final String intAttrNameValue,
+            final XMLStreamWriter writer)
+            throws XMLStreamException {
+
+        switch (intMappingType) {
             case "UserId":
-                newIntMappingType = "UserKey";
-                break;
-
-            case "UserSchema":
-            case "MembershipSchema":
-                newIntMappingType = "UserPlainSchema";
-                break;
-
-            case "MembershipDerivedSchema":
-                newIntMappingType = "UserDerivedSchema";
-                break;
-
             case "RoleId":
-                newIntMappingType = "GroupKey";
+                writer.writeAttribute(intAttrNameKey, "key");
+                break;
+
+            case "Username":
+                writer.writeAttribute(intAttrNameKey, "username");
+                break;
+
+            case "Password":
+                writer.writeAttribute(intAttrNameKey, "password");
                 break;
 
             case "RoleName":
-                newIntMappingType = "GroupName";
+                writer.writeAttribute(intAttrNameKey, "name");
                 break;
 
             case "RoleOwnerSchema":
-                newIntMappingType = "GroupOwnerSchema";
-                break;
-
-            case "RoleSchema":
-                newIntMappingType = "RolePlainSchema";
+                writer.writeAttribute(intAttrNameKey, "userOwner");
                 break;
 
             default:
-                newIntMappingType = oldIntMappingType;
+                if (StringUtils.isNotBlank(intAttrNameValue)) {
+                    writer.writeAttribute(intAttrNameKey, intAttrNameValue);
+                }
         }
-
-        return newIntMappingType;
     }
 
     private static void exec(final String src, final String dst) throws XMLStreamException, IOException {
@@ -201,6 +198,9 @@ public class MigrateConf {
                         break;
 
                     case "cschema":
+                        writer.writeStartElement("SyncopeSchema");
+                        writer.writeAttribute("id", getAttributeValue(reader, "name"));
+
                         writer.writeStartElement("PlainSchema");
                         copyAttrs(reader, writer);
                         writer.writeAttribute("id", getAttributeValue(reader, "name"));
@@ -228,6 +228,9 @@ public class MigrateConf {
                         break;
 
                     case "uschema":
+                        writer.writeStartElement("SyncopeSchema");
+                        writer.writeAttribute("id", getAttributeValue(reader, "name"));
+
                         writer.writeStartElement("PlainSchema");
                         copyAttrs(reader, writer);
                         writer.writeAttribute("id", getAttributeValue(reader, "name"));
@@ -236,6 +239,9 @@ public class MigrateConf {
                         break;
 
                     case "uderschema":
+                        writer.writeStartElement("SyncopeSchema");
+                        writer.writeAttribute("id", getAttributeValue(reader, "name"));
+
                         writer.writeStartElement("DerSchema");
                         copyAttrs(reader, writer);
                         writer.writeAttribute("id", getAttributeValue(reader, "name"));
@@ -251,6 +257,9 @@ public class MigrateConf {
                         break;
 
                     case "rschema":
+                        writer.writeStartElement("SyncopeSchema");
+                        writer.writeAttribute("id", getAttributeValue(reader, "name"));
+
                         writer.writeStartElement("PlainSchema");
                         copyAttrs(reader, writer);
                         writer.writeAttribute("id", getAttributeValue(reader, "name"));
@@ -259,6 +268,9 @@ public class MigrateConf {
                         break;
 
                     case "rderschema":
+                        writer.writeStartElement("SyncopeSchema");
+                        writer.writeAttribute("id", getAttributeValue(reader, "name"));
+
                         writer.writeStartElement("DerSchema");
                         copyAttrs(reader, writer);
                         writer.writeAttribute("id", getAttributeValue(reader, "name"));
@@ -274,6 +286,9 @@ public class MigrateConf {
                         break;
 
                     case "mschema":
+                        writer.writeStartElement("SyncopeSchema");
+                        writer.writeAttribute("id", getAttributeValue(reader, "name"));
+
                         writer.writeStartElement("PlainSchema");
                         copyAttrs(reader, writer);
                         writer.writeAttribute("id", getAttributeValue(reader, "name"));
@@ -282,6 +297,9 @@ public class MigrateConf {
                         break;
 
                     case "mderschema":
+                        writer.writeStartElement("SyncopeSchema");
+                        writer.writeAttribute("id", getAttributeValue(reader, "name"));
+
                         writer.writeStartElement("DerSchema");
                         copyAttrs(reader, writer);
                         writer.writeAttribute("id", getAttributeValue(reader, "name"));
@@ -424,7 +442,7 @@ public class MigrateConf {
                         writer.writeAttribute(
                                 "connector_id", connInstances.get(getAttributeValue(reader, "connector_id")));
 
-                        writer.writeAttribute("pullTraceLevel", getAttributeValue(reader, "syncTraceLevel"));
+                        writer.writeAttribute("provisioningTraceLevel", getAttributeValue(reader, "syncTraceLevel"));
 
                         String syncPolicyKey = policies.get(getAttributeValue(reader, "syncPolicy_id"));
                         if (StringUtils.isNotBlank(syncPolicyKey)) {
@@ -505,15 +523,23 @@ public class MigrateConf {
                         String uIntMappingType = getAttributeValue(reader, "intMappingType");
                         if (uIntMappingType.endsWith("VirtualSchema")) {
                             reporter.writeStartElement("MappingItem");
-                            copyAttrs(reader, reporter, "accountid");
+                            copyAttrs(reader, reporter, "accountid", "intMappingType");
                             reporter.writeEndElement();
                         } else {
                             writer.writeStartElement("MappingItem");
-                            copyAttrs(reader, writer, "accountid", "intMappingType", "mapping_id");
+                            copyAttrs(reader, writer,
+                                    "accountid", "intMappingType", "mapping_id", "intMappingType", "intAttrName");
                             writer.writeAttribute("id", UUID.randomUUID().toString());
-                            writer.writeAttribute("mapping_id", mappings.get(getAttributeValue(reader, "mapping_id")));
-                            writer.writeAttribute("intMappingType", toNewIntMappingType(uIntMappingType));
+                            writer.writeAttribute("mapping_id", mappings.
+                                    get(getAttributeValue(reader, "mapping_id")));
                             writer.writeAttribute("connObjectKey", getAttributeValue(reader, "accountid"));
+
+                            writeIntAttrName(
+                                    uIntMappingType,
+                                    "intAttrName",
+                                    mappings.get(getAttributeValue(reader, "intAttrName")),
+                                    writer);
+
                             writer.writeEndElement();
                         }
                         break;
@@ -548,16 +574,23 @@ public class MigrateConf {
                         String rIntMappingType = getAttributeValue(reader, "intMappingType");
                         if (rIntMappingType.endsWith("VirtualSchema")) {
                             reporter.writeStartElement("MappingItem");
-                            copyAttrs(reader, reporter, "accountid");
+                            copyAttrs(reader, reporter, "accountid", "intMappingType");
                             reporter.writeEndElement();
                         } else {
                             writer.writeStartElement("MappingItem");
-                            copyAttrs(reader, writer, "accountid", "intMappingType", "mapping_id");
+                            copyAttrs(reader, writer,
+                                    "accountid", "intMappingType", "mapping_id", "intAttrName");
                             writer.writeAttribute("id", UUID.randomUUID().toString());
                             writer.writeAttribute(
                                     "mapping_id", mappings.get("10" + getAttributeValue(reader, "mapping_id")));
-                            writer.writeAttribute("intMappingType", toNewIntMappingType(rIntMappingType));
                             writer.writeAttribute("connObjectKey", getAttributeValue(reader, "accountid"));
+
+                            writeIntAttrName(
+                                    rIntMappingType,
+                                    "intAttrName",
+                                    mappings.get(getAttributeValue(reader, "intAttrName")),
+                                    writer);
+
                             writer.writeEndElement();
                         }
                         break;
@@ -600,7 +633,7 @@ public class MigrateConf {
 
                             case "SyncTask":
                                 writer.writeAttribute("DTYPE", "PullTask");
-                                writer.writeAttribute("pullStatus", getAttributeValue(reader, "syncStatus"));
+                                writer.writeAttribute("syncStatus", getAttributeValue(reader, "syncStatus"));
 
                                 String fullReconciliation = getAttributeValue(reader, "fullReconciliation");
                                 if ("1".equals(fullReconciliation)) {
@@ -723,12 +756,17 @@ public class MigrateConf {
 
                         writer.writeAttribute("id", lastUUID);
 
-                        copyAttrs(reader, writer, "recipientAttrType", "template",
-                                "userAbout", "roleAbout", "recipients");
+                        copyAttrs(reader, writer,
+                                "recipientAttrType", "template", "userAbout", "roleAbout", "recipients",
+                                "recipientAttrName");
+
                         String recipientAttrType = getAttributeValue(reader, "recipientAttrType");
-                        if (StringUtils.isNotBlank(recipientAttrType)) {
-                            writer.writeAttribute("recipientAttrType", toNewIntMappingType(recipientAttrType));
-                        }
+                        writeIntAttrName(
+                                recipientAttrType,
+                                "recipientAttrName",
+                                mappings.get(getAttributeValue(reader, "recipientAttrName")),
+                                writer);
+
                         String recipients = getAttributeValue(reader, "recipients");
                         if (StringUtils.isNotBlank(recipients)) {
                             writer.writeAttribute("recipientsFIQL", getAttributeValue(reader, "recipients"));

@@ -101,13 +101,12 @@ public class PlainSchemaTest extends AbstractTest {
         schema.setType(AttrSchemaType.Enum);
         schema.setKey("color");
 
-        Exception ex = null;
         try {
             plainSchemaDAO.save(schema);
+            fail();
         } catch (Exception e) {
-            ex = e;
+            assertNotNull(e);
         }
-        assertNotNull(ex);
 
         schema.setEnumerationValues("red" + SyncopeConstants.ENUM_VALUES_SEPARATOR + "yellow");
         schema.setEnumerationKeys("1" + SyncopeConstants.ENUM_VALUES_SEPARATOR + "2");
@@ -146,7 +145,7 @@ public class PlainSchemaTest extends AbstractTest {
             plainSchemaDAO.save(schema);
             fail();
         } catch (InvalidEntityException e) {
-            assertTrue(e.hasViolation(EntityViolationType.InvalidName));
+            assertTrue(e.hasViolation(EntityViolationType.InvalidKey));
         }
     }
 }

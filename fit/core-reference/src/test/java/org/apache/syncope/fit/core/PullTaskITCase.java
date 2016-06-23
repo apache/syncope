@@ -26,6 +26,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -56,17 +57,20 @@ import org.apache.syncope.common.lib.to.MappingItemTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
+import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
+import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.common.lib.types.TaskType;
-import org.apache.syncope.common.rest.api.beans.AnySearchQuery;
+import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
+import org.apache.syncope.common.rest.api.service.ConnectorService;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.core.provisioning.java.pushpull.DBPasswordPullActions;
@@ -164,18 +168,24 @@ public class PullTaskITCase extends AbstractTaskITCase {
         inUserTO.getAuxClasses().add("csv");
         inUserTO.getDerAttrs().add(attrTO("csvuserid", null));
 
-        inUserTO = createUser(inUserTO).getAny();
+        inUserTO = createUser(inUserTO).getEntity();
         assertNotNull(inUserTO);
         assertFalse(inUserTO.getResources().contains(RESOURCE_NAME_CSV));
 
         // -----------------------------
         try {
-            int usersPre = userService.list(
-                    new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+            int usersPre = userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                     page(1).size(1).build()).getTotalCount();
             assertNotNull(usersPre);
 
-            execProvisioningTask(taskService, PULL_TASK_KEY, 50, false);
+            ExecTO exec = execProvisioningTask(taskService, PULL_TASK_KEY, 50, false);
+            assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(exec.getStatus()));
+
+            // check for pull results
+            int usersPost = userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                    page(1).size(1).build()).getTotalCount();
+            assertNotNull(usersPost);
+            assertEquals(usersPre + 8, usersPost);
 
             // after execution of the pull task the user data should have been pulled from CSV
             // and processed by user template
@@ -208,8 +218,8 @@ public class PullTaskITCase extends AbstractTaskITCase {
             assertEquals(1, IterableUtils.countMatches(userTO.getDerAttrs(), new Predicate<AttrTO>() {
 
                 @Override
-                public boolean evaluate(final AttrTO attributeTO) {
-                    return "csvuserid".equals(attributeTO.getSchema());
+                public boolean evaluate(final AttrTO attrTO) {
+                    return "csvuserid".equals(attrTO.getSchema());
                 }
             }));
 
@@ -224,13 +234,6 @@ public class PullTaskITCase extends AbstractTaskITCase {
             } catch (SyncopeClientException e) {
                 assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
             }
-
-            // check for pull results
-            int usersPost = userService.list(
-                    new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                    page(1).size(1).build()).getTotalCount();
-            assertNotNull(usersPost);
-            assertEquals(usersPre + 8, usersPost);
 
             // Check for issue 215:
             // * expected disabled user test1
@@ -271,7 +274,6 @@ public class PullTaskITCase extends AbstractTaskITCase {
         try {
             ExecTO execution = execProvisioningTask(
                     taskService, "83f7e85d-9774-43fe-adba-ccd856312994", 50, false);
-            assertNotNull(execution.getStatus());
             assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
 
             userTO = userService.read("testuser1");
@@ -285,7 +287,6 @@ public class PullTaskITCase extends AbstractTaskITCase {
             // re-execute the same PullTask: now user must be active
             execution = execProvisioningTask(
                     taskService, "83f7e85d-9774-43fe-adba-ccd856312994", 50, false);
-            assertNotNull(execution.getStatus());
             assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
 
             userTO = userService.read("testuser1");
@@ -303,8 +304,8 @@ public class PullTaskITCase extends AbstractTaskITCase {
      * Clean Syncope and LDAP resource status.
      */
     private void ldapCleanup() {
-        PagedResult<GroupTO> matchingGroups = groupService.search(
-                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+        PagedResult<GroupTO> matchingGroups = groupService.search(new AnyQuery.Builder().realm(
+                SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getGroupSearchConditionBuilder().is("name").equalTo("testLDAPGroup").query()).
                 build());
         if (matchingGroups.getSize() > 0) {
@@ -318,7 +319,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             }
         }
         PagedResult<UserTO> matchingUsers = userService.search(
-                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("pullFromLDAP").query()).
                 build());
         if (matchingUsers.getSize() > 0) {
@@ -339,15 +340,14 @@ public class PullTaskITCase extends AbstractTaskITCase {
         ldapCleanup();
 
         // 0. pull
-        ExecTO execution = execProvisioningTask(
-                taskService, "1e419ca4-ea81-4493-a14f-28b90113686d", 50, false);
+        ExecTO execution = execProvisioningTask(taskService, "1e419ca4-ea81-4493-a14f-28b90113686d", 50, false);
 
         // 1. verify execution status
         assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
 
         // 2. verify that pulled group is found
-        PagedResult<GroupTO> matchingGroups = groupService.search(
-                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+        PagedResult<GroupTO> matchingGroups = groupService.search(new AnyQuery.Builder().realm(
+                SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getGroupSearchConditionBuilder().is("name").equalTo("testLDAPGroup").query()).
                 build());
         assertNotNull(matchingGroups);
@@ -355,7 +355,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
         // 3. verify that pulled user is found
         PagedResult<UserTO> matchingUsers = userService.search(
-                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("pullFromLDAP").query()).
                 build());
         assertNotNull(matchingUsers);
@@ -380,8 +380,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         execProvisioningTask(taskService, "1e419ca4-ea81-4493-a14f-28b90113686d", 50, false);
 
         // 4. verify that LDAP group membership is propagated as Syncope membership
-        PagedResult<UserTO> members = userService.search(
-                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+        PagedResult<UserTO> members = userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().inGroups(groupTO.getKey()).query()).
                 build());
         assertNotNull(members);
@@ -396,29 +395,28 @@ public class PullTaskITCase extends AbstractTaskITCase {
         ProvisionTO provision = resource.getProvision("PRINTER");
         assertNotNull(provision);
 
+        MappingItemTO mappingItem = IterableUtils.find(
+                provision.getMapping().getItems(), new Predicate<MappingItemTO>() {
+
+            @Override
+            public boolean evaluate(final MappingItemTO object) {
+                return "location".equals(object.getIntAttrName());
+            }
+        });
+        assertNotNull(mappingItem);
+        mappingItem.getMappingItemTransformerClassNames().clear();
+        mappingItem.getMappingItemTransformerClassNames().add(PrefixMappingItemTransformer.class.getName());
+
         try {
-            provision.setSyncToken(null);
-
-            MappingItemTO mappingItem = IterableUtils.find(
-                    provision.getMapping().getItems(), new Predicate<MappingItemTO>() {
-
-                @Override
-                public boolean evaluate(final MappingItemTO object) {
-                    return "location".equals(object.getIntAttrName());
-                }
-            });
-            assertNotNull(mappingItem);
-            mappingItem.getMappingItemTransformerClassNames().clear();
-            mappingItem.getMappingItemTransformerClassNames().add(PrefixMappingItemTransformer.class.getName());
-
             resourceService.update(resource);
+            resourceService.removeSyncToken(resource.getKey(), provision.getAnyType());
 
             // 1. create printer on external resource
             AnyObjectTO anyObjectTO = AnyObjectITCase.getSampleTO("pull");
             String originalLocation = anyObjectTO.getPlainAttrMap().get("location").getValues().get(0);
             assertFalse(originalLocation.startsWith(PrefixMappingItemTransformer.PREFIX));
 
-            anyObjectTO = createAnyObject(anyObjectTO).getAny();
+            anyObjectTO = createAnyObject(anyObjectTO).getEntity();
             assertNotNull(anyObjectTO);
 
             // 2. verify that PrefixMappingItemTransformer was applied during propagation
@@ -431,8 +429,8 @@ public class PullTaskITCase extends AbstractTaskITCase {
                     startsWith(PrefixMappingItemTransformer.PREFIX));
 
             // 3. unlink any existing printer and delete from Syncope (printer is now only on external resource)
-            PagedResult<AnyObjectTO> matchingPrinters = anyObjectService.search(
-                    new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+            PagedResult<AnyObjectTO> matchingPrinters = anyObjectService.search(new AnyQuery.Builder().realm(
+                    SyncopeConstants.ROOT_REALM).
                     fiql(SyncopeClient.getAnyObjectSearchConditionBuilder("PRINTER").
                             is("location").equalTo("pull*").query()).build());
             assertTrue(matchingPrinters.getSize() > 0);
@@ -450,8 +448,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
             // 5. verify that printer was re-created in Syncope (implies that location does not start with given prefix,
             // hence PrefixMappingItemTransformer was applied during pull)
-            matchingPrinters = anyObjectService.search(
-                    new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+            matchingPrinters = anyObjectService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                     fiql(SyncopeClient.getAnyObjectSearchConditionBuilder("PRINTER").
                             is("location").equalTo("pull*").query()).build());
             assertTrue(matchingPrinters.getSize() > 0);
@@ -475,9 +472,9 @@ public class PullTaskITCase extends AbstractTaskITCase {
         try {
             // 1. create 2 users on testpull
             jdbcTemplate.execute("INSERT INTO testpull VALUES ("
-                    + "'" + user1OnTestPull + "', 'user1', 'Doe', 'mail1@apache.org')");
+                    + "'" + user1OnTestPull + "', 'user1', 'Doe', 'mail1@apache.org', NULL)");
             jdbcTemplate.execute("INSERT INTO testpull VALUES ("
-                    + "'" + user2OnTestPull + "', 'user2', 'Rossi', 'mail2@apache.org')");
+                    + "'" + user2OnTestPull + "', 'user2', 'Rossi', 'mail2@apache.org', NULL)");
 
             // 2. create new pull task for test-db, with reconciliation filter (surname 'Rossi') 
             task = taskService.read("7c2242f4-14af-4ab5-af31-cdae23783655", true);
@@ -492,7 +489,6 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
             // 3. exec task
             ExecTO execution = execProvisioningTask(taskService, task.getKey(), 50, false);
-            assertNotNull(execution.getStatus());
             assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
 
             // 4. verify that only enabled user was pulled
@@ -518,6 +514,122 @@ public class PullTaskITCase extends AbstractTaskITCase {
     }
 
     @Test
+    public void syncTokenWithErrors() {
+        ResourceTO origResource = resourceService.read(RESOURCE_NAME_DBPULL);
+        ConnInstanceTO origConnector = connectorService.read(origResource.getConnector(), null);
+
+        ResourceTO resForTest = SerializationUtils.clone(origResource);
+        resForTest.setKey("syncTokenWithErrors");
+        resForTest.setConnector(null);
+        ConnInstanceTO connForTest = SerializationUtils.clone(origConnector);
+        connForTest.setKey(null);
+        connForTest.setDisplayName("For syncTokenWithErrors");
+
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
+        try {
+            connForTest.getCapabilities().add(ConnectorCapability.SYNC);
+
+            ConnConfProperty changeLogColumn = connForTest.getConfMap().get("changeLogColumn");
+            assertNotNull(changeLogColumn);
+            assertTrue(changeLogColumn.getValues().isEmpty());
+            changeLogColumn.getValues().add("lastModification");
+
+            Response response = connectorService.create(connForTest);
+            if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
+                throw (RuntimeException) clientFactory.getExceptionMapper().fromResponse(response);
+            }
+            connForTest = getObject(response.getLocation(), ConnectorService.class, ConnInstanceTO.class);
+            assertNotNull(connForTest);
+
+            resForTest.setConnector(connForTest.getKey());
+            resForTest = createResource(resForTest);
+            assertNotNull(resForTest);
+
+            PullTaskTO pullTask = new PullTaskTO();
+            pullTask.setActive(true);
+            pullTask.setName("For syncTokenWithErrors");
+            pullTask.setResource(resForTest.getKey());
+            pullTask.setDestinationRealm(SyncopeConstants.ROOT_REALM);
+            pullTask.setPullMode(PullMode.INCREMENTAL);
+            pullTask.setPerformCreate(true);
+            pullTask.setPerformUpdate(true);
+            pullTask.setPerformDelete(true);
+
+            response = taskService.create(pullTask);
+            if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
+                throw (RuntimeException) clientFactory.getExceptionMapper().fromResponse(response);
+            }
+            pullTask = getObject(response.getLocation(), TaskService.class, PullTaskTO.class);
+            assertNotNull(pullTask);
+
+            jdbcTemplate.execute("DELETE FROM testpull");
+            jdbcTemplate.execute("INSERT INTO testpull VALUES "
+                    + "(1040, 'syncTokenWithErrors1', 'Surname1', "
+                    + "'syncTokenWithErrors1@syncope.apache.org', '2014-05-23 13:53:24.293')");
+            jdbcTemplate.execute("INSERT INTO testpull VALUES "
+                    + "(1041, 'syncTokenWithErrors2', 'Surname2', "
+                    + "'syncTokenWithErrors1@syncope.apache.org', '2015-05-23 13:53:24.293')");
+
+            ExecTO exec = execProvisioningTask(taskService, pullTask.getKey(), 50, false);
+            assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(exec.getStatus()));
+
+            resForTest = resourceService.read(resForTest.getKey());
+            assertTrue(resForTest.getProvision(AnyTypeKind.USER.name()).getSyncToken().contains("2014-05-23"));
+
+            jdbcTemplate.execute("UPDATE testpull "
+                    + "SET email='syncTokenWithErrors2@syncope.apache.org', lastModification='2016-05-23 13:53:24.293' "
+                    + "WHERE ID=1041");
+
+            exec = execProvisioningTask(taskService, pullTask.getKey(), 50, false);
+            assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(exec.getStatus()));
+
+            resForTest = resourceService.read(resForTest.getKey());
+            assertTrue(resForTest.getProvision(AnyTypeKind.USER.name()).getSyncToken().contains("2016-05-23"));
+        } finally {
+            if (resForTest.getConnector() != null) {
+                resourceService.delete(resForTest.getKey());
+                connectorService.delete(connForTest.getKey());
+            }
+
+            jdbcTemplate.execute("DELETE FROM testpull WHERE ID=1040");
+            jdbcTemplate.execute("DELETE FROM testpull WHERE ID=1041");
+        }
+    }
+
+    @Test
+    public void orgUnit() {
+        // 0. initial realms
+        List<RealmTO> realms = realmService.list("/odd");
+        int pre = realms.size();
+
+        // 1. create task for pulling org units
+        PullTaskTO pullTask = new PullTaskTO();
+        pullTask.setActive(true);
+        pullTask.setName("For orgUnit");
+        pullTask.setResource(RESOURCE_NAME_LDAP_ORGUNIT);
+        pullTask.setDestinationRealm("/odd");
+        pullTask.setPullMode(PullMode.FULL_RECONCILIATION);
+        pullTask.setPerformCreate(true);
+        pullTask.setPerformUpdate(true);
+        pullTask.setPerformDelete(true);
+
+        Response response = taskService.create(pullTask);
+        if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
+            throw (RuntimeException) clientFactory.getExceptionMapper().fromResponse(response);
+        }
+        pullTask = getObject(response.getLocation(), TaskService.class, PullTaskTO.class);
+        assertNotNull(pullTask);
+
+        ExecTO exec = execProvisioningTask(taskService, pullTask.getKey(), 50, false);
+        assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(exec.getStatus()));
+
+        // 2. check
+        realms = realmService.list("/odd");
+        int post = realms.size();
+        assertEquals(pre + 2, post);
+    }
+
+    @Test
     public void issueSYNCOPE68() {
         //-----------------------------
         // Create a new user ... it should be updated applying pull policy
@@ -540,7 +652,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         userTO.getMemberships().add(
                 new MembershipTO.Builder().group("bf825fe1-7320-4a54-bd64-143b5c18ab97").build());
 
-        userTO = createUser(userTO).getAny();
+        userTO = createUser(userTO).getEntity();
         assertNotNull(userTO);
         assertEquals("testuser2", userTO.getUsername());
         assertEquals(1, userTO.getMemberships().size());
@@ -581,14 +693,20 @@ public class PullTaskITCase extends AbstractTaskITCase {
             assertEquals(2, userTO.getMemberships().size());
             assertEquals(4, userTO.getResources().size());
         } finally {
-            UserTO dUserTO = deleteUser(userTO.getKey()).getAny();
+            UserTO dUserTO = deleteUser(userTO.getKey()).getEntity();
             assertNotNull(dUserTO);
         }
     }
 
     @Test
     public void issueSYNCOPE230() {
-        // 1. read PullTask for resource-db-pull (table TESTPULL on external H2)
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
+
+        // 1. populate the external table
+        jdbcTemplate.execute("INSERT INTO testpull VALUES"
+                + "('a54b3794-b231-47be-b24a-11e1a42949f6', 'issuesyncope230', 'Surname', 'syncope230@syncope.apache.org', NULL)");
+
+        // 2. execute PullTask for resource-db-pull (table TESTPULL on external H2)
         execProvisioningTask(taskService, "7c2242f4-14af-4ab5-af31-cdae23783655", 50, false);
 
         // 3. read e-mail address for user created by the PullTask first execution
@@ -598,7 +716,6 @@ public class PullTaskITCase extends AbstractTaskITCase {
         assertNotNull(email);
 
         // 4. update TESTPULL on external H2 by changing e-mail address
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
         jdbcTemplate.execute("UPDATE TESTPULL SET email='updatedSYNCOPE230@syncope.apache.org'");
 
         // 5. re-execute the PullTask
@@ -645,7 +762,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         userTO.getResources().clear();
         userTO.getResources().add(RESOURCE_NAME_WS2);
 
-        userTO = createUser(userTO).getAny();
+        userTO = createUser(userTO).getEntity();
 
         // change email in order to unmatch the second user
         UserPatch userPatch = new UserPatch();
@@ -673,7 +790,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         userTO.getResources().add(RESOURCE_NAME_TESTDB);
 
         ProvisioningResult<UserTO> result = createUser(userTO);
-        userTO = result.getAny();
+        userTO = result.getEntity();
         try {
             assertNotNull(userTO);
             assertEquals(1, result.getPropagationStatuses().size());
@@ -708,7 +825,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         userTO.getResources().clear();
         userTO.getResources().add(RESOURCE_NAME_WS2);
 
-        userTO = createUser(userTO).getAny();
+        userTO = createUser(userTO).getEntity();
         assertNotNull(userTO);
 
         userTO = userService.read(userTO.getKey());
@@ -752,12 +869,12 @@ public class PullTaskITCase extends AbstractTaskITCase {
         UserTO user = UserITCase.getUniqueSampleTO("syncope313-db@syncope.apache.org");
         user.setPassword("security123");
         user.getResources().add(RESOURCE_NAME_TESTDB);
-        user = createUser(user).getAny();
+        user = createUser(user).getEntity();
         assertNotNull(user);
         assertFalse(user.getResources().isEmpty());
 
         // 2. Check that the DB resource has the correct password
-        final JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
         String value = jdbcTemplate.queryForObject(
                 "SELECT PASSWORD FROM test WHERE ID=?", String.class, user.getUsername());
         assertEquals(Encryptor.getInstance().encode("security123", CipherAlgorithm.SHA1), value.toUpperCase());
@@ -814,7 +931,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             user = UserITCase.getUniqueSampleTO("syncope313-ldap@syncope.apache.org");
             user.setPassword(oldCleanPassword);
             user.getResources().add(RESOURCE_NAME_LDAP);
-            user = createUser(user).getAny();
+            user = createUser(user).getEntity();
             assertNotNull(user);
             assertFalse(user.getResources().isEmpty());
 
@@ -823,7 +940,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             UserPatch userPatch = new UserPatch();
             userPatch.setKey(user.getKey());
             userPatch.setPassword(new PasswordPatch.Builder().value(newCleanPassword).build());
-            user = updateUser(userPatch).getAny();
+            user = updateUser(userPatch).getEntity();
 
             // 3. Check that the Syncope user now has the changed password
             Pair<Map<String, Set<String>>, UserTO> self =

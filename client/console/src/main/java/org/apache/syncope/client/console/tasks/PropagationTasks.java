@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.tasks;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -46,7 +47,7 @@ public class PropagationTasks extends AbstractPropagationTasks {
             @Override
             protected void viewTask(final PropagationTaskTO taskTO, final AjaxRequestTarget target) {
                 tasks.next(
-                        new StringResourceModel("task.view", this, new Model<>(taskTO)).getObject(),
+                        new StringResourceModel("task.view", this, new Model<>(Pair.of(null, taskTO))).getObject(),
                         new TaskExecutionDetails<>(baseModal, taskTO, pageReference),
                         target);
             }

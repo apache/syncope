@@ -80,23 +80,22 @@ public class NotificationWrapper implements Serializable {
         if (CollectionUtils.isEmpty(this.aboutClauses)) {
             return this.notificationTO.getAbouts();
         } else {
-
-            final Map<String, String> res = new HashMap<>();
+            Map<String, String> res = new HashMap<>();
             for (Pair<String, List<SearchClause>> pair : this.aboutClauses) {
                 AbstractFiqlSearchConditionBuilder builder;
                 switch (pair.getLeft()) {
                     case "USER":
                         builder = SyncopeClient.getUserSearchConditionBuilder();
                         break;
+
                     case "GROUP":
                         builder = SyncopeClient.getGroupSearchConditionBuilder();
                         break;
+
                     default:
                         builder = SyncopeClient.getAnyObjectSearchConditionBuilder(pair.getLeft());
-                        break;
-
                 }
-                res.put(pair.getLeft(), getFIQLString(pair.getRight(), builder));
+                res.put(pair.getLeft(), SearchUtils.buildFIQL(pair.getRight(), builder));
             }
             return res;
         }
@@ -106,12 +105,8 @@ public class NotificationWrapper implements Serializable {
         if (CollectionUtils.isEmpty(this.recipientClauses)) {
             return null;
         } else {
-            return getFIQLString(this.recipientClauses, SyncopeClient.getUserSearchConditionBuilder());
+            return SearchUtils.buildFIQL(this.recipientClauses, SyncopeClient.getUserSearchConditionBuilder());
         }
-    }
-
-    private String getFIQLString(final List<SearchClause> clauses, final AbstractFiqlSearchConditionBuilder bld) {
-        return SearchUtils.buildFIQL(clauses, bld);
     }
 
     public NotificationTO fillAboutConditions() {

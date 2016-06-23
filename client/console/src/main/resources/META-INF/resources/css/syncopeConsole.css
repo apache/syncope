@@ -150,7 +150,7 @@ div.wicket-modal div.w_content_3 {
 
 .tab-content {
   margin-bottom: 10px;
-  margin-top: 10px;
+  margin-top: 5px;
   position: relative;
   overflow-x: hidden;
   overflow-y: auto;
@@ -167,8 +167,8 @@ div.wicket-modal div.w_content_3 {
 }
 
 .inner-scrollable-tab-content {
-  height: 440px;
-  margin-top: 40px;
+  height: 430px;
+  margin-top: 20px;
   overflow-x: hidden;
   overflow-y: auto;
 }
@@ -219,7 +219,7 @@ a.help span a {
 }
 
 .modal-body {
-  max-height: 600px;
+  max-height: 670px;
   overflow-y: auto;
 }
 
@@ -228,9 +228,15 @@ a.help span a {
   z-index: 7000 !important;
 }
 
+.wizard-step-title {
+  font-size: 18px !important;
+  font-weight: normal !important;
+  margin-bottom: 10px !important;
+}
+
 .wizard-view {
-  max-height: 500px;
-  height: 500px;
+  max-height: 480px;
+  height: 480px;
   overflow-y: auto;
   overflow-x: hidden;
   padding: 0px 5px 0px 5px;
@@ -266,13 +272,14 @@ div.wizard-view div.wizard-view{
 }
 
 .wizard-form {
-  height:580px;  
+  height:560px;  
+  position: relative;
 }
 
 .wizard-buttons {
   padding: 10px 0px 5px 0px;
-  position: relative;
-  bottom: 0px;
+  position: absolute;
+  bottom: 30px;
   width: 100%;
 }
 
@@ -328,6 +335,16 @@ div#outer.modal-lg, div#utilityModal.modal-lg, section#notifications .modal-lg {
   display: block
 }
 
+th.checkGroupColumn {
+  width: 20px;
+  text-align: center;
+  padding-right: 8px !important;
+}
+
+td.checkGroupColumn {
+  text-align: center;
+}
+
 /**
   BEGIN - Style for Information panel
 */
@@ -341,7 +358,7 @@ div.information{
   clear: both; 
   float:none;
   position: absolute;
-  bottom: 0px;
+  bottom: -20px;
   left: 0px;
   padding: 2px;
 }
@@ -427,11 +444,6 @@ div.wicket-aa ul {
   list-style: none;
   padding-left: 15px;
 }
-
-/**
-START - Notifications
-*/
-
 /**
 START - startAt
 */
@@ -445,6 +457,10 @@ div#startAt {
   z-index: 6000 !important;
 }
 
+div#mappingItemTransformersTogglePanel {
+  min-width: 1000px;
+}
+
 div#startAtContainer {
   padding: 15px;
 }
@@ -456,6 +472,9 @@ div#startAtContainer input {
 END - startAt
 */
 
+/**
+START - Notifications
+*/
 /*Temporany fix diagonal stacking*/
 .k-popup.k-notification {
   box-shadow: none;
@@ -510,7 +529,9 @@ END - startAt
   padding-left: 0px; 
   width:85%
 }
-
+/**
+EN - Notifications
+*/
 
 /**
 START - Actions
@@ -734,6 +755,10 @@ li.todoitem a {
   cursor: pointer;
 }
 
+.popover-content {
+  color: black;
+}
+
 .form-palette {
   display: inline-block;
   width: 119%;
@@ -821,38 +846,43 @@ END - Alert widget onside menu
 /**
 START - Transformers toggle panel
 */
-div#transformersTogglePanel {
+div.transformersTogglePanel {
   background-color: rgba(140, 140, 140, 0.99) !important;
   width: 1000px !important;
 }
 
-div#transformersContainer {
+div.transformersContainer {
   padding: 15px;
 }
 
-div#transformersContainer input {
+div.transformersContainer input {
   background-color: rgba(200, 200, 200, 0.60) !important;
 }
 
-div#transformersContainer #footer {
+div.transformersContainer #footer {
   clear: both;
   display: block;
   text-align: right;
+  margin-top: 10px;
 }
 
-div#transformersContainer #body {
+div.transformersContainer #body {
   clear: both;
   display: block;
 }
 
-div#transformersContainer #body select {
+div.mappingItemTransformersContainer #body select {
   border: 1px solid #ccc !important;
   background: rgba(240, 240, 240, 0.95) !important
 }
 
-div#transformersContainer #body a {
+div.mappingItemTransformersContainer #body a {
   color: #ccc !important;
   cursor: pointer !important;
+}
+
+div#jexlTransformersTogglePanel {
+  right: 400px;
 }
 /**
 END - Transformers toggle panel

@@ -23,12 +23,14 @@ import java.util.Date;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.ExecutionRestClient;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.DateTimeFieldPanel;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -39,15 +41,17 @@ public abstract class StartAtTogglePanel extends TogglePanel<Serializable> {
 
     private static final long serialVersionUID = -3195479265440591519L;
 
-    private String key = null;
+    protected String key = null;
 
-    public StartAtTogglePanel(final WebMarkupContainer container) {
-        super("startAt");
+    protected final Form<?> form;
 
-        final Form<?> form = new Form<>("startAtForm");
+    protected final Model<Date> startAtDateModel = new Model<>();
+
+    public StartAtTogglePanel(final WebMarkupContainer container, final PageReference pageRef) {
+        super("startAt", pageRef);
+
+        form = new Form<>("startAtForm");
         addInnerObject(form);
-
-        final Model<Date> startAtDateModel = new Model<>();
 
         final DateTimeFieldPanel startAtDate = new DateTimeFieldPanel(
                 "startAtDate", "startAtDate", startAtDateModel, SyncopeConstants.DATE_PATTERNS[3]);
@@ -78,21 +82,21 @@ public abstract class StartAtTogglePanel extends TogglePanel<Serializable> {
             protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                 try {
                     getRestClient().startExecution(key, startAtDateModel.getObject());
-                    info(getString(Constants.OPERATION_SUCCEEDED));
+                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     toggle(target, false);
                     target.add(container);
                 } catch (SyncopeClientException e) {
-                    error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
-                    LOG.error("While running propagation task {}", key, e);
+                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.
+                            getMessage());
+                    LOG.error("While running task {}", key, e);
                 }
-                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
 
             @Override
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-
         });
     }
 

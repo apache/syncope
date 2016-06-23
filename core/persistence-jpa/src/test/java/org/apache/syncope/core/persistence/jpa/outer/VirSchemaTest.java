@@ -23,8 +23,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.UUID;
-import org.apache.syncope.common.lib.types.IntMappingType;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
@@ -44,9 +43,12 @@ public class VirSchemaTest extends AbstractTest {
     @Autowired
     private ExternalResourceDAO resourceDAO;
 
+    @Autowired
+    private AnyTypeDAO anyTypeDAO;
+
     @Test
     public void deal() {
-        Provision provision = resourceDAO.findProvision("209ea85f-f964-49c7-a498-6c9c2baa3bd8");
+        Provision provision = resourceDAO.find("ws-target-resource-1").getProvision(anyTypeDAO.findUser());
         assertNotNull(provision);
         assertTrue(virSchemaDAO.findByProvision(provision).isEmpty());
 
@@ -64,14 +66,13 @@ public class VirSchemaTest extends AbstractTest {
         assertTrue(virSchema.isReadonly());
         assertEquals("EXT_ATTR", virSchema.getExtAttrName());
 
-        provision = resourceDAO.findProvision("209ea85f-f964-49c7-a498-6c9c2baa3bd8");
+        provision = resourceDAO.find("ws-target-resource-1").getProvision(anyTypeDAO.findUser());
         assertNotNull(provision);
         assertFalse(virSchemaDAO.findByProvision(provision).isEmpty());
         assertTrue(virSchemaDAO.findByProvision(provision).contains(virSchema));
 
         MappingItem item = virSchema.asLinkingMappingItem();
         assertNotNull(item);
-        assertEquals(IntMappingType.UserVirtualSchema, item.getIntMappingType());
         assertEquals(virSchema.getKey(), item.getIntAttrName());
     }
 }

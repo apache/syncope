@@ -78,6 +78,16 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
     }
 
     @Override
+    public void setLatestSyncToken(final String key, final String anyTypeKey) {
+        logic.setLatestSyncToken(key, anyTypeKey);
+    }
+
+    @Override
+    public void removeSyncToken(final String key, final String anyTypeKey) {
+        logic.removeSyncToken(key, anyTypeKey);
+    }
+
+    @Override
     public void delete(final String key) {
         logic.delete(key);
     }

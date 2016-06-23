@@ -66,6 +66,8 @@ import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyUtilsFactory;
+import org.apache.syncope.core.persistence.jpa.entity.JPARole;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPADynRoleMembership;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUDynGroupMembership;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
@@ -418,23 +420,57 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
     public List<Role> findDynRoleMemberships(final User user) {
-        TypedQuery<Role> query = entityManager().createQuery(
-                "SELECT e.role FROM " + JPADynRoleMembership.class.getSimpleName()
-                + " e WHERE :user MEMBER OF e.users", Role.class);
-        query.setParameter("user", user);
+        Query query = entityManager().createNativeQuery(
+                "SELECT t2.id FROM " + JPADynRoleMembership.TABLE + " t0 "
+                + "INNER JOIN " + JPADynRoleMembership.TABLE + "_User t1 "
+                + "ON t0.id = t1.dynRoleMembership_id "
+                + "LEFT OUTER JOIN " + JPARole.TABLE + " t2 "
+                + "ON t0.ROLE_ID = t2.id "
+                + "WHERE (t1.user_id = ?1)");
+        query.setParameter(1, user.getKey());
 
-        return query.getResultList();
+        List<Role> result = new ArrayList<>();
+        for (Object key : query.getResultList()) {
+            String actualKey = key instanceof Object[]
+                    ? (String) ((Object[]) key)[0]
+                    : ((String) key);
+
+            Role role = roleDAO.find(actualKey);
+            if (role == null) {
+                LOG.error("Could not find role with id {}, even though returned by the native query", actualKey);
+            } else if (!result.contains(role)) {
+                result.add(role);
+            }
+        }
+        return result;
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
     public List<Group> findDynGroupMemberships(final User user) {
-        TypedQuery<Group> query = entityManager().createQuery(
-                "SELECT e.group FROM " + JPAUDynGroupMembership.class.getSimpleName()
-                + " e WHERE :user MEMBER OF e.users", Group.class);
-        query.setParameter("user", user);
+        Query query = entityManager().createNativeQuery(
+                "SELECT t2.id FROM " + JPAUDynGroupMembership.TABLE + " t0 "
+                + "INNER JOIN " + JPAUDynGroupMembership.TABLE + "_User t1 "
+                + "ON t0.id = t1.uDynGroupMembership_id "
+                + "LEFT OUTER JOIN " + JPAGroup.TABLE + " t2 "
+                + "ON t0.GROUP_ID = t2.id "
+                + "WHERE (t1.user_id = ?1)");
+        query.setParameter(1, user.getKey());
 
-        return query.getResultList();
+        List<Group> result = new ArrayList<>();
+        for (Object key : query.getResultList()) {
+            String actualKey = key instanceof Object[]
+                    ? (String) ((Object[]) key)[0]
+                    : ((String) key);
+
+            Group group = groupDAO.find(actualKey);
+            if (group == null) {
+                LOG.error("Could not find group with id {}, even though returned by the native query", actualKey);
+            } else if (!result.contains(group)) {
+                result.add(group);
+            }
+        }
+        return result;
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
@@ -461,6 +497,18 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
     @Override
     public Collection<String> findAllGroupKeys(final User user) {
         return CollectionUtils.collect(findAllGroups(user), EntityUtils.<Group>keyTransformer());
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+    @Override
+    public Collection<String> findAllGroupNames(final User user) {
+        return CollectionUtils.collect(findAllGroups(user), new Transformer<Group, String>() {
+
+            @Override
+            public String transform(final Group input) {
+                return input.getName();
+            }
+        });
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)

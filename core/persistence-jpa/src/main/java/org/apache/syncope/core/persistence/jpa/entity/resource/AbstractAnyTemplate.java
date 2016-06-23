@@ -59,7 +59,7 @@ public abstract class AbstractAnyTemplate extends AbstractGeneratedKeyEntity imp
                         : new JPAAnyUtilsFactory().getInstance(anyType.getKind()).newAnyTO()
                 : anyType == null
                         ? null
-                        : POJOHelper.deserialize(template, anyType.getKind().getToClass());
+                        : POJOHelper.deserialize(template, anyType.getKind().getTOClass());
     }
 
     @Override

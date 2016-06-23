@@ -25,7 +25,7 @@ import org.apache.cxf.jaxrs.ext.search.SearchBean;
 import org.apache.cxf.jaxrs.ext.search.SearchCondition;
 import org.apache.cxf.jaxrs.ext.search.SearchUtils;
 import org.apache.cxf.jaxrs.ext.search.visitor.AbstractSearchConditionVisitor;
-import org.apache.syncope.common.lib.EntityTOUtils;
+import org.apache.syncope.common.lib.search.SearchableFields;
 import org.apache.syncope.common.lib.search.SpecialAttr;
 import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
@@ -56,7 +56,7 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
     }
 
     private AttributeCond createAttributeCond(final String schema) {
-        AttributeCond attributeCond = EntityTOUtils.ANY_FIELDS.contains(schema)
+        AttributeCond attributeCond = SearchableFields.contains(schema)
                 ? new AnyCond()
                 : new AttributeCond();
         attributeCond.setSchema(schema);

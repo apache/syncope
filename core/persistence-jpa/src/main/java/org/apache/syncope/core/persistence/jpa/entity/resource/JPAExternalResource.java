@@ -35,6 +35,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -59,6 +60,7 @@ import org.apache.syncope.core.persistence.jpa.entity.JPAConnInstance;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPasswordPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
+import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractProvidedKeyEntity;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 
@@ -90,8 +92,11 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
     @NotNull
     private JPAConnInstance connector;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "resource")
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY, mappedBy = "resource")
     private List<JPAProvision> provisions = new ArrayList<>();
+
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY, mappedBy = "resource")
+    private JPAOrgUnit orgUnit;
 
     /**
      * Priority index for propagation ordering.
@@ -99,7 +104,7 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
     private Integer propagationPriority;
 
     /**
-     * Generate random password for propagation, if not provided?
+     * Generate random password, if not provided.
      */
     @NotNull
     @Basic
@@ -121,7 +126,7 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
 
     @Enumerated(EnumType.STRING)
     @NotNull
-    private TraceLevel pullTraceLevel;
+    private TraceLevel provisioningTraceLevel;
 
     @ManyToOne(fetch = FetchType.EAGER)
     private JPAPasswordPolicy passwordPolicy;
@@ -173,7 +178,7 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
         createTraceLevel = TraceLevel.FAILURES;
         updateTraceLevel = TraceLevel.FAILURES;
         deleteTraceLevel = TraceLevel.FAILURES;
-        pullTraceLevel = TraceLevel.FAILURES;
+        provisioningTraceLevel = TraceLevel.FAILURES;
     }
 
     @Override
@@ -231,6 +236,17 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
     }
 
     @Override
+    public OrgUnit getOrgUnit() {
+        return orgUnit;
+    }
+
+    @Override
+    public void setOrgUnit(final OrgUnit orgUnit) {
+        checkType(orgUnit, JPAOrgUnit.class);
+        this.orgUnit = (JPAOrgUnit) orgUnit;
+    }
+
+    @Override
     public Integer getPropagationPriority() {
         return propagationPriority;
     }
@@ -284,13 +300,13 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
     }
 
     @Override
-    public TraceLevel getPullTraceLevel() {
-        return pullTraceLevel;
+    public TraceLevel getProvisioningTraceLevel() {
+        return provisioningTraceLevel;
     }
 
     @Override
-    public void setPullTraceLevel(final TraceLevel pullTraceLevel) {
-        this.pullTraceLevel = pullTraceLevel;
+    public void setProvisioningTraceLevel(final TraceLevel provisioningTraceLevel) {
+        this.provisioningTraceLevel = provisioningTraceLevel;
     }
 
     @Override

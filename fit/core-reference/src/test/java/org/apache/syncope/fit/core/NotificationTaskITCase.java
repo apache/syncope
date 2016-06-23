@@ -46,7 +46,6 @@ import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
@@ -312,7 +311,7 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
         // 1. Create notification
         NotificationTO notification = new NotificationTO();
         notification.setTraceLevel(TraceLevel.ALL);
-        notification.getEvents().add("[REST]:[GroupLogic]:[]:[create]:[SUCCESS]");
+        notification.getEvents().add("[LOGIC]:[GroupLogic]:[]:[create]:[SUCCESS]");
 
         String groupName = "group" + getUUIDString();
         notification.getAbouts().put(AnyTypeKind.GROUP.name(),
@@ -322,7 +321,6 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
                 inGroups("f779c0d4-633b-4be5-8f57-32eb478a3ca5").query());
         notification.setSelfAsRecipient(false);
         notification.setRecipientAttrName("email");
-        notification.setRecipientAttrType(IntMappingType.UserPlainSchema);
         notification.getStaticRecipients().add(MAIL_ADDRESS);
         notification.setRecipientsProviderClassName(TestNotificationRecipientsProvider.class.getName());
 
@@ -342,7 +340,7 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
         GroupTO groupTO = new GroupTO();
         groupTO.setName(groupName);
         groupTO.setRealm("/even/two");
-        groupTO = createGroup(groupTO).getAny();
+        groupTO = createGroup(groupTO).getEntity();
         assertNotNull(groupTO);
 
         // 3. verify
@@ -383,7 +381,7 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
         // 1. Create notification
         NotificationTO notification = new NotificationTO();
         notification.setTraceLevel(traceLevel);
-        notification.getEvents().add("[REST]:[UserLogic]:[]:[create]:[SUCCESS]");
+        notification.getEvents().add("[LOGIC]:[UserLogic]:[]:[create]:[SUCCESS]");
 
         if (includeAbout) {
             notification.getAbouts().put(AnyTypeKind.USER.name(),
@@ -395,7 +393,6 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
                 inGroups("f779c0d4-633b-4be5-8f57-32eb478a3ca5").query());
         notification.setSelfAsRecipient(true);
         notification.setRecipientAttrName("email");
-        notification.setRecipientAttrType(IntMappingType.UserPlainSchema);
         if (staticRecipients != null) {
             CollectionUtils.addAll(notification.getStaticRecipients(), staticRecipients);
         }
@@ -414,7 +411,7 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
         userTO.getMemberships().add(
                 new MembershipTO.Builder().group("bf825fe1-7320-4a54-bd64-143b5c18ab97").build());
 
-        userTO = createUser(userTO).getAny();
+        userTO = createUser(userTO).getEntity();
         assertNotNull(userTO);
         return userTO.getUsername();
     }

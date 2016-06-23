@@ -45,7 +45,7 @@ public class DefaultGroupWorkflowAdapter extends AbstractGroupWorkflowAdapter {
         group = groupDAO.save(group);
 
         PropagationByResource propByRes = new PropagationByResource();
-        propByRes.set(ResourceOperation.CREATE, group.getResourceNames());
+        propByRes.set(ResourceOperation.CREATE, group.getResourceKeys());
 
         return new WorkflowResult<>(group.getKey(), propByRes, "create");
     }

@@ -22,28 +22,29 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
-import org.apache.commons.collections4.Transformer;
+import org.apache.cxf.common.util.StringUtils;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
-import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
-import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.SchemaType;
+import org.apache.wicket.WicketRuntimeException;
+import org.apache.wicket.core.util.lang.PropertyResolver;
 import org.apache.wicket.extensions.wizard.WizardStep;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
+import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.LoadableDetachableModel;
 
 public abstract class AbstractAttrs<S extends AbstractSchemaTO> extends WizardStep {
@@ -62,7 +63,11 @@ public abstract class AbstractAttrs<S extends AbstractSchemaTO> extends WizardSt
 
     protected final Map<String, S> schemas = new LinkedHashMap<>();
 
+    protected final Map<String, Map<String, S>> membershipSchemas = new LinkedHashMap<>();
+
     protected final LoadableDetachableModel<List<AttrTO>> attrTOs;
+
+    protected final LoadableDetachableModel<List<MembershipTO>> membershipTOs;
 
     public AbstractAttrs(final AnyTO anyTO, final List<String> anyTypeClasses, final List<String> whichAttrs) {
         super();
@@ -77,10 +82,45 @@ public abstract class AbstractAttrs<S extends AbstractSchemaTO> extends WizardSt
 
             @Override
             protected List<AttrTO> load() {
-                setSchemas(CollectionUtils.collect(anyTypeClassRestClient.list(getAllAuxClasses()),
+                setSchemas(CollectionUtils.collect(anyTypeClassRestClient.list(anyTO.getAuxClasses()),
                         EntityTOUtils.<AnyTypeClassTO>keyTransformer(), new ArrayList<>(anyTypeClasses)));
                 setAttrs();
-                return new ArrayList<>(getAttrsFromAnyTO());
+                return AbstractAttrs.this.getAttrsFromTO();
+            }
+        };
+
+        this.membershipTOs = new LoadableDetachableModel<List<MembershipTO>>() {
+
+            private static final long serialVersionUID = 5275935387613157437L;
+
+            @Override
+            @SuppressWarnings("unchecked")
+            protected List<MembershipTO> load() {
+                List<MembershipTO> memberships = new ArrayList<>();
+                try {
+                    membershipSchemas.clear();
+
+                    for (MembershipTO membership : (List<MembershipTO>) PropertyResolver.getPropertyField(
+                            "memberships", anyTO).get(anyTO)) {
+                        setSchemas(membership.getGroupKey(), CollectionUtils.collect(
+                                anyTypeClassRestClient.list(getMembershipAuxClasses(membership, anyTO.getType())),
+                                EntityTOUtils.<AnyTypeClassTO>keyTransformer(),
+                                new ArrayList<String>()));
+                        setAttrs(membership);
+
+                        if (AbstractAttrs.this instanceof PlainAttrs && !membership.getPlainAttrs().isEmpty()) {
+                            memberships.add(membership);
+                        } else if (AbstractAttrs.this instanceof DerAttrs && !membership.getDerAttrs().isEmpty()) {
+                            memberships.add(membership);
+                        } else if (AbstractAttrs.this instanceof VirAttrs && !membership.getVirAttrs().isEmpty()) {
+                            memberships.add(membership);
+                        }
+                    }
+                } catch (WicketRuntimeException | IllegalArgumentException | IllegalAccessException ex) {
+                    // ignore
+                }
+
+                return memberships;
             }
         };
     }
@@ -91,13 +131,31 @@ public abstract class AbstractAttrs<S extends AbstractSchemaTO> extends WizardSt
 
     protected abstract SchemaType getSchemaType();
 
+    private void setSchemas(final String membership, final List<String> anyTypeClasses) {
+        final Map<String, S> mscs;
+
+        if (membershipSchemas.containsKey(membership)) {
+            mscs = membershipSchemas.get(membership);
+        } else {
+            mscs = new LinkedHashMap<>();
+            membershipSchemas.put(membership, mscs);
+        }
+        setSchemas(anyTypeClasses, mscs);
+    }
+
     private void setSchemas(final List<String> anyTypeClasses) {
-        List<S> allSchemas = Collections.emptyList();
-        if (!anyTypeClasses.isEmpty()) {
+        setSchemas(anyTypeClasses, schemas);
+    }
+
+    private void setSchemas(final List<String> anyTypeClasses, final Map<String, S> scs) {
+        final List<S> allSchemas;
+        if (anyTypeClasses.isEmpty()) {
+            allSchemas = Collections.emptyList();
+        } else {
             allSchemas = schemaRestClient.getSchemas(getSchemaType(), anyTypeClasses.toArray(new String[] {}));
         }
 
-        schemas.clear();
+        scs.clear();
 
         if (reoderSchemas()) {
             // 1. remove attributes not selected for display
@@ -131,51 +189,60 @@ public abstract class AbstractAttrs<S extends AbstractSchemaTO> extends WizardSt
             });
         }
         for (S schemaTO : allSchemas) {
-            schemas.put(schemaTO.getKey(), schemaTO);
+            scs.put(schemaTO.getKey(), schemaTO);
+        }
+    }
+
+    @Override
+    public void renderHead(final IHeaderResponse response) {
+        super.renderHead(response);
+        if (org.apache.cxf.common.util.CollectionUtils.isEmpty(attrTOs.getObject())
+                && org.apache.cxf.common.util.CollectionUtils.isEmpty(membershipTOs.getObject())) {
+            response.render(OnDomReadyHeaderItem.forScript(
+                    String.format("$('#emptyPlaceholder').append(\"%s\"); $('#attributes').hide();",
+                            getString("attribute.empty.list"))));
         }
     }
 
     protected abstract void setAttrs();
 
-    protected abstract Set<AttrTO> getAttrsFromAnyTO();
+    protected abstract void setAttrs(final MembershipTO membershipTO);
 
-    protected Set<String> getAllAuxClasses() {
-        final List<MembershipTO> memberships;
-        final List<String> dyngroups;
-        if (anyTO instanceof UserTO) {
-            memberships = UserTO.class.cast(anyTO).getMemberships();
-            dyngroups = UserTO.class.cast(anyTO).getDynGroups();
-        } else if (anyTO instanceof AnyObjectTO) {
-            memberships = AnyObjectTO.class.cast(anyTO).getMemberships();
-            dyngroups = AnyObjectTO.class.cast(anyTO).getDynGroups();
-        } else {
-            memberships = Collections.<MembershipTO>emptyList();
-            dyngroups = Collections.<String>emptyList();
+    protected abstract List<AttrTO> getAttrsFromTO();
+
+    protected abstract List<AttrTO> getAttrsFromTO(final MembershipTO membershipTO);
+
+    protected List<String> getMembershipAuxClasses(final MembershipTO membershipTO, final String anyType) {
+        try {
+            final GroupTO groupTO = groupRestClient.read(membershipTO.getRightKey());
+            return groupTO.getTypeExtension(anyType).getAuxClasses();
+        } catch (Exception e) {
+            return Collections.emptyList();
+        }
+    }
+
+    protected static class AttrComparator implements Comparator<AttrTO> {
+
+        @Override
+        public int compare(final AttrTO left, final AttrTO right) {
+            if (left == null || StringUtils.isEmpty(left.getSchema())) {
+                return -1;
+            }
+            if (right == null || StringUtils.isEmpty(right.getSchema())) {
+                return 1;
+            } else {
+                return left.getSchema().compareTo(right.getSchema());
+            }
+        }
+    }
+
+    public class Schemas extends Panel {
+
+        private static final long serialVersionUID = -2447602429647965090L;
+
+        public Schemas(final String id) {
+            super(id);
         }
 
-        List<GroupTO> groups = new ArrayList<>();
-        CollectionUtils.collect(memberships, new Transformer<MembershipTO, GroupTO>() {
-
-            @Override
-            public GroupTO transform(final MembershipTO input) {
-                dyngroups.remove(input.getRightKey());
-                return groupRestClient.read(input.getRightKey());
-            }
-        }, groups);
-
-        CollectionUtils.collect(dyngroups, new Transformer<String, GroupTO>() {
-
-            @Override
-            public GroupTO transform(final String input) {
-                return groupRestClient.read(input);
-            }
-        }, groups);
-
-        Set<String> auxClasses = new HashSet<>(anyTO.getAuxClasses());
-        for (GroupTO groupTO : groups) {
-            auxClasses.addAll(groupTO.getAuxClasses());
-        }
-
-        return auxClasses;
     }
 }

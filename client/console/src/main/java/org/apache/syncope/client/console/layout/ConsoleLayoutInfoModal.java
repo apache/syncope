@@ -22,6 +22,7 @@ import java.io.Serializable;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.AbstractModalPanel;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.RoleRestClient;
@@ -48,8 +49,8 @@ public class ConsoleLayoutInfoModal extends AbstractModalPanel<Serializable> {
         super(modal, pageRef);
         this.consoleLayoutInfo = consoleLayoutInfo;
 
-        TextArea<String> consoleLayoutInfoDefArea =
-                new TextArea<>("consoleLayoutInfo", new PropertyModel<String>(consoleLayoutInfo, "content"));
+        TextArea<String> consoleLayoutInfoDefArea = new TextArea<>("consoleLayoutInfo", new PropertyModel<String>(
+                consoleLayoutInfo, "content"));
         consoleLayoutInfoDefArea.setMarkupId("consoleLayoutInfo").setOutputMarkupPlaceholderTag(true);
         add(consoleLayoutInfoDefArea);
     }
@@ -77,14 +78,15 @@ public class ConsoleLayoutInfoModal extends AbstractModalPanel<Serializable> {
         try {
             new RoleRestClient().setConsoleLayoutInfo(
                     consoleLayoutInfo.getKey(), consoleLayoutInfo.getContent());
-            info(getString(Constants.OPERATION_SUCCEEDED));
+            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
             modal.show(false);
             modal.close(target);
         } catch (Exception e) {
             LOG.error("While updating onsole layout info for role {}", consoleLayoutInfo.getKey(), e);
-            error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.
+                    getMessage());
         }
-        SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
     }
 
     public static class ConsoleLayoutInfo implements Serializable {

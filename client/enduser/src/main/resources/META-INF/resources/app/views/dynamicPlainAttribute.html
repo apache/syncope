@@ -16,6 +16,7 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
+
 <div ng-switch="schema.type" >
   <input ng-switch-when="String" class="form-control" type="text"
          ng-model="user.plainAttrs[schema.key].values[index]"
@@ -36,29 +37,45 @@ under the License.
   <input ng-switch-when="Double" class="form-control" type="number" ng-model="user.plainAttrs[schema.key].values[index]"
          ng-required="{{schema.mandatoryCondition}}" validate="true"
          ng-init="initAttribute(schema, index)" name="{{schema.key}}"/>
-  <p ng-switch-when="Date" class="input-group" >
-    <input type="text" class="form-control" 
-           uib-datepicker-popup
-           ng-model="selectedDate"
-           ng-change="bindDateToModel(selectedDate, format)"
-           min-date="minDate" max-date="maxDate"
-           is-open="status.opened" datepicker-options="dateOptions"
-           ng-required="{{schema.mandatoryCondition}}" close-text="Close" ng-init="initAttribute(schema, index)"/>
-    <span class="input-group-btn">
-      <button type="button" class="btn btn-default" ng-click="open($event)"><i class="glyphicon glyphicon-calendar"></i></button>
+
+  <div ng-switch-when="Date" id="date">
+    <span id="datetime">
+      <input type="text" class="form-control" 
+             uib-datepicker-popup
+             ng-model="selectedDate"
+             ng-change="bindDateToModel(selectedDate, selectedTime)"
+             min-date="minDate" max-date="maxDate"
+             is-open="status.opened" datepicker-options="dateOptions"
+             ng-required="{{schema.mandatoryCondition}}" close-text="Close"
+             ng-init="initAttribute(schema, index)"/>
     </span>
-  </p>
+    <span>
+      <button type="button" class="btn btn-default" style="margin-top:35px;" ng-click="open($event)" >
+        <i class="glyphicon glyphicon-calendar"></i>
+      </button>
+    </span>
+    <span id="timepicker" ng-if="(schema.conversionPattern.indexOf('H') > -1 ||
+                schema.conversionPattern.indexOf('h') > -1)">
+      <uib-timepicker ng-model="selectedTime" 
+                      ng-change="bindDateToModel(selectedDate, selectedTime)"
+                      hour-step="hstep" minute-step="mstep" show-meridian="ismeridian">
+      </uib-timepicker>
+    </span>
+  </div>
 
   <div ng-switch-when="Enum" ng-init="initAttribute(schema, index)">
     <select class="form-control"
             ng-model="user.plainAttrs[schema.key].values[index]"
             ng-required="{{schema.mandatoryCondition}}">
-      <option ng-repeat="value in enumerationValues" value="{{value}}">{{schema.enumerationKeys[$index]|| value}}</option>
+      <option ng-repeat="value in enumerationValues" value="{{value}}">
+        {{schema.enumerationKeys[$index]|| value}}
+      </option>
     </select>
   </div>
 
   <div ng-switch-when="Binary" ng-init="initAttribute(schema, index)">
-    <div enctype="multipart/form-data" accept-charset="UTF-8">
+    <!--<div enctype="multipart/form-data" accept-charset="UTF-8">-->
+    <div >
       <input id="fileInput" type="file" ng-required="{{schema.mandatoryCondition}}"/>
       <button type="button" title="Download file" class="fileButton btn btn-default btn-sm" ng-click="download()">
         <i class="glyphicon glyphicon-download" ></i>

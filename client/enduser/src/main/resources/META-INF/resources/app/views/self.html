@@ -21,95 +21,48 @@ under the License.
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <meta charset="UTF-8"/>
     <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'/>
-
     <title>Apache Syncope Enduser - Login</title>
   </head>
-
   <body>
-
     <div ng-cloak class="container">
-
-      <div id="login-container" ng-controller="LoginController"  style="box-sizing: border-box; ">
-
-        <!--        <div id="logo">
-                  <a href="/">
-                    <img class="login-logo" src="img/logo-green.png" />
-                  </a>
-                </div>-->
+      <div id="login-container" ng-controller="LoginController"  ng-init="init" style="box-sizing: border-box; ">
         <div id="login" class="card card-container">
           <div>
-            <!--<div id="language" class="form-group" ng-controller="LanguageController" ng-init="init()">
-              <div id="languageContainer" class="col-xs-2">
-
-                <select class="form-control" ng-options="language.name for language in languages.availableLanguages track by language.id"
-                        ng-model="languages.selectedLanguage" ></select>
-
-              </div>
-            </div>-->
-
             <img class="login-logo" src="img/logo-green.png" />
-
             <div id="login-form" class="form">              
             </div>
-
             <form id="login-form" class="form form-signin" novalidate>
-
               <fieldset class="form-group input-group">
-
                 <div class="form-group">
                   <input autofocus="autofocus" type="text" class="form-control" id="login-username" placeholder="Username"
                          ng-required ng-model="credentials.username" placeholder="username">
                 </div>
-
                 <div class="form-group">
                   <input type="password" class="form-control" id="login-password" placeholder="Password" 
                          ng-required ng-model="credentials.password" placeholder="password">
                 </div>
-
                 <div class="form-group">
-
+                  <select  ng-change="switchLanguage()" id="language" style="width: 100%" class="btn dropdown-toggle btn-default" 
+                           ng-options="language.name for language in languages.availableLanguages track by language.id" 
+                           ng-model="languages.selectedLanguage"></select>
+                </div>                
+                <div class="form-group">
                   <button type="submit" id="login-btn" class="btn btn-default btn-signin login-btn" 
                           ng-click="login(credentials)">Login</button>
                 </div>
               </fieldset>
             </form>
-
           </div>
-
         </div>
         <div class="text-center" ng-show="$root.isSelfRegAllowed()">
-          <a href="javascript:void(0);" class="btn btn-link" ng-click="selfCreate()">Self Registration</a>
-
-          <!--      <div id="initialLoaderDiv">
-                  <img src="img/busy.gif" class="ajax-loader"/>
-                </div>-->
+          <a href="javascript:void(0);" class="btn btn-link" ng-click="selfCreate()">
+            {{ 'SELFREGISTRATION' | translate}}
+          </a>
         </div>
         <div class="text-center" ng-show="$root.isPwdResetAllowed()">
           <a href="javascript:void(0);" class="btn btn-link" ng-click="passwordReset()">Password Reset</a>
         </div>
-        <!-- /#login-container -->
       </div> <!-- /#login -->
     </div>
-    <!--    <div class="container" ng-cloak ng-controller="LoginController">
-          <div class="card card-container">
-            <img class="login-logo" src="img/logo-green.png" />
-    
-            <div growl></div>
-    
-            <form class="form-signin"  novalidate ng-show="!isLogged()">
-              <input type="text" id="username" class="form-control" ng-required autofocus="autofocus" ng-model="credentials.username" />
-              <input type="password" id="password" class="form-control" required="required" ng-model="credentials.password" />
-    
-              <select id="language" style="width: 100%" 
-                      ng-options="language.name for language in languages.availableLanguages track by language.id" 
-                      ng-model="languages.selectedLanguage"></select>
-    
-              <button type="submit" class="btn btn-lg btn-primary btn-block btn-signin" ng-click="login(credentials)">Login</button>
-            </form>
-    
-            
-    
-          </div>
-        </div>-->
   </body>
 </html>
