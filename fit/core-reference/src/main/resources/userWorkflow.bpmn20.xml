@@ -187,6 +187,29 @@ try {
     <sequenceFlow id="flow8ter" sourceRef="rejectUpdate" targetRef="active"/>
     <serviceTask id="update" name="Update" activiti:expression="#{update.execute(execution.processInstanceId)}"/>
     <sequenceFlow id="flow9" sourceRef="update" targetRef="active"/>
+    <!-- Recertification tasks -->
+    <userTask id="RecertificationRequest" name="Recertification Request" activiti:candidateGroups="managingDirector" activiti:formKey="recertify">
+      <extensionElements>
+        <activiti:formProperty id="fullname" name="Identity" type="string" expression="${user.getPlainAttr('fullname').getUniqueValue().getStringValue()}" writable="false"/> 
+        <activiti:formProperty id="username" name="Username" type="string" expression="${user.username}" writable="false"/>
+        <activiti:formProperty id="approve" name="Recertify?" type="boolean" required="true"/>
+        <activiti:formProperty id="rejectReason" name="Reason for not recertifying" type="string" variable="rejectReason"/>
+      </extensionElements>
+    </userTask>
+    <serviceTask id="recertify-task" name="Recertify" activiti:expression="#{recertify.execute(execution.processInstanceId)}"/>
+    <sequenceFlow id="recert-request-start-flow" sourceRef="activeGw" targetRef="RecertificationRequest">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${task == 'request-certify'}]]></conditionExpression>
+    </sequenceFlow>
+    <exclusiveGateway id="recert-condition"/>
+    <sequenceFlow id="recert-flow1" sourceRef="RecertificationRequest" targetRef="recertify-task"/>
+    <sequenceFlow id="recert-flow2" sourceRef="recertify-task" targetRef="recert-condition"/>
+    <sequenceFlow id="recert-approved-flow" sourceRef="recert-condition" targetRef="active">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approve}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="recert-denied-flow" sourceRef="recert-condition" targetRef="suspend">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${!approve}]]></conditionExpression>
+    </sequenceFlow>
+    <!-- End Recertification flow -->
     <serviceTask id="suspend" name="Suspend" activiti:expression="#{suspend.execute(execution.processInstanceId)}"/>
     <sequenceFlow id="flow10" sourceRef="suspend" targetRef="suspended"/>
     <userTask id="suspended" name="Suspended"/>
@@ -255,6 +278,15 @@ try {
   
   <bpmndi:BPMNDiagram id="BPMNDiagram_userWorkflow">
     <bpmndi:BPMNPlane bpmnElement="userWorkflow" id="BPMNPlane_userWorkflow">
+      <bpmndi:BPMNShape bpmnElement="recert-condition" id="BPMNShape_recert-condition">
+        <omgdc:Bounds height="40.0" width="40.0" x="1439.4825360864054" y="12.176664483986166"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="recertify-task" id="BPMNShape_recertify-task">
+        <omgdc:Bounds height="80.0" width="100.0" x="1110.0" y="15.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="RecertificationRequest" id="BPMNShape_RecertificationRequest">
+        <omgdc:Bounds height="80.0" width="100.0" x="930.0" y="15.0"/>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="theStart" id="BPMNShape_theStart">
         <omgdc:Bounds height="30.0" width="30.0" x="0.0" y="512.0"/>
       </bpmndi:BPMNShape>
@@ -647,6 +679,27 @@ try {
       <bpmndi:BPMNEdge bpmnElement="flow99" id="BPMNEdge_flow99">
         <omgdi:waypoint x="2040.0" y="388.0"/>
         <omgdi:waypoint x="2078.1893792531678" y="388.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="recert-flow2" id="BPMNEdge_recert-flow2">
+        <omgdi:waypoint x="1210.0" y="51.18953815900822"/>
+        <omgdi:waypoint x="1440.8987892500566" y="33.59291764763734"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="recert-flow1" id="BPMNEdge_recert-flow1">
+        <omgdi:waypoint x="1030.0" y="55.0"/>
+        <omgdi:waypoint x="1110.0" y="55.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="recert-denied-flow" id="BPMNEdge_recert-denied-flow">
+        <omgdi:waypoint x="1479.438749881016" y="32.13287827859691"/>
+        <omgdi:waypoint x="1540.0" y="32.0"/>
+        <omgdi:waypoint x="1540.0" y="100.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="recert-approved-flow" id="BPMNEdge_recert-approved-flow">
+        <omgdi:waypoint x="1450.9385750878846" y="43.63270348546535"/>
+        <omgdi:waypoint x="1102.3741233704363" y="511.0"/>
+      </bpmndi:BPMNEdge>
+       <bpmndi:BPMNEdge bpmnElement="recert-request-start-flow" id="BPMNEdge_recert-request-start-flow">
+        <omgdi:waypoint x="1410.4864864864865" y="529.5135135135135"/>
+        <omgdi:waypoint x="1016.2886597938144" y="95.0"/>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

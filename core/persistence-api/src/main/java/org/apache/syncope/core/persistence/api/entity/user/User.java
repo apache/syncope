@@ -96,4 +96,12 @@ public interface User extends
 
     List<? extends Role> getRoles();
 
+    String getLastRecertificator();
+
+    void setLastRecertificator(String lastRecertificator);
+
+    Date getLastRecertification();
+
+    void setLastRecertification(Date lastRecertificion);
+
 }

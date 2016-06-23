@@ -197,6 +197,16 @@ under the License.
       <url>http://people.apache.org/~anzelld/</url>
     </developer>
     <developer>
+      <id>nscendoni</id>
+      <name>Nicola Scendoni</name>
+      <organization>The Apache Software Foundation</organization>
+      <organizationUrl>http://www.apache.org/</organizationUrl>
+      <roles>
+        <role>committer</role>
+      </roles>
+      <url></url>
+    </developer>
+    <developer>
       <id>coheigea</id>
       <name>Colm O hEigeartaigh</name>
       <organization>Talend</organization>
