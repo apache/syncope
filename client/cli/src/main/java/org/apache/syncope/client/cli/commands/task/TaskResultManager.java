@@ -104,7 +104,7 @@ public class TaskResultManager extends CommonsResultManager {
     private void printPropagationTask(final PropagationTaskTO propagationTaskTO) {
         System.out.println(" - Propagation task key: " + propagationTaskTO.getKey());
         System.out.println("     resource: " + propagationTaskTO.getResource());
-        System.out.println("     any key: " + propagationTaskTO.getAnyKey());
+        System.out.println("     any key: " + propagationTaskTO.getEntityKey());
         System.out.println("     any type kind: " + propagationTaskTO.getAnyTypeKind());
         System.out.println("     connector object key: " + propagationTaskTO.getConnObjectKey());
         System.out.println("     old connector object key: " + propagationTaskTO.getOldConnObjectKey());

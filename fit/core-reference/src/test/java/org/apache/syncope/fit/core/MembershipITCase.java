@@ -221,7 +221,7 @@ public class MembershipITCase extends AbstractITCase {
     }
 
     @Test
-    public void syncWithMembershipAttr() {
+    public void pull() {
         // 0. create ad-hoc resource, with adequate mapping
         ResourceTO newResource = resourceService.read(RESOURCE_NAME_DBPULL);
         newResource.setKey(getUUIDString());

@@ -160,7 +160,9 @@ public class MappingManagerImpl implements MappingManager {
                     if (preparedAttr.getValue() != null) {
                         Attribute alreadyAdded = AttributeUtil.find(preparedAttr.getValue().getName(), attributes);
 
-                        if (alreadyAdded == null) {
+                        if (alreadyAdded == null
+                                || alreadyAdded.getValue() == null || alreadyAdded.getValue().isEmpty()) {
+
                             attributes.add(preparedAttr.getValue());
                         } else {
                             attributes.remove(alreadyAdded);

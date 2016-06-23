@@ -209,7 +209,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             ExecTO exec = execProvisioningTask(taskService, PULL_TASK_KEY, 50, false);
             assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(exec.getStatus()));
             
-            LOG.info("Execution of task {}:\n{}", PULL_TASK_KEY, exec);
+            LOG.debug("Execution of task {}:\n{}", PULL_TASK_KEY, exec);
 
             // check for pull results
             int usersPost = userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).

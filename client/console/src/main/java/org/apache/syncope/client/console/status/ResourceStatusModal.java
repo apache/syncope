@@ -19,10 +19,8 @@
 package org.apache.syncope.client.console.status;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.status.StatusBean;
@@ -32,7 +30,7 @@ import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
-import org.apache.syncope.common.lib.to.AnyTypeTO;
+import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -51,6 +49,7 @@ public class ResourceStatusModal extends StatusModal<ResourceTO> {
             final PageReference pageReference,
             final ResourceTO resourceTO,
             final boolean statusOnly) {
+
         super(baseModal, pageReference, resourceTO, statusOnly);
 
         final LoadableDetachableModel<List<String>> types = new LoadableDetachableModel<List<String>>() {
@@ -59,25 +58,17 @@ public class ResourceStatusModal extends StatusModal<ResourceTO> {
 
             @Override
             protected List<String> load() {
-                List<String> res = CollectionUtils.collect(
-                        new AnyTypeRestClient().list(),
-                        new Transformer<AnyTypeTO, String>() {
-
-                    @Override
-                    public String transform(final AnyTypeTO input) {
-                        return input.getKey();
-                    }
-                }, new ArrayList<String>());
-                Collections.sort(res);
-                return res;
+                return CollectionUtils.collect(
+                        new AnyTypeRestClient().list(), EntityTOUtils.keyTransformer(), new ArrayList<String>());
             }
         };
 
-        final AjaxDropDownChoicePanel<String> type = new AjaxDropDownChoicePanel<>("type", "type", typeModel);
-        type.setChoices(types);
-        add(type);
+        AjaxDropDownChoicePanel<String> anyTypes = new AjaxDropDownChoicePanel<>("anyTypes", "anyTypes", typeModel);
+        anyTypes.setChoices(types);
+        anyTypes.hideLabel();
+        add(anyTypes);
 
-        type.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+        anyTypes.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 
@@ -97,6 +88,7 @@ public class ResourceStatusModal extends StatusModal<ResourceTO> {
             final PageReference pageReference,
             final ResourceTO entity,
             final boolean statusOnly) {
+
         return new ResourceStatusDirectoryPanel(baseModal, mlp, pageReference, null, entity);
     }
 }

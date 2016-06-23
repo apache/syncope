@@ -320,6 +320,7 @@ public class TaskDataBinderImpl implements TaskDataBinder {
 
         switch (taskUtils.getType()) {
             case PROPAGATION:
+                ((PropagationTaskTO) taskTO).setEntityKey(((PropagationTask) task).getEntityKey());
                 ((PropagationTaskTO) taskTO).setResource(((PropagationTask) task).getResource().getKey());
                 ((PropagationTaskTO) taskTO).setAttributes(((PropagationTask) task).getSerializedAttributes());
                 break;

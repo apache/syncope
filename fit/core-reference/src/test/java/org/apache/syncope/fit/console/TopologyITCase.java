@@ -90,11 +90,11 @@ public class TopologyITCase extends AbstractConsoleITCase {
         TESTER.assertComponent("body:toggle:outerObjectsRepeater:1:outer", Modal.class);
 
         FormTester formTester = TESTER.newFormTester("body:toggle:outerObjectsRepeater:1:outer:form");
-        formTester.setValue("content:type:dropDownChoiceField", "2");
+        formTester.setValue("content:anyTypes:dropDownChoiceField", "0");
         TESTER.executeAjaxEvent(
-                "body:toggle:outerObjectsRepeater:1:outer:form:content:type:dropDownChoiceField",
+                "body:toggle:outerObjectsRepeater:1:outer:form:content:anyTypes:dropDownChoiceField",
                 Constants.ON_CHANGE);
-        formTester.setValue("content:type:dropDownChoiceField", "2");
+        formTester.setValue("content:anyTypes:dropDownChoiceField", "0");
 
         component = findComponentByProp("anyKey", "body:toggle:outerObjectsRepeater:1:outer:form:content:status:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:groupForm:"
