@@ -178,7 +178,14 @@ public class PullTaskITCase extends AbstractTaskITCase {
                     page(1).size(1).build()).getTotalCount();
             assertNotNull(usersPre);
 
-            execProvisioningTask(taskService, PULL_TASK_KEY, 50, false);
+            ExecTO exec = execProvisioningTask(taskService, PULL_TASK_KEY, 50, false);
+            assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(exec.getStatus()));
+
+            // check for pull results
+            int usersPost = userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                    page(1).size(1).build()).getTotalCount();
+            assertNotNull(usersPost);
+            assertEquals(usersPre + 8, usersPost);
 
             // after execution of the pull task the user data should have been pulled from CSV
             // and processed by user template
@@ -227,12 +234,6 @@ public class PullTaskITCase extends AbstractTaskITCase {
             } catch (SyncopeClientException e) {
                 assertEquals(Response.Status.NOT_FOUND, e.getType().getResponseStatus());
             }
-
-            // check for pull results
-            int usersPost = userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                    page(1).size(1).build()).getTotalCount();
-            assertNotNull(usersPost);
-            assertEquals(usersPre + 8, usersPost);
 
             // Check for issue 215:
             // * expected disabled user test1
