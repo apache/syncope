@@ -37,6 +37,11 @@
   "VIRTUALSCHEMAS": "Virtuelle Schemen",
   "RESOURCES": "Ressourcen",
   "REALM": "Realm",
-  "NEWUSER": "Neuer benutzer"
+  "NEWUSER": "Neuer benutzer",
+  "SUCCESSFULLY_CREATED": "succes aangemaakt",
+  "SUCCESSFULLY_UPDATED": "succesvol geüpdatet",
+  "PASSWORD_UPDATED": ": password succesfully updated",
+  "GOBACKHOME": "Klik op deze link om terug te gaan naar de home page"
+
 }
 

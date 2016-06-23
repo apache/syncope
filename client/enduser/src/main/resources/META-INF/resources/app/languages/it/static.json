@@ -36,5 +36,9 @@
   "VIRTUALSCHEMAS": "VirtualSchemas",
   "RESOURCES": "Risorse",
   "NEWUSER": "Nuovo utente",
-  "REALM": "Realm"
+  "REALM": "Realm",
+  "SUCCESSFULLY_CREATED": "creato con successo",
+  "SUCCESSFULLY_UPDATED": "aggiornato con successo",
+  "PASSWORD_UPDATED": ": password succesfully updated",
+  "GOBACKHOME": "Clicca su questo link per tornare alla home page"
 }
