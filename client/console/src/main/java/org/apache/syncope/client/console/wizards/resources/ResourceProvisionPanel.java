@@ -22,7 +22,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.collections4.Predicate;
@@ -43,13 +42,10 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPan
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
-import org.apache.syncope.common.lib.to.ConnIdObjectClassTO;
-import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.MappingItemTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.OrgUnitTO;
-import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.wicket.PageReference;
@@ -67,6 +63,8 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
 
     private static final long serialVersionUID = -7982691107029848579L;
 
+    private final ConnectorRestClient connectorRestClient = new ConnectorRestClient();
+    
     private final ResourceTO resourceTO;
 
     private Model<OrgUnitTO> baseModel;
@@ -77,6 +75,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
             final BaseModal<Serializable> modal,
             final ResourceTO resourceTO,
             final PageReference pageRef) {
+
         super(modal, pageRef);
         this.resourceTO = resourceTO;
 
@@ -117,10 +116,12 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                 getString("extAttrName"),
                 new PropertyModel<String>(baseModel.getObject(), "extAttrName"),
                 false);
-        extAttrName.setChoices(ResourceProvisionPanel.getExtAttrNames(
-                resourceTO.getOrgUnit() == null ? StringUtils.EMPTY : resourceTO.getOrgUnit().getObjectClass(),
-                resourceTO.getConnector(),
-                resourceTO.getConfOverride()));
+        if (resourceTO.getOrgUnit() != null) {
+            extAttrName.setChoices(connectorRestClient.getExtAttrNames(
+                    resourceTO.getOrgUnit().getObjectClass(),
+                    resourceTO.getConnector(),
+                    resourceTO.getConfOverride()));
+        }
         realmsProvisionContainer.add(extAttrName.addRequiredLabel());
 
         objectClass.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_BLUR) {
@@ -129,7 +130,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                extAttrName.setChoices(ResourceProvisionPanel.getExtAttrNames(
+                extAttrName.setChoices(connectorRestClient.getExtAttrNames(
                         objectClass.getModelObject(),
                         resourceTO.getConnector(),
                         resourceTO.getConfOverride()));
@@ -281,7 +282,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                     @Override
                     public void onClick(final AjaxRequestTarget target, final ProvisionTO provisionTO) {
                         resourceTO.getProvisions().remove(provisionTO);
-                        send(ResourceProvisionPanel.this, Broadcast.DEPTH, new ListViewReload<Serializable>(target));
+                        send(ResourceProvisionPanel.this, Broadcast.DEPTH, new ListViewReload<>(target));
                     }
                 }, ActionLink.ActionType.DELETE, StandardEntitlement.RESOURCE_DELETE);
 
@@ -334,28 +335,8 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
     }
 
-    protected static List<String> getExtAttrNames(
-            final String objectClass, final String connectorKey, final Set<ConnConfProperty> conf) {
-        ConnInstanceTO connInstanceTO = new ConnInstanceTO();
-        connInstanceTO.setKey(connectorKey);
-        connInstanceTO.getConf().addAll(conf);
-
-        // SYNCOPE-156: use provided info to give schema names (and type!) by ObjectClass
-        ConnIdObjectClassTO connIdObjectClass = IterableUtils.find(new ConnectorRestClient().
-                buildObjectClassInfo(connInstanceTO, false), new Predicate<ConnIdObjectClassTO>() {
-
-            @Override
-            public boolean evaluate(final ConnIdObjectClassTO object) {
-                return object.getType().equalsIgnoreCase(objectClass);
-            }
-        });
-
-        return connIdObjectClass == null ? new ArrayList<String>() : connIdObjectClass.getAttributes();
-    }
-
     @Override
     public void onEvent(final IEvent<?> event) {
-
         if (event.getPayload() instanceof AjaxWizard.NewItemActionEvent) {
             aboutRealmProvison.setVisible(false);
             ((AjaxWizard.NewItemEvent) event.getPayload()).getTarget().add(aboutRealmProvison);

@@ -24,6 +24,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.ws.rs.core.Response;
+import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -62,6 +64,26 @@ public class ConnectorRestClient extends BaseRestClient {
         final Response response = service.create(connectorTO);
 
         return getObject(service, response.getLocation(), ConnInstanceTO.class);
+    }
+
+    public List<String> getExtAttrNames(
+            final String objectClass, final String connectorKey, final Set<ConnConfProperty> conf) {
+
+        ConnInstanceTO connInstanceTO = new ConnInstanceTO();
+        connInstanceTO.setKey(connectorKey);
+        connInstanceTO.getConf().addAll(conf);
+
+        // SYNCOPE-156: use provided info to give schema names (and type!) by ObjectClass
+        ConnIdObjectClassTO connIdObjectClass = IterableUtils.find(
+                buildObjectClassInfo(connInstanceTO, false), new Predicate<ConnIdObjectClassTO>() {
+
+            @Override
+            public boolean evaluate(final ConnIdObjectClassTO object) {
+                return object.getType().equalsIgnoreCase(objectClass);
+            }
+        });
+
+        return connIdObjectClass == null ? new ArrayList<String>() : connIdObjectClass.getAttributes();
     }
 
     /**
