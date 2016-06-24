@@ -160,14 +160,16 @@ public class MappingManagerImpl implements MappingManager {
                     if (preparedAttr.getValue() != null) {
                         Attribute alreadyAdded = AttributeUtil.find(preparedAttr.getValue().getName(), attributes);
 
-                        if (alreadyAdded == null
-                                || alreadyAdded.getValue() == null || alreadyAdded.getValue().isEmpty()) {
-
+                        if (alreadyAdded == null) {
                             attributes.add(preparedAttr.getValue());
                         } else {
                             attributes.remove(alreadyAdded);
 
-                            Set<Object> values = new HashSet<>(alreadyAdded.getValue());
+                            Set<Object> values = new HashSet<>();
+                            if (alreadyAdded.getValue() != null && !alreadyAdded.getValue().isEmpty()) {
+                                values.addAll(alreadyAdded.getValue());
+                            }
+
                             values.addAll(preparedAttr.getValue().getValue());
 
                             attributes.add(AttributeBuilder.build(preparedAttr.getValue().getName(), values));
