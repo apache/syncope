@@ -84,7 +84,7 @@ public abstract class PropagationTaskDirectoryPanel
                 new StringResourceModel("anyTypeKind", this, null), "anyTypeKind", "anyTypeKind"));
 
         columns.add(new PropertyColumn<PropagationTaskTO, String>(
-                new StringResourceModel("anyKey", this, null), "anyKey", "anyKey"));
+                new StringResourceModel("entityKey", this, null), "entityKey", "entityKey"));
 
         columns.add(new PropertyColumn<PropagationTaskTO, String>(
                 new StringResourceModel("connObjectKey", this, null), "connObjectKey", "connObjectKey"));

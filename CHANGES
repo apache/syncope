@@ -2,6 +2,36 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 2.0.0-M4
+================================================================================
+
+** Bug
+    * [SYNCOPE-845] - Type extensions not considered for user and any objects forms
+    * [SYNCOPE-863] - Pull policy correlation rule plain attributes palette doesn't work fine
+    * [SYNCOPE-865] - Random ConcurrentModificationException reported in the logs
+    * [SYNCOPE-867] - Creating a new notification template the list of available templates are not updated after submit
+    * [SYNCOPE-868] - Submit and cancel button not available in create report template modal page
+    * [SYNCOPE-869] - Missing notification in case of success after create and update
+    * [SYNCOPE-875] - Can't test LDAP Connector in admin console
+    * [SYNCOPE-876] - Fake after object reported by propagation in case of delete
+
+** Improvement
+    * [SYNCOPE-827] - Allow to specify user / group / any object filters for push tasks
+    * [SYNCOPE-829] - Use actual pagination for resource explore
+    * [SYNCOPE-852] - Add a good title including report/reportlet name modal used to edit report and reportlet
+    * [SYNCOPE-862] - Membership and type extension improvements
+    * [SYNCOPE-866] - Check for existence of key before adding template
+    * [SYNCOPE-870] - Refer to users and groups by their names in Activiti workflow definition
+    * [SYNCOPE-871] - Link NumberWidgets on the dashboard to their respective pages
+    * [SYNCOPE-873] - Remove list() methods from User, Group and AnyObject REST APIs
+
+** New Feature
+    * [SYNCOPE-721] - Enduser i18n
+    * [SYNCOPE-859] - External Resource bulk operations
+    * [SYNCOPE-860] - Allow listing group / role members
+    * [SYNCOPE-864] - Support for Payara
+    * [SYNCOPE-874] - Realm provisioning
+
 Release Notes - Syncope - Version 2.0.0-M3
 ================================================================================
 

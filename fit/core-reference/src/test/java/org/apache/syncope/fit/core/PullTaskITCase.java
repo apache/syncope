@@ -25,15 +25,22 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.lib.SyncopeClient;
@@ -148,8 +155,29 @@ public class PullTaskITCase extends AbstractTaskITCase {
     }
 
     @Test
-    public void pull() throws Exception {
+    public void fromCSV() throws Exception {
         removeTestUsers();
+
+        // Attemp to reset CSV content
+        Properties props = new Properties();
+        InputStream propStream = null;
+        InputStream srcStream = null;
+        OutputStream dstStream = null;
+        try {
+            propStream = getClass().getResourceAsStream("/core-test.properties");
+            props.load(propStream);
+
+            srcStream = new FileInputStream(props.getProperty("test.csv.src"));
+            dstStream = new FileOutputStream(props.getProperty("test.csv.dst"));
+
+            IOUtils.copy(srcStream, dstStream);
+        } catch (IOException e) {
+            fail(e.getMessage());
+        } finally {
+            IOUtils.closeQuietly(propStream);
+            IOUtils.closeQuietly(srcStream);
+            IOUtils.closeQuietly(dstStream);
+        }
 
         // -----------------------------
         // Create a new user ... it should be updated applying pull policy
@@ -180,6 +208,8 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
             ExecTO exec = execProvisioningTask(taskService, PULL_TASK_KEY, 50, false);
             assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(exec.getStatus()));
+            
+            LOG.debug("Execution of task {}:\n{}", PULL_TASK_KEY, exec);
 
             // check for pull results
             int usersPost = userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).

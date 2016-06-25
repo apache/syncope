@@ -36,7 +36,11 @@ public abstract class StatusModal<T extends Serializable> extends Panel implemen
     protected final DirectoryPanel<StatusBean, StatusBean, ?, ?> directoryPanel;
 
     public StatusModal(
-            final BaseModal<?> baseModal, final PageReference pageReference, final T entity, final boolean statusOnly) {
+            final BaseModal<?> baseModal,
+            final PageReference pageReference,
+            final T entity,
+            final boolean statusOnly) {
+
         super(BaseModal.CONTENT_ID);
 
         final MultilevelPanel mlp = new MultilevelPanel("status");
