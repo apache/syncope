@@ -5,6 +5,7 @@
  */
 package org.apache.syncope.netbeans.plugin.service;
 
+import java.io.InputStream;
 import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.lib.SyncopeClient;
@@ -12,7 +13,6 @@ import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.to.ReportTemplateTO;
 import org.apache.syncope.common.lib.types.ReportTemplateFormat;
 import org.apache.syncope.common.rest.api.service.ReportTemplateService;
-import org.apache.syncope.netbeans.plugin.entity.UserProperties;
 
 /**
  *
@@ -48,11 +48,12 @@ public class ReportTemplateManagerService {
     }
     
     public Object getFormat(String key, ReportTemplateFormat format){
-        return null;
+        return service.getFormat(key, format).getEntity();
     }
     
-    public boolean setFormat(String key, ReportTemplateFormat format){
-        return false;
+    public void setFormat(String key, ReportTemplateFormat format,
+            InputStream templateIn){
+        service.setFormat(key, format, templateIn);
     }
     
     public boolean removeFormat(String key, ReportTemplateFormat format){

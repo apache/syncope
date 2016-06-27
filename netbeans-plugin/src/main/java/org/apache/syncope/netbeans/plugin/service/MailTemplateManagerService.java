@@ -5,6 +5,7 @@
  */
 package org.apache.syncope.netbeans.plugin.service;
 
+import java.io.InputStream;
 import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.lib.SyncopeClient;
@@ -49,8 +50,8 @@ public class MailTemplateManagerService {
         return service.getFormat(key, format).getEntity();
     }
     
-    public boolean setFormat(String key, MailTemplateFormat format){
-        return false;
+    public void setFormat(String key, MailTemplateFormat format, InputStream templateIn){
+        service.setFormat(key, format, templateIn);
     }
     
     public boolean removeFormat(String key, MailTemplateFormat format){

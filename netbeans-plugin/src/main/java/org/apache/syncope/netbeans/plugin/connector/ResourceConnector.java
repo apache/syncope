@@ -34,12 +34,12 @@ public class ResourceConnector {
     }
     
     public static ReportTemplateManagerService getReportTemplateManagerService() throws IOException{
-        if(reportTemplateManagerService == null){
+        //if(reportTemplateManagerService == null){
             UserProperties userProperties = getUserProperties();
             reportTemplateManagerService = new ReportTemplateManagerService(
                     userProperties.getUrl(), userProperties.getUserName(),
                     userProperties.getPassword());
-        }
+        //}
         return reportTemplateManagerService;
     }
     

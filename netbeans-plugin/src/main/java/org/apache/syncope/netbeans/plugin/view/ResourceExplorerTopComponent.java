@@ -16,6 +16,9 @@ import java.util.List;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+import javax.swing.text.JTextComponent;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import org.apache.commons.io.IOUtils;
@@ -27,6 +30,7 @@ import org.apache.syncope.netbeans.plugin.connector.ResourceConnector;
 import org.apache.syncope.netbeans.plugin.constants.PluginConstants;
 import org.apache.syncope.netbeans.plugin.service.MailTemplateManagerService;
 import org.apache.syncope.netbeans.plugin.service.ReportTemplateManagerService;
+import org.netbeans.api.editor.EditorRegistry;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -101,7 +105,6 @@ public final class ResourceExplorerTopComponent extends TopComponent {
 
         javax.swing.tree.DefaultMutableTreeNode treeNode1 = new javax.swing.tree.DefaultMutableTreeNode("root");
         resourceExplorerTree.setModel(new javax.swing.tree.DefaultTreeModel(treeNode1));
-        resourceExplorerTree.setRootVisible(false);
         resourceExplorerTree.setScrollsOnExpand(true);
         resourceExplorerTree.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -217,7 +220,9 @@ public final class ResourceExplorerTopComponent extends TopComponent {
     private void folderRightClickAction(final MouseEvent evt, final DefaultMutableTreeNode node) {
         JPopupMenu menu = new JPopupMenu();
         JMenuItem addItem = new JMenuItem("New");
+        JMenuItem saveItem = new JMenuItem("Save");
         menu.add(addItem);
+        menu.add(saveItem);
 
         addItem.addActionListener(new ActionListener() {
             @Override
@@ -225,19 +230,29 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                 String name = JOptionPane.showInputDialog("Enter Name");
                 boolean added = false;
                 if (node.getUserObject().equals(PluginConstants.MAIL_TEMPLTAE_CONSTANT)) {
+                    MailTemplateTO mailTemplate = new MailTemplateTO();
+                    mailTemplate.setKey(name);
+                    added = mailTemplateManagerService.create(mailTemplate);
+                    mailTemplateManagerService.setFormat(name, MailTemplateFormat.HTML,
+                            IOUtils.toInputStream("//Enter Content here"));
+                    mailTemplateManagerService.setFormat(name, MailTemplateFormat.TEXT,
+                            IOUtils.toInputStream("//Enter Content here"));
                     try {
-                        MailTemplateTO mailTemplate = new MailTemplateTO();
-                        mailTemplate.setKey(name);
-                        added = mailTemplateManagerService.create(mailTemplate);
                         openMailEditor(name);
                     } catch (IOException ex) {
                         Exceptions.printStackTrace(ex);
                     }
                 } else {
+                    ReportTemplateTO reportTemplate = new ReportTemplateTO();
+                    reportTemplate.setKey(name);
+                    added = reportTemplateManagerService.create(reportTemplate);
+                    reportTemplateManagerService.setFormat(name, ReportTemplateFormat.FO,
+                            IOUtils.toInputStream("//Enter content here"));
+                    reportTemplateManagerService.setFormat(name, ReportTemplateFormat.CSV,
+                            IOUtils.toInputStream("//Enter content here"));
+                    reportTemplateManagerService.setFormat(name, ReportTemplateFormat.HTML,
+                            IOUtils.toInputStream("//Enter content here"));
                     try {
-                        ReportTemplateTO reportTemplate = new ReportTemplateTO();
-                        reportTemplate.setKey(name);
-                        added = reportTemplateManagerService.create(reportTemplate);
                         openReportEditor(name);
                     } catch (IOException ex) {
                         Exceptions.printStackTrace(ex);
@@ -253,13 +268,23 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                 }
             }
         });
+
+        saveItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                saveContent();
+            }
+        });
+
         menu.show(evt.getComponent(), evt.getX(), evt.getY());
     }
 
     private void leafRightClickAction(final MouseEvent evt, final DefaultMutableTreeNode node) {
         JPopupMenu menu = new JPopupMenu();
         JMenuItem deleteItem = new JMenuItem("Delete");
+        JMenuItem saveItem = new JMenuItem("Save");
         menu.add(deleteItem);
+        menu.add(saveItem);
 
         deleteItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -283,6 +308,14 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                 }
             }
         });
+
+        saveItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                saveContent();
+            }
+        });
+
         menu.show(evt.getComponent(), evt.getX(), evt.getY());
     }
 
@@ -296,19 +329,21 @@ public final class ResourceExplorerTopComponent extends TopComponent {
 
         if (format.equals("HTML")) {
             type = "html";
-            is = (InputStream) mailTemplateManagerService.getFormat(name, MailTemplateFormat.HTML);
+            is = (InputStream) mailTemplateManagerService.getFormat(name,
+                    MailTemplateFormat.HTML);
             content = IOUtils.toString(is);
         } else {
             type = "txt";
-            is = (InputStream) mailTemplateManagerService.getFormat(name, MailTemplateFormat.TEXT);
+            is = (InputStream) mailTemplateManagerService.getFormat(name,
+                    MailTemplateFormat.TEXT);
             content = IOUtils.toString(is);
         }
 
-        File directory = new File("Template");
+        File directory = new File("Template/Mail");
         if (!directory.exists()) {
-            directory.mkdir();
+            directory.mkdirs();
         }
-        File file = new File("Template/" + name + "." + type);
+        File file = new File("Template/Mail/" + name + "." + type);
         FileWriter fw = new FileWriter(file);
         fw.write(content);
         fw.flush();
@@ -317,7 +352,7 @@ public final class ResourceExplorerTopComponent extends TopComponent {
         OpenCookie cookie = (OpenCookie) data.getCookie(OpenCookie.class);
         cookie.open();
     }
-    
+
     private void openReportEditor(String name) throws IOException {
         String type;
         String content;
@@ -328,23 +363,26 @@ public final class ResourceExplorerTopComponent extends TopComponent {
 
         if (format.equals("HTML")) {
             type = "html";
-            is = (InputStream) reportTemplateManagerService.getFormat(name, ReportTemplateFormat.HTML);
+            is = (InputStream) reportTemplateManagerService.getFormat(name,
+                    ReportTemplateFormat.HTML);
             content = IOUtils.toString(is);
-        } else if (format.equals("CSV")){
+        } else if (format.equals("CSV")) {
             type = "csv";
-            is = (InputStream) reportTemplateManagerService.getFormat(name, ReportTemplateFormat.CSV);
+            is = (InputStream) reportTemplateManagerService.getFormat(name,
+                    ReportTemplateFormat.CSV);
             content = IOUtils.toString(is);
-        }else{
+        } else {
             type = "fo";
-            is = (InputStream) reportTemplateManagerService.getFormat(name, ReportTemplateFormat.FO);
+            is = (InputStream) reportTemplateManagerService.getFormat(name,
+                    ReportTemplateFormat.FO);
             content = IOUtils.toString(is);
         }
 
-        File directory = new File("Template");
+        File directory = new File("Template/Report");
         if (!directory.exists()) {
-            directory.mkdir();
+            directory.mkdirs();
         }
-        File file = new File("Template/" + name + "." + type);
+        File file = new File("Template/Report/" + name + "." + type);
         FileWriter fw = new FileWriter(file);
         fw.write(content);
         fw.flush();
@@ -353,4 +391,42 @@ public final class ResourceExplorerTopComponent extends TopComponent {
         OpenCookie cookie = (OpenCookie) data.getCookie(OpenCookie.class);
         cookie.open();
     }
+
+    private void saveContent() {
+
+        try {
+            JTextComponent ed = EditorRegistry.lastFocusedComponent();
+            Document document = ed.getDocument();
+            String content = document.getText(0, document.getLength());
+            String path = (String) document.getProperty(Document.TitleProperty);
+            String[] temp = path.split(File.separator);
+            String name = temp[temp.length - 1];
+            String templateType = temp[temp.length - 2];
+            temp = name.split("\\.");
+            String format = temp[1];
+            String key = temp[0];
+            
+            if (templateType.equals("Mail")) {
+                if (format.equals("txt")) {
+                    mailTemplateManagerService.setFormat(key, MailTemplateFormat.TEXT,
+                            IOUtils.toInputStream(content));
+                } else {
+                    mailTemplateManagerService.setFormat(key, MailTemplateFormat.HTML,
+                            IOUtils.toInputStream(content));
+                }
+            } else if (format.equals("html")) {
+                reportTemplateManagerService.setFormat(key, ReportTemplateFormat.HTML,
+                        IOUtils.toInputStream(content));
+            } else if (format.equals("fo")) {
+                reportTemplateManagerService.setFormat(key, ReportTemplateFormat.FO,
+                        IOUtils.toInputStream(content));
+            } else {
+                reportTemplateManagerService.setFormat(key, ReportTemplateFormat.CSV,
+                        IOUtils.toInputStream(content));
+            }
+        } catch (BadLocationException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+    }
+
 }

@@ -136,5 +136,11 @@
             <version>RELEASE81</version>
             <type>jar</type>
         </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-modules-editor-lib2</artifactId>
+            <version>RELEASE81</version>
+            <type>jar</type>
+        </dependency>
     </dependencies>
 </project>
