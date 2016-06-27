@@ -604,7 +604,7 @@ public class ResourceITCase extends AbstractITCase {
 
                     @Override
                     public String transform(final ConnObjectTO input) {
-                        return input.getPlainAttrMap().get("__NAME__").getValues().get(0);
+                        return input.getAttrMap().get("__NAME__").getValues().get(0);
                     }
                 }, read);
 

@@ -63,6 +63,7 @@ import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.MappingManager;
+import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
@@ -228,8 +229,7 @@ public class PropagationManagerImpl implements PropagationManager {
             origPropByRes.merge(wfResult.getPropByRes());
 
             Set<String> pwdResourceNames = new HashSet<>(userPatch.getPassword().getResources());
-            Collection<String> currentResourceNames =
-                    userDAO.findAllResourceNames(userDAO.authFind(userPatch.getKey()));
+            Collection<String> currentResourceNames = userDAO.findAllResourceNames(userPatch.getKey());
             pwdResourceNames.retainAll(currentResourceNames);
             PropagationByResource pwdPropByRes = new PropagationByResource();
             pwdPropByRes.addAll(ResourceOperation.UPDATE, pwdResourceNames);
@@ -342,9 +342,11 @@ public class PropagationManagerImpl implements PropagationManager {
         virtualResources.addAll(propByRes.get(ResourceOperation.CREATE));
         virtualResources.addAll(propByRes.get(ResourceOperation.UPDATE));
         if (any instanceof User) {
-            virtualResources.addAll(userDAO.findAllResourceNames((User) any));
+            virtualResources.addAll(CollectionUtils.collect(
+                    userDAO.findAllResources((User) any), EntityUtils.keyTransformer()));
         } else if (any instanceof AnyObject) {
-            virtualResources.addAll(anyObjectDAO.findAllResourceNames((AnyObject) any));
+            virtualResources.addAll(CollectionUtils.collect(
+                    anyObjectDAO.findAllResources((AnyObject) any), EntityUtils.keyTransformer()));
         } else {
             virtualResources.addAll(((Group) any).getResourceKeys());
         }

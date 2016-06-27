@@ -48,8 +48,8 @@ public class ConnObjectAttrColumn extends AbstractColumn<ConnObjectTO, String> {
             final IModel<ConnObjectTO> rowModel) {
 
         List<String> values = null;
-        if (rowModel.getObject().getPlainAttrMap().containsKey(name)) {
-            values = rowModel.getObject().getPlainAttrMap().get(name).getValues();
+        if (rowModel.getObject().getAttrMap().containsKey(name)) {
+            values = rowModel.getObject().getAttrMap().get(name).getValues();
         }
 
         if (values == null || values.isEmpty()) {

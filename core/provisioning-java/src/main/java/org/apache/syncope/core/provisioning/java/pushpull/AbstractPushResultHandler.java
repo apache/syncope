@@ -21,6 +21,7 @@ package org.apache.syncope.core.provisioning.java.pushpull;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.patch.AnyPatch;
@@ -47,6 +48,7 @@ import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.TimeoutException;
 import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionException;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePushResultHandler;
+import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
@@ -267,7 +269,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                             if (!profile.getTask().isPerformUpdate()) {
                                 LOG.debug("PushTask not configured for update");
                             } else {
-                                update(any, status);
+                                update(any);
                             }
 
                             break;
@@ -397,15 +399,17 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         }
     }
 
-    private Any<?> update(final Any<?> any, final Boolean enabled) {
+    private Any<?> update(final Any<?> any) {
         boolean changepwd;
         Collection<String> resourceKeys;
         if (any instanceof User) {
             changepwd = true;
-            resourceKeys = userDAO.findAllResourceNames((User) any);
+            resourceKeys = CollectionUtils.collect(
+                    userDAO.findAllResources((User) any), EntityUtils.keyTransformer());
         } else if (any instanceof AnyObject) {
             changepwd = false;
-            resourceKeys = anyObjectDAO.findAllResourceNames((AnyObject) any);
+            resourceKeys = CollectionUtils.collect(
+                    anyObjectDAO.findAllResources((AnyObject) any), EntityUtils.keyTransformer());
         } else {
             changepwd = false;
             resourceKeys = ((Group) any).getResourceKeys();

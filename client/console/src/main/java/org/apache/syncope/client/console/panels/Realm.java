@@ -201,12 +201,12 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
                 if ("afterObj".equalsIgnoreCase(key)) {
                     ConnObjectTO afterObj = bean.getAfterObj();
                     String remoteId = afterObj == null
-                            || MapUtils.isEmpty(afterObj.getPlainAttrMap())
-                            || !afterObj.getPlainAttrMap().containsKey(ConnIdSpecialAttributeName.NAME)
+                            || MapUtils.isEmpty(afterObj.getAttrMap())
+                            || !afterObj.getAttrMap().containsKey(ConnIdSpecialAttributeName.NAME)
                             || CollectionUtils.isEmpty(
-                                    afterObj.getPlainAttrMap().get(ConnIdSpecialAttributeName.NAME).getValues())
+                                    afterObj.getAttrMap().get(ConnIdSpecialAttributeName.NAME).getValues())
                             ? StringUtils.EMPTY
-                            : afterObj.getPlainAttrMap().get(ConnIdSpecialAttributeName.NAME).getValues().
+                            : afterObj.getAttrMap().get(ConnIdSpecialAttributeName.NAME).getValues().
                             iterator().next();
 
                     return new Label("field", remoteId);

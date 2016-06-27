@@ -256,7 +256,8 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
 
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
 
-        Collection<String> currentResources = anyObjectDAO.findAllResourceNames(anyObject);
+        Collection<String> currentResources = CollectionUtils.collect(
+                anyObjectDAO.findAllResources(anyObject), EntityUtils.keyTransformer());
 
         // fetch connObjectKeys before update
         Map<String, String> oldConnObjectKeys = getConnObjectKeys(anyObject);

@@ -56,5 +56,5 @@ public interface AnyObjectDAO extends AnyDAO<AnyObject> {
 
     Collection<ExternalResource> findAllResources(AnyObject anyObject);
 
-    Collection<String> findAllResourceNames(AnyObject anyObject);
+    Collection<String> findAllResourceNames(String key);
 }

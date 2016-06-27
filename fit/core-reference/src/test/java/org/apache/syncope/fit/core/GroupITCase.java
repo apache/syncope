@@ -130,7 +130,7 @@ public class GroupITCase extends AbstractITCase {
         ConnObjectTO connObjectTO =
                 resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey());
         assertNotNull(connObjectTO);
-        assertNotNull(connObjectTO.getPlainAttrMap().get("owner"));
+        assertNotNull(connObjectTO.getAttrMap().get("owner"));
 
         // SYNCOPE-515: remove ownership
         GroupPatch groupPatch = new GroupPatch();

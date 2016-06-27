@@ -310,7 +310,8 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
 
-        Collection<String> currentResources = userDAO.findAllResourceNames(user);
+        Collection<String> currentResources = CollectionUtils.collect(
+                userDAO.findAllResources(user), EntityUtils.keyTransformer());
 
         // fetch connObjectKeys before update
         Map<String, String> oldConnObjectKeys = getConnObjectKeys(user);

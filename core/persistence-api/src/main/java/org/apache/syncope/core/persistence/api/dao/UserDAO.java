@@ -58,7 +58,7 @@ public interface UserDAO extends AnyDAO<User> {
 
     Collection<ExternalResource> findAllResources(User user);
 
-    Collection<String> findAllResourceNames(User user);
+    Collection<String> findAllResourceNames(String key);
 
     Pair<Boolean, Boolean> enforcePolicies(User user);
 }

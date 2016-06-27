@@ -60,7 +60,7 @@ public class UserDeprovisionProcessor implements Processor {
                 AnyTypeKind.USER,
                 key,
                 propByRes,
-                CollectionUtils.removeAll(userDAO.findAllResourceNames(userDAO.authFind(key)), resources));
+                CollectionUtils.removeAll(userDAO.findAllResourceNames(key), resources));
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
         taskExecutor.execute(tasks, propagationReporter, nullPriorityAsync);

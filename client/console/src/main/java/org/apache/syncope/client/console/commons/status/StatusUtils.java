@@ -113,7 +113,7 @@ public class StatusUtils implements Serializable {
     }
 
     private Boolean isEnabled(final ConnObjectTO objectTO) {
-        final Map<String, AttrTO> attributeTOs = objectTO.getPlainAttrMap();
+        final Map<String, AttrTO> attributeTOs = objectTO.getAttrMap();
 
         final AttrTO status = attributeTOs.get(ConnIdSpecialAttributeName.ENABLE);
 
@@ -125,7 +125,7 @@ public class StatusUtils implements Serializable {
     private String getConnObjectLink(final ConnObjectTO objectTO) {
         final Map<String, AttrTO> attributeTOs = objectTO == null
                 ? Collections.<String, AttrTO>emptyMap()
-                : objectTO.getPlainAttrMap();
+                : objectTO.getAttrMap();
 
         final AttrTO name = attributeTOs.get(ConnIdSpecialAttributeName.NAME);
 

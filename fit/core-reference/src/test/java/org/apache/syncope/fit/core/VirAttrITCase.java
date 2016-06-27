@@ -137,7 +137,7 @@ public class VirAttrITCase extends AbstractITCase {
 
         ConnObjectTO connObjectTO =
                 resourceService.readConnObject(RESOURCE_NAME_WS2, AnyTypeKind.USER.name(), userTO.getKey());
-        assertEquals("virtualvalue", connObjectTO.getPlainAttrMap().get("COMPANYNAME").getValues().get(0));
+        assertEquals("virtualvalue", connObjectTO.getAttrMap().get("COMPANYNAME").getValues().get(0));
         // ----------------------------------
 
         // ----------------------------------
@@ -155,7 +155,7 @@ public class VirAttrITCase extends AbstractITCase {
         userTO = result.getEntity();
 
         connObjectTO = resourceService.readConnObject(RESOURCE_NAME_WS2, AnyTypeKind.USER.name(), userTO.getKey());
-        assertEquals("virtualvalue2", connObjectTO.getPlainAttrMap().get("COMPANYNAME").getValues().get(0));
+        assertEquals("virtualvalue2", connObjectTO.getAttrMap().get("COMPANYNAME").getValues().get(0));
         // ----------------------------------
 
         // ----------------------------------
@@ -169,7 +169,7 @@ public class VirAttrITCase extends AbstractITCase {
         assertEquals("suspended", userTO.getStatus());
 
         connObjectTO = resourceService.readConnObject(RESOURCE_NAME_WS2, AnyTypeKind.USER.name(), userTO.getKey());
-        assertEquals("virtualvalue2", connObjectTO.getPlainAttrMap().get("COMPANYNAME").getValues().get(0));
+        assertEquals("virtualvalue2", connObjectTO.getAttrMap().get("COMPANYNAME").getValues().get(0));
 
         statusPatch = new StatusPatch();
         statusPatch.setKey(userTO.getKey());
@@ -179,7 +179,7 @@ public class VirAttrITCase extends AbstractITCase {
         assertEquals("active", userTO.getStatus());
 
         connObjectTO = resourceService.readConnObject(RESOURCE_NAME_WS2, AnyTypeKind.USER.name(), userTO.getKey());
-        assertEquals("virtualvalue2", connObjectTO.getPlainAttrMap().get("COMPANYNAME").getValues().get(0));
+        assertEquals("virtualvalue2", connObjectTO.getAttrMap().get("COMPANYNAME").getValues().get(0));
         // ----------------------------------
 
         // ----------------------------------
@@ -197,11 +197,11 @@ public class VirAttrITCase extends AbstractITCase {
         userTO = result.getEntity();
 
         connObjectTO = resourceService.readConnObject(RESOURCE_NAME_WS2, AnyTypeKind.USER.name(), userTO.getKey());
-        assertEquals("Surname2", connObjectTO.getPlainAttrMap().get("SURNAME").getValues().get(0));
+        assertEquals("Surname2", connObjectTO.getAttrMap().get("SURNAME").getValues().get(0));
 
         // virtual attribute value did not change
-        assertFalse(connObjectTO.getPlainAttrMap().get("COMPANYNAME").getValues().isEmpty());
-        assertEquals("virtualvalue2", connObjectTO.getPlainAttrMap().get("COMPANYNAME").getValues().get(0));
+        assertFalse(connObjectTO.getAttrMap().get("COMPANYNAME").getValues().isEmpty());
+        assertEquals("virtualvalue2", connObjectTO.getAttrMap().get("COMPANYNAME").getValues().get(0));
         // ----------------------------------
     }
 

@@ -455,7 +455,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
                     readConnObject(RESOURCE_NAME_DBSCRIPTED, anyObjectTO.getType(), anyObjectTO.getKey());
             assertFalse(anyObjectTO.getPlainAttrMap().get("location").getValues().get(0).
                     startsWith(PrefixMappingItemTransformer.PREFIX));
-            assertTrue(connObjectTO.getPlainAttrMap().get("LOCATION").getValues().get(0).
+            assertTrue(connObjectTO.getAttrMap().get("LOCATION").getValues().get(0).
                     startsWith(PrefixMappingItemTransformer.PREFIX));
 
             // 3. unlink any existing printer and delete from Syncope (printer is now only on external resource)
@@ -981,9 +981,9 @@ public class PullTaskITCase extends AbstractTaskITCase {
             ConnObjectTO connObject =
                     resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), user.getKey());
             assertNotNull(getLdapRemoteObject(
-                    connObject.getPlainAttrMap().get(Name.NAME).getValues().get(0),
+                    connObject.getAttrMap().get(Name.NAME).getValues().get(0),
                     oldCleanPassword,
-                    connObject.getPlainAttrMap().get(Name.NAME).getValues().get(0)));
+                    connObject.getAttrMap().get(Name.NAME).getValues().get(0)));
 
             // 5. Update the LDAP Connector to retrieve passwords
             ResourceTO ldapResource = resourceService.read(RESOURCE_NAME_LDAP);

@@ -54,7 +54,7 @@ public class UserDeleteProcessor implements Processor {
         Boolean nullPriorityAsync = exchange.getProperty("nullPriorityAsync", Boolean.class);
 
         PropagationByResource propByRes = new PropagationByResource();
-        propByRes.set(ResourceOperation.DELETE, userDAO.findAllResourceNames(userDAO.authFind(key)));
+        propByRes.set(ResourceOperation.DELETE, userDAO.findAllResourceNames(key));
 
         // Note here that we can only notify about "delete", not any other
         // task defined in workflow process definition: this because this
