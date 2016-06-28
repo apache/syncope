@@ -1,8 +1,19 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright 2016 The Apache Software Foundation.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
+
 package org.apache.syncope.netbeans.plugin.service;
 
 import java.io.InputStream;
@@ -14,15 +25,12 @@ import org.apache.syncope.common.lib.to.MailTemplateTO;
 import org.apache.syncope.common.lib.types.MailTemplateFormat;
 import org.apache.syncope.common.rest.api.service.MailTemplateService;
 
-/**
- *
- * @author nuwan
- */
 public class MailTemplateManagerService {
     
     private MailTemplateService service;
     
-    public MailTemplateManagerService(String url, String userName, String password) {
+    public MailTemplateManagerService(String url, String userName, 
+            String password) {
         SyncopeClient syncopeClient = new SyncopeClientFactoryBean().
                 setAddress(url).create(userName,password); 
         service = syncopeClient.getService(MailTemplateService.class);
@@ -50,7 +58,8 @@ public class MailTemplateManagerService {
         return service.getFormat(key, format).getEntity();
     }
     
-    public void setFormat(String key, MailTemplateFormat format, InputStream templateIn){
+    public void setFormat(String key, MailTemplateFormat format,
+            InputStream templateIn){
         service.setFormat(key, format, templateIn);
     }
     

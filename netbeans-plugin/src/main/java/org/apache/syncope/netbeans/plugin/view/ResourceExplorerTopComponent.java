@@ -1,8 +1,19 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright 2016 The Apache Software Foundation.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
+
 package org.apache.syncope.netbeans.plugin.view;
 
 import java.awt.event.ActionEvent;
@@ -55,7 +66,8 @@ import org.openide.util.NbBundle.Messages;
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
 @TopComponent.Registration(mode = "explorer", openAtStartup = false)
-@ActionID(category = "Window", id = "org.apache.syncope.netbeans.plugin.ResourceExplorerTopComponent")
+@ActionID(category = "Window", id = "org.apache.syncope.netbeans.plugin."
+        + "ResourceExplorerTopComponent")
 @ActionReference(path = "Menu/Window" /*, position = 333 */)
 @TopComponent.OpenActionRegistration(
         displayName = "#CTL_ResourceExplorerAction",
@@ -83,8 +95,10 @@ public final class ResourceExplorerTopComponent extends TopComponent {
 
         treeModel = (DefaultTreeModel) resourceExplorerTree.getModel();
         root = (DefaultMutableTreeNode) treeModel.getRoot();
-        mailTemplates = new DefaultMutableTreeNode(PluginConstants.MAIL_TEMPLTAE_CONSTANT);
-        reportXslts = new DefaultMutableTreeNode(PluginConstants.REPORT_XSLTS_CONSTANT);
+        mailTemplates = new DefaultMutableTreeNode(PluginConstants.
+                MAIL_TEMPLTAE_CONSTANT);
+        reportXslts = new DefaultMutableTreeNode(PluginConstants.
+                REPORT_XSLTS_CONSTANT);
 
         root.add(mailTemplates);
         root.add(reportXslts);
@@ -127,11 +141,14 @@ public final class ResourceExplorerTopComponent extends TopComponent {
 
     private void resourceExplorerTreeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_resourceExplorerTreeMouseClicked
         if (evt.getButton() == MouseEvent.BUTTON1 && evt.getClickCount() == 2) {
-            DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) resourceExplorerTree.getLastSelectedPathComponent();
-            DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) selectedNode.getParent();
+            DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) 
+                    resourceExplorerTree.getLastSelectedPathComponent();
+            DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode)
+                    selectedNode.getParent();
             if (selectedNode.isLeaf()) {
                 String name = (String) selectedNode.getUserObject();
-                if (parentNode.getUserObject().equals(PluginConstants.MAIL_TEMPLTAE_CONSTANT)) {
+                if (parentNode.getUserObject().equals(PluginConstants.
+                        MAIL_TEMPLTAE_CONSTANT)) {
                     try {
                         openMailEditor(name);
                     } catch (IOException ex) {
@@ -145,14 +162,18 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                     }
                 }
             }
-        } else if (evt.getButton() == MouseEvent.BUTTON3 && evt.getClickCount() == 1) {
-            DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) resourceExplorerTree.getLastSelectedPathComponent();
+        } else if (evt.getButton() == MouseEvent.BUTTON3 && 
+                evt.getClickCount() == 1) {
+            DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) 
+                    resourceExplorerTree.getLastSelectedPathComponent();
             String selectedNodeName = (String) selectedNode.getUserObject();
             if (selectedNode.isLeaf()) {
                 leafRightClickAction(evt, selectedNode);
-            } else if (selectedNodeName.equals(PluginConstants.MAIL_TEMPLTAE_CONSTANT)) {
+            } else if (selectedNodeName.equals(PluginConstants.
+                    MAIL_TEMPLTAE_CONSTANT)) {
                 folderRightClickAction(evt, mailTemplates);
-            } else if (selectedNodeName.equals(PluginConstants.REPORT_XSLTS_CONSTANT)) {
+            } else if (selectedNodeName.equals(PluginConstants.
+                    REPORT_XSLTS_CONSTANT)) {
                 folderRightClickAction(evt, reportXslts);
             }
         }
@@ -171,11 +192,13 @@ public final class ResourceExplorerTopComponent extends TopComponent {
         try {
             mailTemplateManagerService = ResourceConnector.getMailTemplateManagerService();
         } catch (IOException ex) {
-            JOptionPane.showMessageDialog(null, "Error Occured.", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Error Occured.", "Error", 
+                    JOptionPane.ERROR_MESSAGE);
             new LoginView(null, true).setVisible(true);
         }
         try {
-            reportTemplateManagerService = ResourceConnector.getReportTemplateManagerService();
+            reportTemplateManagerService = 
+                    ResourceConnector.getReportTemplateManagerService();
         } catch (IOException ex) {
             new LoginView(null, true).setVisible(true);
         }
@@ -204,20 +227,24 @@ public final class ResourceExplorerTopComponent extends TopComponent {
     private void addMailTemplates() {
         List<MailTemplateTO> mailTemplates = mailTemplateManagerService.list();
         for (MailTemplateTO mailTemplate : mailTemplates) {
-            this.mailTemplates.add(new DefaultMutableTreeNode(mailTemplate.getKey()));
+            this.mailTemplates.add(new DefaultMutableTreeNode(
+                    mailTemplate.getKey()));
         }
         treeModel.reload();
     }
 
     private void addReportXslts() {
-        List<ReportTemplateTO> reportTemplates = reportTemplateManagerService.list();
+        List<ReportTemplateTO> reportTemplates = 
+                reportTemplateManagerService.list();
         for (ReportTemplateTO reportTemplate : reportTemplates) {
-            reportXslts.add(new DefaultMutableTreeNode(reportTemplate.getKey()));
+            reportXslts.add(new DefaultMutableTreeNode(
+                    reportTemplate.getKey()));
         }
         treeModel.reload();
     }
 
-    private void folderRightClickAction(final MouseEvent evt, final DefaultMutableTreeNode node) {
+    private void folderRightClickAction(final MouseEvent evt, 
+            final DefaultMutableTreeNode node) {
         JPopupMenu menu = new JPopupMenu();
         JMenuItem addItem = new JMenuItem("New");
         JMenuItem saveItem = new JMenuItem("Save");
@@ -229,13 +256,16 @@ public final class ResourceExplorerTopComponent extends TopComponent {
             public void actionPerformed(ActionEvent e) {
                 String name = JOptionPane.showInputDialog("Enter Name");
                 boolean added = false;
-                if (node.getUserObject().equals(PluginConstants.MAIL_TEMPLTAE_CONSTANT)) {
+                if (node.getUserObject().equals(
+                        PluginConstants.MAIL_TEMPLTAE_CONSTANT)) {
                     MailTemplateTO mailTemplate = new MailTemplateTO();
                     mailTemplate.setKey(name);
                     added = mailTemplateManagerService.create(mailTemplate);
-                    mailTemplateManagerService.setFormat(name, MailTemplateFormat.HTML,
+                    mailTemplateManagerService.setFormat(name, 
+                            MailTemplateFormat.HTML,
                             IOUtils.toInputStream("//Enter Content here"));
-                    mailTemplateManagerService.setFormat(name, MailTemplateFormat.TEXT,
+                    mailTemplateManagerService.setFormat(name, 
+                            MailTemplateFormat.TEXT,
                             IOUtils.toInputStream("//Enter Content here"));
                     try {
                         openMailEditor(name);
@@ -246,11 +276,14 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                     ReportTemplateTO reportTemplate = new ReportTemplateTO();
                     reportTemplate.setKey(name);
                     added = reportTemplateManagerService.create(reportTemplate);
-                    reportTemplateManagerService.setFormat(name, ReportTemplateFormat.FO,
+                    reportTemplateManagerService.setFormat(name,
+                            ReportTemplateFormat.FO,
                             IOUtils.toInputStream("//Enter content here"));
-                    reportTemplateManagerService.setFormat(name, ReportTemplateFormat.CSV,
+                    reportTemplateManagerService.setFormat(name,
+                            ReportTemplateFormat.CSV,
                             IOUtils.toInputStream("//Enter content here"));
-                    reportTemplateManagerService.setFormat(name, ReportTemplateFormat.HTML,
+                    reportTemplateManagerService.setFormat(name, 
+                            ReportTemplateFormat.HTML,
                             IOUtils.toInputStream("//Enter content here"));
                     try {
                         openReportEditor(name);
@@ -279,7 +312,8 @@ public final class ResourceExplorerTopComponent extends TopComponent {
         menu.show(evt.getComponent(), evt.getX(), evt.getY());
     }
 
-    private void leafRightClickAction(final MouseEvent evt, final DefaultMutableTreeNode node) {
+    private void leafRightClickAction(final MouseEvent evt, 
+            final DefaultMutableTreeNode node) {
         JPopupMenu menu = new JPopupMenu();
         JMenuItem deleteItem = new JMenuItem("Delete");
         JMenuItem saveItem = new JMenuItem("Save");
@@ -288,22 +322,29 @@ public final class ResourceExplorerTopComponent extends TopComponent {
 
         deleteItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                int result = JOptionPane.showConfirmDialog(null, "Do you want to delete ?");
+                int result = JOptionPane.showConfirmDialog(null, 
+                        "Do you want to delete ?");
                 if (result == JOptionPane.OK_OPTION) {
-                    DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node.getParent();
+                    DefaultMutableTreeNode parent = 
+                            (DefaultMutableTreeNode) node.getParent();
                     String name = (String) node.getUserObject();
                     boolean deleted;
-                    if (parent.getUserObject().equals(PluginConstants.MAIL_TEMPLTAE_CONSTANT)) {
-                        deleted = mailTemplateManagerService.delete((String) node.getUserObject());
+                    if (parent.getUserObject().equals(
+                            PluginConstants.MAIL_TEMPLTAE_CONSTANT)) {
+                        deleted = mailTemplateManagerService.delete(
+                                (String) node.getUserObject());
                     } else {
-                        deleted = reportTemplateManagerService.delete((String) node.getUserObject());
+                        deleted = reportTemplateManagerService.delete(
+                                (String) node.getUserObject());
                     }
                     if (deleted) {
                         node.removeFromParent();
                         treeModel.reload(parent);
                     } else {
-                        JOptionPane.showMessageDialog(null, "Error while deleting "
-                                + "new element", "Error", JOptionPane.ERROR_MESSAGE);
+            
+                        JOptionPane.showMessageDialog(null, 
+                                "Error while deleting new element", "Error",
+                                JOptionPane.ERROR_MESSAGE);
                     }
                 }
             }
@@ -408,20 +449,25 @@ public final class ResourceExplorerTopComponent extends TopComponent {
             
             if (templateType.equals("Mail")) {
                 if (format.equals("txt")) {
-                    mailTemplateManagerService.setFormat(key, MailTemplateFormat.TEXT,
+                    mailTemplateManagerService.setFormat(key,
+                            MailTemplateFormat.TEXT,
                             IOUtils.toInputStream(content));
                 } else {
-                    mailTemplateManagerService.setFormat(key, MailTemplateFormat.HTML,
+                    mailTemplateManagerService.setFormat(key, 
+                            MailTemplateFormat.HTML,
                             IOUtils.toInputStream(content));
                 }
             } else if (format.equals("html")) {
-                reportTemplateManagerService.setFormat(key, ReportTemplateFormat.HTML,
+                reportTemplateManagerService.setFormat(key,
+                        ReportTemplateFormat.HTML,
                         IOUtils.toInputStream(content));
             } else if (format.equals("fo")) {
-                reportTemplateManagerService.setFormat(key, ReportTemplateFormat.FO,
+                reportTemplateManagerService.setFormat(key,
+                        ReportTemplateFormat.FO,
                         IOUtils.toInputStream(content));
             } else {
-                reportTemplateManagerService.setFormat(key, ReportTemplateFormat.CSV,
+                reportTemplateManagerService.setFormat(key,
+                        ReportTemplateFormat.CSV,
                         IOUtils.toInputStream(content));
             }
         } catch (BadLocationException ex) {

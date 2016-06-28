@@ -19,12 +19,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import javax.swing.JOptionPane;
-import org.openide.util.Exceptions;
 
-/**
- *
- * @author nuwan
- */
 public class LoginView extends javax.swing.JDialog {
 
     /**
