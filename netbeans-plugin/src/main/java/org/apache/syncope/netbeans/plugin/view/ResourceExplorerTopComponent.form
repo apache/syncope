@@ -38,6 +38,7 @@
             <Property name="model" type="javax.swing.tree.TreeModel" editor="org.netbeans.modules.form.editors2.TreeModelEditor">
               <TreeModel code=""/>
             </Property>
+            <Property name="rootVisible" type="boolean" value="false"/>
             <Property name="scrollsOnExpand" type="boolean" value="true"/>
           </Properties>
           <Events>

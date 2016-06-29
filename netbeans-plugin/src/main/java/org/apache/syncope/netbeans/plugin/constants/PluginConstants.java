@@ -22,4 +22,5 @@ public class PluginConstants {
     public static final String REPORT_XSLTS_CONSTANT = "Report XSLTs";
     public static final String[] MAIL_TEMPLATE_FORMATS = {"TEXT", "HTML"};
     public static final String[] REPORT_TEMPLATE_FORMATS = {"HTML","CSV","FO"};
+    public static final String VISIBLE_ROOT_NAME = "Apache Syncope";
 }

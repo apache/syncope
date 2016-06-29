@@ -20,12 +20,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import javax.swing.JOptionPane;
 
-public class LoginView extends javax.swing.JDialog {
+public class ServerDetailsView extends javax.swing.JDialog {
 
     /**
      * Creates new form LoginView
      */
-    public LoginView(java.awt.Frame parent, boolean modal) {
+    public ServerDetailsView(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
         setLocationRelativeTo(this);
@@ -51,26 +51,26 @@ public class LoginView extends javax.swing.JDialog {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(LoginView.class, "LoginView.jLabel1.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(ServerDetailsView.class, "ServerDetailsView.jLabel1.text")); // NOI18N
 
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(LoginView.class, "LoginView.jLabel2.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(ServerDetailsView.class, "ServerDetailsView.jLabel2.text")); // NOI18N
 
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel3, org.openide.util.NbBundle.getMessage(LoginView.class, "LoginView.jLabel3.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel3, org.openide.util.NbBundle.getMessage(ServerDetailsView.class, "ServerDetailsView.jLabel3.text")); // NOI18N
 
-        urlTxt.setText(org.openide.util.NbBundle.getMessage(LoginView.class, "LoginView.urlTxt.text")); // NOI18N
+        urlTxt.setText(org.openide.util.NbBundle.getMessage(ServerDetailsView.class, "ServerDetailsView.urlTxt.text")); // NOI18N
 
-        userNameTxt.setText(org.openide.util.NbBundle.getMessage(LoginView.class, "LoginView.userNameTxt.text")); // NOI18N
+        userNameTxt.setText(org.openide.util.NbBundle.getMessage(ServerDetailsView.class, "ServerDetailsView.userNameTxt.text")); // NOI18N
 
-        passwordTxt.setText(org.openide.util.NbBundle.getMessage(LoginView.class, "LoginView.passwordTxt.text")); // NOI18N
+        passwordTxt.setText(org.openide.util.NbBundle.getMessage(ServerDetailsView.class, "ServerDetailsView.passwordTxt.text")); // NOI18N
 
-        org.openide.awt.Mnemonics.setLocalizedText(okButton, org.openide.util.NbBundle.getMessage(LoginView.class, "LoginView.okButton.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(okButton, org.openide.util.NbBundle.getMessage(ServerDetailsView.class, "ServerDetailsView.okButton.text")); // NOI18N
         okButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 okButtonActionPerformed(evt);
             }
         });
 
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel4, org.openide.util.NbBundle.getMessage(LoginView.class, "LoginView.jLabel4.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel4, org.openide.util.NbBundle.getMessage(ServerDetailsView.class, "ServerDetailsView.jLabel4.text")); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -140,7 +140,13 @@ public class LoginView extends javax.swing.JDialog {
         }
        
     }//GEN-LAST:event_okButtonActionPerformed
-
+    
+    public void setDetails(String host,String userName, String password){
+        urlTxt.setText(host);
+        userNameTxt.setText(userName);
+        passwordTxt.setText(password);
+    }
+    
     /**
      * @param args the command line arguments
      */
@@ -158,20 +164,21 @@ public class LoginView extends javax.swing.JDialog {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(LoginView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(ServerDetailsView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(LoginView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(ServerDetailsView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(LoginView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(ServerDetailsView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(LoginView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(ServerDetailsView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
         //</editor-fold>
 
         /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                LoginView dialog = new LoginView(new javax.swing.JFrame(), true);
+                ServerDetailsView dialog = new ServerDetailsView(new javax.swing.JFrame(), true);
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
                     public void windowClosing(java.awt.event.WindowEvent e) {

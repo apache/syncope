@@ -19,7 +19,10 @@ package org.apache.syncope.netbeans.plugin.view;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -95,13 +98,15 @@ public final class ResourceExplorerTopComponent extends TopComponent {
 
         treeModel = (DefaultTreeModel) resourceExplorerTree.getModel();
         root = (DefaultMutableTreeNode) treeModel.getRoot();
+        DefaultMutableTreeNode visibleRoot = 
+                new DefaultMutableTreeNode(PluginConstants.VISIBLE_ROOT_NAME);
         mailTemplates = new DefaultMutableTreeNode(PluginConstants.
                 MAIL_TEMPLTAE_CONSTANT);
         reportXslts = new DefaultMutableTreeNode(PluginConstants.
                 REPORT_XSLTS_CONSTANT);
-
-        root.add(mailTemplates);
-        root.add(reportXslts);
+        root.add(visibleRoot);
+        visibleRoot.add(mailTemplates);
+        visibleRoot.add(reportXslts);
         treeModel.reload();
 
     }
@@ -119,6 +124,7 @@ public final class ResourceExplorerTopComponent extends TopComponent {
 
         javax.swing.tree.DefaultMutableTreeNode treeNode1 = new javax.swing.tree.DefaultMutableTreeNode("root");
         resourceExplorerTree.setModel(new javax.swing.tree.DefaultTreeModel(treeNode1));
+        resourceExplorerTree.setRootVisible(false);
         resourceExplorerTree.setScrollsOnExpand(true);
         resourceExplorerTree.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -175,6 +181,9 @@ public final class ResourceExplorerTopComponent extends TopComponent {
             } else if (selectedNodeName.equals(PluginConstants.
                     REPORT_XSLTS_CONSTANT)) {
                 folderRightClickAction(evt, reportXslts);
+            } else if(selectedNodeName.equals(
+                    PluginConstants.VISIBLE_ROOT_NAME)){
+                rootRightClickAction(evt);    
             }
         }
     }//GEN-LAST:event_resourceExplorerTreeMouseClicked
@@ -187,20 +196,20 @@ public final class ResourceExplorerTopComponent extends TopComponent {
     public void componentOpened() {
         File file = new File("UserData.txt");
         if (!file.exists()) {
-            new LoginView(null, true).setVisible(true);
+            new ServerDetailsView(null, true).setVisible(true);
         }
         try {
             mailTemplateManagerService = ResourceConnector.getMailTemplateManagerService();
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(null, "Error Occured.", "Error", 
                     JOptionPane.ERROR_MESSAGE);
-            new LoginView(null, true).setVisible(true);
+            new ServerDetailsView(null, true).setVisible(true);
         }
         try {
             reportTemplateManagerService = 
                     ResourceConnector.getReportTemplateManagerService();
         } catch (IOException ex) {
-            new LoginView(null, true).setVisible(true);
+            new ServerDetailsView(null, true).setVisible(true);
         }
 
         addMailTemplates();
@@ -243,13 +252,48 @@ public final class ResourceExplorerTopComponent extends TopComponent {
         treeModel.reload();
     }
 
+    private void rootRightClickAction(final MouseEvent evt){
+        JPopupMenu menu = new JPopupMenu();
+        JMenuItem saveItem = new JMenuItem("Save");
+        JMenuItem resetConnectionItem = new JMenuItem("Reset Connection");
+        menu.add(saveItem);
+        menu.add(resetConnectionItem);
+        
+        saveItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                saveContent();
+            }
+        });
+        
+        resetConnectionItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                File file =  new File("UserData.txt");
+                try {
+                    BufferedReader bf = new BufferedReader(new FileReader(file));
+                    String host = bf.readLine();
+                    String userName = bf.readLine();
+                    String password = bf.readLine();
+                    
+                    ServerDetailsView serverDetails = 
+                            new ServerDetailsView(null, true);
+                    serverDetails.setDetails(host,userName,password);
+                    serverDetails.setVisible(true);
+                } catch (FileNotFoundException ex) {
+                    Exceptions.printStackTrace(ex);
+                } catch (IOException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
+            }
+        });
+    }
+    
     private void folderRightClickAction(final MouseEvent evt, 
             final DefaultMutableTreeNode node) {
         JPopupMenu menu = new JPopupMenu();
         JMenuItem addItem = new JMenuItem("New");
-        JMenuItem saveItem = new JMenuItem("Save");
         menu.add(addItem);
-        menu.add(saveItem);
 
         addItem.addActionListener(new ActionListener() {
             @Override
@@ -302,13 +346,6 @@ public final class ResourceExplorerTopComponent extends TopComponent {
             }
         });
 
-        saveItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                saveContent();
-            }
-        });
-
         menu.show(evt.getComponent(), evt.getX(), evt.getY());
     }
 
@@ -316,9 +353,7 @@ public final class ResourceExplorerTopComponent extends TopComponent {
             final DefaultMutableTreeNode node) {
         JPopupMenu menu = new JPopupMenu();
         JMenuItem deleteItem = new JMenuItem("Delete");
-        JMenuItem saveItem = new JMenuItem("Save");
         menu.add(deleteItem);
-        menu.add(saveItem);
 
         deleteItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -347,13 +382,6 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                                 JOptionPane.ERROR_MESSAGE);
                     }
                 }
-            }
-        });
-
-        saveItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                saveContent();
             }
         });
 
