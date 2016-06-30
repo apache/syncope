@@ -438,6 +438,7 @@ div.searchResult{
   font-size: 14px;
   min-width: 160px;
   max-height: 250px;
+  z-index: 7001 !important;
 }
 
 div.wicket-aa ul {
