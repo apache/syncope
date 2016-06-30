@@ -339,7 +339,7 @@ under the License.
     <commons-lang.version>3.3.2</commons-lang.version>
     <commons-codec.version>1.10</commons-codec.version>
 
-    <activiti.version>5.16.5</activiti.version>
+    <activiti.version>5.16.6</activiti.version>
 
     <aspectj.version>1.8.9</aspectj.version>
 

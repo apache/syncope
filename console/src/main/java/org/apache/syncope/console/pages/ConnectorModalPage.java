@@ -41,7 +41,6 @@ import org.apache.syncope.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.console.wicket.markup.html.form.SpinnerFieldPanel;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.WicketEventJQueryResourceReference;
 import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -313,13 +312,13 @@ public class ConnectorModalPage extends BaseModalPage {
         final IModel<List<ConnectorCapability>> capabilities =
                 new LoadableDetachableModel<List<ConnectorCapability>>() {
 
-                    private static final long serialVersionUID = 5275935387613157437L;
+            private static final long serialVersionUID = 5275935387613157437L;
 
-                    @Override
-                    protected List<ConnectorCapability> load() {
-                        return Arrays.asList(ConnectorCapability.values());
-                    }
-                };
+            @Override
+            protected List<ConnectorCapability> load() {
+                return Arrays.asList(ConnectorCapability.values());
+            }
+        };
         CheckBoxMultipleChoice<ConnectorCapability> capabilitiesPalette =
                 new CheckBoxMultipleChoice<ConnectorCapability>("capabilitiesPalette",
                         new PropertyModel<List<ConnectorCapability>>(this, "selectedCapabilities"), capabilities);
