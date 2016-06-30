@@ -70,11 +70,17 @@ public abstract class AnyPatch extends AbstractBaseBean implements AttributableP
         return auxClasses;
     }
 
+    @XmlElementWrapper(name = "plainAttrs")
+    @XmlElement(name = "attribute")
+    @JsonProperty("plainAttrs")
     @Override
     public Set<AttrPatch> getPlainAttrs() {
         return plainAttrs;
     }
 
+    @XmlElementWrapper(name = "virAttrs")
+    @XmlElement(name = "attribute")
+    @JsonProperty("virAttrs")
     @Override
     public Set<AttrTO> getVirAttrs() {
         return virAttrs;

@@ -18,21 +18,12 @@
  */
 package org.apache.syncope.common.lib.patch;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Set;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
 import org.apache.syncope.common.lib.to.AttrTO;
 
 public interface AttributablePatch {
 
-    @XmlElementWrapper(name = "plainAttrs")
-    @XmlElement(name = "attribute")
-    @JsonProperty("plainAttrs")
     Set<AttrPatch> getPlainAttrs();
 
-    @XmlElementWrapper(name = "virAttrs")
-    @XmlElement(name = "attribute")
-    @JsonProperty("virAttrs")
     Set<AttrTO> getVirAttrs();
 }

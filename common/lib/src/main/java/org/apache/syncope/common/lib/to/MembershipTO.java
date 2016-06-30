@@ -19,11 +19,14 @@
 package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -99,11 +102,15 @@ public class MembershipTO extends RelationshipTO implements AttributableTO {
         this.groupName = groupName;
     }
 
+    @XmlElementWrapper(name = "plainAttrs")
+    @XmlElement(name = "attribute")
+    @JsonProperty("plainAttrs")
     @Override
     public Set<AttrTO> getPlainAttrs() {
         return plainAttrs;
     }
 
+    @JsonIgnore
     @Override
     public Map<String, AttrTO> getPlainAttrMap() {
         Map<String, AttrTO> result = new HashMap<>(plainAttrs.size());
@@ -114,11 +121,15 @@ public class MembershipTO extends RelationshipTO implements AttributableTO {
         return Collections.unmodifiableMap(result);
     }
 
+    @XmlElementWrapper(name = "derAttrs")
+    @XmlElement(name = "attribute")
+    @JsonProperty("derAttrs")
     @Override
     public Set<AttrTO> getDerAttrs() {
         return derAttrs;
     }
 
+    @JsonIgnore
     @Override
     public Map<String, AttrTO> getDerAttrMap() {
         Map<String, AttrTO> result = new HashMap<>(derAttrs.size());
@@ -129,11 +140,15 @@ public class MembershipTO extends RelationshipTO implements AttributableTO {
         return Collections.unmodifiableMap(result);
     }
 
+    @XmlElementWrapper(name = "virAttrs")
+    @XmlElement(name = "attribute")
+    @JsonProperty("virAttrs")
     @Override
     public Set<AttrTO> getVirAttrs() {
         return virAttrs;
     }
 
+    @JsonIgnore
     @Override
     public Map<String, AttrTO> getVirAttrMap() {
         Map<String, AttrTO> result = new HashMap<>(virAttrs.size());
@@ -143,5 +158,4 @@ public class MembershipTO extends RelationshipTO implements AttributableTO {
 
         return Collections.unmodifiableMap(result);
     }
-
 }

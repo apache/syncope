@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.lib.to;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.util.ArrayList;
@@ -98,11 +99,15 @@ public abstract class AnyTO extends AbstractAnnotatedBean implements EntityTO, A
         return auxClasses;
     }
 
+    @XmlElementWrapper(name = "plainAttrs")
+    @XmlElement(name = "attribute")
+    @JsonProperty("plainAttrs")
     @Override
     public Set<AttrTO> getPlainAttrs() {
         return plainAttrs;
     }
 
+    @JsonIgnore
     @Override
     public Map<String, AttrTO> getPlainAttrMap() {
         Map<String, AttrTO> result = new HashMap<>(plainAttrs.size());
@@ -113,11 +118,15 @@ public abstract class AnyTO extends AbstractAnnotatedBean implements EntityTO, A
         return Collections.unmodifiableMap(result);
     }
 
+    @XmlElementWrapper(name = "derAttrs")
+    @XmlElement(name = "attribute")
+    @JsonProperty("derAttrs")
     @Override
     public Set<AttrTO> getDerAttrs() {
         return derAttrs;
     }
 
+    @JsonIgnore
     @Override
     public Map<String, AttrTO> getDerAttrMap() {
         Map<String, AttrTO> result = new HashMap<>(derAttrs.size());
@@ -128,11 +137,15 @@ public abstract class AnyTO extends AbstractAnnotatedBean implements EntityTO, A
         return Collections.unmodifiableMap(result);
     }
 
+    @XmlElementWrapper(name = "virAttrs")
+    @XmlElement(name = "attribute")
+    @JsonProperty("virAttrs")
     @Override
     public Set<AttrTO> getVirAttrs() {
         return virAttrs;
     }
 
+    @JsonIgnore
     @Override
     public Map<String, AttrTO> getVirAttrMap() {
         Map<String, AttrTO> result = new HashMap<>(virAttrs.size());
