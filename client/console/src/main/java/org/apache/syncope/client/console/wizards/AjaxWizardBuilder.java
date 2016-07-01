@@ -131,7 +131,7 @@ public abstract class AjaxWizardBuilder<T extends Serializable> extends Abstract
      * Override to send custom events after create.
      *
      * @param afterObject after applied changes object.
-     * @param target
+     * @param target ajax request target
      * @return payload to be sent.
      */
     protected Serializable getCreateCustomPayloadEvent(final Serializable afterObject, final AjaxRequestTarget target) {
@@ -142,7 +142,7 @@ public abstract class AjaxWizardBuilder<T extends Serializable> extends Abstract
      * Override to send custom events after edit.
      *
      * @param afterObject after applied changes object.
-     * @param target
+     * @param target ajax request target
      * @return payload to be sent.
      */
     protected Serializable getEditCustomPayloadEvent(final Serializable afterObject, final AjaxRequestTarget target) {

@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Toggle panel.
  *
- * @param <T>
+ * @param <T> model object type
  */
 public abstract class TogglePanel<T extends Serializable> extends WizardMgtPanel<T> {
 
