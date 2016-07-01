@@ -139,7 +139,7 @@ public class StatusUtils implements Serializable {
         builder.value(password);
 
         for (StatusBean status : statuses) {
-            if ("syncope".equalsIgnoreCase(status.getResourceName())) {
+            if (Constants.SYNCOPE.equalsIgnoreCase(status.getResourceName())) {
                 builder.onSyncope(true);
             } else {
                 builder.resource(status.getResourceName());

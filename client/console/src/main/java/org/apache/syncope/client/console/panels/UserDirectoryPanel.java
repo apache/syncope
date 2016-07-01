@@ -41,7 +41,6 @@ import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.console.wizards.any.AnyWrapper;
 import org.apache.syncope.client.console.wizards.any.UserWrapper;
-import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -50,6 +49,7 @@ import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
+import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
@@ -68,6 +68,17 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
 
     protected UserDirectoryPanel(final String id, final Builder builder, final boolean wizardInModal) {
         super(id, builder, wizardInModal);
+
+        altDefaultModal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+
+            private static final long serialVersionUID = 8804221891699487139L;
+
+            @Override
+            public void onClose(final AjaxRequestTarget target) {
+                updateResultTable(target);
+                modal.show(false);
+            }
+        });
     }
 
     @Override
@@ -138,7 +149,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                                     model.getObject().getKey());
                             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                             target.add(container);
-                        } catch (SyncopeClientException e) {
+                        } catch (Exception e) {
                             LOG.error("While deleting object {}", model.getObject().getKey(), e);
                             SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().
                                     getName() : e.getMessage());
@@ -184,7 +195,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                             restClient.delete(model.getObject().getETagValue(), model.getObject().getKey());
                             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                             target.add(container);
-                        } catch (SyncopeClientException e) {
+                        } catch (Exception e) {
                             LOG.error("While deleting object {}", model.getObject().getKey(), e);
                             SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().
                                     getName() : e.getMessage());
@@ -205,7 +216,11 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                             altDefaultModal.setFormModel(formModel);
 
                             target.add(altDefaultModal.setContent(new AnyStatusModal<>(
-                                    altDefaultModal, pageRef, formModel.getObject().getInnerObject(), false)));
+                                    altDefaultModal,
+                                    pageRef,
+                                    formModel.getObject().getInnerObject(),
+                                    "resourceName",
+                                    false)));
 
                             altDefaultModal.header(new Model<>(
                                     getString("any.edit", new Model<>(new AnyWrapper<>(model.getObject())))));
@@ -223,7 +238,11 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                             altDefaultModal.setFormModel(formModel);
 
                             target.add(altDefaultModal.setContent(new AnyStatusModal<>(
-                                    altDefaultModal, pageRef, formModel.getObject().getInnerObject(), true)));
+                                    altDefaultModal,
+                                    pageRef,
+                                    formModel.getObject().getInnerObject(),
+                                    "resourceName",
+                                    true)));
 
                             altDefaultModal.header(new Model<>(
                                     getString("any.edit", new Model<>(new AnyWrapper<>(model.getObject())))));

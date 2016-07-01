@@ -47,10 +47,9 @@ public class ResourceStatusModal extends StatusModal<ResourceTO> {
     public ResourceStatusModal(
             final BaseModal<?> baseModal,
             final PageReference pageReference,
-            final ResourceTO resourceTO,
-            final boolean statusOnly) {
+            final ResourceTO resourceTO) {
 
-        super(baseModal, pageReference, resourceTO, statusOnly);
+        super(baseModal, pageReference, resourceTO, null, false);
 
         final LoadableDetachableModel<List<String>> types = new LoadableDetachableModel<List<String>>() {
 
@@ -87,6 +86,7 @@ public class ResourceStatusModal extends StatusModal<ResourceTO> {
             final BaseModal<?> baseModal,
             final PageReference pageReference,
             final ResourceTO entity,
+            final String itemKeyFieldName,
             final boolean statusOnly) {
 
         return new ResourceStatusDirectoryPanel(baseModal, mlp, pageReference, null, entity);

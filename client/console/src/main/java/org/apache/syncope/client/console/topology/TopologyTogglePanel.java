@@ -351,7 +351,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             public void onClick(final AjaxRequestTarget target) {
                 ResourceTO modelObject = resourceRestClient.read(node.getKey().toString());
                 target.add(propTaskModal.setContent(
-                        new ResourceStatusModal(propTaskModal, pageRef, modelObject, false)));
+                        new ResourceStatusModal(propTaskModal, pageRef, modelObject)));
                 propTaskModal.header(new ResourceModel("resource.provisioning.status", "Provisioning Status"));
                 propTaskModal.show(true);
             }

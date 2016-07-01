@@ -366,6 +366,8 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
                         StatusPatch statusPatch = new StatusPatch();
                         statusPatch.setKey(key);
                         statusPatch.setType(StatusPatchType.SUSPEND);
+                        statusPatch.setOnSyncope(true);
+
                         try {
                             result.getResults().put(
                                     ((UserLogic) logic).
@@ -387,6 +389,8 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
                         StatusPatch statusPatch = new StatusPatch();
                         statusPatch.setKey(key);
                         statusPatch.setType(StatusPatchType.REACTIVATE);
+                        statusPatch.setOnSyncope(true);
+
                         try {
                             result.getResults().put(
                                     ((UserLogic) logic).

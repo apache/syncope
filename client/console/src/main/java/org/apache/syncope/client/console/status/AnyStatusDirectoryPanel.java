@@ -73,16 +73,8 @@ public class AnyStatusDirectoryPanel
             final BaseModal<?> baseModal,
             final MultilevelPanel multiLevelPanelRef,
             final PageReference pageRef,
-            final AnyTO anyTO) {
-
-        this(baseModal, multiLevelPanelRef, pageRef, anyTO, false);
-    }
-
-    public AnyStatusDirectoryPanel(
-            final BaseModal<?> baseModal,
-            final MultilevelPanel multiLevelPanelRef,
-            final PageReference pageRef,
             final AnyTO anyTO,
+            final String itemKeyFieldName,
             final boolean statusOnly) {
 
         super(MultilevelPanel.FIRST_LEVEL_ID, pageRef);
@@ -90,7 +82,7 @@ public class AnyStatusDirectoryPanel
         this.multiLevelPanelRef = multiLevelPanelRef;
         this.statusOnly = statusOnly;
         this.anyTO = anyTO;
-        this.itemKeyFieldName = statusOnly ? "anyKey" : "resourceName";
+        this.itemKeyFieldName = itemKeyFieldName;
 
         if (anyTO instanceof UserTO) {
             this.restClient = new UserRestClient();

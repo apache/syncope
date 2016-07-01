@@ -174,7 +174,11 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
                             altDefaultModal.setFormModel(formModel);
 
                             target.add(altDefaultModal.setContent(new AnyStatusModal<>(
-                                    altDefaultModal, pageRef, formModel.getObject().getInnerObject(), false)));
+                                    altDefaultModal,
+                                    pageRef,
+                                    formModel.getObject().getInnerObject(),
+                                    "resourceName",
+                                    false)));
 
                             altDefaultModal.header(new Model<>(
                                     getString("any.edit", new Model<>(new AnyWrapper<>(model.getObject())))));

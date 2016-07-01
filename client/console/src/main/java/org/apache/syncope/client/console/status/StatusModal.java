@@ -39,12 +39,14 @@ public abstract class StatusModal<T extends Serializable> extends Panel implemen
             final BaseModal<?> baseModal,
             final PageReference pageReference,
             final T entity,
+            final String itemKeyFieldName,
             final boolean statusOnly) {
 
         super(BaseModal.CONTENT_ID);
 
         final MultilevelPanel mlp = new MultilevelPanel("status");
-        this.directoryPanel = getStatusDirectoryPanel(mlp, baseModal, pageReference, entity, statusOnly);
+        this.directoryPanel = getStatusDirectoryPanel(
+                mlp, baseModal, pageReference, entity, itemKeyFieldName, statusOnly);
         add(mlp.setFirstLevel(this.directoryPanel));
     }
 
@@ -54,5 +56,6 @@ public abstract class StatusModal<T extends Serializable> extends Panel implemen
             final BaseModal<?> baseModal,
             final PageReference pageReference,
             final T entity,
+            final String itemKeyFieldName,
             final boolean statusOnly);
 }
