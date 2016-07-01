@@ -18,7 +18,7 @@
 //
 
 ===== Realms
-The realms tab provides the admin with the power to manage users, groups and resources...
+The realms tab provides the admin with the power to manage users, groups and any objects, for all any types defined.
 
 image::realmsUser.png[console-realms-user]
 

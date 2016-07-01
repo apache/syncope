@@ -24,7 +24,7 @@ its best practices. On the other hand, many softwares have unorthodox implementa
 both of them.
 However, in general as suggested by their name, the access management basically handles the access in a certain
 environment providing some kind of credentials; on the contrary the identity management handles the digital identity
-profile and its life circle.
+profile and its lifecycle.
 Apache Syncope is an identity manager.
 
 include::identitystores.adoc[]

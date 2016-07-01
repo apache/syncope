@@ -28,9 +28,9 @@ or more external resources.
 
 include::connectors.adoc[]
 
-include::propagation.adoc[]
-
 include::resources.adoc[]
+
+include::propagation.adoc[]
 
 include::push.adoc[]
 

@@ -18,7 +18,7 @@
 //
 === Provisioning Engines
 A provisioning engine is a software able to execute some operation on the profile of a digital identity.
-Precisely this operation could be run to manage a user life circle, the _CRUD_ operation to persist the user on an
+Precisely this operation could be run to manage a user lifecycle, the _CRUD_ operation to persist the user on an
 identity store:
 
 * Create

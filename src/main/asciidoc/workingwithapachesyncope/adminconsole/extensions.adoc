@@ -18,9 +18,9 @@
 //
 
 ===== Extensions
-The extensions tab allows the user to configure the extensions installed on the syncope
-deployment. By default, the syncope deployment comes with an extension named Apache Camel. The
-user can use this tab to view the routes added for users, groups and objects for camel.
+The extensions tab shows the extensions installed on the given Apache Syncope deployment.
+
+Among the available extensions, the one for Apache Camel-based provisioning is often installed: users can inspect the
+performance measures for the various routes defined.
 
 image::consoleCamelExtension.png[console-camel-extension]
-

@@ -18,15 +18,16 @@
 //
 
 ==== Introduction
-Once the syncope installation has been deployed to a server, you can go to the following url to access the console.
+Once Apache Syncope applications have been deployed, you can go to the following url to access the admin console.
 [source]
 --
-http://localhost:9080/syncope-console/
+http://host:port/syncope-console/
 --
+
+where `host` and `port` reflect your Java EE container installation.
 
 You should be greeted with the following web page.
 
 image::consoleLogin.png[console-login]
 
-The default admin password for a fresh installation is "password". Enter your credentials and
-press Login.
+The default admin password for a fresh installation is "password". Enter your credentials and press Login.
