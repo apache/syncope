@@ -77,7 +77,8 @@ with
 [source,java]
 jpa.url=jdbc:h2:~/syncopedb;DB_CLOSE_DELAY=-1
 
-in `webapps/syncope/WEB-INF/classes/persistence.properties` from the Apache Tomcat directory.
+in `webapps/syncope/WEB-INF/classes/domains/Master.properties` (for `Master` domain) or
+`webapps/syncope/WEB-INF/classes/domains/Two.properties` (for `Two` domain) from the Apache Tomcat directory.
 This will create H2 database files in the home directory of the user running Apache Syncope.
 
 Please refer to the http://www.h2database.com/[H2 documentation^] for more options.
