@@ -63,6 +63,11 @@ public abstract class PullTaskDirectoryPanel extends ProvisioningTaskDirectoryPa
                 templates.setTargetObject(model.getObject());
                 templates.toggle(target, true);
             }
+
+            @Override
+            public boolean isIndicatorEnabled() {
+                return false;
+            }
         }, ActionLink.ActionType.TEMPLATE, StandardEntitlement.TASK_UPDATE);
     }
 }
