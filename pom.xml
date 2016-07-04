@@ -343,7 +343,7 @@ under the License.
 
     <jackson.version>2.7.5</jackson.version>
 
-    <spring.version>4.3.0.RELEASE</spring.version>
+    <spring.version>4.3.1.RELEASE</spring.version>
     <spring-security.version>4.1.0.RELEASE</spring-security.version>
 
     <openjpa.version>2.4.1</openjpa.version>
