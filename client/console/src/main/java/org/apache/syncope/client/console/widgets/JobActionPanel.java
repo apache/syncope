@@ -22,6 +22,7 @@ import java.io.Serializable;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.wicket.ajax.markup.html.IndicatorAjaxLink;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.types.JobAction;
@@ -80,7 +81,7 @@ public class JobActionPanel extends Panel {
                         SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName()
                                 : e.getMessage());
                     }
-                    SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                    ((BasePage) getPage()).getNotificationPanel().refresh(target);
                 }
             });
         } else {
@@ -117,7 +118,7 @@ public class JobActionPanel extends Panel {
                         SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName()
                                 : e.getMessage());
                     }
-                    SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                    ((BasePage) getPage()).getNotificationPanel().refresh(target);
                 }
             });
         }

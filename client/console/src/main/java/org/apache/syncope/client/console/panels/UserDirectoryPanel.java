@@ -28,8 +28,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.notifications.NotificationTasks;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.UserRestClient;
-import org.apache.syncope.client.console.status.StatusModal;
+import org.apache.syncope.client.console.status.AnyStatusModal;
 import org.apache.syncope.client.console.tasks.AnyPropagationTasks;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AttrColumn;
@@ -40,7 +41,6 @@ import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.console.wizards.any.AnyWrapper;
 import org.apache.syncope.client.console.wizards.any.UserWrapper;
-import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -49,6 +49,7 @@ import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
+import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
@@ -62,7 +63,22 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
     private static final long serialVersionUID = -1100228004207271270L;
 
     protected UserDirectoryPanel(final String id, final Builder builder) {
-        super(id, builder);
+        this(id, builder, true);
+    }
+
+    protected UserDirectoryPanel(final String id, final Builder builder, final boolean wizardInModal) {
+        super(id, builder, wizardInModal);
+
+        altDefaultModal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+
+            private static final long serialVersionUID = 8804221891699487139L;
+
+            @Override
+            public void onClose(final AjaxRequestTarget target) {
+                updateResultTable(target);
+                modal.show(false);
+            }
+        });
     }
 
     @Override
@@ -133,50 +149,14 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                                     model.getObject().getKey());
                             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                             target.add(container);
-                        } catch (SyncopeClientException e) {
+                        } catch (Exception e) {
                             LOG.error("While deleting object {}", model.getObject().getKey(), e);
                             SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().
                                     getName() : e.getMessage());
                         }
-                        SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                     }
                 }, ActionType.MUSTCHANGEPASSWORD, StandardEntitlement.USER_UPDATE).add(new ActionLink<UserTO>() {
-
-                    private static final long serialVersionUID = -7978723352517770644L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
-                        IModel<AnyWrapper<UserTO>> formModel = new CompoundPropertyModel<>(
-                                new AnyWrapper<>(model.getObject()));
-                        altDefaultModal.setFormModel(formModel);
-
-                        target.add(altDefaultModal.setContent(new StatusModal<>(
-                                altDefaultModal, pageRef, formModel.getObject().getInnerObject(), false)));
-
-                        altDefaultModal.header(new Model<>(
-                                getString("any.edit", new Model<>(new AnyWrapper<>(model.getObject())))));
-
-                        altDefaultModal.show(true);
-                    }
-                }, ActionType.MANAGE_RESOURCES, StandardEntitlement.USER_READ).add(new ActionLink<UserTO>() {
-
-                    private static final long serialVersionUID = -7978723352517770644L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
-                        IModel<AnyWrapper<UserTO>> formModel = new CompoundPropertyModel<>(
-                                new AnyWrapper<>(model.getObject()));
-                        altDefaultModal.setFormModel(formModel);
-
-                        target.add(altDefaultModal.setContent(new StatusModal<>(
-                                altDefaultModal, pageRef, formModel.getObject().getInnerObject(), true)));
-
-                        altDefaultModal.header(new Model<>(
-                                getString("any.edit", new Model<>(new AnyWrapper<>(model.getObject())))));
-
-                        altDefaultModal.show(true);
-                    }
-                }, ActionType.ENABLE, StandardEntitlement.USER_READ).add(new ActionLink<UserTO>() {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
@@ -199,31 +179,13 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                         send(UserDirectoryPanel.this, Broadcast.EXACT,
                                 new AjaxWizard.NewItemActionEvent<>(new UserWrapper(clone), target));
                     }
+
+                    @Override
+                    protected boolean statusCondition(final UserTO modelObject) {
+                        return addAjaxLink.isVisibleInHierarchy();
+                    }
+
                 }, ActionType.CLONE, StandardEntitlement.USER_CREATE).add(new ActionLink<UserTO>() {
-
-                    private static final long serialVersionUID = -7978723352517770644L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
-                        target.add(utilityModal.setContent(new AnyPropagationTasks(
-                                utilityModal, AnyTypeKind.USER, model.getObject().getKey(), pageRef)));
-
-                        utilityModal.header(new StringResourceModel("any.propagation.tasks", model));
-                        utilityModal.show(true);
-                    }
-                }, ActionType.PROPAGATION_TASKS, StandardEntitlement.TASK_LIST).add(new ActionLink<UserTO>() {
-
-                    private static final long serialVersionUID = -7978723352517770644L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
-                        target.add(utilityModal.setContent(
-                                new NotificationTasks(AnyTypeKind.USER, model.getObject().getKey(), pageRef)));
-                        utilityModal.header(new StringResourceModel("any.notification.tasks", model));
-                        utilityModal.show(true);
-                        target.add(utilityModal);
-                    }
-                }, ActionType.NOTIFICATION_TASKS, StandardEntitlement.TASK_LIST).add(new ActionLink<UserTO>() {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
@@ -233,14 +195,86 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                             restClient.delete(model.getObject().getETagValue(), model.getObject().getKey());
                             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                             target.add(container);
-                        } catch (SyncopeClientException e) {
+                        } catch (Exception e) {
                             LOG.error("While deleting object {}", model.getObject().getKey(), e);
                             SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().
                                     getName() : e.getMessage());
                         }
-                        SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                     }
                 }, ActionType.DELETE, StandardEntitlement.USER_DELETE);
+
+                if (wizardInModal) {
+                    panel.add(new ActionLink<UserTO>() {
+
+                        private static final long serialVersionUID = -7978723352517770644L;
+
+                        @Override
+                        public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
+                            IModel<AnyWrapper<UserTO>> formModel = new CompoundPropertyModel<>(
+                                    new AnyWrapper<>(model.getObject()));
+                            altDefaultModal.setFormModel(formModel);
+
+                            target.add(altDefaultModal.setContent(new AnyStatusModal<>(
+                                    altDefaultModal,
+                                    pageRef,
+                                    formModel.getObject().getInnerObject(),
+                                    "resourceName",
+                                    false)));
+
+                            altDefaultModal.header(new Model<>(
+                                    getString("any.edit", new Model<>(new AnyWrapper<>(model.getObject())))));
+
+                            altDefaultModal.show(true);
+                        }
+                    }, ActionType.MANAGE_RESOURCES, StandardEntitlement.USER_READ).add(new ActionLink<UserTO>() {
+
+                        private static final long serialVersionUID = -7978723352517770644L;
+
+                        @Override
+                        public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
+                            IModel<AnyWrapper<UserTO>> formModel = new CompoundPropertyModel<>(
+                                    new AnyWrapper<>(model.getObject()));
+                            altDefaultModal.setFormModel(formModel);
+
+                            target.add(altDefaultModal.setContent(new AnyStatusModal<>(
+                                    altDefaultModal,
+                                    pageRef,
+                                    formModel.getObject().getInnerObject(),
+                                    "resourceName",
+                                    true)));
+
+                            altDefaultModal.header(new Model<>(
+                                    getString("any.edit", new Model<>(new AnyWrapper<>(model.getObject())))));
+
+                            altDefaultModal.show(true);
+                        }
+                    }, ActionType.ENABLE, StandardEntitlement.USER_READ).add(new ActionLink<UserTO>() {
+
+                        private static final long serialVersionUID = -7978723352517770644L;
+
+                        @Override
+                        public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
+                            target.add(utilityModal.setContent(new AnyPropagationTasks(
+                                    utilityModal, AnyTypeKind.USER, model.getObject().getKey(), pageRef)));
+
+                            utilityModal.header(new StringResourceModel("any.propagation.tasks", model));
+                            utilityModal.show(true);
+                        }
+                    }, ActionType.PROPAGATION_TASKS, StandardEntitlement.TASK_LIST).add(new ActionLink<UserTO>() {
+
+                        private static final long serialVersionUID = -7978723352517770644L;
+
+                        @Override
+                        public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
+                            target.add(utilityModal.setContent(
+                                    new NotificationTasks(AnyTypeKind.USER, model.getObject().getKey(), pageRef)));
+                            utilityModal.header(new StringResourceModel("any.notification.tasks", model));
+                            utilityModal.show(true);
+                            target.add(utilityModal);
+                        }
+                    }, ActionType.NOTIFICATION_TASKS, StandardEntitlement.TASK_LIST);
+                }
 
                 return panel.build(componentId, model.getObject());
             }
@@ -261,6 +295,11 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                         displayAttributeModal.header(new ResourceModel("any.attr.display"));
                         displayAttributeModal.addSubmitButton();
                         displayAttributeModal.show(true);
+                    }
+
+                    @Override
+                    protected boolean statusCondition(final Serializable modelObject) {
+                        return wizardInModal;
                     }
                 }, ActionType.CHANGE_VIEW, StandardEntitlement.USER_READ).add(
                         new ActionLink<Serializable>() {
@@ -290,8 +329,8 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
         }
 
         @Override
-        protected WizardMgtPanel<AnyWrapper<UserTO>> newInstance(final String id) {
-            return new UserDirectoryPanel(id, this);
+        protected WizardMgtPanel<AnyWrapper<UserTO>> newInstance(final String id, final boolean wizardInModal) {
+            return new UserDirectoryPanel(id, this, wizardInModal);
         }
     }
 }

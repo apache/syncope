@@ -259,7 +259,7 @@ under the License.
             </properties>
             <configfiles>
               <configfile>
-                <file>${project.build.directory}/classes/context.xml</file>
+                <file>${basedir}/src/main/resources/context.xml</file>
                 <todir>conf/</todir>
                 <tofile>context.xml</tofile>
               </configfile>
@@ -331,6 +331,9 @@ under the License.
       <resource>
         <directory>src/main/resources</directory>
         <filtering>true</filtering>
+        <excludes>
+          <exclude>context.xml</exclude>
+        </excludes>
       </resource>
       <resource>
         <directory>${basedir}/../../core/persistence-jpa/src/main/resources</directory>
@@ -415,7 +418,7 @@ under the License.
         <dependency>
           <groupId>mysql</groupId>
           <artifactId>mysql-connector-java</artifactId>
-          <version>5.1.38</version>
+          <version>5.1.39</version>
           <scope>test</scope>
         </dependency>
       </dependencies>
@@ -451,7 +454,7 @@ under the License.
         <dependency>
           <groupId>org.mariadb.jdbc</groupId>
           <artifactId>mariadb-java-client</artifactId>
-          <version>1.1.9</version>
+          <version>1.4.6</version>
           <scope>test</scope>
         </dependency>
       </dependencies>
@@ -515,15 +518,15 @@ under the License.
       <id>sqlserver-it</id>
 
       <properties>
-        <jdbcdriver.groupId>com.microsoft.sqlserver</jdbcdriver.groupId>
-        <jdbcdriver.artifactId>sqljdbc42</jdbcdriver.artifactId>
+        <jdbcdriver.groupId>net.sourceforge.jtds</jdbcdriver.groupId>
+        <jdbcdriver.artifactId>jtds</jdbcdriver.artifactId>
       </properties>
 
       <dependencies>
         <dependency>
-          <groupId>com.microsoft.sqlserver</groupId>
-          <artifactId>sqljdbc42</artifactId>
-          <version>4.2</version>
+          <groupId>net.sourceforge.jtds</groupId>
+          <artifactId>jtds</artifactId>
+          <version>1.3.1</version>
           <scope>test</scope>
         </dependency>
       </dependencies>
@@ -604,7 +607,54 @@ under the License.
         </plugins>
       </build>
     </profile>
-    
+
+    <profile>
+      <id>payara-it</id>
+
+      <dependencies>
+        <dependency>
+          <groupId>org.apache.syncope.core</groupId>
+          <artifactId>syncope-core-persistence-jpa</artifactId>
+          <version>${project.version}</version>
+          <exclusions>
+            <exclusion>
+              <groupId>org.apache.bval</groupId>
+              <artifactId>bval-jsr</artifactId>
+            </exclusion>
+          </exclusions>
+        </dependency>
+
+        <dependency>
+          <groupId>com.h2database</groupId>
+          <artifactId>h2</artifactId>
+        </dependency>
+      </dependencies>
+
+      <build>
+        <defaultGoal>clean verify</defaultGoal>
+
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.cargo</groupId>
+            <artifactId>cargo-maven2-plugin</artifactId>
+            <inherited>true</inherited>
+            <configuration>
+              <container>
+                <containerId>glassfish4x</containerId>
+                <zipUrlInstaller>
+                  <url>https://s3-eu-west-1.amazonaws.com/payara.co/Payara+Downloads/Payara+4.1.1.162/payara-4.1.1.162.zip</url>
+                  <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
+                  <extractDir>${project.build.directory}/cargo/extract</extractDir>
+                </zipUrlInstaller>
+                <log>${cargo.log}</log>
+                <output>${cargo.output}</output>
+              </container>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
     <profile>
       <id>jboss-it</id>
 
@@ -809,6 +859,8 @@ under the License.
 
       <properties>
         <skipTests>true</skipTests>
+        <!-- Temporary until JRebel properly supports Tomcat 8.5 -->
+        <tomcat.version>8.0.36</tomcat.version>
       </properties>
 
       <build>

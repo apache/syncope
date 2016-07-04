@@ -1,0 +1,63 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+//
+
+===== Realms
+The realms tab provides the admin with the power to manage users, groups and any objects, for all any types defined.
+
+image::realmsUser.png[console-realms-user]
+
+User::
+
+Allows the admin to
+
+* Create user
+* Force password change for user
+* Manage resources available to user
+* Enable/Disable users
+* Clone a user
+* Edit user details
+* View and edit propagation tasks of user
+* View and edit notification tasks of user
+* Delete user
+
+Group::
+
+Allows admin to
+
+* Create group
+* Clone a group
+* Edit group details
+* View, create and edit extensions
+* View and edit propagation tasks of group
+* View and edit notification tasks of group
+* Provision members
+* Deprovision members
+* Delete group
+
+Printers::
+
+The default syncope installation comes with printers add as a object. This can be reconfigured for
+other things such as folders and services.
+
+* Add a new printer
+* Clone a printer entry
+* Edit printer details
+* View and edit propagation tasks of printer
+* View and edit notification tasks of printer
+* Delete printer

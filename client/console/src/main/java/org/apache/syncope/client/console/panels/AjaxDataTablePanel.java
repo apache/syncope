@@ -23,12 +23,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.rest.BaseRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.syncope.client.console.bulk.BulkActionModal;
 import org.apache.syncope.client.console.bulk.BulkContent;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.DirectoryPanel.EventDataWrapper;
 import org.apache.syncope.client.console.rest.RestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.CheckGroupColumn;
@@ -167,12 +167,15 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
             public void onClose(final AjaxRequestTarget target) {
                 bulkModal.show(false);
 
-                final EventDataWrapper data = new EventDataWrapper();
+                EventDataWrapper data = new EventDataWrapper();
                 data.setTarget(target);
                 data.setRows(builder.rowsPerPage);
 
                 send(builder.pageRef.getPage(), Broadcast.BREADTH, data);
-                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                BasePage page = (BasePage) findPage();
+                if (page != null) {
+                    page.getNotificationPanel().refresh(target);
+                }
             }
         });
 

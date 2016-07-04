@@ -18,9 +18,14 @@
  */
 package org.apache.syncope.fit.console;
 
+import static org.apache.syncope.fit.console.AbstractConsoleITCase.TESTER;
+import static org.junit.Assert.assertNotNull;
+
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.Realms;
 import org.apache.syncope.client.console.panels.TogglePanel;
+import org.apache.wicket.Component;
 import org.apache.wicket.util.tester.FormTester;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -33,79 +38,226 @@ public class RealmsITCase extends AbstractConsoleITCase {
     @Before
     public void login() {
         doLogin(ADMIN_UNAME, ADMIN_PWD);
-        wicketTester.clickLink("body:realmsLI:realms");
-        wicketTester.assertRenderedPage(Realms.class);
+        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.assertRenderedPage(Realms.class);
     }
 
     @Test
     public void read() {
-        wicketTester.assertLabel("body:content:body:tabbedPanel:panel:container:name:field-label", "Name");
+        TESTER.assertLabel("body:content:body:container:content:tabbedPanel:panel:container:accountPolicy:field-label",
+                "Account Policy");
     }
 
     @Test
     public void create() {
-        wicketTester.clickLink("body:content:body:tabbedPanel:panel:actions:actions:panelCreate:createLink");
+        TESTER.clickLink(
+                "body:content:body:container:content:tabbedPanel:panel:actions:actions:panelCreate:createLink");
 
-        wicketTester.assertComponent("body:content:modal", Modal.class);
+        TESTER.assertComponent("body:content:body:outerObjectsRepeater:0:outer", Modal.class);
 
-        FormTester formTester = wicketTester.newFormTester("body:content:modal:form");
-        formTester.setValue("content:details:container:name:textField", "testRealm");
+        FormTester formTester = TESTER.newFormTester(
+                "body:content:body:outerObjectsRepeater:0:outer:form:content:form");
+        formTester.setValue("view:details:container:generics:name:textField", "testRealm");
 
-        wicketTester.clickLink("body:content:modal:dialog:footer:inputs:0:submit");
+        formTester.submit("buttons:finish");
 
-        wicketTester.assertInfoMessages("Operation executed successfully");
-        wicketTester.cleanupFeedbackMessages();
+        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.cleanupFeedbackMessages();
+
+        TESTER.executeAjaxEvent(
+                "body:content:body:outerObjectsRepeater:0:outer:form:content:action:panelClose:closeLink",
+                Constants.ON_CLICK);
+
+        // remove the new realm just created
+        TESTER.clickLink("body:realmsLI:realms");
+
+        TESTER.executeAjaxEvent("body:content:realmChoicePanel:container:realms:btn", Constants.ON_CLICK);
+        TESTER.executeAjaxEvent("body:content:realmChoicePanel:container:realms:dropdown-menu:buttons:4:button",
+                Constants.ON_CLICK);
+
+        TESTER.assertLabel("body:content:realmChoicePanel:container:realm", "/testRealm");
+
+        TESTER.getRequest().addParameter("confirm", "true");
+        TESTER.clickLink(
+                "body:content:body:container:content:tabbedPanel:panel:actions:actions:panelDelete:deleteLink");
+
+        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.cleanupFeedbackMessages();
+
+        TESTER.assertLabel("body:content:body:container:content:tabbedPanel:panel:container:accountPolicy:field-label",
+                "Account Policy");
+
+        TESTER.assertLabel("body:content:realmChoicePanel:container:realm", "/");
     }
 
     @Test
     public void update() {
-        wicketTester.clickLink("body:content:body:tabbedPanel:panel:actions:actions:panelEdit:editLink");
-        wicketTester.assertComponent("body:content:modal", Modal.class);
+        TESTER.clickLink(
+                "body:content:body:container:content:tabbedPanel:panel:actions:actions:panelEdit:editLink");
+        TESTER.assertComponent("body:content:body:outerObjectsRepeater:0:outer", Modal.class);
 
-        FormTester formTester = wicketTester.newFormTester("body:content:modal:form");
-        wicketTester.clickLink("body:content:modal:dialog:footer:inputs:0:submit");
+        FormTester formTester = TESTER.newFormTester(
+                "body:content:body:outerObjectsRepeater:0:outer:form:content:form");
+        formTester.submit("buttons:finish");
 
-        wicketTester.assertInfoMessages("Operation executed successfully");
-        wicketTester.cleanupFeedbackMessages();
+        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.cleanupFeedbackMessages();
+
+        TESTER.executeAjaxEvent(
+                "body:content:body:outerObjectsRepeater:0:outer:form:content:action:panelClose:closeLink",
+                Constants.ON_CLICK);
     }
 
     @Test
     public void addUserTemplate() {
-        wicketTester.clickLink("body:content:body:tabbedPanel:panel:actions:actions:panelTemplate:templateLink");
-        wicketTester.assertComponent("body:content:toggleTemplates", TogglePanel.class);
+        TESTER.clickLink(
+                "body:content:body:container:content:tabbedPanel:panel:actions:actions:panelTemplate:templateLink");
+        TESTER.assertComponent("body:content:toggleTemplates", TogglePanel.class);
 
-        FormTester formTester = wicketTester.newFormTester(
+        FormTester formTester = TESTER.newFormTester(
                 "body:content:toggleTemplates:container:content:togglePanelContainer:templatesForm");
         formTester.setValue("type:dropDownChoiceField", "0");
         formTester.submit("changeit");
 
-        wicketTester.assertComponent("body:content:templateModal", Modal.class);
+        TESTER.assertComponent("body:content:templateModal", Modal.class);
 
-        formTester = wicketTester.newFormTester("body:content:templateModal:form:content:form");
+        formTester = TESTER.newFormTester("body:content:templateModal:form:content:form");
         formTester.setValue("view:username:textField", "'k' + firstname");
         formTester.submit("buttons:finish");
 
-        wicketTester.assertInfoMessages("Operation executed successfully");
-        wicketTester.cleanupFeedbackMessages();
+        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.cleanupFeedbackMessages();
 
-        wicketTester.clickLink("body:content:body:tabbedPanel:panel:actions:actions:panelTemplate:templateLink");
-        wicketTester.assertComponent("body:content:toggleTemplates", TogglePanel.class);
+        TESTER.clickLink(
+                "body:content:body:container:content:tabbedPanel:panel:actions:actions:panelTemplate:templateLink");
+        TESTER.assertComponent("body:content:toggleTemplates", TogglePanel.class);
 
-        formTester = wicketTester.newFormTester(
+        formTester = TESTER.newFormTester(
                 "body:content:toggleTemplates:container:content:togglePanelContainer:templatesForm");
         formTester.setValue("type:dropDownChoiceField", "0");
         formTester.submit("changeit");
 
-        wicketTester.assertComponent("body:content:templateModal", Modal.class);
+        TESTER.assertComponent("body:content:templateModal", Modal.class);
 
-        wicketTester.assertModelValue("body:content:templateModal:form:content:form:view:username:textField",
+        TESTER.assertModelValue("body:content:templateModal:form:content:form:view:username:textField",
                 "'k' + firstname");
 
-        formTester = wicketTester.newFormTester("body:content:templateModal:form:content:form");
+        formTester = TESTER.newFormTester("body:content:templateModal:form:content:form");
         formTester.setValue("view:username:textField", "");
         formTester.submit("buttons:finish");
 
-        wicketTester.assertInfoMessages("Operation executed successfully");
-        wicketTester.cleanupFeedbackMessages();
+        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.cleanupFeedbackMessages();
+    }
+
+    @Test
+    public void verifyPropagation() {
+        TESTER.executeAjaxEvent("body:content:realmChoicePanel:container:realms:btn", Constants.ON_CLICK);
+        TESTER.executeAjaxEvent("body:content:realmChoicePanel:container:realms:dropdown-menu:buttons:2:button",
+                Constants.ON_CLICK);
+
+        TESTER.clickLink(
+                "body:content:body:container:content:tabbedPanel:panel:actions:actions:panelEdit:editLink");
+        TESTER.assertComponent("body:content:body:outerObjectsRepeater:0:outer", Modal.class);
+        TESTER.assertModelValue("body:content:body:outerObjectsRepeater:0:outer:form:content:form:view:details:"
+                + "container:generics:name:textField", "two");
+
+        FormTester formTester = TESTER.newFormTester(
+                "body:content:body:outerObjectsRepeater:0:outer:form:content:form");
+        formTester.setValue("view:details:container:resources:paletteField:recorder", "resource-ldap-orgunit");
+
+        formTester.submit("buttons:finish");
+
+        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.cleanupFeedbackMessages();
+
+        // ----------------------------------
+        // Check for propagation rsults
+        // ----------------------------------
+        Component component = findComponentByProp("resource", "body:content:body:outerObjectsRepeater:0:outer:form:"
+                + "content:customResultBody:firstLevelContainer:first:container", "resource-ldap-orgunit");
+
+        TESTER.clickLink(component.getPageRelativePath() + ":actions:panelView:viewLink");
+
+        TESTER.assertLabel("body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
+                + "secondLevelContainer:second:remoteObject:propView:2:value:oldAttribute:field-label", "ou");
+
+        TESTER.assertModelValue("body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
+                + "secondLevelContainer:second:remoteObject:propView:0:value:oldAttribute:textField", null);
+        
+        TESTER.assertModelValue("body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
+                + "secondLevelContainer:second:remoteObject:propView:1:value:oldAttribute:textField", null);
+        
+        TESTER.assertModelValue("body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
+                + "secondLevelContainer:second:remoteObject:propView:2:value:oldAttribute:textField", null);
+
+        TESTER.assertLabel("body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
+                + "secondLevelContainer:second:remoteObject:propView:2:value:newAttribute:field-label", "ou");
+
+        TESTER.assertModelValue("body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
+                + "secondLevelContainer:second:remoteObject:propView:2:value:newAttribute:textField", "two");
+
+        TESTER.clickLink("body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
+                + "secondLevelContainer:back");
+
+        assertNotNull(findComponentByProp("resource", "body:content:body:outerObjectsRepeater:0:outer:form:"
+                + "content:customResultBody:firstLevelContainer:first:container", "resource-ldap-orgunit"));
+        // ----------------------------------
+
+        TESTER.executeAjaxEvent(
+                "body:content:body:outerObjectsRepeater:0:outer:form:content:action:panelClose:closeLink",
+                Constants.ON_CLICK);
+
+        TESTER.clickLink(
+                "body:content:body:container:content:tabbedPanel:panel:actions:actions:panelEdit:editLink");
+        TESTER.assertComponent("body:content:body:outerObjectsRepeater:0:outer", Modal.class);
+        TESTER.assertModelValue("body:content:body:outerObjectsRepeater:0:outer:form:content:form:view:details:"
+                + "container:generics:name:textField", "two");
+
+        formTester = TESTER.newFormTester(
+                "body:content:body:outerObjectsRepeater:0:outer:form:content:form");
+        formTester.setValue("view:details:container:resources:paletteField:recorder", "");
+
+        formTester.submit("buttons:finish");
+
+        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.cleanupFeedbackMessages();
+
+        // ----------------------------------
+        // Check for propagation rsults
+        // ----------------------------------
+        component = findComponentByProp("resource", "body:content:body:outerObjectsRepeater:0:outer:form:"
+                + "content:customResultBody:firstLevelContainer:first:container", "resource-ldap-orgunit");
+
+        TESTER.clickLink(component.getPageRelativePath() + ":actions:panelView:viewLink");
+
+        TESTER.assertLabel("body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
+                + "secondLevelContainer:second:remoteObject:propView:2:value:oldAttribute:field-label", "ou");
+
+        TESTER.assertModelValue("body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
+                + "secondLevelContainer:second:remoteObject:propView:2:value:oldAttribute:textField", "two");
+
+        TESTER.assertLabel("body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
+                + "secondLevelContainer:second:remoteObject:propView:2:value:newAttribute:field-label", "ou");
+
+        TESTER.assertModelValue("body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
+                + "secondLevelContainer:second:remoteObject:propView:0:value:newAttribute:textField", null);
+
+        TESTER.assertModelValue("body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
+                + "secondLevelContainer:second:remoteObject:propView:1:value:newAttribute:textField", null);
+        
+        TESTER.assertModelValue("body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
+                + "secondLevelContainer:second:remoteObject:propView:2:value:newAttribute:textField", null);
+        
+        TESTER.clickLink("body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
+                + "secondLevelContainer:back");
+
+        assertNotNull(findComponentByProp("resource", "body:content:body:outerObjectsRepeater:0:outer:form:"
+                + "content:customResultBody:firstLevelContainer:first:container", "resource-ldap-orgunit"));
+        // ----------------------------------
+
+        TESTER.executeAjaxEvent(
+                "body:content:body:outerObjectsRepeater:0:outer:form:content:action:panelClose:closeLink",
+                Constants.ON_CLICK);
     }
 }

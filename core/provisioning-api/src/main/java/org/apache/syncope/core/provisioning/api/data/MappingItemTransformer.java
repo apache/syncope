@@ -36,13 +36,13 @@ public interface MappingItemTransformer {
      * Invoked while preparing attribute values to be sent out to external resource during propagation.
      *
      * @param mappingItem mapping item
-     * @param anys any objects
+     * @param any any object
      * @param values original values
      * @return transformed values
      */
     List<PlainAttrValue> beforePropagation(
             MappingItem mappingItem,
-            List<Any<?>> anys,
+            Any<?> any,
             List<PlainAttrValue> values);
 
     /**

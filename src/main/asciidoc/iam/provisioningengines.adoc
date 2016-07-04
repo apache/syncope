@@ -17,8 +17,8 @@
 // under the License.
 //
 === Provisioning Engines
-A provisioning engine is a software able to execute some operation on the profile of a digital identity. 
-Precisely this operation could be run to manage a user life cicle, the _CRUD_ operation to persiste the user on an 
+A provisioning engine is a software able to execute some operation on the profile of a digital identity.
+Precisely this operation could be run to manage a user lifecycle, the _CRUD_ operation to persist the user on an
 identity store:
 
 * Create
@@ -26,7 +26,7 @@ identity store:
 * Update
 * Delete
 
-or could be the operations albe to modify the user profile in order to activate or deactivate its digital identity, or
+or could be the operations able to modify the user profile in order to activate or deactivate its digital identity, or
 could be the operations to add or remove a role from an user profile to achieve the RBAC (Role-based access control)
-in an enviroment and so on. Definitely a provisioning angine manages the digital identity user profile in a centralized
+in an environment and so on. Definitely a provisioning engine manages the digital identity user profile in a centralized
 way.

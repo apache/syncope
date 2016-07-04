@@ -63,7 +63,7 @@ public abstract class AbstractProvisioningTask extends JPASchedTask implements P
     @Basic
     @Min(0)
     @Max(1)
-    private Integer pullStatus;
+    private Integer syncStatus;
 
     /**
      * @see UnmatchingRule
@@ -134,13 +134,13 @@ public abstract class AbstractProvisioningTask extends JPASchedTask implements P
     }
 
     @Override
-    public boolean isPullStatus() {
-        return isBooleanAsInteger(pullStatus);
+    public boolean isSyncStatus() {
+        return isBooleanAsInteger(syncStatus);
     }
 
     @Override
-    public void setPullStatus(final boolean pullStatus) {
-        this.pullStatus = getBooleanAsInteger(pullStatus);
+    public void setSyncStatus(final boolean syncStatus) {
+        this.syncStatus = getBooleanAsInteger(syncStatus);
     }
 
     @Override

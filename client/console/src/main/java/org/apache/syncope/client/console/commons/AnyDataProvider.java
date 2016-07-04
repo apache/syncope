@@ -87,7 +87,7 @@ public class AnyDataProvider<A extends AnyTO> extends DirectoryDataProvider<A> {
                     ? Collections.<A>emptyList()
                     : restClient.search(realm, fiql, (page < 0 ? 0 : page) + 1, paginatorRows, getSort(), type);
         } else {
-            result = restClient.list(realm, (page < 0 ? 0 : page) + 1, paginatorRows, getSort(), type);
+            result = restClient.search(realm, null, (page < 0 ? 0 : page) + 1, paginatorRows, getSort(), type);
         }
 
         Collections.sort(result, comparator);
@@ -101,7 +101,7 @@ public class AnyDataProvider<A extends AnyTO> extends DirectoryDataProvider<A> {
         if (filtered) {
             result = fiql == null ? 0 : restClient.searchCount(realm, fiql, type);
         } else {
-            result = restClient.count(realm, type);
+            result = restClient.searchCount(realm, null, type);
         }
 
         return result;

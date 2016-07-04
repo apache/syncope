@@ -35,7 +35,7 @@ public class DefaultMappingItemTransformer implements MappingItemTransformer {
     @Override
     public List<PlainAttrValue> beforePropagation(
             final MappingItem mappingItem,
-            final List<Any<?>> anys,
+            final Any<?> any,
             final List<PlainAttrValue> values) {
 
         return values;

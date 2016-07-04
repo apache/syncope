@@ -36,6 +36,7 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.panels.search.SearchClause;
@@ -174,13 +175,13 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
                                     });
                                     restClient.update(actual);
                                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-                                    customActionOnCloseCallback(target);
+                                    customActionOnFinishCallback(target);
                                 } catch (SyncopeClientException e) {
                                     LOG.error("While deleting {}", reportlet.getName(), e);
-                                   SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
+                                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
                                             ? e.getClass().getName() : e.getMessage());
                                 }
-                                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                             }
                         }, ActionLink.ActionType.DELETE, StandardEntitlement.REPORT_UPDATE).build(componentId);
 
@@ -198,7 +199,7 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
                     @Override
                     public void onClick(final AjaxRequestTarget target, final ReportletWrapper ignore) {
                         if (target != null) {
-                            customActionOnCloseCallback(target);
+                            customActionOnFinishCallback(target);
                         }
                     }
                 }, ActionLink.ActionType.RELOAD, StandardEntitlement.TASK_LIST).build(componentId);

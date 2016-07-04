@@ -44,7 +44,6 @@ import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
-import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
@@ -127,13 +126,6 @@ public class PushTaskITCase extends AbstractTaskITCase {
         assertNotNull(resourceService.readConnObject(
                 RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), "29f96485-729e-4d31-88a1-6fc60e4677f3"));
         assertTrue(groupService.read("29f96485-729e-4d31-88a1-6fc60e4677f3").
-                getResources().contains(RESOURCE_NAME_LDAP));
-
-        execProvisioningTask(taskService, "fd905ba5-9d56-4f51-83e2-859096a67b75", 50, false);
-
-        assertNotNull(resourceService.readConnObject(
-                RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), "29f96485-729e-4d31-88a1-6fc60e4677f3"));
-        assertFalse(groupService.read("29f96485-729e-4d31-88a1-6fc60e4677f3").
                 getResources().contains(RESOURCE_NAME_LDAP));
     }
 
@@ -272,6 +264,34 @@ public class PushTaskITCase extends AbstractTaskITCase {
     }
 
     @Test
+    public void orgUnit() {
+        assertNull(getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, "ou=odd,o=isp"));
+        assertNull(getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, "ou=even,o=isp"));
+        assertNull(getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, "ou=two,o=isp"));
+
+        // 1. create task for pulling org units
+        PushTaskTO task = new PushTaskTO();
+        task.setName("For orgUnit");
+        task.setActive(true);
+        task.setResource(RESOURCE_NAME_LDAP_ORGUNIT);
+        task.setPerformCreate(true);
+        task.setPerformDelete(true);
+        task.setPerformUpdate(true);
+
+        Response response = taskService.create(task);
+        PushTaskTO pushTask = getObject(response.getLocation(), TaskService.class, PushTaskTO.class);
+        assertNotNull(pushTask);
+
+        ExecTO exec = execProvisioningTask(taskService, pushTask.getKey(), 50, false);
+        assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(exec.getStatus()));
+
+        // 2. check
+        assertNotNull(getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, "ou=odd,o=isp"));
+        assertNotNull(getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, "ou=even,o=isp"));
+        assertNotNull(getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, "ou=two,o=isp"));
+    }
+
+    @Test
     public void issueSYNCOPE598() {
         // create a new group schema
         PlainSchemaTO schemaTO = new PlainSchemaTO();
@@ -295,7 +315,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
 
         groupTO.getPlainAttrs().add(attrTO(schemaTO.getKey(), "all"));
 
-        groupTO = createGroup(groupTO).getAny();
+        groupTO = createGroup(groupTO).getEntity();
         assertNotNull(groupTO);
 
         String resourceName = "resource-ldap-grouponly";
@@ -317,7 +337,6 @@ public class PushTaskITCase extends AbstractTaskITCase {
             provisionTO.setMapping(mapping);
 
             MappingItemTO item = new MappingItemTO();
-            item.setIntMappingType(IntMappingType.GroupPlainSchema);
             item.setExtAttrName("cn");
             item.setIntAttrName(schemaTO.getKey());
             item.setConnObjectKey(true);
@@ -350,8 +369,8 @@ public class PushTaskITCase extends AbstractTaskITCase {
             assertNotNull(push);
 
             // execute the new task
-            ExecTO pushExec = execProvisioningTask(taskService, push.getKey(), 50, false);
-            assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(pushExec.getStatus()));
+            ExecTO exec = execProvisioningTask(taskService, push.getKey(), 50, false);
+            assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(exec.getStatus()));
         } finally {
             groupService.delete(groupTO.getKey());
             if (newResourceTO != null) {
@@ -387,7 +406,6 @@ public class PushTaskITCase extends AbstractTaskITCase {
         notification.getStaticRecipients().add("issueyncope648@syncope.apache.org");
         notification.setSelfAsRecipient(false);
         notification.setRecipientAttrName("email");
-        notification.setRecipientAttrType(IntMappingType.UserPlainSchema);
 
         notification.setSender("syncope648@syncope.apache.org");
         String subject = "Test notification";

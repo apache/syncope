@@ -30,7 +30,7 @@ import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.to.AttrTO;
 
 @XmlType
-public abstract class AnyPatch extends AbstractBaseBean {
+public abstract class AnyPatch extends AbstractBaseBean implements AttributablePatch {
 
     private static final long serialVersionUID = -7445489774552440544L;
 
@@ -73,6 +73,7 @@ public abstract class AnyPatch extends AbstractBaseBean {
     @XmlElementWrapper(name = "plainAttrs")
     @XmlElement(name = "attribute")
     @JsonProperty("plainAttrs")
+    @Override
     public Set<AttrPatch> getPlainAttrs() {
         return plainAttrs;
     }
@@ -80,6 +81,7 @@ public abstract class AnyPatch extends AbstractBaseBean {
     @XmlElementWrapper(name = "virAttrs")
     @XmlElement(name = "attribute")
     @JsonProperty("virAttrs")
+    @Override
     public Set<AttrTO> getVirAttrs() {
         return virAttrs;
     }

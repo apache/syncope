@@ -16,16 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.to;
+package org.apache.syncope.core.persistence.jpa.validation.entity;
 
-import java.util.List;
-import java.util.Map;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public interface GroupableTO {
+import javax.validation.Constraint;
+import javax.validation.Payload;
 
-    Map<String, MembershipTO> getMembershipMap();
+@Target({ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@Constraint(validatedBy = AnyObjectValidator.class)
+@Documented
+public @interface AnyObjectCheck {
 
-    List<MembershipTO> getMemberships();
+    String message() default "{org.apache.syncope.core.persistence.validation.anyObject}";
 
-    List<String> getDynGroups();
+    Class<?>[] groups() default {};
+
+    Class<? extends Payload>[] payload() default {};
 }

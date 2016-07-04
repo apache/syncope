@@ -300,7 +300,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
         List<PropagationStatus> statuses = provisioningManager.deprovision(key, resources, nullPriorityAsync);
 
         ProvisioningResult<AnyObjectTO> result = new ProvisioningResult<>();
-        result.setAny(binder.getAnyObjectTO(key));
+        result.setEntity(binder.getAnyObjectTO(key));
         result.getPropagationStatuses().addAll(statuses);
         return result;
     }
@@ -323,7 +323,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
         List<PropagationStatus> statuses = provisioningManager.provision(key, resources, nullPriorityAsync);
 
         ProvisioningResult<AnyObjectTO> result = new ProvisioningResult<>();
-        result.setAny(binder.getAnyObjectTO(key));
+        result.setEntity(binder.getAnyObjectTO(key));
         result.getPropagationStatuses().addAll(statuses);
         return result;
     }

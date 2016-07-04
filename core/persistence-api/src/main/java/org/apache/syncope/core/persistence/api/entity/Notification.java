@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.api.entity;
 
 import java.util.List;
-import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.TraceLevel;
 
 public interface Notification extends Entity {
@@ -35,10 +34,6 @@ public interface Notification extends Entity {
     String getRecipientAttrName();
 
     void setRecipientAttrName(String recipientAttrName);
-
-    IntMappingType getRecipientAttrType();
-
-    void setRecipientAttrType(IntMappingType recipientAttrType);
 
     String getRecipientsFIQL();
 

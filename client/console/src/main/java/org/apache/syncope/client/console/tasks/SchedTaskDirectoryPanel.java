@@ -30,6 +30,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.TaskDataProvider;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.rest.TaskRestClient;
@@ -73,8 +74,8 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
 
     private static final long serialVersionUID = 4984337552918213290L;
 
-    private static final String GROUP_MEMBER_PROVISION_TASKJOB =
-            "org.apache.syncope.core.provisioning.java.job.GroupMemberProvisionTaskJobDelegate";
+    private static final String GROUP_MEMBER_PROVISION_TASKJOB
+            = "org.apache.syncope.core.provisioning.java.job.GroupMemberProvisionTaskJobDelegate";
 
     protected final Class<T> reference;
 
@@ -107,7 +108,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
 
         initResultTable();
 
-        startAt = new TaskStartAtTogglePanel(container);
+        startAt = new TaskStartAtTogglePanel(container, pageRef);
         addInnerObject(startAt);
 
         templates = new TemplatesTogglePanel(getActualId(), this, pageRef) {
@@ -250,11 +251,11 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
                                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                                     target.add(container);
                                 } catch (SyncopeClientException e) {
-                                   SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
+                                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
                                             ? e.getClass().getName() : e.getMessage());
                                     LOG.error("While deleting propagation task {}", taskTO.getKey(), e);
                                 }
-                                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                             }
                         }, ActionLink.ActionType.DELETE, StandardEntitlement.TASK_DELETE);
 

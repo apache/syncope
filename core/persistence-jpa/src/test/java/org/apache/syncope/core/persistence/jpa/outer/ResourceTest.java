@@ -29,7 +29,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
@@ -51,6 +50,7 @@ import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAMappingItem;
+import org.apache.syncope.core.persistence.jpa.entity.resource.JPAOrgUnit;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -132,7 +132,6 @@ public class ResourceTest extends AbstractTest {
             MappingItem item = entityFactory.newEntity(MappingItem.class);
             item.setExtAttrName("test" + i);
             item.setIntAttrName("nonexistent" + i);
-            item.setIntMappingType(IntMappingType.UserPlainSchema);
             item.setMandatoryCondition("false");
             item.setPurpose(MappingPurpose.PULL);
             mapping.add(item);
@@ -141,7 +140,6 @@ public class ResourceTest extends AbstractTest {
         MappingItem connObjectKey = entityFactory.newEntity(MappingItem.class);
         connObjectKey.setExtAttrName("username");
         connObjectKey.setIntAttrName("username");
-        connObjectKey.setIntMappingType(IntMappingType.UserKey);
         connObjectKey.setPurpose(MappingPurpose.PROPAGATION);
         mapping.setConnObjectKeyItem(connObjectKey);
         connObjectKey.setMapping(mapping);
@@ -151,7 +149,6 @@ public class ResourceTest extends AbstractTest {
         derived.setConnObjectKey(false);
         derived.setExtAttrName("fullname");
         derived.setIntAttrName("cn");
-        derived.setIntMappingType(IntMappingType.UserDerivedSchema);
         derived.setPurpose(MappingPurpose.PROPAGATION);
         mapping.add(derived);
         derived.setMapping(mapping);
@@ -266,6 +263,9 @@ public class ResourceTest extends AbstractTest {
         assertNotNull(ldap.getProvision(anyTypeDAO.findUser()).getMapping());
         assertNotNull(ldap.getProvision(anyTypeDAO.findGroup()).getMapping());
 
+        // need to avoid any class not defined in this Maven module
+        ldap.getPropagationActionsClassNames().clear();
+
         List<? extends MappingItem> items = ldap.getProvision(anyTypeDAO.findGroup()).getMapping().getItems();
         assertNotNull(items);
         assertFalse(items.isEmpty());
@@ -275,13 +275,10 @@ public class ResourceTest extends AbstractTest {
         }
 
         Provision groupProvision = ldap.getProvision(anyTypeDAO.findGroup());
-        ldap.getProvisions().remove(groupProvision);
         for (VirSchema schema : virSchemaDAO.findByProvision(groupProvision)) {
             virSchemaDAO.delete(schema.getKey());
         }
-
-        // need to avoid any class not defined in this Maven module
-        ldap.getPropagationActionsClassNames().clear();
+        ldap.getProvisions().remove(groupProvision);
 
         resourceDAO.save(ldap);
         resourceDAO.flush();
@@ -292,6 +289,27 @@ public class ResourceTest extends AbstractTest {
     }
 
     @Test
+    public void updateRemoveOrgUnit() {
+        ExternalResource resource = resourceDAO.find("resource-ldap-orgunit");
+        assertNotNull(resource);
+        assertNotNull(resource.getOrgUnit());
+
+        String orgUnitKey = resource.getOrgUnit().getKey();
+        assertNotNull(entityManager().find(JPAOrgUnit.class, orgUnitKey));
+
+        resource.getOrgUnit().setResource(null);
+        resource.setOrgUnit(null);
+
+        resourceDAO.save(resource);
+        resourceDAO.flush();
+
+        resource = resourceDAO.find("resource-ldap-orgunit");
+        assertNull(resource.getOrgUnit());
+
+        assertNull(entityManager().find(JPAOrgUnit.class, orgUnitKey));
+    }
+
+    @Test
     public void issue243() {
         ExternalResource csv = resourceDAO.find("resource-csv");
         assertNotNull(csv);
@@ -299,7 +317,7 @@ public class ResourceTest extends AbstractTest {
         int origMapItems = csv.getProvision(anyTypeDAO.findUser()).getMapping().getItems().size();
 
         MappingItem newMapItem = entityFactory.newEntity(MappingItem.class);
-        newMapItem.setIntMappingType(IntMappingType.Username);
+        newMapItem.setIntAttrName("TEST");
         newMapItem.setExtAttrName("TEST");
         newMapItem.setPurpose(MappingPurpose.PROPAGATION);
         csv.getProvision(anyTypeDAO.findUser()).getMapping().add(newMapItem);

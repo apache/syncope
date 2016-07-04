@@ -21,6 +21,7 @@ package org.apache.syncope.core.provisioning.api;
 import java.util.Map;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
+import org.apache.syncope.core.persistence.api.entity.Membership;
 
 public interface DerAttrHandler {
 
@@ -37,7 +38,27 @@ public interface DerAttrHandler {
      * Calculates derived attributes values associated to the given any.
      *
      * @param any any object
-     * @return derived attribute values, either for local cache or external resources
+     * @return derived attribute values
      */
     Map<DerSchema, String> getValues(Any<?> any);
+
+    /**
+     * Calculates derived attribute value associated to the given any, for the given membership and
+     * derived schema.
+     *
+     * @param any any object
+     * @param membership membership
+     * @param schema derived schema
+     * @return derived attribute value
+     */
+    String getValue(Any<?> any, Membership<?> membership, DerSchema schema);
+
+    /**
+     * Calculates derived attributes values associated to the given any, for the given membership.
+     *
+     * @param any any object
+     * @param membership membership
+     * @return derived attribute values
+     */
+    Map<DerSchema, String> getValues(final Any<?> any, final Membership<?> membership);
 }

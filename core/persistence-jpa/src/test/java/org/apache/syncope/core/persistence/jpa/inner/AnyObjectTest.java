@@ -62,6 +62,7 @@ public class AnyObjectTest extends AbstractTest {
     @Test
     public void save() {
         AnyObject anyObject = entityFactory.newEntity(AnyObject.class);
+        anyObject.setName("a name");
         anyObject.setType(anyTypeDAO.find("PRINTER"));
         anyObject.setRealm(realmDAO.findByFullPath(SyncopeConstants.ROOT_REALM));
 

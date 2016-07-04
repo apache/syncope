@@ -19,7 +19,7 @@
 package org.apache.syncope.client.console.wizards;
 
 import java.io.Serializable;
-import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -88,7 +88,7 @@ public class AjaxWizardMgtButtonBar<T extends Serializable> extends WizardButton
             protected void onError(final AjaxRequestTarget target) {
                 target.add(findParent(Wizard.class));
                 button.onError();
-                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                ((BasePage) getPage()).getNotificationPanel().refresh(target);
             }
 
             @Override

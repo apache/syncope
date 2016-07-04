@@ -27,7 +27,7 @@ include::installation/installation.adoc[]
 
 == Working with Apache Syncope
 
-=== Using the Admin Console
+include::adminconsole/adminconsole.adoc[]
 
 include::cli/cli.adoc[]
 

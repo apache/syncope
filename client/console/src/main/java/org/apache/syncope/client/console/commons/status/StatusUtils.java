@@ -34,6 +34,7 @@ import org.apache.syncope.common.lib.patch.StatusPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
+import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -66,7 +67,7 @@ public class StatusUtils implements Serializable {
         return objects;
     }
 
-    private List<ConnObjectWrapper> getConnectorObjects(
+    public List<ConnObjectWrapper> getConnectorObjects(
             final AnyTO any, final Collection<String> resources) {
 
         final List<ConnObjectWrapper> objects = new ArrayList<>();
@@ -112,7 +113,7 @@ public class StatusUtils implements Serializable {
     }
 
     private Boolean isEnabled(final ConnObjectTO objectTO) {
-        final Map<String, AttrTO> attributeTOs = objectTO.getPlainAttrMap();
+        final Map<String, AttrTO> attributeTOs = objectTO.getAttrMap();
 
         final AttrTO status = attributeTOs.get(ConnIdSpecialAttributeName.ENABLE);
 
@@ -124,7 +125,7 @@ public class StatusUtils implements Serializable {
     private String getConnObjectLink(final ConnObjectTO objectTO) {
         final Map<String, AttrTO> attributeTOs = objectTO == null
                 ? Collections.<String, AttrTO>emptyMap()
-                : objectTO.getPlainAttrMap();
+                : objectTO.getAttrMap();
 
         final AttrTO name = attributeTOs.get(ConnIdSpecialAttributeName.NAME);
 
@@ -138,7 +139,7 @@ public class StatusUtils implements Serializable {
         builder.value(password);
 
         for (StatusBean status : statuses) {
-            if ("syncope".equalsIgnoreCase(status.getResourceName())) {
+            if (Constants.SYNCOPE.equalsIgnoreCase(status.getResourceName())) {
                 builder.onSyncope(true);
             } else {
                 builder.resource(status.getResourceName());
@@ -223,6 +224,53 @@ public class StatusUtils implements Serializable {
                 break;
         }
 
+        return getLabel(componentId, alt, title, clazz);
+    }
+
+    public static Panel getStatusImagePanel(final String componentId, final PropagationTaskExecStatus status) {
+        return new LabelPanel(componentId, getStatusImage("label", status));
+    }
+
+    public static Label getStatusImage(final String componentId, final PropagationTaskExecStatus status) {
+        final String alt, title, clazz;
+
+        switch (status) {
+
+            case NOT_ATTEMPTED:
+                alt = "not attempted";
+                title = "Not attempted";
+                clazz = Constants.UNDEFINED_ICON;
+                break;
+
+            case CREATED:
+                alt = "created icon";
+                title = "Created";
+                clazz = Constants.CREATED_ICON;
+                break;
+
+            case SUCCESS:
+                alt = "success icon";
+                title = "Propagation succeded";
+                clazz = Constants.ACTIVE_ICON;
+                break;
+
+            case FAILURE:
+                alt = "failure icon";
+                title = "Propagation failed";
+                clazz = Constants.NOT_FOUND_ICON;
+                break;
+
+            default:
+                alt = StringUtils.EMPTY;
+                title = StringUtils.EMPTY;
+                clazz = StringUtils.EMPTY;
+                break;
+        }
+
+        return getLabel(componentId, alt, title, clazz);
+    }
+
+    private static Label getLabel(final String componentId, final String alt, final String title, final String clazz) {
         return new Label(componentId, StringUtils.EMPTY) {
 
             private static final long serialVersionUID = 4755868673082976208L;

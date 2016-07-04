@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -55,7 +54,7 @@ import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
-import org.apache.syncope.common.lib.to.RelatableTO;
+import org.apache.syncope.common.lib.to.GroupableRelatableTO;
 import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.to.RelationshipTypeTO;
 import org.apache.syncope.common.lib.types.AnyEntitlement;
@@ -135,8 +134,7 @@ public class Relationships extends WizardStep {
                                             public void onClick(
                                                     final AjaxRequestTarget target, final RelationshipTO modelObject) {
                                                 removeRelationships(relationships, modelObject);
-                                                send(Relationships.this, Broadcast.DEPTH, 
-                                                        new ListViewReload<Serializable>(target));
+                                                send(Relationships.this, Broadcast.DEPTH, new ListViewReload<>(target));
                                             }
                                         }, ActionType.DELETE, AnyEntitlement.UPDATE.getFor(anyTO.getType())).
                                         build(panelId);
@@ -175,8 +173,8 @@ public class Relationships extends WizardStep {
     }
 
     private List<RelationshipTO> getCurrentRelationships() {
-        return anyTO instanceof RelatableTO
-                ? RelatableTO.class.cast(anyTO).getRelationships()
+        return anyTO instanceof GroupableRelatableTO
+                ? GroupableRelatableTO.class.cast(anyTO).getRelationships()
                 : Collections.<RelationshipTO>emptyList();
     }
 
@@ -341,7 +339,7 @@ public class Relationships extends WizardStep {
                                 pageRef).setFiltered(true).
                                 setFiql(SyncopeClient.getAnyObjectSearchConditionBuilder(anyType.getKey()).
                                         is("key").notNullValue().query()).
-                                build("searchResultPanel");
+                                setWizardInModal(true).build("searchResultPanel");
                         fragment.add(anyObjectDirectoryPanel.setRenderBodyOnly(true));
                     }
                     target.add(container);

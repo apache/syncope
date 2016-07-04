@@ -201,7 +201,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
             final String key, final Set<String> excludedResources, final boolean nullPriorityAsync) {
 
         PropagationByResource propByRes = new PropagationByResource();
-        propByRes.set(ResourceOperation.DELETE, userDAO.findAllResourceNames(userDAO.authFind(key)));
+        propByRes.set(ResourceOperation.DELETE, userDAO.findAllResourceNames(key));
 
         // Note here that we can only notify about "delete", not any other
         // task defined in workflow process definition: this because this
@@ -359,7 +359,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
                 AnyTypeKind.USER,
                 key,
                 propByRes,
-                CollectionUtils.removeAll(userDAO.findAllResourceNames(userDAO.authFind(key)), resources));
+                CollectionUtils.removeAll(userDAO.findAllResourceNames(key), resources));
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
         taskExecutor.execute(tasks, propagationReporter, nullPriorityAsync);

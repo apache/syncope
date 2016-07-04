@@ -28,10 +28,10 @@ public class RoleValidator extends AbstractValidator<RoleCheck, Role> {
     public boolean isValid(final Role role, final ConstraintValidatorContext context) {
         context.disableDefaultConstraintViolation();
 
-        if (role.getKey() == null || !NAME_PATTERN.matcher(role.getKey()).matches()) {
+        if (role.getKey() == null || !KEY_PATTERN.matcher(role.getKey()).matches()) {
             context.buildConstraintViolationWithTemplate(
-                    getTemplate(EntityViolationType.InvalidName, "Invalid Role name")).
-                    addPropertyNode("name").addConstraintViolation();
+                    getTemplate(EntityViolationType.InvalidKey, "Invalid role key")).
+                    addPropertyNode("key").addConstraintViolation();
             return false;
         }
 

@@ -121,6 +121,8 @@ import org.springframework.stereotype.Component;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.persistence.api.entity.task.AnyTemplatePullTask;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
+import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
+import org.apache.syncope.core.persistence.jpa.entity.resource.JPAOrgUnit;
 
 @Component
 public class JPAEntityFactory implements EntityFactory {
@@ -180,6 +182,8 @@ public class JPAEntityFactory implements EntityFactory {
             result = (E) new JPAExternalResource();
         } else if (reference.equals(Provision.class)) {
             result = (E) new JPAProvision();
+        } else if (reference.equals(OrgUnit.class)) {
+            result = (E) new JPAOrgUnit();
         } else if (reference.equals(ConnInstance.class)) {
             result = (E) new JPAConnInstance();
         } else if (reference.equals(PlainSchema.class)) {

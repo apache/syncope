@@ -76,7 +76,7 @@ public class JPAPropagationTask extends AbstractTask implements PropagationTask 
 
     private String anyType;
 
-    private String anyKey;
+    private String entityKey;
 
     /**
      * ExternalResource to which the propagation happens.
@@ -178,12 +178,12 @@ public class JPAPropagationTask extends AbstractTask implements PropagationTask 
     }
 
     @Override
-    public String getAnyKey() {
-        return anyKey;
+    public String getEntityKey() {
+        return entityKey;
     }
 
     @Override
-    public void setAnyKey(final String anyKey) {
-        this.anyKey = anyKey;
+    public void setEntityKey(final String entityKey) {
+        this.entityKey = entityKey;
     }
 }

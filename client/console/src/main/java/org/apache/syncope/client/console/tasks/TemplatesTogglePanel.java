@@ -28,6 +28,7 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.layout.AnyObjectFormLayoutInfo;
 import org.apache.syncope.client.console.layout.GroupFormLayoutInfo;
 import org.apache.syncope.client.console.layout.UserFormLayoutInfo;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.TogglePanel;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
@@ -80,8 +81,7 @@ public abstract class TemplatesTogglePanel extends TogglePanel<Serializable> {
     };
 
     public TemplatesTogglePanel(final String targetId, final MarkupContainer container, final PageReference pageRef) {
-        super("toggleTemplates");
-        this.pageRef = pageRef;
+        super("toggleTemplates", pageRef);
 
         form = new Form<>("templatesForm");
         addInnerObject(form);
@@ -172,12 +172,12 @@ public abstract class TemplatesTogglePanel extends TogglePanel<Serializable> {
                             : e.getMessage());
                     LOG.error("While editing template for {}", typeModel.getObject(), e);
                 }
-                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
 
             @Override
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
         });
     }

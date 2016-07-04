@@ -22,6 +22,7 @@ import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.wicket.markup.html.list.ConnConfPropertyListView;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
@@ -63,9 +64,9 @@ public abstract class AbstractConnConfPanel<T extends AbstractBaseBean> extends 
                 if (result.getLeft()) {
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                 } else {
-                   SyncopeConsoleSession.get().error(getString("error_connection") + ": " + result.getRight());
+                    SyncopeConsoleSession.get().error(getString("error_connection") + ": " + result.getRight());
                 }
-                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                ((BasePage) getPage()).getNotificationPanel().refresh(target);
             }
         };
         propertiesContainer.add(check);

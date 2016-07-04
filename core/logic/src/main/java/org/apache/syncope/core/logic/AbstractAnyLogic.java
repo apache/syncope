@@ -164,7 +164,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch>
         }
 
         ProvisioningResult<TO> result = new ProvisioningResult<>();
-        result.setAny(any);
+        result.setEntity(any);
         result.getPropagationStatuses().addAll(statuses);
 
         return result;

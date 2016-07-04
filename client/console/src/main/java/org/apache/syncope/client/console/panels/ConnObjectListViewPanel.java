@@ -68,7 +68,7 @@ public abstract class ConnObjectListViewPanel extends Panel {
 
             @Override
             protected Component getValueComponent(final String key, final ConnObjectTO bean) {
-                final AttrTO attrTO = IterableUtils.find(bean.getPlainAttrs(), new Predicate<AttrTO>() {
+                final AttrTO attrTO = IterableUtils.find(bean.getAttrs(), new Predicate<AttrTO>() {
 
                     @Override
                     public boolean evaluate(final AttrTO object) {

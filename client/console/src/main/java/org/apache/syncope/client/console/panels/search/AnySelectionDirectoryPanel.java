@@ -61,9 +61,12 @@ public abstract class AnySelectionDirectoryPanel<A extends AnyTO, E extends Abst
     private final Class<A> reference;
 
     protected AnySelectionDirectoryPanel(
-            final String id, final AnyDirectoryPanel.Builder<A, E> builder, final Class<A> reference) {
+            final String id,
+            final AnyDirectoryPanel.Builder<A, E> builder,
+            final Class<A> reference,
+            final boolean wizardInModal) {
 
-        super(id, builder);
+        super(id, builder, wizardInModal);
         this.reference = reference;
     }
 

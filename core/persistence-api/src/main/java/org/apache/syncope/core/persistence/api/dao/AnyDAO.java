@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.api.dao;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
@@ -72,7 +71,7 @@ public interface AnyDAO<A extends Any<?>> extends DAO<A> {
      */
     List<A> findAll(Set<String> adminRealms, int page, int itemsPerPage, List<OrderByClause> orderBy);
 
-    <S extends Schema> Collection<S> findAllowedSchemas(A any, Class<S> reference);
+    <S extends Schema> AllowedSchemas<S> findAllowedSchemas(A any, Class<S> reference);
 
     int count(Set<String> adminRealms);
 

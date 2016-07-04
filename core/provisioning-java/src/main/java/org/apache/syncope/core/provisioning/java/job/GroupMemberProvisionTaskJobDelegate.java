@@ -86,8 +86,8 @@ public class GroupMemberProvisionTaskJobDelegate extends AbstractSchedTaskJobDel
         List<User> users = searchDAO.search(SearchCond.getLeafCond(membershipCond), AnyTypeKind.USER);
         for (User user : users) {
             List<PropagationStatus> statuses = actionType == BulkMembersActionType.DEPROVISION
-                    ? userProvisioningManager.deprovision(user.getKey(), group.getResourceNames(), false)
-                    : userProvisioningManager.provision(user.getKey(), true, null, group.getResourceNames(), false);
+                    ? userProvisioningManager.deprovision(user.getKey(), group.getResourceKeys(), false)
+                    : userProvisioningManager.provision(user.getKey(), true, null, group.getResourceKeys(), false);
             for (PropagationStatus status : statuses) {
                 result.append("User ").append(user.getKey()).append('\t').
                         append("Resource ").append(status.getResource()).append('\t').
@@ -105,8 +105,8 @@ public class GroupMemberProvisionTaskJobDelegate extends AbstractSchedTaskJobDel
         List<AnyObject> anyObjects = searchDAO.search(SearchCond.getLeafCond(membershipCond), AnyTypeKind.ANY_OBJECT);
         for (AnyObject anyObject : anyObjects) {
             List<PropagationStatus> statuses = actionType == BulkMembersActionType.DEPROVISION
-                    ? anyObjectProvisioningManager.deprovision(anyObject.getKey(), group.getResourceNames(), false)
-                    : anyObjectProvisioningManager.provision(anyObject.getKey(), group.getResourceNames(), false);
+                    ? anyObjectProvisioningManager.deprovision(anyObject.getKey(), group.getResourceKeys(), false)
+                    : anyObjectProvisioningManager.provision(anyObject.getKey(), group.getResourceKeys(), false);
 
             for (PropagationStatus status : statuses) {
                 result.append(anyObject.getType().getKey()).append(' ').append(anyObject.getKey()).append('\t').

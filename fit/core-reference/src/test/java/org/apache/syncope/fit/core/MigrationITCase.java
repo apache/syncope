@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.fit.core;
 
-import static org.aspectj.bridge.MessageUtil.fail;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,9 +30,11 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.io.IOUtils;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.MappingItemTO;
@@ -49,15 +51,16 @@ import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.ConnConfPropSchema;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
-import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.TaskType;
+import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.core.migration.MigrationPullActions;
+import org.apache.syncope.core.provisioning.api.utils.ExceptionUtils2;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.junit.BeforeClass;
@@ -236,7 +239,7 @@ public class MigrationITCase extends AbstractTaskITCase {
         try {
             connectorService.check(connInstanceTO);
         } catch (Exception e) {
-            fail("Unexpected exception", e);
+            fail("Unexpected exception:\n" + ExceptionUtils2.getFullStackTrace(e));
         }
 
         return connInstanceTO.getKey();
@@ -260,7 +263,6 @@ public class MigrationITCase extends AbstractTaskITCase {
 
         MappingItemTO item = new MappingItemTO();
         item.setIntAttrName("username");
-        item.setIntMappingType(IntMappingType.Username);
         item.setExtAttrName("username");
         item.setMandatoryCondition("true");
         item.setPurpose(MappingPurpose.PULL);
@@ -269,7 +271,6 @@ public class MigrationITCase extends AbstractTaskITCase {
         item = new MappingItemTO();
         item.setPassword(true);
         item.setIntAttrName("password");
-        item.setIntMappingType(IntMappingType.Password);
         item.setExtAttrName("__PASSWORD__");
         item.setMandatoryCondition("true");
         item.setPurpose(MappingPurpose.PULL);
@@ -277,7 +278,6 @@ public class MigrationITCase extends AbstractTaskITCase {
 
         item = new MappingItemTO();
         item.setIntAttrName(MIGRATION_CIPHER_ALGORITHM);
-        item.setIntMappingType(IntMappingType.UserPlainSchema);
         item.setExtAttrName("cipherAlgorithm");
         item.setMandatoryCondition("true");
         item.setPurpose(MappingPurpose.PULL);
@@ -285,7 +285,6 @@ public class MigrationITCase extends AbstractTaskITCase {
 
         item = new MappingItemTO();
         item.setIntAttrName("surname");
-        item.setIntMappingType(IntMappingType.UserPlainSchema);
         item.setExtAttrName("surname");
         item.setMandatoryCondition("false");
         item.setPurpose(MappingPurpose.PULL);
@@ -293,7 +292,6 @@ public class MigrationITCase extends AbstractTaskITCase {
 
         item = new MappingItemTO();
         item.setIntAttrName("email");
-        item.setIntMappingType(IntMappingType.UserPlainSchema);
         item.setExtAttrName("email");
         item.setMandatoryCondition("false");
         item.setPurpose(MappingPurpose.PULL);
@@ -301,7 +299,6 @@ public class MigrationITCase extends AbstractTaskITCase {
 
         item = new MappingItemTO();
         item.setIntAttrName("firstname");
-        item.setIntMappingType(IntMappingType.UserPlainSchema);
         item.setExtAttrName("firstname");
         item.setMandatoryCondition("false");
         item.setPurpose(MappingPurpose.PULL);
@@ -309,7 +306,6 @@ public class MigrationITCase extends AbstractTaskITCase {
 
         item = new MappingItemTO();
         item.setIntAttrName("ctype");
-        item.setIntMappingType(IntMappingType.UserPlainSchema);
         item.setExtAttrName("type");
         item.setMandatoryCondition("false");
         item.setPurpose(MappingPurpose.PULL);
@@ -317,7 +313,6 @@ public class MigrationITCase extends AbstractTaskITCase {
 
         item = new MappingItemTO();
         item.setIntAttrName("gender");
-        item.setIntMappingType(IntMappingType.UserPlainSchema);
         item.setExtAttrName("gender");
         item.setMandatoryCondition("false");
         item.setPurpose(MappingPurpose.PULL);
@@ -325,7 +320,6 @@ public class MigrationITCase extends AbstractTaskITCase {
 
         item = new MappingItemTO();
         item.setIntAttrName("loginDate");
-        item.setIntMappingType(IntMappingType.UserPlainSchema);
         item.setExtAttrName("loginDate");
         item.setMandatoryCondition("false");
         item.setPurpose(MappingPurpose.PULL);
@@ -333,7 +327,6 @@ public class MigrationITCase extends AbstractTaskITCase {
 
         item = new MappingItemTO();
         item.setIntAttrName(MIGRATION_RESOURCES_SCHEMA);
-        item.setIntMappingType(IntMappingType.UserPlainSchema);
         item.setExtAttrName("__RESOURCES__");
         item.setMandatoryCondition("false");
         item.setPurpose(MappingPurpose.PULL);
@@ -350,8 +343,7 @@ public class MigrationITCase extends AbstractTaskITCase {
         provisionTO.setMapping(mapping);
 
         item = new MappingItemTO();
-        item.setIntAttrName("groupName");
-        item.setIntMappingType(IntMappingType.GroupName);
+        item.setIntAttrName("name");
         item.setExtAttrName("name");
         item.setMandatoryCondition("true");
         item.setPurpose(MappingPurpose.PULL);
@@ -359,7 +351,6 @@ public class MigrationITCase extends AbstractTaskITCase {
 
         item = new MappingItemTO();
         item.setIntAttrName("show");
-        item.setIntMappingType(IntMappingType.GroupPlainSchema);
         item.setExtAttrName("show");
         item.setMandatoryCondition("false");
         item.setPurpose(MappingPurpose.PULL);
@@ -367,7 +358,6 @@ public class MigrationITCase extends AbstractTaskITCase {
 
         item = new MappingItemTO();
         item.setIntAttrName("title");
-        item.setIntMappingType(IntMappingType.GroupPlainSchema);
         item.setExtAttrName("title");
         item.setMandatoryCondition("false");
         item.setPurpose(MappingPurpose.PULL);
@@ -375,7 +365,6 @@ public class MigrationITCase extends AbstractTaskITCase {
 
         item = new MappingItemTO();
         item.setIntAttrName("icon");
-        item.setIntMappingType(IntMappingType.GroupPlainSchema);
         item.setExtAttrName("icon");
         item.setMandatoryCondition("false");
         item.setPurpose(MappingPurpose.PULL);
@@ -383,7 +372,6 @@ public class MigrationITCase extends AbstractTaskITCase {
 
         item = new MappingItemTO();
         item.setIntAttrName(MIGRATION_RESOURCES_SCHEMA);
-        item.setIntMappingType(IntMappingType.GroupPlainSchema);
         item.setExtAttrName("__RESOURCES__");
         item.setMandatoryCondition("false");
         item.setPurpose(MappingPurpose.PULL);
@@ -391,7 +379,6 @@ public class MigrationITCase extends AbstractTaskITCase {
 
         item = new MappingItemTO();
         item.setIntAttrName(MIGRATION_MEMBERSHIPS_SCHEMA);
-        item.setIntMappingType(IntMappingType.UserPlainSchema);
         item.setExtAttrName("__MEMBERSHIPS__");
         item.setMandatoryCondition("false");
         item.setPurpose(MappingPurpose.PULL);
@@ -401,10 +388,15 @@ public class MigrationITCase extends AbstractTaskITCase {
     }
 
     private void setupRealm() {
-        RealmTO realm = new RealmTO();
-        realm.setName(MIGRATION_REALM);
+        try {
+            realmService.list("/" + MIGRATION_REALM);
+        } catch (SyncopeClientException e) {
+            LOG.error("{} not found? Let's attempt to re-create...", MIGRATION_REALM, e);
 
-        realmService.create("/", realm);
+            RealmTO realm = new RealmTO();
+            realm.setName(MIGRATION_REALM);
+            realmService.create("/", realm);
+        }
     }
 
     private String setupPullTask() {
@@ -413,7 +405,7 @@ public class MigrationITCase extends AbstractTaskITCase {
         task.setName(PULL_TASK_NAME);
         task.setResource(RESOURCE_KEY);
         task.setPerformCreate(true);
-        task.setPullStatus(true);
+        task.setSyncStatus(true);
         task.setPullMode(PullMode.FULL_RECONCILIATION);
         task.setDestinationRealm("/" + MIGRATION_REALM);
         task.getActionsClassNames().add(MigrationPullActions.class.getName());
@@ -433,11 +425,6 @@ public class MigrationITCase extends AbstractTaskITCase {
     @Test
     public void migrateFromSyncope12() throws InterruptedException {
         // 1. cleanup
-        try {
-            realmService.delete(MIGRATION_REALM);
-        } catch (Exception e) {
-            // ignore
-        }
         try {
             for (AbstractTaskTO task : taskService.list(
                     new TaskQuery.Builder(TaskType.PULL).resource(RESOURCE_KEY).build()).getResult()) {
@@ -472,6 +459,20 @@ public class MigrationITCase extends AbstractTaskITCase {
             // ignore
         }
 
+        BulkAction bulkAction = new BulkAction();
+        bulkAction.setType(BulkAction.Type.DELETE);
+
+        for (UserTO user : userService.search(new AnyQuery.Builder().fiql("username==*12").build()).getResult()) {
+            bulkAction.getTargets().add(user.getKey());
+        }
+        userService.bulk(bulkAction);
+
+        bulkAction.getTargets().clear();
+        for (GroupTO group : groupService.search(new AnyQuery.Builder().fiql("name==*12").build()).getResult()) {
+            bulkAction.getTargets().add(group.getKey());
+        }
+        groupService.bulk(bulkAction);
+
         // 2. setup
         setupResource(setupConnector(), setupAnyTypeClass());
         setupRealm();
@@ -480,7 +481,7 @@ public class MigrationITCase extends AbstractTaskITCase {
         // 3. execute pull task
         execProvisioningTask(taskService, pullTaskKey, 50, false);
 
-        Thread.sleep(2000L);
+        Thread.sleep(3000L);
 
         // 4. verify
         UserTO user = userService.read("rossini12");

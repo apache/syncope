@@ -23,8 +23,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 import javax.persistence.NoResultException;
@@ -35,6 +37,7 @@ import org.apache.commons.jexl3.parser.ParserConstants;
 import org.apache.commons.jexl3.parser.Token;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.core.persistence.api.dao.AllowedSchemas;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
@@ -54,6 +57,7 @@ import org.apache.syncope.core.persistence.api.entity.Schema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
@@ -420,33 +424,55 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
     @SuppressWarnings("unchecked")
-    public <S extends Schema> Collection<S> findAllowedSchemas(final A any, final Class<S> reference) {
-        Set<AnyTypeClass> classes = new HashSet<>();
-        classes.addAll(any.getType().getClasses());
-        classes.addAll(any.getAuxClasses());
+    public <S extends Schema> AllowedSchemas<S> findAllowedSchemas(final A any, final Class<S> reference) {
+        AllowedSchemas<S> result = new AllowedSchemas<>();
+
+        // schemas given by type and aux classes
+        Set<AnyTypeClass> typeOwnClasses = new HashSet<>();
+        typeOwnClasses.addAll(any.getType().getClasses());
+        typeOwnClasses.addAll(any.getAuxClasses());
+
+        for (AnyTypeClass typeClass : typeOwnClasses) {
+            if (reference.equals(PlainSchema.class)) {
+                result.getForSelf().addAll((Collection<? extends S>) typeClass.getPlainSchemas());
+            } else if (reference.equals(DerSchema.class)) {
+                result.getForSelf().addAll((Collection<? extends S>) typeClass.getDerSchemas());
+            } else if (reference.equals(VirSchema.class)) {
+                result.getForSelf().addAll((Collection<? extends S>) typeClass.getVirSchemas());
+            }
+        }
+
+        // schemas given by type extensions
+        Map<Group, List<? extends AnyTypeClass>> typeExtensionClasses = new HashMap<>();
         if (any instanceof User) {
             for (UMembership memb : ((User) any).getMemberships()) {
                 for (TypeExtension typeExtension : memb.getRightEnd().getTypeExtensions()) {
-                    classes.addAll(typeExtension.getAuxClasses());
+                    typeExtensionClasses.put(memb.getRightEnd(), typeExtension.getAuxClasses());
                 }
             }
         } else if (any instanceof AnyObject) {
             for (AMembership memb : ((AnyObject) any).getMemberships()) {
                 for (TypeExtension typeExtension : memb.getRightEnd().getTypeExtensions()) {
-                    classes.addAll(typeExtension.getAuxClasses());
+                    if (any.getType().equals(typeExtension.getAnyType())) {
+                        typeExtensionClasses.put(memb.getRightEnd(), typeExtension.getAuxClasses());
+                    }
                 }
             }
         }
 
-        Set<S> result = new HashSet<>();
-
-        for (AnyTypeClass typeClass : classes) {
-            if (reference.equals(PlainSchema.class)) {
-                result.addAll((Collection<? extends S>) typeClass.getPlainSchemas());
-            } else if (reference.equals(DerSchema.class)) {
-                result.addAll((Collection<? extends S>) typeClass.getDerSchemas());
-            } else if (reference.equals(VirSchema.class)) {
-                result.addAll((Collection<? extends S>) typeClass.getVirSchemas());
+        for (Map.Entry<Group, List<? extends AnyTypeClass>> entry : typeExtensionClasses.entrySet()) {
+            result.getForMemberships().put(entry.getKey(), new HashSet<S>());
+            for (AnyTypeClass typeClass : entry.getValue()) {
+                if (reference.equals(PlainSchema.class)) {
+                    result.getForMemberships().get(entry.getKey()).
+                            addAll((Collection<? extends S>) typeClass.getPlainSchemas());
+                } else if (reference.equals(DerSchema.class)) {
+                    result.getForMemberships().get(entry.getKey()).
+                            addAll((Collection<? extends S>) typeClass.getDerSchemas());
+                } else if (reference.equals(VirSchema.class)) {
+                    result.getForMemberships().get(entry.getKey()).
+                            addAll((Collection<? extends S>) typeClass.getVirSchemas());
+                }
             }
         }
 

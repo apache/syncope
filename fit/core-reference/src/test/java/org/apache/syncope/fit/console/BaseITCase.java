@@ -39,55 +39,56 @@ public class BaseITCase extends AbstractConsoleITCase {
 
     @Test
     public void loginPage() {
-        wicketTester.startPage(Login.class);
-        wicketTester.assertRenderedPage(Login.class);
+        TESTER.startPage(Login.class);
+        TESTER.assertRenderedPage(Login.class);
     }
 
     @Test
-    public void successfullyLogin() {
+    public void successfulLogin() {
         doLogin(ADMIN_UNAME, ADMIN_PWD);
-        wicketTester.assertRenderedPage(Dashboard.class);
+        TESTER.assertRenderedPage(Dashboard.class);
     }
 
     @Test
-    public void unsuccessfullyLogin() {
+    public void unsuccessfulLogin() {
         doLogin(ADMIN_UNAME, ADMIN_PWD + 1);
-        wicketTester.assertRenderedPage(Login.class);
+        TESTER.assertRenderedPage(Login.class);
     }
 
     @Test
     public void browsingBookmarkablePageLink() {
         doLogin(ADMIN_UNAME, ADMIN_PWD);
-        wicketTester.assertRenderedPage(Dashboard.class);
 
-        wicketTester.clickLink("body:realmsLI:realms");
-        wicketTester.assertRenderedPage(Realms.class);
+        TESTER.assertRenderedPage(Dashboard.class);
 
-        wicketTester.clickLink("body:topologyLI:topology");
-        wicketTester.assertRenderedPage(Topology.class);
+        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.assertRenderedPage(Realms.class);
 
-        wicketTester.clickLink("body:reportsLI:reports");
-        wicketTester.assertRenderedPage(Reports.class);
+        TESTER.clickLink("body:topologyLI:topology");
+        TESTER.assertRenderedPage(Topology.class);
 
-        wicketTester.clickLink("body:configurationLI:configurationUL:workflowLI:workflow");
-        wicketTester.assertRenderedPage(Workflow.class);
+        TESTER.clickLink("body:reportsLI:reports");
+        TESTER.assertRenderedPage(Reports.class);
 
-        wicketTester.clickLink("body:configurationLI:configurationUL:logsLI:logs");
-        wicketTester.assertRenderedPage(Logs.class);
+        TESTER.clickLink("body:configurationLI:configurationUL:workflowLI:workflow");
+        TESTER.assertRenderedPage(Workflow.class);
 
-        wicketTester.clickLink("body:configurationLI:configurationUL:securityquestionsLI:securityquestions");
-        wicketTester.assertRenderedPage(SecurityQuestions.class);
+        TESTER.clickLink("body:configurationLI:configurationUL:logsLI:logs");
+        TESTER.assertRenderedPage(Logs.class);
 
-        wicketTester.clickLink("body:configurationLI:configurationUL:typesLI:types");
-        wicketTester.assertRenderedPage(Types.class);
+        TESTER.clickLink("body:configurationLI:configurationUL:securityquestionsLI:securityquestions");
+        TESTER.assertRenderedPage(SecurityQuestions.class);
 
-        wicketTester.clickLink("body:configurationLI:configurationUL:rolesLI:roles");
-        wicketTester.assertRenderedPage(Roles.class);
+        TESTER.clickLink("body:configurationLI:configurationUL:typesLI:types");
+        TESTER.assertRenderedPage(Types.class);
 
-        wicketTester.clickLink("body:configurationLI:configurationUL:policiesLI:policies");
-        wicketTester.assertRenderedPage(Policies.class);
+        TESTER.clickLink("body:configurationLI:configurationUL:rolesLI:roles");
+        TESTER.assertRenderedPage(Roles.class);
 
-        wicketTester.clickLink("body:configurationLI:configurationUL:notificationsLI:notifications");
-        wicketTester.assertRenderedPage(Notifications.class);
+        TESTER.clickLink("body:configurationLI:configurationUL:policiesLI:policies");
+        TESTER.assertRenderedPage(Policies.class);
+
+        TESTER.clickLink("body:configurationLI:configurationUL:notificationsLI:notifications");
+        TESTER.assertRenderedPage(Notifications.class);
     }
 }

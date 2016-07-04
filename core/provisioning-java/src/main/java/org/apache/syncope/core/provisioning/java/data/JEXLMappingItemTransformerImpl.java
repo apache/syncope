@@ -20,34 +20,29 @@ package org.apache.syncope.core.provisioning.java.data;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
-import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
-import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.provisioning.api.data.JEXLMappingItemTransformer;
 import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
 
-/**
- * {@link org.apache.syncope.core.provisioning.api.data.MappingItemTransformer} implemeting evaluation of JEXL
- * expression defined for a given {@link MappingItem}.
- */
-public class JEXLMappingItemTransformer extends DefaultMappingItemTransformer {
+public class JEXLMappingItemTransformerImpl
+        extends DefaultMappingItemTransformer implements JEXLMappingItemTransformer {
 
     private String propagationJEXL;
 
     private String pullJEXL;
 
+    @Override
     public void setPropagationJEXL(final String propagationJEXL) {
         this.propagationJEXL = propagationJEXL;
     }
 
+    @Override
     public void setPullJEXL(final String pullJEXL) {
         this.pullJEXL = pullJEXL;
     }
@@ -55,47 +50,10 @@ public class JEXLMappingItemTransformer extends DefaultMappingItemTransformer {
     @Override
     public List<PlainAttrValue> beforePropagation(
             final MappingItem mappingItem,
-            final List<Any<?>> anys,
+            final Any<?> any,
             final List<PlainAttrValue> values) {
 
         if (StringUtils.isNotBlank(propagationJEXL) && values != null) {
-            Any<?> any = null;
-            if (!anys.isEmpty()) {
-                switch (mappingItem.getMapping().getProvision().getAnyType().getKind()) {
-                    case USER:
-                        any = IterableUtils.find(anys, new Predicate<Any<?>>() {
-
-                            @Override
-                            public boolean evaluate(final Any<?> object) {
-                                return object instanceof User;
-                            }
-                        });
-                        break;
-
-                    case GROUP:
-                        any = IterableUtils.find(anys, new Predicate<Any<?>>() {
-
-                            @Override
-                            public boolean evaluate(final Any<?> object) {
-                                return object instanceof Group;
-                            }
-                        });
-                        break;
-
-                    case ANY_OBJECT:
-                        any = IterableUtils.find(anys, new Predicate<Any<?>>() {
-
-                            @Override
-                            public boolean evaluate(final Any<?> object) {
-                                return object instanceof AnyObject;
-                            }
-                        });
-                        break;
-
-                    default:
-                }
-            }
-
             for (PlainAttrValue value : values) {
                 JexlContext jexlContext = new MapContext();
                 if (any != null) {
@@ -111,7 +69,7 @@ public class JEXLMappingItemTransformer extends DefaultMappingItemTransformer {
             return values;
         }
 
-        return super.beforePropagation(mappingItem, anys, values);
+        return super.beforePropagation(mappingItem, any, values);
     }
 
     @Override
@@ -121,7 +79,6 @@ public class JEXLMappingItemTransformer extends DefaultMappingItemTransformer {
             final List<Object> values) {
 
         if (StringUtils.isNotBlank(pullJEXL) && values != null) {
-
             List<Object> newValues = new ArrayList<>(values.size());
             for (Object value : values) {
                 JexlContext jexlContext = new MapContext();

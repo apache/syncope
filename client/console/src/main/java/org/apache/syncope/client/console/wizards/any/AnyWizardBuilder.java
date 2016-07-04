@@ -26,7 +26,6 @@ import org.apache.syncope.client.console.layout.AnyForm;
 import org.apache.syncope.client.console.layout.AnyObjectFormLayoutInfo;
 import org.apache.syncope.client.console.layout.GroupFormLayoutInfo;
 import org.apache.syncope.client.console.layout.UserFormLayoutInfo;
-import org.apache.syncope.client.console.rest.AnyObjectRestClient;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -39,8 +38,6 @@ import org.apache.wicket.model.util.ListModel;
 public abstract class AnyWizardBuilder<A extends AnyTO> extends AjaxWizardBuilder<AnyWrapper<A>> {
 
     private static final long serialVersionUID = -2480279868319546243L;
-
-    protected final AnyObjectRestClient anyObjectRestClient = new AnyObjectRestClient();
 
     protected final List<String> anyTypeClasses;
 

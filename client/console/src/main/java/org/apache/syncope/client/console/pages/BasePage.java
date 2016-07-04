@@ -39,7 +39,6 @@ import org.apache.syncope.client.console.widgets.JobWidget;
 import org.apache.syncope.client.console.widgets.ReconciliationWidget;
 import org.apache.syncope.common.lib.info.SystemInfo;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
-import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
@@ -76,8 +75,6 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
     protected static final Logger LOG = LoggerFactory.getLogger(BasePage.class);
 
     protected static final HeaderItem META_IE_EDGE = new MetaHeaderItem("X-UA-Compatible", "IE=edge");
-
-    protected static SystemInfo SYSTEM_INFO;
 
     protected final WebMarkupContainer body;
 
@@ -119,7 +116,8 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
         }
         add(body);
 
-        body.addOrReplace(SyncopeConsoleSession.get().getNotificationPanel());
+        notificationPanel = new NotificationPanel(Constants.FEEDBACK);
+        body.addOrReplace(notificationPanel.setOutputMarkupId(true));
 
         // header, footer
         body.add(new Label("version", SyncopeConsoleApplication.get().getVersion()));
@@ -128,15 +126,11 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
         body.add(new ApprovalsWidget("approvalsWidget", getPageReference()).setRenderBodyOnly(true));
 
         // right sidebar
-        synchronized (this) {
-            if (SYSTEM_INFO == null) {
-                SYSTEM_INFO = SyncopeConsoleSession.get().getService(SyncopeService.class).system();
-            }
-        }
-        body.add(new Label("hostname", SYSTEM_INFO.getHostname()));
-        body.add(new Label("processors", SYSTEM_INFO.getAvailableProcessors()));
-        body.add(new Label("os", SYSTEM_INFO.getOs()));
-        body.add(new Label("jvm", SYSTEM_INFO.getJvm()));
+        SystemInfo systemInfo = SyncopeConsoleSession.get().getSystemInfo();
+        body.add(new Label("hostname", systemInfo.getHostname()));
+        body.add(new Label("processors", systemInfo.getAvailableProcessors()));
+        body.add(new Label("os", systemInfo.getOs()));
+        body.add(new Label("jvm", systemInfo.getJvm()));
 
         Link<Void> dbExportLink = new Link<Void>("dbExportLink") {
 
@@ -155,7 +149,7 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
 
                     getRequestCycle().scheduleRequestHandlerAfterCurrent(rsrh);
                 } catch (Exception e) {
-                   SyncopeConsoleSession.get().error(getString(Constants.ERROR) + ": " + e.getMessage());
+                    SyncopeConsoleSession.get().error(getString(Constants.ERROR) + ": " + e.getMessage());
                 }
             }
         };
@@ -392,6 +386,10 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
     @Override
     public String getAjaxIndicatorMarkupId() {
         return "veil";
+    }
+
+    public NotificationPanel getNotificationPanel() {
+        return notificationPanel;
     }
 
     /**

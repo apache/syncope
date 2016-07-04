@@ -167,7 +167,7 @@ public class ConfigurationITCase extends AbstractITCase {
 
             assertNotNull(e.getElements());
             assertEquals(1, e.getElements().size());
-            assertTrue(e.getElements().iterator().next().contains(EntityViolationType.InvalidName.name()));
+            assertTrue(e.getElements().iterator().next().contains(EntityViolationType.InvalidKey.name()));
         }
     }
 }

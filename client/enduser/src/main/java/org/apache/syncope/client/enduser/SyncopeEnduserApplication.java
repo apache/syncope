@@ -22,10 +22,6 @@ import org.apache.syncope.client.enduser.resources.UserSelfIsLogged;
 import java.io.File;
 import java.io.Serializable;
 import org.apache.syncope.client.enduser.pages.HomePage;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
 import java.util.Properties;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.BooleanUtils;
@@ -61,11 +57,6 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
     private static final long serialVersionUID = -6445919351044845120L;
 
     private static final String ENDUSER_PROPERTIES = "enduser.properties";
-
-    public static final List<Locale> SUPPORTED_LOCALES = Collections.unmodifiableList(Arrays.asList(
-            new Locale[] {
-                Locale.ENGLISH, Locale.ITALIAN, new Locale("pt", "BR")
-            }));
 
     public static SyncopeEnduserApplication get() {
         return (SyncopeEnduserApplication) WebApplication.get();

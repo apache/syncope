@@ -37,14 +37,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.panels.NotificationPanel;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.DomainTO;
 import org.apache.syncope.common.lib.info.PlatformInfo;
+import org.apache.syncope.common.lib.info.SystemInfo;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.rest.api.service.DomainService;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
@@ -76,6 +75,8 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
 
     private final PlatformInfo platformInfo;
 
+    private final SystemInfo systemInfo;
+
     private final List<String> domains;
 
     private String domain;
@@ -96,8 +97,6 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
 
     private Roles roles;
 
-    private NotificationPanel notificationPanel;
-
     private boolean checkReconciliationJob = false;
 
     public static SyncopeConsoleSession get() {
@@ -112,6 +111,8 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
                 SyncopeConsoleApplication.get().getAnonymousKey());
 
         platformInfo = anonymousClient.getService(SyncopeService.class).platform();
+        systemInfo = anonymousClient.getService(SyncopeService.class).system();
+
         domains = new ArrayList<>();
         domains.add(SyncopeConstants.MASTER_DOMAIN);
         CollectionUtils.collect(anonymousClient.getService(DomainService.class).list(),
@@ -139,6 +140,10 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
 
     public PlatformInfo getPlatformInfo() {
         return platformInfo;
+    }
+
+    public SystemInfo getSystemInfo() {
+        return systemInfo;
     }
 
     public List<String> getDomains() {
@@ -250,14 +255,6 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
     public FastDateFormat getDateFormat() {
         Locale locale = getLocale() == null ? Locale.ENGLISH : getLocale();
         return FastDateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, locale);
-    }
-
-    public NotificationPanel getNotificationPanel() {
-        if (notificationPanel == null) {
-            notificationPanel = new NotificationPanel(Constants.FEEDBACK);
-            notificationPanel.setOutputMarkupId(true);
-        }
-        return notificationPanel;
     }
 
     public boolean isCheckReconciliationJob() {

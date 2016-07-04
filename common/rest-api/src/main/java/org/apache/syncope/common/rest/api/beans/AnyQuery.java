@@ -19,12 +19,14 @@
 package org.apache.syncope.common.rest.api.beans;
 
 import javax.ws.rs.DefaultValue;
+import javax.ws.rs.MatrixParam;
 import javax.ws.rs.QueryParam;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
 
 public class AnyQuery extends AbstractQuery {
 
-    private static final long serialVersionUID = -371488230250055359L;
+    private static final long serialVersionUID = -6736562952418964707L;
 
     public static class Builder extends AbstractQuery.Builder<AnyQuery, Builder> {
 
@@ -38,9 +40,33 @@ public class AnyQuery extends AbstractQuery {
             return this;
         }
 
+        public Builder realm(final String realm) {
+            getInstance().setRealm(realm);
+            return this;
+        }
+
+        public Builder fiql(final String fiql) {
+            getInstance().setFiql(fiql);
+
+            return this;
+        }
     }
 
+    private String realm;
+
     private Boolean details;
+
+    private String fiql;
+
+    public String getRealm() {
+        return realm;
+    }
+
+    @DefaultValue(SyncopeConstants.ROOT_REALM)
+    @MatrixParam("realm")
+    public void setRealm(final String realm) {
+        this.realm = realm;
+    }
 
     public Boolean getDetails() {
         return details == null ? true : details;
@@ -51,4 +77,14 @@ public class AnyQuery extends AbstractQuery {
     public void setDetails(final Boolean details) {
         this.details = details;
     }
+
+    public String getFiql() {
+        return fiql;
+    }
+
+    @QueryParam(JAXRSService.PARAM_FIQL)
+    public void setFiql(final String fiql) {
+        this.fiql = fiql;
+    }
+
 }

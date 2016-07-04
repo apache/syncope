@@ -180,7 +180,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
                 AnyTypeKind.ANY_OBJECT,
                 key,
                 propByRes,
-                CollectionUtils.removeAll(anyObjectDAO.findAllResourceNames(anyObjectDAO.authFind(key)), resources));
+                CollectionUtils.removeAll(anyObjectDAO.findAllResourceNames(key), resources));
         PropagationReporter propagationReporter =
                 ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
         taskExecutor.execute(tasks, propagationReporter, nullPriorityAsync);

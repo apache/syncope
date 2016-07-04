@@ -18,31 +18,41 @@
  */
 package org.apache.syncope.common.lib.to;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.apache.syncope.common.lib.AbstractBaseBean;
+import org.apache.syncope.common.lib.jaxb.XmlEntityTOAdapter;
 
 @XmlRootElement(name = "provisioningResult")
 @XmlType
-public class ProvisioningResult<A extends AnyTO> extends AbstractBaseBean {
+public class ProvisioningResult<E extends EntityTO> extends AbstractBaseBean {
 
     private static final long serialVersionUID = 351317476398082746L;
 
-    private A any;
+    @XmlJavaTypeAdapter(XmlEntityTOAdapter.class)
+    @JsonIgnore
+    private E entity;
 
     private final List<PropagationStatus> propagationStatuses = new ArrayList<>();
 
-    public A getAny() {
-        return any;
+    @XmlTransient
+    @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
+    @JsonProperty
+    public E getEntity() {
+        return entity;
     }
 
-    public void setAny(final A any) {
-        this.any = any;
+    public void setEntity(final E any) {
+        this.entity = any;
     }
 
     @XmlElementWrapper(name = "propagationStatuses")

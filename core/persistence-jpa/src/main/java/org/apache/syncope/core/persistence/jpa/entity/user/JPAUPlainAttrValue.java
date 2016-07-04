@@ -19,8 +19,6 @@
 package org.apache.syncope.core.persistence.jpa.entity.user;
 
 import javax.persistence.Entity;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
@@ -31,7 +29,6 @@ import org.apache.syncope.core.persistence.jpa.entity.AbstractPlainAttrValue;
 
 @Entity
 @Table(name = JPAUPlainAttrValue.TABLE)
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public class JPAUPlainAttrValue extends AbstractPlainAttrValue implements UPlainAttrValue {
 
     private static final long serialVersionUID = -6259576015647897446L;

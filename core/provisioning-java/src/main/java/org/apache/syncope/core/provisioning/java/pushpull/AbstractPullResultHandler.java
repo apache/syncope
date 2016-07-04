@@ -92,7 +92,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
 
     protected abstract AnyTO doUpdate(AnyTO before, AnyPatch anyPatch, SyncDelta delta, ProvisioningReport result);
 
-    protected void doDeprovision(final AnyTypeKind kind, final String key, final boolean unlink) {
+    protected AnyPatch doDeprovision(final AnyTypeKind kind, final String key, final boolean unlink) {
         PropagationByResource propByRes = new PropagationByResource();
         propByRes.add(ResourceOperation.DELETE, profile.getTask().getResource().getKey());
         taskExecutor.execute(propagationManager.getDeleteTasks(
@@ -101,12 +101,14 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                 propByRes,
                 null));
 
+        AnyPatch anyPatch = null;
         if (unlink) {
-            AnyPatch anyObjectPatch = newPatch(key);
-            anyObjectPatch.getResources().add(new StringPatchItem.Builder().
+            anyPatch = newPatch(key);
+            anyPatch.getResources().add(new StringPatchItem.Builder().
                     operation(PatchOperation.DELETE).
                     value(profile.getTask().getResource().getKey()).build());
         }
+        return anyPatch;
     }
 
     protected void doDelete(final AnyTypeKind kind, final String key) {
@@ -442,8 +444,12 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                             }
                         }
 
-                        doDeprovision(provision.getAnyType().getKind(), key, unlink);
-                        output = getAnyTO(key);
+                        AnyPatch anyPatch = doDeprovision(provision.getAnyType().getKind(), key, unlink);
+                        if (anyPatch == null) {
+                            output = getAnyTO(key);
+                        } else {
+                            output = doUpdate(before, anyPatch, delta, result);
+                        }
 
                         for (PullActions action : profile.getActions()) {
                             action.after(profile, delta, AnyTO.class.cast(output), result);
@@ -638,7 +644,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
         return delResults;
     }
 
-    protected List<ProvisioningReport> ignore(
+    protected ProvisioningReport ignore(
             final SyncDelta delta,
             final Provision provision,
             final boolean matching)
@@ -646,7 +652,6 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
 
         LOG.debug("Any to ignore {}", delta.getObject().getUid().getUidValue());
 
-        final List<ProvisioningReport> ignoreResults = new ArrayList<>();
         ProvisioningReport result = new ProvisioningReport();
 
         result.setKey(null);
@@ -654,7 +659,6 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
         result.setOperation(ResourceOperation.NONE);
         result.setAnyType(provision.getAnyType().getKey());
         result.setStatus(ProvisioningReport.Status.SUCCESS);
-        ignoreResults.add(result);
 
         if (!profile.isDryRun()) {
             finalize(matching
@@ -662,7 +666,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                     : UnmatchingRule.toEventName(UnmatchingRule.IGNORE), Result.SUCCESS, null, null, delta);
         }
 
-        return ignoreResults;
+        return result;
     }
 
     /**
@@ -717,7 +721,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                             break;
 
                         case IGNORE:
-                            profile.getResults().addAll(ignore(delta, provision, false));
+                            profile.getResults().add(ignore(delta, provision, false));
                             break;
 
                         default:
@@ -767,7 +771,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                             break;
 
                         case IGNORE:
-                            profile.getResults().addAll(ignore(delta, provision, true));
+                            profile.getResults().add(ignore(delta, provision, true));
                             break;
 
                         default:

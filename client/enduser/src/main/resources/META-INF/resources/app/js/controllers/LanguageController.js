@@ -22,15 +22,6 @@
 angular.module('language')
         .controller('LanguageController', function ($scope) {
 
-          $scope.languages = {
-            availableLanguages: [
-              {id: '1', name: 'Italiano'},
-              {id: '2', name: 'English'},
-              {id: '3', name: 'Portugese'}
-            ],
-            selectedLanguage: {id: '2', name: 'English'}
-          };
-
           $scope.init = function () {
 //            MainService.settings().then(function (response) {
 //              $scope.mainSettings = response;

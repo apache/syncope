@@ -22,6 +22,7 @@ import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.patch.PasswordPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -54,13 +55,13 @@ public class LDAPPasswordPullActions extends DefaultPullActions {
 
     @Transactional(readOnly = true)
     @Override
-    public <A extends AnyTO> SyncDelta beforeProvision(
+    public SyncDelta beforeProvision(
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
-            final A any) throws JobExecutionException {
+            final EntityTO entity) throws JobExecutionException {
 
-        if (any instanceof UserTO) {
-            String password = ((UserTO) any).getPassword();
+        if (entity instanceof UserTO) {
+            String password = ((UserTO) entity).getPassword();
             parseEncodedPassword(password);
         }
 
@@ -102,14 +103,14 @@ public class LDAPPasswordPullActions extends DefaultPullActions {
 
     @Transactional
     @Override
-    public <A extends AnyTO> void after(
+    public void after(
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
-            final A any,
+            final EntityTO entity,
             final ProvisioningReport result) throws JobExecutionException {
 
-        if (any instanceof UserTO && encodedPassword != null && cipher != null) {
-            User user = userDAO.find(any.getKey());
+        if (entity instanceof UserTO && encodedPassword != null && cipher != null) {
+            User user = userDAO.find(entity.getKey());
             if (user != null) {
                 byte[] encodedPasswordBytes = Base64.decode(encodedPassword.getBytes());
                 char[] encodedHex = Hex.encode(encodedPasswordBytes);

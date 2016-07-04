@@ -122,6 +122,11 @@ Copyright (c) 2014-2016 Google, Inc. http://angular.io
 
 ==
 
+This product includes software developed by the Angular Translate project.
+Copyright (c) <2014> <pascal.precht@gmail.com>
+
+==
+
 This product contains unmodified binary redistributions for H2 database engine,
 which is dual licensed and available under a modified version of the MPL 1.1 (Mozilla Public License) or under the
 (unmodified) EPL 1.0 (Eclipse Public License).

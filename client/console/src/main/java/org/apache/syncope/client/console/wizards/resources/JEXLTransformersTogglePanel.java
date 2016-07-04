@@ -23,6 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.panels.TogglePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.to.MappingItemTO;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -38,8 +39,8 @@ public class JEXLTransformersTogglePanel extends TogglePanel<Serializable> {
 
     private final AjaxTextFieldPanel pullJEXLTransformer;
 
-    public JEXLTransformersTogglePanel(final WebMarkupContainer container) {
-        super("outer", "jexlTransformersTogglePanel");
+    public JEXLTransformersTogglePanel(final WebMarkupContainer container, final PageReference pageRef) {
+        super("outer", "jexlTransformersTogglePanel", pageRef);
 
         Form<?> form = new Form<>("form");
         addInnerObject(form);

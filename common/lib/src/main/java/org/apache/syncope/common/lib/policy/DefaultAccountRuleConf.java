@@ -26,7 +26,8 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.report.Schema;
-import org.apache.syncope.common.lib.types.IntMappingType;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.SchemaType;
 
 @XmlRootElement(name = "defaultAccountRuleConf")
 @XmlType
@@ -67,8 +68,8 @@ public class DefaultAccountRuleConf extends AbstractAccountRuleConf implements A
     /**
      * User attribute values not permitted.
      */
-    @Schema(type
-            = { IntMappingType.UserPlainSchema, IntMappingType.UserDerivedSchema, IntMappingType.UserVirtualSchema })
+    @Schema(anyTypeKind = AnyTypeKind.USER,
+            type = { SchemaType.PLAIN, SchemaType.DERIVED, SchemaType.VIRTUAL })
     private final List<String> schemasNotPermitted = new ArrayList<>();
 
     /**

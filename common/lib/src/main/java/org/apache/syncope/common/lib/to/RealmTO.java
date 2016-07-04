@@ -57,6 +57,8 @@ public class RealmTO extends AbstractBaseBean implements EntityTO, TemplatableTO
     @JsonIgnore
     private final Map<String, AnyTO> templates = new HashMap<>();
 
+    private final Set<String> resources = new HashSet<>();
+
     @Override
     public String getKey() {
         return key;
@@ -119,6 +121,13 @@ public class RealmTO extends AbstractBaseBean implements EntityTO, TemplatableTO
     @Override
     public Map<String, AnyTO> getTemplates() {
         return templates;
+    }
+
+    @XmlElementWrapper(name = "resources")
+    @XmlElement(name = "resource")
+    @JsonProperty("resources")
+    public Set<String> getResources() {
+        return resources;
     }
 
 }

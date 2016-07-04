@@ -30,6 +30,7 @@ import javax.persistence.Table;
 import javax.validation.Valid;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttr;
 import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttrValue;
@@ -46,6 +47,12 @@ public class JPAAPlainAttr extends AbstractPlainAttr<AnyObject> implements APlai
 
     @ManyToOne(fetch = FetchType.EAGER)
     private JPAAnyObject owner;
+
+    /**
+     * The membership of this attribute; might be {@code NULL} if this attribute is not related to a membership.
+     */
+    @ManyToOne(fetch = FetchType.EAGER)
+    private JPAAMembership membership;
 
     @OneToMany(cascade = CascadeType.MERGE, orphanRemoval = true, mappedBy = "attribute")
     @Valid
@@ -64,6 +71,17 @@ public class JPAAPlainAttr extends AbstractPlainAttr<AnyObject> implements APlai
     public void setOwner(final AnyObject owner) {
         checkType(owner, JPAAnyObject.class);
         this.owner = (JPAAnyObject) owner;
+    }
+
+    @Override
+    public AMembership getMembership() {
+        return membership;
+    }
+
+    @Override
+    public void setMembership(final AMembership membership) {
+        checkType(membership, JPAAMembership.class);
+        this.membership = (JPAAMembership) membership;
     }
 
     @Override

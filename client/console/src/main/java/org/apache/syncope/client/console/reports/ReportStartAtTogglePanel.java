@@ -21,14 +21,15 @@ package org.apache.syncope.client.console.reports;
 import org.apache.syncope.client.console.panels.StartAtTogglePanel;
 import org.apache.syncope.client.console.rest.ExecutionRestClient;
 import org.apache.syncope.client.console.rest.ReportRestClient;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 
 public class ReportStartAtTogglePanel extends StartAtTogglePanel {
 
     private static final long serialVersionUID = -3195479265440591519L;
 
-    public ReportStartAtTogglePanel(final WebMarkupContainer container) {
-        super(container);
+    public ReportStartAtTogglePanel(final WebMarkupContainer container, final PageReference pageRef) {
+        super(container, pageRef);
     }
 
     @Override

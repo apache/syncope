@@ -21,6 +21,7 @@ package org.apache.syncope.common.lib;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -30,6 +31,11 @@ import org.apache.syncope.common.lib.patch.StringPatchItem;
 import org.apache.syncope.common.lib.patch.StringReplacePatchItem;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.report.UserReportletConf;
+import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.to.ConnObjectTO;
+import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.PropagationStatus;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.to.WorkflowFormPropertyTO;
 import org.apache.syncope.common.lib.types.PatchOperation;
@@ -89,5 +95,32 @@ public class JSONTest {
 
         UserPatch actual = mapper.readValue(writer.toString(), UserPatch.class);
         assertEquals(patch, actual);
+    }
+
+    @Test
+    public void provisioningResult() throws IOException {
+        GroupTO group = new GroupTO();
+        group.setName(UUID.randomUUID().toString());
+        group.setRealm(SyncopeConstants.ROOT_REALM);
+        group.getVirAttrs().add(new AttrTO.Builder().schema("rvirtualdata").value("rvirtualvalue").build());
+        group.getADynMembershipConds().put("USER", "username==a*");
+
+        ProvisioningResult<GroupTO> original = new ProvisioningResult<>();
+        original.setEntity(group);
+
+        PropagationStatus status = new PropagationStatus();
+        status.setFailureReason("failed");
+        status.setBeforeObj(new ConnObjectTO());
+        original.getPropagationStatuses().add(status);
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        StringWriter writer = new StringWriter();
+        mapper.writeValue(writer, original);
+
+        ProvisioningResult<GroupTO> actual = mapper.readValue(
+                writer.toString(), new TypeReference<ProvisioningResult<GroupTO>>() {
+        });
+        assertEquals(original, actual);
     }
 }

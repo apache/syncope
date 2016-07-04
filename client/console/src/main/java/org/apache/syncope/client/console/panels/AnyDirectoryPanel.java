@@ -83,7 +83,11 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
     protected final BaseModal<Serializable> utilityModal = new BaseModal<>("outer");
 
     protected AnyDirectoryPanel(final String id, final Builder<A, E> builder) {
-        super(id, builder);
+        this(id, builder, true);
+    }
+
+    protected AnyDirectoryPanel(final String id, final Builder<A, E> builder, final boolean wizardInModal) {
+        super(id, builder, wizardInModal);
         this.realm = builder.realm;
         this.type = builder.type;
         this.fiql = builder.fiql;
@@ -202,7 +206,7 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
 
         return new StatusPanel(
                 panelId,
-                ((ProvisioningResult<A>) result).getAny(),
+                ((ProvisioningResult<A>) result).getEntity(),
                 new ListModel<>(new ArrayList<StatusBean>()),
                 CollectionUtils.collect(
                         ((ProvisioningResult<A>) result).getPropagationStatuses(),
@@ -214,7 +218,7 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
                     public Pair<ConnObjectTO, ConnObjectWrapper> transform(final PropagationStatus input) {
                         ConnObjectTO before = input.getBeforeObj();
                         ConnObjectWrapper afterObjWrapper = new ConnObjectWrapper(
-                                ((ProvisioningResult<A>) result).getAny(),
+                                ((ProvisioningResult<A>) result).getEntity(),
                                 input.getResource(),
                                 input.getAfterObj());
                         return Pair.of(before, afterObjWrapper);

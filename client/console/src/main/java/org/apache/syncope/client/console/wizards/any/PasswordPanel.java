@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.wizards.any;
 
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPasswordFieldPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.PasswordTextField;
@@ -44,27 +45,36 @@ public class PasswordPanel extends Panel {
         Form<?> form = new Form<>("passwordInnerForm");
         add(form);
 
-        FieldPanel<String> passwordField = new AjaxPasswordFieldPanel(
-                "password", "password", new PropertyModel<String>(wrapper.getInnerObject(), "password"), false);
-        passwordField.setRequired(true);
-        passwordField.setMarkupId("password");
-        passwordField.setPlaceholder("password");
-        ((PasswordTextField) passwordField.getField()).setResetPassword(true);
-        form.add(passwordField);
-
         FieldPanel<String> confirmPasswordField = new AjaxPasswordFieldPanel(
                 "confirmPassword", "confirmPassword", new Model<String>(), false);
-        passwordField.setRequired(true);
+
         confirmPasswordField.setMarkupId("confirmPassword");
         confirmPasswordField.setPlaceholder("confirmPassword");
         ((PasswordTextField) confirmPasswordField.getField()).setResetPassword(true);
+        form.add(confirmPasswordField);
+
         if (templateMode) {
             confirmPasswordField.setEnabled(false);
             confirmPasswordField.setVisible(false);
-        }
-        form.add(confirmPasswordField);
 
-        form.add(new EqualPasswordInputValidator(passwordField.getField(), confirmPasswordField.getField()));
+            AjaxTextFieldPanel passwordField = new AjaxTextFieldPanel(
+                    "password", "password", new PropertyModel<String>(wrapper.getInnerObject(), "password"), false);
+            passwordField.setRequired(true);
+            passwordField.setMarkupId("password");
+            passwordField.setPlaceholder("password");
+            form.add(passwordField);
+            passwordField.enableJexlHelp();
+        } else {
+            AjaxPasswordFieldPanel passwordField = new AjaxPasswordFieldPanel(
+                    "password", "password", new PropertyModel<String>(wrapper.getInnerObject(), "password"), false);
+            passwordField.setRequired(true);
+            passwordField.setMarkupId("password");
+            passwordField.setPlaceholder("password");
+            ((PasswordTextField) passwordField.getField()).setResetPassword(true);
+            form.add(passwordField);
+            form.add(new EqualPasswordInputValidator(passwordField.getField(), confirmPasswordField.getField()));
+            passwordField.setRequired(true);
+        }
 
         AjaxCheckBoxPanel storePasswordInSyncope = new AjaxCheckBoxPanel("storePasswordInSyncope",
                 "storePasswordInSyncope", new PropertyModel<Boolean>(wrapper, "storePasswordInSyncope"));

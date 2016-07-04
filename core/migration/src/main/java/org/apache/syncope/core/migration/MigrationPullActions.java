@@ -25,6 +25,7 @@ import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.TransformerUtils;
 import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
@@ -60,19 +61,17 @@ public class MigrationPullActions extends SchedulingPullActions {
     private final Map<String, Set<String>> memberships = new HashMap<>();
 
     @Override
-    public <A extends AnyTO> SyncDelta beforeProvision(
+    public SyncDelta beforeProvision(
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
-            final A any) throws JobExecutionException {
+            final EntityTO entity) throws JobExecutionException {
 
         // handles resource assignment, for users and groups
         Attribute resourcesAttr = delta.getObject().getAttributeByName(RESOURCES_ATTR);
-        if (resourcesAttr != null
+        if (entity instanceof AnyTO && resourcesAttr != null
                 && resourcesAttr.getValue() != null && !resourcesAttr.getValue().isEmpty()) {
 
-            LOG.debug("Found {} for {} {}, adding...", RESOURCES_ATTR, any.getType(), any.getKey());
-
-            any.getResources().addAll(
+            ((AnyTO) entity).getResources().addAll(
                     CollectionUtils.collect(resourcesAttr.getValue(), TransformerUtils.stringValueTransformer()));
         }
 
@@ -81,12 +80,12 @@ public class MigrationPullActions extends SchedulingPullActions {
 
     @Transactional
     @Override
-    public <A extends AnyTO> void after(
-            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final A any,
+    public void after(
+            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final EntityTO entity,
             final ProvisioningReport result)
             throws JobExecutionException {
 
-        if (any instanceof UserTO) {
+        if (entity instanceof UserTO) {
             // handles ciphered password import
             CipherAlgorithm cipherAlgorithm = null;
             Attribute cipherAlgorithmAttr = delta.getObject().getAttributeByName(CIPHER_ALGORITHM_ATTR);
@@ -108,34 +107,34 @@ public class MigrationPullActions extends SchedulingPullActions {
                     }
                 });
 
-                User user = userDAO.find(any.getKey());
+                User user = userDAO.find(entity.getKey());
                 LOG.debug("Setting encoded password for {}", user);
                 user.setEncodedPassword(password.toString(), cipherAlgorithm);
             }
-        } else if (any instanceof GroupTO) {
+        } else if (entity instanceof GroupTO) {
             // handles group membership
             Attribute membershipsAttr = delta.getObject().getAttributeByName(MEMBERSHIPS_ATTR);
             if (membershipsAttr != null
                     && membershipsAttr.getValue() != null && !membershipsAttr.getValue().isEmpty()) {
 
-                LOG.debug("Found {} for group {}", MEMBERSHIPS_ATTR, any.getKey());
+                LOG.debug("Found {} for group {}", MEMBERSHIPS_ATTR, entity.getKey());
 
                 for (Object membership : membershipsAttr.getValue()) {
                     User member = userDAO.findByUsername(membership.toString());
                     if (member == null) {
-                        LOG.warn("Could not find member {} for group {}", membership, any.getKey());
+                        LOG.warn("Could not find member {} for group {}", membership, entity.getKey());
                     } else {
                         Set<String> memb = memberships.get(member.getKey());
                         if (memb == null) {
                             memb = new HashSet<>();
                             memberships.put(member.getKey(), memb);
                         }
-                        memb.add(any.getKey());
+                        memb.add(entity.getKey());
                     }
                 }
             }
         } else {
-            super.after(profile, delta, any, result);
+            super.after(profile, delta, entity, result);
         }
     }
 

@@ -19,11 +19,11 @@
 package org.apache.syncope.core.persistence.jpa.entity;
 
 import javax.persistence.Basic;
-import javax.persistence.Cacheable;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -35,13 +35,11 @@ import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAProvision;
-import org.apache.syncope.core.persistence.jpa.validation.entity.SchemaKeyCheck;
 
 @Entity
 @Table(name = JPAVirSchema.TABLE)
-@Cacheable
-@SchemaKeyCheck
-public class JPAVirSchema extends AbstractProvidedKeyEntity implements VirSchema {
+@PrimaryKeyJoinColumn(name = "id", referencedColumnName = "id")
+public class JPAVirSchema extends AbstractSchema implements VirSchema {
 
     private static final long serialVersionUID = 3274006935328590141L;
 

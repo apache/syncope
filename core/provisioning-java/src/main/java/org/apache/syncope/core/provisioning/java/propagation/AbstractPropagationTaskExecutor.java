@@ -31,6 +31,7 @@ import org.apache.commons.collections4.IteratorUtils;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
+import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
@@ -47,30 +48,32 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecu
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.provisioning.api.utils.ExceptionUtils2;
-import org.apache.syncope.core.provisioning.java.MappingManagerImpl;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
-import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
-import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
-import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
+import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
-import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCache;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCacheValue;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
+import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.Attribute;
+import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ConnectorObjectBuilder;
 import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.ObjectClass;
+import org.identityconnectors.framework.common.objects.ResultsHandler;
 import org.identityconnectors.framework.common.objects.Uid;
+import org.identityconnectors.framework.common.objects.filter.EqualsFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -111,6 +114,12 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
      */
     @Autowired
     protected GroupDAO groupDAO;
+
+    /**
+     * Realm DAO.
+     */
+    @Autowired
+    protected RealmDAO realmDAO;
 
     /**
      * Task DAO.
@@ -272,41 +281,6 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         return result;
     }
 
-    protected Any<?> getAny(final PropagationTask task) {
-        Any<?> any = null;
-
-        if (task.getAnyKey() != null) {
-            switch (task.getAnyTypeKind()) {
-                case USER:
-                    try {
-                        any = userDAO.authFind(task.getAnyKey());
-                    } catch (Exception e) {
-                        LOG.error("Could not read user {}", task.getAnyKey(), e);
-                    }
-                    break;
-
-                case GROUP:
-                    try {
-                        any = groupDAO.authFind(task.getAnyKey());
-                    } catch (Exception e) {
-                        LOG.error("Could not read group {}", task.getAnyKey(), e);
-                    }
-                    break;
-
-                case ANY_OBJECT:
-                default:
-                    try {
-                        any = anyObjectDAO.authFind(task.getAnyKey());
-                    } catch (Exception e) {
-                        LOG.error("Could not read any object {}", task.getAnyKey(), e);
-                    }
-                    break;
-            }
-        }
-
-        return any;
-    }
-
     protected Uid delete(
             final PropagationTask task,
             final ConnectorObject beforeObj,
@@ -320,28 +294,49 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         } else {
             /*
              * We must choose here whether to
-             * a. actually delete the provided any object from the external resource
-             * b. just update the provided any object data onto the external resource
+             * a. actually delete the provided entity from the external resource
+             * b. just update the provided entity data onto the external resource
              *
-             * (a) happens when either there is no any object associated with the PropagationTask (this takes place
-             * when the task is generated via UserLogic.delete() / GroupLogic.delete()) or the provided updated
-             * any object hasn't the current resource assigned (when the task is generated via
-             * UserController.update() / GroupLogic.update()).
+             * (a) happens when either there is no entity associated with the PropagationTask (this takes place
+             * when the task is generated via Logic's delete()) or the provided updated
+             * entity hasn't the current resource assigned (when the task is generated via
+             * Logic's update()).
              *
-             * (b) happens when the provided updated any object does have the current resource assigned (when the task
-             * is generated via UserLogic.update() / GroupLogic.updae()): this basically means that before such
-             * update, this any object used to have the current resource assigned by more than one mean (for example,
+             * (b) happens when the provided updated entity does have the current resource assigned (when the task
+             * is generated via Logic's update()): this basically means that before such
+             * update, this entity used to have the current resource assigned by more than one mean (for example,
              * two different memberships with the same resource).
              */
-            Any<?> any = getAny(task);
-            Collection<String> resources = any instanceof User
-                    ? userDAO.findAllResourceNames((User) any)
-                    : any instanceof AnyObject
-                            ? anyObjectDAO.findAllResourceNames((AnyObject) any)
-                            : any instanceof Group
-                                    ? ((Group) any).getResourceNames()
-                                    : Collections.<String>emptySet();
-            if (!resources.contains(task.getResource().getKey())) {
+            Collection<String> resources = Collections.emptySet();
+            if (task.getEntityKey() != null && task.getAnyTypeKind() != null) {
+                switch (task.getAnyTypeKind()) {
+                    case USER:
+                        try {
+                            resources = userDAO.findAllResourceNames(task.getEntityKey());
+                        } catch (Exception e) {
+                            LOG.error("Could not read user {}", task.getEntityKey(), e);
+                        }
+                        break;
+
+                    case GROUP:
+                        try {
+                            resources = groupDAO.authFind(task.getEntityKey()).getResourceKeys();
+                        } catch (Exception e) {
+                            LOG.error("Could not read group {}", task.getEntityKey(), e);
+                        }
+                        break;
+
+                    case ANY_OBJECT:
+                    default:
+                        try {
+                            resources = anyObjectDAO.findAllResourceNames(task.getEntityKey());
+                        } catch (Exception e) {
+                            LOG.error("Could not read any object {}", task.getEntityKey(), e);
+                        }
+                        break;
+                }
+            }
+            if (task.getAnyTypeKind() == null || !resources.contains(task.getResource().getKey())) {
                 LOG.debug("Delete {} on {}", beforeObj.getUid(), task.getResource().getKey());
 
                 connector.delete(beforeObj.getObjectClass(), beforeObj.getUid(), null, propagationAttempted);
@@ -373,15 +368,21 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         ConnectorObject afterObj = null;
 
         Provision provision = null;
+        OrgUnit orgUnit = null;
         Uid uid = null;
         Connector connector = null;
         Result result;
         try {
             provision = task.getResource().getProvision(new ObjectClass(task.getObjectClassName()));
+            orgUnit = task.getResource().getOrgUnit();
             connector = connFactory.getConnector(task.getResource());
 
             // Try to read remote object BEFORE any actual operation
-            beforeObj = getRemoteObject(task, connector, provision, false);
+            beforeObj = provision == null && orgUnit == null
+                    ? null
+                    : orgUnit == null
+                            ? getRemoteObject(task, connector, provision, false)
+                            : getRemoteObject(task, connector, orgUnit);
 
             for (PropagationActions action : actions) {
                 action.before(task, beforeObj);
@@ -444,14 +445,18 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                     task.setConnObjectKey(uid.getUidValue());
                 }
                 try {
-                    afterObj = getRemoteObject(task, connector, provision, true);
+                    afterObj = provision == null && orgUnit == null
+                            ? null
+                            : orgUnit == null
+                                    ? getRemoteObject(task, connector, provision, true)
+                                    : getRemoteObject(task, connector, orgUnit);
                 } catch (Exception ignore) {
                     // ignore exception
                     LOG.error("Error retrieving after object", ignore);
                 }
             }
 
-            if (afterObj == null && uid != null) {
+            if (task.getOperation() != ResourceOperation.DELETE && afterObj == null && uid != null) {
                 afterObj = new ConnectorObjectBuilder().
                         setObjectClass(new ObjectClass(task.getObjectClassName())).
                         setUid(uid).
@@ -492,22 +497,22 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
         notificationManager.createTasks(
                 AuditElements.EventCategoryType.PROPAGATION,
-                task.getAnyTypeKind().name().toLowerCase(),
+                task.getAnyTypeKind() == null ? "realm" : task.getAnyTypeKind().name().toLowerCase(),
                 task.getResource().getKey(),
                 task.getOperation().name().toLowerCase(),
                 result,
-                beforeObj, // searching for before object is too much expensive ... 
+                beforeObj,
                 new Object[] { execution, afterObj },
                 task);
 
         auditManager.audit(
                 AuditElements.EventCategoryType.PROPAGATION,
-                task.getAnyTypeKind().name().toLowerCase(),
+                task.getAnyTypeKind() == null ? "realm" : task.getAnyTypeKind().name().toLowerCase(),
                 task.getResource().getKey(),
                 task.getOperation().name().toLowerCase(),
                 result,
-                connObjectUtils.getConnObjectTO(beforeObj), // searching for before object is too much expensive ... 
-                new Object[] { execution, connObjectUtils.getConnObjectTO(afterObj) },
+                beforeObj,
+                new Object[] { execution, afterObj },
                 task);
 
         return execution;
@@ -599,18 +604,18 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         try {
             obj = connector.getObject(new ObjectClass(task.getObjectClassName()),
                     new Uid(connObjectKey),
-                    MappingManagerImpl.buildOperationOptions(IteratorUtils.chainedIterator(
-                            MappingManagerImpl.getPropagationMappingItems(provision).iterator(),
+                    MappingUtils.buildOperationOptions(IteratorUtils.chainedIterator(
+                            MappingUtils.getPropagationMappingItems(provision).iterator(),
                             linkingMappingItems.iterator())));
 
             for (MappingItem item : linkingMappingItems) {
                 Attribute attr = obj.getAttributeByName(item.getExtAttrName());
                 if (attr == null) {
-                    virAttrCache.expire(task.getAnyType(), task.getAnyKey(), item.getIntAttrName());
+                    virAttrCache.expire(task.getAnyType(), task.getEntityKey(), item.getIntAttrName());
                 } else {
                     VirAttrCacheValue cacheValue = new VirAttrCacheValue();
                     cacheValue.setValues(attr.getValue());
-                    virAttrCache.put(task.getAnyType(), task.getAnyKey(), item.getIntAttrName(), cacheValue);
+                    virAttrCache.put(task.getAnyType(), task.getEntityKey(), item.getIntAttrName(), cacheValue);
                 }
             }
         } catch (TimeoutException toe) {
@@ -621,5 +626,45 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         }
 
         return obj;
+    }
+
+    /**
+     * Get remote object for given task.
+     *
+     * @param connector connector facade proxy.
+     * @param task current propagation task.
+     * @param orgUnit orgUnit
+     * @return remote connector object.
+     */
+    protected ConnectorObject getRemoteObject(
+            final PropagationTask task,
+            final Connector connector,
+            final OrgUnit orgUnit) {
+
+        Realm realm = realmDAO.find(task.getEntityKey());
+        if (realm == null) {
+            return null;
+        }
+
+        final ConnectorObject[] obj = new ConnectorObject[1];
+        try {
+            connector.search(new ObjectClass(task.getObjectClassName()),
+                    new EqualsFilter(AttributeBuilder.build(orgUnit.getExtAttrName(), realm.getName())),
+                    new ResultsHandler() {
+
+                @Override
+                public boolean handle(final ConnectorObject connectorObject) {
+                    obj[0] = connectorObject;
+                    return false;
+                }
+            }, MappingUtils.buildOperationOptions(orgUnit));
+        } catch (TimeoutException toe) {
+            LOG.debug("Request timeout", toe);
+            throw toe;
+        } catch (RuntimeException ignore) {
+            LOG.debug("While resolving {}", task.getConnObjectKey(), ignore);
+        }
+
+        return obj[0];
     }
 }

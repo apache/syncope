@@ -23,6 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.wicket.Component;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -34,7 +35,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Toggle panel.
  *
- * @param <T>
+ * @param <T> model object type
  */
 public abstract class TogglePanel<T extends Serializable> extends WizardMgtPanel<T> {
 
@@ -56,16 +57,17 @@ public abstract class TogglePanel<T extends Serializable> extends WizardMgtPanel
 
     private final String activeId;
 
-    public TogglePanel(final String id) {
-        this(id, id);
+    public TogglePanel(final String id, final PageReference pageRef) {
+        this(id, id, pageRef);
     }
 
-    public TogglePanel(final String id, final String markupId) {
+    public TogglePanel(final String id, final String markupId, final PageReference pageRef) {
         super(id, true);
         this.activeId = markupId;
         setRenderBodyOnly(true);
         setOutputMarkupId(true);
         disableContainerAutoRefresh();
+        setPageRef(pageRef);
 
         container = new WebMarkupContainer("togglePanelContainer");
         super.addInnerObject(container.setMarkupId(markupId == null ? id : markupId));

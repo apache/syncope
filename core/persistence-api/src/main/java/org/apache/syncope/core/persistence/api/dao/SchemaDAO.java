@@ -25,7 +25,7 @@ import org.apache.syncope.core.persistence.api.entity.Schema;
 
 public interface SchemaDAO<S extends Schema> extends DAO<S> {
 
-    S find(String name);
+    S find(String key);
 
     List<S> findByAnyTypeClasses(Collection<AnyTypeClass> anyTypeClasses);
 

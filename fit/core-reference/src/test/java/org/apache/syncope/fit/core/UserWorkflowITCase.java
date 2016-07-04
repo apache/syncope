@@ -65,7 +65,7 @@ public class UserWorkflowITCase extends AbstractITCase {
                 new MembershipTO.Builder().group("0cbcabd2-4410-4b6b-8f05-a052b451d18f").build());
 
         // 1. create user with group 9
-        userTO = createUser(userTO).getAny();
+        userTO = createUser(userTO).getEntity();
         assertNotNull(userTO);
         assertEquals(1, userTO.getMemberships().size());
         assertEquals("0cbcabd2-4410-4b6b-8f05-a052b451d18f", userTO.getMemberships().get(0).getRightKey());
@@ -87,7 +87,7 @@ public class UserWorkflowITCase extends AbstractITCase {
             userPatch.setKey("1417acbe-cbf6-4277-9372-e75e04f97000");
             userPatch.getRoles().add(new StringPatchItem.Builder().
                     operation(PatchOperation.ADD_REPLACE).value("User manager").build());
-            rossini = updateUser(userPatch).getAny();
+            rossini = updateUser(userPatch).getEntity();
         }
         assertTrue(rossini.getRoles().contains("User manager"));
 
@@ -149,7 +149,7 @@ public class UserWorkflowITCase extends AbstractITCase {
         // 1. create user with group 9 (and verify that no propagation occurred)
         ProvisioningResult<UserTO> result = createUser(userTO);
         assertNotNull(result);
-        userTO = result.getAny();
+        userTO = result.getEntity();
         assertEquals(1, userTO.getMemberships().size());
         assertEquals("0cbcabd2-4410-4b6b-8f05-a052b451d18f", userTO.getMemberships().get(0).getRightKey());
         assertEquals("createApproval", userTO.getStatus());
@@ -209,7 +209,7 @@ public class UserWorkflowITCase extends AbstractITCase {
         userPatch.setKey(userTO.getKey());
         userPatch.setPassword(new PasswordPatch.Builder().value("anotherPassword123").build());
 
-        userTO = updateUser(userPatch).getAny();
+        userTO = updateUser(userPatch).getEntity();
         assertNotNull(userTO);
     }
 
@@ -233,7 +233,7 @@ public class UserWorkflowITCase extends AbstractITCase {
                 new MembershipTO.Builder().group("0cbcabd2-4410-4b6b-8f05-a052b451d18f").build());
 
         // 1. create user with group 9 (and verify that no propagation occurred)
-        userTO = createUser(userTO).getAny();
+        userTO = createUser(userTO).getEntity();
         assertNotNull(userTO);
         assertNotEquals(0L, userTO.getKey());
         assertNotNull(userTO.getCreationDate());

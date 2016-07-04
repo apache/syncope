@@ -129,7 +129,7 @@ public abstract class AbstractSyncopeResultHandler<T extends ProvisioningTask, A
     protected AnyUtilsFactory anyUtilsFactory;
 
     /**
-     * Sync profile.
+     * Provisioning profile.
      */
     protected ProvisioningProfile<T, A> profile;
 

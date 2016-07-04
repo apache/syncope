@@ -80,7 +80,7 @@ public class AnyObjectSearchPanel extends AbstractSearchPanel {
 
             @Override
             protected Map<String, String> load() {
-                List<GroupTO> groupTOs = groupRestClient.list("/", -1, -1, new SortParam<>("name", true), null);
+                List<GroupTO> groupTOs = groupRestClient.search("/", null, -1, -1, new SortParam<>("name", true), null);
 
                 final Map<String, String> result = new HashMap<>(groupTOs.size());
                 for (GroupTO group : groupTOs) {

@@ -23,7 +23,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
@@ -74,7 +73,6 @@ public class VirSchemaTest extends AbstractTest {
 
         MappingItem item = virSchema.asLinkingMappingItem();
         assertNotNull(item);
-        assertEquals(IntMappingType.UserVirtualSchema, item.getIntMappingType());
         assertEquals(virSchema.getKey(), item.getIntAttrName());
     }
 }

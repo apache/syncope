@@ -388,7 +388,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
         List<PropagationStatus> statuses = provisioningManager.deprovision(key, resources, nullPriorityAsync);
 
         ProvisioningResult<GroupTO> result = new ProvisioningResult<>();
-        result.setAny(binder.getGroupTO(key));
+        result.setEntity(binder.getGroupTO(key));
         result.getPropagationStatuses().addAll(statuses);
         return result;
     }
@@ -412,7 +412,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
         List<PropagationStatus> statuses = provisioningManager.provision(key, resources, nullPriorityAsync);
 
         ProvisioningResult<GroupTO> result = new ProvisioningResult<>();
-        result.setAny(binder.getGroupTO(key));
+        result.setEntity(binder.getGroupTO(key));
         result.getPropagationStatuses().addAll(statuses);
         return result;
     }

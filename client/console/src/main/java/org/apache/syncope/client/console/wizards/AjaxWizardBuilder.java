@@ -90,7 +90,7 @@ public abstract class AjaxWizardBuilder<T extends Serializable> extends Abstract
         // ge the specified item if available
         final T modelObject = newModelObject();
 
-        return new AjaxWizard<T>(id, modelObject, buildModelSteps(modelObject, new WizardModel()), mode) {
+        return new AjaxWizard<T>(id, modelObject, buildModelSteps(modelObject, new WizardModel()), mode, this.pageRef) {
 
             private static final long serialVersionUID = 7770507663760640735L;
 
@@ -131,7 +131,7 @@ public abstract class AjaxWizardBuilder<T extends Serializable> extends Abstract
      * Override to send custom events after create.
      *
      * @param afterObject after applied changes object.
-     * @param target
+     * @param target ajax request target
      * @return payload to be sent.
      */
     protected Serializable getCreateCustomPayloadEvent(final Serializable afterObject, final AjaxRequestTarget target) {
@@ -142,7 +142,7 @@ public abstract class AjaxWizardBuilder<T extends Serializable> extends Abstract
      * Override to send custom events after edit.
      *
      * @param afterObject after applied changes object.
-     * @param target
+     * @param target ajax request target
      * @return payload to be sent.
      */
     protected Serializable getEditCustomPayloadEvent(final Serializable afterObject, final AjaxRequestTarget target) {

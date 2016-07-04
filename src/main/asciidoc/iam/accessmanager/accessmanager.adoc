@@ -17,9 +17,9 @@
 // under the License.
 //
 === Access Managers
-As briefly mentioned before, in general an access manager is not an identity manager. An access management software 
-manages above all the authentication on a given environment. It provides the methods, generally called authentication 
-module, to manage the user authentication, the latter based on various identification system as the password, 
+As briefly mentioned before, in general an access manager is not an identity manager. An access management software
+manages above all the authentication on a given environment. It provides the methods, generally called authentication
+module, to manage the user authentication, the latter based on various identification systems as the password,
 the fingerprint or based on various protocols as SAML and OAuth 2.0.
 
 include::authentication.adoc[]

@@ -80,8 +80,7 @@ public class PolicyRuleWizardBuilder
         if (modelObject.isNew()) {
             composable.getRuleConfs().add(modelObject.getConf());
         } else {
-            CollectionUtils.filter(
-                    composable.getRuleConfs(), new Predicate<RuleConf>() {
+            CollectionUtils.filter(composable.getRuleConfs(), new Predicate<RuleConf>() {
 
                 @Override
                 public boolean evaluate(final RuleConf object) {

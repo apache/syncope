@@ -40,6 +40,10 @@ public interface AnyObjectDAO extends AnyDAO<AnyObject> {
 
     Map<String, Integer> countByRealm(AnyType anyType);
 
+    AnyObject findByName(String name);
+
+    AnyObject authFindByName(String name);
+
     List<Group> findDynGroupMemberships(AnyObject anyObject);
 
     List<ARelationship> findARelationships(AnyObject anyObject);
@@ -52,5 +56,5 @@ public interface AnyObjectDAO extends AnyDAO<AnyObject> {
 
     Collection<ExternalResource> findAllResources(AnyObject anyObject);
 
-    Collection<String> findAllResourceNames(AnyObject anyObject);
+    Collection<String> findAllResourceNames(String key);
 }

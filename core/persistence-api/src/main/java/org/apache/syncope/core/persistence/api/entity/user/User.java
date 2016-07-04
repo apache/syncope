@@ -18,15 +18,15 @@
  */
 package org.apache.syncope.core.persistence.api.entity.user;
 
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
-import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.Role;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
+import org.apache.syncope.core.persistence.api.entity.GroupableRelatable;
 
-public interface User extends Any<UPlainAttr> {
+public interface User extends
+        GroupableRelatable<User, UMembership, UPlainAttr, AnyObject, URelationship> {
 
     String getUsername();
 
@@ -92,32 +92,8 @@ public interface User extends Any<UPlainAttr> {
 
     void setMustChangePassword(boolean mustChangePassword);
 
-    @Override
-    boolean add(UPlainAttr attr);
-
-    @Override
-    UPlainAttr getPlainAttr(String plainSchemaName);
-
-    @Override
-    List<? extends UPlainAttr> getPlainAttrs();
-
     boolean add(Role role);
 
     List<? extends Role> getRoles();
 
-    boolean add(URelationship relationship);
-
-    URelationship getRelationship(RelationshipType relationshipType, String anyObjectKey);
-
-    Collection<? extends URelationship> getRelationships(String anyObjectKey);
-
-    Collection<? extends URelationship> getRelationships(RelationshipType relationshipType);
-
-    List<? extends URelationship> getRelationships();
-
-    boolean add(UMembership membership);
-
-    UMembership getMembership(String groupKey);
-
-    List<? extends UMembership> getMemberships();
 }

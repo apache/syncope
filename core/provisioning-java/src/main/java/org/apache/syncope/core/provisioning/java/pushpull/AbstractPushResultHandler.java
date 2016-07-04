@@ -21,6 +21,7 @@ package org.apache.syncope.core.provisioning.java.pushpull;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.patch.AnyPatch;
@@ -37,7 +38,6 @@ import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
 import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
-import org.apache.syncope.core.provisioning.java.MappingManagerImpl;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
@@ -48,6 +48,8 @@ import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.TimeoutException;
 import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionException;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePushResultHandler;
+import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
+import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.Uid;
@@ -94,7 +96,6 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                 noPropResources));
     }
 
-    @SuppressWarnings("unchecked")
     protected void link(final Any<?> any, final Boolean unlink) {
         AnyPatch patch = newPatch(any.getKey());
         patch.getResources().add(new StringPatchItem.Builder().
@@ -104,7 +105,6 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         update(patch);
     }
 
-    @SuppressWarnings("unchecked")
     protected void unassign(final Any<?> any) {
         AnyPatch patch = newPatch(any.getKey());
         patch.getResources().add(new StringPatchItem.Builder().
@@ -134,7 +134,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
 
             obj = profile.getConnector().getObject(objectClass,
                     uid,
-                    MappingManagerImpl.buildOperationOptions(IteratorUtils.<MappingItem>emptyIterator()));
+                    MappingUtils.buildOperationOptions(IteratorUtils.<MappingItem>emptyIterator()));
         } catch (TimeoutException toe) {
             LOG.debug("Request timeout", toe);
             throw toe;
@@ -169,7 +169,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         }
     }
 
-    protected final void doHandle(final Any<?> any) throws JobExecutionException {
+    private void doHandle(final Any<?> any) throws JobExecutionException {
         AnyUtils anyUtils = anyUtilsFactory.getInstance(any);
 
         ProvisioningReport result = new ProvisioningReport();
@@ -179,7 +179,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         result.setAnyType(any.getType().getKey());
         result.setName(getName(any));
 
-        Boolean enabled = any instanceof User && profile.getTask().isPullStatus()
+        Boolean enabled = any instanceof User && profile.getTask().isSyncStatus()
                 ? ((User) any).isSuspended() ? Boolean.FALSE : Boolean.TRUE
                 : null;
 
@@ -196,7 +196,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
 
         ConnectorObject beforeObj = getRemoteObject(connObjecKey, provision.getObjectClass());
 
-        Boolean status = profile.getTask().isPullStatus() ? enabled : null;
+        Boolean status = profile.getTask().isSyncStatus() ? enabled : null;
 
         if (profile.isDryRun()) {
             if (beforeObj == null) {
@@ -269,7 +269,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                             if (!profile.getTask().isPerformUpdate()) {
                                 LOG.debug("PushTask not configured for update");
                             } else {
-                                update(any, status);
+                                update(any);
                             }
 
                             break;
@@ -370,9 +370,8 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                         profile.getTask().getResource().getKey(),
                         operation,
                         resultStatus,
-                        connObjectUtils.getConnObjectTO(beforeObj),
-                        output instanceof ConnectorObject
-                                ? connObjectUtils.getConnObjectTO((ConnectorObject) output) : output,
+                        beforeObj,
+                        output,
                         any);
             }
         }
@@ -400,21 +399,23 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         }
     }
 
-    protected Any<?> update(final Any<?> any, final Boolean enabled) {
+    private Any<?> update(final Any<?> any) {
         boolean changepwd;
-        Collection<String> resourceNames;
+        Collection<String> resourceKeys;
         if (any instanceof User) {
             changepwd = true;
-            resourceNames = userDAO.findAllResourceNames((User) any);
+            resourceKeys = CollectionUtils.collect(
+                    userDAO.findAllResources((User) any), EntityUtils.keyTransformer());
         } else if (any instanceof AnyObject) {
             changepwd = false;
-            resourceNames = anyObjectDAO.findAllResourceNames((AnyObject) any);
+            resourceKeys = CollectionUtils.collect(
+                    anyObjectDAO.findAllResources((AnyObject) any), EntityUtils.keyTransformer());
         } else {
             changepwd = false;
-            resourceNames = ((Group) any).getResourceNames();
+            resourceKeys = ((Group) any).getResourceKeys();
         }
 
-        List<String> noPropResources = new ArrayList<>(resourceNames);
+        List<String> noPropResources = new ArrayList<>(resourceKeys);
         noPropResources.remove(profile.getTask().getResource().getKey());
 
         PropagationByResource propByRes = new PropagationByResource();

@@ -55,7 +55,7 @@ import org.springframework.util.ClassUtils;
 import org.apache.syncope.core.provisioning.api.pushpull.ReconciliationFilterBuilder;
 import org.apache.syncope.core.provisioning.api.pushpull.PullCorrelationRule;
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
-import org.apache.syncope.core.provisioning.java.data.JEXLMappingItemTransformer;
+import org.apache.syncope.core.provisioning.java.data.JEXLMappingItemTransformerImpl;
 import org.apache.syncope.core.provisioning.java.job.GroupMemberProvisionTaskJobDelegate;
 import org.apache.syncope.core.provisioning.java.pushpull.PlainAttrsPullCorrelationRule;
 
@@ -144,7 +144,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                 }
 
                 if (MappingItemTransformer.class.isAssignableFrom(clazz) && !isAbsractClazz
-                        && !clazz.equals(JEXLMappingItemTransformer.class)) {
+                        && !clazz.equals(JEXLMappingItemTransformerImpl.class)) {
 
                     classNames.get(Type.MAPPING_ITEM_TRANSFORMER).add(clazz.getName());
                 }

@@ -94,7 +94,7 @@ public class DerSchemaTest extends AbstractTest {
             derSchemaDAO.save(schema);
             fail();
         } catch (InvalidEntityException e) {
-            assertTrue(e.hasViolation(EntityViolationType.InvalidName));
+            assertTrue(e.hasViolation(EntityViolationType.InvalidKey));
         }
     }
 }

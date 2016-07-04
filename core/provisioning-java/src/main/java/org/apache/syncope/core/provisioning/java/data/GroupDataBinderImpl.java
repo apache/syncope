@@ -110,7 +110,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         }
         group.setRealm(realm);
 
-        // attributes, derived attributes, virtual attributes and resources
+        // attributes and resources
         fill(group, groupTO, anyUtilsFactory.getInstance(AnyTypeKind.GROUP), scce);
 
         // owner
@@ -194,7 +194,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
 
         // name
         if (groupPatch.getName() != null && StringUtils.isNotBlank(groupPatch.getName().getValue())) {
-            propByRes.addAll(ResourceOperation.UPDATE, group.getResourceNames());
+            propByRes.addAll(ResourceOperation.UPDATE, group.getResourceKeys());
 
             group.setName(groupPatch.getName().getValue());
         }
@@ -211,7 +211,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
                     : groupDAO.find(groupPatch.getGroupOwner().getValue()));
         }
 
-        // attributes, derived attributes, virtual attributes and resources
+        // attributes and resources
         propByRes.merge(fill(group, groupPatch, anyUtilsFactory.getInstance(AnyTypeKind.GROUP), scce));
 
         // check if some connObjectKey was changed by the update above
@@ -325,7 +325,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
 
         Map<DerSchema, String> derAttrValues = derAttrHandler.getValues(group);
         Map<VirSchema, List<String>> virAttrValues = details
-                ? virAttrHander.getValues(group)
+                ? virAttrHandler.getValues(group)
                 : Collections.<VirSchema, List<String>>emptyMap();
         fillTO(groupTO, group.getRealm().getFullPath(), group.getAuxClasses(),
                 group.getPlainAttrs(), derAttrValues, virAttrValues, group.getResources());

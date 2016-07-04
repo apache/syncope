@@ -28,4 +28,4 @@ import groovy.sql.DataSet;
 log.info("Entering " + action + " Script");
 def sql = new Sql(connection);
 
-sql.eachRow("select * from TESTPRINTER", { println it.uid} );
+sql.eachRow("select * from TESTPRINTER", { println it.id} );

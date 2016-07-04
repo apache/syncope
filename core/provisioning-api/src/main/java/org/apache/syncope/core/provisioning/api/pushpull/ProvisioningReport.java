@@ -112,7 +112,7 @@ public class ProvisioningReport {
             return null;
         } else if (level == TraceLevel.FAILURES && status == Status.FAILURE) {
             // only report failures
-            return String.format("Failed %s (key/name): %d/%s with message: %s", operation, key, name, message);
+            return String.format("Failed %s (key/name): %s/%s with message: %s", operation, key, name, message);
         } else {
             // All
             return String.format("%s %s (key/name): %s/%s %s", operation, status, key, name,

@@ -29,7 +29,9 @@ import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.patch.AnyObjectPatch;
+import org.apache.syncope.common.lib.patch.AttrPatch;
 import org.apache.syncope.common.lib.patch.MembershipPatch;
 import org.apache.syncope.common.lib.patch.RelationshipPatch;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
@@ -46,14 +48,17 @@ import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
-import org.apache.syncope.core.persistence.api.entity.DerSchema;
+import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
+import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttr;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -74,7 +79,9 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
     @Transactional(readOnly = true)
     @Override
     public AnyObjectTO getAnyObjectTO(final String key) {
-        return getAnyObjectTO(anyObjectDAO.authFind(key), true);
+        return SyncopeConstants.UUID_PATTERN.matcher(key).matches()
+                ? getAnyObjectTO(anyObjectDAO.authFind(key), true)
+                : getAnyObjectTO(anyObjectDAO.authFindByName(key), true);
     }
 
     @Override
@@ -84,12 +91,15 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
 
         BeanUtils.copyProperties(anyObject, anyObjectTO, IGNORE_PROPERTIES);
 
-        Map<DerSchema, String> derAttrValues = derAttrHandler.getValues(anyObject);
         Map<VirSchema, List<String>> virAttrValues = details
-                ? virAttrHander.getValues(anyObject)
+                ? virAttrHandler.getValues(anyObject)
                 : Collections.<VirSchema, List<String>>emptyMap();
-        fillTO(anyObjectTO, anyObject.getRealm().getFullPath(), anyObject.getAuxClasses(),
-                anyObject.getPlainAttrs(), derAttrValues, virAttrValues, anyObjectDAO.findAllResources(anyObject));
+        fillTO(anyObjectTO, anyObject.getRealm().getFullPath(),
+                anyObject.getAuxClasses(),
+                anyObject.getPlainAttrs(),
+                derAttrHandler.getValues(anyObject),
+                virAttrValues,
+                anyObjectDAO.findAllResources(anyObject));
 
         if (details) {
             // relationships
@@ -107,7 +117,11 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
 
                 @Override
                 public MembershipTO transform(final AMembership membership) {
-                    return AnyObjectDataBinderImpl.this.getMembershipTO(membership);
+                    return getMembershipTO(
+                            anyObject.getPlainAttrs(membership),
+                            derAttrHandler.getValues(anyObject, membership),
+                            virAttrHandler.getValues(anyObject, membership),
+                            membership);
                 }
             }, anyObjectTO.getMemberships());
 
@@ -131,6 +145,16 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
 
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
 
+        // name
+        SyncopeClientException invalidGroups = SyncopeClientException.build(ClientExceptionType.InvalidGroup);
+        if (anyObjectTO.getName() == null) {
+            LOG.error("No name specified for this anyObject");
+
+            invalidGroups.getElements().add("No name specified for this anyObject");
+        } else {
+            anyObject.setName(anyObjectTO.getName());
+        }
+
         // realm
         Realm realm = realmDAO.findByFullPath(anyObjectTO.getRealm());
         if (realm == null) {
@@ -140,6 +164,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
         }
         anyObject.setRealm(realm);
 
+        AnyUtils anyUtils = anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT);
         if (anyObject.getRealm() != null) {
             AssignableCond assignableCond = new AssignableCond();
             assignableCond.setRealmFullPath(anyObject.getRealm().getFullPath());
@@ -199,6 +224,9 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                     membership.setLeftEnd(anyObject);
 
                     anyObject.add(membership);
+
+                    // membership attributes
+                    fill(anyObject, membership, membershipTO, anyUtils, scce);
                 } else {
                     LOG.error("{} cannot be assigned to {}", group, anyObject);
 
@@ -210,8 +238,8 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
             }
         }
 
-        // attributes, derived attributes, virtual attributes and resources
-        fill(anyObject, anyObjectTO, anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT), scce);
+        // attributes and resources
+        fill(anyObject, anyObjectTO, anyUtils, scce);
 
         // Throw composite exception if there is at least one element set in the composing exceptions
         if (scce.hasExceptions()) {
@@ -228,13 +256,25 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
 
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
 
-        Collection<String> currentResources = anyObjectDAO.findAllResourceNames(anyObject);
+        Collection<String> currentResources = CollectionUtils.collect(
+                anyObjectDAO.findAllResources(anyObject), EntityUtils.keyTransformer());
 
         // fetch connObjectKeys before update
         Map<String, String> oldConnObjectKeys = getConnObjectKeys(anyObject);
 
-        // attributes, derived attributes, virtual attributes and resources
-        propByRes.merge(fill(anyObject, anyObjectPatch, anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT), scce));
+        // realm
+        setRealm(anyObject, anyObjectPatch);
+
+        // name
+        if (anyObjectPatch.getName() != null && StringUtils.isNotBlank(anyObjectPatch.getName().getValue())) {
+            propByRes.addAll(ResourceOperation.UPDATE, anyObject.getResourceKeys());
+
+            anyObject.setName(anyObjectPatch.getName().getValue());
+        }
+
+        AnyUtils anyUtils = anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT);
+        // attributes and resources
+        propByRes.merge(fill(anyObject, anyObjectPatch, anyUtils, scce));
 
         Set<String> toBeDeprovisioned = new HashSet<>();
         Set<String> toBeProvisioned = new HashSet<>();
@@ -253,7 +293,9 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                             anyObject.getRelationship(relationshipType, patch.getRelationshipTO().getRightKey());
                     if (relationship != null) {
                         anyObject.getRelationships().remove(relationship);
-                        toBeDeprovisioned.addAll(relationship.getRightEnd().getResourceNames());
+                        relationship.setLeftEnd(null);
+
+                        toBeDeprovisioned.addAll(relationship.getRightEnd().getResourceKeys());
                     }
 
                     if (patch.getOperation() == PatchOperation.ADD_REPLACE) {
@@ -278,7 +320,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
 
                                 anyObject.add(relationship);
 
-                                toBeProvisioned.addAll(otherEnd.getResourceNames());
+                                toBeProvisioned.addAll(otherEnd.getResourceKeys());
                             } else {
                                 LOG.error("{} cannot be assigned to {}", otherEnd, anyObject);
 
@@ -293,22 +335,31 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
             }
         }
 
+        Set<ExternalResource> resources = anyUtils.getAllResources(anyObject);
+        SyncopeClientException invalidValues = SyncopeClientException.build(ClientExceptionType.InvalidValues);
+
         // memberships
         List<Group> assignableGroups =
                 searchDAO.searchAssignable(anyObject.getRealm().getFullPath(), AnyTypeKind.GROUP);
 
-        for (MembershipPatch patch : anyObjectPatch.getMemberships()) {
-            if (patch.getMembershipTO() != null) {
-                AMembership membership = anyObject.getMembership(patch.getMembershipTO().getRightKey());
+        for (MembershipPatch membPatch : anyObjectPatch.getMemberships()) {
+            if (membPatch.getGroup() != null) {
+                AMembership membership = anyObject.getMembership(membPatch.getGroup());
                 if (membership != null) {
                     anyObject.getMemberships().remove(membership);
-                    toBeDeprovisioned.addAll(membership.getRightEnd().getResourceNames());
+                    membership.setLeftEnd(null);
+                    for (APlainAttr attr : anyObject.getPlainAttrs(membership)) {
+                        anyObject.remove(attr);
+                        attr.setOwner(null);
+                    }
+
+                    toBeDeprovisioned.addAll(membership.getRightEnd().getResourceKeys());
                 }
 
-                if (patch.getOperation() == PatchOperation.ADD_REPLACE) {
-                    Group group = groupDAO.find(patch.getMembershipTO().getRightKey());
+                if (membPatch.getOperation() == PatchOperation.ADD_REPLACE) {
+                    Group group = groupDAO.find(membPatch.getGroup());
                     if (group == null) {
-                        LOG.debug("Ignoring invalid group {}", patch.getMembershipTO().getRightKey());
+                        LOG.debug("Ignoring invalid group {}", membPatch.getGroup());
                     } else if (assignableGroups.contains(group)) {
                         membership = entityFactory.newEntity(AMembership.class);
                         membership.setRightEnd(group);
@@ -316,7 +367,38 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
 
                         anyObject.add(membership);
 
-                        toBeProvisioned.addAll(group.getResourceNames());
+                        for (AttrPatch patch : membPatch.getPlainAttrs()) {
+                            if (patch.getAttrTO() != null) {
+                                PlainSchema schema = getPlainSchema(patch.getAttrTO().getSchema());
+                                if (schema == null) {
+                                    LOG.debug("Invalid " + PlainSchema.class.getSimpleName()
+                                            + "{}, ignoring...", patch.getAttrTO().getSchema());
+                                } else {
+                                    APlainAttr attr = anyObject.getPlainAttr(schema.getKey(), membership);
+                                    if (attr == null) {
+                                        LOG.debug("No plain attribute found for {} and membership of {}",
+                                                schema, membership.getRightEnd());
+
+                                        if (patch.getOperation() == PatchOperation.ADD_REPLACE) {
+                                            attr = anyUtils.newPlainAttr();
+                                            attr.setOwner(anyObject);
+                                            attr.setMembership(membership);
+                                            attr.setSchema(schema);
+                                            anyObject.add(attr);
+
+                                            processAttrPatch(
+                                                    anyObject, patch, schema, attr, anyUtils,
+                                                    resources, propByRes, invalidValues);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        if (!invalidValues.isEmpty()) {
+                            scce.addException(invalidValues);
+                        }
+
+                        toBeProvisioned.addAll(group.getResourceKeys());
                     } else {
                         LOG.error("{} cannot be assigned to {}", group, anyObject);
 

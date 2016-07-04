@@ -27,6 +27,7 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.panels.TogglePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.common.lib.to.MappingItemTO;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -42,8 +43,8 @@ public class MappingItemTransformersTogglePanel extends TogglePanel<Serializable
 
     private MappingItemTO mapItem;
 
-    public MappingItemTransformersTogglePanel(final WebMarkupContainer container) {
-        super("outer", "mappingItemTransformersTogglePanel");
+    public MappingItemTransformersTogglePanel(final WebMarkupContainer container, final PageReference pageRef) {
+        super("outer", "mappingItemTransformersTogglePanel", pageRef);
 
         final LoadableDetachableModel<List<String>> model = new LoadableDetachableModel<List<String>>() {
 

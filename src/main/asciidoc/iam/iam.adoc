@@ -18,13 +18,13 @@
 //
 
 == Identity and Access Management
-Though Identity management and Access Management are often united, because the two management world often coexist in the 
+Though Identity management and Access Management are often united, because the two management worlds often coexist in the
 same projects or in the same environment, the two topics are completely different: each one has its context, its rules,
-its best bractice. On the other hand, many software have unorthodox implementation so you could done a samething with
+its best practices. On the other hand, many softwares have unorthodox implementations so you could do the same thing with
 both of them.
-However, in general as suggested by their name, the access management basically handles the access in a certain 
-environment providing some kind of credentials; on the countray the identity management handles the digital identity 
-profile and its life cicle. 
+However, in general as suggested by their name, the access management basically handles the access in a certain
+environment providing some kind of credentials; on the contrary the identity management handles the digital identity
+profile and its lifecycle.
 Apache Syncope is an identity manager.
 
 include::identitystores.adoc[]

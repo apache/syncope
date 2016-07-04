@@ -36,41 +36,41 @@ import org.junit.runners.MethodSorters;
 @FixMethodOrder(MethodSorters.JVM)
 public class SecurityQuestionsITCase extends AbstractConsoleITCase {
 
-    private void createRealm(final String name) {
-        wicketTester.clickLink("body:content:securityQuestionPanel:container:content:add");
-
-        wicketTester.assertComponent(
-                "body:content:securityQuestionPanel:outerObjectsRepeater:0:outer", Modal.class);
-
-        FormTester formTester =
-                wicketTester.newFormTester("body:content:securityQuestionPanel:outerObjectsRepeater:0:outer:form");
-        formTester.setValue("content:securityQuestionDetailsPanel:container:form:content:textField",
-                name);
-
-        wicketTester.clickLink(
-                "body:content:securityQuestionPanel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
-
-        wicketTester.assertInfoMessages("Operation executed successfully");
-        wicketTester.cleanupFeedbackMessages();
-
-        wicketTester.clickLink("body:configurationLI:configurationUL:securityquestionsLI:securityquestions");
-    }
-
     @Before
     public void login() {
         doLogin(ADMIN_UNAME, ADMIN_PWD);
-        wicketTester.clickLink("body:configurationLI:configurationUL:securityquestionsLI:securityquestions");
-        wicketTester.assertRenderedPage(SecurityQuestions.class);
+        TESTER.clickLink("body:configurationLI:configurationUL:securityquestionsLI:securityquestions");
+        TESTER.assertRenderedPage(SecurityQuestions.class);
+    }
+
+    private void createRealm(final String name) {
+        TESTER.clickLink("body:content:securityQuestionPanel:container:content:add");
+
+        TESTER.assertComponent(
+                "body:content:securityQuestionPanel:outerObjectsRepeater:0:outer", Modal.class);
+
+        FormTester formTester =
+                TESTER.newFormTester("body:content:securityQuestionPanel:outerObjectsRepeater:0:outer:form");
+        formTester.setValue("content:securityQuestionDetailsPanel:container:form:content:textField",
+                name);
+
+        TESTER.clickLink(
+                "body:content:securityQuestionPanel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
+
+        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.cleanupFeedbackMessages();
+
+        TESTER.clickLink("body:configurationLI:configurationUL:securityquestionsLI:securityquestions");
     }
 
     @Test
     public void read() {
-        Label label = (Label) wicketTester.getComponentFromLastRenderedPage(
+        Label label = (Label) TESTER.getComponentFromLastRenderedPage(
                 "body:content:securityQuestionPanel:container:content:searchContainer:resultTable:"
                 + "tablePanel:groupForm:checkgroup:dataTable:body:rows:1:cells:2:cell");
         assertTrue(label.getDefaultModelObjectAsString().startsWith("What&#039;s your "));
 
-        wicketTester.assertComponent(
+        TESTER.assertComponent(
                 "body:content:securityQuestionPanel:container:content:"
                 + "searchContainer:resultTable:tablePanel:"
                 + "groupForm:checkgroup:dataTable:body:rows:"
@@ -91,18 +91,18 @@ public class SecurityQuestionsITCase extends AbstractConsoleITCase {
 
         assertNotNull(result);
 
-        wicketTester.clickLink(result.getPageRelativePath() + ":cells:3:cell:panelEdit:editLink");
+        TESTER.clickLink(result.getPageRelativePath() + ":cells:3:cell:panelEdit:editLink");
 
         FormTester formTester =
-                wicketTester.newFormTester("body:content:securityQuestionPanel:outerObjectsRepeater:0:outer:form");
+                TESTER.newFormTester("body:content:securityQuestionPanel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:securityQuestionDetailsPanel:container:form:content:textField",
                 "What's your preferred car?");
 
-        wicketTester.clickLink(
+        TESTER.clickLink(
                 "body:content:securityQuestionPanel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
 
-        wicketTester.assertInfoMessages("Operation executed successfully");
-        wicketTester.cleanupFeedbackMessages();
+        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.cleanupFeedbackMessages();
     }
 
     @Test
@@ -115,15 +115,15 @@ public class SecurityQuestionsITCase extends AbstractConsoleITCase {
                 name);
         assertNotNull(result);
 
-        wicketTester.getRequest().addParameter("confirm", "true");
-        wicketTester.clickLink(wicketTester.getComponentFromLastRenderedPage(
+        TESTER.getRequest().addParameter("confirm", "true");
+        TESTER.clickLink(TESTER.getComponentFromLastRenderedPage(
                 result.getPageRelativePath() + ":cells:3:cell:panelDelete:deleteLink"));
 
-        wicketTester.executeAjaxEvent(wicketTester.getComponentFromLastRenderedPage(
+        TESTER.executeAjaxEvent(TESTER.getComponentFromLastRenderedPage(
                 result.getPageRelativePath() + ":cells:3:cell:panelDelete:deleteLink"), "onclick");
 
-        wicketTester.assertInfoMessages("Operation executed successfully");
-        wicketTester.cleanupFeedbackMessages();
+        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.cleanupFeedbackMessages();
 
         assertNull(findComponentByProp("content",
                 "body:content:securityQuestionPanel:container:content:"

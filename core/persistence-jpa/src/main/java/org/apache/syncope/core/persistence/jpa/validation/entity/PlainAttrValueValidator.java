@@ -74,7 +74,7 @@ public class PlainAttrValueValidator extends AbstractValidator<PlainAttrValueChe
                             + "]" + " is " + uniqueValueSchema + ", while owning attribute schema is " + attrSchema);
 
                     context.disableDefaultConstraintViolation();
-                    context.buildConstraintViolationWithTemplate(getTemplate(EntityViolationType.InvalidPlainSchema,
+                    context.buildConstraintViolationWithTemplate(getTemplate(EntityViolationType.InvalidPlainAttr,
                             "Unique value schema is " + uniqueValueSchema
                             + ", while owning attribute schema is " + attrSchema)).addPropertyNode("schema").
                             addConstraintViolation();

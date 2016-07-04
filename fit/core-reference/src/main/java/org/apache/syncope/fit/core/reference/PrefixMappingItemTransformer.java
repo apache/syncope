@@ -34,11 +34,11 @@ public class PrefixMappingItemTransformer extends DefaultMappingItemTransformer 
     @Override
     public List<PlainAttrValue> beforePropagation(
             final MappingItem mappingItem,
-            final List<Any<?>> anys,
+            final Any<?> any,
             final List<PlainAttrValue> values) {
 
         if (values == null || values.isEmpty() || values.get(0).getStringValue() == null) {
-            return super.beforePropagation(mappingItem, anys, values);
+            return super.beforePropagation(mappingItem, any, values);
         } else {
             String value = values.get(0).getStringValue();
             values.get(0).setStringValue(PREFIX + value);

@@ -26,6 +26,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.List;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
@@ -34,7 +35,9 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.policy.AccountPolicyTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.policy.DefaultAccountRuleConf;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.rest.api.service.RealmService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.FixMethodOrder;
@@ -195,5 +198,33 @@ public class RealmITCase extends AbstractITCase {
             assertEquals(ClientExceptionType.AssociatedAnys, e.getType());
             assertEquals(3, e.getElements().size());
         }
+    }
+
+    @Test
+    public void propagate() {
+        // 1. create realm and add the LDAP resource
+        RealmTO realm = new RealmTO();
+        realm.setName("test");
+        realm.getResources().add(RESOURCE_NAME_LDAP_ORGUNIT);
+
+        // 2. check propagation
+        ProvisioningResult<RealmTO> result =
+                realmService.create("/", realm).readEntity(new GenericType<ProvisioningResult<RealmTO>>() {
+        });
+        assertNotNull(result);
+        assertEquals(1, result.getPropagationStatuses().size());
+        assertEquals(RESOURCE_NAME_LDAP_ORGUNIT, result.getPropagationStatuses().get(0).getResource());
+        assertEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
+
+        realm = result.getEntity();
+
+        // 3. check on LDAP
+        assertNotNull(getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, "ou=test,o=isp"));
+
+        // 4. remove realm
+        realmService.delete(realm.getFullPath());
+
+        // 5. check on LDAP
+        assertNull(getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, "ou=test,o=isp"));
     }
 }

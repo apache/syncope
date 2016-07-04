@@ -154,7 +154,7 @@ under the License.
             </properties>
             <configfiles>
               <configfile>
-                <file>${project.build.directory}/classes/context.xml</file>
+                <file>${basedir}/src/main/resources/context.xml</file>
                 <todir>conf/</todir>
                 <tofile>context.xml</tofile>
               </configfile>
@@ -222,6 +222,9 @@ under the License.
       <resource>
         <directory>src/main/resources</directory>
         <filtering>true</filtering>
+        <excludes>
+          <exclude>context.xml</exclude>
+        </excludes>
       </resource>
     </resources>
     <testResources>
@@ -318,6 +321,12 @@ under the License.
     
     <profile>
       <id>jrebel</id>
+      
+      <properties>
+        <!-- Temporary until JRebel properly supports Tomcat 8.5 -->
+        <tomcat.version>8.0.36</tomcat.version>
+      </properties>
+      
       <build>
         <defaultGoal>clean verify cargo:run</defaultGoal>
 

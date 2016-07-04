@@ -485,7 +485,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
         List<PropagationStatus> statuses = provisioningManager.deprovision(key, resources, nullPriorityAsync);
 
         ProvisioningResult<UserTO> result = new ProvisioningResult<>();
-        result.setAny(binder.returnUserTO(binder.getUserTO(key)));
+        result.setEntity(binder.returnUserTO(binder.getUserTO(key)));
         result.getPropagationStatuses().addAll(statuses);
         return result;
     }
@@ -510,7 +510,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
                 provisioningManager.provision(key, changePwd, password, resources, nullPriorityAsync);
 
         ProvisioningResult<UserTO> result = new ProvisioningResult<>();
-        result.setAny(binder.returnUserTO(binder.getUserTO(key)));
+        result.setEntity(binder.returnUserTO(binder.getUserTO(key)));
         result.getPropagationStatuses().addAll(statuses);
         return result;
     }

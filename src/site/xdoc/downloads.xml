@@ -55,8 +55,8 @@ under the License.
         </ul>
       </p>
 
-      <subsection name="2.0.0-M3 Jazz">
-        <p>Release date: June 3rd 2016</p>
+      <subsection name="2.0.0-M4 Jazz">
+        <p>Release date: June 24th 2016</p>
         <p>
           <a href="https://cwiki.apache.org/confluence/display/SYNCOPE/Jazz">Release notes</a>
         </p>
@@ -70,72 +70,72 @@ under the License.
           <tbody>
             <tr>
               <td>
-                <a href="http://www.apache.org/dyn/closer.lua/syncope/2.0.0-M3/syncope-2.0.0-M3-source-release.zip">syncope-2.0.0-M3-source-release.zip</a>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/2.0.0-M4/syncope-2.0.0-M4-source-release.zip">syncope-2.0.0-M4-source-release.zip</a>
               </td>
               <td>
-                <a href="https://www.apache.org/dist/syncope/2.0.0-M3/syncope-2.0.0-M3-source-release.zip.asc">asc</a> 
-                <a href="https://www.apache.org/dist/syncope/2.0.0-M3/syncope-2.0.0-M3-source-release.zip.md5">md5</a> 
-                <a href="https://www.apache.org/dist/syncope/2.0.0-M3/syncope-2.0.0-M3-source-release.zip.sha1">sha1</a>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <a href="http://www.apache.org/dyn/closer.lua/syncope/2.0.0-M3/syncope-standalone-2.0.0-M3-distribution.zip">syncope-standalone-2.0.0-M3-distribution.zip</a>
-              </td>
-              <td>
-                <a href="https://www.apache.org/dist/syncope/2.0.0-M3/syncope-standalone-2.0.0-M3-distribution.zip.asc">asc</a> 
-                <a href="https://www.apache.org/dist/syncope/2.0.0-M3/syncope-standalone-2.0.0-M3-distribution.zip.md5">md5</a> 
-                <a href="https://www.apache.org/dist/syncope/2.0.0-M3/syncope-standalone-2.0.0-M3-distribution.zip.sha1">sha1</a>
+                <a href="https://www.apache.org/dist/syncope/2.0.0-M4/syncope-2.0.0-M4-source-release.zip.asc">asc</a> 
+                <a href="https://www.apache.org/dist/syncope/2.0.0-M4/syncope-2.0.0-M4-source-release.zip.md5">md5</a> 
+                <a href="https://www.apache.org/dist/syncope/2.0.0-M4/syncope-2.0.0-M4-source-release.zip.sha1">sha1</a>
               </td>
             </tr>
             <tr>
               <td>
-                <a href="http://www.apache.org/dyn/closer.lua/syncope/2.0.0-M3/syncope-installer-2.0.0-M3-uber.jar">syncope-installer-2.0.0-M3.jar</a>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/2.0.0-M4/syncope-standalone-2.0.0-M4-distribution.zip">syncope-standalone-2.0.0-M4-distribution.zip</a>
               </td>
               <td>
-                <a href="https://www.apache.org/dist/syncope/2.0.0-M3/syncope-installer-2.0.0-M3-uber.jar.asc">asc</a> 
-                <a href="https://www.apache.org/dist/syncope/2.0.0-M3/syncope-installer-2.0.0-M3-uber.jar.md5">md5</a> 
-                <a href="https://www.apache.org/dist/syncope/2.0.0-M3/syncope-installer-2.0.0-M3-uber.jar.sha1">sha1</a>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <a href="http://www.apache.org/dyn/closer.lua/syncope/2.0.0-M3/syncope-client-cli-2.0.0-M3.zip">syncope-client-cli-2.0.0-M3.zip</a>
-              </td>
-              <td>
-                <a href="https://www.apache.org/dist/syncope/2.0.0-M3/syncope-client-cli-2.0.0-M3.zip.asc">asc</a> 
-                <a href="https://www.apache.org/dist/syncope/2.0.0-M3/syncope-client-cli-2.0.0-M3.zip.md5">md5</a> 
-                <a href="https://www.apache.org/dist/syncope/2.0.0-M3/syncope-client-cli-2.0.0-M3.zip.sha1">sha1</a>
+                <a href="https://www.apache.org/dist/syncope/2.0.0-M4/syncope-standalone-2.0.0-M4-distribution.zip.asc">asc</a> 
+                <a href="https://www.apache.org/dist/syncope/2.0.0-M4/syncope-standalone-2.0.0-M4-distribution.zip.md5">md5</a> 
+                <a href="https://www.apache.org/dist/syncope/2.0.0-M4/syncope-standalone-2.0.0-M4-distribution.zip.sha1">sha1</a>
               </td>
             </tr>
             <tr>
               <td>
-                <a href="http://www.apache.org/dyn/closer.lua/syncope/2.0.0-M3/apache-syncope-2.0.0-M3.deb">apache-syncope-2.0.0-M3.deb</a>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/2.0.0-M4/syncope-installer-2.0.0-M4-uber.jar">syncope-installer-2.0.0-M4.jar</a>
               </td>
               <td>
-                <a href="https://www.apache.org/dist/syncope/2.0.0-M3/apache-syncope-2.0.0-M3.deb.asc">asc</a> 
-                <a href="https://www.apache.org/dist/syncope/2.0.0-M3/apache-syncope-2.0.0-M3.deb.md5">md5</a> 
-                <a href="https://www.apache.org/dist/syncope/2.0.0-M3/apache-syncope-2.0.0-M3.deb.sha1">sha1</a>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <a href="http://www.apache.org/dyn/closer.lua/syncope/2.0.0-M3/apache-syncope-console-2.0.0-M3.deb">apache-syncope-console-2.0.0-M3.deb</a>
-              </td>
-              <td>
-                <a href="https://www.apache.org/dist/syncope/2.0.0-M3/apache-syncope-console-2.0.0-M3.deb.asc">asc</a> 
-                <a href="https://www.apache.org/dist/syncope/2.0.0-M3/apache-syncope-console-2.0.0-M3.deb.md5">md5</a> 
-                <a href="https://www.apache.org/dist/syncope/2.0.0-M3/apache-syncope-console-2.0.0-M3.deb.sha1">sha1</a>
+                <a href="https://www.apache.org/dist/syncope/2.0.0-M4/syncope-installer-2.0.0-M4-uber.jar.asc">asc</a> 
+                <a href="https://www.apache.org/dist/syncope/2.0.0-M4/syncope-installer-2.0.0-M4-uber.jar.md5">md5</a> 
+                <a href="https://www.apache.org/dist/syncope/2.0.0-M4/syncope-installer-2.0.0-M4-uber.jar.sha1">sha1</a>
               </td>
             </tr>
             <tr>
               <td>
-                <a href="http://www.apache.org/dyn/closer.lua/syncope/2.0.0-M3/apache-syncope-enduser-2.0.0-M3.deb">apache-syncope-enduser-2.0.0-M3.deb</a>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/2.0.0-M4/syncope-client-cli-2.0.0-M4.zip">syncope-client-cli-2.0.0-M4.zip</a>
               </td>
               <td>
-                <a href="https://www.apache.org/dist/syncope/2.0.0-M3/apache-syncope-enduser-2.0.0-M3.deb.asc">asc</a> 
-                <a href="https://www.apache.org/dist/syncope/2.0.0-M3/apache-syncope-enduser-2.0.0-M3.deb.md5">md5</a> 
-                <a href="https://www.apache.org/dist/syncope/2.0.0-M3/apache-syncope-enduser-2.0.0-M3.deb.sha1">sha1</a>
+                <a href="https://www.apache.org/dist/syncope/2.0.0-M4/syncope-client-cli-2.0.0-M4.zip.asc">asc</a> 
+                <a href="https://www.apache.org/dist/syncope/2.0.0-M4/syncope-client-cli-2.0.0-M4.zip.md5">md5</a> 
+                <a href="https://www.apache.org/dist/syncope/2.0.0-M4/syncope-client-cli-2.0.0-M4.zip.sha1">sha1</a>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/2.0.0-M4/apache-syncope-2.0.0-M4.deb">apache-syncope-2.0.0-M4.deb</a>
+              </td>
+              <td>
+                <a href="https://www.apache.org/dist/syncope/2.0.0-M4/apache-syncope-2.0.0-M4.deb.asc">asc</a> 
+                <a href="https://www.apache.org/dist/syncope/2.0.0-M4/apache-syncope-2.0.0-M4.deb.md5">md5</a> 
+                <a href="https://www.apache.org/dist/syncope/2.0.0-M4/apache-syncope-2.0.0-M4.deb.sha1">sha1</a>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/2.0.0-M4/apache-syncope-console-2.0.0-M4.deb">apache-syncope-console-2.0.0-M4.deb</a>
+              </td>
+              <td>
+                <a href="https://www.apache.org/dist/syncope/2.0.0-M4/apache-syncope-console-2.0.0-M4.deb.asc">asc</a> 
+                <a href="https://www.apache.org/dist/syncope/2.0.0-M4/apache-syncope-console-2.0.0-M4.deb.md5">md5</a> 
+                <a href="https://www.apache.org/dist/syncope/2.0.0-M4/apache-syncope-console-2.0.0-M4.deb.sha1">sha1</a>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/2.0.0-M4/apache-syncope-enduser-2.0.0-M4.deb">apache-syncope-enduser-2.0.0-M4.deb</a>
+              </td>
+              <td>
+                <a href="https://www.apache.org/dist/syncope/2.0.0-M4/apache-syncope-enduser-2.0.0-M4.deb.asc">asc</a> 
+                <a href="https://www.apache.org/dist/syncope/2.0.0-M4/apache-syncope-enduser-2.0.0-M4.deb.md5">md5</a> 
+                <a href="https://www.apache.org/dist/syncope/2.0.0-M4/apache-syncope-enduser-2.0.0-M4.deb.sha1">sha1</a>
               </td>
             </tr>
           </tbody>
