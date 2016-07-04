@@ -29,14 +29,11 @@ import javax.persistence.TypedQuery;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
-import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
@@ -47,7 +44,6 @@ import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
-import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.Realm;
@@ -275,49 +271,6 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         }
 
         entityManager().remove(group);
-    }
-
-    private void populateTransitiveResources(
-            final Group group, final Any<?> any, final Map<String, PropagationByResource> result) {
-
-        PropagationByResource propByRes = new PropagationByResource();
-        for (ExternalResource resource : group.getResources()) {
-            if (!any.getResources().contains(resource)) {
-                propByRes.add(ResourceOperation.DELETE, resource.getKey());
-            }
-
-            if (!propByRes.isEmpty()) {
-                result.put(any.getKey(), propByRes);
-            }
-        }
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public Map<String, PropagationByResource> findAnyObjectsWithTransitiveResources(final String groupKey) {
-        Group group = authFind(groupKey);
-
-        Map<String, PropagationByResource> result = new HashMap<>();
-
-        for (AMembership membership : findAMemberships(group)) {
-            populateTransitiveResources(group, membership.getLeftEnd(), result);
-        }
-
-        return result;
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public Map<String, PropagationByResource> findUsersWithTransitiveResources(final String groupKey) {
-        Group group = authFind(groupKey);
-
-        Map<String, PropagationByResource> result = new HashMap<>();
-
-        for (UMembership membership : findUMemberships(group)) {
-            populateTransitiveResources(group, membership.getLeftEnd(), result);
-        }
-
-        return result;
     }
 
     @Override

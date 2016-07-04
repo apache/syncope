@@ -29,7 +29,7 @@ import org.apache.syncope.common.lib.patch.PasswordPatch;
 import org.apache.syncope.common.lib.patch.StringPatchItem;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.types.PatchOperation;
-import org.apache.syncope.common.lib.types.PropagationByResource;
+import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;

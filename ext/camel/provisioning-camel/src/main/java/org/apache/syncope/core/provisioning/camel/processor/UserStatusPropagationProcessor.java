@@ -24,7 +24,7 @@ import org.apache.camel.Processor;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.syncope.common.lib.patch.StatusPatch;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.PropagationByResource;
+import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.StatusPatchType;
 import org.apache.syncope.core.spring.ApplicationContextProvider;

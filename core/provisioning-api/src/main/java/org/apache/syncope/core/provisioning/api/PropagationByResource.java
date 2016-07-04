@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.types;
+package org.apache.syncope.core.provisioning.api;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -25,9 +25,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import org.apache.syncope.common.lib.types.ResourceOperation;
 
 /**
- * Utility class for encapsulating operations to be performed on various resources.
+ * Encapsulates operations to be performed on various resources.
  */
 public class PropagationByResource implements Serializable {
 
