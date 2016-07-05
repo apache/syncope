@@ -1,0 +1,77 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+//
+
+// Quick reference: http://asciidoctor.org/docs/asciidoc-syntax-quick-reference/
+// User manual: http://asciidoctor.org/docs/user-manual/
+// Tricks: https://leanpub.com/awesomeasciidoctornotebook/read
+
+:homepage: http://syncope.apache.org
+:description: Comprehensive guide about Apache Syncope
+:keywords: Apache Syncope, IdM, provisioning, identity management, reference, guide
+
+:docinfo1:
+:last-update-label!:
+:sectanchors:
+:sectnums:
+:sectlinks:
+
+= Apache Syncope - Reference Guide
+:revnumber: {docVersion}
+:toc: right
+:toclevels: 4
+
+image::http://syncope.apache.org/images/apache-syncope-logo-small.jpg[Apache Syncope logo]
+
+[NOTE]
+.This document is under active development and discussion!
+If you find errors or omissions in this document, please don’t hesitate to 
+http://syncope.apache.org/issue-tracking.html[submit an issue] or 
+https://github.com/apache/syncope/pulls[open a pull request] with 
+a fix. We also encourage you to ask questions and discuss any aspects of the project on the 
+http://syncope.apache.org/mailing-lists.html[mailing lists or IRC]. 
+New contributors are always welcome!
+
+[discrete] 
+== Preface
+This reference guide covers Apache Syncope services for identity management,
+provisioning, and compliance.
+
+== Introduction
+
+*Apache Syncope* is an Open Source system for managing digital identities in enterprise environments, implemented in 
+Java EE technology and released under the Apache 2.0 license. 
+
+*Identity Management* (or IdM) means to manage user data on systems and applications, using the combination of
+business processes and IT. IdM involves considering user attributes, roles, resources and entitlements in trying to answer the
+following thorny question:
+
+[.text-center]
+_Who has access to What, When, How, and Why?_ 
+
+include::iam/iam.adoc[]
+
+include::architecture/architecture.adoc[]
+
+include::concepts/concepts.adoc[]
+
+include::workingwithapachesyncope/workingwithapachesyncope.adoc[]
+
+include::extensions/extensions.adoc[]
+
+include::usecases/usecases.adoc[]

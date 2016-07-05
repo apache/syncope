@@ -1820,6 +1820,7 @@ under the License.
             <configuration>
               <doctype>book</doctype>
               <relativeBaseDir>true</relativeBaseDir>
+              <imagesDir>${basedir}/src/main/asciidoc/images</imagesDir>
               <sourceHighlighter>highlightjs</sourceHighlighter>
               <attributes>
                 <docVersion>${project.version}</docVersion>
@@ -1841,7 +1842,7 @@ under the License.
                   <goal>process-asciidoc</goal>
                 </goals>
                 <configuration>
-                  <sourceDocumentName>getting-started.adoc</sourceDocumentName>
+                  <sourceDocumentName>getting-started/getting-started.adoc</sourceDocumentName>
                   <backend>html</backend>
                 </configuration>
               </execution>
@@ -1852,7 +1853,7 @@ under the License.
                   <goal>process-asciidoc</goal>
                 </goals>
                 <configuration>
-                  <sourceDocumentName>getting-started.adoc</sourceDocumentName>
+                  <sourceDocumentName>getting-started/getting-started.adoc</sourceDocumentName>
                   <backend>pdf</backend>
                   <attributes>
                     <pdf-stylesdir>${basedir}/src/main/asciidoc</pdf-stylesdir>
@@ -1867,7 +1868,7 @@ under the License.
                   <goal>process-asciidoc</goal>
                 </goals>
                 <configuration>
-                  <sourceDocumentName>reference-guide.adoc</sourceDocumentName>
+                  <sourceDocumentName>reference-guide/reference-guide.adoc</sourceDocumentName>
                   <backend>html</backend>
                 </configuration>
               </execution>
@@ -1878,7 +1879,7 @@ under the License.
                   <goal>process-asciidoc</goal>
                 </goals>
                 <configuration>
-                  <sourceDocumentName>reference-guide.adoc</sourceDocumentName>
+                  <sourceDocumentName>reference-guide/reference-guide.adoc</sourceDocumentName>
                   <backend>pdf</backend>
                   <attributes>
                     <pdf-stylesdir>${basedir}/src/main/asciidoc</pdf-stylesdir>
