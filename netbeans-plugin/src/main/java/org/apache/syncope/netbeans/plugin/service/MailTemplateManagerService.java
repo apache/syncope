@@ -28,45 +28,41 @@ import org.apache.syncope.common.lib.types.MailTemplateFormat;
 import org.apache.syncope.common.rest.api.service.MailTemplateService;
 
 public class MailTemplateManagerService {
-    
+
     private MailTemplateService service;
-    
-    public MailTemplateManagerService(String url, String userName, 
-            String password) {
-        SyncopeClient syncopeClient = new SyncopeClientFactoryBean().
-                setAddress(url).create(userName,password); 
+
+    public MailTemplateManagerService(final String url, final String userName, final String password) {
+        SyncopeClient syncopeClient = new SyncopeClientFactoryBean().setAddress(url).create(userName, password);
         service = syncopeClient.getService(MailTemplateService.class);
     }
-     
-    public List<MailTemplateTO> list(){
+
+    public List<MailTemplateTO> list() {
         return service.list();
     }
-    
-    public boolean create(final MailTemplateTO mailTemplateTO){
-        return Response.Status.CREATED.getStatusCode() == 
-                service.create(mailTemplateTO).getStatus();
+
+    public boolean create(final MailTemplateTO mailTemplateTO) {
+        return Response.Status.CREATED.getStatusCode() == service.create(mailTemplateTO).getStatus();
     }
-    
-    public MailTemplateTO read(String key){
+
+    public MailTemplateTO read(final String key) {
         return service.read(key);
     }
-    
-    public boolean delete(String key){
+
+    public boolean delete(final String key) {
         service.delete(key);
         return true;
     }
-    
-    public Object getFormat(String key, MailTemplateFormat format){
+
+    public Object getFormat(final String key, final MailTemplateFormat format) {
         return service.getFormat(key, format).getEntity();
     }
-    
-    public void setFormat(String key, MailTemplateFormat format,
-            InputStream templateIn){
+
+    public void setFormat(final String key, final MailTemplateFormat format, final InputStream templateIn) {
         service.setFormat(key, format, templateIn);
     }
-    
-    public boolean removeFormat(String key, MailTemplateFormat format){
+
+    public boolean removeFormat(final String key, final MailTemplateFormat format) {
         return false;
     }
-    
+
 }

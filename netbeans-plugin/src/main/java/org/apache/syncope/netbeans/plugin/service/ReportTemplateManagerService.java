@@ -28,46 +28,41 @@ import org.apache.syncope.common.lib.types.ReportTemplateFormat;
 import org.apache.syncope.common.rest.api.service.ReportTemplateService;
 
 public class ReportTemplateManagerService {
-    
-    ReportTemplateService service;
-    
-    public ReportTemplateManagerService(String url, String userName, 
-            String password) {
-        SyncopeClient syncopeClient = new SyncopeClientFactoryBean().
-                setAddress(url).create(userName,password); 
+
+    private ReportTemplateService service;
+
+    public ReportTemplateManagerService(final String url, final String userName, final String password) {
+        SyncopeClient syncopeClient = new SyncopeClientFactoryBean().setAddress(url).create(userName, password);
         service = syncopeClient.getService(ReportTemplateService.class);
-        
     }
-    
-    public List<ReportTemplateTO> list(){
+
+    public List<ReportTemplateTO> list() {
         return service.list();
     }
-    
-    public boolean create(final ReportTemplateTO reportTemplateTO){
-        return Response.Status.CREATED.getStatusCode() == 
-                service.create(reportTemplateTO).getStatus();
+
+    public boolean create(final ReportTemplateTO reportTemplateTO) {
+        return Response.Status.CREATED.getStatusCode() == service.create(reportTemplateTO).getStatus();
     }
-    
-    public ReportTemplateTO read(String key){
+
+    public ReportTemplateTO read(final String key) {
         return service.read(key);
     }
-        
-    public boolean delete(String key){
+
+    public boolean delete(final String key) {
         service.delete(key);
         return true;
     }
-    
-    public Object getFormat(String key, ReportTemplateFormat format){
+
+    public Object getFormat(final String key, final ReportTemplateFormat format) {
         return service.getFormat(key, format).getEntity();
     }
-    
-    public void setFormat(String key, ReportTemplateFormat format,
-            InputStream templateIn){
+
+    public void setFormat(final String key, final ReportTemplateFormat format, final InputStream templateIn) {
         service.setFormat(key, format, templateIn);
     }
-    
-    public boolean removeFormat(String key, ReportTemplateFormat format){
+
+    public boolean removeFormat(final String key, final ReportTemplateFormat format) {
         return false;
     }
-    
+
 }

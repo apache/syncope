@@ -27,25 +27,26 @@ import org.apache.syncope.netbeans.plugin.entity.UserProperties;
 import org.apache.syncope.netbeans.plugin.service.MailTemplateManagerService;
 import org.apache.syncope.netbeans.plugin.service.ReportTemplateManagerService;
 
-public class ResourceConnector {
-    
+public final class ResourceConnector {
+
     private static MailTemplateManagerService mailTemplateManagerService;
     private static ReportTemplateManagerService reportTemplateManagerService;
+
+    private ResourceConnector() {
+    }
     
-    public static MailTemplateManagerService getMailTemplateManagerService() 
-            throws IOException{
-        if(mailTemplateManagerService == null){
+    public static MailTemplateManagerService getMailTemplateManagerService() throws IOException {
+        if (mailTemplateManagerService == null) {
             UserProperties userProperties = getUserProperties();
             mailTemplateManagerService = new MailTemplateManagerService(
-                    userProperties.getUrl(),userProperties.getUserName(),
+                    userProperties.getUrl(), userProperties.getUserName(),
                     userProperties.getPassword());
         }
         return mailTemplateManagerService;
     }
-    
-    public static ReportTemplateManagerService getReportTemplateManagerService()
-            throws IOException{
-        if(reportTemplateManagerService == null){
+
+    public static ReportTemplateManagerService getReportTemplateManagerService() throws IOException {
+        if (reportTemplateManagerService == null) {
             UserProperties userProperties = getUserProperties();
             reportTemplateManagerService = new ReportTemplateManagerService(
                     userProperties.getUrl(), userProperties.getUserName(),
@@ -53,18 +54,16 @@ public class ResourceConnector {
         }
         return reportTemplateManagerService;
     }
-    
-    private static UserProperties getUserProperties() 
-            throws FileNotFoundException, IOException{       
+
+    private static UserProperties getUserProperties() throws FileNotFoundException, IOException {
         File file = new File("UserData.txt");
         BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
         String url = bufferedReader.readLine();
         String userName = bufferedReader.readLine();
         String password = bufferedReader.readLine();
-        
-        UserProperties userProperties = new UserProperties(url, userName, 
-                password);
-        return userProperties;  
+
+        UserProperties userProperties = new UserProperties(url, userName, password);
+        return userProperties;
     }
-    
+
 }
