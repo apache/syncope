@@ -104,6 +104,7 @@ public class ReportJobDelegate {
         zos.setLevel(Deflater.BEST_COMPRESSION);
         try {
             SAXTransformerFactory tFactory = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
+            tFactory.setFeature(javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING, true);
             handler = tFactory.newTransformerHandler();
             Transformer serializer = handler.getTransformer();
             serializer.setOutputProperty(OutputKeys.ENCODING, SyncopeConstants.DEFAULT_ENCODING);

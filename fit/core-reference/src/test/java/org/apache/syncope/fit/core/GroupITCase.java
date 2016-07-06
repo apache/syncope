@@ -141,6 +141,14 @@ public class GroupITCase extends AbstractITCase {
     }
 
     @Test
+    public void createWithInternationalCharacters() {
+        GroupTO groupTO = getSampleTO("räksmörgås");
+
+        groupTO = createGroup(groupTO).getEntity();
+        assertNotNull(groupTO);
+    }
+
+    @Test
     public void delete() {
         try {
             groupService.delete(UUID.randomUUID().toString());

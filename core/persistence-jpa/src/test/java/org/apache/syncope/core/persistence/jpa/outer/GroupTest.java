@@ -30,6 +30,7 @@ import java.util.HashSet;
 import java.util.List;
 import javax.persistence.TypedQuery;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
@@ -144,6 +145,16 @@ public class GroupTest extends AbstractTest {
         assertNotNull(group);
         assertEquals(1, group.getTypeExtensions().size());
         assertEquals(2, group.getTypeExtension(anyTypeDAO.findUser()).getAuxClasses().size());
+    }
+
+    @Test
+    public void createWithInternationalCharacters() {
+        Group group = entityFactory.newEntity(Group.class);
+        group.setName("räksmörgås");
+        group.setRealm(realmDAO.findByFullPath(SyncopeConstants.ROOT_REALM));
+
+        groupDAO.save(group);
+        groupDAO.flush();
     }
 
     @Test
