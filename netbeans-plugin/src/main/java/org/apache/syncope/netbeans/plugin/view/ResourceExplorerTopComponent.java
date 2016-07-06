@@ -289,6 +289,8 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                 }
             }
         });
+        
+        menu.show(evt.getComponent(), evt.getX(), evt.getY());
     }
     
     private void folderRightClickAction(final MouseEvent evt, 
