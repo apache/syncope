@@ -28,7 +28,7 @@ public class ServerDetailsView extends javax.swing.JDialog {
     /**
      * Creates new form LoginView
      */
-    public ServerDetailsView(java.awt.Frame parent, boolean modal) {
+    public ServerDetailsView(final java.awt.Frame parent, final boolean modal) {
         super(parent, modal);
         initComponents();
         setLocationRelativeTo(this);
@@ -126,11 +126,9 @@ public class ServerDetailsView extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
-        
         String url = urlTxt.getText();
         String userName = userNameTxt.getText();
         String password = new String(passwordTxt.getPassword());
-        
         File file = new File("UserData.txt");
         try {
             FileWriter fileWriter = new FileWriter(file);
@@ -138,22 +136,19 @@ public class ServerDetailsView extends javax.swing.JDialog {
             fileWriter.flush();
             this.dispose();
         } catch (IOException ex) {
-            JOptionPane.showMessageDialog(this, "Error while saving Data."
-                    ,"Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Error while saving Data.", "Error", JOptionPane.ERROR_MESSAGE);
         }
-       
     }//GEN-LAST:event_okButtonActionPerformed
-    
-    public void setDetails(String host,String userName, String password){
+    public void setDetails(final String host, final String userName,
+            final String password) {
         urlTxt.setText(host);
         userNameTxt.setText(userName);
         passwordTxt.setText(password);
     }
-    
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {
+    public static void main(final String[] args){
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
@@ -177,14 +172,15 @@ public class ServerDetailsView extends javax.swing.JDialog {
         }
         //</editor-fold>
         //</editor-fold>
-
         /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                ServerDetailsView dialog = new ServerDetailsView(new javax.swing.JFrame(), true);
+                ServerDetailsView dialog = new ServerDetailsView(
+                        new javax.swing.JFrame(), true);
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
-                    public void windowClosing(java.awt.event.WindowEvent e) {
+                    public void windowClosing(
+                            final java.awt.event.WindowEvent e) {
                         System.exit(0);
                     }
                 });

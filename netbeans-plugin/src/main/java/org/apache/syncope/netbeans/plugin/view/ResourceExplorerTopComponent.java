@@ -170,8 +170,7 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                     }
                 }
             }
-        } else if (evt.getButton() == MouseEvent.BUTTON3 && 
-                evt.getClickCount() == 1) {
+        } else if (evt.getButton() == MouseEvent.BUTTON3 && evt.getClickCount() == 1) {
             DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) 
                     resourceExplorerTree.getLastSelectedPathComponent();
             String selectedNodeName = (String) selectedNode.getUserObject();
@@ -183,9 +182,9 @@ public final class ResourceExplorerTopComponent extends TopComponent {
             } else if (selectedNodeName.equals(PluginConstants.
                     REPORT_XSLTS_CONSTANT)) {
                 folderRightClickAction(evt, reportXslts);
-            } else if(selectedNodeName.equals(
-                    PluginConstants.VISIBLE_ROOT_NAME)){
-                rootRightClickAction(evt);    
+            } else if (selectedNodeName.equals(
+                    PluginConstants.VISIBLE_ROOT_NAME)) {
+                rootRightClickAction(evt);  
             }
         }
     }//GEN-LAST:event_resourceExplorerTreeMouseClicked
@@ -203,17 +202,16 @@ public final class ResourceExplorerTopComponent extends TopComponent {
         try {
             mailTemplateManagerService = ResourceConnector.getMailTemplateManagerService();
         } catch (IOException ex) {
-            JOptionPane.showMessageDialog(null, "Error Occured.", "Error", 
+            JOptionPane.showMessageDialog(null, "Error Occured.", "Error",
                     JOptionPane.ERROR_MESSAGE);
             new ServerDetailsView(null, true).setVisible(true);
         }
         try {
-            reportTemplateManagerService = 
+            reportTemplateManagerService =
                     ResourceConnector.getReportTemplateManagerService();
         } catch (IOException ex) {
             new ServerDetailsView(null, true).setVisible(true);
         }
-
         addMailTemplates();
         addReportXslts();
     }
@@ -223,21 +221,21 @@ public final class ResourceExplorerTopComponent extends TopComponent {
         // TODO add custom code on component closing
     }
 
-    void writeProperties(java.util.Properties p) {
+    void writeProperties(final java.util.Properties p) {
         // better to version settings since initial version as advocated at
         // http://wiki.apidesign.org/wiki/PropertyFiles
         p.setProperty("version", "1.0");
         // TODO store your settings
     }
 
-    void readProperties(java.util.Properties p) {
+    void readProperties(final java.util.Properties p) {
         String version = p.getProperty("version");
         // TODO read your settings according to their version
     }
 
     private void addMailTemplates() {
-        List<MailTemplateTO> mailTemplates = mailTemplateManagerService.list();
-        for (MailTemplateTO mailTemplate : mailTemplates) {
+        List<MailTemplateTO> mailTemplateList = mailTemplateManagerService.list();
+        for (MailTemplateTO mailTemplate : mailTemplateList) {
             this.mailTemplates.add(new DefaultMutableTreeNode(
                     mailTemplate.getKey()));
         }
@@ -245,8 +243,7 @@ public final class ResourceExplorerTopComponent extends TopComponent {
     }
 
     private void addReportXslts() {
-        List<ReportTemplateTO> reportTemplates = 
-                reportTemplateManagerService.list();
+        List<ReportTemplateTO> reportTemplates = reportTemplateManagerService.list();
         for (ReportTemplateTO reportTemplate : reportTemplates) {
             reportXslts.add(new DefaultMutableTreeNode(
                     reportTemplate.getKey()));
@@ -254,7 +251,7 @@ public final class ResourceExplorerTopComponent extends TopComponent {
         treeModel.reload();
     }
 
-    private void rootRightClickAction(final MouseEvent evt){
+    private void rootRightClickAction(final MouseEvent evt) {
         JPopupMenu menu = new JPopupMenu();
         JMenuItem saveItem = new JMenuItem("Save");
         JMenuItem resetConnectionItem = new JMenuItem("Reset Connection");

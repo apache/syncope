@@ -27,7 +27,8 @@ public class UserProperties {
     public UserProperties() {
     }
 
-    public UserProperties(String url, String userName, String password) {
+    public UserProperties(final String url, final String userName, 
+            final String password) {
         this.url = url;
         this.userName = userName;
         this.password = password;
@@ -57,22 +58,21 @@ public class UserProperties {
     /**
      * @param url the url to set
      */
-    public void setUrl(String url) {
+    public void setUrl(final String url) {
         this.url = url;
     }
 
     /**
      * @param userName the userName to set
      */
-    public void setUserName(String userName) {
+    public void setUserName(final String userName) {
         this.userName = userName;
     }
 
     /**
      * @param password the password to set
      */
-    public void setPassword(String password) {
+    public void setPassword(final String password) {
         this.password = password;
     }
-    
 }
