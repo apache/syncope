@@ -55,12 +55,12 @@ public class PreferenceManager implements Serializable {
 
     private static final List<Integer> PAGINATOR_CHOICES = Arrays.asList(new Integer[] { 10, 25, 50 });
 
-    private final transient CookieUtils cookieUtils;
+    private static final CookieUtils COOKIE_UTILS;
 
-    public PreferenceManager() {
+    static {
         CookieDefaults cookieDefaults = new CookieDefaults();
         cookieDefaults.setMaxAge(ONE_YEAR_TIME);
-        this.cookieUtils = new CookieUtils(cookieDefaults);
+        COOKIE_UTILS = new CookieUtils(cookieDefaults);
     }
 
     public List<Integer> getPaginatorChoices() {
@@ -93,7 +93,7 @@ public class PreferenceManager implements Serializable {
     public String get(final Request request, final String key) {
         String result = null;
 
-        String prefString = cookieUtils.load(COOKIE_NAME);
+        String prefString = COOKIE_UTILS.load(COOKIE_NAME);
         if (prefString != null) {
             final Map<String, String> prefs = getPrefs(new String(Base64.decodeBase64(prefString.getBytes())));
             result = prefs.get(key);
@@ -129,7 +129,7 @@ public class PreferenceManager implements Serializable {
     public void set(final Request request, final Response response, final Map<String, List<String>> prefs) {
         Map<String, String> current = new HashMap<>();
 
-        String prefString = cookieUtils.load(COOKIE_NAME);
+        String prefString = COOKIE_UTILS.load(COOKIE_NAME);
         if (prefString != null) {
             current.putAll(getPrefs(new String(Base64.decodeBase64(prefString.getBytes()))));
         }
@@ -140,14 +140,14 @@ public class PreferenceManager implements Serializable {
         }
 
         try {
-            cookieUtils.save(COOKIE_NAME, new String(Base64.encodeBase64(setPrefs(current).getBytes())));
+            COOKIE_UTILS.save(COOKIE_NAME, new String(Base64.encodeBase64(setPrefs(current).getBytes())));
         } catch (IOException e) {
             LOG.error("Could not save {} info: {}", getClass().getSimpleName(), current, e);
         }
     }
 
     public void set(final Request request, final Response response, final String key, final String value) {
-        String prefString = cookieUtils.load(COOKIE_NAME);
+        String prefString = COOKIE_UTILS.load(COOKIE_NAME);
 
         final Map<String, String> current = new HashMap<>();
         if (prefString != null) {
@@ -158,7 +158,7 @@ public class PreferenceManager implements Serializable {
         current.put(key, value);
 
         try {
-            cookieUtils.save(COOKIE_NAME, new String(Base64.encodeBase64(setPrefs(current).getBytes())));
+            COOKIE_UTILS.save(COOKIE_NAME, new String(Base64.encodeBase64(setPrefs(current).getBytes())));
         } catch (IOException e) {
             LOG.error("Could not save {} info: {}", getClass().getSimpleName(), current, e);
         }
