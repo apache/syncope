@@ -427,52 +427,92 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
         // Succeeded, only if on 'ALL' level
         if (traceLevel == TraceLevel.ALL) {
             if (includeUser) {
-                report.append("\n\nUsers created:\n").
-                        append(ProvisioningReport.generate(uSuccCreate, traceLevel)).
-                        append("\nUsers updated:\n").
-                        append(ProvisioningReport.generate(uSuccUpdate, traceLevel)).
-                        append("\nUsers deleted:\n").
-                        append(ProvisioningReport.generate(uSuccDelete, traceLevel)).
-                        append("\nUsers no operation:\n").
-                        append(ProvisioningReport.generate(uSuccNone, traceLevel)).
-                        append("\nUsers ignored:\n").
-                        append(ProvisioningReport.generate(uIgnore, traceLevel));
+                if (!uSuccCreate.isEmpty()) {
+                    report.append("\n\nUsers created:\n").
+                            append(ProvisioningReport.generate(uSuccCreate, traceLevel));
+                }
+                if (!uSuccUpdate.isEmpty()) {
+                    report.append("\nUsers updated:\n").
+                            append(ProvisioningReport.generate(uSuccUpdate, traceLevel));
+                }
+                if (!uSuccDelete.isEmpty()) {
+                    report.append("\nUsers deleted:\n").
+                            append(ProvisioningReport.generate(uSuccDelete, traceLevel));
+                }
+                if (!uSuccNone.isEmpty()) {
+                    report.append("\nUsers no operation:\n").
+                            append(ProvisioningReport.generate(uSuccNone, traceLevel));
+                }
+                if (!uIgnore.isEmpty()) {
+                    report.append("\nUsers ignored:\n").
+                            append(ProvisioningReport.generate(uIgnore, traceLevel));
+                }
             }
             if (includeGroup) {
-                report.append("\n\nGroups created:\n").
-                        append(ProvisioningReport.generate(gSuccCreate, traceLevel)).
-                        append("\nGroups updated:\n").
-                        append(ProvisioningReport.generate(gSuccUpdate, traceLevel)).
-                        append("\nGroups deleted:\n").
-                        append(ProvisioningReport.generate(gSuccDelete, traceLevel)).
-                        append("\nGroups no operation:\n").
-                        append(ProvisioningReport.generate(gSuccNone, traceLevel)).
-                        append("\nGroups ignored:\n").
-                        append(ProvisioningReport.generate(gSuccNone, traceLevel));
+                if (!gSuccCreate.isEmpty()) {
+                    report.append("\n\nGroups created:\n").
+                            append(ProvisioningReport.generate(gSuccCreate, traceLevel));
+                }
+                if (!gSuccUpdate.isEmpty()) {
+                    report.append("\nGroups updated:\n").
+                            append(ProvisioningReport.generate(gSuccUpdate, traceLevel));
+                }
+                if (!gSuccDelete.isEmpty()) {
+                    report.append("\nGroups deleted:\n").
+                            append(ProvisioningReport.generate(gSuccDelete, traceLevel));
+                }
+                if (!gSuccNone.isEmpty()) {
+                    report.append("\nGroups no operation:\n").
+                            append(ProvisioningReport.generate(gSuccNone, traceLevel));
+                }
+                if (!gIgnore.isEmpty()) {
+                    report.append("\nGroups ignored:\n").
+                            append(ProvisioningReport.generate(gIgnore, traceLevel));
+                }
             }
             if (includeAnyObject) {
-                report.append("\n\nAny objects created:\n").
-                        append(ProvisioningReport.generate(aSuccCreate, traceLevel)).
-                        append("\nAny objects updated:\n").
-                        append(ProvisioningReport.generate(aSuccUpdate, traceLevel)).
-                        append("\nAny objects deleted:\n").
-                        append(ProvisioningReport.generate(aSuccDelete, traceLevel)).
-                        append("\nAny objects no operation:\n").
-                        append(ProvisioningReport.generate(aSuccNone, traceLevel)).
-                        append("\nAny objects ignored:\n").
-                        append(ProvisioningReport.generate(aSuccNone, traceLevel));
+                if (!aSuccCreate.isEmpty()) {
+                    report.append("\n\nAny objects created:\n").
+                            append(ProvisioningReport.generate(aSuccCreate, traceLevel));
+                }
+                if (!aSuccUpdate.isEmpty()) {
+                    report.append("\nAny objects updated:\n").
+                            append(ProvisioningReport.generate(aSuccUpdate, traceLevel));
+                }
+                if (!aSuccDelete.isEmpty()) {
+                    report.append("\nAny objects deleted:\n").
+                            append(ProvisioningReport.generate(aSuccDelete, traceLevel));
+                }
+                if (!aSuccNone.isEmpty()) {
+                    report.append("\nAny objects no operation:\n").
+                            append(ProvisioningReport.generate(aSuccNone, traceLevel));
+                }
+                if (!aIgnore.isEmpty()) {
+                    report.append("\nAny objects ignored:\n").
+                            append(ProvisioningReport.generate(aIgnore, traceLevel));
+                }
             }
             if (includeRealm) {
-                report.append("\n\nRealms created:\n").
-                        append(ProvisioningReport.generate(rSuccCreate, traceLevel)).
-                        append("\nRealms updated:\n").
-                        append(ProvisioningReport.generate(rSuccUpdate, traceLevel)).
-                        append("\nRealms deleted:\n").
-                        append(ProvisioningReport.generate(rSuccDelete, traceLevel)).
-                        append("\nRealms no operation:\n").
-                        append(ProvisioningReport.generate(rSuccNone, traceLevel)).
-                        append("\nRealms ignored:\n").
-                        append(ProvisioningReport.generate(rSuccNone, traceLevel));
+                if (!rSuccCreate.isEmpty()) {
+                    report.append("\n\nRealms created:\n").
+                            append(ProvisioningReport.generate(rSuccCreate, traceLevel));
+                }
+                if (!rSuccUpdate.isEmpty()) {
+                    report.append("\nRealms updated:\n").
+                            append(ProvisioningReport.generate(rSuccUpdate, traceLevel));
+                }
+                if (!rSuccDelete.isEmpty()) {
+                    report.append("\nRealms deleted:\n").
+                            append(ProvisioningReport.generate(rSuccDelete, traceLevel));
+                }
+                if (!rSuccNone.isEmpty()) {
+                    report.append("\nRealms no operation:\n").
+                            append(ProvisioningReport.generate(rSuccNone, traceLevel));
+                }
+                if (!rIgnore.isEmpty()) {
+                    report.append("\nRealms ignored:\n").
+                            append(ProvisioningReport.generate(rIgnore, traceLevel));
+                }
             }
         }
 

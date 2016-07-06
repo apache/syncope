@@ -30,12 +30,10 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.workflow.api.WorkflowDefinitionFormat;
 import org.apache.syncope.core.workflow.api.WorkflowException;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Simple implementation basically not involving any workflow engine.
  */
-@Transactional(rollbackFor = { Throwable.class })
 public class DefaultAnyObjectWorkflowAdapter extends AbstractAnyObjectWorkflowAdapter {
 
     @Override
