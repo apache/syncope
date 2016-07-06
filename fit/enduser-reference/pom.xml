@@ -321,12 +321,7 @@ under the License.
     
     <profile>
       <id>jrebel</id>
-      
-      <properties>
-        <!-- Temporary until JRebel properly supports Tomcat 8.5 -->
-        <tomcat.version>8.0.36</tomcat.version>
-      </properties>
-      
+
       <build>
         <defaultGoal>clean verify cargo:run</defaultGoal>
 
