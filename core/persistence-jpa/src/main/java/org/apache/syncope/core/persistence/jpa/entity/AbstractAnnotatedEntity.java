@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.jpa.entity;
 
 import java.util.Date;
-import javax.persistence.Column;
 import javax.persistence.EntityListeners;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Temporal;
@@ -39,13 +38,11 @@ public abstract class AbstractAnnotatedEntity extends AbstractGeneratedKeyEntity
      * Username of the user that has created this profile.
      * Reference to existing user cannot be used: the creator can either be <tt>admin</tt> or was deleted.
      */
-    @Column(nullable = false)
     private String creator;
 
     /**
      * Creation date.
      */
-    @Column(nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date creationDate;
 
@@ -55,14 +52,12 @@ public abstract class AbstractAnnotatedEntity extends AbstractGeneratedKeyEntity
      * The modifier can be the user itself if the last performed change was a self-modification.
      * Reference to existing user cannot be used: the creator can either be <tt>admin</tt> or was deleted.
      */
-    @Column(nullable = false)
     private String lastModifier;
 
     /**
      * Last change date.
      * This field cannot be null: at creation time it needs to be initialized with <tt>creationDate</tt> field value.
      */
-    @Column(nullable = false)
     @Temporal(TemporalType.TIMESTAMP)
     private Date lastChangeDate;
 
