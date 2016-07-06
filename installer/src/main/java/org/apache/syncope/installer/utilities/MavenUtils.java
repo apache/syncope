@@ -165,6 +165,7 @@ public class MavenUtils {
             tempSettingsXML.createNewFile();
 
             final DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+            dbf.setFeature(javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING, true);
             final DocumentBuilder builder = dbf.newDocumentBuilder();
             // parse settings.xml
             final Document settings = builder.parse(settingsXML);

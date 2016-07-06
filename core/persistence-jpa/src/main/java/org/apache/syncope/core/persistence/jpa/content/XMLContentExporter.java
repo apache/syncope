@@ -316,6 +316,7 @@ public class XMLContentExporter extends AbstractContentDealer implements Content
 
         StreamResult streamResult = new StreamResult(os);
         final SAXTransformerFactory transformerFactory = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
+        transformerFactory.setFeature(javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING, true);
 
         TransformerHandler handler = transformerFactory.newTransformerHandler();
         Transformer serializer = handler.getTransformer();
