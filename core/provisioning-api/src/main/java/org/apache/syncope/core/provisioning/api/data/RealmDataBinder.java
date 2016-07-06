@@ -19,7 +19,7 @@
 package org.apache.syncope.core.provisioning.api.data;
 
 import org.apache.syncope.common.lib.to.RealmTO;
-import org.apache.syncope.common.lib.types.PropagationByResource;
+import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 
 public interface RealmDataBinder {

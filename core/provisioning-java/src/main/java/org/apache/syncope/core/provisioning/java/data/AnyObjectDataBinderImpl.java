@@ -40,7 +40,7 @@ import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PatchOperation;
-import org.apache.syncope.common.lib.types.PropagationByResource;
+import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.spring.BeanUtils;
 import org.apache.syncope.core.provisioning.api.utils.EntityUtils;

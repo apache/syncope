@@ -34,17 +34,18 @@ import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.GroupProvisioningManager;
+import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
+import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
 
 public class DefaultGroupProvisioningManager implements GroupProvisioningManager {
@@ -57,6 +58,9 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
 
     @Autowired
     protected PropagationTaskExecutor taskExecutor;
+
+    @Autowired
+    protected GroupDataBinder groupDataBinder;
 
     @Autowired
     protected GroupDAO groupDAO;
@@ -156,7 +160,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
         // Generate propagation tasks for deleting users and any objects from group resources, 
         // if they are on those resources only because of the reason being deleted (see SYNCOPE-357)
         for (Map.Entry<String, PropagationByResource> entry
-                : groupDAO.findUsersWithTransitiveResources(key).entrySet()) {
+                : groupDataBinder.findUsersWithTransitiveResources(key).entrySet()) {
 
             tasks.addAll(propagationManager.getDeleteTasks(
                     AnyTypeKind.USER,
@@ -165,7 +169,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                     excludedResources));
         }
         for (Map.Entry<String, PropagationByResource> entry
-                : groupDAO.findAnyObjectsWithTransitiveResources(key).entrySet()) {
+                : groupDataBinder.findAnyObjectsWithTransitiveResources(key).entrySet()) {
 
             tasks.addAll(propagationManager.getDeleteTasks(
                     AnyTypeKind.ANY_OBJECT,

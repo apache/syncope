@@ -1,0 +1,81 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+//
+
+===== User command
+The user command retrieves information about the users.
+
+[discrete]
+====== Help message
+[source,bash]
+----
+Usage: user [options]
+  Options:
+    --help 
+    --list 
+    --details 
+    --get-user-key
+       Syntax: --get-user-key {USERNAME} {USERNAME} [...]
+    --get-username
+       Syntax: --get-username {USER-ID} {USER-ID} [...]
+    --read-by-usernam
+       Syntax: --read-by-usernam {USERNAME} {USERNAME} [...]
+    --read-by-userid
+       Syntax: --read-by-userid {USER-ID} {USER-ID} [...]
+    --search-by-attribute
+       Syntax: --search-by-attribute {REALM} {ATTR-NAME}={ATTR-VALUE}
+    --search-by-role
+       Syntax: --search-by-role {REALM} {ROLE-ID}
+    --search-by-resource
+       Syntax: --search-by-resource {REALM} {RESOURCE-NAME}
+    --delete
+       Syntax: --delete {USER-ID} {USER-ID} [...]
+    --delete-all 
+       Syntax: --delete-all {REALM}
+    --delete-by-attribute
+       Syntax: --delete-by-attribute {REALM} {ATTR-NAME}={ATTR-VALUE}
+----
+
+[discrete]
+====== Options
+
+--details::
+This option shows a table with some details about the users.
+-- List option::
+Running the command with this option you will see the list of all users in the environment. However, the system will 
+ask you a confirmation before execution, because as you can imagine this operation might produce very large output.
+--get-user-key::
+The option to get the user key starting from a username.
+--get-username::
+The option to get the username starting from a user id.
+--read-by-userid::
+The option to read user information by their user id.
+--read-by-usernam::
+The option to read user information by their username.
+--search-by-attribute::
+The option to search a list of users with a common attribute.
+--search-by-role::
+The option to search a list of users with a specified role.
+--search-by-resource::
+The option to search a list of users with a specified resource.
+--delete
+The option to delete a specified user.
+--delete-by-attribute
+The option to delete the users with a common attribute.
+--delete-all
+The option to delete all users of the realm passed as input.

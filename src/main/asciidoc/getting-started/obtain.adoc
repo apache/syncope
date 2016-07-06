@@ -1,0 +1,489 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+//
+
+== Obtain Apache Syncope
+
+There are several ways to obtain Apache Syncope: each of which has advantages or caveats for different types of users.
+
+=== Standalone
+
+The standalone distribution is the simplest way to start exploring Apache Syncope: it contains a fully working, in-memory
+Tomcat-based environment that can be easily grabbed and put at work on any modern laptop, workstation or server. 
+
+[CAUTION]
+.Target Audience
+First approach, especially with administration console and end-user; does not require technical skills. +
+*Not meant for any production environment.*
+
+Getting ready in a few easy steps:
+
+. http://syncope.apache.org/downloads.html[download^] the standalone distribution
+. unzip the distribution archive
+. go into the created Apache Tomcat directory
+. start Apache Tomcat
+* GNU / Linux, Mac OS X
++
+[source,bash]
+----
+$ chmod 755 ./bin/*.sh
+$ ./bin/startup.sh
+----
++
+* Windows
++
+[source,cmd]
+----
+> bin/startup.bat
+----
+
+[TIP]
+Please refer to the http://tomcat.apache.org/tomcat-8.0-doc/[Apache Tomcat documentation^] for more advanced setup and 
+instructions.
+
+==== Components
+
+The set of available components, including access URLs and credentials, is the same as reported for 
+<<paths-and-components,embedded mode>>, with the exception of log files, available here under `$CATALINA_HOME/logs`.
+
+[TIP]
+.Internal Storage
+====
+By default, the standalone distribution is configured to use an in-memory database instance.
+This means that every time Tomcat is shut down all changes that have been made are lost.
+
+If you want instead to make your changes persistent, replace
+
+[source,java]
+jpa.url=jdbc:h2:mem:syncopedb;DB_CLOSE_DELAY=-1
+
+with
+
+[source,java]
+jpa.url=jdbc:h2:~/syncopedb;DB_CLOSE_DELAY=-1
+
+in `webapps/syncope/WEB-INF/classes/domains/Master.properties` (for `Master` domain) or
+`webapps/syncope/WEB-INF/classes/domains/Two.properties` (for `Two` domain) from the Apache Tomcat directory.
+This will create H2 database files in the home directory of the user running Apache Syncope.
+
+Please refer to the http://www.h2database.com/[H2 documentation^] for more options.
+====
+
+=== Debian packages
+
+Debian packages are available for use with http://www.debian.org/[Debian GNU / Linux^], 
+http://www.ubuntu.com/[Ubuntu^] and their derivatives. 
+
+[CAUTION]
+.Target Audience
+Getting up and running quickly on Debian / Ubuntu. +
+*Difficult to extend beyond pre-sets.*
+
+Download::
+http://syncope.apache.org/downloads.html[Download^] the latest .deb packages
+
+Prepare::
+. Install Apache Tomcat 8
++
+[source,bash]
+sudo apt-get install tomcat8
++
+[WARNING]
+*Ubuntu LTS 14.04 LTS* does not provide the tomcat8 package by default: you will need instead to download and manually
+install the following packages (from Ubuntu 14.10):
+http://packages.ubuntu.com/vivid/all/libecj-java/download[libecj-java]
+http://packages.ubuntu.com/vivid/all/libtomcat8-java/download[libtomcat8-java]
+http://packages.ubuntu.com/vivid/all/tomcat8-common/download[tomcat8-common]
+http://packages.ubuntu.com/vivid/all/tomcat8/download[tomcat8]
++
+. Install PostgreSQL
++
+[source,bash]
+sudo apt-get install libpostgresql-jdbc-java postgresql postgresql-client
++
+. Use the PostgreSQL JDBC driver with Tomcat
++
+[source,bash]
+sudo ln -s /usr/share/java/postgresql-jdbc4.jar /usr/share/tomcat8/lib/
++
+. Replace `JAVA_OPTS` in `/etc/default/tomcat8` with the following:
++
+[source,bash]
+----
+JAVA_OPTS="-Djava.awt.headless=true -Dfile.encoding=UTF-8 -server \
+  -Xms1536m -Xmx1536m -XX:NewSize=256m -XX:MaxNewSize=256m 
+  -XX:PermSize=256m -XX:MaxPermSize=256m -XX:+DisableExplicitGC"
+----
++
+Install::
+. Stop Tomcat
++
+[source,bash]
+sudo service tomcat8 stop
++
+. Install Apache Syncope core, console and enduser via the downloaded packages
++
+[source,bash]
+sudo dpkg -i apache-syncope-*.deb
++
+. Create a database for use with Apache Syncope
++
+[source,bash]
+sudo SYNCOPE_USER="syncope" SYNCOPE_PASS="syncope" sh /usr/share/apache-syncope/dbinit-postgresql.sh
++
+. Start Tomcat
++
+[source,bash]
+sudo service tomcat8 start
+
+==== Components
+
+CAUTION: The following assumes that Apache Tomcat is reachable on host `host.domain` and port `port`. 
+
+[cols="1,2"]
+|===
+
+| Complete REST API reference
+| http://host.domain:port/syncope/index.html
+
+| http://swagger.io/[Swagger^] UI
+| http://host.domain:port/syncope/swagger/
+
+| Administration console
+| http://host.domain:port/syncope-console/ +
+
+| End-user UI
+| http://localhost:9080/syncope-enduser/
+
+|===
+
+=== GUI Installer
+
+GUI application for configuring and deploying Apache Syncope on supported
+<<internal-storage,DBMSes>> and <<java-ee-container, Java EE containers>>.
+
+[CAUTION]
+.Target Audience
+Getting up and running quickly on any supported DBMS and Java EE container, independently from the underlying
+operating system. +
+*Difficult to extend beyond pre-sets.*
+
+==== Prerequisites
+
+ . http://maven.apache.org/[Apache Maven^] (version 3.0.3 or higher) installed
+ . one of the supported <<internal-storage,DBMSes>> up and running
+ . one of the supported <<java-ee-container, Java EE containers>> up and running
+ . A datasource with the name `syncopeDataSource` configured in the selected Java EE container, for a database instance in the
+ DBMS of choice
+
+[WARNING]
+====
+When deploying on Apache Tomcat, don't forget to configure a `manager` user; if not done yet, ensure that the content
+of `$CATALINA_HOME/conf/tomcat-users.xml` looks like:
+
+[source,xml]
+<?xml version='1.0' encoding='utf-8'?>
+<tomcat-users>
+  <role rolename="manager-gui"/>
+  <role rolename="manager-script"/>
+  <role rolename="manager-jmx"/>
+  <role rolename="manager-status"/>
+  <user username="manager" password="s3cret" roles="manager-script"/>
+</tomcat-users>
+====
+
+==== Usage
+
+Once http://syncope.apache.org/downloads.html[downloaded^], double-click the JAR file or execute via the command-line:
+
+[source,bash]
+java -jar syncope-installer-*-uber.jar
+
+image::installer-1.png[installer-1]
+
+image::installer-2.png[installer-2]
+
+image::installer-3.png[installer-3]
+
+image::installer-4.png[installer-4]
+
+Installation path::
+* installation path: is the directory where Syncope overlay will be created
+
+image::installer-5.png[installer-5]
+
+Maven::
+* *Maven home directory:* is the Maven home directory;
+* *Group ID:* something like 'com.mycompany' - maven overlay property;
+* *Artifact ID:* something like 'myproject' - maven overlay property;
+* *Secret Key:* Provide any pseudo-random, 16 character length, string here that will be used in the generated project for AES ciphering;
+* *Anonymous Key:* - Provide any pseudo-random, 16 character length, string here that will be used in the generated project for AES ciphering;
+* *Configuration directory:* where Syncope configuration files are stored;
+* *Log directory:* where Syncope logs are stored;
+* *Bundle directory:* where ConnId bundles are stored;
+* *Syncope version:* the project version that would be to install.
+
+image::installer-6.png[installer-6]
+
+Syncope options::
+* *Swagger:* check if you want to install http://swagger.io[Swagger UI^];
+* *Camel:* check if you want to install http://camel.apache.org[Camel provisioning^];
+* *Activiti workflow modeler:* check if you want to install http://activiti.org[Activiti modeler^] (default is true);
+
+image::installer-7.png[installer-7]
+
+Database::
+* DBMS where Syncope will be installed;
+
+image::installer-8.png[installer-8]
+
+Database settings::
+* Depends on DBMS selected (in the example: PostgreSQL)
+** Database JDBS url;
+** Database user;
+** Database password;
+
+image::installer-9.png[installer-9]
+
+Application server::
+* Container where Syncope will be deployed;
+
+image::installer-10.png[installer-10]
+
+Application server settings::
+* Depends on container selected (in the example: Tomcat)
+
+The next images shows how the installer print some feedback directly on the GUI or reading the log file under the
+configuration directory:
+
+[source]
+--
+/var/tmp/syncope_2_0_0/install.log
+--
+
+image::installer-11.png[installer-11]
+
+image::installer-12.png[installer-12]
+
+image::installer-13.png[installer-13]
+
+image::installer-14.png[installer-14]
+
+==== Components
+
+CAUTION: The following assumes that the Java EE container is reachable on host `host.domain` and port `port`. 
+
+[cols="1,2"]
+|===
+
+| Complete REST API reference
+| http://host.domain:port/syncope/index.html
+
+| http://swagger.io/[Swagger^] UI
+| http://host.domain:port/syncope/swagger/
+
+| Administration console
+| http://localhost:9080/syncope-console/ +
+Credentials: `admin` / `password`
+
+| End-user UI
+| http://localhost:9080/syncope-enduser/
+
+|===
+
+=== Maven Project
+
+This is the *preferred method* for working with Apache Syncope, giving access to the whole set of customization
+and extension capabilities.
+
+[CAUTION]
+.Target Audience
+Provides access to the full capabilities of Apache Syncope, and almost all extensions that are possible. +
+*Requires Apache Maven (and potentially https://en.wikipedia.org/wiki/DevOps[DevOps^]) skills.*
+
+==== Prerequisites
+
+ . http://maven.apache.org/[Apache Maven^] (version 3.0.3 or higher) installed
+ . Some basic knowledge about Maven
+ . Some basic knowledge about http://maven.apache.org/guides/introduction/introduction-to-archetypes.html[Maven archetypes^].
+
+==== Create project
+
+Maven archetypes are templates of projects. Maven can generate a new project from such a template. 
+In the folder in which the new project folder should be created, type the command shown below. 
+On Windows, run the command on a single line and leave out the line continuation characters ('\').
+
+ifeval::["{snapshotOrRelease}" == "release"]
+
+[subs="verbatim,attributes"]
+----
+mvn archetype:generate \
+    -DarchetypeGroupId=org.apache.syncope \
+    -DarchetypeArtifactId=syncope-archetype \
+    -DarchetypeRepository=http://repo1.maven.org/maven2 \
+    -DarchetypeVersion={docVersion}
+----
+
+endif::[]
+
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+
+[subs="verbatim,attributes"]
+----
+mvn archetype:generate \
+    -DarchetypeGroupId=org.apache.syncope \
+    -DarchetypeArtifactId=syncope-archetype \
+    -DarchetypeRepository=http://repository.apache.org/content/repositories/snapshots \
+    -DarchetypeVersion={docVersion}
+----
+
+[WARNING]
+====
+Once the Maven project is generated, add the following right before `</project>` in the root `pom.xml` of the 
+generated project:
+
+[source,xml]
+----
+<repositories>
+  <repository>
+    <id>ASF</id>
+    <url>https://repository.apache.org/content/repositories/snapshots/</url>
+    <snapshots>
+      <enabled>true</enabled>
+    </snapshots>
+  </repository>
+</repositories>
+----
+====
+
+endif::[]
+
+The archetype is configured with default values for all required properties; if you want to customize any of these 
+property values, type 'n' when prompted for confirmation.
+
+You will be asked for:
+
+groupId::
+    something like 'com.mycompany'
+artifactId::
+    something like 'myproject'
+version number::
+    You can use the default; it is good practice to have 'SNAPSHOT' in the version number during development and the 
+maven release plugin makes use of that string. But ensure to comply with the desired numbering scheme for your project.
+package name::
+    The java package name. A folder structure according to this name will be generated automatically; by default, equal 
+to the groupId.
+secretKey::
+    Provide any pseudo-random string here that will be used in the generated project for AES ciphering.
+anonymousKey:: 
+    Provide any pseudo-random string here that will be used as an authentication key for anonymous requests.
+
+Maven will create a project for you (in a newly created directory named after the value of the `artifactId` property 
+specified above) containing four modules: `common`, `core`, `console` and `enduser`.
+
+You are now able to perform the first build via
+
+[source,bash]
+mvn clean install
+
+After downloading all of the needed dependencies, three WAR files will be produced:
+
+. `core/target/syncope.war`
+. `console/target/syncope-console.war`
+. `enduser/target/syncope-enduser.war`
+
+If no failures are encountered, your basic Apache Syncope project is now ready to go.
+
+==== Embedded Mode
+
+Every Apache Syncope project has the ability to run a full-blown in-memory environment, particularly useful either when
+evaluating the product and during the development phase of an IdM solution.
+
+[WARNING]
+====
+Don't forget that this environment is completely in-memory: this means that every time Maven is stopped, all changes 
+made are lost.
+====
+
+From the top-level directory of your project, execute:
+
+[source,bash]
+mvn -P all clean install
+
+then, from the `enduser` subdirectory, execute:
+
+[source,bash]
+mvn -P embedded,all
+
+===== Paths and Components
+
+[cols="1,2"]
+|===
+
+| Log files
+| Available under `core/target/log`, `console/target/log` and `enduser/target/log`
+
+| ConnId bundles
+| Available under `core/target/bundles`
+
+| Complete REST API reference
+| http://localhost:9080/syncope/index.html
+
+| http://swagger.io/[Swagger^] UI
+| http://localhost:9080/syncope/swagger/
+
+| Administration console
+| http://localhost:9080/syncope-console/ +
+Credentials: `admin` / `password`
+
+| End-user UI
+| http://localhost:9080/syncope-enduser/
+
+| Internal storage
+| A SQL web interface is available at http://localhost:9080/syncope/db.jsp +
+ +
+ Choose configuration 'Generic H2 (Embedded)' +
+ Insert `jdbc:h2:mem:syncopedb` as JDBC URL +
+ Click 'Connect' button
+
+| External resource: LDAP
+| An http://directory.apache.org/apacheds/[Apache DS^] instance is available. +
+You can configure any LDAP client (as http://jxplorer.org/[JXplorer^], for example) with the following information: +
+ +
+ host: `localhost` +
+ port: `1389` +
+ base DN: `o=isp` +
+ bind DN: `uid=admin,ou=system` +
+ bind password: `secret`
+
+| External resource: SOAP
+| An example SOAP server is available at http://localhost:9080/wssample/services +
+ +
+ You can check its internal data by visiting http://localhost:9080/wssample/exploredb.jsp
+
+| External resource: database
+| http://www.h2database.com/[H2^] TCP database is available. +
+ +
+ A SQL web interface is available at http://localhost:9082/ +
+ +
+ Choose configuration 'Generic H2 (Server)' +
+ Insert `jdbc:h2:tcp://localhost:9092/mem:testdb` as JDBC URL +
+ Set 'sa' as password +
+ Click 'Connect' button
+
+|===

@@ -25,10 +25,10 @@ import java.util.Set;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
-import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
+import org.apache.syncope.core.provisioning.api.PropagationByResource;
+import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
@@ -49,7 +49,7 @@ public class GroupDeleteProcessor implements Processor {
     protected PropagationTaskExecutor taskExecutor;
 
     @Autowired
-    protected GroupDAO groupDAO;
+    protected GroupDataBinder groupDataBinder;
 
     @Override
     public void process(final Exchange exchange) throws Exception {
@@ -63,7 +63,7 @@ public class GroupDeleteProcessor implements Processor {
         // Generate propagation tasks for deleting users from group resources, if they are on those resources only
         // because of the reason being deleted (see SYNCOPE-357)
         for (Map.Entry<String, PropagationByResource> entry
-                : groupDAO.findUsersWithTransitiveResources(key).entrySet()) {
+                : groupDataBinder.findUsersWithTransitiveResources(key).entrySet()) {
 
             tasks.addAll(propagationManager.getDeleteTasks(
                     AnyTypeKind.USER,
@@ -72,7 +72,7 @@ public class GroupDeleteProcessor implements Processor {
                     excludedResources));
         }
         for (Map.Entry<String, PropagationByResource> entry
-                : groupDAO.findAnyObjectsWithTransitiveResources(key).entrySet()) {
+                : groupDataBinder.findAnyObjectsWithTransitiveResources(key).entrySet()) {
 
             tasks.addAll(propagationManager.getDeleteTasks(
                     AnyTypeKind.ANY_OBJECT,
