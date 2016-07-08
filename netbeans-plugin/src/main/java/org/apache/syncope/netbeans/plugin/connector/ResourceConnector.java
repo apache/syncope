@@ -29,30 +29,30 @@ import org.apache.syncope.netbeans.plugin.service.ReportTemplateManagerService;
 
 public final class ResourceConnector {
 
-    private static MailTemplateManagerService mailTemplateManagerService;
-    private static ReportTemplateManagerService reportTemplateManagerService;
+    private static MailTemplateManagerService MAIL_TTEMPLATE_MANAGER_SERVICE;
+    private static ReportTemplateManagerService REPORT_TEMPLATE_MANAGER_SERVICE;
 
     private ResourceConnector() {
     }
     
     public static MailTemplateManagerService getMailTemplateManagerService() throws IOException {
-        if (mailTemplateManagerService == null) {
+        if (MAIL_TTEMPLATE_MANAGER_SERVICE == null) {
             UserProperties userProperties = getUserProperties();
-            mailTemplateManagerService = new MailTemplateManagerService(
+            MAIL_TTEMPLATE_MANAGER_SERVICE = new MailTemplateManagerService(
                     userProperties.getUrl(), userProperties.getUserName(),
                     userProperties.getPassword());
         }
-        return mailTemplateManagerService;
+        return MAIL_TTEMPLATE_MANAGER_SERVICE;
     }
 
     public static ReportTemplateManagerService getReportTemplateManagerService() throws IOException {
-        if (reportTemplateManagerService == null) {
+        if (REPORT_TEMPLATE_MANAGER_SERVICE == null) {
             UserProperties userProperties = getUserProperties();
-            reportTemplateManagerService = new ReportTemplateManagerService(
+            REPORT_TEMPLATE_MANAGER_SERVICE = new ReportTemplateManagerService(
                     userProperties.getUrl(), userProperties.getUserName(),
                     userProperties.getPassword());
         }
-        return reportTemplateManagerService;
+        return REPORT_TEMPLATE_MANAGER_SERVICE;
     }
 
     private static UserProperties getUserProperties() throws FileNotFoundException, IOException {

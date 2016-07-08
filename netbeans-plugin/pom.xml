@@ -58,10 +58,10 @@ under the License.
             </plugin>
         </plugins>
     </build>
-    <properties>
+<!--    <properties>
         <checkstyle.skip>true</checkstyle.skip>
         <rat.skip>true</rat.skip>
-    </properties>
+    </properties>-->
     <dependencies>
         <dependency>
             <groupId>org.netbeans.api</groupId>

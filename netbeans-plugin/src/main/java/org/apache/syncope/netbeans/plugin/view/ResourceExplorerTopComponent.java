@@ -56,7 +56,6 @@ import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.util.Exceptions;
 import org.openide.windows.TopComponent;
-import org.openide.util.NbBundle.Messages;
 
 /**
  * Top component which displays something.
@@ -71,18 +70,13 @@ import org.openide.util.NbBundle.Messages;
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
 @TopComponent.Registration(mode = "explorer", openAtStartup = false)
-@ActionID(category = "Window", id = "org.apache.syncope.netbeans.plugin."
-        + "ResourceExplorerTopComponent")
+@ActionID(category = "Window", id = "org.apache.syncope.netbeans.plugin.ResourceExplorerTopComponent")
 @ActionReference(path = "Menu/Window" /*, position = 333 */)
 @TopComponent.OpenActionRegistration(
-        displayName = "#CTL_ResourceExplorerAction",
+        displayName = "Apache Syncope",
         preferredID = "ResourceExplorerTopComponent"
 )
-@Messages({
-    "CTL_ResourceExplorerAction=Apache Syncope",
-    "CTL_ResourceExplorerTopComponent=Apache Syncope",
-    "HINT_ResourceExplorerTopComponent=This is a Apache Syncope window"
-})
+
 public final class ResourceExplorerTopComponent extends TopComponent {
 
     private DefaultTreeModel treeModel;
@@ -95,13 +89,13 @@ public final class ResourceExplorerTopComponent extends TopComponent {
     public ResourceExplorerTopComponent() {
 
         initComponents();
-        setName(Bundle.CTL_ResourceExplorerTopComponent());
-        setToolTipText(Bundle.HINT_ResourceExplorerTopComponent());
+        setName(PluginConstants.DISPLAY_NAME);
+        setToolTipText(PluginConstants.TOOL_TIP_TEXT);
 
         treeModel = (DefaultTreeModel) resourceExplorerTree.getModel();
         root = (DefaultMutableTreeNode) treeModel.getRoot();
         DefaultMutableTreeNode visibleRoot
-                = new DefaultMutableTreeNode(PluginConstants.VISIBLE_ROOT_NAME);
+                = new DefaultMutableTreeNode(PluginConstants.DISPLAY_NAME);
         mailTemplates = new DefaultMutableTreeNode(PluginConstants.MAIL_TEMPLTAE_CONSTANT);
         reportXslts = new DefaultMutableTreeNode(PluginConstants.REPORT_XSLTS_CONSTANT);
         root.add(visibleRoot);
@@ -126,7 +120,7 @@ public final class ResourceExplorerTopComponent extends TopComponent {
         resourceExplorerTree.setRootVisible(false);
         resourceExplorerTree.setScrollsOnExpand(true);
         resourceExplorerTree.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
+            public void mouseClicked(final java.awt.event.MouseEvent evt) {
                 resourceExplorerTreeMouseClicked(evt);
             }
         });
@@ -142,9 +136,10 @@ public final class ResourceExplorerTopComponent extends TopComponent {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 445, Short.MAX_VALUE)
         );
-    }// </editor-fold>//GEN-END:initComponents
+    }
+    // </editor-fold>//GEN-END:initComponents
 
-    private void resourceExplorerTreeMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_resourceExplorerTreeMouseClicked
+    private void resourceExplorerTreeMouseClicked(final java.awt.event.MouseEvent evt) {
         if (evt.getButton() == MouseEvent.BUTTON1 && evt.getClickCount() == 2) {
             DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) resourceExplorerTree.
                     getLastSelectedPathComponent();
@@ -175,16 +170,17 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                 folderRightClickAction(evt, mailTemplates);
             } else if (selectedNodeName.equals(PluginConstants.REPORT_XSLTS_CONSTANT)) {
                 folderRightClickAction(evt, reportXslts);
-            } else if (selectedNodeName.equals(PluginConstants.VISIBLE_ROOT_NAME)) {
+            } else if (selectedNodeName.equals(PluginConstants.DISPLAY_NAME)) {
                 rootRightClickAction(evt);
             }
         }
-    }//GEN-LAST:event_resourceExplorerTreeMouseClicked
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTree resourceExplorerTree;
     // End of variables declaration//GEN-END:variables
+    
     @Override
     public void componentOpened() {
         File file = new File("UserData.txt");
