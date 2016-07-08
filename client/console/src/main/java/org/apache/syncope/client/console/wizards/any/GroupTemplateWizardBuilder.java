@@ -31,12 +31,15 @@ public class GroupTemplateWizardBuilder extends GroupWizardBuilder implements Te
 
     private static final long serialVersionUID = 6716803168859873877L;
 
+    private final TemplatableTO templatable;
+
     public GroupTemplateWizardBuilder(
             final TemplatableTO templatable,
             final List<String> anyTypeClasses,
             final GroupFormLayoutInfo formLayoutInfo,
             final PageReference pageRef) {
         super(null, anyTypeClasses, formLayoutInfo, pageRef);
+        this.templatable = templatable;
 
         if (templatable.getTemplates().containsKey(AnyTypeKind.GROUP.name())) {
             setItem(new GroupWrapper(GroupTO.class.cast(templatable.getTemplates().get(AnyTypeKind.GROUP.name()))));
@@ -47,6 +50,15 @@ public class GroupTemplateWizardBuilder extends GroupWizardBuilder implements Te
             }
             setItem(new GroupWrapper(groupTO));
         }
+    }
+
+    @Override
+    protected Details<GroupTO> addOptionalDetailsPanel(final AnyWrapper<GroupTO> modelObject) {
+        final Details<GroupTO> details = super.addOptionalDetailsPanel(modelObject);
+        if (templatable instanceof RealmTO) {
+            details.disableRealmSpecification();
+        }
+        return details;
     }
 
     @Override

@@ -18,11 +18,17 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
+import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.client.console.commons.status.StatusBean;
+import org.apache.syncope.client.console.rest.RealmRestClient;
+import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.model.IModel;
@@ -40,6 +46,8 @@ public class Details<T extends AnyTO> extends WizardStep {
 
     protected final StatusPanel statusPanel;
 
+    private final FieldPanel<String> realm;
+
     public Details(
             final AnyWrapper<T> wrapper,
             final IModel<List<StatusBean>> statusModel,
@@ -51,13 +59,26 @@ public class Details<T extends AnyTO> extends WizardStep {
 
         final T inner = wrapper.getInnerObject();
 
-        final AjaxTextFieldPanel realm = new AjaxTextFieldPanel(
-                "destinationRealm", "destinationRealm", new PropertyModel<String>(inner, "realm"), false);
-        add(realm.setReadOnly(StringUtils.isNotEmpty(inner.getRealm())));
         if (templateMode) {
-            realm.enableJexlHelp();
+            realm = new AjaxTextFieldPanel(
+                    "destinationRealm", "destinationRealm", new PropertyModel<String>(inner, "realm"), false);
+            AjaxTextFieldPanel.class.cast(realm).enableJexlHelp();
+        } else {
+            realm = new AjaxDropDownChoicePanel<>(
+                    "destinationRealm", "destinationRealm", new PropertyModel<String>(inner, "realm"), false);
+
+            ((AjaxDropDownChoicePanel<String>) realm).setChoices(CollectionUtils.collect(
+                    new RealmRestClient().list(),
+                    new Transformer<RealmTO, String>() {
+
+                @Override
+                public String transform(final RealmTO input) {
+                    return input.getFullPath();
+                }
+            }, new ArrayList<String>()));
         }
-        
+        add(realm);
+
         statusPanel = new StatusPanel("status", inner, statusModel, pageRef);
 
         add(statusPanel.setEnabled(includeStatusPanel).
@@ -65,6 +86,11 @@ public class Details<T extends AnyTO> extends WizardStep {
 
         add(getGeneralStatusInformation("generalStatusInformation", inner).
                 setEnabled(includeStatusPanel).setVisible(includeStatusPanel).setRenderBodyOnly(true));
+    }
+
+    public Details<T> disableRealmSpecification() {
+        this.realm.setReadOnly(true);
+        return this;
     }
 
     protected AnnotatedBeanPanel getGeneralStatusInformation(final String id, final T anyTO) {

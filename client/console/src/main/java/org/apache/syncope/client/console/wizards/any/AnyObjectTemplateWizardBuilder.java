@@ -31,6 +31,8 @@ public class AnyObjectTemplateWizardBuilder extends AnyObjectWizardBuilder
 
     private static final long serialVersionUID = 6716803168859873877L;
 
+    private final TemplatableTO templatable;
+
     public AnyObjectTemplateWizardBuilder(
             final TemplatableTO templatable,
             final String anyType,
@@ -38,6 +40,7 @@ public class AnyObjectTemplateWizardBuilder extends AnyObjectWizardBuilder
             final AnyObjectFormLayoutInfo formLayoutInfo,
             final PageReference pageRef) {
         super(null, anyTypeClasses, formLayoutInfo, pageRef);
+        this.templatable = templatable;
 
         if (templatable.getTemplates().containsKey(anyType)) {
             setItem(new AnyWrapper<>(AnyObjectTO.class.cast(templatable.getTemplates().get(anyType))));
@@ -49,6 +52,15 @@ public class AnyObjectTemplateWizardBuilder extends AnyObjectWizardBuilder
             }
             setItem(new AnyWrapper<>(anyObjectTO));
         }
+    }
+
+    @Override
+    protected Details<AnyObjectTO> addOptionalDetailsPanel(final AnyWrapper<AnyObjectTO> modelObject) {
+        final Details<AnyObjectTO> details = super.addOptionalDetailsPanel(modelObject);
+        if (templatable instanceof RealmTO) {
+            details.disableRealmSpecification();
+        }
+        return details;
     }
 
     @Override
