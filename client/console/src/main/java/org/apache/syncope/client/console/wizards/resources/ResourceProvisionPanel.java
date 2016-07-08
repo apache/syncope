@@ -64,7 +64,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
     private static final long serialVersionUID = -7982691107029848579L;
 
     private final ConnectorRestClient connectorRestClient = new ConnectorRestClient();
-    
+
     private final ResourceTO resourceTO;
 
     private Model<OrgUnitTO> baseModel;
@@ -98,6 +98,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                 Model.of(realmProvisionEnabled),
                 false);
         aboutRealmProvison.add(enableRealmsProvision);
+        enableRealmsProvision.setIndex(1).setTitle(getString("enableRealmsProvision.title"));
 
         final WebMarkupContainer realmsProvisionContainer = new WebMarkupContainer("realmsProvisionContainer");
         realmsProvisionContainer.setOutputMarkupPlaceholderTag(true);
@@ -178,14 +179,14 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                         ? null
                         : IteratorUtils.find(list.iterator(), new Predicate<ProvisionTO>() {
 
-                            @Override
-                            public boolean evaluate(final ProvisionTO in) {
-                                return ((item.getKey() == null && in.getKey() == null)
-                                        || (in.getKey() != null && in.getKey().equals(item.getKey())))
-                                        && ((item.getAnyType() == null && in.getAnyType() == null)
-                                        || (in.getAnyType() != null && in.getAnyType().equals(item.getAnyType())));
-                            }
-                        });
+                    @Override
+                    public boolean evaluate(final ProvisionTO in) {
+                        return ((item.getKey() == null && in.getKey() == null)
+                                || (in.getKey() != null && in.getKey().equals(item.getKey())))
+                                && ((item.getAnyType() == null && in.getAnyType() == null)
+                                || (in.getAnyType() != null && in.getAnyType().equals(item.getAnyType())));
+                    }
+                });
             }
 
             @Override
@@ -199,7 +200,6 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                 ResourceProvisionPanel.this.aboutRealmProvison.setVisible(true);
                 target.add(ResourceProvisionPanel.this.aboutRealmProvison);
             }
-
         };
 
         builder.setItems(resourceTO.getProvisions());
@@ -209,82 +209,82 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
         builder.
                 addAction(new ActionLink<ProvisionTO>() {
 
-                    private static final long serialVersionUID = -3722207913631435504L;
+            private static final long serialVersionUID = -3722207913631435504L;
 
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final ProvisionTO provisionTO) {
-                        send(ResourceProvisionPanel.this, Broadcast.DEPTH,
-                                new AjaxWizard.NewItemActionEvent<>(provisionTO, 2, target).setResourceModel(
-                                        new StringResourceModel("inner.provision.mapping",
-                                                ResourceProvisionPanel.this,
-                                                Model.of(provisionTO))));
-                    }
-                }, ActionLink.ActionType.MAPPING, StandardEntitlement.RESOURCE_UPDATE).
+            @Override
+            public void onClick(final AjaxRequestTarget target, final ProvisionTO provisionTO) {
+                send(ResourceProvisionPanel.this, Broadcast.DEPTH,
+                        new AjaxWizard.NewItemActionEvent<>(provisionTO, 2, target).setResourceModel(
+                        new StringResourceModel("inner.provision.mapping",
+                        ResourceProvisionPanel.this,
+                        Model.of(provisionTO))));
+            }
+        }, ActionLink.ActionType.MAPPING, StandardEntitlement.RESOURCE_UPDATE).
                 addAction(new ActionLink<ProvisionTO>() {
 
-                    private static final long serialVersionUID = -7780999687733432439L;
+            private static final long serialVersionUID = -7780999687733432439L;
 
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final ProvisionTO provisionTO) {
-                        try {
-                            SyncopeConsoleSession.get().getService(ResourceService.class).
-                                    setLatestSyncToken(resourceTO.getKey(), provisionTO.getAnyType());
-                            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-                        } catch (Exception e) {
-                            LOG.error("While setting latest sync token for {}/{}",
-                                    resourceTO.getKey(), provisionTO.getAnyType(), e);
-                            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().
-                                    getName() : e.getMessage());
-                        }
-                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-                    }
-                }, ActionLink.ActionType.SET_LATEST_SYNC_TOKEN, StandardEntitlement.RESOURCE_UPDATE).
+            @Override
+            public void onClick(final AjaxRequestTarget target, final ProvisionTO provisionTO) {
+                try {
+                    SyncopeConsoleSession.get().getService(ResourceService.class).
+                            setLatestSyncToken(resourceTO.getKey(), provisionTO.getAnyType());
+                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                } catch (Exception e) {
+                    LOG.error("While setting latest sync token for {}/{}",
+                            resourceTO.getKey(), provisionTO.getAnyType(), e);
+                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().
+                            getName() : e.getMessage());
+                }
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+            }
+        }, ActionLink.ActionType.SET_LATEST_SYNC_TOKEN, StandardEntitlement.RESOURCE_UPDATE).
                 addAction(new ActionLink<ProvisionTO>() {
 
-                    private static final long serialVersionUID = -7780999687733432439L;
+            private static final long serialVersionUID = -7780999687733432439L;
 
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final ProvisionTO provisionTO) {
-                        try {
-                            SyncopeConsoleSession.get().getService(ResourceService.class).
-                                    removeSyncToken(resourceTO.getKey(), provisionTO.getAnyType());
-                            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-                        } catch (Exception e) {
-                            LOG.error("While removing sync token for {}/{}",
-                                    resourceTO.getKey(), provisionTO.getAnyType(), e);
-                            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().
-                                    getName() : e.getMessage());
-                        }
-                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-                    }
-                }, ActionLink.ActionType.REMOVE_SYNC_TOKEN, StandardEntitlement.RESOURCE_UPDATE).
+            @Override
+            public void onClick(final AjaxRequestTarget target, final ProvisionTO provisionTO) {
+                try {
+                    SyncopeConsoleSession.get().getService(ResourceService.class).
+                            removeSyncToken(resourceTO.getKey(), provisionTO.getAnyType());
+                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                } catch (Exception e) {
+                    LOG.error("While removing sync token for {}/{}",
+                            resourceTO.getKey(), provisionTO.getAnyType(), e);
+                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().
+                            getName() : e.getMessage());
+                }
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+            }
+        }, ActionLink.ActionType.REMOVE_SYNC_TOKEN, StandardEntitlement.RESOURCE_UPDATE).
                 addAction(new ActionLink<ProvisionTO>() {
 
-                    private static final long serialVersionUID = -3722207913631435534L;
+            private static final long serialVersionUID = -3722207913631435534L;
 
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final ProvisionTO provisionTO) {
-                        final ProvisionTO clone = SerializationUtils.clone(provisionTO);
-                        clone.setKey(null);
-                        clone.setAnyType(null);
-                        clone.setObjectClass(null);
-                        send(ResourceProvisionPanel.this, Broadcast.DEPTH,
-                                new AjaxWizard.NewItemActionEvent<>(clone, target).setResourceModel(
-                                        new StringResourceModel("inner.provision.clone",
-                                                ResourceProvisionPanel.this,
-                                                Model.of(provisionTO))));
-                    }
-                }, ActionLink.ActionType.CLONE, StandardEntitlement.RESOURCE_CREATE).
+            @Override
+            public void onClick(final AjaxRequestTarget target, final ProvisionTO provisionTO) {
+                final ProvisionTO clone = SerializationUtils.clone(provisionTO);
+                clone.setKey(null);
+                clone.setAnyType(null);
+                clone.setObjectClass(null);
+                send(ResourceProvisionPanel.this, Broadcast.DEPTH,
+                        new AjaxWizard.NewItemActionEvent<>(clone, target).setResourceModel(
+                        new StringResourceModel("inner.provision.clone",
+                        ResourceProvisionPanel.this,
+                        Model.of(provisionTO))));
+            }
+        }, ActionLink.ActionType.CLONE, StandardEntitlement.RESOURCE_CREATE).
                 addAction(new ActionLink<ProvisionTO>() {
 
-                    private static final long serialVersionUID = -3722207913631435544L;
+            private static final long serialVersionUID = -3722207913631435544L;
 
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final ProvisionTO provisionTO) {
-                        resourceTO.getProvisions().remove(provisionTO);
-                        send(ResourceProvisionPanel.this, Broadcast.DEPTH, new ListViewReload<>(target));
-                    }
-                }, ActionLink.ActionType.DELETE, StandardEntitlement.RESOURCE_DELETE);
+            @Override
+            public void onClick(final AjaxRequestTarget target, final ProvisionTO provisionTO) {
+                resourceTO.getProvisions().remove(provisionTO);
+                send(ResourceProvisionPanel.this, Broadcast.DEPTH, new ListViewReload<>(target));
+            }
+        }, ActionLink.ActionType.DELETE, StandardEntitlement.RESOURCE_DELETE);
 
         builder.addNewItemPanelBuilder(wizard);
 
