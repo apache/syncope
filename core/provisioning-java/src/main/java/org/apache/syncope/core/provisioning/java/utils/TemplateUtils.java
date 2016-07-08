@@ -69,7 +69,10 @@ public class TemplateUtils {
 
     private void fill(final AnyTO anyTO, final AnyTO template) {
         if (template.getRealm() != null) {
-            anyTO.setRealm(template.getRealm());
+            String evaluated = JexlUtils.evaluate(template.getRealm(), anyTO, new MapContext());
+            if (StringUtils.isNotBlank(evaluated)) {
+                anyTO.setRealm(evaluated);
+            }
         }
 
         Map<String, AttrTO> currentAttrMap = anyTO.getPlainAttrMap();
@@ -99,9 +102,7 @@ public class TemplateUtils {
             }
         }
 
-        for (String resource : template.getResources()) {
-            anyTO.getResources().add(resource);
-        }
+        anyTO.getResources().addAll(template.getResources());
 
         anyTO.getAuxClasses().addAll(template.getAuxClasses());
     }

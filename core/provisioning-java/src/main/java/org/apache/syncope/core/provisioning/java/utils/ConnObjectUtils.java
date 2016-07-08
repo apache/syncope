@@ -133,7 +133,7 @@ public class ConnObjectUtils {
 
         // (for users) if password was not set above, generate
         if (anyTO instanceof UserTO && StringUtils.isBlank(((UserTO) anyTO).getPassword())) {
-            final UserTO userTO = (UserTO) anyTO;
+            UserTO userTO = (UserTO) anyTO;
 
             List<PasswordRuleConf> ruleConfs = new ArrayList<>();
 

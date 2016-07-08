@@ -208,7 +208,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
             ExecTO exec = execProvisioningTask(taskService, PULL_TASK_KEY, 50, false);
             assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(exec.getStatus()));
-            
+
             LOG.debug("Execution of task {}:\n{}", PULL_TASK_KEY, exec);
 
             // check for pull results
@@ -382,6 +382,10 @@ public class PullTaskITCase extends AbstractTaskITCase {
                 build());
         assertNotNull(matchingGroups);
         assertEquals(1, matchingGroups.getResult().size());
+        // SYNCOPE-898
+        PullTaskTO task = taskService.read("1e419ca4-ea81-4493-a14f-28b90113686d", false);
+        assertEquals("/", task.getDestinationRealm());
+        assertEquals("/", matchingGroups.getResult().get(0).getRealm());
 
         // 3. verify that pulled user is found
         PagedResult<UserTO> matchingUsers = userService.search(
@@ -390,6 +394,8 @@ public class PullTaskITCase extends AbstractTaskITCase {
                 build());
         assertNotNull(matchingUsers);
         assertEquals(1, matchingUsers.getResult().size());
+        // SYNCOPE-898
+        assertEquals("/odd", matchingUsers.getResult().get(0).getRealm());
 
         // Check for SYNCOPE-436
         assertEquals("pullFromLDAP",
