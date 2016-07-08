@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.wizards.any;
 import java.util.List;
 import org.apache.syncope.client.console.layout.UserFormLayoutInfo;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
+import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.TemplatableTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -40,7 +41,11 @@ public class UserTemplateWizardBuilder extends UserWizardBuilder implements Temp
         if (templatable.getTemplates().containsKey(AnyTypeKind.USER.name())) {
             setItem(new UserWrapper(UserTO.class.cast(templatable.getTemplates().get(AnyTypeKind.USER.name()))));
         } else {
-            setItem(new UserWrapper(new UserTO()));
+            UserTO userTO = new UserTO();
+            if (templatable instanceof RealmTO) {
+                userTO.setRealm(RealmTO.class.cast(templatable).getFullPath());
+            }
+            setItem(new UserWrapper(userTO));
         }
     }
 

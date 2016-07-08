@@ -48,7 +48,7 @@ public class Groups extends WizardStep {
 
     private final GroupRestClient groupRestClient = new GroupRestClient();
 
-    public <T extends AnyTO> Groups(final T anyTO) {
+    public <T extends AnyTO> Groups(final T anyTO, final boolean templateMode) {
         super();
         setOutputMarkupId(true);
 
@@ -57,31 +57,31 @@ public class Groups extends WizardStep {
         AjaxPalettePanel.Builder<MembershipTO> builder = new AjaxPalettePanel.Builder<MembershipTO>().
                 setRenderer(new IChoiceRenderer<MembershipTO>() {
 
-                    private static final long serialVersionUID = -3086661086073628855L;
+            private static final long serialVersionUID = -3086661086073628855L;
+
+            @Override
+            public Object getDisplayValue(final MembershipTO object) {
+                return object.getGroupName();
+            }
+
+            @Override
+            public String getIdValue(final MembershipTO object, final int index) {
+                return object.getGroupName();
+            }
+
+            @Override
+            public MembershipTO getObject(
+                    final String id, final IModel<? extends List<? extends MembershipTO>> choices) {
+
+                return IterableUtils.find(choices.getObject(), new Predicate<MembershipTO>() {
 
                     @Override
-                    public Object getDisplayValue(final MembershipTO object) {
-                        return object.getGroupName();
-                    }
-
-                    @Override
-                    public String getIdValue(final MembershipTO object, final int index) {
-                        return object.getGroupName();
-                    }
-
-                    @Override
-                    public MembershipTO getObject(
-                            final String id, final IModel<? extends List<? extends MembershipTO>> choices) {
-
-                        return IterableUtils.find(choices.getObject(), new Predicate<MembershipTO>() {
-
-                            @Override
-                            public boolean evaluate(final MembershipTO object) {
-                                return id.equalsIgnoreCase(object.getGroupName());
-                            }
-                        });
+                    public boolean evaluate(final MembershipTO object) {
+                        return id.equalsIgnoreCase(object.getGroupName());
                     }
                 });
+            }
+        });
 
         add(builder.setAllowOrder(true).withFilter().build("groups",
                 new ListModel<>(GroupableRelatableTO.class.cast(anyTO).getMemberships()),
@@ -93,12 +93,12 @@ public class Groups extends WizardStep {
             public List<MembershipTO> execute(final String filter) {
                 return CollectionUtils.collect(
                         groupRestClient.search(
-                                anyTO.getRealm(),
-                                SyncopeClient.getGroupSearchConditionBuilder().
-                                isAssignable().and().is("name").equalTo(filter).query(),
-                                -1, -1,
-                                new SortParam<>("name", true),
-                                null),
+                        anyTO.getRealm(),
+                        SyncopeClient.getGroupSearchConditionBuilder().
+                        isAssignable().and().is("name").equalTo(filter).query(),
+                        -1, -1,
+                        new SortParam<>("name", true),
+                        null),
                         new Transformer<GroupTO, MembershipTO>() {
 
                     @Override
@@ -112,27 +112,28 @@ public class Groups extends WizardStep {
         }).hideLabel().setOutputMarkupId(true));
 
         List<GroupTO> allGroups = groupRestClient.search(
-                anyTO.getRealm(), null, -1, -1, new SortParam<>("name", true), null);
+                templateMode ? "/" : anyTO.getRealm(), null, -1, -1, new SortParam<>("name", true), null);
+
         final Map<String, GroupTO> allGroupsByKey = new LinkedHashMap<>(allGroups.size());
         for (GroupTO group : allGroups) {
             allGroupsByKey.put(group.getKey(), group);
         }
         add(new AjaxPalettePanel.Builder<String>().setAllowOrder(true).build("dyngroups",
                 new ListModel<>(CollectionUtils.collect(GroupableRelatableTO.class.cast(anyTO).getDynGroups(),
-                        new Transformer<String, String>() {
+                new Transformer<String, String>() {
 
-                    @Override
-                    public String transform(final String input) {
-                        return allGroupsByKey.get(input).getName();
-                    }
-                }, new ArrayList<String>())),
+            @Override
+            public String transform(final String input) {
+                return allGroupsByKey.get(input).getName();
+            }
+        }, new ArrayList<String>())),
                 new ListModel<>(CollectionUtils.collect(allGroups, new Transformer<GroupTO, String>() {
 
-                    @Override
-                    public String transform(final GroupTO input) {
-                        return input.getName();
-                    }
-                }, new ArrayList<String>()))).
+            @Override
+            public String transform(final GroupTO input) {
+                return input.getName();
+            }
+        }, new ArrayList<String>()))).
                 hideLabel().setEnabled(false).setOutputMarkupId(true));
     }
 }

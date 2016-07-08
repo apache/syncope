@@ -102,7 +102,7 @@ public abstract class TemplatesTogglePanel extends TogglePanel<Serializable> {
             protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                 try {
                     final AjaxWizard.NewItemActionEvent<AnyTO> payload
-                            = new AjaxWizard.NewItemActionEvent<AnyTO>(null, target);
+                            = new AjaxWizard.NewItemActionEvent<>(null, target);
 
                     payload.setResourceModel(new StringResourceModel("inner.template.edit", container,
                             Model.of(Pair.of(typeModel.getObject(), targetObject))).setDefaultValue(

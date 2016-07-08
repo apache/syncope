@@ -37,7 +37,7 @@ public class AnyObjectDetails extends Details<AnyObjectTO> {
             final boolean includeStatusPanel,
             final PageReference pageRef) {
 
-        super(wrapper, statusModel, includeStatusPanel, pageRef);
+        super(wrapper, statusModel, templateMode, includeStatusPanel, pageRef);
 
         AnyObjectTO anyObjectTO = wrapper.getInnerObject();
 
