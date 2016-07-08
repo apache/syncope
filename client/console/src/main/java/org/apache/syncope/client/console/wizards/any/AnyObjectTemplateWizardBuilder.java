@@ -22,6 +22,7 @@ import java.util.List;
 import org.apache.syncope.client.console.layout.AnyObjectFormLayoutInfo;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
+import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.TemplatableTO;
 import org.apache.wicket.PageReference;
 
@@ -43,7 +44,10 @@ public class AnyObjectTemplateWizardBuilder extends AnyObjectWizardBuilder
         } else {
             AnyObjectTO anyObjectTO = new AnyObjectTO();
             anyObjectTO.setType(anyType);
-            setItem(new AnyWrapper<>(new AnyObjectTO()));
+            if (templatable instanceof RealmTO) {
+                anyObjectTO.setRealm(RealmTO.class.cast(templatable).getFullPath());
+            }
+            setItem(new AnyWrapper<>(anyObjectTO));
         }
     }
 

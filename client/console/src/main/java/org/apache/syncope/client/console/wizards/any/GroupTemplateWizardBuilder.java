@@ -22,6 +22,7 @@ import java.util.List;
 import org.apache.syncope.client.console.layout.GroupFormLayoutInfo;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.TemplatableTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.PageReference;
@@ -40,7 +41,11 @@ public class GroupTemplateWizardBuilder extends GroupWizardBuilder implements Te
         if (templatable.getTemplates().containsKey(AnyTypeKind.GROUP.name())) {
             setItem(new GroupWrapper(GroupTO.class.cast(templatable.getTemplates().get(AnyTypeKind.GROUP.name()))));
         } else {
-            setItem(new GroupWrapper(new GroupTO()));
+            GroupTO groupTO = new GroupTO();
+            if (templatable instanceof RealmTO) {
+                groupTO.setRealm(RealmTO.class.cast(templatable).getFullPath());
+            }
+            setItem(new GroupWrapper(groupTO));
         }
     }
 

@@ -19,11 +19,14 @@
 package org.apache.syncope.client.console.wizards.any;
 
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.status.StatusBean;
+import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.PropertyModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,19 +43,27 @@ public class Details<T extends AnyTO> extends WizardStep {
     public Details(
             final AnyWrapper<T> wrapper,
             final IModel<List<StatusBean>> statusModel,
+            final boolean templateMode,
             final boolean includeStatusPanel,
             final PageReference pageRef) {
 
         this.pageRef = pageRef;
 
-        T anyTO = wrapper.getInnerObject();
+        final T inner = wrapper.getInnerObject();
 
-        statusPanel = new StatusPanel("status", anyTO, statusModel, pageRef);
+        final AjaxTextFieldPanel realm = new AjaxTextFieldPanel(
+                "destinationRealm", "destinationRealm", new PropertyModel<String>(inner, "realm"), false);
+        add(realm.setReadOnly(StringUtils.isNotEmpty(inner.getRealm())));
+        if (templateMode) {
+            realm.enableJexlHelp();
+        }
+        
+        statusPanel = new StatusPanel("status", inner, statusModel, pageRef);
 
         add(statusPanel.setEnabled(includeStatusPanel).
                 setVisible(includeStatusPanel).setRenderBodyOnly(true));
 
-        add(getGeneralStatusInformation("generalStatusInformation", anyTO).
+        add(getGeneralStatusInformation("generalStatusInformation", inner).
                 setEnabled(includeStatusPanel).setVisible(includeStatusPanel).setRenderBodyOnly(true));
     }
 

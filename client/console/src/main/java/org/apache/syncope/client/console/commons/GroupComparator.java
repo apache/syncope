@@ -20,28 +20,18 @@ package org.apache.syncope.client.console.commons;
 
 import java.io.Serializable;
 import java.util.Comparator;
-import org.apache.commons.collections4.ComparatorUtils;
-import org.apache.syncope.common.lib.to.AnyTypeTO;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.to.GroupTO;
 
-public class AnyTypeComparator implements Comparator<AnyTypeTO>, Serializable {
+public class GroupComparator implements Comparator<GroupTO>, Serializable {
 
-    private static final long serialVersionUID = -8227715253094467138L;
+    private static final long serialVersionUID = 3584905855352863080L;
 
     @Override
-    public int compare(final AnyTypeTO o1, final AnyTypeTO o2) {
-        if (o1.getKind() == AnyTypeKind.USER) {
-            return -1;
-        }
-        if (o2.getKind() == AnyTypeKind.USER) {
-            return 1;
-        }
-        if (o1.getKind() == AnyTypeKind.GROUP) {
-            return -1;
-        }
-        if (o2.getKind() == AnyTypeKind.GROUP) {
-            return 1;
-        }
-        return ComparatorUtils.<String>naturalComparator().compare(o1.getKey(), o2.getKey());
+    public int compare(final GroupTO left, final GroupTO right) {
+        return left == null || left.getName() == null
+                ? -1
+                : right == null || right.getName() == null
+                ? 1
+                : left.getName().compareTo(right.getName());
     }
 }

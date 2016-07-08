@@ -51,8 +51,7 @@ public class UserDetails extends Details<UserTO> {
             final boolean includeStatusPanel,
             final boolean showPasswordManagement,
             final PageReference pageRef) {
-
-        super(wrapper, statusModel, includeStatusPanel, pageRef);
+        super(wrapper, statusModel, templateMode, includeStatusPanel, pageRef);
 
         final UserTO userTO = wrapper.getInnerObject();
         // ------------------------
@@ -85,8 +84,7 @@ public class UserDetails extends Details<UserTO> {
                 panel.setEnabled(model.getObject() >= 0);
                 return panel;
             }
-        }
-        ), model) {
+        }), model) {
 
             private static final long serialVersionUID = -2898628183677758699L;
 

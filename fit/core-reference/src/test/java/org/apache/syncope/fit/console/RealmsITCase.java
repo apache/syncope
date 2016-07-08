@@ -110,6 +110,12 @@ public class RealmsITCase extends AbstractConsoleITCase {
 
     @Test
     public void addUserTemplate() {
+        TESTER.executeAjaxEvent("body:content:realmChoicePanel:container:realms:btn", Constants.ON_CLICK);
+        TESTER.executeAjaxEvent("body:content:realmChoicePanel:container:realms:dropdown-menu:buttons:3:button",
+                Constants.ON_CLICK);
+        
+        TESTER.assertLabel("body:content:realmChoicePanel:container:realm", "/odd");
+        
         TESTER.clickLink(
                 "body:content:body:container:content:tabbedPanel:panel:actions:actions:panelTemplate:templateLink");
         TESTER.assertComponent("body:content:toggleTemplates", TogglePanel.class);
@@ -127,6 +133,8 @@ public class RealmsITCase extends AbstractConsoleITCase {
 
         TESTER.assertInfoMessages("Operation executed successfully");
         TESTER.cleanupFeedbackMessages();
+        
+        TESTER.assertLabel("body:content:realmChoicePanel:container:realm", "/odd");
 
         TESTER.clickLink(
                 "body:content:body:container:content:tabbedPanel:panel:actions:actions:panelTemplate:templateLink");
@@ -141,7 +149,7 @@ public class RealmsITCase extends AbstractConsoleITCase {
 
         TESTER.assertModelValue("body:content:templateModal:form:content:form:view:username:textField",
                 "'k' + firstname");
-
+        
         formTester = TESTER.newFormTester("body:content:templateModal:form:content:form");
         formTester.setValue("view:username:textField", "");
         formTester.submit("buttons:finish");

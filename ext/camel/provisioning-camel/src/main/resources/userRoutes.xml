@@ -25,8 +25,8 @@ under the License.
       <simple>${body}</simple>
     </setProperty>
     <doTry>
-      <bean ref="uwfAdapter" method="create(${body},${property.disablePwdPolicyCheck},
-                                     ${property.enabled},${property.storePassword})"/>
+      <bean method="create(${body},${property.disablePwdPolicyCheck},${property.enabled},${property.storePassword})"
+            ref="uwfAdapter" />
       <process ref="userCreateProcessor"/>
       <to uri="direct:createPort"/>
       <doCatch>        

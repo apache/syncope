@@ -37,7 +37,7 @@ public class GroupDetails extends Details<GroupTO> {
             final boolean includeStatusPanel,
             final PageReference pageRef) {
 
-        super(wrapper, statusModel, includeStatusPanel, pageRef);
+        super(wrapper, statusModel, templateMode, includeStatusPanel, pageRef);
 
         GroupTO groupTO = GroupWrapper.class.cast(wrapper).getInnerObject();
 
