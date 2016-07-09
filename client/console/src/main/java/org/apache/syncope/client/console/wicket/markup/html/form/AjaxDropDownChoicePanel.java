@@ -59,6 +59,14 @@ public class AjaxDropDownChoicePanel<T extends Serializable> extends FieldPanel<
                 }
             });
         }
+        
+        setNullValid(true);
+    }
+
+    @Override
+    public FieldPanel<T> setRequired(final boolean required) {
+        setNullValid(!required);
+        return super.setRequired(required);
     }
 
     @SuppressWarnings("unchecked")
@@ -79,7 +87,7 @@ public class AjaxDropDownChoicePanel<T extends Serializable> extends FieldPanel<
         return this;
     }
 
-    public AjaxDropDownChoicePanel<T> setNullValid(final boolean validity) {
+    public final AjaxDropDownChoicePanel<T> setNullValid(final boolean validity) {
         BootstrapSelect.class.cast(field).setNullValid(validity);
         return this;
     }

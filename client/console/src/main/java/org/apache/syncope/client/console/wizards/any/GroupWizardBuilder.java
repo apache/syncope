@@ -32,7 +32,6 @@ import org.apache.syncope.common.lib.patch.GroupPatch;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.wicket.PageReference;
-import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.model.util.ListModel;
 
 public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> implements GroupForm {
@@ -88,13 +87,11 @@ public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> implements Gro
     }
 
     @Override
-    protected GroupWizardBuilder addOptionalDetailsPanel(
-            final AnyWrapper<GroupTO> modelObject, final WizardModel wizardModel) {
-        wizardModel.add(new GroupDetails(
+    protected Details<GroupTO> addOptionalDetailsPanel(final AnyWrapper<GroupTO> modelObject) {
+        return new GroupDetails(
                 GroupWrapper.class.cast(modelObject),
                 new ListModel<>(Collections.<StatusBean>emptyList()),
                 mode == AjaxWizard.Mode.TEMPLATE,
-                modelObject.getInnerObject().getKey() != null, pageRef));
-        return this;
+                modelObject.getInnerObject().getKey() != null, pageRef);
     }
 }

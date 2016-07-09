@@ -35,7 +35,6 @@ import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.PageReference;
-import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.util.ListModel;
 
@@ -98,15 +97,13 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> implements UserF
     }
 
     @Override
-    protected UserWizardBuilder addOptionalDetailsPanel(
-            final AnyWrapper<UserTO> modelObject, final WizardModel wizardModel) {
+    protected Details<UserTO> addOptionalDetailsPanel(final AnyWrapper<UserTO> modelObject) {
 
-        wizardModel.add(new UserDetails(
+        return new UserDetails(
                 UserWrapper.class.cast(modelObject), statusModel, mode == AjaxWizard.Mode.TEMPLATE,
                 modelObject.getInnerObject().getKey() != null,
                 UserFormLayoutInfo.class.cast(formLayoutInfo).isPasswordManagement(),
-                pageRef));
-        return this;
+                pageRef);
     }
 
     /**

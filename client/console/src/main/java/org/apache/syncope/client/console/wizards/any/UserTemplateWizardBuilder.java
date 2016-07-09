@@ -31,12 +31,15 @@ public class UserTemplateWizardBuilder extends UserWizardBuilder implements Temp
 
     private static final long serialVersionUID = 6716803168859873877L;
 
+    private final TemplatableTO templatable;
+
     public UserTemplateWizardBuilder(
             final TemplatableTO templatable,
             final List<String> anyTypeClasses,
             final UserFormLayoutInfo formLayoutInfo,
             final PageReference pageRef) {
         super(null, anyTypeClasses, formLayoutInfo, pageRef);
+        this.templatable = templatable;
 
         if (templatable.getTemplates().containsKey(AnyTypeKind.USER.name())) {
             setItem(new UserWrapper(UserTO.class.cast(templatable.getTemplates().get(AnyTypeKind.USER.name()))));
@@ -47,6 +50,15 @@ public class UserTemplateWizardBuilder extends UserWizardBuilder implements Temp
             }
             setItem(new UserWrapper(userTO));
         }
+    }
+
+    @Override
+    protected Details<UserTO> addOptionalDetailsPanel(final AnyWrapper<UserTO> modelObject) {
+        final Details<UserTO> details = super.addOptionalDetailsPanel(modelObject);
+        if (templatable instanceof RealmTO) {
+            details.disableRealmSpecification();
+        }
+        return details;
     }
 
     @Override
