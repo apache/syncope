@@ -28,6 +28,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.List;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -85,6 +86,7 @@ public final class ResourceExplorerTopComponent extends TopComponent {
     private DefaultMutableTreeNode reportXslts;
     private MailTemplateManagerService mailTemplateManagerService;
     private ReportTemplateManagerService reportTemplateManagerService;
+    private Charset encodingPattern;
 
     public ResourceExplorerTopComponent() {
 
@@ -294,10 +296,10 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                     added = mailTemplateManagerService.create(mailTemplate);
                     mailTemplateManagerService.setFormat(name,
                             MailTemplateFormat.HTML,
-                            IOUtils.toInputStream("//Enter Content here"));
+                            IOUtils.toInputStream("//Enter Content here", encodingPattern));
                     mailTemplateManagerService.setFormat(name,
                             MailTemplateFormat.TEXT,
-                            IOUtils.toInputStream("//Enter Content here"));
+                            IOUtils.toInputStream("//Enter Content here", encodingPattern));
                     try {
                         openMailEditor(name);
                     } catch (IOException ex) {
@@ -309,13 +311,13 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                     added = reportTemplateManagerService.create(reportTemplate);
                     reportTemplateManagerService.setFormat(name,
                             ReportTemplateFormat.FO,
-                            IOUtils.toInputStream("//Enter content here"));
+                            IOUtils.toInputStream("//Enter content here", encodingPattern));
                     reportTemplateManagerService.setFormat(name,
                             ReportTemplateFormat.CSV,
-                            IOUtils.toInputStream("//Enter content here"));
+                            IOUtils.toInputStream("//Enter content here", encodingPattern));
                     reportTemplateManagerService.setFormat(name,
                             ReportTemplateFormat.HTML,
-                            IOUtils.toInputStream("//Enter content here"));
+                            IOUtils.toInputStream("//Enter content here", encodingPattern));
                     try {
                         openReportEditor(name);
                     } catch (IOException ex) {
@@ -387,12 +389,12 @@ public final class ResourceExplorerTopComponent extends TopComponent {
             type = "html";
             is = (InputStream) mailTemplateManagerService.getFormat(name,
                     MailTemplateFormat.HTML);
-            content = IOUtils.toString(is);
+            content = IOUtils.toString(is, encodingPattern);
         } else {
             type = "txt";
             is = (InputStream) mailTemplateManagerService.getFormat(name,
                     MailTemplateFormat.TEXT);
-            content = IOUtils.toString(is);
+            content = IOUtils.toString(is, encodingPattern);
         }
 
         File directory = new File("Template/Mail");
@@ -421,17 +423,17 @@ public final class ResourceExplorerTopComponent extends TopComponent {
             type = "html";
             is = (InputStream) reportTemplateManagerService.getFormat(name,
                     ReportTemplateFormat.HTML);
-            content = IOUtils.toString(is);
+            content = IOUtils.toString(is, encodingPattern);
         } else if (format.equals("CSV")) {
             type = "csv";
             is = (InputStream) reportTemplateManagerService.getFormat(name,
                     ReportTemplateFormat.CSV);
-            content = IOUtils.toString(is);
+            content = IOUtils.toString(is, encodingPattern);
         } else {
             type = "fo";
             is = (InputStream) reportTemplateManagerService.getFormat(name,
                     ReportTemplateFormat.FO);
-            content = IOUtils.toString(is);
+            content = IOUtils.toString(is, encodingPattern);
         }
 
         File directory = new File("Template/Report");
@@ -466,24 +468,24 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                 if (format.equals("txt")) {
                     mailTemplateManagerService.setFormat(key,
                             MailTemplateFormat.TEXT,
-                            IOUtils.toInputStream(content));
+                            IOUtils.toInputStream(content, encodingPattern));
                 } else {
                     mailTemplateManagerService.setFormat(key,
                             MailTemplateFormat.HTML,
-                            IOUtils.toInputStream(content));
+                            IOUtils.toInputStream(content, encodingPattern));
                 }
             } else if (format.equals("html")) {
                 reportTemplateManagerService.setFormat(key,
                         ReportTemplateFormat.HTML,
-                        IOUtils.toInputStream(content));
+                        IOUtils.toInputStream(content, encodingPattern));
             } else if (format.equals("fo")) {
                 reportTemplateManagerService.setFormat(key,
                         ReportTemplateFormat.FO,
-                        IOUtils.toInputStream(content));
+                        IOUtils.toInputStream(content, encodingPattern));
             } else {
                 reportTemplateManagerService.setFormat(key,
                         ReportTemplateFormat.CSV,
-                        IOUtils.toInputStream(content));
+                        IOUtils.toInputStream(content, encodingPattern));
             }
         } catch (BadLocationException ex) {
             Exceptions.printStackTrace(ex);
