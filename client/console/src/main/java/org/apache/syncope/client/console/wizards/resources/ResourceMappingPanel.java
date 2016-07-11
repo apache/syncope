@@ -183,11 +183,11 @@ public class ResourceMappingPanel extends Panel {
         mappingContainer.add(new Label("intAttrNameInfo", Model.of()).add(new PopoverBehavior(
                 Model.<String>of(),
                 Model.of(getString("intAttrNameInfo.help")
-                        + "<div style=\"font-size: 10px;\">"
-                        + "<code>groups[groupName].attribute</code>\n"
-                        + "<code>anyObjects[anyObjectName].attribute</code>\n"
-                        + "<code>memberships[groupName].attribute</code>\n"
-                        + "</div>"),
+                + "<div style=\"font-size: 10px;\">"
+                + "<code>groups[groupName].attribute</code>\n"
+                + "<code>anyObjects[anyObjectName].attribute</code>\n"
+                + "<code>memberships[groupName].attribute</code>\n"
+                + "</div>"),
                 new PopoverConfig().withHtml(true).withPlacement(TooltipConfig.Placement.bottom)) {
 
             private static final long serialVersionUID = -7867802555691605021L;
@@ -308,6 +308,7 @@ public class ResourceMappingPanel extends Panel {
                         new PropertyModel<String>(mapItem, "mandatoryCondition"));
                 mandatory.hideLabel();
                 mandatory.setChoices(Arrays.asList(new String[] { "true", "false" }));
+                mandatory.setEnabled(!mapItem.isConnObjectKey());
                 item.add(mandatory);
                 // -------------------------------
 
@@ -389,9 +390,11 @@ public class ResourceMappingPanel extends Panel {
                     protected void onUpdate(final AjaxRequestTarget target) {
                         if (connObjectKey.getModelObject()) {
                             mapItem.setMandatoryCondition("true");
+                            mandatory.setModelObject("true");
                             mandatory.setEnabled(false);
                         } else {
                             mapItem.setMandatoryCondition("false");
+                            mandatory.setModelObject("false");
                             mandatory.setEnabled(true);
                         }
                         target.add(mandatory);
@@ -415,8 +418,8 @@ public class ResourceMappingPanel extends Panel {
                     }
                 });
 
-                setAttrNames(intAttrName);
                 setConnObjectKey(connObjectKey, password);
+                setAttrNames(intAttrName);
 
                 if (!AnyTypeKind.USER.name().equals(provisionTO.getAnyType())) {
                     password.setVisible(false);
