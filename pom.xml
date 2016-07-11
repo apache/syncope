@@ -419,7 +419,7 @@ under the License.
         <httpclient.version>4.3.6</httpclient.version>
         <maven-invoker.version>2.1.1</maven-invoker.version>
 
-        <netbenas.version>RELEASE81</netbenas.version>
+        <netbeans.version>RELEASE81</netbeans.version>
         <commons.version>1.3.2</commons.version>
         <testds.port>1389</testds.port>
         <testdb.webport>9082</testdb.webport>
@@ -1284,37 +1284,37 @@ under the License.
             <dependency>
                 <groupId>org.netbeans.api</groupId>
                 <artifactId>org-netbeans-api-annotations-common</artifactId>
-                <version>${netbenas.version}</version>
+                <version>${netbeans.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.netbeans.api</groupId>
                 <artifactId>org-openide-windows</artifactId>
-                <version>${netbenas.version}</version>
+                <version>${netbeans.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.netbeans.api</groupId>
                 <artifactId>org-openide-util</artifactId>
-                <version>${netbenas.version}</version>
+                <version>${netbeans.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.netbeans.api</groupId>
                 <artifactId>org-openide-util-ui</artifactId>
-                <version>${netbenas.version}</version>
+                <version>${netbeans.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.netbeans.api</groupId>
                 <artifactId>org-openide-util-lookup</artifactId>
-                <version>${netbenas.version}</version>
+                <version>${netbeans.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.netbeans.api</groupId>
                 <artifactId>org-openide-awt</artifactId>
-                <version>${netbenas.version}</version>
+                <version>${netbeans.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.netbeans.api</groupId>
                 <artifactId>org-netbeans-modules-settings</artifactId>
-                <version>${netbenas.version}</version>
+                <version>${netbeans.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.syncope.common</groupId>
@@ -1329,43 +1329,38 @@ under the License.
             <dependency>
                 <groupId>org.netbeans.api</groupId>
                 <artifactId>org-openide-io</artifactId>
-                <version>${netbenas.version}</version>
+                <version>${netbeans.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.netbeans.api</groupId>
                 <artifactId>org-openide-nodes</artifactId>
-                <version>${netbenas.version}</version>
+                <version>${netbeans.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.netbeans.api</groupId>
                 <artifactId>org-openide-text</artifactId>
-                <version>${netbenas.version}</version>
+                <version>${netbeans.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.netbeans.api</groupId>
                 <artifactId>org-openide-filesystems</artifactId>
-                <version>${netbenas.version}</version>
+                <version>${netbeans.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.netbeans.api</groupId>
                 <artifactId>org-openide-loaders</artifactId>
-                <version>${netbenas.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-io</artifactId>
-                <version>${commons.version}</version>
+                <version>${netbeans.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.netbeans.api</groupId>
                 <artifactId>org-netbeans-core-multiview</artifactId>
-                <version>${netbenas.version}</version>
+                <version>${netbeans.version}</version>
                 <type>jar</type>
             </dependency>
             <dependency>
                 <groupId>org.netbeans.api</groupId>
                 <artifactId>org-netbeans-modules-editor-lib2</artifactId>
-                <version>${netbenas.version}</version>
+                <version>${netbeans.version}</version>
                 <type>jar</type>
             </dependency>
             <!-- TEST -->
