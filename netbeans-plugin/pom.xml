@@ -58,10 +58,10 @@ under the License.
             </plugin>
         </plugins>
     </build>
-<!--    <properties>
+    <properties>
         <checkstyle.skip>true</checkstyle.skip>
         <rat.skip>true</rat.skip>
-    </properties>-->
+    </properties>
     <dependencies>
         <dependency>
             <groupId>org.netbeans.api</groupId>
@@ -132,6 +132,10 @@ under the License.
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-netbeans-modules-editor-lib2</artifactId>
             <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-api-progress</artifactId>
         </dependency>
     </dependencies>
 </project>

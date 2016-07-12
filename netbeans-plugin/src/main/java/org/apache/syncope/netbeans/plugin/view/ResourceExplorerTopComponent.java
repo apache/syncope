@@ -21,6 +21,7 @@ package org.apache.syncope.netbeans.plugin.view;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -30,9 +31,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.List;
+import javax.swing.Action;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
+import javax.swing.plaf.basic.BasicSliderUI;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
@@ -48,6 +51,8 @@ import org.apache.syncope.netbeans.plugin.constants.PluginConstants;
 import org.apache.syncope.netbeans.plugin.service.MailTemplateManagerService;
 import org.apache.syncope.netbeans.plugin.service.ReportTemplateManagerService;
 import org.netbeans.api.editor.EditorRegistry;
+import org.netbeans.api.progress.ProgressHandle;
+import org.netbeans.api.progress.ProgressHandleFactory;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -56,6 +61,7 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.util.Exceptions;
+import org.openide.util.RequestProcessor;
 import org.openide.windows.TopComponent;
 
 /**
@@ -182,7 +188,7 @@ public final class ResourceExplorerTopComponent extends TopComponent {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTree resourceExplorerTree;
     // End of variables declaration//GEN-END:variables
-    
+
     @Override
     public void componentOpened() {
         File file = new File("UserData.txt");
@@ -202,6 +208,56 @@ public final class ResourceExplorerTopComponent extends TopComponent {
         } catch (IOException ex) {
             new ServerDetailsView(null, true).setVisible(true);
         }
+
+        Runnable tsk = new Runnable() {
+            @Override
+            public void run() {
+                final ProgressHandle progr = ProgressHandleFactory.createHandle("Test", new Action() {
+                    @Override
+                    public Object getValue(String key) {
+                        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                    }
+
+                    @Override
+                    public void putValue(String key, Object value) {
+                        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                    }
+
+                    @Override
+                    public void setEnabled(boolean b) {
+                        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                    }
+
+                    @Override
+                    public boolean isEnabled() {
+                        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                    }
+
+                    @Override
+                    public void addPropertyChangeListener(PropertyChangeListener listener) {
+                        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                    }
+
+                    @Override
+                    public void removePropertyChangeListener(PropertyChangeListener listener) {
+                        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                    }
+
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                    }
+                });
+                progr.start();
+                progr.progress("List prepared");
+                progr.progress("Objects loaded");
+                progr.progress("Objects structure built");
+                progr.finish();
+            }
+
+        };
+        RequestProcessor.getDefault().post(tsk);
+
         addMailTemplates();
         addReportXslts();
     }
