@@ -43,7 +43,8 @@ public class UserInternalSuspendProcessor implements Processor {
     @Override
     public void process(final Exchange exchange) {
         @SuppressWarnings("unchecked")
-        Pair<WorkflowResult<String>, Boolean> updated = (Pair) exchange.getIn().getBody();
+        Pair<WorkflowResult<String>, Boolean> updated = 
+            (Pair<WorkflowResult<String>, Boolean>) exchange.getIn().getBody();
 
         // propagate suspension if and only if it is required by policy
         if (updated != null && updated.getValue()) {

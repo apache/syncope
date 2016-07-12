@@ -49,7 +49,7 @@ public class GroupCreateInPullProcessor implements Processor {
     @Override
     @SuppressWarnings("unchecked")
     public void process(final Exchange exchange) {
-        WorkflowResult<String> created = (WorkflowResult) exchange.getIn().getBody();
+        WorkflowResult<String> created = (WorkflowResult<String>) exchange.getIn().getBody();
 
         GroupTO groupTO = exchange.getProperty("any", GroupTO.class);
         Map<String, String> groupOwnerMap = exchange.getProperty("groupOwnerMap", Map.class);

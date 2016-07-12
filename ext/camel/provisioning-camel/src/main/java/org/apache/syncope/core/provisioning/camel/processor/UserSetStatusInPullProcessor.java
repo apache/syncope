@@ -19,6 +19,8 @@
 package org.apache.syncope.core.provisioning.camel.processor;
 
 import java.util.Map;
+import java.util.Map.Entry;
+
 import org.apache.camel.Processor;
 import org.apache.camel.Exchange;
 import org.apache.syncope.common.lib.patch.UserPatch;
@@ -41,7 +43,8 @@ public class UserSetStatusInPullProcessor implements Processor {
     @SuppressWarnings("unchecked")
     @Override
     public void process(final Exchange exchange) {
-        WorkflowResult<Map.Entry<UserPatch, Boolean>> updated = (WorkflowResult) exchange.getIn().getBody();
+        WorkflowResult<Map.Entry<UserPatch, Boolean>> updated = 
+            (WorkflowResult<Entry<UserPatch, Boolean>>) exchange.getIn().getBody();
 
         Boolean enabled = exchange.getProperty("enabled", Boolean.class);
         String key = exchange.getProperty("key", String.class);

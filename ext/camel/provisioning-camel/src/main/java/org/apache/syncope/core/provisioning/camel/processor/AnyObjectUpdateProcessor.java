@@ -50,7 +50,7 @@ public class AnyObjectUpdateProcessor implements Processor {
     @SuppressWarnings("unchecked")
     @Override
     public void process(final Exchange exchange) {
-        WorkflowResult<String> updated = (WorkflowResult) exchange.getIn().getBody();
+        WorkflowResult<String> updated = (WorkflowResult<String>) exchange.getIn().getBody();
         AnyObjectPatch anyObjectPatch = exchange.getProperty("anyPatch", AnyObjectPatch.class);
         Set<String> excludedResources = exchange.getProperty("excludedResources", Set.class);
         Boolean nullPriorityAsync = exchange.getProperty("nullPriorityAsync", Boolean.class);

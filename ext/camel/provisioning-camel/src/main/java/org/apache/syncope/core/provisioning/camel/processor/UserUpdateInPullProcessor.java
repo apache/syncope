@@ -46,7 +46,8 @@ public class UserUpdateInPullProcessor implements Processor {
     @SuppressWarnings("unchecked")
     @Override
     public void process(final Exchange exchange) {
-        WorkflowResult<Pair<UserPatch, Boolean>> updated = (WorkflowResult) exchange.getIn().getBody();
+        WorkflowResult<Pair<UserPatch, Boolean>> updated = 
+            (WorkflowResult<Pair<UserPatch, Boolean>>) exchange.getIn().getBody();
         Set<String> excludedResources = exchange.getProperty("excludedResources", Set.class);
         Boolean nullPriorityAsync = exchange.getProperty("nullPriorityAsync", Boolean.class);
 

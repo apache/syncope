@@ -44,7 +44,8 @@ public class UserConfirmPwdResetProcessor implements Processor {
     @Override
     public void process(final Exchange exchange) {
         @SuppressWarnings("unchecked")
-        WorkflowResult<Pair<UserPatch, Boolean>> updated = (WorkflowResult) exchange.getIn().getBody();
+        WorkflowResult<Pair<UserPatch, Boolean>> updated = 
+            (WorkflowResult<Pair<UserPatch, Boolean>>) exchange.getIn().getBody();
 
         List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(updated);
 
