@@ -1363,6 +1363,18 @@ under the License.
                 <version>${netbeans.version}</version>
                 <type>jar</type>
             </dependency>
+            <dependency>
+                <groupId>org.netbeans.api</groupId>
+                <artifactId>org-netbeans-api-progress</artifactId>
+                <version>${netbeans.version}</version>
+                <type>jar</type>
+            </dependency>
+            <dependency>
+                <groupId>org.netbeans.api</groupId>
+                <artifactId>org-netbeans-api-progress-nb</artifactId>
+                <version>${netbeans.version}</version>
+                <type>jar</type>
+            </dependency>
             <!-- TEST -->
             <dependency>
                 <groupId>net.tirasa.connid.bundles.soap</groupId>
