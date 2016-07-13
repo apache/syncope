@@ -35,7 +35,6 @@ import javax.swing.Action;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
-import javax.swing.plaf.basic.BasicSliderUI;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
@@ -212,54 +211,47 @@ public final class ResourceExplorerTopComponent extends TopComponent {
         Runnable tsk = new Runnable() {
             @Override
             public void run() {
-                final ProgressHandle progr = ProgressHandleFactory.createHandle("Test", new Action() {
+                final ProgressHandle progr = ProgressHandleFactory.createHandle("Loading Templates", new Action() {
                     @Override
                     public Object getValue(String key) {
-                        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                        return null;
                     }
 
                     @Override
                     public void putValue(String key, Object value) {
-                        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
                     }
 
                     @Override
                     public void setEnabled(boolean b) {
-                        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
                     }
 
                     @Override
                     public boolean isEnabled() {
-                        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                        return false;
                     }
 
                     @Override
                     public void addPropertyChangeListener(PropertyChangeListener listener) {
-                        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
                     }
 
                     @Override
                     public void removePropertyChangeListener(PropertyChangeListener listener) {
-                        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
                     }
 
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
                     }
                 });
+   
                 progr.start();
-                progr.progress("List prepared");
-                progr.progress("Objects loaded");
-                progr.progress("Objects structure built");
+                progr.progress("Loading Templates.");
+                addMailTemplates();
+                addReportXslts();
                 progr.finish();
             }
 
         };
         RequestProcessor.getDefault().post(tsk);
-
-        addMailTemplates();
-        addReportXslts();
     }
 
     @Override
