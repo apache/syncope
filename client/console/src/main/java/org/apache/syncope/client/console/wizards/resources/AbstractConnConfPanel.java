@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.wizards.resources;
 
 import java.util.List;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
@@ -29,15 +30,21 @@ import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
+import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.ResourceModel;
 
-public abstract class AbstractConnConfPanel<T extends AbstractBaseBean> extends WizardStep {
+public abstract class AbstractConnConfPanel<T extends AbstractBaseBean>
+        extends WizardStep
+        implements WizardModel.ICondition {
 
     private static final long serialVersionUID = -2025535531121434050L;
+
+    protected LoadableDetachableModel<List<ConnConfProperty>> model;
 
     protected final WebMarkupContainer propertiesContainer;
 
@@ -80,4 +87,9 @@ public abstract class AbstractConnConfPanel<T extends AbstractBaseBean> extends 
     protected abstract Pair<Boolean, String> check(final AjaxRequestTarget taget);
 
     protected abstract List<ConnConfProperty> getConnProperties(final T instance);
+
+    @Override
+    public boolean evaluate() {
+        return model != null && CollectionUtils.isNotEmpty(model.getObject());
+    }
 }

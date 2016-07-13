@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.wizards.any;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
@@ -26,16 +27,20 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePane
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
+import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.util.ListModel;
 
-public class Resources extends WizardStep {
+public class Resources extends WizardStep implements WizardModel.ICondition {
 
     private static final long serialVersionUID = 552437609667518888L;
 
+    private final ListModel<String> available;
+
     public <T extends AnyTO> Resources(final T entityTO) {
         this.setOutputMarkupId(true);
+        this.available = new ListModel<>(Collections.<String>emptyList());
 
         add(new AjaxPalettePanel.Builder<String>().build("resources",
                 new PropertyModel<List<String>>(entityTO, "resources") {
@@ -52,8 +57,13 @@ public class Resources extends WizardStep {
                 entityTO.getResources().clear();
                 entityTO.getResources().addAll(object);
             }
-        }, new ListModel<>(CollectionUtils.collect(new ResourceRestClient().list(),
-                        EntityTOUtils.<ResourceTO>keyTransformer(), new ArrayList<String>()))).
-                hideLabel().setOutputMarkupId(true));
+        }, available).hideLabel().setOutputMarkupId(true));
+    }
+
+    @Override
+    public boolean evaluate() {
+        available.setObject(CollectionUtils.collect(new ResourceRestClient().list(),
+                EntityTOUtils.<ResourceTO>keyTransformer(), new ArrayList<String>()));
+        return CollectionUtils.isNotEmpty(available.getObject());
     }
 }

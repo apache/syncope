@@ -28,18 +28,21 @@ import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.wicket.extensions.wizard.WizardModel.ICondition;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.util.ListModel;
 
-public class Roles extends WizardStep {
+public class Roles extends WizardStep implements ICondition {
 
     private static final long serialVersionUID = 552437609667518888L;
+
+    private final List<String> allRoles;
 
     public <T extends AnyTO> Roles(final UserTO entityTO) {
         this.setOutputMarkupId(true);
 
-        List<String> allRoles = CollectionUtils.collect(new RoleRestClient().list(),
+        allRoles = CollectionUtils.collect(new RoleRestClient().list(),
                 EntityTOUtils.<RoleTO>keyTransformer(), new ArrayList<String>());
         Collections.sort(allRoles);
 
@@ -50,5 +53,10 @@ public class Roles extends WizardStep {
         add(new AjaxPalettePanel.Builder<String>().build("dynroles",
                 new PropertyModel<List<String>>(entityTO, "dynRoles"),
                 new ListModel<>(allRoles)).hideLabel().setEnabled(false).setOutputMarkupId(true));
+    }
+
+    @Override
+    public boolean evaluate() {
+        return CollectionUtils.isNotEmpty(allRoles);
     }
 }

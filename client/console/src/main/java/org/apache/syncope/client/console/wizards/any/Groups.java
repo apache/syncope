@@ -41,12 +41,15 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.util.lang.Args;
 import org.apache.syncope.common.lib.to.GroupableRelatableTO;
+import org.apache.wicket.extensions.wizard.WizardModel.ICondition;
 
-public class Groups extends WizardStep {
+public class Groups extends WizardStep implements ICondition {
 
     private static final long serialVersionUID = 552437609667518888L;
 
     private final GroupRestClient groupRestClient = new GroupRestClient();
+
+    private final List<GroupTO> allGroups;
 
     public <T extends AnyTO> Groups(final T anyTO, final boolean templateMode) {
         super();
@@ -111,7 +114,7 @@ public class Groups extends WizardStep {
             }
         }).hideLabel().setOutputMarkupId(true));
 
-        List<GroupTO> allGroups = groupRestClient.search(
+        allGroups = groupRestClient.search(
                 templateMode ? "/" : anyTO.getRealm(), null, -1, -1, new SortParam<>("name", true), null);
 
         final Map<String, GroupTO> allGroupsByKey = new LinkedHashMap<>(allGroups.size());
@@ -135,5 +138,10 @@ public class Groups extends WizardStep {
             }
         }, new ArrayList<String>()))).
                 hideLabel().setEnabled(false).setOutputMarkupId(true));
+    }
+
+    @Override
+    public boolean evaluate() {
+        return CollectionUtils.isNotEmpty(allGroups);
     }
 }
