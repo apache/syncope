@@ -46,7 +46,7 @@ public class GroupCreateProcessor implements Processor {
     @SuppressWarnings("unchecked")
     @Override
     public void process(final Exchange exchange) {
-        WorkflowResult<String> created = (WorkflowResult) exchange.getIn().getBody();
+        WorkflowResult<String> created = (WorkflowResult<String>) exchange.getIn().getBody();
         GroupTO any = exchange.getProperty("any", GroupTO.class);
         Set<String> excludedResources = exchange.getProperty("excludedResources", Set.class);
         Boolean nullPriorityAsync = exchange.getProperty("nullPriorityAsync", Boolean.class);

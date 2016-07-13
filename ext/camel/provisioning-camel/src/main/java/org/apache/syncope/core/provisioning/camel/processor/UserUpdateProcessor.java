@@ -49,7 +49,8 @@ public class UserUpdateProcessor implements Processor {
     @Override
     @SuppressWarnings("unchecked")
     public void process(final Exchange exchange) {
-        WorkflowResult<Pair<UserPatch, Boolean>> updated = (WorkflowResult) exchange.getIn().getBody();
+        WorkflowResult<Pair<UserPatch, Boolean>> updated = 
+            (WorkflowResult<Pair<UserPatch, Boolean>>) exchange.getIn().getBody();
         Boolean nullPriorityAsync = exchange.getProperty("nullPriorityAsync", Boolean.class);
 
         List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(updated);

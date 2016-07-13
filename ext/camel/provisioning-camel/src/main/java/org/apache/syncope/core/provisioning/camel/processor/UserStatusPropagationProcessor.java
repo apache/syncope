@@ -52,7 +52,7 @@ public class UserStatusPropagationProcessor implements Processor {
     @SuppressWarnings("unchecked")
     @Override
     public void process(final Exchange exchange) {
-        WorkflowResult<Long> updated = (WorkflowResult) exchange.getIn().getBody();
+        WorkflowResult<Long> updated = (WorkflowResult<Long>) exchange.getIn().getBody();
         StatusPatch statusPatch = exchange.getProperty("statusPatch", StatusPatch.class);
         Boolean nullPriorityAsync = exchange.getProperty("nullPriorityAsync", Boolean.class);
 

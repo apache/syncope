@@ -31,15 +31,11 @@ import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class UserCreateProcessor implements Processor {
-
-    private static final Logger LOG = LoggerFactory.getLogger(UserCreateProcessor.class);
 
     @Autowired
     protected PropagationManager propagationManager;
@@ -51,7 +47,8 @@ public class UserCreateProcessor implements Processor {
     @Override
     public void process(final Exchange exchange) {
         if ((exchange.getIn().getBody() instanceof WorkflowResult)) {
-            WorkflowResult<Pair<String, Boolean>> created = (WorkflowResult) exchange.getIn().getBody();
+            WorkflowResult<Pair<String, Boolean>> created = 
+                (WorkflowResult<Pair<String, Boolean>>) exchange.getIn().getBody();
             UserTO actual = exchange.getProperty("actual", UserTO.class);
             Set<String> excludedResources = exchange.getProperty("excludedResources", Set.class);
             Boolean nullPriorityAsync = exchange.getProperty("nullPriorityAsync", Boolean.class);
