@@ -219,7 +219,7 @@ a.help span a {
 }
 
 .modal-body {
-  max-height: 670px;
+  max-height: 500px;
   overflow-y: auto;
 }
 
@@ -232,14 +232,6 @@ a.help span a {
   font-size: 18px !important;
   font-weight: normal !important;
   margin-bottom: 10px !important;
-}
-
-.wizard-view {
-  max-height: 480px;
-  height: 480px;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: 0px 5px 0px 5px;
 }
 
 div.wizard-view div.wizard-view{
@@ -271,9 +263,29 @@ div.wizard-view div.wizard-view{
   position: relative;
 }
 
+.wizard-view {
+  padding: 0px 5px;
+}
+
 .wizard-form {
-  height:560px;  
+  height:480px;
   position: relative;
+}
+
+.wizard-form > div {
+  max-height: 440px;
+  height: 440px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0px;
+}
+
+.box-body .wizard-form {
+  height:400px !important;
+}
+
+.box-body .wizard-form > div {
+  height: 360px !important;
 }
 
 .wizard-buttons {
@@ -325,11 +337,12 @@ span.overridable div.checkbox label div div.toggle-group label {
 }
 
 div#outer.modal-lg, div#utilityModal.modal-lg, section#notifications .modal-lg {
-  width: 1200px;
+  max-width: 1200px;
+  width: 97%;
 }
 
 .details {
-  max-height: 380px;
+  max-height: 401px;
   overflow-x: hidden;
   overflow-y: auto;
   display: block
@@ -358,7 +371,7 @@ div.information{
   clear: both; 
   float:none;
   position: absolute;
-  bottom: -20px;
+  bottom: -90px;
   left: 0px;
   padding: 2px;
 }
