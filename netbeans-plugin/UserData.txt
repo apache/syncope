@@ -1,3 +1,0 @@
-http://syncope-vm.apache.org:9080/syncope/rest
-admin
-password

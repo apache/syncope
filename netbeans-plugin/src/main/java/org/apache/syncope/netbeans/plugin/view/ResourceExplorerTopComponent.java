@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.netbeans.plugin.view;
 
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -50,17 +51,28 @@ import org.apache.syncope.netbeans.plugin.constants.PluginConstants;
 import org.apache.syncope.netbeans.plugin.service.MailTemplateManagerService;
 import org.apache.syncope.netbeans.plugin.service.ReportTemplateManagerService;
 import org.netbeans.api.editor.EditorRegistry;
+import org.netbeans.api.editor.mimelookup.MimeLookup;
+import org.netbeans.api.editor.mimelookup.MimePath;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.netbeans.api.settings.ConvertAsProperties;
+import org.netbeans.core.spi.multiview.MultiViewDescription;
+import org.netbeans.core.spi.multiview.MultiViewElement;
+import org.netbeans.core.spi.multiview.MultiViewFactory;
+import org.netbeans.core.spi.multiview.text.MultiViewEditorElement;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.cookies.OpenCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
+import org.openide.text.CloneableEditorSupport;
+import org.openide.util.Cancellable;
 import org.openide.util.Exceptions;
+import org.openide.util.HelpCtx;
+import org.openide.util.Lookup;
 import org.openide.util.RequestProcessor;
+import org.openide.windows.CloneableTopComponent;
 import org.openide.windows.TopComponent;
 
 /**
@@ -211,7 +223,12 @@ public final class ResourceExplorerTopComponent extends TopComponent {
         Runnable tsk = new Runnable() {
             @Override
             public void run() {
-                final ProgressHandle progr = ProgressHandleFactory.createHandle("Loading Templates", new Action() {
+                final ProgressHandle progr = ProgressHandleFactory.createHandle("Loading Templates", new Cancellable() {
+                    @Override
+                    public boolean cancel() {
+                        return true;
+                    }
+                }, new Action() {
                     @Override
                     public Object getValue(String key) {
                         return null;
@@ -242,7 +259,7 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                     public void actionPerformed(ActionEvent e) {
                     }
                 });
-   
+
                 progr.start();
                 progr.progress("Loading Templates.");
                 addMailTemplates();
@@ -429,34 +446,139 @@ public final class ResourceExplorerTopComponent extends TopComponent {
         String type;
         String content;
         InputStream is;
-        Object format = JOptionPane.showInputDialog(null, "Select File Format",
-                "File format", JOptionPane.QUESTION_MESSAGE, null,
-                PluginConstants.MAIL_TEMPLATE_FORMATS, "TEXT");
+//        Object format = JOptionPane.showInputDialog(null, "Select File Format",
+//                "File format", JOptionPane.QUESTION_MESSAGE, null,
+//                PluginConstants.MAIL_TEMPLATE_FORMATS, "TEXT");
 
-        if (format.equals("HTML")) {
-            type = "html";
-            is = (InputStream) mailTemplateManagerService.getFormat(name,
-                    MailTemplateFormat.HTML);
-            content = IOUtils.toString(is, encodingPattern);
-        } else {
-            type = "txt";
-            is = (InputStream) mailTemplateManagerService.getFormat(name,
-                    MailTemplateFormat.TEXT);
-            content = IOUtils.toString(is, encodingPattern);
-        }
+        //if (format.equals("HTML")) {
+        type = "html";
+        is = (InputStream) mailTemplateManagerService.getFormat(name,
+                MailTemplateFormat.HTML);
+        content = IOUtils.toString(is, encodingPattern);
+        //} else {
+//            type = "txt";
+//            is = (InputStream) mailTemplateManagerService.getFormat(name,
+//                    MailTemplateFormat.TEXT);
+//            content = IOUtils.toString(is, encodingPattern);
+        //}
+//
+//        File directory = new File("Template/Mail");
+//        if (!directory.exists()) {
+//            directory.mkdirs();
+//        }
+//        File file = new File("Template/Mail/" + name + "." + type);
+//        FileWriter fw = new FileWriter(file);
+//        fw.write(content);
+//        fw.flush();
+//        FileObject fob = FileUtil.toFileObject(file.getAbsoluteFile());
+//        fob.setAttribute("description", "TEXTTTT");
+//        DataObject data = DataObject.find(fob);
+//        OpenCookie cookie = (OpenCookie) data.getCookie(OpenCookie.class);
+//        cookie.open();
 
-        File directory = new File("Template/Mail");
-        if (!directory.exists()) {
-            directory.mkdirs();
-        }
-        File file = new File("Template/Mail/" + name + "." + type);
-        FileWriter fw = new FileWriter(file);
-        fw.write(content);
-        fw.flush();
-        FileObject fob = FileUtil.toFileObject(file.getAbsoluteFile());
-        DataObject data = DataObject.find(fob);
-        OpenCookie cookie = (OpenCookie) data.getCookie(OpenCookie.class);
-        cookie.open();
+        MultiViewDescription[] descriptionArray = new MultiViewDescription[3];
+        descriptionArray[0] = new MultiViewDescription() {
+            @Override
+            public int getPersistenceType() {
+                return 0;
+            }
+
+            @Override
+            public String getDisplayName() {
+                return "Test 1";
+            }
+
+            @Override
+            public Image getIcon() {
+                return null;
+            }
+
+            @Override
+            public HelpCtx getHelpCtx() {
+                return null;
+            }
+
+            @Override
+            public String preferredID() {
+                return "A";
+            }
+
+            @Override
+            public MultiViewElement createElement() {
+                return new MultiViewEditorElement(Lookup.EMPTY);
+
+            }
+        };
+
+        descriptionArray[1] = new MultiViewDescription() {
+            @Override
+            public int getPersistenceType() {
+                return 0;
+            }
+
+            @Override
+            public String getDisplayName() {
+                return "Test 2";
+            }
+
+            @Override
+            public Image getIcon() {
+                return null;
+            }
+
+            @Override
+            public HelpCtx getHelpCtx() {
+                return null;
+            }
+
+            @Override
+            public String preferredID() {
+                return "A";
+            }
+
+            @Override
+            public MultiViewElement createElement() {
+                return new MultiViewEditorElement(Lookup.EMPTY);
+
+            }
+        };
+
+        descriptionArray[2] = new MultiViewDescription() {
+            @Override
+            public int getPersistenceType() {
+                return 0;
+            }
+
+            @Override
+            public String getDisplayName() {
+                return "Test 3";
+            }
+
+            @Override
+            public Image getIcon() {
+                return null;
+            }
+
+            @Override
+            public HelpCtx getHelpCtx() {
+                return null;
+            }
+
+            @Override
+            public String preferredID() {
+                return "A";
+            }
+
+            @Override
+            public MultiViewElement createElement() {
+                return new MultiViewEditorElement(Lookup.EMPTY);
+
+            }
+        };
+
+        TopComponent ctc = MultiViewFactory.createMultiView(descriptionArray, descriptionArray[0]);
+        ctc.open();
+        ctc.requestActive();
     }
 
     private void openReportEditor(final String name) throws IOException {
