@@ -344,7 +344,7 @@ under the License.
     <jackson.version>2.8.0</jackson.version>
 
     <spring.version>4.3.1.RELEASE</spring.version>
-    <spring-security.version>4.1.0.RELEASE</spring-security.version>
+    <spring-security.version>4.1.1.RELEASE</spring-security.version>
 
     <openjpa.version>2.4.1</openjpa.version>
     <commons-dbcp.version>2.1.1</commons-dbcp.version>
@@ -361,7 +361,7 @@ under the License.
     <activiti.version>5.21.0</activiti.version>
 
     <slf4j.version>1.7.21</slf4j.version>
-    <log4j.version>2.6.1</log4j.version>
+    <log4j.version>2.6.2</log4j.version>
     <disruptor.version>3.3.4</disruptor.version>
 
     <commons-io.version>2.5</commons-io.version>
@@ -440,7 +440,7 @@ under the License.
     <cargo.log>${log.directory}/cargo.log</cargo.log>
     <cargo.output>${log.directory}/cargo-output.log</cargo.output>
 
-    <tomcat.version>8.5.3</tomcat.version>
+    <tomcat.version>8.5.4</tomcat.version>
 
     <adminUser>admin</adminUser>
     <anonymousUser>anonymous</anonymousUser>
@@ -1293,7 +1293,7 @@ under the License.
       <dependency>
         <groupId>com.icegreen</groupId>
         <artifactId>greenmail</artifactId>
-        <version>1.5.0</version>
+        <version>1.5.1</version>
         <scope>test</scope>
       </dependency>
       <dependency>
@@ -1814,7 +1814,7 @@ under the License.
               <dependency>
                 <groupId>org.asciidoctor</groupId>
                 <artifactId>asciidoctorj</artifactId>
-                <version>1.5.4</version>
+                <version>1.5.4.1</version>
               </dependency>
             </dependencies>
             <configuration>
