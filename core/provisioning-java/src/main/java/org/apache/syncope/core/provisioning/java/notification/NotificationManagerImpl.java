@@ -227,7 +227,7 @@ public class NotificationManagerImpl implements NotificationManager {
         NotificationTask task = entityFactory.newEntity(NotificationTask.class);
         task.setNotification(notification);
         if (any != null) {
-            task.setAnyKey(any.getKey());
+            task.setEntityKey(any.getKey());
             task.setAnyTypeKind(any.getType().getKind());
         }
         task.setTraceLevel(notification.getTraceLevel());

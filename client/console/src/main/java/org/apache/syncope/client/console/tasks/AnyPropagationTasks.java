@@ -35,13 +35,13 @@ public class AnyPropagationTasks extends AbstractPropagationTasks {
     public <T extends AnyTO> AnyPropagationTasks(
             final BaseModal<?> baseModal,
             final AnyTypeKind anyTypeKind,
-            final String anyTypeKey,
+            final String entityKey,
             final PageReference pageReference) {
 
         super(BaseModal.CONTENT_ID);
 
         final MultilevelPanel mlp = new MultilevelPanel("tasks");
-        mlp.setFirstLevel(new AnyPropagationTaskDirectoryPanel(baseModal, mlp, anyTypeKind, anyTypeKey, pageReference) {
+        mlp.setFirstLevel(new AnyPropagationTaskDirectoryPanel(baseModal, mlp, anyTypeKind, entityKey, pageReference) {
 
             private static final long serialVersionUID = -2195387360323687302L;
 

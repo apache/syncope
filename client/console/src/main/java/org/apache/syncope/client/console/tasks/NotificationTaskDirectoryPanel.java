@@ -59,19 +59,19 @@ public abstract class NotificationTaskDirectoryPanel
 
     private final AnyTypeKind anyTypeKind;
 
-    private final String anyTypeKey;
+    private final String entityKey;
 
     protected NotificationTaskDirectoryPanel(
             final String notification,
             final AnyTypeKind anyTypeKind,
-            final String anyTypeKey,
+            final String entityKey,
             final MultilevelPanel multiLevelPanelRef,
             final PageReference pageRef) {
 
         super(null, multiLevelPanelRef, pageRef);
         this.notification = notification;
         this.anyTypeKind = anyTypeKind;
-        this.anyTypeKey = anyTypeKey;
+        this.entityKey = entityKey;
         initResultTable();
     }
 
@@ -189,7 +189,7 @@ public abstract class NotificationTaskDirectoryPanel
 
     @Override
     protected NotificationTasksProvider dataProvider() {
-        return new NotificationTasksProvider(notification, anyTypeKind, anyTypeKey, rows);
+        return new NotificationTasksProvider(notification, anyTypeKind, entityKey, rows);
     }
 
     @Override
@@ -205,18 +205,18 @@ public abstract class NotificationTaskDirectoryPanel
 
         private final AnyTypeKind anyTypeKind;
 
-        private final String anyTypeKey;
+        private final String entityKey;
 
         public NotificationTasksProvider(
                 final String notification,
                 final AnyTypeKind anyTypeKind,
-                final String anyTypeKey,
+                final String entityKey,
                 final int paginatorRows) {
 
             super(paginatorRows, TaskType.PROPAGATION, restClient);
             this.notification = notification;
             this.anyTypeKind = anyTypeKind;
-            this.anyTypeKey = anyTypeKey;
+            this.entityKey = entityKey;
         }
 
         @Override
@@ -224,7 +224,7 @@ public abstract class NotificationTaskDirectoryPanel
             final int page = ((int) first / paginatorRows);
 
             final List<NotificationTaskTO> tasks = restClient.listNotificationTasks(
-                    notification, anyTypeKind, anyTypeKey, (page < 0 ? 0 : page) + 1, paginatorRows, getSort());
+                    notification, anyTypeKind, entityKey, (page < 0 ? 0 : page) + 1, paginatorRows, getSort());
 
             Collections.sort(tasks, getComparator());
             return tasks.iterator();

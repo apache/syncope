@@ -95,7 +95,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
 
         List<PropagationTaskTO> tasks = new ArrayList<>(
                 taskService.<PropagationTaskTO>list(new TaskQuery.Builder(TaskType.PROPAGATION).
-                        anyTypeKind(AnyTypeKind.USER).anyTypeKey(userTO.getKey()).build()).
+                        anyTypeKind(AnyTypeKind.USER).entityKey(userTO.getKey()).build()).
                 getResult());
         assertFalse(tasks.isEmpty());
 

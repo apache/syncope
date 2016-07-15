@@ -129,7 +129,7 @@ public class UserITCase extends AbstractITCase {
 
         // get the propagation task just created
         PagedResult<PropagationTaskTO> tasks = taskService.list(new TaskQuery.Builder(TaskType.PROPAGATION).
-                anyTypeKind(AnyTypeKind.USER).anyTypeKey(userTO.getKey()).page(1).size(1).build());
+                anyTypeKind(AnyTypeKind.USER).entityKey(userTO.getKey()).page(1).size(1).build());
         assertNotNull(tasks);
         assertFalse(tasks.getResult().isEmpty());
 

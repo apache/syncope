@@ -164,14 +164,14 @@ public class TaskLogic extends AbstractExecutableLogic<AbstractTaskTO> {
             final String resource,
             final String notification,
             final AnyTypeKind anyTypeKind,
-            final String anyTypeKey,
+            final String entityKey,
             final int page,
             final int size,
             final List<OrderByClause> orderByClauses,
             final boolean details) {
 
         return CollectionUtils.collect(taskDAO.findAll(
-                type, resourceDAO.find(resource), notificationDAO.find(notification), anyTypeKind, anyTypeKey,
+                type, resourceDAO.find(resource), notificationDAO.find(notification), anyTypeKind, entityKey,
                 page, size, orderByClauses), new Transformer<Task, T>() {
 
             @Override
