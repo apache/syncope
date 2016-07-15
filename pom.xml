@@ -282,8 +282,18 @@ under the License.
       <url>http://people.apache.org/~giacomolm/</url>
       <email>giacomolm@apache.org</email>
     </developer>
+    <developer>
+      <id>matteodc</id>
+      <name>Matteo Di Carlo</name>
+      <organization>Tirasa</organization>
+      <organizationUrl>http://www.tirasa.net/</organizationUrl>
+      <roles>
+        <role>committer</role>
+      </roles>
+      <url>http://people.apache.org/~matteodc/</url>
+      <email>matteodc@apache.org</email>
+    </developer>
   </developers>
-
   <contributors>
     <contributor>
       <name>Denis Signoretto</name>
