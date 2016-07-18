@@ -321,6 +321,10 @@ under the License.
     
     <profile>
       <id>jrebel</id>
+      
+      <properties>
+        <tomcat.version>8.0.36</tomcat.version>
+      </properties>      
 
       <build>
         <defaultGoal>clean verify cargo:run</defaultGoal>
