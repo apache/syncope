@@ -96,7 +96,7 @@ public class SearchCondConverterTest {
         assertEquals(SpecialAttr.RELATIONSHIPS + "==ca20ffca-1305-442f-be9a-3723a0cd88ca", fiqlExpression);
 
         RelationshipCond relationshipCond = new RelationshipCond();
-        relationshipCond.setAnyObjectKey("ca20ffca-1305-442f-be9a-3723a0cd88ca");
+        relationshipCond.setAnyObject("ca20ffca-1305-442f-be9a-3723a0cd88ca");
         SearchCond simpleCond = SearchCond.getLeafCond(relationshipCond);
 
         assertEquals(simpleCond, SearchCondConverter.convert(fiqlExpression));
@@ -126,7 +126,7 @@ public class SearchCondConverterTest {
         assertEquals(SpecialAttr.GROUPS + "==e7ff94e8-19c9-4f0a-b8b7-28327edbf6ed", fiqlExpression);
 
         MembershipCond groupCond = new MembershipCond();
-        groupCond.setGroupKey("e7ff94e8-19c9-4f0a-b8b7-28327edbf6ed");
+        groupCond.setGroup("e7ff94e8-19c9-4f0a-b8b7-28327edbf6ed");
         SearchCond simpleCond = SearchCond.getLeafCond(groupCond);
 
         assertEquals(simpleCond, SearchCondConverter.convert(fiqlExpression));

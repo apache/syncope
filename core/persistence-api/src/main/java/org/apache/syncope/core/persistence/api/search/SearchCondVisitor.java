@@ -106,13 +106,13 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
 
                         case GROUPS:
                             MembershipCond groupCond = new MembershipCond();
-                            groupCond.setGroupKey(value);
+                            groupCond.setGroup(value);
                             leaf = SearchCond.getLeafCond(groupCond);
                             break;
 
                         case RELATIONSHIPS:
                             RelationshipCond relationshipCond = new RelationshipCond();
-                            relationshipCond.setAnyObjectKey(value);
+                            relationshipCond.setAnyObject(value);
                             leaf = SearchCond.getLeafCond(relationshipCond);
                             break;
 

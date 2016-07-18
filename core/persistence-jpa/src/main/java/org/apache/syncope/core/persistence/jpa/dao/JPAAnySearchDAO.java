@@ -65,6 +65,8 @@ import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.jpa.entity.JPAPlainSchema;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -533,6 +535,17 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
     private String getQuery(final RelationshipCond cond, final boolean not, final List<Object> parameters,
             final SearchSupport svs) {
 
+        String rightAnyObjectKey;
+        if (SyncopeConstants.UUID_PATTERN.matcher(cond.getAnyObject()).matches()) {
+            rightAnyObjectKey = cond.getAnyObject();
+        } else {
+            AnyObject anyObject = anyObjectDAO.findByName(cond.getAnyObject());
+            rightAnyObjectKey = anyObject == null ? null : anyObject.getKey();
+        }
+        if (rightAnyObjectKey == null) {
+            return EMPTY_QUERY;
+        }
+
         StringBuilder query = new StringBuilder("SELECT DISTINCT any_id FROM ").
                 append(svs.field().name).append(" WHERE ");
 
@@ -544,7 +557,7 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
 
         query.append("SELECT DISTINCT any_id FROM ").
                 append(svs.relationship().name).append(" WHERE ").
-                append("right_any_id=?").append(setParameter(parameters, cond.getAnyObjectKey())).
+                append("right_any_id=?").append(setParameter(parameters, rightAnyObjectKey)).
                 append(')');
 
         return query.toString();
@@ -552,6 +565,17 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
 
     private String getQuery(final MembershipCond cond, final boolean not, final List<Object> parameters,
             final SearchSupport svs) {
+
+        String groupKey;
+        if (SyncopeConstants.UUID_PATTERN.matcher(cond.getGroup()).matches()) {
+            groupKey = cond.getGroup();
+        } else {
+            Group group = groupDAO.findByName(cond.getGroup());
+            groupKey = group == null ? null : group.getKey();
+        }
+        if (groupKey == null) {
+            return EMPTY_QUERY;
+        }
 
         StringBuilder query = new StringBuilder("SELECT DISTINCT any_id FROM ").
                 append(svs.field().name).append(" WHERE ");
@@ -564,7 +588,7 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
 
         query.append("SELECT DISTINCT any_id FROM ").
                 append(svs.membership().name).append(" WHERE ").
-                append("group_id=?").append(setParameter(parameters, cond.getGroupKey())).
+                append("group_id=?").append(setParameter(parameters, groupKey)).
                 append(')');
 
         if (not) {
@@ -575,7 +599,7 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
 
         query.append("SELECT DISTINCT any_id FROM ").
                 append(svs.dyngroupmembership().name).append(" WHERE ").
-                append("group_id=?").append(setParameter(parameters, cond.getGroupKey())).
+                append("group_id=?").append(setParameter(parameters, groupKey)).
                 append(')');
 
         return query.toString();
@@ -668,6 +692,20 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
     private String getQuery(final MemberCond cond, final boolean not, final List<Object> parameters,
             final SearchSupport svs) {
 
+        String memberKey;
+        if (SyncopeConstants.UUID_PATTERN.matcher(cond.getMember()).matches()) {
+            memberKey = cond.getMember();
+        } else {
+            Any member = userDAO.findByUsername(cond.getMember());
+            if (member == null) {
+                member = anyObjectDAO.findByName(cond.getMember());
+            }
+            memberKey = member == null ? null : member.getKey();
+        }
+        if (memberKey == null) {
+            return EMPTY_QUERY;
+        }
+
         StringBuilder query = new StringBuilder("SELECT DISTINCT any_id FROM ").
                 append(svs.field().name).append(" WHERE ");
 
@@ -679,7 +717,7 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
 
         query.append("SELECT DISTINCT group_id AS any_id FROM ").
                 append(new SearchSupport(AnyTypeKind.USER).membership().name).append(" WHERE ").
-                append("any_id=?").append(setParameter(parameters, cond.getMember())).
+                append("any_id=?").append(setParameter(parameters, memberKey)).
                 append(')');
 
         if (not) {
@@ -690,7 +728,7 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
 
         query.append("SELECT DISTINCT group_id AS any_id FROM ").
                 append(new SearchSupport(AnyTypeKind.ANY_OBJECT).membership().name).append(" WHERE ").
-                append("any_id=?").append(setParameter(parameters, cond.getMember())).
+                append("any_id=?").append(setParameter(parameters, memberKey)).
                 append(')');
 
         return query.toString();
