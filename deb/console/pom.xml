@@ -258,7 +258,7 @@ under the License.
   <profiles>
     <profile>
       <id>apache-release</id>
-      
+
       <build>
         <plugins>      
           <plugin>
@@ -268,6 +268,14 @@ under the License.
               <skip>true</skip>
             </configuration>
           </plugin>           
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <inherited>false</inherited>
+            <configuration>
+              <skipSource>true</skipSource>
+            </configuration>
+          </plugin>
         </plugins>
       </build>
     </profile>
