@@ -152,6 +152,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
                     case ROLE_MEMBERSHIP:
                     case GROUP_MEMBERSHIP:
+                    case GROUP_MEMBER:
                     case RESOURCE:
                         return Arrays.asList(
                                 SearchClause.Comparator.EQUALS,
@@ -445,6 +446,12 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                     value.setModelObject(StringUtils.EMPTY);
                     break;
 
+                case GROUP_MEMBER:
+                    value.setEnabled(true);
+                    property.setEnabled(false);
+                    property.setModelObject(null);
+                    break;
+
                 case RESOURCE:
                     property.setChoiceRenderer(new DefaultChoiceRender());
                     value.setEnabled(false);
@@ -532,6 +539,20 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
                             case NOT_EQUALS:
                                 display = "NOT IN";
+                                break;
+
+                            default:
+                                display = StringUtils.EMPTY;
+                        }
+                        break;
+                    case GROUP_MEMBER:
+                        switch (object) {
+                            case EQUALS:
+                                display = "WITH";
+                                break;
+
+                            case NOT_EQUALS:
+                                display = "NOT WITH";
                                 break;
 
                             default:

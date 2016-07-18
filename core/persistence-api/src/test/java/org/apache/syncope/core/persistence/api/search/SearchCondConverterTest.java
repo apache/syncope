@@ -32,6 +32,7 @@ import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
 import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
+import org.apache.syncope.core.persistence.api.dao.search.MemberCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipTypeCond;
 import org.junit.Test;
@@ -175,6 +176,18 @@ public class SearchCondConverterTest {
         AnyTypeCond acond = new AnyTypeCond();
         acond.setAnyTypeKey("PRINTER");
         SearchCond simpleCond = SearchCond.getLeafCond(acond);
+
+        assertEquals(simpleCond, SearchCondConverter.convert(fiqlExpression));
+    }
+
+    @Test
+    public void member() {
+        String fiqlExpression = new GroupFiqlSearchConditionBuilder().withMembers("rossini").query();
+        assertEquals(SpecialAttr.MEMBER + "==rossini", fiqlExpression);
+
+        MemberCond mcond = new MemberCond();
+        mcond.setMember("rossini");
+        SearchCond simpleCond = SearchCond.getLeafCond(mcond);
 
         assertEquals(simpleCond, SearchCondConverter.convert(fiqlExpression));
     }

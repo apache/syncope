@@ -45,6 +45,7 @@ import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
 import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
+import org.apache.syncope.core.persistence.api.dao.search.MemberCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipTypeCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -518,6 +519,19 @@ public class AnySearchTest extends AbstractTest {
                 return "9e1d130c-d6a3-48b1-98b3-182477ed0688".equals(anyObject.getKey());
             }
         }));
+    }
+
+    @Test
+    public void member() {
+        MemberCond memberCond = new MemberCond();
+        memberCond.setMember("1417acbe-cbf6-4277-9372-e75e04f97000");
+        SearchCond searchCondition = SearchCond.getLeafCond(memberCond);
+        assertTrue(searchCondition.isValid());
+
+        List<Group> groups = searchDAO.search(searchCondition, AnyTypeKind.GROUP);
+        assertEquals(2, groups.size());
+        assertTrue(groups.contains(groupDAO.findByName("root")));
+        assertTrue(groups.contains(groupDAO.findByName("otherchild")));
     }
 
     @Test

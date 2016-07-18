@@ -35,6 +35,7 @@ import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
 import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
+import org.apache.syncope.core.persistence.api.dao.search.MemberCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipTypeCond;
 
@@ -131,6 +132,12 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
                             AssignableCond assignableCond = new AssignableCond();
                             assignableCond.setRealmFullPath(realm);
                             leaf = SearchCond.getLeafCond(assignableCond);
+                            break;
+                            
+                        case MEMBER:
+                            MemberCond memberCond = new MemberCond();
+                            memberCond.setMember(value);
+                            leaf = SearchCond.getLeafCond(memberCond);
                             break;
 
                         default:

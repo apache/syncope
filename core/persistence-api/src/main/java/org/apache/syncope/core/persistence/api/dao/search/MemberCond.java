@@ -16,15 +16,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.search;
+package org.apache.syncope.core.persistence.api.dao.search;
 
-import org.apache.cxf.jaxrs.ext.search.client.CompleteCondition;
+public class MemberCond extends AbstractSearchCond {
 
-public interface GroupProperty extends SyncopeProperty {
+    private static final long serialVersionUID = 1193754148321878685L;
 
-    CompleteCondition isAssignable();
+    private String member;
 
-    CompleteCondition withMembers(String member, String... moreMembers);
+    public String getMember() {
+        return member;
+    }
 
-    CompleteCondition withoutMembers(String member, String... moreMembers);
+    public void setMember(final String member) {
+        this.member = member;
+    }
+
+    @Override
+    public boolean isValid() {
+        return member != null;
+    }
+
 }
