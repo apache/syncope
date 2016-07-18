@@ -157,7 +157,7 @@ under the License.
               specification='{"conflictResolutionAction":"IGNORE"}'/>
 
   <RelationshipType id="inclusion" description="Models the act that an object is included in another"/>
-  <RelationshipType id="neighborhood"/>
+  <RelationshipType id="neighborhood" description="Models the act that an object is near another"/>
   
   <AnyTypeClass id="generic membership"/>
 
