@@ -663,7 +663,7 @@ public class ResourceITCase extends AbstractITCase {
         mapping.setConnObjectKeyItem(item);
 
         item = new MappingItemTO();
-        item.setIntAttrName("owner");
+        item.setIntAttrName("userOwner");
         item.setExtAttrName("owner");
         item.setPurpose(MappingPurpose.BOTH);
         mapping.add(item);
@@ -757,6 +757,45 @@ public class ResourceITCase extends AbstractITCase {
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.InvalidMapping, e.getType());
+        }
+    }
+
+    @Test
+    public void issueSYNCOPE888() {
+        String resourceKey = RESOURCE_NAME_CREATE_WRONG;
+        ResourceTO resourceTO = new ResourceTO();
+        resourceTO.setKey(resourceKey);
+        resourceTO.setConnector("5ffbb4ac-a8c3-4b44-b699-11b398a1ba08");
+
+        ProvisionTO provisionTO = new ProvisionTO();
+        provisionTO.setAnyType(AnyTypeKind.USER.name());
+        provisionTO.setObjectClass(ObjectClass.ACCOUNT_NAME);
+        resourceTO.getProvisions().add(provisionTO);
+
+        MappingTO mapping = new MappingTO();
+        provisionTO.setMapping(mapping);
+
+        MappingItemTO item = new MappingItemTO();
+        item.setIntAttrName("key");
+        item.setExtAttrName("userId");
+        item.setConnObjectKey(true);
+        item.setPurpose(MappingPurpose.BOTH);
+        mapping.setConnObjectKeyItem(item);
+
+        // Add mapping for a not existing internal attribute
+        item = new MappingItemTO();
+        item.setIntAttrName("locatio");
+        item.setExtAttrName("location");
+        item.setPurpose(MappingPurpose.BOTH);
+        mapping.add(item);
+
+        try {
+            createResource(resourceTO);
+            fail("Create should not have worked");
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.InvalidMapping, e.getType());
+            assertEquals(1, e.getElements().size());
+            assertEquals("'locatio' not existing", e.getElements().iterator().next());
         }
     }
 }
