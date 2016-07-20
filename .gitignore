@@ -9,3 +9,5 @@ target
 maven-eclipse.xml
 .externalToolBuilders
 archetype/src/main/resources/archetype-resources/pom.xml
+ide/eclipse/bundles/org.apache.syncope.ide.eclipse.plugin/bin/
+ide/eclipse/bundles/org.apache.syncope.ide.eclipse.plugin/lib/

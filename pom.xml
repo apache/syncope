@@ -430,6 +430,7 @@ under the License.
     <izpack.version>5.0.9</izpack.version>
     <httpclient.version>4.3.6</httpclient.version>
     <maven-invoker.version>2.1.1</maven-invoker.version>
+    <tycho-version>0.23.1</tycho-version>
 
     <testds.port>1389</testds.port>
     <testdb.webport>9082</testdb.webport>
@@ -461,6 +462,7 @@ under the License.
     <targetJdk>1.7</targetJdk>
     <rootpom.basedir>${basedir}</rootpom.basedir>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
   </properties>
 
   <dependencyManagement>
@@ -1333,6 +1335,11 @@ under the License.
         <enabled>true</enabled>
       </snapshots>
     </repository>
+    <repository>
+      <id>eclipse-mars</id>
+      <layout>p2</layout>
+      <url>http://download.eclipse.org/releases/mars/</url>
+    </repository>
   </repositories>
 
   <pluginRepositories>
@@ -1547,6 +1554,23 @@ under the License.
           <artifactId>izpack-maven-plugin</artifactId>
           <version>${izpack.version}</version>
         </plugin>
+        
+        <plugin>
+          <groupId>org.eclipse.tycho</groupId>
+          <artifactId>tycho-maven-plugin</artifactId>
+          <version>${tycho-version}</version>
+          <extensions>true</extensions>
+        </plugin>
+        <plugin>
+          <groupId>org.eclipse.tycho</groupId>
+          <artifactId>target-platform-configuration</artifactId>
+          <version>${tycho-version}</version>
+        </plugin>
+        <plugin>
+          <groupId>org.eclipse.tycho</groupId>
+          <artifactId>tycho-p2-repository-plugin</artifactId>
+          <version>${tycho-version}</version>
+        </plugin>                
       </plugins>
     </pluginManagement>
 
@@ -2048,6 +2072,7 @@ under the License.
     <module>standalone</module>
     <module>deb</module>
     <module>installer</module>
+    <module>ide</module>
   </modules>
 
 </project>
