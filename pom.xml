@@ -351,7 +351,7 @@ under the License.
 
     <camel.version>2.17.2</camel.version>	
 
-    <jackson.version>2.8.0</jackson.version>
+    <jackson.version>2.8.1</jackson.version>
 
     <spring.version>4.3.1.RELEASE</spring.version>
     <spring-security.version>4.1.1.RELEASE</spring-security.version>
@@ -372,7 +372,7 @@ under the License.
 
     <slf4j.version>1.7.21</slf4j.version>
     <log4j.version>2.6.2</log4j.version>
-    <disruptor.version>3.3.4</disruptor.version>
+    <disruptor.version>3.3.5</disruptor.version>
 
     <commons-io.version>2.5</commons-io.version>
     <commons-email.version>1.4</commons-email.version>
@@ -409,7 +409,7 @@ under the License.
     <codemirror.version>5.13.2</codemirror.version>
     <jsplumb.version>2.0.7</jsplumb.version>
     
-    <wicket.version>7.3.0</wicket.version>
+    <wicket.version>7.4.0</wicket.version>
     <wicket-jqueryui.version>7.3.1</wicket-jqueryui.version>
     <wicket-bootstrap.version>0.10.7</wicket-bootstrap.version>
     <wicket-chartjs.version>7.0.1</wicket-chartjs.version>
