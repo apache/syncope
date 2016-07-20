@@ -358,7 +358,7 @@ under the License.
 
     <cocoon.version>3.0.0-alpha-3</cocoon.version>
 
-    <wicket.version>6.23.0</wicket.version>
+    <wicket.version>6.24.0</wicket.version>
 
     <groovy.version>2.3.10</groovy.version>
 
@@ -366,7 +366,7 @@ under the License.
 
     <log4j.version>2.3</log4j.version>
     <slf4j.version>1.7.21</slf4j.version>
-    <disruptor.version>3.3.4</disruptor.version>
+    <disruptor.version>3.3.5</disruptor.version>
 
     <junit.version>4.11</junit.version>
     <selenium.version>2.52.0</selenium.version>
