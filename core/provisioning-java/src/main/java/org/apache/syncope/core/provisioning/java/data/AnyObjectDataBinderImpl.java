@@ -194,7 +194,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                         } else {
                             ARelationship relationship = entityFactory.newEntity(ARelationship.class);
                             relationship.setType(relationshipType);
-                            relationship.setRightEnd(anyObject);
+                            relationship.setRightEnd(otherEnd);
                             relationship.setLeftEnd(anyObject);
 
                             anyObject.add(relationship);
