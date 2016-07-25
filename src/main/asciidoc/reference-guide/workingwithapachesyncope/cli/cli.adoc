@@ -18,14 +18,8 @@
 //
 === CLI
 
-Once you have downloaded and unzipped the zip file containing the scripts, you will find a `lib` directory and 
-two scripts: `syncopeadm.sh` and `syncopeadm.bat`.
-You will use one of these files, depending on your operating system.
-
 [NOTE]
-Every example described in this document is executed on a GNU / Linux machine with a _debug environment_.
-
-include::installation.adoc[]
+Examples in this document are executed on GNU / Linux with _debug environment_.
 
 ==== Commands
 

@@ -52,6 +52,12 @@ under the License.
           <li>
             <a href="docs/getting-started.html#maven-project">Maven Project</a>
           </li>
+          <li>
+            <a href="docs/getting-started.html#cli">CLI</a>
+          </li>
+          <li>
+            <a href="docs/getting-started.html#eclipse-ide-plugin">Eclipse IDE Plugin</a>
+          </li>
         </ul>
       </p>
 
