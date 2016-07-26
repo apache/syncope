@@ -25,7 +25,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
@@ -61,9 +60,7 @@ public class UserDeprovisionProcessor implements Processor {
                 key,
                 propByRes,
                 CollectionUtils.removeAll(userDAO.findAllResourceNames(key), resources));
-        PropagationReporter propagationReporter =
-                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
-        taskExecutor.execute(tasks, propagationReporter, nullPriorityAsync);
+        PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
 
         exchange.getOut().setBody(propagationReporter.getStatuses());
     }

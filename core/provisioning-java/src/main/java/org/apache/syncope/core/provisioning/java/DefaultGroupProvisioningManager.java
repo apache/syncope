@@ -43,7 +43,6 @@ import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
@@ -85,9 +84,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                 created.getPropByRes(),
                 groupTO.getVirAttrs(),
                 excludedResources);
-        PropagationReporter propagationReporter =
-                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
-        taskExecutor.execute(tasks, propagationReporter, nullPriorityAsync);
+        PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
 
         return new ImmutablePair<>(created.getResult(), propagationReporter.getStatuses());
     }
@@ -113,9 +110,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                 created.getPropByRes(),
                 groupTO.getVirAttrs(),
                 excludedResources);
-        PropagationReporter propagationReporter =
-                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
-        taskExecutor.execute(tasks, propagationReporter, nullPriorityAsync);
+        PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
 
         return new ImmutablePair<>(created.getResult(), null);
     }
@@ -139,9 +134,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                 updated.getPropByRes(),
                 groupPatch.getVirAttrs(),
                 excludedResources);
-        PropagationReporter propagationReporter =
-                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
-        taskExecutor.execute(tasks, propagationReporter, nullPriorityAsync);
+        PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
 
         return new ImmutablePair<>(updated.getResult(), propagationReporter.getStatuses());
     }
@@ -185,9 +178,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                 null,
                 null));
 
-        PropagationReporter propagationReporter =
-                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
-        taskExecutor.execute(tasks, propagationReporter, nullPriorityAsync);
+        PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
 
         gwfAdapter.delete(key);
 
@@ -215,9 +206,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                 propByRes,
                 null,
                 null);
-        PropagationReporter propagationReporter =
-                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
-        taskExecutor.execute(tasks, propagationReporter, nullPriorityAsync);
+        PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
 
         return propagationReporter.getStatuses();
     }
@@ -234,9 +223,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                 key,
                 propByRes,
                 CollectionUtils.removeAll(groupDAO.authFind(key).getResourceKeys(), resources));
-        PropagationReporter propagationReporter =
-                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
-        taskExecutor.execute(tasks, propagationReporter, nullPriorityAsync);
+        PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
 
         return propagationReporter.getStatuses();
     }

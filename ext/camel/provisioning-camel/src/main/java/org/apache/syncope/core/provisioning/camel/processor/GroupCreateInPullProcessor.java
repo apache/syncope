@@ -29,7 +29,6 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
@@ -67,9 +66,7 @@ public class GroupCreateInPullProcessor implements Processor {
                 created.getPropByRes(),
                 groupTO.getVirAttrs(),
                 excludedResources);
-        PropagationReporter propagationReporter =
-                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
-        taskExecutor.execute(tasks, propagationReporter, nullPriorityAsync);
+        PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
 
         exchange.getOut().setBody(new ImmutablePair<>(created.getResult(), null));
     }

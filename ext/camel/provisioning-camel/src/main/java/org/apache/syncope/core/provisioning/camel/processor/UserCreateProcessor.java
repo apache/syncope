@@ -25,7 +25,6 @@ import org.apache.camel.Processor;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
@@ -47,8 +46,8 @@ public class UserCreateProcessor implements Processor {
     @Override
     public void process(final Exchange exchange) {
         if ((exchange.getIn().getBody() instanceof WorkflowResult)) {
-            WorkflowResult<Pair<String, Boolean>> created = 
-                (WorkflowResult<Pair<String, Boolean>>) exchange.getIn().getBody();
+            WorkflowResult<Pair<String, Boolean>> created =
+                    (WorkflowResult<Pair<String, Boolean>>) exchange.getIn().getBody();
             UserTO actual = exchange.getProperty("actual", UserTO.class);
             Set<String> excludedResources = exchange.getProperty("excludedResources", Set.class);
             Boolean nullPriorityAsync = exchange.getProperty("nullPriorityAsync", Boolean.class);
@@ -60,9 +59,7 @@ public class UserCreateProcessor implements Processor {
                     created.getPropByRes(),
                     actual.getVirAttrs(),
                     excludedResources);
-            PropagationReporter propagationReporter =
-                    ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
-            taskExecutor.execute(tasks, propagationReporter, nullPriorityAsync);
+            PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
 
             exchange.getOut().setBody(
                     new ImmutablePair<>(created.getResult().getKey(), propagationReporter.getStatuses()));

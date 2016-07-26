@@ -24,7 +24,6 @@ import org.apache.camel.Processor;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.UserPatch;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
@@ -49,14 +48,12 @@ public class UserUpdateProcessor implements Processor {
     @Override
     @SuppressWarnings("unchecked")
     public void process(final Exchange exchange) {
-        WorkflowResult<Pair<UserPatch, Boolean>> updated = 
-            (WorkflowResult<Pair<UserPatch, Boolean>>) exchange.getIn().getBody();
+        WorkflowResult<Pair<UserPatch, Boolean>> updated =
+                (WorkflowResult<Pair<UserPatch, Boolean>>) exchange.getIn().getBody();
         Boolean nullPriorityAsync = exchange.getProperty("nullPriorityAsync", Boolean.class);
 
         List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(updated);
-        PropagationReporter propagationReporter =
-                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
-        taskExecutor.execute(tasks, propagationReporter, nullPriorityAsync);
+        PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
 
         exchange.getOut().setBody(new ImmutablePair<>(
                 updated.getResult().getKey().getKey(), propagationReporter.getStatuses()));

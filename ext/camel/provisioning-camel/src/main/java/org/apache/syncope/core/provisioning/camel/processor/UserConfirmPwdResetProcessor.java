@@ -23,11 +23,9 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.UserPatch;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
-import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -44,13 +42,11 @@ public class UserConfirmPwdResetProcessor implements Processor {
     @Override
     public void process(final Exchange exchange) {
         @SuppressWarnings("unchecked")
-        WorkflowResult<Pair<UserPatch, Boolean>> updated = 
-            (WorkflowResult<Pair<UserPatch, Boolean>>) exchange.getIn().getBody();
+        WorkflowResult<Pair<UserPatch, Boolean>> updated =
+                (WorkflowResult<Pair<UserPatch, Boolean>>) exchange.getIn().getBody();
 
         List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(updated);
 
-        PropagationReporter propReporter =
-                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
-        taskExecutor.execute(tasks, propReporter, false);
+        taskExecutor.execute(tasks, false);
     }
 }

@@ -47,7 +47,6 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationException
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
@@ -112,9 +111,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
                 created.getPropByRes(),
                 userTO.getVirAttrs(),
                 excludedResources);
-        PropagationReporter propagationReporter =
-                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
-        taskExecutor.execute(tasks, propagationReporter, nullPriorityAsync);
+        PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
 
         return new ImmutablePair<>(created.getResult().getKey(), propagationReporter.getStatuses());
     }
@@ -124,9 +121,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
         WorkflowResult<Pair<UserPatch, Boolean>> updated = uwfAdapter.update(userPatch);
 
         List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(updated);
-        PropagationReporter propagationReporter =
-                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
-        taskExecutor.execute(tasks, propagationReporter, nullPriorityAsync);
+        PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
 
         return new ImmutablePair<>(updated.getResult().getKey().getKey(), propagationReporter.getStatuses());
     }
@@ -184,9 +179,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
 
         List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(
                 updated, updated.getResult().getKey().getPassword() != null, excludedResources);
-        PropagationReporter propagationReporter = ApplicationContextProvider.getBeanFactory().
-                getBean(PropagationReporter.class);
-        taskExecutor.execute(tasks, propagationReporter, nullPriorityAsync);
+        PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
 
         return new ImmutablePair<>(updated.getResult().getKey().getKey(), propagationReporter.getStatuses());
     }
@@ -213,9 +206,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
                 key,
                 propByRes,
                 excludedResources);
-        PropagationReporter propagationReporter =
-                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
-        taskExecutor.execute(tasks, propagationReporter, nullPriorityAsync);
+        PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
 
         try {
             uwfAdapter.delete(key);
@@ -283,11 +274,9 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
                 propByRes,
                 null,
                 null);
-        PropagationReporter propReporter =
-                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
-        taskExecutor.execute(tasks, propReporter, nullPriorityAsync);
+        PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
 
-        return propReporter.getStatuses();
+        return propagationReporter.getStatuses();
     }
 
     @Override
@@ -341,9 +330,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
                 ImmutablePair.of(userPatch, (Boolean) null), propByRes, "update");
 
         List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(wfResult, changePwd, null);
-        PropagationReporter propagationReporter =
-                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
-        taskExecutor.execute(tasks, propagationReporter, nullPriorityAsync);
+        PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
 
         return propagationReporter.getStatuses();
     }
@@ -360,9 +347,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
                 key,
                 propByRes,
                 CollectionUtils.removeAll(userDAO.findAllResourceNames(key), resources));
-        PropagationReporter propagationReporter =
-                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
-        taskExecutor.execute(tasks, propagationReporter, nullPriorityAsync);
+        PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
 
         return propagationReporter.getStatuses();
     }
@@ -378,8 +363,6 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
 
         List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(updated);
 
-        PropagationReporter propReporter =
-                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
-        taskExecutor.execute(tasks, propReporter, false);
+        taskExecutor.execute(tasks, false);
     }
 }

@@ -349,8 +349,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         return result;
     }
 
-    @Override
-    public TaskExec execute(final PropagationTask task, final PropagationReporter reporter) {
+    protected TaskExec execute(final PropagationTask task, final PropagationReporter reporter) {
         List<PropagationActions> actions = getPropagationActions(task.getResource());
 
         Date start = new Date();
@@ -520,24 +519,27 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
     @Override
     public void execute(final Collection<PropagationTask> tasks) {
-        execute(tasks, null, false);
+        execute(tasks, false);
     }
 
     protected abstract void doExecute(
             Collection<PropagationTask> tasks, PropagationReporter reporter, boolean nullPriorityAsync);
 
     @Override
-    public void execute(
+    public PropagationReporter execute(
             final Collection<PropagationTask> tasks,
-            final PropagationReporter reporter,
             final boolean nullPriorityAsync) {
 
+        PropagationReporter reporter =
+                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
         try {
             doExecute(tasks, reporter, nullPriorityAsync);
         } catch (PropagationException e) {
             LOG.error("Error propagation priority resource", e);
             reporter.onPriorityResourceFailure(e.getResourceName(), tasks);
         }
+
+        return reporter;
     }
 
     /**
