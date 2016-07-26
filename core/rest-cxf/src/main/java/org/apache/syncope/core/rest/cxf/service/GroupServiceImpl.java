@@ -22,6 +22,7 @@ import java.util.List;
 import org.apache.syncope.common.lib.patch.GroupPatch;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.TypeExtensionTO;
 import org.apache.syncope.common.lib.types.BulkMembersActionType;
 import org.apache.syncope.common.rest.api.service.GroupService;
 import org.apache.syncope.core.logic.AbstractAnyLogic;
@@ -50,6 +51,11 @@ public class GroupServiceImpl extends AbstractAnyService<GroupTO, GroupPatch> im
     @Override
     public List<GroupTO> own() {
         return logic.own();
+    }
+
+    @Override
+    public TypeExtensionTO readTypeExtension(final String key, final String anyTypeKey) {
+        return logic.readTypeExtension(key, anyTypeKey);
     }
 
     @Override

@@ -28,7 +28,6 @@ angular.module('self')
               user: "="
             },
             controller: function ($scope, $filter) {
-
               $scope.init = function () {
                 if (!$scope.user.memberships) {
                   $scope.user.memberships = new Array();
@@ -37,22 +36,25 @@ angular.module('self')
               };
 
               $scope.addGroup = function (item, model) {
-                var group = item;
-                $scope.user.memberships.push({"rightKey": group.rightKey});                
+                var membership = item;
+                $scope.user.memberships.push({"rightKey": membership.rightKey, "groupName": membership.groupName});
+                $scope.$emit("groupAdded", membership.groupName);
               };
 
               $scope.removeGroup = function (item, model) {
                 var groupIndex = $scope.getIndex(item);
-                $scope.user.memberships.splice(groupIndex, 1);                
+                var membership = $scope.user.memberships[groupIndex];
+                var groupName = membership.groupName;
+                $scope.user.memberships.splice(groupIndex, 1);
+                $scope.$emit("groupRemoved", groupName);
               };
 
               $scope.getIndex = function (selectedGroup) {
-                var groupIndex = $scope.user.memberships.map(function (groupName) {
-                  return groupName;
-                }).indexOf(selectedGroup);
+                var groupIndex = $scope.user.memberships.map(function (membership) {
+                  return membership.groupName;
+                }).indexOf(selectedGroup.groupName);
                 return groupIndex;
               };
-
             }
           };
         });

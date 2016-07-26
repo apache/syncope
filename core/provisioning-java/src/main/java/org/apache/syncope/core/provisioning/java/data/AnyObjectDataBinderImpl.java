@@ -215,9 +215,12 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                     searchDAO.search(SearchCond.getLeafCond(assignableCond), AnyTypeKind.GROUP);
 
             for (MembershipTO membershipTO : anyObjectTO.getMemberships()) {
-                Group group = groupDAO.find(membershipTO.getRightKey());
+                Group group = membershipTO.getRightKey() == null
+                        ? groupDAO.findByName(membershipTO.getGroupName())
+                        : groupDAO.find(membershipTO.getRightKey());
                 if (group == null) {
-                    LOG.debug("Ignoring invalid group " + membershipTO.getGroupName());
+                    LOG.debug("Ignoring invalid group "
+                            + membershipTO.getRightKey() + " / " + membershipTO.getGroupName());
                 } else if (assignableGroups.contains(group)) {
                     AMembership membership = entityFactory.newEntity(AMembership.class);
                     membership.setRightEnd(group);

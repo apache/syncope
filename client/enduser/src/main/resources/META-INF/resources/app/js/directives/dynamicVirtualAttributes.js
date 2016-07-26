@@ -28,7 +28,27 @@ angular.module('self')
               user: "="
             },
             controller: function ($scope) {
+              $scope.byGroup = {};
 
+              $scope.splitByGroup = function (schemas) {
+                for (var i = 0; i < schemas.length; i++) {
+                  var group;
+                  var simpleKey;
+                  if (schemas[i].key.indexOf('#') === -1) {
+                    group = "own";
+                    simpleKey = schemas[i].key;
+                  } else {
+                    group = schemas[i].key.substr(0, schemas[i].key.indexOf('#'));
+                    simpleKey = schemas[i].key.substr(schemas[i].key.indexOf('#') + 1);
+                  }
+                  if (!$scope.byGroup[group]) {
+                    $scope.byGroup[group] = new Array();
+                  }
+                  $scope.byGroup[group].push(schemas[i]);
+                  schemas[i].simpleKey = simpleKey;
+                }
+              };
+              
               $scope.addVirtualAttributeField = function (virSchemaKey) {
                 console.debug("Add VIRTUAL value:", virSchemaKey);
                 console.debug(" ", ($scope.dynamicForm.virtualAttributeTable[virSchemaKey].fields.length));

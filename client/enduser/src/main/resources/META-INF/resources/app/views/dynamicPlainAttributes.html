@@ -16,28 +16,34 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<div id="attribute" class="form-group" ng-repeat="plainSchema in dynamicForm.plainSchemas">
-  <label for="plainSchema.key">{{plainSchema.key | translate}} <span ng-if="plainSchema.mandatoryCondition === 'true'">*</span></label>
-  <div ng-if="!plainSchema.multivalue">
-    <dynamic-plain-attribute schema="plainSchema" user="user" index="0"></dynamic-plain-attribute>
-    <validation-message name="{{plainSchema.key | translate}}"/>
-  </div>
-
-  <div ng-if="plainSchema.multivalue">
-    <div ng-repeat="field in dynamicForm.attributeTable[plainSchema.key].fields track by $index" 
-         ng-model='dynamicForm.attributeTable[plainSchema.key].fields[$index]'>
-      <dynamic-plain-attribute schema="plainSchema" user="user" index="$index"></dynamic-plain-attribute>
-      <span>
-        <button class="btn btn-default btn-sm minus" ng-if="$index > 0" type="button" 
-                ng-click="removeAttributeField(plainSchema.key, $index)">
-          <i class="glyphicon glyphicon-minus" title="Remove value"></i>
-        </button>
-      </span>
+<uib-accordion ng-init="splitByGroup(dynamicForm.plainSchemas)" >
+  <div uib-accordion-group heading="{{group}}"
+       ng-init="status = {isOpen: $first}" is-open="status.isOpen"
+       class="breadcrumb-header"
+       ng-repeat="(group, plainSchemas) in byGroup">
+    <div id="attribute" class="form-group" ng-repeat="plainSchema in plainSchemas">
+      <label for="plainSchema.key">{{plainSchema.simpleKey| translate}} <span ng-if="plainSchema.mandatoryCondition === 'true'">*</span></label>
+      <div ng-if="!plainSchema.multivalue">
+        <dynamic-plain-attribute schema="plainSchema" user="user" index="0"></dynamic-plain-attribute>
+        <validation-message name="{{plainSchema.simpleKey| translate}}"/>
+      </div>
+      <div ng-if="plainSchema.multivalue">
+        <div ng-repeat="field in dynamicForm.attributeTable[plainSchema.key].fields track by $index" 
+             ng-model='dynamicForm.attributeTable[plainSchema.key].fields[$index]'>
+          <dynamic-plain-attribute schema="plainSchema" user="user" index="$index"></dynamic-plain-attribute>
+          <span>
+            <button class="btn btn-default btn-sm minus" ng-if="$index > 0" type="button" 
+                    ng-click="removeAttributeField(plainSchema.key, $index)">
+              <i class="glyphicon glyphicon-minus" title="Remove value"></i>
+            </button>
+          </span>
+        </div>
+        <span>
+          <button class="btn btn-default btn-sm" type="button" ng-click="addAttributeField(plainSchema.key)">
+            <i class="glyphicon glyphicon-plus" title="Add value"></i>
+          </button>
+        </span>
+      </div>
     </div>
-    <span>
-      <button class="btn btn-default btn-sm" type="button" ng-click="addAttributeField(plainSchema.key)">
-        <i class="glyphicon glyphicon-plus" title="Add value"></i>
-      </button>
-    </span>
   </div>
-</div>
+</uib-accordion>

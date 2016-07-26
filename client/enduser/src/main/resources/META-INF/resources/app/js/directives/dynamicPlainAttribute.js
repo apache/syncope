@@ -31,7 +31,6 @@ angular.module('self')
             },
             controller: function ($scope, $element, $window) {
               $scope.initAttribute = function (schema, index) {
-
                 switch (schema.type) {
                   case "Long":
                   case "Double":
@@ -48,7 +47,6 @@ angular.module('self')
                             || $scope.enumerationValues[0];
                     break;
                   case "Binary":
-
                     $scope.userFile = $scope.userFile || '';
                     $element.bind("change", function (changeEvent) {
                       $scope.$apply(function () {
@@ -203,6 +201,6 @@ angular.module('self')
                           return (n !== undefined && n !== "");
                         });
               });
-            },
+            }
           };
         });

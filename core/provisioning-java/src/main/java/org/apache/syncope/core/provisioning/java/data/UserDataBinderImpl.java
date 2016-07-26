@@ -231,9 +231,12 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                     searchDAO.search(SearchCond.getLeafCond(assignableCond), AnyTypeKind.GROUP);
 
             for (MembershipTO membershipTO : userTO.getMemberships()) {
-                Group group = groupDAO.find(membershipTO.getRightKey());
+                Group group = membershipTO.getRightKey() == null
+                        ? groupDAO.findByName(membershipTO.getGroupName())
+                        : groupDAO.find(membershipTO.getRightKey());
                 if (group == null) {
-                    LOG.debug("Ignoring invalid group " + membershipTO.getGroupName());
+                    LOG.debug("Ignoring invalid group "
+                            + membershipTO.getRightKey() + " / " + membershipTO.getGroupName());
                 } else if (assignableGroups.contains(group)) {
                     UMembership membership = entityFactory.newEntity(UMembership.class);
                     membership.setRightEnd(group);

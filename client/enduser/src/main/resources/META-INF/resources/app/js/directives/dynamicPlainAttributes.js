@@ -28,10 +28,30 @@ angular.module('self')
               user: "="
             },
             controller: function ($scope) {
+              $scope.byGroup = {};
+
+              $scope.splitByGroup = function (schemas) {
+                for (var i = 0; i < schemas.length; i++) {
+                  var group;
+                  var simpleKey;
+                  if (schemas[i].key.indexOf('#') === -1) {
+                    group = "own";
+                    simpleKey = schemas[i].key;
+                  } else {
+                    group = schemas[i].key.substr(0, schemas[i].key.indexOf('#'));
+                    simpleKey = schemas[i].key.substr(schemas[i].key.indexOf('#') + 1);
+                  }
+                  if (!$scope.byGroup[group]) {
+                    $scope.byGroup[group] = new Array();
+                  }
+                  $scope.byGroup[group].push(schemas[i]);
+                  schemas[i].simpleKey = simpleKey;
+                }
+              };
 
               $scope.addAttributeField = function (plainSchemaKey) {
                 console.debug("Add PLAIN value:", plainSchemaKey);
-                console.debug(" ",($scope.dynamicForm.attributeTable[plainSchemaKey].fields.length));
+                console.debug(" ", ($scope.dynamicForm.attributeTable[plainSchemaKey].fields.length));
                 $scope.dynamicForm.attributeTable[plainSchemaKey].fields.push(plainSchemaKey + "_" + ($scope.dynamicForm.attributeTable[plainSchemaKey].fields.length));
               };
 

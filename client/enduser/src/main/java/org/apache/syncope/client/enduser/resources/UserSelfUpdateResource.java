@@ -20,14 +20,20 @@ package org.apache.syncope.client.enduser.resources;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
+import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.Predicate;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
@@ -57,8 +63,8 @@ public class UserSelfUpdateResource extends AbstractBaseResource {
                 throw new IllegalArgumentException("Entered captcha is not matching");
             }
 
-            UserTO userTO = MAPPER.readValue(request.getReader().readLine(), UserTO.class);
-            LOG.debug("User {} id self-updating", userTO.getUsername());
+            String json = request.getReader().readLine();
+            UserTO userTO = MAPPER.readValue(json, UserTO.class);
 
             Map<String, AttrTO> userPlainAttrMap = userTO.getPlainAttrMap();
 
@@ -80,6 +86,79 @@ public class UserSelfUpdateResource extends AbstractBaseResource {
                 }
             }
 
+            Set<AttrTO> membAttrs = new HashSet<>();
+            for (AttrTO attr : userTO.getPlainAttrs()) {
+                if (attr.getSchema().contains("#")) {
+                    final String[] simpleAttrs = attr.getSchema().split("#");
+                    MembershipTO membership = IterableUtils.find(userTO.getMemberships(),
+                            new Predicate<MembershipTO>() {
+
+                        @Override
+                        public boolean evaluate(final MembershipTO item) {
+                            return simpleAttrs[0].equals(item.getGroupName());
+                        }
+                    });
+                    if (membership == null) {
+                        membership = new MembershipTO.Builder().group(null, simpleAttrs[0]).build();
+                        userTO.getMemberships().add(membership);
+                    }
+                    AttrTO clone = SerializationUtils.clone(attr);
+                    clone.setSchema(simpleAttrs[1]);
+                    membership.getPlainAttrs().add(clone);
+                    membAttrs.add(attr);
+                }
+            }
+            userTO.getPlainAttrs().removeAll(membAttrs);
+
+            membAttrs.clear();
+            for (AttrTO attr : userTO.getDerAttrs()) {
+                if (attr.getSchema().contains("#")) {
+                    final String[] simpleAttrs = attr.getSchema().split("#");
+                    MembershipTO membership = IterableUtils.find(userTO.getMemberships(),
+                            new Predicate<MembershipTO>() {
+
+                        @Override
+                        public boolean evaluate(final MembershipTO item) {
+                            return simpleAttrs[0].equals(item.getGroupName());
+                        }
+                    });
+                    if (membership == null) {
+                        membership = new MembershipTO.Builder().group(null, simpleAttrs[0]).build();
+                        userTO.getMemberships().add(membership);
+                    }
+                    AttrTO clone = SerializationUtils.clone(attr);
+                    clone.setSchema(simpleAttrs[1]);
+                    membership.getDerAttrs().add(clone);
+                    membAttrs.add(attr);
+                }
+            }
+            userTO.getDerAttrs().removeAll(membAttrs);
+
+            membAttrs.clear();
+            for (AttrTO attr : userTO.getVirAttrs()) {
+                if (attr.getSchema().contains("#")) {
+                    final String[] simpleAttrs = attr.getSchema().split("#");
+                    MembershipTO membership = IterableUtils.find(userTO.getMemberships(),
+                            new Predicate<MembershipTO>() {
+
+                        @Override
+                        public boolean evaluate(final MembershipTO item) {
+                            return simpleAttrs[0].equals(item.getGroupName());
+                        }
+                    });
+                    if (membership == null) {
+                        membership = new MembershipTO.Builder().group(null, simpleAttrs[0]).build();
+                        userTO.getMemberships().add(membership);
+
+                    }
+                    AttrTO clone = SerializationUtils.clone(attr);
+                    clone.setSchema(simpleAttrs[1]);
+                    membership.getVirAttrs().add(clone);
+                    membAttrs.add(attr);
+                }
+            }
+            userTO.getVirAttrs().removeAll(membAttrs);
+
             // update user
             Response res = SyncopeEnduserSession.get().
                     getService(userTO.getETagValue(), UserSelfService.class).update(userTO);
@@ -89,7 +168,6 @@ public class UserSelfUpdateResource extends AbstractBaseResource {
                     append("User").append(userTO.getUsername()).append(" successfully updated").toString()
                     : new StringBuilder().
                     append("ErrorMessage{{ ").append(res.getStatusInfo().getReasonPhrase()).append(" }}").toString();
-
             response.setWriteCallback(new WriteCallback() {
 
                 @Override
@@ -111,5 +189,4 @@ public class UserSelfUpdateResource extends AbstractBaseResource {
         }
         return response;
     }
-
 }

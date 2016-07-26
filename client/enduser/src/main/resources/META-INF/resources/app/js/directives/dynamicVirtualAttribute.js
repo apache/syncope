@@ -37,7 +37,7 @@ angular.module('self')
                           return (n !== undefined && n !== "");
                         });
               });
-            },
+            }
             //replace: true
           };
         });

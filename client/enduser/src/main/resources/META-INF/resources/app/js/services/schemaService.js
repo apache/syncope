@@ -26,10 +26,9 @@ angular.module('self')
             var schemaService = {};
 
             schemaService.getUserSchemas = function (anyTypeClass) {
+              var param = anyTypeClass ? "?anyTypeClass=" + encodeURI(anyTypeClass) : "";
 
-              var classParam = anyTypeClass ? "?anyTypeClass=" + encodeURI(anyTypeClass) : "";
-
-              return  $http.get("/syncope-enduser/api/schemas" + classParam)
+              return  $http.get("/syncope-enduser/api/schemas" + param)
                       .then(function (response) {
                         return response.data;
                       }, function (response) {
@@ -37,6 +36,19 @@ angular.module('self')
                         return $q.reject(response.data || response.statusText);
                       });
             };
+
+            schemaService.getTypeExtSchemas = function (group) {
+              var param = group ? "?group=" + encodeURI(group) : "";
+
+              return  $http.get("/syncope-enduser/api/schemas" + param)
+                      .then(function (response) {
+                        return response.data;
+                      }, function (response) {
+                        console.error("Something went wrong during schema retrieval, exit with status: ", response);
+                        return $q.reject(response.data || response.statusText);
+                      });
+            };
+
             return schemaService;
           }]);
 
