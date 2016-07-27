@@ -59,12 +59,12 @@ under the License.
          
   <route id="updateGroup">
     <from uri="direct:updateGroup"/>
-    <setProperty propertyName="anyPatch">
+    <setProperty propertyName="actual">
       <simple>${body}</simple>
     </setProperty>
     <doTry>
       <bean ref="gwfAdapter" method="update(${body})"/>
-      <process ref="groupUpdateProcessor"/>
+      <process ref="updateProcessor"/>
       <to uri="direct:updateGroupPort"/>
       <doCatch>        
         <exception>java.lang.RuntimeException</exception>

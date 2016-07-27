@@ -46,7 +46,7 @@ under the License.
     </setProperty>
     <doTry>
       <bean ref="uwfAdapter" method="update(${body})"/>
-      <process ref="userUpdateProcessor"/>
+      <process ref="updateProcessor"/>
       <to uri="direct:updatePort"/>
       <doCatch>        
         <exception>java.lang.RuntimeException</exception>

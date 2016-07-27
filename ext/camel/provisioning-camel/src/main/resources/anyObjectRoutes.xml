@@ -40,12 +40,12 @@ under the License.
          
   <route id="updateAnyObject">
     <from uri="direct:updateAnyObject"/>
-    <setProperty propertyName="anyPatch">
+    <setProperty propertyName="actual">
       <simple>${body}</simple>
     </setProperty>
     <doTry>
       <bean ref="awfAdapter" method="update(${body})"/>
-      <process ref="anyObjectUpdateProcessor"/>
+      <process ref="updateProcessor"/>
       <to uri="direct:updateAnyObjectPort"/>
       <doCatch>        
         <exception>java.lang.RuntimeException</exception>
