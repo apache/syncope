@@ -27,7 +27,7 @@ under the License.
     <doTry>
       <bean method="create(${body},${property.disablePwdPolicyCheck},${property.enabled},${property.storePassword})"
             ref="uwfAdapter" />
-      <process ref="userCreateProcessor"/>
+      <process ref="createProcessor"/>
       <to uri="direct:createPort"/>
       <doCatch>        
         <exception>java.lang.RuntimeException</exception>

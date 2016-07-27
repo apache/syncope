@@ -21,12 +21,12 @@ under the License.
      
   <route id="createGroup">
     <from uri="direct:createGroup"/>
-    <setProperty propertyName="any">
+    <setProperty propertyName="actual">
       <simple>${body}</simple>
     </setProperty>
     <doTry>
       <bean ref="gwfAdapter" method="create(${body})"/>
-      <process ref="groupCreateProcessor"/>
+      <process ref="createProcessor"/>
       <to uri="direct:createGroupPort"/>
       <doCatch>        
         <exception>java.lang.RuntimeException</exception>

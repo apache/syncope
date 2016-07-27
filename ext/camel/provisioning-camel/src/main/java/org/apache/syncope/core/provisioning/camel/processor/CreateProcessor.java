@@ -24,7 +24,10 @@ import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.to.AnyObjectTO;
+import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
@@ -34,7 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class UserCreateProcessor implements Processor {
+public class CreateProcessor implements Processor {
 
     @Autowired
     protected PropagationManager propagationManager;
@@ -46,23 +49,42 @@ public class UserCreateProcessor implements Processor {
     @Override
     public void process(final Exchange exchange) {
         if ((exchange.getIn().getBody() instanceof WorkflowResult)) {
-            WorkflowResult<Pair<String, Boolean>> created =
-                    (WorkflowResult<Pair<String, Boolean>>) exchange.getIn().getBody();
-            UserTO actual = exchange.getProperty("actual", UserTO.class);
+            Object actual = exchange.getProperty("actual");
             Set<String> excludedResources = exchange.getProperty("excludedResources", Set.class);
             Boolean nullPriorityAsync = exchange.getProperty("nullPriorityAsync", Boolean.class);
+            
+            if (actual instanceof UserTO) {
+                WorkflowResult<Pair<String, Boolean>> created =
+                        (WorkflowResult<Pair<String, Boolean>>) exchange.getIn().getBody();
+    
+                List<PropagationTask> tasks = propagationManager.getUserCreateTasks(
+                        created.getResult().getKey(),
+                        ((UserTO) actual).getPassword(),
+                        created.getResult().getValue(),
+                        created.getPropByRes(),
+                        ((UserTO) actual).getVirAttrs(),
+                        excludedResources);
+                PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
 
-            List<PropagationTask> tasks = propagationManager.getUserCreateTasks(
-                    created.getResult().getKey(),
-                    actual.getPassword(),
-                    created.getResult().getValue(),
-                    created.getPropByRes(),
-                    actual.getVirAttrs(),
-                    excludedResources);
-            PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
+                exchange.getOut().setBody(
+                        new ImmutablePair<>(created.getResult().getKey(), propagationReporter.getStatuses()));
+            } else if (actual instanceof AnyTO) {
+                WorkflowResult<String> created = (WorkflowResult<String>) exchange.getIn().getBody();
 
-            exchange.getOut().setBody(
-                    new ImmutablePair<>(created.getResult().getKey(), propagationReporter.getStatuses()));
+                AnyTypeKind anyTypeKind = AnyTypeKind.GROUP;
+                if (actual instanceof AnyObjectTO) {
+                    anyTypeKind = AnyTypeKind.ANY_OBJECT;
+                }
+                List<PropagationTask> tasks = propagationManager.getCreateTasks(
+                        anyTypeKind,
+                        created.getResult(),
+                        created.getPropByRes(),
+                        ((AnyTO) actual).getVirAttrs(),
+                        excludedResources);
+                PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
+
+                exchange.getOut().setBody(new ImmutablePair<>(created.getResult(), propagationReporter.getStatuses()));
+            }
         }
     }
 
