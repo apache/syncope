@@ -49,22 +49,32 @@ New contributors are always welcome!
 
 [discrete] 
 == Preface
-This reference guide covers Apache Syncope services for identity management,
-provisioning, and compliance.
+This reference guide covers Apache Syncope services for identity management, provisioning, and compliance.
 
 == Introduction
 
-*Apache Syncope* is an Open Source system for managing digital identities in enterprise environments, implemented in 
-Java EE technology and released under the Apache 2.0 license. 
+Often, _Identity Management_ and _Access Management_ are jointly referred, mainly because their two management worlds
+likely coexist in the same project or in the same environment.
 
-*Identity Management* (or IdM) means to manage user data on systems and applications, using the combination of
-business processes and IT. IdM involves considering user attributes, roles, resources and entitlements in trying to answer the
-following thorny question:
+The two topics are however completely different: each one has its own context, its own rules, its own best practices.
 
-[.text-center]
-_Who has access to What, When, How, and Why?_ 
+On the other hand, some products provide unorthodox implementations so it is indeed possible to do the same thing with 
+both of them.
 
-include::iam/iam.adoc[]
+****
+Identity Management:: Tools and practices to keep identity data consistent and synchronized across repositories, data 
+formats and models.
+Access Management:: Systems, protocols and technologies supporting user authentication (how users are let accessing a
+given system) and authorization (which capabilities each user owns on a given system).
+****
+
+From the definitions above, Identity Management and Access Management can be seen as complementary: very often, the data
+synchronized by the former are then used by the latter to provide its features - e.g. authentication and authorization.
+
+[NOTE]
+Functionally, *Apache Syncope* implements *Identity Management* features.
+
+include::identitytechnologies/identitytechnologies.adoc[]
 
 include::architecture/architecture.adoc[]
 

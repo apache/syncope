@@ -74,7 +74,7 @@ authentication (https://en.wikipedia.org/wiki/Single_sign-on[Single Sign-On^]), 
 
 [NOTE]
 ====
-As you can notice, *Apache Syncope is primarily a provisioning engine*.
+Technologically, *Apache Syncope* is primarily a *Provisioning Engine*.
 ====
 
 ==== Aren't Identity Stores enough?

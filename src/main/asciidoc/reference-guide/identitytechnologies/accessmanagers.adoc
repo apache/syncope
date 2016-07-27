@@ -16,17 +16,16 @@
 // specific language governing permissions and limitations
 // under the License.
 //
-==== Provisioning Engines
-A provisioning engine is a software able to execute some operation on the profile of a digital identity.
-Precisely this operation could be run to manage a user lifecycle, the _CRUD_ operation to persist the user on an
-identity store:
+==== Access Managers
 
-* Create
-* Read
-* Update
-* Delete
+_Access Managers_ focus on application front-end, sitting as mediators to application access and taking authentication
+(how users are let accessing a given system) and authorization (which capabilities each user owns on a given system)
+in charge.
 
-or could be the operations able to modify the user profile in order to activate or deactivate its digital identity, or
-could be the operations to add or remove a role from an user profile to achieve the RBAC (Role-based access control)
-in an environment and so on. Definitely a provisioning engine manages the digital identity user profile in a centralized
-way.
+Several practices and standards can be implemented by access managers:
+
+* https://en.wikipedia.org/wiki/Single_sign-on[Single Sign-On^]
+* http://oauth.net/[OAuth^]
+* https://en.wikipedia.org/wiki/XACML[XACML^]
+* https://en.wikipedia.org/wiki/Security_Assertion_Markup_Language[SAML^]
+* http://openid.net/connect/[OpenID Connect^]

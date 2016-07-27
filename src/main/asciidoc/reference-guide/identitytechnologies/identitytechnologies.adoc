@@ -16,20 +16,20 @@
 // specific language governing permissions and limitations
 // under the License.
 //
-==== Identity Stores
-An identity store is the place where digital identities are stored. Of course there are various store types, the most
-famous are:
 
-* Microsoft Active Directory;
-* LDAP
-** OpenLDAP;
-** FreeIPA;
-** ForgeRock OpenDJ;
-** 389 Directory Server;
-* DBMS
-** MySQL
-** PostgreSQL
-** Oracle
+=== Identity Technologies
 
-From Apache Syncope point of view, an identity store is viewed as an integrated resource with a communication based
-on the identity connectors.
+Identity and Access Management (IAM) is not implemented by a single technology; it is instead a composition of
+heterogeneous technologies - differing by maturity, scope, applicability and feature coverage - which require some
+'glue' to fit together.
+
+As with other application domains, it can be observed that tools appeared earlier tend to partially overlap with more 
+recent, targeted products.
+
+include::identitystores.adoc[]
+
+include::provisioningengines.adoc[]
+
+include::accessmanagers.adoc[]
+
+include::thecompletepicture.adoc[]
