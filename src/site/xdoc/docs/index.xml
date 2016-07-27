@@ -43,9 +43,9 @@ under the License.
       </p>
       
       <subsection name="Guides">
-	<div class="alert alert-warning">
-	  <strong>Warning!</strong> The links below apply to Syncope &ge; 2.0; for prior versions please take a look at the <a class="externalLink" href="https://cwiki.apache.org/confluence/display/SYNCOPE">Wiki</a>.
-	</div>
+        <div class="alert alert-warning">
+          <strong>Warning!</strong> The links below apply to Syncope &ge; 2.0; for prior versions please take a look at the <a class="externalLink" href="https://cwiki.apache.org/confluence/display/SYNCOPE">Wiki</a>.
+        </div>
 
         <table>
           <thead>

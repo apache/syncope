@@ -269,6 +269,8 @@ cp $SYNCOPE_RELEASE_DIR/deb/enduser/target/apache-syncope-enduser-*.deb .
 cp $SYNCOPE_RELEASE_DIR/deb/enduser/target/apache-syncope-enduser-*.deb.asc .
 cp $SYNCOPE_RELEASE_DIR/client/cli/target/syncope-client-cli-*.zip .
 cp $SYNCOPE_RELEASE_DIR/client/cli/target/syncope-client-cli-*.zip.asc .
+cp $SYNCOPE_RELEASE_DIR/ide/eclipse/releng/org.apache.syncope.ide.eclipse.site/target/org.apache.syncope.ide.eclipse.site-*.zip .
+cp $SYNCOPE_RELEASE_DIR/ide/eclipse/releng/org.apache.syncope.ide.eclipse.site/target/org.apache.syncope.ide.eclipse.site-*.zip.asc .
 
 for file in `find . -type f -iname '*.asc'`
 do
@@ -302,7 +304,6 @@ cd $SYNCOPE_SITE_DIR
 mvn -P site -Dsite.deploymentBaseUrl=file:///<absolute path to/site>/$VERSION
 
 cd <absolute path to/site>/$VERSION
-rm -f apidocs/2.html
 
 # if releasing from 1_2_X              
 cp -r <absolute path to syncope-$VERSION above>/target/site/apidocs apidocs/1.2              

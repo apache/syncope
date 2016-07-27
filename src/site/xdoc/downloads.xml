@@ -35,31 +35,28 @@ under the License.
       <p>Use the links below to download a distribution of Apache Syncope.
         It is good practice to <a href="#Verifying_Releases">verify the integrity</a> of the distribution files.
       </p>
-      <p>
-        <b>Don't know which downloads best suit your needs?</b>
+
+      <div class="alert alert-info">
+        <h4>Don't know which downloads best suit your needs?</h4>
         <br/>
-        Take a look at the quick summary from the <a href="docs/index.html#Guides">Getting Started guide</a>:
-        <ul>
-          <li>
-            <a href="docs/getting-started.html#standalone">Standalone</a>
-          </li>
-          <li>
-            <a href="docs/getting-started.html#debian-packages">Debian Packages</a>
-          </li>
-          <li>
-            <a href="docs/getting-started.html#gui-installer">GUI Installer</a>
-          </li>
-          <li>
+        <div class="btn-group">
+          <button type="button" class="btn btn-default">
             <a href="docs/getting-started.html#maven-project">Maven Project</a>
-          </li>
-          <li>
-            <a href="docs/getting-started.html#cli">CLI</a>
-          </li>
-          <li>
+          </button>
+          <button type="button" class="btn btn-default">
+            <a href="docs/getting-started.html#standalone">Standalone</a>
+          </button>
+          <button type="button" class="btn btn-default">
+            <a href="docs/getting-started.html#debian-packages">Debian Packages</a>
+          </button>
+          <button type="button" class="btn btn-default">
+            <a href="docs/getting-started.html#gui-installer">GUI Installer</a>
+          </button>
+          <button type="button" class="btn btn-default">
             <a href="docs/getting-started.html#eclipse-ide-plugin">Eclipse IDE Plugin</a>
-          </li>
-        </ul>
-      </p>
+          </button>
+        </div>
+      </div>
 
       <subsection name="2.0.0-M4 Jazz">
         <p>Release date: June 24th 2016</p>
@@ -96,26 +93,6 @@ under the License.
             </tr>
             <tr>
               <td>
-                <a href="http://www.apache.org/dyn/closer.lua/syncope/2.0.0-M4/syncope-installer-2.0.0-M4-uber.jar">syncope-installer-2.0.0-M4.jar</a>
-              </td>
-              <td>
-                <a href="https://www.apache.org/dist/syncope/2.0.0-M4/syncope-installer-2.0.0-M4-uber.jar.asc">asc</a> 
-                <a href="https://www.apache.org/dist/syncope/2.0.0-M4/syncope-installer-2.0.0-M4-uber.jar.md5">md5</a> 
-                <a href="https://www.apache.org/dist/syncope/2.0.0-M4/syncope-installer-2.0.0-M4-uber.jar.sha1">sha1</a>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <a href="http://www.apache.org/dyn/closer.lua/syncope/2.0.0-M4/syncope-client-cli-2.0.0-M4.zip">syncope-client-cli-2.0.0-M4.zip</a>
-              </td>
-              <td>
-                <a href="https://www.apache.org/dist/syncope/2.0.0-M4/syncope-client-cli-2.0.0-M4.zip.asc">asc</a> 
-                <a href="https://www.apache.org/dist/syncope/2.0.0-M4/syncope-client-cli-2.0.0-M4.zip.md5">md5</a> 
-                <a href="https://www.apache.org/dist/syncope/2.0.0-M4/syncope-client-cli-2.0.0-M4.zip.sha1">sha1</a>
-              </td>
-            </tr>
-            <tr>
-              <td>
                 <a href="http://www.apache.org/dyn/closer.lua/syncope/2.0.0-M4/apache-syncope-2.0.0-M4.deb">apache-syncope-2.0.0-M4.deb</a>
               </td>
               <td>
@@ -142,6 +119,36 @@ under the License.
                 <a href="https://www.apache.org/dist/syncope/2.0.0-M4/apache-syncope-enduser-2.0.0-M4.deb.asc">asc</a> 
                 <a href="https://www.apache.org/dist/syncope/2.0.0-M4/apache-syncope-enduser-2.0.0-M4.deb.md5">md5</a> 
                 <a href="https://www.apache.org/dist/syncope/2.0.0-M4/apache-syncope-enduser-2.0.0-M4.deb.sha1">sha1</a>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/2.0.0-M4/syncope-installer-2.0.0-M4-uber.jar">syncope-installer-2.0.0-M4.jar</a>
+              </td>
+              <td>
+                <a href="https://www.apache.org/dist/syncope/2.0.0-M4/syncope-installer-2.0.0-M4-uber.jar.asc">asc</a> 
+                <a href="https://www.apache.org/dist/syncope/2.0.0-M4/syncope-installer-2.0.0-M4-uber.jar.md5">md5</a> 
+                <a href="https://www.apache.org/dist/syncope/2.0.0-M4/syncope-installer-2.0.0-M4-uber.jar.sha1">sha1</a>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/2.0.0-M4/syncope-client-cli-2.0.0-M4.zip">syncope-client-cli-2.0.0-M4.zip</a>
+              </td>
+              <td>
+                <a href="https://www.apache.org/dist/syncope/2.0.0-M4/syncope-client-cli-2.0.0-M4.zip.asc">asc</a> 
+                <a href="https://www.apache.org/dist/syncope/2.0.0-M4/syncope-client-cli-2.0.0-M4.zip.md5">md5</a> 
+                <a href="https://www.apache.org/dist/syncope/2.0.0-M4/syncope-client-cli-2.0.0-M4.zip.sha1">sha1</a>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/2.0.0-M4/org.apache.syncope.ide.eclipse.site-2.0.0-M4.zip">syncope-client-cli-2.0.0-M4.zip</a>
+              </td>
+              <td>
+                <a href="https://www.apache.org/dist/syncope/2.0.0-M4/org.apache.syncope.ide.eclipse.site-2.0.0-M4.zip.asc">asc</a> 
+                <a href="https://www.apache.org/dist/syncope/2.0.0-M4/org.apache.syncope.ide.eclipse.site-2.0.0-M4.zip.md5">md5</a> 
+                <a href="https://www.apache.org/dist/syncope/2.0.0-M4/org.apache.syncope.ide.eclipse.site-2.0.0-M4.zip.sha1">sha1</a>
               </td>
             </tr>
           </tbody>
@@ -182,16 +189,6 @@ under the License.
             </tr>
             <tr>
               <td>
-                <a href="http://www.apache.org/dyn/closer.lua/syncope/1.2.8/syncope-installer-1.2.8-uber.jar">syncope-installer-1.2.8.jar</a>
-              </td>
-              <td>
-                <a href="https://www.apache.org/dist/syncope/1.2.8/syncope-installer-1.2.8-uber.jar.asc">asc</a> 
-                <a href="https://www.apache.org/dist/syncope/1.2.8/syncope-installer-1.2.8-uber.jar.md5">md5</a> 
-                <a href="https://www.apache.org/dist/syncope/1.2.8/syncope-installer-1.2.8-uber.jar.sha1">sha1</a>
-              </td>
-            </tr>
-            <tr>
-              <td>
                 <a href="http://www.apache.org/dyn/closer.lua/syncope/1.2.8/apache-syncope-1.2.8.deb">apache-syncope-1.2.8.deb</a>
               </td>
               <td>
@@ -208,6 +205,16 @@ under the License.
                 <a href="https://www.apache.org/dist/syncope/1.2.8/apache-syncope-console-1.2.8.deb.asc">asc</a> 
                 <a href="https://www.apache.org/dist/syncope/1.2.8/apache-syncope-console-1.2.8.deb.md5">md5</a> 
                 <a href="https://www.apache.org/dist/syncope/1.2.8/apache-syncope-console-1.2.8.deb.sha1">sha1</a>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/1.2.8/syncope-installer-1.2.8-uber.jar">syncope-installer-1.2.8.jar</a>
+              </td>
+              <td>
+                <a href="https://www.apache.org/dist/syncope/1.2.8/syncope-installer-1.2.8-uber.jar.asc">asc</a> 
+                <a href="https://www.apache.org/dist/syncope/1.2.8/syncope-installer-1.2.8-uber.jar.md5">md5</a> 
+                <a href="https://www.apache.org/dist/syncope/1.2.8/syncope-installer-1.2.8-uber.jar.sha1">sha1</a>
               </td>
             </tr>
           </tbody>

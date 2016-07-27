@@ -38,6 +38,43 @@ under the License.
     <rootpom.basedir>${basedir}/../../../..</rootpom.basedir>
   </properties>
 
+  <build>
+    <plugins>
+      <!-- Put the correct LICENSE / NOTICE files into the distributable P2 archive -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>default-resources</id>
+            <configuration>
+              <skip>true</skip>
+            </configuration>
+          </execution>
+          <execution>
+            <id>copy-artifact-legal-files</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/repository/META-INF</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${basedir}/../../</directory>
+                  <includes>
+                    <include>LICENSE</include>
+                    <include>NOTICE</include>
+                  </includes>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
   <profiles>
     <profile>
       <id>apache-release</id>

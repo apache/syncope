@@ -57,11 +57,10 @@ public class JavaScriptScanner extends RuleBasedScanner {
     }
 
     /**
-     * Creates the list of <code>IRule < /code>.
+     * Creates the list of <code>IRule</code>.
      * If you have to customize rules, override this method.
      *
-     * @param colorProvider ColorProvider
-     * @return the list of <code>IRule < /code>
+     * @return the list of <code>IRule</code>
      */
     protected List<IRule> createRules() {
         IToken normal  = new Token(new TextAttribute(new Color(Display.getCurrent(),
