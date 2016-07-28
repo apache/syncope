@@ -272,9 +272,16 @@ public class HTMLCompletionProcessor extends HTMLTemplateAssistProcessor {
                 if (word.equals("</")) {
                     length = 2;
                 }
-                list.add(new CompletionProposal(
-                        assistKeyword, documentOffset - length, length,
-                        assistKeyword.length()));
+                String contentBefore = viewer.getDocument().get().substring(0, documentOffset - length);
+                if (contentBefore.endsWith("\t")) {
+                    list.add(new CompletionProposal(
+                            assistKeyword, documentOffset - (length + 1), length + 1,
+                            assistKeyword.length()));
+                } else {
+                    list.add(new CompletionProposal(
+                            assistKeyword, documentOffset - length, length,
+                            assistKeyword.length()));
+                }
             }
         }
 
