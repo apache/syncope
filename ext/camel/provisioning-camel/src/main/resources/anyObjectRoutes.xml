@@ -26,7 +26,7 @@ under the License.
     </setProperty>
     <doTry>
       <bean ref="awfAdapter" method="create(${body})"/>
-      <process ref="createProcessor"/>
+      <to uri="propagate:create?anyType=any"/>
       <to uri="direct:createAnyObjectPort"/>
       <doCatch>        
         <exception>java.lang.RuntimeException</exception>
@@ -45,7 +45,7 @@ under the License.
     </setProperty>
     <doTry>
       <bean ref="awfAdapter" method="update(${body})"/>
-      <process ref="updateProcessor"/>
+      <to uri="propagate:update?anyType=any"/>
       <to uri="direct:updateAnyObjectPort"/>
       <doCatch>        
         <exception>java.lang.RuntimeException</exception>
@@ -60,7 +60,7 @@ under the License.
   <route id="deleteAnyObject">
     <from uri="direct:deleteAnyObject"/>
     <doTry>
-      <process ref="anyObjectDeleteProcessor"/>
+      <to uri="propagate:delete?anyType=any"/>
       <bean ref="awfAdapter" method="delete(${body})"/>
       <setBody>
         <simple>${property.statuses}</simple>
@@ -114,13 +114,13 @@ under the License.
         
   <route id="provisionAnyObject">
     <from uri="direct:provisionAnyObject"/>            
-    <process ref="anyObjectProvisionProcessor"/>
+    <to uri="propagate:provision?anyType=any"/>
     <to uri="direct:provisionAnyObjectPort"/>              
   </route>
 
   <route id="deprovisionAnyObject">
     <from uri="direct:deprovisionAnyObject"/>            
-    <process ref="anyObjectDeprovisionProcessor"/>
+    <to uri="propagate:deprovision?anyType=any"/>
     <to uri="direct:deprovisionAnyObjectPort"/>              
   </route>
     

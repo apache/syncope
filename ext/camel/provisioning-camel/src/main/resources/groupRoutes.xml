@@ -26,7 +26,7 @@ under the License.
     </setProperty>
     <doTry>
       <bean ref="gwfAdapter" method="create(${body})"/>
-      <process ref="createProcessor"/>
+      <to uri="propagate:create?anyType=group"/>
       <to uri="direct:createGroupPort"/>
       <doCatch>        
         <exception>java.lang.RuntimeException</exception>
@@ -64,7 +64,7 @@ under the License.
     </setProperty>
     <doTry>
       <bean ref="gwfAdapter" method="update(${body})"/>
-      <process ref="updateProcessor"/>
+      <to uri="propagate:update?anyType=group"/>
       <to uri="direct:updateGroupPort"/>
       <doCatch>        
         <exception>java.lang.RuntimeException</exception>
@@ -79,7 +79,7 @@ under the License.
   <route id="deleteGroup">
     <from uri="direct:deleteGroup"/>
     <doTry>
-      <process ref="groupDeleteProcessor"/>
+      <to uri="propagate:delete?anyType=group"/>
       <bean ref="gwfAdapter" method="delete(${body})"/>
       <setBody>
         <simple>${property.statuses}</simple>
@@ -133,13 +133,13 @@ under the License.
         
   <route id="provisionGroup">
     <from uri="direct:provisionGroup"/>            
-    <process ref="groupProvisionProcessor"/>
+    <to uri="propagate:provision?anyType=group"/>
     <to uri="direct:provisionGroupPort"/>              
   </route>
 
   <route id="deprovisionGroup">
     <from uri="direct:deprovisionGroup"/>            
-    <process ref="groupDeprovisionProcessor"/>
+    <to uri="propagate:deprovision?anyType=group"/>
     <to uri="direct:deprovisionGroupPort"/>              
   </route>
     

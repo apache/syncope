@@ -27,7 +27,7 @@ under the License.
     <doTry>
       <bean method="create(${body},${property.disablePwdPolicyCheck},${property.enabled},${property.storePassword})"
             ref="uwfAdapter" />
-      <process ref="createProcessor"/>
+      <to uri="propagate:create?anyType=user"/>
       <to uri="direct:createPort"/>
       <doCatch>        
         <exception>java.lang.RuntimeException</exception>
@@ -46,7 +46,7 @@ under the License.
     </setProperty>
     <doTry>
       <bean ref="uwfAdapter" method="update(${body})"/>
-      <process ref="updateProcessor"/>
+      <to uri="propagate:update?anyType=user"/>
       <to uri="direct:updatePort"/>
       <doCatch>        
         <exception>java.lang.RuntimeException</exception>
@@ -83,7 +83,7 @@ under the License.
   <route id="deleteUser">
     <from uri="direct:deleteUser"/>
     <doTry>
-      <process ref="userDeleteProcessor"/>
+      <to uri="propagate:delete?anyType=user"/>
       <bean ref="uwfAdapter" method="delete(${body})"/>
       <setBody>
         <simple>${property.statuses}</simple>
@@ -188,13 +188,13 @@ under the License.
     
   <route id="provisionUser">
     <from uri="direct:provisionUser"/>            
-    <process ref="userProvisionProcessor"/>
+    <to uri="propagate:provision?anyType=user"/>
     <to uri="direct:provisionPort"/>              
   </route>
                 
   <route id="deprovisionUser">
     <from uri="direct:deprovisionUser"/>            
-    <process ref="userDeprovisionProcessor"/>
+    <to uri="propagate:deprovision?anyType=user"/>
     <to uri="direct:deprovisionPort"/>              
   </route>
     
