@@ -16,18 +16,6 @@
 // specific language governing permissions and limitations
 // under the License.
 //
+=== Third Party Applications
 
-== Architecture
-
-[.text-center]
-image::architecture.png[title="Architecture",alt="Architecture"]
-
-include::core.adoc[]
-
-include::console.adoc[]
-
-include::enduser.adoc[]
-
-include::cli.adoc[]
-
-include::3rdpartyapp.adoc[]
+==== Eclipse IDE Plugin

@@ -16,4 +16,14 @@
 // specific language governing permissions and limitations
 // under the License.
 //
-=== Implementation Guidelines
+=== Core
+
+==== Logic
+
+==== Provisioning
+
+==== Workflow
+
+==== Persistence
+
+==== Security
