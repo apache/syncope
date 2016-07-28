@@ -58,6 +58,10 @@ under the License.
          icon="src/main/resources/icons/syncope.png"
          class="org.apache.syncope.ide.eclipse.plugin.editors.TemplateEditor"
       />
+    <editor id="org.apache.syncope.ide.eclipse.plugin.editors.HTMLEditor"
+         name="HTML Editor"
+         icon="src/main/resources/icons/syncope.png"
+         class="org.apache.syncope.ide.eclipse.plugin.editors.HTMLEditor"
+      />
    </extension>
-
 </plugin>

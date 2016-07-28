@@ -45,4 +45,5 @@ Bundle-ClassPath: lib/asm.jar,
       lib/woodstox-core-asl.jar,
       lib/wsdl4j.jar,
       lib/xmlschema-core.jar,
+      lib/jsoup.jar,
       .

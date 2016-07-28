@@ -68,10 +68,7 @@ public class TemplateEditor extends MultiPageEditorPart implements IResourceChan
             setPageText(index, editor.getTitle());
         } catch (final PartInitException e) {
             ErrorDialog.openError(
-                getSite().getShell(),
-                ERROR_NESTED_EDITOR,
-                null,
-                e.getStatus());
+                getSite().getShell(), ERROR_NESTED_EDITOR, null, e.getStatus());
         }
     }
 
@@ -178,6 +175,15 @@ public class TemplateEditor extends MultiPageEditorPart implements IResourceChan
 
     protected void pageChange(final int newPageIndex) {
         super.pageChange(newPageIndex);
+    }
+    
+    public ITextEditor getActiveHTMLEditor() {
+        final ITextEditor ite = (ITextEditor) getActiveEditor();
+        if (ite.getTitle().equals(SyncopeView.TEMPLATE_FORMAT_HTML)) {
+            return (ITextEditor) getActiveEditor();
+        } else {
+            return null;
+        }
     }
 
     public void resourceChanged(final IResourceChangeEvent event) {

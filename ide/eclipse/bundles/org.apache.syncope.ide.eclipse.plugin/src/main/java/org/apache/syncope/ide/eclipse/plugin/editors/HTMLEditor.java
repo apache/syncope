@@ -18,19 +18,44 @@
  */
 package org.apache.syncope.ide.eclipse.plugin.editors;
 
+import java.util.ResourceBundle;
+
+import org.apache.syncope.ide.eclipse.plugin.editors.htmlhelpers.AutoIndentAction;
 import org.apache.syncope.ide.eclipse.plugin.editors.htmlhelpers.HTMLFileDocumentProvider;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.editors.text.TextEditor;
+import org.eclipse.ui.texteditor.ITextEditorActionConstants;
+import org.eclipse.ui.texteditor.TextEditorAction;
 
 public class HTMLEditor extends TextEditor {
+    
+    private static final String RESOURCE_BUNDLE = "/src/main/resources/HTMLEditor";
+            
     public HTMLEditor() {
         super();
         setSourceViewerConfiguration(new HTMLSourceConfiguration());
     }
 
+    @Override
     protected final void doSetInput(final IEditorInput input) throws CoreException {
         setDocumentProvider(new HTMLFileDocumentProvider());
         super.doSetInput(input);
+    }
+
+    @Override
+    protected void editorContextMenuAboutToShow(final IMenuManager menu) {
+        super.editorContextMenuAboutToShow(menu);
+        addAction(menu, ITextEditorActionConstants.GROUP_EDIT, "AutoIndent");
+    }
+
+    @Override
+    protected void createActions() {
+        super.createActions();
+        IAction a = (TextEditorAction) new AutoIndentAction(
+                ResourceBundle.getBundle(RESOURCE_BUNDLE), "AutoIndent", null);
+        setAction("AutoIndent", a);
     }
 }
