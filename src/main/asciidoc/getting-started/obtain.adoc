@@ -105,11 +105,11 @@ sudo apt-get install tomcat8
 +
 [WARNING]
 *Ubuntu LTS 14.04 LTS* does not provide the tomcat8 package by default: you will need instead to download and manually
-install the following packages (from Ubuntu 14.10):
-http://packages.ubuntu.com/vivid/all/libecj-java/download[libecj-java]
-http://packages.ubuntu.com/vivid/all/libtomcat8-java/download[libtomcat8-java]
-http://packages.ubuntu.com/vivid/all/tomcat8-common/download[tomcat8-common]
-http://packages.ubuntu.com/vivid/all/tomcat8/download[tomcat8]
+install the following packages (from Ubuntu 15.04):
+http://packages.ubuntu.com/wily/all/libecj-java/download[libecj-java]
+http://packages.ubuntu.com/wily/all/libtomcat8-java/download[libtomcat8-java]
+http://packages.ubuntu.com/wily/all/tomcat8-common/download[tomcat8-common]
+http://packages.ubuntu.com/wily/all/tomcat8/download[tomcat8]
 +
 . Install PostgreSQL
 +
