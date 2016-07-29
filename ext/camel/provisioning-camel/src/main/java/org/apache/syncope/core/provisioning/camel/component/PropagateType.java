@@ -18,6 +18,6 @@ package org.apache.syncope.core.provisioning.camel.component;
 
 public enum PropagateType {
 
-    create, update, delete, provision, deprovision
+    create, update, delete, provision, deprovision, status, suspend, confirmPasswordReset
 
 }

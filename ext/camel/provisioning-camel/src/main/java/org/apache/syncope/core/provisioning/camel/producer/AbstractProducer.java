@@ -29,6 +29,8 @@ public abstract class AbstractProducer extends DefaultProducer {
     private PropagationTaskExecutor taskExecutor;
 
     private AnyType anyType;
+    
+    private boolean pull;
 
     public AbstractProducer(final Endpoint endpoint, final AnyType anyType) {
         super(endpoint);
@@ -53,5 +55,13 @@ public abstract class AbstractProducer extends DefaultProducer {
 
     public AnyType getAnyType() {
         return anyType;
+    }
+
+    public boolean isPull() {
+        return pull;
+    }
+
+    public void setPull(final boolean pull) {
+        this.pull = pull;
     }
 }

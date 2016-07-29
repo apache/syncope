@@ -40,12 +40,12 @@ under the License.
                
   <route id="createGroupPull">
     <from uri="direct:createGroupInPull"/>
-    <setProperty propertyName="any">
+    <setProperty propertyName="actual">
       <simple>${body}</simple>
     </setProperty>
     <doTry>
       <bean ref="gwfAdapter" method="create(${body})"/>
-      <process ref="groupCreateInPullProcessor"/>
+      <to uri="propagate:create?anyType=group&amp;pull=true"/>
       <to uri="direct:createGroupInPullPort"/>
       <doCatch>        
         <exception>java.lang.RuntimeException</exception>

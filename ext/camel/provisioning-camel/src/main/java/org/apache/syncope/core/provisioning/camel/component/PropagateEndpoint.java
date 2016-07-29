@@ -33,11 +33,15 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.provisioning.camel.AnyType;
 import org.apache.syncope.core.provisioning.camel.producer.AbstractProducer;
+import org.apache.syncope.core.provisioning.camel.producer.ConfirmPasswordResetProducer;
 import org.apache.syncope.core.provisioning.camel.producer.CreateProducer;
 import org.apache.syncope.core.provisioning.camel.producer.DeleteProducer;
 import org.apache.syncope.core.provisioning.camel.producer.DeprovisionProducer;
 import org.apache.syncope.core.provisioning.camel.producer.ProvisionProducer;
+import org.apache.syncope.core.provisioning.camel.producer.StatusProducer;
+import org.apache.syncope.core.provisioning.camel.producer.SuspendProducer;
 import org.apache.syncope.core.provisioning.camel.producer.UpdateProducer;
+import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
 
 @UriEndpoint(scheme = "propagate", title = "propagate", syntax = "propagate:propagateType", producerOnly = true)
 public class PropagateEndpoint extends DefaultEndpoint {
@@ -47,6 +51,9 @@ public class PropagateEndpoint extends DefaultEndpoint {
 
     @UriParam
     private AnyType anyType;
+    
+    @UriParam
+    private boolean pull;
 
     private PropagationManager propagationManager;
 
@@ -59,6 +66,8 @@ public class PropagateEndpoint extends DefaultEndpoint {
     private AnyObjectDAO anyObjectDAO;
 
     private GroupDataBinder groupDataBinder;
+    
+    private  UserWorkflowAdapter uwfAdapter;
 
     public PropagateEndpoint(final String endpointUri, final Component component) {
         super(endpointUri, component);
@@ -77,11 +86,18 @@ public class PropagateEndpoint extends DefaultEndpoint {
             producer = new ProvisionProducer(this, anyType);
         } else if (PropagateType.deprovision == propagateType) {
             producer = new DeprovisionProducer(this, anyType, userDAO, groupDAO, anyObjectDAO);
-        } 
+        } else if (PropagateType.status == propagateType) {
+            producer = new StatusProducer(this, anyType, userDAO, uwfAdapter);
+        } else if (PropagateType.suspend == propagateType) {
+            producer = new SuspendProducer(this, anyType);
+        } else if (PropagateType.confirmPasswordReset == propagateType) {
+            producer = new ConfirmPasswordResetProducer(this, anyType);
+        }
 
         if (producer != null) {
             producer.setPropagationManager(propagationManager);
             producer.setPropagationTaskExecutor(taskExecutor);
+            producer.setPull(pull);
         }
         return producer;
     }
@@ -134,5 +150,17 @@ public class PropagateEndpoint extends DefaultEndpoint {
 
     public void setGroupDataBinder(final GroupDataBinder groupDataBinder) {
         this.groupDataBinder = groupDataBinder;
+    }
+
+    public boolean isPull() {
+        return pull;
+    }
+
+    public void setPull(final boolean pull) {
+        this.pull = pull;
+    }
+
+    public void setUwfAdapter(final UserWorkflowAdapter uwfAdapter) {
+        this.uwfAdapter = uwfAdapter;
     }
 }

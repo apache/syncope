@@ -46,11 +46,18 @@ public class UpdateProducer extends AbstractProducer {
             Boolean nullPriorityAsync = exchange.getProperty("nullPriorityAsync", Boolean.class);
             Set<String> excludedResources = exchange.getProperty("excludedResources", Set.class);
 
-            if (actual instanceof UserPatch) {
+            if (actual instanceof UserPatch || isPull()) {
                 WorkflowResult<Pair<UserPatch, Boolean>> updated =
                         (WorkflowResult<Pair<UserPatch, Boolean>>) exchange.getIn().getBody();
 
-                List<PropagationTask> tasks = getPropagationManager().getUserUpdateTasks(updated);
+                List<PropagationTask> tasks = null;
+                
+                if (isPull()) {
+                    boolean passwordNotNull = updated.getResult().getKey().getPassword() != null;
+                    tasks = getPropagationManager().getUserUpdateTasks(updated, passwordNotNull, excludedResources);
+                } else {
+                    tasks = getPropagationManager().getUserUpdateTasks(updated);
+                }
                 PropagationReporter propagationReporter = 
                     getPropagationTaskExecutor().execute(tasks, nullPriorityAsync);
 
@@ -72,7 +79,7 @@ public class UpdateProducer extends AbstractProducer {
                         updated.getPropByRes(),
                         ((AnyPatch) actual).getVirAttrs(),
                         excludedResources);
-                PropagationReporter propagationReporter = 
+                PropagationReporter propagationReporter =
                     getPropagationTaskExecutor().execute(tasks, nullPriorityAsync);
 
                 exchange.getOut().setBody(new ImmutablePair<>(updated.getResult(), propagationReporter.getStatuses()));

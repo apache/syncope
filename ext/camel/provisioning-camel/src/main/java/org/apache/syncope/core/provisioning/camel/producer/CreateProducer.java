@@ -17,14 +17,18 @@
 package org.apache.syncope.core.provisioning.camel.producer;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
@@ -69,16 +73,36 @@ public class CreateProducer extends AbstractProducer {
                 if (actual instanceof AnyObjectTO) {
                     anyTypeKind = AnyTypeKind.ANY_OBJECT;
                 }
-                List<PropagationTask> tasks = getPropagationManager().getCreateTasks(
-                        anyTypeKind,
-                        created.getResult(),
-                        created.getPropByRes(),
-                        ((AnyTO) actual).getVirAttrs(),
-                        excludedResources);
-                PropagationReporter propagationReporter = 
+                
+                if (actual instanceof GroupTO && isPull()) {
+                    Map<String, String> groupOwnerMap = exchange.getProperty("groupOwnerMap", Map.class);
+                    AttrTO groupOwner = ((GroupTO) actual).getPlainAttrMap().get(StringUtils.EMPTY);
+                    if (groupOwner != null) {
+                        groupOwnerMap.put(created.getResult(), groupOwner.getValues().iterator().next());
+                    }
+
+                    List<PropagationTask> tasks = getPropagationManager().getCreateTasks(
+                            AnyTypeKind.GROUP,
+                            created.getResult(),
+                            created.getPropByRes(),
+                            ((AnyTO) actual).getVirAttrs(),
+                            excludedResources);
                     getPropagationTaskExecutor().execute(tasks, nullPriorityAsync);
 
-                exchange.getOut().setBody(new ImmutablePair<>(created.getResult(), propagationReporter.getStatuses()));
+                    exchange.getOut().setBody(new ImmutablePair<>(created.getResult(), null));
+                } else {
+                    List<PropagationTask> tasks = getPropagationManager().getCreateTasks(
+                            anyTypeKind,
+                            created.getResult(),
+                            created.getPropByRes(),
+                            ((AnyTO) actual).getVirAttrs(),
+                            excludedResources);
+                    PropagationReporter propagationReporter =
+                        getPropagationTaskExecutor().execute(tasks, nullPriorityAsync);
+
+                    exchange.getOut().setBody(new ImmutablePair<>(created.getResult(),
+                        propagationReporter.getStatuses()));
+                }
             }
         }
     }
