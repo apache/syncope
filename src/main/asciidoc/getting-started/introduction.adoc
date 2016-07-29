@@ -89,7 +89,7 @@ drawbacks are just around the corner:
 . Lack of workflow management
 . Hidden infrastructure management cost, growing with organization
 
-=== A bird's eye view on the Architecture of Apache Syncope
+=== A bird's eye view on the Architecture
 
 [.text-center]
 image::architecture.png[title="Architecture",alt="Architecture"]
@@ -114,7 +114,7 @@ representation of users, groups and any objects. +
 This component often needs to be tailored to meet the requirements of a specific deployment, as it is the crucial decision 
 point for defining and enforcing the consistency and transformations between internal and external data. The default
 all-Java implementation can be extended for this purpose. In addition, an http://camel.apache.org/[Apache Camel^]-based 
-implementation is also available as an extension, which brings all the power of runtime changes and adaptation.
+implementation is also available as extension, which brings all the power of runtime changes and adaptation.
  * *_Workflow_*  is one of the pluggable aspects of Apache Syncope: this lets every deployment choose the preferred engine
 from a provided list - including the one based on http://www.activiti.org/[Activiti BPM^], the reference open source 
 http://www.bpmn.org/[BPMN 2.0^] implementation - or define new, custom ones. 
@@ -129,7 +129,7 @@ changes: MySQL, MariaDB, PostgreSQL, Oracle and MS SQL Server are fully supporte
 implementation of delegated administration scenarios.
 
 Third-party applications are provided full access to IdM services by leveraging the REST interface, either via the 
-Java _SyncopeClient_ library (the basis of Admin UI, End-user UI and CLI) or plain HTTP calls.
+Java Client Library (the basis of Admin UI, End-user UI and CLI) or plain HTTP calls.
 
 .ConnId
 ****

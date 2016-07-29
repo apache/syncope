@@ -18,12 +18,84 @@
 //
 === Core
 
+All the services provided by Apache Syncope are defined, elaborated and served by the *_Core_*.
+
+The Core is internally further structured into several layers, each one taking care of specific aspects of the identity
+management services.
+
+==== REST
+
+The primary way to consume Core services is the https://en.wikipedia.org/wiki/Representational_state_transfer[RESTful^]
+interface, which enables full access to all the features provided.
+This interface enables third-party applications, written in any programming language, to consume IdM services.
+
+The rich pre-defined set of endpoints can be extended by adding new ones, which might be needed on a given Apache
+Syncope deployment to complement the native features with domain-specific operations.
+
+An <<swagger-ui,extension>> is available, providing full http://swagger.io/[Swagger^] features,
+which enables in-browser access to all the REST endpoints defined.
+
+At technical level, the RESTful interface is a fully-compliant 
+https://en.wikipedia.org/wiki/Java_API_for_RESTful_Web_Services[JAX-RS 2.0^] implementation based on 
+http://cxf.apache.org[Apache CXF^], natively dealing both with JSON and XML payloads.
+
+More details are available in the dedicated <<restful-services,usage>> section.
+
 ==== Logic
 
+Right below the external interface level, the overall business logic, orchestrating the other layers for implementing
+the operations that can be triggered via REST services, and controling some additional features (notifications, 
+reports and audit over all).
+
+[[provisioning-layer]]
 ==== Provisioning
+
+The Provisioning layer is involved with managing the internal (via workflow) and external (via specific connectors) 
+representation of users, groups and any objects.
+
+One of the most important features provided is the _mapping_ definition: internal data (users, for example) 
+representation is correlated with information available on the available identity stores. +
+Such definitions constitute the pillars of inbound (pull) and outbound (propagation / push)
+<<provisioning,provisioning>>.
+
+[.text-center]
+image::mapping.png[title="Internal / External Mapping",alt="Internal / External Mapping"]
+
+The default implementation can be sometimes tailored to meet the requirements of a specific deployment, as
+it is the crucial decision point for defining and enforcing the consistency and transformations between internal and 
+external data.
+
+In addition, an http://camel.apache.org/[Apache Camel^]-based implementation is also available as 
+<<apache-camel-provisioning-engine,extension>>, which brings all the power of runtime changes and adaptation.
 
 ==== Workflow
 
+The Workflow layer is responsible for managing the internal lifecycle of users, groups and any objects.
+
+Besides the default engine, another based on http://www.activiti.org/[Activiti BPM^], the 
+reference open source http://www.bpmn.org/[BPMN 2.0^] implementation, is available for users, enabling advanced features
+as approval management and new statuses definition. An optional web-based GUI editor is also available.
+
+[.text-center]
+image::userWorkflow.png[title="Default Activiti user workflow",alt="Default Activiti user workflow"] 
+
+Besides Activiti, new workflow engines - possibly integrating with third-party tools as 
+https://camunda.org/[Camunda^] or http://jbpm.jboss.org/[jBPM^], can be written and plugged into specific deployments.
+
 ==== Persistence
 
+All data (users, groups, attributes, resources, ...) is internally managed at high level using a standard 
+https://en.wikipedia.org/wiki/Java_Persistence_API[JPA 2.0^] approach. The data is persisted into an underlying 
+database, referred to as *_Internal Storage_*. Consistency is ensured via the comprehensive
+http://docs.spring.io/spring/docs/4.2.x/spring-framework-reference/html/transaction.html[transaction management^] 
+provided by the Spring Framework.
+
+Globally, this offers the ability to easily scale up to a million entities and at the same time allows great portability
+with no code changes: MySQL, MariaDB, PostgreSQL, Oracle and MS SQL Server are fully supported deployment options.
+
 ==== Security
+
+Rather than being a separated layer, Security features are triggered throughout incoming request processing.
+
+A fine-grained set of entitlements is defined which can be granted to administrators, thus enabling the 
+implementation of <<delegated-administration,delegated administration>> scenarios.
