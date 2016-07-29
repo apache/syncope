@@ -34,11 +34,10 @@ import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
-import org.apache.syncope.core.provisioning.camel.AnyType;
 
 public class ProvisionProducer extends AbstractProducer {
 
-    public ProvisionProducer(final Endpoint endpoint, final AnyType anyType) {
+    public ProvisionProducer(final Endpoint endpoint, final AnyTypeKind anyType) {
         super(endpoint, anyType);
     }
 
@@ -49,7 +48,7 @@ public class ProvisionProducer extends AbstractProducer {
         List<String> resources = exchange.getProperty("resources", List.class);
         Boolean nullPriorityAsync = exchange.getProperty("nullPriorityAsync", Boolean.class);
         
-        if (getAnyType() == AnyType.user) {
+        if (getAnyTypeKind() == AnyTypeKind.USER) {
             Boolean changePwd = exchange.getProperty("changePwd", Boolean.class);
             String password = exchange.getProperty("password", String.class);
 
@@ -85,13 +84,13 @@ public class ProvisionProducer extends AbstractProducer {
             PropagationByResource propByRes = new PropagationByResource();
             propByRes.addAll(ResourceOperation.UPDATE, resources);
 
-            AnyTypeKind anyType = AnyTypeKind.GROUP;
-            if (getAnyType() == AnyType.any) {
-                anyType = AnyTypeKind.ANY_OBJECT;
+            AnyTypeKind anyTypeKind = AnyTypeKind.GROUP;
+            if (getAnyTypeKind() != null) {
+                anyTypeKind = getAnyTypeKind();
             }
 
             List<PropagationTask> tasks = getPropagationManager().getUpdateTasks(
-                    anyType,
+                    anyTypeKind,
                     key,
                     false,
                     null,

@@ -34,7 +34,6 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
-import org.apache.syncope.core.provisioning.camel.AnyType;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
 
 public class StatusProducer extends AbstractProducer {
@@ -42,9 +41,9 @@ public class StatusProducer extends AbstractProducer {
     private UserDAO userDAO;
     private UserWorkflowAdapter uwfAdapter;
     
-    public StatusProducer(final Endpoint endpoint, final AnyType anyType, final UserDAO userDAO,
+    public StatusProducer(final Endpoint endpoint, final AnyTypeKind anyTypeKind, final UserDAO userDAO,
                           final UserWorkflowAdapter uwfAdapter) {
-        super(endpoint, anyType);
+        super(endpoint, anyTypeKind);
         this.userDAO = userDAO;
         this.uwfAdapter = uwfAdapter;
     }
@@ -52,7 +51,7 @@ public class StatusProducer extends AbstractProducer {
     @SuppressWarnings("unchecked")
     @Override
     public void process(final Exchange exchange) throws Exception {
-        if (getAnyType() == AnyType.user && isPull()) {
+        if (getAnyTypeKind() == AnyTypeKind.USER && isPull()) {
             WorkflowResult<Map.Entry<UserPatch, Boolean>> updated = 
                 (WorkflowResult<Entry<UserPatch, Boolean>>) exchange.getIn().getBody();
 
@@ -79,7 +78,7 @@ public class StatusProducer extends AbstractProducer {
                     updated.getPerformedTasks().addAll(enableUpdate.getPerformedTasks());
                 }
             }
-        } else if (getAnyType() == AnyType.user) {
+        } else if (getAnyTypeKind() == AnyTypeKind.USER) {
             WorkflowResult<Long> updated = (WorkflowResult<Long>) exchange.getIn().getBody();
             StatusPatch statusPatch = exchange.getProperty("statusPatch", StatusPatch.class);
             Boolean nullPriorityAsync = exchange.getProperty("nullPriorityAsync", Boolean.class);

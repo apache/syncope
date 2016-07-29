@@ -23,20 +23,20 @@ import org.apache.camel.Exchange;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
-import org.apache.syncope.core.provisioning.camel.AnyType;
 
 public class SuspendProducer extends AbstractProducer {
 
-    public SuspendProducer(final Endpoint endpoint, final AnyType anyType) {
-        super(endpoint, anyType);
+    public SuspendProducer(final Endpoint endpoint, final AnyTypeKind anyTypeKind) {
+        super(endpoint, anyTypeKind);
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public void process(final Exchange exchange) throws Exception {
-        if (getAnyType() == AnyType.user) {
+        if (getAnyTypeKind() == AnyTypeKind.USER) {
             Pair<WorkflowResult<String>, Boolean> updated = 
                 (Pair<WorkflowResult<String>, Boolean>) exchange.getIn().getBody();
 

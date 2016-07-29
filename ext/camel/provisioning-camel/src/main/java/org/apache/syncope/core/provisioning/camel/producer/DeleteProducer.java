@@ -30,16 +30,15 @@ import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
-import org.apache.syncope.core.provisioning.camel.AnyType;
 
 public class DeleteProducer extends AbstractProducer {
 
     private UserDAO userDAO;
     private GroupDataBinder groupDataBinder;
 
-    public DeleteProducer(final Endpoint endpoint, final AnyType anyType, final UserDAO userDao,
+    public DeleteProducer(final Endpoint endpoint, final AnyTypeKind anyTypeKind, final UserDAO userDao,
                           final GroupDataBinder groupDataBinder) {
-        super(endpoint, anyType);
+        super(endpoint, anyTypeKind);
         this.userDAO = userDao;
         this.groupDataBinder = groupDataBinder;
     }
@@ -51,7 +50,7 @@ public class DeleteProducer extends AbstractProducer {
         Set<String> excludedResources = exchange.getProperty("excludedResources", Set.class);
         Boolean nullPriorityAsync = exchange.getProperty("nullPriorityAsync", Boolean.class);
 
-        if (getAnyType() == AnyType.user) {
+        if (getAnyTypeKind() == AnyTypeKind.USER) {
             PropagationByResource propByRes = new PropagationByResource();
             propByRes.set(ResourceOperation.DELETE, userDAO.findAllResourceNames(key));
 
@@ -69,7 +68,7 @@ public class DeleteProducer extends AbstractProducer {
             PropagationReporter propagationReporter = getPropagationTaskExecutor().execute(tasks, nullPriorityAsync);
 
             exchange.setProperty("statuses", propagationReporter.getStatuses());
-        } else if (getAnyType() == AnyType.group) {
+        } else if (getAnyTypeKind() == AnyTypeKind.GROUP) {
             List<PropagationTask> tasks = new ArrayList<>();
 
             // Generate propagation tasks for deleting users from group resources, if they are on those resources only
@@ -103,7 +102,7 @@ public class DeleteProducer extends AbstractProducer {
             PropagationReporter propagationReporter = getPropagationTaskExecutor().execute(tasks, nullPriorityAsync);
 
             exchange.setProperty("statuses", propagationReporter.getStatuses());
-        } else if (getAnyType() == AnyType.any) {
+        } else if (getAnyTypeKind() == AnyTypeKind.ANY_OBJECT) {
             List<PropagationTask> tasks = getPropagationManager().getDeleteTasks(
                     AnyTypeKind.ANY_OBJECT,
                     key,

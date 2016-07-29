@@ -30,12 +30,11 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
-import org.apache.syncope.core.provisioning.camel.AnyType;
 
 public class UpdateProducer extends AbstractProducer {
 
-    public UpdateProducer(final Endpoint endpoint, final AnyType anyType) {
-        super(endpoint, anyType);
+    public UpdateProducer(final Endpoint endpoint, final AnyTypeKind anyTypeKind) {
+        super(endpoint, anyTypeKind);
     }
 
     @SuppressWarnings("unchecked")
