@@ -51,7 +51,8 @@ under the License.
           <thead>
             <tr>
               <th>Name</th>
-              <th width="100">Formats</th>
+              <th width="100">Stable</th>
+              <th width="100">Snapshot</th>
             </tr>
           </thead>
           <tbody>
@@ -66,6 +67,15 @@ under the License.
                   <img src="../images/application-pdf.png"/>
                 </a> 
               </td>
+              <td>
+                <a href="https://builds.apache.org/job/Syncope-master-docs/ws/target/generated-docs/getting-started.html">
+                  <img src="../images/text-html.png"/>
+                </a>
+                &nbsp;
+                <a href="https://builds.apache.org/job/Syncope-master-docs/ws/target/generated-docs/getting-started.pdf">
+                  <img src="../images/application-pdf.png"/>
+                </a> 
+              </td>
             </tr>
             <tr>
               <td>Reference Guide</td>
@@ -75,6 +85,15 @@ under the License.
                 </a>
                 &nbsp;
                 <a href="reference-guide.pdf">
+                  <img src="../images/application-pdf.png"/>
+                </a> 
+              </td>
+              <td>
+                <a href="https://builds.apache.org/job/Syncope-master-docs/ws/target/generated-docs/reference-guide.html">
+                  <img src="../images/text-html.png"/>
+                </a>
+                &nbsp;
+                <a href="https://builds.apache.org/job/Syncope-master-docs/ws/target/generated-docs/reference-guide.pdf">
                   <img src="../images/application-pdf.png"/>
                 </a> 
               </td>
