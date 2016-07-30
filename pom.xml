@@ -1834,7 +1834,6 @@ under the License.
             <configuration>
               <doctype>book</doctype>
               <relativeBaseDir>true</relativeBaseDir>
-              <imagesDir>${basedir}/src/main/asciidoc/images</imagesDir>
               <sourceHighlighter>highlightjs</sourceHighlighter>
               <attributes>
                 <docVersion>${project.version}</docVersion>
@@ -1858,6 +1857,7 @@ under the License.
                 <configuration>
                   <sourceDocumentName>getting-started/getting-started.adoc</sourceDocumentName>
                   <backend>html</backend>
+		  <imagesDir>./images</imagesDir>
                 </configuration>
               </execution>
               <execution>
@@ -1869,6 +1869,7 @@ under the License.
                 <configuration>
                   <sourceDocumentName>getting-started/getting-started.adoc</sourceDocumentName>
                   <backend>pdf</backend>
+		  <imagesDir>${basedir}/src/main/asciidoc/images</imagesDir>
                   <attributes>
                     <pdf-stylesdir>${basedir}/src/main/asciidoc</pdf-stylesdir>
                     <pdf-style>syncope</pdf-style>
@@ -1884,6 +1885,7 @@ under the License.
                 <configuration>
                   <sourceDocumentName>reference-guide/reference-guide.adoc</sourceDocumentName>
                   <backend>html</backend>
+		  <imagesDir>./images</imagesDir>
                 </configuration>
               </execution>
               <execution>
@@ -1895,6 +1897,7 @@ under the License.
                 <configuration>
                   <sourceDocumentName>reference-guide/reference-guide.adoc</sourceDocumentName>
                   <backend>pdf</backend>
+		  <imagesDir>${basedir}/src/main/asciidoc/images</imagesDir>
                   <attributes>
                     <pdf-stylesdir>${basedir}/src/main/asciidoc</pdf-stylesdir>
                     <pdf-style>syncope</pdf-style>
