@@ -347,7 +347,7 @@ under the License.
     <connid.ldap.version>1.5.1</connid.ldap.version>
     <connid.ad.version>1.3.2</connid.ad.version>
 
-    <cxf.version>3.1.6</cxf.version>
+    <cxf.version>3.1.7</cxf.version>
 
     <camel.version>2.17.2</camel.version>	
 
@@ -526,6 +526,11 @@ under the License.
       <dependency>
         <groupId>org.apache.cxf</groupId>
         <artifactId>cxf-rt-rs-service-description</artifactId>
+        <version>${cxf.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.cxf</groupId>
+        <artifactId>cxf-rt-rs-service-description-swagger</artifactId>
         <version>${cxf.version}</version>
       </dependency>
       <dependency>
