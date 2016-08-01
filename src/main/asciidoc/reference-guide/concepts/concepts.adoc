@@ -20,17 +20,15 @@
 
 === Data model
 
-==== Schema
-
-==== Attributes
-
 ==== Users, Groups and Any objects
+
+==== Schema, Classes and Types
+
+===== Mapping
 
 ==== Realms
 
 ==== Domains
-
-=== Tasks
 
 include::provisioning/provisioning.adoc[]
 
@@ -40,13 +38,32 @@ include::provisioning/provisioning.adoc[]
 
 ==== Password
 
-==== Push
-
+[[policies-pull]]
 ==== Pull
+
+[[policies-push]]
+==== Push
 
 === Workflow and Approval
 
 === Notifications
+
+=== Tasks
+
+[[tasks-propagation]]
+==== Propagation
+
+[[tasks-pull]]
+==== Pull
+
+[[tasks-push]]
+==== Push
+
+[[tasks-notification]]
+==== Notification
+
+[[tasks-generic]]
+==== Generic
 
 === Reports
 

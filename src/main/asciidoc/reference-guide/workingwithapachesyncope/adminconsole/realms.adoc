@@ -16,7 +16,7 @@
 // specific language governing permissions and limitations
 // under the License.
 //
-
+[[console-realms]]
 ===== Realms
 The realms tab provides the admin with the power to manage users, groups and any objects, for all any types defined.
 

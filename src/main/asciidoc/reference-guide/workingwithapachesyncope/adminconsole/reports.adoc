@@ -16,7 +16,7 @@
 // specific language governing permissions and limitations
 // under the License.
 //
-
+[[console-reports]]
 ===== Reports
 The reports tab presents the admin with the reports generated from various jobs run on the syncope
 deployment. These reports are displayed using report templates which can be defined for FO, HTML

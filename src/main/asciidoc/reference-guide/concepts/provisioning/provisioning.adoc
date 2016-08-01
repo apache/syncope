@@ -17,21 +17,44 @@
 // under the License.
 //
 === Provisioning
-The main purpose of identity management systems is to manage user and role provisioning.
-User and role provisioning refers to the creation, maintenance, activation and deactivation of user and role objects
-and their attributes. Provisioning operations can act on Apache Syncope only or be propagated towards external
-resources as well.
-The provisioning operation can be initiated by an authorized user (for instance, working on Apache Syncope
-administration console) or by an internal task like a pull task.
-A push task can be used to perform a bulk provisioning operation involving either Syncope and one
-or more external resources.
 
-include::connectors.adoc[]
+As introduced <<provisioning-engines,above>>, provisioning is actually the core feature provided by Apache Syncope.
 
-include::resources.adoc[]
+Essentially, it can be seen as the process of keeping the identity data, on Syncope and related external resources, 
+synchronized according to the specifications provided by the <<mapping,mapping>> by performing create, update and
+delete operations onto the <<persistence,internal storage>> or external resources via connectors.
+
+==== Overview
+
+The picture below contains an expanded view of the <<architecture,core architecture>>, with particular reference to the
+components involved in the provisioning process.
+
+[.text-center]
+image::provisioningFlow.png[title="Provisioning flow",alt="Provisioning flow"]
+
+The provisioning operations can be initiated in several different ways:
+
+* by creating, updating or deleting users, groups or any objects via REST (thus involving the underlying 
+<<logic,logic>> layer)
+* by requesting execution of pull or push tasks via REST
+* by triggering periodic pull or push task execution
+
+==== Connectors and Resources
+
+****
+Connector Bundles:: The components able to connect to Identity Repositories; not specifically bound to Apache Syncope, 
+as they are part of the http://connid.tirasa.net[ConnId^] project. Custom connectors can also be 
+https://connid.atlassian.net/wiki/display/BASE/Create+new+connector[made from scratch^].
+Connector Instances:: Instances of connector bundles, obtained by assigning values to the defined configuration 
+properties. For instance, there is only a single `DatabaseTable` (the bundle) that can be instantiated
+several times, for example if there is need to connect to different databases.
+External Resources:: Meant to encapsulate all information about how Apache Syncope will use connector instances for 
+provisioning. For each entity supported by the related connector bundle (user, group, printer, services, ...),
+<<mapping,mapping>> information can be specified.
+****
 
 include::propagation.adoc[]
 
-include::push.adoc[]
-
 include::pull.adoc[]
+
+include::push.adoc[]

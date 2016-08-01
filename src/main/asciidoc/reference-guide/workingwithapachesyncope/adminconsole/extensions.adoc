@@ -16,7 +16,7 @@
 // specific language governing permissions and limitations
 // under the License.
 //
-
+[[console-extensions]]
 ===== Extensions
 The extensions tab shows the extensions installed on the given Apache Syncope deployment.
 
