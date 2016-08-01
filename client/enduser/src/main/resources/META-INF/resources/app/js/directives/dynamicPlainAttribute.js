@@ -40,6 +40,10 @@ angular.module('self')
                     break;
                   case "Enum":
                     $scope.enumerationValues = [];
+                    //SYNCOPE-911 empty value option on non required attributes 
+                    if(schema.mandatoryCondition){
+                      $scope.enumerationValues.push("");
+                    }
                     var enumerationValuesSplitted = schema.enumerationValues.toString().split(";");
                     for (var i = 0; i < enumerationValuesSplitted.length; i++) {
                       $scope.enumerationValues.push(enumerationValuesSplitted[i]);
