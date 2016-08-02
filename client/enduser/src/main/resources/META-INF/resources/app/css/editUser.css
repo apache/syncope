@@ -74,7 +74,7 @@ under the License.
 }
 
 .minus{
-  margin-bottom: 2%;
+
 }
 
 .fileButton{
@@ -283,3 +283,35 @@ under the License.
   to      { -webkit-transform: translateX(0); }
 }
 
+.multivalue>button{
+  float: right
+}
+.schema-type #date{
+  margin-top: 35px;
+}
+
+.multivalue input{
+  width: calc(100% - 70px);
+  margin-top: 10px
+}
+
+.multivalue button{
+  margin-top: 2px
+}
+
+.multivalue #datetime{
+  margin-top: 0px
+}
+
+#datetime input{
+  width: 100%;
+  margin-top: 0px
+}
+#timepicker input{
+  width: 50px;
+  margin-top: 0px
+}
+
+.multivalue #timepicker {
+    margin-top: -35px;
+}
