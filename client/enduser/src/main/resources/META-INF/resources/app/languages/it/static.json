@@ -40,5 +40,6 @@
   "SUCCESSFULLY_CREATED": "creato con successo",
   "SUCCESSFULLY_UPDATED": "aggiornato con successo",
   "PASSWORD_UPDATED": ": password succesfully updated",
-  "GOBACKHOME": "Clicca su questo link per tornare alla home page"
+  "GOBACKHOME": "Clicca su questo link per tornare alla home page",
+  "own": "Propri"
 }

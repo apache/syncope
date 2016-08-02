@@ -18,33 +18,33 @@ under the License.
 -->
 
 <uib-accordion ng-init="splitByGroup(dynamicForm.virSchemas)" >
-    <div uib-accordion-group heading="{{group}}"
-         ng-init="status = {isOpen: $first}" is-open="status.isOpen"
-         class="breadcrumb-header"
-         ng-repeat="(group, virSchemas) in byGroup">
-      <div id="attribute" class="form-group" ng-repeat="virSchema in virSchemas">
-        <label for="virSchema.key">{{virSchema.simpleKey| translate}} <span ng-if="virSchema.mandatoryCondition === 'true'">*</span></label>
+  <div uib-accordion-group heading="{{group| translate}}"
+       ng-init="status = {isOpen: (group == 'own')}" is-open="status.isOpen"
+       class="breadcrumb-header"
+       ng-repeat="(group, virSchemas) in byGroup">
+    <div id="attribute" class="form-group" ng-repeat="virSchema in virSchemas track by $index">
+      <label for="virSchema.key">{{virSchema.simpleKey| translate}} <span ng-if="virSchema.mandatoryCondition === 'true'">*</span></label>
       <div ng-if="!virSchema.multivalue">
-          <dynamic-virtual-attribute schema="virSchema" user="user" index="0"></dynamic-virtual-attribute>
-          <validation-message name="{{virSchema.simpleKey| translate}}"/>
-        </div>
-        <div ng-if="virSchema.multivalue">
-          <div ng-repeat="field in dynamicForm.attributeTable[virSchema.key].fields track by $index" 
-               ng-model='dynamicForm.attributeTable[virSchema.key].fields[$index]'>
-            <dynamic-virtual-attribute schema="virSchema" user="user" index="$index"></dynamic-virtual-attribute>
-            <span>
-              <button class="btn btn-default btn-sm minus" ng-if="$index > 0" type="button" 
-                      ng-click="removeAttributeField(virSchema.key, $index)">
-                <i class="glyphicon glyphicon-minus" title="Remove value"></i>
-              </button>
-            </span>
-          </div>
+        <dynamic-virtual-attribute schema="virSchema" user="user" index="0"></dynamic-virtual-attribute>
+        <validation-message name="{{virSchema.simpleKey| translate}}"/>
+      </div>
+      <div ng-if="virSchema.multivalue">
+        <div ng-repeat="field in dynamicForm.attributeTable[virSchema.key].fields track by $index" 
+             ng-model='dynamicForm.attributeTable[virSchema.key].fields[$index]'>
+          <dynamic-virtual-attribute schema="virSchema" user="user" index="$index"></dynamic-virtual-attribute>
           <span>
-            <button class="btn btn-default btn-sm" type="button" ng-click="addAttributeField(virSchema.key)">
-              <i class="glyphicon glyphicon-plus" title="Add value"></i>
+            <button class="btn btn-default btn-sm minus" ng-if="$index > 0" type="button" 
+                    ng-click="removeAttributeField(virSchema.key, $index)">
+              <i class="glyphicon glyphicon-minus" title="Remove value"></i>
             </button>
           </span>
         </div>
+        <span>
+          <button class="btn btn-default btn-sm" type="button" ng-click="addAttributeField(virSchema.key)">
+            <i class="glyphicon glyphicon-plus" title="Add value"></i>
+          </button>
+        </span>
       </div>
     </div>
-  </uib-accordion>
+  </div>
+</uib-accordion>

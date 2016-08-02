@@ -27,7 +27,7 @@ angular.module('SyncopeEnduserApp').
               "name": "@",
               "template": "@"
             },
-            require: '^form',
+            require: '^?form',
             replace: false,
             link: function (scope, el, attrs, formCtrl) {
               var popupMessage = "Data are invalid: please correct accordingly";

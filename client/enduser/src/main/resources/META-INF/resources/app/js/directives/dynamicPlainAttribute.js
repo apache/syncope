@@ -83,10 +83,10 @@ angular.module('self')
 
                   case "Date":
                     var dateInMs = $scope.user.plainAttrs[schema.key].values[index];
-                    console.debug("received date in milliseconds", dateInMs);
+//                    console.debug("received date in milliseconds", dateInMs);
                     if (dateInMs) {
                       var temporaryDate = new Date(dateInMs * 1);
-                      console.debug("date-time", temporaryDate);
+//                      console.debug("date-time", temporaryDate);
                       $scope.selectedDate = temporaryDate;
                       $scope.selectedTime = temporaryDate;
                     }
