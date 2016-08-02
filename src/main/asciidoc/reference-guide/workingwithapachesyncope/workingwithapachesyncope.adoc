@@ -45,10 +45,23 @@ include::restfulservices/restful-services.adoc[]
 [[customization-enduser]]
 ==== Enduser
 
-==== New extensions
+[[customization-extensions]]
+==== Extensions
 
 === Deploying in production
 
-==== Options
+==== DBMS
+
+==== JavaEE Container
 
 ==== High-Availability
+
+=== Runtime Management
+
+==== Configuration Parameters
+
+==== Domains Management
+
+==== HowTOs
+
+===== Changing admin password

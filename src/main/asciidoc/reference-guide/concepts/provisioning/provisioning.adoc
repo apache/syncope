@@ -18,7 +18,7 @@
 //
 === Provisioning
 
-As introduced <<provisioning-engines,above>>, provisioning is actually the core feature provided by Apache Syncope.
+As introduced <<provisioning-engines,above>>, provisioning is actually _the_ core feature provided by Apache Syncope.
 
 Essentially, it can be seen as the process of keeping the identity data, on Syncope and related external resources, 
 synchronized according to the specifications provided by the <<mapping,mapping>> by performing create, update and

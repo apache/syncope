@@ -18,17 +18,7 @@
 //
 == Concepts
 
-=== Data model
-
-==== Users, Groups and Any objects
-
-==== Schema, Classes and Types
-
-===== Mapping
-
-==== Realms
-
-==== Domains
+include::datamodel/datamodel.adoc[]
 
 include::provisioning/provisioning.adoc[]
 

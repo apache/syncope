@@ -22,7 +22,7 @@
 Pull is the mechanism used to acquire identity data from identity repositories; for each external resource, one or more
 <<tasks-pull,pull tasks>> can be defined, run and scheduled for period execution.
 
-Pull task execution involves querying the external resource and then process each entity in an isolated transaction; 
+Pull task execution involves querying the external resource and then processing each entity in an isolated transaction; 
 a retrieved entity can be:
 
 . _matching_ if a corresponding internal entity was found, according to the <<policies-pull,pull policy>> set for the
@@ -60,7 +60,8 @@ FULL RECONCILIATION:: The complete list of entities available is processed.
 FILTERED RECONCILIATION:: The subset matching the provided filter of all available entities is processed.
 INCREMENTAL:: Only the actual modifications performed since last pull task execution are considered. This mode requires
 the underlying connector bundle to implement the ConnId `SYNC` operation - only some of the available bundles match
-this condition.
+this condition. +
+*This is the only mode allowing to pull delete events*, which may end up in causing internal entities removal.
 ****
 ====
 

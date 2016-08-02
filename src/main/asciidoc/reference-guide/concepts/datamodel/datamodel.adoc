@@ -16,10 +16,28 @@
 // specific language governing permissions and limitations
 // under the License.
 //
-== Use cases
+=== Data Model
 
-=== LDAP
+include::usersgroupsandanyobjects.adoc[]
 
-=== GoogleApps
+==== Type Management
 
-=== Active Directory
+===== Schema
+
+===== AnyTypeClass
+
+===== AnyType
+
+===== RelationshipType
+
+===== Type Extensions
+
+==== External Resources
+
+===== Mapping
+
+==== Realms
+
+==== Roles
+
+==== Domains

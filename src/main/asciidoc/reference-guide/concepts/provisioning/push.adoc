@@ -23,7 +23,7 @@ With push, the matching set of internal entities can be sent to identity reposit
 (re)initialization purposes; for each external resource, one or more <<tasks-push,push tasks>> can be defined, run and 
 scheduled for period execution.
 
-Push task execution involves querying the internal storage and then process each entity in an isolated transaction; 
+Push task execution involves querying the internal storage and then processing each entity in an isolated transaction; 
 an internal entity can be:
 
 . _matching_ if a corresponding remote entity was found, according to the <<policies-push,push policy>> set for the
