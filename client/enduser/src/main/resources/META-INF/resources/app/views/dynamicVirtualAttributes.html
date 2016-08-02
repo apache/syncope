@@ -20,18 +20,17 @@ under the License.
   <label for="virtualSchema.key">{{virtualSchema.key}}</label>
   <!--all virtual schemas are multivalue-->
   <div ng-repeat="field in dynamicForm.virtualAttributeTable[virtualSchema.key].fields track by $index" 
-       ng-model='dynamicForm.virtualAttributeTable[virtualSchema.key].fields[$index]'>
-    <dynamic-virtual-attribute schema="virtualSchema" user="user" index="$index"></dynamic-virtual-attribute>
-    <span>
-      <button class="btn btn-default btn-sm minus" ng-if="$index > 0" type="button" 
+       ng-model='dynamicForm.virtualAttributeTable[virtualSchema.key].fields[$index]'>    
+    <div class="multivalue">
+      <button class="btn btn-default btn-sm" type="button" ng-click="addVirtualAttributeField(virtualSchema.key)" 
+              ng-show="!virtualSchema.readonly">
+        <i class="glyphicon glyphicon-plus" title="Add value"></i>
+      </button>
+      <button class="btn btn-default btn-sm minus" ng-if="$index > 0" type="button" ng-show="!virtualSchema.readonly"
               ng-click="removeVirtualAttributeField(virtualSchema.key, $index)">
         <i class="glyphicon glyphicon-minus" title="Remove value"></i>
       </button>
-    </span>
+      <dynamic-virtual-attribute schema="virtualSchema" user="user" index="$index"></dynamic-virtual-attribute>
+    </div>
   </div>
-  <span>
-    <button class="btn btn-default btn-sm" type="button" ng-click="addVirtualAttributeField(virtualSchema.key)">
-      <i class="glyphicon glyphicon-plus" title="Add value"></i>
-    </button>
-  </span>
 </div>
