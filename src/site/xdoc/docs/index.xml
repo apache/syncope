@@ -68,11 +68,11 @@ under the License.
                 </a> 
               </td>
               <td>
-                <a href="https://builds.apache.org/job/Syncope-master-docs/ws/target/generated-docs/getting-started.html">
+                <a href="https://ci.apache.org/projects/syncope/getting-started.html">
                   <img src="../images/text-html.png"/>
                 </a>
                 &nbsp;
-                <a href="https://builds.apache.org/job/Syncope-master-docs/ws/target/generated-docs/getting-started.pdf">
+                <a href="https://ci.apache.org/projects/syncope/getting-started.pdf">
                   <img src="../images/application-pdf.png"/>
                 </a> 
               </td>
@@ -89,11 +89,11 @@ under the License.
                 </a> 
               </td>
               <td>
-                <a href="https://builds.apache.org/job/Syncope-master-docs/ws/target/generated-docs/reference-guide.html">
+                <a href="https://ci.apache.org/projects/syncope/reference-guide.html">
                   <img src="../images/text-html.png"/>
                 </a>
                 &nbsp;
-                <a href="https://builds.apache.org/job/Syncope-master-docs/ws/target/generated-docs/reference-guide.pdf">
+                <a href="https://ci.apache.org/projects/syncope/reference-guide.pdf">
                   <img src="../images/application-pdf.png"/>
                 </a> 
               </td>
