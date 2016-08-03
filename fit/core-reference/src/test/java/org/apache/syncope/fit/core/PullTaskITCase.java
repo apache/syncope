@@ -416,10 +416,25 @@ public class PullTaskITCase extends AbstractTaskITCase {
         execProvisioningTask(taskService, "1e419ca4-ea81-4493-a14f-28b90113686d", 50, false);
 
         // 4. verify that LDAP group membership is propagated as Syncope membership
-        PagedResult<UserTO> members = userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                fiql(SyncopeClient.getUserSearchConditionBuilder().inGroups(groupTO.getKey()).query()).
-                build());
-        assertNotNull(members);
+        int i = 0;
+        int maxit = 50;
+        PagedResult<UserTO> members;
+        do {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+
+            members = userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                    fiql(SyncopeClient.getUserSearchConditionBuilder().inGroups(groupTO.getKey()).query()).
+                    build());
+            assertNotNull(members);
+
+            i++;
+        } while (members.getResult().isEmpty() && i < maxit);
+        if (i == maxit) {
+            fail("Timeout while checking for memberships of " + groupTO.getName());
+        }
         assertEquals(1, members.getResult().size());
     }
 
