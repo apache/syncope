@@ -19,7 +19,7 @@
 [[provisioning-pull]]
 ==== Pull
 
-Pull is the mechanism used to acquire identity data from identity repositories; for each external resource, one or more
+Pull is the mechanism used to acquire identity data from identity stores; for each external resource, one or more
 <<tasks-pull,pull tasks>> can be defined, run and scheduled for period execution.
 
 Pull task execution involves querying the external resource and then processing each entity in an isolated transaction; 
@@ -53,7 +53,7 @@ by default, unmatching entities gets internally created, and matching updated.
 [TIP]
 .Pull Mode
 ====
-The identity repository can be queried in different ways, depending on the _pull mode_ specified:
+The identity store can be queried in different ways, depending on the _pull mode_ specified:
 
 ****
 FULL RECONCILIATION:: The complete list of entities available is processed.

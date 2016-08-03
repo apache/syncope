@@ -16,14 +16,14 @@
 // specific language governing permissions and limitations
 // under the License.
 //
-==== Users, Groups and Any Objects
+=== Users, Groups and Any Objects
 
 Users, groups and any objects are definitely the key entities to manage: as explained <<introduction,above>>
 in fact, the whole identity management concept is literally about managing identity data.
 
 Starting with Apache Syncope 2.0, the following identities are supported:
 
-* *Users* represent the virtual identity build up of account information fragmented throughout the associated external 
+* *Users* represent the virtual identities build up of account information fragmented across the associated external 
 resources
 * *Groups* have the double purpose of representing entities on external resources supporting this concept (say LDAP or
 Active Directory) and putting together users or any objects for implementing group-based provisioning, e.g. to
@@ -32,17 +32,26 @@ dynamically associate users or any objects to external resources
 
 For each of the identities above, Apache Syncope is capable of maintaining:
 
-. name - string value uniquely identifying a specific user, group or any object instance;
-. password (users only) - hashed or encrypted value, depending on the selected `password.cipher.algorithm` - see
-<<configuration-parameters, below>> for details, which can be used for authentication;
+. `name` (`username`, for users) - string value uniquely identifying a specific user, group or any object instance;
+. `password` (users only) - hashed or encrypted value, depending on the selected `password.cipher.algorithm` - see
+<<configuration-parameters, below>> for details - which can be used for authentication;
 . set of attributes, with each attribute being a `(key,values)` pair where
 
- ** `key` is a string label (i.e. `surname`)
+ ** `key` is a string label (i.e. `surname`);
  ** `values` is a (possibly singleton) collection of data (i.e. `[Doe]` but also 
 `[\john.doe@syncope.apache.org, \jdoe@gmail.com]`)
  ; the type of values that can be assigned to each attribute is defined via the <<schema,schema>> matching the `key`
 value: being schema defined as _plain_, _derived_ and _virtual_, so can be attributes;
 . associations with <<external-resources,external resources>>, for <<provisioning,provisioning>>.
+
+[IMPORTANT]
+.Which schemas can be populated for a given user / group / any object?
+====
+Each user / group / any object will be able to hold values for all schemas:
+
+. defined in the <<AnyTypeClass,any type classes>> associated to their <<AnyType, any type>>;
+. defined in the <<AnyTypeClass,any type classes>> configured as *_auxiliary_* for the specific instance.
+====
 
 Moreover, users and any objects can be part of groups, or associated to other any objects.
 
@@ -52,5 +61,6 @@ Moreover, users and any objects can be part of groups, or associated to other an
 When an user or an any object is assigned to a group, a *_membership_* is defined; the members of a group benefit
 of <<type-extensions,type extensions>>.
 
-When an user or an any object is associated to another any object, a *_relationship_* is defined. 
+When an user or an any object is associated to another any object, a *_relationship_* is defined, of one of available
+<<relationshiptype,relationship types>>.
 ====

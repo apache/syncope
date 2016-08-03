@@ -22,7 +22,7 @@ Whenever a change is performed via REST on users, groups or any objects:
 
 . a set of <<tasks-propagation,propagation tasks>> is generated, one for each associated external resource;
 . the generated propagation tasks are executed, e.g. the corresponding operations (create, update or delete) are sent
-out, via connectors, to the configured identity repositories; the tasks can be saved for later re-execution.
+out, via connectors, to the configured identity stores; the tasks can be saved for later re-execution.
 
 [TIP]
 .Which external resources?

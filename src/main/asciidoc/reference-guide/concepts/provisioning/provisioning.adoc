@@ -42,7 +42,7 @@ The provisioning operations can be initiated in several different ways:
 ==== Connectors and Resources
 
 ****
-Connector Bundles:: The components able to connect to Identity Repositories; not specifically bound to Apache Syncope, 
+Connector Bundles:: The components able to connect to identity stores; not specifically bound to Apache Syncope, 
 as they are part of the http://connid.tirasa.net[ConnId^] project. Custom connectors can also be 
 https://connid.atlassian.net/wiki/display/BASE/Create+new+connector[made from scratch^].
 Connector Instances:: Instances of connector bundles, obtained by assigning values to the defined configuration 

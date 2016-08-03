@@ -18,7 +18,19 @@
 //
 == Concepts
 
-include::datamodel/datamodel.adoc[]
+include::usersgroupsandanyobjects.adoc[]
+
+include::typemanagement.adoc[]
+
+=== External Resources
+
+==== Mapping
+
+=== Realms
+
+=== Roles
+
+=== Domains
 
 include::provisioning/provisioning.adoc[]
 

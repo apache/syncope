@@ -19,7 +19,7 @@
 [[provisioning-push]]
 ==== Push
 
-With push, the matching set of internal entities can be sent to identity repositories - mainly for
+With push, the matching set of internal entities can be sent to identity stores - mainly for
 (re)initialization purposes; for each external resource, one or more <<tasks-push,push tasks>> can be defined, run and 
 scheduled for period execution.
 
@@ -31,7 +31,7 @@ enclosing external resource;
 . _unmatching_ otherwise.
 
 Once assessed this, entities are processed according to the matching / unmatching rules specified for the push task:
-by default, unmatching entities are pushed to identity repositories, and matching updated.
+by default, unmatching entities are pushed to identity stores, and matching updated.
 
 .Matching Rules
 ****
