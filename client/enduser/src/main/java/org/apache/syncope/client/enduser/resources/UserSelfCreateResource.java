@@ -19,10 +19,17 @@
 package org.apache.syncope.client.enduser.resources;
 
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
+import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.Predicate;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
+import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.slf4j.Logger;
@@ -55,7 +62,6 @@ public class UserSelfCreateResource extends AbstractBaseResource {
             }
 
             String jsonString = request.getReader().readLine();
-
             final UserTO userTO = MAPPER.readValue(jsonString, UserTO.class);
 
             if (!captchaCheck(
@@ -66,6 +72,81 @@ public class UserSelfCreateResource extends AbstractBaseResource {
             }
 
             if (isSelfRegistrationAllowed() && userTO != null) {
+                Set<AttrTO> membAttrs = new HashSet<>();
+                for (AttrTO attr : userTO.getPlainAttrs()) {
+                    if (attr.getSchema().contains("#")) {
+                        final String[] simpleAttrs = attr.getSchema().split("#");
+                        MembershipTO membership = IterableUtils.find(userTO.getMemberships(),
+                                new Predicate<MembershipTO>() {
+
+                            @Override
+                            public boolean evaluate(final MembershipTO item) {
+                                return simpleAttrs[0].equals(item.getGroupName());
+                            }
+                        });
+                        if (membership == null) {
+                            membership = new MembershipTO.Builder().group(null, simpleAttrs[0]).build();
+                            userTO.getMemberships().add(membership);
+                        }
+
+                        AttrTO clone = SerializationUtils.clone(attr);
+                        clone.setSchema(simpleAttrs[1]);
+                        membership.getPlainAttrs().add(clone);
+                        membAttrs.add(attr);
+                    }
+                }
+                userTO.getPlainAttrs().removeAll(membAttrs);
+
+                membAttrs.clear();
+                for (AttrTO attr : userTO.getDerAttrs()) {
+                    if (attr.getSchema().contains("#")) {
+                        final String[] simpleAttrs = attr.getSchema().split("#");
+                        MembershipTO membership = IterableUtils.find(userTO.getMemberships(),
+                                new Predicate<MembershipTO>() {
+
+                            @Override
+                            public boolean evaluate(final MembershipTO item) {
+                                return simpleAttrs[0].equals(item.getGroupName());
+                            }
+                        });
+                        if (membership == null) {
+                            membership = new MembershipTO.Builder().group(null, simpleAttrs[0]).build();
+                            userTO.getMemberships().add(membership);
+                        }
+
+                        AttrTO clone = SerializationUtils.clone(attr);
+                        clone.setSchema(simpleAttrs[1]);
+                        membership.getDerAttrs().add(clone);
+                        membAttrs.add(attr);
+                    }
+                }
+                userTO.getDerAttrs().removeAll(membAttrs);
+
+                membAttrs.clear();
+                for (AttrTO attr : userTO.getVirAttrs()) {
+                    if (attr.getSchema().contains("#")) {
+                        final String[] simpleAttrs = attr.getSchema().split("#");
+                        MembershipTO membership = IterableUtils.find(userTO.getMemberships(),
+                                new Predicate<MembershipTO>() {
+
+                            @Override
+                            public boolean evaluate(final MembershipTO item) {
+                                return simpleAttrs[0].equals(item.getGroupName());
+                            }
+                        });
+                        if (membership == null) {
+                            membership = new MembershipTO.Builder().group(null, simpleAttrs[0]).build();
+                            userTO.getMemberships().add(membership);
+                        }
+
+                        AttrTO clone = SerializationUtils.clone(attr);
+                        clone.setSchema(simpleAttrs[1]);
+                        membership.getVirAttrs().add(clone);
+                        membAttrs.add(attr);
+                    }
+                }
+                userTO.getVirAttrs().removeAll(membAttrs);
+
                 LOG.debug("Received user self registration request for user: [{}]", userTO.getUsername());
                 LOG.trace("Received user self registration request is: [{}]", userTO);
                 // adapt request and create user
@@ -102,5 +183,4 @@ public class UserSelfCreateResource extends AbstractBaseResource {
         }
         return response;
     }
-
 }

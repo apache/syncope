@@ -31,7 +31,6 @@ angular.module('self')
             },
             controller: function ($scope, $element, $window) {
               $scope.initAttribute = function (schema, index) {
-
                 switch (schema.type) {
                   case "Long":
                   case "Double":
@@ -52,7 +51,6 @@ angular.module('self')
                             || $scope.enumerationValues[0];
                     break;
                   case "Binary":
-
                     $scope.userFile = $scope.userFile || '';
                     $element.bind("change", function (changeEvent) {
                       $scope.$apply(function () {
@@ -89,10 +87,8 @@ angular.module('self')
 
                   case "Date":
                     var dateInMs = $scope.user.plainAttrs[schema.key].values[index];
-                    console.debug("received date in milliseconds", dateInMs);
                     if (dateInMs) {
                       var temporaryDate = new Date(dateInMs * 1);
-                      console.debug("date-time", temporaryDate);
                       $scope.selectedDate = temporaryDate;
                       $scope.selectedTime = temporaryDate;
                     }
@@ -207,6 +203,6 @@ angular.module('self')
                           return (n !== undefined && n !== "");
                         });
               });
-            },
+            }
           };
         });

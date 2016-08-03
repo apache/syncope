@@ -28,6 +28,7 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.request.resource.AbstractResource;
@@ -67,6 +68,25 @@ public class UserSelfReadResource extends AbstractBaseResource {
                     dateAttr.getValues().clear();
                     dateAttr.getValues().addAll(milliValues);
                 }
+            }
+
+            for (MembershipTO membership : userTO.getMemberships()) {
+                String groupName = membership.getGroupName();
+                for (AttrTO attr : membership.getPlainAttrs()) {
+                    attr.setSchema(groupName.concat("#").concat(attr.getSchema()));
+                    userTO.getPlainAttrs().add(attr);
+                }
+                membership.getPlainAttrs().clear();
+                for (AttrTO attr : membership.getDerAttrs()) {
+                    attr.setSchema(groupName.concat("#").concat(attr.getSchema()));
+                    userTO.getDerAttrs().add(attr);
+                }
+                membership.getDerAttrs().clear();
+                for (AttrTO attr : membership.getVirAttrs()) {
+                    attr.setSchema(groupName.concat("#").concat(attr.getSchema()));
+                    userTO.getVirAttrs().add(attr);
+                }
+                membership.getVirAttrs().clear();
             }
 
             final String selfTOJson = MAPPER.writeValueAsString(userTO);

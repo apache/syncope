@@ -16,16 +16,52 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 'use strict';
 
 angular.module('self')
         .directive('dynamicDerivedAttributes', function () {
+          var getTemplateUrl = function () {
+            return 'views/dynamicDerivedAttributes.html';
+          };
           return {
             restrict: 'E',
-            templateUrl: 'views/dynamicDerivedAttributes.html',
+            templateUrl: getTemplateUrl(),
             scope: {
               dynamicForm: "=form",
               user: "="
+            },
+            controller: function ($scope) {
+              $scope.getByGroup = function (schema) {
+                var currentDerivedSchemas = new Array();
+                for (var i = 0; i < $scope.dynamicForm.derSchemas.length; i++) {
+                  if (schema == "own" && $scope.dynamicForm.derSchemas[i].key.indexOf('#') == -1) {
+                    var attr = $scope.dynamicForm.derSchemas[i];
+                    attr.simpleKey = $scope.dynamicForm.derSchemas[i].key;
+                    currentDerivedSchemas.push($scope.dynamicForm.derSchemas[i]);
+                  }
+                  if ($scope.dynamicForm.derSchemas[i].key.indexOf(schema) > -1) {
+                    var attr = $scope.dynamicForm.derSchemas[i];
+                    attr.simpleKey = $scope.dynamicForm.derSchemas[i].key.substring($scope.dynamicForm.derSchemas[i].key.indexOf("#") + 1);
+                    currentDerivedSchemas.push(attr);
+                  }
+                }
+                return currentDerivedSchemas;
+              };
+
+              $scope.addAttributeField = function (derSchemaKey) {
+                console.debug("Add DERIVED value:", derSchemaKey);
+                console.debug(" ", ($scope.dynamicForm.attributeTable[derSchemaKey].fields.length));
+                $scope.dynamicForm.attributeTable[derSchemaKey].fields.push(derSchemaKey + "_" + ($scope.dynamicForm.attributeTable[derSchemaKey].fields.length));
+              };
+
+              $scope.removeAttributeField = function (derSchemaKey, index) {
+                console.debug("Remove DERIVED value:", derSchemaKey);
+                console.debug("attribute index:", index);
+                $scope.dynamicForm.attributeTable[derSchemaKey].fields.splice(index, 1);
+                // clean user model
+                $scope.user.derAttrs[derSchemaKey].values.splice(index, 1);
+              };
             }
           };
         });

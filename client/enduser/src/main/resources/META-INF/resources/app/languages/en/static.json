@@ -41,6 +41,8 @@
   "SUCCESSFULLY_CREATED": "succesfully created",
   "SUCCESSFULLY_UPDATED": "succesfully updated",
   "PASSWORD_UPDATED": ": password succesfully updated",
-  "GOBACKHOME": "Click on this link to go back to the home page"
+  "GOBACKHOME": "Click on this link to go back to the home page",
+  "own": "Own"
+
 }
 
