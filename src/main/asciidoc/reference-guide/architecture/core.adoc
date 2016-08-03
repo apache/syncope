@@ -53,7 +53,7 @@ reports and audit over all).
 The Provisioning layer is involved with managing the internal (via workflow) and external (via specific connectors) 
 representation of users, groups and any objects.
 
-One of the most important features provided is the _mapping_ definition: internal data (users, for example) 
+One of the most important features provided is the <<mapping,mapping>> definition: internal data (users, for example) 
 representation is correlated with information available on the available identity stores. +
 Such definitions constitute the pillars of inbound (pull) and outbound (propagation / push)
 <<provisioning,provisioning>>.

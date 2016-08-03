@@ -22,9 +22,7 @@ include::usersgroupsandanyobjects.adoc[]
 
 include::typemanagement.adoc[]
 
-=== External Resources
-
-==== Mapping
+include::externalresources.adoc[]
 
 === Realms
 
@@ -36,8 +34,12 @@ include::provisioning/provisioning.adoc[]
 
 === Policies
 
+[[policies-account]]
 ==== Account
 
+===== Pass-through Authentication
+
+[[policies-password]]
 ==== Password
 
 [[policies-pull]]
@@ -86,9 +88,8 @@ in one of super-realms of the realm of A~1~
 The rationale behind such conditions is to allow the definition of common groups and any objects (to enter in 
 relationship with) at the topmost position in the realm tree, so that they can be shared by various realm sub-trees.
 
-[discrete]
-==== Example
-
+.Authorization
+====
 Let's suppose that we want to implement the following scenario:
 
 ****
@@ -108,3 +109,4 @@ above:
 * A: `USER_CREATE` on R~5~
 * B: `USER_UPDATE` on R~6~ and R~8~
 * C: `GROUP_UPDATE` on R~8~
+====

@@ -39,20 +39,6 @@ The provisioning operations can be initiated in several different ways:
 * by requesting execution of pull or push tasks via REST
 * by triggering periodic pull or push task execution
 
-==== Connectors and Resources
-
-****
-Connector Bundles:: The components able to connect to identity stores; not specifically bound to Apache Syncope, 
-as they are part of the http://connid.tirasa.net[ConnId^] project. Custom connectors can also be 
-https://connid.atlassian.net/wiki/display/BASE/Create+new+connector[made from scratch^].
-Connector Instances:: Instances of connector bundles, obtained by assigning values to the defined configuration 
-properties. For instance, there is only a single `DatabaseTable` (the bundle) that can be instantiated
-several times, for example if there is need to connect to different databases.
-External Resources:: Meant to encapsulate all information about how Apache Syncope will use connector instances for 
-provisioning. For each entity supported by the related connector bundle (user, group, printer, services, ...),
-<<mapping,mapping>> information can be specified.
-****
-
 include::propagation.adoc[]
 
 include::pull.adoc[]

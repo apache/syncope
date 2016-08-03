@@ -961,13 +961,16 @@ under the License.
   <Provision id="20a75199-3f2e-4b9a-9510-c68dd7fc7b3d" resource_id="resource-ldap" anyType_id="GROUP" objectClass="__GROUP__"/>
   <Mapping id="128412c8-be4f-4d7b-8bed-5ab89134f718" provision_id="20a75199-3f2e-4b9a-9510-c68dd7fc7b3d"
            connObjectLink="&apos;cn=&apos; + name + &apos;,ou=groups,o=isp&apos;"/>
-  <MappingItem id="1" connObjectKey="1" password="0" mapping_id="128412c8-be4f-4d7b-8bed-5ab89134f718"
+  <MappingItem id="a2bf43c8-74cb-4250-92cf-fb8889409ac1"
+               connObjectKey="1" password="0" mapping_id="128412c8-be4f-4d7b-8bed-5ab89134f718"
                extAttrName="cn" intAttrName="name"
                mandatoryCondition="true" purpose="BOTH"/>
-  <MappingItem id="2" connObjectKey="0" password="0" mapping_id="128412c8-be4f-4d7b-8bed-5ab89134f718"
+  <MappingItem id="da2a69bc-5ca0-4657-9a18-ec1f8c986046"
+               connObjectKey="0" password="0" mapping_id="128412c8-be4f-4d7b-8bed-5ab89134f718"
                extAttrName="owner" intAttrName="userOwner"
                mandatoryCondition="false" purpose="BOTH"/>
-  <MappingItem id="3" connObjectKey="0" password="0" mapping_id="128412c8-be4f-4d7b-8bed-5ab89134f718"
+  <MappingItem id="9dde8bd5-f158-499e-9d81-3d7fcf9ea1e8"
+               IconnObjectKey="0" password="0" mapping_id="128412c8-be4f-4d7b-8bed-5ab89134f718"
                extAttrName="description" intAttrName="title"
                mandatoryCondition="false" purpose="BOTH"/>
   
