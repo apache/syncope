@@ -39,6 +39,10 @@ angular.module('self')
                     break;
                   case "Enum":
                     $scope.enumerationValues = [];
+                    //SYNCOPE-911 empty value option on non required attributes 
+                    if(schema.mandatoryCondition != "true"){
+                      $scope.enumerationValues.push("");
+                    }
                     var enumerationValuesSplitted = schema.enumerationValues.toString().split(";");
                     for (var i = 0; i < enumerationValuesSplitted.length; i++) {
                       $scope.enumerationValues.push(enumerationValuesSplitted[i]);
@@ -83,10 +87,8 @@ angular.module('self')
 
                   case "Date":
                     var dateInMs = $scope.user.plainAttrs[schema.key].values[index];
-//                    console.debug("received date in milliseconds", dateInMs);
                     if (dateInMs) {
                       var temporaryDate = new Date(dateInMs * 1);
-//                      console.debug("date-time", temporaryDate);
                       $scope.selectedDate = temporaryDate;
                       $scope.selectedTime = temporaryDate;
                     }

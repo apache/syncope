@@ -56,6 +56,7 @@ $ ./bin/startup.sh
 Please refer to the http://tomcat.apache.org/tomcat-8.0-doc/[Apache Tomcat documentation^] for more advanced setup and 
 instructions.
 
+[[standalone-components]]
 ==== Components
 
 The set of available components, including access URLs and credentials, is the same as reported for 
@@ -151,6 +152,7 @@ sudo SYNCOPE_USER="syncope" SYNCOPE_PASS="syncope" sh /usr/share/apache-syncope/
 [source,bash]
 sudo service tomcat8 start
 
+[[deb-components]]
 ==== Components
 
 CAUTION: The following assumes that Apache Tomcat is reachable on host `host.domain` and port `port`. 
@@ -183,6 +185,7 @@ Getting up and running quickly on any supported DBMS and Java EE container, inde
 operating system. +
 *Difficult to extend beyond pre-sets.*
 
+[[installer-prerequisites]]
 ==== Prerequisites
 
  . http://maven.apache.org/[Apache Maven^] (version 3.0.3 or higher) installed
@@ -284,6 +287,7 @@ image::installer-13.png[installer-13]
 
 image::installer-14.png[installer-14]
 
+[[installer-components]]
 ==== Components
 
 CAUTION: The following assumes that the Java EE container is reachable on host `host.domain` and port `port`. 
@@ -316,6 +320,7 @@ and extension capabilities.
 Provides access to the full capabilities of Apache Syncope, and almost all extensions that are possible. +
 *Requires Apache Maven (and potentially https://en.wikipedia.org/wiki/DevOps[DevOps^]) skills.*
 
+[[maven-prerequisites]]
 ==== Prerequisites
 
  . http://maven.apache.org/[Apache Maven^] (version 3.0.3 or higher) installed
@@ -527,6 +532,7 @@ Usage: install [options]
     --setup-debug
 ----
 
+[[cli-installation]]
 ==== Installation
 After the file is unzipped you can start with CLI client using the `syncopeadm` file.
 If you have tried to run a CLI command before the installation process, the script will return
@@ -661,6 +667,7 @@ Installation parameters checked on Syncope core version: {docVersion}
 
 The Eclipse IDE plugin allows remote management of notification e-mail and report templates.
 
+[[eclipseplugin-installation]]
 ==== Installation
 
 After http://syncope.apache.org/downloads.html[download^], start the most recent Eclipse IDE distribution then go to 

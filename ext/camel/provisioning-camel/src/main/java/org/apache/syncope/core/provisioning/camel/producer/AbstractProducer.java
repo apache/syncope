@@ -18,9 +18,9 @@ package org.apache.syncope.core.provisioning.camel.producer;
 
 import org.apache.camel.Endpoint;
 import org.apache.camel.impl.DefaultProducer;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
-import org.apache.syncope.core.provisioning.camel.AnyType;
 
 public abstract class AbstractProducer extends DefaultProducer {
 
@@ -28,11 +28,13 @@ public abstract class AbstractProducer extends DefaultProducer {
 
     private PropagationTaskExecutor taskExecutor;
 
-    private AnyType anyType;
+    private AnyTypeKind anyTypeKind;
+    
+    private boolean pull;
 
-    public AbstractProducer(final Endpoint endpoint, final AnyType anyType) {
+    public AbstractProducer(final Endpoint endpoint, final AnyTypeKind anyTypeKind) {
         super(endpoint);
-        this.anyType = anyType;
+        this.anyTypeKind = anyTypeKind;
     }
 
     public void setPropagationManager(final PropagationManager propagationManager) {
@@ -51,7 +53,15 @@ public abstract class AbstractProducer extends DefaultProducer {
         return taskExecutor;
     }
 
-    public AnyType getAnyType() {
-        return anyType;
+    public AnyTypeKind getAnyTypeKind() {
+        return anyTypeKind;
+    }
+
+    public boolean isPull() {
+        return pull;
+    }
+
+    public void setPull(final boolean pull) {
+        this.pull = pull;
     }
 }

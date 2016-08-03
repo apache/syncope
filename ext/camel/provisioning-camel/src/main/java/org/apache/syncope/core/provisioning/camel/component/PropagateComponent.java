@@ -26,6 +26,7 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
+import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class PropagateComponent extends UriEndpointComponent {
@@ -48,6 +49,9 @@ public class PropagateComponent extends UriEndpointComponent {
     @Autowired
     protected GroupDataBinder groupDataBinder;
 
+    @Autowired
+    protected UserWorkflowAdapter uwfAdapter;
+
     public PropagateComponent() {
         super(PropagateEndpoint.class);
     }
@@ -63,6 +67,7 @@ public class PropagateComponent extends UriEndpointComponent {
         endpoint.setGroupDAO(groupDAO);
         endpoint.setAnyObjectDAO(anyObjectDAO);
         endpoint.setGroupDataBinder(groupDataBinder);
+        endpoint.setUwfAdapter(uwfAdapter);
 
         setProperties(endpoint, parameters);
         return endpoint;

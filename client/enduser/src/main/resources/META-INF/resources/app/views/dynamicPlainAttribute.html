@@ -17,7 +17,7 @@ specific language governing permissions and limitations
 under the License.
 -->
 
-<div ng-switch="schema.type" >
+<div ng-switch="schema.type" class="schema-type">
   <input ng-switch-when="String" class="form-control" type="text"
          ng-model="user.plainAttrs[schema.key].values[index]"
          ng-required="{{schema.mandatoryCondition}}" validate="true"
@@ -48,9 +48,7 @@ under the License.
              is-open="status.opened" datepicker-options="dateOptions"
              ng-required="{{schema.mandatoryCondition}}" close-text="Close"
              ng-init="initAttribute(schema, index)"/>
-    </span>
-    <span>
-      <button type="button" class="btn btn-default" style="margin-top:35px;" ng-click="open($event)" >
+      <button type="button" class="btn btn-default" ng-click="open($event)" >
         <i class="glyphicon glyphicon-calendar"></i>
       </button>
     </span>

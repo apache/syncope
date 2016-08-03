@@ -19,7 +19,7 @@
 'use strict';
 
 angular.module('self')
-        .directive('dynamicPlainAttributes', ['$compile', '$templateCache', function ($compile, $templateCache) {
+        .directive('dynamicPlainAttributes', function () {
             var getTemplateUrl = function () {
               return 'views/dynamicPlainAttributes.html';
             };
@@ -30,36 +30,23 @@ angular.module('self')
                 dynamicForm: "=form",
                 user: "="
               },
-              link: function ($scope) {
-                //plain schemas are loaded asyncronously, directive should refresh its template when they're available
-                if ($scope.dynamicForm.plainSchemas.length === 0) {
-                  $scope.$watch('dynamicForm', function (newDynamicForm) {
-                    if (newDynamicForm.plainSchemas.length > 0) {
-                      $compile($templateCache.get(getTemplateUrl()))($scope);
-                    }
-                  }, true);
-                }
-              },
               controller: function ($scope) {
-                $scope.byGroup = {};
-
-                $scope.splitByGroup = function (schemas) {
-                  for (var i = 0; i < schemas.length; i++) {
-                    var group;
-                    var simpleKey;
-                    if (schemas[i].key.indexOf('#') === -1) {
-                      group = "own";
-                      simpleKey = schemas[i].key;
-                    } else {
-                      group = schemas[i].key.substr(0, schemas[i].key.indexOf('#'));
-                      simpleKey = schemas[i].key.substr(schemas[i].key.indexOf('#') + 1);
+                
+                $scope.getByGroup = function (schema) {
+                  var currentPlainSchemas = new Array();
+                  for (var i = 0; i < $scope.dynamicForm.plainSchemas.length; i++) {
+                    if (schema == "own" && $scope.dynamicForm.plainSchemas[i].key.indexOf('#') == -1) {
+                      var attr = $scope.dynamicForm.plainSchemas[i];
+                      attr.simpleKey = $scope.dynamicForm.plainSchemas[i].key;
+                      currentPlainSchemas.push($scope.dynamicForm.plainSchemas[i]);
                     }
-                    if (!$scope.byGroup[group]) {
-                      $scope.byGroup[group] = new Array();
+                    if ($scope.dynamicForm.plainSchemas[i].key.indexOf(schema) > -1) {
+                      var attr = $scope.dynamicForm.plainSchemas[i];
+                      attr.simpleKey = $scope.dynamicForm.plainSchemas[i].key.substring($scope.dynamicForm.plainSchemas[i].key.indexOf("#") + 1);
+                      currentPlainSchemas.push(attr);
                     }
-                    $scope.byGroup[group].push(schemas[i]);
-                    schemas[i].simpleKey = simpleKey;
                   }
+                  return currentPlainSchemas;
                 };
 
                 $scope.addAttributeField = function (plainSchemaKey) {
@@ -81,4 +68,4 @@ angular.module('self')
                 };
               }
             };
-          }]);
+          });

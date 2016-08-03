@@ -56,7 +56,8 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
         virtualAttributeTable: {},
         selectedResources: [],
         selectedGroups: [],
-        selectedAuxClasses: []
+        selectedAuxClasses: [],
+        groupSchemas: ['own']
       };
 
       var initUserSchemas = function (anyTypeClass, group) {
@@ -68,6 +69,8 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
           schemaService = SchemaService.getUserSchemas(anyTypeClass);
         }
         schemaService.then(function (schemas) {
+          if(group && ( schemas.plainSchemas.length > 0 || schemas.derSchemas.length > 0 || schemas.virSchemas.length > 0))
+            $scope.dynamicForm.groupSchemas.push(group);
           //initializing user schemas values
           initSchemaValues(schemas);
         }, function (response) {

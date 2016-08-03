@@ -16,35 +16,35 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-
-<uib-accordion ng-init="splitByGroup(dynamicForm.derSchemas)" >
-  <div uib-accordion-group heading="{{group| translate}}"
-       ng-init="status = {isOpen: (group == 'own')}" is-open="status.isOpen"
-       class="breadcrumb-header"
-       ng-repeat="(group, derSchemas) in byGroup">
-    <div id="attribute" class="form-group" ng-repeat="derSchema in derSchemas track by $index">
-      <label for="derSchemas.key">{{derSchema.simpleKey| translate}} <span ng-if="derSchema.mandatoryCondition === 'true'">*</span></label>
-      <div ng-if="!derSchema.multivalue">
-        <dynamic-derived-attribute schema="derSchema" user="user" index="0"></dynamic-derived-attribute>
-        <validation-message name="{{derSchema.simpleKey| translate}}"/>
-      </div>
-      <div ng-if="derSchema.multivalue">
-        <div ng-repeat="field in dynamicForm.attributeTable[derSchema.key].fields track by $index" 
-             ng-model='dynamicForm.attributeTable[derSchema.key].fields[$index]'>
-          <dynamic-derived-attribute schema="derSchema" user="user" index="$index"></dynamic-derived-attribute>
+<div ng-repeat="groupSchema in dynamicForm.groupSchemas">
+  <uib-accordion>
+    <div uib-accordion-group heading="{{groupSchema| translate}}"
+         ng-init="status = {isOpen: (groupSchema == 'own')}" is-open="status.isOpen"
+         class="breadcrumb-header">
+      <div id="attribute" class="form-group" ng-repeat="derSchema in getByGroup(groupSchema) track by $index">
+        <label for="derSchema.key">{{derSchema.simpleKey| translate}} <span ng-if="derSchema.mandatoryCondition === 'true'">*</span></label>
+        <div ng-if="!derSchema.multivalue">
+          <dynamic-derived-attribute schema="derSchema" user="user" index="0"></dynamic-derived-attribute>
+          <validation-message name="{{derSchema.key| translate}}"/>
+        </div>
+        <div ng-if="derSchema.multivalue">
+          <div ng-repeat="field in dynamicForm.attributeTable[derSchema.key].fields track by $index" 
+               ng-model='dynamicForm.attributeTable[derSchema.key].fields[$index]'>
+            <dynamic-derived-attribute schema="derSchema" user="user" index="$index"></dynamic-derived-attribute>
+            <span>
+              <button class="btn btn-default btn-sm minus" ng-if="$index > 0" type="button" 
+                      ng-click="removeAttributeField(derSchema.key, $index)">
+                <i class="glyphicon glyphicon-minus" title="Remove value"></i>
+              </button>
+            </span>
+          </div>
           <span>
-            <button class="btn btn-default btn-sm minus" ng-if="$index > 0" type="button" 
-                    ng-click="removeAttributeField(derSchema.key, $index)">
-              <i class="glyphicon glyphicon-minus" title="Remove value"></i>
+            <button class="btn btn-default btn-sm" type="button" ng-click="addAttributeField(derSchema.key)">
+              <i class="glyphicon glyphicon-plus" title="Add value"></i>
             </button>
           </span>
         </div>
-        <span>
-          <button class="btn btn-default btn-sm" type="button" ng-click="addAttributeField(derSchema.key)">
-            <i class="glyphicon glyphicon-plus" title="Add value"></i>
-          </button>
-        </span>
       </div>
     </div>
-  </div>
-</uib-accordion>
+  </uib-accordion>
+</div>

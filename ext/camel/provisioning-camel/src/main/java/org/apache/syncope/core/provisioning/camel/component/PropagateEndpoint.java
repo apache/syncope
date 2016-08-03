@@ -25,19 +25,23 @@ import org.apache.camel.spi.Metadata;
 import org.apache.camel.spi.UriEndpoint;
 import org.apache.camel.spi.UriParam;
 import org.apache.camel.spi.UriPath;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
-import org.apache.syncope.core.provisioning.camel.AnyType;
 import org.apache.syncope.core.provisioning.camel.producer.AbstractProducer;
+import org.apache.syncope.core.provisioning.camel.producer.ConfirmPasswordResetProducer;
 import org.apache.syncope.core.provisioning.camel.producer.CreateProducer;
 import org.apache.syncope.core.provisioning.camel.producer.DeleteProducer;
 import org.apache.syncope.core.provisioning.camel.producer.DeprovisionProducer;
 import org.apache.syncope.core.provisioning.camel.producer.ProvisionProducer;
+import org.apache.syncope.core.provisioning.camel.producer.StatusProducer;
+import org.apache.syncope.core.provisioning.camel.producer.SuspendProducer;
 import org.apache.syncope.core.provisioning.camel.producer.UpdateProducer;
+import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
 
 @UriEndpoint(scheme = "propagate", title = "propagate", syntax = "propagate:propagateType", producerOnly = true)
 public class PropagateEndpoint extends DefaultEndpoint {
@@ -46,7 +50,10 @@ public class PropagateEndpoint extends DefaultEndpoint {
     private PropagateType propagateType;
 
     @UriParam
-    private AnyType anyType;
+    private AnyTypeKind anyTypeKind;
+    
+    @UriParam
+    private boolean pull;
 
     private PropagationManager propagationManager;
 
@@ -59,6 +66,8 @@ public class PropagateEndpoint extends DefaultEndpoint {
     private AnyObjectDAO anyObjectDAO;
 
     private GroupDataBinder groupDataBinder;
+    
+    private  UserWorkflowAdapter uwfAdapter;
 
     public PropagateEndpoint(final String endpointUri, final Component component) {
         super(endpointUri, component);
@@ -68,20 +77,27 @@ public class PropagateEndpoint extends DefaultEndpoint {
     public Producer createProducer() throws Exception {
         AbstractProducer producer = null;
         if (PropagateType.create == propagateType) {
-            producer = new CreateProducer(this, anyType);
+            producer = new CreateProducer(this, anyTypeKind);
         } else if (PropagateType.update == propagateType) {
-            producer = new UpdateProducer(this, anyType);
+            producer = new UpdateProducer(this, anyTypeKind);
         } else if (PropagateType.delete == propagateType) {
-            producer = new DeleteProducer(this, anyType, userDAO, groupDataBinder);
+            producer = new DeleteProducer(this, anyTypeKind, userDAO, groupDataBinder);
         } else if (PropagateType.provision == propagateType) {
-            producer = new ProvisionProducer(this, anyType);
+            producer = new ProvisionProducer(this, anyTypeKind);
         } else if (PropagateType.deprovision == propagateType) {
-            producer = new DeprovisionProducer(this, anyType, userDAO, groupDAO, anyObjectDAO);
-        } 
+            producer = new DeprovisionProducer(this, anyTypeKind, userDAO, groupDAO, anyObjectDAO);
+        } else if (PropagateType.status == propagateType) {
+            producer = new StatusProducer(this, anyTypeKind, userDAO, uwfAdapter);
+        } else if (PropagateType.suspend == propagateType) {
+            producer = new SuspendProducer(this, anyTypeKind);
+        } else if (PropagateType.confirmPasswordReset == propagateType) {
+            producer = new ConfirmPasswordResetProducer(this, anyTypeKind);
+        }
 
         if (producer != null) {
             producer.setPropagationManager(propagationManager);
             producer.setPropagationTaskExecutor(taskExecutor);
+            producer.setPull(pull);
         }
         return producer;
     }
@@ -112,12 +128,12 @@ public class PropagateEndpoint extends DefaultEndpoint {
         this.taskExecutor = taskExecutor;
     }
 
-    public AnyType getAnyType() {
-        return anyType;
+    public AnyTypeKind getAnyTypeKind() {
+        return anyTypeKind;
     }
 
-    public void setAnyType(final AnyType anyType) {
-        this.anyType = anyType;
+    public void setAnyTypeKind(final AnyTypeKind anyTypeKind) {
+        this.anyTypeKind = anyTypeKind;
     }
 
     public void setUserDAO(final UserDAO userDAO) {
@@ -134,5 +150,17 @@ public class PropagateEndpoint extends DefaultEndpoint {
 
     public void setGroupDataBinder(final GroupDataBinder groupDataBinder) {
         this.groupDataBinder = groupDataBinder;
+    }
+
+    public boolean isPull() {
+        return pull;
+    }
+
+    public void setPull(final boolean pull) {
+        this.pull = pull;
+    }
+
+    public void setUwfAdapter(final UserWorkflowAdapter uwfAdapter) {
+        this.uwfAdapter = uwfAdapter;
     }
 }

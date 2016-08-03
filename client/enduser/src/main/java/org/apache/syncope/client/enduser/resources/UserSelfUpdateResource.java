@@ -63,9 +63,8 @@ public class UserSelfUpdateResource extends AbstractBaseResource {
                 throw new IllegalArgumentException("Entered captcha is not matching");
             }
 
-            String json = request.getReader().readLine();
-            UserTO userTO = MAPPER.readValue(json, UserTO.class);
-
+            UserTO userTO = MAPPER.readValue(request.getReader().readLine(), UserTO.class);
+            
             Map<String, AttrTO> userPlainAttrMap = userTO.getPlainAttrMap();
 
             for (PlainSchemaTO plainSchema : SyncopeEnduserSession.get().getDatePlainSchemas()) {

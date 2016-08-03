@@ -29,7 +29,6 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
-import org.apache.syncope.core.provisioning.camel.AnyType;
 
 public class DeprovisionProducer extends AbstractProducer {
     
@@ -37,9 +36,9 @@ public class DeprovisionProducer extends AbstractProducer {
     private GroupDAO groupDAO;
     private AnyObjectDAO anyObjectDAO;
 
-    public DeprovisionProducer(final Endpoint endpoint, final AnyType anyType, final UserDAO userDAO,
+    public DeprovisionProducer(final Endpoint endpoint, final AnyTypeKind anyTypeKind, final UserDAO userDAO,
                                final GroupDAO groupDAO, final AnyObjectDAO anyObjectDAO) {
-        super(endpoint, anyType);
+        super(endpoint, anyTypeKind);
         this.userDAO = userDAO;
         this.groupDAO = groupDAO;
         this.anyObjectDAO = anyObjectDAO;
@@ -52,7 +51,7 @@ public class DeprovisionProducer extends AbstractProducer {
         List<String> resources = exchange.getProperty("resources", List.class);
         Boolean nullPriorityAsync = exchange.getProperty("nullPriorityAsync", Boolean.class);
         
-        if (getAnyType() == AnyType.user) {
+        if (getAnyTypeKind() == AnyTypeKind.USER) {
             PropagationByResource propByRes = new PropagationByResource();
             propByRes.set(ResourceOperation.DELETE, resources);
 
@@ -64,7 +63,7 @@ public class DeprovisionProducer extends AbstractProducer {
             PropagationReporter propagationReporter = getPropagationTaskExecutor().execute(tasks, nullPriorityAsync);
 
             exchange.getOut().setBody(propagationReporter.getStatuses());
-        } else if (getAnyType() == AnyType.group) {
+        } else if (getAnyTypeKind() == AnyTypeKind.GROUP) {
             PropagationByResource propByRes = new PropagationByResource();
             propByRes.addAll(ResourceOperation.DELETE, resources);
 
@@ -76,7 +75,7 @@ public class DeprovisionProducer extends AbstractProducer {
             PropagationReporter propagationReporter = getPropagationTaskExecutor().execute(tasks, nullPriorityAsync);
 
             exchange.getOut().setBody(propagationReporter.getStatuses());
-        } else if (getAnyType() == AnyType.any) {
+        } else if (getAnyTypeKind() == AnyTypeKind.ANY_OBJECT) {
             PropagationByResource propByRes = new PropagationByResource();
             propByRes.addAll(ResourceOperation.DELETE, resources);
 

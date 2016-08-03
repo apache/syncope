@@ -36,10 +36,13 @@ include::restfulservices/restful-services.adoc[]
 
 === Customization
 
+[[customization-core]]
 ==== Core
 
+[[customization-console]]
 ==== Console
 
+[[customization-enduser]]
 ==== Enduser
 
 ==== New extensions

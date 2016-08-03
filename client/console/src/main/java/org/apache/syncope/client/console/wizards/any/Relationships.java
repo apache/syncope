@@ -31,7 +31,7 @@ import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.SerializableTransformer;
-import org.apache.syncope.client.console.panels.AnyObjectDirectoryPanel;
+import org.apache.syncope.client.console.panels.AnyDirectoryPanel;
 import org.apache.syncope.client.console.panels.ListViewPanel;
 import org.apache.syncope.client.console.panels.ListViewPanel.ListViewReload;
 import org.apache.syncope.client.console.panels.search.AnyObjectSearchPanel;
@@ -354,7 +354,7 @@ public class Relationships extends WizardStep {
                         getTarget();
                 final String fiql = SearchUtils.buildFIQL(anyObjectSearchPanel.getModel().getObject(),
                         SyncopeClient.getAnyObjectSearchConditionBuilder(anyObjectSearchPanel.getBackObjectType()));
-                AnyObjectDirectoryPanel.class.cast(anyObjectDirectoryPanel).search(fiql, target);
+                AnyDirectoryPanel.class.cast(anyObjectDirectoryPanel).search(fiql, target);
             } else if (event.getPayload() instanceof AnySelectionDirectoryPanel.ItemSelection) {
                 final AjaxRequestTarget target = AnySelectionDirectoryPanel.ItemSelection.class.cast(event.
                         getPayload()).getTarget();
