@@ -1862,7 +1862,10 @@ under the License.
                 <configuration>
                   <sourceDocumentName>getting-started/getting-started.adoc</sourceDocumentName>
                   <backend>html</backend>
-		  <imagesDir>./images</imagesDir>
+                  <imagesDir>./images</imagesDir>
+                  <attributes>
+                    <title>Apache Syncope ${project.version} - Getting Started</title>
+                  </attributes>
                 </configuration>
               </execution>
               <execution>
@@ -1874,7 +1877,7 @@ under the License.
                 <configuration>
                   <sourceDocumentName>getting-started/getting-started.adoc</sourceDocumentName>
                   <backend>pdf</backend>
-		  <imagesDir>${basedir}/src/main/asciidoc/images</imagesDir>
+                  <imagesDir>${basedir}/src/main/asciidoc/images</imagesDir>
                   <attributes>
                     <pdf-stylesdir>${basedir}/src/main/asciidoc</pdf-stylesdir>
                     <pdf-style>syncope</pdf-style>
@@ -1890,7 +1893,10 @@ under the License.
                 <configuration>
                   <sourceDocumentName>reference-guide/reference-guide.adoc</sourceDocumentName>
                   <backend>html</backend>
-		  <imagesDir>./images</imagesDir>
+                  <imagesDir>./images</imagesDir>
+                  <attributes>
+                    <title>Apache Syncope ${project.version} - Reference Guide</title>
+                  </attributes>
                 </configuration>
               </execution>
               <execution>
@@ -1902,7 +1908,7 @@ under the License.
                 <configuration>
                   <sourceDocumentName>reference-guide/reference-guide.adoc</sourceDocumentName>
                   <backend>pdf</backend>
-		  <imagesDir>${basedir}/src/main/asciidoc/images</imagesDir>
+                  <imagesDir>${basedir}/src/main/asciidoc/images</imagesDir>
                   <attributes>
                     <pdf-stylesdir>${basedir}/src/main/asciidoc</pdf-stylesdir>
                     <pdf-style>syncope</pdf-style>
