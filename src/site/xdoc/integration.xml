@@ -39,5 +39,11 @@ under the License.
         </a>
       </p>
     </section>
+    
+    <section name="Buildbot">
+      <p>
+        <source><a href="https://ci.apache.org/builders/syncope-master-docs">https://ci.apache.org/builders/syncope-master-docs</a></source>
+      </p>
+    </section>
   </body>
 </document>

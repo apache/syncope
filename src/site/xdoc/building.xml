@@ -94,10 +94,10 @@ under the License.
         <h4>JRebel</h4>
         As with Debug, but with <a href="http://zeroturnaround.com/software/jrebel/">JRebel</a> features enabled.
         <source>$ export REBEL_HOME=/opt/jrebel
-          $ mvn -Pjrebel,all</source>
+$ mvn -Pjrebel,all</source>
         or, without Activiti and Camel support
         <source>$ export REBEL_HOME=/opt/jrebel
-          $ mvn -Pjrebel</source>
+$ mvn -Pjrebel</source>
 
         <h4>DBMSes</h4>
 
@@ -158,7 +158,7 @@ under the License.
         <h4>JRebel</h4>
         As with Debug, but with <a href="http://zeroturnaround.com/software/jrebel/">JRebel</a> features enabled.
         <source>$ export REBEL_HOME=/opt/jrebel
-          $ mvn -Pjrebel</source>
+$ mvn -Pjrebel</source>
       </subsection>
       
       <subsection name="fit/enduser-reference">
@@ -171,8 +171,16 @@ under the License.
         <h4>JRebel</h4>
         As with Debug, but with <a href="http://zeroturnaround.com/software/jrebel/">JRebel</a> features enabled.
         <source>$ export REBEL_HOME=/opt/jrebel
-          $ mvn -Pjrebel</source>
+$ mvn -Pjrebel</source>
       </subsection>
+    </section>
+
+    <section name="Building documentation">
+      <p>
+        To build Syncope documentation execute (from within the check-out directory):
+        <source>$ mvn -N -P site clean generate-resources</source>
+        The documentation artifacts are now be available under <tt>target/generated-docs/</tt>.
+      </p>
     </section>
   </body>
 </document>
