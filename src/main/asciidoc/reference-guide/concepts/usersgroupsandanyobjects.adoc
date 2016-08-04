@@ -55,12 +55,24 @@ Each user / group / any object will be able to hold values for all schemas:
 
 Moreover, users and any objects can be part of groups, or associated to other any objects.
 
-[TIP]
+[[memberships-relationships]]
+[NOTE]
 .Memberships and Relationships
 ====
-When an user or an any object is assigned to a group, a *_membership_* is defined; the members of a group benefit
-of <<type-extensions,type extensions>>.
+When an user or an any object is assigned to a group, a *_membership_* is defined; the (static) members of a group
+benefit of <<type-extensions,type extensions>>.
 
 When an user or an any object is associated to another any object, a *_relationship_* is defined, of one of available
 <<relationshiptype,relationship types>>.
+====
+
+[TIP]
+.Static and Dynamic Memberships
+====
+Users and any objects are _statically_ assigned to groups when memberships are explicitely set.
+
+With group definition, however, a condition can be expressed so that all matching users and any objects are
+_dynamic_ members of the group. +
+Dynamic memberships have some limitations: for example, <<type-extensions,type extensions>> do not apply;
+group-based provisioning is still effective.
 ====

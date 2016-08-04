@@ -66,6 +66,19 @@ this condition. +
 ****
 ====
 
+[[pull-templates]]
+[TIP]
+.Pull Templates
+====
+With every <<tasks-pull,pull task>> it is possible to add a template for each defined <<anytype,any type>>.
+
+As the values specified in the template are applied to pulled entities, this can be used as mechanism for setting
+default values for attributes or external resources on entities.
+
+A typical use case is, when pulling users from the external resource `R`, to automatically assign `R` so that every
+further modification in Apache Syncope to such users will be <<propagation,propagated>> back to `R`.
+====
+
 ===== PullActions
 
 The pull process can be decorated with custom logic to be invoked around task execution, by associating

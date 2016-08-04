@@ -24,9 +24,63 @@ include::typemanagement.adoc[]
 
 include::externalresources.adoc[]
 
-=== Realms
+include::realms.adoc[]
+
+include::entitlements.adoc[]
 
 === Roles
+
+[TIP]
+.Static and Dynamic Memberships
+====
+Users are _statically_ assigned to roles when assignments are explicitely set.
+
+With role definition, however, a condition can be expressed so that all matching users are _dynamic_ members of the
+role.
+====
+
+==== Delegated Administration
+
+The idea is that any user U assigned to a role R, which provides entitlements E~1~...E~n~ for realms Re~1~...Re~k~ can 
+exercise E~i~ on entities (users or groups, depending on the type of E~i~) under any Re~j~ or related sub-realms.
+
+About group membership and any relationships:
+
+* User U can be member of group G either if U and G are in the same realm, or G is in one of super-realms of the realm 
+of U
+* Any object A~1~ can be in relationship with any object A~2~ either if A~1~ and A~2~ are in the same realm, or A~2~ is
+in one of super-realms of the realm of A~1~
+
+The rationale behind such conditions is to allow the definition of common groups and any objects (to enter in 
+relationship with) at the topmost position in the realm tree, so that they can be shared by various realm sub-trees.
+
+.Authorization
+====
+Let's suppose that we want to implement the following scenario:
+
+****
+Administrator A can create users under realm R~5~ but not under realm R~7~, administrator B can update users under 
+realm R~6~ and R~8~, administrator C can update groups under realm R~8~.
+****
+
+As default, Syncope will have defined the following entitlements, among others:
+
+* `USER_CREATE`
+* `USER_UPDATE`
+* `GROUP_UPDATE`
+
+Here it follows how entitlements should be assigned (via roles) to administrators in order to implement the scenario 
+above:
+
+* A: `USER_CREATE` on R~5~
+* B: `USER_UPDATE` on R~6~ and R~8~
+* C: `GROUP_UPDATE` on R~8~
+====
+
+[NOTE]
+.Group Ownership
+====
+====
 
 === Domains
 
@@ -72,41 +126,3 @@ include::provisioning/provisioning.adoc[]
 === Reports
 
 === Audit
-
-=== Delegated Administration
-
-The idea is that any user U assigned to a role R, which provides entitlements E~1~...E~n~ for realms Re~1~...Re~k~ can 
-exercise E~i~ on entities (users or groups, depending on the type of E~i~) under any Re~j~ or related sub-realms.
-
-About group membership and any relationships:
-
-* User U can be member of group G either if U and G are in the same realm, or G is in one of super-realms of the realm 
-of U
-* Any object A~1~ can be in relationship with any object A~2~ either if A~1~ and A~2~ are in the same realm, or A~2~ is
-in one of super-realms of the realm of A~1~
-
-The rationale behind such conditions is to allow the definition of common groups and any objects (to enter in 
-relationship with) at the topmost position in the realm tree, so that they can be shared by various realm sub-trees.
-
-.Authorization
-====
-Let's suppose that we want to implement the following scenario:
-
-****
-Administrator A can create users under realm R~5~ but not under realm R~7~, administrator B can update users under 
-realm R~6~ and R~8~, administrator C can update groups under realm R~8~.
-****
-
-As default, Syncope will have defined the following entitlements, among others:
-
-* `USER_CREATE`
-* `USER_UPDATE`
-* `GROUP_UPDATE`
-
-Here it follows how entitlements should be assigned (via roles) to administrators in order to implement the scenario 
-above:
-
-* A: `USER_CREATE` on R~5~
-* B: `USER_UPDATE` on R~6~ and R~8~
-* C: `GROUP_UPDATE` on R~8~
-====

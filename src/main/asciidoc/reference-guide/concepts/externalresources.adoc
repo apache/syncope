@@ -73,7 +73,7 @@ Given a selected connector instance, the following information is required for d
 * generate random password flag - under some circumstances, password might be mandatory but no actual value could be
 available: with this flag set, a random value will be generated, compliant with the defined
 <<policies-password,password policy>> (if set)
-* propagation actions - which <<propagationactions,actions>> shall be execute during propagation
+* propagation actions - which <<propagationactions,actions>> shall be executed during propagation
 * trace levels - control how much tracing (including logs and execution details) shall be carried over during
 <<propagation,propagation>>, <<provisioning-pull,pull>> and <<provisioning-push,push>>
 * configuration - see <<connector-instance-details,above>>
@@ -124,13 +124,15 @@ this mapping item must be necessarily available or not; compared to simple boole
 express complex statements like as 'be mandatory only if this other attribute value is above 14', and so on
 * remote key flag - should this item be considered as the key value on the identity store?
 * password flag (users only) - should this item be treated as password value?
-* purpose - should this item be considered for <<propagation,propagation>> / <<push,push>>, <<pull,pull>>, both or none? 
+* purpose - should this item be considered for <<propagation,propagation>> / <<provisioning-push,push>>,
+<<provisioning-pull,pull>>, both or none? 
 
 Besides items, some more data needs to be specified for a complete mapping:
 
 * ConnId `objectClass` - which
 http://connid.tirasa.net/apidocs/1.4/org/identityconnectors/framework/common/objects/ObjectClass.html[object class^]
-shall be used during communication with identity store
+shall be used during communication with identity store; predefined are `\\__ACCOUNT__` for users and 
+`\\__GROUP__` for groups
 * Object link - only required by some connector bundles as
 https://connid.atlassian.net/wiki/display/BASE/LDAP[LDAP^] and
 https://connid.atlassian.net/wiki/pages/viewpage.action?pageId=360482[Active Directory^], generally specifies the model
