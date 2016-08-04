@@ -90,8 +90,8 @@ public class HTMLAutoEditStrategy extends DefaultIndentLineAutoEditStrategy {
      * Returns the line number of the next bracket after end.
      *
      * @param document - the document being parsed
-     * @param line - the line to start searching back from
-     * @param end - the end position to search back from
+     * @param linearg - the line to start searching back from
+     * @param endarg - the end position to search back from
      * @param closingBracketIncrease - the number of brackets to skip
      * @return the line number of the next matching bracket after end
      * @throws BadLocationException in case the line numbers are invalid in the document
