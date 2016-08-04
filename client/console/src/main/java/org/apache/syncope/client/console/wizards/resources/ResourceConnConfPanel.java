@@ -43,7 +43,7 @@ public abstract class ResourceConnConfPanel extends AbstractConnConfPanel<Resour
         super(resourceTO);
         this.createFlag = createFlag;
 
-        LoadableDetachableModel<List<ConnConfProperty>> model = new LoadableDetachableModel<List<ConnConfProperty>>() {
+        model = new LoadableDetachableModel<List<ConnConfProperty>>() {
 
             private static final long serialVersionUID = -2965284931860212687L;
 

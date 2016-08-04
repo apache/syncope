@@ -88,11 +88,11 @@ public class ConnObjectPanel extends Panel {
 
         final Map<String, AttrTO> beforeProfile = connObjectTOs == null || connObjectTOs.getLeft() == null
                 ? null
-                : connObjectTOs.getLeft().getPlainAttrMap();
+                : connObjectTOs.getLeft().getAttrMap();
 
         final Map<String, AttrTO> afterProfile = connObjectTOs == null || connObjectTOs.getRight() == null
                 ? null
-                : connObjectTOs.getRight().getPlainAttrMap();
+                : connObjectTOs.getRight().getAttrMap();
 
         final ListView<String> propView = new ListView<String>("propView", formProps) {
 

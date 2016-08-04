@@ -35,6 +35,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPan
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.client.console.wizards.AbstractModalPanelBuilder;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
@@ -101,8 +102,11 @@ public class PolicyModalPanelBuilder<T extends AbstractPolicyTO> extends Abstrac
 
             final List<Component> components = new ArrayList<>();
 
-            components.add(new AjaxTextFieldPanel(
-                    "field", "description", new PropertyModel<String>(policyTO, "description"), false));
+            FieldPanel<String> description = 
+                new AjaxTextFieldPanel("field", "description", 
+                                       new PropertyModel<String>(policyTO, "description"), false);
+            description.setRequired(true);
+            components.add(description);
 
             if (policyTO instanceof AccountPolicyTO) {
                 components.add(new AjaxSpinnerFieldPanel.Builder<Integer>().build(

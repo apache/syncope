@@ -18,9 +18,13 @@
  */
 package org.apache.syncope.client.console.rest;
 
+import static org.apache.syncope.client.console.rest.BaseRestClient.getService;
+
+import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.common.lib.patch.GroupPatch;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.types.BulkMembersActionType;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.AnyService;
@@ -48,13 +52,23 @@ public class GroupRestClient extends AbstractAnyRestClient<GroupTO, GroupPatch> 
 
     @Override
     public List<GroupTO> search(
-            final String realm, final String fiql, final int page, final int size, final SortParam<String> sort,
+            final String realm,
+            final String fiql,
+            final int page,
+            final int size,
+            final SortParam<String> sort,
             final String type) {
 
-        return getService(GroupService.class).
-                search(new AnyQuery.Builder().realm(realm).fiql(fiql).page(page).size(size).
-                        orderBy(toOrderBy(sort)).details(false).build()).
-                getResult();
+        List<GroupTO> result = new ArrayList<>();
+        PagedResult<GroupTO> res;
+        do {
+            res = getService(GroupService.class).
+                    search(new AnyQuery.Builder().realm(realm).fiql(fiql).page(page).size(size).
+                    orderBy(toOrderBy(sort)).details(false).build());
+            result.addAll(res.getResult());
+        } while (page == -1 && size == -1 && res.getNext() != null);
+
+        return result;
     }
 
     public void bulkMembersAction(final String key, final BulkMembersActionType actionType) {

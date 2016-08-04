@@ -19,20 +19,24 @@
 package org.apache.syncope.client.enduser.resources;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
+import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.model.SchemaResponse;
+import org.apache.syncope.common.lib.to.AbstractSchemaTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
-import org.apache.syncope.common.lib.to.DerSchemaTO;
-import org.apache.syncope.common.lib.to.PlainSchemaTO;
-import org.apache.syncope.common.lib.to.VirSchemaTO;
+import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.SchemaType;
+import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.beans.SchemaQuery;
 import org.apache.syncope.common.rest.api.service.AnyTypeService;
+import org.apache.syncope.common.rest.api.service.GroupService;
 import org.apache.syncope.common.rest.api.service.SchemaService;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.request.resource.IResource;
@@ -45,9 +49,12 @@ public class SchemaResource extends AbstractBaseResource {
 
     private final SchemaService schemaService;
 
+    private final GroupService groupService;
+
     public SchemaResource() {
         anyTypeService = SyncopeEnduserSession.get().getService(AnyTypeService.class);
         schemaService = SyncopeEnduserSession.get().getService(SchemaService.class);
+        groupService = SyncopeEnduserSession.get().getService(GroupService.class);
     }
 
     @Override
@@ -66,24 +73,57 @@ public class SchemaResource extends AbstractBaseResource {
                 return response;
             }
 
-            final AnyTypeTO anyTypeUserTO = anyTypeService.read(AnyTypeKind.USER.name());
+            List<String> classes = Collections.emptyList();
 
-            List<String> classes = new ArrayList<>();
-            String parameter = attributes.getParameters().get("anyTypeClass").toString();
-            if (parameter != null) {
-                classes.add(parameter);
+            final String groupParam = attributes.getParameters().get("group").toString();
+            if (groupParam != null) {
+                PagedResult<GroupTO> groups = groupService.search(
+                        new AnyQuery.Builder().realm("/").page(1).size(1000).build());
+                GroupTO group = IterableUtils.find(groups.getResult(), new Predicate<GroupTO>() {
+
+                    @Override
+                    public boolean evaluate(final GroupTO item) {
+                        return groupParam.equals(item.getName());
+                    }
+                });
+
+                if (group != null && group.getTypeExtension(AnyTypeKind.USER.name()) != null) {
+                    classes = group.getTypeExtension(AnyTypeKind.USER.name()).getAuxClasses();
+                }
             } else {
-                classes = anyTypeUserTO.getClasses();
+                String anyTypeClass = attributes.getParameters().get("anyTypeClass").toString();
+                if (anyTypeClass != null) {
+                    classes = Collections.singletonList(anyTypeClass);
+                } else {
+                    AnyTypeTO anyTypeUserTO = anyTypeService.read(AnyTypeKind.USER.name());
+                    classes = anyTypeUserTO.getClasses();
+                }
             }
-            final List<PlainSchemaTO> plainSchemas = schemaService.list(
-                    new SchemaQuery.Builder().type(SchemaType.PLAIN).
-                    anyTypeClasses(classes).build());
-            final List<DerSchemaTO> derSchemas = schemaService.list(
-                    new SchemaQuery.Builder().type(SchemaType.DERIVED).
-                    anyTypeClasses(classes).build());
-            final List<VirSchemaTO> virSchemas = schemaService.list(
-                    new SchemaQuery.Builder().type(SchemaType.VIRTUAL).
-                    anyTypeClasses(classes).build());
+
+            final List<AbstractSchemaTO> plainSchemas = classes.isEmpty()
+                    ? Collections.<AbstractSchemaTO>emptyList()
+                    : schemaService.list(
+                            new SchemaQuery.Builder().type(SchemaType.PLAIN).anyTypeClasses(classes).build());
+            final List<AbstractSchemaTO> derSchemas = classes.isEmpty()
+                    ? Collections.<AbstractSchemaTO>emptyList()
+                    : schemaService.list(
+                            new SchemaQuery.Builder().type(SchemaType.DERIVED).anyTypeClasses(classes).build());
+            final List<AbstractSchemaTO> virSchemas = classes.isEmpty()
+                    ? Collections.<AbstractSchemaTO>emptyList()
+                    : schemaService.list(
+                            new SchemaQuery.Builder().type(SchemaType.VIRTUAL).anyTypeClasses(classes).build());
+
+            if (groupParam != null) {
+                for (AbstractSchemaTO schema : plainSchemas) {
+                    schema.setKey(groupParam + "#" + schema.getKey());
+                }
+                for (AbstractSchemaTO schema : derSchemas) {
+                    schema.setKey(groupParam + "#" + schema.getKey());
+                }
+                for (AbstractSchemaTO schema : virSchemas) {
+                    schema.setKey(groupParam + "#" + schema.getKey());
+                }
+            }
 
             response.setWriteCallback(new AbstractResource.WriteCallback() {
 

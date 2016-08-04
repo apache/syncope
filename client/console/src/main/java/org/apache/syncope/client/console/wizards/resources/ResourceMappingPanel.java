@@ -38,6 +38,7 @@ import org.apache.syncope.client.console.commons.ConnIdSpecialAttributeName;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
+import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
@@ -67,6 +68,7 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
@@ -137,14 +139,6 @@ public class ResourceMappingPanel extends Panel {
      */
     private final WebMarkupContainer mappingContainer;
 
-    private MappingTO getMapping() {
-        if (provisionTO.getMapping() == null) {
-            provisionTO.setMapping(new MappingTO());
-        }
-
-        return provisionTO.getMapping();
-    }
-
     /**
      * Attribute Mapping Panel.
      *
@@ -164,26 +158,36 @@ public class ResourceMappingPanel extends Panel {
         super(id);
         setOutputMarkupId(true);
 
-        this.provisionTO = provisionTO == null ? new ProvisionTO() : provisionTO;
-        if (provisionTO == null) {
-            getMapping().getItems().clear();
-            getMapping().setConnObjectLink(null);
+        this.provisionTO = provisionTO;
+        if (provisionTO.getMapping() == null) {
+            provisionTO.setMapping(new MappingTO());
         }
+
+        final LoadableDetachableModel<List<String>> extAttrNames = new LoadableDetachableModel<List<String>>() {
+
+            private static final long serialVersionUID = 5275935387613157437L;
+
+            @Override
+            protected List<String> load() {
+                return new ConnectorRestClient().getExtAttrNames(
+                        provisionTO.getObjectClass(),
+                        resourceTO.getConnector(),
+                        resourceTO.getConfOverride());
+            }
+        };
 
         this.mappingContainer = new WebMarkupContainer("mappingContainer");
         this.mappingContainer.setOutputMarkupId(true);
-        this.mappingContainer.setEnabled(provisionTO != null);
-        this.mappingContainer.setVisible(provisionTO != null);
         add(this.mappingContainer);
 
         mappingContainer.add(new Label("intAttrNameInfo", Model.of()).add(new PopoverBehavior(
                 Model.<String>of(),
                 Model.of(getString("intAttrNameInfo.help")
-                        + "<div style=\"font-size: 10px;\">"
-                        + "<code>groups[groupName].attribute</code>\n"
-                        + "<code>anyObjects[anyObjectName].attribute</code>\n"
-                        + "<code>memberships[groupName].attribute</code>\n"
-                        + "</div>"),
+                + "<div style=\"font-size: 10px;\">"
+                + "<code>groups[groupName].attribute</code>\n"
+                + "<code>anyObjects[anyObjectName].attribute</code>\n"
+                + "<code>memberships[groupName].attribute</code>\n"
+                + "</div>"),
                 new PopoverConfig().withHtml(true).withPlacement(TooltipConfig.Placement.bottom)) {
 
             private static final long serialVersionUID = -7867802555691605021L;
@@ -199,7 +203,7 @@ public class ResourceMappingPanel extends Panel {
         passwordLabel = new Label("passwordLabel", new ResourceModel("password"));
         mappingContainer.add(passwordLabel);
 
-        Collections.sort(getMapping().getItems(), new Comparator<MappingItemTO>() {
+        Collections.sort(provisionTO.getMapping().getItems(), new Comparator<MappingItemTO>() {
 
             @Override
             public int compare(final MappingItemTO left, final MappingItemTO right) {
@@ -242,7 +246,7 @@ public class ResourceMappingPanel extends Panel {
             }
         });
 
-        mappings = new ListView<MappingItemTO>("mappings", getMapping().getItems()) {
+        mappings = new ListView<MappingItemTO>("mappings", provisionTO.getMapping().getItems()) {
 
             private static final long serialVersionUID = 4949588177564901031L;
 
@@ -273,10 +277,7 @@ public class ResourceMappingPanel extends Panel {
                         "extAttrName",
                         getString("extAttrName"),
                         new PropertyModel<String>(mapItem, "extAttrName"));
-                extAttrName.setChoices(ResourceProvisionPanel.getExtAttrNames(
-                        ResourceMappingPanel.this.provisionTO.getObjectClass(),
-                        resourceTO.getConnector(),
-                        resourceTO.getConfOverride()));
+                extAttrName.setChoices(extAttrNames.getObject());
 
                 boolean required = !mapItem.isPassword();
                 extAttrName.setRequired(required).hideLabel();
@@ -307,6 +308,7 @@ public class ResourceMappingPanel extends Panel {
                         new PropertyModel<String>(mapItem, "mandatoryCondition"));
                 mandatory.hideLabel();
                 mandatory.setChoices(Arrays.asList(new String[] { "true", "false" }));
+                mandatory.setEnabled(!mapItem.isConnObjectKey());
                 item.add(mandatory);
                 // -------------------------------
 
@@ -355,14 +357,14 @@ public class ResourceMappingPanel extends Panel {
                     @Override
                     public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                         int index = -1;
-                        for (int i = 0; i < getMapping().getItems().size() && index == -1; i++) {
-                            if (mapItem.equals(getMapping().getItems().get(i))) {
+                        for (int i = 0; i < provisionTO.getMapping().getItems().size() && index == -1; i++) {
+                            if (mapItem.equals(provisionTO.getMapping().getItems().get(i))) {
                                 index = i;
                             }
                         }
 
                         if (index != -1) {
-                            getMapping().getItems().remove(index);
+                            provisionTO.getMapping().getItems().remove(index);
                             item.getParent().removeAll();
                             target.add(ResourceMappingPanel.this);
                         }
@@ -388,9 +390,11 @@ public class ResourceMappingPanel extends Panel {
                     protected void onUpdate(final AjaxRequestTarget target) {
                         if (connObjectKey.getModelObject()) {
                             mapItem.setMandatoryCondition("true");
+                            mandatory.setModelObject("true");
                             mandatory.setEnabled(false);
                         } else {
                             mapItem.setMandatoryCondition("false");
+                            mandatory.setModelObject("false");
                             mandatory.setEnabled(true);
                         }
                         target.add(mandatory);
@@ -414,8 +418,8 @@ public class ResourceMappingPanel extends Panel {
                     }
                 });
 
-                setAttrNames(intAttrName);
                 setConnObjectKey(connObjectKey, password);
+                setAttrNames(intAttrName);
 
                 if (!AnyTypeKind.USER.name().equals(provisionTO.getAnyType())) {
                     password.setVisible(false);
@@ -440,7 +444,7 @@ public class ResourceMappingPanel extends Panel {
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-                getMapping().getItems().add(new MappingItemTO());
+                provisionTO.getMapping().getItems().add(new MappingItemTO());
                 target.add(ResourceMappingPanel.this);
             }
         };

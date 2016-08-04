@@ -28,7 +28,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 /**
  * Modal window with Resource form.
  *
- * @param <T>
+ * @param <T> model object type
  */
 public abstract class AbstractResourceWizardBuilder<T extends Serializable> extends AjaxWizardBuilder<Serializable> {
 

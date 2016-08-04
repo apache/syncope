@@ -22,6 +22,7 @@ import java.util.List;
 import org.apache.syncope.client.console.layout.GroupFormLayoutInfo;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.TemplatableTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.PageReference;
@@ -30,18 +31,34 @@ public class GroupTemplateWizardBuilder extends GroupWizardBuilder implements Te
 
     private static final long serialVersionUID = 6716803168859873877L;
 
+    private final TemplatableTO templatable;
+
     public GroupTemplateWizardBuilder(
             final TemplatableTO templatable,
             final List<String> anyTypeClasses,
             final GroupFormLayoutInfo formLayoutInfo,
             final PageReference pageRef) {
         super(null, anyTypeClasses, formLayoutInfo, pageRef);
+        this.templatable = templatable;
 
         if (templatable.getTemplates().containsKey(AnyTypeKind.GROUP.name())) {
             setItem(new GroupWrapper(GroupTO.class.cast(templatable.getTemplates().get(AnyTypeKind.GROUP.name()))));
         } else {
-            setItem(new GroupWrapper(new GroupTO()));
+            GroupTO groupTO = new GroupTO();
+            if (templatable instanceof RealmTO) {
+                groupTO.setRealm(RealmTO.class.cast(templatable).getFullPath());
+            }
+            setItem(new GroupWrapper(groupTO));
         }
+    }
+
+    @Override
+    protected Details<GroupTO> addOptionalDetailsPanel(final AnyWrapper<GroupTO> modelObject) {
+        final Details<GroupTO> details = super.addOptionalDetailsPanel(modelObject);
+        if (templatable instanceof RealmTO) {
+            details.disableRealmSpecification();
+        }
+        return details;
     }
 
     @Override

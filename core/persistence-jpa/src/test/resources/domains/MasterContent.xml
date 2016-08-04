@@ -157,7 +157,7 @@ under the License.
               specification='{"conflictResolutionAction":"IGNORE"}'/>
 
   <RelationshipType id="inclusion" description="Models the act that an object is included in another"/>
-  <RelationshipType id="neighborhood"/>
+  <RelationshipType id="neighborhood" description="Models the act that an object is near another"/>
   
   <AnyTypeClass id="generic membership"/>
 
@@ -961,13 +961,16 @@ under the License.
   <Provision id="20a75199-3f2e-4b9a-9510-c68dd7fc7b3d" resource_id="resource-ldap" anyType_id="GROUP" objectClass="__GROUP__"/>
   <Mapping id="128412c8-be4f-4d7b-8bed-5ab89134f718" provision_id="20a75199-3f2e-4b9a-9510-c68dd7fc7b3d"
            connObjectLink="&apos;cn=&apos; + name + &apos;,ou=groups,o=isp&apos;"/>
-  <MappingItem id="1" connObjectKey="1" password="0" mapping_id="128412c8-be4f-4d7b-8bed-5ab89134f718"
+  <MappingItem id="a2bf43c8-74cb-4250-92cf-fb8889409ac1"
+               connObjectKey="1" password="0" mapping_id="128412c8-be4f-4d7b-8bed-5ab89134f718"
                extAttrName="cn" intAttrName="name"
                mandatoryCondition="true" purpose="BOTH"/>
-  <MappingItem id="2" connObjectKey="0" password="0" mapping_id="128412c8-be4f-4d7b-8bed-5ab89134f718"
+  <MappingItem id="da2a69bc-5ca0-4657-9a18-ec1f8c986046"
+               connObjectKey="0" password="0" mapping_id="128412c8-be4f-4d7b-8bed-5ab89134f718"
                extAttrName="owner" intAttrName="userOwner"
                mandatoryCondition="false" purpose="BOTH"/>
-  <MappingItem id="3" connObjectKey="0" password="0" mapping_id="128412c8-be4f-4d7b-8bed-5ab89134f718"
+  <MappingItem id="9dde8bd5-f158-499e-9d81-3d7fcf9ea1e8"
+               connObjectKey="0" password="0" mapping_id="128412c8-be4f-4d7b-8bed-5ab89134f718"
                extAttrName="description" intAttrName="title"
                mandatoryCondition="false" purpose="BOTH"/>
   
@@ -1070,7 +1073,7 @@ under the License.
         destinationRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28" pullMode="FULL_RECONCILIATION" performCreate="1" performDelete="1" performUpdate="1" syncStatus="0"
         unmatchingRule="PROVISION" matchingRule="UPDATE" active="1"/>
   <AnyTemplatePullTask id="df655a2a-40c0-43b1-a157-3f4988802f58" pullTask_id="1e419ca4-ea81-4493-a14f-28b90113686d" anyType_id="USER"
-                       template='{"@class":"org.apache.syncope.common.lib.to.UserTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":null,"type":"USER","realm":null,"status":null,"password":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"securityQuestion":null,"securityAnswer":null,"auxClasses":[],"derAttrs":[],"virAttrs":[{"schema":"virtualReadOnly","readonly":true,"values":[""]}],"resources":["resource-ldap"],"roles":[],"dynRoles":[],"relationships":[],"memberships":[],"dynGroups":[],"plainAttrs":[]}'/>
+                       template='{"@class":"org.apache.syncope.common.lib.to.UserTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":null,"type":"USER","realm":"&apos;/&apos; + title","status":null,"password":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"securityQuestion":null,"securityAnswer":null,"auxClasses":["minimal group"],"derAttrs":[],"virAttrs":[{"schema":"virtualReadOnly","readonly":true,"values":[""]}],"resources":["resource-ldap"],"roles":[],"dynRoles":[],"relationships":[],"memberships":[],"dynGroups":[],"plainAttrs":[]}'/>
   <AnyTemplatePullTask id="fda22ff3-98f3-42e4-a2ae-cd9a28282d57" pullTask_id="1e419ca4-ea81-4493-a14f-28b90113686d" anyType_id="GROUP"
                        template='{"@class":"org.apache.syncope.common.lib.to.GroupTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":null,"type":"GROUP","realm":null,"status":null,"name":null,"userOwner":null,"groupOwner":null,"udynMembershipCond":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":[],"plainAttrs":[{"schema":"show","readonly":false,"values":["true"]}]}'/>
   <PullTask_actionsClassNames pullTask_id="1e419ca4-ea81-4493-a14f-28b90113686d" actionClassName="org.apache.syncope.core.provisioning.java.pushpull.LDAPMembershipPullActions"/>
@@ -1178,13 +1181,13 @@ a password reset was request for ${user.getUsername()}.&lt;/p&gt;
 &lt;/html&gt;"/>
   <MailTemplate id="confirmPasswordReset"
                 textTemplate="Hi,
-we are happy to inform you that the password request was execute successfully for your account.
+we are happy to inform you that the password request was successfully executed for your account.
 
 Best regards."
                 htmlTemplate="&lt;html&gt;
 &lt;body&gt;
 &lt;p&gt;Hi,&lt;br/&gt;
-we are happy to inform you that the password request was execute successfully for your account.&lt;/p&gt;
+we are happy to inform you that the password request was successfully executed for your account.&lt;/p&gt;
 
 &lt;p&gt;Best regards.&lt;/p&gt;
 &lt;/body&gt;

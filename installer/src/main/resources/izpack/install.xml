@@ -30,7 +30,7 @@ under the License.
     <authors>
       <author name="Apache Syncope" email="dev@syncope.apache.org"/>
     </authors>
-    <javaversion>${targetJdk}</javaversion>
+    <javaversion>1.7</javaversion>
   </info>
   
   <guiprefs resizable="no" width="850" height="600">    

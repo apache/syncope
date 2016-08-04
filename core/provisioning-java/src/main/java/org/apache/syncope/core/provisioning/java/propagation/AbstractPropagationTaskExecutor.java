@@ -51,16 +51,12 @@ import org.apache.syncope.core.provisioning.api.utils.ExceptionUtils2;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
-import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
-import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
-import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
-import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCache;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCacheValue;
@@ -285,41 +281,6 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         return result;
     }
 
-    protected Any<?> getAny(final PropagationTask task) {
-        Any<?> any = null;
-
-        if (task.getEntityKey() != null && task.getAnyTypeKind() != null) {
-            switch (task.getAnyTypeKind()) {
-                case USER:
-                    try {
-                        any = userDAO.authFind(task.getEntityKey());
-                    } catch (Exception e) {
-                        LOG.error("Could not read user {}", task.getEntityKey(), e);
-                    }
-                    break;
-
-                case GROUP:
-                    try {
-                        any = groupDAO.authFind(task.getEntityKey());
-                    } catch (Exception e) {
-                        LOG.error("Could not read group {}", task.getEntityKey(), e);
-                    }
-                    break;
-
-                case ANY_OBJECT:
-                default:
-                    try {
-                        any = anyObjectDAO.authFind(task.getEntityKey());
-                    } catch (Exception e) {
-                        LOG.error("Could not read any object {}", task.getEntityKey(), e);
-                    }
-                    break;
-            }
-        }
-
-        return any;
-    }
-
     protected Uid delete(
             final PropagationTask task,
             final ConnectorObject beforeObj,
@@ -346,14 +307,35 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
              * update, this entity used to have the current resource assigned by more than one mean (for example,
              * two different memberships with the same resource).
              */
-            Any<?> any = getAny(task);
-            Collection<String> resources = any instanceof User
-                    ? userDAO.findAllResourceNames((User) any)
-                    : any instanceof AnyObject
-                            ? anyObjectDAO.findAllResourceNames((AnyObject) any)
-                            : any instanceof Group
-                                    ? ((Group) any).getResourceKeys()
-                                    : Collections.<String>emptySet();
+            Collection<String> resources = Collections.emptySet();
+            if (task.getEntityKey() != null && task.getAnyTypeKind() != null) {
+                switch (task.getAnyTypeKind()) {
+                    case USER:
+                        try {
+                            resources = userDAO.findAllResourceNames(task.getEntityKey());
+                        } catch (Exception e) {
+                            LOG.error("Could not read user {}", task.getEntityKey(), e);
+                        }
+                        break;
+
+                    case GROUP:
+                        try {
+                            resources = groupDAO.authFind(task.getEntityKey()).getResourceKeys();
+                        } catch (Exception e) {
+                            LOG.error("Could not read group {}", task.getEntityKey(), e);
+                        }
+                        break;
+
+                    case ANY_OBJECT:
+                    default:
+                        try {
+                            resources = anyObjectDAO.findAllResourceNames(task.getEntityKey());
+                        } catch (Exception e) {
+                            LOG.error("Could not read any object {}", task.getEntityKey(), e);
+                        }
+                        break;
+                }
+            }
             if (task.getAnyTypeKind() == null || !resources.contains(task.getResource().getKey())) {
                 LOG.debug("Delete {} on {}", beforeObj.getUid(), task.getResource().getKey());
 
@@ -367,8 +349,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         return result;
     }
 
-    @Override
-    public TaskExec execute(final PropagationTask task, final PropagationReporter reporter) {
+    protected TaskExec execute(final PropagationTask task, final PropagationReporter reporter) {
         List<PropagationActions> actions = getPropagationActions(task.getResource());
 
         Date start = new Date();
@@ -538,24 +519,27 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
     @Override
     public void execute(final Collection<PropagationTask> tasks) {
-        execute(tasks, null, false);
+        execute(tasks, false);
     }
 
     protected abstract void doExecute(
             Collection<PropagationTask> tasks, PropagationReporter reporter, boolean nullPriorityAsync);
 
     @Override
-    public void execute(
+    public PropagationReporter execute(
             final Collection<PropagationTask> tasks,
-            final PropagationReporter reporter,
             final boolean nullPriorityAsync) {
 
+        PropagationReporter reporter =
+                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
         try {
             doExecute(tasks, reporter, nullPriorityAsync);
         } catch (PropagationException e) {
             LOG.error("Error propagation priority resource", e);
             reporter.onPriorityResourceFailure(e.getResourceName(), tasks);
         }
+
+        return reporter;
     }
 
     /**

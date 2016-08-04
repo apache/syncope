@@ -40,7 +40,7 @@ import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PatchOperation;
-import org.apache.syncope.common.lib.types.PropagationByResource;
+import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.spring.BeanUtils;
 import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
@@ -194,7 +194,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                         } else {
                             ARelationship relationship = entityFactory.newEntity(ARelationship.class);
                             relationship.setType(relationshipType);
-                            relationship.setRightEnd(anyObject);
+                            relationship.setRightEnd(otherEnd);
                             relationship.setLeftEnd(anyObject);
 
                             anyObject.add(relationship);
@@ -215,9 +215,12 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                     searchDAO.search(SearchCond.getLeafCond(assignableCond), AnyTypeKind.GROUP);
 
             for (MembershipTO membershipTO : anyObjectTO.getMemberships()) {
-                Group group = groupDAO.find(membershipTO.getRightKey());
+                Group group = membershipTO.getRightKey() == null
+                        ? groupDAO.findByName(membershipTO.getGroupName())
+                        : groupDAO.find(membershipTO.getRightKey());
                 if (group == null) {
-                    LOG.debug("Ignoring invalid group " + membershipTO.getGroupName());
+                    LOG.debug("Ignoring invalid group "
+                            + membershipTO.getRightKey() + " / " + membershipTO.getGroupName());
                 } else if (assignableGroups.contains(group)) {
                     AMembership membership = entityFactory.newEntity(AMembership.class);
                     membership.setRightEnd(group);
@@ -256,7 +259,8 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
 
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
 
-        Collection<String> currentResources = anyObjectDAO.findAllResourceNames(anyObject);
+        Collection<String> currentResources = CollectionUtils.collect(
+                anyObjectDAO.findAllResources(anyObject), EntityUtils.keyTransformer());
 
         // fetch connObjectKeys before update
         Map<String, String> oldConnObjectKeys = getConnObjectKeys(anyObject);

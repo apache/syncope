@@ -21,10 +21,8 @@ package org.apache.syncope.client.console.panels;
 import org.apache.syncope.common.lib.to.CamelRouteTO;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.OnLoadHeaderItem;
-import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.PropertyModel;
 
 public class CamelRoutesDetailsPanel extends Panel {
@@ -34,12 +32,9 @@ public class CamelRoutesDetailsPanel extends Panel {
     public CamelRoutesDetailsPanel(final String id, final CamelRouteTO camelRoute) {
         super(id);
 
-        Form<CamelRouteTO> routeDefForm = new Form<>("routeDefForm");
-
         TextArea<String> routeDefArea = new TextArea<>("route", new PropertyModel<String>(camelRoute, "content"));
-        routeDefForm.add(routeDefArea);
-        routeDefForm.setModel(new CompoundPropertyModel<>(camelRoute));
-        add(routeDefForm);
+        routeDefArea.setMarkupId("route").setOutputMarkupPlaceholderTag(true);
+        add(routeDefArea);
     }
 
     @Override
@@ -48,10 +43,10 @@ public class CamelRoutesDetailsPanel extends Panel {
         response.render(OnLoadHeaderItem.forScript(
                 "CodeMirror.fromTextArea(document.getElementById('route'), {"
                 + "  lineNumbers: true, "
+                + "  lineWrapping: true, "
                 + "  autoCloseTags: true, "
                 + "  mode: 'text/html', "
                 + "  autoRefresh: true"
                 + "}).on('change', updateTextArea);"));
     }
-
 }

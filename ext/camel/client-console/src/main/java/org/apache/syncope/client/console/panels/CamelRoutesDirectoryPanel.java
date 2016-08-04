@@ -81,15 +81,14 @@ public class CamelRoutesDirectoryPanel extends DirectoryPanel<
 
             @Override
             public WizardModalPanel<CamelRouteTO> build(final String id, final int index, final AjaxWizard.Mode mode) {
-                final CamelRouteTO modelObject = newModelObject();
-                return new CamelRoutesModalPanel(modal, modelObject, pageRef) {
+                return new CamelRoutesModalPanel(modal, newModelObject(), pageRef) {
 
                     private static final long serialVersionUID = -6227956682141146095L;
 
                     @Override
                     public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                         try {
-                            restClient.update(modelObject);
+                            restClient.update(getItem());
                             info(getString(Constants.OPERATION_SUCCEEDED));
                             modal.close(target);
                         } catch (Exception e) {
@@ -144,14 +143,15 @@ public class CamelRoutesDirectoryPanel extends DirectoryPanel<
                 ActionLinksPanel<CamelRouteTO> panel = ActionLinksPanel.<CamelRouteTO>builder().
                         add(new ActionLink<CamelRouteTO>() {
 
-                            private static final long serialVersionUID = -3722207913631435501L;
+                    private static final long serialVersionUID = -3722207913631435501L;
 
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final CamelRouteTO ignore) {
-                                send(CamelRoutesDirectoryPanel.this, Broadcast.EXACT,
-                                        new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
-                            }
-                        }, ActionLink.ActionType.EDIT, CamelEntitlement.ROUTE_UPDATE).
+                    @Override
+                    public void onClick(final AjaxRequestTarget target, final CamelRouteTO ignore) {
+                        CamelRouteTO actual = restClient.read(model.getObject().getKey());
+                        send(CamelRoutesDirectoryPanel.this, Broadcast.EXACT,
+                                new AjaxWizard.EditItemActionEvent<>(actual, target));
+                    }
+                }, ActionLink.ActionType.EDIT, CamelEntitlement.ROUTE_UPDATE).
                         build(componentId);
 
                 return panel;

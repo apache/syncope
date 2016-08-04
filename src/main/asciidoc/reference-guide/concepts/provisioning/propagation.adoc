@@ -1,0 +1,113 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+//
+==== Propagation
+
+Whenever a change is performed via REST on users, groups or any objects:
+
+. a set of <<tasks-propagation,propagation tasks>> is generated, one for each associated external resource;
+. the generated propagation tasks are executed, e.g. the corresponding operations (create, update or delete) are sent
+out, via connectors, to the configured identity stores; the tasks can be saved for later re-execution.
+
+[TIP]
+.Which external resources?
+====
+Depending on the entity being created / updated / deleted, different external resources are taken into account by the
+propagation process:
+
+* *group*: only the external resources directly assigned
+* *user*: the external resources directly assigned plus the ones assigned to groups configured for the user
+* *any object*: the external resources directly assigned plus the ones assigned to groups configured for the any object
+====
+
+By default, the propagation process is controlled by the
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/PriorityPropagationTaskExecutor.java[PriorityPropagationTaskExecutor^],
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/PriorityPropagationTaskExecutor.java[PriorityPropagationTaskExecutor^],
+endif::[]
+which implements the following logic:
+
+* sort the tasks according to the related resource's _priority_, then execute sequentially
+* tasks for resources with no priority are executed afterwards, concurrently
+* the execution of a given set of tasks is halted (and global failure is reported) whenever the first sequential task
+fails
+* status and eventual error message (in case of no resource priority) can be saved for reporting, in case the related
+external resource was configured with adequate tracing
+* minimize the set of operations to be actually performed onto the identity store by attempting to read the external
+object corresponding to the internal entity and comparing with the modifications provided
+
+Different implementations of the
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/propagation/PropagationTaskExecutor.java[PropagationTaskExecutor^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/propagation/PropagationTaskExecutor.java[PropagationTaskExecutor^]
+endif::[]
+interface can be provided, in case the required behavior does not fit into the provided implementation.
+
+===== PropagationActions
+
+The propagation process can be decorated with custom logic to be invoked around task execution, by associating
+external resources to one or more implementations of the
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/propagation/PropagationActions.java[PropagationActions^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/propagation/PropagationActions.java[PropagationActions^]
+endif::[]
+interface.
+
+Some examples are included by default, see table below.
+
+[cols="1,2"]
+|===
+
+| 
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/LDAPMembershipPropagationActions.java[LDAPMembershipPropagationActions^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/LDAPMembershipPropagationActions.java[LDAPMembershipPropagationActions^]
+endif::[]
+| If user is associated to group in Syncope, keeps the corresponding user as member of the corresponding group on LDAP.
+
+| 
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/LDAPPasswordPropagationActions.java[LDAPPasswordPropagationActions^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/LDAPPasswordPropagationActions.java[LDAPPasswordPropagationActions^]
+endif::[]
+| If no password value was already provided in the propagation task, sends out the internal password hash value to LDAP;
+the cipher algorithm associated with the password must match the value of `passwordHashAlgorithm` for the 
+https://connid.atlassian.net/wiki/display/BASE/LDAP#LDAP-Configuration[LDAP connector bundle^].
+
+| 
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/LDAPPasswordPropagationActions.java[DBPasswordPropagationActions^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/DBPasswordPropagationActions.java[DBPasswordPropagationActions^]
+endif::[]
+| If no password value was already provided in the propagation task, sends out the internal password hash value to DBMS;
+the cipher algorithm associated with the password must match the value of `Password cipher algorithm` for the 
+https://connid.atlassian.net/wiki/display/BASE/Database+Table#DatabaseTable-ConfigurationProperties[DatabaseTable connector bundle^].
+
+|===

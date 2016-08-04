@@ -95,7 +95,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
 
         List<PropagationTaskTO> tasks = new ArrayList<>(
                 taskService.<PropagationTaskTO>list(new TaskQuery.Builder(TaskType.PROPAGATION).
-                        anyTypeKind(AnyTypeKind.USER).anyTypeKey(userTO.getKey()).build()).
+                        anyTypeKind(AnyTypeKind.USER).entityKey(userTO.getKey()).build()).
                 getResult());
         assertFalse(tasks.isEmpty());
 
@@ -149,7 +149,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             ConnObjectTO connObjectTO = resourceService.
                     readConnObject(RESOURCE_NAME_DBSCRIPTED, anyObjectTO.getType(), anyObjectTO.getKey());
             assertFalse(anyObjectTO.getPlainAttrMap().get("location").getValues().get(0).endsWith(suffix));
-            assertTrue(connObjectTO.getPlainAttrMap().get("LOCATION").getValues().get(0).endsWith(suffix));
+            assertTrue(connObjectTO.getAttrMap().get("LOCATION").getValues().get(0).endsWith(suffix));
         } finally {
             resourceService.update(originalResource);
         }

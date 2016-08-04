@@ -18,9 +18,13 @@
  */
 package org.apache.syncope.fit.console;
 
+import static org.apache.syncope.fit.console.AbstractConsoleITCase.TESTER;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.commons.status.Status;
+import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -109,8 +113,16 @@ public class BulkActionITCase extends AbstractConsoleITCase {
 
     @Test
     public void userStatusBulkAction() {
-        // suspend 
+        userStatusBulkAction(1, "resource-testdb2");
+    }
 
+    @Test
+    public void userStatusOnSyncopeOnlyBulkAction() {
+        userStatusBulkAction(0, "Syncope");
+    }
+
+    private void userStatusBulkAction(final int index, final String resourceName) {
+        // suspend 
         TESTER.clickLink("body:realmsLI:realms");
         TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:1:link");
 
@@ -124,12 +136,20 @@ public class BulkActionITCase extends AbstractConsoleITCase {
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:groupForm:"
                 + "checkgroup:dataTable", WebMarkupContainer.class);
 
+        component = findComponentByProp("resourceName",
+                tabPanel + "outerObjectsRepeater:1:outer:form:content:status:firstLevelContainer:first:container:"
+                + "content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", resourceName);
+
+        component = TESTER.getComponentFromLastRenderedPage(component.getPageRelativePath() + ":cells:1:cell:check");
+        assertEquals(Status.ACTIVE, StatusBean.class.cast(component.getDefaultModelObject()).getStatus());
+        assertEquals(resourceName, StatusBean.class.cast(component.getDefaultModelObject()).getResourceName());
+
         FormTester formTester = TESTER.newFormTester(
                 tabPanel + "outerObjectsRepeater:1:outer:form:content:status:firstLevelContainer:"
                 + "first:container:content:searchContainer:resultTable:tablePanel:groupForm");
         assertNotNull(formTester);
 
-        formTester.select("checkgroup", 2);
+        formTester.select("checkgroup", index);
 
         TESTER.executeAjaxEvent(tabPanel + "outerObjectsRepeater:1:outer:form:content:status:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:bulkActionLink",
@@ -142,8 +162,22 @@ public class BulkActionITCase extends AbstractConsoleITCase {
                 + "status:secondLevelContainer:second:container:actions:panelSuspend:suspendLink",
                 Constants.ON_CLICK);
 
+        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.cleanupFeedbackMessages();
+
         TESTER.assertLabel(tabPanel + "outerObjectsRepeater:1:outer:form:content:status:"
                 + "secondLevelContainer:second:container:selectedObjects:body:rows:1:cells:3:cell", "SUCCESS");
+
+        TESTER.executeAjaxEvent(tabPanel + "outerObjectsRepeater:1:outer:form:content:status:secondLevelContainer:back",
+                Constants.ON_CLICK);
+
+        component = findComponentByProp("resourceName",
+                tabPanel + "outerObjectsRepeater:1:outer:form:content:status:firstLevelContainer:first:container:"
+                + "content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", resourceName);
+
+        component = TESTER.getComponentFromLastRenderedPage(component.getPageRelativePath() + ":cells:1:cell:check");
+        assertEquals(Status.SUSPENDED, StatusBean.class.cast(component.getDefaultModelObject()).getStatus());
+        assertEquals(resourceName, StatusBean.class.cast(component.getDefaultModelObject()).getResourceName());
 
         // re-activate
         TESTER.clickLink("body:realmsLI:realms");
@@ -164,7 +198,7 @@ public class BulkActionITCase extends AbstractConsoleITCase {
                 + "first:container:content:searchContainer:resultTable:tablePanel:groupForm");
         assertNotNull(formTester);
 
-        formTester.select("checkgroup", 2);
+        formTester.select("checkgroup", index);
 
         TESTER.executeAjaxEvent(tabPanel + "outerObjectsRepeater:1:outer:form:content:status:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:bulkActionLink",
@@ -177,8 +211,25 @@ public class BulkActionITCase extends AbstractConsoleITCase {
                 + "status:secondLevelContainer:second:container:actions:panelReactivate:reactivateLink",
                 Constants.ON_CLICK);
 
+        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.cleanupFeedbackMessages();
+
         TESTER.assertLabel(tabPanel + "outerObjectsRepeater:1:outer:form:content:status:"
                 + "secondLevelContainer:second:container:selectedObjects:body:rows:1:cells:3:cell", "SUCCESS");
+
+        TESTER.executeAjaxEvent(tabPanel + "outerObjectsRepeater:1:outer:form:content:status:secondLevelContainer:back",
+                Constants.ON_CLICK);
+
+        component = findComponentByProp("resourceName",
+                tabPanel + "outerObjectsRepeater:1:outer:form:content:status:firstLevelContainer:first:container:"
+                + "content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", resourceName);
+
+        component = TESTER.getComponentFromLastRenderedPage(component.getPageRelativePath() + ":cells:1:cell:check");
+        assertEquals(Status.ACTIVE, StatusBean.class.cast(component.getDefaultModelObject()).getStatus());
+        assertEquals(resourceName, StatusBean.class.cast(component.getDefaultModelObject()).getResourceName());
+
+        TESTER.executeAjaxEvent(tabPanel + "outerObjectsRepeater:1:outer:dialog:footer:buttons:0:button",
+                Constants.ON_CLICK);
     }
 
     @Test

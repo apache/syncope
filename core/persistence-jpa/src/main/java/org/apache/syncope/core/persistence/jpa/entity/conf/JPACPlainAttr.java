@@ -110,7 +110,7 @@ public class JPACPlainAttr extends AbstractPlainAttr<Conf> implements CPlainAttr
 
     @Override
     public void setUniqueValue(final PlainAttrUniqueValue uniqueValue) {
-        checkType(owner, JPACPlainAttrUniqueValue.class);
+        checkType(uniqueValue, JPACPlainAttrUniqueValue.class);
         this.uniqueValue = (JPACPlainAttrUniqueValue) uniqueValue;
     }
 }

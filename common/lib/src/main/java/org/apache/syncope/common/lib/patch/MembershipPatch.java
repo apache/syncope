@@ -18,8 +18,11 @@
  */
 package org.apache.syncope.common.lib.patch;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.HashSet;
 import java.util.Set;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.to.AttrTO;
@@ -57,11 +60,17 @@ public class MembershipPatch extends AbstractPatch implements AttributablePatch 
         this.group = group;
     }
 
+    @XmlElementWrapper(name = "plainAttrs")
+    @XmlElement(name = "attribute")
+    @JsonProperty("plainAttrs")
     @Override
     public Set<AttrPatch> getPlainAttrs() {
         return plainAttrs;
     }
 
+    @XmlElementWrapper(name = "virAttrs")
+    @XmlElement(name = "attribute")
+    @JsonProperty("virAttrs")
     @Override
     public Set<AttrTO> getVirAttrs() {
         return virAttrs;

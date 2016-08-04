@@ -1,0 +1,66 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+//
+==== Identity Stores
+
+_Identity Stores_ are the places where identity-related information is stored.
+
+An identity store can be shared among several systems: as a result, there is a single place where account data is
+managed by administrators, and the same password can be used for the same user for accessing different applications.
+
+Various identity store types are available:
+
+* Flat files (XML, CSV, ...)
+* LDAP
+* Relational databases (MySQL, Oracle, Microsoft SQL Server, PostgreSQL, ...)
+* Plaform-specific (Microsoft Active Directory, FreeIPA, PowerShell, ...)
+* Web services (REST, SOAP, ...)
+* Cloud providers
+* ...and much more.
+
+[.text-center]
+image::theExternalWorld.jpg[title="Apache Syncope and the external world",alt="Apache Syncope and the external world"]
+
+.ConnId
+****
+Apache Syncope relies on http://connid.tirasa.net[ConnId^] for communication with identity stores; ConnId is designed to
+separate the implementation of an application from the dependencies of the system that the application is attempting to 
+connect to.
+
+ConnId is the continuation of The Identity Connectors Framework (Sun ICF), a project that used to be part of market 
+leader Sun IdM and has since been released by Sun Microsystems as an Open Source project. This makes the connectors layer
+particularly reliable because most connectors have already been implemented in the framework and widely tested.
+
+The new ConnId project, featuring contributors from several companies, provides all that is required nowadays for a 
+modern Open Source project, including an Apache Maven driven build, artifacts and mailing lists. Additional connectors –
+such as for SOAP, CSV, PowerShell and Active Directory – are also provided. 
+****
+
+[CAUTION]
+.Aren't Identity Stores enough?
+====
+One might suppose that a single identity store can solve all the identity needs inside an organization, but few
+drawbacks are just around the corner:
+
+. Heterogeneity of systems
+. Lack of a single source of information (HR for corporate id, Groupware for mail address, ...)
+. Often applications require a local user database
+. Inconsistent policies across the infrastructure
+. Lack of workflow management
+. Hidden infrastructure management cost, growing with organization
+====

@@ -76,7 +76,7 @@ public class TaskServiceImpl extends AbstractExecutableService implements TaskSe
                         query.getResource(),
                         query.getNotification(),
                         query.getAnyTypeKind(),
-                        query.getAnyTypeKey(),
+                        query.getEntityKey(),
                         query.getPage(),
                         query.getSize(),
                         getOrderByClauses(query.getOrderBy()),
@@ -88,7 +88,7 @@ public class TaskServiceImpl extends AbstractExecutableService implements TaskSe
                         query.getResource(),
                         query.getNotification(),
                         query.getAnyTypeKind(),
-                        query.getAnyTypeKey()));
+                        query.getEntityKey()));
     }
 
     @Override

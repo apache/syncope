@@ -22,18 +22,18 @@ public class RelationshipCond extends AbstractSearchCond {
 
     private static final long serialVersionUID = 6865985945516722103L;
 
-    private String anyObjectKey;
+    private String anyObject;
 
-    public String getAnyObjectKey() {
-        return anyObjectKey;
+    public String getAnyObject() {
+        return anyObject;
     }
 
-    public void setAnyObjectKey(final String anyObjectKey) {
-        this.anyObjectKey = anyObjectKey;
+    public void setAnyObject(final String anyObject) {
+        this.anyObject = anyObject;
     }
 
     @Override
     public final boolean isValid() {
-        return anyObjectKey != null;
+        return anyObject != null;
     }
 }

@@ -53,7 +53,7 @@ import org.apache.syncope.core.persistence.api.dao.SecurityQuestionDAO;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
 import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.common.lib.types.PropagationByResource;
+import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.Encryptor;
@@ -231,9 +231,12 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                     searchDAO.search(SearchCond.getLeafCond(assignableCond), AnyTypeKind.GROUP);
 
             for (MembershipTO membershipTO : userTO.getMemberships()) {
-                Group group = groupDAO.find(membershipTO.getRightKey());
+                Group group = membershipTO.getRightKey() == null
+                        ? groupDAO.findByName(membershipTO.getGroupName())
+                        : groupDAO.find(membershipTO.getRightKey());
                 if (group == null) {
-                    LOG.debug("Ignoring invalid group " + membershipTO.getGroupName());
+                    LOG.debug("Ignoring invalid group "
+                            + membershipTO.getRightKey() + " / " + membershipTO.getGroupName());
                 } else if (assignableGroups.contains(group)) {
                     UMembership membership = entityFactory.newEntity(UMembership.class);
                     membership.setRightEnd(group);
@@ -310,7 +313,8 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
 
-        Collection<String> currentResources = userDAO.findAllResourceNames(user);
+        Collection<String> currentResources = CollectionUtils.collect(
+                userDAO.findAllResources(user), EntityUtils.keyTransformer());
 
         // fetch connObjectKeys before update
         Map<String, String> oldConnObjectKeys = getConnObjectKeys(user);

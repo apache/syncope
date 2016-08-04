@@ -31,7 +31,6 @@ import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.wicket.PageReference;
-import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.model.util.ListModel;
 
 public class AnyObjectWizardBuilder extends AnyWizardBuilder<AnyObjectTO> implements AnyObjectForm {
@@ -72,13 +71,11 @@ public class AnyObjectWizardBuilder extends AnyWizardBuilder<AnyObjectTO> implem
     }
 
     @Override
-    protected AnyObjectWizardBuilder addOptionalDetailsPanel(
-            final AnyWrapper<AnyObjectTO> modelObject, final WizardModel wizardModel) {
-        wizardModel.add(new AnyObjectDetails(
+    protected Details<AnyObjectTO> addOptionalDetailsPanel(final AnyWrapper<AnyObjectTO> modelObject) {
+        return new AnyObjectDetails(
                 modelObject,
                 new ListModel<>(Collections.<StatusBean>emptyList()),
                 mode == AjaxWizard.Mode.TEMPLATE,
-                modelObject.getInnerObject().getKey() != null, pageRef));
-        return this;
+                modelObject.getInnerObject().getKey() != null, pageRef);
     }
 }

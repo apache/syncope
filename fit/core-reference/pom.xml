@@ -856,13 +856,11 @@ under the License.
     
     <profile>
       <id>jrebel</id>
-
+      
       <properties>
-        <skipTests>true</skipTests>
-        <!-- Temporary until JRebel properly supports Tomcat 8.5 -->
         <tomcat.version>8.0.36</tomcat.version>
       </properties>
-
+      
       <build>
         <defaultGoal>clean verify cargo:run</defaultGoal>
 
@@ -1058,6 +1056,14 @@ under the License.
             <artifactId>maven-deploy-plugin</artifactId>
             <configuration>
               <skip>true</skip>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <inherited>false</inherited>
+            <configuration>
+              <skipSource>true</skipSource>
             </configuration>
           </plugin>
         </plugins>

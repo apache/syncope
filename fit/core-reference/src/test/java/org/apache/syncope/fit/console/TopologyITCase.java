@@ -183,9 +183,6 @@ public class TopologyITCase extends AbstractConsoleITCase {
         formTester = TESTER.newFormTester("body:toggle:outerObjectsRepeater:0:outer:form:content:form");
         formTester.submit("buttons:next");
 
-        formTester = TESTER.newFormTester("body:toggle:outerObjectsRepeater:0:outer:form:content:form");
-        formTester.submit("buttons:next");
-
         // click on finish to create the external resource 
         TESTER.cleanupFeedbackMessages();
         // ajax event required to retrieve AjaxRequestTarget (used into finish custom event)

@@ -21,17 +21,19 @@ package org.apache.syncope.core.workflow.java;
 import java.io.OutputStream;
 import java.util.Collections;
 import java.util.List;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.PasswordPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
-import org.apache.syncope.common.lib.types.PropagationByResource;
+import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
+import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.apache.syncope.core.workflow.api.WorkflowDefinitionFormat;
 import org.apache.syncope.core.workflow.api.WorkflowException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,8 +86,10 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         user.setStatus(status);
         user = userDAO.save(user);
 
-        final PropagationByResource propByRes = new PropagationByResource();
-        propByRes.set(ResourceOperation.CREATE, userDAO.findAllResourceNames(user));
+        PropagationByResource propByRes = new PropagationByResource();
+        propByRes.set(
+                ResourceOperation.CREATE,
+                CollectionUtils.collect(userDAO.findAllResources(user), EntityUtils.keyTransformer()));
 
         return new WorkflowResult<Pair<String, Boolean>>(
                 new ImmutablePair<>(user.getKey(), propagateEnable), propByRes, "create");
@@ -151,7 +155,9 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         UserPatch userPatch = new UserPatch();
         userPatch.setKey(user.getKey());
         userPatch.setPassword(new PasswordPatch.Builder().
-                onSyncope(true).resources(userDAO.findAllResourceNames(user)).value(password).build());
+                onSyncope(true).
+                resources(CollectionUtils.collect(userDAO.findAllResources(user), EntityUtils.keyTransformer())).
+                value(password).build());
 
         return doUpdate(user, userPatch);
     }

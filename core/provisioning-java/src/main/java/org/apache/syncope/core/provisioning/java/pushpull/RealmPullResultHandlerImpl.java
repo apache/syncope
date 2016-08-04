@@ -34,7 +34,7 @@ import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.MatchingRule;
-import org.apache.syncope.common.lib.types.PropagationByResource;
+import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
@@ -54,7 +54,6 @@ import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullExecutor;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullResultHandler;
 import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.identityconnectors.framework.common.objects.SyncDeltaType;
@@ -222,9 +221,7 @@ public class RealmPullResultHandlerImpl
                 propByRes.add(ResourceOperation.CREATE, resource);
             }
             List<PropagationTask> tasks = propagationManager.createTasks(realm, propByRes, null);
-            PropagationReporter propagationReporter =
-                    ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
-            taskExecutor.execute(tasks, propagationReporter, false);
+            PropagationReporter propagationReporter = taskExecutor.execute(tasks, false);
 
             RealmTO actual = binder.getRealmTO(realm);
 
@@ -286,9 +283,7 @@ public class RealmPullResultHandlerImpl
                 Realm updated = realmDAO.save(realm);
 
                 List<PropagationTask> tasks = propagationManager.createTasks(updated, propByRes, null);
-                PropagationReporter propagationReporter =
-                        ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
-                taskExecutor.execute(tasks, propagationReporter, false);
+                PropagationReporter propagationReporter = taskExecutor.execute(tasks, false);
 
                 output = updated;
                 resultStatus = Result.SUCCESS;
@@ -521,9 +516,7 @@ public class RealmPullResultHandlerImpl
                         propByRes.add(ResourceOperation.DELETE, resource);
                     }
                     List<PropagationTask> tasks = propagationManager.createTasks(realm, propByRes, null);
-                    PropagationReporter propagationReporter =
-                            ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
-                    taskExecutor.execute(tasks, propagationReporter, false);
+                    PropagationReporter propagationReporter = taskExecutor.execute(tasks, false);
 
                     realmDAO.delete(realm);
 

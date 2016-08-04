@@ -82,7 +82,7 @@ public class GroupMemberProvisionTaskJobDelegate extends AbstractSchedTaskJobDel
         result.append("provision\n\n");
 
         MembershipCond membershipCond = new MembershipCond();
-        membershipCond.setGroupKey(groupKey);
+        membershipCond.setGroup(groupKey);
         List<User> users = searchDAO.search(SearchCond.getLeafCond(membershipCond), AnyTypeKind.USER);
         for (User user : users) {
             List<PropagationStatus> statuses = actionType == BulkMembersActionType.DEPROVISION
@@ -101,7 +101,7 @@ public class GroupMemberProvisionTaskJobDelegate extends AbstractSchedTaskJobDel
         }
 
         membershipCond = new MembershipCond();
-        membershipCond.setGroupKey(groupKey);
+        membershipCond.setGroup(groupKey);
         List<AnyObject> anyObjects = searchDAO.search(SearchCond.getLeafCond(membershipCond), AnyTypeKind.ANY_OBJECT);
         for (AnyObject anyObject : anyObjects) {
             List<PropagationStatus> statuses = actionType == BulkMembersActionType.DEPROVISION

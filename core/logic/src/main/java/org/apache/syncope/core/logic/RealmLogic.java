@@ -32,7 +32,7 @@ import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
-import org.apache.syncope.common.lib.types.PropagationByResource;
+import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
@@ -48,7 +48,6 @@ import org.apache.syncope.core.provisioning.api.data.RealmDataBinder;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
@@ -103,9 +102,7 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
             propByRes.add(ResourceOperation.CREATE, resource);
         }
         List<PropagationTask> tasks = propagationManager.createTasks(realm, propByRes, null);
-        PropagationReporter propagationReporter =
-                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
-        taskExecutor.execute(tasks, propagationReporter, false);
+        PropagationReporter propagationReporter = taskExecutor.execute(tasks, false);
 
         ProvisioningResult<RealmTO> result = new ProvisioningResult<>();
         result.setEntity(binder.getRealmTO(realm));
@@ -127,9 +124,7 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
         realm = realmDAO.save(realm);
 
         List<PropagationTask> tasks = propagationManager.createTasks(realm, propByRes, null);
-        PropagationReporter propagationReporter =
-                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
-        taskExecutor.execute(tasks, propagationReporter, false);
+        PropagationReporter propagationReporter = taskExecutor.execute(tasks, false);
 
         ProvisioningResult<RealmTO> result = new ProvisioningResult<>();
         result.setEntity(binder.getRealmTO(realm));
@@ -172,9 +167,7 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
             propByRes.add(ResourceOperation.DELETE, resource);
         }
         List<PropagationTask> tasks = propagationManager.createTasks(realm, propByRes, null);
-        PropagationReporter propagationReporter =
-                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
-        taskExecutor.execute(tasks, propagationReporter, false);
+        PropagationReporter propagationReporter = taskExecutor.execute(tasks, false);
 
         ProvisioningResult<RealmTO> result = new ProvisioningResult<>();
         result.setEntity(binder.getRealmTO(realm));

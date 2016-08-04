@@ -208,7 +208,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
             ExecTO exec = execProvisioningTask(taskService, PULL_TASK_KEY, 50, false);
             assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(exec.getStatus()));
-            
+
             LOG.debug("Execution of task {}:\n{}", PULL_TASK_KEY, exec);
 
             // check for pull results
@@ -382,6 +382,10 @@ public class PullTaskITCase extends AbstractTaskITCase {
                 build());
         assertNotNull(matchingGroups);
         assertEquals(1, matchingGroups.getResult().size());
+        // SYNCOPE-898
+        PullTaskTO task = taskService.read("1e419ca4-ea81-4493-a14f-28b90113686d", false);
+        assertEquals("/", task.getDestinationRealm());
+        assertEquals("/", matchingGroups.getResult().get(0).getRealm());
 
         // 3. verify that pulled user is found
         PagedResult<UserTO> matchingUsers = userService.search(
@@ -390,6 +394,8 @@ public class PullTaskITCase extends AbstractTaskITCase {
                 build());
         assertNotNull(matchingUsers);
         assertEquals(1, matchingUsers.getResult().size());
+        // SYNCOPE-898
+        assertEquals("/odd", matchingUsers.getResult().get(0).getRealm());
 
         // Check for SYNCOPE-436
         assertEquals("pullFromLDAP",
@@ -410,10 +416,25 @@ public class PullTaskITCase extends AbstractTaskITCase {
         execProvisioningTask(taskService, "1e419ca4-ea81-4493-a14f-28b90113686d", 50, false);
 
         // 4. verify that LDAP group membership is propagated as Syncope membership
-        PagedResult<UserTO> members = userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                fiql(SyncopeClient.getUserSearchConditionBuilder().inGroups(groupTO.getKey()).query()).
-                build());
-        assertNotNull(members);
+        int i = 0;
+        int maxit = 50;
+        PagedResult<UserTO> members;
+        do {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+
+            members = userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                    fiql(SyncopeClient.getUserSearchConditionBuilder().inGroups(groupTO.getKey()).query()).
+                    build());
+            assertNotNull(members);
+
+            i++;
+        } while (members.getResult().isEmpty() && i < maxit);
+        if (i == maxit) {
+            fail("Timeout while checking for memberships of " + groupTO.getName());
+        }
         assertEquals(1, members.getResult().size());
     }
 
@@ -455,7 +476,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
                     readConnObject(RESOURCE_NAME_DBSCRIPTED, anyObjectTO.getType(), anyObjectTO.getKey());
             assertFalse(anyObjectTO.getPlainAttrMap().get("location").getValues().get(0).
                     startsWith(PrefixMappingItemTransformer.PREFIX));
-            assertTrue(connObjectTO.getPlainAttrMap().get("LOCATION").getValues().get(0).
+            assertTrue(connObjectTO.getAttrMap().get("LOCATION").getValues().get(0).
                     startsWith(PrefixMappingItemTransformer.PREFIX));
 
             // 3. unlink any existing printer and delete from Syncope (printer is now only on external resource)
@@ -981,9 +1002,9 @@ public class PullTaskITCase extends AbstractTaskITCase {
             ConnObjectTO connObject =
                     resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), user.getKey());
             assertNotNull(getLdapRemoteObject(
-                    connObject.getPlainAttrMap().get(Name.NAME).getValues().get(0),
+                    connObject.getAttrMap().get(Name.NAME).getValues().get(0),
                     oldCleanPassword,
-                    connObject.getPlainAttrMap().get(Name.NAME).getValues().get(0)));
+                    connObject.getAttrMap().get(Name.NAME).getValues().get(0)));
 
             // 5. Update the LDAP Connector to retrieve passwords
             ResourceTO ldapResource = resourceService.read(RESOURCE_NAME_LDAP);

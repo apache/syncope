@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 import javax.annotation.Resource;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
@@ -36,6 +37,7 @@ import org.apache.commons.collections4.Predicate;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -80,6 +82,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
+
+    private static final Pattern USERNAME_PATTERN =
+            Pattern.compile("^" + SyncopeConstants.NAME_PATTERN, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
 
     @Autowired
     private RealmDAO realmDAO;
@@ -343,6 +348,10 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
                 throw new AccountPolicyException("Not allowed: " + user.getUsername());
             }
 
+            if (!USERNAME_PATTERN.matcher(user.getUsername()).matches()) {
+                throw new AccountPolicyException("Character(s) not allowed");
+            }
+
             for (AccountPolicy policy : getAccountPolicies(user)) {
                 for (AccountRuleConf ruleConf : policy.getRuleConfs()) {
                     Class<? extends AccountRule> ruleClass =
@@ -525,14 +534,8 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
-    public Collection<String> findAllResourceNames(final User user) {
-        return CollectionUtils.collect(findAllResources(user), new Transformer<ExternalResource, String>() {
-
-            @Override
-            public String transform(final ExternalResource input) {
-                return input.getKey();
-            }
-        });
+    public Collection<String> findAllResourceNames(final String key) {
+        return CollectionUtils.collect(findAllResources(authFind(key)), EntityUtils.keyTransformer());
     }
 
 }

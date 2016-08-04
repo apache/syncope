@@ -19,13 +19,18 @@
 package org.apache.syncope.client.console.rest;
 
 import java.util.List;
+import java.util.Map;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.commons.status.StatusUtils;
 import org.apache.syncope.common.lib.patch.BooleanReplacePatchItem;
 import org.apache.syncope.common.lib.patch.StatusPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.to.BulkActionResult;
+import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.StatusPatchType;
@@ -76,25 +81,63 @@ public class UserRestClient extends AbstractAnyRestClient<UserTO, UserPatch> {
         return update(etag, userPatch);
     }
 
-    public void suspend(final String etag, final String userKey, final List<StatusBean> statuses) {
+    public BulkActionResult suspend(final String etag, final String userKey, final List<StatusBean> statuses) {
         StatusPatch statusPatch = StatusUtils.buildStatusPatch(statuses, false);
         statusPatch.setKey(userKey);
         statusPatch.setType(StatusPatchType.SUSPEND);
+
+        BulkActionResult result;
         synchronized (this) {
+            result = new BulkActionResult();
+            Map<String, BulkActionResult.Status> res = result.getResults();
             UserService service = getService(etag, UserService.class);
-            service.status(statusPatch);
+
+            @SuppressWarnings("unchecked")
+            ProvisioningResult<UserTO> provisions = (ProvisioningResult<UserTO>) service.status(statusPatch).
+                    readEntity(ProvisioningResult.class);
+
+            if (statusPatch.isOnSyncope()) {
+                res.put(StringUtils.capitalize(Constants.SYNCOPE),
+                        "suspended".equalsIgnoreCase(provisions.getEntity().getStatus())
+                        ? BulkActionResult.Status.SUCCESS
+                        : BulkActionResult.Status.FAILURE);
+            }
+
+            for (PropagationStatus status : provisions.getPropagationStatuses()) {
+                res.put(status.getResource(), BulkActionResult.Status.valueOf(status.getStatus().name()));
+            }
             resetClient(UserService.class);
         }
+        return result;
     }
 
-    public void reactivate(final String etag, final String userKey, final List<StatusBean> statuses) {
+    public BulkActionResult reactivate(final String etag, final String userKey, final List<StatusBean> statuses) {
         StatusPatch statusPatch = StatusUtils.buildStatusPatch(statuses, true);
         statusPatch.setKey(userKey);
         statusPatch.setType(StatusPatchType.REACTIVATE);
+
+        BulkActionResult result;
         synchronized (this) {
+            result = new BulkActionResult();
+            Map<String, BulkActionResult.Status> res = result.getResults();
             UserService service = getService(etag, UserService.class);
-            service.status(statusPatch);
+
+            @SuppressWarnings("unchecked")
+            ProvisioningResult<UserTO> provisions = (ProvisioningResult<UserTO>) service.status(statusPatch).
+                    readEntity(ProvisioningResult.class);
+
+            if (statusPatch.isOnSyncope()) {
+                res.put(StringUtils.capitalize(Constants.SYNCOPE),
+                        "active".equalsIgnoreCase(provisions.getEntity().getStatus())
+                        ? BulkActionResult.Status.SUCCESS
+                        : BulkActionResult.Status.FAILURE);
+            }
+
+            for (PropagationStatus status : provisions.getPropagationStatuses()) {
+                res.put(status.getResource(), BulkActionResult.Status.valueOf(status.getStatus().name()));
+            }
             resetClient(UserService.class);
         }
+        return result;
     }
 }

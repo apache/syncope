@@ -18,36 +18,20 @@
  */
 package org.apache.syncope.common.lib.to;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Map;
 import java.util.Set;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
 
 public interface AttributableTO {
 
-    @XmlElementWrapper(name = "plainAttrs")
-    @XmlElement(name = "attribute")
-    @JsonProperty("plainAttrs")
     Set<AttrTO> getPlainAttrs();
 
-    @JsonIgnore
     Map<String, AttrTO> getPlainAttrMap();
 
-    @XmlElementWrapper(name = "derAttrs")
-    @XmlElement(name = "attribute")
-    @JsonProperty("derAttrs")
     Set<AttrTO> getDerAttrs();
 
-    @JsonIgnore
     Map<String, AttrTO> getDerAttrMap();
 
-    @XmlElementWrapper(name = "virAttrs")
-    @XmlElement(name = "attribute")
-    @JsonProperty("virAttrs")
     Set<AttrTO> getVirAttrs();
 
-    @JsonIgnore
     Map<String, AttrTO> getVirAttrMap();
 }

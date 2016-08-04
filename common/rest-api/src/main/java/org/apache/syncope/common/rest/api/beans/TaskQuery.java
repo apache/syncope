@@ -79,15 +79,15 @@ public class TaskQuery extends AbstractQuery {
             }
         }
 
-        public Builder anyTypeKey(final String anyTypeKey) {
+        public Builder entityKey(final String entityKey) {
             switch (getInstance().getType()) {
                 case PROPAGATION:
                 case NOTIFICATION:
-                    getInstance().setAnyTypeKey(anyTypeKey);
+                    getInstance().setEntityKey(entityKey);
                     return this;
 
                 default:
-                    throw new IllegalArgumentException("anyTypeKey not allowed for " + getInstance().getType());
+                    throw new IllegalArgumentException("entityKey not allowed for " + getInstance().getType());
             }
         }
 
@@ -114,7 +114,7 @@ public class TaskQuery extends AbstractQuery {
 
     private AnyTypeKind anyTypeKind;
 
-    private String anyTypeKey;
+    private String entityKey;
 
     private Boolean details;
 
@@ -155,14 +155,14 @@ public class TaskQuery extends AbstractQuery {
         this.anyTypeKind = anyTypeKind;
     }
 
-    public String getAnyTypeKey() {
-        return anyTypeKey;
+    public String getEntityKey() {
+        return entityKey;
     }
 
     @Min(1)
-    @QueryParam(JAXRSService.PARAM_ANYTYPE_KEY)
-    public void setAnyTypeKey(final String anyTypeKey) {
-        this.anyTypeKey = anyTypeKey;
+    @QueryParam(JAXRSService.PARAM_ENTITY_KEY)
+    public void setEntityKey(final String entityKey) {
+        this.entityKey = entityKey;
     }
 
     public Boolean getDetails() {

@@ -18,12 +18,15 @@
  */
 package org.apache.syncope.client.console.commons;
 
+import java.io.Serializable;
 import java.util.Comparator;
 import org.apache.commons.collections4.ComparatorUtils;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 
-public class AnyTypeComparator implements Comparator<AnyTypeTO> {
+public class AnyTypeComparator implements Comparator<AnyTypeTO>, Serializable {
+
+    private static final long serialVersionUID = -8227715253094467138L;
 
     @Override
     public int compare(final AnyTypeTO o1, final AnyTypeTO o2) {
@@ -41,5 +44,4 @@ public class AnyTypeComparator implements Comparator<AnyTypeTO> {
         }
         return ComparatorUtils.<String>naturalComparator().compare(o1.getKey(), o2.getKey());
     }
-
 }

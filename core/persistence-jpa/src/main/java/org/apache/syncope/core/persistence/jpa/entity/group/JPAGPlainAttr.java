@@ -84,7 +84,7 @@ public class JPAGPlainAttr extends AbstractPlainAttr<Group> implements GPlainAtt
 
     @Override
     public void setUniqueValue(final PlainAttrUniqueValue uniqueValue) {
-        checkType(owner, JPAGPlainAttrUniqueValue.class);
+        checkType(uniqueValue, JPAGPlainAttrUniqueValue.class);
         this.uniqueValue = (JPAGPlainAttrUniqueValue) uniqueValue;
     }
 }

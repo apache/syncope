@@ -84,7 +84,10 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AjaxWizardBuilde
     @Override
     protected WizardModel buildModelSteps(final AnyWrapper<A> modelObject, final WizardModel wizardModel) {
         // optional details panel step
-        addOptionalDetailsPanel(modelObject, wizardModel);
+        final Details<A> details = addOptionalDetailsPanel(modelObject);
+        if (details != null) {
+            wizardModel.add(details);
+        }
 
         if ((this instanceof GroupWizardBuilder)
                 && (modelObject.getInnerObject() instanceof GroupTO)
@@ -108,7 +111,7 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AjaxWizardBuilde
                 || formLayoutInfo instanceof AnyObjectFormLayoutInfo
                 && AnyObjectFormLayoutInfo.class.cast(formLayoutInfo).isGroups()) {
 
-            wizardModel.add(new Groups(modelObject.getInnerObject()));
+            wizardModel.add(new Groups(modelObject.getInnerObject(), mode == AjaxWizard.Mode.TEMPLATE));
         }
 
         // attributes panel steps
@@ -155,13 +158,17 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AjaxWizardBuilde
         return wizardModel;
     }
 
-    protected AnyWizardBuilder<A> addOptionalDetailsPanel(
-            final AnyWrapper<A> modelObject, final WizardModel wizardModel) {
+    protected Details<A> addOptionalDetailsPanel(final AnyWrapper<A> modelObject) {
 
         if (modelObject.getInnerObject().getKey() != null) {
-            wizardModel.add(new Details<>(
-                    modelObject, new ListModel<>(Collections.<StatusBean>emptyList()), true, pageRef));
+            return new Details<>(
+                    modelObject,
+                    new ListModel<>(Collections.<StatusBean>emptyList()),
+                    mode == AjaxWizard.Mode.TEMPLATE,
+                    true,
+                    pageRef);
+        } else {
+            return null;
         }
-        return this;
     }
 }

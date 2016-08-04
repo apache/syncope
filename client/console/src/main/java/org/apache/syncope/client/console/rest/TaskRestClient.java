@@ -29,6 +29,7 @@ import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
+import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
@@ -55,9 +56,9 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
                 build()).getTotalCount();
     }
 
-    public int count(final AnyTypeKind anyTypeKind, final String anyTypeKey, final TaskType kind) {
+    public int count(final AnyTypeKind anyTypeKind, final String entityKey, final TaskType kind) {
         return getService(TaskService.class).list(
-                new TaskQuery.Builder(kind).anyTypeKind(anyTypeKind).anyTypeKey(anyTypeKey).page(1).size(1).
+                new TaskQuery.Builder(kind).anyTypeKind(anyTypeKind).entityKey(entityKey).page(1).size(1).
                 build()).getTotalCount();
     }
 
@@ -79,27 +80,26 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
     }
 
     public List<PropagationTaskTO> listPropagationTasks(
-            final AnyTypeKind anyTypeKind, final String anyTypeKey,
+            final AnyTypeKind anyTypeKind, final String entityKey,
             final int page, final int size, final SortParam<String> sort) {
 
         return getService(TaskService.class).
                 <PropagationTaskTO>list(new TaskQuery.Builder(TaskType.PROPAGATION).
-                        anyTypeKind(anyTypeKind).anyTypeKey(anyTypeKey).
+                        anyTypeKind(anyTypeKind).entityKey(entityKey).
                         page(page).size(size).
                         orderBy(toOrderBy(sort)).build()).
                 getResult();
     }
 
-    @SuppressWarnings("unchecked")
-    public <T extends AbstractTaskTO> List<T> listNotificationTasks(
+    public List<NotificationTaskTO> listNotificationTasks(
             final String notification,
             final AnyTypeKind anyTypeKind,
-            final String anyTypeKey,
+            final String entityKey,
             final int page,
             final int size,
             final SortParam<String> sort) {
 
-        final TaskQuery.Builder builder = new TaskQuery.Builder(TaskType.NOTIFICATION);
+        TaskQuery.Builder builder = new TaskQuery.Builder(TaskType.NOTIFICATION);
         if (notification != null) {
             builder.notification(notification);
         }
@@ -108,12 +108,13 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
             builder.anyTypeKind(anyTypeKind);
         }
 
-        if (anyTypeKey != null) {
-            builder.anyTypeKey(anyTypeKey);
+        if (entityKey != null) {
+            builder.entityKey(entityKey);
         }
 
-        return (List<T>) getService(TaskService.class).
-                list(builder.page(page).size(size).orderBy(toOrderBy(sort)).build()).getResult();
+        PagedResult<NotificationTaskTO> list = getService(TaskService.class).
+                list(builder.page(page).size(size).orderBy(toOrderBy(sort)).build());
+        return list.getResult();
     }
 
     @SuppressWarnings("unchecked")

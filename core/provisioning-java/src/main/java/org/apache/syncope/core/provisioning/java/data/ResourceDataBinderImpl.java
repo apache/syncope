@@ -299,8 +299,8 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
         SyncopeClientException invalidMapping = SyncopeClientException.build(ClientExceptionType.InvalidMapping);
-        SyncopeClientException requiredValuesMissing =
-                SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
+        SyncopeClientException requiredValuesMissing = SyncopeClientException.build(
+                ClientExceptionType.RequiredValuesMissing);
 
         for (MappingItemTO itemTO : mappingTO.getItems()) {
             if (itemTO == null) {
@@ -314,87 +314,96 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                         itemTO.getIntAttrName(),
                         mapping.getProvision().getAnyType().getKind());
 
-                boolean allowed = true;
-                if (intAttrName.getSchemaType() != null
-                        && intAttrName.getEnclosingGroup() == null && intAttrName.getRelatedAnyObject() == null) {
-
-                    switch (intAttrName.getSchemaType()) {
-                        case PLAIN:
-                            allowed = allowedSchemas.getPlainSchemas().contains(intAttrName.getSchemaName());
-                            break;
-
-                        case DERIVED:
-                            allowed = allowedSchemas.getDerSchemas().contains(intAttrName.getSchemaName());
-                            break;
-
-                        case VIRTUAL:
-                            allowed = allowedSchemas.getVirSchemas().contains(intAttrName.getSchemaName());
-                            break;
-
-                        default:
-                    }
-                }
-
-                if (allowed) {
-                    // no mandatory condition implies mandatory condition false
-                    if (!JexlUtils.isExpressionValid(itemTO.getMandatoryCondition() == null
-                            ? "false" : itemTO.getMandatoryCondition())) {
-
-                        SyncopeClientException invalidMandatoryCondition =
-                                SyncopeClientException.build(ClientExceptionType.InvalidValues);
-                        invalidMandatoryCondition.getElements().add(itemTO.getMandatoryCondition());
-                        scce.addException(invalidMandatoryCondition);
-                    }
-
-                    MappingItem item = SerializationUtils.clone(prototype);
-                    BeanUtils.copyProperties(itemTO, item, MAPPINGITEM_IGNORE_PROPERTIES);
-                    item.setMapping(mapping);
-                    if (item.isConnObjectKey()) {
-                        if (intAttrName.getSchemaType() == SchemaType.VIRTUAL) {
-                            invalidMapping.getElements().add("Virtual attributes cannot be set as ConnObjectKey");
-                        }
-                        if ("password".equals(intAttrName.getField())) {
-                            invalidMapping.getElements().add("Password attributes cannot be set as ConnObjectKey");
-                        }
-
-                        mapping.setConnObjectKeyItem(item);
-                    } else {
-                        mapping.add(item);
-                    }
-
-                    if (intAttrName.getEnclosingGroup() != null
-                            && item.getPurpose() != MappingPurpose.PROPAGATION) {
-
-                        invalidMapping.getElements().add(
-                                "Only " + MappingPurpose.PROPAGATION.name() + " allowed when referring to groups");
-                    }
-                    if (intAttrName.getRelatedAnyObject() != null
-                            && item.getPurpose() != MappingPurpose.PROPAGATION) {
-
-                        invalidMapping.getElements().add(
-                                "Only " + MappingPurpose.PROPAGATION.name() + " allowed when referring to any objects");
-                    }
-                    if (intAttrName.getSchemaType() == SchemaType.DERIVED
-                            && item.getPurpose() != MappingPurpose.PROPAGATION) {
-
-                        invalidMapping.getElements().add(
-                                "Only " + MappingPurpose.PROPAGATION.name() + " allowed for derived");
-                    }
-                    if (intAttrName.getSchemaType() == SchemaType.VIRTUAL) {
-                        if (item.getPurpose() != MappingPurpose.PROPAGATION) {
-                            invalidMapping.getElements().add(
-                                    "Only " + MappingPurpose.PROPAGATION.name() + " allowed for virtual");
-                        }
-
-                        VirSchema schema = virSchemaDAO.find(item.getIntAttrName());
-                        if (schema != null && schema.getProvision().equals(item.getMapping().getProvision())) {
-                            invalidMapping.getElements().add(
-                                    "No need to map virtual schema on linking resource");
-                        }
-                    }
+                if (intAttrName.getSchemaType() == null && intAttrName.getField() == null) {
+                    LOG.error("'{}' not existing", itemTO.getIntAttrName());
+                    invalidMapping.getElements().add("'" + itemTO.getIntAttrName() + "' not existing");
                 } else {
-                    LOG.error("{} not allowed", itemTO.getIntAttrName());
-                    invalidMapping.getElements().add(itemTO.getIntAttrName() + " not allowed");
+                    boolean allowed = true;
+                    if (intAttrName.getSchemaType() != null
+                            && intAttrName.getEnclosingGroup() == null
+                            && intAttrName.getRelatedAnyObject() == null) {
+                        switch (intAttrName.getSchemaType()) {
+                            case PLAIN:
+                                allowed = allowedSchemas.getPlainSchemas().contains(intAttrName.getSchemaName());
+                                break;
+
+                            case DERIVED:
+                                allowed = allowedSchemas.getDerSchemas().contains(intAttrName.getSchemaName());
+                                break;
+
+                            case VIRTUAL:
+                                allowed = allowedSchemas.getVirSchemas().contains(intAttrName.getSchemaName());
+                                break;
+
+                            default:
+                        }
+                    }
+
+                    if (allowed) {
+                        // no mandatory condition implies mandatory condition false
+                        if (!JexlUtils.isExpressionValid(itemTO.getMandatoryCondition() == null
+                                ? "false" : itemTO.getMandatoryCondition())) {
+
+                            SyncopeClientException invalidMandatoryCondition = SyncopeClientException.build(
+                                    ClientExceptionType.InvalidValues);
+                            invalidMandatoryCondition.getElements().add(itemTO.getMandatoryCondition());
+                            scce.addException(invalidMandatoryCondition);
+                        }
+
+                        MappingItem item = SerializationUtils.clone(prototype);
+                        BeanUtils.copyProperties(itemTO, item, MAPPINGITEM_IGNORE_PROPERTIES);
+                        item.setMapping(mapping);
+                        if (item.isConnObjectKey()) {
+                            if (intAttrName.getSchemaType() == SchemaType.VIRTUAL) {
+                                invalidMapping.getElements().
+                                        add("Virtual attributes cannot be set as ConnObjectKey");
+                            }
+                            if ("password".equals(intAttrName.getField())) {
+                                invalidMapping.getElements().add(
+                                        "Password attributes cannot be set as ConnObjectKey");
+                            }
+
+                            mapping.setConnObjectKeyItem(item);
+                        } else {
+                            mapping.add(item);
+                        }
+
+                        if (intAttrName.getEnclosingGroup() != null
+                                && item.getPurpose() != MappingPurpose.PROPAGATION) {
+
+                            invalidMapping.getElements().add(
+                                    "Only " + MappingPurpose.PROPAGATION.name()
+                                    + " allowed when referring to groups");
+                        }
+                        if (intAttrName.getRelatedAnyObject() != null
+                                && item.getPurpose() != MappingPurpose.PROPAGATION) {
+
+                            invalidMapping.getElements().add(
+                                    "Only " + MappingPurpose.PROPAGATION.name()
+                                    + " allowed when referring to any objects");
+                        }
+                        if (intAttrName.getSchemaType() == SchemaType.DERIVED
+                                && item.getPurpose() != MappingPurpose.PROPAGATION) {
+
+                            invalidMapping.getElements().add(
+                                    "Only " + MappingPurpose.PROPAGATION.name() + " allowed for derived");
+                        }
+                        if (intAttrName.getSchemaType() == SchemaType.VIRTUAL) {
+                            if (item.getPurpose() != MappingPurpose.PROPAGATION) {
+                                invalidMapping.getElements().add(
+                                        "Only " + MappingPurpose.PROPAGATION.name() + " allowed for virtual");
+                            }
+
+                            VirSchema schema = virSchemaDAO.find(item.getIntAttrName());
+                            if (schema != null && schema.getProvision().equals(item.getMapping().getProvision())) {
+                                invalidMapping.getElements().add(
+                                        "No need to map virtual schema on linking resource");
+                            }
+                        }
+                    } else {
+                        LOG.error("'{}' not allowed", itemTO.getIntAttrName());
+                        invalidMapping.getElements().add("'" + itemTO.getIntAttrName() + "' not allowed");
+                    }
                 }
             }
         }
@@ -476,7 +485,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
             orgUnitTO.setSyncToken(orgUnit.getSerializedSyncToken());
             orgUnitTO.setExtAttrName(orgUnit.getExtAttrName());
             orgUnitTO.setConnObjectLink(orgUnit.getConnObjectLink());
-            
+
             resourceTO.setOrgUnit(orgUnitTO);
         }
 

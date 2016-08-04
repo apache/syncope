@@ -29,7 +29,7 @@ import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.PropagationByResource;
+import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
@@ -38,7 +38,6 @@ import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.workflow.api.AnyObjectWorkflowAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,9 +78,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
                 created.getPropByRes(),
                 anyObjectTO.getVirAttrs(),
                 excludedResources);
-        PropagationReporter propagationReporter =
-                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
-        taskExecutor.execute(tasks, propagationReporter, nullPriorityAsync);
+        PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
 
         return new ImmutablePair<>(created.getResult(), propagationReporter.getStatuses());
     }
@@ -107,9 +104,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
                 updated.getPropByRes(),
                 anyObjectPatch.getVirAttrs(),
                 excludedResources);
-        PropagationReporter propagationReporter =
-                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
-        taskExecutor.execute(tasks, propagationReporter, nullPriorityAsync);
+        PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
 
         return new ImmutablePair<>(updated.getResult(), propagationReporter.getStatuses());
     }
@@ -128,9 +123,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
                 key,
                 null,
                 excludedResources);
-        PropagationReporter propagationReporter =
-                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
-        taskExecutor.execute(tasks, propagationReporter, nullPriorityAsync);
+        PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
 
         awfAdapter.delete(key);
 
@@ -162,9 +155,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
                 propByRes,
                 null,
                 null);
-        PropagationReporter propagationReporter =
-                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
-        taskExecutor.execute(tasks, propagationReporter, nullPriorityAsync);
+        PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
 
         return propagationReporter.getStatuses();
     }
@@ -180,10 +171,8 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
                 AnyTypeKind.ANY_OBJECT,
                 key,
                 propByRes,
-                CollectionUtils.removeAll(anyObjectDAO.findAllResourceNames(anyObjectDAO.authFind(key)), resources));
-        PropagationReporter propagationReporter =
-                ApplicationContextProvider.getBeanFactory().getBean(PropagationReporter.class);
-        taskExecutor.execute(tasks, propagationReporter, nullPriorityAsync);
+                CollectionUtils.removeAll(anyObjectDAO.findAllResourceNames(key), resources));
+        PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
 
         return propagationReporter.getStatuses();
     }

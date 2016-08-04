@@ -32,8 +32,12 @@ public class AnyStatusModal<T extends AnyTO> extends StatusModal<T> {
     private static final long serialVersionUID = 1066124171682570080L;
 
     public AnyStatusModal(
-            final BaseModal<?> baseModal, final PageReference pageReference, final T anyTO, final boolean statusOnly) {
-        super(baseModal, pageReference, anyTO, statusOnly);
+            final BaseModal<?> baseModal,
+            final PageReference pageReference,
+            final T anyTO,
+            final String itemKeyFieldName,
+            final boolean statusOnly) {
+        super(baseModal, pageReference, anyTO, itemKeyFieldName, statusOnly);
     }
 
     @Override
@@ -43,7 +47,8 @@ public class AnyStatusModal<T extends AnyTO> extends StatusModal<T> {
             final BaseModal<?> baseModal,
             final PageReference pageReference,
             final T entity,
+            final String itemKeyFieldName,
             final boolean statusOnly) {
-        return new AnyStatusDirectoryPanel(baseModal, mlp, pageReference, entity, statusOnly);
+        return new AnyStatusDirectoryPanel(baseModal, mlp, pageReference, entity, itemKeyFieldName, statusOnly);
     }
 }

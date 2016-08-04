@@ -154,7 +154,9 @@ public class CamelRouteLoader implements SyncopeLoader {
                 // When https://issues.jboss.org/browse/WFLY-4416 is resolved, this is not needed any more
                 if (IS_JBOSS) {
                     tf = TransformerFactory.newInstance();
+                    tf.setFeature(javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING, true);
                     DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+                    dbFactory.setFeature(javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING, true);
                     DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
                     Document doc = dBuilder.parse(resource.getInputStream());
 

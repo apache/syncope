@@ -54,7 +54,7 @@ public class JPANotificationTask extends AbstractTask implements NotificationTas
     @Enumerated(EnumType.STRING)
     private AnyTypeKind anyTypeKind;
 
-    private String anyKey;
+    private String entityKey;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Column(name = "address")
@@ -108,13 +108,13 @@ public class JPANotificationTask extends AbstractTask implements NotificationTas
     }
 
     @Override
-    public String getAnyKey() {
-        return anyKey;
+    public String getEntityKey() {
+        return entityKey;
     }
 
     @Override
-    public void setAnyKey(final String anyKey) {
-        this.anyKey = anyKey;
+    public void setEntityKey(final String entityKey) {
+        this.entityKey = entityKey;
     }
 
     @Override

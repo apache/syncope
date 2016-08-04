@@ -33,18 +33,18 @@ public abstract class AnyPropagationTaskDirectoryPanel extends PropagationTaskDi
 
     private final AnyTypeKind anyTypeKind;
 
-    private final String anyTypeKey;
+    private final String entityKey;
 
     protected AnyPropagationTaskDirectoryPanel(
             final BaseModal<?> baseModal,
             final MultilevelPanel multiLevelPanelRef,
             final AnyTypeKind anyTypeKind,
-            final String anyTypeKey,
+            final String entityKey,
             final PageReference pageRef) {
 
         super(baseModal, multiLevelPanelRef, null, pageRef);
         this.anyTypeKind = anyTypeKind;
-        this.anyTypeKey = anyTypeKey;
+        this.entityKey = entityKey;
     }
 
     @Override
@@ -62,7 +62,7 @@ public abstract class AnyPropagationTaskDirectoryPanel extends PropagationTaskDi
 
         @Override
         public long size() {
-            return restClient.count(anyTypeKind, anyTypeKey, taskType);
+            return restClient.count(anyTypeKind, entityKey, taskType);
         }
 
         @Override
@@ -70,7 +70,7 @@ public abstract class AnyPropagationTaskDirectoryPanel extends PropagationTaskDi
             final int page = ((int) first / paginatorRows);
 
             final List<PropagationTaskTO> tasks = restClient.listPropagationTasks(
-                    anyTypeKind, anyTypeKey, (page < 0 ? 0 : page) + 1, paginatorRows, getSort());
+                    anyTypeKind, entityKey, (page < 0 ? 0 : page) + 1, paginatorRows, getSort());
 
             Collections.sort(tasks, getComparator());
             return tasks.iterator();

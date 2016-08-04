@@ -38,10 +38,10 @@ public class NotificationTasks extends Panel implements ModalPanel {
 
     public NotificationTasks(
             final AnyTypeKind anyTypeKind,
-            final String anyTypeKey,
+            final String entityKey,
             final PageReference pageReference) {
 
-        this(null, anyTypeKind, anyTypeKey, pageReference);
+        this(null, anyTypeKind, entityKey, pageReference);
     }
 
     public NotificationTasks(
@@ -53,7 +53,7 @@ public class NotificationTasks extends Panel implements ModalPanel {
     private NotificationTasks(
             final String notification,
             final AnyTypeKind anyTypeKind,
-            final String anyTypeKey,
+            final String entityKey,
             final PageReference pageReference) {
         super(BaseModal.CONTENT_ID);
 
@@ -61,7 +61,7 @@ public class NotificationTasks extends Panel implements ModalPanel {
         add(mlp);
 
         mlp.setFirstLevel(
-                new NotificationTaskDirectoryPanel(notification, anyTypeKind, anyTypeKey, mlp, pageReference) {
+                new NotificationTaskDirectoryPanel(notification, anyTypeKind, entityKey, mlp, pageReference) {
 
             private static final long serialVersionUID = -2195387360323687302L;
 

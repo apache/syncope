@@ -38,7 +38,7 @@ public class NotificationTaskTO extends AbstractTaskTO {
 
     private AnyTypeKind anyTypeKind;
 
-    private String anyKey;
+    private String entityKey;
 
     private final Set<String> recipients = new HashSet<>();
 
@@ -70,12 +70,12 @@ public class NotificationTaskTO extends AbstractTaskTO {
         this.anyTypeKind = anyTypeKind;
     }
 
-    public String getAnyKey() {
-        return anyKey;
+    public String getEntityKey() {
+        return entityKey;
     }
 
-    public void setAnyKey(final String anyKey) {
-        this.anyKey = anyKey;
+    public void setEntityKey(final String entityKey) {
+        this.entityKey = entityKey;
     }
 
     @XmlElementWrapper(name = "recipients")

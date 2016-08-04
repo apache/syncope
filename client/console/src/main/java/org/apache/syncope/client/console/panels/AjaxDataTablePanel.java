@@ -167,12 +167,15 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
             public void onClose(final AjaxRequestTarget target) {
                 bulkModal.show(false);
 
-                final EventDataWrapper data = new EventDataWrapper();
+                EventDataWrapper data = new EventDataWrapper();
                 data.setTarget(target);
                 data.setRows(builder.rowsPerPage);
 
                 send(builder.pageRef.getPage(), Broadcast.BREADTH, data);
-                ((BasePage) getPage()).getNotificationPanel().refresh(target);
+                BasePage page = (BasePage) findPage();
+                if (page != null) {
+                    page.getNotificationPanel().refresh(target);
+                }
             }
         });
 

@@ -137,7 +137,7 @@ public abstract class AbstractSearchPanel extends Panel {
 
         final MultiFieldPanel.Builder<SearchClause> searchView = new MultiFieldPanel.Builder<SearchClause>(model) {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = 1343431509987473047L;
 
             @Override
             protected SearchClause newModelObject() {

@@ -31,6 +31,7 @@ import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttr;
 import org.apache.syncope.core.provisioning.api.data.ConfigurationDataBinder;
+import org.apache.syncope.core.workflow.api.AnyObjectWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +59,9 @@ public class ConfigurationLogic extends AbstractTransactionalLogic<AttrTO> {
 
     @Autowired
     private GroupWorkflowAdapter gwfAdapter;
+
+    @Autowired
+    private AnyObjectWorkflowAdapter awfAdapter;
 
     @PreAuthorize("hasRole('" + StandardEntitlement.CONFIGURATION_DELETE + "')")
     public void delete(final String schema) {
@@ -106,7 +110,12 @@ public class ConfigurationLogic extends AbstractTransactionalLogic<AttrTO> {
     @Transactional(readOnly = true)
     public void export(final OutputStream os) {
         try {
-            exporter.export(AuthContextUtils.getDomain(), os, uwfAdapter.getPrefix(), gwfAdapter.getPrefix());
+            exporter.export(
+                    AuthContextUtils.getDomain(),
+                    os,
+                    uwfAdapter.getPrefix(),
+                    gwfAdapter.getPrefix(),
+                    awfAdapter.getPrefix());
             LOG.debug("Database content successfully exported");
         } catch (Exception e) {
             LOG.error("While exporting database content", e);

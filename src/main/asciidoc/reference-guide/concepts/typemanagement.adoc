@@ -1,0 +1,349 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+//
+=== Type Management
+
+In order to manage which attributes can be owned by users, groups and any object, and which values can be provided,
+Apache Syncope defines a simple yet powerful type management system, vaguely inspired by  the LDAP/X.500 information
+model.
+
+==== Schema
+
+A schema instance describes the values that attributes with that schema will held; it can be defined plain, derived or
+virtual.
+
+===== Plain
+
+Values for attributes with such schema kind are provided during user, group or any object create / update.
+
+When defining a plain schema, the following information is to be provided:
+
+* Type
+** `String`
+** `Long` - allows to specify a _conversion pattern_ to / from string, according to 
+http://docs.oracle.com/javase/7/docs/api/java/text/DecimalFormat.html[DecimalFormat^]
+** `Double` - allows to specify a _conversion pattern_ to / from string, according to 
+http://docs.oracle.com/javase/7/docs/api/java/text/DecimalFormat.html[DecimalFormat^]
+** `Boolean`
+** `Date` - allows to specify a _conversion pattern_ to / from string, according to 
+http://docs.oracle.com/javase/7/docs/api/java/text/DateFormat.html[DateFormat^]
+** `Enum` - requires to provide
+*** enumeration values (mandatory)
+*** enumeration labels (optional, values will be used alternatively)
+** `Encrypted` - requires to provide
+*** secret key
+*** cipher algorithm
+** `Binary` - requires to provide the declared mime type
+* Validator class - (optional) Java class validating the value(s) provided for attributes, see 
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/attrvalue/validation/EmailAddressValidator.java[EmailAddressValidator^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/attrvalue/validation/EmailAddressValidator.java[EmailAddressValidator^]
+endif::[]
+for reference
+* Mandatory condition - http://commons.apache.org/proper/commons-jexl/[JEXL^] expression indicating whether values for 
+this schema must be necessarily provided or not; compared to simple boolean value, such condition allows to express
+complex statements like as 'be mandatory only if this other attribute value is above 14', and so on
+* Unique constraint - make sure that no duplicate value(s) for this schema are found
+* Multivalue flag - whether single or multiple values are supported
+* Read-only flag - whether value(s) for this schema are modifiable only via internal code (say workflow tasks) or 
+can be instead provided during ordinary <<provisioning,provisioning>>
+
+===== Derived
+
+Sometimes it is handful to obtain values as arbitrary combination of other attributes' values: for example, with 
+`firstname` and `surname` plain schemas, it is natural to think that `fullname` could be somehow defined as the 
+concatenation of `firstname` 's and `surname` 's values, separated by a blank space.
+
+Derived schemas are always read-only and require to specify a http://commons.apache.org/proper/commons-jexl/[JEXL^]
+expression referencing plain schema(s). +
+For the sample above, it would be
+
+ firstname + ' ' + surname
+
+With derived attributes, values are not stored into the <<persistence,internal storage>> but calculated on request, by
+evaluating the related JEXL expression
+
+===== Virtual
+
+Virtual attributes are somehow linked from identity stores rather than kept internally.
+
+The typical use case is when attribute values can change on identity store without notice, and there is need of 
+having always access to the most recent available values.
+
+It can also be said that virtual schemas are for attributes whose ownership is not of Syncope but of identity stores;
+the external resources for such identity stores are said to be the _linking resources_.
+
+[TIP]
+As best practice, only attributes for which Apache Syncope retains ownership should be modeled as plain attributes;
+others should be virtual, instead.
+
+When defining a virtual schema, the following information is to be provided:
+
+* External resource - linking resource
+* External attribute - attribute to be linked on external resource
+* Any Type - reference <<anytype,Any Type>> on external resource
+* Read-only flag - whether the external attribute value(s) for this schema can only be read, or written too
+
+.Virtual Attribute Cache
+****
+For performance optimization, virtual attributes are managed by an internal cache to control the actual access to 
+the linked identity stores.
+
+The actual cache implements the 
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/cache/VirAttrCache.java[VirAttrCache^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/cache/VirAttrCache.java[VirAttrCache^]
+endif::[]
+interface, and is configurable.
+
+Some implementations are provided by default - see table below - custom ones can be provided.
+
+[cols="1,2"]
+|===
+
+| 
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/cache/MemoryVirAttrCache.java[MemoryVirAttrCache^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/cache/MemoryVirAttrCache.java[MemoryVirAttrCache^]
+endif::[]
+| Simple fixed-size in-memory cache, with configurable time-to-live.
+
+| 
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/cache/DisabledVirAttrCache.java[DisabledVirAttrCache^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/cache/DisabledVirAttrCache.java[DisabledVirAttrCache^]
+endif::[]
+| Pass-through cache which actually does not provide any caching: use when actual access to identity store is required.
+
+|===
+****
+
+==== AnyTypeClass
+
+Any type classes are aggregations of plain, derived and virtual schemas, provided with unique identifiers.
+
+Classes can be assigned to <<anytype, any types>> and are also available as auxiliary (hence to be specified on a
+given user / group / any object instance) and for <<type-extensions,type extensions>>.
+
+==== AnyType
+
+Any types represent the type of identities that Apache Syncope is able to manage; besides the predefined `USER` and 
+`GROUP`, more types can be created to model workstations, printers, folders, sensors, services, ...
+
+For all any types defined, a set of <<anytypeclass, classes>> can be selected so that instances af a given any type will
+be enabled to populate attributes for schemas in those classes.
+
+.Any types and attributes allowed for users, groups and any objects
+====
+Assuming that the following schemas are available:
+
+. plain: `firstname`, `surname`, `email`
+. derived: `fullname`
+. virtual: `enrollment`
+
+and that the following any type classes are defined:
+
+. `minimal` - containing `firstname`, `surname` and `fullname`
+. `member` - containing `email` and `enrollment`
+
+and that the `USER` any type has only `minimal` assigned, then the following users are valid (details are simplified to
+increase readability):
+
+[source,json]
+----
+{
+  "key": "74cd8ece-715a-44a4-a736-e17b46c4e7e6",
+  "type": "USER",
+  "realm": "/",
+  "username": "verdi",
+  "plainAttrs": [
+    {
+      "schema": "surname",
+      "values": [
+        "Verdi"
+      ]
+    },
+    {
+      "schema": "firstname",
+      "values": [
+        "Giuseppe"
+      ]
+    }
+  ],
+  "derAttrs": [
+    {
+      "schema": "fullname",
+      "values": [
+        "Giuseppe Verdi"
+      ]
+    }
+  ]
+}
+
+{
+  "key": "1417acbe-cbf6-4277-9372-e75e04f97000",
+  "type": "USER",
+  "realm": "/",
+  "username": "rossini",
+  "auxClasses": [ "member" ],
+  "plainAttrs": [
+    {
+      "schema": "surname",
+      "values": [
+        "Rossini"
+      ]
+    },
+    {
+      "schema": "firstname",
+      "values": [
+        "Gioacchino"
+      ]
+    },
+    {
+      "schema": "email",
+      "values": [
+        "gioacchino.rossini@syncope.apache.org"
+      ]
+    }
+  ],
+  "derAttrs": [
+    {
+      "schema": "fullname",
+      "values": [
+        "Gioacchino Rossini"
+      ]
+    }
+  ],
+  "virAttrs": [
+    {
+      "schema": "enrollment",
+      "values": [
+        "154322"
+      ]
+    }
+  ]
+}
+----
+====
+
+==== RelationshipType
+
+Relationships allow to create a link between an user and an any object, or between two any objects; relationship types
+define the available link types.
+
+.Relationship between any objects (printers)
+====
+The following any object of type `PRINTER` contains a relationship of type `neighborhood` with another `PRINTER`
+(details are simplified to increase readability):
+
+[source,json]
+----
+{
+  "key": "fc6dbc3a-6c07-4965-8781-921e7401a4a5",
+  "type": "PRINTER",
+  "realm": "/",
+  "name": "HP LJ 1300n",
+  "auxClasses": [],
+  "plainAttrs": [
+    {
+      "schema": "model",
+      "values": [
+        "Canon MFC8030"
+      ]
+    },
+    {
+      "schema": "location",
+      "values": [
+        "1st floor"
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "type": "neighborhood",
+      "rightType": "PRINTER",
+      "rightKey": "8559d14d-58c2-46eb-a2d4-a7d35161e8f8"
+    }
+  ]
+}
+----
+====
+
+==== Type Extensions
+
+When an user (or an any object) is part of a group, a _membership_ is defined.
+
+It is sometimes useful to define attributes which are bound to a particular membership: if, for example, the
+`University A` and `University B` groups are available, a student might have different e-mail addresses for each
+university. How can this be modeled?
+
+Type extensions define a set of <<anytypeclass,classes>> associated to a group, that can be automatically
+assigned to a given user (or any object) when becoming member of such group.
+
+.Membership with type extension
+====
+With reference to the sample above (details are simplified to increase readability):
+
+[source,json]
+----
+{
+  "key": "c9b2dec2-00a7-4855-97c0-d854842b4b24",
+  "type": "USER",
+  "realm": "/",
+  "username": "bellini",
+  "memberships": [
+    {
+      "type": "Membership",
+      "rightType": "GROUP",
+      "rightKey": "bf825fe1-7320-4a54-bd64-143b5c18ab97",
+      "groupName": "University A",
+      "plainAttrs": [
+        {
+          "schema": "email",
+          "values": [
+            "bellini@university_a.net"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Membership",
+      "rightType": "GROUP",
+      "rightKey": "bf825fe1-7320-4a54-bd64-143b5c18ab96",
+      "groupName": "University B",
+      "plainAttrs": [
+        {
+          "schema": "email",
+          "values": [
+            "bellini@university_b.net"
+          ]
+        }
+      ]
+    }
+  ]
+}
+----
+====

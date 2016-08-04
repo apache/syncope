@@ -320,6 +320,7 @@ public class TaskDataBinderImpl implements TaskDataBinder {
 
         switch (taskUtils.getType()) {
             case PROPAGATION:
+                ((PropagationTaskTO) taskTO).setAnyTypeKind(((PropagationTask) task).getAnyTypeKind());
                 ((PropagationTaskTO) taskTO).setEntityKey(((PropagationTask) task).getEntityKey());
                 ((PropagationTaskTO) taskTO).setResource(((PropagationTask) task).getResource().getKey());
                 ((PropagationTaskTO) taskTO).setAttributes(((PropagationTask) task).getSerializedAttributes());
@@ -359,7 +360,7 @@ public class TaskDataBinderImpl implements TaskDataBinder {
             case NOTIFICATION:
                 ((NotificationTaskTO) taskTO).setNotification(((NotificationTask) task).getNotification().getKey());
                 ((NotificationTaskTO) taskTO).setAnyTypeKind(((NotificationTask) task).getAnyTypeKind());
-                ((NotificationTaskTO) taskTO).setAnyKey(((NotificationTask) task).getAnyKey());
+                ((NotificationTaskTO) taskTO).setEntityKey(((NotificationTask) task).getEntityKey());
                 if (((NotificationTask) task).isExecuted() && StringUtils.isBlank(taskTO.getLatestExecStatus())) {
                     taskTO.setLatestExecStatus("[EXECUTED]");
                 }

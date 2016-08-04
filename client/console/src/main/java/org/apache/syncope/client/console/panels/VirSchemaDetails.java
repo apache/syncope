@@ -70,7 +70,8 @@ public class VirSchemaDetails extends AbstractSchemaDetailsPanel {
         schemaForm.add(readonly);
 
         final AjaxDropDownChoicePanel<String> resource = new AjaxDropDownChoicePanel<>(
-                "resource", getString("resource"), new PropertyModel<String>(schemaTO, "resource"));
+                "resource", getString("resource"), new PropertyModel<String>(schemaTO, "resource")).
+                setNullValid(false);
         resource.setChoices(CollectionUtils.collect(resourceRestClient.list(),
                 EntityTOUtils.<ResourceTO>keyTransformer(), new ArrayList<String>()));
         resource.setOutputMarkupId(true);
@@ -81,11 +82,15 @@ public class VirSchemaDetails extends AbstractSchemaDetailsPanel {
         schemaForm.add(resource);
 
         anyType = new AjaxDropDownChoicePanel<>(
-                "anyType", getString("anyType"), new PropertyModel<String>(schemaTO, "anyType"));
+                "anyType", getString("anyType"), new PropertyModel<String>(schemaTO, "anyType")).
+                setNullValid(false);
         anyType.setChoices(new ArrayList<>(anyTypes.keySet()));
         anyType.setOutputMarkupId(true);
         anyType.setOutputMarkupPlaceholderTag(true);
         anyType.addRequiredLabel();
+        if (resource.getModelObject() == null) {
+            anyType.setEnabled(false);
+        }
         schemaForm.add(anyType);
 
         final AjaxTextFieldPanel extAttrName = new AjaxTextFieldPanel(
@@ -108,6 +113,7 @@ public class VirSchemaDetails extends AbstractSchemaDetailsPanel {
                 anyTypes.clear();
                 if (resource.getModelObject() != null) {
                     populateAnyTypes(resource.getModelObject());
+                    anyType.setEnabled(true);
                 }
                 anyType.setChoices(new ArrayList<>(anyTypes.keySet()));
                 anyType.setModelObject(null);

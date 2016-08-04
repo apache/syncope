@@ -279,7 +279,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 target.add(modal.setContent(new ConnectorWizardBuilder(modelObject, pageRef).
                         build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT)));
 
-                modal.header(new Model<>(MessageFormat.format(getString("connector.edit"), node.getKey())));
+                modal.header(new Model<>(MessageFormat.format(getString("connector.edit"), node.getDisplayName())));
 
                 MetaDataRoleAuthorizationStrategy.
                         authorize(modal.getForm(), ENABLE, StandardEntitlement.CONNECTOR_UPDATE);
@@ -351,7 +351,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             public void onClick(final AjaxRequestTarget target) {
                 ResourceTO modelObject = resourceRestClient.read(node.getKey().toString());
                 target.add(propTaskModal.setContent(
-                        new ResourceStatusModal(propTaskModal, pageRef, modelObject, false)));
+                        new ResourceStatusModal(propTaskModal, pageRef, modelObject)));
                 propTaskModal.header(new ResourceModel("resource.provisioning.status", "Provisioning Status"));
                 propTaskModal.show(true);
             }

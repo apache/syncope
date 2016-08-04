@@ -44,7 +44,19 @@ public class GroupFiqlSearchConditionBuilder extends AbstractFiqlSearchCondition
                 isAssignable();
     }
 
-    protected static class Builder extends AbstractFiqlSearchConditionBuilder.Builder
+    public CompleteCondition withMembers(final String member, final String... moreMembers) {
+        return newBuilderInstance().
+                is(SpecialAttr.MEMBER.toString()).
+                withMembers(member, moreMembers);
+    }
+
+    public CompleteCondition withoutMembers(final String member, final String... moreMembers) {
+        return newBuilderInstance().
+                is(SpecialAttr.MEMBER.toString()).
+                withoutMembers(member, moreMembers);
+    }
+
+    protected class Builder extends AbstractFiqlSearchConditionBuilder.Builder
             implements GroupProperty, CompleteCondition {
 
         public Builder(final Map<String, String> properties) {
@@ -66,6 +78,18 @@ public class GroupFiqlSearchConditionBuilder extends AbstractFiqlSearchCondition
         public CompleteCondition isAssignable() {
             this.result = SpecialAttr.ASSIGNABLE.toString();
             return condition(FiqlParser.EQ, SpecialAttr.NULL);
+        }
+
+        @Override
+        public CompleteCondition withMembers(final String member, final String... moreMembers) {
+            this.result = SpecialAttr.MEMBER.toString();
+            return condition(FiqlParser.EQ, member, (Object[]) moreMembers);
+        }
+
+        @Override
+        public CompleteCondition withoutMembers(final String member, final String... moreMembers) {
+            this.result = SpecialAttr.MEMBER.toString();
+            return condition(FiqlParser.NEQ, member, (Object[]) moreMembers);
         }
 
     }

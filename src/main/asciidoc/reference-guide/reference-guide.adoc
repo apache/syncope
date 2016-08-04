@@ -1,0 +1,85 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+//
+
+// Quick reference: http://asciidoctor.org/docs/asciidoc-syntax-quick-reference/
+// User manual: http://asciidoctor.org/docs/user-manual/
+// Tricks: https://leanpub.com/awesomeasciidoctornotebook/read
+
+:homepage: http://syncope.apache.org
+:description: Comprehensive guide about Apache Syncope
+:keywords: Apache Syncope, IdM, provisioning, identity management, reference, guide
+
+:docinfo1:
+:last-update-label!:
+:sectanchors:
+:sectnums:
+:sectlinks:
+
+= Apache Syncope - Reference Guide
+:revnumber: {docVersion}
+:toc: right
+:toclevels: 4
+
+image::http://syncope.apache.org/images/apache-syncope-logo-small.jpg[Apache Syncope logo]
+
+[NOTE]
+.This document is under active development and discussion!
+If you find errors or omissions in this document, please don’t hesitate to 
+http://syncope.apache.org/issue-tracking.html[submit an issue] or 
+https://github.com/apache/syncope/pulls[open a pull request] with 
+a fix. We also encourage you to ask questions and discuss any aspects of the project on the 
+http://syncope.apache.org/mailing-lists.html[mailing lists or IRC]. 
+New contributors are always welcome!
+
+[discrete] 
+== Preface
+This reference guide covers Apache Syncope services for identity management, provisioning, and compliance.
+
+== Introduction
+
+Often, _Identity Management_ and _Access Management_ are jointly referred, mainly because their two management worlds
+likely coexist in the same project or in the same environment.
+
+The two topics are however completely different: each one has its own context, its own rules, its own best practices.
+
+On the other hand, some products provide unorthodox implementations so it is indeed possible to do the same thing with 
+both of them.
+
+****
+Identity Management:: Tools and practices to keep identity data consistent and synchronized across repositories, data 
+formats and models.
+Access Management:: Systems, protocols and technologies supporting user authentication (how users are let accessing a
+given system) and authorization (which capabilities each user owns on a given system).
+****
+
+From the definitions above, Identity Management and Access Management can be seen as complementary: very often, the data
+synchronized by the former are then used by the latter to provide its features - e.g. authentication and authorization.
+
+[NOTE]
+Functionally, *Apache Syncope* implements *Identity Management* features.
+
+include::identitytechnologies/identitytechnologies.adoc[]
+
+include::architecture/architecture.adoc[]
+
+include::concepts/concepts.adoc[]
+
+include::workingwithapachesyncope/workingwithapachesyncope.adoc[]
+
+include::extensions/extensions.adoc[]

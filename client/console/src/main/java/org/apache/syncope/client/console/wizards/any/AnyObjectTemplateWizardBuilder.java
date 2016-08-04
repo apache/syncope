@@ -22,6 +22,7 @@ import java.util.List;
 import org.apache.syncope.client.console.layout.AnyObjectFormLayoutInfo;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
+import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.TemplatableTO;
 import org.apache.wicket.PageReference;
 
@@ -30,6 +31,8 @@ public class AnyObjectTemplateWizardBuilder extends AnyObjectWizardBuilder
 
     private static final long serialVersionUID = 6716803168859873877L;
 
+    private final TemplatableTO templatable;
+
     public AnyObjectTemplateWizardBuilder(
             final TemplatableTO templatable,
             final String anyType,
@@ -37,14 +40,27 @@ public class AnyObjectTemplateWizardBuilder extends AnyObjectWizardBuilder
             final AnyObjectFormLayoutInfo formLayoutInfo,
             final PageReference pageRef) {
         super(null, anyTypeClasses, formLayoutInfo, pageRef);
+        this.templatable = templatable;
 
         if (templatable.getTemplates().containsKey(anyType)) {
             setItem(new AnyWrapper<>(AnyObjectTO.class.cast(templatable.getTemplates().get(anyType))));
         } else {
             AnyObjectTO anyObjectTO = new AnyObjectTO();
             anyObjectTO.setType(anyType);
-            setItem(new AnyWrapper<>(new AnyObjectTO()));
+            if (templatable instanceof RealmTO) {
+                anyObjectTO.setRealm(RealmTO.class.cast(templatable).getFullPath());
+            }
+            setItem(new AnyWrapper<>(anyObjectTO));
         }
+    }
+
+    @Override
+    protected Details<AnyObjectTO> addOptionalDetailsPanel(final AnyWrapper<AnyObjectTO> modelObject) {
+        final Details<AnyObjectTO> details = super.addOptionalDetailsPanel(modelObject);
+        if (templatable instanceof RealmTO) {
+            details.disableRealmSpecification();
+        }
+        return details;
     }
 
     @Override

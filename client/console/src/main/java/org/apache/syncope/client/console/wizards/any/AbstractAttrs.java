@@ -41,13 +41,15 @@ import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.core.util.lang.PropertyResolver;
+import org.apache.wicket.extensions.wizard.WizardModel.ICondition;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.LoadableDetachableModel;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.util.ListModel;
 
-public abstract class AbstractAttrs<S extends AbstractSchemaTO> extends WizardStep {
+public abstract class AbstractAttrs<S extends AbstractSchemaTO> extends WizardStep implements ICondition {
 
     private static final long serialVersionUID = -5387344116983102292L;
 
@@ -65,64 +67,58 @@ public abstract class AbstractAttrs<S extends AbstractSchemaTO> extends WizardSt
 
     protected final Map<String, Map<String, S>> membershipSchemas = new LinkedHashMap<>();
 
-    protected final LoadableDetachableModel<List<AttrTO>> attrTOs;
+    protected final IModel<List<AttrTO>> attrTOs;
 
-    protected final LoadableDetachableModel<List<MembershipTO>> membershipTOs;
+    protected final IModel<List<MembershipTO>> membershipTOs;
+
+    private final List<String> anyTypeClasses;
 
     public AbstractAttrs(final AnyTO anyTO, final List<String> anyTypeClasses, final List<String> whichAttrs) {
         super();
+        this.anyTypeClasses = anyTypeClasses;
+        this.attrTOs = new ListModel<>(Collections.<AttrTO>emptyList());
+        this.membershipTOs = new ListModel<>(Collections.<MembershipTO>emptyList());
+
         this.setOutputMarkupId(true);
 
         this.anyTO = anyTO;
         this.whichAttrs = whichAttrs;
+    }
 
-        this.attrTOs = new LoadableDetachableModel<List<AttrTO>>() {
+    private List<AttrTO> loadAttrTOs() {
+        setSchemas(CollectionUtils.collect(anyTypeClassRestClient.list(anyTO.getAuxClasses()),
+                EntityTOUtils.<AnyTypeClassTO>keyTransformer(), new ArrayList<>(anyTypeClasses)));
+        setAttrs();
+        return AbstractAttrs.this.getAttrsFromTO();
+    }
 
-            private static final long serialVersionUID = 5275935387613157437L;
+    @SuppressWarnings("unchecked")
+    private List<MembershipTO> loadMembershipAttrTOs() {
+        List<MembershipTO> memberships = new ArrayList<>();
+        try {
+            membershipSchemas.clear();
 
-            @Override
-            protected List<AttrTO> load() {
-                setSchemas(CollectionUtils.collect(anyTypeClassRestClient.list(anyTO.getAuxClasses()),
-                        EntityTOUtils.<AnyTypeClassTO>keyTransformer(), new ArrayList<>(anyTypeClasses)));
-                setAttrs();
-                return AbstractAttrs.this.getAttrsFromTO();
-            }
-        };
+            for (MembershipTO membership : (List<MembershipTO>) PropertyResolver.getPropertyField(
+                    "memberships", anyTO).get(anyTO)) {
+                setSchemas(membership.getGroupKey(), CollectionUtils.collect(
+                        anyTypeClassRestClient.list(getMembershipAuxClasses(membership, anyTO.getType())),
+                        EntityTOUtils.<AnyTypeClassTO>keyTransformer(),
+                        new ArrayList<String>()));
+                setAttrs(membership);
 
-        this.membershipTOs = new LoadableDetachableModel<List<MembershipTO>>() {
-
-            private static final long serialVersionUID = 5275935387613157437L;
-
-            @Override
-            @SuppressWarnings("unchecked")
-            protected List<MembershipTO> load() {
-                List<MembershipTO> memberships = new ArrayList<>();
-                try {
-                    membershipSchemas.clear();
-
-                    for (MembershipTO membership : (List<MembershipTO>) PropertyResolver.getPropertyField(
-                            "memberships", anyTO).get(anyTO)) {
-                        setSchemas(membership.getGroupKey(), CollectionUtils.collect(
-                                anyTypeClassRestClient.list(getMembershipAuxClasses(membership, anyTO.getType())),
-                                EntityTOUtils.<AnyTypeClassTO>keyTransformer(),
-                                new ArrayList<String>()));
-                        setAttrs(membership);
-
-                        if (AbstractAttrs.this instanceof PlainAttrs && !membership.getPlainAttrs().isEmpty()) {
-                            memberships.add(membership);
-                        } else if (AbstractAttrs.this instanceof DerAttrs && !membership.getDerAttrs().isEmpty()) {
-                            memberships.add(membership);
-                        } else if (AbstractAttrs.this instanceof VirAttrs && !membership.getVirAttrs().isEmpty()) {
-                            memberships.add(membership);
-                        }
-                    }
-                } catch (WicketRuntimeException | IllegalArgumentException | IllegalAccessException ex) {
-                    // ignore
+                if (AbstractAttrs.this instanceof PlainAttrs && !membership.getPlainAttrs().isEmpty()) {
+                    memberships.add(membership);
+                } else if (AbstractAttrs.this instanceof DerAttrs && !membership.getDerAttrs().isEmpty()) {
+                    memberships.add(membership);
+                } else if (AbstractAttrs.this instanceof VirAttrs && !membership.getVirAttrs().isEmpty()) {
+                    memberships.add(membership);
                 }
-
-                return memberships;
             }
-        };
+        } catch (WicketRuntimeException | IllegalArgumentException | IllegalAccessException ex) {
+            // ignore
+        }
+
+        return memberships;
     }
 
     protected boolean reoderSchemas() {
@@ -200,7 +196,7 @@ public abstract class AbstractAttrs<S extends AbstractSchemaTO> extends WizardSt
                 && org.apache.cxf.common.util.CollectionUtils.isEmpty(membershipTOs.getObject())) {
             response.render(OnDomReadyHeaderItem.forScript(
                     String.format("$('#emptyPlaceholder').append(\"%s\"); $('#attributes').hide();",
-                            getString("attribute.empty.list"))));
+                    getString("attribute.empty.list"))));
         }
     }
 
@@ -219,6 +215,13 @@ public abstract class AbstractAttrs<S extends AbstractSchemaTO> extends WizardSt
         } catch (Exception e) {
             return Collections.emptyList();
         }
+    }
+
+    @Override
+    public boolean evaluate() {
+        this.attrTOs.setObject(loadAttrTOs());
+        this.membershipTOs.setObject(loadMembershipAttrTOs());
+        return CollectionUtils.isNotEmpty(attrTOs.getObject()) || CollectionUtils.isNotEmpty(membershipTOs.getObject());
     }
 
     protected static class AttrComparator implements Comparator<AttrTO> {
@@ -243,6 +246,5 @@ public abstract class AbstractAttrs<S extends AbstractSchemaTO> extends WizardSt
         public Schemas(final String id) {
             super(id);
         }
-
     }
 }

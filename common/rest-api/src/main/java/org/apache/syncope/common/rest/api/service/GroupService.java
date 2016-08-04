@@ -29,6 +29,7 @@ import javax.ws.rs.core.MediaType;
 import org.apache.syncope.common.lib.patch.GroupPatch;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.TypeExtensionTO;
 import org.apache.syncope.common.lib.types.BulkMembersActionType;
 
 /**
@@ -47,6 +48,20 @@ public interface GroupService extends AnyService<GroupTO, GroupPatch> {
     @Path("own")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     List<GroupTO> own();
+
+    /**
+     * Extracts type extension information, for the provided group and any type.
+     *
+     * @param key group key
+     * @param anyTypeKey any type key
+     * @return type extension information, for the provided group and any type
+     */
+    @GET
+    @Path("{key}/{anyTypeKey}/typeExtension")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    TypeExtensionTO readTypeExtension(
+            @NotNull @PathParam("key") String key,
+            @NotNull @PathParam("anyTypeKey") String anyTypeKey);
 
     /**
      * (De)provision all members of the given group from / onto all the resources associated to it.

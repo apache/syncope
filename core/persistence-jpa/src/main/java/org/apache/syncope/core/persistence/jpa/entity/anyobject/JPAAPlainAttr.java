@@ -102,7 +102,7 @@ public class JPAAPlainAttr extends AbstractPlainAttr<AnyObject> implements APlai
 
     @Override
     public void setUniqueValue(final PlainAttrUniqueValue uniqueValue) {
-        checkType(owner, JPAAPlainAttrUniqueValue.class);
+        checkType(uniqueValue, JPAAPlainAttrUniqueValue.class);
         this.uniqueValue = (JPAAPlainAttrUniqueValue) uniqueValue;
     }
 }

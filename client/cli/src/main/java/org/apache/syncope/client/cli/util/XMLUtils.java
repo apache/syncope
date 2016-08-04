@@ -37,8 +37,14 @@ public final class XMLUtils {
     public static void createXMLFile(final InputStream sis, final String filePath)
             throws TransformerException, SAXException, IOException, ParserConfigurationException {
 
-        TransformerFactory.newInstance().newTransformer().
-                transform(new DOMSource(DocumentBuilderFactory.newInstance().newDocumentBuilder().
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        dbf.setFeature(javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING, true);
+
+        TransformerFactory tf = TransformerFactory.newInstance();
+        tf.setFeature(javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        
+        tf.newTransformer().
+                transform(new DOMSource(dbf.newDocumentBuilder().
                         parse(new InputSource(new StringReader(IOUtils.toString(sis))))),
                         new StreamResult(new File(filePath)));
     }

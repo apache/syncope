@@ -166,13 +166,13 @@ a password reset was request for ${user.getUsername()}.&lt;/p&gt;
 &lt;/html&gt;"/>
   <MailTemplate id="confirmPasswordReset"
                 textTemplate="Hi,
-we are happy to inform you that the password request was execute successfully for your account.
+we are happy to inform you that the password request was successfully executed for your account.
 
 Best regards."
                 htmlTemplate="&lt;html&gt;
 &lt;body&gt;
 &lt;p&gt;Hi,&lt;/br&gt;
-we are happy to inform you that the password request was execute successfully for your account.&lt;/p&gt;
+we are happy to inform you that the password request was successfully executed for your account.&lt;/p&gt;
 
 &lt;p&gt;Best regards.&lt;/p&gt;
 &lt;/body&gt;

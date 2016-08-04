@@ -89,7 +89,7 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
 
                     @Override
                     public WebMarkupContainer getPanel(final String panelId) {
-                        return new VirAttrs.VirSchemas(panelId, new ListModel<AttrTO>(getAttrsFromTO(membershipTO)));
+                        return new VirAttrs.VirSchemas(panelId, new ListModel<>(getAttrsFromTO(membershipTO)));
                     }
                 }), Model.of(-1)).setOutputMarkupId(true));
             }
