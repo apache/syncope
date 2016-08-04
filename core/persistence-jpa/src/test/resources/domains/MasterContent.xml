@@ -970,7 +970,7 @@ under the License.
                extAttrName="owner" intAttrName="userOwner"
                mandatoryCondition="false" purpose="BOTH"/>
   <MappingItem id="9dde8bd5-f158-499e-9d81-3d7fcf9ea1e8"
-               IconnObjectKey="0" password="0" mapping_id="128412c8-be4f-4d7b-8bed-5ab89134f718"
+               connObjectKey="0" password="0" mapping_id="128412c8-be4f-4d7b-8bed-5ab89134f718"
                extAttrName="description" intAttrName="title"
                mandatoryCondition="false" purpose="BOTH"/>
   
