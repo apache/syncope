@@ -97,28 +97,28 @@ public class ResourceDetailsPanel extends WizardStep {
                 new ResourceModel("createTraceLevel", "createTraceLevel").getObject(),
                 new PropertyModel<TraceLevel>(resourceTO, "createTraceLevel"),
                 false).
-                setChoices(Arrays.asList(TraceLevel.values())));
+                setChoices(Arrays.asList(TraceLevel.values())).setNullValid(false));
 
         container.add(new AjaxDropDownChoicePanel<>(
                 "updateTraceLevel",
                 new ResourceModel("updateTraceLevel", "updateTraceLevel").getObject(),
                 new PropertyModel<TraceLevel>(resourceTO, "updateTraceLevel"),
                 false).
-                setChoices(Arrays.asList(TraceLevel.values())));
+                setChoices(Arrays.asList(TraceLevel.values())).setNullValid(false));
 
         container.add(new AjaxDropDownChoicePanel<>(
                 "deleteTraceLevel",
                 new ResourceModel("deleteTraceLevel", "deleteTraceLevel").getObject(),
                 new PropertyModel<TraceLevel>(resourceTO, "deleteTraceLevel"),
                 false).
-                setChoices(Arrays.asList(TraceLevel.values())));
+                setChoices(Arrays.asList(TraceLevel.values())).setNullValid(false));
 
         container.add(new AjaxDropDownChoicePanel<>(
                 "provisioningTraceLevel",
                 new ResourceModel("provisioningTraceLevel", "provisioningTraceLevel").getObject(),
                 new PropertyModel<TraceLevel>(resourceTO, "provisioningTraceLevel"),
                 false).
-                setChoices(Arrays.asList(TraceLevel.values())));
+                setChoices(Arrays.asList(TraceLevel.values())).setNullValid(false));
 
         container.add(new AjaxTextFieldPanel(
                 "connector",
