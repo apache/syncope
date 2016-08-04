@@ -83,5 +83,3 @@ include::concepts/concepts.adoc[]
 include::workingwithapachesyncope/workingwithapachesyncope.adoc[]
 
 include::extensions/extensions.adoc[]
-
-include::usecases/usecases.adoc[]
