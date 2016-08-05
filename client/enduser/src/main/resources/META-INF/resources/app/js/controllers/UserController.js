@@ -69,7 +69,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
           schemaService = SchemaService.getUserSchemas(anyTypeClass);
         }
         schemaService.then(function (schemas) {
-          if(group && ( schemas.plainSchemas.length > 0 || schemas.derSchemas.length > 0 || schemas.virSchemas.length > 0))
+          if (group && (schemas.plainSchemas.length > 0 || schemas.derSchemas.length > 0 || schemas.virSchemas.length > 0))
             $scope.dynamicForm.groupSchemas.push(group);
           //initializing user schemas values
           initSchemaValues(schemas);
@@ -264,17 +264,26 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
       };
 
       var removeUserSchemas = function (anyTypeClass, group) {
+
+        //removing plain groupSchemas
+        for (var i = 0; i < $scope.dynamicForm.groupSchemas.length; i++) {
+          if ($scope.dynamicForm.groupSchemas[i] === group) {
+            $scope.dynamicForm.groupSchemas.splice(i, 1);
+            i--;
+          }
+        }
+
         //removing plain schemas
         for (var i = 0; i < $scope.dynamicForm.plainSchemas.length; i++) {
-          if ((anyTypeClass && $scope.dynamicForm.plainSchemas[i].anyTypeClass == anyTypeClass)
+          if ((anyTypeClass && $scope.dynamicForm.plainSchemas[i].anyTypeClass === anyTypeClass)
                   || (group && $scope.dynamicForm.plainSchemas[i].key.includes(group + '#'))) {
-
             //cleaning both form and user model
             delete $scope.user.plainAttrs[$scope.dynamicForm.plainSchemas[i].key];
             $scope.dynamicForm.plainSchemas.splice(i, 1);
             i--;
           }
         }
+
         //removing derived schemas
         for (var i = 0; i < $scope.dynamicForm.derSchemas.length; i++) {
           if ((anyTypeClass && $scope.dynamicForm.derSchemas[i].anyTypeClass == anyTypeClass)

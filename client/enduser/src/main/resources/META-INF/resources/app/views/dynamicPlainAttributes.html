@@ -18,7 +18,7 @@ under the License.
 -->
 
 <div ng-repeat="groupSchema in dynamicForm.groupSchemas">
-  <uib-accordion>
+  <uib-accordion ng-if="getByGroup(groupSchema).length > 0">
     <div uib-accordion-group heading="{{groupSchema| translate}}"
          ng-init="status = {isOpen: (groupSchema == 'own')}" is-open="status.isOpen"
          class="breadcrumb-header">

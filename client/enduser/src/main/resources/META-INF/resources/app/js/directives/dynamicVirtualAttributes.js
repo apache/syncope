@@ -21,48 +21,52 @@
 
 angular.module('self')
         .directive('dynamicVirtualAttributes', function () {
-            var getTemplateUrl = function () {
-              return 'views/dynamicVirtualAttributes.html';
-            };
-            return {
-              restrict: 'E',
-              templateUrl: getTemplateUrl(),
-              scope: {
-                dynamicForm: "=form",
-                user: "="
-              },
-              controller: function ($scope) {
-               
-                $scope.getByGroup = function (schema) {
-                  var currentVirSchemas = new Array();
-                  for (var i = 0; i < $scope.dynamicForm.virSchemas.length; i++) {
-                    if (schema == "own" && $scope.dynamicForm.virSchemas[i].key.indexOf('#') == -1) {
-                      var attr = $scope.dynamicForm.virSchemas[i];
-                      attr.simpleKey = $scope.dynamicForm.virSchemas[i].key;
-                      currentVirSchemas.push($scope.dynamicForm.virSchemas[i]);
-                    }
-                    if ($scope.dynamicForm.virSchemas[i].key.indexOf(schema) > -1) {
-                      var attr = $scope.dynamicForm.virSchemas[i];
-                      attr.simpleKey = $scope.dynamicForm.virSchemas[i].key.substring($scope.dynamicForm.virSchemas[i].key.indexOf("#") + 1);
-                      currentVirSchemas.push(attr);
+          var getTemplateUrl = function () {
+            return 'views/dynamicVirtualAttributes.html';
+          };
+          return {
+            restrict: 'E',
+            templateUrl: getTemplateUrl(),
+            scope: {
+              dynamicForm: "=form",
+              user: "="
+            },
+            controller: function ($scope) {
+
+              $scope.getByGroup = function (group) {
+                var currentVirtualSchemas = new Array();
+                for (var i = 0; i < $scope.dynamicForm.virSchemas.length; i++) {
+                  var attr = $scope.dynamicForm.virSchemas[i];
+                  if (group === "own" && $scope.dynamicForm.virSchemas[i].key.indexOf('#') == -1) {
+                    attr.simpleKey = $scope.dynamicForm.virSchemas[i].key;
+                    currentVirtualSchemas.push(attr);
+                  } else {
+                    var prefix = $scope.dynamicForm.virSchemas[i].key.substr
+                            (0, $scope.dynamicForm.virSchemas[i].key.indexOf('#'));
+                    if (prefix === group)
+                    {
+                      var shaPosition = $scope.dynamicForm.virSchemas[i].key.indexOf("#") + 1;
+                      attr.simpleKey = $scope.dynamicForm.virSchemas[i].key.substring(shaPosition);
+                      currentVirtualSchemas.push(attr);
                     }
                   }
-                  return currentVirSchemas;
-                };
+                }
+                return currentVirtualSchemas;
+              };
 
-                $scope.addVirtualAttributeField = function (virSchemaKey) {
-                  console.debug("Add VIRTUAL value:", virSchemaKey);
-                  console.debug(" ", ($scope.dynamicForm.virtualAttributeTable[virSchemaKey].fields.length));
-                  $scope.dynamicForm.virtualAttributeTable[virSchemaKey].fields.push(virSchemaKey + "_" + ($scope.dynamicForm.virtualAttributeTable[virSchemaKey].fields.length));
-                };
+              $scope.addVirtualAttributeField = function (virSchemaKey) {
+                console.debug("Add VIRTUAL value:", virSchemaKey);
+                console.debug(" ", ($scope.dynamicForm.virtualAttributeTable[virSchemaKey].fields.length));
+                $scope.dynamicForm.virtualAttributeTable[virSchemaKey].fields.push(virSchemaKey + "_" + ($scope.dynamicForm.virtualAttributeTable[virSchemaKey].fields.length));
+              };
 
-                $scope.removeVirtualAttributeField = function (virSchemaKey, index) {
-                  console.debug("Remove VIRTUAL value: ", virSchemaKey);
-                  console.debug("Remove VIRTUAL value: ", index);
-                  $scope.dynamicForm.virtualAttributeTable[virSchemaKey].fields.splice(index, 1);
-                  // clean user model
-                  $scope.user.virAttrs[virSchemaKey].values.splice(index, 1);
-                };
-              }
-            };
-          });
+              $scope.removeVirtualAttributeField = function (virSchemaKey, index) {
+                console.debug("Remove VIRTUAL value: ", virSchemaKey);
+                console.debug("Remove VIRTUAL value: ", index);
+                $scope.dynamicForm.virtualAttributeTable[virSchemaKey].fields.splice(index, 1);
+                // clean user model
+                $scope.user.virAttrs[virSchemaKey].values.splice(index, 1);
+              };
+            }
+          };
+        });

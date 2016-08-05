@@ -32,18 +32,23 @@ angular.module('self')
               user: "="
             },
             controller: function ($scope) {
-              $scope.getByGroup = function (schema) {
+
+              $scope.getByGroup = function (group) {
                 var currentDerivedSchemas = new Array();
                 for (var i = 0; i < $scope.dynamicForm.derSchemas.length; i++) {
-                  if (schema == "own" && $scope.dynamicForm.derSchemas[i].key.indexOf('#') == -1) {
-                    var attr = $scope.dynamicForm.derSchemas[i];
+                  var attr = $scope.dynamicForm.derSchemas[i];
+                  if (group === "own" && $scope.dynamicForm.derSchemas[i].key.indexOf('#') == -1) {
                     attr.simpleKey = $scope.dynamicForm.derSchemas[i].key;
-                    currentDerivedSchemas.push($scope.dynamicForm.derSchemas[i]);
-                  }
-                  if ($scope.dynamicForm.derSchemas[i].key.indexOf(schema) > -1) {
-                    var attr = $scope.dynamicForm.derSchemas[i];
-                    attr.simpleKey = $scope.dynamicForm.derSchemas[i].key.substring($scope.dynamicForm.derSchemas[i].key.indexOf("#") + 1);
                     currentDerivedSchemas.push(attr);
+                  } else {
+                    var prefix = $scope.dynamicForm.derSchemas[i].key.substr
+                            (0, $scope.dynamicForm.derSchemas[i].key.indexOf('#'));
+                    if (prefix === group)
+                    {
+                      var shaPosition = $scope.dynamicForm.derSchemas[i].key.indexOf("#") + 1;
+                      attr.simpleKey = $scope.dynamicForm.derSchemas[i].key.substring(shaPosition);
+                      currentDerivedSchemas.push(attr);
+                    }
                   }
                 }
                 return currentDerivedSchemas;
