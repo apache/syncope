@@ -68,10 +68,11 @@ public class PolicySpecModalPanel extends AbstractModalPanel<PullPolicyTO> {
 
     public PolicySpecModalPanel(
             final PullPolicyTO policyTO, final BaseModal<PullPolicyTO> modal, final PageReference pageRef) {
+
         super(modal, pageRef);
         modal.setFormModel(policyTO);
 
-        add(new AjaxDropDownChoicePanel<ConflictResolutionAction>(
+        add(new AjaxDropDownChoicePanel<>(
                 "conflictResolutionAction",
                 "conflictResolutionAction",
                 new PropertyModel<ConflictResolutionAction>(policyTO.getSpecification(), "conflictResolutionAction")).
@@ -89,8 +90,8 @@ public class PolicySpecModalPanel extends AbstractModalPanel<PullPolicyTO> {
 
                 @Override
                 public CorrelationRule transform(final String input) {
-                    return new CorrelationRule(input, policyTO.getSpecification().getCorrelationRules().get(
-                            input));
+                    return new CorrelationRule(
+                            input, policyTO.getSpecification().getCorrelationRules().get(input));
                 }
             }, new ArrayList<CorrelationRule>());
 
@@ -137,8 +138,8 @@ public class PolicySpecModalPanel extends AbstractModalPanel<PullPolicyTO> {
             this.modal.close(target);
         } catch (Exception e) {
             LOG.error("While creating/updating policy", e);
-            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.
-                    getMessage());
+            SyncopeConsoleSession.get().error(
+                    StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
         }
         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
     }
@@ -150,7 +151,7 @@ public class PolicySpecModalPanel extends AbstractModalPanel<PullPolicyTO> {
         public CorrelationRulePanel(final String id, final IModel<CorrelationRule> rule) {
             super(id);
 
-            final AjaxDropDownChoicePanel<String> anyType = new AjaxDropDownChoicePanel<>(
+            AjaxDropDownChoicePanel<String> anyType = new AjaxDropDownChoicePanel<>(
                     "anyType", "any.type", new PropertyModel<String>(rule.getObject(), "any")).
                     setNullValid(true).
                     setChoices(CollectionUtils.collect(
@@ -167,7 +168,7 @@ public class PolicySpecModalPanel extends AbstractModalPanel<PullPolicyTO> {
             final AjaxDropDownChoicePanel<String> ruleType = new AjaxDropDownChoicePanel<>(
                     "ruleType", "rule.type", new PropertyModel<String>(rule.getObject(), "type"), false).
                     setNullValid(true).
-                    setChoices(Arrays.asList("PLAIN", "JAVA"));
+                    setChoices(Arrays.asList("PLAIN ATTRIBUTES", "JAVA"));
             add(ruleType);
 
             // ---------------------------------------------------------------
@@ -181,13 +182,13 @@ public class PolicySpecModalPanel extends AbstractModalPanel<PullPolicyTO> {
             // ---------------------------------------------------------------
 
             // ---------------------------------------------------------------
-            // Json rule palette
+            // JSON rule palette
             // ---------------------------------------------------------------
-            final AjaxPalettePanel.Builder<String> jsonRuleBuilder
-                    = new AjaxPalettePanel.Builder<String>().setName("rule.json");
+            AjaxPalettePanel.Builder<String> jsonRuleBuilder =
+                    new AjaxPalettePanel.Builder<String>().setName("rule.json");
 
-            final PropertyModel<List<String>> jsonRuleModel
-                    = new PropertyModel<List<String>>(rule.getObject(), "rule") {
+            final PropertyModel<List<String>> jsonRuleModel =
+                    new PropertyModel<List<String>>(rule.getObject(), "rule") {
 
                 private static final long serialVersionUID = 3799387950428254072L;
 
@@ -226,8 +227,8 @@ public class PolicySpecModalPanel extends AbstractModalPanel<PullPolicyTO> {
                 }
             };
 
-            final AjaxPalettePanel<String> jsonRule
-                    = jsonRuleBuilder.build("jsonRule", jsonRuleModel, new AjaxPalettePanel.Builder.Query<String>() {
+            final AjaxPalettePanel<String> jsonRule =
+                    jsonRuleBuilder.build("jsonRule", jsonRuleModel, new AjaxPalettePanel.Builder.Query<String>() {
 
                         private static final long serialVersionUID = -7223078772249308813L;
 
@@ -236,7 +237,7 @@ public class PolicySpecModalPanel extends AbstractModalPanel<PullPolicyTO> {
                             return getPlainSchemas(rule.getObject());
                         }
                     });
-            jsonRule.setOutputMarkupPlaceholderTag(true);
+            jsonRule.hideLabel().setOutputMarkupPlaceholderTag(true);
 
             anyType.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
@@ -252,7 +253,7 @@ public class PolicySpecModalPanel extends AbstractModalPanel<PullPolicyTO> {
                 }
             });
 
-            add(jsonRule.setVisible("PLAIN".equals(rule.getObject().getType())));
+            add(jsonRule.setVisible("PLAIN ATTRIBUTES".equals(rule.getObject().getType())));
             // ---------------------------------------------------------------
 
             ruleType.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
@@ -262,7 +263,7 @@ public class PolicySpecModalPanel extends AbstractModalPanel<PullPolicyTO> {
                 @Override
                 protected void onUpdate(final AjaxRequestTarget target) {
                     switch (ruleType.getModelObject() == null ? StringUtils.EMPTY : ruleType.getModelObject()) {
-                        case "PLAIN":
+                        case "PLAIN ATTRIBUTES":
                             jsonRule.setVisible(true);
                             javaRule.setVisible(false);
                             jsonRule.reload(target);
@@ -288,7 +289,8 @@ public class PolicySpecModalPanel extends AbstractModalPanel<PullPolicyTO> {
                     : CollectionUtils.collect(
                             new SchemaRestClient().getSchemas(SchemaType.PLAIN,
                                     rule.getAny().equals(AnyTypeKind.USER.name())
-                                    ? AnyTypeKind.USER : rule.getAny().equals(AnyTypeKind.GROUP.name())
+                                    ? AnyTypeKind.USER
+                                    : rule.getAny().equals(AnyTypeKind.GROUP.name())
                                     ? AnyTypeKind.GROUP
                                     : AnyTypeKind.ANY_OBJECT), new Transformer<AbstractSchemaTO, String>() {
 
@@ -315,13 +317,13 @@ public class PolicySpecModalPanel extends AbstractModalPanel<PullPolicyTO> {
 
         public CorrelationRule() {
             this.any = AnyTypeKind.USER.name();
-            this.type = "PLAIN";
+            this.type = "PLAIN ATTRIBUTES";
             this.rule = "[]";
         }
 
         public CorrelationRule(final String any, final String rule) {
             this.any = any;
-            this.type = StringUtils.isEmpty(rule) || rule.trim().startsWith("[") ? "PLAIN" : "JAVA";
+            this.type = StringUtils.isEmpty(rule) || rule.trim().startsWith("[") ? "PLAIN ATTRIBUTES" : "JAVA";
             this.rule = rule;
         }
 

@@ -32,21 +32,7 @@ include::roles.adoc[]
 
 include::provisioning/provisioning.adoc[]
 
-=== Policies
-
-[[policies-account]]
-==== Account
-
-===== Pass-through Authentication
-
-[[policies-password]]
-==== Password
-
-[[policies-pull]]
-==== Pull
-
-[[policies-push]]
-==== Push
+include::policies.adoc[]
 
 === Workflow and Approval
 

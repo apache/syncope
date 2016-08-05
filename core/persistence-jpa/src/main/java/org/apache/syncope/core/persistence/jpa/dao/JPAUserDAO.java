@@ -357,7 +357,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
                     Class<? extends AccountRule> ruleClass =
                             implementationLookup.getAccountRuleClass(ruleConf.getClass());
                     if (ruleClass == null) {
-                        LOG.warn("Could not find matching password rule for {}", ruleConf.getClass());
+                        LOG.warn("Could not find matching account rule for {}", ruleConf.getClass());
                     } else {
                         // fetch (or create) rule
                         AccountRule rule;

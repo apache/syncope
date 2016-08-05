@@ -84,7 +84,7 @@ public class PlainAttrsPullCorrelationRule implements PullCorrelationRule {
             SearchCond nodeCond;
             // users: just key or username can be selected
             // groups: just key or name can be selected
-            // any objects: just key can be selected
+            // any objects: just key or name can be selected
             if ("key".equalsIgnoreCase(schema)
                     || "username".equalsIgnoreCase(schema) || "name".equalsIgnoreCase(schema)) {
 
