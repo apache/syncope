@@ -16,33 +16,16 @@
 // specific language governing permissions and limitations
 // under the License.
 //
-=== Admin Console
-Once Apache Syncope applications have been deployed, you can go to the following url to access the admin console.
-[source]
---
-http://host:port/syncope-console/
---
 
-where `host` and `port` reflect your Java EE container installation.
+[[console-approval]]
+===== Approval
 
-You should be greeted with the following web page.
+The images below refers to the self-registration approval <<sample-selfreg-approval,sample>> and to the typical approval
+flow as explained <<approval,above>>.
 
-image::consoleLogin.png[console-login]
-
-The default admin password for a fresh installation is "password". Enter your credentials and press Login.
-
-==== Pages
-
-include::dashboard.adoc[]
-
-include::realms.adoc[]
-
-include::topology.adoc[]
-
-include::reports.adoc[]
-
-include::configuration.adoc[]
-
-include::approval.adoc[]
-
-include::extensions.adoc[]
+image::approval1.png[title="Approval notification",alt="Approval notification"]
+image::approval2.png[title="Claiming an approval",alt="Claiming an approval"]
+image::approval3.png[title="Managing an approval",alt="Managing an approval"]
+image::approval4.png[title="Approval form",alt="Approval form"]
+image::approval5.png[title="Reviewing modifications",alt="Reviewing modifications"]
+image::approval6.png[title="Approving modiications",alt="Approving modiications"]

@@ -68,6 +68,7 @@ external data.
 In addition, an http://camel.apache.org/[Apache Camel^]-based implementation is also available as 
 <<apache-camel-provisioning-engine,extension>>, which brings all the power of runtime changes and adaptation.
 
+[[workflow-layer]]
 ==== Workflow
 
 The Workflow layer is responsible for managing the internal lifecycle of users, groups and any objects.

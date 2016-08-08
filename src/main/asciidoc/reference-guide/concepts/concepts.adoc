@@ -34,7 +34,7 @@ include::provisioning/provisioning.adoc[]
 
 include::policies.adoc[]
 
-=== Workflow and Approval
+include::workflow.adoc[]
 
 === Notifications
 
