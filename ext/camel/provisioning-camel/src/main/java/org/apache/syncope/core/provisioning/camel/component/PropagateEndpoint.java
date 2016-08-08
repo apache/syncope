@@ -1,18 +1,20 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 package org.apache.syncope.core.provisioning.camel.component;
 
@@ -46,12 +48,13 @@ import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
 @UriEndpoint(scheme = "propagate", title = "propagate", syntax = "propagate:propagateType", producerOnly = true)
 public class PropagateEndpoint extends DefaultEndpoint {
 
-    @UriPath @Metadata(required = "true")
+    @UriPath
+    @Metadata(required = "true")
     private PropagateType propagateType;
 
     @UriParam
     private AnyTypeKind anyTypeKind;
-    
+
     @UriParam
     private boolean pull;
 
@@ -66,8 +69,8 @@ public class PropagateEndpoint extends DefaultEndpoint {
     private AnyObjectDAO anyObjectDAO;
 
     private GroupDataBinder groupDataBinder;
-    
-    private  UserWorkflowAdapter uwfAdapter;
+
+    private UserWorkflowAdapter uwfAdapter;
 
     public PropagateEndpoint(final String endpointUri, final Component component) {
         super(endpointUri, component);
@@ -76,22 +79,35 @@ public class PropagateEndpoint extends DefaultEndpoint {
     @Override
     public Producer createProducer() throws Exception {
         AbstractProducer producer = null;
-        if (PropagateType.create == propagateType) {
-            producer = new CreateProducer(this, anyTypeKind);
-        } else if (PropagateType.update == propagateType) {
-            producer = new UpdateProducer(this, anyTypeKind);
-        } else if (PropagateType.delete == propagateType) {
-            producer = new DeleteProducer(this, anyTypeKind, userDAO, groupDataBinder);
-        } else if (PropagateType.provision == propagateType) {
-            producer = new ProvisionProducer(this, anyTypeKind);
-        } else if (PropagateType.deprovision == propagateType) {
-            producer = new DeprovisionProducer(this, anyTypeKind, userDAO, groupDAO, anyObjectDAO);
-        } else if (PropagateType.status == propagateType) {
-            producer = new StatusProducer(this, anyTypeKind, userDAO, uwfAdapter);
-        } else if (PropagateType.suspend == propagateType) {
-            producer = new SuspendProducer(this, anyTypeKind);
-        } else if (PropagateType.confirmPasswordReset == propagateType) {
-            producer = new ConfirmPasswordResetProducer(this, anyTypeKind);
+        if (null != propagateType) {
+            switch (propagateType) {
+                case create:
+                    producer = new CreateProducer(this, anyTypeKind);
+                    break;
+                case update:
+                    producer = new UpdateProducer(this, anyTypeKind);
+                    break;
+                case delete:
+                    producer = new DeleteProducer(this, anyTypeKind, userDAO, groupDataBinder);
+                    break;
+                case provision:
+                    producer = new ProvisionProducer(this, anyTypeKind);
+                    break;
+                case deprovision:
+                    producer = new DeprovisionProducer(this, anyTypeKind, userDAO, groupDAO, anyObjectDAO);
+                    break;
+                case status:
+                    producer = new StatusProducer(this, anyTypeKind, userDAO, uwfAdapter);
+                    break;
+                case suspend:
+                    producer = new SuspendProducer(this, anyTypeKind);
+                    break;
+                case confirmPasswordReset:
+                    producer = new ConfirmPasswordResetProducer(this, anyTypeKind);
+                    break;
+                default:
+                    break;
+            }
         }
 
         if (producer != null) {
