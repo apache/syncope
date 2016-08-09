@@ -242,7 +242,7 @@ public class AuthenticationITCase extends AbstractITCase {
             role.getEntitlements().add(StandardEntitlement.USER_CREATE);
             role.getEntitlements().add(StandardEntitlement.USER_UPDATE);
             role.getEntitlements().add(StandardEntitlement.USER_DELETE);
-            role.getEntitlements().add(StandardEntitlement.USER_LIST);
+            role.getEntitlements().add(StandardEntitlement.USER_SEARCH);
             role.getEntitlements().add(StandardEntitlement.USER_READ);
             role.getRealms().add("/even/two");
 

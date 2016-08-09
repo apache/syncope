@@ -131,7 +131,7 @@ public class SchemaTypePanel extends TypesDirectoryPanel<AbstractSchemaTO, Schem
             }, true);
 
             initResultTable();
-            MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, ENABLE, StandardEntitlement.SCHEMA_LIST);
+            MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.SCHEMA_LIST);
         } catch (InstantiationException | IllegalAccessException e) {
             LOG.error("Error create new schema", e);
         }

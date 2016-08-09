@@ -96,7 +96,7 @@ public class PolicyRuleDirectoryPanel<T extends AbstractPolicyTO> extends Direct
 
         this.addNewItemPanelBuilder(new PolicyRuleWizardBuilder(policy, type, new PolicyRuleWrapper(), pageRef), true);
 
-        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, ENABLE, StandardEntitlement.POLICY_UPDATE);
+        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.POLICY_UPDATE);
         initResultTable();
     }
 

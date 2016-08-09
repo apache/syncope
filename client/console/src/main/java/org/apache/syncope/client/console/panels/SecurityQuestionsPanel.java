@@ -87,7 +87,7 @@ public class SecurityQuestionsPanel extends DirectoryPanel<
         modal.size(Modal.Size.Large);
         initResultTable();
 
-        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, ENABLE, StandardEntitlement.SECURITY_QUESTION_CREATE);
+        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.SECURITY_QUESTION_CREATE);
     }
 
     private SecurityQuestionsPanel(

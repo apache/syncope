@@ -18,12 +18,16 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
+import static org.apache.wicket.Component.RENDER;
+import static org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy.ACTION_PERMISSIONS;
+
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.checkbox.bootstraptoggle.BootstrapToggle;
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.checkbox.bootstraptoggle.BootstrapToggleConfig;
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.search.AnySelectionDirectoryPanel;
 import org.apache.syncope.client.console.panels.search.GroupSearchPanel;
@@ -45,11 +49,14 @@ import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.authroles.authorization.strategies.role.metadata.ActionPermissions;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
+import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.CheckBox;
@@ -60,7 +67,7 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.util.ListModel;
 
-public class Ownership extends WizardStep {
+public class Ownership extends WizardStep implements WizardModel.ICondition {
 
     private static final long serialVersionUID = 855618618337931784L;
 
@@ -94,6 +101,18 @@ public class Ownership extends WizardStep {
 
     public Ownership(final GroupWrapper groupWrapper, final PageReference pageRef) {
         super();
+
+        // -----------------------------------------------------------------
+        // Pre-Authorizations
+        // -----------------------------------------------------------------
+        final ActionPermissions permissions = new ActionPermissions();
+        setMetaData(ACTION_PERMISSIONS, permissions);
+        permissions.authorize(RENDER,
+                new org.apache.wicket.authroles.authorization.strategies.role.Roles(new StringBuilder().
+                        append(StandardEntitlement.USER_SEARCH).append(",").
+                        append(StandardEntitlement.GROUP_SEARCH).toString()));
+        // -----------------------------------------------------------------
+
         setTitleModel(new ResourceModel("group.ownership"));
         this.wrapper = groupWrapper;
 
@@ -315,5 +334,11 @@ public class Ownership extends WizardStep {
         } else {
             super.onEvent(event);
         }
+    }
+
+    @Override
+    public boolean evaluate() {
+        return SyncopeConsoleApplication.get().getSecuritySettings().getAuthorizationStrategy().
+                isActionAuthorized(this, RENDER);
     }
 }

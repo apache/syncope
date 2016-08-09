@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import static org.apache.wicket.Component.RENDER;
+
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbedPanel;
 import java.io.Serializable;
@@ -30,9 +32,11 @@ import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
+import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.commons.AnyTypeComparator;
 import org.apache.syncope.client.console.commons.ConnIdSpecialAttributeName;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.commons.ITabComponent;
 import org.apache.syncope.client.console.commons.status.StatusUtils;
 import org.apache.syncope.client.console.layout.AnyObjectFormLayoutInfo;
 import org.apache.syncope.client.console.layout.FormLayoutInfoUtils;
@@ -55,6 +59,7 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
@@ -159,13 +164,21 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
 
         Collections.sort(anyTypeTOs, new AnyTypeComparator());
         for (final AnyTypeTO anyTypeTO : anyTypeTOs) {
-            tabs.add(new AbstractTab(new Model<>(anyTypeTO.getKey())) {
+            tabs.add(new ITabComponent(
+                    new Model<>(anyTypeTO.getKey()),
+                    String.format("%s_SEARCH", anyTypeTO.getKey())) {
 
-                private static final long serialVersionUID = -5861786415855103549L;
+                private static final long serialVersionUID = 1169585538404171118L;
 
                 @Override
-                public Panel getPanel(final String panelId) {
+                public WebMarkupContainer getPanel(final String panelId) {
                     return new AnyPanel(panelId, anyTypeTO, realmTO, formLayoutInfo, true, pageRef);
+                }
+
+                @Override
+                public boolean isVisible() {
+                    return SyncopeConsoleApplication.get().getSecuritySettings().getAuthorizationStrategy().
+                            isActionAuthorized(this, RENDER);
                 }
             });
         }

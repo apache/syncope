@@ -18,6 +18,9 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
+import static org.apache.wicket.Component.RENDER;
+import static org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy.ACTION_PERMISSIONS;
+
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -26,6 +29,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.collections4.Transformer;
+import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.lib.SyncopeClient;
@@ -41,6 +45,8 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.util.lang.Args;
 import org.apache.syncope.common.lib.to.GroupableRelatableTO;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.wicket.authroles.authorization.strategies.role.metadata.ActionPermissions;
 import org.apache.wicket.extensions.wizard.WizardModel.ICondition;
 
 public class Groups extends WizardStep implements ICondition {
@@ -53,6 +59,16 @@ public class Groups extends WizardStep implements ICondition {
 
     public <T extends AnyTO> Groups(final T anyTO, final boolean templateMode) {
         super();
+
+        // -----------------------------------------------------------------
+        // Pre-Authorizations
+        // -----------------------------------------------------------------
+        final ActionPermissions permissions = new ActionPermissions();
+        setMetaData(ACTION_PERMISSIONS, permissions);
+        permissions.authorize(RENDER,
+                new org.apache.wicket.authroles.authorization.strategies.role.Roles(StandardEntitlement.GROUP_SEARCH));
+        // -----------------------------------------------------------------
+
         setOutputMarkupId(true);
 
         Args.isTrue((anyTO instanceof UserTO) || (anyTO instanceof AnyObjectTO), "Expected user or anyObject");
@@ -60,31 +76,31 @@ public class Groups extends WizardStep implements ICondition {
         AjaxPalettePanel.Builder<MembershipTO> builder = new AjaxPalettePanel.Builder<MembershipTO>().
                 setRenderer(new IChoiceRenderer<MembershipTO>() {
 
-            private static final long serialVersionUID = -3086661086073628855L;
-
-            @Override
-            public Object getDisplayValue(final MembershipTO object) {
-                return object.getGroupName();
-            }
-
-            @Override
-            public String getIdValue(final MembershipTO object, final int index) {
-                return object.getGroupName();
-            }
-
-            @Override
-            public MembershipTO getObject(
-                    final String id, final IModel<? extends List<? extends MembershipTO>> choices) {
-
-                return IterableUtils.find(choices.getObject(), new Predicate<MembershipTO>() {
+                    private static final long serialVersionUID = -3086661086073628855L;
 
                     @Override
-                    public boolean evaluate(final MembershipTO object) {
-                        return id.equalsIgnoreCase(object.getGroupName());
+                    public Object getDisplayValue(final MembershipTO object) {
+                        return object.getGroupName();
+                    }
+
+                    @Override
+                    public String getIdValue(final MembershipTO object, final int index) {
+                        return object.getGroupName();
+                    }
+
+                    @Override
+                    public MembershipTO getObject(
+                            final String id, final IModel<? extends List<? extends MembershipTO>> choices) {
+
+                        return IterableUtils.find(choices.getObject(), new Predicate<MembershipTO>() {
+
+                            @Override
+                            public boolean evaluate(final MembershipTO object) {
+                                return id.equalsIgnoreCase(object.getGroupName());
+                            }
+                        });
                     }
                 });
-            }
-        });
 
         add(builder.setAllowOrder(true).withFilter().build("groups",
                 new ListModel<>(GroupableRelatableTO.class.cast(anyTO).getMemberships()),
@@ -96,12 +112,12 @@ public class Groups extends WizardStep implements ICondition {
             public List<MembershipTO> execute(final String filter) {
                 return CollectionUtils.collect(
                         groupRestClient.search(
-                        anyTO.getRealm(),
-                        SyncopeClient.getGroupSearchConditionBuilder().
-                        isAssignable().and().is("name").equalTo(filter).query(),
-                        -1, -1,
-                        new SortParam<>("name", true),
-                        null),
+                                anyTO.getRealm(),
+                                SyncopeClient.getGroupSearchConditionBuilder().
+                                isAssignable().and().is("name").equalTo(filter).query(),
+                                -1, -1,
+                                new SortParam<>("name", true),
+                                null),
                         new Transformer<GroupTO, MembershipTO>() {
 
                     @Override
@@ -123,25 +139,27 @@ public class Groups extends WizardStep implements ICondition {
         }
         add(new AjaxPalettePanel.Builder<String>().setAllowOrder(true).build("dyngroups",
                 new ListModel<>(CollectionUtils.collect(GroupableRelatableTO.class.cast(anyTO).getDynGroups(),
-                new Transformer<String, String>() {
+                        new Transformer<String, String>() {
 
-            @Override
-            public String transform(final String input) {
-                return allGroupsByKey.get(input).getName();
-            }
-        }, new ArrayList<String>())),
+                    @Override
+                    public String transform(final String input) {
+                        return allGroupsByKey.get(input).getName();
+                    }
+                }, new ArrayList<String>())),
                 new ListModel<>(CollectionUtils.collect(allGroups, new Transformer<GroupTO, String>() {
 
-            @Override
-            public String transform(final GroupTO input) {
-                return input.getName();
-            }
-        }, new ArrayList<String>()))).
+                    @Override
+                    public String transform(final GroupTO input) {
+                        return input.getName();
+                    }
+                }, new ArrayList<String>()))).
                 hideLabel().setEnabled(false).setOutputMarkupId(true));
     }
 
     @Override
     public boolean evaluate() {
-        return CollectionUtils.isNotEmpty(allGroups);
+        return CollectionUtils.isNotEmpty(allGroups)
+                && SyncopeConsoleApplication.get().getSecuritySettings().getAuthorizationStrategy().
+                isActionAuthorized(this, RENDER);
     }
 }

@@ -98,7 +98,7 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
 
         this.addNewItemPanelBuilder(new ReportletWizardBuilder(report, new ReportletWrapper(), pageRef), true);
 
-        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, ENABLE, StandardEntitlement.REPORT_UPDATE);
+        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.REPORT_UPDATE);
         initResultTable();
     }
 

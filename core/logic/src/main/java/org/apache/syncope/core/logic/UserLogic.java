@@ -86,15 +86,15 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
     @Autowired
     protected SyncopeLogic syncopeLogic;
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.USER_LIST + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.USER_SEARCH + "')")
     @Transactional(readOnly = true)
     @Override
     public int count(final String realm) {
         return userDAO.count(
-                getEffectiveRealms(AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_LIST), realm));
+                getEffectiveRealms(AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_SEARCH), realm));
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.USER_LIST + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.USER_SEARCH + "')")
     @Transactional(readOnly = true)
     @Override
     public List<UserTO> list(
@@ -102,7 +102,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
             final String realm, final boolean details) {
 
         return CollectionUtils.collect(userDAO.findAll(
-                getEffectiveRealms(AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_LIST), realm),
+                getEffectiveRealms(AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_SEARCH), realm),
                 page, size, orderBy),
                 new Transformer<User, UserTO>() {
 
@@ -194,8 +194,8 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
             securityChecks(effectiveRealms, before.getLeft().getRealm(), null);
         }
 
-        Pair<String, List<PropagationStatus>> created =
-                provisioningManager.create(before.getLeft(), storePassword, nullPriorityAsync);
+        Pair<String, List<PropagationStatus>> created = provisioningManager.create(before.getLeft(), storePassword,
+                nullPriorityAsync);
 
         return after(binder.returnUserTO(binder.getUserTO(created.getKey())), created.getRight(), before.getRight());
     }
@@ -506,8 +506,8 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
                 user.getRealm());
         securityChecks(effectiveRealms, user.getRealm(), user.getKey());
 
-        List<PropagationStatus> statuses =
-                provisioningManager.provision(key, changePwd, password, resources, nullPriorityAsync);
+        List<PropagationStatus> statuses = provisioningManager.provision(key, changePwd, password, resources,
+                nullPriorityAsync);
 
         ProvisioningResult<UserTO> result = new ProvisioningResult<>();
         result.setEntity(binder.returnUserTO(binder.getUserTO(key)));

@@ -68,7 +68,7 @@ public class ApprovalDirectoryPanel
 
         initResultTable();
 
-        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, ENABLE, StandardEntitlement.WORKFLOW_FORM_SUBMIT);
+        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.WORKFLOW_FORM_SUBMIT);
     }
 
     @Override

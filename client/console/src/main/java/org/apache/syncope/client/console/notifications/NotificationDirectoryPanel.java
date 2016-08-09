@@ -81,7 +81,7 @@ public class NotificationDirectoryPanel
 
         initResultTable();
 
-        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, ENABLE, StandardEntitlement.NOTIFICATION_CREATE);
+        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.NOTIFICATION_CREATE);
     }
 
     @Override

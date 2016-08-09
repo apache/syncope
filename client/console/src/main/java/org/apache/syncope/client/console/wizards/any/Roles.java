@@ -18,16 +18,22 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
+import static org.apache.wicket.Component.RENDER;
+import static org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy.ACTION_PERMISSIONS;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.rest.RoleRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.wicket.authroles.authorization.strategies.role.metadata.ActionPermissions;
 import org.apache.wicket.extensions.wizard.WizardModel.ICondition;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.model.PropertyModel;
@@ -40,10 +46,20 @@ public class Roles extends WizardStep implements ICondition {
     private final List<String> allRoles;
 
     public <T extends AnyTO> Roles(final UserTO entityTO) {
+        // -----------------------------------------------------------------
+        // Pre-Authorizations
+        // -----------------------------------------------------------------
+        final ActionPermissions permissions = new ActionPermissions();
+        setMetaData(ACTION_PERMISSIONS, permissions);
+        permissions.authorize(RENDER,
+                new org.apache.wicket.authroles.authorization.strategies.role.Roles(StandardEntitlement.ROLE_LIST));
+        // -----------------------------------------------------------------
+
         this.setOutputMarkupId(true);
 
-        allRoles = CollectionUtils.collect(new RoleRestClient().list(),
-                EntityTOUtils.<RoleTO>keyTransformer(), new ArrayList<String>());
+        allRoles = SyncopeConsoleApplication.get().getSecuritySettings().getAuthorizationStrategy().
+                isActionAuthorized(this, RENDER) ? CollectionUtils.collect(new RoleRestClient().list(),
+                EntityTOUtils.<RoleTO>keyTransformer(), new ArrayList<String>()) : Collections.<String>emptyList();
         Collections.sort(allRoles);
 
         add(new AjaxPalettePanel.Builder<String>().build("roles",
@@ -56,7 +72,9 @@ public class Roles extends WizardStep implements ICondition {
     }
 
     @Override
-    public boolean evaluate() {
-        return CollectionUtils.isNotEmpty(allRoles);
+    public final boolean evaluate() {
+        return CollectionUtils.isNotEmpty(allRoles)
+                && SyncopeConsoleApplication.get().getSecuritySettings().getAuthorizationStrategy().
+                isActionAuthorized(this, RENDER);
     }
 }

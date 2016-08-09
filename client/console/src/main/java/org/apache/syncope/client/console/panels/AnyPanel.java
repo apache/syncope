@@ -94,7 +94,6 @@ public class AnyPanel extends Panel implements ModalPanel {
         this.realmTO = realmTO;
         this.formLayoutInfo = formLayoutInfo;
         this.pageRef = pageRef;
-
         // ------------------------
         // Accordion
         // ------------------------
@@ -176,20 +175,16 @@ public class AnyPanel extends Panel implements ModalPanel {
         final AbstractSearchPanel panel;
         switch (anyTypeTO.getKind()) {
             case USER:
-                panel = UserSearchPanel.class.cast(new UserSearchPanel.Builder(
-                        new ListModel<>(new ArrayList<SearchClause>())).required(false).enableSearch().build(id));
-                MetaDataRoleAuthorizationStrategy.authorize(panel, WebPage.RENDER, StandardEntitlement.USER_LIST);
+                panel = new UserSearchPanel.Builder(
+                        new ListModel<>(new ArrayList<SearchClause>())).required(false).enableSearch().build(id);
                 break;
             case GROUP:
                 panel = new GroupSearchPanel.Builder(
                         new ListModel<>(new ArrayList<SearchClause>())).required(false).enableSearch().build(id);
-                // list of group is available to all authenticated users
                 break;
             case ANY_OBJECT:
                 panel = new AnyObjectSearchPanel.Builder(anyTypeTO.getKey(),
                         new ListModel<>(new ArrayList<SearchClause>())).required(false).enableSearch().build(id);
-                MetaDataRoleAuthorizationStrategy.authorize(
-                        panel, WebPage.RENDER, AnyEntitlement.LIST.getFor(anyTypeTO.getKey()));
                 break;
             default:
                 panel = null;
@@ -214,7 +209,7 @@ public class AnyPanel extends Panel implements ModalPanel {
                         anyTypeTO.getClasses(),
                         formLayoutInfo.getLeft(),
                         pageRef)).build(id);
-                MetaDataRoleAuthorizationStrategy.authorize(panel, WebPage.RENDER, StandardEntitlement.USER_LIST);
+                MetaDataRoleAuthorizationStrategy.authorize(panel, WebPage.RENDER, StandardEntitlement.USER_SEARCH);
                 break;
 
             case GROUP:
@@ -249,7 +244,7 @@ public class AnyPanel extends Panel implements ModalPanel {
                         formLayoutInfo.getRight().get(anyTypeTO.getKey()),
                         pageRef)).build(id);
                 MetaDataRoleAuthorizationStrategy.authorize(
-                        panel, WebPage.RENDER, AnyEntitlement.LIST.getFor(anyTypeTO.getKey()));
+                        panel, WebPage.RENDER, AnyEntitlement.SEARCH.getFor(anyTypeTO.getKey()));
                 break;
 
             default:

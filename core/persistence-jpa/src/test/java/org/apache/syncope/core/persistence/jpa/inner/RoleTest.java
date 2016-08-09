@@ -50,7 +50,7 @@ public class RoleTest extends AbstractTest {
         assertNotNull(role.getKey());
         assertFalse(role.getRealms().isEmpty());
         assertFalse(role.getEntitlements().isEmpty());
-        assertTrue(role.getEntitlements().contains(StandardEntitlement.USER_LIST));
+        assertTrue(role.getEntitlements().contains(StandardEntitlement.USER_SEARCH));
     }
 
     @Test

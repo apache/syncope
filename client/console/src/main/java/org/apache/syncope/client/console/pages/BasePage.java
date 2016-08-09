@@ -171,8 +171,10 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
         liContainer = new WebMarkupContainer(getLIContainerId("topology"));
         body.add(liContainer);
         link = BookmarkablePageLinkBuilder.build("topology", Topology.class);
-        MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.ENABLE,
-                String.format("%s,%s", StandardEntitlement.CONNECTOR_LIST, StandardEntitlement.RESOURCE_LIST));
+        StringBuilder bld = new StringBuilder();
+        bld.append(StandardEntitlement.CONNECTOR_LIST).append(",").
+                append(StandardEntitlement.RESOURCE_LIST).append(",");
+        MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.ENABLE, bld.toString());
         liContainer.add(link);
 
         liContainer = new WebMarkupContainer(getLIContainerId("reports"));
@@ -206,7 +208,13 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
 
         liContainer = new WebMarkupContainer(getLIContainerId("securityquestions"));
         confULContainer.add(liContainer);
-        liContainer.add(BookmarkablePageLinkBuilder.build("securityquestions", SecurityQuestions.class));
+        bld = new StringBuilder();
+        bld.append(StandardEntitlement.SECURITY_QUESTION_CREATE).append(",").
+                append(StandardEntitlement.SECURITY_QUESTION_DELETE).append(",").
+                append(StandardEntitlement.SECURITY_QUESTION_UPDATE);
+        link = BookmarkablePageLinkBuilder.build("securityquestions", SecurityQuestions.class);
+        MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.ENABLE, bld.toString());
+        liContainer.add(link);
 
         liContainer = new WebMarkupContainer(getLIContainerId("types"));
         confULContainer.add(liContainer);
@@ -298,8 +306,8 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
         }
 
         // Extensions
-        ClassPathScanImplementationLookup classPathScanImplementationLookup =
-                (ClassPathScanImplementationLookup) SyncopeConsoleApplication.get().
+        ClassPathScanImplementationLookup classPathScanImplementationLookup
+                = (ClassPathScanImplementationLookup) SyncopeConsoleApplication.get().
                 getServletContext().getAttribute(ConsoleInitializer.CLASSPATH_LOOKUP);
         List<Class<? extends BaseExtPage>> extPageClasses = classPathScanImplementationLookup.getExtPageClasses();
 

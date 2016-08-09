@@ -73,7 +73,7 @@ public abstract class ReportDirectoryPanel
         this.restClient = new ReportRestClient();
 
         this.addNewItemPanelBuilder(new ReportWizardBuilder(new ReportTO(), pageRef), true);
-        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, ENABLE, StandardEntitlement.REPORT_CREATE);
+        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.REPORT_CREATE);
 
         modal.size(Modal.Size.Large);
         initResultTable();

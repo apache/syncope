@@ -71,6 +71,9 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
 
     protected RoleDirectoryPanel(final String id, final Builder builder) {
         super(id, builder);
+        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.ROLE_CREATE);
+        setReadOnly(!SyncopeConsoleSession.get().owns(StandardEntitlement.ROLE_UPDATE));
+
         setShowResultPage(true);
 
         modal.size(Modal.Size.Large);
@@ -83,8 +86,6 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
 
         addOuterObject(membersModal);
         membersModal.size(Modal.Size.Large);
-
-        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, ENABLE, StandardEntitlement.ROLE_CREATE);
     }
 
     @Override
@@ -153,7 +154,7 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
                                 MetaDataRoleAuthorizationStrategy.authorize(
                                         panel,
                                         WebPage.RENDER,
-                                        StandardEntitlement.USER_LIST);
+                                        StandardEntitlement.USER_SEARCH);
 
                                 return panel;
                             }
@@ -164,7 +165,7 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
                         membersModal.show(true);
                         target.add(membersModal);
                     }
-                }, ActionLink.ActionType.MEMBERS, StandardEntitlement.USER_LIST).add(new ActionLink<RoleTO>() {
+                }, ActionLink.ActionType.MEMBERS, StandardEntitlement.USER_SEARCH).add(new ActionLink<RoleTO>() {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 

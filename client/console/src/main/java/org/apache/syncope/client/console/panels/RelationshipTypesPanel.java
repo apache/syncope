@@ -99,7 +99,7 @@ public class RelationshipTypesPanel extends TypesDirectoryPanel<RelationshipType
         }, true);
 
         initResultTable();
-        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, ENABLE, StandardEntitlement.RELATIONSHIPTYPE_CREATE);
+        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.RELATIONSHIPTYPE_CREATE);
     }
 
     @Override

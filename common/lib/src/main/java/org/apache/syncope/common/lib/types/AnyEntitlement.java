@@ -20,7 +20,6 @@ package org.apache.syncope.common.lib.types;
 
 public enum AnyEntitlement {
     SEARCH,
-    LIST,
     CREATE,
     READ,
     UPDATE,

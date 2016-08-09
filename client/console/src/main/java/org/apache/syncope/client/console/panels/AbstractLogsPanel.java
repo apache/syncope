@@ -30,9 +30,11 @@ import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.LoggerTO;
 import org.apache.syncope.common.lib.types.LoggerLevel;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
@@ -66,6 +68,8 @@ public abstract class AbstractLogsPanel<T extends AbstractBaseBean> extends Pane
                 if ("level".equalsIgnoreCase(key)) {
                     final AjaxDropDownChoicePanel<LoggerLevel> loggerTOs = new AjaxDropDownChoicePanel<>(
                             "field", getString("level"), Model.of(loggerTO.getLevel()), false);
+                    MetaDataRoleAuthorizationStrategy.authorize(loggerTOs, ENABLE, StandardEntitlement.LOG_SET_LEVEL);
+
                     loggerTOs.hideLabel();
                     loggerTOs.setChoices(Arrays.asList(LoggerLevel.values()));
                     loggerTOs.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {

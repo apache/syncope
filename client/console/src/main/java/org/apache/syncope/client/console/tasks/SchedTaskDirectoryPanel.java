@@ -101,7 +101,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
 
         this.addNewItemPanelBuilder(new SchedTaskWizardBuilder<>(schedTaskTO, pageRef), true);
 
-        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, ENABLE, StandardEntitlement.TASK_CREATE);
+        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.TASK_CREATE);
 
         enableExitButton();
         setFooterVisibility(false);

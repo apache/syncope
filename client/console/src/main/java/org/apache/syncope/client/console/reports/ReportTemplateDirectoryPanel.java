@@ -105,7 +105,7 @@ public class ReportTemplateDirectoryPanel
 
         initResultTable();
 
-        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, ENABLE, StandardEntitlement.MAIL_TEMPLATE_CREATE);
+        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.MAIL_TEMPLATE_CREATE);
     }
 
     @Override

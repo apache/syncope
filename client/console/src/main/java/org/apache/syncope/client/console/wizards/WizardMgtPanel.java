@@ -56,6 +56,8 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
 
     protected static final String WIZARD_ID = "wizard";
 
+    private boolean readOnly = false;
+
     private final String actualId;
 
     private final WebMarkupContainer container;
@@ -180,7 +182,11 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
                     modalPanel = newItemPanelBuilder.build(
                             actualId,
                             ((AjaxWizard.NewItemActionEvent<T>) newItemEvent).getIndex(),
-                            item != null ? AjaxWizard.Mode.EDIT : AjaxWizard.Mode.CREATE);
+                            item != null
+                                    ? isReadOnly()
+                                            ? AjaxWizard.Mode.READONLY
+                                            : AjaxWizard.Mode.EDIT
+                                    : AjaxWizard.Mode.CREATE);
                 } else {
                     modalPanel = newItemEvent.getModalPanel();
                 }
@@ -464,5 +470,13 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
         public AjaxRequestTarget getTarget() {
             return target;
         }
+    }
+
+    public boolean isReadOnly() {
+        return readOnly;
+    }
+
+    public void setReadOnly(final boolean readOnly) {
+        this.readOnly = readOnly;
     }
 }

@@ -108,7 +108,7 @@ public class ParametersPanel extends DirectoryPanel<
         modal.size(Modal.Size.Medium);
         initResultTable();
 
-        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, ENABLE, StandardEntitlement.CONFIGURATION_SET);
+        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.CONFIGURATION_SET);
     }
 
     public ParametersPanel(

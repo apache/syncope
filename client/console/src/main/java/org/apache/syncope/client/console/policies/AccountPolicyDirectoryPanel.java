@@ -47,7 +47,7 @@ public class AccountPolicyDirectoryPanel extends PolicyDirectoryPanel<AccountPol
 
         this.addNewItemPanelBuilder(new PolicyModalPanelBuilder<AccountPolicyTO>(
                 new AccountPolicyTO(), modal, pageRef), true);
-        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, ENABLE, StandardEntitlement.POLICY_CREATE);
+        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.POLICY_CREATE);
 
         initResultTable();
     }

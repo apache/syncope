@@ -134,7 +134,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                                     setWizardInModal(false).build(id);
 
                             MetaDataRoleAuthorizationStrategy.authorize(
-                                    panel, WebPage.RENDER, StandardEntitlement.USER_LIST);
+                                    panel, WebPage.RENDER, StandardEntitlement.USER_SEARCH);
                         } else {
                             String query = SyncopeClient.getAnyObjectSearchConditionBuilder(type).and(
                                     SyncopeClient.getUserSearchConditionBuilder().inGroups(groupTO.getKey()),
@@ -154,7 +154,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                                     setWizardInModal(false).build(id);
 
                             MetaDataRoleAuthorizationStrategy.authorize(
-                                    panel, WebPage.RENDER, AnyEntitlement.LIST.getFor(anyTypeTO.getKey()));
+                                    panel, WebPage.RENDER, AnyEntitlement.SEARCH.getFor(anyTypeTO.getKey()));
                         }
 
                         return panel;
@@ -212,8 +212,6 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                     Arrays.asList(GroupDisplayAttributesModalPanel.DEFAULT_SELECTION));
         }
 
-        setWindowClosedReloadCallback(displayAttributeModal);
-
         columns.add(new ActionColumn<GroupTO, String>(new ResourceModel("actions")) {
 
             private static final long serialVersionUID = -3503023501954863131L;
@@ -268,7 +266,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                                 new AjaxWizard.EditItemActionEvent<>(new GroupWrapper(
                                         restClient.read(model.getObject().getKey())), target));
                     }
-                }, ActionType.EDIT, StandardEntitlement.GROUP_UPDATE).add(new ActionLink<GroupTO>() {
+                }, ActionType.EDIT, StandardEntitlement.GROUP_READ).add(new ActionLink<GroupTO>() {
 
                     private static final long serialVersionUID = 6242834621660352855L;
 

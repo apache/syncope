@@ -202,7 +202,8 @@ public class ApprovalsWidget extends AlertWidget<WorkflowFormTO> {
 
         protected static List<WorkflowFormTO> getLatestAlerts() {
             final List<WorkflowFormTO> updatedApprovals;
-            if (SyncopeConsoleSession.get().owns(StandardEntitlement.WORKFLOW_FORM_LIST)) {
+            if (SyncopeConsoleSession.get().owns(StandardEntitlement.WORKFLOW_FORM_LIST)
+                    && SyncopeConsoleSession.get().owns(StandardEntitlement.WORKFLOW_FORM_READ)) {
                 updatedApprovals = SyncopeConsoleSession.get().getService(UserWorkflowService.class).getForms();
             } else {
                 updatedApprovals = Collections.<WorkflowFormTO>emptyList();

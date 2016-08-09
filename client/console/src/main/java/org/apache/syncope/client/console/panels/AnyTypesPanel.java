@@ -99,7 +99,7 @@ public class AnyTypesPanel extends TypesDirectoryPanel<AnyTypeTO, AnyTypeProvide
         }, true);
 
         initResultTable();
-        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, ENABLE, StandardEntitlement.ANYTYPE_CREATE);
+        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.ANYTYPE_CREATE);
     }
 
     @Override

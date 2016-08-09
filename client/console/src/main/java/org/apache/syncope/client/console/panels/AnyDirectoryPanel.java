@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import static org.apache.wicket.Component.RENDER;
+
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import java.lang.reflect.Field;
@@ -27,6 +29,7 @@ import java.util.Date;
 import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.AnyDataProvider;
 import org.apache.syncope.client.console.commons.SerializableTransformer;
 import org.apache.syncope.client.console.commons.status.ConnObjectWrapper;
@@ -48,6 +51,7 @@ import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -88,6 +92,9 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
 
     protected AnyDirectoryPanel(final String id, final Builder<A, E> builder, final boolean wizardInModal) {
         super(id, builder, wizardInModal);
+        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, String.format("%s_CREATE", builder.type));
+        setReadOnly(!SyncopeConsoleSession.get().owns(String.format("%s_UPDATE", builder.type)));
+
         this.realm = builder.realm;
         this.type = builder.type;
         this.fiql = builder.fiql;

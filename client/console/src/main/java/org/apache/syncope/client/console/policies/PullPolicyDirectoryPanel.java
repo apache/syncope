@@ -46,7 +46,7 @@ public class PullPolicyDirectoryPanel extends PolicyDirectoryPanel<PullPolicyTO>
 
         this.addNewItemPanelBuilder(
                 new PolicyModalPanelBuilder<PullPolicyTO>(defaultItem, modal, pageRef), true);
-        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, ENABLE, StandardEntitlement.POLICY_CREATE);
+        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.POLICY_CREATE);
 
         initResultTable();
     }

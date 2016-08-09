@@ -162,7 +162,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             }
         };
         fragment.add(reload);
-        MetaDataRoleAuthorizationStrategy.authorize(reload, ENABLE, StandardEntitlement.CONNECTOR_RELOAD);
+        MetaDataRoleAuthorizationStrategy.authorize(reload, RENDER, StandardEntitlement.CONNECTOR_RELOAD);
 
         AjaxLink<String> tasks = new IndicatingAjaxLink<String>("tasks") {
 
@@ -176,7 +176,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             }
         };
         fragment.add(tasks);
-        MetaDataRoleAuthorizationStrategy.authorize(tasks, ENABLE, StandardEntitlement.TASK_LIST);
+        MetaDataRoleAuthorizationStrategy.authorize(tasks, RENDER, StandardEntitlement.TASK_LIST);
 
         return fragment;
     }
@@ -202,13 +202,13 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 modal.header(new Model<>(MessageFormat.format(getString("connector.new"), node.getKey())));
 
                 MetaDataRoleAuthorizationStrategy.
-                        authorize(modal.getForm(), ENABLE, StandardEntitlement.CONNECTOR_CREATE);
+                        authorize(modal.getForm(), RENDER, StandardEntitlement.CONNECTOR_CREATE);
 
                 modal.show(true);
             }
         };
         fragment.add(create);
-        MetaDataRoleAuthorizationStrategy.authorize(create, ENABLE, StandardEntitlement.CONNECTOR_CREATE);
+        MetaDataRoleAuthorizationStrategy.authorize(create, RENDER, StandardEntitlement.CONNECTOR_CREATE);
 
         return fragment;
     }
@@ -235,7 +235,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
         };
-        MetaDataRoleAuthorizationStrategy.authorize(delete, ENABLE, StandardEntitlement.CONNECTOR_DELETE);
+        MetaDataRoleAuthorizationStrategy.authorize(delete, RENDER, StandardEntitlement.CONNECTOR_DELETE);
         fragment.add(delete);
 
         AjaxLink<String> create = new IndicatingAjaxLink<String>("create") {
@@ -257,12 +257,12 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 modal.header(new Model<>(MessageFormat.format(getString("resource.new"), node.getKey())));
 
                 MetaDataRoleAuthorizationStrategy.
-                        authorize(modal.getForm(), ENABLE, StandardEntitlement.RESOURCE_CREATE);
+                        authorize(modal.getForm(), RENDER, StandardEntitlement.RESOURCE_CREATE);
 
                 modal.show(true);
             }
         };
-        MetaDataRoleAuthorizationStrategy.authorize(create, ENABLE, StandardEntitlement.RESOURCE_CREATE);
+        MetaDataRoleAuthorizationStrategy.authorize(create, RENDER, StandardEntitlement.RESOURCE_CREATE);
         fragment.add(create);
 
         AjaxLink<String> edit = new IndicatingAjaxLink<String>("edit") {
@@ -282,12 +282,12 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 modal.header(new Model<>(MessageFormat.format(getString("connector.edit"), node.getDisplayName())));
 
                 MetaDataRoleAuthorizationStrategy.
-                        authorize(modal.getForm(), ENABLE, StandardEntitlement.CONNECTOR_UPDATE);
+                        authorize(modal.getForm(), RENDER, StandardEntitlement.CONNECTOR_UPDATE);
 
                 modal.show(true);
             }
         };
-        MetaDataRoleAuthorizationStrategy.authorize(edit, ENABLE, StandardEntitlement.CONNECTOR_UPDATE);
+        MetaDataRoleAuthorizationStrategy.authorize(edit, RENDER, StandardEntitlement.CONNECTOR_UPDATE);
         fragment.add(edit);
 
         return fragment;
@@ -315,7 +315,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
         };
-        MetaDataRoleAuthorizationStrategy.authorize(delete, ENABLE, StandardEntitlement.RESOURCE_DELETE);
+        MetaDataRoleAuthorizationStrategy.authorize(delete, RENDER, StandardEntitlement.RESOURCE_DELETE);
         fragment.add(delete);
 
         AjaxLink<String> edit = new IndicatingAjaxLink<String>("edit") {
@@ -335,12 +335,12 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 modal.header(new Model<>(MessageFormat.format(getString("resource.edit"), node.getKey())));
 
                 MetaDataRoleAuthorizationStrategy.
-                        authorize(modal.getForm(), ENABLE, StandardEntitlement.RESOURCE_UPDATE);
+                        authorize(modal.getForm(), RENDER, StandardEntitlement.RESOURCE_UPDATE);
 
                 modal.show(true);
             }
         };
-        MetaDataRoleAuthorizationStrategy.authorize(edit, ENABLE, StandardEntitlement.RESOURCE_UPDATE);
+        MetaDataRoleAuthorizationStrategy.authorize(edit, RENDER, StandardEntitlement.RESOURCE_UPDATE);
         fragment.add(edit);
 
         AjaxLink<String> status = new IndicatingAjaxLink<String>("status") {
@@ -356,7 +356,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 propTaskModal.show(true);
             }
         };
-        MetaDataRoleAuthorizationStrategy.authorize(status, ENABLE, StandardEntitlement.USER_UPDATE);
+        MetaDataRoleAuthorizationStrategy.authorize(status, RENDER, StandardEntitlement.USER_UPDATE);
         fragment.add(status);
 
         AjaxLink<String> provision = new IndicatingAjaxLink<String>("provision") {
@@ -375,12 +375,12 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 provisionModal.header(new Model<>(MessageFormat.format(getString("resource.edit"), node.getKey())));
 
                 MetaDataRoleAuthorizationStrategy.
-                        authorize(provisionModal.getForm(), ENABLE, StandardEntitlement.RESOURCE_UPDATE);
+                        authorize(provisionModal.getForm(), RENDER, StandardEntitlement.RESOURCE_UPDATE);
 
                 provisionModal.show(true);
             }
         };
-        MetaDataRoleAuthorizationStrategy.authorize(edit, ENABLE, StandardEntitlement.RESOURCE_UPDATE);
+        MetaDataRoleAuthorizationStrategy.authorize(edit, RENDER, StandardEntitlement.RESOURCE_UPDATE);
         fragment.add(provision);
 
         AjaxLink<String> explore = new IndicatingAjaxLink<String>("explore") {
@@ -394,7 +394,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 propTaskModal.show(true);
             }
         };
-        MetaDataRoleAuthorizationStrategy.authorize(explore, ENABLE, StandardEntitlement.RESOURCE_LIST_CONNOBJECT);
+        MetaDataRoleAuthorizationStrategy.authorize(explore, RENDER, StandardEntitlement.RESOURCE_LIST_CONNOBJECT);
         fragment.add(explore);
 
         AjaxLink<String> propagation = new IndicatingAjaxLink<String>("propagation") {
@@ -410,7 +410,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 propTaskModal.show(true);
             }
         };
-        MetaDataRoleAuthorizationStrategy.authorize(propagation, ENABLE, StandardEntitlement.TASK_LIST);
+        MetaDataRoleAuthorizationStrategy.authorize(propagation, RENDER, StandardEntitlement.TASK_LIST);
         fragment.add(propagation);
 
         AjaxLink<String> pull = new IndicatingAjaxLink<String>("pull") {
@@ -424,7 +424,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 schedTaskModal.show(true);
             }
         };
-        MetaDataRoleAuthorizationStrategy.authorize(pull, ENABLE, StandardEntitlement.TASK_LIST);
+        MetaDataRoleAuthorizationStrategy.authorize(pull, RENDER, StandardEntitlement.TASK_LIST);
         fragment.add(pull);
 
         AjaxLink<String> push = new IndicatingAjaxLink<String>("push") {
@@ -438,7 +438,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 schedTaskModal.show(true);
             }
         };
-        MetaDataRoleAuthorizationStrategy.authorize(push, ENABLE, StandardEntitlement.TASK_LIST);
+        MetaDataRoleAuthorizationStrategy.authorize(push, RENDER, StandardEntitlement.TASK_LIST);
         fragment.add(push);
 
         return fragment;

@@ -71,7 +71,7 @@ public class WorkflowTogglePanel extends TogglePanel<String> {
         activitiModeler.setEnabled(activitiModelerEnabled);
 
         AjaxSubmitLink xmlEditorSubmit = modal.addSubmitButton();
-        MetaDataRoleAuthorizationStrategy.authorize(xmlEditorSubmit, ENABLE, StandardEntitlement.WORKFLOW_DEF_UPDATE);
+        MetaDataRoleAuthorizationStrategy.authorize(xmlEditorSubmit, RENDER, StandardEntitlement.WORKFLOW_DEF_UPDATE);
         modal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 
             private static final long serialVersionUID = 8804221891699487139L;
@@ -96,7 +96,7 @@ public class WorkflowTogglePanel extends TogglePanel<String> {
                 modal.show(true);
             }
         };
-        MetaDataRoleAuthorizationStrategy.authorize(xmlEditor, ENABLE, StandardEntitlement.WORKFLOW_DEF_READ);
+        MetaDataRoleAuthorizationStrategy.authorize(xmlEditor, RENDER, StandardEntitlement.WORKFLOW_DEF_READ);
         container.add(xmlEditor);
     }
 

@@ -167,7 +167,8 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                                         new UserWrapper(new UserRestClient().read(model.getObject().getKey())),
                                         target));
                     }
-                }, ActionType.EDIT, StandardEntitlement.USER_READ).add(new ActionLink<UserTO>() {
+                }, ActionType.EDIT, new StringBuilder().append(StandardEntitlement.USER_READ).append(",").
+                        append(StandardEntitlement.USER_UPDATE).toString()).add(new ActionLink<UserTO>() {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
@@ -227,7 +228,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
 
                             altDefaultModal.show(true);
                         }
-                    }, ActionType.MANAGE_RESOURCES, StandardEntitlement.USER_READ).add(new ActionLink<UserTO>() {
+                    }, ActionType.MANAGE_RESOURCES, StandardEntitlement.USER_UPDATE).add(new ActionLink<UserTO>() {
 
                         private static final long serialVersionUID = -7978723352517770644L;
 
@@ -249,7 +250,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
 
                             altDefaultModal.show(true);
                         }
-                    }, ActionType.ENABLE, StandardEntitlement.USER_READ).add(new ActionLink<UserTO>() {
+                    }, ActionType.ENABLE, StandardEntitlement.USER_UPDATE).add(new ActionLink<UserTO>() {
 
                         private static final long serialVersionUID = -7978723352517770644L;
 

@@ -1126,7 +1126,7 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
         if (fragment != null) {
             fragment.setEnabled(enabled);
             if (StringUtils.isNotBlank(entitlements)) {
-                MetaDataRoleAuthorizationStrategy.authorize(fragment, ENABLE, entitlements);
+                MetaDataRoleAuthorizationStrategy.authorize(fragment, RENDER, entitlements);
             }
             super.addOrReplace(fragment);
         }
