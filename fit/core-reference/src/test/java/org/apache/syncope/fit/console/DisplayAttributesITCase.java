@@ -32,42 +32,31 @@ public class DisplayAttributesITCase extends AbstractConsoleITCase {
     @Before
     public void login() {
         doLogin(ADMIN_UNAME, ADMIN_PWD);
-        wicketTester.clickLink("body:realmsLI:realms");
-        wicketTester.assertRenderedPage(Realms.class);
+        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.assertRenderedPage(Realms.class);
     }
 
     @Test
-    public void read() {
-        wicketTester.clickLink("body:content:body:tabbedPanel:tabs-container:tabs:3:link");
-        wicketTester.clickLink("body:content:body:tabbedPanel:panel:"
+    public void readAndSet() {
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:3:link");
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:panel:"
                 + "searchResult:container:content:searchContainer:resultTable:"
                 + "tablePanel:groupForm:checkgroup:dataTable:topToolbars:"
-                + "toolbars:1:headers:3:header:label:panelChangeView:changeViewLink");
+                + "toolbars:1:headers:4:header:label:panelChangeView:changeViewLink");
 
-        wicketTester.assertComponent(
-                "body:content:body:tabbedPanel:panel:searchResult:displayAttributeModal", Modal.class);
-    }
+        TESTER.assertComponent(
+                "body:content:body:container:content:tabbedPanel:panel:searchResult:outerObjectsRepeater:2:outer",
+                Modal.class);
 
-    @Test
-    public void set() {
-        wicketTester.clickLink("body:content:body:tabbedPanel:tabs-container:tabs:3:link");
-        wicketTester.clickLink("body:content:body:tabbedPanel:panel:"
-                + "searchResult:container:content:searchContainer:resultTable:"
-                + "tablePanel:groupForm:checkgroup:dataTable:topToolbars:"
-                + "toolbars:1:headers:3:header:label:panelChangeView:changeViewLink");
-
-        wicketTester.assertComponent(
-                "body:content:body:tabbedPanel:panel:searchResult:displayAttributeModal", Modal.class);
-
-        final FormTester formTester = wicketTester.newFormTester(
-                "body:content:body:tabbedPanel:panel:searchResult:displayAttributeModal:form");
+        FormTester formTester = TESTER.newFormTester(
+                "body:content:body:container:content:tabbedPanel:panel:searchResult:outerObjectsRepeater:2:outer:form");
 
         formTester.setValue("content:container:details:paletteField:recorder", "status");
 
-        wicketTester.clickLink(
-                "body:content:body:tabbedPanel:panel:searchResult:displayAttributeModal:dialog:footer:inputs:0:submit");
-        wicketTester.assertInfoMessages("Operation executed successfully");
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:panel:searchResult:outerObjectsRepeater:"
+                + "2:outer:dialog:footer:inputs:0:submit");
+        TESTER.assertInfoMessages("Operation executed successfully");
 
-        wicketTester.clearFeedbackMessages();
+        TESTER.clearFeedbackMessages();
     }
 }

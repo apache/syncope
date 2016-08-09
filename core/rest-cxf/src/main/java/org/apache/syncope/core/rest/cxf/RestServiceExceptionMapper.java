@@ -109,8 +109,8 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
 
             builder = builder(response).entity(error);
         } else if (ex instanceof AccessDeniedException) {
-            builder = Response.status(Response.Status.FORBIDDEN).
-                    header(RESTHeaders.ERROR_CODE, Response.Status.FORBIDDEN.getReasonPhrase()).
+            builder = Response.status(Response.Status.UNAUTHORIZED).
+                    header(RESTHeaders.ERROR_CODE, Response.Status.UNAUTHORIZED.getReasonPhrase()).
                     header(RESTHeaders.ERROR_INFO, ex.getMessage());
         } else if (ex instanceof DelegatedAdministrationException) {
             builder = builder(ClientExceptionType.DelegatedAdministration, ExceptionUtils.getRootCauseMessage(ex));

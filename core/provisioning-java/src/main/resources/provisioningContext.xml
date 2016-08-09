@@ -122,4 +122,5 @@ under the License.
     <property name="stringLocations" value="${connid.locations}"/>
   </bean>
 
+  <bean class="org.apache.syncope.core.provisioning.java.IntAttrNameParser"/>
 </beans>

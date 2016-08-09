@@ -39,7 +39,6 @@ public class TestPage<T extends Serializable, S extends Panel>
     private final S fieldPanel;
 
     private TestPage(S field, final Builder<T, S> builder) {
-
         this.form = builder.form;
         this.fieldPanel = field;
 

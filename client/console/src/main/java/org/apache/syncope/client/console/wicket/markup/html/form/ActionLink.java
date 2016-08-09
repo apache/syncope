@@ -41,18 +41,24 @@ public abstract class ActionLink<T extends Serializable> implements Serializable
     public enum ActionType {
 
         MAPPING("update"),
-        ACCOUNT_LINK("update"),
         MUSTCHANGEPASSWORD("update"),
-        RESET_TIME("update"),
+        SET_LATEST_SYNC_TOKEN("update"),
+        REMOVE_SYNC_TOKEN("update"),
         CLONE("create"),
         CREATE("create"),
+        TEMPLATE("read"),
         EDIT("read"),
-        USER_TEMPLATE("read"),
-        GROUP_TEMPLATE("read"),
+        TYPE_EXTENSIONS("read"),
+        FO_EDIT("read"),
+        HTML_EDIT("read"),
+        TEXT_EDIT("read"),
+        COMPOSE("update"),
+        LAYOUT_EDIT("read"),
         RESET("update"),
         ENABLE("update"),
         NOT_FOND("read"),
         VIEW("view"),
+        MEMBERS("members"),
         SEARCH("search"),
         DELETE("delete"),
         EXECUTE("execute"),
@@ -61,6 +67,11 @@ public abstract class ActionLink<T extends Serializable> implements Serializable
         SELECT("read"),
         CLOSE("read"),
         EXPORT("read"),
+        EXPORT_CSV("read"),
+        EXPORT_HTML("read"),
+        EXPORT_PDF("read"),
+        EXPORT_RTF("read"),
+        EXPORT_XML("read"),
         SUSPEND("update"),
         REACTIVATE("update"),
         RELOAD("reload"),
@@ -71,9 +82,13 @@ public abstract class ActionLink<T extends Serializable> implements Serializable
         ASSIGN("update"),
         DEPROVISION("update"),
         PROVISION("update"),
+        DEPROVISION_MEMBERS("update"),
+        PROVISION_MEMBERS("update"),
         MANAGE_RESOURCES("update"),
         MANAGE_USERS("update"),
         MANAGE_GROUPS("update"),
+        PROPAGATION_TASKS("read"),
+        NOTIFICATION_TASKS("read"),
         ZOOM_IN("zoomin"),
         ZOOM_OUT("zoomout");
 
@@ -117,5 +132,9 @@ public abstract class ActionLink<T extends Serializable> implements Serializable
 
     public final boolean isEnabled(final T modelObject) {
         return this.enabled && statusCondition(modelObject);
+    }
+
+    public boolean isIndicatorEnabled() {
+        return true;
     }
 }

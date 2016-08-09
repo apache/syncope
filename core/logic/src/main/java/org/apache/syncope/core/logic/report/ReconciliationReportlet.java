@@ -37,7 +37,6 @@ import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
 import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
-import org.apache.syncope.core.provisioning.java.MappingManagerImpl;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
@@ -59,6 +58,7 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.ConnectorFactory;
 import org.apache.syncope.core.provisioning.api.MappingManager;
+import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
@@ -135,8 +135,8 @@ public class ReconciliationReportlet extends AbstractReportlet {
             String value = null;
             switch (feature) {
                 case key:
-                    type = ReportXMLConst.XSD_LONG;
-                    value = String.valueOf(any.getKey());
+                    type = ReportXMLConst.XSD_STRING;
+                    value = any.getKey();
                     break;
 
                 case username:
@@ -154,8 +154,8 @@ public class ReconciliationReportlet extends AbstractReportlet {
                     break;
 
                 case workflowId:
-                    type = ReportXMLConst.XSD_LONG;
-                    value = String.valueOf(any.getWorkflowId());
+                    type = ReportXMLConst.XSD_STRING;
+                    value = any.getWorkflowId();
                     break;
 
                 case status:
@@ -271,25 +271,25 @@ public class ReconciliationReportlet extends AbstractReportlet {
             AnyUtils anyUtils = anyUtilsFactory.getInstance(any);
             for (final ExternalResource resource : anyUtils.getAllResources(any)) {
                 Provision provision = resource.getProvision(any.getType());
-                MappingItem connObjectKeyItem = MappingManagerImpl.getConnObjectKeyItem(provision);
-                if (provision != null && connObjectKeyItem != null) {
-                    // 1. build connObjectKeyValue
-                    final String connObjectKeyValue = mappingManager.getConnObjectKeyValue(any, provision);
-
-                    // 2. read from the underlying connector
+                MappingItem connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
+                final String connObjectKeyValue = connObjectKeyItem == null
+                        ? StringUtils.EMPTY
+                        : mappingManager.getConnObjectKeyValue(any, provision);
+                if (provision != null && connObjectKeyItem != null && StringUtils.isNotBlank(connObjectKeyValue)) {
+                    // 1. read from the underlying connector
                     Connector connector = connFactory.getConnector(resource);
                     ConnectorObject connectorObject = connector.getObject(provision.getObjectClass(),
                             new Uid(connObjectKeyValue),
-                            MappingManagerImpl.buildOperationOptions(provision.getMapping().getItems().iterator()));
+                            MappingUtils.buildOperationOptions(provision.getMapping().getItems().iterator()));
 
                     if (connectorObject == null) {
-                        // 3. not found on resource?
+                        // 2. not found on resource?
                         LOG.error("Object {} with class {} not found on resource {}",
                                 connObjectKeyValue, provision.getObjectClass(), resource);
 
                         missing.add(new Missing(resource.getKey(), connObjectKeyValue));
                     } else {
-                        // 4. found but misaligned?
+                        // 3. found but misaligned?
                         Pair<String, Set<Attribute>> preparedAttrs =
                                 mappingManager.prepareAttrs(any, null, false, null, provision);
                         preparedAttrs.getRight().add(AttributeBuilder.build(
@@ -421,7 +421,7 @@ public class ReconciliationReportlet extends AbstractReportlet {
         for (AnyType anyType : anyTypeDAO.findAll()) {
             if (!anyType.equals(anyTypeDAO.findUser()) && !anyType.equals(anyTypeDAO.findGroup())) {
                 AnyTypeCond anyTypeCond = new AnyTypeCond();
-                anyTypeCond.setAnyTypeName(anyType.getKey());
+                anyTypeCond.setAnyTypeKey(anyType.getKey());
                 SearchCond cond = StringUtils.isBlank(this.conf.getAnyObjectMatchingCond())
                         ? SearchCond.getLeafCond(anyTypeCond)
                         : SearchCond.getAndCond(

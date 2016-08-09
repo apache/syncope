@@ -19,23 +19,22 @@
 package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.List;
-import org.apache.syncope.common.lib.types.IntMappingType;
-import org.apache.syncope.common.lib.types.PolicyType;
+import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.Policy;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 
-public interface ExternalResourceDAO extends DAO<ExternalResource, String> {
+public interface ExternalResourceDAO extends DAO<ExternalResource> {
 
     int count();
 
     ExternalResource find(String key);
 
-    Provision findProvision(Long key);
+    List<Provision> findProvisionsByAuxClass(AnyTypeClass anyTypeClass);
 
     List<ExternalResource> findByPolicy(Policy policy);
 
-    List<ExternalResource> findWithoutPolicy(PolicyType type);
+    List<ExternalResource> findWithoutPolicy(Class<? extends Policy> policyClass);
 
     List<ExternalResource> findAll();
 
@@ -43,7 +42,7 @@ public interface ExternalResourceDAO extends DAO<ExternalResource, String> {
 
     ExternalResource save(ExternalResource resource);
 
-    void deleteMapping(String schemaName, IntMappingType intMappingType);
+    void deleteMapping(String schemaName);
 
     void delete(String key);
 }

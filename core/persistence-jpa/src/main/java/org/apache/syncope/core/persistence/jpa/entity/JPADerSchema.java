@@ -18,46 +18,30 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
-import javax.persistence.Cacheable;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.Id;
 import javax.persistence.OneToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
-import org.apache.syncope.core.persistence.jpa.validation.entity.SchemaNameCheck;
 
 @Entity
 @Table(name = JPADerSchema.TABLE)
-@Cacheable
-@SchemaNameCheck
-public class JPADerSchema extends AbstractEntity<String> implements DerSchema {
+@PrimaryKeyJoinColumn(name = "id", referencedColumnName = "id")
+public class JPADerSchema extends AbstractSchema implements DerSchema {
 
     private static final long serialVersionUID = -6173643493348674060L;
 
     public static final String TABLE = "DerSchema";
-
-    @Id
-    private String name;
 
     @OneToOne(fetch = FetchType.EAGER)
     private JPAAnyTypeClass anyTypeClass;
 
     @NotNull
     private String expression;
-
-    @Override
-    public String getKey() {
-        return name;
-    }
-
-    @Override
-    public void setKey(final String key) {
-        this.name = key;
-    }
 
     @Override
     public AnyTypeClass getAnyTypeClass() {

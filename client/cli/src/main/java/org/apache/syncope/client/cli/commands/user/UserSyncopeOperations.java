@@ -26,9 +26,7 @@ import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.rest.api.RESTHeaders;
-import org.apache.syncope.common.rest.api.beans.AnyListQuery;
-import org.apache.syncope.common.rest.api.beans.AnySearchQuery;
+import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.UserService;
 
 public class UserSyncopeOperations {
@@ -45,57 +43,43 @@ public class UserSyncopeOperations {
     }
 
     public List<UserTO> searchByRole(final String realm, final String role) {
-        return userService.search(
-                new AnySearchQuery.Builder().realm(realm).
-                fiql(SyncopeClient.getUserSearchConditionBuilder().inRoles(role)
-                        .query()).build()).getResult();
+        return userService.search(new AnyQuery.Builder().realm(realm).
+                fiql(SyncopeClient.getUserSearchConditionBuilder().inRoles(role).query()).build()).getResult();
     }
 
     public List<UserTO> searchByResource(final String realm, final String resource) {
-        return userService.search(
-                new AnySearchQuery.Builder().realm(realm).
-                fiql(SyncopeClient.getUserSearchConditionBuilder().hasResources(resource)
-                        .query()).build()).getResult();
+        return userService.search(new AnyQuery.Builder().realm(realm).
+                fiql(SyncopeClient.getUserSearchConditionBuilder().hasResources(resource).query()).build()).getResult();
     }
 
     public List<UserTO> searchByAttribute(final String realm, final String attributeName, final String attributeValue) {
-        return userService.search(
-                new AnySearchQuery.Builder().realm(realm).
-                fiql(SyncopeClient.getUserSearchConditionBuilder().is(attributeName).equalTo(attributeValue)
-                        .query()).build()).getResult();
+        return userService.search(new AnyQuery.Builder().realm(realm).
+                fiql(SyncopeClient.getUserSearchConditionBuilder().is(attributeName).equalTo(attributeValue).query()).
+                build()).getResult();
     }
 
     public PagedResult<UserTO> list() {
-        return userService.list(new AnyListQuery());
+        return userService.search(new AnyQuery());
     }
 
-    public UserTO read(final String userId) {
-        return userService.read(Long.valueOf(userId));
+    public UserTO read(final String userKey) {
+        return userService.read(userKey);
     }
 
-    public String getUsernameFromId(final String userId) {
-        return userService.getUsername(Long.valueOf(userId)).getHeaderString(RESTHeaders.USERNAME);
-    }
-
-    public String getIdFromUsername(final String username) {
-        return userService.getUserKey(username).getHeaderString(RESTHeaders.USER_KEY);
-    }
-
-    public void delete(final String userId) {
-        userService.delete(Long.valueOf(userId));
+    public void delete(final String userKey) {
+        userService.delete(userKey);
     }
 
     public Map<String, BulkActionResult.Status> deleteByAttribute(
             final String realm, final String attributeName, final String attributeValue) {
-        final List<UserTO> users = userService.search(
-                new AnySearchQuery.Builder().realm(realm).
+        final List<UserTO> users = userService.search(new AnyQuery.Builder().realm(realm).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().is(attributeName).equalTo(attributeValue)
                         .query()).build()).getResult();
         return deleteBulk(users);
     }
 
     public Map<String, BulkActionResult.Status> deleteAll(final String realm) {
-        return deleteBulk(userService.list(new AnyListQuery.Builder().realm(realm).details(false).build()).getResult());
+        return deleteBulk(userService.search(new AnyQuery.Builder().realm(realm).details(false).build()).getResult());
     }
 
     private Map<String, BulkActionResult.Status> deleteBulk(final List<UserTO> users) {
@@ -104,7 +88,7 @@ public class UserSyncopeOperations {
         for (UserTO user : users) {
             bulkAction.getTargets().add(String.valueOf(user.getKey()));
         }
-        final BulkActionResult bulkResult = userService.bulk(bulkAction);
+        final BulkActionResult bulkResult = userService.bulk(bulkAction).readEntity(BulkActionResult.class);
         return bulkResult.getResults();
     }
 }

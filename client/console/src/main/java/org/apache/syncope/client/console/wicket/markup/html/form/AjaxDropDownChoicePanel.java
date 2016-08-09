@@ -23,8 +23,8 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
@@ -46,11 +46,10 @@ public class AjaxDropDownChoicePanel<T extends Serializable> extends FieldPanel<
 
         field = new BootstrapSelect<>(
                 "dropDownChoiceField", model, Collections.<T>emptyList(), new ChoiceRenderer<T>());
-
         add(field.setLabel(new Model<>(name)).setOutputMarkupId(true));
 
         if (enableOnBlur) {
-            field.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_BLUR) {
+            field.add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_BLUR) {
 
                 private static final long serialVersionUID = -1107858522700306810L;
 
@@ -60,6 +59,14 @@ public class AjaxDropDownChoicePanel<T extends Serializable> extends FieldPanel<
                 }
             });
         }
+        
+        setNullValid(true);
+    }
+
+    @Override
+    public FieldPanel<T> setRequired(final boolean required) {
+        setNullValid(!required);
+        return super.setRequired(required);
     }
 
     @SuppressWarnings("unchecked")
@@ -80,11 +87,11 @@ public class AjaxDropDownChoicePanel<T extends Serializable> extends FieldPanel<
         return this;
     }
 
-    public AjaxDropDownChoicePanel<T> setNullValid(final boolean validity) {
+    public final AjaxDropDownChoicePanel<T> setNullValid(final boolean validity) {
         BootstrapSelect.class.cast(field).setNullValid(validity);
         return this;
     }
-    
+
     @Override
     @SuppressWarnings("unchecked")
     public FieldPanel<T> clone() {

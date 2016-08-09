@@ -19,30 +19,57 @@
 package org.apache.syncope.client.console.wizards;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.panels.ModalPanel;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
+import org.apache.wicket.event.IEventSink;
 import org.apache.wicket.extensions.wizard.IWizardModel;
+import org.apache.wicket.extensions.wizard.IWizardStep;
 import org.apache.wicket.extensions.wizard.Wizard;
 import org.apache.wicket.extensions.wizard.WizardModel;
+import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.syncope.client.console.panels.SubmitableModalPanel;
+import org.apache.syncope.client.console.panels.WizardModalPanel;
+import org.apache.wicket.PageReference;
+import org.apache.wicket.markup.html.list.ListItem;
+import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.model.IModel;
 
-public abstract class AjaxWizard<T extends Serializable> extends Wizard implements ModalPanel<T> {
+public abstract class AjaxWizard<T extends Serializable> extends Wizard
+        implements SubmitableModalPanel, WizardModalPanel<T> {
 
     private static final long serialVersionUID = -1272120742876833520L;
+
+    private final List<Component> outerObjects = new ArrayList<>();
+
+    public enum Mode {
+        CREATE,
+        EDIT,
+        TEMPLATE,
+        READONLY;
+
+    }
 
     protected static final Logger LOG = LoggerFactory.getLogger(AjaxWizard.class);
 
     private T item;
 
-    private final boolean edit;
+    private final Mode mode;
+
+    private IEventSink eventSink = null;
+
+    private final PageReference pageRef;
 
     /**
      * Construct.
@@ -50,31 +77,79 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard implemen
      * @param id The component id.
      * @param item model object.
      * @param model wizard model
-     * @param edit <tt>true</tt> if edit mode.
+     * @param mode <tt>true</tt> if edit mode.
+     * @param pageRef caller page reference.
      */
-    public AjaxWizard(final String id, final T item, final WizardModel model, final boolean edit) {
+    public AjaxWizard(
+            final String id,
+            final T item,
+            final WizardModel model,
+            final Mode mode,
+            final PageReference pageRef) {
         super(id);
         this.item = item;
-        this.edit = edit;
+        this.mode = mode;
+        this.pageRef = pageRef;
+
+        if (mode == Mode.READONLY) {
+            model.setCancelVisible(false);
+        }
+
+        add(new ListView<Component>("outerObjectsRepeater", outerObjects) {
+
+            private static final long serialVersionUID = -9180479401817023838L;
+
+            @Override
+            protected void populateItem(final ListItem<Component> item) {
+                item.add(item.getModelObject());
+            }
+
+        });
+
         setOutputMarkupId(true);
         setDefaultModel(new CompoundPropertyModel<>(this));
         init(model);
+    }
+
+    /**
+     * Add object outside the main container.
+     * Use this method just to be not influenced by specific inner object css'.
+     * Be sure to provide <tt>outer</tt> as id.
+     *
+     * @param childs components to be added.
+     * @return the current panel instance.
+     */
+    public final AjaxWizard<T> addOuterObject(final List<Component> childs) {
+        outerObjects.addAll(childs);
+        return this;
+    }
+
+    protected AjaxWizard<T> setEventSink(final IEventSink eventSink) {
+        this.eventSink = eventSink;
+        return this;
     }
 
     @Override
     protected void init(final IWizardModel wizardModel) {
         super.init(wizardModel);
         getForm().remove(FEEDBACK_ID);
+
+        if (mode == Mode.READONLY) {
+            final Iterator<IWizardStep> iter = wizardModel.stepIterator();
+            while (iter.hasNext()) {
+                WizardStep.class.cast(iter.next()).setEnabled(false);
+            }
+        }
     }
 
     @Override
     protected Component newButtonBar(final String id) {
-        return new AjaxWizardMgtButtonBar(id, this, edit);
+        return new AjaxWizardMgtButtonBar<>(id, this, mode);
     }
 
     protected abstract void onCancelInternal();
 
-    protected abstract Serializable onApplyInternal();
+    protected abstract Serializable onApplyInternal(final AjaxRequestTarget target);
 
     /**
      * @see org.apache.wicket.extensions.wizard.Wizard#onCancel()
@@ -84,11 +159,16 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard implemen
         final AjaxRequestTarget target = RequestCycle.get().find(AjaxRequestTarget.class);
         try {
             onCancelInternal();
-            send(AjaxWizard.this, Broadcast.BUBBLE, new NewItemCancelEvent<>(item, target));
+            if (eventSink == null) {
+                send(AjaxWizard.this, Broadcast.BUBBLE, new NewItemCancelEvent<>(item, target));
+            } else {
+                send(eventSink, Broadcast.EXACT, new NewItemCancelEvent<>(item, target));
+            }
         } catch (Exception e) {
             LOG.warn("Wizard error on cancel", e);
-            error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
-            SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
+                    ? e.getClass().getName() : e.getMessage());
+            ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
         }
     }
 
@@ -99,12 +179,17 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard implemen
     public final void onFinish() {
         final AjaxRequestTarget target = RequestCycle.get().find(AjaxRequestTarget.class);
         try {
-            final Serializable res = onApplyInternal();
-            send(AjaxWizard.this, Broadcast.BUBBLE, new NewItemFinishEvent<>(item, target).setResult(res));
+            final Serializable res = onApplyInternal(target);
+            if (eventSink == null) {
+                send(AjaxWizard.this, Broadcast.BUBBLE, new NewItemFinishEvent<>(item, target).setResult(res));
+            } else {
+                send(eventSink, Broadcast.EXACT, new NewItemFinishEvent<>(item, target).setResult(res));
+            }
         } catch (Exception e) {
             LOG.error("Wizard error on finish", e);
-            error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
-            SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
+                    ? e.getClass().getName() : e.getMessage());
+            ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
         }
     }
 
@@ -124,11 +209,15 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard implemen
         return this;
     }
 
-    public abstract static class NewItemEvent<T> {
+    public abstract static class NewItemEvent<T extends Serializable> {
 
         private final T item;
 
+        private IModel<String> resourceModel;
+
         private final AjaxRequestTarget target;
+
+        private WizardModalPanel<?> modalPanel;
 
         public NewItemEvent(final T item, final AjaxRequestTarget target) {
             this.item = item;
@@ -143,10 +232,28 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard implemen
             return target;
         }
 
+        public WizardModalPanel<?> getModalPanel() {
+            return modalPanel;
+        }
+
+        public NewItemEvent<T> forceModalPanel(final WizardModalPanel<?> modalPanel) {
+            this.modalPanel = modalPanel;
+            return this;
+        }
+
+        public IModel<String> getResourceModel() {
+            return resourceModel;
+        }
+
+        public NewItemEvent<T> setResourceModel(final IModel<String> resourceModel) {
+            this.resourceModel = resourceModel;
+            return this;
+        }
+
         public abstract String getEventDescription();
     }
 
-    public static class NewItemActionEvent<T> extends NewItemEvent<T> {
+    public static class NewItemActionEvent<T extends Serializable> extends NewItemEvent<T> {
 
         private static final String EVENT_DESCRIPTION = "new";
 
@@ -171,7 +278,7 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard implemen
         }
     }
 
-    public static class EditItemActionEvent<T> extends NewItemActionEvent<T> {
+    public static class EditItemActionEvent<T extends Serializable> extends NewItemActionEvent<T> {
 
         private static final String EVENT_DESCRIPTION = "edit";
 
@@ -189,7 +296,7 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard implemen
         }
     }
 
-    public static class NewItemCancelEvent<T> extends NewItemEvent<T> {
+    public static class NewItemCancelEvent<T extends Serializable> extends NewItemEvent<T> {
 
         private static final String EVENT_DESCRIPTION = "cancel";
 
@@ -203,7 +310,7 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard implemen
         }
     }
 
-    public static class NewItemFinishEvent<T> extends NewItemEvent<T> {
+    public static class NewItemFinishEvent<T extends Serializable> extends NewItemEvent<T> {
 
         private static final String EVENT_DESCRIPTION = "finish";
 
@@ -230,11 +337,11 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard implemen
 
     @Override
     public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-        onApplyInternal();
+        onApplyInternal(target);
     }
 
     @Override
     public void onError(final AjaxRequestTarget target, final Form<?> form) {
-        SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+        ((BasePage) getPage()).getNotificationPanel().refresh(target);
     }
 }

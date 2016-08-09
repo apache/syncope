@@ -25,7 +25,6 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -40,14 +39,11 @@ import org.apache.syncope.core.persistence.jpa.validation.entity.AnyTypeCheck;
 @Table(name = JPAAnyType.TABLE)
 @AnyTypeCheck
 @Cacheable
-public class JPAAnyType extends AbstractEntity<String> implements AnyType {
+public class JPAAnyType extends AbstractProvidedKeyEntity implements AnyType {
 
     private static final long serialVersionUID = 2668267884059219835L;
 
     public static final String TABLE = "AnyType";
-
-    @Id
-    private String name;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -55,20 +51,10 @@ public class JPAAnyType extends AbstractEntity<String> implements AnyType {
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(joinColumns =
-            @JoinColumn(name = "anyType_name", referencedColumnName = "name"),
+            @JoinColumn(name = "anyType_id", referencedColumnName = "id"),
             inverseJoinColumns =
-            @JoinColumn(name = "anyTypeClass_name", referencedColumnName = "name"))
+            @JoinColumn(name = "anyTypeClass_id", referencedColumnName = "id"))
     private List<JPAAnyTypeClass> classes = new ArrayList<>();
-
-    @Override
-    public String getKey() {
-        return name;
-    }
-
-    @Override
-    public void setKey(final String name) {
-        this.name = name;
-    }
 
     @Override
     public AnyTypeKind getKind() {

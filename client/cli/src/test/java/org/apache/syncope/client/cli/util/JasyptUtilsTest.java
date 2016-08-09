@@ -26,10 +26,10 @@ public class JasyptUtilsTest {
 
     @Test
     public void encryption() {
-        final String password = "password";
-        final JasyptUtils jasyptUtils = JasyptUtils.getJasyptUtils();
-        final String encPassword = jasyptUtils.encrypt(password);
-        final String decPassword = jasyptUtils.decrypt(encPassword);
+        String password = "password";
+        JasyptUtils jasyptUtils = JasyptUtils.get();
+        String encPassword = jasyptUtils.encrypt(password);
+        String decPassword = jasyptUtils.decrypt(encPassword);
         assertEquals(password, decPassword);
     }
 }

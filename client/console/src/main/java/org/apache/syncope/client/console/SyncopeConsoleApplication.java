@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Properties;
 import javax.ws.rs.core.MediaType;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
@@ -70,7 +71,7 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
 
     public static final List<Locale> SUPPORTED_LOCALES = Collections.unmodifiableList(Arrays.asList(
             new Locale[] {
-                Locale.ENGLISH, Locale.ITALIAN, new Locale("pt", "BR")
+                Locale.ENGLISH, Locale.ITALIAN, new Locale("pt", "BR"), new Locale("ru")
             }));
 
     private static final String ACTIVITI_MODELER_CONTEXT = "activiti-modeler";
@@ -83,15 +84,13 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
 
     private String site;
 
-    private String license;
-
     private String anonymousUser;
 
     private String anonymousKey;
 
     private String activitiModelerDirectory;
 
-    private Long reconciliationReportKey;
+    private String reconciliationReportKey;
 
     private SyncopeClientFactoryBean clientFactory;
 
@@ -141,8 +140,6 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
         Args.notNull(version, "<version> not set");
         site = props.getProperty("site");
         Args.notNull(site, "<site> not set");
-        license = props.getProperty("license");
-        Args.notNull(license, "<license> not set");
         anonymousUser = props.getProperty("anonymousUser");
         Args.notNull(anonymousUser, "<anonymousUser> not set");
         anonymousKey = props.getProperty("anonymousKey");
@@ -156,8 +153,12 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
         Args.notNull(port, "<port> not set");
         String rootPath = props.getProperty("rootPath");
         Args.notNull(rootPath, "<rootPath> not set");
+        String useGZIPCompression = props.getProperty("useGZIPCompression");
+        Args.notNull(rootPath, "<useGZIPCompression> not set");
 
-        clientFactory = new SyncopeClientFactoryBean().setAddress(scheme + "://" + host + ":" + port + "/" + rootPath);
+        clientFactory = new SyncopeClientFactoryBean().
+                setAddress(scheme + "://" + host + ":" + port + "/" + rootPath).
+                setUseCompression(BooleanUtils.toBoolean(useGZIPCompression));
 
         // process page properties
         pageClasses = new HashMap<>();
@@ -198,7 +199,7 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
         Args.notNull(activitiModelerDirectory, "<activitiModelerDirectory> not set");
 
         try {
-            reconciliationReportKey = Long.valueOf(props.getProperty("reconciliationReportKey"));
+            reconciliationReportKey = props.getProperty("reconciliationReportKey");
         } catch (NumberFormatException e) {
             LOG.error("While parsing reconciliationReportKey", e);
         }
@@ -269,10 +270,6 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
         return site;
     }
 
-    public String getLicense() {
-        return license;
-    }
-
     public String getAnonymousUser() {
         return anonymousUser;
     }
@@ -285,7 +282,7 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
         return activitiModelerDirectory;
     }
 
-    public Long getReconciliationReportKey() {
+    public String getReconciliationReportKey() {
         return reconciliationReportKey;
     }
 

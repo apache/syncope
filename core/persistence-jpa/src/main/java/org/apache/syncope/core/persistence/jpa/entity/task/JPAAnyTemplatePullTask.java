@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.jpa.entity.task;
 
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -29,23 +28,15 @@ import org.apache.syncope.core.persistence.api.entity.task.AnyTemplatePullTask;
 
 @Entity
 @Table(name = JPAAnyTemplatePullTask.TABLE, uniqueConstraints =
-        @UniqueConstraint(columnNames = { "pullTask_id", "anyType_name" }))
+        @UniqueConstraint(columnNames = { "pullTask_id", "anyType_id" }))
 public class JPAAnyTemplatePullTask extends AbstractAnyTemplate implements AnyTemplatePullTask {
 
     private static final long serialVersionUID = 3517381731849788407L;
 
     public static final String TABLE = "AnyTemplatePullTask";
 
-    @Id
-    private Long id;
-
     @ManyToOne
     private JPAPullTask pullTask;
-
-    @Override
-    public Long getKey() {
-        return id;
-    }
 
     @Override
     public PullTask getPullTask() {

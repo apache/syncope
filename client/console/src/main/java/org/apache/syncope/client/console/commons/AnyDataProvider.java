@@ -27,13 +27,13 @@ import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 
-public class AnyDataProvider<T extends AnyTO> extends SearchableDataProvider<T> {
+public class AnyDataProvider<A extends AnyTO> extends DirectoryDataProvider<A> {
 
     private static final long serialVersionUID = 6267494272884913376L;
 
-    private final SortableAnyProviderComparator<T> comparator;
+    private final SortableAnyProviderComparator<A> comparator;
 
-    private final AbstractAnyRestClient<T> restClient;
+    private final AbstractAnyRestClient<A, ?> restClient;
 
     protected String fiql;
 
@@ -44,7 +44,7 @@ public class AnyDataProvider<T extends AnyTO> extends SearchableDataProvider<T> 
     private final String type;
 
     public AnyDataProvider(
-            final AbstractAnyRestClient<T> restClient,
+            final AbstractAnyRestClient<A, ?> restClient,
             final int paginatorRows,
             final boolean filtered,
             final String realm,
@@ -57,7 +57,18 @@ public class AnyDataProvider<T extends AnyTO> extends SearchableDataProvider<T> 
         this.filtered = filtered;
 
         // default sorting
-        setSort("key", SortOrder.ASCENDING);
+        switch (type) {
+            case "USER":
+                setSort("username", SortOrder.ASCENDING);
+                break;
+
+            case "GROUP":
+                setSort("name", SortOrder.ASCENDING);
+                break;
+
+            default:
+                setSort("key", SortOrder.ASCENDING);
+        }
 
         this.comparator = new SortableAnyProviderComparator<>(this);
 
@@ -66,17 +77,17 @@ public class AnyDataProvider<T extends AnyTO> extends SearchableDataProvider<T> 
     }
 
     @Override
-    public Iterator<T> iterator(final long first, final long count) {
-        List<T> result;
+    public Iterator<A> iterator(final long first, final long count) {
+        List<A> result;
 
         final int page = ((int) first / paginatorRows);
 
         if (filtered) {
             result = fiql == null
-                    ? Collections.<T>emptyList()
+                    ? Collections.<A>emptyList()
                     : restClient.search(realm, fiql, (page < 0 ? 0 : page) + 1, paginatorRows, getSort(), type);
         } else {
-            result = restClient.list(realm, (page < 0 ? 0 : page) + 1, paginatorRows, getSort(), type);
+            result = restClient.search(realm, null, (page < 0 ? 0 : page) + 1, paginatorRows, getSort(), type);
         }
 
         Collections.sort(result, comparator);
@@ -90,19 +101,19 @@ public class AnyDataProvider<T extends AnyTO> extends SearchableDataProvider<T> 
         if (filtered) {
             result = fiql == null ? 0 : restClient.searchCount(realm, fiql, type);
         } else {
-            result = restClient.count(realm, type);
+            result = restClient.searchCount(realm, null, type);
         }
 
         return result;
     }
 
-    public AnyDataProvider<T> setFIQL(final String fiql) {
+    public AnyDataProvider<A> setFIQL(final String fiql) {
         this.fiql = fiql;
         return this;
     }
 
     @Override
-    public IModel<T> model(final T object) {
+    public IModel<A> model(final A object) {
         return new CompoundPropertyModel<>(object);
     }
 }

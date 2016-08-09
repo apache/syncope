@@ -1,0 +1,64 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+//
+
+== Architecture
+
+Apache Syncope is made of several components, which are logically summarized in the picture below.
+
+[.text-center]
+image::architecture.png[title="Architecture",alt="Architecture"]
+
+include::core.adoc[]
+
+[[admin-console-component]]
+=== Admin UI
+
+The Admin UI is the web-based console for configuring and administering running deployments, with full support
+for delegated administration.
+
+The communication between Admin UI and Core is exclusively REST-based.
+
+More details are available in the dedicated <<admin-console,usage>> section.
+
+[[enduser-component]]
+=== End-user UI
+
+The End-user UI is the web-based application for self-registration, self-service and password reset.
+
+The communication between End-user UI and Core is exclusively REST-based.
+
+[[cli-component]]
+=== CLI
+
+The command-line interface (CLI) client is an utility tool meant for interacting with Apache Syncope deployments from 
+shell scripts.
+
+The communication between CLI and Core is exclusively REST-based.
+
+More details are available in the dedicated <<cli,usage>> section.
+
+=== Third Party Applications
+
+Third-party applications are provided full access to IdM services by leveraging the REST interface, either via the 
+Java <<client-library,Client Library>> (the basis of Admin UI, End-user UI and CLI) or plain HTTP calls.
+
+==== Eclipse IDE Plugin
+
+The Eclipse IDE plugin allows remote management of notification e-mail and report templates and constitutes an example
+of Java application relying on the Client Library for interacting with Core via REST.

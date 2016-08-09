@@ -22,8 +22,9 @@ import java.util.List;
 import java.util.Set;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 
-public interface Realm extends Entity<Long> {
+public interface Realm extends Entity {
 
     String getName();
 
@@ -50,4 +51,11 @@ public interface Realm extends Entity<Long> {
     AnyTemplateRealm getTemplate(AnyType anyType);
 
     List<? extends AnyTemplateRealm> getTemplates();
+
+    boolean add(ExternalResource resource);
+
+    List<String> getResourceKeys();
+
+    List<? extends ExternalResource> getResources();
+
 }

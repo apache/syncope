@@ -71,7 +71,7 @@ if (action.equalsIgnoreCase("GET_LATEST_SYNC_TOKEN")) {
   }
 
   switch (objectClass) {
-  case "__PRINTER__":    
+  case "__PRINTER__":
     sql.eachRow("SELECT * FROM TESTPRINTER WHERE lastmodification > ${lastmodification}",
       {
         result.add([
@@ -82,6 +82,7 @@ if (action.equalsIgnoreCase("GET_LATEST_SYNC_TOKEN")) {
               __UID__:it.id.toString(),
               __NAME__:it.id.toString(),
               ID:it.id.toString(),
+              PRINTERNAME:it.printername,
               LOCATION:it.location
             ]
           ]);

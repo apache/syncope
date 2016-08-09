@@ -57,7 +57,7 @@ public class DBPasswordPropagationActions extends DefaultPropagationActions {
         super.before(task, beforeObj);
 
         if (AnyTypeKind.USER == task.getAnyTypeKind()) {
-            User user = userDAO.find(task.getAnyKey());
+            User user = userDAO.find(task.getEntityKey());
 
             if (user != null && user.getPassword() != null) {
                 Attribute missing = AttributeUtil.find(

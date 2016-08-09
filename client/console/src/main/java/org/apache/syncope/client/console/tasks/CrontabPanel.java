@@ -20,12 +20,12 @@ package org.apache.syncope.client.console.tasks;
 
 import java.util.Arrays;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.SelectChoiceRenderer;
 import org.apache.syncope.client.console.wicket.markup.html.form.SelectOption;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.markup.html.form.FormComponent;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
@@ -125,7 +125,7 @@ public class CrontabPanel extends Panel {
 
         final FormComponent<SelectOption> component = cronTemplateChooser.getField();
 
-        cronTemplateChooser.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+        cronTemplateChooser.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 

@@ -50,6 +50,7 @@ import org.activiti.engine.repository.Model;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -60,7 +61,7 @@ import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.WorkflowFormPropertyTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
-import org.apache.syncope.common.lib.types.PropagationByResource;
+import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.WorkflowFormPropertyType;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
@@ -69,6 +70,7 @@ import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntit
 import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
+import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.apache.syncope.core.workflow.activiti.spring.DomainProcessEngine;
 import org.apache.syncope.core.workflow.api.WorkflowDefinitionFormat;
 import org.apache.syncope.core.workflow.api.WorkflowException;
@@ -162,7 +164,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
         List<Task> tasks = engine.getTaskService().createTaskQuery().processInstanceId(user.getWorkflowId()).list();
         if (tasks.isEmpty() || tasks.size() > 1) {
-            LOG.warn("While checking if form task: unexpected task number ({})", tasks.size());
+            LOG.debug("While checking if form task: unexpected task number ({})", tasks.size());
         } else {
             try {
                 TaskFormData formData = engine.getFormService().getTaskFormData(tasks.get(0).getId());
@@ -213,19 +215,19 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    public WorkflowResult<Pair<Long, Boolean>> create(final UserTO userTO, final boolean disablePwdPolicyCheck,
+    public WorkflowResult<Pair<String, Boolean>> create(final UserTO userTO, final boolean disablePwdPolicyCheck,
             final boolean storePassword) {
 
         return create(userTO, disablePwdPolicyCheck, null, storePassword);
     }
 
     @Override
-    public WorkflowResult<Pair<Long, Boolean>> create(final UserTO userTO, final boolean storePassword) {
+    public WorkflowResult<Pair<String, Boolean>> create(final UserTO userTO, final boolean storePassword) {
         return create(userTO, false, storePassword);
     }
 
     @Override
-    public WorkflowResult<Pair<Long, Boolean>> create(final UserTO userTO, final boolean disablePwdPolicyCheck,
+    public WorkflowResult<Pair<String, Boolean>> create(final UserTO userTO, final boolean disablePwdPolicyCheck,
             final Boolean enabled, final boolean storePassword) {
 
         Map<String, Object> variables = new HashMap<>();
@@ -264,13 +266,15 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         }
 
         PropagationByResource propByRes = new PropagationByResource();
-        propByRes.set(ResourceOperation.CREATE, userDAO.findAllResourceNames(user));
+        propByRes.set(
+                ResourceOperation.CREATE,
+                CollectionUtils.collect(userDAO.findAllResources(user), EntityUtils.keyTransformer()));
 
         saveForFormSubmit(user, userTO.getPassword(), propByRes);
 
         Set<String> tasks = getPerformedTasks(user);
 
-        return new WorkflowResult<Pair<Long, Boolean>>(
+        return new WorkflowResult<Pair<String, Boolean>>(
                 new ImmutablePair<>(user.getKey(), propagateEnable), propByRes, tasks);
     }
 
@@ -313,7 +317,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected WorkflowResult<Long> doActivate(final User user, final String token) {
+    protected WorkflowResult<String> doActivate(final User user, final String token) {
         Set<String> tasks = doExecuteTask(user, "activate", Collections.singletonMap(TOKEN, (Object) token));
 
         updateStatus(user);
@@ -345,7 +349,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected WorkflowResult<Long> doSuspend(final User user) {
+    protected WorkflowResult<String> doSuspend(final User user) {
         Set<String> performedTasks = doExecuteTask(user, "suspend", null);
         updateStatus(user);
         User updated = userDAO.save(user);
@@ -354,7 +358,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected WorkflowResult<Long> doReactivate(final User user) {
+    protected WorkflowResult<String> doReactivate(final User user) {
         Set<String> performedTasks = doExecuteTask(user, "reactivate", null);
         updateStatus(user);
 
@@ -403,7 +407,9 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         doExecuteTask(user, "delete", null);
 
         PropagationByResource propByRes = new PropagationByResource();
-        propByRes.set(ResourceOperation.DELETE, userDAO.findAllResourceNames(user));
+        propByRes.set(
+                ResourceOperation.DELETE,
+                CollectionUtils.collect(userDAO.findAllResources(user), EntityUtils.keyTransformer()));
 
         saveForFormSubmit(user, null, propByRes);
 
@@ -424,7 +430,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    public WorkflowResult<Long> execute(final UserTO userTO, final String taskId) {
+    public WorkflowResult<String> execute(final UserTO userTO, final String taskId) {
         User user = userDAO.authFind(userTO.getKey());
 
         final Map<String, Object> variables = new HashMap<>();
@@ -616,7 +622,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         if (user == null) {
             throw new NotFoundException("User with workflow id " + processInstanceId);
         }
-        formTO.setUserKey(user.getKey());
+        formTO.setUsername(user.getUsername());
 
         formTO.setTaskId(taskId);
         formTO.setKey(formKey);
@@ -645,7 +651,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         if (user == null) {
             throw new NotFoundException("User with workflow id " + processInstanceId);
         }
-        formTO.setUserKey(user.getKey());
+        formTO.setUsername(user.getUsername());
 
         formTO.setTaskId(taskId);
         formTO.setKey(formKey);
@@ -678,18 +684,18 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
             forms.addAll(getForms(engine.getTaskService().createTaskQuery().
                     taskVariableValueEquals(TASK_IS_FORM, Boolean.TRUE)));
         } else {
-            User user = userDAO.find(authUser);
+            User user = userDAO.findByUsername(authUser);
             if (user == null) {
                 throw new NotFoundException("Syncope User " + authUser);
             }
 
             forms.addAll(getForms(engine.getTaskService().createTaskQuery().
                     taskVariableValueEquals(TASK_IS_FORM, Boolean.TRUE).
-                    taskCandidateOrAssigned(user.getKey().toString())));
+                    taskCandidateOrAssigned(user.getKey())));
 
             List<String> candidateGroups = new ArrayList<>();
-            for (Long groupId : userDAO.findAllGroupKeys(user)) {
-                candidateGroups.add(groupId.toString());
+            for (String groupName : userDAO.findAllGroupNames(user)) {
+                candidateGroups.add(groupName);
             }
             if (!candidateGroups.isEmpty()) {
                 forms.addAll(getForms(engine.getTaskService().createTaskQuery().
@@ -766,7 +772,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         }
 
         if (!adminUser.equals(authUser)) {
-            User user = userDAO.find(authUser);
+            User user = userDAO.findByUsername(authUser);
             if (user == null) {
                 throw new NotFoundException("Syncope User " + authUser);
             }

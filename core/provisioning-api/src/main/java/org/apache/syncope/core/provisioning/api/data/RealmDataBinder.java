@@ -19,13 +19,14 @@
 package org.apache.syncope.core.provisioning.api.data;
 
 import org.apache.syncope.common.lib.to.RealmTO;
+import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 
 public interface RealmDataBinder {
 
     Realm create(String parentPath, RealmTO realmTO);
 
-    void update(Realm realm, RealmTO realmTO);
+    PropagationByResource update(Realm realm, RealmTO realmTO);
 
     RealmTO getRealmTO(Realm realm);
 

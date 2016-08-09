@@ -35,10 +35,11 @@ import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
 import org.apache.syncope.core.provisioning.api.utils.ConnPoolConfUtils;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.TimeoutException;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.provisioning.api.pushpull.ReconciliationFilterBuilder;
+import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
+import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.identityconnectors.common.security.GuardedByteArray;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.api.APIConfiguration;
@@ -424,8 +425,7 @@ public class ConnectorFacadeProxy implements Connector {
 
         if (connInstance.getCapabilities().contains(ConnectorCapability.SEARCH)) {
             if (options.getPageSize() == null && options.getPagedResultsCookie() == null) {
-                OperationOptionsBuilder builder = new OperationOptionsBuilder(options);
-                builder.setPageSize(DEFAULT_PAGE_SIZE);
+                OperationOptionsBuilder builder = new OperationOptionsBuilder(options).setPageSize(DEFAULT_PAGE_SIZE);
 
                 final String[] cookies = new String[] { null };
                 do {
@@ -480,7 +480,7 @@ public class ConnectorFacadeProxy implements Connector {
             }
         }, new ArrayList<SortKey>(orderBy.size())));
 
-        builder.setAttributesToGet(MappingManagerImpl.buildOperationOptions(mapItems).getAttributesToGet());
+        builder.setAttributesToGet(MappingUtils.buildOperationOptions(mapItems).getAttributesToGet());
 
         search(objectClass, filter, handler, builder.build());
     }

@@ -35,7 +35,7 @@ import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.rest.api.beans.AnySearchQuery;
+import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.RoleService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.FixMethodOrder;
@@ -49,7 +49,7 @@ public class SearchITCase extends AbstractITCase {
     public void searchUser() {
         // LIKE
         PagedResult<UserTO> matchingUsers = userService.search(
-                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().
                         is("fullname").equalTo("*o*").and("fullname").equalTo("*i*").query()).build());
         assertNotNull(matchingUsers);
@@ -60,8 +60,7 @@ public class SearchITCase extends AbstractITCase {
         }
 
         // ISNULL
-        matchingUsers = userService.search(
-                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+        matchingUsers = userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().isNull("loginDate").query()).build());
         assertNotNull(matchingUsers);
         assertFalse(matchingUsers.getResult().isEmpty());
@@ -70,7 +69,8 @@ public class SearchITCase extends AbstractITCase {
 
             @Override
             public boolean evaluate(final UserTO user) {
-                return user.getKey() == 2L || user.getKey() == 3L;
+                return "74cd8ece-715a-44a4-a736-e17b46c4e7e6".equals(user.getKey())
+                        || "b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee".equals(user.getKey());
             }
         });
         assertEquals(2, found.size());
@@ -79,32 +79,32 @@ public class SearchITCase extends AbstractITCase {
     @Test
     public void searchByUsernameAndKey() {
         PagedResult<UserTO> matchingUsers = userService.search(
-                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().
                         is("username").equalTo("rossini").and("key").lessThan(2).query()).build());
         assertNotNull(matchingUsers);
         assertEquals(1, matchingUsers.getResult().size());
         assertEquals("rossini", matchingUsers.getResult().iterator().next().getUsername());
-        assertEquals(1L, matchingUsers.getResult().iterator().next().getKey(), 0);
+        assertEquals("1417acbe-cbf6-4277-9372-e75e04f97000", matchingUsers.getResult().iterator().next().getKey());
     }
 
     @Test
     public void searchByGroupNameAndKey() {
-        PagedResult<GroupTO> groups = groupService.search(
-                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+        PagedResult<GroupTO> groups = groupService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getGroupSearchConditionBuilder().
-                        is("name").equalTo("root").and("key").lessThan(2).query()).build());
+                        is("name").equalTo("root").and("key").equalTo("37d15e4c-cdc1-460b-a591-8505c8133806").
+                        query()).build());
         assertNotNull(groups);
         assertEquals(1, groups.getResult().size());
         assertEquals("root", groups.getResult().iterator().next().getName());
-        assertEquals(1L, groups.getResult().iterator().next().getKey(), 0);
+        assertEquals("37d15e4c-cdc1-460b-a591-8505c8133806", groups.getResult().iterator().next().getKey());
     }
 
     @Test
     public void searchByGroup() {
         PagedResult<UserTO> matchingUsers = userService.search(
-                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                fiql(SyncopeClient.getUserSearchConditionBuilder().inGroups(1L).query()).
+                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                fiql(SyncopeClient.getUserSearchConditionBuilder().inGroups("root").query()).
                 build());
         assertNotNull(matchingUsers);
         assertFalse(matchingUsers.getResult().isEmpty());
@@ -113,7 +113,7 @@ public class SearchITCase extends AbstractITCase {
 
             @Override
             public boolean evaluate(final UserTO user) {
-                return user.getKey() == 1;
+                return "1417acbe-cbf6-4277-9372-e75e04f97000".equals(user.getKey());
             }
         }));
     }
@@ -122,11 +122,11 @@ public class SearchITCase extends AbstractITCase {
     public void searchByDynGroup() {
         GroupTO group = GroupITCase.getBasicSampleTO("dynMembership");
         group.setUDynMembershipCond("cool==true");
-        group = createGroup(group).getAny();
+        group = createGroup(group).getEntity();
         assertNotNull(group);
 
         PagedResult<UserTO> matchingUsers = userService.search(
-                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().inGroups(group.getKey()).query()).
                 build());
         assertNotNull(matchingUsers);
@@ -136,7 +136,7 @@ public class SearchITCase extends AbstractITCase {
 
             @Override
             public boolean evaluate(final UserTO user) {
-                return user.getKey() == 4;
+                return "c9b2dec2-00a7-4855-97c0-d854842b4b24".equals(user.getKey());
             }
         }));
     }
@@ -144,7 +144,7 @@ public class SearchITCase extends AbstractITCase {
     @Test
     public void searchByRole() {
         PagedResult<UserTO> matchingUsers = userService.search(
-                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().inRoles("Other").query()).
                 build());
         assertNotNull(matchingUsers);
@@ -154,7 +154,7 @@ public class SearchITCase extends AbstractITCase {
 
             @Override
             public boolean evaluate(final UserTO user) {
-                return user.getKey() == 1;
+                return "1417acbe-cbf6-4277-9372-e75e04f97000".equals(user.getKey());
             }
         }));
     }
@@ -168,7 +168,7 @@ public class SearchITCase extends AbstractITCase {
         assertNotNull(role);
 
         PagedResult<UserTO> matchingUsers = userService.search(
-                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().inRoles(role.getKey()).query()).
                 build());
         assertNotNull(matchingUsers);
@@ -178,7 +178,7 @@ public class SearchITCase extends AbstractITCase {
 
             @Override
             public boolean evaluate(final UserTO user) {
-                return user.getKey() == 4;
+                return "c9b2dec2-00a7-4855-97c0-d854842b4b24".equals(user.getKey());
             }
         }));
     }
@@ -186,7 +186,7 @@ public class SearchITCase extends AbstractITCase {
     @Test
     public void searchUserByResourceName() {
         PagedResult<UserTO> matchingUsers = userService.search(
-                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().hasResources(RESOURCE_NAME_MAPPINGS2).query()).
                 build());
         assertNotNull(matchingUsers);
@@ -196,7 +196,7 @@ public class SearchITCase extends AbstractITCase {
 
             @Override
             public boolean evaluate(final UserTO user) {
-                return user.getKey() == 2;
+                return "74cd8ece-715a-44a4-a736-e17b46c4e7e6".equals(user.getKey());
             }
         }));
     }
@@ -205,7 +205,7 @@ public class SearchITCase extends AbstractITCase {
     public void paginatedSearch() {
         // LIKE
         PagedResult<UserTO> matchingUsers = userService.search(
-                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().
                         is("fullname").equalTo("*o*").and("fullname").equalTo("*i*").query()).page(1).size(2).build());
         assertNotNull(matchingUsers);
@@ -216,8 +216,7 @@ public class SearchITCase extends AbstractITCase {
         }
 
         // ISNULL
-        matchingUsers = userService.search(
-                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+        matchingUsers = userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().isNull("loginDate").query()).page(2).size(2).
                 build());
         assertNotNull(matchingUsers);
@@ -227,8 +226,7 @@ public class SearchITCase extends AbstractITCase {
 
     @Test
     public void searchByBooleanAnyCond() {
-        PagedResult<GroupTO> groups = groupService.search(
-                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+        PagedResult<GroupTO> groups = groupService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getGroupSearchConditionBuilder().is("show").equalTo("true").query()).build());
         assertNotNull(groups);
         assertFalse(groups.getResult().isEmpty());
@@ -238,8 +236,7 @@ public class SearchITCase extends AbstractITCase {
     public void searchByDate() {
         clientFactory.create("bellini", "password").self();
 
-        PagedResult<UserTO> users = userService.search(
-                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+        PagedResult<UserTO> users = userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().
                         is("lastLoginDate").lexicalNotBefore("2016-03-02 15:21:22").
                         and("username").equalTo("bellini").query()).
@@ -251,18 +248,20 @@ public class SearchITCase extends AbstractITCase {
 
     @Test
     public void searchByRelationshipAnyCond() {
-        PagedResult<GroupTO> groups = groupService.search(
-                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                fiql(SyncopeClient.getGroupSearchConditionBuilder().is("userOwner").equalTo(5).query()).build());
+        PagedResult<GroupTO> groups = groupService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                fiql(SyncopeClient.getGroupSearchConditionBuilder().
+                        is("userOwner").equalTo("823074dc-d280-436d-a7dd-07399fae48ec").query()).build());
         assertNotNull(groups);
         assertEquals(1, groups.getResult().size());
-        assertEquals(6L, groups.getResult().iterator().next().getKey(), 0);
+        assertEquals(
+                "ebf97068-aa4b-4a85-9f01-680e8c4cf227",
+                groups.getResult().iterator().next().getKey());
     }
 
     @Test
     public void nested() {
         PagedResult<UserTO> matchingUsers = userService.search(
-                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql("((fullname==*o*,fullname==*i*);$resources!=ws-target-resource-1)").page(1).size(2).build());
         assertNotNull(matchingUsers);
 
@@ -274,8 +273,8 @@ public class SearchITCase extends AbstractITCase {
 
     @Test
     public void searchByType() {
-        PagedResult<AnyObjectTO> matching = anyObjectService.search(
-                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+        PagedResult<AnyObjectTO> matching = anyObjectService.search(new AnyQuery.Builder().realm(
+                SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getAnyObjectSearchConditionBuilder("PRINTER").query()).build());
         assertNotNull(matching);
 
@@ -284,8 +283,7 @@ public class SearchITCase extends AbstractITCase {
             assertNotNull(printer);
         }
 
-        matching = anyObjectService.search(
-                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+        matching = anyObjectService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getAnyObjectSearchConditionBuilder("UNEXISTING").query()).build());
         assertNotNull(matching);
 
@@ -294,38 +292,37 @@ public class SearchITCase extends AbstractITCase {
 
     @Test
     public void searchByRelationship() {
-        PagedResult<AnyObjectTO> anyObjects = anyObjectService.search(
-                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+        PagedResult<AnyObjectTO> anyObjects = anyObjectService.search(new AnyQuery.Builder().realm(
+                SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getAnyObjectSearchConditionBuilder("PRINTER").
-                        inRelationships(2L).query()).
+                        inRelationships("Canon MF 8030cn").query()).
                 build());
         assertNotNull(anyObjects);
         assertTrue(IterableUtils.matchesAny(anyObjects.getResult(), new Predicate<AnyObjectTO>() {
 
             @Override
             public boolean evaluate(final AnyObjectTO anyObject) {
-                return anyObject.getKey() == 1L;
+                return "fc6dbc3a-6c07-4965-8781-921e7401a4a5".equals(anyObject.getKey());
             }
         }));
 
-        PagedResult<UserTO> users = userService.search(
-                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                fiql(SyncopeClient.getUserSearchConditionBuilder().inRelationships(1L).query()).
+        PagedResult<UserTO> users = userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                fiql(SyncopeClient.getUserSearchConditionBuilder().inRelationships("HP LJ 1300n").query()).
                 build());
         assertNotNull(users);
         assertTrue(IterableUtils.matchesAny(users.getResult(), new Predicate<UserTO>() {
 
             @Override
             public boolean evaluate(final UserTO user) {
-                return user.getKey() == 4L;
+                return "c9b2dec2-00a7-4855-97c0-d854842b4b24".equals(user.getKey());
             }
         }));
     }
 
     @Test
     public void searchByRelationshipType() {
-        PagedResult<AnyObjectTO> anyObjects = anyObjectService.search(
-                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+        PagedResult<AnyObjectTO> anyObjects = anyObjectService.search(new AnyQuery.Builder().realm(
+                SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getAnyObjectSearchConditionBuilder("PRINTER").
                         inRelationshipTypes("neighborhood").query()).
                 build());
@@ -334,19 +331,18 @@ public class SearchITCase extends AbstractITCase {
 
             @Override
             public boolean evaluate(final AnyObjectTO anyObject) {
-                return anyObject.getKey() == 1L;
+                return "fc6dbc3a-6c07-4965-8781-921e7401a4a5".equals(anyObject.getKey());
             }
         }));
         assertTrue(IterableUtils.matchesAny(anyObjects.getResult(), new Predicate<AnyObjectTO>() {
 
             @Override
             public boolean evaluate(final AnyObjectTO anyObject) {
-                return anyObject.getKey() == 2L;
+                return "8559d14d-58c2-46eb-a2d4-a7d35161e8f8".equals(anyObject.getKey());
             }
         }));
 
-        PagedResult<UserTO> users = userService.search(
-                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+        PagedResult<UserTO> users = userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().inRelationshipTypes("neighborhood").query()).
                 build());
         assertNotNull(users);
@@ -354,15 +350,14 @@ public class SearchITCase extends AbstractITCase {
 
             @Override
             public boolean evaluate(final UserTO user) {
-                return user.getKey() == 4L;
+                return "c9b2dec2-00a7-4855-97c0-d854842b4b24".equals(user.getKey());
             }
         }));
     }
 
     @Test
     public void assignable() {
-        PagedResult<GroupTO> groups = groupService.search(
-                new AnySearchQuery.Builder().realm("/even/two").page(1).size(1000).
+        PagedResult<GroupTO> groups = groupService.search(new AnyQuery.Builder().realm("/even/two").page(1).size(1000).
                 fiql(SyncopeClient.getGroupSearchConditionBuilder().isAssignable().
                         and("name").equalTo("*").query()).
                 build());
@@ -371,19 +366,18 @@ public class SearchITCase extends AbstractITCase {
 
             @Override
             public boolean evaluate(final GroupTO group) {
-                return group.getKey() == 15L;
+                return "034740a9-fa10-453b-af37-dc7897e98fb1".equals(group.getKey());
             }
         }));
         assertFalse(IterableUtils.matchesAny(groups.getResult(), new Predicate<GroupTO>() {
 
             @Override
             public boolean evaluate(final GroupTO group) {
-                return group.getKey() == 16L;
+                return "e7ff94e8-19c9-4f0a-b8b7-28327edbf6ed".equals(group.getKey());
             }
         }));
 
-        PagedResult<AnyObjectTO> anyObjects = anyObjectService.search(
-                new AnySearchQuery.Builder().realm("/odd").
+        PagedResult<AnyObjectTO> anyObjects = anyObjectService.search(new AnyQuery.Builder().realm("/odd").
                 fiql(SyncopeClient.getAnyObjectSearchConditionBuilder("PRINTER").isAssignable().
                         and("name").equalTo("*").query()).
                 build());
@@ -392,7 +386,30 @@ public class SearchITCase extends AbstractITCase {
 
             @Override
             public boolean evaluate(final AnyObjectTO anyObject) {
-                return anyObject.getKey() == 3L;
+                return "9e1d130c-d6a3-48b1-98b3-182477ed0688".equals(anyObject.getKey());
+            }
+        }));
+    }
+
+    @Test
+    public void member() {
+        PagedResult<GroupTO> groups = groupService.search(new AnyQuery.Builder().realm("/").
+                fiql(SyncopeClient.getGroupSearchConditionBuilder().withMembers("rossini").query()).
+                build());
+        assertNotNull(groups);
+
+        assertTrue(IterableUtils.matchesAny(groups.getResult(), new Predicate<GroupTO>() {
+
+            @Override
+            public boolean evaluate(final GroupTO group) {
+                return "root".equals(group.getName());
+            }
+        }));
+        assertTrue(IterableUtils.matchesAny(groups.getResult(), new Predicate<GroupTO>() {
+
+            @Override
+            public boolean evaluate(final GroupTO group) {
+                return "otherchild".equals(group.getName());
             }
         }));
     }
@@ -400,7 +417,7 @@ public class SearchITCase extends AbstractITCase {
     @Test
     public void orderBy() {
         PagedResult<UserTO> matchingUsers = userService.search(
-                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().is("userId").equalTo("*@apache.org").query()).
                 orderBy(SyncopeClient.getOrderByClauseBuilder().asc("status").desc("firstname").build()).build());
         assertNotNull(matchingUsers);
@@ -413,20 +430,17 @@ public class SearchITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE768() {
-        int usersWithNullable = userService.search(
-                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+        int usersWithNullable = userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().is("ctype").nullValue().query()).build()).
                 getTotalCount();
         assertTrue(usersWithNullable > 0);
 
-        int nonOrdered = userService.search(
-                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+        int nonOrdered = userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").notNullValue().query()).build()).
                 getTotalCount();
         assertTrue(nonOrdered > 0);
 
-        int orderedByNullable = userService.search(
-                new AnySearchQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+        int orderedByNullable = userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").notNullValue().query()).
                 orderBy(SyncopeClient.getOrderByClauseBuilder().asc("ctype").build()).build()).
                 getTotalCount();

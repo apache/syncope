@@ -25,6 +25,7 @@ import java.util.List;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.form.AbstractFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPasswordFieldPanel;
@@ -34,8 +35,9 @@ import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.markup.ComponentTag;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
 import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.FormComponent;
 import org.apache.wicket.markup.html.form.PasswordTextField;
@@ -102,9 +104,9 @@ public class ConnConfPropertyListView extends ListView<ConnConfProperty> {
                 field = new AjaxSpinnerFieldPanel.Builder<>().build("panel", label, numberClass, new Model<Number>());
                 required = property.getSchema().isRequired();
             } else if (ClassUtils.isAssignable(Boolean.class, propertySchemaClass)) {
-                field = new AjaxCheckBoxPanel("panel", label, new Model<Boolean>(), false);
+                field = new AjaxCheckBoxPanel("panel", label, new Model<Boolean>());
             } else {
-                field = new AjaxTextFieldPanel("panel", label, new Model<String>(), false);
+                field = new AjaxTextFieldPanel("panel", label, new Model<String>());
                 required = property.getSchema().isRequired();
             }
 
@@ -113,7 +115,8 @@ public class ConnConfPropertyListView extends ListView<ConnConfProperty> {
             }
         }
 
-        field.setTitle(property.getSchema().getHelpMessage());
+        field.setIndex(item.getIndex());
+        field.setTitle(property.getSchema().getHelpMessage(), true);
 
         final AbstractFieldPanel<? extends Serializable> fieldPanel;
         if (isArray) {
@@ -143,24 +146,21 @@ public class ConnConfPropertyListView extends ListView<ConnConfProperty> {
     }
 
     private FormComponent<?> addCheckboxToggle(final ConnConfProperty property) {
-
-        final BootstrapToggleConfig config = new BootstrapToggleConfig();
-        config
-                .withOnStyle(BootstrapToggleConfig.Style.info).withOffStyle(BootstrapToggleConfig.Style.warning)
-                .withSize(BootstrapToggleConfig.Size.mini)
-                .withOnLabel("Overridable")
-                .withOffLabel("Not Overridable");
+        final BootstrapToggleConfig config = new BootstrapToggleConfig().
+                withOnStyle(BootstrapToggleConfig.Style.success).
+                withOffStyle(BootstrapToggleConfig.Style.danger).
+                withSize(BootstrapToggleConfig.Size.mini);
 
         return new BootstrapToggle("externalAction", new PropertyModel<Boolean>(property, "overridable"), config) {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = -875219845189261873L;
 
             @Override
             protected CheckBox newCheckBox(final String id, final IModel<Boolean> model) {
                 final CheckBox checkBox = super.newCheckBox(id, model);
-                checkBox.add(new AjaxFormComponentUpdatingBehavior("change") {
+                checkBox.add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
-                    private static final long serialVersionUID = 1L;
+                    private static final long serialVersionUID = -1107858522700306810L;
 
                     @Override
                     protected void onUpdate(final AjaxRequestTarget target) {
@@ -170,10 +170,29 @@ public class ConnConfPropertyListView extends ListView<ConnConfProperty> {
             }
 
             @Override
+            protected IModel<String> getOnLabel() {
+                return Model.of("Override");
+            }
+
+            @Override
+            protected IModel<String> getOffLabel() {
+                return Model.of("Override?");
+            }
+
+            @Override
             protected void onComponentTag(final ComponentTag tag) {
                 super.onComponentTag(tag);
                 tag.append("class", "overridable", " ");
             }
         };
+    }
+
+    @Override
+    public void renderHead(final IHeaderResponse response) {
+        super.renderHead(response);
+        if (getModelObject().isEmpty()) {
+            response.render(OnDomReadyHeaderItem.forScript(
+                    String.format("$('#emptyPlaceholder').append(\"%s\")", getString("property.empty.list"))));
+        }
     }
 }

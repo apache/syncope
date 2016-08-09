@@ -19,13 +19,10 @@
 package org.apache.syncope.client.console.wizards.any;
 
 import java.util.List;
-import org.apache.syncope.client.console.commons.JexlHelpUtils;
 import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.wicket.PageReference;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 
@@ -34,27 +31,22 @@ public class GroupDetails extends Details<GroupTO> {
     private static final long serialVersionUID = 855618618337931784L;
 
     public GroupDetails(
-            final GroupHandler groupHandler,
+            final GroupWrapper wrapper,
             final IModel<List<StatusBean>> statusModel,
             final boolean templateMode,
-            final PageReference pageRef,
-            final boolean includeStatusPanel) {
-        super(groupHandler, statusModel, pageRef, includeStatusPanel);
+            final boolean includeStatusPanel,
+            final PageReference pageRef) {
 
-        final GroupTO groupTO = GroupHandler.class.cast(groupHandler).getInnerObject();
+        super(wrapper, statusModel, templateMode, includeStatusPanel, pageRef);
 
-        final AjaxTextFieldPanel name = new AjaxTextFieldPanel("name", "name",
+        GroupTO groupTO = GroupWrapper.class.cast(wrapper).getInnerObject();
+
+        AjaxTextFieldPanel name = new AjaxTextFieldPanel("name", "name",
                 new PropertyModel<String>(groupTO, "name"), false);
-
-        final WebMarkupContainer jexlHelp = JexlHelpUtils.getJexlHelpWebContainer("jexlHelp");
-
-        final AjaxLink<Void> questionMarkJexlHelp = JexlHelpUtils.getAjaxLink(jexlHelp, "questionMarkJexlHelp");
-        this.add(questionMarkJexlHelp);
-        questionMarkJexlHelp.add(jexlHelp);
-
-        if (!templateMode) {
+        if (templateMode) {
+            name.enableJexlHelp();
+        } else {
             name.addRequiredLabel();
-            questionMarkJexlHelp.setVisible(false);
         }
         this.add(name);
     }

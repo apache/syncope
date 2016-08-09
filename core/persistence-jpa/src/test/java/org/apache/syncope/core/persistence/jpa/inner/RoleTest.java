@@ -50,7 +50,7 @@ public class RoleTest extends AbstractTest {
         assertNotNull(role.getKey());
         assertFalse(role.getRealms().isEmpty());
         assertFalse(role.getEntitlements().isEmpty());
-        assertTrue(role.getEntitlements().contains(StandardEntitlement.USER_LIST));
+        assertTrue(role.getEntitlements().contains(StandardEntitlement.USER_SEARCH));
     }
 
     @Test
@@ -68,7 +68,7 @@ public class RoleTest extends AbstractTest {
         Role role = entityFactory.newEntity(Role.class);
         role.setKey("new");
         role.add(realmDAO.getRoot());
-        role.add(realmDAO.find("/even/two"));
+        role.add(realmDAO.findByFullPath("/even/two"));
         role.getEntitlements().add(StandardEntitlement.LOG_LIST);
         role.getEntitlements().add(StandardEntitlement.LOG_SET_LEVEL);
 

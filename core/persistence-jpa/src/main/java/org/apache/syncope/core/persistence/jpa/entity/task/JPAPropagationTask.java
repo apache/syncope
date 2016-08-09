@@ -30,7 +30,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
-import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.jpa.validation.entity.PropagationTaskCheck;
@@ -77,12 +76,7 @@ public class JPAPropagationTask extends AbstractTask implements PropagationTask 
 
     private String anyType;
 
-    private Long anyKey;
-
-    public JPAPropagationTask() {
-        super();
-        type = TaskType.PROPAGATION;
-    }
+    private String entityKey;
 
     /**
      * ExternalResource to which the propagation happens.
@@ -184,12 +178,12 @@ public class JPAPropagationTask extends AbstractTask implements PropagationTask 
     }
 
     @Override
-    public Long getAnyKey() {
-        return anyKey;
+    public String getEntityKey() {
+        return entityKey;
     }
 
     @Override
-    public void setAnyKey(final Long anyKey) {
-        this.anyKey = anyKey;
+    public void setEntityKey(final String entityKey) {
+        this.entityKey = entityKey;
     }
 }

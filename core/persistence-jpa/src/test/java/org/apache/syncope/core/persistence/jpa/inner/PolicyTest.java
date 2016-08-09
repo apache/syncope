@@ -28,7 +28,6 @@ import java.util.List;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
-import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.policy.PullPolicySpec;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
@@ -59,7 +58,7 @@ public class PolicyTest extends AbstractTest {
 
     @Test
     public void findByKey() {
-        PullPolicy policy = policyDAO.find(3L);
+        PullPolicy policy = policyDAO.find("880f8553-069b-4aed-9930-2cd53873f544");
         assertNotNull("findById did not work", policy);
 
         PullPolicySpec spec = policy.getSpecification();
@@ -76,7 +75,7 @@ public class PolicyTest extends AbstractTest {
 
     @Test
     public void findByType() {
-        List<? extends Policy> policies = policyDAO.find(PolicyType.PULL);
+        List<PullPolicy> policies = policyDAO.find(PullPolicy.class);
         assertNotNull("findById did not work", policies);
         assertFalse(policies.isEmpty());
     }
@@ -99,7 +98,6 @@ public class PolicyTest extends AbstractTest {
         policy = policyDAO.save(policy);
 
         assertNotNull(policy);
-        assertEquals(PolicyType.PULL, policy.getType());
         assertEquals(pullURuleName,
                 policy.getSpecification().getCorrelationRules().get(anyTypeDAO.findUser().getKey()));
         assertEquals(pullGRuleName,
@@ -112,7 +110,7 @@ public class PolicyTest extends AbstractTest {
         ruleConf.setMaxLength(8);
         ruleConf.setMinLength(6);
 
-        PasswordPolicy policy = policyDAO.find(2L);
+        PasswordPolicy policy = policyDAO.find("ce93fcda-dc3a-4369-a7b0-a6108c261c85");
         assertNotNull(policy);
         assertEquals(1, policy.getRuleConfs().size());
         policy.add(ruleConf);
@@ -120,19 +118,18 @@ public class PolicyTest extends AbstractTest {
         policy = policyDAO.save(policy);
 
         assertNotNull(policy);
-        assertEquals(PolicyType.PASSWORD, policy.getType());
         assertEquals(((DefaultPasswordRuleConf) policy.getRuleConfs().get(1)).getMaxLength(), 8);
         assertEquals(((DefaultPasswordRuleConf) policy.getRuleConfs().get(1)).getMinLength(), 6);
     }
 
     @Test
     public void delete() {
-        Policy policy = policyDAO.find(1L);
+        Policy policy = policyDAO.find("66691e96-285f-4464-bc19-e68384ea4c85");
         assertNotNull("find to delete did not work", policy);
 
         policyDAO.delete(policy);
 
-        Policy actual = policyDAO.find(1L);
+        Policy actual = policyDAO.find("66691e96-285f-4464-bc19-e68384ea4c85");
         assertNull("delete did not work", actual);
     }
 }

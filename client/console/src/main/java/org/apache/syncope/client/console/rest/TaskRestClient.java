@@ -20,8 +20,6 @@ package org.apache.syncope.client.console.rest;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
-import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
@@ -31,9 +29,11 @@ import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
+import org.apache.syncope.common.lib.to.PagedResult;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
-import org.apache.syncope.common.rest.api.beans.TaskExecQuery;
+import org.apache.syncope.common.rest.api.beans.ExecQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
@@ -45,48 +45,76 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
 
     private static final long serialVersionUID = 6284485820911028843L;
 
-    public Set<String> getJobClasses() {
-        return SyncopeConsoleSession.get().getPlatformInfo().getTaskJobs();
-    }
-
-    public Set<String> getPullActionsClasses() {
-        return SyncopeConsoleSession.get().getPlatformInfo().getPullActions();
-    }
-
-    public Set<String> getPushActionsClasses() {
-        return SyncopeConsoleSession.get().getPlatformInfo().getPushActions();
-    }
-
-    /**
-     * Return the number of tasks.
-     *
-     * @param kind of task (propagation, sched, sync).
-     * @return number of stored tasks.
-     */
     public int count(final TaskType kind) {
-        return getService(TaskService.class).
-                list(new TaskQuery.Builder().type(kind).page(1).size(1).build()).getTotalCount();
+        return getService(TaskService.class).list(
+                new TaskQuery.Builder(kind).page(1).size(1).build()).getTotalCount();
     }
 
     public int count(final String resource, final TaskType kind) {
-        return getService(TaskService.class).
-                list(new TaskQuery.Builder().resource(resource).type(kind).page(1).size(1).build()).getTotalCount();
+        return getService(TaskService.class).list(
+                new TaskQuery.Builder(kind).resource(resource).page(1).size(1).
+                build()).getTotalCount();
     }
 
-    public int countExecutions(final Long taskId) {
+    public int count(final AnyTypeKind anyTypeKind, final String entityKey, final TaskType kind) {
+        return getService(TaskService.class).list(
+                new TaskQuery.Builder(kind).anyTypeKind(anyTypeKind).entityKey(entityKey).page(1).size(1).
+                build()).getTotalCount();
+    }
+
+    @Override
+    public int countExecutions(final String taskKey) {
         return getService(TaskService.class).
-                listExecutions(new TaskExecQuery.Builder().key(taskId).page(1).size(1).build()).getTotalCount();
+                listExecutions(new ExecQuery.Builder().key(taskKey).page(1).size(1).build()).getTotalCount();
     }
 
     public List<PropagationTaskTO> listPropagationTasks(
             final String resource, final int page, final int size, final SortParam<String> sort) {
 
         return getService(TaskService.class).
-                <PropagationTaskTO>list(new TaskQuery.Builder().type(TaskType.PROPAGATION).
+                <PropagationTaskTO>list(new TaskQuery.Builder(TaskType.PROPAGATION).
                         resource(resource).
                         page(page).size(size).
                         orderBy(toOrderBy(sort)).build()).
                 getResult();
+    }
+
+    public List<PropagationTaskTO> listPropagationTasks(
+            final AnyTypeKind anyTypeKind, final String entityKey,
+            final int page, final int size, final SortParam<String> sort) {
+
+        return getService(TaskService.class).
+                <PropagationTaskTO>list(new TaskQuery.Builder(TaskType.PROPAGATION).
+                        anyTypeKind(anyTypeKind).entityKey(entityKey).
+                        page(page).size(size).
+                        orderBy(toOrderBy(sort)).build()).
+                getResult();
+    }
+
+    public List<NotificationTaskTO> listNotificationTasks(
+            final String notification,
+            final AnyTypeKind anyTypeKind,
+            final String entityKey,
+            final int page,
+            final int size,
+            final SortParam<String> sort) {
+
+        TaskQuery.Builder builder = new TaskQuery.Builder(TaskType.NOTIFICATION);
+        if (notification != null) {
+            builder.notification(notification);
+        }
+
+        if (anyTypeKind != null) {
+            builder.anyTypeKind(anyTypeKind);
+        }
+
+        if (entityKey != null) {
+            builder.entityKey(entityKey);
+        }
+
+        PagedResult<NotificationTaskTO> list = getService(TaskService.class).
+                list(builder.page(page).size(size).orderBy(toOrderBy(sort)).build());
+        return list.getResult();
     }
 
     @SuppressWarnings("unchecked")
@@ -94,7 +122,7 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
             final Class<T> reference, final int page, final int size, final SortParam<String> sort) {
 
         return (List<T>) getService(TaskService.class).
-                list(new TaskQuery.Builder().type(getTaskType(reference)).page(page).size(size).
+                list(new TaskQuery.Builder(getTaskType(reference)).page(page).size(size).
                         orderBy(toOrderBy(sort)).build()).
                 getResult();
     }
@@ -108,14 +136,15 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
             final SortParam<String> sort) {
 
         return (List<T>) getService(TaskService.class).
-                list(new TaskQuery.Builder().type(getTaskType(reference)).page(page).size(size).resource(resource).
+                list(new TaskQuery.Builder(getTaskType(reference)).page(page).size(size).resource(resource).
                         orderBy(toOrderBy(sort)).build()).
                 getResult();
     }
 
-    public List<ExecTO> listExecutions(final Long taskId, final int page, final int size) {
+    @Override
+    public List<ExecTO> listExecutions(final String taskKey, final int page, final int size) {
         return getService(TaskService.class).
-                listExecutions(new TaskExecQuery.Builder().key(taskId).page(page).size(size).build()).getResult();
+                listExecutions(new ExecQuery.Builder().key(taskKey).page(page).size(size).build()).getResult();
     }
 
     private TaskType getTaskType(final Class<?> reference) {
@@ -134,40 +163,40 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
         return result;
     }
 
-    public PropagationTaskTO readPropagationTask(final Long taskKey) {
+    public PropagationTaskTO readPropagationTask(final String taskKey) {
         return getService(TaskService.class).read(taskKey, false);
     }
 
-    public NotificationTaskTO readNotificationTask(final Long taskKey) {
+    public NotificationTaskTO readNotificationTask(final String taskKey) {
         return getService(TaskService.class).read(taskKey, false);
     }
 
-    public <T extends SchedTaskTO> T readSchedTask(final Class<T> reference, final Long taskKey) {
+    public <T extends SchedTaskTO> T readSchedTask(final Class<T> reference, final String taskKey) {
         return getService(TaskService.class).read(taskKey, false);
     }
 
-    public void delete(final Long taskKey, final Class<? extends AbstractTaskTO> taskToClass) {
+    public void delete(final String taskKey, final Class<? extends AbstractTaskTO> taskToClass) {
         getService(TaskService.class).delete(taskKey);
     }
 
     @Override
-    public void startExecution(final long taskKey, final Date start) {
+    public void startExecution(final String taskKey, final Date start) {
         startExecution(taskKey, start, false);
     }
 
-    public void startExecution(final long taskKey, final Date start, final boolean dryRun) {
+    public void startExecution(final String taskKey, final Date start, final boolean dryRun) {
         getService(TaskService.class).execute(
                 new ExecuteQuery.Builder().key(taskKey).startAt(start).dryRun(dryRun).build());
     }
 
     @Override
-    public void deleteExecution(final long taskExecId) {
-        getService(TaskService.class).deleteExecution(taskExecId);
+    public void deleteExecution(final String taskExecKey) {
+        getService(TaskService.class).deleteExecution(taskExecKey);
     }
 
     @Override
     public List<ExecTO> listRecentExecutions(final int max) {
-        return SyncopeConsoleSession.get().getService(TaskService.class).listRecentExecutions(max);
+        return getService(TaskService.class).listRecentExecutions(max);
     }
 
     public void create(final SchedTaskTO taskTO) {

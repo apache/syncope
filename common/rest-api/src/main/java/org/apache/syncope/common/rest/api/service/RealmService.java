@@ -44,7 +44,7 @@ public interface RealmService extends JAXRSService {
      * @return list of all realms.
      */
     @GET
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     List<RealmTO> list();
 
     /**
@@ -55,7 +55,7 @@ public interface RealmService extends JAXRSService {
      */
     @GET
     @Path("{fullPath:.*}")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     List<RealmTO> list(@NotNull @PathParam("fullPath") String fullPath);
 
     /**
@@ -63,29 +63,34 @@ public interface RealmService extends JAXRSService {
      *
      * @param parentPath full path of the parent realm
      * @param realmTO new realm.
-     * @return Response object featuring Location header of created realm
+     * @return Response object featuring Location header of created realm as well as the realm itself
+     * enriched with propagation status information - ProvisioningResult as Entity
      */
     @POST
     @Path("{parentPath:.*}")
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response create(@NotNull @PathParam("parentPath") String parentPath, @NotNull RealmTO realmTO);
 
     /**
      * Updates the realm under the given path.
      *
      * @param realmTO realm to be stored
+     * @return Response object featuring the updated realm enriched with propagation status information
+     * - ProvisioningResult as Entity
      */
     @PUT
     @Path("{fullPath:.*}")
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    void update(@NotNull RealmTO realmTO);
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    Response update(@NotNull RealmTO realmTO);
 
     /**
-     * Deletes the notification matching the given key.
+     * Deletes the realm under the given path.
      *
-     * @param fullPath key for notification to be deleted
+     * @param fullPath realm path
+     * @return Response object featuring the deleted realm enriched with propagation status information
+     * - ProvisioningResult as Entity
      */
     @DELETE
     @Path("{fullPath:.*}")
-    void delete(@NotNull @PathParam("fullPath") String fullPath);
+    Response delete(@NotNull @PathParam("fullPath") String fullPath);
 }

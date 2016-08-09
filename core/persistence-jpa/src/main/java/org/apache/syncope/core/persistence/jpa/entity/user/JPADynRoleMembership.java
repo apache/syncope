@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.jpa.entity.user;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -39,9 +38,6 @@ public class JPADynRoleMembership extends AbstractUDynMembership implements DynR
 
     public static final String TABLE = "DynRoleMembership";
 
-    @Id
-    private Long id;
-
     @OneToOne
     private JPARole role;
 
@@ -51,11 +47,6 @@ public class JPADynRoleMembership extends AbstractUDynMembership implements DynR
             inverseJoinColumns =
             @JoinColumn(name = "user_id"))
     private List<JPAUser> users = new ArrayList<>();
-
-    @Override
-    public Long getKey() {
-        return id;
-    }
 
     @Override
     protected List<JPAUser> internalGetUsers() {

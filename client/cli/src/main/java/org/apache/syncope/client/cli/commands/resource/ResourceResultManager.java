@@ -38,15 +38,10 @@ public class ResourceResultManager extends CommonsResultManager {
     private void printResource(final ResourceTO resourceTO) {
         System.out.println(" > RESOURCE ID: " + resourceTO.getKey());
         System.out.println("    connector dispaly name: " + resourceTO.getConnectorDisplayName());
-        System.out.println("    etag value: " + resourceTO.getETagValue());
         System.out.println("    connector id: " + resourceTO.getConnector());
         System.out.println("    account policy id: " + resourceTO.getAccountPolicy());
         System.out.println("    password policy id: " + resourceTO.getPasswordPolicy());
         System.out.println("    pull policy id: " + resourceTO.getPullPolicy());
-        System.out.println("    creator: " + resourceTO.getCreator());
-        System.out.println("    creation date: " + resourceTO.getCreationDate());
-        System.out.println("    last modifier: " + resourceTO.getLastModifier());
-        System.out.println("    last change date: " + resourceTO.getLastChangeDate());
         System.out.println("    propagation actions class: " + resourceTO.getPropagationActionsClassNames());
         System.out.println("    propagation priority: " + resourceTO.getPropagationPriority());
         System.out.println("    PROVISIONS:");
@@ -54,7 +49,7 @@ public class ResourceResultManager extends CommonsResultManager {
         System.out.println("    create trace level: " + resourceTO.getCreateTraceLevel());
         System.out.println("    delete trace level: " + resourceTO.getDeleteTraceLevel());
         System.out.println("    update trace level: " + resourceTO.getUpdateTraceLevel());
-        System.out.println("    pull trace level: " + resourceTO.getPullTraceLevel());
+        System.out.println("    pull trace level: " + resourceTO.getProvisioningTraceLevel());
         System.out.println("    enforce mandatory condition: " + resourceTO.isEnforceMandatoryCondition());
         System.out.println("    override capabilities: " + resourceTO.isOverrideCapabilities());
         System.out.println("    random password if not provided: " + resourceTO.isRandomPwdIfNotProvided());
@@ -82,11 +77,14 @@ public class ResourceResultManager extends CommonsResultManager {
     private void printMappingItem(final List<MappingItemTO> mappingItemTOs) {
         for (final MappingItemTO mappingItemTO : mappingItemTOs) {
             System.out.println("             mapping key: " + mappingItemTO.getKey());
-            System.out.println("             mapping item type: " + mappingItemTO.getIntMappingType().name());
             System.out.println("             internal attribute name: " + mappingItemTO.getIntAttrName());
             System.out.println("             external attribute name: " + mappingItemTO.getExtAttrName());
             System.out.println("             mandatory condition: " + mappingItemTO.getMandatoryCondition());
-            System.out.println("             transformers class: "
+            System.out.println("             JEXL propagation transformer: "
+                    + mappingItemTO.getPropagationJEXLTransformer());
+            System.out.println("             JEXL pull transformer: "
+                    + mappingItemTO.getPullJEXLTransformer());
+            System.out.println("             transformers classes: "
                     + mappingItemTO.getMappingItemTransformerClassNames());
             System.out.println("             purpose: " + mappingItemTO.getPurpose());
             System.out.println("             connector object key: " + mappingItemTO.isConnObjectKey());

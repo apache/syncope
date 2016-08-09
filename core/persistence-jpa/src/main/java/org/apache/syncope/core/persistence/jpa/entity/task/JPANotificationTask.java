@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.jpa.entity.task;
 
 import java.util.HashSet;
 import java.util.Set;
-
 import javax.persistence.Basic;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
@@ -32,12 +31,15 @@ import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import org.apache.syncope.common.lib.types.TaskType;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.TraceLevel;
+import org.apache.syncope.core.persistence.api.entity.Notification;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
+import org.apache.syncope.core.persistence.jpa.entity.JPANotification;
 
 @Entity
 @DiscriminatorValue("NotificationTask")
@@ -45,12 +47,21 @@ public class JPANotificationTask extends AbstractTask implements NotificationTas
 
     private static final long serialVersionUID = 95731573485279180L;
 
+    @NotNull
+    @ManyToOne
+    private JPANotification notification;
+
+    @Enumerated(EnumType.STRING)
+    private AnyTypeKind anyTypeKind;
+
+    private String entityKey;
+
     @ElementCollection(fetch = FetchType.EAGER)
     @Column(name = "address")
     @CollectionTable(name = "NotificationTask_recipients",
             joinColumns =
             @JoinColumn(name = "notificationTask_id", referencedColumnName = "id"))
-    private Set<String> recipients;
+    private Set<String> recipients = new HashSet<>();
 
     @NotNull
     private String sender;
@@ -69,18 +80,41 @@ public class JPANotificationTask extends AbstractTask implements NotificationTas
     @Basic
     @Min(0)
     @Max(1)
-    private Integer executed;
+    private Integer executed = getBooleanAsInteger(false);
 
     @Enumerated(EnumType.STRING)
     @NotNull
     private TraceLevel traceLevel;
 
-    public JPANotificationTask() {
-        super();
+    @Override
+    public Notification getNotification() {
+        return notification;
+    }
 
-        type = TaskType.NOTIFICATION;
-        recipients = new HashSet<>();
-        executed = getBooleanAsInteger(false);
+    @Override
+    public void setNotification(final Notification notification) {
+        checkType(notification, JPANotification.class);
+        this.notification = (JPANotification) notification;
+    }
+
+    @Override
+    public AnyTypeKind getAnyTypeKind() {
+        return anyTypeKind;
+    }
+
+    @Override
+    public void setAnyTypeKind(final AnyTypeKind anyTypeKind) {
+        this.anyTypeKind = anyTypeKind;
+    }
+
+    @Override
+    public String getEntityKey() {
+        return entityKey;
+    }
+
+    @Override
+    public void setEntityKey(final String entityKey) {
+        this.entityKey = entityKey;
     }
 
     @Override

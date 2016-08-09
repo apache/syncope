@@ -1,0 +1,61 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+//
+
+===== Logger command
+The logger command retrieves information about the logger configuration in Apache Syncope.
+
+[discrete]
+====== Help message
+[source,bash]
+----
+Usage: logger [options]
+  Options:
+    --help 
+    --details 
+    --list 
+    --read 
+       Syntax: --read {LOG-NAME} {LOG-NAME} [...]
+    --update 
+       Syntax: --update {LOG-NAME}={LOG-LEVEL} {LOG-NAME}={LOG-LEVEL} [...]
+    --update-all 
+       Syntax: --update-all {LOG-LEVEL} 
+    --create 
+       Syntax: --create {LOG-NAME}={LOG-LEVEL} {LOG-NAME}={LOG-LEVEL} [...]
+    --delete 
+       Syntax: --delete {LOG-NAME} {LOG-NAME} [...]
+----
+
+[discrete]
+====== Options
+
+--details::
+This option shows a table with some details about logger configuration.
+--list::
+Running the command with this option you will see the table of the loggers configuration.
+--read::
+The option to read all the information of specified loggers.
+--update::
+The option to change the value of the logger passed as input.
+--update-all::
+This option is especially helpful in production environment when every log is disabled and you need to change them for a 
+while in DEBUG mode.
+--create::
+For the moment the logger command is one of the few command with a create option to add a new logger configuration.
+--delete::
+The option to delete a specified logger.

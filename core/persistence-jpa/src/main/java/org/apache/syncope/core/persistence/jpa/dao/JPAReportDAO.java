@@ -28,11 +28,11 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
-public class JPAReportDAO extends AbstractDAO<Report, Long> implements ReportDAO {
+public class JPAReportDAO extends AbstractDAO<Report> implements ReportDAO {
 
     @Transactional(readOnly = true)
     @Override
-    public Report find(final Long key) {
+    public Report find(final String key) {
         return entityManager().find(JPAReport.class, key);
     }
 
@@ -62,7 +62,7 @@ public class JPAReportDAO extends AbstractDAO<Report, Long> implements ReportDAO
     }
 
     @Override
-    public void delete(final Long key) {
+    public void delete(final String key) {
         Report report = find(key);
         if (report == null) {
             return;

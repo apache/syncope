@@ -50,7 +50,7 @@ public class ReportTest extends AbstractTest {
 
     @Test
     public void find() {
-        Report report = reportDAO.find(1L);
+        Report report = reportDAO.find("0062ea9c-924d-4ecf-9961-4492a8cc6d1b");
         assertNotNull(report);
 
         assertNotNull(report.getExecs());
@@ -60,7 +60,7 @@ public class ReportTest extends AbstractTest {
 
     @Test(expected = EntityExistsException.class)
     public void saveWithExistingName() {
-        Report report = reportDAO.find(1L);
+        Report report = reportDAO.find("0062ea9c-924d-4ecf-9961-4492a8cc6d1b");
         assertNotNull(report);
 
         String name = report.getName();
@@ -76,7 +76,7 @@ public class ReportTest extends AbstractTest {
 
     @Test
     public void save() {
-        Report report = reportDAO.find(1L);
+        Report report = reportDAO.find("0062ea9c-924d-4ecf-9961-4492a8cc6d1b");
         assertNotNull(report);
         assertEquals(1, report.getExecs().size());
 
@@ -94,33 +94,33 @@ public class ReportTest extends AbstractTest {
 
         reportExecDAO.flush();
 
-        report = reportDAO.find(1L);
+        report = reportDAO.find("0062ea9c-924d-4ecf-9961-4492a8cc6d1b");
         assertNotNull(report);
         assertEquals(2, report.getExecs().size());
     }
 
     @Test
     public void deleteReport() {
-        reportDAO.delete(1L);
+        reportDAO.delete("0062ea9c-924d-4ecf-9961-4492a8cc6d1b");
 
         reportDAO.flush();
 
-        assertNull(reportDAO.find(1L));
-        assertNull(reportExecDAO.find(1L));
+        assertNull(reportDAO.find("0062ea9c-924d-4ecf-9961-4492a8cc6d1b"));
+        assertNull(reportExecDAO.find("0062ea9c-924d-4ecf-9961-4492a8cc6d1b"));
     }
 
     @Test
     public void deleteReportExecution() {
-        ReportExec execution = reportExecDAO.find(1L);
+        ReportExec execution = reportExecDAO.find("c13f39c5-0d35-4bff-ba79-3cd5de940369");
         int executionNumber = execution.getReport().getExecs().size();
 
-        reportExecDAO.delete(1L);
+        reportExecDAO.delete("c13f39c5-0d35-4bff-ba79-3cd5de940369");
 
         reportExecDAO.flush();
 
-        assertNull(reportExecDAO.find(1L));
+        assertNull(reportExecDAO.find("0062ea9c-924d-4ecf-9961-4492a8cc6d1b"));
 
-        Report report = reportDAO.find(1L);
+        Report report = reportDAO.find("0062ea9c-924d-4ecf-9961-4492a8cc6d1b");
         assertEquals(report.getExecs().size(), executionNumber - 1);
     }
 }

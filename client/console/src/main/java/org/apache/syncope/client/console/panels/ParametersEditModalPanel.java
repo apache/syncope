@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.panels;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.rest.api.service.ConfigurationService;
@@ -56,11 +57,13 @@ public class ParametersEditModalPanel extends AbstractModalPanel<AttrTO> {
         try {
             SyncopeConsoleSession.get().getService(ConfigurationService.class).set(attrTO);
             parametersModal.close(target);
-            info(getString(Constants.OPERATION_SUCCEEDED));
+            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
         } catch (Exception e) {
             LOG.error("While creating or updating AttrTO", e);
-            error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
+                    ? e.getClass().getName()
+                    : e.getMessage());
         }
-        SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
     }
 }

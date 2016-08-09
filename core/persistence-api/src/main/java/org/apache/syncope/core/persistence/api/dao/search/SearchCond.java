@@ -53,6 +53,8 @@ public class SearchCond extends AbstractSearchCond {
 
     private AssignableCond assignableCond;
 
+    private MemberCond memberCond;
+
     private SearchCond leftNodeCond;
 
     private SearchCond rightNodeCond;
@@ -133,6 +135,15 @@ public class SearchCond extends AbstractSearchCond {
         return nodeCond;
     }
 
+    public static SearchCond getLeafCond(final MemberCond memberCond) {
+        SearchCond nodeCond = new SearchCond();
+
+        nodeCond.type = Type.LEAF;
+        nodeCond.memberCond = memberCond;
+
+        return nodeCond;
+    }
+
     public static SearchCond getNotLeafCond(final AttributeCond attributeCond) {
         SearchCond nodeCond = getLeafCond(attributeCond);
         nodeCond.type = Type.NOT_LEAF;
@@ -159,6 +170,12 @@ public class SearchCond extends AbstractSearchCond {
 
     public static SearchCond getNotLeafCond(final ResourceCond resourceCond) {
         SearchCond nodeCond = getLeafCond(resourceCond);
+        nodeCond.type = Type.NOT_LEAF;
+        return nodeCond;
+    }
+
+    public static SearchCond getNotLeafCond(final MemberCond memberCond) {
+        SearchCond nodeCond = getLeafCond(memberCond);
         nodeCond.type = Type.NOT_LEAF;
         return nodeCond;
     }
@@ -218,88 +235,48 @@ public class SearchCond extends AbstractSearchCond {
         return anyCond;
     }
 
-    public void setAnyCond(final AnyCond anyCond) {
-        this.anyCond = anyCond;
-    }
-
     public AttributeCond getAttributeCond() {
         return attributeCond;
-    }
-
-    public void setAttributeCond(final AttributeCond attributeCond) {
-        this.attributeCond = attributeCond;
     }
 
     public RelationshipCond getRelationshipCond() {
         return relationshipCond;
     }
 
-    public void setRelationshipCond(final RelationshipCond relationshipCond) {
-        this.relationshipCond = relationshipCond;
-    }
-
     public RelationshipTypeCond getRelationshipTypeCond() {
         return relationshipTypeCond;
-    }
-
-    public void setRelationshipTypeCond(final RelationshipTypeCond relationshipTypeCond) {
-        this.relationshipTypeCond = relationshipTypeCond;
     }
 
     public MembershipCond getMembershipCond() {
         return membershipCond;
     }
 
-    public void setMembershipCond(final MembershipCond membershipCond) {
-        this.membershipCond = membershipCond;
-    }
-
     public RoleCond getRoleCond() {
         return roleCond;
-    }
-
-    public void setRoleCond(final RoleCond roleCond) {
-        this.roleCond = roleCond;
     }
 
     public ResourceCond getResourceCond() {
         return resourceCond;
     }
 
-    public void setResourceCond(final ResourceCond resourceCond) {
-        this.resourceCond = resourceCond;
-    }
-
     public AssignableCond getAssignableCond() {
         return assignableCond;
     }
 
-    public void setAssignableCond(final AssignableCond assignableCond) {
-        this.assignableCond = assignableCond;
+    public MemberCond getMemberCond() {
+        return memberCond;
     }
 
     public SearchCond getLeftNodeCond() {
         return leftNodeCond;
     }
 
-    public void setLeftNodeCond(final SearchCond leftNodeCond) {
-        this.leftNodeCond = leftNodeCond;
-    }
-
     public SearchCond getRightNodeCond() {
         return rightNodeCond;
     }
 
-    public void setRightNodeCond(final SearchCond rightNodeCond) {
-        this.rightNodeCond = rightNodeCond;
-    }
-
     public Type getType() {
         return type;
-    }
-
-    public void setType(final Type type) {
-        this.type = type;
     }
 
     public String hasAnyTypeCond() {
@@ -313,7 +290,7 @@ public class SearchCond extends AbstractSearchCond {
             case LEAF:
             case NOT_LEAF:
                 if (anyTypeCond != null) {
-                    anyTypeName = anyTypeCond.getAnyTypeName();
+                    anyTypeName = anyTypeCond.getAnyTypeKey();
                 }
                 break;
 
@@ -346,13 +323,14 @@ public class SearchCond extends AbstractSearchCond {
             case NOT_LEAF:
                 isValid = (anyTypeCond != null || anyCond != null || attributeCond != null
                         || relationshipCond != null || relationshipTypeCond != null || membershipCond != null
-                        || roleCond != null || resourceCond != null || assignableCond != null)
+                        || roleCond != null || resourceCond != null || assignableCond != null || memberCond != null)
                         && (anyTypeCond == null || anyTypeCond.isValid())
                         && (anyCond == null || anyCond.isValid())
                         && (attributeCond == null || attributeCond.isValid())
                         && (membershipCond == null || membershipCond.isValid())
                         && (roleCond == null || roleCond.isValid())
-                        && (resourceCond == null || resourceCond.isValid());
+                        && (resourceCond == null || resourceCond.isValid())
+                        && (memberCond == null || memberCond.isValid());
                 break;
 
             case AND:

@@ -42,7 +42,7 @@ import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
-import org.apache.syncope.common.rest.api.beans.TaskExecQuery;
+import org.apache.syncope.common.rest.api.beans.ExecQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.fit.core.reference.TestSampleJobDelegate;
@@ -63,7 +63,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
     @Test
     public void list() {
         PagedResult<SchedTaskTO> tasks =
-                taskService.list(new TaskQuery.Builder().type(TaskType.SCHEDULED).build());
+                taskService.list(new TaskQuery.Builder(TaskType.SCHEDULED).build());
         assertFalse(tasks.getResult().isEmpty());
         for (AbstractTaskTO task : tasks.getResult()) {
             if (!(task instanceof SchedTaskTO) || task instanceof PullTaskTO || task instanceof PushTaskTO) {
@@ -74,11 +74,11 @@ public class SchedTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void update() {
-        SchedTaskTO task = taskService.read(SCHED_TASK_ID, true);
+        SchedTaskTO task = taskService.read(SCHED_TASK_KEY, true);
         assertNotNull(task);
 
         SchedTaskTO taskMod = new SchedTaskTO();
-        taskMod.setKey(SCHED_TASK_ID);
+        taskMod.setKey(SCHED_TASK_KEY);
         taskMod.setName(task.getName());
         taskMod.setCronExpression(null);
 
@@ -124,7 +124,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
         } while (task.getExecutions().isEmpty() && i < maxit);
 
         PagedResult<ExecTO> execs =
-                taskService.listExecutions(new TaskExecQuery.Builder().key(task.getKey()).build());
+                taskService.listExecutions(new ExecQuery.Builder().key(task.getKey()).build());
         assertEquals(1, execs.getTotalCount());
         assertTrue(execs.getResult().get(0).getStart().after(initial));
         // round 1 sec for safety

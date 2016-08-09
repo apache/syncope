@@ -1,0 +1,176 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+//
+=== External Resources
+
+****
+Connector Bundles:: The components able to connect to identity stores; not specifically bound to Apache Syncope, 
+as they are part of the http://connid.tirasa.net[ConnId^] project.
+Connector Instances:: Instances of connector bundles, obtained by assigning values to the defined configuration 
+properties. For instance, there is only a single `DatabaseTable` (the bundle) that can be instantiated
+several times, for example if there is need to connect to different databases.
+External Resources:: Meant to encapsulate all information about how Apache Syncope will use connector instances for 
+provisioning. For each entity supported by the related connector bundle (user, group, printer, services, ...),
+<<mapping,mapping>> information can be specified.
+****
+
+==== Connector Instance details
+
+When defining a connector instance, the following information is to be provided:
+
+* connector bundle - one of the several
+https://github.com/Tirasa/ConnId/blob/master/README.md#available-connectors[already available^], or some to be
+https://connid.atlassian.net/wiki/display/BASE/Create+new+connector[made from scratch^], in order to fulfill specific
+requirements
+* pooling information
+* configuration - dependening on the selected bundle, these are properties with configuration values: for example,
+with https://connid.atlassian.net/wiki/display/BASE/LDAP#LDAP-Configuration[LDAP^] this means host, port, bind DN,
+object classes while with
+https://connid.atlassian.net/wiki/display/BASE/Database+Table#DatabaseTable-ConfigurationProperties[DBMS^] it would 
+be JDBC URL, table name, etc.
+* capabilities - define what operations are allowed on this connector: during <<provisioning,provisioning>>, if a
+certain operation is invoked but the corresponding capability is not set on the related connector instance, no actual
+action is performed on the underlying connector; the capabilities are:
+** `AUTHENTICATE` - consent <<pass-through-authentication, pass-through authentication>>
+** `CREATE` - create objects on the underlying connector
+** `UPDATE` - update objects on the underlying connector
+** `DELETE` - delete objects on the underlying connector
+** `SEARCH` - search / read objects from the underlying connector; used during <<provisioning-pull,pull>> with 
+`FULL RECONCILIATION` or `FILTERED RECONCILIATION` <<pull-mode,mode>>
+** `SYNC` - synchronize objects from the underlying connector; used during <<provisioning-pull,pull>> with 
+`INCREMENTAL` <<pull-mode,mode>> 
+
+[TIP]
+.Configuration and capability override
+====
+Capabilities and individual configuration properties can be set for _override_: in this case, all the external resources
+using the given connector instance will have the chance to override some configuration values, or the capabilities set.
+
+This can be useful when the same connector instance is shared among different resources, with small difference in the
+required configuration or capabilities.
+====
+
+==== External Resource details
+
+Given a selected connector instance, the following information is required for defining an external resource:
+
+* priority - integer value, in use by the default <<propagation,propagation task executor>>
+* generate random password flag - under some circumstances, password might be mandatory but no actual value could be
+available: with this flag set, a random value will be generated, compliant with the defined
+<<policies-password,password policy>> (if set)
+* propagation actions - which <<propagationactions,actions>> shall be executed during propagation
+* trace levels - control how much tracing (including logs and execution details) shall be carried over during
+<<propagation,propagation>>, <<provisioning-pull,pull>> and <<provisioning-push,push>>
+* configuration - see <<connector-instance-details,above>>
+* capabilities - see <<connector-instance-details,above>>
+* account policy - which <<policies-account,account policy>> to enforce on users, groups and any objects assigned to
+this external resource
+* password policy - which <<policies-password,password policy>> to enforce on users, groups and any objects assigned to
+this external resource
+* pull policy - which <<policies-pull,pull policy>> to apply during <<provisioning-pull,pull>> on this external
+resource
+* push policy - which <<policies-push,push policy>> to apply during <<provisioning-push,push>> on this external
+resource
+
+==== Mapping
+
+One of the most crucial information to provide, when configuring an external resource, is the mapping between internal
+and external data. Such information, in fact, plays a key role for <<provisioning,provisioning>>.
+
+[.text-center]
+image::mapping.png[title="Sample mapping",alt="Sample mapping"]
+
+For each of the <<anytype,any types>> supported by the underlying connector, a different mapping is provided.
+
+Mapping is essentially a collection of _mapping items_ describing the correspondance between an user / group / any
+object attribute and its counterpart on the identity store represented by the current external resource; each item
+specifies:
+
+* internal attribute - the <<schema, schema>> acting as source or destination of provisioning operations; must be
+specified by an expression matching one of the following models:
+** `schema` - resolves to the attribute for the given `schema`, owned by the mapped entity (user, group, any object)
+** `groups[groupName].schema` - resolves to the attribute for the given `schema`, owned by the group with name
+`groupName`, if a membership for the mapped entity exists
+** `anyObjects[anyObjectName].schema` - resolves to the attribute for the given `schema`, owned by the any object with
+name `anyObjectName`, if a relationship with the mapped entity exists
+** `memberships[groupName].schema` - resolves to the attribute for the given `schema`, owned by the membership for group
+`groupName` of the mapped entity (user, any object), if such membership exists
+* external attribute - the name of the attribute on the identity store
+* transformers - http://commons.apache.org/proper/commons-jexl/[JEXL^] expression or Java class implementing
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/data/MappingItemTransformer.java[MappingItemTransformer^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/data/MappingItemTransformer.java[MappingItemTransformer^]
+endif::[]
+; the purpose is to transform values before they are sent to or received from the underlying connector
+* mandatory condition - http://commons.apache.org/proper/commons-jexl/[JEXL^] expression indicating whether values for 
+this mapping item must be necessarily available or not; compared to simple boolean value, such condition allows to
+express complex statements like as 'be mandatory only if this other attribute value is above 14', and so on
+* remote key flag - should this item be considered as the key value on the identity store?
+* password flag (users only) - should this item be treated as password value?
+* purpose - should this item be considered for <<propagation,propagation>> / <<provisioning-push,push>>,
+<<provisioning-pull,pull>>, both or none? 
+
+Besides items, some more data needs to be specified for a complete mapping:
+
+* ConnId `objectClass` - which
+http://connid.tirasa.net/apidocs/1.4/org/identityconnectors/framework/common/objects/ObjectClass.html[object class^]
+shall be used during communication with identity store; predefined are `\\__ACCOUNT__` for users and 
+`\\__GROUP__` for groups
+* Object link - only required by some connector bundles as
+https://connid.atlassian.net/wiki/display/BASE/LDAP[LDAP^] and
+https://connid.atlassian.net/wiki/pages/viewpage.action?pageId=360482[Active Directory^], generally specifies the model
+for generating the DN (distinguished name) values
+
+.Mapping items
+====
+The following mapping item binds mandatory the internal `name` schema with external attribute `cn` for both 
+propagation / push and pull.
+
+[source,json]
+----
+{
+  "key": "a2bf43c8-74cb-4250-92cf-fb8889409ac1",
+  "intAttrName": "name",
+  "extAttrName": "cn",
+  "connObjectKey": true,
+  "password": false,
+  "mandatoryCondition": "true",
+  "purpose": "BOTH"
+}
+----
+
+The following mapping item binds optional the internal `aLong` schema for the membership of the `additional` group
+with external attribute `age` for propagation / push only; moreover, specifies JEXL expression which appends `.0`
+to the selected `aLong` value before sending out to the underlying connector.
+
+[source,json]
+----
+{
+  "key": "9dde8bd5-f158-499e-9d81-3d7fcf9ea1e8",
+  "intAttrName": "memberships[additional].aLong",
+  "extAttrName": "age",
+  "connObjectKey": false,
+  "password": false,
+  "mandatoryCondition": "false",
+  "purpose": "PROPAGATION",
+  "propagationJEXLTransformer": "value + '.0'"
+}
+----
+====

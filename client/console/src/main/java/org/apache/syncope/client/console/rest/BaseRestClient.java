@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.rest;
 
-import java.io.Serializable;
 import java.net.URI;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.console.SyncopeConsoleApplication;
@@ -31,7 +30,7 @@ import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class BaseRestClient implements Serializable {
+public abstract class BaseRestClient implements RestClient {
 
     protected static final Logger LOG = LoggerFactory.getLogger(BaseRestClient.class);
 

@@ -19,7 +19,10 @@
 package org.apache.syncope.core.provisioning.api.data;
 
 import java.util.List;
+import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
+import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 
 /**
  * Transforms values to be propagated to (or pulling from) external resources right before they leave (or enter)
@@ -32,16 +35,26 @@ public interface MappingItemTransformer {
     /**
      * Invoked while preparing attribute values to be sent out to external resource during propagation.
      *
+     * @param mappingItem mapping item
+     * @param any any object
      * @param values original values
      * @return transformed values
      */
-    List<PlainAttrValue> beforePropagation(List<PlainAttrValue> values);
+    List<PlainAttrValue> beforePropagation(
+            MappingItem mappingItem,
+            Any<?> any,
+            List<PlainAttrValue> values);
 
     /**
      * Invoked while reading attribute values from external resource during pull.
      *
+     * @param mappingItem mapping item
+     * @param anyTO any object
      * @param values original values
      * @return transformed values
      */
-    List<Object> beforePull(List<Object> values);
+    List<Object> beforePull(
+            MappingItem mappingItem,
+            AnyTO anyTO,
+            List<Object> values);
 }

@@ -37,6 +37,8 @@ public final class SyncopeConstants {
 
     public static final String ENUM_VALUES_SEPARATOR = ";";
 
+    public static final String NAME_PATTERN = "[\\p{L}\\p{gc=Mn}\\p{gc=Me}\\p{gc=Mc}\\p{Digit}\\p{gc=Pc} \\-@.]+";
+
     public static final String[] DATE_PATTERNS = {
         "yyyy-MM-dd'T'HH:mm:ssZ",
         "EEE, dd MMM yyyy HH:mm:ss z",
@@ -57,6 +59,10 @@ public final class SyncopeConstants {
             "^[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*"
             + "@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$",
             Pattern.CASE_INSENSITIVE);
+
+    public static final String UUID_REGEX = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
+
+    public static final Pattern UUID_PATTERN = Pattern.compile(UUID_REGEX);
 
     private SyncopeConstants() {
         // private constructor for utility class

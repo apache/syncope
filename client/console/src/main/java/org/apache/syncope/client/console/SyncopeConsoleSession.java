@@ -37,14 +37,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.panels.NotificationPanel;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.DomainTO;
 import org.apache.syncope.common.lib.info.PlatformInfo;
+import org.apache.syncope.common.lib.info.SystemInfo;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.rest.api.service.DomainService;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
@@ -54,6 +53,7 @@ import org.apache.wicket.authroles.authorization.strategies.role.Roles;
 import org.apache.wicket.request.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.concurrent.ThreadPoolExecutorFactoryBean;
 
 public class SyncopeConsoleSession extends AuthenticatedWebSession {
 
@@ -61,19 +61,29 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
 
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeConsoleSession.class);
 
+    private static final ThreadPoolExecutorFactoryBean THREAD_POOL_FACTORY;
+
     public static final String AUTHENTICATED = "AUTHENTICATED";
 
     public static final String MENU_COLLAPSE = "MENU_COLLAPSE";
 
+    static {
+        THREAD_POOL_FACTORY = new ThreadPoolExecutorFactoryBean();
+        THREAD_POOL_FACTORY.setThreadNamePrefix(SyncopeConsoleSession.class.getSimpleName());
+        THREAD_POOL_FACTORY.setDaemon(true);
+    }
+
     private final PlatformInfo platformInfo;
+
+    private final SystemInfo systemInfo;
 
     private final List<String> domains;
 
     private String domain;
 
-    private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(5);
-
     private final Map<Class<?>, Object> services = Collections.synchronizedMap(new HashMap<Class<?>, Object>());
+
+    private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(5, THREAD_POOL_FACTORY);
 
     private SyncopeClient client;
 
@@ -87,7 +97,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
 
     private Roles roles;
 
-    private NotificationPanel notificationPanel;
+    private boolean checkReconciliationJob = false;
 
     public static SyncopeConsoleSession get() {
         return (SyncopeConsoleSession) Session.get();
@@ -101,11 +111,12 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
                 SyncopeConsoleApplication.get().getAnonymousKey());
 
         platformInfo = anonymousClient.getService(SyncopeService.class).platform();
+        systemInfo = anonymousClient.getService(SyncopeService.class).system();
+
         domains = new ArrayList<>();
         domains.add(SyncopeConstants.MASTER_DOMAIN);
         CollectionUtils.collect(anonymousClient.getService(DomainService.class).list(),
-                EntityTOUtils.<String, DomainTO>keyTransformer(),
-                domains);
+                EntityTOUtils.<DomainTO>keyTransformer(), domains);
     }
 
     public void execute(final Runnable command) {
@@ -129,6 +140,10 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
 
     public PlatformInfo getPlatformInfo() {
         return platformInfo;
+    }
+
+    public SystemInfo getSystemInfo() {
+        return systemInfo;
     }
 
     public List<String> getDomains() {
@@ -242,11 +257,12 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
         return FastDateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, locale);
     }
 
-    public NotificationPanel getNotificationPanel() {
-        if (notificationPanel == null) {
-            notificationPanel = new NotificationPanel(Constants.FEEDBACK);
-            notificationPanel.setOutputMarkupId(true);
-        }
-        return notificationPanel;
+    public boolean isCheckReconciliationJob() {
+        return checkReconciliationJob;
     }
+
+    public void setCheckReconciliationJob(final boolean checkReconciliationJob) {
+        this.checkReconciliationJob = checkReconciliationJob;
+    }
+
 }

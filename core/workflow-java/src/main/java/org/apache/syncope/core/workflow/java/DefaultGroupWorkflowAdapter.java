@@ -24,34 +24,32 @@ import java.util.List;
 import org.apache.syncope.common.lib.patch.GroupPatch;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
-import org.apache.syncope.common.lib.types.PropagationByResource;
+import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.workflow.api.WorkflowDefinitionFormat;
 import org.apache.syncope.core.workflow.api.WorkflowException;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Simple implementation basically not involving any workflow engine.
  */
-@Transactional(rollbackFor = { Throwable.class })
 public class DefaultGroupWorkflowAdapter extends AbstractGroupWorkflowAdapter {
 
     @Override
-    public WorkflowResult<Long> create(final GroupTO groupTO) {
+    public WorkflowResult<String> create(final GroupTO groupTO) {
         Group group = entityFactory.newEntity(Group.class);
         dataBinder.create(group, groupTO);
         group = groupDAO.save(group);
 
         PropagationByResource propByRes = new PropagationByResource();
-        propByRes.set(ResourceOperation.CREATE, group.getResourceNames());
+        propByRes.set(ResourceOperation.CREATE, group.getResourceKeys());
 
         return new WorkflowResult<>(group.getKey(), propByRes, "create");
     }
 
     @Override
-    protected WorkflowResult<Long> doUpdate(final Group group, final GroupPatch groupPatch) {
+    protected WorkflowResult<String> doUpdate(final Group group, final GroupPatch groupPatch) {
         PropagationByResource propByRes = dataBinder.update(group, groupPatch);
 
         Group updated = groupDAO.save(group);
@@ -65,7 +63,7 @@ public class DefaultGroupWorkflowAdapter extends AbstractGroupWorkflowAdapter {
     }
 
     @Override
-    public WorkflowResult<Long> execute(final GroupTO group, final String taskId) {
+    public WorkflowResult<String> execute(final GroupTO group, final String taskId) {
         throw new WorkflowException(new UnsupportedOperationException("Not supported."));
     }
 

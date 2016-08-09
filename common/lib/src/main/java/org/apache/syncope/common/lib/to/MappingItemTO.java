@@ -26,27 +26,21 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.AbstractBaseBean;
-import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 
 @XmlRootElement(name = "mappingItem")
 @XmlType
-public class MappingItemTO extends AbstractBaseBean implements EntityTO<Long> {
+public class MappingItemTO extends AbstractBaseBean implements EntityTO {
 
     private static final long serialVersionUID = 2983498836767176862L;
 
-    private Long key;
+    private String key;
 
     /**
      * Attribute schema to be mapped. Consider that we can associate tha same attribute schema more than once, with
      * different aliases, to different resource attributes.
      */
     private String intAttrName;
-
-    /**
-     * Schema type to be mapped.
-     */
-    private IntMappingType intMappingType;
 
     /**
      * External resource's field to be mapped.
@@ -73,6 +67,16 @@ public class MappingItemTO extends AbstractBaseBean implements EntityTO<Long> {
      */
     private MappingPurpose purpose;
 
+    /**
+     * (Optional) JEXL expression to apply to values before propagation.
+     */
+    private String propagationJEXLTransformer;
+
+    /**
+     * (Optional) JEXL expression to apply to values before pull.
+     */
+    private String pullJEXLTransformer;
+
     private final List<String> mappingItemTransformerClassNames = new ArrayList<>();
 
     public boolean isConnObjectKey() {
@@ -92,12 +96,12 @@ public class MappingItemTO extends AbstractBaseBean implements EntityTO<Long> {
     }
 
     @Override
-    public Long getKey() {
+    public String getKey() {
         return key;
     }
 
     @Override
-    public void setKey(final Long key) {
+    public void setKey(final String key) {
         this.key = key;
     }
 
@@ -125,20 +129,28 @@ public class MappingItemTO extends AbstractBaseBean implements EntityTO<Long> {
         this.intAttrName = intAttrName;
     }
 
-    public IntMappingType getIntMappingType() {
-        return intMappingType;
-    }
-
-    public void setIntMappingType(final IntMappingType intMappingType) {
-        this.intMappingType = intMappingType;
-    }
-
     public MappingPurpose getPurpose() {
         return purpose;
     }
 
     public void setPurpose(final MappingPurpose purpose) {
         this.purpose = purpose;
+    }
+
+    public String getPropagationJEXLTransformer() {
+        return propagationJEXLTransformer;
+    }
+
+    public void setPropagationJEXLTransformer(final String propagationJEXLTransformer) {
+        this.propagationJEXLTransformer = propagationJEXLTransformer;
+    }
+
+    public String getPullJEXLTransformer() {
+        return pullJEXLTransformer;
+    }
+
+    public void setPullJEXLTransformer(final String pullJEXLTransformer) {
+        this.pullJEXLTransformer = pullJEXLTransformer;
     }
 
     @XmlElementWrapper(name = "mappingItemTransformerClassNames")

@@ -78,6 +78,16 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
     }
 
     @Override
+    public void setLatestSyncToken(final String key, final String anyTypeKey) {
+        logic.setLatestSyncToken(key, anyTypeKey);
+    }
+
+    @Override
+    public void removeSyncToken(final String key, final String anyTypeKey) {
+        logic.removeSyncToken(key, anyTypeKey);
+    }
+
+    @Override
     public void delete(final String key) {
         logic.delete(key);
     }
@@ -93,7 +103,7 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
     }
 
     @Override
-    public ConnObjectTO readConnObject(final String key, final String anyTypeKey, final Long anyKey) {
+    public ConnObjectTO readConnObject(final String key, final String anyTypeKey, final String anyKey) {
         return logic.readConnObject(key, anyTypeKey, anyKey);
     }
 
@@ -136,14 +146,14 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
     public BulkActionResult bulkDeassociation(final ResourceDeassociationPatch patch) {
         AbstractResourceAssociator<? extends AnyTO> associator =
                 patch.getAnyTypeKey().equalsIgnoreCase(AnyTypeKind.USER.name())
-                        ? userLogic
-                        : patch.getAnyTypeKey().equalsIgnoreCase(AnyTypeKind.GROUP.name())
-                                ? groupLogic
-                                : anyObjectLogic;
+                ? userLogic
+                : patch.getAnyTypeKey().equalsIgnoreCase(AnyTypeKind.GROUP.name())
+                ? groupLogic
+                : anyObjectLogic;
 
         BulkActionResult result = new BulkActionResult();
 
-        for (Long anyKey : patch.getAnyKyes()) {
+        for (String anyKey : patch.getAnyKyes()) {
             Set<String> resources = Collections.singleton(patch.getKey());
             try {
                 switch (patch.getAction()) {
@@ -162,10 +172,10 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
                     default:
                 }
 
-                result.getResults().put(String.valueOf(anyKey), BulkActionResult.Status.SUCCESS);
+                result.getResults().put(anyKey, BulkActionResult.Status.SUCCESS);
             } catch (Exception e) {
                 LOG.warn("While executing {} on {} {}", patch.getAction(), patch.getAnyTypeKey(), anyKey, e);
-                result.getResults().put(String.valueOf(anyKey), BulkActionResult.Status.FAILURE);
+                result.getResults().put(anyKey, BulkActionResult.Status.FAILURE);
             }
         }
 
@@ -177,12 +187,12 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
         BulkActionResult result = new BulkActionResult();
 
         if (bulkAction.getType() == BulkAction.Type.DELETE) {
-            for (String name : bulkAction.getTargets()) {
+            for (String key : bulkAction.getTargets()) {
                 try {
-                    result.getResults().put(logic.delete(name).getKey(), BulkActionResult.Status.SUCCESS);
+                    result.getResults().put(logic.delete(key).getKey(), BulkActionResult.Status.SUCCESS);
                 } catch (Exception e) {
-                    LOG.error("Error performing delete for resource {}", name, e);
-                    result.getResults().put(name, BulkActionResult.Status.FAILURE);
+                    LOG.error("Error performing delete for resource {}", key, e);
+                    result.getResults().put(key, BulkActionResult.Status.FAILURE);
                 }
             }
         }

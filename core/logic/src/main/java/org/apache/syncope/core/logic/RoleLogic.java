@@ -24,6 +24,7 @@ import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -99,6 +100,38 @@ public class RoleLogic extends AbstractTransactionalLogic<RoleTO> {
         return deleted;
     }
 
+    @PreAuthorize("isAuthenticated()")
+    public String getConsoleLayoutInfo(final String key) {
+        Role role = roleDAO.find(key);
+        if (role == null) {
+            LOG.error("Could not find role '" + key + "'");
+
+            throw new NotFoundException(key);
+        }
+
+        String consoleLayout = role.getConsoleLayoutInfo();
+        if (StringUtils.isBlank(consoleLayout)) {
+            LOG.error("Could not find console layout for Role '" + key + "'");
+
+            throw new NotFoundException("Console layout for role " + key);
+        }
+
+        return consoleLayout;
+    }
+
+    @PreAuthorize("hasRole('" + StandardEntitlement.ROLE_UPDATE + "')")
+    public void setConsoleLayoutInfo(final String key, final String consoleLayout) {
+        Role role = roleDAO.find(key);
+        if (role == null) {
+            LOG.error("Could not find role '" + key + "'");
+
+            throw new NotFoundException(key);
+        }
+
+        role.setConsoleLayoutInfo(consoleLayout);
+        roleDAO.save(role);
+    }
+
     @Override
     protected RoleTO resolveReference(final Method method, final Object... args)
             throws UnresolvedReferenceException {
@@ -115,7 +148,7 @@ public class RoleLogic extends AbstractTransactionalLogic<RoleTO> {
             }
         }
 
-        if ((key != null) && !key.equals(0L)) {
+        if (key != null) {
             try {
                 return binder.getRoleTO(roleDAO.find(key));
             } catch (Throwable ignore) {

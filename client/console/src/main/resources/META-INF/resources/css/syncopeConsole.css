@@ -150,7 +150,7 @@ div.wicket-modal div.w_content_3 {
 
 .tab-content {
   margin-bottom: 10px;
-  margin-top: 10px;
+  margin-top: 5px;
   position: relative;
   overflow-x: hidden;
   overflow-y: auto;
@@ -159,6 +159,18 @@ div.wicket-modal div.w_content_3 {
 
 .modal-body .tab-content .information {
   position: relative !important;
+}
+
+.scrollable-tab-content {
+  overflow-y: auto;
+  max-height: 480px;
+}
+
+.inner-scrollable-tab-content {
+  height: 430px;
+  margin-top: 20px;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 a.help {
@@ -207,7 +219,7 @@ a.help span a {
 }
 
 .modal-body {
-  max-height: 600px;
+  max-height: 500px;
   overflow-y: auto;
 }
 
@@ -216,12 +228,23 @@ a.help span a {
   z-index: 7000 !important;
 }
 
-.wizard-view {
-  max-height: 500px;
-  height: 500px;
+.wizard-step-title {
+  font-size: 18px !important;
+  font-weight: normal !important;
+  margin-bottom: 10px !important;
+}
+
+div.wizard-view div.wizard-view{
+  max-height: 380px;
+  height: 380px;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 0px 5px 0px 5px;
+  padding: 50px 20px 50px 20px;
+}
+
+.wizard-view .wizard-form{
+  max-height: 450px;
+  height: 450px;
 }
 
 .modal-body .tab-content .wizard-view {
@@ -236,18 +259,39 @@ a.help span a {
 
 .wizard-view > div {
   display: block;
-  height: 98%;
+  height: 95%;
   position: relative;
 }
 
+.wizard-view {
+  padding: 0px 5px;
+}
+
 .wizard-form {
-  height:580px;  
+  height:480px;
+  position: relative;
+}
+
+.wizard-form > div {
+  max-height: 440px;
+  height: 440px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0px;
+}
+
+.box-body .wizard-form {
+  height:400px !important;
+}
+
+.box-body .wizard-form > div {
+  height: 360px !important;
 }
 
 .wizard-buttons {
   padding: 10px 0px 5px 0px;
-  position: relative;
-  bottom: 0px;
+  position: absolute;
+  bottom: 30px;
   width: 100%;
 }
 
@@ -259,6 +303,11 @@ a.help span a {
 .wizard-buttons div.pull-right {
   position: absolute;
   right: 15px;
+}
+
+.wizard-step-title {
+  font-weight: bold; 
+  font-size:medium;
 }
 
 div.realms div.summarize {
@@ -283,15 +332,30 @@ span.overridable div.checkbox {
   padding: 0px;
 }
 
-div#outer.modal-lg {
-  width: 1200px;
+span.overridable div.checkbox label div div.toggle-group label {
+  padding-left: 7px;
+}
+
+div#outer.modal-lg, div#utilityModal.modal-lg, section#notifications .modal-lg {
+  max-width: 1200px;
+  width: 97%;
 }
 
 .details {
-  max-height: 380px;
+  max-height: 401px;
   overflow-x: hidden;
   overflow-y: auto;
   display: block
+}
+
+th.checkGroupColumn {
+  width: 20px;
+  text-align: center;
+  padding-right: 8px !important;
+}
+
+td.checkGroupColumn {
+  text-align: center;
 }
 
 /**
@@ -307,7 +371,7 @@ div.information{
   clear: both; 
   float:none;
   position: absolute;
-  bottom: 0px;
+  bottom: -90px;
   left: 0px;
   padding: 2px;
 }
@@ -385,16 +449,46 @@ div.searchResult{
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.176);
   float: left;
   font-size: 14px;
-  list-style: outside none none;
   min-width: 160px;
-  text-align: left;
   max-height: 250px;
+  z-index: 7001 !important;
 }
+
+div.wicket-aa ul {
+  list-style: none;
+  padding-left: 15px;
+}
+/**
+START - startAt
+*/
+div#startAt {
+  background-color: rgba(98, 98, 98, 0.98) !important;
+  color: #CCC;
+  right: 5px !important;
+  top: 100px !important;
+  min-width: 450px;
+  min-height: 130px !important;
+  z-index: 6000 !important;
+}
+
+div#mappingItemTransformersTogglePanel {
+  min-width: 1000px;
+}
+
+div#startAtContainer {
+  padding: 15px;
+}
+
+div#startAtContainer input {
+  background-color: rgba(200, 200, 200, 0.60) !important;
+}
+/**
+END - startAt
+*/
 
 /**
 START - Notifications
 */
-
 /*Temporany fix diagonal stacking*/
 .k-popup.k-notification {
   box-shadow: none;
@@ -449,9 +543,8 @@ START - Notifications
   padding-left: 0px; 
   width:85%
 }
-
 /**
-END - Notifications
+EN - Notifications
 */
 
 /**
@@ -487,6 +580,22 @@ div.listview-actions a {
 }
 
 .btn-circle i, .circular-actions a i {
+  margin: 0px;
+}
+
+.multipanel-btn-minus {
+  padding: 0px 0px 0px 6px;
+  border: 0 none !important;
+}
+
+.multipanel-btn-plus {
+  padding: 15px 0px 8px 6px;
+  border: 0 none !important;
+}
+
+.multipanel-box {
+  padding: 5px;
+  display: inline-table;
   margin: 0px;
 }
 /**
@@ -590,7 +699,15 @@ START - Search - AjaxDateTimePicker
   width: 120px !important;
 }
 
+.clause .type button{
+  width: 120px !important;
+}
+
 .clause .property{
+  width: 190px;
+}
+
+.clause .property button{
   width: 190px;
 }
 
@@ -642,4 +759,206 @@ div#parametersForm{
 }
 /**
 END - Parameters Details
+*/
+
+li.todoitem a {
+  cursor: default;
+}
+
+#popover:hover {
+  cursor: pointer;
+}
+
+.popover-content {
+  color: black;
+}
+
+.form-palette {
+  display: inline-block;
+  width: 119%;
+}
+
+.form-group-inline {
+  display: inline-table;
+  width: 100%;
+}
+
+div#userFilter #title{
+  margin: 10px 0 0 8px;
+  font-weight: bold;
+}
+
+div#userFilter  #warning{
+  margin: 1px 0 5px 8px;
+  color: #e00000;
+  font-size: 9px;
+}
+
+div#userFilter  #check {
+  margin: 1px 0 5px 8px;
+}
+
+.keyColumn {
+  width: 20px;
+}
+
+/**
+START - Alert widget onside menu
+*/
+div.alert-widget > a > .label {
+  font-size: 9px;
+  line-height: 0.9;
+  padding: 2px 3px;
+  position: absolute;
+  margin-left: 10px;
+  text-align: center;
+  top: 0px;
+}
+
+div.alert-widget > a {
+  display: block;
+  position: relative;
+}
+
+div.alert-widget > a > i {
+  position: absolute;
+  top: 9px;
+}
+
+div.alert-widget{
+  text-align: center;
+  vertical-align: middle;
+  padding-right: 20px;
+}
+
+div.alert-widget .dropdown-menu > li.header {
+  background-color: #ffffff;
+  border-bottom: 1px solid #f4f4f4;
+  border-radius: 4px 4px 0 0;
+  color: #444444;
+  font-size: 14px;
+  padding: 7px 10px;
+}
+
+div.alert-widget .dropdown-menu > li.footer > a {
+  background-color: #fff;
+  border-radius: 0 0 4px 4px;
+  color: #444 !important;
+  font-size: 12px;
+  padding: 7px 10px;
+  text-align: center;
+}
+
+div.alert-widget .dropdown-menu > li .menu {
+  list-style: outside none none;
+  padding: 10px;
+}
+/**
+END - Alert widget onside menu
+*/
+
+/**
+START - Transformers toggle panel
+*/
+div.transformersTogglePanel {
+  background-color: rgba(140, 140, 140, 0.99) !important;
+  width: 1000px !important;
+}
+
+div.transformersContainer {
+  padding: 15px;
+}
+
+div.transformersContainer input {
+  background-color: rgba(200, 200, 200, 0.60) !important;
+}
+
+div.transformersContainer #footer {
+  clear: both;
+  display: block;
+  text-align: right;
+  margin-top: 10px;
+}
+
+div.transformersContainer #body {
+  clear: both;
+  display: block;
+}
+
+div.mappingItemTransformersContainer #body select {
+  border: 1px solid #ccc !important;
+  background: rgba(240, 240, 240, 0.95) !important
+}
+
+div.mappingItemTransformersContainer #body a {
+  color: #ccc !important;
+  cursor: pointer !important;
+}
+
+div#jexlTransformersTogglePanel {
+  right: 400px;
+}
+/**
+END - Transformers toggle panel
+*/
+
+/**
+START - CRONTAB
+*/
+div#schedule input, div#schedule fieldset {
+  width: 50px;
+  float: left
+}
+
+div#templates {
+  padding-top: 30px;
+  clear: both;
+}
+/**
+END - CRONTAB
+*/
+
+/**
+START - EVENTS
+*/
+.events {
+  display: table-row;
+  width: 990px;
+}
+
+.selectedEvents {
+  display: inline-block;
+  height: 100px;
+  margin: 10px 10px 0 10px;
+  overflow-y: auto;
+}
+
+.eventSelection {
+  display: inline-table;
+  float: right;
+  width: 380px;
+  min-width: 530px;
+}
+
+.eventSelection div#value {
+  height: auto;
+  overflow: hidden;
+}
+
+.eventSelection div#value div#custom {
+  width: auto;
+  overflow: hidden;
+}
+
+.eventSelection div#value div#customActions {
+  width: 85px;
+  float: right;
+}
+
+div#selectionContainer select {
+  width: 585px;
+  min-width: 585px;
+}
+/**
+END - EVENTS
 */

@@ -38,10 +38,7 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
 
     }
 
-    public TopologyNodePanel(
-            final String id,
-            final TopologyNode node) {
-
+    public TopologyNodePanel(final String id, final TopologyNode node) {
         super(id);
 
         final String resourceName = node.getDisplayName().length() > 14

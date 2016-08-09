@@ -18,32 +18,40 @@
  */
 package org.apache.syncope.client.console.tasks;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.model.Model;
+import org.apache.wicket.model.StringResourceModel;
 
-public class PropagationTasks extends AbstractTasks {
+public class PropagationTasks extends AbstractPropagationTasks {
 
     private static final long serialVersionUID = -4013796607157549641L;
 
     public <T extends AnyTO> PropagationTasks(
-            final BaseModal<?> baseModal, final PageReference pageReference, final String resource) {
+            final BaseModal<?> baseModal,
+            final String resource,
+            final PageReference pageReference) {
+
         super(BaseModal.CONTENT_ID);
 
-        final MultilevelPanel mlp = new MultilevelPanel("tasks");
-        add(mlp);
-
-        mlp.setFirstLevel(new PropagationTaskSearchResultPanel(baseModal, mlp, resource, pageReference) {
+        final MultilevelPanel tasks = new MultilevelPanel("tasks");
+        tasks.setFirstLevel(new PropagationTaskDirectoryPanel(baseModal, tasks, resource, pageReference) {
 
             private static final long serialVersionUID = -2195387360323687302L;
 
             @Override
             protected void viewTask(final PropagationTaskTO taskTO, final AjaxRequestTarget target) {
-                mlp.next("task.view", new TaskExecutionDetails<>(baseModal, taskTO, pageReference), target);
+                tasks.next(
+                        new StringResourceModel("task.view", this, new Model<>(Pair.of(null, taskTO))).getObject(),
+                        new TaskExecutionDetails<>(baseModal, taskTO, pageReference),
+                        target);
             }
         });
+        add(tasks);
     }
 }

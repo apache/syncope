@@ -99,10 +99,10 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
     }
 
     @Override
-    public ConnInstance update(final Long key, final ConnInstanceTO connInstanceTO) {
+    public ConnInstance update(final String key, final ConnInstanceTO connInstanceTO) {
         SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
 
-        if (key == 0) {
+        if (key == null) {
             sce.getElements().add("connector key");
         }
 

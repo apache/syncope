@@ -32,6 +32,7 @@ import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
 import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
+import org.apache.syncope.core.persistence.api.dao.search.MemberCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipTypeCond;
 import org.junit.Test;
@@ -90,11 +91,12 @@ public class SearchCondConverterTest {
 
     @Test
     public void relationships() {
-        String fiqlExpression = new UserFiqlSearchConditionBuilder().inRelationships(1L).query();
-        assertEquals(SpecialAttr.RELATIONSHIPS + "==1", fiqlExpression);
+        String fiqlExpression = new UserFiqlSearchConditionBuilder().
+                inRelationships("ca20ffca-1305-442f-be9a-3723a0cd88ca").query();
+        assertEquals(SpecialAttr.RELATIONSHIPS + "==ca20ffca-1305-442f-be9a-3723a0cd88ca", fiqlExpression);
 
         RelationshipCond relationshipCond = new RelationshipCond();
-        relationshipCond.setAnyObjectKey(1L);
+        relationshipCond.setAnyObject("ca20ffca-1305-442f-be9a-3723a0cd88ca");
         SearchCond simpleCond = SearchCond.getLeafCond(relationshipCond);
 
         assertEquals(simpleCond, SearchCondConverter.convert(fiqlExpression));
@@ -119,11 +121,12 @@ public class SearchCondConverterTest {
 
     @Test
     public void groups() {
-        String fiqlExpression = new UserFiqlSearchConditionBuilder().inGroups(1L).query();
-        assertEquals(SpecialAttr.GROUPS + "==1", fiqlExpression);
+        String fiqlExpression = new UserFiqlSearchConditionBuilder().
+                inGroups("e7ff94e8-19c9-4f0a-b8b7-28327edbf6ed").query();
+        assertEquals(SpecialAttr.GROUPS + "==e7ff94e8-19c9-4f0a-b8b7-28327edbf6ed", fiqlExpression);
 
         MembershipCond groupCond = new MembershipCond();
-        groupCond.setGroupKey(1L);
+        groupCond.setGroup("e7ff94e8-19c9-4f0a-b8b7-28327edbf6ed");
         SearchCond simpleCond = SearchCond.getLeafCond(groupCond);
 
         assertEquals(simpleCond, SearchCondConverter.convert(fiqlExpression));
@@ -147,7 +150,7 @@ public class SearchCondConverterTest {
         assertEquals(SpecialAttr.RESOURCES + "==resource-ldap", fiqlExpression);
 
         ResourceCond resCond = new ResourceCond();
-        resCond.setResourceName("resource-ldap");
+        resCond.setResourceKey("resource-ldap");
         SearchCond simpleCond = SearchCond.getLeafCond(resCond);
 
         assertEquals(simpleCond, SearchCondConverter.convert(fiqlExpression));
@@ -171,8 +174,20 @@ public class SearchCondConverterTest {
         assertEquals(SpecialAttr.TYPE + "==PRINTER", fiqlExpression);
 
         AnyTypeCond acond = new AnyTypeCond();
-        acond.setAnyTypeName("PRINTER");
+        acond.setAnyTypeKey("PRINTER");
         SearchCond simpleCond = SearchCond.getLeafCond(acond);
+
+        assertEquals(simpleCond, SearchCondConverter.convert(fiqlExpression));
+    }
+
+    @Test
+    public void member() {
+        String fiqlExpression = new GroupFiqlSearchConditionBuilder().withMembers("rossini").query();
+        assertEquals(SpecialAttr.MEMBER + "==rossini", fiqlExpression);
+
+        MemberCond mcond = new MemberCond();
+        mcond.setMember("rossini");
+        SearchCond simpleCond = SearchCond.getLeafCond(mcond);
 
         assertEquals(simpleCond, SearchCondConverter.convert(fiqlExpression));
     }

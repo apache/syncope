@@ -31,7 +31,7 @@ under the License.
     CREATE VIEW user_search_unique_attr AS
 
     SELECT ua.owner_id AS any_id,
-    ua.schema_name AS schema_name,
+    ua.schema_id AS schema_id,
     uav.booleanvalue AS booleanvalue,
     uav.datevalue AS datevalue,
     uav.doublevalue AS doublevalue,
@@ -44,7 +44,7 @@ under the License.
     CREATE VIEW user_search_attr AS
 
     SELECT ua.owner_id AS any_id,
-    ua.schema_name AS schema_name,
+    ua.schema_id AS schema_id,
     uav.booleanvalue AS booleanvalue,
     uav.datevalue AS datevalue,
     uav.doublevalue AS doublevalue,
@@ -57,20 +57,20 @@ under the License.
     CREATE VIEW user_search_null_attr AS
 
     SELECT u.id AS any_id,
-    PlainSchema.name AS schema_name,
+    PlainSchema.id AS schema_id,
     NULL AS booleanvalue,
     NULL AS datevalue,
     NULL AS doublevalue,
     NULL AS longvalue,
     NULL AS stringvalue
     FROM SyncopeUser u CROSS JOIN PlainSchema
-    LEFT OUTER JOIN UPlainAttr ua ON (PlainSchema.name = ua.schema_name AND ua.owner_id = u.id)
+    LEFT OUTER JOIN UPlainAttr ua ON (PlainSchema.id = ua.schema_id AND ua.owner_id = u.id)
     WHERE ua.id IS NULL
   </entry>
   <entry key="user_search_urelationship">
     CREATE VIEW user_search_urelationship AS
 
-    SELECT m.user_id AS any_id, m.anyObject_id AS right_any_id, m.type_name AS type
+    SELECT m.user_id AS any_id, m.anyObject_id AS right_any_id, m.type_id AS type
     FROM URelationship m
   </entry>
   <entry key="user_search_umembership">
@@ -90,26 +90,26 @@ under the License.
   <entry key="user_search_role">
     CREATE VIEW user_search_role AS
 
-    SELECT ss.user_id AS any_id, ss.role_name AS role_name
+    SELECT ss.user_id AS any_id, ss.role_id AS role_id
     FROM SyncopeUser_SyncopeRole ss
   </entry>
   <entry key="user_search_dynrmemb">
     CREATE VIEW user_search_dynrmemb AS
 
-    SELECT ds.user_id AS any_id, d.role_name AS role_name
+    SELECT ds.user_id AS any_id, d.role_id AS role_id
     FROM DynRoleMembership d, DynRoleMembership_User ds
     WHERE d.id = ds.dynRoleMembership_id
   </entry>
   <entry key="user_search_resource">
     CREATE VIEW user_search_resource AS
 
-    SELECT st.user_id AS any_id, st.resource_name AS resource_name
+    SELECT st.user_id AS any_id, st.resource_id AS resource_id
     FROM SyncopeUser_ExternalResource st
   </entry>
   <entry key="user_search_group_res">
     CREATE VIEW user_search_group_res AS
 
-    SELECT m.user_id AS any_id, st.resource_name AS resource_name
+    SELECT m.user_id AS any_id, st.resource_id AS resource_id
     FROM UMembership m, SyncopeGroup r, SyncopeGroup_ExternalResource st
     WHERE m.group_id = r.id AND st.group_id = r.id
   </entry>
@@ -124,7 +124,7 @@ under the License.
     CREATE VIEW anyObject_search_unique_attr AS
 
     SELECT ua.owner_id AS any_id,
-    ua.schema_name AS schema_name,
+    ua.schema_id AS schema_id,
     uav.booleanvalue AS booleanvalue,
     uav.datevalue AS datevalue,
     uav.doublevalue AS doublevalue,
@@ -137,7 +137,7 @@ under the License.
     CREATE VIEW anyObject_search_attr AS
 
     SELECT ua.owner_id AS any_id,
-    ua.schema_name AS schema_name,
+    ua.schema_id AS schema_id,
     uav.booleanvalue AS booleanvalue,
     uav.datevalue AS datevalue,
     uav.doublevalue AS doublevalue,
@@ -150,20 +150,20 @@ under the License.
     CREATE VIEW anyObject_search_null_attr AS
 
     SELECT u.id AS any_id,
-    PlainSchema.name AS schema_name,
+    PlainSchema.id AS schema_id,
     NULL AS booleanvalue,
     NULL AS datevalue,
     NULL AS doublevalue,
     NULL AS longvalue,
     NULL AS stringvalue
     FROM AnyObject u CROSS JOIN PlainSchema
-    LEFT OUTER JOIN APlainAttr ua ON (PlainSchema.name = ua.schema_name AND ua.owner_id = u.id)
+    LEFT OUTER JOIN APlainAttr ua ON (PlainSchema.id = ua.schema_id AND ua.owner_id = u.id)
     WHERE ua.id IS NULL
   </entry>
   <entry key="anyObject_search_arelationship">
     CREATE VIEW anyObject_search_arelationship AS
 
-    SELECT m.left_anyObject_id AS any_id, m.right_anyObject_id AS right_any_id, m.type_name AS type
+    SELECT m.left_anyObject_id AS any_id, m.right_anyObject_id AS right_any_id, m.type_id AS type
     FROM ARelationship m
   </entry>
   <entry key="anyObject_search_amembership">
@@ -183,13 +183,13 @@ under the License.
   <entry key="anyObject_search_resource">
     CREATE VIEW anyObject_search_resource AS
 
-    SELECT st.anyObject_id AS any_id, st.resource_name AS resource_name
+    SELECT st.anyObject_id AS any_id, st.resource_id AS resource_id
     FROM AnyObject_ExternalResource st
   </entry>
   <entry key="anyObject_search_group_res">
     CREATE VIEW anyObject_search_group_res AS
 
-    SELECT m.anyObject_id AS any_id, st.resource_name AS resource_name
+    SELECT m.anyObject_id AS any_id, st.resource_id AS resource_id
     FROM AMembership m, SyncopeGroup r, SyncopeGroup_ExternalResource st
     WHERE m.group_id = r.id AND st.group_id = r.id
   </entry>
@@ -204,7 +204,7 @@ under the License.
     CREATE VIEW group_search_unique_attr AS
 
     SELECT ua.owner_id AS any_id,
-    ua.schema_name AS schema_name,
+    ua.schema_id AS schema_id,
     uav.booleanvalue AS booleanvalue,
     uav.datevalue AS datevalue,
     uav.doublevalue AS doublevalue,
@@ -217,7 +217,7 @@ under the License.
     CREATE VIEW group_search_attr AS
 
     SELECT ua.owner_id AS any_id,
-    ua.schema_name AS schema_name,
+    ua.schema_id AS schema_id,
     uav.booleanvalue AS booleanvalue,
     uav.datevalue AS datevalue,
     uav.doublevalue AS doublevalue,
@@ -230,20 +230,20 @@ under the License.
     CREATE VIEW group_search_null_attr AS
 
     SELECT u.id AS any_id,
-    PlainSchema.name AS schema_name,
+    PlainSchema.id AS schema_id,
     NULL AS booleanvalue,
     NULL AS datevalue,
     NULL AS doublevalue,
     NULL AS longvalue,
     NULL AS stringvalue
     FROM SyncopeGroup u CROSS JOIN PlainSchema
-    LEFT OUTER JOIN GPlainAttr ua ON (PlainSchema.name = ua.schema_name AND ua.owner_id = u.id)
+    LEFT OUTER JOIN GPlainAttr ua ON (PlainSchema.id = ua.schema_id AND ua.owner_id = u.id)
     WHERE ua.id IS NULL
   </entry>
   <entry key="group_search_resource">
     CREATE VIEW group_search_resource AS
 
-    SELECT st.group_id AS any_id, st.resource_name AS resource_name
+    SELECT st.group_id AS any_id, st.resource_id AS resource_id
     FROM SyncopeGroup_ExternalResource st
   </entry>
 

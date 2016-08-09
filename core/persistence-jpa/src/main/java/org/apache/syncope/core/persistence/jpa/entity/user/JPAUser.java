@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.jpa.entity.user;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import javax.persistence.Basic;
@@ -33,7 +32,6 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.Lob;
@@ -48,9 +46,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
@@ -63,25 +58,25 @@ import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
-import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.Role;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
-import org.apache.syncope.core.persistence.jpa.entity.AbstractAny;
+import org.apache.syncope.core.persistence.jpa.entity.AbstractGroupableRelatable;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyTypeClass;
 import org.apache.syncope.core.persistence.jpa.entity.JPARole;
 
 @Entity
 @Table(name = JPAUser.TABLE)
 @Cacheable
-public class JPAUser extends AbstractAny<UPlainAttr> implements User {
+public class JPAUser
+        extends AbstractGroupableRelatable<User, UMembership, UPlainAttr, AnyObject, URelationship>
+        implements User {
 
     private static final long serialVersionUID = -3905046855521446823L;
 
     public static final String TABLE = "SyncopeUser";
-
-    @Id
-    private Long id;
 
     @Column(nullable = true)
     private String password;
@@ -93,7 +88,7 @@ public class JPAUser extends AbstractAny<UPlainAttr> implements User {
     @JoinTable(joinColumns =
             @JoinColumn(name = "user_id"),
             inverseJoinColumns =
-            @JoinColumn(name = "role_name"))
+            @JoinColumn(name = "role_id"))
     private List<JPARole> roles = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
@@ -165,22 +160,21 @@ public class JPAUser extends AbstractAny<UPlainAttr> implements User {
     @JoinTable(joinColumns =
             @JoinColumn(name = "user_id"),
             inverseJoinColumns =
-            @JoinColumn(name = "resource_name"))
-    @Valid
+            @JoinColumn(name = "resource_id"))
     private List<JPAExternalResource> resources = new ArrayList<>();
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(joinColumns =
             @JoinColumn(name = "user_id"),
             inverseJoinColumns =
-            @JoinColumn(name = "anyTypeClass_name"))
+            @JoinColumn(name = "anyTypeClass_id"))
     private List<JPAAnyTypeClass> auxClasses = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "leftEnd")
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "leftEnd")
     @Valid
     private List<JPAURelationship> relationships = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "leftEnd")
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "leftEnd")
     @Valid
     private List<JPAUMembership> memberships = new ArrayList<>();
 
@@ -189,11 +183,6 @@ public class JPAUser extends AbstractAny<UPlainAttr> implements User {
 
     @Column(nullable = true)
     private String securityAnswer;
-
-    @Override
-    public Long getKey() {
-        return id;
-    }
 
     @Override
     public AnyType getType() {
@@ -206,7 +195,13 @@ public class JPAUser extends AbstractAny<UPlainAttr> implements User {
     }
 
     @Override
-    protected List<JPAExternalResource> internalGetResources() {
+    public boolean add(final ExternalResource resource) {
+        checkType(resource, JPAExternalResource.class);
+        return resources.add((JPAExternalResource) resource);
+    }
+
+    @Override
+    public List<? extends ExternalResource> getResources() {
         return resources;
     }
 
@@ -279,7 +274,7 @@ public class JPAUser extends AbstractAny<UPlainAttr> implements User {
     }
 
     @Override
-    public List<? extends UPlainAttr> getPlainAttrs() {
+    protected List<? extends UPlainAttr> internalGetPlainAttrs() {
         return plainAttrs;
     }
 
@@ -480,41 +475,6 @@ public class JPAUser extends AbstractAny<UPlainAttr> implements User {
     }
 
     @Override
-    public URelationship getRelationship(final RelationshipType relationshipType, final Long anyObjectKey) {
-        return IterableUtils.find(getRelationships(), new Predicate<URelationship>() {
-
-            @Override
-            public boolean evaluate(final URelationship relationship) {
-                return anyObjectKey != null && anyObjectKey.equals(relationship.getRightEnd().getKey())
-                        && ((relationshipType == null && relationship.getType() == null)
-                        || (relationshipType != null && relationshipType.equals(relationship.getType())));
-            }
-        });
-    }
-
-    @Override
-    public Collection<? extends URelationship> getRelationships(final RelationshipType relationshipType) {
-        return CollectionUtils.select(getRelationships(), new Predicate<URelationship>() {
-
-            @Override
-            public boolean evaluate(final URelationship relationship) {
-                return relationshipType != null && relationshipType.equals(relationship.getType());
-            }
-        });
-    }
-
-    @Override
-    public Collection<? extends URelationship> getRelationships(final Long anyObjectKey) {
-        return CollectionUtils.select(getRelationships(), new Predicate<URelationship>() {
-
-            @Override
-            public boolean evaluate(final URelationship relationship) {
-                return anyObjectKey != null && anyObjectKey.equals(relationship.getRightEnd().getKey());
-            }
-        });
-    }
-
-    @Override
     public List<? extends URelationship> getRelationships() {
         return relationships;
     }
@@ -523,17 +483,6 @@ public class JPAUser extends AbstractAny<UPlainAttr> implements User {
     public boolean add(final UMembership membership) {
         checkType(membership, JPAUMembership.class);
         return this.memberships.add((JPAUMembership) membership);
-    }
-
-    @Override
-    public UMembership getMembership(final Long groupKey) {
-        return IterableUtils.find(getMemberships(), new Predicate<UMembership>() {
-
-            @Override
-            public boolean evaluate(final UMembership membership) {
-                return groupKey != null && groupKey.equals(membership.getRightEnd().getKey());
-            }
-        });
     }
 
     @Override

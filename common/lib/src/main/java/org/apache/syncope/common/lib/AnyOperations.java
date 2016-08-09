@@ -25,6 +25,7 @@ import java.util.Set;
 import org.apache.commons.collections4.Closure;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -37,7 +38,6 @@ import org.apache.syncope.common.lib.patch.PasswordPatch;
 import org.apache.syncope.common.lib.patch.RelationshipPatch;
 import org.apache.syncope.common.lib.patch.AbstractReplacePatchItem;
 import org.apache.syncope.common.lib.patch.BooleanReplacePatchItem;
-import org.apache.syncope.common.lib.patch.LongReplacePatchItem;
 import org.apache.syncope.common.lib.patch.StringPatchItem;
 import org.apache.syncope.common.lib.patch.StringReplacePatchItem;
 import org.apache.syncope.common.lib.patch.UserPatch;
@@ -72,6 +72,61 @@ public final class AnyOperations {
 
         proto.setValue(updated);
         return proto;
+    }
+
+    private static void diff(
+            final MembershipTO updated,
+            final MembershipTO original,
+            final MembershipPatch result,
+            final boolean incremental) {
+
+        // check same key
+        if (updated.getGroupKey() == null && original.getGroupKey() != null
+                || (updated.getGroupKey() != null && !updated.getGroupKey().equals(original.getGroupKey()))) {
+
+            throw new IllegalArgumentException("Memberships must be the same");
+        }
+        result.setGroup(updated.getGroupKey());
+
+        // 1. plain attributes
+        Map<String, AttrTO> updatedAttrs = new HashMap<>(updated.getPlainAttrMap());
+        Map<String, AttrTO> originalAttrs = new HashMap<>(original.getPlainAttrMap());
+
+        result.getPlainAttrs().clear();
+
+        if (!incremental) {
+            IterableUtils.forEach(CollectionUtils.subtract(originalAttrs.keySet(), updatedAttrs.keySet()),
+                    new Closure<String>() {
+
+                @Override
+                public void execute(final String schema) {
+                    result.getPlainAttrs().add(new AttrPatch.Builder().
+                            operation(PatchOperation.DELETE).
+                            attrTO(new AttrTO.Builder().schema(schema).build()).
+                            build());
+                }
+            });
+        }
+
+        for (AttrTO attrTO : updatedAttrs.values()) {
+            if (attrTO.getValues().isEmpty()) {
+                if (!incremental) {
+                    result.getPlainAttrs().add(new AttrPatch.Builder().
+                            operation(PatchOperation.DELETE).
+                            attrTO(new AttrTO.Builder().schema(attrTO.getSchema()).build()).
+                            build());
+                }
+            } else {
+                AttrPatch patch = new AttrPatch.Builder().operation(PatchOperation.ADD_REPLACE).attrTO(attrTO).build();
+                if (!patch.isEmpty()) {
+                    result.getPlainAttrs().add(patch);
+                }
+            }
+        }
+
+        // 2. virtual attributes
+        result.getVirAttrs().clear();
+        result.getVirAttrs().addAll(updated.getVirAttrs());
     }
 
     private static void diff(
@@ -174,11 +229,14 @@ public final class AnyOperations {
 
         diff(updated, original, result, incremental);
 
-        // 1. relationships
-        Map<Pair<String, Long>, RelationshipTO> updatedRels = updated.getRelationshipMap();
-        Map<Pair<String, Long>, RelationshipTO> originalRels = original.getRelationshipMap();
+        // 1. name
+        result.setName(replacePatchItem(updated.getName(), original.getName(), new StringReplacePatchItem()));
 
-        for (Map.Entry<Pair<String, Long>, RelationshipTO> entry : updatedRels.entrySet()) {
+        // 2. relationships
+        Map<Pair<String, String>, RelationshipTO> updatedRels = updated.getRelationshipMap();
+        Map<Pair<String, String>, RelationshipTO> originalRels = original.getRelationshipMap();
+
+        for (Map.Entry<Pair<String, String>, RelationshipTO> entry : updatedRels.entrySet()) {
             if (!originalRels.containsKey(entry.getKey())) {
                 result.getRelationships().add(new RelationshipPatch.Builder().
                         operation(PatchOperation.ADD_REPLACE).
@@ -187,28 +245,28 @@ public final class AnyOperations {
         }
 
         if (!incremental) {
-            for (Pair<String, Long> key : CollectionUtils.subtract(originalRels.keySet(), updatedRels.keySet())) {
+            for (Pair<String, String> key : CollectionUtils.subtract(originalRels.keySet(), updatedRels.keySet())) {
                 result.getRelationships().add(new RelationshipPatch.Builder().
                         operation(PatchOperation.DELETE).
                         relationshipTO(originalRels.get(key)).build());
             }
         }
 
-        // 2. memberships
-        Map<Long, MembershipTO> updatedMembs = updated.getMembershipMap();
-        Map<Long, MembershipTO> originalMembs = original.getMembershipMap();
+        // 3. memberships
+        Map<String, MembershipTO> updatedMembs = updated.getMembershipMap();
+        Map<String, MembershipTO> originalMembs = original.getMembershipMap();
 
-        for (Map.Entry<Long, MembershipTO> entry : updatedMembs.entrySet()) {
+        for (Map.Entry<String, MembershipTO> entry : updatedMembs.entrySet()) {
             if (!originalMembs.containsKey(entry.getKey())) {
                 result.getMemberships().add(new MembershipPatch.Builder().
-                        operation(PatchOperation.ADD_REPLACE).membershipTO(entry.getValue()).build());
+                        operation(PatchOperation.ADD_REPLACE).group(entry.getValue().getGroupKey()).build());
             }
         }
 
         if (!incremental) {
-            for (Long key : CollectionUtils.subtract(originalMembs.keySet(), updatedMembs.keySet())) {
+            for (String key : CollectionUtils.subtract(originalMembs.keySet(), updatedMembs.keySet())) {
                 result.getMemberships().add(new MembershipPatch.Builder().
-                        operation(PatchOperation.DELETE).membershipTO(originalMembs.get(key)).build());
+                        operation(PatchOperation.DELETE).group(originalMembs.get(key).getGroupKey()).build());
             }
         }
 
@@ -246,8 +304,8 @@ public final class AnyOperations {
         } else if (!updated.getSecurityQuestion().equals(original.getSecurityQuestion())
                 || StringUtils.isNotBlank(updated.getSecurityAnswer())) {
 
-            result.setSecurityQuestion(
-                    new LongReplacePatchItem.Builder().value(updated.getSecurityQuestion()).build());
+            result.setSecurityQuestion(new StringReplacePatchItem.Builder().
+                    value(updated.getSecurityQuestion()).build());
             result.setSecurityAnswer(
                     new StringReplacePatchItem.Builder().value(updated.getSecurityAnswer()).build());
         }
@@ -269,10 +327,10 @@ public final class AnyOperations {
         }
 
         // 5. relationships
-        Map<Pair<String, Long>, RelationshipTO> updatedRels = updated.getRelationshipMap();
-        Map<Pair<String, Long>, RelationshipTO> originalRels = original.getRelationshipMap();
+        Map<Pair<String, String>, RelationshipTO> updatedRels = updated.getRelationshipMap();
+        Map<Pair<String, String>, RelationshipTO> originalRels = original.getRelationshipMap();
 
-        for (Map.Entry<Pair<String, Long>, RelationshipTO> entry : updatedRels.entrySet()) {
+        for (Map.Entry<Pair<String, String>, RelationshipTO> entry : updatedRels.entrySet()) {
             if (!originalRels.containsKey(entry.getKey())) {
                 result.getRelationships().add(new RelationshipPatch.Builder().
                         operation(PatchOperation.ADD_REPLACE).
@@ -281,7 +339,7 @@ public final class AnyOperations {
         }
 
         if (!incremental) {
-            for (Pair<String, Long> key : CollectionUtils.subtract(originalRels.keySet(), updatedRels.keySet())) {
+            for (Pair<String, String> key : CollectionUtils.subtract(originalRels.keySet(), updatedRels.keySet())) {
                 result.getRelationships().add(new RelationshipPatch.Builder().
                         operation(PatchOperation.DELETE).
                         relationshipTO(originalRels.get(key)).build());
@@ -289,20 +347,31 @@ public final class AnyOperations {
         }
 
         // 6. memberships
-        Map<Long, MembershipTO> updatedMembs = updated.getMembershipMap();
-        Map<Long, MembershipTO> originalMembs = original.getMembershipMap();
+        Map<String, MembershipTO> updatedMembs = updated.getMembershipMap();
+        Map<String, MembershipTO> originalMembs = original.getMembershipMap();
 
-        for (Map.Entry<Long, MembershipTO> entry : updatedMembs.entrySet()) {
-            if (!originalMembs.containsKey(entry.getKey())) {
-                result.getMemberships().add(new MembershipPatch.Builder().
-                        operation(PatchOperation.ADD_REPLACE).membershipTO(entry.getValue()).build());
+        for (Map.Entry<String, MembershipTO> entry : updatedMembs.entrySet()) {
+            MembershipPatch membershipPatch = new MembershipPatch.Builder().
+                    operation(PatchOperation.ADD_REPLACE).group(entry.getValue().getGroupKey()).build();
+
+            MembershipTO omemb;
+            if (originalMembs.containsKey(entry.getKey())) {
+                // get the original membership
+                omemb = originalMembs.get(entry.getKey());
+            } else {
+                // create an empty one to generate the patch
+                omemb = new MembershipTO();
+                omemb.setGroupKey(entry.getKey());
             }
+
+            diff(entry.getValue(), omemb, membershipPatch, incremental);
+            result.getMemberships().add(membershipPatch);
         }
 
         if (!incremental) {
-            for (Long key : CollectionUtils.subtract(originalMembs.keySet(), updatedMembs.keySet())) {
+            for (String key : CollectionUtils.subtract(originalMembs.keySet(), updatedMembs.keySet())) {
                 result.getMemberships().add(new MembershipPatch.Builder().
-                        operation(PatchOperation.DELETE).membershipTO(originalMembs.get(key)).build());
+                        operation(PatchOperation.DELETE).group(originalMembs.get(key).getGroupKey()).build());
             }
         }
 
@@ -326,14 +395,17 @@ public final class AnyOperations {
         result.setName(replacePatchItem(updated.getName(), original.getName(), new StringReplacePatchItem()));
 
         // 2. ownership
-        result.setUserOwner(replacePatchItem(
-                updated.getUserOwner(), original.getUserOwner(), new LongReplacePatchItem()));
-        result.setGroupOwner(replacePatchItem(
-                updated.getGroupOwner(), original.getGroupOwner(), new LongReplacePatchItem()));
+        result.setUserOwner(
+                replacePatchItem(updated.getUserOwner(), original.getUserOwner(), new StringReplacePatchItem()));
+        result.setGroupOwner(replacePatchItem(updated.getGroupOwner(), original.getGroupOwner(),
+                new StringReplacePatchItem()));
 
         // 3. dynamic membership
         result.setUDynMembershipCond(updated.getUDynMembershipCond());
         result.getADynMembershipConds().putAll(updated.getADynMembershipConds());
+
+        // 4. type extensions
+        result.getTypeExtensions().addAll(updated.getTypeExtensions());
 
         return result;
     }
@@ -382,7 +454,7 @@ public final class AnyOperations {
 
     private static <T extends AnyTO, K extends AnyPatch> void patch(final T to, final K patch, final T result) {
         // check same key
-        if (to.getKey() == null || to.getKey() != patch.getKey()) {
+        if (to.getKey() == null || !to.getKey().equals(patch.getKey())) {
             throw new IllegalArgumentException(
                     to.getClass().getSimpleName() + " and " + patch.getClass().getSimpleName()
                     + " keys must be the same");
@@ -408,7 +480,7 @@ public final class AnyOperations {
 
         // 2. plain attributes
         result.getPlainAttrs().clear();
-        result.getPlainAttrs().addAll(AnyOperations.patch(to.getPlainAttrMap(), patch.getPlainAttrs()));
+        result.getPlainAttrs().addAll(patch(to.getPlainAttrMap(), patch.getPlainAttrs()));
 
         // 3. virtual attributes
         result.getVirAttrs().clear();
@@ -430,7 +502,7 @@ public final class AnyOperations {
 
     public static GroupTO patch(final GroupTO groupTO, final GroupPatch groupPatch) {
         GroupTO result = SerializationUtils.clone(groupTO);
-        AnyOperations.patch(groupTO, groupPatch, result);
+        patch(groupTO, groupPatch, result);
 
         if (groupPatch.getName() != null) {
             result.setName(groupPatch.getName().getValue());
@@ -452,10 +524,10 @@ public final class AnyOperations {
 
     public static AnyObjectTO patch(final AnyObjectTO anyObjectTO, final AnyObjectPatch anyObjectPatch) {
         AnyObjectTO result = SerializationUtils.clone(anyObjectTO);
-        AnyOperations.patch(anyObjectTO, anyObjectPatch, result);
+        patch(anyObjectTO, anyObjectPatch, result);
 
         // 1. relationships
-        for (final RelationshipPatch relPatch : anyObjectPatch.getRelationships()) {
+        for (RelationshipPatch relPatch : anyObjectPatch.getRelationships()) {
             if (relPatch.getRelationshipTO() == null) {
                 LOG.warn("Invalid {} specified: {}", RelationshipPatch.class.getName(), relPatch);
             } else {
@@ -468,12 +540,37 @@ public final class AnyOperations {
 
         // 2. memberships
         for (final MembershipPatch membPatch : anyObjectPatch.getMemberships()) {
-            if (membPatch.getMembershipTO() == null) {
+            if (membPatch.getGroup() == null) {
                 LOG.warn("Invalid {} specified: {}", MembershipPatch.class.getName(), membPatch);
             } else {
-                result.getMemberships().remove(membPatch.getMembershipTO());
+                MembershipTO memb = IterableUtils.find(result.getMemberships(), new Predicate<MembershipTO>() {
+
+                    @Override
+                    public boolean evaluate(final MembershipTO object) {
+                        return membPatch.getGroup().equals(object.getGroupKey());
+                    }
+                });
+                if (memb != null) {
+                    result.getMemberships().remove(memb);
+                }
+
                 if (membPatch.getOperation() == PatchOperation.ADD_REPLACE) {
-                    result.getMemberships().add(membPatch.getMembershipTO());
+                    MembershipTO newMembershipTO = new MembershipTO();
+                    newMembershipTO.setGroupKey(membPatch.getGroup());
+
+                    if (memb == null) {
+                        for (AttrPatch attrPatch : membPatch.getPlainAttrs()) {
+                            newMembershipTO.getPlainAttrs().add(attrPatch.getAttrTO());
+                        }
+                    } else {
+                        newMembershipTO.getPlainAttrs().addAll(
+                                patch(memb.getPlainAttrMap(), membPatch.getPlainAttrs()));
+                    }
+
+                    // 3. virtual attributes
+                    newMembershipTO.getVirAttrs().addAll(membPatch.getVirAttrs());
+
+                    result.getMemberships().add(newMembershipTO);
                 }
             }
         }
@@ -483,7 +580,7 @@ public final class AnyOperations {
 
     public static UserTO patch(final UserTO userTO, final UserPatch userPatch) {
         UserTO result = SerializationUtils.clone(userTO);
-        AnyOperations.patch(userTO, userPatch, result);
+        patch(userTO, userPatch, result);
 
         // 1. password
         if (userPatch.getPassword() != null) {
@@ -496,7 +593,7 @@ public final class AnyOperations {
         }
 
         // 3. relationships
-        for (final RelationshipPatch relPatch : userPatch.getRelationships()) {
+        for (RelationshipPatch relPatch : userPatch.getRelationships()) {
             if (relPatch.getRelationshipTO() == null) {
                 LOG.warn("Invalid {} specified: {}", RelationshipPatch.class.getName(), relPatch);
             } else {
@@ -509,12 +606,37 @@ public final class AnyOperations {
 
         // 4. memberships
         for (final MembershipPatch membPatch : userPatch.getMemberships()) {
-            if (membPatch.getMembershipTO() == null) {
+            if (membPatch.getGroup() == null) {
                 LOG.warn("Invalid {} specified: {}", MembershipPatch.class.getName(), membPatch);
             } else {
-                result.getMemberships().remove(membPatch.getMembershipTO());
+                MembershipTO memb = IterableUtils.find(result.getMemberships(), new Predicate<MembershipTO>() {
+
+                    @Override
+                    public boolean evaluate(final MembershipTO object) {
+                        return membPatch.getGroup().equals(object.getGroupKey());
+                    }
+                });
+                if (memb != null) {
+                    result.getMemberships().remove(memb);
+                }
+
                 if (membPatch.getOperation() == PatchOperation.ADD_REPLACE) {
-                    result.getMemberships().add(membPatch.getMembershipTO());
+                    MembershipTO newMembershipTO = new MembershipTO();
+                    newMembershipTO.setGroupKey(membPatch.getGroup());
+
+                    if (memb == null) {
+                        for (AttrPatch attrPatch : membPatch.getPlainAttrs()) {
+                            newMembershipTO.getPlainAttrs().add(attrPatch.getAttrTO());
+                        }
+                    } else {
+                        newMembershipTO.getPlainAttrs().addAll(
+                                patch(memb.getPlainAttrMap(), membPatch.getPlainAttrs()));
+                    }
+
+                    // 3. virtual attributes
+                    newMembershipTO.getVirAttrs().addAll(membPatch.getVirAttrs());
+
+                    result.getMemberships().add(newMembershipTO);
                 }
             }
         }

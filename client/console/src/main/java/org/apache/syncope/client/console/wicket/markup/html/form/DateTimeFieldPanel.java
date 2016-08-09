@@ -21,8 +21,8 @@ package org.apache.syncope.client.console.wicket.markup.html.form;
 import java.util.Calendar;
 import java.util.Date;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.extensions.yui.calendar.DateTimeField;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.FormComponent;
@@ -41,11 +41,11 @@ public class DateTimeFieldPanel extends DateFieldPanel {
     public DateTimeFieldPanel(final String id, final String name, final IModel<Date> model, final String datePattern) {
         super(id, name, model, datePattern);
 
-        field = new DateTimePickerField("field", model); 
+        field = new DateTimePickerField("field", model);
 
         final Calendar cal = Calendar.getInstance();
 
-        field.get("hours").add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+        field.get("hours").add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 
@@ -60,7 +60,7 @@ public class DateTimeFieldPanel extends DateFieldPanel {
             }
         });
 
-        field.get("minutes").add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+        field.get("minutes").add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 
@@ -75,7 +75,7 @@ public class DateTimeFieldPanel extends DateFieldPanel {
             }
         });
 
-        field.get("date").add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+        field.get("date").add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 
@@ -95,7 +95,7 @@ public class DateTimeFieldPanel extends DateFieldPanel {
             }
         });
 
-        field.get("amOrPmChoice").add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+        field.get("amOrPmChoice").add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 
@@ -168,7 +168,7 @@ public class DateTimeFieldPanel extends DateFieldPanel {
 
     @Override
     public FieldPanel<Date> clone() {
-        final FieldPanel<Date> panel = new DateTimeFieldPanel(getId(), name, new Model<Date>(null), datePattern);
+        final FieldPanel<Date> panel = new DateTimeFieldPanel(getId(), name, new Model<Date>(null), fmt.getPattern());
 
         panel.setRequired(isRequired());
         panel.setReadOnly(isReadOnly());

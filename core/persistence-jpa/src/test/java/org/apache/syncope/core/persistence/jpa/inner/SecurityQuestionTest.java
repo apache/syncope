@@ -23,6 +23,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import java.util.List;
+import java.util.UUID;
 import org.apache.syncope.core.persistence.api.dao.SecurityQuestionDAO;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
@@ -38,7 +39,8 @@ public class SecurityQuestionTest extends AbstractTest {
 
     @Test
     public void find() {
-        SecurityQuestion securityQuestion = securityQuestionDAO.find(1L);
+        SecurityQuestion securityQuestion = securityQuestionDAO.find(
+                "887028ea-66fc-41e7-b397-620d7ea6dfbb");
         assertNotNull(securityQuestion);
         assertNotNull(securityQuestion.getContent());
     }
@@ -62,7 +64,7 @@ public class SecurityQuestionTest extends AbstractTest {
 
     @Test
     public void delete() {
-        securityQuestionDAO.delete(1L);
-        assertNull(securityQuestionDAO.find(1L));
+        securityQuestionDAO.delete("887028ea-66fc-41e7-b397-620d7ea6dfbb");
+        assertNull(securityQuestionDAO.find("887028ea-66fc-41e7-b397-620d7ea6dfbb"));
     }
 }

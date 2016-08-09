@@ -42,9 +42,9 @@ public class GroupPatch extends AnyPatch {
 
     private StringReplacePatchItem name;
 
-    private LongReplacePatchItem userOwner;
+    private StringReplacePatchItem userOwner;
 
-    private LongReplacePatchItem groupOwner;
+    private StringReplacePatchItem groupOwner;
 
     private String udynMembershipCond;
 
@@ -62,19 +62,19 @@ public class GroupPatch extends AnyPatch {
         this.name = name;
     }
 
-    public LongReplacePatchItem getUserOwner() {
+    public StringReplacePatchItem getUserOwner() {
         return userOwner;
     }
 
-    public void setUserOwner(final LongReplacePatchItem userOwner) {
+    public void setUserOwner(final StringReplacePatchItem userOwner) {
         this.userOwner = userOwner;
     }
 
-    public LongReplacePatchItem getGroupOwner() {
+    public StringReplacePatchItem getGroupOwner() {
         return groupOwner;
     }
 
-    public void setGroupOwner(final LongReplacePatchItem groupOwner) {
+    public void setGroupOwner(final StringReplacePatchItem groupOwner) {
         this.groupOwner = groupOwner;
     }
 

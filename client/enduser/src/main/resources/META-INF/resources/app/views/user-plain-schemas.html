@@ -24,6 +24,6 @@ under the License.
   <navigation-buttons ng-show="createMode" base="create" current="plainSchemas" wizard="{{wizard}}"></navigation-buttons>
   <navigation-buttons ng-show="!createMode" base="update" current="plainSchemas" wizard="{{wizard}}"></navigation-buttons>
   <div class="pull-left">
-    <a id="cancel" href="#/self" class="btn btn-danger pull-left">Cancel</a>
+    <a id="cancel" href="#/self" class="btn btn-danger pull-left" ng-click="logout()">{{'CANCEL' | translate}}</a>
   </div>
 </div>

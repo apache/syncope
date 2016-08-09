@@ -32,7 +32,7 @@ public class StatusPatch extends PasswordPatch {
     /**
      * Key of user to for which status update is requested.
      */
-    private long key;
+    private String key;
 
     private StatusPatchType type;
 
@@ -41,12 +41,12 @@ public class StatusPatch extends PasswordPatch {
      */
     private String token;
 
-    public long getKey() {
+    public String getKey() {
         return key;
     }
 
     @PathParam("key")
-    public void setKey(final long key) {
+    public void setKey(final String key) {
         this.key = key;
     }
 

@@ -20,10 +20,11 @@ package org.apache.syncope.client.console.wizards.any;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.commons.ConnIdSpecialAttributeName;
 import org.apache.syncope.common.lib.to.AttrTO;
@@ -49,78 +50,86 @@ public class ConnObjectPanel extends Panel {
     public ConnObjectPanel(final String id, final Pair<ConnObjectTO, ConnObjectTO> connObjectTOs) {
         super(id);
 
-        final IModel<List<AttrTO>> formProps = new LoadableDetachableModel<List<AttrTO>>() {
+        final IModel<List<String>> formProps = new LoadableDetachableModel<List<String>>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
-            protected List<AttrTO> load() {
-                List<AttrTO> attrs = new ArrayList<>(connObjectTOs == null || connObjectTOs.getRight() == null
+            protected List<String> load() {
+                List<AttrTO> right = new ArrayList<>(connObjectTOs == null || connObjectTOs.getRight() == null
                         ? Collections.<AttrTO>emptyList()
-                        : connObjectTOs.getRight().getPlainAttrs());
+                        : connObjectTOs.getRight().getAttrs());
 
-                Collections.sort(attrs, new Comparator<AttrTO>() {
+                List<AttrTO> left = new ArrayList<>(connObjectTOs == null || connObjectTOs.getLeft() == null
+                        ? Collections.<AttrTO>emptyList()
+                        : connObjectTOs.getLeft().getAttrs());
 
-                    @Override
-                    public int compare(final AttrTO attr1, final AttrTO attr2) {
-                        if (attr1 == null || attr1.getSchema() == null) {
-                            return -1;
-                        }
-                        if (attr2 == null || attr2.getSchema() == null) {
-                            return 1;
-                        }
-                        return attr1.getSchema().compareTo(attr2.getSchema());
-                    }
-                });
+                final List<String> schemas = ListUtils.sum(
+                        CollectionUtils.collect(right, new Transformer<AttrTO, String>() {
 
-                return attrs;
+                            @Override
+                            public String transform(final AttrTO input) {
+                                return input.getSchema();
+                            }
+                        }, new ArrayList<String>()),
+                        CollectionUtils.collect(left, new Transformer<AttrTO, String>() {
+
+                            @Override
+                            public String transform(final AttrTO input) {
+                                return input.getSchema();
+                            }
+                        }, new ArrayList<String>()));
+
+                Collections.sort(schemas);
+
+                return schemas;
             }
         };
 
-        final Map<String, AttrTO> beforeProfile = connObjectTOs.getLeft() == null
+        final Map<String, AttrTO> beforeProfile = connObjectTOs == null || connObjectTOs.getLeft() == null
                 ? null
-                : connObjectTOs.getLeft().getPlainAttrMap();
+                : connObjectTOs.getLeft().getAttrMap();
 
-        final ListView<AttrTO> propView = new ListView<AttrTO>("propView", formProps) {
+        final Map<String, AttrTO> afterProfile = connObjectTOs == null || connObjectTOs.getRight() == null
+                ? null
+                : connObjectTOs.getRight().getAttrMap();
+
+        final ListView<String> propView = new ListView<String>("propView", formProps) {
 
             private static final long serialVersionUID = 3109256773218160485L;
 
             @Override
-            protected void populateItem(final ListItem<AttrTO> item) {
-                final AttrTO prop = item.getModelObject();
+            protected void populateItem(final ListItem<String> item) {
+                final String prop = item.getModelObject();
 
                 final Fragment valueFragment;
-                if (beforeProfile == null) {
-                    valueFragment = new Fragment("value", "singleValue", ConnObjectPanel.this);
-                    valueFragment.add(getValuePanel("attribute", prop.getSchema(), prop));
-                } else {
-                    final AttrTO before = beforeProfile.get(prop.getSchema());
+                final AttrTO before = beforeProfile == null ? null : beforeProfile.get(prop);
+                final AttrTO after = afterProfile == null ? null : afterProfile.get(prop);
 
-                    valueFragment = new Fragment("value", "doubleValue", ConnObjectPanel.this);
-                    valueFragment.add(getValuePanel("oldAttribute", prop.getSchema(), before));
-                    valueFragment.add(getValuePanel("newAttribute", prop.getSchema(), prop));
+                valueFragment = new Fragment("value", "doubleValue", ConnObjectPanel.this);
+                valueFragment.add(getValuePanel("oldAttribute", prop, before));
+                valueFragment.add(getValuePanel("newAttribute", prop, after));
 
-                    if (before == null
-                            || (CollectionUtils.isNotEmpty(prop.getValues())
-                            && CollectionUtils.isEmpty(before.getValues()))
-                            || (CollectionUtils.isEmpty(prop.getValues())
-                            && CollectionUtils.isNotEmpty(before.getValues()))
-                            || (CollectionUtils.isNotEmpty(prop.getValues())
-                            && CollectionUtils.isNotEmpty(before.getValues())
-                            && prop.getValues().size() != before.getValues().size())
-                            || (CollectionUtils.isNotEmpty(prop.getValues())
-                            && CollectionUtils.isNotEmpty(before.getValues())
-                            && !prop.getValues().equals(before.getValues()))) {
-                        valueFragment.add(new Behavior() {
+                if (before == null || after == null
+                        || (CollectionUtils.isNotEmpty(after.getValues())
+                        && CollectionUtils.isEmpty(before.getValues()))
+                        || (CollectionUtils.isEmpty(after.getValues())
+                        && CollectionUtils.isNotEmpty(before.getValues()))
+                        || (CollectionUtils.isNotEmpty(after.getValues())
+                        && CollectionUtils.isNotEmpty(before.getValues())
+                        && after.getValues().size() != before.getValues().size())
+                        || (CollectionUtils.isNotEmpty(after.getValues())
+                        && CollectionUtils.isNotEmpty(before.getValues())
+                        && !after.getValues().equals(before.getValues()))) {
+                    valueFragment.add(new Behavior() {
 
-                            private static final long serialVersionUID = 3109256773218160485L;
+                        private static final long serialVersionUID = 3109256773218160485L;
 
-                            @Override
-                            public void onComponentTag(final Component component, final ComponentTag tag) {
-                                tag.put("class", "highlight");
-                            }
-                        });
-                    }
+                        @Override
+                        public void onComponentTag(final Component component, final ComponentTag tag) {
+                            tag.put("class", "highlight");
+                        }
+                    });
                 }
                 item.add(valueFragment);
             }
@@ -142,11 +151,11 @@ public class ConnObjectPanel extends Panel {
         } else if (CollectionUtils.isEmpty(attrTO.getValues())) {
             field = new AjaxTextFieldPanel(id, schemaName, new Model<String>());
         } else if (ConnIdSpecialAttributeName.PASSWORD.equals(schemaName)) {
-            field = new AjaxTextFieldPanel(id, schemaName, new Model<String>("********"));
+            field = new AjaxTextFieldPanel(id, schemaName, new Model<>("********"));
         } else if (attrTO.getValues().size() == 1) {
-            field = new AjaxTextFieldPanel(id, schemaName, new Model<String>(attrTO.getValues().get(0)));
+            field = new AjaxTextFieldPanel(id, schemaName, new Model<>(attrTO.getValues().get(0)));
         } else {
-            field = new MultiFieldPanel.Builder<String>(new ListModel<String>(attrTO.getValues())).build(
+            field = new MultiFieldPanel.Builder<>(new ListModel<>(attrTO.getValues())).build(
                     id,
                     schemaName,
                     new AjaxTextFieldPanel("panel", schemaName, new Model<String>()));

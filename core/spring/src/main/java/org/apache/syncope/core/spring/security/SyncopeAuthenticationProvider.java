@@ -112,23 +112,23 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
                 authenticated = AuthContextUtils.execWithAuthContext(
                         SyncopeConstants.MASTER_DOMAIN, new Executable<Boolean>() {
 
-                            @Override
-                            public Boolean exec() {
-                                Domain domain = dataAccessor.findDomain(domainToFind);
+                    @Override
+                    public Boolean exec() {
+                        Domain domain = dataAccessor.findDomain(domainToFind);
 
-                                return encryptor.verify(
-                                        authentication.getCredentials().toString(),
-                                        domain.getAdminCipherAlgorithm(),
-                                        domain.getAdminPwd());
-                            }
-                        });
+                        return encryptor.verify(
+                                authentication.getCredentials().toString(),
+                                domain.getAdminCipherAlgorithm(),
+                                domain.getAdminPwd());
+                    }
+                });
             }
         } else {
-            final Pair<Long, Boolean> authResult =
-                    AuthContextUtils.execWithAuthContext(domainKey, new Executable<Pair<Long, Boolean>>() {
+            final Pair<String, Boolean> authResult =
+                    AuthContextUtils.execWithAuthContext(domainKey, new Executable<Pair<String, Boolean>>() {
 
                         @Override
-                        public Pair<Long, Boolean> exec() {
+                        public Pair<String, Boolean> exec() {
                             return dataAccessor.authenticate(authentication);
                         }
                     });
@@ -151,28 +151,27 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
             token = AuthContextUtils.execWithAuthContext(
                     domainKey, new Executable<UsernamePasswordAuthenticationToken>() {
 
-                        @Override
-                        public UsernamePasswordAuthenticationToken exec() {
-                            UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-                                    authentication.getPrincipal(),
-                                    null,
-                                    userDetailsService.loadUserByUsername(authentication.getPrincipal().toString()).
-                                    getAuthorities());
-                            token.setDetails(authentication.getDetails());
+                @Override
+                public UsernamePasswordAuthenticationToken exec() {
+                    UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
+                            authentication.getPrincipal(),
+                            null,
+                            userDetailsService.loadUserByUsername(authentication.getPrincipal().toString()).
+                            getAuthorities());
+                    token.setDetails(authentication.getDetails());
 
-                            dataAccessor.audit(
-                                    AuditElements.EventCategoryType.REST,
-                                    AuditElements.AUTHENTICATION_CATEGORY,
-                                    null,
-                                    AuditElements.LOGIN_EVENT,
-                                    Result.SUCCESS,
-                                    null,
-                                    isAuthenticated,
-                                    authentication,
-                                    "Successfully authenticated, with entitlements: " + token.getAuthorities());
-                            return token;
-                        }
-                    });
+                    dataAccessor.audit(AuditElements.EventCategoryType.LOGIC,
+                            AuditElements.AUTHENTICATION_CATEGORY,
+                            null,
+                            AuditElements.LOGIN_EVENT,
+                            Result.SUCCESS,
+                            null,
+                            isAuthenticated,
+                            authentication,
+                            "Successfully authenticated, with entitlements: " + token.getAuthorities());
+                    return token;
+                }
+            });
 
             LOG.debug("User {} successfully authenticated, with entitlements {}",
                     authentication.getPrincipal(), token.getAuthorities());
@@ -181,8 +180,7 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
 
                 @Override
                 public Void exec() {
-                    dataAccessor.audit(
-                            AuditElements.EventCategoryType.REST,
+                    dataAccessor.audit(AuditElements.EventCategoryType.LOGIC,
                             AuditElements.AUTHENTICATION_CATEGORY,
                             null,
                             AuditElements.LOGIN_EVENT,

@@ -21,7 +21,7 @@ package org.apache.syncope.core.persistence.api.entity;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import java.util.List;
 
-public interface Any<P extends PlainAttr<?>> extends AnnotatedEntity<Long> {
+public interface Any<P extends PlainAttr<?>> extends AnnotatedEntity {
 
     AnyType getType();
 
@@ -41,13 +41,15 @@ public interface Any<P extends PlainAttr<?>> extends AnnotatedEntity<Long> {
 
     boolean add(P attr);
 
+    boolean remove(P attr);
+
     P getPlainAttr(String plainSchemaName);
 
     List<? extends P> getPlainAttrs();
 
     boolean add(ExternalResource resource);
 
-    List<String> getResourceNames();
+    List<String> getResourceKeys();
 
     List<? extends ExternalResource> getResources();
 

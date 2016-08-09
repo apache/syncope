@@ -44,7 +44,6 @@ public final class CommandUtils {
         }
 
         return commandClass.newInstance();
-
     }
 
     public static List<AbstractCommand> commands()
@@ -55,13 +54,11 @@ public final class CommandUtils {
         final CommandClassScanner ccs = new CommandClassScanner();
         final List<Class<? extends AbstractCommand>> commands = ccs.getComponentClasses();
 
-        Class<? extends AbstractCommand> commandClass;
         for (final Class<? extends AbstractCommand> cmd : commands) {
-            commandClass = cmd;
-            if (commandClass == null) {
+            if (cmd == null) {
                 throw new IllegalArgumentException();
             }
-            listCommands.add(commandClass.newInstance());
+            listCommands.add(cmd.newInstance());
         }
 
         return listCommands;
@@ -71,7 +68,6 @@ public final class CommandUtils {
         final String[] types = new String[enumClass.getFields().length];
         for (int i = 0; i < enumClass.getFields().length; i++) {
             types[i] = enumClass.getFields()[i].getName();
-
         }
         return types;
     }

@@ -20,9 +20,9 @@ package org.apache.syncope.client.console.wicket.markup.html.form;
 
 import java.util.Date;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.datetime.markup.html.form.DateTextField;
 import org.apache.wicket.extensions.yui.calendar.DatePicker;
 import org.apache.wicket.model.IModel;
@@ -39,7 +39,7 @@ public class DateTextFieldPanel extends DateFieldPanel {
         field = DateTextField.forDatePattern("field", model, datePattern);
 
         if (!isReadOnly()) {
-            field.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+            field.add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
                 private static final long serialVersionUID = -1107858522700306810L;
 
@@ -71,7 +71,7 @@ public class DateTextFieldPanel extends DateFieldPanel {
             @Override
             public void afterRender(final Component component) {
                 Response response = component.getResponse();
-                response.write("\n<span class=\"yui-skin-sam\">&nbsp;<span style=\"");
+                response.write("\n<span class=\"yui-skin-sam\"><span style=\"");
 
                 if (renderOnLoad()) {
                     response.write("display:block;");
@@ -98,7 +98,7 @@ public class DateTextFieldPanel extends DateFieldPanel {
 
     @Override
     public FieldPanel<Date> clone() {
-        final FieldPanel<Date> panel = new DateTextFieldPanel(getId(), name, new Model<Date>(), datePattern);
+        final FieldPanel<Date> panel = new DateTextFieldPanel(getId(), name, new Model<Date>(), fmt.getPattern());
         panel.setRequired(isRequired());
         panel.setReadOnly(isReadOnly());
         panel.setTitle(title);

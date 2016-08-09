@@ -28,7 +28,7 @@ public final class JasyptUtils {
 
     private static JasyptUtils JASYPT_UTILS = null;
 
-    public static JasyptUtils getJasyptUtils() {
+    public static JasyptUtils get() {
         if (JASYPT_UTILS == null) {
             JASYPT_UTILS = new JasyptUtils();
         }

@@ -50,7 +50,6 @@ import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.ConnectorFactory;
 import org.apache.syncope.core.provisioning.api.data.ResourceDataBinder;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
-import org.apache.syncope.core.provisioning.java.MappingManagerImpl;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
@@ -62,6 +61,7 @@ import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.provisioning.api.MappingManager;
+import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
@@ -114,12 +114,12 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
     public ResourceTO create(final ResourceTO resourceTO) {
         if (StringUtils.isBlank(resourceTO.getKey())) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
-            sce.getElements().add("Resource name");
+            sce.getElements().add("Resource key");
             throw sce;
         }
 
         if (resourceDAO.find(resourceTO.getKey()) != null) {
-            throw new DuplicateException("Resource '" + resourceTO.getKey() + "'");
+            throw new DuplicateException(resourceTO.getKey());
         }
 
         ExternalResource resource = null;
@@ -155,6 +155,53 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         }
 
         return binder.getResourceTO(resource);
+    }
+
+    @PreAuthorize("hasRole('" + StandardEntitlement.RESOURCE_UPDATE + "')")
+    public void setLatestSyncToken(final String key, final String anyTypeKey) {
+        ExternalResource resource = resourceDAO.find(key);
+        if (resource == null) {
+            throw new NotFoundException("Resource '" + key + "'");
+        }
+        AnyType anyType = anyTypeDAO.find(anyTypeKey);
+        if (anyType == null) {
+            throw new NotFoundException("AnyType '" + anyTypeKey + "'");
+        }
+        Provision provision = resource.getProvision(anyType);
+        if (provision == null) {
+            throw new NotFoundException("Provision for AnyType '" + anyTypeKey + "' in Resource '" + key + "'");
+        }
+
+        Connector connector;
+        try {
+            connector = connFactory.getConnector(resource);
+        } catch (Exception e) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidConnInstance);
+            sce.getElements().add(e.getMessage());
+            throw sce;
+        }
+
+        provision.setSyncToken(connector.getLatestSyncToken(provision.getObjectClass()));
+        resourceDAO.save(resource);
+    }
+
+    @PreAuthorize("hasRole('" + StandardEntitlement.RESOURCE_UPDATE + "')")
+    public void removeSyncToken(final String key, final String anyTypeKey) {
+        ExternalResource resource = resourceDAO.find(key);
+        if (resource == null) {
+            throw new NotFoundException("Resource '" + key + "'");
+        }
+        AnyType anyType = anyTypeDAO.find(anyTypeKey);
+        if (anyType == null) {
+            throw new NotFoundException("AnyType '" + anyTypeKey + "'");
+        }
+        Provision provision = resource.getProvision(anyType);
+        if (provision == null) {
+            throw new NotFoundException("Provision for AnyType '" + anyTypeKey + "' in Resource '" + key + "'");
+        }
+
+        provision.setSyncToken(null);
+        resourceDAO.save(resource);
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.RESOURCE_DELETE + "')")
@@ -215,7 +262,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
     @PreAuthorize("hasRole('" + StandardEntitlement.RESOURCE_GET_CONNOBJECT + "')")
     @Transactional(readOnly = true)
-    public ConnObjectTO readConnObject(final String key, final String anyTypeKey, final Long anyKey) {
+    public ConnObjectTO readConnObject(final String key, final String anyTypeKey, final String anyKey) {
         Triple<ExternalResource, AnyType, Provision> init = connObjectInit(key, anyTypeKey);
 
         // 1. find any
@@ -229,7 +276,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         }
 
         // 2. build connObjectKeyItem
-        MappingItem connObjectKeyItem = MappingManagerImpl.getConnObjectKeyItem(init.getRight());
+        MappingItem connObjectKeyItem = MappingUtils.getConnObjectKeyItem(init.getRight());
         if (connObjectKeyItem == null) {
             throw new NotFoundException(
                     "ConnObjectKey mapping for " + init.getMiddle() + " " + anyKey + " on resource '" + key + "'");
@@ -249,7 +296,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         Connector connector = connFactory.getConnector(init.getLeft());
         ConnectorObject connectorObject = connector.getObject(init.getRight().getObjectClass(),
                 new Uid(connObjectKeyValue),
-                MappingManagerImpl.buildOperationOptions(mapItems));
+                MappingUtils.buildOperationOptions(mapItems));
         if (connectorObject == null) {
             throw new NotFoundException(
                     "Object " + connObjectKeyValue + " with class " + init.getRight().getObjectClass()
@@ -271,7 +318,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
     @PreAuthorize("hasRole('" + StandardEntitlement.RESOURCE_LIST_CONNOBJECT + "')")
     @Transactional(readOnly = true)
     public Pair<SearchResult, List<ConnObjectTO>> listConnObjects(final String key, final String anyTypeKey,
-            final Integer size, final String pagedResultsCookie, final List<OrderByClause> orderBy) {
+            final int size, final String pagedResultsCookie, final List<OrderByClause> orderBy) {
 
         Triple<ExternalResource, AnyType, Provision> init = connObjectInit(key, anyTypeKey);
 
@@ -287,7 +334,10 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
         final SearchResult[] searchResult = new SearchResult[1];
         final List<ConnObjectTO> connObjects = new ArrayList<>();
+
         connector.search(init.getRight().getObjectClass(), null, new SearchResultsHandler() {
+
+            private int count = 0;
 
             @Override
             public void handleResult(final SearchResult result) {
@@ -297,7 +347,9 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
             @Override
             public boolean handle(final ConnectorObject connectorObject) {
                 connObjects.add(connObjectUtils.getConnObjectTO(connectorObject));
-                return true;
+                // safety protection against uncontrolled result size
+                count++;
+                return count < size;
             }
         }, size, pagedResultsCookie, orderBy, mapItems);
 

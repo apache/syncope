@@ -52,7 +52,7 @@ public interface ConnectorService extends JAXRSService {
      */
     @GET
     @Path("bundles")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     List<ConnBundleTO> getBundles(@QueryParam("lang") String lang);
 
     /**
@@ -67,8 +67,8 @@ public interface ConnectorService extends JAXRSService {
      */
     @POST
     @Path("{key}/supportedObjectClasses")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     List<ConnIdObjectClassTO> buildObjectClassInfo(
             @NotNull ConnInstanceTO connInstanceTO,
             @QueryParam("includeSpecial") @DefaultValue("false") boolean includeSpecial);
@@ -83,8 +83,8 @@ public interface ConnectorService extends JAXRSService {
      */
     @GET
     @Path("{key}")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    ConnInstanceTO read(@NotNull @PathParam("key") Long key, @QueryParam("lang") String lang);
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    ConnInstanceTO read(@NotNull @PathParam("key") String key, @QueryParam("lang") String lang);
 
     /**
      * Returns connector instance for matching resource.
@@ -96,7 +96,7 @@ public interface ConnectorService extends JAXRSService {
      */
     @GET
     @Path("byResource/{resourceName}")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     ConnInstanceTO readByResource(
             @NotNull @PathParam("resourceName") String resourceName, @QueryParam("lang") String lang);
 
@@ -108,7 +108,7 @@ public interface ConnectorService extends JAXRSService {
      * @return list of all connector instances with property keys in the matching language
      */
     @GET
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     List<ConnInstanceTO> list(@QueryParam("lang") String lang);
 
     /**
@@ -118,7 +118,7 @@ public interface ConnectorService extends JAXRSService {
      * @return Response object featuring Location header of created connector instance
      */
     @POST
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response create(@NotNull ConnInstanceTO connInstanceTO);
 
     /**
@@ -128,7 +128,7 @@ public interface ConnectorService extends JAXRSService {
      */
     @PUT
     @Path("{key}")
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     void update(@NotNull ConnInstanceTO connInstanceTO);
 
     /**
@@ -138,7 +138,7 @@ public interface ConnectorService extends JAXRSService {
      */
     @DELETE
     @Path("{key}")
-    void delete(@NotNull @PathParam("key") Long key);
+    void delete(@NotNull @PathParam("key") String key);
 
     /**
      * Checks whether the connection to resource could be established.
@@ -147,7 +147,7 @@ public interface ConnectorService extends JAXRSService {
      */
     @POST
     @Path("check")
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     void check(@NotNull ConnInstanceTO connInstanceTO);
 
     /**
@@ -165,7 +165,7 @@ public interface ConnectorService extends JAXRSService {
      */
     @POST
     @Path("bulk")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     BulkActionResult bulk(@NotNull BulkAction bulkAction);
 }

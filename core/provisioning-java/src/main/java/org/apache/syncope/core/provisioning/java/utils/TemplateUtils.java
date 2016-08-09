@@ -20,6 +20,7 @@ package org.apache.syncope.core.provisioning.java.utils;
 
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -56,7 +57,7 @@ public class TemplateUtils {
 
         if (template.getValues() != null && !template.getValues().isEmpty()) {
             for (String value : template.getValues()) {
-                String evaluated = JexlUtils.evaluate(value, anyTO);
+                String evaluated = JexlUtils.evaluate(value, anyTO, new MapContext());
                 if (StringUtils.isNotBlank(evaluated)) {
                     result.getValues().add(evaluated);
                 }
@@ -68,7 +69,10 @@ public class TemplateUtils {
 
     private void fill(final AnyTO anyTO, final AnyTO template) {
         if (template.getRealm() != null) {
-            anyTO.setRealm(template.getRealm());
+            String evaluated = JexlUtils.evaluate(template.getRealm(), anyTO, new MapContext());
+            if (StringUtils.isNotBlank(evaluated)) {
+                anyTO.setRealm(evaluated);
+            }
         }
 
         Map<String, AttrTO> currentAttrMap = anyTO.getPlainAttrMap();
@@ -98,14 +102,12 @@ public class TemplateUtils {
             }
         }
 
-        for (String resource : template.getResources()) {
-            anyTO.getResources().add(resource);
-        }
+        anyTO.getResources().addAll(template.getResources());
 
         anyTO.getAuxClasses().addAll(template.getAuxClasses());
     }
 
-    private void fillRelationships(final Map<Pair<String, Long>, RelationshipTO> anyRelMap,
+    private void fillRelationships(final Map<Pair<String, String>, RelationshipTO> anyRelMap,
             final List<RelationshipTO> anyRels, final List<RelationshipTO> templateRels) {
 
         for (RelationshipTO memb : templateRels) {
@@ -115,7 +117,7 @@ public class TemplateUtils {
         }
     }
 
-    private void fillMemberships(final Map<Long, MembershipTO> anyMembMap,
+    private void fillMemberships(final Map<String, MembershipTO> anyMembMap,
             final List<MembershipTO> anyMembs, final List<MembershipTO> templateMembs) {
 
         for (MembershipTO memb : templateMembs) {
@@ -138,14 +140,14 @@ public class TemplateUtils {
                         ((AnyObjectTO) anyTO).getMemberships(), ((AnyObjectTO) template).getMemberships());
             } else if (template instanceof UserTO) {
                 if (StringUtils.isNotBlank(((UserTO) template).getUsername())) {
-                    String evaluated = JexlUtils.evaluate(((UserTO) template).getUsername(), anyTO);
+                    String evaluated = JexlUtils.evaluate(((UserTO) template).getUsername(), anyTO, new MapContext());
                     if (StringUtils.isNotBlank(evaluated)) {
                         ((UserTO) anyTO).setUsername(evaluated);
                     }
                 }
 
                 if (StringUtils.isNotBlank(((UserTO) template).getPassword())) {
-                    String evaluated = JexlUtils.evaluate(((UserTO) template).getPassword(), anyTO);
+                    String evaluated = JexlUtils.evaluate(((UserTO) template).getPassword(), anyTO, new MapContext());
                     if (StringUtils.isNotBlank(evaluated)) {
                         ((UserTO) anyTO).setPassword(evaluated);
                     }
@@ -157,7 +159,7 @@ public class TemplateUtils {
                         ((UserTO) anyTO).getMemberships(), ((UserTO) template).getMemberships());
             } else if (template instanceof GroupTO) {
                 if (StringUtils.isNotBlank(((GroupTO) template).getName())) {
-                    String evaluated = JexlUtils.evaluate(((GroupTO) template).getName(), anyTO);
+                    String evaluated = JexlUtils.evaluate(((GroupTO) template).getName(), anyTO, new MapContext());
                     if (StringUtils.isNotBlank(evaluated)) {
                         ((GroupTO) anyTO).setName(evaluated);
                     }

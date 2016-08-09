@@ -52,7 +52,7 @@ public class ConnInstanceTest extends AbstractTest {
 
     @Test
     public void findById() {
-        ConnInstance connectorInstance = connInstanceDAO.find(100L);
+        ConnInstance connectorInstance = connInstanceDAO.find("88a7a819-dab5-46b4-9b90-0b9769eabdb8");
 
         assertNotNull("findById did not work", connectorInstance);
 
@@ -82,7 +82,7 @@ public class ConnInstanceTest extends AbstractTest {
         connInstance.setConnRequestTimeout(60);
 
         // set the connector configuration using PropertyTO
-        Set<ConnConfProperty> conf = new HashSet<ConnConfProperty>();
+        Set<ConnConfProperty> conf = new HashSet<>();
 
         ConnConfPropSchema endpointSchema = new ConnConfPropSchema();
         endpointSchema.setName("endpoint");
@@ -112,8 +112,6 @@ public class ConnInstanceTest extends AbstractTest {
 
         assertNotNull("save did not work", actual.getKey());
 
-        assertTrue("save did not work", actual.getKey() > 100L);
-
         assertEquals("save did not work for \"name\" attribute", "WebService", actual.getConnectorName());
 
         assertEquals("save did not work for \"bundle name\" attribute", "org.apache.syncope.core.persistence.test.util",
@@ -134,12 +132,12 @@ public class ConnInstanceTest extends AbstractTest {
 
     @Test
     public void delete() {
-        ConnInstance connectorInstance = connInstanceDAO.find(100L);
+        ConnInstance connectorInstance = connInstanceDAO.find("88a7a819-dab5-46b4-9b90-0b9769eabdb8");
         assertNotNull("find to delete did not work", connectorInstance);
 
         connInstanceDAO.delete(connectorInstance.getKey());
 
-        ConnInstance actual = connInstanceDAO.find(100L);
+        ConnInstance actual = connInstanceDAO.find("88a7a819-dab5-46b4-9b90-0b9769eabdb8");
         assertNull("delete did not work", actual);
     }
 }

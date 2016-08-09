@@ -17,7 +17,12 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<processing>
+<izpack:processing version="5.0" 
+                   xmlns:izpack="http://izpack.org/schema/processing"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://izpack.org/schema/processing
+                                       http://izpack.org/schema/5.0/izpack-processing-5.0.xsd">
+
   <logfiledir>$INSTALL_PATH</logfiledir>
   <job name="Archetype creation...">
     <executeclass name="org.apache.syncope.installer.processes.ArchetypeProcess">
@@ -92,4 +97,4 @@ under the License.
   </job>
   <onFail previous="true" next="false" />
   <onSuccess previous="false" next="true" />
-</processing>
+</izpack:processing>

@@ -45,7 +45,7 @@ public class TaskExecTest extends AbstractTest {
 
     @Test
     public void findAll() {
-        PropagationTask task = taskDAO.find(1L);
+        PropagationTask task = taskDAO.find("1e697572-b896-484c-ae7f-0c8f63fcbc6c");
         assertNotNull(task);
 
         Calendar calendar = Calendar.getInstance();
@@ -59,17 +59,17 @@ public class TaskExecTest extends AbstractTest {
 
     @Test
     public void findLatestStarted() {
-        PropagationTask task = taskDAO.find(1L);
+        PropagationTask task = taskDAO.find("1e697572-b896-484c-ae7f-0c8f63fcbc6c");
         assertNotNull(task);
 
         TaskExec latestStarted = taskExecDAO.findLatestStarted(task);
         assertNotNull(latestStarted);
-        assertEquals(Long.valueOf(1L), latestStarted.getKey());
+        assertEquals("e58ca1c7-178a-4012-8a71-8aa14eaf0655", latestStarted.getKey());
     }
 
     @Test
     public void issueSYNCOPE214() {
-        PropagationTask task = taskDAO.find(1L);
+        PropagationTask task = taskDAO.find("1e697572-b896-484c-ae7f-0c8f63fcbc6c");
         assertNotNull(task);
 
         String faultyMessage = "A faulty message";

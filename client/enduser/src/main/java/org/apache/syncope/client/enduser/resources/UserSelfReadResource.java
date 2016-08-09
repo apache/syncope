@@ -19,26 +19,24 @@
 package org.apache.syncope.client.enduser.resources;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
+import org.apache.commons.lang3.SerializationUtils;
+import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
+import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.to.MembershipTO;
+import org.apache.syncope.common.lib.to.PlainSchemaTO;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.request.resource.IResource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class UserSelfReadResource extends AbstractBaseResource {
 
     private static final long serialVersionUID = -9184809392631523912L;
-
-    /**
-     * Logger.
-     */
-    private static final Logger LOG = LoggerFactory.getLogger(UserSelfReadResource.class);
-
-    public UserSelfReadResource() {
-    
-    }
 
     @Override
     protected ResourceResponse newResourceResponse(final IResource.Attributes attributes) {
@@ -55,8 +53,43 @@ public class UserSelfReadResource extends AbstractBaseResource {
                 return response;
             }
 
-            final String selfTOJson = MAPPER.writeValueAsString(SyncopeEnduserSession.get().getSelfTO());
+            UserTO userTO = SerializationUtils.clone(SyncopeEnduserSession.get().getSelfTO());
+            Map<String, AttrTO> userPlainAttrMap = userTO.getPlainAttrMap();
 
+            for (PlainSchemaTO plainSchema : SyncopeEnduserSession.get().getDatePlainSchemas()) {
+                if (userPlainAttrMap.containsKey(plainSchema.getKey())) {
+                    FastDateFormat fmt = FastDateFormat.getInstance(plainSchema.getConversionPattern());
+
+                    AttrTO dateAttr = userPlainAttrMap.get(plainSchema.getKey());
+                    List<String> milliValues = new ArrayList<>(dateAttr.getValues().size());
+                    for (String value : dateAttr.getValues()) {
+                        milliValues.add(String.valueOf(fmt.parse(value).getTime()));
+                    }
+                    dateAttr.getValues().clear();
+                    dateAttr.getValues().addAll(milliValues);
+                }
+            }
+
+            for (MembershipTO membership : userTO.getMemberships()) {
+                String groupName = membership.getGroupName();
+                for (AttrTO attr : membership.getPlainAttrs()) {
+                    attr.setSchema(groupName.concat("#").concat(attr.getSchema()));
+                    userTO.getPlainAttrs().add(attr);
+                }
+                membership.getPlainAttrs().clear();
+                for (AttrTO attr : membership.getDerAttrs()) {
+                    attr.setSchema(groupName.concat("#").concat(attr.getSchema()));
+                    userTO.getDerAttrs().add(attr);
+                }
+                membership.getDerAttrs().clear();
+                for (AttrTO attr : membership.getVirAttrs()) {
+                    attr.setSchema(groupName.concat("#").concat(attr.getSchema()));
+                    userTO.getVirAttrs().add(attr);
+                }
+                membership.getVirAttrs().clear();
+            }
+
+            final String selfTOJson = MAPPER.writeValueAsString(userTO);
             response.setWriteCallback(new WriteCallback() {
 
                 @Override

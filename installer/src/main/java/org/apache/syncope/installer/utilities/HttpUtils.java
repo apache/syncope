@@ -21,6 +21,7 @@ package org.apache.syncope.installer.utilities;
 import com.izforge.izpack.panels.process.AbstractUIProcessHandler;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
@@ -98,17 +99,18 @@ public class HttpUtils {
             httpGet = new HttpGet(String.format(HTTP_URL_TEMPLATE, host, port) + path);
         }
         int status = 0;
+        handler.logOutput("Calling " + httpGet.getURI(), true);
+        InstallLog.getInstance().info("Calling " + httpGet.getURI());
         try {
-            handler.logOutput("Calling " + httpGet.getURI(), true);
-            InstallLog.getInstance().info("Calling " + httpGet.getURI());
-            final CloseableHttpResponse response = httpClient.execute(
-                    targetHost, httpGet, setAuth(targetHost, new BasicScheme()));
-            status = response.getStatusLine().getStatusCode();
-            handler.logOutput("Calling status " + status, true);
-            InstallLog.getInstance().info("Calling status " + status);
-            response.close();
-        } catch (final IOException ex) {
-            final String messageError = "Error in " + path + ": " + ex.getMessage();
+            try (CloseableHttpResponse response = httpClient.execute(
+                    targetHost, httpGet, setAuth(targetHost, new BasicScheme()))) {
+
+                status = response.getStatusLine().getStatusCode();
+                handler.logOutput("Calling status " + status, true);
+                InstallLog.getInstance().info("Calling status " + status);
+            }
+        } catch (IOException e) {
+            String messageError = "Error in " + path + ": " + e.getMessage();
             handler.emitError(messageError, messageError);
             InstallLog.getInstance().error(messageError);
         }
@@ -117,16 +119,15 @@ public class HttpUtils {
 
     public String postWithDigestAuth(final String url, final String file) {
         String responseBodyAsString = "";
-        try {
-            final CloseableHttpResponse response = httpClient.execute(targetHost,
-                    httpPost(url, MultipartEntityBuilder.create().addPart("bin", new FileBody(new File(file))).build()),
-                    setAuth(targetHost, new DigestScheme()));
-            responseBodyAsString = IOUtils.toString(response.getEntity().getContent());
+        try (CloseableHttpResponse response =
+                httpClient.execute(targetHost, httpPost(url, MultipartEntityBuilder.create().
+                        addPart("bin", new FileBody(new File(file))).build()),
+                        setAuth(targetHost, new DigestScheme()))) {
+            responseBodyAsString = IOUtils.toString(response.getEntity().getContent(), Charset.forName("UTF-8"));
             handler.logOutput("Http status: " + response.getStatusLine().getStatusCode(), true);
             InstallLog.getInstance().info("Http status: " + response.getStatusLine().getStatusCode());
-            response.close();
-        } catch (final IOException ex) {
-            final String messageError = "Error calling " + url + ": " + ex.getMessage();
+        } catch (IOException e) {
+            final String messageError = "Error calling " + url + ": " + e.getMessage();
             handler.emitError(messageError, messageError);
             InstallLog.getInstance().error(messageError);
         }

@@ -36,7 +36,7 @@ public class UserPatch extends AnyPatch {
 
     private PasswordPatch password;
 
-    private LongReplacePatchItem securityQuestion;
+    private StringReplacePatchItem securityQuestion;
 
     private StringReplacePatchItem securityAnswer;
 
@@ -64,11 +64,11 @@ public class UserPatch extends AnyPatch {
         this.password = password;
     }
 
-    public LongReplacePatchItem getSecurityQuestion() {
+    public StringReplacePatchItem getSecurityQuestion() {
         return securityQuestion;
     }
 
-    public void setSecurityQuestion(final LongReplacePatchItem securityQuestion) {
+    public void setSecurityQuestion(final StringReplacePatchItem securityQuestion) {
         this.securityQuestion = securityQuestion;
     }
 

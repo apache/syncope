@@ -25,7 +25,7 @@ import org.apache.syncope.common.lib.AbstractBaseBean;
 
 @XmlRootElement(name = "reportTemplate")
 @XmlType
-public class ReportTemplateTO extends AbstractBaseBean implements EntityTO<String> {
+public class ReportTemplateTO extends AbstractBaseBean implements EntityTO {
 
     private static final long serialVersionUID = 7776679004906244896L;
 

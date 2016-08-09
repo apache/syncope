@@ -134,6 +134,10 @@ under the License.
       <groupId>org.webjars</groupId>
       <artifactId>jquery-ui</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.webjars</groupId>
+      <artifactId>jQuery-slimScroll</artifactId>
+    </dependency>
     
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
@@ -153,6 +157,16 @@ under the License.
       <resource>
         <directory>src/main/resources</directory>
         <filtering>true</filtering>
+        <excludes>
+          <exclude>org/apache/syncope/**/*.properties</exclude>
+        </excludes>
+      </resource>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>false</filtering>
+        <includes>
+          <include>org/apache/syncope/**/*.properties</include>
+        </includes>
       </resource>
       
       <resource>

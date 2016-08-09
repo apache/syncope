@@ -46,9 +46,10 @@ import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.IntMappingType;
+import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
+import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.NotificationService;
 import org.apache.syncope.core.logic.notification.NotificationJob;
 import org.apache.syncope.fit.core.reference.TestNotificationRecipientsProvider;
@@ -139,6 +140,7 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
         String recipient = createNotificationTask(true, true, TraceLevel.ALL, sender, subject);
         NotificationTaskTO taskTO = findNotificationTaskBySender(sender);
         assertNotNull(taskTO);
+        assertNotNull(taskTO.getNotification());
         assertTrue(taskTO.getExecutions().isEmpty());
 
         execNotificationTask(taskService, taskTO.getKey(), 50);
@@ -188,6 +190,7 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
             createNotificationTask(true, true, TraceLevel.ALL, sender, subject);
             NotificationTaskTO taskTO = findNotificationTaskBySender(sender);
             assertNotNull(taskTO);
+            assertNotNull(taskTO.getNotification());
             assertTrue(taskTO.getExecutions().isEmpty());
 
             // 4. verify notification could not be delivered
@@ -214,6 +217,7 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
         createNotificationTask(true, true, TraceLevel.ALL, sender, "Test notification");
         NotificationTaskTO taskTO = findNotificationTaskBySender(sender);
         assertNotNull(taskTO);
+        assertNotNull(taskTO.getNotification());
         assertTrue(taskTO.getExecutions().isEmpty());
 
         // generate an execution in order to verify the deletion of a notification task with one or more executions
@@ -235,6 +239,7 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
         // 2. get NotificationTaskTO for user just created
         NotificationTaskTO taskTO = findNotificationTaskBySender(sender);
         assertNotNull(taskTO);
+        assertNotNull(taskTO.getNotification());
         assertTrue(taskTO.getExecutions().isEmpty());
 
         try {
@@ -259,6 +264,7 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
         String recipient = createNotificationTask(true, true, TraceLevel.NONE, sender, subject);
         NotificationTaskTO taskTO = findNotificationTaskBySender(sender);
         assertNotNull(taskTO);
+        assertNotNull(taskTO.getNotification());
         assertTrue(taskTO.getExecutions().isEmpty());
 
         taskService.execute(new ExecuteQuery.Builder().key(taskTO.getKey()).build());
@@ -286,6 +292,7 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
                 true, true, TraceLevel.ALL, sender, subject, "syncope445@syncope.apache.org");
         NotificationTaskTO taskTO = findNotificationTaskBySender(sender);
         assertNotNull(taskTO);
+        assertNotNull(taskTO.getNotification());
         assertTrue(taskTO.getExecutions().isEmpty());
 
         execNotificationTask(taskService, taskTO.getKey(), 50);
@@ -304,16 +311,16 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
         // 1. Create notification
         NotificationTO notification = new NotificationTO();
         notification.setTraceLevel(TraceLevel.ALL);
-        notification.getEvents().add("[REST]:[GroupLogic]:[]:[create]:[SUCCESS]");
+        notification.getEvents().add("[LOGIC]:[GroupLogic]:[]:[create]:[SUCCESS]");
 
         String groupName = "group" + getUUIDString();
         notification.getAbouts().put(AnyTypeKind.GROUP.name(),
                 SyncopeClient.getGroupSearchConditionBuilder().is("name").equalTo(groupName).query());
 
-        notification.setRecipientsFIQL(SyncopeClient.getUserSearchConditionBuilder().inGroups(8L).query());
+        notification.setRecipientsFIQL(SyncopeClient.getUserSearchConditionBuilder().
+                inGroups("f779c0d4-633b-4be5-8f57-32eb478a3ca5").query());
         notification.setSelfAsRecipient(false);
         notification.setRecipientAttrName("email");
-        notification.setRecipientAttrType(IntMappingType.UserPlainSchema);
         notification.getStaticRecipients().add(MAIL_ADDRESS);
         notification.setRecipientsProviderClassName(TestNotificationRecipientsProvider.class.getName());
 
@@ -333,14 +340,20 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
         GroupTO groupTO = new GroupTO();
         groupTO.setName(groupName);
         groupTO.setRealm("/even/two");
-        groupTO = createGroup(groupTO).getAny();
+        groupTO = createGroup(groupTO).getEntity();
         assertNotNull(groupTO);
 
         // 3. verify
         NotificationTaskTO taskTO = findNotificationTaskBySender(sender);
         assertNotNull(taskTO);
+        assertNotNull(taskTO.getNotification());
         assertTrue(taskTO.getRecipients().containsAll(
                 new TestNotificationRecipientsProvider().provideRecipients(null)));
+
+        NotificationTaskTO foundViaList = taskService.<NotificationTaskTO>list(
+                new TaskQuery.Builder(TaskType.NOTIFICATION).notification(notification.getKey()).build()).
+                getResult().get(0);
+        assertEquals(taskTO, foundViaList);
 
         execNotificationTask(taskService, taskTO.getKey(), 50);
 
@@ -357,23 +370,29 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
         assertNull(findNotificationTaskBySender(sender));
     }
 
-    private String createNotificationTask(final boolean active, final boolean includeAbout, final TraceLevel traceLevel,
-            final String sender, final String subject, final String... staticRecipients) {
+    private String createNotificationTask(
+            final boolean active,
+            final boolean includeAbout,
+            final TraceLevel traceLevel,
+            final String sender,
+            final String subject,
+            final String... staticRecipients) {
 
         // 1. Create notification
         NotificationTO notification = new NotificationTO();
         notification.setTraceLevel(traceLevel);
-        notification.getEvents().add("[REST]:[UserLogic]:[]:[create]:[SUCCESS]");
+        notification.getEvents().add("[LOGIC]:[UserLogic]:[]:[create]:[SUCCESS]");
 
         if (includeAbout) {
             notification.getAbouts().put(AnyTypeKind.USER.name(),
-                    SyncopeClient.getUserSearchConditionBuilder().inGroups(7L).query());
+                    SyncopeClient.getUserSearchConditionBuilder().
+                    inGroups("bf825fe1-7320-4a54-bd64-143b5c18ab97").query());
         }
 
-        notification.setRecipientsFIQL(SyncopeClient.getUserSearchConditionBuilder().inGroups(8L).query());
+        notification.setRecipientsFIQL(SyncopeClient.getUserSearchConditionBuilder().
+                inGroups("f779c0d4-633b-4be5-8f57-32eb478a3ca5").query());
         notification.setSelfAsRecipient(true);
         notification.setRecipientAttrName("email");
-        notification.setRecipientAttrType(IntMappingType.UserPlainSchema);
         if (staticRecipients != null) {
             CollectionUtils.addAll(notification.getStaticRecipients(), staticRecipients);
         }
@@ -389,9 +408,10 @@ public class NotificationTaskITCase extends AbstractTaskITCase {
 
         // 2. create user
         UserTO userTO = UserITCase.getUniqueSampleTO(MAIL_ADDRESS);
-        userTO.getMemberships().add(new MembershipTO.Builder().group(7L).build());
+        userTO.getMemberships().add(
+                new MembershipTO.Builder().group("bf825fe1-7320-4a54-bd64-143b5c18ab97").build());
 
-        userTO = createUser(userTO).getAny();
+        userTO = createUser(userTO).getEntity();
         assertNotNull(userTO);
         return userTO.getUsername();
     }

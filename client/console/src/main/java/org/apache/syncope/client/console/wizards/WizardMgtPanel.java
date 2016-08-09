@@ -19,9 +19,13 @@
 package org.apache.syncope.client.console.wizards;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.panels.ModalPanel;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.NotificationPanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wizards.any.ResultPage;
@@ -30,33 +34,47 @@ import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.event.IEventSource;
+import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.list.ListItem;
+import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.syncope.client.console.panels.WizardModalPanel;
+import org.apache.wicket.markup.html.basic.Label;
 
 public abstract class WizardMgtPanel<T extends Serializable> extends Panel implements IEventSource {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -4152438633429194882L;
+
+    protected static final String WIZARD_ID = "wizard";
+
+    private boolean readOnly = false;
+
+    private final String actualId;
 
     private final WebMarkupContainer container;
 
     private final Fragment initialFragment;
 
-    private final boolean wizardInModal;
+    protected final boolean wizardInModal;
+
+    private boolean containerAutoRefresh = true;
 
     protected PageReference pageRef;
 
     protected final AjaxLink<?> addAjaxLink;
 
-    protected AbstractModalPanelBuilder<T> newItemPanelBuilder;
+    protected final AjaxLink<?> exitAjaxLink;
+
+    protected ModalPanelBuilder<T> newItemPanelBuilder;
 
     protected NotificationPanel notificationPanel;
 
@@ -64,12 +82,11 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
 
     protected boolean showResultPage = false;
 
-    /**
-     * Modal window.
-     */
-    protected final BaseModal<T> modal = new BaseModal<T>("modal") {
+    private final List<Component> outerObjects = new ArrayList<>();
 
-        private static final long serialVersionUID = 1L;
+    protected final BaseModal<T> modal = new BaseModal<T>("outer") {
+
+        private static final long serialVersionUID = 389935548143327858L;
 
         @Override
         protected void onConfigure() {
@@ -79,13 +96,6 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
 
     };
 
-    /**
-     * Modal window.
-     */
-    protected final BaseModal<T> altDefaultModal = new BaseModal<>("alternativeDefaultModal");
-    
-    protected final BaseModal<T> displayAttributeModal = new BaseModal<>("displayAttributeModal");
-
     protected WizardMgtPanel(final String id) {
         this(id, false);
     }
@@ -94,22 +104,21 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
         super(id);
         setOutputMarkupId(true);
 
+        this.actualId = wizardInModal ? BaseModal.CONTENT_ID : WIZARD_ID;
         this.wizardInModal = wizardInModal;
 
-        super.add(modal);
-        super.add(altDefaultModal);
-        super.add(displayAttributeModal);
+        outerObjects.add(modal);
 
         container = new WebMarkupContainer("container");
         container.setOutputMarkupPlaceholderTag(true).setOutputMarkupId(true);
-        super.add(container);
+        add(container);
 
         initialFragment = new Fragment("content", "default", this);
         container.addOrReplace(initialFragment);
 
         addAjaxLink = new AjaxLink<T>("add") {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = -7978723352517770644L;
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
@@ -120,21 +129,67 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
         addAjaxLink.setEnabled(false);
         addAjaxLink.setVisible(false);
         initialFragment.addOrReplace(addAjaxLink);
+
+        exitAjaxLink = new AjaxLink<T>("exit") {
+
+            private static final long serialVersionUID = -7978723352517770644L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+                send(WizardMgtPanel.this, Broadcast.EXACT, new ExitEvent(target));
+            }
+        };
+
+        exitAjaxLink.setEnabled(false);
+        exitAjaxLink.setVisible(false);
+        initialFragment.addOrReplace(exitAjaxLink);
+
+        add(new ListView<Component>("outerObjectsRepeater", outerObjects) {
+
+            private static final long serialVersionUID = -9180479401817023838L;
+
+            @Override
+            protected void populateItem(final ListItem<Component> item) {
+                item.add(item.getModelObject());
+            }
+
+        });
+    }
+
+    public String getActualId() {
+        return actualId;
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public void onEvent(final IEvent<?> event) {
-        if (event.getPayload() instanceof AjaxWizard.NewItemEvent) {
+        if (event.getPayload() instanceof ExitEvent && modal != null) {
+            final AjaxRequestTarget target = ExitEvent.class.cast(event.getPayload()).getTarget();
+            // default behaviour: change it catching the event if needed
+            modal.close(target);
+        } else if (event.getPayload() instanceof AjaxWizard.NewItemEvent) {
             final AjaxWizard.NewItemEvent<T> newItemEvent = AjaxWizard.NewItemEvent.class.cast(event.getPayload());
             final AjaxRequestTarget target = newItemEvent.getTarget();
             final T item = newItemEvent.getItem();
 
-            if (event.getPayload() instanceof AjaxWizard.NewItemActionEvent && newItemPanelBuilder != null) {
-                newItemPanelBuilder.setItem(item);
+            final boolean modalPanelAvailable = newItemEvent.getModalPanel() != null || newItemPanelBuilder != null;
 
-                final ModalPanel<T> modalPanel = newItemPanelBuilder.build(
-                        ((AjaxWizard.NewItemActionEvent<T>) newItemEvent).getIndex(), item != null);
+            if (event.getPayload() instanceof AjaxWizard.NewItemActionEvent && modalPanelAvailable) {
+                final WizardModalPanel<?> modalPanel;
+                if (newItemEvent.getModalPanel() == null) {
+                    newItemPanelBuilder.setItem(item);
+
+                    modalPanel = newItemPanelBuilder.build(
+                            actualId,
+                            ((AjaxWizard.NewItemActionEvent<T>) newItemEvent).getIndex(),
+                            item != null
+                                    ? isReadOnly()
+                                            ? AjaxWizard.Mode.READONLY
+                                            : AjaxWizard.Mode.EDIT
+                                    : AjaxWizard.Mode.CREATE);
+                } else {
+                    modalPanel = newItemEvent.getModalPanel();
+                }
 
                 if (wizardInModal) {
                     final IModel<T> model = new CompoundPropertyModel<>(item);
@@ -149,19 +204,23 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
                     modal.show(true);
                 } else {
                     final Fragment fragment = new Fragment("content", "wizard", WizardMgtPanel.this);
+
+                    fragment.add(new Label("title", newItemEvent.getResourceModel() == null
+                            ? Model.of(StringUtils.EMPTY) : newItemEvent.getResourceModel()));
+
                     fragment.add(Component.class.cast(modalPanel));
                     container.addOrReplace(fragment);
                 }
             } else if (event.getPayload() instanceof AjaxWizard.NewItemCancelEvent) {
                 if (wizardInModal) {
-                    modal.show(false);
                     modal.close(target);
                 } else {
                     container.addOrReplace(initialFragment);
                 }
+                customActionOnCancelCallback(target);
             } else if (event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
-                info(getString(Constants.OPERATION_SUCCEEDED));
-                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
 
                 if (wizardInModal && showResultPage) {
                     modal.setContent(new ResultPage<T>(
@@ -172,28 +231,33 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
 
                         @Override
                         protected void closeAction(final AjaxRequestTarget target) {
-                            modal.show(false);
                             modal.close(target);
                         }
 
                         @Override
-                        protected Panel customResultBody(
-                                final String id, final T item, final Serializable result) {
+                        protected Panel customResultBody(final String id, final T item, final Serializable result) {
                             return WizardMgtPanel.this.customResultBody(id, item, result);
                         }
                     });
                     target.add(modal.getForm());
                 } else if (wizardInModal) {
-                    modal.show(false);
                     modal.close(target);
                 } else {
                     container.addOrReplace(initialFragment);
                 }
+                customActionOnFinishCallback(target);
             }
 
-            target.add(container);
+            if (containerAutoRefresh) {
+                target.add(container);
+            }
         }
         super.onEvent(event);
+    }
+
+    protected final WizardMgtPanel<T> disableContainerAutoRefresh() {
+        containerAutoRefresh = false;
+        return this;
     }
 
     /*
@@ -207,45 +271,105 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
         };
     }
 
-    @Override
-    public Component add(final Behavior... behaviors) {
-        return super.add(behaviors);
+    /**
+     * Show exit butto sending ExitEvent paylad.
+     *
+     * @return the current instance.
+     */
+    protected final WizardMgtPanel<T> enableExitButton() {
+        exitAjaxLink.setEnabled(true);
+        exitAjaxLink.setVisible(true);
+        return this;
     }
 
-    public final MarkupContainer addInnerObject(final Component childs) {
+    /**
+     * Add object inside the main container.
+     *
+     * @param childs components to be added.
+     * @return the current panel instance.
+     */
+    public MarkupContainer addInnerObject(final Component... childs) {
         return initialFragment.add(childs);
     }
 
-    public <B extends AbstractModalPanelBuilder<T>> WizardMgtPanel<T> setPageRef(final PageReference pageRef) {
+    /**
+     * Add object outside the main container.
+     * Use this method just to be not influenced by specific inner object css'.
+     * Be sure to provide <tt>outer</tt> as id.
+     *
+     * @param childs components to be added.
+     * @return the current panel instance.
+     */
+    public final WizardMgtPanel<T> addOuterObject(final Component... childs) {
+        outerObjects.addAll(Arrays.asList(childs));
+        return this;
+    }
+
+    public <B extends ModalPanelBuilder<T>> WizardMgtPanel<T> setPageRef(final PageReference pageRef) {
         this.pageRef = pageRef;
         return this;
     }
 
-    public <B extends AbstractModalPanelBuilder<T>> WizardMgtPanel<T> setShowResultPage(final boolean showResultPage) {
+    public <B extends ModalPanelBuilder<T>> WizardMgtPanel<T> setShowResultPage(final boolean showResultPage) {
         this.showResultPage = showResultPage;
         return this;
     }
 
-    protected <B extends AbstractModalPanelBuilder<T>> WizardMgtPanel<T> addNewItemPanelBuilder(
+    protected <B extends ModalPanelBuilder<T>> WizardMgtPanel<T> addNewItemPanelBuilder(
             final B panelBuilder, final boolean newItemDefaultButtonEnabled) {
+
         this.newItemPanelBuilder = panelBuilder;
 
         if (this.newItemPanelBuilder != null) {
             addAjaxLink.setEnabled(newItemDefaultButtonEnabled);
             addAjaxLink.setVisible(newItemDefaultButtonEnabled);
+            this.newItemPanelBuilder.setEventSink(WizardMgtPanel.this);
         }
 
         return this;
     }
 
     protected WizardMgtPanel<T> addNotificationPanel(final NotificationPanel notificationPanel) {
-        this.notificationPanel = SyncopeConsoleSession.get().getNotificationPanel();
+        this.notificationPanel = ((BasePage) pageRef.getPage()).getNotificationPanel();
         return this;
     }
 
     public WizardMgtPanel<T> setFooterVisibility(final boolean footerVisibility) {
         this.footerVisibility = footerVisibility;
         return this;
+    }
+
+    /**
+     * Set window close callback for the given modal.
+     *
+     * @param modal target modal.
+     */
+    protected void setWindowClosedReloadCallback(final BaseModal<?> modal) {
+        modal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+
+            private static final long serialVersionUID = 8804221891699487139L;
+
+            @Override
+            public void onClose(final AjaxRequestTarget target) {
+                modal.show(false);
+            }
+        });
+    }
+
+    /**
+     * Custom action to perform on close callback on finish event.
+     *
+     * @param target Ajax request target.
+     */
+    protected void customActionOnFinishCallback(final AjaxRequestTarget target) {
+    }
+
+    /**
+     * Custom action to perform on close callback on cancel event.
+     *
+     * @param target Ajax request target.
+     */
+    protected void customActionOnCancelCallback(final AjaxRequestTarget target) {
     }
 
     /**
@@ -259,7 +383,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
 
         protected final PageReference pageRef;
 
-        private AbstractModalPanelBuilder<T> newItemPanelBuilder;
+        private ModalPanelBuilder<T> newItemPanelBuilder;
 
         private boolean newItemDefaultButtonEnabled = true;
 
@@ -267,11 +391,13 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
 
         private boolean showResultPage = false;
 
+        private boolean wizardInModal = false;
+
         protected Builder(final PageReference pageRef) {
             this.pageRef = pageRef;
         }
 
-        protected abstract WizardMgtPanel<T> newInstance(final String id);
+        protected abstract WizardMgtPanel<T> newInstance(final String id, final boolean wizardInModal);
 
         /**
          * Builds a list view.
@@ -280,7 +406,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
          * @return List view.
          */
         public WizardMgtPanel<T> build(final String id) {
-            return newInstance(id).
+            return newInstance(id, wizardInModal).
                     setPageRef(this.pageRef).
                     setShowResultPage(this.showResultPage).
                     addNewItemPanelBuilder(this.newItemPanelBuilder, this.newItemDefaultButtonEnabled).
@@ -291,7 +417,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
             this.showResultPage = showResultPage;
         }
 
-        public Builder<T> addNewItemPanelBuilder(final AbstractModalPanelBuilder<T> panelBuilder) {
+        public Builder<T> addNewItemPanelBuilder(final ModalPanelBuilder<T> panelBuilder) {
             this.newItemPanelBuilder = panelBuilder;
             return this;
         }
@@ -304,7 +430,8 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
          * @return the current builder.
          */
         public Builder<T> addNewItemPanelBuilder(
-                final AbstractModalPanelBuilder<T> panelBuilder, final boolean newItemDefaultButtonEnabled) {
+                final ModalPanelBuilder<T> panelBuilder, final boolean newItemDefaultButtonEnabled) {
+
             this.newItemDefaultButtonEnabled = newItemDefaultButtonEnabled;
             return addNewItemPanelBuilder(panelBuilder);
         }
@@ -319,5 +446,37 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
             this.notificationPanel = notificationPanel;
             return this;
         }
+
+        /**
+         * Specifies to open an edit item wizard into a new modal page.
+         *
+         * @param wizardInModal TRUE to request to open wizard in a new modal.
+         * @return the current builder.
+         */
+        public Builder<T> setWizardInModal(final boolean wizardInModal) {
+            this.wizardInModal = wizardInModal;
+            return this;
+        }
+    }
+
+    public static class ExitEvent {
+
+        private final AjaxRequestTarget target;
+
+        public ExitEvent(final AjaxRequestTarget target) {
+            this.target = target;
+        }
+
+        public AjaxRequestTarget getTarget() {
+            return target;
+        }
+    }
+
+    public boolean isReadOnly() {
+        return readOnly;
+    }
+
+    public void setReadOnly(final boolean readOnly) {
+        this.readOnly = readOnly;
     }
 }

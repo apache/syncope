@@ -18,27 +18,13 @@
  */
 package org.apache.syncope.core.persistence.api.entity.anyobject;
 
-import java.util.Collection;
-import java.util.List;
-import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.RelationshipType;
+import org.apache.syncope.core.persistence.api.entity.GroupableRelatable;
 
-public interface AnyObject extends Any<APlainAttr> {
+public interface AnyObject extends
+        GroupableRelatable<AnyObject, AMembership, APlainAttr, AnyObject, ARelationship> {
 
-    boolean add(ARelationship relationship);
+    String getName();
 
-    ARelationship getRelationship(RelationshipType relationshipType, Long anyObjectKey);
-
-    Collection<? extends ARelationship> getRelationships(Long anyObjectKey);
-
-    Collection<? extends ARelationship> getRelationships(RelationshipType relationshipType);
-
-    List<? extends ARelationship> getRelationships();
-
-    boolean add(AMembership membership);
-
-    AMembership getMembership(Long membershipKey);
-
-    List<? extends AMembership> getMemberships();
+    void setName(String name);
 
 }

@@ -73,8 +73,29 @@ abstract class AbstractServiceImpl implements JAXRSService {
      * @return a {@code Preference} instance matching the passed {@code Prefer} header,
      * or {@code Preference.NONE} if missing.
      */
-    protected Preference getPreference() {
+    private Preference getPreference() {
         return Preference.fromString(messageContext.getHttpHeaders().getHeaderString(RESTHeaders.PREFER));
+    }
+
+    protected Response.ResponseBuilder applyPreference(
+            final ProvisioningResult<?> provisioningResult, final Response.ResponseBuilder builder) {
+
+        switch (getPreference()) {
+            case RETURN_NO_CONTENT:
+                break;
+
+            case RETURN_CONTENT:
+            case NONE:
+            default:
+                builder.entity(provisioningResult);
+                break;
+
+        }
+        if (getPreference() == Preference.RETURN_CONTENT || getPreference() == Preference.RETURN_NO_CONTENT) {
+            builder.header(RESTHeaders.PREFERENCE_APPLIED, getPreference().toString());
+        }
+
+        return builder;
     }
 
     /**
@@ -84,27 +105,12 @@ abstract class AbstractServiceImpl implements JAXRSService {
      * @return response to successful {@code create} request
      */
     protected Response createResponse(final ProvisioningResult<?> provisioningResult) {
-        String entityId = String.valueOf(provisioningResult.getAny().getKey());
+        String entityId = provisioningResult.getEntity().getKey();
         Response.ResponseBuilder builder = Response.
                 created(uriInfo.getAbsolutePathBuilder().path(entityId).build()).
                 header(RESTHeaders.RESOURCE_KEY, entityId);
 
-        switch (getPreference()) {
-            case RETURN_NO_CONTENT:
-                break;
-
-            case RETURN_CONTENT:
-            case NONE:
-            default:
-                builder = builder.entity(provisioningResult);
-                break;
-
-        }
-        if (getPreference() == Preference.RETURN_CONTENT || getPreference() == Preference.RETURN_NO_CONTENT) {
-            builder = builder.header(RESTHeaders.PREFERENCE_APPLIED, getPreference().toString());
-        }
-
-        return builder.build();
+        return applyPreference(provisioningResult, builder).build();
     }
 
     /**
@@ -127,7 +133,7 @@ abstract class AbstractServiceImpl implements JAXRSService {
                 break;
         }
         if (getPreference() == Preference.RETURN_CONTENT || getPreference() == Preference.RETURN_NO_CONTENT) {
-            builder = builder.header(RESTHeaders.PREFERENCE_APPLIED, getPreference().toString());
+            builder.header(RESTHeaders.PREFERENCE_APPLIED, getPreference().toString());
         }
 
         return builder.build();
@@ -206,7 +212,7 @@ abstract class AbstractServiceImpl implements JAXRSService {
         UriBuilder builder = uriInfo.getAbsolutePathBuilder();
         MultivaluedMap<String, String> queryParams = uriInfo.getQueryParameters();
         for (Map.Entry<String, List<String>> queryParam : queryParams.entrySet()) {
-            builder = builder.queryParam(queryParam.getKey(), queryParam.getValue().toArray());
+            builder.queryParam(queryParam.getKey(), queryParam.getValue().toArray());
         }
 
         if (result.getPage() > 1) {

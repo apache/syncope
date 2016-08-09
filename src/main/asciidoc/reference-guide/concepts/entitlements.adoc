@@ -1,0 +1,63 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+//
+=== Entitlements
+
+Entitlements are basically strings describing the right to perform an operation.
+
+The components in the <<logic,logic layer>> are annotated with
+http://projects.spring.io/spring-security/[Spring Security^] to implement declarative security; in the following
+code snippet taken from
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/logic/src/main/java/org/apache/syncope/core/logic/RealmLogic.java[RealmLogic^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/core/logic/src/main/java/org/apache/syncope/core/logic/RealmLogic.java[RealmLogic^]
+endif::[]
+, the
+http://docs.spring.io/spring-security/site/docs/4.1.x/reference/htmlsingle/#el-common-built-in[`hasRole` expression^]
+is used together with one of the standard entitlements to restrict access only to users owning the `REALM_LIST`
+entitlement.
+
+[source,java]
+----
+@PreAuthorize("hasRole('" + StandardEntitlement.REALM_LIST + "')")
+public List<RealmTO> list(final String fullPath) {
+----
+
+Entitlements are granted via <<roles, roles>> to users, scoped under certain <<realms,realms>>, thus allowing
+<<delegated-administration,delegated administration>>.
+
+[NOTE]
+====
+The set of available entitlements is
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/common/lib/src/main/java/org/apache/syncope/common/lib/types/StandardEntitlement.java[statically defined^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/common/lib/src/main/java/org/apache/syncope/common/lib/types/StandardEntitlement.java[statically defined^]
+endif::[]
+- even though <<extensions,extensions>> have the ability to
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion/ext/camel/common-lib/src/main/java/org/apache/syncope/common/lib/types/CamelEntitlement.java[enlarge the initial list^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/ext/camel/common-lib/src/main/java/org/apache/syncope/common/lib/types/CamelEntitlement.java[enlarge the initial list^]
+endif::[]
+: this because entitlements are the pillars of internal security model and not meant for external usage.
+====

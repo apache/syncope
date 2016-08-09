@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.jpa.entity;
 
 import javax.persistence.Cacheable;
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.Table;
 import org.apache.syncope.core.persistence.api.entity.MailTemplate;
@@ -28,30 +27,17 @@ import org.apache.syncope.core.persistence.api.entity.MailTemplate;
 @Entity
 @Table(name = JPAMailTemplate.TABLE)
 @Cacheable
-public class JPAMailTemplate extends AbstractEntity<String> implements MailTemplate {
+public class JPAMailTemplate extends AbstractProvidedKeyEntity implements MailTemplate {
 
     private static final long serialVersionUID = 2668267884059219835L;
 
     public static final String TABLE = "MailTemplate";
-
-    @Id
-    private String name;
 
     @Lob
     private String textTemplate;
 
     @Lob
     private String htmlTemplate;
-
-    @Override
-    public String getKey() {
-        return name;
-    }
-
-    @Override
-    public void setKey(final String name) {
-        this.name = name;
-    }
 
     @Override
     public String getTextTemplate() {

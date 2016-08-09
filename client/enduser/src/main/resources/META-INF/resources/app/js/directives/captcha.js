@@ -19,27 +19,29 @@
 'use strict';
 
 angular.module('self')
-        .directive('captcha', function (CaptchaService) {
+        .directive('captcha', function () {
           return {
             restrict: 'E',
             templateUrl: 'views/captcha.html',
             scope: {
               input: "=",
-              captchaEnabled : '=enabled'
+              captchaEnabled: '=enabled'
             },
             controller: function ($scope) {
               $scope.captchaUrl = '';
-                            
+
               //initialize captcha
               $scope.refreshCaptcha = function () {
-                console.log("REFRESH CAPTCHA")
+                console.debug("REFRESH CAPTCHA")
                 $scope.captchaUrl = '/syncope-enduser/api/captcha' + '?' + new Date();
               };
 
               // initialize captcha
               $scope.refreshCaptcha();
-              
-              $scope.$on("refreshCaptcha", function(){$scope.refreshCaptcha()});
+
+              $scope.$on("refreshCaptcha", function () {
+                $scope.refreshCaptcha()
+              });
             }
           };
         });

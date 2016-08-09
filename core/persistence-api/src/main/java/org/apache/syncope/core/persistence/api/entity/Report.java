@@ -21,7 +21,7 @@ package org.apache.syncope.core.persistence.api.entity;
 import java.util.List;
 import org.apache.syncope.common.lib.report.ReportletConf;
 
-public interface Report extends Entity<Long> {
+public interface Report extends Entity {
 
     String getName();
 

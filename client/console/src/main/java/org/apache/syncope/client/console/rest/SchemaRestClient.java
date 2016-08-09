@@ -19,19 +19,19 @@
 package org.apache.syncope.client.console.rest;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.ListIterator;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
+import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.VirSchemaTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.rest.api.beans.SchemaQuery;
+import org.apache.syncope.common.rest.api.service.AnyTypeService;
 import org.apache.syncope.common.rest.api.service.SchemaService;
 
 /**
@@ -41,18 +41,43 @@ public class SchemaRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -2479730152700312373L;
 
-    public void filter(
-            final List<? extends AbstractSchemaTO> schemaTOs, final Collection<String> allowed, final boolean exclude) {
+    public <T extends AbstractSchemaTO> List<T> getSchemas(final SchemaType schemaType, final AnyTypeKind kind) {
+        final AnyTypeService client = getService(AnyTypeService.class);
 
-        for (ListIterator<? extends AbstractSchemaTO> itor = schemaTOs.listIterator(); itor.hasNext();) {
-            AbstractSchemaTO schema = itor.next();
-            if (exclude) {
-                if (!allowed.contains(schema.getKey())) {
-                    itor.remove();
+        final List<String> classes = new ArrayList<>();
+
+        switch (kind) {
+            case USER:
+            case GROUP:
+                final AnyTypeTO type = client.read(kind.name());
+                if (type != null) {
+                    classes.addAll(type.getClasses());
                 }
-            } else if (allowed.contains(schema.getKey())) {
-                itor.remove();
-            }
+                break;
+
+            default:
+                for (AnyTypeTO anyTypeTO : new AnyTypeRestClient().list()) {
+                    if (anyTypeTO.getKind() != AnyTypeKind.USER && anyTypeTO.getKind() != AnyTypeKind.GROUP) {
+                        classes.addAll(anyTypeTO.getClasses());
+                    }
+                }
+        }
+        return getSchemas(schemaType, classes.toArray(new String[] {}));
+    }
+
+    public <T extends AbstractSchemaTO> List<T> getSchemas(final SchemaType schemaType, final String typeName) {
+        AnyTypeTO type = null;
+
+        try {
+            type = getService(AnyTypeService.class).read(typeName);
+        } catch (SyncopeClientException e) {
+            LOG.error("While reading all any types", e);
+        }
+
+        if (type == null) {
+            return getSchemas(schemaType);
+        } else {
+            return getSchemas(schemaType, type.getClasses().toArray(new String[] {}));
         }
     }
 
@@ -78,8 +103,7 @@ public class SchemaRestClient extends BaseRestClient {
 
         try {
             CollectionUtils.collect(getSchemas(schemaType),
-                    EntityTOUtils.<String, AbstractSchemaTO>keyTransformer(),
-                    schemaNames);
+                    EntityTOUtils.<AbstractSchemaTO>keyTransformer(), schemaNames);
         } catch (SyncopeClientException e) {
             LOG.error("While getting all user schema names", e);
         }
@@ -99,47 +123,10 @@ public class SchemaRestClient extends BaseRestClient {
         return getSchemaNames(SchemaType.VIRTUAL);
     }
 
-    public void createPlainSchema(final PlainSchemaTO schemaTO) {
-        getService(SchemaService.class).create(SchemaType.PLAIN, schemaTO);
-    }
-
-    public PlainSchemaTO readPlainSchema(final String name) {
-        PlainSchemaTO schema = null;
-
-        try {
-            schema = getService(SchemaService.class).read(SchemaType.PLAIN, name);
-        } catch (SyncopeClientException e) {
-            LOG.error("While reading a user schema", e);
-        }
-        return schema;
-    }
-
-    public void updatePlainSchema(final PlainSchemaTO schemaTO) {
-        getService(SchemaService.class).update(SchemaType.PLAIN, schemaTO);
-    }
-
     public PlainSchemaTO deletePlainSchema(final String name) {
         PlainSchemaTO response = getService(SchemaService.class).read(SchemaType.PLAIN, name);
         getService(SchemaService.class).delete(SchemaType.PLAIN, name);
         return response;
-    }
-
-    public void createDerSchema(final DerSchemaTO schemaTO) {
-        getService(SchemaService.class).create(SchemaType.DERIVED, schemaTO);
-    }
-
-    public DerSchemaTO readDerSchema(final String name) {
-        DerSchemaTO derivedSchemaTO = null;
-        try {
-            derivedSchemaTO = getService(SchemaService.class).read(SchemaType.DERIVED, name);
-        } catch (SyncopeClientException e) {
-            LOG.error("While reading a derived user schema", e);
-        }
-        return derivedSchemaTO;
-    }
-
-    public void updateVirSchema(final VirSchemaTO schemaTO) {
-        getService(SchemaService.class).update(SchemaType.VIRTUAL, schemaTO);
     }
 
     public DerSchemaTO deleteDerSchema(final String name) {
@@ -148,28 +135,9 @@ public class SchemaRestClient extends BaseRestClient {
         return schemaTO;
     }
 
-    public void createVirSchema(final VirSchemaTO schemaTO) {
-        getService(SchemaService.class).create(SchemaType.VIRTUAL, schemaTO);
-    }
-
-    public void updateDerSchema(final DerSchemaTO schemaTO) {
-        getService(SchemaService.class).update(SchemaType.DERIVED, schemaTO);
-    }
-
     public VirSchemaTO deleteVirSchema(final String name) {
         VirSchemaTO schemaTO = getService(SchemaService.class).read(SchemaType.VIRTUAL, name);
         getService(SchemaService.class).delete(SchemaType.VIRTUAL, name);
         return schemaTO;
-    }
-
-    public List<String> getAllValidatorClasses() {
-        List<String> response = null;
-
-        try {
-            response = new ArrayList<>(SyncopeConsoleSession.get().getPlatformInfo().getValidators());
-        } catch (SyncopeClientException e) {
-            LOG.error("While getting all validators", e);
-        }
-        return response;
     }
 }

@@ -41,8 +41,8 @@ public class AjaxTextFieldITCase extends AbstractConsoleITCase {
         TestPage<String, AjaxTextFieldPanel> testPage =
                 new TestPage.Builder<String, AjaxTextFieldPanel>().build(
                         new AjaxTextFieldPanel(TestPage.FIELD, TestPage.FIELD, textModel));
-        wicketTester.startPage(testPage);
-        FormTester formTester = wicketTester.newFormTester(testPage.getForm().getId());
+        TESTER.startPage(testPage);
+        FormTester formTester = TESTER.newFormTester(testPage.getForm().getId());
         formTester.setValue("field:textField", "");
         formTester.submit();
         assertNull(testPage.getFieldPanel().getField().getDefaultModelObject());
@@ -55,8 +55,8 @@ public class AjaxTextFieldITCase extends AbstractConsoleITCase {
                         new AjaxTextFieldPanel(TestPage.FIELD, TestPage.FIELD, textModel));
         String text = "sometext";
         textModel.setObject(text);
-        wicketTester.startPage(testPage);
-        assertTrue(wicketTester.getLastResponseAsString().contains(Strings.escapeMarkup(text)));
+        TESTER.startPage(testPage);
+        assertTrue(TESTER.getLastResponseAsString().contains(Strings.escapeMarkup(text)));
     }
 
     @Test
@@ -66,8 +66,8 @@ public class AjaxTextFieldITCase extends AbstractConsoleITCase {
                         new AjaxTextFieldPanel(TestPage.FIELD, TestPage.FIELD, textModel));
         testPage.getFieldPanel().getField().setRequired(false);
         testPage.getFieldPanel().getField().add(StringValidator.minimumLength(2));
-        wicketTester.startPage(testPage);
-        FormTester formTester = wicketTester.newFormTester(testPage.getForm().getId());
+        TESTER.startPage(testPage);
+        FormTester formTester = TESTER.newFormTester(testPage.getForm().getId());
         formTester.setValue("field:textField", "");
         formTester.submit();
         assertNull(testPage.getFieldPanel().getDefaultModelObject());
@@ -81,9 +81,9 @@ public class AjaxTextFieldITCase extends AbstractConsoleITCase {
                         new AjaxTextFieldPanel(TestPage.FIELD, TestPage.FIELD, textModel));
         testPage.getFieldPanel().setOutputMarkupId(true);
         testPage.getFieldPanel().getField().setRequired(true);
-        wicketTester.startPage(testPage);
-        wicketTester.assertLabel("form:field:field-label", "field");
-        wicketTester.assertVisible("form:field:required");
-        wicketTester.assertVisible("form:field:externalAction");
+        TESTER.startPage(testPage);
+        TESTER.assertLabel("form:field:field-label", "field");
+        TESTER.assertVisible("form:field:required");
+        TESTER.assertVisible("form:field:externalAction");
     }
 }

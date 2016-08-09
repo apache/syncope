@@ -25,7 +25,7 @@ import org.apache.cxf.jaxrs.ext.search.SearchBean;
 import org.apache.cxf.jaxrs.ext.search.SearchCondition;
 import org.apache.cxf.jaxrs.ext.search.SearchUtils;
 import org.apache.cxf.jaxrs.ext.search.visitor.AbstractSearchConditionVisitor;
-import org.apache.syncope.common.lib.EntityTOUtils;
+import org.apache.syncope.common.lib.search.SearchableFields;
 import org.apache.syncope.common.lib.search.SpecialAttr;
 import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
@@ -35,6 +35,7 @@ import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
 import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
+import org.apache.syncope.core.persistence.api.dao.search.MemberCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipTypeCond;
 
@@ -56,7 +57,7 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
     }
 
     private AttributeCond createAttributeCond(final String schema) {
-        AttributeCond attributeCond = EntityTOUtils.ANY_FIELDS.contains(schema)
+        AttributeCond attributeCond = SearchableFields.contains(schema)
                 ? new AnyCond()
                 : new AttributeCond();
         attributeCond.setSchema(schema);
@@ -93,25 +94,25 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
                     switch (specialAttrName) {
                         case TYPE:
                             AnyTypeCond typeCond = new AnyTypeCond();
-                            typeCond.setAnyTypeName(value);
+                            typeCond.setAnyTypeKey(value);
                             leaf = SearchCond.getLeafCond(typeCond);
                             break;
 
                         case RESOURCES:
                             ResourceCond resourceCond = new ResourceCond();
-                            resourceCond.setResourceName(value);
+                            resourceCond.setResourceKey(value);
                             leaf = SearchCond.getLeafCond(resourceCond);
                             break;
 
                         case GROUPS:
                             MembershipCond groupCond = new MembershipCond();
-                            groupCond.setGroupKey(Long.valueOf(value));
+                            groupCond.setGroup(value);
                             leaf = SearchCond.getLeafCond(groupCond);
                             break;
 
                         case RELATIONSHIPS:
                             RelationshipCond relationshipCond = new RelationshipCond();
-                            relationshipCond.setAnyObjectKey(Long.valueOf(value));
+                            relationshipCond.setAnyObject(value);
                             leaf = SearchCond.getLeafCond(relationshipCond);
                             break;
 
@@ -131,6 +132,12 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
                             AssignableCond assignableCond = new AssignableCond();
                             assignableCond.setRealmFullPath(realm);
                             leaf = SearchCond.getLeafCond(assignableCond);
+                            break;
+                            
+                        case MEMBER:
+                            MemberCond memberCond = new MemberCond();
+                            memberCond.setMember(value);
+                            leaf = SearchCond.getLeafCond(memberCond);
                             break;
 
                         default:

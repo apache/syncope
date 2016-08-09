@@ -18,11 +18,13 @@
  */
 package org.apache.syncope.client.cli.commands.report;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.SequenceInputStream;
 import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
+import org.apache.cxf.helpers.IOUtils;
 import org.apache.syncope.client.cli.SyncopeServices;
 import org.apache.syncope.client.cli.util.XMLUtils;
 import org.apache.syncope.common.lib.to.JobTO;
@@ -37,7 +39,7 @@ public class ReportSyncopeOperations {
     private final ReportService reportService = SyncopeServices.get(ReportService.class);
 
     public ReportTO read(final String reportKey) {
-        return reportService.read(Long.valueOf(reportKey));
+        return reportService.read(reportKey);
     }
 
     public List<JobTO> listJobs() {
@@ -50,37 +52,62 @@ public class ReportSyncopeOperations {
 
     public String exportExecutionResult(final String executionKey, final String reportExecExportFormat)
             throws TransformerException, SAXException, IOException, ParserConfigurationException {
-        final ReportExecExportFormat format = ReportExecExportFormat.valueOf(reportExecExportFormat);
-        final SequenceInputStream report = (SequenceInputStream) reportService.exportExecutionResult(Long.valueOf(
-                executionKey), format).getEntity();
-        final String xmlFinalName = "export_" + executionKey + ".xml";
+
+        ReportExecExportFormat format = ReportExecExportFormat.valueOf(reportExecExportFormat);
+        SequenceInputStream report = (SequenceInputStream) reportService.exportExecutionResult(executionKey, format).
+                getEntity();
+
+        String fileName = "export_" + executionKey;
+        FileOutputStream fos = null;
         switch (format) {
             case XML:
-                XMLUtils.createXMLFile(report, xmlFinalName);
+                fileName += ".xml";
+                XMLUtils.createXMLFile(report, fileName);
                 break;
+
             case CSV:
-                return format + " doesn't supported";
+                fileName += ".csv";
+                fos = new FileOutputStream(fileName);
+                IOUtils.copyAndCloseInput(report, fos);
+                break;
+
             case PDF:
-                return format + " doesn't supported";
+                fileName += ".pdf";
+                fos = new FileOutputStream(fileName);
+                IOUtils.copyAndCloseInput(report, fos);
+                break;
+
             case HTML:
-                return format + " doesn't supported";
+                fileName += ".html";
+                fos = new FileOutputStream(fileName);
+                IOUtils.copyAndCloseInput(report, fos);
+                break;
+
             case RTF:
-                return format + " doesn't supported";
+                fileName += ".rtf";
+                fos = new FileOutputStream(fileName);
+                IOUtils.copyAndCloseInput(report, fos);
+                break;
+
             default:
-                return format + " doesn't supported";
+                return format + " not supported";
         }
-        return xmlFinalName;
+        if (fos != null) {
+            fos.close();
+        }
+
+        return fileName;
     }
 
     public void execute(final String reportKey) {
-        reportService.execute(new ExecuteQuery.Builder().key(Long.valueOf(reportKey)).build());
+        reportService.execute(new ExecuteQuery.Builder().key(reportKey).build());
     }
 
-    public void deleteExecution(final String executionId) {
-        reportService.deleteExecution(Long.valueOf(executionId));
+    public void deleteExecution(final String executionKey) {
+        reportService.deleteExecution(executionKey);
     }
 
     public void delete(final String reportKey) {
-        reportService.delete(Long.valueOf(reportKey));
+        reportService.delete(reportKey);
     }
 }

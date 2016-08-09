@@ -32,8 +32,8 @@ public class ConnectorSyncopeOperations {
         return connectorService.readByResource(resourceName, null);
     }
 
-    public ConnInstanceTO read(final String resourceId) {
-        return connectorService.read(Long.valueOf(resourceId), null);
+    public ConnInstanceTO read(final String resourceKey) {
+        return connectorService.read(resourceKey, null);
     }
 
     public List<ConnBundleTO> getBundles() {
@@ -44,7 +44,7 @@ public class ConnectorSyncopeOperations {
         return connectorService.list(null);
     }
 
-    public void delete(final String resourceId) {
-        connectorService.delete(Long.valueOf(resourceId));
+    public void delete(final String resourceKey) {
+        connectorService.delete(resourceKey);
     }
 }

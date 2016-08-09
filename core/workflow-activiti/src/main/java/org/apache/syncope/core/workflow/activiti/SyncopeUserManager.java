@@ -70,13 +70,13 @@ public class SyncopeUserManager implements UserIdentityManager, SyncopeSession {
     }
 
     @Override
-    public List<Group> findGroupsByUser(final String userKey) {
+    public List<Group> findGroupsByUser(final String username) {
         List<Group> result = Collections.emptyList();
-        org.apache.syncope.core.persistence.api.entity.user.User user = userDAO.find(userKey);
+        org.apache.syncope.core.persistence.api.entity.user.User user = userDAO.findByUsername(username);
         if (user != null) {
             result = new ArrayList<>();
-            for (Long groupKey : userDAO.findAllGroupKeys(user)) {
-                result.add(new GroupEntity(groupKey.toString()));
+            for (String groupName : userDAO.findAllGroupNames(user)) {
+                result.add(new GroupEntity(groupName));
             }
         }
 
@@ -84,11 +84,11 @@ public class SyncopeUserManager implements UserIdentityManager, SyncopeSession {
     }
 
     @Override
-    public UserEntity findUserById(final String userKey) {
+    public UserEntity findUserById(final String username) {
         UserEntity result = null;
-        org.apache.syncope.core.persistence.api.entity.user.User user = userDAO.find(userKey);
+        org.apache.syncope.core.persistence.api.entity.user.User user = userDAO.findByUsername(username);
         if (user != null) {
-            result = new UserEntity(userKey);
+            result = new UserEntity(username);
         }
 
         return result;

@@ -23,13 +23,13 @@ import java.io.File;
 import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.pages.ActivitiModelerPopupPage;
 import org.apache.syncope.client.console.rest.WorkflowRestClient;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.buttons.PrimaryModalButton;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.link.VeilPopupSettings;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -46,7 +46,7 @@ public class WorkflowTogglePanel extends TogglePanel<String> {
     protected final BaseModal<String> modal;
 
     public WorkflowTogglePanel(final String id, final PageReference pageRef, final Image workflowDefDiagram) {
-        super(id);
+        super(id, pageRef);
         modal = new BaseModal<>("outer");
         addOuterObject(modal);
         modal.size(Modal.Size.Large);
@@ -70,14 +70,16 @@ public class WorkflowTogglePanel extends TogglePanel<String> {
         }
         activitiModeler.setEnabled(activitiModelerEnabled);
 
-        PrimaryModalButton xmlEditorSubmit = modal.addSumbitButton();
-        MetaDataRoleAuthorizationStrategy.authorize(xmlEditorSubmit, ENABLE, StandardEntitlement.WORKFLOW_DEF_UPDATE);
+        AjaxSubmitLink xmlEditorSubmit = modal.addSubmitButton();
+        MetaDataRoleAuthorizationStrategy.authorize(xmlEditorSubmit, RENDER, StandardEntitlement.WORKFLOW_DEF_UPDATE);
         modal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 
             private static final long serialVersionUID = 8804221891699487139L;
 
             @Override
             public void onClose(final AjaxRequestTarget target) {
+                modal.show(false);
+                modal.close(target);
                 target.add(workflowDefDiagram);
             }
         });
@@ -91,11 +93,10 @@ public class WorkflowTogglePanel extends TogglePanel<String> {
                 target.add(modal.setContent(new XMLWorkflowEditorModalPanel(modal, new WorkflowRestClient(), pageRef)));
 
                 modal.header(new ResourceModel("xmlEditorTitle"));
-
                 modal.show(true);
             }
         };
-        MetaDataRoleAuthorizationStrategy.authorize(xmlEditor, ENABLE, StandardEntitlement.WORKFLOW_DEF_READ);
+        MetaDataRoleAuthorizationStrategy.authorize(xmlEditor, RENDER, StandardEntitlement.WORKFLOW_DEF_READ);
         container.add(xmlEditor);
     }
 

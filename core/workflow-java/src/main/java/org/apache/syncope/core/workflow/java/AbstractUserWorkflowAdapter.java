@@ -64,10 +64,10 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
         return null;
     }
 
-    protected abstract WorkflowResult<Long> doActivate(User user, String token);
+    protected abstract WorkflowResult<String> doActivate(User user, String token);
 
     @Override
-    public WorkflowResult<Long> activate(final Long key, final String token) {
+    public WorkflowResult<String> activate(final String key, final String token) {
         return doActivate(userDAO.authFind(key), token);
     }
 
@@ -78,10 +78,10 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
         return doUpdate(userDAO.authFind(userPatch.getKey()), userPatch);
     }
 
-    protected abstract WorkflowResult<Long> doSuspend(User user);
+    protected abstract WorkflowResult<String> doSuspend(User user);
 
     @Override
-    public WorkflowResult<Long> suspend(final Long key) {
+    public WorkflowResult<String> suspend(final String key) {
         User user = userDAO.authFind(key);
 
         // set suspended flag
@@ -91,10 +91,10 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
     }
 
     @Override
-    public Pair<WorkflowResult<Long>, Boolean> internalSuspend(final Long key) {
+    public Pair<WorkflowResult<String>, Boolean> internalSuspend(final String key) {
         User user = userDAO.authFind(key);
 
-        Pair<WorkflowResult<Long>, Boolean> result = null;
+        Pair<WorkflowResult<String>, Boolean> result = null;
 
         Pair<Boolean, Boolean> enforce = userDAO.enforcePolicies(user);
         if (enforce.getKey()) {
@@ -112,10 +112,10 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
         return result;
     }
 
-    protected abstract WorkflowResult<Long> doReactivate(User user);
+    protected abstract WorkflowResult<String> doReactivate(User user);
 
     @Override
-    public WorkflowResult<Long> reactivate(final Long key) {
+    public WorkflowResult<String> reactivate(final String key) {
         User user = userDAO.authFind(key);
 
         // reset failed logins
@@ -130,7 +130,7 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
     protected abstract void doRequestPasswordReset(User user);
 
     @Override
-    public void requestPasswordReset(final Long key) {
+    public void requestPasswordReset(final String key) {
         doRequestPasswordReset(userDAO.authFind(key));
     }
 
@@ -139,7 +139,7 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
 
     @Override
     public WorkflowResult<Pair<UserPatch, Boolean>> confirmPasswordReset(
-            final Long key, final String token, final String password) {
+            final String key, final String token, final String password) {
 
         return doConfirmPasswordReset(userDAO.authFind(key), token, password);
     }
@@ -147,7 +147,7 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
     protected abstract void doDelete(User user);
 
     @Override
-    public void delete(final Long key) {
+    public void delete(final String key) {
         doDelete(userDAO.authFind(key));
     }
 }

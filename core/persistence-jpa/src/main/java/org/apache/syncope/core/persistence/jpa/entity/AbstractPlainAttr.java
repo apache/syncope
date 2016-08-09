@@ -38,13 +38,13 @@ import org.apache.syncope.core.persistence.jpa.validation.entity.PlainAttrCheck;
 
 @MappedSuperclass
 @PlainAttrCheck
-public abstract class AbstractPlainAttr<O extends Any<?>> extends AbstractEntity<Long> implements PlainAttr<O> {
+public abstract class AbstractPlainAttr<O extends Any<?>> extends AbstractGeneratedKeyEntity implements PlainAttr<O> {
 
     private static final long serialVersionUID = -9115431608821806124L;
 
     @NotNull
     @ManyToOne(fetch = FetchType.EAGER)
-    @Column(name = "schema_name")
+    @Column(name = "schema_id")
     protected JPAPlainSchema schema;
 
     @Override

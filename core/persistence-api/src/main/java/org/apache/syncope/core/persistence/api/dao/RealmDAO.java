@@ -23,15 +23,15 @@ import java.util.regex.Pattern;
 import org.apache.syncope.core.persistence.api.entity.Policy;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 
-public interface RealmDAO extends DAO<Realm, Long> {
+public interface RealmDAO extends DAO<Realm> {
 
     Pattern PATH_PATTERN = Pattern.compile("^(/[A-Za-z0-9]+)+");
 
     Realm getRoot();
 
-    Realm find(Long key);
+    Realm find(String key);
 
-    Realm find(String fullPath);
+    Realm findByFullPath(String fullPath);
 
     <T extends Policy> List<Realm> findByPolicy(T policy);
 
@@ -47,5 +47,5 @@ public interface RealmDAO extends DAO<Realm, Long> {
 
     void delete(Realm realm);
 
-    void delete(Long key);
+    void delete(String key);
 }

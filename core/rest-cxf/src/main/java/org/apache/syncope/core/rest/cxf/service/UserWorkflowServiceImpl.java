@@ -43,7 +43,7 @@ public class UserWorkflowServiceImpl implements UserWorkflowService {
     }
 
     @Override
-    public WorkflowFormTO getFormForUser(final Long userKey) {
+    public WorkflowFormTO getFormForUser(final String userKey) {
         return lofic.getFormForUser(userKey);
     }
 

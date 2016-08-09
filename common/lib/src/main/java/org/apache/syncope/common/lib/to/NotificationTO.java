@@ -32,16 +32,15 @@ import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.jaxb.XmlGenericMapAdapter;
-import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.TraceLevel;
 
 @XmlRootElement(name = "notification")
 @XmlType
-public class NotificationTO extends AbstractBaseBean implements EntityTO<Long> {
+public class NotificationTO extends AbstractBaseBean implements EntityTO {
 
     private static final long serialVersionUID = -6145117115632592612L;
 
-    private Long key;
+    private String key;
 
     private final List<String> events = new ArrayList<>();
 
@@ -52,8 +51,6 @@ public class NotificationTO extends AbstractBaseBean implements EntityTO<Long> {
     private String recipientsFIQL;
 
     private final List<String> staticRecipients = new ArrayList<>();
-
-    private IntMappingType recipientAttrType;
 
     private String recipientAttrName;
 
@@ -91,13 +88,13 @@ public class NotificationTO extends AbstractBaseBean implements EntityTO<Long> {
     }
 
     @Override
-    public Long getKey() {
+    public String getKey() {
         return key;
     }
 
     @PathParam("key")
     @Override
-    public void setKey(final Long key) {
+    public void setKey(final String key) {
         this.key = key;
     }
 
@@ -115,14 +112,6 @@ public class NotificationTO extends AbstractBaseBean implements EntityTO<Long> {
 
     public void setRecipientAttrName(final String recipientAttrName) {
         this.recipientAttrName = recipientAttrName;
-    }
-
-    public IntMappingType getRecipientAttrType() {
-        return recipientAttrType;
-    }
-
-    public void setRecipientAttrType(final IntMappingType recipientAttrType) {
-        this.recipientAttrType = recipientAttrType;
     }
 
     public boolean isSelfAsRecipient() {

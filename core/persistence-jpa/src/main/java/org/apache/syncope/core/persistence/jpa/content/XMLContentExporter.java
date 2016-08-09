@@ -47,6 +47,8 @@ import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
+import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -79,19 +81,29 @@ import org.xml.sax.helpers.AttributesImpl;
 @Component
 public class XMLContentExporter extends AbstractContentDealer implements ContentExporter {
 
-    protected static final Set<String> TABLE_PREFIXES_TO_BE_EXCLUDED =
-            new HashSet<>(Arrays.asList(new String[] {
-                "QRTZ_", "LOGGING", JPAReportExec.TABLE, JPATaskExec.TABLE,
-                JPAUser.TABLE, JPAUPlainAttr.TABLE, JPAUPlainAttrValue.TABLE, JPAUPlainAttrUniqueValue.TABLE,
-                JPAAnyObject.TABLE, JPAAPlainAttr.TABLE, JPAAPlainAttrValue.TABLE, JPAAPlainAttrUniqueValue.TABLE,
-                JPAARelationship.TABLE, JPAAMembership.TABLE, JPAURelationship.TABLE, JPAUMembership.TABLE
-            }));
+    protected static final Set<String> TABLE_PREFIXES_TO_BE_EXCLUDED = new HashSet<>(Arrays.asList(new String[] {
+        "QRTZ_", "LOGGING", JPAReportExec.TABLE, JPATaskExec.TABLE,
+        JPAUser.TABLE, JPAUPlainAttr.TABLE, JPAUPlainAttrValue.TABLE, JPAUPlainAttrUniqueValue.TABLE,
+        JPAURelationship.TABLE, JPAUMembership.TABLE,
+        JPAAnyObject.TABLE, JPAAPlainAttr.TABLE, JPAAPlainAttrValue.TABLE, JPAAPlainAttrUniqueValue.TABLE,
+        JPAARelationship.TABLE, JPAAMembership.TABLE
+    }));
 
     protected static final Map<String, String> TABLES_TO_BE_FILTERED =
             Collections.singletonMap("TASK", "DTYPE <> 'PropagationTask'");
 
     protected static final Map<String, Set<String>> COLUMNS_TO_BE_NULLIFIED =
             Collections.singletonMap("SYNCOPEGROUP", Collections.singleton("USEROWNER_ID"));
+
+    private boolean isTableAllowed(final String tableName) {
+        return IterableUtils.matchesAll(TABLE_PREFIXES_TO_BE_EXCLUDED, new Predicate<String>() {
+
+            @Override
+            public boolean evaluate(final String prefix) {
+                return !tableName.toUpperCase().startsWith(prefix.toUpperCase());
+            }
+        });
+    }
 
     private List<String> sortByForeignKeys(final String dbSchema, final Connection conn, final Set<String> tableNames)
             throws SQLException {
@@ -304,18 +316,27 @@ public class XMLContentExporter extends AbstractContentDealer implements Content
     }
 
     @Override
-    public void export(final String domain, final OutputStream os, final String uwfPrefix, final String rwfPrefix)
+    public void export(
+            final String domain,
+            final OutputStream os,
+            final String uwfPrefix,
+            final String gwfPrefix,
+            final String awfPrefix)
             throws SAXException, TransformerConfigurationException {
 
         if (StringUtils.isNotBlank(uwfPrefix)) {
             TABLE_PREFIXES_TO_BE_EXCLUDED.add(uwfPrefix);
         }
-        if (StringUtils.isNotBlank(rwfPrefix)) {
-            TABLE_PREFIXES_TO_BE_EXCLUDED.add(rwfPrefix);
+        if (StringUtils.isNotBlank(gwfPrefix)) {
+            TABLE_PREFIXES_TO_BE_EXCLUDED.add(gwfPrefix);
+        }
+        if (StringUtils.isNotBlank(awfPrefix)) {
+            TABLE_PREFIXES_TO_BE_EXCLUDED.add(awfPrefix);
         }
 
         StreamResult streamResult = new StreamResult(os);
         final SAXTransformerFactory transformerFactory = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
+        transformerFactory.setFeature(javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING, true);
 
         TransformerHandler handler = transformerFactory.newTransformerHandler();
         Transformer serializer = handler.getTransformer();
@@ -345,7 +366,9 @@ public class XMLContentExporter extends AbstractContentDealer implements Content
             while (rs.next()) {
                 String tableName = rs.getString("TABLE_NAME");
                 LOG.debug("Found table {}", tableName);
-                tableNames.add(tableName);
+                if (isTableAllowed(tableName)) {
+                    tableNames.add(tableName);
+                }
             }
 
             LOG.debug("Tables to be exported {}", tableNames);

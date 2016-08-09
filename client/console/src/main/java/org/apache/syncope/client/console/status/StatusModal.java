@@ -18,40 +18,44 @@
  */
 package org.apache.syncope.client.console.status;
 
+import java.io.Serializable;
+import org.apache.syncope.client.console.commons.DirectoryDataProvider;
+import org.apache.syncope.client.console.commons.status.StatusBean;
+import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
+import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.client.console.wizards.any.AnyHandler;
-import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.wicket.PageReference;
-import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
 
-public class StatusModal<T extends AnyTO> extends Panel implements ModalPanel<AnyHandler<T>> {
+public abstract class StatusModal<T extends Serializable> extends Panel implements ModalPanel {
 
     private static final long serialVersionUID = 1066124171682570080L;
 
+    protected final DirectoryPanel<StatusBean, StatusBean, ?, ?> directoryPanel;
+
     public StatusModal(
-            final BaseModal<?> baseModal, final PageReference pageReference, final T anyTO, final boolean statusOnly) {
+            final BaseModal<?> baseModal,
+            final PageReference pageReference,
+            final T entity,
+            final String itemKeyFieldName,
+            final boolean statusOnly) {
+
         super(BaseModal.CONTENT_ID);
 
         final MultilevelPanel mlp = new MultilevelPanel("status");
-        add(mlp.setFirstLevel(new StatusSearchResultPanel(baseModal, mlp, pageReference, anyTO, statusOnly)));
+        this.directoryPanel = getStatusDirectoryPanel(
+                mlp, baseModal, pageReference, entity, itemKeyFieldName, statusOnly);
+        add(mlp.setFirstLevel(this.directoryPanel));
     }
 
-    @Override
-    public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public void onError(final AjaxRequestTarget target, final Form<?> form) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public AnyHandler<T> getItem() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
+    protected abstract DirectoryPanel<
+        StatusBean, StatusBean, DirectoryDataProvider<StatusBean>, AbstractAnyRestClient<?, ?>> getStatusDirectoryPanel(
+            final MultilevelPanel mlp,
+            final BaseModal<?> baseModal,
+            final PageReference pageReference,
+            final T entity,
+            final String itemKeyFieldName,
+            final boolean statusOnly);
 }

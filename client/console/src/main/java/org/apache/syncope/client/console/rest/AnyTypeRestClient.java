@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.rest;
 
 import java.util.Collections;
 import java.util.List;
+import org.apache.syncope.client.console.commons.AnyTypeComparator;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.rest.api.service.AnyTypeService;
@@ -28,11 +29,11 @@ public class AnyTypeRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -2211371717449597247L;
 
-    public AnyTypeTO get(final String kind) {
+    public AnyTypeTO read(final String key) {
         AnyTypeTO type = null;
 
         try {
-            type = getService(AnyTypeService.class).read(kind);
+            type = getService(AnyTypeService.class).read(key);
         } catch (SyncopeClientException e) {
             LOG.error("While reading all any types", e);
         }
@@ -45,6 +46,7 @@ public class AnyTypeRestClient extends BaseRestClient {
 
         try {
             types = getService(AnyTypeService.class).list();
+            Collections.sort(types, new AnyTypeComparator());
         } catch (SyncopeClientException e) {
             LOG.error("While reading all any types", e);
         }
@@ -52,4 +54,11 @@ public class AnyTypeRestClient extends BaseRestClient {
         return types;
     }
 
+    public void create(final AnyTypeTO anyTypeTO) {
+        getService(AnyTypeService.class).create(anyTypeTO);
+    }
+
+    public void update(final AnyTypeTO anyTypeTO) {
+        getService(AnyTypeService.class).update(anyTypeTO);
+    }
 }

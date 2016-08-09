@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table;
 
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
-import org.apache.wicket.Component;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.markup.repeater.Item;
@@ -40,11 +39,6 @@ public abstract class ActionColumn<T, S> extends AbstractColumn<T, S> {
     @Override
     public String getCssClass() {
         return "action";
-    }
-
-    @Override
-    public Component getHeader(final String componentId) {
-        return super.getHeader(componentId);
     }
 
     @Override

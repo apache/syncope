@@ -29,7 +29,6 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -39,7 +38,6 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
-import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.core.persistence.api.entity.AnyAbout;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
@@ -50,14 +48,11 @@ import org.apache.syncope.core.persistence.jpa.validation.entity.NotificationChe
 @Entity
 @Table(name = JPANotification.TABLE)
 @NotificationCheck
-public class JPANotification extends AbstractEntity<Long> implements Notification {
+public class JPANotification extends AbstractGeneratedKeyEntity implements Notification {
 
     private static final long serialVersionUID = 3112582296912757537L;
 
     public static final String TABLE = "Notification";
-
-    @Id
-    private Long id;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Column(name = "event")
@@ -79,10 +74,6 @@ public class JPANotification extends AbstractEntity<Long> implements Notificatio
     private List<String> staticRecipients;
 
     @NotNull
-    @Enumerated(EnumType.STRING)
-    private IntMappingType recipientAttrType;
-
-    @NotNull
     private String recipientAttrName;
 
     private String recipientsProviderClassName;
@@ -100,7 +91,7 @@ public class JPANotification extends AbstractEntity<Long> implements Notificatio
     private String subject;
 
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "template_name")
+    @JoinColumn(name = "template_id")
     private JPAMailTemplate template;
 
     @NotNull
@@ -123,11 +114,6 @@ public class JPANotification extends AbstractEntity<Long> implements Notificatio
     }
 
     @Override
-    public Long getKey() {
-        return id;
-    }
-
-    @Override
     public String getRecipientsFIQL() {
         return recipientsFIQL;
     }
@@ -145,16 +131,6 @@ public class JPANotification extends AbstractEntity<Long> implements Notificatio
     @Override
     public void setRecipientAttrName(final String recipientAttrName) {
         this.recipientAttrName = recipientAttrName;
-    }
-
-    @Override
-    public IntMappingType getRecipientAttrType() {
-        return recipientAttrType;
-    }
-
-    @Override
-    public void setRecipientAttrType(final IntMappingType recipientAttrType) {
-        this.recipientAttrType = recipientAttrType;
     }
 
     @Override

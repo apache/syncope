@@ -31,14 +31,14 @@ public class QuestionSyncopeOperations {
         return securityQuestionService.list();
     }
 
-    public void delete(final String questionId) {
-        securityQuestionService.delete(Long.valueOf(questionId));
+    public void delete(final String questionKey) {
+        securityQuestionService.delete(questionKey);
     }
 
-    public SecurityQuestionTO read(final String questionId) {
-        return securityQuestionService.read(Long.valueOf(questionId));
+    public SecurityQuestionTO read(final String questionKey) {
+        return securityQuestionService.read(questionKey);
     }
-    
+
     public SecurityQuestionTO readByUser(final String username) {
         return securityQuestionService.readByUser(username);
     }

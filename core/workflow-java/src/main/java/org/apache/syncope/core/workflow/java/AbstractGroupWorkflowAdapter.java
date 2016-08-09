@@ -46,17 +46,17 @@ public abstract class AbstractGroupWorkflowAdapter implements GroupWorkflowAdapt
         return null;
     }
 
-    protected abstract WorkflowResult<Long> doUpdate(Group group, GroupPatch groupPatch);
+    protected abstract WorkflowResult<String> doUpdate(Group group, GroupPatch groupPatch);
 
     @Override
-    public WorkflowResult<Long> update(final GroupPatch groupPatch) {
+    public WorkflowResult<String> update(final GroupPatch groupPatch) {
         return doUpdate(groupDAO.authFind(groupPatch.getKey()), groupPatch);
     }
 
     protected abstract void doDelete(Group group);
 
     @Override
-    public void delete(final Long groupKey) {
+    public void delete(final String groupKey) {
         doDelete(groupDAO.authFind(groupKey));
     }
 }

@@ -50,14 +50,14 @@ public class TaskJob extends AbstractInterruptableJob {
     /**
      * Key, set by the caller, for identifying the task to be executed.
      */
-    private Long taskKey;
+    private String taskKey;
 
     /**
      * Task key setter.
      *
      * @param taskKey to be set
      */
-    public void setTaskKey(final Long taskKey) {
+    public void setTaskKey(final String taskKey) {
         this.taskKey = taskKey;
     }
 
@@ -77,7 +77,9 @@ public class TaskJob extends AbstractInterruptableJob {
 
                         ((SchedTaskJobDelegate) ApplicationContextProvider.getBeanFactory().
                                 createBean(delegateClass, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false)).
-                                execute(taskKey, context.getMergedJobDataMap().getBoolean(DRY_RUN_JOBDETAIL_KEY));
+                                execute(taskKey,
+                                        context.getMergedJobDataMap().getBoolean(DRY_RUN_JOBDETAIL_KEY),
+                                        context);
                     } catch (Exception e) {
                         LOG.error("While executing task {}", taskKey, e);
                         throw new RuntimeException(e);
@@ -85,8 +87,7 @@ public class TaskJob extends AbstractInterruptableJob {
 
                     return null;
                 }
-            }
-            );
+            });
         } catch (RuntimeException e) {
             LOG.error("While executing task {}", taskKey, e);
             throw new JobExecutionException("While executing task " + taskKey, e);

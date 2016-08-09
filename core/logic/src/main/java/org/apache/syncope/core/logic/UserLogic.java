@@ -86,27 +86,15 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
     @Autowired
     protected SyncopeLogic syncopeLogic;
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.USER_READ + "')")
-    @Transactional(readOnly = true)
-    public String getUsername(final Long key) {
-        return binder.getUserTO(key).getUsername();
-    }
-
-    @PreAuthorize("hasRole('" + StandardEntitlement.USER_READ + "')")
-    @Transactional(readOnly = true)
-    public Long getKey(final String username) {
-        return binder.getUserTO(username).getKey();
-    }
-
-    @PreAuthorize("hasRole('" + StandardEntitlement.USER_LIST + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.USER_SEARCH + "')")
     @Transactional(readOnly = true)
     @Override
     public int count(final String realm) {
         return userDAO.count(
-                getEffectiveRealms(AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_LIST), realm));
+                getEffectiveRealms(AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_SEARCH), realm));
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.USER_LIST + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.USER_SEARCH + "')")
     @Transactional(readOnly = true)
     @Override
     public List<UserTO> list(
@@ -114,7 +102,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
             final String realm, final boolean details) {
 
         return CollectionUtils.collect(userDAO.findAll(
-                getEffectiveRealms(AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_LIST), realm),
+                getEffectiveRealms(AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_SEARCH), realm),
                 page, size, orderBy),
                 new Transformer<User, UserTO>() {
 
@@ -136,7 +124,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
     @PreAuthorize("hasRole('" + StandardEntitlement.USER_READ + "')")
     @Transactional(readOnly = true)
     @Override
-    public UserTO read(final Long key) {
+    public UserTO read(final String key) {
         return binder.returnUserTO(binder.getUserTO(key));
     }
 
@@ -206,8 +194,8 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
             securityChecks(effectiveRealms, before.getLeft().getRealm(), null);
         }
 
-        Pair<Long, List<PropagationStatus>> created =
-                provisioningManager.create(before.getLeft(), storePassword, nullPriorityAsync);
+        Pair<String, List<PropagationStatus>> created = provisioningManager.create(before.getLeft(), storePassword,
+                nullPriorityAsync);
 
         return after(binder.returnUserTO(binder.getUserTO(created.getKey())), created.getRight(), before.getRight());
     }
@@ -241,15 +229,15 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
             securityChecks(effectiveRealms, before.getLeft().getRealm().getValue(), before.getLeft().getKey());
         }
 
-        Pair<Long, List<PropagationStatus>> updated = provisioningManager.update(before.getLeft(), nullPriorityAsync);
+        Pair<String, List<PropagationStatus>> updated = provisioningManager.update(before.getLeft(), nullPriorityAsync);
 
         return after(binder.returnUserTO(binder.getUserTO(updated.getKey())), updated.getRight(), before.getRight());
     }
 
-    protected Pair<Long, List<PropagationStatus>> setStatusOnWfAdapter(
+    protected Pair<String, List<PropagationStatus>> setStatusOnWfAdapter(
             final StatusPatch statusPatch, final boolean nullPriorityAsync) {
 
-        Pair<Long, List<PropagationStatus>> updated;
+        Pair<String, List<PropagationStatus>> updated;
 
         switch (statusPatch.getType()) {
             case SUSPEND:
@@ -279,7 +267,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
                 toUpdate.getRealm());
         securityChecks(effectiveRealms, toUpdate.getRealm(), toUpdate.getKey());
 
-        Pair<Long, List<PropagationStatus>> updated = setStatusOnWfAdapter(statusPatch, nullPriorityAsync);
+        Pair<String, List<PropagationStatus>> updated = setStatusOnWfAdapter(statusPatch, nullPriorityAsync);
 
         return after(
                 binder.returnUserTO(binder.getUserTO(updated.getKey())),
@@ -302,7 +290,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
             throw new NotFoundException("Null username");
         }
 
-        User user = userDAO.find(username);
+        User user = userDAO.findByUsername(username);
         if (user == null) {
             throw new NotFoundException("User " + username);
         }
@@ -334,7 +322,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
 
     @PreAuthorize("hasRole('" + StandardEntitlement.USER_DELETE + "')")
     @Override
-    public ProvisioningResult<UserTO> delete(final Long key, final boolean nullPriorityAsync) {
+    public ProvisioningResult<UserTO> delete(final String key, final boolean nullPriorityAsync) {
         UserTO userTO = binder.getUserTO(key);
         return doDelete(userTO, false, nullPriorityAsync);
     }
@@ -379,7 +367,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
 
     @PreAuthorize("hasRole('" + StandardEntitlement.USER_UPDATE + "')")
     @Override
-    public UserTO unlink(final Long key, final Collection<String> resources) {
+    public UserTO unlink(final String key, final Collection<String> resources) {
         // security checks
         UserTO user = binder.getUserTO(key);
         Set<String> effectiveRealms = getEffectiveRealms(
@@ -402,7 +390,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
 
     @PreAuthorize("hasRole('" + StandardEntitlement.USER_UPDATE + "')")
     @Override
-    public UserTO link(final Long key, final Collection<String> resources) {
+    public UserTO link(final String key, final Collection<String> resources) {
         // security checks
         UserTO user = binder.getUserTO(key);
         Set<String> effectiveRealms = getEffectiveRealms(
@@ -426,7 +414,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
     @PreAuthorize("hasRole('" + StandardEntitlement.USER_UPDATE + "')")
     @Override
     public ProvisioningResult<UserTO> unassign(
-            final Long key, final Collection<String> resources, final boolean nullPriorityAsync) {
+            final String key, final Collection<String> resources, final boolean nullPriorityAsync) {
 
         // security checks
         UserTO user = binder.getUserTO(key);
@@ -451,7 +439,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
     @PreAuthorize("hasRole('" + StandardEntitlement.USER_UPDATE + "')")
     @Override
     public ProvisioningResult<UserTO> assign(
-            final Long key,
+            final String key,
             final Collection<String> resources,
             final boolean changepwd,
             final String password,
@@ -485,7 +473,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
     @PreAuthorize("hasRole('" + StandardEntitlement.USER_UPDATE + "')")
     @Override
     public ProvisioningResult<UserTO> deprovision(
-            final Long key, final Collection<String> resources, final boolean nullPriorityAsync) {
+            final String key, final Collection<String> resources, final boolean nullPriorityAsync) {
 
         // security checks
         UserTO user = binder.getUserTO(key);
@@ -497,7 +485,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
         List<PropagationStatus> statuses = provisioningManager.deprovision(key, resources, nullPriorityAsync);
 
         ProvisioningResult<UserTO> result = new ProvisioningResult<>();
-        result.setAny(binder.returnUserTO(binder.getUserTO(key)));
+        result.setEntity(binder.returnUserTO(binder.getUserTO(key)));
         result.getPropagationStatuses().addAll(statuses);
         return result;
     }
@@ -505,7 +493,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
     @PreAuthorize("hasRole('" + StandardEntitlement.USER_UPDATE + "')")
     @Override
     public ProvisioningResult<UserTO> provision(
-            final Long key,
+            final String key,
             final Collection<String> resources,
             final boolean changePwd,
             final String password,
@@ -518,11 +506,11 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
                 user.getRealm());
         securityChecks(effectiveRealms, user.getRealm(), user.getKey());
 
-        List<PropagationStatus> statuses =
-                provisioningManager.provision(key, changePwd, password, resources, nullPriorityAsync);
+        List<PropagationStatus> statuses = provisioningManager.provision(key, changePwd, password, resources,
+                nullPriorityAsync);
 
         ProvisioningResult<UserTO> result = new ProvisioningResult<>();
-        result.setAny(binder.returnUserTO(binder.getUserTO(key)));
+        result.setEntity(binder.returnUserTO(binder.getUserTO(key)));
         result.getPropagationStatuses().addAll(statuses);
         return result;
     }
@@ -533,9 +521,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
 
         if (!"confirmPasswordReset".equals(method.getName()) && ArrayUtils.isNotEmpty(args)) {
             for (int i = 0; key == null && i < args.length; i++) {
-                if (args[i] instanceof Long) {
-                    key = (Long) args[i];
-                } else if (args[i] instanceof String) {
+                if (args[i] instanceof String) {
                     key = (String) args[i];
                 } else if (args[i] instanceof UserTO) {
                     key = ((UserTO) args[i]).getKey();
@@ -545,10 +531,9 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
             }
         }
 
-        if ((key != null) && !key.equals(0L)) {
+        if (key instanceof String) {
             try {
-                return binder.returnUserTO(key instanceof Long
-                        ? binder.getUserTO((Long) key) : binder.getUserTO((String) key));
+                return binder.getUserTO((String) key);
             } catch (Throwable ignore) {
                 LOG.debug("Unresolved reference", ignore);
                 throw new UnresolvedReferenceException(ignore);

@@ -22,28 +22,40 @@ import java.util.List;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
+import org.apache.syncope.core.persistence.api.entity.Notification;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 
-public interface TaskDAO extends DAO<Task, Long> {
+public interface TaskDAO extends DAO<Task> {
 
     Class<? extends Task> getEntityReference(TaskType type);
 
-    <T extends Task> T find(Long key);
+    <T extends Task> T find(String key);
 
     <T extends Task> List<T> findToExec(TaskType type);
 
     <T extends Task> List<T> findAll(TaskType type);
 
     <T extends Task> List<T> findAll(
-            TaskType type, ExternalResource resource, AnyTypeKind anyTypeKind, Long anyTypeKey,
-            int page, int itemsPerPage, List<OrderByClause> orderByClauses);
+            TaskType type,
+            ExternalResource resource,
+            Notification notification,
+            AnyTypeKind anyTypeKind,
+            String entityKey,
+            int page,
+            int itemsPerPage,
+            List<OrderByClause> orderByClauses);
 
-    int count(TaskType type, ExternalResource resource, AnyTypeKind anyTypeKind, Long anyTypeKey);
+    int count(
+            TaskType type,
+            ExternalResource resource,
+            Notification notification,
+            AnyTypeKind anyTypeKind,
+            String entityKey);
 
     <T extends Task> T save(T task);
 
-    void delete(Long key);
+    void delete(String key);
 
     void delete(Task task);
 

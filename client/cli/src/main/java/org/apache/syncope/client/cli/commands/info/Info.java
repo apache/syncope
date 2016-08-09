@@ -174,9 +174,9 @@ public class Info {
         }
     }
 
-    public void reportlets() {
+    public void reportletConfs() {
         try {
-            infoResultManager.printReportlets(platformInfo.getReportlets());
+            infoResultManager.printReportletConfs(platformInfo.getReportletConfs());
         } catch (final Exception ex) {
             LOG.error("Information error", ex);
             infoResultManager.genericError(ex.getMessage());

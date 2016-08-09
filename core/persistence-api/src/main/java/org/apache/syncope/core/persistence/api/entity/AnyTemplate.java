@@ -20,7 +20,7 @@ package org.apache.syncope.core.persistence.api.entity;
 
 import org.apache.syncope.common.lib.to.AnyTO;
 
-public interface AnyTemplate extends Entity<Long> {
+public interface AnyTemplate extends Entity {
 
     AnyType getAnyType();
 

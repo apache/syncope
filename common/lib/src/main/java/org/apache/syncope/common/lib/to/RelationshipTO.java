@@ -37,13 +37,7 @@ public class RelationshipTO extends AbstractBaseBean {
             return this;
         }
 
-        public Builder left(final String leftType, final long leftKey) {
-            instance.setLeftType(leftType);
-            instance.setLeftKey(leftKey);
-            return this;
-        }
-
-        public Builder right(final String rightType, final long rightKey) {
+        public Builder right(final String rightType, final String rightKey) {
             instance.setRightType(rightType);
             instance.setRightKey(rightKey);
             return this;
@@ -56,13 +50,9 @@ public class RelationshipTO extends AbstractBaseBean {
 
     private String type;
 
-    private String leftType;
-
-    private long leftKey;
-
     private String rightType;
 
-    private long rightKey;
+    private String rightKey;
 
     public String getType() {
         return type;
@@ -70,22 +60,6 @@ public class RelationshipTO extends AbstractBaseBean {
 
     public void setType(final String type) {
         this.type = type;
-    }
-
-    public String getLeftType() {
-        return leftType;
-    }
-
-    public void setLeftType(final String leftType) {
-        this.leftType = leftType;
-    }
-
-    public long getLeftKey() {
-        return leftKey;
-    }
-
-    public void setLeftKey(final long leftKey) {
-        this.leftKey = leftKey;
     }
 
     public String getRightType() {
@@ -96,11 +70,11 @@ public class RelationshipTO extends AbstractBaseBean {
         this.rightType = rightType;
     }
 
-    public long getRightKey() {
+    public String getRightKey() {
         return rightKey;
     }
 
-    public void setRightKey(final long rightKey) {
+    public void setRightKey(final String rightKey) {
         this.rightKey = rightKey;
     }
 

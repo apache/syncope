@@ -26,6 +26,8 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlEnum;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.SchemaType;
 
 @XmlRootElement(name = "groupReportletConf")
 @XmlType
@@ -46,7 +48,48 @@ public class GroupReportletConf extends AbstractAnyReportletConf {
 
     }
 
+    @Schema(anyTypeKind = AnyTypeKind.GROUP, type = { SchemaType.PLAIN })
+    private final List<String> plainAttrs = new ArrayList<>();
+
+    @Schema(anyTypeKind = AnyTypeKind.GROUP, type = { SchemaType.DERIVED })
+    private final List<String> derAttrs = new ArrayList<>();
+
+    @Schema(anyTypeKind = AnyTypeKind.GROUP, type = { SchemaType.VIRTUAL })
+    private final List<String> virAttrs = new ArrayList<>();
+
+    @SearchCondition(type = "GROUP")
+    protected String matchingCond;
+
     private final List<Feature> features = new ArrayList<>();
+
+    public String getMatchingCond() {
+        return matchingCond;
+    }
+
+    public void setMatchingCond(final String matchingCond) {
+        this.matchingCond = matchingCond;
+    }
+
+    @XmlElementWrapper(name = "plainAttrs")
+    @XmlElement(name = "attribute")
+    @JsonProperty("plainAttrs")
+    public List<String> getPlainAttrs() {
+        return plainAttrs;
+    }
+
+    @XmlElementWrapper(name = "derAttrs")
+    @XmlElement(name = "attribute")
+    @JsonProperty("derAttrs")
+    public List<String> getDerAttrs() {
+        return derAttrs;
+    }
+
+    @XmlElementWrapper(name = "virAttrs")
+    @XmlElement(name = "attribute")
+    @JsonProperty("virAttrs")
+    public List<String> getVirAttrs() {
+        return virAttrs;
+    }
 
     public GroupReportletConf() {
         super();

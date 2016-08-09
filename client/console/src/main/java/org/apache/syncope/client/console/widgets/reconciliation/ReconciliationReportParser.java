@@ -64,7 +64,7 @@ public final class ReconciliationReportParser {
                     case "user":
                         user = new Any();
                         user.setType(AnyTypeKind.USER.name());
-                        user.setKey(Long.valueOf(streamReader.getAttributeValue("", "key")));
+                        user.setKey(streamReader.getAttributeValue("", "key"));
                         user.setName(streamReader.getAttributeValue("", "username"));
                         report.getUsers().getAnys().add(user);
                         break;
@@ -78,7 +78,7 @@ public final class ReconciliationReportParser {
                     case "group":
                         group = new Any();
                         group.setType(AnyTypeKind.GROUP.name());
-                        group.setKey(Long.valueOf(streamReader.getAttributeValue("", "key")));
+                        group.setKey(streamReader.getAttributeValue("", "key"));
                         group.setName(streamReader.getAttributeValue("", "groupName"));
                         report.getGroups().getAnys().add(group);
                         break;
@@ -94,7 +94,7 @@ public final class ReconciliationReportParser {
                     case "anyObject":
                         anyObject = new Any();
                         anyObject.setType(lastAnyType);
-                        anyObject.setKey(Long.valueOf(streamReader.getAttributeValue("", "key")));
+                        anyObject.setKey(streamReader.getAttributeValue("", "key"));
                         final String anyType = lastAnyType;
                         IterableUtils.find(report.getAnyObjects(), new Predicate<Anys>() {
 

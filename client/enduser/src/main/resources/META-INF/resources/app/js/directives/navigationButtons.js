@@ -47,8 +47,7 @@ angular.module('self')
                     if (ValidationExecutor.validate(currentForm, $scope.$parent)) {
                       if (state) {
                         $scope.nextTab(state);
-                      }
-                      else if ($scope.wizard) {
+                      } else if ($scope.wizard) {
                         $scope.nextTab($scope.next);
                       }
                     }
@@ -58,6 +57,7 @@ angular.module('self')
 
                 $scope.nextTab = function (state) {
                   //change route through parent event
+                  console.log("State: ", state);
                   $state.go(state);
                 };
 

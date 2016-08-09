@@ -88,14 +88,14 @@ under the License.
         in <a href="docs/getting-started.html#paths-and-components">embedded mode</a>
         but console) and enables remote JPDA debugging on port 8000 in the running Java EE container (Tomcat).
         <source>$ mvn -Pdebug,all</source>
-or, without Activiti and Camel support
+        or, without Activiti and Camel support
         <source>$ mvn -Pdebug</source>
 
         <h4>JRebel</h4>
         As with Debug, but with <a href="http://zeroturnaround.com/software/jrebel/">JRebel</a> features enabled.
         <source>$ export REBEL_HOME=/opt/jrebel
 $ mvn -Pjrebel,all</source>
-or, without Activiti and Camel support
+        or, without Activiti and Camel support
         <source>$ export REBEL_HOME=/opt/jrebel
 $ mvn -Pjrebel</source>
 
@@ -137,6 +137,11 @@ $ mvn -Pjrebel</source>
         <a href="https://glassfish.java.net/">Glassfish</a> via
         <source>$ mvn -Pglassfish-it</source>
 
+        <h5>Payara</h5>
+        Perform the full test suite by deploying Syncope core in 
+        <a href="http://www.payara.fish/">Payara</a> via
+        <source>$ mvn -Ppayara-it</source>
+
         <h5>Wildfly</h5>
         Perform the full test suite by deploying Syncope core in 
         <a href="http://www.wildfly.org">Wildfly</a> via
@@ -145,9 +150,9 @@ $ mvn -Pjrebel</source>
       
       <subsection name="fit/console-reference">
         <h4>Debug</h4>
-        Starts the full environment used by core's integration tests (with same components available when running new project
-        in <a href="docs/getting-started.html#paths-and-components">embedded mode</a>,
-        including console) and enables remote JPDA debugging on port 8000 in the running Java EE container (Tomcat).
+        Starts the full environment used by core's integration tests (with same components available when running new 
+        project in <a href="docs/getting-started.html#paths-and-components">embedded mode</a>, including console) and 
+        enables remote JPDA debugging on port 8000 in the running Java EE container (Tomcat).
         <source>$ mvn -Pdebug</source>
 
         <h4>JRebel</h4>
@@ -155,6 +160,27 @@ $ mvn -Pjrebel</source>
         <source>$ export REBEL_HOME=/opt/jrebel
 $ mvn -Pjrebel</source>
       </subsection>
+      
+      <subsection name="fit/enduser-reference">
+        <h4>Debug</h4>
+        Starts the full environment used by core's integration tests (with same components available when running new 
+        project in <a href="docs/getting-started.html#paths-and-components">embedded mode</a>, including console and 
+        enduser) and enables remote JPDA debugging on port 8000 in the running Java EE container (Tomcat).
+        <source>$ mvn -Pdebug</source>
+
+        <h4>JRebel</h4>
+        As with Debug, but with <a href="http://zeroturnaround.com/software/jrebel/">JRebel</a> features enabled.
+        <source>$ export REBEL_HOME=/opt/jrebel
+$ mvn -Pjrebel</source>
+      </subsection>
+    </section>
+
+    <section name="Building documentation">
+      <p>
+        To build Syncope documentation execute (from within the check-out directory):
+        <source>$ mvn -N -P site clean generate-resources</source>
+        The documentation artifacts are now be available under <tt>target/generated-docs/</tt>.
+      </p>
     </section>
   </body>
 </document>

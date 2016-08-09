@@ -22,13 +22,13 @@ import org.apache.cxf.jaxrs.ext.search.client.CompleteCondition;
 
 public interface UserProperty extends SyncopeProperty {
 
-    CompleteCondition inGroups(Long group, Long... moreGroups);
+    CompleteCondition inGroups(String group, String... moreGroups);
 
-    CompleteCondition notInGroups(Long group, Long... moreGroups);
+    CompleteCondition notInGroups(String group, String... moreGroups);
 
-    CompleteCondition inRelationships(Long anyObject, Long... moreAnyObjects);
+    CompleteCondition inRelationships(String anyObject, String... moreAnyObjects);
 
-    CompleteCondition notInRelationships(Long anyObject, Long... moreAnyObjects);
+    CompleteCondition notInRelationships(String anyObject, String... moreAnyObjects);
 
     CompleteCondition inRelationshipTypes(String type, String... moreTypes);
 

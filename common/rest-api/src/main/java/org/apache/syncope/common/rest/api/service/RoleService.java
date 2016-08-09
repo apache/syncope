@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.rest.api.service;
 
+import java.io.InputStream;
 import java.util.List;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -44,7 +45,7 @@ public interface RoleService extends JAXRSService {
      * @return list of all roles.
      */
     @GET
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     List<RoleTO> list();
 
     /**
@@ -55,7 +56,7 @@ public interface RoleService extends JAXRSService {
      */
     @GET
     @Path("{key}")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     RoleTO read(@NotNull @PathParam("key") String key);
 
     /**
@@ -65,7 +66,7 @@ public interface RoleService extends JAXRSService {
      * @return Response object featuring Location header of created role
      */
     @POST
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response create(@NotNull RoleTO roleTO);
 
     /**
@@ -75,7 +76,7 @@ public interface RoleService extends JAXRSService {
      */
     @PUT
     @Path("{key}")
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     void update(@NotNull RoleTO roleTO);
 
     /**
@@ -86,4 +87,35 @@ public interface RoleService extends JAXRSService {
     @DELETE
     @Path("{key}")
     void delete(@NotNull @PathParam("key") String key);
+
+    /**
+     * Gets the console layout information as JSON string for the role with the given key, if available.
+     *
+     * @param key role key
+     * @return console layout information as JSON string for the role with the given key, if available
+     */
+    @GET
+    @Path("{key}/consoleLayout")
+    @Produces({ MediaType.APPLICATION_JSON })
+    Response getConsoleLayoutInfo(@NotNull @PathParam("key") String key);
+
+    /**
+     * Sets the console layout information as JSON string for the role with the given key, if available.
+     *
+     * @param key role key
+     * @param consoleLayoutInfoIn console layout information to be set
+     */
+    @PUT
+    @Path("{key}/consoleLayout")
+    @Consumes({ MediaType.APPLICATION_JSON })
+    void setConsoleLayoutInfo(@NotNull @PathParam("key") String key, InputStream consoleLayoutInfoIn);
+
+    /**
+     * Removes the console layout information for the role with the given key, if available.
+     *
+     * @param key role key
+     */
+    @DELETE
+    @Path("{key}/consoleLayout")
+    void removeConsoleLayoutInfo(@NotNull @PathParam("key") String key);
 }

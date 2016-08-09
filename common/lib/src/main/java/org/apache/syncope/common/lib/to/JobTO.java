@@ -32,7 +32,7 @@ public class JobTO extends AbstractBaseBean {
 
     private JobType type;
 
-    private Long refKey;
+    private String refKey;
 
     private String refDesc;
 
@@ -52,11 +52,11 @@ public class JobTO extends AbstractBaseBean {
         this.type = type;
     }
 
-    public Long getRefKey() {
+    public String getRefKey() {
         return refKey;
     }
 
-    public void setRefKey(final Long refKey) {
+    public void setRefKey(final String refKey) {
         this.refKey = refKey;
     }
 

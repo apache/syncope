@@ -21,8 +21,8 @@ package org.apache.syncope.client.console.wicket.markup.html.form;
 import java.io.Serializable;
 import java.util.List;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.model.IModel;
@@ -41,10 +41,10 @@ public class AjaxCheckBoxPanel extends FieldPanel<Boolean> {
         super(id, name, model);
 
         field = new CheckBox("checkboxField", model);
-        add(field.setLabel(new Model<String>(name)).setOutputMarkupId(true));
+        add(field.setLabel(new Model<>(name)).setOutputMarkupId(true));
 
         if (enableOnChange && !isReadOnly()) {
-            field.add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+            field.add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
                 private static final long serialVersionUID = -1107858522700306810L;
 

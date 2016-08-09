@@ -18,9 +18,17 @@
  */
 package org.apache.syncope.core.rest.cxf.service;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URI;
 import java.util.List;
+import javax.ws.rs.InternalServerErrorException;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
+import org.apache.commons.io.IOUtils;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.RoleService;
@@ -61,6 +69,36 @@ public class RoleServiceImpl extends AbstractServiceImpl implements RoleService 
     @Override
     public void delete(final String key) {
         logic.delete(key);
+    }
+
+    @Override
+    public Response getConsoleLayoutInfo(final String key) {
+        final String template = logic.getConsoleLayoutInfo(key);
+        StreamingOutput sout = new StreamingOutput() {
+
+            @Override
+            public void write(final OutputStream os) throws IOException {
+                os.write(template.getBytes());
+            }
+        };
+        return Response.ok(sout).
+                type(MediaType.APPLICATION_JSON_TYPE).
+                build();
+    }
+
+    @Override
+    public void setConsoleLayoutInfo(final String key, final InputStream consoleLayoutIn) {
+        try {
+            logic.setConsoleLayoutInfo(key, IOUtils.toString(consoleLayoutIn, SyncopeConstants.DEFAULT_CHARSET));
+        } catch (final IOException e) {
+            LOG.error("While setting console layout info for role {}", key, e);
+            throw new InternalServerErrorException("Could not read entity", e);
+        }
+    }
+
+    @Override
+    public void removeConsoleLayoutInfo(final String key) {
+        logic.setConsoleLayoutInfo(key, null);
     }
 
 }

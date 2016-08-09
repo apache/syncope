@@ -20,52 +20,29 @@ package org.apache.syncope.core.persistence.jpa.entity.task;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.persistence.CascadeType;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
-import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
-import org.apache.syncope.core.persistence.jpa.entity.AbstractEntity;
+import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
 
 @Entity
 @Table(name = AbstractTask.TABLE)
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "DTYPE")
-public abstract class AbstractTask extends AbstractEntity<Long> implements Task {
+public abstract class AbstractTask extends AbstractGeneratedKeyEntity implements Task {
 
     private static final long serialVersionUID = 5837401178128177511L;
 
     public static final String TABLE = "Task";
 
-    @Id
-    private Long id;
-
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    protected TaskType type;
-
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "task")
     private List<JPATaskExec> executions = new ArrayList<>();
-
-    @Override
-    public Long getKey() {
-        return id;
-    }
-
-    @Override
-    public TaskType getType() {
-        return type;
-    }
 
     @Override
     public boolean add(final TaskExec exec) {

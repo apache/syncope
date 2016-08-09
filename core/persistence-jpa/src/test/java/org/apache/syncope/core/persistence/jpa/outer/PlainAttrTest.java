@@ -41,17 +41,19 @@ public class PlainAttrTest extends AbstractTest {
 
     @Test
     public void deleteAttribute() {
-        plainAttrDAO.delete(117L, UPlainAttr.class);
+        plainAttrDAO.delete("35f407a2-d254-4890-9e45-5a7dd8c8df7d", UPlainAttr.class);
 
         plainAttrDAO.flush();
 
-        assertNull(plainAttrDAO.find(117L, UPlainAttr.class));
-        assertNull(plainAttrValueDAO.find(28L, UPlainAttrValue.class));
+        assertNull(plainAttrDAO.find("35f407a2-d254-4890-9e45-5a7dd8c8df7d", UPlainAttr.class));
+        assertNull(
+                plainAttrValueDAO.find("0c67225a-030a-4c56-b337-17cf7a311f0f", UPlainAttrValue.class));
     }
 
     @Test
     public void deleteAttributeValue() {
-        UPlainAttrValue value = plainAttrValueDAO.find(14L, UPlainAttrValue.class);
+        UPlainAttrValue value = plainAttrValueDAO.find(
+                "7034de3b-3687-4db5-8454-363468f1a9de", UPlainAttrValue.class);
         int attributeValueNumber = value.getAttr().getValues().size();
 
         plainAttrValueDAO.delete(value.getKey(), UPlainAttrValue.class);
@@ -60,7 +62,8 @@ public class PlainAttrTest extends AbstractTest {
 
         assertNull(plainAttrValueDAO.find(value.getKey(), UPlainAttrValue.class));
 
-        UPlainAttr attribute = plainAttrDAO.find(104L, UPlainAttr.class);
+        UPlainAttr attribute = plainAttrDAO.find(
+                "9d0d9e40-1b18-488e-9482-37dab82163c9", UPlainAttr.class);
         assertEquals(attribute.getValues().size(), attributeValueNumber - 1);
     }
 }

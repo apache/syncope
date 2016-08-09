@@ -74,11 +74,11 @@ public class LDAPMembershipPropagationActions extends DefaultPropagationActions 
 
         Provision provision = task.getResource().getProvision(anyTypeDAO.findGroup());
         if (AnyTypeKind.USER == task.getAnyTypeKind() && provision != null && provision.getMapping() != null) {
-            User user = userDAO.find(task.getAnyKey());
+            User user = userDAO.find(task.getEntityKey());
             if (user != null) {
                 List<String> groupConnObjectLinks = new ArrayList<>();
                 for (Group group : userDAO.findAllGroups(user)) {
-                    if (group.getResourceNames().contains(task.getResource().getKey())
+                    if (group.getResourceKeys().contains(task.getResource().getKey())
                             && StringUtils.isNotBlank(provision.getMapping().getConnObjectLink())) {
 
                         LOG.debug("Evaluating connObjectLink for {}", group);

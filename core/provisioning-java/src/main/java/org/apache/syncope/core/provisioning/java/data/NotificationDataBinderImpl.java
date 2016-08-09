@@ -25,6 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.core.provisioning.api.data.NotificationDataBinder;
 import org.apache.syncope.common.lib.to.NotificationTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Notification;
@@ -34,6 +35,7 @@ import org.apache.syncope.core.persistence.api.dao.MailTemplateDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyAbout;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.MailTemplate;
+import org.apache.syncope.core.provisioning.java.IntAttrNameParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +56,9 @@ public class NotificationDataBinderImpl implements NotificationDataBinder {
 
     @Autowired
     private EntityFactory entityFactory;
+
+    @Autowired
+    private IntAttrNameParser intAttrNameParser;
 
     @Override
     public NotificationTO getNotificationTO(final Notification notification) {
@@ -118,5 +123,8 @@ public class NotificationDataBinderImpl implements NotificationDataBinder {
                 return notificationTO.getAbouts().containsKey(anyAbout.getAnyType().getKey());
             }
         });
+
+        // 3. verify recipientAttrName
+        intAttrNameParser.parse(notification.getRecipientAttrName(), AnyTypeKind.USER);
     }
 }

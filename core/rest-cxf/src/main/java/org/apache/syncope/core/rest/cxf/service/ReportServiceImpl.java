@@ -25,26 +25,26 @@ import java.util.List;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import org.apache.syncope.common.lib.to.BulkActionResult;
-import org.apache.syncope.common.lib.to.JobTO;
-import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.ReportTO;
-import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
 import org.apache.syncope.common.rest.api.RESTHeaders;
-import org.apache.syncope.common.rest.api.beans.BulkExecDeleteQuery;
-import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
 import org.apache.syncope.common.rest.api.service.ReportService;
+import org.apache.syncope.core.logic.AbstractExecutableLogic;
 import org.apache.syncope.core.logic.ReportLogic;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ReportServiceImpl extends AbstractServiceImpl implements ReportService {
+public class ReportServiceImpl extends AbstractExecutableService implements ReportService {
 
     @Autowired
     private ReportLogic logic;
+
+    @Override
+    protected AbstractExecutableLogic<?> getExecutableLogic() {
+        return logic;
+    }
 
     @Override
     public Response create(final ReportTO reportTO) {
@@ -66,12 +66,12 @@ public class ReportServiceImpl extends AbstractServiceImpl implements ReportServ
     }
 
     @Override
-    public ReportTO read(final Long key) {
+    public ReportTO read(final String key) {
         return logic.read(key);
     }
 
     @Override
-    public Response exportExecutionResult(final Long executionKey, final ReportExecExportFormat fmt) {
+    public Response exportExecutionResult(final String executionKey, final ReportExecExportFormat fmt) {
         final ReportExecExportFormat format = (fmt == null) ? ReportExecExportFormat.XML : fmt;
         final ReportExec reportExec = logic.getReportExec(executionKey);
         StreamingOutput sout = new StreamingOutput() {
@@ -88,42 +88,7 @@ public class ReportServiceImpl extends AbstractServiceImpl implements ReportServ
     }
 
     @Override
-    public ExecTO execute(final ExecuteQuery query) {
-        return logic.execute(query.getKey(), query.getStartAt());
-    }
-
-    @Override
-    public void delete(final Long key) {
+    public void delete(final String key) {
         logic.delete(key);
-    }
-
-    @Override
-    public List<ExecTO> listRecentExecutions(final int size) {
-        return logic.listRecentExecutions(size);
-    }
-
-    @Override
-    public void deleteExecution(final Long executionKey) {
-        logic.deleteExecution(executionKey);
-    }
-
-    @Override
-    public BulkActionResult deleteExecutions(final BulkExecDeleteQuery query) {
-        return logic.deleteExecutions(
-                query.getKey(),
-                query.getStartedBefore(),
-                query.getStartedAfter(),
-                query.getEndedBefore(),
-                query.getEndedAfter());
-    }
-
-    @Override
-    public List<JobTO> listJobs() {
-        return logic.listJobs();
-    }
-
-    @Override
-    public void actionJob(final Long key, final JobAction action) {
-        logic.actionJob(key, action);
     }
 }

@@ -53,15 +53,13 @@ under the License.
       <groupId>org.apache.wicket</groupId>
       <artifactId>wicket-extensions</artifactId>
     </dependency>
+ 
     <dependency>
-      <groupId>org.apache.wicket</groupId>
-      <artifactId>wicket-datetime</artifactId>
+      <groupId>org.apache.syncope.client</groupId>
+      <artifactId>syncope-client-lib</artifactId>
+      <version>${project.version}</version>
     </dependency>
-    <dependency>
-      <groupId>org.apache.wicket</groupId>
-      <artifactId>wicket-auth-roles</artifactId>
-    </dependency>
-    
+   
     <!--AngularJS-->    
     <dependency>
       <groupId>org.webjars.bower</groupId>
@@ -89,6 +87,18 @@ under the License.
     </dependency>
     <dependency>
       <groupId>org.webjars.bower</groupId>
+      <artifactId>angular-translate</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.webjars.bower</groupId>
+      <artifactId>angular-translate-loader-partial</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.webjars.bower</groupId>
+      <artifactId>angular-translate-storage-cookie</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.webjars.bower</groupId>
       <artifactId>ng-password-strength</artifactId>    
     </dependency>
     <dependency>
@@ -99,6 +109,7 @@ under the License.
       <groupId>org.webjars</groupId>
       <artifactId>kendo-ui-core</artifactId>
     </dependency>
+
     <!--Bootstrap-->
     <dependency>
       <groupId>org.webjars</groupId>
@@ -142,16 +153,8 @@ under the License.
       <groupId>org.webjars.bower</groupId>
       <artifactId>FileSaver.js</artifactId>
     </dependency>
-    <dependency>
-      <groupId>org.webjars.npm</groupId>
-      <artifactId>moment</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.webjars.npm</groupId>
-      <artifactId>moment-jdateformatparser</artifactId>
-    </dependency>
 
-    <!--Jquery-->
+    <!--jQuery-->
     <dependency>
       <groupId>org.webjars</groupId>
       <artifactId>jquery</artifactId>
@@ -170,19 +173,6 @@ under the License.
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-core</artifactId>
     </dependency>
-    
-    <dependency>
-      <groupId>org.apache.syncope.client</groupId>
-      <artifactId>syncope-client-lib</artifactId>
-      <version>${project.version}</version>
-    </dependency>
-    
-    <!-- TEST -->
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
   
   <build>
@@ -198,8 +188,6 @@ under the License.
         <directory>src/main/resources</directory>
         <filtering>true</filtering>
       </resource>
-    </resources>
-    
+    </resources>    
   </build>
-  
 </project>

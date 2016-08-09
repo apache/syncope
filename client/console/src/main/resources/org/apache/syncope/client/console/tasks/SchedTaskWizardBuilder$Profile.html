@@ -17,30 +17,29 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
-  <head><title></title></head>
-  <body>
-    <wicket:panel>
-      <div class="form-group"><span wicket:id="name">[id]</span></div>
-      <div class="form-group"><span wicket:id="description">[anyKey]</span></div>
-      <div class="form-group"><span wicket:id="active">[active]</span></div>
-      <span wicket:id="pullTaskSpecifics">
-        <div class="form-group"><span wicket:id="destinationRealm">[destinationRealm]</span></div>
-        <div class="form-group"><span wicket:id="pullMode">[pullMode]</span></div>
-        <div class="form-group"><span wicket:id="reconciliationFilterBuilderClassName">[filter]</span></div>
-      </span>
-      <div class="form-group"><span wicket:id="jobDelegateClassName">[jobDelegateClassName]</span></div>
+  <wicket:panel>
+    <div class="form-group"><span wicket:id="name">[id]</span></div>
+    <div class="form-group"><span wicket:id="description">[anyKey]</span></div>
+    <div class="form-group"><span wicket:id="active">[active]</span></div>
 
-      <span wicket:id="provisioningTaskSpecifics">
-        <div class="form-group"><span wicket:id="matchingRule">[matchingRule]</span></div>
-        <div class="form-group"><span wicket:id="unmatchingRule">[unmatchingRule]</span></div>
-        <div class="form-group"><span wicket:id="performCreate">[performCreate]</span></div>
-        <div class="form-group"><span wicket:id="performUpdate">[performUpdate]</span></div>
-        <div class="form-group"><span wicket:id="performDelete">[performDelete]</span></div>
-        <div class="form-group"><span wicket:id="pullStatus">[pullStatus]</span></div>
-      </span>
+    <div class="form-group"><span wicket:id="jobDelegateClassName">[jobDelegateClassName]</span></div>
 
-      <div class="form-group"><span wicket:id="lastExec">[lastExec]</span></div>
-      <div class="form-group"><span wicket:id="nextExec">[lastExec]</span></div>
-    </wicket:panel>
-  </body>
+    <span wicket:id="pullTaskSpecifics">
+      <div class="form-group"><span wicket:id="destinationRealm">[destinationRealm]</span></div>
+      <div class="form-group"><span wicket:id="pullMode">[pullMode]</span></div>
+      <div class="form-group"><span wicket:id="reconciliationFilterBuilderClassName">[filter]</span></div>
+    </span>      
+
+    <span wicket:id="provisioningTaskSpecifics">
+      <div class="form-group form-palette">
+        <span wicket:id="actionsClassNames">[actionsClassNames]</span>
+      </div>
+      <div class="form-group"><span wicket:id="matchingRule">[matchingRule]</span></div>
+      <div class="form-group"><span wicket:id="unmatchingRule">[unmatchingRule]</span></div>
+      <div class="form-group"><span wicket:id="performCreate">[performCreate]</span></div>
+      <div class="form-group"><span wicket:id="performUpdate">[performUpdate]</span></div>
+      <div class="form-group"><span wicket:id="performDelete">[performDelete]</span></div>
+      <div class="form-group"><span wicket:id="syncStatus">[syncStatus]</span></div>
+    </span>
+  </wicket:panel>
 </html>

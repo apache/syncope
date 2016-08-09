@@ -23,7 +23,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import java.util.List;
-import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.MailTemplateDAO;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
@@ -48,7 +47,7 @@ public class NotificationTest extends AbstractTest {
 
     @Test
     public void find() {
-        Notification notification = notificationDAO.find(10L);
+        Notification notification = notificationDAO.find("9e2b911c-25de-4c77-bcea-b86ed9451050");
         assertNotNull(notification);
         assertNotNull(notification.getEvents());
         assertFalse(notification.getEvents().isEmpty());
@@ -78,7 +77,6 @@ public class NotificationTest extends AbstractTest {
         notification.setRecipientsFIQL("fake recipients");
 
         notification.setRecipientAttrName("email");
-        notification.setRecipientAttrType(IntMappingType.UserPlainSchema);
 
         notification.setSender("syncope@syncope.apache.org");
         notification.setSubject("Test notification");
@@ -91,8 +89,8 @@ public class NotificationTest extends AbstractTest {
 
     @Test
     public void delete() {
-        notificationDAO.delete(10L);
-        assertNull(notificationDAO.find(10L));
+        notificationDAO.delete("9e2b911c-25de-4c77-bcea-b86ed9451050");
+        assertNull(notificationDAO.find("9e2b911c-25de-4c77-bcea-b86ed9451050"));
     }
 
     @Test
@@ -109,7 +107,6 @@ public class NotificationTest extends AbstractTest {
         notification.setRecipientsFIQL("fake search condition");
 
         notification.setRecipientAttrName("email");
-        notification.setRecipientAttrType(IntMappingType.UserPlainSchema);
 
         notification.getStaticRecipients().add("syncope445@syncope.apache.org");
 
@@ -127,7 +124,7 @@ public class NotificationTest extends AbstractTest {
     @Test
     public void issueSYNCOPE446() {
         Notification notification = entityFactory.newEntity(Notification.class);
-        notification.getEvents().add("[REST]:[GroupLogic]:[]:[create]:[SUCCESS]");
+        notification.getEvents().add("[LOGIC]:[GroupLogic]:[]:[create]:[SUCCESS]");
 
         AnyAbout about = entityFactory.newEntity(AnyAbout.class);
         about.setNotification(notification);
@@ -136,7 +133,6 @@ public class NotificationTest extends AbstractTest {
         about.set("fake search condition");
 
         notification.setRecipientAttrName("email");
-        notification.setRecipientAttrType(IntMappingType.UserPlainSchema);
 
         notification.getStaticRecipients().add("syncope446@syncope.apache.org");
 

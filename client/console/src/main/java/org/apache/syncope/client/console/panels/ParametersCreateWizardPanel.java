@@ -28,17 +28,13 @@ import org.apache.syncope.common.rest.api.service.ConfigurationService;
 import org.apache.syncope.common.rest.api.service.SchemaService;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.wizard.WizardModel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ParametersCreateWizardPanel extends AjaxWizardBuilder<ParametersCreateWizardPanel.ParametersForm> {
 
     private static final long serialVersionUID = -2868592590785581481L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(ParametersCreateWizardPanel.class);
-
-    public ParametersCreateWizardPanel(final String id, final ParametersForm defaultItem, final PageReference pageRef) {
-        super(id, defaultItem, pageRef);
+    public ParametersCreateWizardPanel(final ParametersForm defaultItem, final PageReference pageRef) {
+        super(defaultItem, pageRef);
 
     }
 

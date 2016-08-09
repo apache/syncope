@@ -19,9 +19,7 @@
 package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.List;
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
-import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
@@ -29,38 +27,46 @@ import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.Policy;
 import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.AbstractPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAccountPolicy;
+import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPasswordPolicy;
+import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPullPolicy;
+import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPushPolicy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class JPAPolicyDAO extends AbstractDAO<Policy, Long> implements PolicyDAO {
+public class JPAPolicyDAO extends AbstractDAO<Policy> implements PolicyDAO {
 
     @Autowired
     private RealmDAO realmDAO;
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public <T extends Policy> T find(final Long key) {
-        final Query query = entityManager().createQuery(
-                "SELECT e FROM " + AbstractPolicy.class.getSimpleName() + " e WHERE e.id=:id");
-        query.setParameter("id", key);
+    private <T extends Policy> Class<? extends AbstractPolicy> getEntityReference(final Class<T> reference) {
+        return AccountPolicy.class.isAssignableFrom(reference)
+                ? JPAAccountPolicy.class
+                : PasswordPolicy.class.isAssignableFrom(reference)
+                ? JPAPasswordPolicy.class
+                : PullPolicy.class.isAssignableFrom(reference)
+                ? JPAPullPolicy.class
+                : PushPolicy.class.isAssignableFrom(reference)
+                ? JPAPushPolicy.class
+                : null;
+    }
 
-        List<T> result = query.getResultList();
-        return result.isEmpty()
-                ? null
-                : result.iterator().next();
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T extends Policy> T find(final String key) {
+        return (T) entityManager().find(AbstractPolicy.class, key);
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public <T extends Policy> List<T> find(final PolicyType type) {
-        final Query query = entityManager().createQuery(
-                "SELECT e FROM " + AbstractPolicy.class.getSimpleName() + " e WHERE e.type=:type");
-        query.setParameter("type", type);
+    public <T extends Policy> List<T> find(final Class<T> reference) {
+        TypedQuery<T> query = entityManager().createQuery(
+                "SELECT e FROM " + getEntityReference(reference).getSimpleName() + " e", reference);
 
-        return (List<T>) query.getResultList();
+        return query.getResultList();
     }
 
     @Override

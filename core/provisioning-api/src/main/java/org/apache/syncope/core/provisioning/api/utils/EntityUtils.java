@@ -23,11 +23,11 @@ import org.apache.syncope.core.persistence.api.entity.Entity;
 
 public final class EntityUtils {
 
-    public static <KEY, E extends Entity<KEY>> Transformer<E, KEY> keyTransformer() {
-        return new Transformer<E, KEY>() {
+    public static <E extends Entity> Transformer<E, String> keyTransformer() {
+        return new Transformer<E, String>() {
 
             @Override
-            public KEY transform(final E input) {
+            public String transform(final E input) {
                 return input.getKey();
             }
         };

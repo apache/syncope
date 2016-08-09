@@ -22,7 +22,7 @@ import java.util.List;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.entity.CamelRoute;
 
-public interface CamelRouteDAO extends DAO<CamelRoute, String> {
+public interface CamelRouteDAO extends DAO<CamelRoute> {
 
     CamelRoute find(String key);
 

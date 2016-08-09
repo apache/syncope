@@ -49,7 +49,7 @@ under the License.
 
     <dependency>
       <groupId>${groupId}</groupId>
-      <artifactId>common</artifactId>
+      <artifactId>syncope-common</artifactId>
       <version>${project.version}</version>
     </dependency>  
     
@@ -91,6 +91,34 @@ under the License.
 
   <build>
     <finalName>syncope-enduser</finalName>
+
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <inherited>true</inherited>
+        <configuration>
+          <webResources>
+            <resource>
+              <directory>${basedir}/src/main/webapp/WEB-INF</directory>
+              <filtering>true</filtering>
+              <targetPath>WEB-INF</targetPath>
+              <includes>
+                <include>web.xml</include>
+              </includes>
+            </resource>
+            <resource>
+              <directory>${basedir}/src/main/webapp/app</directory>
+              <filtering>true</filtering>
+              <targetPath>app</targetPath>
+              <includes>
+                <include>index.html</include>
+              </includes>
+            </resource>
+          </webResources>
+        </configuration>
+      </plugin>
+    </plugins>
 
     <resources>
       <resource>
@@ -217,6 +245,12 @@ under the License.
                   <location>../core/target/syncope</location>
                   <properties>
                     <context>syncope</context>
+                  </properties>
+                </deployable>
+                <deployable>
+                  <location>../console/target/syncope-console</location>
+                  <properties>
+                    <context>syncope-console</context>
                   </properties>
                 </deployable>
                 <deployable>

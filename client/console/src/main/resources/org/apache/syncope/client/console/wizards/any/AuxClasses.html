@@ -17,53 +17,18 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
-  <head><title></title></head>
-  <body>
-    <wicket:panel>
-      <span wicket:id="groups">[GROUPS]</span>
-
-      <div class="col-xs-12">
-        <div class="box">
-          <div class="box-header">
-            <h3 class="box-title">
-              <wicket:message key="auxclasses.palette">AUX CLASSES</wicket:message>
-            </h3>
-          </div>
-          <div class="box-body">
-            <span wicket:id="auxClasses">[AUX]</span>
-          </div>
+  <wicket:panel>
+    <div class="col-xs-12">
+      <div class="box">
+        <div class="box-header">
+          <h3 class="box-title">
+            <wicket:message key="auxClasses.palette">AUX CLASSES</wicket:message>
+          </h3>
+        </div>
+        <div class="box-body">
+          <span wicket:id="auxClasses">[AUX CLASSES]</span>
         </div>
       </div>
-
-      <wicket:fragment wicket:id="groupsFragment">
-        <div class="col-xs-12">
-          <div class="box">
-            <div class="box-header">
-              <h3 class="box-title">
-                <wicket:message key="groups.palette">[GROUPS]</wicket:message>
-              </h3>
-            </div>
-            <div class="box-body">
-              <span wicket:id="groups"/>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-xs-12">
-          <div class="box">
-            <div class="box-header">
-              <h3 class="box-title">
-                <wicket:message key="dyngroups.palette">[DYNAMIC GROUPS]</wicket:message>
-              </h3>
-            </div>
-            <div class="box-body">
-              <span wicket:id="dyngroups">[DYNAMIC GROUPS]</span>
-            </div>
-          </div>
-        </div>
-      </wicket:fragment>
-
-      <wicket:fragment wicket:id="emptyFragment"/>
-    </wicket:panel>
-  </body>
+    </div>
+  </wicket:panel>
 </html>

@@ -29,7 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 
-public abstract class AbstractEntity<KEY> implements Entity<KEY> {
+public abstract class AbstractEntity implements Entity {
 
     private static final long serialVersionUID = -9017214159540857901L;
 

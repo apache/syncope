@@ -37,16 +37,31 @@ under the License.
     <span wicket:id="panelSearch">[plus]</span>
     <span wicket:id="panelNotFound">[plus]</span>
     <span wicket:id="panelView">[plus]</span>
+    <span wicket:id="panelMembers">[plus]</span>
     <span wicket:id="panelMapping">[plus]</span>
-    <span wicket:id="panelAccountLink">[plus]</span>
-    <span wicket:id="panelResetTime">[plus]</span>
+    <span wicket:id="panelSetLatestSyncToken">[plus]</span>
+    <span wicket:id="panelRemoveSyncToken">[plus]</span>
     <span wicket:id="panelClone">[plus]</span>
     <span wicket:id="panelCreate">[plus]</span>
-    <span wicket:id="panelUserTemplate">[plus]</span>
-    <span wicket:id="panelGroupTemplate">[plus]</span>
     <span wicket:id="panelReset">[plus]</span>
     <span wicket:id="panelEdit">[plus]</span>
+    <span wicket:id="panelTemplate">[plus]</span>
+    <span wicket:id="panelTypeExtensions">[plus]</span>
+    <span wicket:id="panelFoEdit">[plus]</span>
+    <span wicket:id="panelHtmlEdit">[plus]</span>
+    <span wicket:id="panelTextEdit">[plus]</span>
+    <span wicket:id="panelCompose">[plus]</span>
+    <span wicket:id="panelLayoutEdit">[plus]</span>
     <span wicket:id="panelExport">[plus]</span>
+    <span wicket:id="panelExportCSV">[plus]</span>
+    <span wicket:id="panelExportHTML">[plus]</span>
+    <span wicket:id="panelExportPDF">[plus]</span>
+    <span wicket:id="panelExportRTF">[plus]</span>
+    <span wicket:id="panelExportXML">[plus]</span>
+    <span wicket:id="panelPropagationTasks">[plus]</span>
+    <span wicket:id="panelNotificationTasks">[plus]</span>
+    <span wicket:id="panelDeprovisionMembers">[plus]</span>
+    <span wicket:id="panelProvisionMembers">[plus]</span>
     <span wicket:id="panelDelete">[plus]</span>
     <span wicket:id="panelSelect">[select]</span>
     <span wicket:id="panelClose">[close]</span>
@@ -64,11 +79,11 @@ under the License.
     <span wicket:id="panelZoomOut">[plus]</span>
 
     <wicket:fragment wicket:id="fragmentMustChangePassword">
-      <a href="#" wicket:id="MustChangePasswordLink" class="btn"><i class="fa fa-lock" alt="must change password icon" title="Force change password"></i></a>
+      <a href="#" wicket:id="MustChangePasswordLink" class="btn"><i class="fa fa-lock" alt="must change password icon" title="Toggle must change password"></i></a>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentClaim">
-      <a href="#" wicket:id="claimLink" class="btn"><img id="actionLink" src="img/actions/claim.png" alt="claim icon" title="Claim"/></a>
+      <a href="#" wicket:id="claimLink" class="btn"><i id="actionLink" class="fa fa-ticket" alt="claim icon" title="Claim"></i></a>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentManageResources">
@@ -87,12 +102,12 @@ under the License.
       <a href="#" wicket:id="mappingLink" class="btn"><i class="fa fa-exchange" alt="mapping icon" title="Mapping"></i></a>
     </wicket:fragment>
 
-    <wicket:fragment wicket:id="fragmentAccountLink">
-      <a href="#" wicket:id="accountLinkLink" class="btn"><i class="fa fa-external-link" alt="account link icon" title="Account Link"></i></a>
+    <wicket:fragment wicket:id="fragmentSetLatestSyncToken">
+      <a href="#" wicket:id="setLatestSyncTokenLink" class="btn"><i class="fa fa-hourglass-start" alt="reset time icon" title="Set latest Sync Token"></i></a>
     </wicket:fragment>
 
-    <wicket:fragment wicket:id="fragmentResetTime">
-      <a href="#" wicket:id="resetTimeLink" class="btn"><i class="fa fa-hourglass-start" alt="reset time icon" title="Reset Time"></i></a>
+    <wicket:fragment wicket:id="fragmentRemoveSyncToken">
+      <a href="#" wicket:id="removeSyncTokenLink" class="btn"><i class="fa fa-hourglass-o" alt="reset time icon" title="Remove Sync Token"></i></a>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentClone">
@@ -111,6 +126,10 @@ under the License.
       <a href="#" wicket:id="viewLink" class="btn"><i class="fa fa-eye" alt="view icon" title="View"></i></a>
     </wicket:fragment>
 
+    <wicket:fragment wicket:id="fragmentMembers">
+      <a href="#" wicket:id="membersLink" class="btn"><i class="fa fa-users" alt="members icon" title="Members"></i></a>
+    </wicket:fragment>
+
     <wicket:fragment wicket:id="fragmentSearch">
       <a href="#" wicket:id="searchLink" class="btn"><i class="glyphicon glyphicon-search" alt="search icon" title="Search"></i></a>
     </wicket:fragment>
@@ -123,16 +142,44 @@ under the License.
       <a href="#" wicket:id="editLink" class="btn"><i id="actionLink" class="glyphicon glyphicon-pencil" alt="edit icon" title="Edit"></i></a>
     </wicket:fragment>
 
+    <wicket:fragment wicket:id="fragmentTemplate">
+      <a href="#" wicket:id="templateLink" class="btn"><i id="actionLink" class="fa fa-list-alt" alt="template icon" title="Template"></i></a>
+    </wicket:fragment>
+
+    <wicket:fragment wicket:id="fragmentTypeExtensions">
+      <a href="#" wicket:id="typeExtensionsLink" class="btn"><i id="actionLink" class="fa fa-expand" alt="typeExtensions icon" title="Type extensions"></i></a>
+    </wicket:fragment>
+
+    <wicket:fragment wicket:id="fragmentFoEdit">
+      <a href="#" wicket:id="foEditLink" class="btn"><i id="actionLink" class="fa fa-file-pdf-o" alt="fo edit icon" title="FO Edit"></i></a>
+    </wicket:fragment>
+
+    <wicket:fragment wicket:id="fragmentHtmlEdit">
+      <a href="#" wicket:id="htmlEditLink" class="btn"><i id="actionLink" class="fa fa-file-code-o" alt="html edit icon" title="HTML Edit"></i></a>
+    </wicket:fragment>
+
+    <wicket:fragment wicket:id="fragmentTextEdit">
+      <a href="#" wicket:id="textEditLink" class="btn"><i id="actionLink" class="fa fa-file-text-o" alt="text edit icon" title="TEXT Edit"></i></a>
+    </wicket:fragment>
+
+    <wicket:fragment wicket:id="fragmentCompose">
+      <a href="#" wicket:id="composeLink" class="btn"><i id="actionLink" class="fa fa-puzzle-piece" alt="compose icon" title="Compose"></i></a>
+    </wicket:fragment>
+
+    <wicket:fragment wicket:id="fragmentLayoutEdit">
+      <a href="#" wicket:id="layoutEditLink" class="btn"><i id="actionLink" class="fa fa-object-ungroup" alt="layout edit icon" title="Layout Edit"></i></a>
+    </wicket:fragment>
+
     <wicket:fragment wicket:id="fragmentReset">
       <a href="#" wicket:id="resetLink" class="btn"><img id="actionLink" src="img/actions/reset.png" alt="reset icon" title="Reset sync token"/></a>
     </wicket:fragment>
 
-    <wicket:fragment wicket:id="fragmentUserTemplate">
-      <a href="#" wicket:id="userTemplateLink" class="btn"><img id="actionLink" src="img/actions/user_template.png" alt="user template icon" title="Specify user template"/></a>
+    <wicket:fragment wicket:id="fragmentPropagationTasks">
+      <a href="#" wicket:id="propagationTasksLink" class="btn"><i class="fa fa-arrow-right" alt="PropagationTasks icon" title="PropagationTasks"></i></a>
     </wicket:fragment>
 
-    <wicket:fragment wicket:id="fragmentGroupTemplate">
-      <a href="#" wicket:id="groupTemplateLink" class="btn"><img id="actionLink" src="img/actions/groups-icon.png" alt="group template icon"  title="Specify group template"/></a>
+    <wicket:fragment wicket:id="fragmentNotificationTasks">
+      <a href="#" wicket:id="notificationTasksLink" class="btn"><i class="fa fa-envelope-o" alt="NotificationTasks icon" title="NotificationTasks"></i></a>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentDelete">
@@ -156,7 +203,27 @@ under the License.
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentExport">
-      <a href="#" wicket:id="exportLink" class="btn"><img id="actionLink" src="img/actions/export.png" alt="export icon" title="Export"/></a>
+      <a href="#" wicket:id="exportLink" class="btn"><i class="fa fa-floppy-o" alt="export icon" title="Export"></i></a>
+    </wicket:fragment>
+
+    <wicket:fragment wicket:id="fragmentExportCSV">
+      <a href="#" wicket:id="exportCSVLink" class="btn"><i class="fa fa-file-text-o" alt="export icon" title="Export CSV"></i></a>
+    </wicket:fragment>
+
+    <wicket:fragment wicket:id="fragmentExportHTML">
+      <a href="#" wicket:id="exportHTMLLink" class="btn"><i class="fa fa-file-code-o" alt="export icon" title="Export HTML"></i></a>
+    </wicket:fragment>
+
+    <wicket:fragment wicket:id="fragmentExportPDF">
+      <a href="#" wicket:id="exportPDFLink" class="btn"><i class="fa fa-file-pdf-o" alt="export icon" title="Export PDF"></i></a>
+    </wicket:fragment>
+
+    <wicket:fragment wicket:id="fragmentExportRTF">
+      <a href="#" wicket:id="exportRTFLink" class="btn"><i class="fa fa-file-word-o" alt="export icon" title="Export RTF"></i></a>
+    </wicket:fragment>
+
+    <wicket:fragment wicket:id="fragmentExportXML">
+      <a href="#" wicket:id="exportXMLLink" class="btn"><i class="fa fa-file-excel-o" alt="export icon" title="Export XML"></i></a>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentSuspend">
@@ -184,19 +251,27 @@ under the License.
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentUnassign">
-      <a href="#" wicket:id="unassignLink" class="btn"><i class="glyphicon glyphicon-remove" alt="Unassign icon" title="Unassign"></i></a>
+      <a href="#" wicket:id="unassignLink" class="btn"><i class="glyphicon glyphicon-resize-full" alt="Unassign icon" title="Unassign"></i></a>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentAssign">
-      <a href="#" wicket:id="assignLink" class="btn"><i class="glyphicon glyphicon-ok" alt="Assign icon" title="Assign"></i></a>
+      <a href="#" wicket:id="assignLink" class="btn"><i class="glyphicon glyphicon-resize-small" alt="Assign icon" title="Assign"></i></a>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentDeprovision">
-      <a href="#" wicket:id="deprovisionLink" class="btn"><i class="glyphicon glyphicon-minus" alt="De-provision icon" title="De-provision"></i></a>
+      <a href="#" wicket:id="deprovisionLink" class="btn"><i class="glyphicon glyphicon-fast-backward" alt="Deprovision icon" title="Deprovision"></i></a>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentProvision">
-      <a href="#" wicket:id="provisionLink" class="btn"><i class="glyphicon glyphicon-share-alt" alt="Provision icon" title="Provision"></i></a>
+      <a href="#" wicket:id="provisionLink" class="btn"><i class="glyphicon glyphicon-fast-forward" alt="Provision icon" title="Provision"></i></a>
+    </wicket:fragment>
+
+    <wicket:fragment wicket:id="fragmentDeprovisionMembers">
+      <a href="#" wicket:id="deprovisionMembersLink" class="btn"><i class="glyphicon glyphicon-fast-backward" alt="Deprovision icon" title="Deprovision members"></i></a>
+    </wicket:fragment>
+
+    <wicket:fragment wicket:id="fragmentProvisionMembers">
+      <a href="#" wicket:id="provisionMembersLink" class="btn"><i class="glyphicon glyphicon-fast-forward" alt="Provision icon" title="Provision members"></i></a>
     </wicket:fragment>
 
     <wicket:fragment wicket:id="fragmentZoomIn">

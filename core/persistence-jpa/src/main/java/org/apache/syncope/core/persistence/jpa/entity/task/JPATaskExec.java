@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.jpa.entity.task;
 
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
@@ -39,19 +38,11 @@ public class JPATaskExec extends AbstractExec implements TaskExec {
 
     public static final String TABLE = "TaskExec";
 
-    @Id
-    private Long id;
-
     /**
      * The referred task.
      */
     @ManyToOne(optional = false)
     private AbstractTask task;
-
-    @Override
-    public Long getKey() {
-        return id;
-    }
 
     @Override
     public Task getTask() {
@@ -67,7 +58,7 @@ public class JPATaskExec extends AbstractExec implements TaskExec {
     @Override
     public String toString() {
         return new StringBuilder(getClass().getSimpleName()).append('{').
-                append("id=").append(id).append(", ").
+                append("id=").append(getKey()).append(", ").
                 append("start=").append(start).append(", ").
                 append("end=").append(end).append(", ").
                 append("task=").append(task).append(", ").

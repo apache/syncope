@@ -21,6 +21,7 @@ package org.apache.syncope.client.cli;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.cli.commands.AbstractCommand;
 import org.apache.syncope.client.cli.util.CommandUtils;
 
@@ -96,12 +97,12 @@ public class Input {
         return parameters.length;
     }
 
-    public PairParameter toPairParameter(final String parameter) throws IllegalArgumentException {
+    public Pair<String, String> toPairParameter(final String parameter) throws IllegalArgumentException {
         if (!parameter.contains("=")) {
             throw new IllegalArgumentException("Parameter syntax error!");
         }
         final String[] pairParameterArray = parameter.split("=");
-        return new PairParameter(pairParameterArray[0], pairParameterArray[1]);
+        return Pair.of(pairParameterArray[0], pairParameterArray[1]);
     }
 
     public String printCommandFields() {
@@ -110,26 +111,5 @@ public class Input {
             commandBuilder.append(commandField).append(" ");
         }
         return commandBuilder.toString();
-    }
-
-    public class PairParameter {
-
-        private final String key;
-
-        private final String value;
-
-        public PairParameter(final String key, final String value) {
-            this.key = key;
-            this.value = value;
-        }
-
-        public String getKey() {
-            return key;
-        }
-
-        public String getValue() {
-            return value;
-        }
-
     }
 }

@@ -21,4 +21,7 @@ implemented in Java EE technology and released under Apache 2.0 license.
 
 More information at http://syncope.apache.org
 
+<a href="https://bestpractices.coreinfrastructure.org/projects/154">
+  <img src="https://bestpractices.coreinfrastructure.org/projects/154/badge"/>
+</a>
 <a href="https://travis-ci.org/apache/syncope"><img src="https://api.travis-ci.org/apache/syncope.png"/></a>

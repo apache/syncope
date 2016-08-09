@@ -24,30 +24,25 @@ import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
-import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
-import org.apache.syncope.core.persistence.jpa.entity.AbstractEntity;
+import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
 
 @Entity
 @Table(name = JPAMapping.TABLE)
 @Cacheable
-public class JPAMapping extends AbstractEntity<Long> implements Mapping {
+public class JPAMapping extends AbstractGeneratedKeyEntity implements Mapping {
 
     private static final long serialVersionUID = 4316047254916259158L;
 
     public static final String TABLE = "Mapping";
-
-    @Id
-    private Long id;
 
     @NotNull
     @OneToOne
@@ -60,11 +55,6 @@ public class JPAMapping extends AbstractEntity<Long> implements Mapping {
      * A JEXL expression for determining how to find the connector object link in external resource's space.
      */
     private String connObjectLink;
-
-    @Override
-    public Long getKey() {
-        return id;
-    }
 
     @Override
     public Provision getProvision() {
@@ -101,26 +91,8 @@ public class JPAMapping extends AbstractEntity<Long> implements Mapping {
 
     @Override
     public void setConnObjectKeyItem(final MappingItem item) {
-        checkType(item, JPAMappingItem.class);
-        this.addConnObjectKeyItem((JPAMappingItem) item);
-    }
-
-    protected boolean addConnObjectKeyItem(final MappingItem connObjectKeyItem) {
-        if (IntMappingType.UserVirtualSchema == connObjectKeyItem.getIntMappingType()
-                || IntMappingType.GroupVirtualSchema == connObjectKeyItem.getIntMappingType()
-                || IntMappingType.AnyObjectVirtualSchema == connObjectKeyItem.getIntMappingType()
-                || IntMappingType.Password == connObjectKeyItem.getIntMappingType()) {
-
-            throw new IllegalArgumentException("Virtual attributes cannot be set as ConnObjectKey");
-        }
-        if (IntMappingType.Password == connObjectKeyItem.getIntMappingType()) {
-            throw new IllegalArgumentException("Password attributes cannot be set as ConnObjectKey");
-        }
-
-        connObjectKeyItem.setExtAttrName(connObjectKeyItem.getExtAttrName());
-        connObjectKeyItem.setConnObjectKey(true);
-
-        return this.add(connObjectKeyItem);
+        item.setConnObjectKey(true);
+        this.add(item);
     }
 
     @Override

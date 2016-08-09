@@ -20,4 +20,6 @@ under the License.
 <Context>
   <!-- Disable session persistence across Tomcat restarts -->
   <Manager pathname=""/>
+  <!-- Disable resource caching -->
+  <Resources cachingAllowed="false" cacheMaxSize ="0"/>
 </Context>

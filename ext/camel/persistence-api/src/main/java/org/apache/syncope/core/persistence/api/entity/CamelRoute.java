@@ -20,9 +20,7 @@ package org.apache.syncope.core.persistence.api.entity;
 
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 
-public interface CamelRoute extends Entity<String> {
-
-    void setKey(String name);
+public interface CamelRoute extends ProvidedKeyEntity {
 
     AnyTypeKind getAnyTypeKind();
 

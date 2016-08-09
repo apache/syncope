@@ -29,7 +29,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.net.URL;
 import java.nio.charset.Charset;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
@@ -112,7 +111,7 @@ public class FileSystemUtils {
     public String readFile(final File file) {
         String content = "";
         try {
-            content = FileUtils.readFileToString(file);
+            content = FileUtils.readFileToString(file, Charset.forName("UTF-8"));
         } catch (IOException ex) {
             final String errorMessage = "Error reading file " + file.getAbsolutePath() + ": " + ex.getMessage();
             handler.emitError(errorMessage, errorMessage);
@@ -140,6 +139,7 @@ public class FileSystemUtils {
             TransformerException {
         try {
             final TransformerFactory factory = TransformerFactory.newInstance();
+            factory.setFeature(javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING, true);
             final Transformer transformer = factory.newTransformer();
             transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
             transformer.setOutputProperty(OutputKeys.METHOD, "xml");
@@ -161,11 +161,9 @@ public class FileSystemUtils {
             final String destination, final AbstractUIProcessHandler handler) {
 
         try {
-            final URL url = getClass().getResource(filePath);
-            final File dest = new File(destination);
-            FileUtils.copyURLToFile(url, dest);
+            FileUtils.copyURLToFile(getClass().getResource(filePath), new File(destination));
         } catch (IOException ex) {
-            final String errorMessage = "Error copy file " + filePath;
+            String errorMessage = "Error copying file " + filePath + " to + " + destination;
             handler.emitError(errorMessage, errorMessage);
             InstallLog.getInstance().error(errorMessage);
         }

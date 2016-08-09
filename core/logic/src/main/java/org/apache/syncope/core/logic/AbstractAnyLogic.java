@@ -82,7 +82,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch>
     }
 
     protected Pair<TO, List<LogicActions>> beforeCreate(final TO input) {
-        Realm realm = realmDAO.find(input.getRealm());
+        Realm realm = realmDAO.findByFullPath(input.getRealm());
         if (realm == null) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
             sce.getElements().add(input.getRealm());
@@ -115,7 +115,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch>
     }
 
     protected Pair<P, List<LogicActions>> beforeUpdate(final P input, final String realmPath) {
-        Realm realm = realmDAO.find(realmPath);
+        Realm realm = realmDAO.findByFullPath(realmPath);
         if (realm == null) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
             sce.getElements().add(realmPath);
@@ -135,7 +135,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch>
     }
 
     protected Pair<TO, List<LogicActions>> beforeDelete(final TO input) {
-        Realm realm = realmDAO.find(input.getRealm());
+        Realm realm = realmDAO.findByFullPath(input.getRealm());
         if (realm == null) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
             sce.getElements().add(input.getRealm());
@@ -164,7 +164,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch>
         }
 
         ProvisioningResult<TO> result = new ProvisioningResult<>();
-        result.setAny(any);
+        result.setEntity(any);
         result.getPropagationStatuses().addAll(statuses);
 
         return result;
@@ -205,7 +205,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch>
         return effective;
     }
 
-    protected void securityChecks(final Set<String> effectiveRealms, final String realm, final Long key) {
+    protected void securityChecks(final Set<String> effectiveRealms, final String realm, final String key) {
         if (!IterableUtils.matchesAny(effectiveRealms, new Predicate<String>() {
 
             @Override
@@ -224,7 +224,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch>
         }
     }
 
-    public abstract TO read(Long key);
+    public abstract TO read(String key);
 
     public abstract int count(String realm);
 
@@ -232,7 +232,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch>
 
     public abstract ProvisioningResult<TO> update(P anyPatch, boolean nullPriorityAsync);
 
-    public abstract ProvisioningResult<TO> delete(Long key, boolean nullPriorityAsync);
+    public abstract ProvisioningResult<TO> delete(String key, boolean nullPriorityAsync);
 
     public abstract List<TO> list(
             int page, int size, List<OrderByClause> orderBy,

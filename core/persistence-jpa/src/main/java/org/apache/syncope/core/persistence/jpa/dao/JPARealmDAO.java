@@ -27,7 +27,6 @@ import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.core.persistence.api.dao.MalformedPathException;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
@@ -35,13 +34,15 @@ import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.Policy;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
+import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
-public class JPARealmDAO extends AbstractDAO<Realm, Long> implements RealmDAO {
+public class JPARealmDAO extends AbstractDAO<Realm> implements RealmDAO {
 
     @Autowired
     private RoleDAO roleDAO;
@@ -62,13 +63,13 @@ public class JPARealmDAO extends AbstractDAO<Realm, Long> implements RealmDAO {
     }
 
     @Override
-    public Realm find(final Long key) {
+    public Realm find(final String key) {
         return entityManager().find(JPARealm.class, key);
     }
 
     @Transactional(readOnly = true)
     @Override
-    public Realm find(final String fullPath) {
+    public Realm findByFullPath(final String fullPath) {
         if (SyncopeConstants.ROOT_REALM.equals(fullPath)) {
             return getRoot();
         }
@@ -102,9 +103,9 @@ public class JPARealmDAO extends AbstractDAO<Realm, Long> implements RealmDAO {
         List<Realm> result = new ArrayList<>();
 
         for (Realm child : findChildren(realm)) {
-            if ((policy.getType() == PolicyType.ACCOUNT
+            if ((policy instanceof AccountPolicy
                     && child.getAccountPolicy() == null || policy.equals(child.getAccountPolicy()))
-                    || (policy.getType() == PolicyType.PASSWORD
+                    || (policy instanceof PasswordPolicy
                     && child.getPasswordPolicy() == null || policy.equals(child.getPasswordPolicy()))) {
 
                 result.add(child);
@@ -117,7 +118,7 @@ public class JPARealmDAO extends AbstractDAO<Realm, Long> implements RealmDAO {
 
     @Override
     public <T extends Policy> List<Realm> findByPolicy(final T policy) {
-        if (policy.getType() == PolicyType.PULL) {
+        if (PullPolicy.class.isAssignableFrom(policy.getClass())) {
             return Collections.<Realm>emptyList();
         }
 
@@ -201,7 +202,7 @@ public class JPARealmDAO extends AbstractDAO<Realm, Long> implements RealmDAO {
     }
 
     @Override
-    public void delete(final Long key) {
+    public void delete(final String key) {
         Realm realm = find(key);
         if (realm == null) {
             return;

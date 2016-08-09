@@ -36,7 +36,6 @@ import javax.validation.constraints.Min;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
-import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
@@ -67,13 +66,8 @@ public class JPAAccountPolicy extends AbstractPolicy implements AccountPolicy {
     @JoinTable(joinColumns =
             @JoinColumn(name = "accountPolicy_id"),
             inverseJoinColumns =
-            @JoinColumn(name = "resource_name"))
+            @JoinColumn(name = "resource_id"))
     private Set<JPAExternalResource> resources = new HashSet<>();
-
-    public JPAAccountPolicy() {
-        super();
-        this.type = PolicyType.ACCOUNT;
-    }
 
     @Override
     public boolean isPropagateSuspension() {
@@ -138,6 +132,6 @@ public class JPAAccountPolicy extends AbstractPolicy implements AccountPolicy {
     @Override
     public Set<String> getResourceNames() {
         return CollectionUtils.collect(
-                getResources(), EntityUtils.<String, ExternalResource>keyTransformer(), new HashSet<String>());
+                getResources(), EntityUtils.<ExternalResource>keyTransformer(), new HashSet<String>());
     }
 }

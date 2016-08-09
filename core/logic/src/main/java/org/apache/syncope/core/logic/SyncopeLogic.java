@@ -33,7 +33,6 @@ import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.info.NumbersInfo;
 import org.apache.syncope.common.lib.info.SystemInfo;
 import org.apache.syncope.common.lib.info.PlatformInfo;
-import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.spring.security.PasswordGenerator;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
@@ -50,6 +49,8 @@ import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.provisioning.api.AnyObjectProvisioningManager;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
 import org.apache.syncope.core.provisioning.api.GroupProvisioningManager;
@@ -175,9 +176,9 @@ public class SyncopeLogic extends AbstractLogic<AbstractBaseBean> {
                 PLATFORM_INFO.setVirAttrCache(virAttrCache.getClass().getName());
                 PLATFORM_INFO.setPasswordGenerator(passwordGenerator.getClass().getName());
 
-                PLATFORM_INFO.getReportlets().addAll(implLookup.getClassNames(Type.REPORTLET));
-                PLATFORM_INFO.getAccountRules().addAll(implLookup.getClassNames(Type.ACCOUNT_RULE));
-                PLATFORM_INFO.getPasswordRules().addAll(implLookup.getClassNames(Type.PASSWORD_RULE));
+                PLATFORM_INFO.getReportletConfs().addAll(implLookup.getClassNames(Type.REPORTLET_CONF));
+                PLATFORM_INFO.getAccountRules().addAll(implLookup.getClassNames(Type.ACCOUNT_RULE_CONF));
+                PLATFORM_INFO.getPasswordRules().addAll(implLookup.getClassNames(Type.PASSWORD_RULE_CONF));
                 PLATFORM_INFO.getMappingItemTransformers().addAll(
                         implLookup.getClassNames(Type.MAPPING_ITEM_TRANSFORMER));
                 PLATFORM_INFO.getTaskJobs().addAll(implLookup.getClassNames(Type.TASKJOBDELEGATE));
@@ -279,9 +280,9 @@ public class SyncopeLogic extends AbstractLogic<AbstractBaseBean> {
         numbersInfo.getConfCompleteness().put(
                 NumbersInfo.ConfItem.RESOURCE, numbersInfo.getTotalResources() > 0);
         numbersInfo.getConfCompleteness().put(
-                NumbersInfo.ConfItem.ACCOUNT_POLICY, !policyDAO.find(PolicyType.ACCOUNT).isEmpty());
+                NumbersInfo.ConfItem.ACCOUNT_POLICY, !policyDAO.find(AccountPolicy.class).isEmpty());
         numbersInfo.getConfCompleteness().put(
-                NumbersInfo.ConfItem.PASSWORD_POLICY, !policyDAO.find(PolicyType.PASSWORD).isEmpty());
+                NumbersInfo.ConfItem.PASSWORD_POLICY, !policyDAO.find(PasswordPolicy.class).isEmpty());
         numbersInfo.getConfCompleteness().put(
                 NumbersInfo.ConfItem.NOTIFICATION, !notificationDAO.findAll().isEmpty());
         numbersInfo.getConfCompleteness().put(

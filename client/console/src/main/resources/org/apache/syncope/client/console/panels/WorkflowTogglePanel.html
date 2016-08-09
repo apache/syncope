@@ -38,8 +38,12 @@ under the License.
   <wicket:extend>
     <div wicket:id="container">
       <ul class="menu">
-        <li><i class="fa fa-file-image-o"></i><a href="#" wicket:id="activitiModeler">Activiti Modeler</a></li>
-        <li><i class="fa fa-file-text-o"></i><a href="#" wicket:id="xmlEditor">XML editor</a></li>
+        <wicket:enclosure child="activitiModeler">
+          <li><a href="#" wicket:id="activitiModeler"><i class="fa fa-file-image-o"></i>Activiti Modeler</a></li>
+        </wicket:enclosure>
+        <wicket:enclosure child="xmlEditor">
+          <li><a href="#" wicket:id="xmlEditor"><i class="fa fa-file-text-o"></i>XML editor</a></li>
+        </wicket:enclosure>
       </ul>
     </div>
   </wicket:extend>

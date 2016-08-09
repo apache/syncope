@@ -22,6 +22,7 @@ import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.patch.PasswordPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -38,7 +39,7 @@ import org.springframework.security.crypto.codec.Hex;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * A {@link org.apache.syncope.core.provisioning.api.pushpull.PullActions} implementation which allows the ability to 
+ * A {@link org.apache.syncope.core.provisioning.api.pushpull.PullActions} implementation which allows the ability to
  * import passwords from an LDAP backend that are hashed.
  */
 public class LDAPPasswordPullActions extends DefaultPullActions {
@@ -54,13 +55,13 @@ public class LDAPPasswordPullActions extends DefaultPullActions {
 
     @Transactional(readOnly = true)
     @Override
-    public <A extends AnyTO> SyncDelta beforeProvision(
+    public SyncDelta beforeProvision(
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
-            final A any) throws JobExecutionException {
+            final EntityTO entity) throws JobExecutionException {
 
-        if (any instanceof UserTO) {
-            String password = ((UserTO) any).getPassword();
+        if (entity instanceof UserTO) {
+            String password = ((UserTO) entity).getPassword();
             parseEncodedPassword(password);
         }
 
@@ -100,22 +101,22 @@ public class LDAPPasswordPullActions extends DefaultPullActions {
         }
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     @Override
-    public <A extends AnyTO> void after(
+    public void after(
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
-            final A any,
+            final EntityTO entity,
             final ProvisioningReport result) throws JobExecutionException {
 
-        if (any instanceof UserTO && encodedPassword != null && cipher != null) {
-            User syncopeUser = userDAO.find(any.getKey());
-            if (syncopeUser != null) {
+        if (entity instanceof UserTO && encodedPassword != null && cipher != null) {
+            User user = userDAO.find(entity.getKey());
+            if (user != null) {
                 byte[] encodedPasswordBytes = Base64.decode(encodedPassword.getBytes());
                 char[] encodedHex = Hex.encode(encodedPasswordBytes);
                 String encodedHexStr = new String(encodedHex).toUpperCase();
 
-                syncopeUser.setEncodedPassword(encodedHexStr, cipher);
+                user.setEncodedPassword(encodedHexStr, cipher);
             }
             encodedPassword = null;
             cipher = null;

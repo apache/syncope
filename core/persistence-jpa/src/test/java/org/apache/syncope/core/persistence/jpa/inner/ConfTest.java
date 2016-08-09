@@ -114,7 +114,7 @@ public class ConfTest extends AbstractTest {
 
             fail();
         } catch (InvalidEntityException e) {
-            assertTrue(e.hasViolation(EntityViolationType.InvalidName));
+            assertTrue(e.hasViolation(EntityViolationType.InvalidKey));
         }
     }
 }

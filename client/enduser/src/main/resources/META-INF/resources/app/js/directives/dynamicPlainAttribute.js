@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 'use strict';
 
 angular.module('self')
@@ -30,15 +31,18 @@ angular.module('self')
             },
             controller: function ($scope, $element, $window) {
               $scope.initAttribute = function (schema, index) {
-
                 switch (schema.type) {
                   case "Long":
                   case "Double":
-                    $scope.user.plainAttrs[schema.key].values[index] = Number($scope.user.plainAttrs[schema.key].values[index])
-                            || undefined;
+                    $scope.user.plainAttrs[schema.key].values[index] = Number($scope.user.plainAttrs[schema.key]
+                            .values[index]) || undefined;
                     break;
                   case "Enum":
                     $scope.enumerationValues = [];
+                    //SYNCOPE-911 empty value option on non required attributes 
+                    if(schema.mandatoryCondition != "true"){
+                      $scope.enumerationValues.push("");
+                    }
                     var enumerationValuesSplitted = schema.enumerationValues.toString().split(";");
                     for (var i = 0; i < enumerationValuesSplitted.length; i++) {
                       $scope.enumerationValues.push(enumerationValuesSplitted[i]);
@@ -47,11 +51,7 @@ angular.module('self')
                             || $scope.enumerationValues[0];
                     break;
                   case "Binary":
-
                     $scope.userFile = $scope.userFile || '';
-                    //for multivalue fields 
-//                    $scope.fileInputId = "fileInputId_" + index;
-
                     $element.bind("change", function (changeEvent) {
                       $scope.$apply(function () {
                         var reader = new FileReader();
@@ -84,25 +84,26 @@ angular.module('self')
                       $("#fileInput").replaceWith($("#fileInput").clone(true));
                     };
                     break;
-                  case "Date":
-                    $scope.format = $scope.schema.conversionPattern;
-                    var temporaryDate = moment($scope.user.plainAttrs[schema.key].values[index], moment().toMomentFormatString($scope.format));
-                    if(temporaryDate.isValid()){
-                      $scope.selectedDate = temporaryDate.toDate();  
-                    }
-                    else{
-                      $scope.selectedDate = $scope.user.plainAttrs[schema.key].values[index];
-                    }                    
-                    $scope.includeTimezone = false;
 
-                    $scope.bindDateToModel = function (selectedDate, format) {                                       
-                      if (selectedDate) {
-                        selectedDate = moment(selectedDate).format(moment().toMomentFormatString(format));
-                        //removing from selectedDate existing quotes, since moment doesn't remove the from the pattern
-                        var dateGood = selectedDate.toString().replace(/'/g, "");
-                        $scope.user.plainAttrs[schema.key].values[index] = dateGood;
-                      } else {
-                        $scope.user.plainAttrs[schema.key].values[index] = selectedDate;                        
+                  case "Date":
+                    var dateInMs = $scope.user.plainAttrs[schema.key].values[index];
+                    if (dateInMs) {
+                      var temporaryDate = new Date(dateInMs * 1);
+                      $scope.selectedDate = temporaryDate;
+                      $scope.selectedTime = temporaryDate;
+                    }
+
+                    $scope.bindDateToModel = function (selectedDate, selectedTime) {
+                      if (selectedDate && selectedTime) {
+                        var extractedDate = selectedDate.toString().substring(0, 15);
+                        console.debug("selectedDate: ", extractedDate);
+                        var extractedTime = selectedTime.toString().substring(16);
+                        console.debug("selectedTime: ", extractedTime);
+                        var resultDate = extractedDate + ' ' + extractedTime;
+                        var tmpdate = new Date(resultDate);
+                        var milliseconds = tmpdate.getTime();
+                        console.debug("resultDate in milliseconds", milliseconds);
+                        $scope.user.plainAttrs[schema.key].values[index] = milliseconds;
                       }
                     };
 
@@ -124,11 +125,11 @@ angular.module('self')
                     $scope.maxDate = new Date(2050, 5, 22);
 
                     $scope.open = function ($event) {
-                      $scope.status.opened = true;                      
+                      $scope.status.opened = true;
                     };
 
                     $scope.setDate = function (year, month, day) {
-                      $scope.user.plainAttrs[schema.key].values[index] = new Date(year, month, day);                      
+                      $scope.user.plainAttrs[schema.key].values[index] = new Date(year, month, day);
                     };
 
                     $scope.dateOptions = {
@@ -168,12 +169,27 @@ angular.module('self')
                         }
                       }
 
-                    };                    
+                    };
+
+                    //TIME PICKER
+                    $scope.selectedTime = $scope.selectedDate;
+                    $scope.hstep = 1;
+                    $scope.mstep = 1;
+
+                    $scope.options = {
+                      hstep: [1, 2, 3],
+                      mstep: [1, 5, 10, 15, 25, 30]
+                    };
+
+                    $scope.ismeridian = true;
+                    $scope.toggleMode = function () {
+                      $scope.ismeridian = !$scope.ismeridian;
+                    };
                     break;
 
                   case "Boolean":
                     $scope.user.plainAttrs[schema.key].values[index] =
-                           $scope.user.plainAttrs[schema.key].values[index] == "true" ? true : false;
+                            $scope.user.plainAttrs[schema.key].values[index] == "true" ? true : false;
                     break;
 
                 }
@@ -187,7 +203,6 @@ angular.module('self')
                           return (n !== undefined && n !== "");
                         });
               });
-            },
-            //replace: true
+            }
           };
         });

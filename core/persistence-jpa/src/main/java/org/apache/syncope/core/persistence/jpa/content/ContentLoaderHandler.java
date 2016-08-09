@@ -40,7 +40,7 @@ import org.xml.sax.helpers.DefaultHandler;
 /**
  * SAX handler for generating SQL INSERT statements out of given XML file.
  */
-class ContentLoaderHandler extends DefaultHandler {
+public class ContentLoaderHandler extends DefaultHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(ContentLoaderHandler.class);
 
@@ -48,9 +48,12 @@ class ContentLoaderHandler extends DefaultHandler {
 
     private final String rootElement;
 
-    ContentLoaderHandler(final DataSource dataSource, final String rootElement) {
+    private final boolean continueOnError;
+
+    public ContentLoaderHandler(final DataSource dataSource, final String rootElement, final boolean continueOnError) {
         this.dataSource = dataSource;
         this.rootElement = rootElement;
+        this.continueOnError = continueOnError;
     }
 
     private Object[] getParameters(final String tableName, final Attributes attrs) {
@@ -59,17 +62,17 @@ class ContentLoaderHandler extends DefaultHandler {
         Map<String, Integer> colTypes = jdbcTemplate.query("SELECT * FROM " + tableName + " WHERE 0=1",
                 new ResultSetExtractor<Map<String, Integer>>() {
 
-                    @Override
-                    public Map<String, Integer> extractData(final ResultSet rs) throws SQLException {
-                        Map<String, Integer> colTypes = new HashMap<>();
-                        for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
-                            colTypes.put(
-                                    rs.getMetaData().getColumnName(i).toUpperCase(),
-                                    rs.getMetaData().getColumnType(i));
-                        }
-                        return colTypes;
-                    }
-                });
+            @Override
+            public Map<String, Integer> extractData(final ResultSet rs) throws SQLException {
+                Map<String, Integer> colTypes = new HashMap<>();
+                for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
+                    colTypes.put(
+                            rs.getMetaData().getColumnName(i).toUpperCase(),
+                            rs.getMetaData().getColumnType(i));
+                }
+                return colTypes;
+            }
+        });
 
         Object[] parameters = new Object[attrs.getLength()];
         for (int i = 0; i < attrs.getLength(); i++) {
@@ -194,6 +197,9 @@ class ContentLoaderHandler extends DefaultHandler {
             jdbcTemplate.update(query.toString(), getParameters(qName, atts));
         } catch (DataAccessException e) {
             LOG.error("While trying to perform {}", query, e);
+            if (!continueOnError) {
+                throw e;
+            }
         }
     }
 }

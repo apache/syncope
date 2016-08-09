@@ -21,7 +21,7 @@ package org.apache.syncope.common.lib.types;
 import javax.xml.bind.annotation.XmlEnum;
 
 /**
- * Sync/Push task un-matching rule.
+ * Pull/Push task un-matching rule.
  */
 @XmlEnum
 public enum UnmatchingRule {

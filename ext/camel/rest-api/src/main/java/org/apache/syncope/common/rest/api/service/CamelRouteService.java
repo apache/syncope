@@ -46,7 +46,7 @@ public interface CamelRouteService extends JAXRSService {
      * @return all routes for the given any type kind
      */
     @GET
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     List<CamelRouteTO> list(@NotNull @MatrixParam("anyTypeKind") AnyTypeKind anyTypeKind);
 
     /**
@@ -57,7 +57,7 @@ public interface CamelRouteService extends JAXRSService {
      */
     @GET
     @Path("{key}")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     CamelRouteTO read(@NotNull @PathParam("key") String key);
 
     /**
@@ -67,7 +67,7 @@ public interface CamelRouteService extends JAXRSService {
      */
     @PUT
     @Path("{key}")
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     void update(@NotNull CamelRouteTO route);
 
     /**
@@ -84,6 +84,6 @@ public interface CamelRouteService extends JAXRSService {
      */
     @GET
     @Path("metrics")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     CamelMetrics metrics();
 }

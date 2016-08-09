@@ -31,12 +31,12 @@ public class DisabledVirAttrCache implements VirAttrCache {
     }
 
     @Override
-    public void expire(final String type, final Long id, final String schemaName) {
+    public void expire(final String type, final String key, final String schemaKey) {
         // nothing to do
     }
 
     @Override
-    public VirAttrCacheValue get(final String type, final Long id, final String schemaName) {
+    public VirAttrCacheValue get(final String type, final String key, final String schemaKey) {
         return null;
     }
 
@@ -46,7 +46,7 @@ public class DisabledVirAttrCache implements VirAttrCache {
     }
 
     @Override
-    public void put(final String type, final Long id, final String schemaName, final VirAttrCacheValue value) {
+    public void put(final String type, final String key, final String schemaName, final VirAttrCacheValue value) {
         // nothing to do
     }
 

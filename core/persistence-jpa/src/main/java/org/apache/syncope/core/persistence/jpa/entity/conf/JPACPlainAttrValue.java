@@ -19,9 +19,6 @@
 package org.apache.syncope.core.persistence.jpa.entity.conf;
 
 import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
@@ -32,24 +29,15 @@ import org.apache.syncope.core.persistence.jpa.entity.AbstractPlainAttrValue;
 
 @Entity
 @Table(name = JPACPlainAttrValue.TABLE)
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public class JPACPlainAttrValue extends AbstractPlainAttrValue implements CPlainAttrValue {
 
     private static final long serialVersionUID = -4029895248193486171L;
 
     public static final String TABLE = "CPlainAttrValue";
 
-    @Id
-    private Long id;
-
     @ManyToOne
     @NotNull
     private JPACPlainAttr attribute;
-
-    @Override
-    public Long getKey() {
-        return id;
-    }
 
     @Override
     public CPlainAttr getAttr() {

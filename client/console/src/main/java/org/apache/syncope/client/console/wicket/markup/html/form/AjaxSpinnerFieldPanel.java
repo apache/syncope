@@ -29,17 +29,18 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.ResourceModel;
 import org.springframework.util.StringUtils;
 
 public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T> {
 
     private static final long serialVersionUID = 6413819574530703577L;
 
-    private Class<T> reference;
+    private final Class<T> reference;
 
-    private IModel<T> model;
+    private final IModel<T> model;
 
-    private Options options;
+    private final Options options;
 
     private AjaxSpinnerFieldPanel(
             final String id,
@@ -49,12 +50,6 @@ public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T>
             final Options options) {
 
         super(id, name, model);
-        init(name, reference, model, options);
-    }
-
-    private void init(
-            final String name, final Class<T> reference,
-            final IModel<T> model, final Options options) {
 
         field = new AjaxSpinner<T>("spinner", model, options, reference) {
 
@@ -67,8 +62,7 @@ public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T>
                 return behavior;
             }
         };
-
-        add(field);
+        add(field.setLabel(new ResourceModel(name, name)).setOutputMarkupId(true));
 
         this.name = name;
         this.model = model;
@@ -177,27 +171,20 @@ public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T>
 
     public static class Builder<T extends Number> {
 
-        protected T step;
+        private final Options options = new Options();
 
-        protected T min;
-
-        protected T max;
-
-        public Builder() {
-        }
-
-        public Builder<T> setMin(final T min) {
-            this.min = min;
+        public Builder<T> min(final T min) {
+            options.set("min", min);
             return this;
         }
 
-        public Builder<T> setMax(final T max) {
-            this.max = max;
+        public Builder<T> max(final T max) {
+            options.set("max", max);
             return this;
         }
 
-        public Builder<T> setStep(final T step) {
-            this.step = step;
+        public Builder<T> step(final T step) {
+            options.set("step", step);
             return this;
         }
 
@@ -206,11 +193,6 @@ public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T>
                 final String name,
                 final Class<T> reference,
                 final IModel<T> model) {
-
-            final Options options = new Options();
-            options.set("min", min);
-            options.set("max", max);
-            options.set("step", step);
 
             return new AjaxSpinnerFieldPanel<>(id, name, reference, model, options);
         }

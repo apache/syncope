@@ -49,8 +49,8 @@ public interface NotificationService extends JAXRSService {
      */
     @GET
     @Path("{key}")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    NotificationTO read(@NotNull @PathParam("key") Long key);
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    NotificationTO read(@NotNull @PathParam("key") String key);
 
     /**
      * Returns a list of all notifications.
@@ -58,7 +58,7 @@ public interface NotificationService extends JAXRSService {
      * @return list of all notifications.
      */
     @GET
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     List<NotificationTO> list();
 
     /**
@@ -68,7 +68,7 @@ public interface NotificationService extends JAXRSService {
      * @return Response object featuring Location header of created notification
      */
     @POST
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response create(@NotNull NotificationTO notificationTO);
 
     /**
@@ -78,7 +78,7 @@ public interface NotificationService extends JAXRSService {
      */
     @PUT
     @Path("{key}")
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     void update(@NotNull NotificationTO notificationTO);
 
     /**
@@ -88,7 +88,7 @@ public interface NotificationService extends JAXRSService {
      */
     @DELETE
     @Path("{key}")
-    void delete(@NotNull @PathParam("key") Long key);
+    void delete(@NotNull @PathParam("key") String key);
 
     /**
      * Returns details about notification job.
@@ -97,7 +97,7 @@ public interface NotificationService extends JAXRSService {
      */
     @GET
     @Path("job")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     JobTO getJob();
 
     /**

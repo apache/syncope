@@ -18,25 +18,12 @@
  */
 package org.apache.syncope.common.lib.report;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.ArrayList;
-import java.util.List;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlType;
 
 @XmlType
 public abstract class AbstractAnyReportletConf extends AbstractReportletConf {
 
     private static final long serialVersionUID = -5388597116592877789L;
-
-    protected String matchingCond;
-
-    protected final List<String> plainAttrs = new ArrayList<>();
-
-    protected final List<String> derAttrs = new ArrayList<>();
-
-    protected final List<String> virAttrs = new ArrayList<>();
 
     public AbstractAnyReportletConf() {
         super();
@@ -45,34 +32,4 @@ public abstract class AbstractAnyReportletConf extends AbstractReportletConf {
     public AbstractAnyReportletConf(final String name) {
         super(name);
     }
-
-    public String getMatchingCond() {
-        return matchingCond;
-    }
-
-    public void setMatchingCond(final String matchingCond) {
-        this.matchingCond = matchingCond;
-    }
-
-    @XmlElementWrapper(name = "plainAttrs")
-    @XmlElement(name = "attribute")
-    @JsonProperty("plainAttrs")
-    public List<String> getPlainAttrs() {
-        return plainAttrs;
-    }
-
-    @XmlElementWrapper(name = "derAttrs")
-    @XmlElement(name = "attribute")
-    @JsonProperty("derAttrs")
-    public List<String> getDerAttrs() {
-        return derAttrs;
-    }
-
-    @XmlElementWrapper(name = "virAttrs")
-    @XmlElement(name = "attribute")
-    @JsonProperty("virAttrs")
-    public List<String> getVirAttrs() {
-        return virAttrs;
-    }
-
 }

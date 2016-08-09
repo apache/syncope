@@ -1,0 +1,130 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+//
+[[provisioning-pull]]
+==== Pull
+
+Pull is the mechanism used to acquire identity data from identity stores; for each external resource, one or more
+<<tasks-pull,pull tasks>> can be defined, run and scheduled for period execution.
+
+Pull task execution involves querying the external resource and then processing each entity in an isolated transaction; 
+a retrieved entity can be:
+
+. _matching_ if a corresponding internal entity was found, according to the <<policies-pull,pull policy>> set for the
+enclosing external resource;
+. _unmatching_ otherwise.
+
+Once assessed this, entities are processed according to the matching / unmatching rules specified for the pull task:
+by default, unmatching entities gets internally created, and matching updated.
+
+.Matching Rules
+****
+* `IGNORE`: do not perform any action;
+* `UPDATE`: update matching entity;
+* `DEPROVISION`: delete external entity;
+* `UNLINK`: remove association with external resource, without performing any (de-)provisioning operation;
+* `LINK`: associate with external resource, without performing any (de-)provisioning operation.
+* `UNASSIGN`: unlink and delete;
+****
+
+.Unmatching Rules
+****
+* `IGNORE`: do not perform any action;
+* `UNLINK`: do not perform any action;
+* `ASSIGN`: create internally, assign the external resource;
+* `PROVISION`: create internally, do not assign the external resource;
+****
+
+[[pull-mode]]
+[TIP]
+.Pull Mode
+====
+The identity store can be queried in different ways, depending on the _pull mode_ specified:
+
+****
+FULL RECONCILIATION:: The complete list of entities available is processed.
+FILTERED RECONCILIATION:: The subset matching the provided filter of all available entities is processed.
+INCREMENTAL:: Only the actual modifications performed since last pull task execution are considered. This mode requires
+the underlying connector bundle to implement the ConnId `SYNC` operation - only some of the available bundles match
+this condition. +
+*This is the only mode allowing to pull delete events*, which may end up in causing internal entities removal.
+****
+====
+
+[[pull-templates]]
+[TIP]
+.Pull Templates
+====
+With every <<tasks-pull,pull task>> it is possible to add a template for each defined <<anytype,any type>>.
+
+As the values specified in the template are applied to pulled entities, this can be used as mechanism for setting
+default values for attributes or external resources on entities.
+
+A typical use case is, when pulling users from the external resource `R`, to automatically assign `R` so that every
+further modification in Apache Syncope to such users will be <<propagation,propagated>> back to `R`.
+====
+
+===== PullActions
+
+The pull process can be decorated with custom logic to be invoked around task execution, by associating
+pull tasks to one or more implementations of the
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/pushpull/PullActions.java[PullActions^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/pushpull/PullActions.java[PullActions^]
+endif::[]
+interface.
+
+Some examples are included by default, see table below.
+
+[cols="1,2"]
+|===
+
+| 
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/LDAPMembershipPullActions.java[LDAPMembershipPullActions^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/LDAPMembershipPullActions.java[LDAPMembershipPullActions^]
+endif::[]
+| If user is associated to group on LDAP, keeps the corresponding user as member of the corresponding group on Syncope.
+
+| 
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/LDAPPasswordPullActions.java[LDAPPasswordPullActions^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/LDAPPasswordPullActions.java[LDAPPasswordPullActions^]
+endif::[]
+| Import hashed password values from LDAP;
+the cipher algorithm associated with the password must match the value of `passwordHashAlgorithm` for the 
+https://connid.atlassian.net/wiki/display/BASE/LDAP#LDAP-Configuration[LDAP connector bundle^].
+
+| 
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/DBPasswordPullActions.java[DBPasswordPullActions^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/DBPasswordPullActions.java[DBPasswordPullActions^]
+endif::[]
+| Import hashed password values from DBMS;
+the cipher algorithm associated with the password must match the value of `Password cipher algorithm` for the 
+https://connid.atlassian.net/wiki/display/BASE/Database+Table#DatabaseTable-ConfigurationProperties[DatabaseTable connector bundle^].
+
+|===

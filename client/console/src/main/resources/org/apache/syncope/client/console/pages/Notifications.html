@@ -1,4 +1,4 @@
-s<!--
+<!--
 Licensed to the Apache Software Foundation (ASF) under one
 or more contributor license agreements.  See the NOTICE file
 distributed with this work for additional information
@@ -18,26 +18,19 @@ under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <wicket:extend>
-
     <section class="content-header">
-      <h1>
-        &nbsp;
-        <small>Work in progress</small>
-      </h1>
+      <h1>&nbsp;</h1>
       <ol class="breadcrumb">
-        <li><a wicket:id="dashboardBr"><i class="fa fa-dashboard"></i> <wicket:message key="dashboard"/></a></li>
+        <li><a wicket:id="dashboardBr"><i class="fa fa-dashboard"></i> <wicket:message key="dashboard"></wicket:message></a></li>
         <li class="active"><wicket:message key="configuration"/></li>
-        <li class="active"><wicket:message key="notifications"/></li>
+        <li class="active"><wicket:message key="notifications"></wicket:message></li>
       </ol>
     </section>
 
-    <section class="content">
-      <div class="progress progress active" style="margin:100px">
-        <div style="width: 70%" aria-valuemax="100" aria-valuemin="0" aria-valuenow="20" role="progressbar" class="progress-bar progress-bar-success progress-bar-striped">
-          <span class="sr-only">20% Complete</span>
-        </div>
+    <section class="content" wicket:id="content">
+      <div class="box">
+        <div class="box-body" wicket:id="tabbedPanel"/>
       </div>
     </section>
-
   </wicket:extend>
 </html>

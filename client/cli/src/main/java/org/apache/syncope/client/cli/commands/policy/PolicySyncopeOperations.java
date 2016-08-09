@@ -28,15 +28,15 @@ public class PolicySyncopeOperations {
 
     private final PolicyService policyService = SyncopeServices.get(PolicyService.class);
 
-    public <T extends AbstractPolicyTO> T read(final String policyId) {
-        return policyService.read(Long.valueOf(policyId));
+    public <T extends AbstractPolicyTO> T read(final String policyKey) {
+        return policyService.read(policyKey);
     }
 
     public <T extends AbstractPolicyTO> List<T> list(final String policyType) {
         return policyService.list(PolicyType.valueOf(policyType));
     }
 
-    public void delete(final String policyId) {
-        policyService.delete(Long.valueOf(policyId));
+    public void delete(final String policyKey) {
+        policyService.delete(policyKey);
     }
 }

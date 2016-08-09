@@ -47,7 +47,7 @@ public class EntitlementSyncopeOperations {
 
     public Set<String> usernameEntitlements(final String username) {
         final Set<String> entitlements = new TreeSet<>();
-        final UserTO userTO = userSyncopeOperations.read(userSyncopeOperations.getIdFromUsername(username));
+        final UserTO userTO = userSyncopeOperations.read(username);
         for (final String role : userTO.getRoles()) {
             entitlements.addAll(roleSyncopeOperations.read(role).getEntitlements());
         }

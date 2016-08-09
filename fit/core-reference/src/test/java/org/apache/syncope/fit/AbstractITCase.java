@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.fit;
 
-import static org.junit.Assert.assertNotNull;
-
 import java.io.InputStream;
 import java.net.URI;
 import java.util.Locale;
@@ -53,7 +51,6 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.SchemaType;
-import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.AnyObjectService;
 import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
 import org.apache.syncope.common.rest.api.service.AnyTypeService;
@@ -111,6 +108,8 @@ public abstract class AbstractITCase {
 
     protected static final String RESOURCE_NAME_LDAP = "resource-ldap";
 
+    protected static final String RESOURCE_NAME_LDAP_ORGUNIT = "resource-ldap-orgunit";
+
     protected static final String RESOURCE_NAME_TESTDB = "resource-testdb";
 
     protected static final String RESOURCE_NAME_TESTDB2 = "resource-testdb2";
@@ -137,8 +136,6 @@ public abstract class AbstractITCase {
 
     protected static final String RESOURCE_NAME_MAPPINGS2 = "ws-target-resource-list-mappings-2";
 
-    protected static final String RESOURCE_NAME_CREATE = "ws-target-resource-create";
-
     protected static final String RESOURCE_NAME_CREATE_SINGLE = "ws-target-resource-create-single";
 
     protected static final String RESOURCE_NAME_CREATE_WRONG = "ws-target-resource-create-wrong";
@@ -150,6 +147,10 @@ public abstract class AbstractITCase {
     protected static final String RESOURCE_NAME_CREATE_NONE = "ws-target-resource-create-none";
 
     protected static final String RESOURCE_NAME_DBSCRIPTED = "resource-db-scripted";
+
+    protected static final String RESOURCE_LDAP_ADMIN_DN = "uid=admin,ou=system";
+
+    protected static final String RESOURCE_LDAP_ADMIN_PWD = "secret";
 
     protected static String ANONYMOUS_UNAME;
 
@@ -317,10 +318,6 @@ public abstract class AbstractITCase {
         return getObject(response.getLocation(), RoleService.class, RoleTO.class);
     }
 
-    protected UserTO readUser(final String username) {
-        return userService.read(Long.valueOf(userService.getUserKey(username).getHeaderString(RESTHeaders.USER_KEY)));
-    }
-
     protected ProvisioningResult<UserTO> createUser(final UserTO userTO) {
         return createUser(userTO, true);
     }
@@ -343,7 +340,7 @@ public abstract class AbstractITCase {
                 });
     }
 
-    protected ProvisioningResult<UserTO> deleteUser(final Long key) {
+    protected ProvisioningResult<UserTO> deleteUser(final String key) {
         return userService.delete(key).
                 readEntity(new GenericType<ProvisioningResult<UserTO>>() {
                 });
@@ -367,7 +364,7 @@ public abstract class AbstractITCase {
                 });
     }
 
-    protected ProvisioningResult<AnyObjectTO> deleteAnyObject(final Long key) {
+    protected ProvisioningResult<AnyObjectTO> deleteAnyObject(final String key) {
         return anyObjectService.delete(key).
                 readEntity(new GenericType<ProvisioningResult<AnyObjectTO>>() {
                 });
@@ -391,7 +388,7 @@ public abstract class AbstractITCase {
                 });
     }
 
-    protected ProvisioningResult<GroupTO> deleteGroup(final Long key) {
+    protected ProvisioningResult<GroupTO> deleteGroup(final String key) {
         return groupService.delete(key).
                 readEntity(new GenericType<ProvisioningResult<GroupTO>>() {
                 });
@@ -456,9 +453,5 @@ public abstract class AbstractITCase {
                 }
             }
         }
-    }
-
-    protected Object getLdapRemoteObject(final String objectDn) {
-        return getLdapRemoteObject(null, null, objectDn);
     }
 }

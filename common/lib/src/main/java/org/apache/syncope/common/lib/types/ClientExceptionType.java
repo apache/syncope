@@ -22,6 +22,7 @@ import javax.ws.rs.core.Response;
 
 public enum ClientExceptionType {
 
+    AssociatedAnys(Response.Status.BAD_REQUEST),
     AssociatedResources(Response.Status.BAD_REQUEST),
     Composite(Response.Status.BAD_REQUEST),
     ConcurrentModification(Response.Status.PRECONDITION_FAILED),
@@ -29,6 +30,7 @@ public enum ClientExceptionType {
     DataIntegrityViolation(Response.Status.CONFLICT),
     EntityExists(Response.Status.CONFLICT),
     GenericPersistence(Response.Status.BAD_REQUEST),
+    HasChildren(Response.Status.BAD_REQUEST),
     InvalidSecurityAnswer(Response.Status.BAD_REQUEST),
     InvalidEntity(Response.Status.BAD_REQUEST),
     InvalidLogger(Response.Status.BAD_REQUEST),
@@ -38,6 +40,7 @@ public enum ClientExceptionType {
     InvalidConf(Response.Status.BAD_REQUEST),
     InvalidPath(Response.Status.BAD_REQUEST),
     InvalidProvision(Response.Status.BAD_REQUEST),
+    InvalidOrgUnit(Response.Status.BAD_REQUEST),
     InvalidReport(Response.Status.BAD_REQUEST),
     InvalidReportExec(Response.Status.BAD_REQUEST),
     InvalidRelationship(Response.Status.BAD_REQUEST),

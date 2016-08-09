@@ -60,9 +60,9 @@ under the License.
   <entry key="APlainAttrValue_attrIndex">CREATE INDEX APlainAttrValue_attrIndex on APlainAttrValue(attribute_id)</entry>
   <entry key="CPlainAttrValue_attrIndex">CREATE INDEX CPlainAttrValue_attrIndex on CPlainAttrValue(attribute_id)</entry>
 
-  <entry key="UPlainAttr_owner_id_index">CREATE INDEX UPlainAttr_owner_id_index on UPlainAttr(owner_id)</entry>
-  <entry key="GPlainAttr_owner_id_index">CREATE INDEX GPlainAttr_owner_id_index on GPlainAttr(owner_id)</entry>
-  <entry key="APlainAttr_owner_id_index">CREATE INDEX APlainAttr_owner_id_index on APlainAttr(owner_id)</entry>
+  <entry key="UPlainAttr_owner_idindex">CREATE INDEX UPlainAttr_owner_idindex on UPlainAttr(owner_id)</entry>
+  <entry key="GPlainAttr_owner_idindex">CREATE INDEX GPlainAttr_owner_idindex on GPlainAttr(owner_id)</entry>
+  <entry key="APlainAttr_owner_idindex">CREATE INDEX APlainAttr_owner_idindex on APlainAttr(owner_id)</entry>
 
   <entry key="Task_executedIndex">CREATE INDEX Task_executedIndex ON Task(executed)</entry>
 </properties>

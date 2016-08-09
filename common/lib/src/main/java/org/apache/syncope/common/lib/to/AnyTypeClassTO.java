@@ -30,7 +30,7 @@ import org.apache.syncope.common.lib.AbstractBaseBean;
 
 @XmlRootElement(name = "anyTypeClass")
 @XmlType
-public class AnyTypeClassTO extends AbstractBaseBean implements EntityTO<String> {
+public class AnyTypeClassTO extends AbstractBaseBean implements EntityTO {
 
     private static final long serialVersionUID = -591757688607551266L;
 

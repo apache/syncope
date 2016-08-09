@@ -51,7 +51,7 @@ public interface SchemaService extends JAXRSService {
      */
     @GET
     @Path("{key}")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     <T extends AbstractSchemaTO> T read(
             @NotNull @PathParam("type") SchemaType type, @NotNull @PathParam("key") String key);
 
@@ -63,7 +63,7 @@ public interface SchemaService extends JAXRSService {
      * @return list of schemas with matching type, for the given anyTypeClass if provided
      */
     @GET
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     <T extends AbstractSchemaTO> List<T> list(@BeanParam SchemaQuery query);
 
     /**
@@ -74,7 +74,7 @@ public interface SchemaService extends JAXRSService {
      * @return Response object featuring Location header of created schema
      */
     @POST
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response create(@NotNull @PathParam("type") SchemaType type, @NotNull AbstractSchemaTO schemaTO);
 
     /**
@@ -85,7 +85,7 @@ public interface SchemaService extends JAXRSService {
      */
     @PUT
     @Path("{key}")
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     void update(@NotNull @PathParam("type") SchemaType type, @NotNull AbstractSchemaTO schemaTO);
 
     /**

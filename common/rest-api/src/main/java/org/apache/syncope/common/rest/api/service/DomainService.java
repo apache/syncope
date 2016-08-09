@@ -44,7 +44,7 @@ public interface DomainService extends JAXRSService {
      * @return list of all domains.
      */
     @GET
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     List<DomainTO> list();
 
     /**
@@ -55,7 +55,7 @@ public interface DomainService extends JAXRSService {
      */
     @GET
     @Path("{key}")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     DomainTO read(@NotNull @PathParam("key") String key);
 
     /**
@@ -65,7 +65,7 @@ public interface DomainService extends JAXRSService {
      * @return Response object featuring Location header of created domain
      */
     @POST
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response create(@NotNull DomainTO domainTO);
 
     /**
@@ -75,7 +75,7 @@ public interface DomainService extends JAXRSService {
      */
     @PUT
     @Path("{key}")
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     void update(@NotNull DomainTO domainTO);
 
     /**

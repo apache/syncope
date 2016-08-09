@@ -20,11 +20,11 @@ package org.apache.syncope.core.persistence.jpa.entity.conf;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.Valid;
@@ -36,38 +36,31 @@ import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.conf.Conf;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
-import org.apache.syncope.core.persistence.jpa.entity.AbstractAnnotatedEntity;
+import org.apache.syncope.core.persistence.jpa.entity.AbstractProvidedKeyEntity;
 
 @Entity
 @Table(name = JPAConf.TABLE)
 @Cacheable
-public class JPAConf extends AbstractAnnotatedEntity<Long> implements Conf {
+public class JPAConf extends AbstractProvidedKeyEntity implements Conf {
 
     private static final long serialVersionUID = 7671699609879382195L;
 
     public static final String TABLE = "SyncopeConf";
 
-    @Id
-    private Long id;
-
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "owner")
     @Valid
     private List<JPACPlainAttr> plainAttrs = new ArrayList<>();
-
-    @Override
-    public Long getKey() {
-        return id;
-    }
-
-    @Override
-    public void setKey(final Long key) {
-        this.id = key;
-    }
 
     @Override
     public boolean add(final CPlainAttr attr) {
         checkType(attr, JPACPlainAttr.class);
         return plainAttrs.add((JPACPlainAttr) attr);
+    }
+
+    @Override
+    public boolean remove(final CPlainAttr attr) {
+        checkType(attr, JPACPlainAttr.class);
+        return plainAttrs.remove((JPACPlainAttr) attr);
     }
 
     @Override
@@ -93,7 +86,7 @@ public class JPAConf extends AbstractAnnotatedEntity<Long> implements Conf {
     }
 
     @Override
-    public List<String> getResourceNames() {
+    public List<String> getResourceKeys() {
         return Collections.emptyList();
     }
 
@@ -150,5 +143,45 @@ public class JPAConf extends AbstractAnnotatedEntity<Long> implements Conf {
     @Override
     public void setType(final AnyType type) {
         // nothing to do
+    }
+
+    @Override
+    public Date getCreationDate() {
+        return null;
+    }
+
+    @Override
+    public void setCreationDate(final Date creationDate) {
+        // nothing to do
+    }
+
+    @Override
+    public String getCreator() {
+        return null;
+    }
+
+    @Override
+    public void setCreator(final String creator) {
+        // nothing to do
+    }
+
+    @Override
+
+    public Date getLastChangeDate() {
+        return null;
+    }
+
+    @Override
+    public void setLastChangeDate(final Date lastChangeDate) {
+        // nothing to do
+    }
+
+    @Override
+    public String getLastModifier() {
+        return null;
+    }
+
+    @Override
+    public void setLastModifier(final String lastModifier) {
     }
 }

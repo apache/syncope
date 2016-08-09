@@ -29,31 +29,31 @@ import javax.persistence.TypedQuery;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
-import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
+import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
-import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
+import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttr;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
+import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyUtilsFactory;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAMembership;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPATypeExtension;
@@ -70,6 +70,9 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
 
     @Autowired
     private UserDAO userDAO;
+
+    @Autowired
+    private PlainAttrDAO plainAttrDAO;
 
     @Override
     protected AnyUtils init() {
@@ -115,7 +118,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     }
 
     @Override
-    public Group find(final String name) {
+    public Group findByName(final String name) {
         TypedQuery<Group> query = entityManager().createQuery(
                 "SELECT e FROM " + JPAGroup.class.getSimpleName() + " e WHERE e.name = :name", Group.class);
         query.setParameter("name", name);
@@ -130,9 +133,25 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         return result;
     }
 
+    @Override
+    public Group authFindByName(final String name) {
+        if (name == null) {
+            throw new NotFoundException("Null name");
+        }
+
+        Group group = findByName(name);
+        if (group == null) {
+            throw new NotFoundException("Group " + name);
+        }
+
+        securityChecks(group);
+
+        return group;
+    }
+
     @Transactional(readOnly = true)
     @Override
-    public List<Group> findOwnedByUser(final Long userKey) {
+    public List<Group> findOwnedByUser(final String userKey) {
         User owner = userDAO.find(userKey);
         if (owner == null) {
             return Collections.<Group>emptyList();
@@ -140,8 +159,8 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
 
         StringBuilder queryString = new StringBuilder("SELECT e FROM ").append(JPAGroup.class.getSimpleName()).
                 append(" e WHERE e.userOwner=:owner ");
-        for (Long groupKey : userDAO.findAllGroupKeys(owner)) {
-            queryString.append("OR e.groupOwner.id=").append(groupKey).append(' ');
+        for (String groupKey : userDAO.findAllGroupKeys(owner)) {
+            queryString.append("OR e.groupOwner.id='").append(groupKey).append("' ");
         }
 
         TypedQuery<Group> query = entityManager().createQuery(queryString.toString(), Group.class);
@@ -152,8 +171,8 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
 
     @Transactional(readOnly = true)
     @Override
-    public List<Group> findOwnedByGroup(final Long groupId) {
-        Group owner = find(groupId);
+    public List<Group> findOwnedByGroup(final String groupKey) {
+        Group owner = find(groupKey);
         if (owner == null) {
             return Collections.<Group>emptyList();
         }
@@ -225,66 +244,37 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     @Override
     public void delete(final Group group) {
         for (AMembership membership : findAMemberships(group)) {
-            membership.getLeftEnd().getMemberships().remove(membership);
-            anyObjectDAO.save(membership.getLeftEnd());
+            AnyObject leftEnd = membership.getLeftEnd();
+            leftEnd.getMemberships().remove(membership);
+            membership.setRightEnd(null);
+            for (APlainAttr attr : leftEnd.getPlainAttrs(membership)) {
+                leftEnd.remove(attr);
+                attr.setOwner(null);
+                attr.setMembership(null);
+                plainAttrDAO.delete(attr);
+            }
 
-            entityManager().remove(membership);
+            anyObjectDAO.save(leftEnd);
         }
         for (UMembership membership : findUMemberships(group)) {
-            membership.getLeftEnd().getMemberships().remove(membership);
-            userDAO.save(membership.getLeftEnd());
+            User leftEnd = membership.getLeftEnd();
+            leftEnd.getMemberships().remove(membership);
+            membership.setRightEnd(null);
+            for (UPlainAttr attr : leftEnd.getPlainAttrs(membership)) {
+                leftEnd.remove(attr);
+                attr.setOwner(null);
+                attr.setMembership(null);
+                plainAttrDAO.delete(attr);
+            }
 
-            entityManager().remove(membership);
+            userDAO.save(leftEnd);
         }
 
         entityManager().remove(group);
     }
 
-    private void populateTransitiveResources(
-            final Group group, final Any<?> any, final Map<Long, PropagationByResource> result) {
-
-        PropagationByResource propByRes = new PropagationByResource();
-        for (ExternalResource resource : group.getResources()) {
-            if (!any.getResources().contains(resource)) {
-                propByRes.add(ResourceOperation.DELETE, resource.getKey());
-            }
-
-            if (!propByRes.isEmpty()) {
-                result.put(any.getKey(), propByRes);
-            }
-        }
-    }
-
-    @Transactional(readOnly = true)
     @Override
-    public Map<Long, PropagationByResource> findAnyObjectsWithTransitiveResources(final Long groupKey) {
-        Group group = authFind(groupKey);
-
-        Map<Long, PropagationByResource> result = new HashMap<>();
-
-        for (AMembership membership : findAMemberships(group)) {
-            populateTransitiveResources(group, membership.getLeftEnd(), result);
-        }
-
-        return result;
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public Map<Long, PropagationByResource> findUsersWithTransitiveResources(final Long groupKey) {
-        Group group = authFind(groupKey);
-
-        Map<Long, PropagationByResource> result = new HashMap<>();
-
-        for (UMembership membership : findUMemberships(group)) {
-            populateTransitiveResources(group, membership.getLeftEnd(), result);
-        }
-
-        return result;
-    }
-
-    @Override
-    public List<TypeExtension> findTypeExtensionByAnyTypeClass(final AnyTypeClass anyTypeClass) {
+    public List<TypeExtension> findTypeExtensions(final AnyTypeClass anyTypeClass) {
         TypedQuery<TypeExtension> query = entityManager().createQuery(
                 "SELECT e FROM " + JPATypeExtension.class.getSimpleName()
                 + " e WHERE :anyTypeClass MEMBER OF e.auxClasses", TypeExtension.class);

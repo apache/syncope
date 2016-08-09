@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.rest;
 
 import java.util.List;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.client.console.commons.AttrLayoutType;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.rest.api.service.ConfigurationService;
@@ -29,20 +28,8 @@ public class ConfigurationRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = 7692363064029538722L;
 
-    private final SchemaRestClient schemaRestClient = new SchemaRestClient();
-
     public List<AttrTO> list() {
-        final List<AttrTO> attrTOs = getService(ConfigurationService.class).list();
-
-        for (AttrTO attrTO : attrTOs) {
-            for (AttrLayoutType type : AttrLayoutType.values()) {
-                if (type.getConfKey().equals(attrTO.getSchema())) {
-                    attrTOs.remove(attrTO);
-                }
-            }
-        }
-
-        return attrTOs;
+        return getService(ConfigurationService.class).list();
     }
 
     public AttrTO get(final String key) {
@@ -52,23 +39,6 @@ public class ConfigurationRestClient extends BaseRestClient {
             LOG.error("While reading a configuration schema", e);
         }
         return null;
-    }
-
-    public AttrTO readAttrLayout(final AttrLayoutType type) {
-        if (type == null) {
-            return null;
-        }
-
-        AttrTO attrLayout = get(type.getConfKey());
-        if (attrLayout == null) {
-            attrLayout = new AttrTO();
-            attrLayout.setSchema(type.getConfKey());
-        }
-        if (attrLayout.getValues().isEmpty()) {
-            attrLayout.getValues().addAll(schemaRestClient.getPlainSchemaNames());
-        }
-
-        return attrLayout;
     }
 
     public void set(final AttrTO attrTO) {

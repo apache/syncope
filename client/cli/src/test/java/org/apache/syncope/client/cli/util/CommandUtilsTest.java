@@ -30,33 +30,25 @@ import org.junit.Test;
 public class CommandUtilsTest {
 
     @Test
-    public void fromArgs() {
-        final String commandName = "logger";
-        try {
-            final AbstractCommand command = CommandUtils.fromArgs(commandName);
-            assertEquals(commandName, command.getClass().getAnnotation(Command.class).name());
-        } catch (final IllegalAccessException | IllegalArgumentException | InstantiationException ex) {
-            fail(ex.getMessage());
-        }
+    public void fromArgs() throws InstantiationException, IllegalAccessException {
+        String commandName = "logger";
+        AbstractCommand command = CommandUtils.fromArgs(commandName);
+        assertEquals(commandName, command.getClass().getAnnotation(Command.class).name());
 
-        final String wrongCommandName = "wrong";
+        String wrongCommandName = "wrong";
         try {
             CommandUtils.fromArgs(wrongCommandName);
             fail(wrongCommandName + " isn't a right command, why you are here?");
-        } catch (final IllegalAccessException | IllegalArgumentException | InstantiationException ex) {
+        } catch (IllegalArgumentException ex) {
             assertEquals(IllegalArgumentException.class, ex.getClass());
             assertEquals(wrongCommandName + " is not a valid command", ex.getMessage());
         }
     }
 
     @Test
-    public void commands() {
-        try {
-            final List<AbstractCommand> commands = CommandUtils.commands();
-            assertFalse(commands.isEmpty());
-            assertEquals(21, commands.size());
-        } catch (final IllegalAccessException | IllegalArgumentException | InstantiationException ex) {
-            fail(ex.getMessage());
-        }
+    public void commands() throws InstantiationException, IllegalAccessException {
+        List<AbstractCommand> commands = CommandUtils.commands();
+        assertFalse(commands.isEmpty());
+        assertEquals(22, commands.size());
     }
 }

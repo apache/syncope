@@ -106,8 +106,8 @@ public class CamelRouteLogic extends AbstractTransactionalLogic<CamelRouteTO> {
         } else {
             MetricRegistry registry = registryService.getMetricsRegistry();
             for (Map.Entry<String, Timer> entry : registry.getTimers().entrySet()) {
-                CamelMetrics.MeanRate meanRate = new CamelMetrics.MeanRate();
-                meanRate.setRouteId(StringUtils.substringBetween(entry.getKey(), ":", "."));
+                CamelMetrics.MeanRate meanRate = new CamelMetrics.MeanRate();                
+                meanRate.setRouteId(StringUtils.substringBetween(entry.getKey(), ".", "."));
                 meanRate.setValue(entry.getValue().getMeanRate());
                 metrics.getResponseMeanRates().add(meanRate);
             }

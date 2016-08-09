@@ -20,28 +20,19 @@ package org.apache.syncope.core.persistence.jpa.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.Table;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
 
 @Entity
 @Table(name = JPASecurityQuestion.TABLE)
-public class JPASecurityQuestion extends AbstractEntity<Long> implements SecurityQuestion {
+public class JPASecurityQuestion extends AbstractGeneratedKeyEntity implements SecurityQuestion {
 
     private static final long serialVersionUID = 7675321820453579744L;
 
     public static final String TABLE = "SecurityQuestion";
 
-    @Id
-    private Long id;
-
     @Column(unique = true)
     private String content;
-
-    @Override
-    public Long getKey() {
-        return id;
-    }
 
     @Override
     public String getContent() {

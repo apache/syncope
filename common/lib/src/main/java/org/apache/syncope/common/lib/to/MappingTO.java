@@ -28,7 +28,6 @@ import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.AbstractBaseBean;
-import org.apache.syncope.common.lib.types.IntMappingType;
 
 @XmlRootElement(name = "mapping")
 @XmlType
@@ -61,18 +60,7 @@ public class MappingTO extends AbstractBaseBean {
     }
 
     protected boolean addConnObjectKeyItem(final MappingItemTO connObjectItem) {
-        if (IntMappingType.UserVirtualSchema == connObjectItem.getIntMappingType()
-                || IntMappingType.GroupVirtualSchema == connObjectItem.getIntMappingType()
-                || IntMappingType.AnyObjectVirtualSchema == connObjectItem.getIntMappingType()
-                || IntMappingType.Password == connObjectItem.getIntMappingType()) {
-
-            throw new IllegalArgumentException("Virtual attributes cannot be set as connObjectKey");
-        }
-        if (IntMappingType.Password == connObjectItem.getIntMappingType()) {
-            throw new IllegalArgumentException("Password attributes cannot be set as connObjectKey");
-        }
-
-        connObjectItem.setExtAttrName(connObjectItem.getExtAttrName());
+        connObjectItem.setMandatoryCondition("true");
         connObjectItem.setConnObjectKey(true);
 
         return this.add(connObjectItem);

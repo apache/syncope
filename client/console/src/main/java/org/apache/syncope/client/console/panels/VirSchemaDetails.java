@@ -19,22 +19,30 @@
 package org.apache.syncope.client.console.panels;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.Predicate;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
+import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
+import org.apache.syncope.common.lib.to.ConnIdObjectClassTO;
+import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
-import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.model.PropertyModel;
 
 public class VirSchemaDetails extends AbstractSchemaDetailsPanel {
@@ -43,84 +51,116 @@ public class VirSchemaDetails extends AbstractSchemaDetailsPanel {
 
     private final ResourceRestClient resourceRestClient = new ResourceRestClient();
 
-    private Map<Long, String> anys = new HashMap<>();
+    private final ConnectorRestClient connRestClient = new ConnectorRestClient();
 
-    private final AjaxDropDownChoicePanel<Long> provision;
+    private final Map<String, String> anyTypes = new HashMap<>();
+
+    private final AjaxDropDownChoicePanel<String> anyType;
+
+    private ResourceTO selectedResource;
 
     public VirSchemaDetails(final String id,
             final PageReference pageReference,
             final AbstractSchemaTO schemaTO) {
+
         super(id, pageReference, schemaTO);
 
-        final AjaxCheckBoxPanel readonly = new AjaxCheckBoxPanel("readonly", getString("readonly"),
+        AjaxCheckBoxPanel readonly = new AjaxCheckBoxPanel("readonly", getString("readonly"),
                 new PropertyModel<Boolean>(schemaTO, "readonly"));
         schemaForm.add(readonly);
 
         final AjaxDropDownChoicePanel<String> resource = new AjaxDropDownChoicePanel<>(
-                "resource", getString("resource"), new PropertyModel<String>(schemaTO, "resource"));
-        resource.setChoices(CollectionUtils.collect(resourceRestClient.getAll(),
-                EntityTOUtils.<String, ResourceTO>keyTransformer(),
-                new ArrayList<String>()));
-
+                "resource", getString("resource"), new PropertyModel<String>(schemaTO, "resource")).
+                setNullValid(false);
+        resource.setChoices(CollectionUtils.collect(resourceRestClient.list(),
+                EntityTOUtils.<ResourceTO>keyTransformer(), new ArrayList<String>()));
         resource.setOutputMarkupId(true);
         resource.addRequiredLabel();
+        if (resource.getModelObject() != null) {
+            populateAnyTypes(resource.getModelObject());
+        }
         schemaForm.add(resource);
 
-        provision = new AjaxDropDownChoicePanel<>(
-                "provision", getString("provision"), new PropertyModel<Long>(schemaTO, "provision"));
-
-        provision.setChoices(new ArrayList<>(anys.keySet()));
-        provision.setChoiceRenderer(new AnyTypeRenderer());
-        provision.setOutputMarkupId(true);
-        provision.setOutputMarkupPlaceholderTag(true);
-        provision.addRequiredLabel();
-        provision.setVisible(false);
-
-        schemaForm.add(provision);
+        anyType = new AjaxDropDownChoicePanel<>(
+                "anyType", getString("anyType"), new PropertyModel<String>(schemaTO, "anyType")).
+                setNullValid(false);
+        anyType.setChoices(new ArrayList<>(anyTypes.keySet()));
+        anyType.setOutputMarkupId(true);
+        anyType.setOutputMarkupPlaceholderTag(true);
+        anyType.addRequiredLabel();
+        if (resource.getModelObject() == null) {
+            anyType.setEnabled(false);
+        }
+        schemaForm.add(anyType);
 
         final AjaxTextFieldPanel extAttrName = new AjaxTextFieldPanel(
                 "extAttrName", getString("extAttrName"), new PropertyModel<String>(schemaTO, "extAttrName"));
+        extAttrName.setOutputMarkupId(true);
         extAttrName.addRequiredLabel();
+        if (selectedResource != null) {
+            extAttrName.setChoices(getExtAttrNames());
+        }
         schemaForm.add(extAttrName);
 
         add(schemaForm);
 
-        resource.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+        resource.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                anys.clear();
-                if (resource != null & resource.getModelObject() != null) {
-                    for (ProvisionTO provisionTO : resourceRestClient.read(resource.getModelObject()).getProvisions()) {
-                        anys.put(provisionTO.getKey(), provisionTO.getAnyType());
-                    }
+                anyTypes.clear();
+                if (resource.getModelObject() != null) {
+                    populateAnyTypes(resource.getModelObject());
+                    anyType.setEnabled(true);
                 }
-                provision.setChoices(new ArrayList<>(anys.keySet()));
-                provision.setModelObject(0L);
-                provision.setVisible(true);
-                target.add(provision);
+                anyType.setChoices(new ArrayList<>(anyTypes.keySet()));
+                anyType.setModelObject(null);
+                target.add(anyType);
+            }
+        });
+
+        anyType.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+
+            private static final long serialVersionUID = -1107858522700306810L;
+
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+                if (selectedResource != null && SyncopeConsoleSession.get().owns(StandardEntitlement.CONNECTOR_READ)) {
+                    extAttrName.setChoices(getExtAttrNames());
+                    target.add(extAttrName);
+                }
             }
         });
     }
 
-    private class AnyTypeRenderer extends ChoiceRenderer<Long> {
-
-        private static final long serialVersionUID = 2840364232128308553L;
-
-        AnyTypeRenderer() {
-            super();
+    private void populateAnyTypes(final String resourceKey) {
+        anyTypes.clear();
+        if (resourceKey != null && SyncopeConsoleSession.get().owns(StandardEntitlement.RESOURCE_READ)) {
+            selectedResource = resourceRestClient.read(resourceKey);
+            for (ProvisionTO provisionTO : selectedResource.getProvisions()) {
+                anyTypes.put(provisionTO.getAnyType(), provisionTO.getObjectClass());
+            }
         }
+    }
 
-        @Override
-        public Object getDisplayValue(final Long object) {
-            return anys.get(object);
-        }
+    private List<String> getExtAttrNames() {
+        ConnInstanceTO connInstanceTO = new ConnInstanceTO();
+        connInstanceTO.setKey(selectedResource.getConnector());
+        connInstanceTO.getConf().addAll(selectedResource.getConfOverride());
 
-        @Override
-        public String getIdValue(final Long object, final int index) {
-            return String.valueOf(object != null ? object : 0L);
-        }
+        ConnIdObjectClassTO connIdObjectClass = IterableUtils.find(
+                connRestClient.buildObjectClassInfo(connInstanceTO, false), new Predicate<ConnIdObjectClassTO>() {
+
+            @Override
+            public boolean evaluate(final ConnIdObjectClassTO object) {
+                return object.getType().equals(anyTypes.get(anyType.getModelObject()));
+            }
+        });
+
+        return connIdObjectClass == null
+                ? Collections.<String>emptyList()
+                : connIdObjectClass.getAttributes();
     }
 }

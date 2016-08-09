@@ -29,7 +29,7 @@ import org.apache.syncope.common.lib.AbstractBaseBean;
 @XmlType
 @XmlSeeAlso({ PlainSchemaTO.class, DerSchemaTO.class, VirSchemaTO.class })
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-public abstract class AbstractSchemaTO extends AbstractBaseBean implements EntityTO<String> {
+public abstract class AbstractSchemaTO extends AbstractBaseBean implements EntityTO {
 
     private static final long serialVersionUID = 4088388951694301759L;
 

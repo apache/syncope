@@ -33,7 +33,7 @@ public abstract class AbstractBaseResource extends AbstractResource {
 
     private static final long serialVersionUID = -7875801358718612782L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractBaseResource.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(AbstractBaseResource.class);
 
     protected static final ObjectMapper MAPPER = new ObjectMapper();
 
@@ -52,26 +52,20 @@ public abstract class AbstractBaseResource extends AbstractResource {
 
     protected final boolean xsrfCheck(final HttpServletRequest request) {
         final String requestXSRFHeader = request.getHeader(SyncopeEnduserConstants.XSRF_HEADER_NAME);
-        if (SyncopeEnduserApplication.get().isXsrfEnabled()) {
-            return StringUtils.isNotBlank(requestXSRFHeader)
-                    && SyncopeEnduserSession.get().getCookieUtils().getCookie(SyncopeEnduserConstants.XSRF_COOKIE).
-                    getValue().equals(requestXSRFHeader);
-        } else {
-            //if xsfr is disabled, we return always true
-            return true;
-        }
+
+        return SyncopeEnduserApplication.get().isXsrfEnabled()
+                ? StringUtils.isNotBlank(requestXSRFHeader)
+                && SyncopeEnduserSession.get().getCookieUtils().
+                getCookie(SyncopeEnduserConstants.XSRF_COOKIE).getValue().equals(requestXSRFHeader)
+                : true;
     }
 
-    protected final boolean captchaCheck(final String enteredCaptcha, final String currentCaptcha) {
-        if (SyncopeEnduserApplication.get().isCaptchaEnabled()) {
-            if (StringUtils.isBlank(currentCaptcha) || enteredCaptcha == null) {
-                return false;
-            } else {
-                return enteredCaptcha.equals(currentCaptcha);
-            }
-        } else {
-            //if captcha is disabled, we return always true
-            return true;
-        }
+    protected final boolean captchaCheck(final String enteredCaptcha, final Object currentCaptcha) {
+        String toCheck = currentCaptcha.toString();
+        return SyncopeEnduserApplication.get().isCaptchaEnabled()
+                ? StringUtils.isBlank(toCheck) || enteredCaptcha == null
+                ? false
+                : enteredCaptcha.equals(toCheck)
+                : true;
     }
 }

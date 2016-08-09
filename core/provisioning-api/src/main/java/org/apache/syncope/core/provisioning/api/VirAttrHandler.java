@@ -21,13 +21,14 @@ package org.apache.syncope.core.provisioning.api;
 import java.util.List;
 import java.util.Map;
 import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.Membership;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 
 public interface VirAttrHandler {
 
     /**
      * Query external resource (or cache, if configured) associated to the given any for values associated to the given
-     * virtual schema.
+     * virtual schema, not related to any membership.
      *
      * @param any any object
      * @param schema virtual schema
@@ -37,13 +38,36 @@ public interface VirAttrHandler {
     List<String> getValues(Any<?> any, VirSchema schema);
 
     /**
+     * Query external resource (or cache, if configured) associated to the given any for values associated to the given
+     * virtual schema, for the given membership.
+     *
+     * @param any any object
+     * @param membership membership
+     * @param schema virtual schema
+     * @return virtual attribute values, either for local cache or external resource, if resource is owned by the given
+     * any and associated to the given virtual schema; empty list otherwise.
+     */
+    List<String> getValues(Any<?> any, Membership<?> membership, VirSchema schema);
+
+    /**
      * Query external resources (or cache, if configured) associated to the given any for values associated to all
      * {@link VirSchema} instances in the {@link org.apache.syncope.core.persistence.api.entity.AnyTypeClass}
-     * associated to the given any.
+     * associated to the given any, with no membership.
      *
      * @param any any object
      * @return virtual attribute values, either for local cache or external resources
      */
     Map<VirSchema, List<String>> getValues(Any<?> any);
+
+    /**
+     * Query external resources (or cache, if configured) associated to the given any for values associated to all
+     * {@link VirSchema} instances in the {@link org.apache.syncope.core.persistence.api.entity.AnyTypeClass}
+     * associated to the given any, for the given membership.
+     *
+     * @param any any object
+     * @param membership membership
+     * @return virtual attribute values, either for local cache or external resources
+     */
+    Map<VirSchema, List<String>> getValues(Any<?> any, Membership<?> membership);
 
 }

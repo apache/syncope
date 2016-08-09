@@ -23,13 +23,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.rest.BaseRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.syncope.client.console.bulk.BulkActionModal;
 import org.apache.syncope.client.console.bulk.BulkContent;
-import org.apache.syncope.client.console.panels.AbstractSearchResultPanel.EventDataWrapper;
+import org.apache.syncope.client.console.pages.BasePage;
+import org.apache.syncope.client.console.panels.DirectoryPanel.EventDataWrapper;
+import org.apache.syncope.client.console.rest.RestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.CheckGroupColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AjaxFallbackDataTable;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
@@ -65,7 +66,7 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
 
         private final Collection<ActionLink.ActionType> bulkActions = new ArrayList<>();
 
-        private BaseRestClient bulkActionExecutor;
+        private RestClient bulkActionExecutor;
 
         private String itemKeyField;
 
@@ -108,7 +109,7 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
 
         public Builder<T, S> setBulkActions(
                 final Collection<ActionLink.ActionType> bulkActions,
-                final BaseRestClient bulkActionExecutor,
+                final RestClient bulkActionExecutor,
                 final String itemKeyField) {
             this.bulkActions.clear();
             if (bulkActions != null) {
@@ -166,12 +167,15 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
             public void onClose(final AjaxRequestTarget target) {
                 bulkModal.show(false);
 
-                final EventDataWrapper data = new EventDataWrapper();
+                EventDataWrapper data = new EventDataWrapper();
                 data.setTarget(target);
                 data.setRows(builder.rowsPerPage);
 
                 send(builder.pageRef.getPage(), Broadcast.BREADTH, data);
-                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                BasePage page = (BasePage) findPage();
+                if (page != null) {
+                    page.getNotificationPanel().refresh(target);
+                }
             }
         });
 
@@ -215,7 +219,7 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
                     target.add(bulkModal.setContent(new BulkActionModal<>(
                             bulkModal,
                             builder.pageRef,
-                            new ArrayList<T>(group.getModelObject()),
+                            new ArrayList<>(group.getModelObject()),
                             // serialization problem with sublist only
                             new ArrayList<>(builder.columns.subList(1, builder.columns.size() - 1)),
                             builder.bulkActions,
@@ -224,14 +228,17 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
 
                     bulkModal.show(true);
                 } else {
-                    builder.multiLevelPanel.next("bulk.action", new BulkContent<>(
-                            builder.baseModal,
-                            new ArrayList<T>(group.getModelObject()),
-                            // serialization problem with sublist only
-                            new ArrayList<>(builder.columns.subList(1, builder.columns.size() - 1)),
-                            builder.bulkActions,
-                            builder.bulkActionExecutor,
-                            builder.itemKeyField), target);
+                    builder.multiLevelPanel.next(
+                            getString("bulk.action"),
+                            new BulkContent<>(
+                                    builder.baseModal,
+                                    new ArrayList<>(group.getModelObject()),
+                                    // serialization problem with sublist only
+                                    new ArrayList<>(builder.columns.subList(1, builder.columns.size() - 1)),
+                                    builder.bulkActions,
+                                    builder.bulkActionExecutor,
+                                    builder.itemKeyField),
+                            target);
                 }
                 group.setModelObject(Collections.<T>emptyList());
                 target.add(group);

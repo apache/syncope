@@ -42,9 +42,9 @@ abstract class AbstractJobLogic<T extends AbstractBaseBean> extends AbstractTran
     @Autowired
     protected SchedulerFactoryBean scheduler;
 
-    protected abstract Triple<JobType, Long, String> getReference(final JobKey jobKey);
+    protected abstract Triple<JobType, String, String> getReference(final JobKey jobKey);
 
-    protected List<JobTO> listJobs() {
+    protected List<JobTO> doListJobs() {
         List<JobTO> jobTOs = new ArrayList<>();
 
         try {
@@ -53,7 +53,7 @@ abstract class AbstractJobLogic<T extends AbstractBaseBean> extends AbstractTran
 
                 JobTO jobTO = new JobTO();
 
-                Triple<JobType, Long, String> reference = getReference(jobKey);
+                Triple<JobType, String, String> reference = getReference(jobKey);
                 if (reference != null) {
                     jobTOs.add(jobTO);
 
@@ -80,7 +80,7 @@ abstract class AbstractJobLogic<T extends AbstractBaseBean> extends AbstractTran
         return jobTOs;
     }
 
-    protected void actionJob(final JobKey jobKey, final JobAction action) {
+    protected void doActionJob(final JobKey jobKey, final JobAction action) {
         try {
             if (scheduler.getScheduler().checkExists(jobKey)) {
                 switch (action) {

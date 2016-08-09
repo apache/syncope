@@ -126,11 +126,11 @@ public class AuthDataAccessor {
      * @return {@code null} if no matching user was found, authentication result otherwise
      */
     @Transactional(noRollbackFor = DisabledException.class)
-    public Pair<Long, Boolean> authenticate(final Authentication authentication) {
-        Long key = null;
+    public Pair<String, Boolean> authenticate(final Authentication authentication) {
+        String key = null;
         Boolean authenticated = null;
 
-        User user = userDAO.find(authentication.getName());
+        User user = userDAO.findByUsername(authentication.getName());
         if (user != null) {
             key = user.getKey();
             authenticated = false;
@@ -254,7 +254,7 @@ public class AuthDataAccessor {
                 }
             }, authorities);
         } else {
-            User user = userDAO.find(username);
+            User user = userDAO.findByUsername(username);
             if (user == null) {
                 throw new UsernameNotFoundException("Could not find any user with id " + username);
             }

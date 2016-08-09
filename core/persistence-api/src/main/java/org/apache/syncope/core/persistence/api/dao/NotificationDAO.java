@@ -22,9 +22,9 @@ import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.MailTemplate;
 import org.apache.syncope.core.persistence.api.entity.Notification;
 
-public interface NotificationDAO extends DAO<Notification, Long> {
+public interface NotificationDAO extends DAO<Notification> {
 
-    Notification find(Long key);
+    Notification find(String key);
 
     List<Notification> findByTemplate(MailTemplate template);
 
@@ -32,5 +32,5 @@ public interface NotificationDAO extends DAO<Notification, Long> {
 
     Notification save(Notification notification);
 
-    void delete(Long key);
+    void delete(String key);
 }

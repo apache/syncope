@@ -22,9 +22,6 @@ import java.net.URI;
 import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
-import org.apache.syncope.common.lib.policy.AccountPolicyTO;
-import org.apache.syncope.common.lib.policy.PasswordPolicyTO;
-import org.apache.syncope.common.lib.policy.PullPolicyTO;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.PolicyService;
@@ -48,7 +45,7 @@ public class PolicyServiceImpl extends AbstractServiceImpl implements PolicyServ
     }
 
     @Override
-    public void delete(final Long key) {
+    public void delete(final String key) {
         logic.delete(key);
     }
 
@@ -58,27 +55,12 @@ public class PolicyServiceImpl extends AbstractServiceImpl implements PolicyServ
     }
 
     @Override
-    public <T extends AbstractPolicyTO> T read(final Long key) {
+    public <T extends AbstractPolicyTO> T read(final String key) {
         return logic.read(key);
     }
 
     @Override
     public void update(final AbstractPolicyTO policyTO) {
-        switch (policyTO.getType()) {
-            case ACCOUNT:
-                logic.update((AccountPolicyTO) policyTO);
-                break;
-
-            case PASSWORD:
-                logic.update((PasswordPolicyTO) policyTO);
-                break;
-
-            case PULL:
-                logic.update((PullPolicyTO) policyTO);
-                break;
-
-            default:
-                break;
-        }
+        logic.update(policyTO);
     }
 }

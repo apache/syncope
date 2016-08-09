@@ -46,7 +46,7 @@ public class InfoResource extends AbstractBaseResource {
             if (!SyncopeEnduserSession.get().isXsrfTokenGenerated() && (sessionCookieUtils.getCookie(
                     SyncopeEnduserConstants.XSRF_COOKIE) == null || StringUtils.isBlank(
                             sessionCookieUtils.getCookie(SyncopeEnduserConstants.XSRF_COOKIE).getValue()))) {
-                LOG.info("Set XSRF-TOKEN cookie");
+                LOG.debug("Set XSRF-TOKEN cookie");
                 SyncopeEnduserSession.get().setXsrfTokenGenerated(true);
                 sessionCookieUtils.save(SyncopeEnduserConstants.XSRF_COOKIE, SaltGenerator.generate(
                         SyncopeEnduserSession.get().getId()));

@@ -21,17 +21,19 @@ package org.apache.syncope.core.workflow.java;
 import java.io.OutputStream;
 import java.util.Collections;
 import java.util.List;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.PasswordPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
-import org.apache.syncope.common.lib.types.PropagationByResource;
+import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
+import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.apache.syncope.core.workflow.api.WorkflowDefinitionFormat;
 import org.apache.syncope.core.workflow.api.WorkflowException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,19 +47,19 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     private ConfDAO confDAO;
 
     @Override
-    public WorkflowResult<Pair<Long, Boolean>> create(final UserTO userTO, final boolean storePassword) {
+    public WorkflowResult<Pair<String, Boolean>> create(final UserTO userTO, final boolean storePassword) {
         return create(userTO, false, true);
     }
 
     @Override
-    public WorkflowResult<Pair<Long, Boolean>> create(final UserTO userTO, final boolean disablePwdPolicyCheck,
+    public WorkflowResult<Pair<String, Boolean>> create(final UserTO userTO, final boolean disablePwdPolicyCheck,
             final boolean storePassword) {
 
         return create(userTO, disablePwdPolicyCheck, null, storePassword);
     }
 
     @Override
-    public WorkflowResult<Pair<Long, Boolean>> create(final UserTO userTO, final boolean disablePwdPolicyCheck,
+    public WorkflowResult<Pair<String, Boolean>> create(final UserTO userTO, final boolean disablePwdPolicyCheck,
             final Boolean enabled, final boolean storePassword) {
 
         User user = entityFactory.newEntity(User.class);
@@ -84,15 +86,17 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         user.setStatus(status);
         user = userDAO.save(user);
 
-        final PropagationByResource propByRes = new PropagationByResource();
-        propByRes.set(ResourceOperation.CREATE, userDAO.findAllResourceNames(user));
+        PropagationByResource propByRes = new PropagationByResource();
+        propByRes.set(
+                ResourceOperation.CREATE,
+                CollectionUtils.collect(userDAO.findAllResources(user), EntityUtils.keyTransformer()));
 
-        return new WorkflowResult<Pair<Long, Boolean>>(
+        return new WorkflowResult<Pair<String, Boolean>>(
                 new ImmutablePair<>(user.getKey(), propagateEnable), propByRes, "create");
     }
 
     @Override
-    protected WorkflowResult<Long> doActivate(final User user, final String token) {
+    protected WorkflowResult<String> doActivate(final User user, final String token) {
         if (!user.checkToken(token)) {
             throw new WorkflowException(new IllegalArgumentException("Wrong token: " + token + " for " + user));
         }
@@ -115,7 +119,7 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected WorkflowResult<Long> doSuspend(final User user) {
+    protected WorkflowResult<String> doSuspend(final User user) {
         user.setStatus("suspended");
         User updated = userDAO.save(user);
 
@@ -123,7 +127,7 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    protected WorkflowResult<Long> doReactivate(final User user) {
+    protected WorkflowResult<String> doReactivate(final User user) {
         user.setStatus("active");
         User updated = userDAO.save(user);
 
@@ -151,7 +155,9 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         UserPatch userPatch = new UserPatch();
         userPatch.setKey(user.getKey());
         userPatch.setPassword(new PasswordPatch.Builder().
-                onSyncope(true).resources(userDAO.findAllResourceNames(user)).value(password).build());
+                onSyncope(true).
+                resources(CollectionUtils.collect(userDAO.findAllResources(user), EntityUtils.keyTransformer())).
+                value(password).build());
 
         return doUpdate(user, userPatch);
     }
@@ -162,7 +168,7 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    public WorkflowResult<Long> execute(final UserTO userTO, final String taskId) {
+    public WorkflowResult<String> execute(final UserTO userTO, final String taskId) {
         throw new WorkflowException(new UnsupportedOperationException("Not supported."));
     }
 

@@ -44,8 +44,7 @@ import org.apache.syncope.common.lib.types.ResourceAssociationAction;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.StatusPatchType;
-import org.apache.syncope.common.rest.api.beans.AnyListQuery;
-import org.apache.syncope.common.rest.api.beans.AnySearchQuery;
+import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.AnyService;
 import org.apache.syncope.core.logic.AbstractAnyLogic;
 import org.apache.syncope.core.logic.UserLogic;
@@ -58,10 +57,10 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
 
     protected abstract AbstractAnyLogic<TO, P> getAnyLogic();
 
-    protected abstract P newPatch(Long key);
+    protected abstract P newPatch(String key);
 
     @Override
-    public Set<AttrTO> read(final Long key, final SchemaType schemaType) {
+    public Set<AttrTO> read(final String key, final SchemaType schemaType) {
         TO any = read(key);
         Set<AttrTO> result;
         switch (schemaType) {
@@ -82,7 +81,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
     }
 
     @Override
-    public AttrTO read(final Long key, final SchemaType schemaType, final String schema) {
+    public AttrTO read(final String key, final SchemaType schemaType, final String schema) {
         TO any = read(key);
         AttrTO result;
         switch (schemaType) {
@@ -107,44 +106,42 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
     }
 
     @Override
-    public TO read(final Long key) {
+    public TO read(final String key) {
         return getAnyLogic().read(key);
     }
 
-    protected PagedResult<TO> list(final AnyListQuery listQuery) {
-        String realm = StringUtils.prependIfMissing(listQuery.getRealm(), SyncopeConstants.ROOT_REALM);
-
-        return buildPagedResult(
-                getAnyLogic().list(
-                        listQuery.getPage(),
-                        listQuery.getSize(),
-                        getOrderByClauses(listQuery.getOrderBy()),
-                        realm,
-                        listQuery.getDetails()),
-                listQuery.getPage(),
-                listQuery.getSize(),
-                getAnyLogic().count(realm));
-    }
-
     @Override
-    public PagedResult<TO> search(final AnySearchQuery searchQuery) {
-        String realm = StringUtils.prependIfMissing(searchQuery.getRealm(), SyncopeConstants.ROOT_REALM);
+    public PagedResult<TO> search(final AnyQuery anyQuery) {
+        String realm = StringUtils.prependIfMissing(anyQuery.getRealm(), SyncopeConstants.ROOT_REALM);
 
-        // if an assignable query is provided in the FIQL string, start anyway from root realm
-        boolean isAssignableCond = -1 != searchQuery.getFiql().indexOf(SpecialAttr.ASSIGNABLE.toString());
+        if (StringUtils.isBlank(anyQuery.getFiql())) {
+            return buildPagedResult(
+                    getAnyLogic().list(
+                            anyQuery.getPage(),
+                            anyQuery.getSize(),
+                            getOrderByClauses(anyQuery.getOrderBy()),
+                            realm,
+                            anyQuery.getDetails()),
+                    anyQuery.getPage(),
+                    anyQuery.getSize(),
+                    getAnyLogic().count(realm));
+        } else {
+            // if an assignable query is provided in the FIQL string, start anyway from root realm
+            boolean isAssignableCond = -1 != anyQuery.getFiql().indexOf(SpecialAttr.ASSIGNABLE.toString());
 
-        SearchCond cond = getSearchCond(searchQuery.getFiql(), realm);
-        return buildPagedResult(
-                getAnyLogic().search(
-                        cond,
-                        searchQuery.getPage(),
-                        searchQuery.getSize(),
-                        getOrderByClauses(searchQuery.getOrderBy()),
-                        isAssignableCond ? SyncopeConstants.ROOT_REALM : realm,
-                        searchQuery.getDetails()),
-                searchQuery.getPage(),
-                searchQuery.getSize(),
-                getAnyLogic().searchCount(cond, isAssignableCond ? SyncopeConstants.ROOT_REALM : realm));
+            SearchCond cond = getSearchCond(anyQuery.getFiql(), realm);
+            return buildPagedResult(
+                    getAnyLogic().search(
+                            cond,
+                            anyQuery.getPage(),
+                            anyQuery.getSize(),
+                            getOrderByClauses(anyQuery.getOrderBy()),
+                            isAssignableCond ? SyncopeConstants.ROOT_REALM : realm,
+                            anyQuery.getDetails()),
+                    anyQuery.getPage(),
+                    anyQuery.getSize(),
+                    getAnyLogic().searchCount(cond, isAssignableCond ? SyncopeConstants.ROOT_REALM : realm));
+        }
     }
 
     @Override
@@ -164,7 +161,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
     }
 
     private void addUpdateOrReplaceAttr(
-            final Long key, final SchemaType schemaType, final AttrTO attrTO, final PatchOperation operation) {
+            final String key, final SchemaType schemaType, final AttrTO attrTO, final PatchOperation operation) {
 
         if (attrTO.getSchema() == null) {
             throw new NotFoundException("Must specify schema");
@@ -189,7 +186,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
     }
 
     @Override
-    public Response update(final Long key, final SchemaType schemaType, final AttrTO attrTO) {
+    public Response update(final String key, final SchemaType schemaType, final AttrTO attrTO) {
         addUpdateOrReplaceAttr(key, schemaType, attrTO, PatchOperation.ADD_REPLACE);
         return modificationResponse(read(key, schemaType, attrTO.getSchema()));
     }
@@ -206,12 +203,12 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
     }
 
     @Override
-    public void delete(final Long key, final SchemaType schemaType, final String schema) {
+    public void delete(final String key, final SchemaType schemaType, final String schema) {
         addUpdateOrReplaceAttr(key, schemaType, new AttrTO.Builder().schema(schema).build(), PatchOperation.DELETE);
     }
 
     @Override
-    public Response delete(final Long key) {
+    public Response delete(final String key) {
         TO group = getAnyLogic().read(key);
 
         checkETag(group.getETagValue());
@@ -230,7 +227,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
         switch (patch.getAction()) {
             case UNLINK:
                 updated = new ProvisioningResult<>();
-                updated.setAny(getAnyLogic().unlink(patch.getKey(), patch.getResources()));
+                updated.setEntity(getAnyLogic().unlink(patch.getKey(), patch.getResources()));
                 break;
 
             case UNASSIGN:
@@ -243,7 +240,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
 
             default:
                 updated = new ProvisioningResult<>();
-                updated.setAny(getAnyLogic().read(patch.getKey()));
+                updated.setEntity(getAnyLogic().read(patch.getKey()));
         }
 
         BulkActionResult result = new BulkActionResult();
@@ -251,7 +248,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
         if (patch.getAction() == ResourceDeassociationAction.UNLINK) {
             for (String resource : patch.getResources()) {
                 result.getResults().put(resource,
-                        updated.getAny().getResources().contains(resource)
+                        updated.getEntity().getResources().contains(resource)
                         ? BulkActionResult.Status.FAILURE
                         : BulkActionResult.Status.SUCCESS);
             }
@@ -275,7 +272,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
         switch (patch.getAction()) {
             case LINK:
                 updated = new ProvisioningResult<>();
-                updated.setAny(getAnyLogic().link(
+                updated.setEntity(getAnyLogic().link(
                         patch.getKey(),
                         patch.getResources()));
                 break;
@@ -300,7 +297,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
 
             default:
                 updated = new ProvisioningResult<>();
-                updated.setAny(getAnyLogic().read(patch.getKey()));
+                updated.setEntity(getAnyLogic().read(patch.getKey()));
         }
 
         BulkActionResult result = new BulkActionResult();
@@ -308,7 +305,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
         if (patch.getAction() == ResourceAssociationAction.LINK) {
             for (String resource : patch.getResources()) {
                 result.getResults().put(resource,
-                        updated.getAny().getResources().contains(resource)
+                        updated.getEntity().getResources().contains(resource)
                         ? BulkActionResult.Status.SUCCESS
                         : BulkActionResult.Status.FAILURE);
             }
@@ -323,7 +320,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
     }
 
     @Override
-    public BulkActionResult bulk(final BulkAction bulkAction) {
+    public Response bulk(final BulkAction bulkAction) {
         AbstractAnyLogic<TO, P> logic = getAnyLogic();
 
         BulkActionResult result = new BulkActionResult();
@@ -334,11 +331,11 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
                     for (String key : bulkAction.getTargets()) {
                         try {
                             final UserPatch userPatch = new UserPatch();
-                            userPatch.setKey(Long.valueOf(key));
+                            userPatch.setKey(key);
                             userPatch.setMustChangePassword(new BooleanReplacePatchItem.Builder().value(true).build());
 
                             result.getResults().put(
-                                    String.valueOf(((UserLogic) logic).update(userPatch, false).getAny().getKey()),
+                                    ((UserLogic) logic).update(userPatch, false).getEntity().getKey(),
                                     BulkActionResult.Status.SUCCESS);
                         } catch (Exception e) {
                             LOG.error("Error performing delete for user {}", key, e);
@@ -354,8 +351,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
                 for (String key : bulkAction.getTargets()) {
                     try {
                         result.getResults().put(
-                                String.valueOf(logic.delete(Long.valueOf(key), isNullPriorityAsync()).
-                                        getAny().getKey()),
+                                logic.delete(key, isNullPriorityAsync()).getEntity().getKey(),
                                 BulkActionResult.Status.SUCCESS);
                     } catch (Exception e) {
                         LOG.error("Error performing delete for user {}", key, e);
@@ -368,12 +364,14 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
                 if (logic instanceof UserLogic) {
                     for (String key : bulkAction.getTargets()) {
                         StatusPatch statusPatch = new StatusPatch();
-                        statusPatch.setKey(Long.valueOf(key));
+                        statusPatch.setKey(key);
                         statusPatch.setType(StatusPatchType.SUSPEND);
+                        statusPatch.setOnSyncope(true);
+
                         try {
                             result.getResults().put(
-                                    String.valueOf(((UserLogic) logic).
-                                            status(statusPatch, isNullPriorityAsync()).getAny().getKey()),
+                                    ((UserLogic) logic).
+                                    status(statusPatch, isNullPriorityAsync()).getEntity().getKey(),
                                     BulkActionResult.Status.SUCCESS);
                         } catch (Exception e) {
                             LOG.error("Error performing suspend for user {}", key, e);
@@ -389,12 +387,14 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
                 if (logic instanceof UserLogic) {
                     for (String key : bulkAction.getTargets()) {
                         StatusPatch statusPatch = new StatusPatch();
-                        statusPatch.setKey(Long.valueOf(key));
+                        statusPatch.setKey(key);
                         statusPatch.setType(StatusPatchType.REACTIVATE);
+                        statusPatch.setOnSyncope(true);
+
                         try {
                             result.getResults().put(
-                                    String.valueOf(((UserLogic) logic).
-                                            status(statusPatch, isNullPriorityAsync()).getAny().getKey()),
+                                    ((UserLogic) logic).
+                                    status(statusPatch, isNullPriorityAsync()).getEntity().getKey(),
                                     BulkActionResult.Status.SUCCESS);
                         } catch (Exception e) {
                             LOG.error("Error performing reactivate for user {}", key, e);
@@ -409,7 +409,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
             default:
         }
 
-        return result;
+        return modificationResponse(result);
     }
 
 }

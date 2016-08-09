@@ -29,7 +29,9 @@ import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.entity.AnnotatedEntity;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.Entity;
+import org.apache.syncope.core.persistence.api.entity.GroupableRelatable;
 import org.apache.syncope.core.persistence.api.entity.Policy;
+import org.apache.syncope.core.persistence.api.entity.ProvidedKeyEntity;
 import org.apache.syncope.core.persistence.api.entity.Schema;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.slf4j.Logger;
@@ -40,9 +42,6 @@ import org.slf4j.LoggerFactory;
  */
 public class EntityValidationListener {
 
-    /**
-     * Logger.
-     */
     private static final Logger LOG = LoggerFactory.getLogger(EntityValidationListener.class);
 
     @PrePersist
@@ -57,9 +56,11 @@ public class EntityValidationListener {
             for (Class<?> interf : ClassUtils.getAllInterfaces(object.getClass())) {
                 if (!Entity.class.equals(interf)
                         && !AnnotatedEntity.class.equals(interf)
+                        && !ProvidedKeyEntity.class.equals(interf)
                         && !Schema.class.equals(interf)
                         && !Task.class.equals(interf)
                         && !Policy.class.equals(interf)
+                        && !GroupableRelatable.class.equals(interf)
                         && !Any.class.equals(interf)
                         && Entity.class.isAssignableFrom(interf)) {
 

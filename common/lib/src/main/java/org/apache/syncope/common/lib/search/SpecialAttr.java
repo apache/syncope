@@ -56,6 +56,10 @@ public enum SpecialAttr {
      */
     ROLES("$roles"),
     /**
+     * Applies to groups.
+     */
+    MEMBER("$member"),
+    /**
      * Applies to groups and any objects.
      */
     ASSIGNABLE("$assignable");

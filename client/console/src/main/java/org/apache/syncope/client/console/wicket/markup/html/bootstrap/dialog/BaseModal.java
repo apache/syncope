@@ -29,10 +29,10 @@ import org.apache.syncope.client.console.panels.AbstractModalPanel;
 import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.panels.NotificationPanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.buttons.DefaultModalCloseButton;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.buttons.PrimaryModalButton;
 import org.apache.wicket.Component;
 import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
 import org.apache.wicket.core.request.handler.IPartialPageRequestHandler;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow.WindowClosedCallback;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -44,6 +44,11 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.syncope.client.console.panels.SubmitableModalPanel;
+import org.apache.syncope.client.console.wicket.ajax.form.IndicatorModalCloseBehavior;
+import org.apache.wicket.ajax.AjaxEventBehavior;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
 
 public class BaseModal<T extends Serializable> extends Modal<T> {
 
@@ -66,11 +71,13 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
 
     private Panel content;
 
-    private PrimaryModalButton submitButton;
+    private AjaxSubmitLink submitButton;
 
     private final Form<T> form;
 
     private final DefaultModalCloseButton defaultModalCloseButton;
+
+    private AjaxEventBehavior closeBehavior;
 
     public BaseModal(final String id) {
         super(id);
@@ -89,7 +96,7 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
 
         form.add(content);
 
-        setUseCloseHandler(true);
+        useCloseHandler(true);
         this.windowClosedCallback = null;
         components = new ArrayList<>();
 
@@ -123,28 +130,33 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
         return form.getModelObject();
     }
 
-    public ModalPanel<T> getContent() {
+    public ModalPanel getContent() {
         if (content instanceof ModalPanel) {
-            return (ModalPanel<T>) content;
+            return (ModalPanel) content;
         }
         throw new IllegalStateException();
     }
 
-    public BaseModal<T> setContent(final ModalPanel<T> component) {
+    public BaseModal<T> setContent(final ModalPanel component) {
         if (component instanceof Panel) {
             return setInternalContent(Panel.class.cast(component));
         }
         throw new IllegalArgumentException("Panel instance is required");
     }
 
-    public BaseModal<T> setContent(final ModalPanel<T> component, final AjaxRequestTarget target) {
+    public BaseModal<T> setContent(final ModalPanel component, final AjaxRequestTarget target) {
         setContent(component);
         target.add(content);
         return this;
     }
 
-    public BaseModal<T> changeCloseButtonLabel(final String label, final AjaxRequestTarget target) {
+    public BaseModal<T> changeCloseButtonLabel(final String label) {
         defaultModalCloseButton.getModel().setObject(label);
+        return this;
+    }
+
+    public BaseModal<T> changeCloseButtonLabel(final String label, final AjaxRequestTarget target) {
+        changeCloseButtonLabel(label);
         target.add(defaultModalCloseButton);
         return this;
     }
@@ -177,20 +189,23 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
         }
     }
 
-    public PrimaryModalButton addSumbitButton() {
+    public AjaxSubmitLink addSubmitButton() {
+        if (!(BaseModal.this.getContent() instanceof SubmitableModalPanel)) {
+            throw new IllegalStateException();
+        }
 
-        final PrimaryModalButton submit = new PrimaryModalButton(SUBMIT, SUBMIT, form) {
+        AjaxSubmitLink submit = new AjaxSubmitLink(SUBMIT, form) {
 
-            private static final long serialVersionUID = -958724007591692537L;
+            private static final long serialVersionUID = -5783994974426198290L;
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-                BaseModal.this.getContent().onSubmit(target, form);
+                SubmitableModalPanel.class.cast(BaseModal.this.getContent()).onSubmit(target, form);
             }
 
             @Override
             protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                BaseModal.this.getContent().onError(target, form);
+                SubmitableModalPanel.class.cast(BaseModal.this.getContent()).onError(target, form);
             }
         };
 
@@ -229,7 +244,9 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
     /**
      * Generic modal event.
      */
-    public static class ModalEvent {
+    public static class ModalEvent implements Serializable {
+
+        private static final long serialVersionUID = 2668922412196063559L;
 
         /**
          * Request target.
@@ -254,4 +271,71 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
             return target;
         }
     }
+
+    //--------------------------------------------------------
+    // Reqired for SYNCOPE-846
+    //--------------------------------------------------------
+    /**
+     * Sets whether the close handler is used or not. Default is false.
+     *
+     * @param useCloseHandler True if close handler should be used
+     * @return This
+     */
+    public final Modal<T> useCloseHandler(final boolean useCloseHandler) {
+        if (useCloseHandler) {
+            if (closeBehavior == null) {
+                closeBehavior = new IndicatorModalCloseBehavior() {
+
+                    private static final long serialVersionUID = -4955472558917915340L;
+
+                    @Override
+                    protected void onEvent(final AjaxRequestTarget target) {
+                        if (isVisible()) {
+                            onClose(target);
+                            appendCloseDialogJavaScript(target);
+                        }
+                    }
+                };
+                add(closeBehavior);
+            }
+        } else if (closeBehavior != null) {
+            remove(closeBehavior);
+            closeBehavior = null;
+        }
+        return this;
+    }
+
+    @Override
+    public void renderHead(final IHeaderResponse response) {
+        super.renderHead(response);
+        response.render(OnDomReadyHeaderItem.forScript(createInitializerScript(getMarkupId(true))));
+    }
+
+    /**
+     * creates the initializer script of the modal dialog.
+     *
+     * @param markupId The component's markup id
+     * @return initializer script
+     */
+    private String createInitializerScript(final String markupId) {
+        return addCloseHandlerScript(markupId, createBasicInitializerScript(markupId));
+    }
+
+    /**
+     * adds close handler to initializer script, if use of close handler has been defined.
+     *
+     * @param markupId markup id
+     * @param script base script to prepend
+     * @return close handler script
+     */
+    private String addCloseHandlerScript(final String markupId, final String script) {
+        if (closeBehavior != null) {
+            return script + ";$('#" + markupId + "').on('hidden', function () { "
+                    + "  Wicket.Ajax.ajax({'u':'" + closeBehavior.getCallbackUrl() + "','c':'" + markupId + "'});"
+                    + "})";
+        }
+
+        return script;
+    }
+    //--------------------------------------------------------
 }

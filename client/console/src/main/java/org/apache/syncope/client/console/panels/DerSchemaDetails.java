@@ -18,12 +18,11 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import org.apache.syncope.client.console.commons.JexlHelpUtils;
-import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import de.agilecoders.wicket.core.markup.html.bootstrap.components.TooltipConfig;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
 import org.apache.wicket.PageReference;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.PropertyModel;
 
 public class DerSchemaDetails extends AbstractSchemaDetailsPanel {
@@ -35,15 +34,10 @@ public class DerSchemaDetails extends AbstractSchemaDetailsPanel {
             final AbstractSchemaTO schemaTO) {
         super(id, pageReference, schemaTO);
 
-        final AjaxTextFieldPanel expression = new AjaxTextFieldPanel("expression", getString("expression"),
-                new PropertyModel<String>(schemaTO, "expression"));
-        expression.addRequiredLabel();
+        TextField<String> expression = new TextField<>("expression", new PropertyModel<String>(schemaTO, "expression"));
+        expression.setRequired(true);
         schemaForm.add(expression);
 
-        final WebMarkupContainer jexlHelp = JexlHelpUtils.getJexlHelpWebContainer("jexlHelp");
-
-        final AjaxLink<Void> questionMarkJexlHelp = JexlHelpUtils.getAjaxLink(jexlHelp, "questionMarkJexlHelp");
-        schemaForm.add(questionMarkJexlHelp);
-        questionMarkJexlHelp.add(jexlHelp);
+        schemaForm.add(Constants.getJEXLPopover(this, TooltipConfig.Placement.right));
     }
 }

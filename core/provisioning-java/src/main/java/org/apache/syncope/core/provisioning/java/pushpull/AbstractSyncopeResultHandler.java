@@ -129,19 +129,19 @@ public abstract class AbstractSyncopeResultHandler<T extends ProvisioningTask, A
     protected AnyUtilsFactory anyUtilsFactory;
 
     /**
-     * Sync profile.
+     * Provisioning profile.
      */
     protected ProvisioningProfile<T, A> profile;
 
     protected abstract AnyUtils getAnyUtils();
 
-    protected abstract AnyTO getAnyTO(long key);
+    protected abstract AnyTO getAnyTO(String key);
 
-    protected abstract Any<?> getAny(long key);
+    protected abstract Any<?> getAny(String key);
 
-    protected abstract AnyPatch newPatch(final long key);
+    protected abstract AnyPatch newPatch(String key);
 
-    protected abstract WorkflowResult<Long> update(AnyPatch patch);
+    protected abstract WorkflowResult<String> update(AnyPatch patch);
 
     @Override
     public void setProfile(final ProvisioningProfile<T, A> profile) {

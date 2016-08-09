@@ -29,45 +29,36 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
-import org.apache.syncope.core.persistence.jpa.entity.AbstractEntity;
+import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
 
 @Entity
 @Table(name = JPAMappingItem.TABLE)
 @Cacheable
-public class JPAMappingItem extends AbstractEntity<Long> implements MappingItem {
+public class JPAMappingItem extends AbstractGeneratedKeyEntity implements MappingItem {
 
     private static final long serialVersionUID = 7383601853619332424L;
 
     public static final String TABLE = "MappingItem";
 
-    @Id
-    private Long id;
-
     @ManyToOne
     private JPAMapping mapping;
 
-    @Column(nullable = true)
-    private String intAttrName;
-
     @NotNull
-    @Enumerated(EnumType.STRING)
-    private IntMappingType intMappingType;
+    private String intAttrName;
 
     /**
      * Target resource's field to be mapped.
      */
-    @Column(nullable = true)
+    @NotNull
     private String extAttrName;
 
     /**
@@ -77,7 +68,7 @@ public class JPAMappingItem extends AbstractEntity<Long> implements MappingItem 
     private String mandatoryCondition;
 
     /**
-     * Specify if the mapped target resource's field is the key.
+     * Specify if the mapped target resource's field is the id.
      */
     @NotNull
     @Basic
@@ -99,6 +90,18 @@ public class JPAMappingItem extends AbstractEntity<Long> implements MappingItem 
     private MappingPurpose purpose;
 
     /**
+     * (Optional) JEXL expression to apply to values before propagation.
+     */
+    @Column(name = "propJEXL")
+    private String propagationJEXLTransformer;
+
+    /**
+     * (Optional) JEXL expression to apply to values before pull.
+     */
+    @Column(name = "pullJEXL")
+    private String pullJEXLTransformer;
+
+    /**
      * (Optional) classes for MappingItem transformation.
      */
     @ElementCollection(fetch = FetchType.EAGER)
@@ -115,11 +118,6 @@ public class JPAMappingItem extends AbstractEntity<Long> implements MappingItem 
 
         connObjectKey = getBooleanAsInteger(false);
         password = getBooleanAsInteger(false);
-    }
-
-    @Override
-    public Long getKey() {
-        return id;
     }
 
     @Override
@@ -155,51 +153,12 @@ public class JPAMappingItem extends AbstractEntity<Long> implements MappingItem 
 
     @Override
     public String getIntAttrName() {
-        final String name;
-
-        switch (getIntMappingType()) {
-            case UserKey:
-            case GroupKey:
-            case AnyObjectKey:
-                name = "id";
-                break;
-
-            case Username:
-                name = "username";
-                break;
-
-            case Password:
-                name = "password";
-                break;
-
-            case GroupName:
-                name = "groupName";
-                break;
-
-            case GroupOwnerSchema:
-                name = "groupOwnerSchema";
-                break;
-
-            default:
-                name = intAttrName;
-        }
-
-        return name;
+        return intAttrName;
     }
 
     @Override
     public void setIntAttrName(final String intAttrName) {
         this.intAttrName = intAttrName;
-    }
-
-    @Override
-    public IntMappingType getIntMappingType() {
-        return intMappingType;
-    }
-
-    @Override
-    public void setIntMappingType(final IntMappingType intMappingType) {
-        this.intMappingType = intMappingType;
     }
 
     @Override
@@ -230,6 +189,26 @@ public class JPAMappingItem extends AbstractEntity<Long> implements MappingItem 
     @Override
     public void setPurpose(final MappingPurpose purpose) {
         this.purpose = purpose;
+    }
+
+    @Override
+    public String getPropagationJEXLTransformer() {
+        return propagationJEXLTransformer;
+    }
+
+    @Override
+    public void setPropagationJEXLTransformer(final String propagationJEXLTransformer) {
+        this.propagationJEXLTransformer = propagationJEXLTransformer;
+    }
+
+    @Override
+    public String getPullJEXLTransformer() {
+        return pullJEXLTransformer;
+    }
+
+    @Override
+    public void setPullJEXLTransformer(final String pullJEXLTransformer) {
+        this.pullJEXLTransformer = pullJEXLTransformer;
     }
 
     @Override

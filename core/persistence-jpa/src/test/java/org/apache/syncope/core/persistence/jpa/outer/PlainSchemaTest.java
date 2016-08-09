@@ -23,10 +23,15 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
+import javax.persistence.EntityExistsException;
+import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
+import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
@@ -53,10 +58,30 @@ public class PlainSchemaTest extends AbstractTest {
     private PlainSchemaDAO plainSchemaDAO;
 
     @Autowired
+    private DerSchemaDAO derSchemaDAO;
+
+    @Autowired
     private PlainAttrDAO plainAttrDAO;
 
     @Autowired
     private ExternalResourceDAO resourceDAO;
+
+    @Test
+    public void checkIdUniqueness() {
+        assertNotNull(derSchemaDAO.find("cn"));
+
+        PlainSchema schema = entityFactory.newEntity(PlainSchema.class);
+        schema.setKey("cn");
+        schema.setType(AttrSchemaType.String);
+        plainSchemaDAO.save(schema);
+
+        try {
+            plainSchemaDAO.flush();
+            fail();
+        } catch (Exception e) {
+            assertTrue(e instanceof EntityExistsException);
+        }
+    }
 
     @Test
     public void deleteFullname() {
@@ -117,10 +142,10 @@ public class PlainSchemaTest extends AbstractTest {
         }
         assertTrue(mapItems.isEmpty());
 
-        assertNull(plainAttrDAO.find(100L, UPlainAttr.class));
-        assertNull(plainAttrDAO.find(300L, UPlainAttr.class));
-        assertNull(userDAO.find(1L).getPlainAttr("fullname"));
-        assertNull(userDAO.find(3L).getPlainAttr("fullname"));
+        assertNull(plainAttrDAO.find("01f22fbd-b672-40af-b528-686d9b27ebc4", UPlainAttr.class));
+        assertNull(plainAttrDAO.find(UUID.randomUUID().toString(), UPlainAttr.class));
+        assertNull(userDAO.findByUsername("rossini").getPlainAttr("fullname"));
+        assertNull(userDAO.findByUsername("vivaldi").getPlainAttr("fullname"));
     }
 
     @Test
@@ -155,16 +180,16 @@ public class PlainSchemaTest extends AbstractTest {
     }
 
     @Test
-    public void deleteALong() {
-        assertEquals(6, resourceDAO.find("resource-db-pull").
+    public void deleteFirstname() {
+        assertEquals(5, resourceDAO.find("resource-db-pull").
                 getProvision(anyTypeDAO.findUser()).getMapping().getItems().size());
 
-        plainSchemaDAO.delete("aLong");
-        assertNull(plainSchemaDAO.find("aLong"));
+        plainSchemaDAO.delete("firstname");
+        assertNull(plainSchemaDAO.find("firstname"));
 
         plainSchemaDAO.flush();
 
-        assertEquals(5, resourceDAO.find("resource-db-pull").
+        assertEquals(4, resourceDAO.find("resource-db-pull").
                 getProvision(anyTypeDAO.findUser()).getMapping().getItems().size());
     }
 }

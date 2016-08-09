@@ -18,14 +18,35 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.rest.PolicyRestClient;
+import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.PolicyRenderer;
+import org.apache.syncope.common.lib.EntityTOUtils;
+import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
 import org.apache.syncope.common.lib.to.RealmTO;
+import org.apache.syncope.common.lib.to.ResourceTO;
+import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.util.ListModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +56,46 @@ public class RealmDetails extends Panel {
 
     protected static final Logger LOG = LoggerFactory.getLogger(RealmDetails.class);
 
+    private final PolicyRestClient policyRestClient = new PolicyRestClient();
+
+    private final IModel<Map<String, String>> accountPolicies = new LoadableDetachableModel<Map<String, String>>() {
+
+        private static final long serialVersionUID = -2012833443695917883L;
+
+        @Override
+        protected Map<String, String> load() {
+            Map<String, String> res = new HashMap<>();
+            for (AbstractPolicyTO policyTO : policyRestClient.getPolicies(PolicyType.ACCOUNT)) {
+                res.put(policyTO.getKey(), policyTO.getDescription());
+            }
+            return res;
+        }
+    };
+
+    private final IModel<Map<String, String>> passwordPolicies = new LoadableDetachableModel<Map<String, String>>() {
+
+        private static final long serialVersionUID = -2012833443695917883L;
+
+        @Override
+        protected Map<String, String> load() {
+            Map<String, String> res = new HashMap<>();
+            for (AbstractPolicyTO policyTO : policyRestClient.getPolicies(PolicyType.PASSWORD)) {
+                res.put(policyTO.getKey(), policyTO.getDescription());
+            }
+            return res;
+        }
+    };
+
+    private final IModel<List<String>> logicActionsClasses = new LoadableDetachableModel<List<String>>() {
+
+        private static final long serialVersionUID = 5275935387613157437L;
+
+        @Override
+        protected List<String> load() {
+            return new ArrayList<>(SyncopeConsoleSession.get().getPlatformInfo().getLogicActions());
+        }
+    };
+
     private final WebMarkupContainer container;
 
     public RealmDetails(final String id, final RealmTO realmTO) {
@@ -42,31 +103,66 @@ public class RealmDetails extends Panel {
     }
 
     public RealmDetails(
-            final String id, final RealmTO realmTO, final ActionLinksPanel<?> actions, final boolean unwraped) {
+            final String id,
+            final RealmTO realmTO,
+            final ActionLinksPanel<?> actions,
+            final boolean unwrapped) {
+
         super(id);
 
         container = new WebMarkupContainer("container");
         container.setOutputMarkupId(true);
-        container.setRenderBodyOnly(unwraped);
+        container.setRenderBodyOnly(unwrapped);
         add(container);
 
-        final FieldPanel<String> name = new AjaxTextFieldPanel(
+        final WebMarkupContainer generics = new WebMarkupContainer("generics");
+        container.add(generics.setVisible(unwrapped));
+
+        FieldPanel<String> name = new AjaxTextFieldPanel(
                 "name", "name", new PropertyModel<String>(realmTO, "name"), false);
         name.addRequiredLabel();
-        container.add(name);
+        generics.add(name);
 
-        final FieldPanel<String> fullPath = new AjaxTextFieldPanel(
+        FieldPanel<String> fullPath = new AjaxTextFieldPanel(
                 "fullPath", "fullPath", new PropertyModel<String>(realmTO, "fullPath"), false);
         fullPath.setEnabled(false);
-        container.add(fullPath);
+        generics.add(fullPath);
 
-        final FieldPanel<String> accountPolicy = new AjaxTextFieldPanel(
-                "accountPolicy", "accountPolicy", new PropertyModel<String>(realmTO, "accountPolicy"), false);
+        AjaxDropDownChoicePanel<String> accountPolicy = new AjaxDropDownChoicePanel<>(
+                "accountPolicy",
+                new ResourceModel("accountPolicy", "accountPolicy").getObject(),
+                new PropertyModel<String>(realmTO, "accountPolicy"),
+                false);
+        accountPolicy.setChoiceRenderer(new PolicyRenderer(accountPolicies));
+        accountPolicy.setChoices(new ArrayList<>(accountPolicies.getObject().keySet()));
+        ((DropDownChoice<?>) accountPolicy.getField()).setNullValid(true);
         container.add(accountPolicy);
 
-        final FieldPanel<String> passwordPolicy = new AjaxTextFieldPanel(
-                "passwordPolicy", "passwordPolicy", new PropertyModel<String>(realmTO, "passwordPolicy"), false);
+        AjaxDropDownChoicePanel<String> passwordPolicy = new AjaxDropDownChoicePanel<>(
+                "passwordPolicy",
+                new ResourceModel("passwordPolicy", "passwordPolicy").getObject(),
+                new PropertyModel<String>(realmTO, "passwordPolicy"),
+                false);
+        passwordPolicy.setChoiceRenderer(new PolicyRenderer(passwordPolicies));
+        passwordPolicy.setChoices(new ArrayList<>(passwordPolicies.getObject().keySet()));
+        ((DropDownChoice<?>) passwordPolicy.getField()).setNullValid(true);
         container.add(passwordPolicy);
+
+        AjaxPalettePanel<String> actionsClassNames = new AjaxPalettePanel.Builder<String>().
+                setAllowMoveAll(true).setAllowOrder(true).
+                build("actionsClassNames",
+                        new PropertyModel<List<String>>(realmTO, "actionsClassNames"),
+                        new ListModel<>(logicActionsClasses.getObject()));
+        actionsClassNames.setOutputMarkupId(true);
+        container.add(actionsClassNames);
+
+        container.add(new AjaxPalettePanel.Builder<String>().build("resources",
+                new PropertyModel<List<String>>(realmTO, "resources"),
+                new ListModel<>(CollectionUtils.collect(new ResourceRestClient().list(),
+                        EntityTOUtils.<ResourceTO>keyTransformer(), new ArrayList<String>()))).
+                setOutputMarkupId(true).
+                setEnabled(!SyncopeConstants.ROOT_REALM.equals(realmTO.getName())).
+                setVisible(!SyncopeConstants.ROOT_REALM.equals(realmTO.getName())));
 
         if (actions == null) {
             add(new Fragment("actions", "emptyFragment", this).setRenderBodyOnly(true));

@@ -45,7 +45,7 @@ public class SchedTaskTO extends AbstractTaskTO {
 
     private Date nextExec;
 
-    private boolean active;
+    private boolean active = true;
 
     public Date getStartAt() {
         return startAt == null ? null : new Date(startAt.getTime());

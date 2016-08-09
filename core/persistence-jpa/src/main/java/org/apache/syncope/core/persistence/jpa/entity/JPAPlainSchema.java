@@ -25,9 +25,9 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
-import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.OneToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.Max;
@@ -41,20 +41,16 @@ import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.jpa.attrvalue.validation.BasicValidator;
 import org.apache.syncope.core.persistence.jpa.validation.entity.PlainSchemaCheck;
-import org.apache.syncope.core.persistence.jpa.validation.entity.SchemaNameCheck;
 
 @Entity
 @Table(name = JPAPlainSchema.TABLE)
+@PrimaryKeyJoinColumn(name = "id", referencedColumnName = "id")
 @PlainSchemaCheck
-@SchemaNameCheck
-public class JPAPlainSchema extends AbstractEntity<String> implements PlainSchema {
+public class JPAPlainSchema extends AbstractSchema implements PlainSchema {
 
     private static final long serialVersionUID = -8621028596062054739L;
 
     public static final String TABLE = "PlainSchema";
-
-    @Id
-    private String name;
 
     @OneToOne(fetch = FetchType.EAGER)
     private JPAAnyTypeClass anyTypeClass;
@@ -116,16 +112,6 @@ public class JPAPlainSchema extends AbstractEntity<String> implements PlainSchem
         multivalue = getBooleanAsInteger(false);
         uniqueConstraint = getBooleanAsInteger(false);
         readonly = getBooleanAsInteger(false);
-    }
-
-    @Override
-    public String getKey() {
-        return name;
-    }
-
-    @Override
-    public void setKey(final String name) {
-        this.name = name;
     }
 
     @Override

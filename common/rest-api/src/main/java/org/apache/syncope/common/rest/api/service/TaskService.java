@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.common.rest.api.service;
 
-import java.util.List;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -37,21 +35,15 @@ import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
-import org.apache.syncope.common.lib.to.ExecTO;
-import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
-import org.apache.syncope.common.lib.types.JobAction;
-import org.apache.syncope.common.rest.api.beans.BulkExecDeleteQuery;
-import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
-import org.apache.syncope.common.rest.api.beans.TaskExecQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 
 /**
  * REST operations for tasks.
  */
 @Path("tasks")
-public interface TaskService extends JAXRSService {
+public interface TaskService extends ExecutableService {
 
     /**
      * Returns the task matching the given key.
@@ -63,9 +55,9 @@ public interface TaskService extends JAXRSService {
      */
     @GET
     @Path("{key}")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     <T extends AbstractTaskTO> T read(
-            @NotNull @PathParam("key") Long key,
+            @NotNull @PathParam("key") String key,
             @QueryParam(JAXRSService.PARAM_DETAILS) @DefaultValue("true") boolean details);
 
     /**
@@ -76,7 +68,7 @@ public interface TaskService extends JAXRSService {
      * @return paged list of existing tasks matching the given query
      */
     @GET
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     <T extends AbstractTaskTO> PagedResult<T> list(@BeanParam TaskQuery query);
 
     /**
@@ -86,7 +78,7 @@ public interface TaskService extends JAXRSService {
      * @return Response object featuring Location header of created task
      */
     @POST
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response create(@NotNull SchedTaskTO taskTO);
 
     /**
@@ -96,7 +88,7 @@ public interface TaskService extends JAXRSService {
      */
     @PUT
     @Path("{key}")
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     void update(@NotNull AbstractTaskTO taskTO);
 
     /**
@@ -106,60 +98,7 @@ public interface TaskService extends JAXRSService {
      */
     @DELETE
     @Path("{key}")
-    void delete(@NotNull @PathParam("key") Long key);
-
-    /**
-     * Returns a paged list of task executions matching the given query.
-     *
-     * @param query query conditions
-     * @return paged list of task executions the given query
-     */
-    @GET
-    @Path("{key}/executions")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    PagedResult<ExecTO> listExecutions(@BeanParam TaskExecQuery query);
-
-    /**
-     * Returns the list of recently completed task executions, ordered by end date descendent.
-     *
-     * @param max the maximum number of executions to return
-     * @return list of recently completed task executions, ordered by end date descendent
-     */
-    @GET
-    @Path("executions/recent")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    List<ExecTO> listRecentExecutions(@Min(1) @QueryParam(JAXRSService.PARAM_MAX) @DefaultValue("25") int max);
-
-    /**
-     * Deletes the task execution matching the provided key.
-     *
-     * @param executionKey key of task execution to be deleted
-     */
-    @DELETE
-    @Path("executions/{executionKey}")
-    void deleteExecution(@NotNull @PathParam("executionKey") Long executionKey);
-
-    /**
-     * Deletes the task executions belonging matching the given query.
-     *
-     * @param query query conditions
-     * @return bulk action result
-     */
-    @DELETE
-    @Path("{key}/executions")
-    @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    BulkActionResult deleteExecutions(@BeanParam BulkExecDeleteQuery query);
-
-    /**
-     * Executes the task matching the given query.
-     *
-     * @param query query conditions
-     * @return execution report for the task matching the given query
-     */
-    @POST
-    @Path("{key}/execute")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    ExecTO execute(@BeanParam ExecuteQuery query);
+    void delete(@NotNull @PathParam("key") String key);
 
     /**
      * Executes the provided bulk action.
@@ -169,27 +108,7 @@ public interface TaskService extends JAXRSService {
      */
     @POST
     @Path("bulk")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     BulkActionResult bulk(@NotNull BulkAction bulkAction);
-
-    /**
-     * List task jobs (running and / or scheduled).
-     *
-     * @return task jobs (running and / or scheduled)
-     */
-    @GET
-    @Path("jobs")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    List<JobTO> listJobs();
-
-    /**
-     * Executes an action on an existing task's job.
-     *
-     * @param key task key
-     * @param action action to execute
-     */
-    @POST
-    @Path("jobs/{key}")
-    void actionJob(@NotNull @PathParam("key") Long key, @QueryParam("action") JobAction action);
 }

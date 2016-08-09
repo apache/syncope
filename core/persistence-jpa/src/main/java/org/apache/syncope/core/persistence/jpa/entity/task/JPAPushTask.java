@@ -33,7 +33,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
-import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.task.PushTaskAnyFilter;
@@ -53,13 +52,6 @@ public class JPAPushTask extends AbstractProvisioningTask implements PushTask {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "pushTask")
     private List<JPAPushTaskAnyFilter> filters = new ArrayList<>();
-
-    /**
-     * Default constructor.
-     */
-    public JPAPushTask() {
-        super(TaskType.PUSH, null);
-    }
 
     @Override
     public Set<String> getActionsClassNames() {

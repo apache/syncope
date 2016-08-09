@@ -49,8 +49,8 @@ public interface PolicyService extends JAXRSService {
      */
     @GET
     @Path("{key}")
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    <T extends AbstractPolicyTO> T read(@NotNull @PathParam("key") Long key);
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    <T extends AbstractPolicyTO> T read(@NotNull @PathParam("key") String key);
 
     /**
      * Returns a list of policies of the matching type.
@@ -60,7 +60,7 @@ public interface PolicyService extends JAXRSService {
      * @return list of policies with matching type
      */
     @GET
-    @Produces({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     <T extends AbstractPolicyTO> List<T> list(@NotNull @MatrixParam("type") PolicyType type);
 
     /**
@@ -70,7 +70,7 @@ public interface PolicyService extends JAXRSService {
      * @return Response object featuring Location header of created policy
      */
     @POST
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response create(@NotNull AbstractPolicyTO policyTO);
 
     /**
@@ -80,7 +80,7 @@ public interface PolicyService extends JAXRSService {
      */
     @PUT
     @Path("{key}")
-    @Consumes({ JAXRSService.APPLICATION_XML, MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     void update(@NotNull AbstractPolicyTO policyTO);
 
     /**
@@ -90,6 +90,6 @@ public interface PolicyService extends JAXRSService {
      */
     @DELETE
     @Path("{key}")
-    void delete(@NotNull @PathParam("key") Long key);
+    void delete(@NotNull @PathParam("key") String key);
 
 }

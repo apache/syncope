@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.panels;
 
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
+import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.wicket.PageReference;
 
@@ -34,8 +35,8 @@ public class ParametersCreateModalPanel extends AbstractModalPanel<AttrTO> {
             final PageReference pageRef) {
         super(modal, pageRef);
         this.attrTO = attrTO;
-        add(new ParametersCreateWizardPanel("parametersCreateWizardPanel",
-                new ParametersCreateWizardPanel.ParametersForm(), pageRef).build(false));
+        add(new ParametersCreateWizardPanel(new ParametersCreateWizardPanel.ParametersForm(), pageRef).
+                build("parametersCreateWizardPanel", AjaxWizard.Mode.CREATE));
     }
 
     @Override

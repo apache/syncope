@@ -272,6 +272,11 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
+For Java Uuid Generator (JUG) (http://wiki.fasterxml.com/JugHome):
+This is licensed under the AL 2.0, see above.
+
+==
+
 For Guava (https://github.com/google/guava):
 This is licensed under the AL 2.0, see above.
 
@@ -937,6 +942,11 @@ This is licensed under the MIT license, see above.
 
 ==
 
+For slimScroll (http://rocha.la/jQuery-slimScroll):
+This is licensed under the MIT license, see above.
+
+==
+
 For javax.annotation-api (https://jcp.org/en/jsr/detail?id=250):
 This is licensed under the CDDL 1.0, see above.
 
@@ -1097,22 +1107,17 @@ This is licensed under the MIT license, see above.
 
 ==
 
+For Angular Translate (https://angular-translate.github.io/):
+This is licensed under the MIT license, see above.
+
+==
+
 For ng-password-strength (https://github.com/subarroca/ng-password-strength):
 This is licensed under the MIT license, see above.
 
 ==
 
 For Select2 (https://select2.github.io/):
-This is licensed under the MIT license, see above.
-
-==
-
-For Moment.js (http://momentjs.com/):
-This is licensed under the MIT license, see above.
-
-==
-
-For moment-jdateformatparser (https://github.com/MadMG/moment-jdateformatparser):
 This is licensed under the MIT license, see above.
 
 ==

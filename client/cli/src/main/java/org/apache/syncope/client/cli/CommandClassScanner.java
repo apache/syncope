@@ -18,13 +18,30 @@
  */
 package org.apache.syncope.client.cli;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.syncope.client.cli.commands.AbstractCommand;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
+import org.springframework.util.ClassUtils;
 
-public class CommandClassScanner extends ComponentClassScanner<AbstractCommand> {
+public class CommandClassScanner extends ClassPathScanningCandidateComponentProvider {
 
     public CommandClassScanner() {
-        super();
+        super(false);
         addIncludeFilter(new AnnotationTypeFilter(Command.class));
+    }
+
+    public final List<Class<? extends AbstractCommand>> getComponentClasses() throws IllegalArgumentException {
+        final String basePackage = "org.apache.syncope.client.cli.commands";
+        List<Class<? extends AbstractCommand>> classes = new ArrayList<>();
+        for (final BeanDefinition candidate : findCandidateComponents(basePackage)) {
+            @SuppressWarnings("unchecked")
+            final Class<? extends AbstractCommand> cls = (Class<? extends AbstractCommand>) ClassUtils.resolveClassName(
+                    candidate.getBeanClassName(), ClassUtils.getDefaultClassLoader());
+            classes.add(cls);
+        }
+        return classes;
     }
 }
