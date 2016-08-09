@@ -24,7 +24,7 @@ import java.util.Set;
 
 public final class RealmUtils {
 
-    public static String getGroupOwnerRealm(final String realmPath, final Long groupKey) {
+    public static String getGroupOwnerRealm(final String realmPath, final String groupKey) {
         return realmPath + "@" + groupKey;
     }
 

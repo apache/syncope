@@ -46,9 +46,9 @@ public class AjaxPalettePanelITCase extends AbstractConsoleITCase {
                 new TestPage.Builder<String, AjaxPalettePanel<String>>().build(
                         new AjaxPalettePanel.Builder<String>().setAllowOrder(true).build(
                         TestPage.FIELD, SELECTED, ALL));
-        wicketTester.startPage(testPage);
+        TESTER.startPage(testPage);
 
-        FormTester formTester = wicketTester.newFormTester(testPage.getForm().getId());
+        FormTester formTester = TESTER.newFormTester(testPage.getForm().getId());
         formTester.submit();
 
         Collection<String> list = testPage.getFieldPanel().getModelCollection();

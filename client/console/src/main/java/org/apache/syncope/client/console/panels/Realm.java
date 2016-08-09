@@ -18,29 +18,55 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import static org.apache.wicket.Component.RENDER;
+
+import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbedPanel;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import org.apache.commons.collections4.ComparatorUtils;
+import java.util.Map;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
+import org.apache.syncope.client.console.SyncopeConsoleApplication;
+import org.apache.syncope.client.console.commons.AnyTypeComparator;
+import org.apache.syncope.client.console.commons.ConnIdSpecialAttributeName;
+import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.commons.ITabComponent;
+import org.apache.syncope.client.console.commons.status.StatusUtils;
+import org.apache.syncope.client.console.layout.AnyObjectFormLayoutInfo;
+import org.apache.syncope.client.console.layout.FormLayoutInfoUtils;
+import org.apache.syncope.client.console.layout.GroupFormLayoutInfo;
+import org.apache.syncope.client.console.layout.UserFormLayoutInfo;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.client.console.wizards.WizardMgtPanel;
+import org.apache.syncope.client.console.wizards.any.ConnObjectPanel;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
+import org.apache.syncope.common.lib.to.ConnObjectTO;
+import org.apache.syncope.common.lib.to.PropagationStatus;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RealmTO;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
+import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class Realm extends Panel {
+public abstract class Realm extends WizardMgtPanel<RealmTO> {
 
     private static final long serialVersionUID = -1100228004207271270L;
 
@@ -52,13 +78,26 @@ public abstract class Realm extends Panel {
 
     private final AnyTypeRestClient anyTypeRestClient = new AnyTypeRestClient();
 
-    @SuppressWarnings({ "unchecked", "unchecked" })
-    public Realm(final String id, final RealmTO realmTO, final PageReference pageRef) {
-        super(id);
+    protected final RealmWizardBuilder wizardBuilder;
+
+    public Realm(final String id, final RealmTO realmTO, final PageReference pageRef, final int selectedIndex) {
+        super(id, true);
         this.realmTO = realmTO;
         this.anyTypeTOs = anyTypeRestClient.list();
 
-        add(new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList(pageRef)));
+        setPageRef(pageRef);
+
+        AjaxBootstrapTabbedPanel<ITab> tabbedPanel
+                = new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList(pageRef));
+        tabbedPanel.setSelectedTab(selectedIndex);
+        addInnerObject(tabbedPanel);
+        this.wizardBuilder = new RealmWizardBuilder(pageRef);
+        addNewItemPanelBuilder(this.wizardBuilder, false);
+
+        setShowResultPage(true);
+
+        modal.size(Modal.Size.Large);
+        setWindowClosedReloadCallback(modal);
     }
 
     public RealmTO getRealmTO() {
@@ -66,8 +105,7 @@ public abstract class Realm extends Panel {
     }
 
     private List<ITab> buildTabList(final PageReference pageRef) {
-
-        final List<ITab> tabs = new ArrayList<>();
+        List<ITab> tabs = new ArrayList<>();
 
         tabs.add(new AbstractTab(new Model<>("DETAILS")) {
 
@@ -75,7 +113,16 @@ public abstract class Realm extends Panel {
 
             @Override
             public Panel getPanel(final String panelId) {
-                final ActionLinksPanel<RealmTO> actionLinksPanel = ActionLinksPanel.<RealmTO>builder().
+                ActionLinksPanel<RealmTO> actionLinksPanel = ActionLinksPanel.<RealmTO>builder().
+                        add(new ActionLink<RealmTO>(realmTO) {
+
+                            private static final long serialVersionUID = 2802988981431379827L;
+
+                            @Override
+                            public void onClick(final AjaxRequestTarget target, final RealmTO modelObject) {
+                                onClickTemplate(target);
+                            }
+                        }, ActionLink.ActionType.TEMPLATE, StandardEntitlement.REALM_UPDATE).
                         add(new ActionLink<RealmTO>(realmTO) {
 
                             private static final long serialVersionUID = 2802988981431379827L;
@@ -105,27 +152,113 @@ public abstract class Realm extends Panel {
                         }, ActionLink.ActionType.DELETE, StandardEntitlement.REALM_DELETE).
                         build("actions");
 
-                final RealmDetails panel = new RealmDetails(panelId, realmTO, actionLinksPanel, false);
+                RealmDetails panel = new RealmDetails(panelId, realmTO, actionLinksPanel, false);
                 panel.setContentEnabled(false);
                 actionLinksPanel.setEnabled(true);
                 return panel;
             }
         });
 
+        final Triple<UserFormLayoutInfo, GroupFormLayoutInfo, Map<String, AnyObjectFormLayoutInfo>> formLayoutInfo
+                = FormLayoutInfoUtils.fetch(anyTypeTOs);
+
         Collections.sort(anyTypeTOs, new AnyTypeComparator());
         for (final AnyTypeTO anyTypeTO : anyTypeTOs) {
-            tabs.add(new AbstractTab(new Model<>(anyTypeTO.getKey())) {
+            tabs.add(new ITabComponent(
+                    new Model<>(anyTypeTO.getKey()),
+                    String.format("%s_SEARCH", anyTypeTO.getKey())) {
 
-                private static final long serialVersionUID = -5861786415855103549L;
+                private static final long serialVersionUID = 1169585538404171118L;
 
                 @Override
-                public Panel getPanel(final String panelId) {
-                    return new AnyPanel(panelId, anyTypeTO, realmTO, pageRef);
+                public WebMarkupContainer getPanel(final String panelId) {
+                    return new AnyPanel(panelId, anyTypeTO, realmTO, formLayoutInfo, true, pageRef);
+                }
+
+                @Override
+                public boolean isVisible() {
+                    return SyncopeConsoleApplication.get().getSecuritySettings().getAuthorizationStrategy().
+                            isActionAuthorized(this, RENDER);
                 }
             });
         }
+
         return tabs;
     }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    protected Panel customResultBody(final String panelId, final RealmTO item, final Serializable result) {
+        if (!(result instanceof ProvisioningResult)) {
+            throw new IllegalStateException("Unsupported result type");
+        }
+
+        final MultilevelPanel mlp = new MultilevelPanel(panelId);
+        add(mlp);
+
+        final PropagationStatus syncope = new PropagationStatus();
+        syncope.setStatus(PropagationTaskExecStatus.SUCCESS);
+        syncope.setResource(Constants.SYNCOPE);
+
+        ArrayList<PropagationStatus> propagations = new ArrayList<>();
+        propagations.add(syncope);
+        propagations.addAll(((ProvisioningResult) result).getPropagationStatuses());
+
+        ListViewPanel.Builder<PropagationStatus> builder
+                = new ListViewPanel.Builder<PropagationStatus>(PropagationStatus.class, pageRef) {
+
+            private static final long serialVersionUID = -6809736686861678498L;
+
+            @Override
+            protected Component getValueComponent(final String key, final PropagationStatus bean) {
+                if ("afterObj".equalsIgnoreCase(key)) {
+                    ConnObjectTO afterObj = bean.getAfterObj();
+                    String remoteId = afterObj == null
+                            || MapUtils.isEmpty(afterObj.getAttrMap())
+                            || !afterObj.getAttrMap().containsKey(ConnIdSpecialAttributeName.NAME)
+                            || CollectionUtils.isEmpty(
+                                    afterObj.getAttrMap().get(ConnIdSpecialAttributeName.NAME).getValues())
+                            ? StringUtils.EMPTY
+                            : afterObj.getAttrMap().get(ConnIdSpecialAttributeName.NAME).getValues().
+                            iterator().next();
+
+                    return new Label("field", remoteId);
+                } else if ("status".equalsIgnoreCase(key)) {
+                    return StatusUtils.getStatusImagePanel("field", bean.getStatus());
+                } else {
+                    return super.getValueComponent(key, bean);
+                }
+            }
+        };
+
+        builder.setItems(propagations);
+
+        builder.includes("resource", "afterObj", "status");
+        builder.withChecks(ListViewPanel.CheckAvailability.NONE);
+        builder.setReuseItem(false);
+
+        builder.addAction(new ActionLink<PropagationStatus>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            protected boolean statusCondition(final PropagationStatus bean) {
+                return !Constants.SYNCOPE.equals(bean.getResource())
+                        && (PropagationTaskExecStatus.CREATED == bean.getStatus()
+                        || PropagationTaskExecStatus.SUCCESS == bean.getStatus());
+            }
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final PropagationStatus bean) {
+                mlp.next(bean.getResource(), new RemoteRealmPanel(bean), target);
+            }
+        }, ActionLink.ActionType.VIEW, StandardEntitlement.RESOURCE_GET_CONNOBJECT);
+
+        mlp.setFirstLevel(builder.build(MultilevelPanel.FIRST_LEVEL_ID));
+        return mlp;
+    }
+
+    protected abstract void onClickTemplate(final AjaxRequestTarget target);
 
     protected abstract void onClickCreate(final AjaxRequestTarget target);
 
@@ -133,26 +266,20 @@ public abstract class Realm extends Panel {
 
     protected abstract void onClickDelete(final AjaxRequestTarget target, final RealmTO realmTO);
 
-    private static class AnyTypeComparator implements Comparator<AnyTypeTO> {
+    public class RemoteRealmPanel extends RemoteObjectPanel {
 
-        @Override
-        public int compare(final AnyTypeTO o1, final AnyTypeTO o2) {
-            if (o1.getKind() == AnyTypeKind.USER) {
-                return -1;
-            }
-            if (o2.getKind() == AnyTypeKind.USER) {
-                return 1;
-            }
+        private static final long serialVersionUID = 4303365227411467563L;
 
-            if (o1.getKind() == AnyTypeKind.GROUP) {
-                return -1;
-            }
-            if (o2.getKind() == AnyTypeKind.GROUP) {
-                return 1;
-            }
+        private final PropagationStatus bean;
 
-            return ComparatorUtils.<String>naturalComparator().compare(o1.getKey(), o2.getKey());
+        public RemoteRealmPanel(final PropagationStatus bean) {
+            this.bean = bean;
+            add(new ConnObjectPanel(REMOTE_OBJECT_PANEL_ID, getConnObjectTO()));
         }
 
+        @Override
+        protected final Pair<ConnObjectTO, ConnObjectTO> getConnObjectTO() {
+            return Pair.of(bean.getBeforeObj(), bean.getAfterObj());
+        }
     }
 }

@@ -20,21 +20,13 @@ under the License.
   <wicket:panel>
     <span class="clause">
       <span style="white-space: nowrap;">
-        <span class="field date">
-          <input class="form-control input-auto-width" type="text" wicket:id="date" size="12" style="float: left"/>
+        <span class="pull-left" style="padding-right: 5px">
+          <input class="form-control input-auto-width" type="text" wicket:id="date" size="12"/>
         </span>
-        <span class="field hours">
-          <input class="form-control input-auto-width" type="text" wicket:id="hours" size="2" maxlength="2"/>
-        </span>
-        <span class="field separator">
-          <span wicket:id="hoursSeparator">:</span>
-        </span>
-        <span class="field hours">
-          <input class="form-control input-auto-width" type="text" wicket:id="minutes" size="2" maxlength="2"/>
-        </span>
-        <span class="field hours">
-          <select class="form-control input-auto-width" wicket:id="amOrPmChoice"></select>
-        </span>
+        <input class="form-control input-auto-width" type="text" wicket:id="hours" size="2" maxlength="2"/>
+        <span wicket:id="hoursSeparator" class="pull-left">:</span>
+        <input class="form-control input-auto-width" type="text" wicket:id="minutes" size="2" maxlength="2"/>
+        <select class="form-control input-auto-width" wicket:id="amOrPmChoice"></select>
       </span>
     </span>
   </wicket:panel>

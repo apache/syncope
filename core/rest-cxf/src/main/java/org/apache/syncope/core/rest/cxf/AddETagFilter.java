@@ -27,6 +27,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.ext.Provider;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.AbstractAnnotatedBean;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 
 /**
@@ -43,7 +44,10 @@ public class AddETagFilter implements ContainerResponseFilter {
             if (resCtx.getEntity() instanceof AbstractAnnotatedBean) {
                 annotated = (AbstractAnnotatedBean) resCtx.getEntity();
             } else if (resCtx.getEntity() instanceof ProvisioningResult) {
-                annotated = ((ProvisioningResult<?>) resCtx.getEntity()).getAny();
+                EntityTO entity = ((ProvisioningResult<?>) resCtx.getEntity()).getEntity();
+                if (entity instanceof AbstractAnnotatedBean) {
+                    annotated = (AbstractAnnotatedBean) entity;
+                }
             }
             if (annotated != null) {
                 String etagValue = annotated.getETagValue();

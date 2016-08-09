@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.jpa.entity;
 
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -29,25 +28,17 @@ import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 
 @Entity
 @Table(name = JPAReportletConfInstance.TABLE)
-public class JPAReportletConfInstance extends AbstractEntity<Long> {
+public class JPAReportletConfInstance extends AbstractGeneratedKeyEntity {
 
     private static final long serialVersionUID = -2436055132955674610L;
 
     public static final String TABLE = "ReportletConfInstance";
-
-    @Id
-    private Long id;
 
     @Lob
     private String serializedInstance;
 
     @ManyToOne
     private JPAReport report;
-
-    @Override
-    public Long getKey() {
-        return id;
-    }
 
     public Report getReport() {
         return report;

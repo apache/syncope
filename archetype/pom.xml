@@ -239,7 +239,6 @@ under the License.
       <resource>
         <directory>../client/enduser/src/main/resources/META-INF/resources/app</directory>
         <targetPath>${project.build.outputDirectory}/archetype-resources/enduser/src/main/webapp/app</targetPath>
-        <filtering>true</filtering>
       </resource>
       <resource>
         <directory>../fit/enduser-reference/src/main/resources</directory>

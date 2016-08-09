@@ -19,36 +19,20 @@
 package org.apache.syncope.core.persistence.jpa.entity.policy;
 
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.validation.constraints.NotNull;
-import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.core.persistence.api.entity.Policy;
-import org.apache.syncope.core.persistence.jpa.entity.AbstractEntity;
+import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
 
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-public abstract class AbstractPolicy extends AbstractEntity<Long> implements Policy {
+public abstract class AbstractPolicy extends AbstractGeneratedKeyEntity implements Policy {
 
     private static final long serialVersionUID = -5844833125843247458L;
 
-    @Id
-    private Long id;
-
     @NotNull
     private String description;
-
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    protected PolicyType type;
-
-    @Override
-    public Long getKey() {
-        return id;
-    }
 
     @Override
     public String getDescription() {
@@ -58,10 +42,5 @@ public abstract class AbstractPolicy extends AbstractEntity<Long> implements Pol
     @Override
     public void setDescription(final String description) {
         this.description = description;
-    }
-
-    @Override
-    public PolicyType getType() {
-        return type;
     }
 }

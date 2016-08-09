@@ -69,7 +69,7 @@ public class PolicyITCase extends AbstractITCase {
 
     @Test
     public void getAccountPolicy() {
-        AccountPolicyTO policyTO = policyService.read(6L);
+        AccountPolicyTO policyTO = policyService.read("06e2ed52-6966-44aa-a177-a0ca7434201f");
 
         assertNotNull(policyTO);
         assertTrue(policyTO.getUsedByResources().isEmpty());
@@ -78,7 +78,7 @@ public class PolicyITCase extends AbstractITCase {
 
     @Test
     public void getPasswordPolicy() {
-        PasswordPolicyTO policyTO = policyService.read(4L);
+        PasswordPolicyTO policyTO = policyService.read("986d1236-3ac5-4a19-810c-5ab21d79cba1");
 
         assertNotNull(policyTO);
         assertTrue(policyTO.getUsedByResources().contains(RESOURCE_NAME_NOPROPAGATION));
@@ -87,7 +87,7 @@ public class PolicyITCase extends AbstractITCase {
 
     @Test
     public void getPullPolicy() {
-        PullPolicyTO policyTO = policyService.read(1L);
+        PullPolicyTO policyTO = policyService.read("66691e96-285f-4464-bc19-e68384ea4c85");
 
         assertNotNull(policyTO);
         assertTrue(policyTO.getUsedByRealms().isEmpty());
@@ -113,14 +113,13 @@ public class PolicyITCase extends AbstractITCase {
         PullPolicyTO policyTO = createPolicy(policy);
 
         assertNotNull(policyTO);
-        assertEquals(PolicyType.PULL, policyTO.getType());
         assertEquals(TestPullRule.class.getName(),
                 policyTO.getSpecification().getCorrelationRules().get(AnyTypeKind.USER.name()));
     }
 
     @Test
     public void update() {
-        PasswordPolicyTO globalPolicy = policyService.read(2L);
+        PasswordPolicyTO globalPolicy = policyService.read("ce93fcda-dc3a-4369-a7b0-a6108c261c85");
 
         PasswordPolicyTO policy = SerializationUtils.clone(globalPolicy);
         policy.setDescription("A simple password policy");
@@ -128,7 +127,7 @@ public class PolicyITCase extends AbstractITCase {
         // create a new password policy using the former as a template
         policy = createPolicy(policy);
         assertNotNull(policy);
-        assertNotEquals(2L, policy.getKey());
+        assertNotEquals("ce93fcda-dc3a-4369-a7b0-a6108c261c85", policy.getKey());
 
         ((DefaultPasswordRuleConf) policy.getRuleConfs().get(0)).setMaxLength(22);
 
@@ -137,7 +136,6 @@ public class PolicyITCase extends AbstractITCase {
         policy = policyService.read(policy.getKey());
 
         assertNotNull(policy);
-        assertEquals(PolicyType.PASSWORD, policy.getType());
         assertEquals(22, ((DefaultPasswordRuleConf) policy.getRuleConfs().get(0)).getMaxLength());
         assertEquals(8, ((DefaultPasswordRuleConf) policy.getRuleConfs().get(0)).getMinLength());
     }
@@ -161,7 +159,7 @@ public class PolicyITCase extends AbstractITCase {
 
     @Test
     public void getCorrelationRules() {
-        assertEquals(2, syncopeService.platform().getPullCorrelationRules().size());
+        assertEquals(1, syncopeService.platform().getPullCorrelationRules().size());
     }
 
     @Test
@@ -182,7 +180,7 @@ public class PolicyITCase extends AbstractITCase {
     public void issueSYNCOPE682() {
         AccountPolicyTO policy = new AccountPolicyTO();
         policy.setDescription("SYNCOPE682");
-        policy.getResources().add(RESOURCE_NAME_LDAP);
+        policy.getPassthroughResources().add(RESOURCE_NAME_LDAP);
 
         DefaultAccountRuleConf ruleConf = new DefaultAccountRuleConf();
         ruleConf.setMinLength(3);

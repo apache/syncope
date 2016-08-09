@@ -57,135 +57,134 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
     @Autowired
     private EntityFactory entityFactory;
 
+    private void throwInvalidPolicy(final Policy policy, final AbstractPolicyTO policyTO) {
+        SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPolicy);
+        sce.getElements().add(String.format("Cannot update %s from %s",
+                policy.getClass().getSimpleName(), policyTO.getClass().getSimpleName()));
+        throw sce;
+    }
+
     @SuppressWarnings("unchecked")
+    private <T extends Policy> T getPolicy(final T policy, final AbstractPolicyTO policyTO) {
+        T result = policy;
+
+        if (policyTO instanceof PasswordPolicyTO) {
+            if (result == null) {
+                result = (T) entityFactory.newEntity(PasswordPolicy.class);
+            } else if (!(policyTO instanceof PasswordPolicyTO)) {
+                throwInvalidPolicy(policy, policyTO);
+            }
+
+            PasswordPolicy passwordPolicy = PasswordPolicy.class.cast(result);
+            PasswordPolicyTO passwordPolicyTO = PasswordPolicyTO.class.cast(policyTO);
+
+            passwordPolicy.setAllowNullPassword(passwordPolicyTO.isAllowNullPassword());
+            passwordPolicy.setHistoryLength(passwordPolicyTO.getHistoryLength());
+
+            passwordPolicy.removeAllRuleConfs();
+            for (PasswordRuleConf conf : passwordPolicyTO.getRuleConfs()) {
+                passwordPolicy.add(conf);
+            }
+        } else if (policyTO instanceof AccountPolicyTO) {
+            if (result == null) {
+                result = (T) entityFactory.newEntity(AccountPolicy.class);
+            } else if (!(policyTO instanceof AccountPolicyTO)) {
+                throwInvalidPolicy(policy, policyTO);
+            }
+
+            AccountPolicy accountPolicy = AccountPolicy.class.cast(result);
+            AccountPolicyTO accountPolicyTO = AccountPolicyTO.class.cast(policyTO);
+
+            accountPolicy.setMaxAuthenticationAttempts(accountPolicyTO.getMaxAuthenticationAttempts());
+            accountPolicy.setPropagateSuspension(accountPolicyTO.isPropagateSuspension());
+
+            accountPolicy.removeAllRuleConfs();
+            for (AccountRuleConf conf : accountPolicyTO.getRuleConfs()) {
+                accountPolicy.add(conf);
+            }
+
+            accountPolicy.getResources().clear();
+            for (String resourceName : accountPolicyTO.getPassthroughResources()) {
+                ExternalResource resource = resourceDAO.find(resourceName);
+                if (resource == null) {
+                    LOG.debug("Ignoring invalid resource {} ", resourceName);
+                } else {
+                    accountPolicy.add(resource);
+                }
+            }
+        } else if (policyTO instanceof PullPolicyTO) {
+            if (result == null) {
+                result = (T) entityFactory.newEntity(PullPolicy.class);
+            } else if (!(policyTO instanceof PullPolicyTO)) {
+                throwInvalidPolicy(policy, policyTO);
+            }
+
+            ((PullPolicy) result).setSpecification(((PullPolicyTO) policyTO).getSpecification());
+        }
+
+        if (result != null) {
+            result.setDescription(policyTO.getDescription());
+        }
+
+        return result;
+    }
+
     @Override
-    public <T extends AbstractPolicyTO> T getPolicyTO(final Policy policy) {
-        T policyTO;
-        switch (policy.getType()) {
-            case PASSWORD:
-                PasswordPolicy passwordPolicy = PasswordPolicy.class.cast(policy);
-                PasswordPolicyTO passwordPolicyTO = new PasswordPolicyTO();
-                policyTO = (T) passwordPolicyTO;
+    public <T extends Policy> T create(final AbstractPolicyTO policyTO) {
+        return getPolicy(null, policyTO);
+    }
 
-                passwordPolicyTO.setAllowNullPassword(passwordPolicy.isAllowNullPassword());
-                passwordPolicyTO.setHistoryLength(passwordPolicy.getHistoryLength());
-
-                passwordPolicyTO.getRuleConfs().clear();
-                for (PasswordRuleConf ruleConf : passwordPolicy.getRuleConfs()) {
-                    passwordPolicyTO.getRuleConfs().add((AbstractPasswordRuleConf) ruleConf);
-                }
-                break;
-
-            case ACCOUNT:
-                AccountPolicy accountPolicy = AccountPolicy.class.cast(policy);
-                AccountPolicyTO accountPolicyTO = new AccountPolicyTO();
-                policyTO = (T) accountPolicyTO;
-
-                accountPolicyTO.setMaxAuthenticationAttempts(accountPolicy.getMaxAuthenticationAttempts());
-                accountPolicyTO.setPropagateSuspension(accountPolicy.isPropagateSuspension());
-
-                accountPolicyTO.getRuleConfs().clear();
-                for (AccountRuleConf ruleConf : accountPolicy.getRuleConfs()) {
-                    accountPolicyTO.getRuleConfs().add((AbstractAccountRuleConf) ruleConf);
-                }
-
-                accountPolicyTO.getResources().addAll(accountPolicy.getResourceNames());
-                break;
-
-            case PULL:
-            default:
-                policyTO = (T) new PullPolicyTO();
-                ((PullPolicyTO) policyTO).setSpecification(((PullPolicy) policy).getSpecification());
-        }
-
-        policyTO.setKey(policy.getKey());
-        policyTO.setDescription(policy.getDescription());
-
-        for (ExternalResource resource : resourceDAO.findByPolicy(policy)) {
-            policyTO.getUsedByResources().add(resource.getKey());
-        }
-        for (Realm realm : realmDAO.findByPolicy(policy)) {
-            policyTO.getUsedByRealms().add(realm.getFullPath());
-        }
-
-        return policyTO;
+    @Override
+    public <T extends Policy> T update(final T policy, final AbstractPolicyTO policyTO) {
+        return getPolicy(policy, policyTO);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T extends Policy> T getPolicy(final T policy, final AbstractPolicyTO policyTO) {
-        if (policy != null && policy.getType() != policyTO.getType()) {
-            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPolicy);
-            sce.getElements().add(String.format("Cannot update %s from %s", policy.getType(), policyTO.getType()));
-            throw sce;
+    public <T extends AbstractPolicyTO> T getPolicyTO(final Policy policy) {
+        T policyTO = null;
+
+        if (policy instanceof PasswordPolicy) {
+            PasswordPolicy passwordPolicy = PasswordPolicy.class.cast(policy);
+            PasswordPolicyTO passwordPolicyTO = new PasswordPolicyTO();
+            policyTO = (T) passwordPolicyTO;
+
+            passwordPolicyTO.setAllowNullPassword(passwordPolicy.isAllowNullPassword());
+            passwordPolicyTO.setHistoryLength(passwordPolicy.getHistoryLength());
+
+            for (PasswordRuleConf ruleConf : passwordPolicy.getRuleConfs()) {
+                passwordPolicyTO.getRuleConfs().add((AbstractPasswordRuleConf) ruleConf);
+            }
+        } else if (policy instanceof AccountPolicy) {
+            AccountPolicy accountPolicy = AccountPolicy.class.cast(policy);
+            AccountPolicyTO accountPolicyTO = new AccountPolicyTO();
+            policyTO = (T) accountPolicyTO;
+
+            accountPolicyTO.setMaxAuthenticationAttempts(accountPolicy.getMaxAuthenticationAttempts());
+            accountPolicyTO.setPropagateSuspension(accountPolicy.isPropagateSuspension());
+
+            for (AccountRuleConf ruleConf : accountPolicy.getRuleConfs()) {
+                accountPolicyTO.getRuleConfs().add((AbstractAccountRuleConf) ruleConf);
+            }
+
+            accountPolicyTO.getPassthroughResources().addAll(accountPolicy.getResourceNames());
+        } else if (policy instanceof PullPolicy) {
+            policyTO = (T) new PullPolicyTO();
+            ((PullPolicyTO) policyTO).setSpecification(((PullPolicy) policy).getSpecification());
         }
 
-        T result = policy;
-        switch (policyTO.getType()) {
-            case PASSWORD:
-                if (!(policyTO instanceof PasswordPolicyTO)) {
-                    throw new ClassCastException("Expected " + PasswordPolicyTO.class.getName()
-                            + ", found " + policyTO.getClass().getName());
-                }
-                if (result == null) {
-                    result = (T) entityFactory.newEntity(PasswordPolicy.class);
-                }
-                PasswordPolicy passwordPolicy = PasswordPolicy.class.cast(result);
-                PasswordPolicyTO passwordPolicyTO = PasswordPolicyTO.class.cast(policyTO);
+        if (policyTO != null) {
+            policyTO.setKey(policy.getKey());
+            policyTO.setDescription(policy.getDescription());
 
-                passwordPolicy.setAllowNullPassword(passwordPolicyTO.isAllowNullPassword());
-                passwordPolicy.setHistoryLength(passwordPolicyTO.getHistoryLength());
-
-                passwordPolicy.removeAllRuleConfs();
-                for (PasswordRuleConf conf : passwordPolicyTO.getRuleConfs()) {
-                    passwordPolicy.add(conf);
-                }
-                break;
-
-            case ACCOUNT:
-                if (!(policyTO instanceof AccountPolicyTO)) {
-                    throw new ClassCastException("Expected " + AccountPolicyTO.class.getName()
-                            + ", found " + policyTO.getClass().getName());
-                }
-                if (result == null) {
-                    result = (T) entityFactory.newEntity(AccountPolicy.class);
-                }
-                AccountPolicy accountPolicy = AccountPolicy.class.cast(result);
-                AccountPolicyTO accountPolicyTO = AccountPolicyTO.class.cast(policyTO);
-
-                accountPolicy.setMaxAuthenticationAttempts(accountPolicyTO.getMaxAuthenticationAttempts());
-                accountPolicy.setPropagateSuspension(accountPolicyTO.isPropagateSuspension());
-
-                accountPolicy.removeAllRuleConfs();
-                for (AccountRuleConf conf : accountPolicyTO.getRuleConfs()) {
-                    accountPolicy.add(conf);
-                }
-
-                accountPolicy.getResources().clear();
-                for (String resourceName : accountPolicyTO.getResources()) {
-                    ExternalResource resource = resourceDAO.find(resourceName);
-                    if (resource == null) {
-                        LOG.debug("Ignoring invalid resource {} ", resourceName);
-                    } else {
-                        accountPolicy.add(resource);
-                    }
-                }
-                break;
-
-            case PULL:
-            default:
-                if (!(policyTO instanceof PullPolicyTO)) {
-                    throw new ClassCastException("Expected " + PullPolicyTO.class.getName()
-                            + ", found " + policyTO.getClass().getName());
-                }
-                if (result == null) {
-                    result = (T) entityFactory.newEntity(PullPolicy.class);
-                }
-                ((PullPolicy) result).setSpecification(((PullPolicyTO) policyTO).getSpecification());
+            for (ExternalResource resource : resourceDAO.findByPolicy(policy)) {
+                policyTO.getUsedByResources().add(resource.getKey());
+            }
+            for (Realm realm : realmDAO.findByPolicy(policy)) {
+                policyTO.getUsedByRealms().add(realm.getFullPath());
+            }
         }
 
-        result.setDescription(policyTO.getDescription());
-
-        return result;
+        return policyTO;
     }
 }

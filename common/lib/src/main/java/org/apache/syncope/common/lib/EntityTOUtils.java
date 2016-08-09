@@ -18,34 +18,16 @@
  */
 package org.apache.syncope.common.lib;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import org.apache.commons.collections4.Transformer;
-import org.apache.syncope.common.lib.search.SearchableFields;
-import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.EntityTO;
-import org.apache.syncope.common.lib.to.GroupTO;
-import org.apache.syncope.common.lib.to.UserTO;
 
 public final class EntityTOUtils {
 
-    public static final List<String> ANY_FIELDS;
-
-    static {
-        List<String> anyFields = new ArrayList<>();
-        anyFields.addAll(SearchableFields.get(UserTO.class));
-        anyFields.addAll(SearchableFields.get(GroupTO.class));
-        anyFields.addAll(SearchableFields.get(AnyObjectTO.class));
-
-        ANY_FIELDS = Collections.unmodifiableList(anyFields);
-    }
-
-    public static <KEY, E extends EntityTO<KEY>> Transformer<E, KEY> keyTransformer() {
-        return new Transformer<E, KEY>() {
+    public static <E extends EntityTO> Transformer<E, String> keyTransformer() {
+        return new Transformer<E, String>() {
 
             @Override
-            public KEY transform(final E input) {
+            public String transform(final E input) {
                 return input.getKey();
             }
         };

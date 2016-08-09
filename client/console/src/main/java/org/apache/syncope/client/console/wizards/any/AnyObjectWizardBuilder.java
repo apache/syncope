@@ -19,55 +19,63 @@
 package org.apache.syncope.client.console.wizards.any;
 
 import java.io.Serializable;
-
+import java.util.Collections;
 import java.util.List;
-
+import org.apache.syncope.client.console.commons.status.StatusBean;
+import org.apache.syncope.client.console.layout.AnyObjectForm;
+import org.apache.syncope.client.console.layout.AnyObjectFormLayoutInfo;
+import org.apache.syncope.client.console.rest.AnyObjectRestClient;
+import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.wicket.PageReference;
+import org.apache.wicket.model.util.ListModel;
 
-public class AnyObjectWizardBuilder extends AnyWizardBuilder<AnyObjectTO> implements Serializable {
+public class AnyObjectWizardBuilder extends AnyWizardBuilder<AnyObjectTO> implements AnyObjectForm {
 
     private static final long serialVersionUID = -2480279868319546243L;
 
-    /**
-     * Construct.
-     *
-     * @param id The component id
-     * @param anyObjectTO any object TO.
-     * @param anyTypeClasses any type classes
-     * @param pageRef Caller page reference.
-     */
+    private final AnyObjectRestClient anyObjectRestClient = new AnyObjectRestClient();
+
     public AnyObjectWizardBuilder(
-            final String id,
             final AnyObjectTO anyObjectTO,
             final List<String> anyTypeClasses,
+            final AnyObjectFormLayoutInfo formLayoutInfo,
             final PageReference pageRef) {
-        super(id, anyObjectTO, anyTypeClasses, pageRef);
+
+        super(anyObjectTO, anyTypeClasses, formLayoutInfo, pageRef);
     }
 
     @Override
-    protected Serializable onApplyInternal(final AnyHandler<AnyObjectTO> modelObject) {
+    protected Serializable onApplyInternal(final AnyWrapper<AnyObjectTO> modelObject) {
         final AnyObjectTO inner = modelObject.getInnerObject();
 
-        final ProvisioningResult<AnyObjectTO> actual;
-
-        if (inner.getKey() == null || inner.getKey() == 0) {
-            actual = anyObjectRestClient.create(AnyObjectTO.class.cast(inner));
+        ProvisioningResult<AnyObjectTO> actual;
+        if (inner.getKey() == null) {
+            actual = anyObjectRestClient.create(inner);
         } else {
-            final AnyObjectPatch patch = AnyOperations.diff(inner, getOriginalItem().getInnerObject(), false);
+            AnyObjectPatch patch = AnyOperations.diff(inner, getOriginalItem().getInnerObject(), false);
 
-            // update user just if it is changed
-            if (!patch.isEmpty()) {
-                actual = anyObjectRestClient.update(getOriginalItem().getInnerObject().getETagValue(), patch);
-            } else {
+            // update just if it is changed
+            if (patch.isEmpty()) {
                 actual = new ProvisioningResult<>();
-                actual.setAny(inner);
+                actual.setEntity(inner);
+            } else {
+                actual = anyObjectRestClient.update(getOriginalItem().getInnerObject().getETagValue(), patch);
             }
         }
 
         return actual;
+    }
+
+    @Override
+    protected Details<AnyObjectTO> addOptionalDetailsPanel(final AnyWrapper<AnyObjectTO> modelObject) {
+        return new AnyObjectDetails(
+                modelObject,
+                new ListModel<>(Collections.<StatusBean>emptyList()),
+                mode == AjaxWizard.Mode.TEMPLATE,
+                modelObject.getInnerObject().getKey() != null, pageRef);
     }
 }

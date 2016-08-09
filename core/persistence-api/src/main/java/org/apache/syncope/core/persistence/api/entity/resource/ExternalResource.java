@@ -24,16 +24,14 @@ import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
-import org.apache.syncope.core.persistence.api.entity.AnnotatedEntity;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
+import org.apache.syncope.core.persistence.api.entity.ProvidedKeyEntity;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 
-public interface ExternalResource extends AnnotatedEntity<String> {
-
-    void setKey(String key);
+public interface ExternalResource extends ProvidedKeyEntity {
 
     ConnInstance getConnector();
 
@@ -73,9 +71,9 @@ public interface ExternalResource extends AnnotatedEntity<String> {
 
     void setDeleteTraceLevel(TraceLevel deleteTraceLevel);
 
-    TraceLevel getPullTraceLevel();
+    TraceLevel getProvisioningTraceLevel();
 
-    void setPullTraceLevel(TraceLevel pullTraceLevel);
+    void setProvisioningTraceLevel(TraceLevel provisioningTraceLevel);
 
     List<String> getPropagationActionsClassNames();
 
@@ -99,4 +97,7 @@ public interface ExternalResource extends AnnotatedEntity<String> {
 
     List<? extends Provision> getProvisions();
 
+    OrgUnit getOrgUnit();
+
+    void setOrgUnit(OrgUnit orgUnit);
 }

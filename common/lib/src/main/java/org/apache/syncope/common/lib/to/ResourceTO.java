@@ -32,13 +32,14 @@ import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
+import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.common.lib.types.TraceLevel;
 
 @XmlRootElement(name = "resource")
 @XmlType
-public class ResourceTO extends AbstractAnnotatedBean implements EntityTO<String> {
+public class ResourceTO extends AbstractBaseBean implements EntityTO {
 
     private static final long serialVersionUID = -9193551354041698963L;
 
@@ -47,7 +48,7 @@ public class ResourceTO extends AbstractAnnotatedBean implements EntityTO<String
     /**
      * The resource type is identified by the associated connector.
      */
-    private Long connector;
+    private String connector;
 
     /**
      * Convenience information: display name for the connector id.
@@ -55,6 +56,8 @@ public class ResourceTO extends AbstractAnnotatedBean implements EntityTO<String
     private String connectorDisplayName;
 
     private final List<ProvisionTO> provisions = new ArrayList<>();
+
+    private OrgUnitTO orgUnit;
 
     private Integer propagationPriority;
 
@@ -68,13 +71,13 @@ public class ResourceTO extends AbstractAnnotatedBean implements EntityTO<String
 
     private TraceLevel deleteTraceLevel = TraceLevel.ALL;
 
-    private TraceLevel pullTraceLevel = TraceLevel.ALL;
+    private TraceLevel provisioningTraceLevel = TraceLevel.ALL;
 
-    private Long passwordPolicy;
+    private String passwordPolicy;
 
-    private Long accountPolicy;
+    private String accountPolicy;
 
-    private Long pullPolicy;
+    private String pullPolicy;
 
     private final Set<ConnConfProperty> confOverride = new HashSet<>();
 
@@ -103,11 +106,11 @@ public class ResourceTO extends AbstractAnnotatedBean implements EntityTO<String
         this.enforceMandatoryCondition = enforceMandatoryCondition;
     }
 
-    public Long getConnector() {
+    public String getConnector() {
         return connector;
     }
 
-    public void setConnector(final Long connector) {
+    public void setConnector(final String connector) {
         this.connector = connector;
     }
 
@@ -159,27 +162,27 @@ public class ResourceTO extends AbstractAnnotatedBean implements EntityTO<String
         this.updateTraceLevel = updateTraceLevel;
     }
 
-    public Long getPasswordPolicy() {
+    public String getPasswordPolicy() {
         return passwordPolicy;
     }
 
-    public void setPasswordPolicy(final Long passwordPolicy) {
+    public void setPasswordPolicy(final String passwordPolicy) {
         this.passwordPolicy = passwordPolicy;
     }
 
-    public Long getAccountPolicy() {
+    public String getAccountPolicy() {
         return accountPolicy;
     }
 
-    public void setAccountPolicy(final Long accountPolicy) {
+    public void setAccountPolicy(final String accountPolicy) {
         this.accountPolicy = accountPolicy;
     }
 
-    public Long getPullPolicy() {
+    public String getPullPolicy() {
         return pullPolicy;
     }
 
-    public void setPullPolicy(final Long pullPolicy) {
+    public void setPullPolicy(final String pullPolicy) {
         this.pullPolicy = pullPolicy;
     }
 
@@ -199,6 +202,14 @@ public class ResourceTO extends AbstractAnnotatedBean implements EntityTO<String
     @JsonProperty("provisions")
     public List<ProvisionTO> getProvisions() {
         return provisions;
+    }
+
+    public OrgUnitTO getOrgUnit() {
+        return orgUnit;
+    }
+
+    public void setOrgUnit(final OrgUnitTO orgUnit) {
+        this.orgUnit = orgUnit;
     }
 
     @XmlElementWrapper(name = "confOverride")
@@ -223,12 +234,12 @@ public class ResourceTO extends AbstractAnnotatedBean implements EntityTO<String
         return capabilitiesOverride;
     }
 
-    public TraceLevel getPullTraceLevel() {
-        return pullTraceLevel;
+    public TraceLevel getProvisioningTraceLevel() {
+        return provisioningTraceLevel;
     }
 
-    public void setPullTraceLevel(final TraceLevel pullTraceLevel) {
-        this.pullTraceLevel = pullTraceLevel;
+    public void setProvisioningTraceLevel(final TraceLevel provisioningTraceLevel) {
+        this.provisioningTraceLevel = provisioningTraceLevel;
     }
 
     @XmlElementWrapper(name = "propagationActionsClassNames")

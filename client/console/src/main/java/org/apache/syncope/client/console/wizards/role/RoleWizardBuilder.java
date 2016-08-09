@@ -46,7 +46,7 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.util.ListModel;
 
-public class RoleWizardBuilder extends AjaxWizardBuilder<RoleHandler> {
+public class RoleWizardBuilder extends AjaxWizardBuilder<RoleWrapper> {
 
     private static final long serialVersionUID = 5945391813567245081L;
 
@@ -55,12 +55,11 @@ public class RoleWizardBuilder extends AjaxWizardBuilder<RoleHandler> {
     /**
      * Construct.
      *
-     * @param id The component id
      * @param roleTO role
      * @param pageRef Caller page reference.
      */
-    public RoleWizardBuilder(final String id, final RoleTO roleTO, final PageReference pageRef) {
-        super(id, new RoleHandler(roleTO), pageRef);
+    public RoleWizardBuilder(final RoleTO roleTO, final PageReference pageRef) {
+        super(new RoleWrapper(roleTO), pageRef);
     }
 
     /**
@@ -71,14 +70,14 @@ public class RoleWizardBuilder extends AjaxWizardBuilder<RoleHandler> {
      * @return the current builder.
      */
     @Override
-    public AjaxWizardBuilder<RoleHandler> setItem(final RoleHandler item) {
-        return (AjaxWizardBuilder<RoleHandler>) (item == null
+    public AjaxWizardBuilder<RoleWrapper> setItem(final RoleWrapper item) {
+        return (AjaxWizardBuilder<RoleWrapper>) (item == null
                 ? super.setItem(item)
-                : super.setItem(new RoleHandler(item.getInnerObject())));
+                : super.setItem(new RoleWrapper(item.getInnerObject())));
     }
 
     @Override
-    protected Serializable onApplyInternal(final RoleHandler modelObject) {
+    protected Serializable onApplyInternal(final RoleWrapper modelObject) {
         modelObject.fillDynamicConditions();
         if (getOriginalItem() == null || getOriginalItem().getInnerObject() == null
                 || StringUtils.isBlank(getOriginalItem().getInnerObject().getKey())) {
@@ -90,7 +89,7 @@ public class RoleWizardBuilder extends AjaxWizardBuilder<RoleHandler> {
     }
 
     @Override
-    protected WizardModel buildModelSteps(final RoleHandler modelObject, final WizardModel wizardModel) {
+    protected WizardModel buildModelSteps(final RoleWrapper modelObject, final WizardModel wizardModel) {
         wizardModel.add(new Details(modelObject));
         wizardModel.add(new Entitlements(modelObject.getInnerObject()));
         wizardModel.add(new Realms(modelObject.getInnerObject()));
@@ -101,7 +100,7 @@ public class RoleWizardBuilder extends AjaxWizardBuilder<RoleHandler> {
 
         private static final long serialVersionUID = 5514523040031722255L;
 
-        public Details(final RoleHandler modelObject) {
+        public Details(final RoleWrapper modelObject) {
             add(new AjaxTextFieldPanel(
                     "key", "key", new PropertyModel<String>(modelObject.getInnerObject(), "key"), false));
 
@@ -129,6 +128,7 @@ public class RoleWizardBuilder extends AjaxWizardBuilder<RoleHandler> {
         private static final long serialVersionUID = 5514523040031722256L;
 
         public Entitlements(final RoleTO modelObject) {
+            setTitleModel(new ResourceModel("entitlements"));
             add(new AjaxPalettePanel.Builder<String>().build("entitlements",
                     new PropertyModel<List<String>>(modelObject, "entitlements") {
 
@@ -154,6 +154,7 @@ public class RoleWizardBuilder extends AjaxWizardBuilder<RoleHandler> {
         private static final long serialVersionUID = 5514523040031722257L;
 
         public Realms(final RoleTO modelObject) {
+            setTitleModel(new ResourceModel("realms"));
             add(new AjaxPalettePanel.Builder<String>().build("realms",
                     new PropertyModel<List<String>>(modelObject, "realms"),
                     new ListModel<>(

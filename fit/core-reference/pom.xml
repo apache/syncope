@@ -57,6 +57,11 @@ under the License.
     
     <dependency>
       <groupId>org.apache.syncope.core</groupId>
+      <artifactId>syncope-core-migration</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.core</groupId>
       <artifactId>syncope-core-rest-cxf</artifactId>
       <version>${project.version}</version>
     </dependency>
@@ -254,7 +259,7 @@ under the License.
             </properties>
             <configfiles>
               <configfile>
-                <file>${project.build.directory}/classes/context.xml</file>
+                <file>${basedir}/src/main/resources/context.xml</file>
                 <todir>conf/</todir>
                 <tofile>context.xml</tofile>
               </configfile>
@@ -326,6 +331,9 @@ under the License.
       <resource>
         <directory>src/main/resources</directory>
         <filtering>true</filtering>
+        <excludes>
+          <exclude>context.xml</exclude>
+        </excludes>
       </resource>
       <resource>
         <directory>${basedir}/../../core/persistence-jpa/src/main/resources</directory>
@@ -357,7 +365,6 @@ under the License.
         <includes>
           <include>errorMessages.properties</include>
         </includes>
-        <filtering>true</filtering>
       </testResource>
     </testResources>
   </build>
@@ -375,7 +382,7 @@ under the License.
         <dependency>
           <groupId>org.postgresql</groupId>
           <artifactId>postgresql</artifactId>
-          <version>9.4-1201-jdbc41</version>
+          <version>9.4.1208.jre7</version>
           <scope>test</scope>
         </dependency>
       </dependencies>
@@ -411,7 +418,7 @@ under the License.
         <dependency>
           <groupId>mysql</groupId>
           <artifactId>mysql-connector-java</artifactId>
-          <version>5.1.36</version>
+          <version>5.1.39</version>
           <scope>test</scope>
         </dependency>
       </dependencies>
@@ -447,7 +454,7 @@ under the License.
         <dependency>
           <groupId>org.mariadb.jdbc</groupId>
           <artifactId>mariadb-java-client</artifactId>
-          <version>1.1.9</version>
+          <version>1.4.6</version>
           <scope>test</scope>
         </dependency>
       </dependencies>
@@ -511,15 +518,15 @@ under the License.
       <id>sqlserver-it</id>
 
       <properties>
-        <jdbcdriver.groupId>com.microsoft.sqlserver</jdbcdriver.groupId>
-        <jdbcdriver.artifactId>sqljdbc42</jdbcdriver.artifactId>
+        <jdbcdriver.groupId>net.sourceforge.jtds</jdbcdriver.groupId>
+        <jdbcdriver.artifactId>jtds</jdbcdriver.artifactId>
       </properties>
 
       <dependencies>
         <dependency>
-          <groupId>com.microsoft.sqlserver</groupId>
-          <artifactId>sqljdbc42</artifactId>
-          <version>4.2</version>
+          <groupId>net.sourceforge.jtds</groupId>
+          <artifactId>jtds</artifactId>
+          <version>1.3.1</version>
           <scope>test</scope>
         </dependency>
       </dependencies>
@@ -533,6 +540,7 @@ under the License.
             <filtering>true</filtering>
             <excludes>
               <exclude>provisioning.properties</exclude>
+              <exclude>views.xml</exclude>
             </excludes>
           </resource>
           <resource>
@@ -540,6 +548,16 @@ under the License.
             <filtering>true</filtering>
           </resource>
         </resources>
+        <!-- Views need to be customized, so the SQL Server-specific views.xml need to be copied to target/test-classes,
+        e.g. the conf directory, in order to override classpath:views.xml -->
+        <testResources>
+          <testResource>
+            <directory>src/main/resources/sqlserver</directory>
+            <includes>
+              <include>views.xml</include>
+            </includes>            
+          </testResource>
+        </testResources>
       </build>
     </profile>
     
@@ -589,7 +607,54 @@ under the License.
         </plugins>
       </build>
     </profile>
-    
+
+    <profile>
+      <id>payara-it</id>
+
+      <dependencies>
+        <dependency>
+          <groupId>org.apache.syncope.core</groupId>
+          <artifactId>syncope-core-persistence-jpa</artifactId>
+          <version>${project.version}</version>
+          <exclusions>
+            <exclusion>
+              <groupId>org.apache.bval</groupId>
+              <artifactId>bval-jsr</artifactId>
+            </exclusion>
+          </exclusions>
+        </dependency>
+
+        <dependency>
+          <groupId>com.h2database</groupId>
+          <artifactId>h2</artifactId>
+        </dependency>
+      </dependencies>
+
+      <build>
+        <defaultGoal>clean verify</defaultGoal>
+
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.cargo</groupId>
+            <artifactId>cargo-maven2-plugin</artifactId>
+            <inherited>true</inherited>
+            <configuration>
+              <container>
+                <containerId>glassfish4x</containerId>
+                <zipUrlInstaller>
+                  <url>https://s3-eu-west-1.amazonaws.com/payara.co/Payara+Downloads/Payara+4.1.1.162/payara-4.1.1.162.zip</url>
+                  <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
+                  <extractDir>${project.build.directory}/cargo/extract</extractDir>
+                </zipUrlInstaller>
+                <log>${cargo.log}</log>
+                <output>${cargo.output}</output>
+              </container>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
     <profile>
       <id>jboss-it</id>
 
@@ -791,119 +856,15 @@ under the License.
     
     <profile>
       <id>jrebel</id>
-
+      
       <properties>
-        <skipTests>true</skipTests>
+        <tomcat.version>8.0.36</tomcat.version>
       </properties>
-
+      
       <build>
         <defaultGoal>clean verify cargo:run</defaultGoal>
 
         <plugins>
-          <plugin>
-            <groupId>org.zeroturnaround</groupId>
-            <artifactId>jrebel-maven-plugin</artifactId>
-            <inherited>true</inherited>
-            <configuration>
-              <classpath>
-                <fallback>default</fallback>
-                <resources>
-                  <resource>
-                    <directory>${basedir}/../../common/lib/target/classes</directory>
-                  </resource>
-                  <resource>
-                    <directory>${basedir}/../../common/rest-api/target/classes</directory>
-                  </resource>
-
-                  <resource>
-                    <directory>${basedir}/../../core/logic/target/classes</directory>
-                    <excludes>
-                      <exclude>logicContext.xml</exclude>
-                    </excludes>
-                  </resource>
-                  <resource>
-                    <directory>${basedir}/../../core/rest-cxf/target/classes</directory>
-                    <excludes>
-                      <exclude>restCXFContext.xml</exclude>
-                    </excludes>
-                  </resource>
-                  <resource>
-                    <directory>${basedir}/../../core/spring/target/classes</directory>
-                    <excludes>
-                      <exclude>securityContext.xml</exclude>
-                    </excludes>
-                  </resource>
-                  <resource>
-                    <directory>${basedir}/../../core/persistence-api/target/classes</directory>
-                  </resource>
-                  <resource>
-                    <directory>${basedir}/../../core/persistence-jpa/target/classes</directory>
-                    <excludes>
-                      <exclude>persistenceContext.xml</exclude>
-                    </excludes>
-                  </resource>
-                  <resource>
-                    <directory>${basedir}/../../core/provisioning-api/target/classes</directory>
-                  </resource>
-                  <resource>
-                    <directory>${basedir}/../../core/provisioning-java/target/classes</directory>
-                    <excludes>
-                      <exclude>provisioningContext.xml</exclude>
-                    </excludes>
-                  </resource>
-                  <resource>
-                    <directory>${basedir}/../../core/workflow-api/target/classes</directory>
-                  </resource>
-                  <resource>
-                    <directory>${basedir}/../../core/workflow-java/target/classes</directory>
-                    <excludes>
-                      <exclude>workflowContext.xml</exclude>
-                    </excludes>
-                  </resource>
-                  <resource>
-                    <directory>${basedir}/../../core/workflow-activiti/target/classes</directory>
-                    <excludes>
-                      <exclude>workflowActivitiContext.xml</exclude>
-                    </excludes>
-                  </resource>
-
-                  <resource>
-                    <directory>${basedir}/../../ext/camel/common-lib/target/classes</directory>
-                  </resource>
-                  <resource>
-                    <directory>${basedir}/../../ext/camel/logic/target/classes</directory>
-                  </resource>
-                  <resource>
-                    <directory>${basedir}/../../ext/camel/provisioning-camel/target/classes</directory>
-                    <excludes>
-                      <exclude>provisioningCamelContext.xml</exclude>
-                    </excludes>
-                  </resource>
-                </resources>
-              </classpath>
-    
-              <web>
-                <resources>
-                  <resource>
-                    <target>/</target>
-                    <directory>${basedir}/../../ext/swagger-ui/target/classes/META-INF/resources</directory>
-                  </resource>
-                </resources>
-              </web>
-              
-              <alwaysGenerate>true</alwaysGenerate>
-            </configuration>
-            <executions>
-              <execution>
-                <id>generate-rebel-xml</id>
-                <phase>process-resources</phase>
-                <goals>
-                  <goal>generate</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-
           <plugin>
             <groupId>org.codehaus.cargo</groupId>
             <artifactId>cargo-maven2-plugin</artifactId>
@@ -929,6 +890,16 @@ under the License.
             </executions>
           </plugin>
         </plugins>
+        
+        <resources>
+          <resource>
+            <directory>src/test/resources</directory>
+            <filtering>true</filtering>
+            <includes>
+              <include>rebel.xml</include>
+            </includes>
+          </resource>
+        </resources>
       </build>
     </profile>
 
@@ -1085,6 +1056,14 @@ under the License.
             <artifactId>maven-deploy-plugin</artifactId>
             <configuration>
               <skip>true</skip>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <inherited>false</inherited>
+            <configuration>
+              <skipSource>true</skipSource>
             </configuration>
           </plugin>
         </plugins>

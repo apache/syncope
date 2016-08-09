@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.rest.api.service;
 
+import java.io.InputStream;
 import java.util.List;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
@@ -86,4 +87,35 @@ public interface RoleService extends JAXRSService {
     @DELETE
     @Path("{key}")
     void delete(@NotNull @PathParam("key") String key);
+
+    /**
+     * Gets the console layout information as JSON string for the role with the given key, if available.
+     *
+     * @param key role key
+     * @return console layout information as JSON string for the role with the given key, if available
+     */
+    @GET
+    @Path("{key}/consoleLayout")
+    @Produces({ MediaType.APPLICATION_JSON })
+    Response getConsoleLayoutInfo(@NotNull @PathParam("key") String key);
+
+    /**
+     * Sets the console layout information as JSON string for the role with the given key, if available.
+     *
+     * @param key role key
+     * @param consoleLayoutInfoIn console layout information to be set
+     */
+    @PUT
+    @Path("{key}/consoleLayout")
+    @Consumes({ MediaType.APPLICATION_JSON })
+    void setConsoleLayoutInfo(@NotNull @PathParam("key") String key, InputStream consoleLayoutInfoIn);
+
+    /**
+     * Removes the console layout information for the role with the given key, if available.
+     *
+     * @param key role key
+     */
+    @DELETE
+    @Path("{key}/consoleLayout")
+    void removeConsoleLayoutInfo(@NotNull @PathParam("key") String key);
 }

@@ -43,7 +43,7 @@ public class PropagationTaskTO extends AbstractTaskTO {
 
     private AnyTypeKind anyTypeKind;
 
-    private Long anyKey;
+    private String entityKey;
 
     public String getConnObjectKey() {
         return connObjectKey;
@@ -101,11 +101,11 @@ public class PropagationTaskTO extends AbstractTaskTO {
         this.anyTypeKind = anyTypeKind;
     }
 
-    public Long getAnyKey() {
-        return anyKey;
+    public String getEntityKey() {
+        return entityKey;
     }
 
-    public void setAnyKey(final Long anyKey) {
-        this.anyKey = anyKey;
+    public void setEntityKey(final String entityKey) {
+        this.entityKey = entityKey;
     }
 }

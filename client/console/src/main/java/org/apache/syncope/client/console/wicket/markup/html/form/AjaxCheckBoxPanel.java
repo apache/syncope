@@ -41,7 +41,7 @@ public class AjaxCheckBoxPanel extends FieldPanel<Boolean> {
         super(id, name, model);
 
         field = new CheckBox("checkboxField", model);
-        add(field.setLabel(new Model<String>(name)).setOutputMarkupId(true));
+        add(field.setLabel(new Model<>(name)).setOutputMarkupId(true));
 
         if (enableOnChange && !isReadOnly()) {
             field.add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {

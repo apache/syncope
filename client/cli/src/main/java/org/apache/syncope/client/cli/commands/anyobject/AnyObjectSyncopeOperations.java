@@ -21,10 +21,11 @@ package org.apache.syncope.client.cli.commands.anyobject;
 import java.util.List;
 import java.util.Set;
 import org.apache.syncope.client.cli.SyncopeServices;
+import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.types.SchemaType;
-import org.apache.syncope.common.rest.api.beans.AnyListQuery;
+import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.AnyObjectService;
 
 public class AnyObjectSyncopeOperations {
@@ -32,22 +33,24 @@ public class AnyObjectSyncopeOperations {
     private final AnyObjectService anyObjectService = SyncopeServices.get(AnyObjectService.class);
 
     public List<AnyObjectTO> list(final String type) {
-        return anyObjectService.list(type, new AnyListQuery()).getResult();
+        return anyObjectService.search(
+                new AnyQuery.Builder().fiql(SyncopeClient.getAnyObjectSearchConditionBuilder(type).query()).build()).
+                getResult();
     }
 
-    public AnyObjectTO read(final String anyId) {
-        return anyObjectService.read(Long.valueOf(anyId));
+    public AnyObjectTO read(final String anyKey) {
+        return anyObjectService.read(anyKey);
     }
 
-    public Set<AttrTO> readAttributes(final String anyId, final String schemaType) {
-        return anyObjectService.read(Long.valueOf(anyId), SchemaType.valueOf(schemaType));
+    public Set<AttrTO> readAttributes(final String anyKey, final String schemaType) {
+        return anyObjectService.read(anyKey, SchemaType.valueOf(schemaType));
     }
 
-    public AttrTO readAttribute(final String anyId, final String schemaType, final String schema) {
-        return anyObjectService.read(Long.valueOf(anyId), SchemaType.valueOf(schemaType), schema);
+    public AttrTO readAttribute(final String anyKey, final String schemaType, final String schema) {
+        return anyObjectService.read(anyKey, SchemaType.valueOf(schemaType), schema);
     }
 
-    public void delete(final String anyId) {
-        anyObjectService.delete(Long.valueOf(anyId));
+    public void delete(final String anyKey) {
+        anyObjectService.delete(anyKey);
     }
 }

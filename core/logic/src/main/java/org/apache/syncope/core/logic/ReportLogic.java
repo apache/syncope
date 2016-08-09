@@ -40,6 +40,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -61,6 +62,7 @@ import org.apache.syncope.common.lib.types.JobType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.logic.report.XSLTTransformer;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
+import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.xmlgraphics.util.MimeConstants;
 import org.quartz.JobKey;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,7 +70,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ReportLogic extends AbstractJobLogic<ReportTO> {
+public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
 
     @Autowired
     private ConfDAO confDAO;
@@ -146,7 +148,7 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_READ + "')")
-    public ReportTO read(final Long key) {
+    public ReportTO read(final String key) {
         Report report = reportDAO.find(key);
         if (report == null) {
             throw new NotFoundException("Report " + key);
@@ -155,7 +157,8 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_EXECUTE + "')")
-    public ExecTO execute(final Long key, final Date startAt) {
+    @Override
+    public ExecTO execute(final String key, final Date startAt, final boolean dryRun) {
         Report report = reportDAO.find(key);
         if (report == null) {
             throw new NotFoundException("Report " + key);
@@ -194,7 +197,7 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_READ + "')")
-    public ReportExec getReportExec(final Long executionKey) {
+    public ReportExec getReportExec(final String executionKey) {
         ReportExec reportExec = reportExecDAO.find(executionKey);
         if (reportExec == null) {
             throw new NotFoundException("Report execution " + executionKey);
@@ -232,7 +235,8 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
             switch (format) {
                 case HTML:
                     XSLTTransformer xsl2html = new XSLTTransformer(new StreamSource(
-                            IOUtils.toInputStream(reportExec.getReport().getTemplate().getHTMLTemplate())));
+                            IOUtils.toInputStream(reportExec.getReport().getTemplate().getHTMLTemplate(),
+                                    SyncopeConstants.DEFAULT_CHARSET)));
                     xsl2html.setParameters(parameters);
                     pipeline.addComponent(xsl2html);
                     pipeline.addComponent(XMLSerializer.createXHTMLSerializer());
@@ -240,7 +244,8 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
 
                 case PDF:
                     XSLTTransformer xsl2pdf = new XSLTTransformer(new StreamSource(
-                            IOUtils.toInputStream(reportExec.getReport().getTemplate().getFOTemplate())));
+                            IOUtils.toInputStream(reportExec.getReport().getTemplate().getFOTemplate(),
+                                    SyncopeConstants.DEFAULT_CHARSET)));
                     xsl2pdf.setParameters(parameters);
                     pipeline.addComponent(xsl2pdf);
                     pipeline.addComponent(new FopSerializer(MimeConstants.MIME_PDF));
@@ -248,7 +253,8 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
 
                 case RTF:
                     XSLTTransformer xsl2rtf = new XSLTTransformer(new StreamSource(
-                            IOUtils.toInputStream(reportExec.getReport().getTemplate().getFOTemplate())));
+                            IOUtils.toInputStream(reportExec.getReport().getTemplate().getFOTemplate(),
+                                    SyncopeConstants.DEFAULT_CHARSET)));
                     xsl2rtf.setParameters(parameters);
                     pipeline.addComponent(xsl2rtf);
                     pipeline.addComponent(new FopSerializer(MimeConstants.MIME_RTF));
@@ -256,7 +262,8 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
 
                 case CSV:
                     XSLTTransformer xsl2csv = new XSLTTransformer(new StreamSource(
-                            IOUtils.toInputStream(reportExec.getReport().getTemplate().getCSVTemplate())));
+                            IOUtils.toInputStream(reportExec.getReport().getTemplate().getCSVTemplate(),
+                                    SyncopeConstants.DEFAULT_CHARSET)));
                     xsl2csv.setParameters(parameters);
                     pipeline.addComponent(xsl2csv);
                     pipeline.addComponent(new TextSerializer());
@@ -280,7 +287,7 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_DELETE + "')")
-    public ReportTO delete(final Long key) {
+    public ReportTO delete(final String key) {
         Report report = reportDAO.find(key);
         if (report == null) {
             throw new NotFoundException("Report " + key);
@@ -292,7 +299,34 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
         return deletedReport;
     }
 
+    @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_READ + "')")
+    @Override
+    public int countExecutions(final String key) {
+        return reportExecDAO.count(key);
+    }
+
+    @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_READ + "')")
+    @Override
+    public List<ExecTO> listExecutions(
+            final String key, final int page, final int size, final List<OrderByClause> orderByClauses) {
+
+        Report report = reportDAO.find(key);
+        if (report == null) {
+            throw new NotFoundException("Report " + key);
+        }
+
+        return CollectionUtils.collect(reportExecDAO.findAll(report, page, size, orderByClauses),
+                new Transformer<ReportExec, ExecTO>() {
+
+            @Override
+            public ExecTO transform(final ReportExec reportExec) {
+                return binder.getExecTO(reportExec);
+            }
+        }, new ArrayList<ExecTO>());
+    }
+
     @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_LIST + "')")
+    @Override
     public List<ExecTO> listRecentExecutions(final int max) {
         return CollectionUtils.collect(reportExecDAO.findRecent(max), new Transformer<ReportExec, ExecTO>() {
 
@@ -304,7 +338,8 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_DELETE + "')")
-    public ExecTO deleteExecution(final Long executionKey) {
+    @Override
+    public ExecTO deleteExecution(final String executionKey) {
         ReportExec reportExec = reportExecDAO.find(executionKey);
         if (reportExec == null) {
             throw new NotFoundException("Report execution " + executionKey);
@@ -316,8 +351,9 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_DELETE + "')")
+    @Override
     public BulkActionResult deleteExecutions(
-            final Long key,
+            final String key,
             final Date startedBefore, final Date startedAfter, final Date endedBefore, final Date endedAfter) {
 
         Report report = reportDAO.find(key);
@@ -341,8 +377,8 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
     }
 
     @Override
-    protected Triple<JobType, Long, String> getReference(final JobKey jobKey) {
-        Long key = JobNamer.getReportKeyFromJobName(jobKey.getName());
+    protected Triple<JobType, String, String> getReference(final JobKey jobKey) {
+        String key = JobNamer.getReportKeyFromJobName(jobKey.getName());
 
         Report report = reportDAO.find(key);
         return report == null
@@ -350,41 +386,42 @@ public class ReportLogic extends AbstractJobLogic<ReportTO> {
                 : Triple.of(JobType.REPORT, key, binder.buildRefDesc(report));
     }
 
-    @Override
     @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_LIST + "')")
+    @Override
     public List<JobTO> listJobs() {
-        return super.listJobs();
+        return super.doListJobs();
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_EXECUTE + "')")
-    public void actionJob(final Long key, final JobAction action) {
+    @Override
+    public void actionJob(final String key, final JobAction action) {
         Report report = reportDAO.find(key);
         if (report == null) {
             throw new NotFoundException("Report " + key);
         }
 
-        actionJob(JobNamer.getJobKey(report), action);
+        doActionJob(JobNamer.getJobKey(report), action);
     }
 
     @Override
     protected ReportTO resolveReference(final Method method, final Object... args)
             throws UnresolvedReferenceException {
 
-        Long key = null;
+        String key = null;
 
         if (ArrayUtils.isNotEmpty(args) && ("create".equals(method.getName())
                 || "update".equals(method.getName())
                 || "delete".equals(method.getName()))) {
             for (int i = 0; key == null && i < args.length; i++) {
-                if (args[i] instanceof Long) {
-                    key = (Long) args[i];
+                if (args[i] instanceof String) {
+                    key = (String) args[i];
                 } else if (args[i] instanceof ReportTO) {
                     key = ((ReportTO) args[i]).getKey();
                 }
             }
         }
 
-        if ((key != null) && !key.equals(0L)) {
+        if (key != null) {
             try {
                 return binder.getReportTO(reportDAO.find(key));
             } catch (Throwable ignore) {

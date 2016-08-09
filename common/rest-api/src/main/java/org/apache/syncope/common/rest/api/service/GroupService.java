@@ -19,15 +19,18 @@
 package org.apache.syncope.common.rest.api.service;
 
 import java.util.List;
-import javax.ws.rs.BeanParam;
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import org.apache.syncope.common.lib.patch.GroupPatch;
+import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.GroupTO;
-import org.apache.syncope.common.lib.to.PagedResult;
-import org.apache.syncope.common.rest.api.beans.AnyListQuery;
+import org.apache.syncope.common.lib.to.TypeExtensionTO;
+import org.apache.syncope.common.lib.types.BulkMembersActionType;
 
 /**
  * REST operations for groups.
@@ -47,12 +50,29 @@ public interface GroupService extends AnyService<GroupTO, GroupPatch> {
     List<GroupTO> own();
 
     /**
-     * Returns a paged list of existing groups matching the given query.
+     * Extracts type extension information, for the provided group and any type.
      *
-     * @param listQuery query conditions
-     * @return paged list of existing groups matching the given query
+     * @param key group key
+     * @param anyTypeKey any type key
+     * @return type extension information, for the provided group and any type
      */
     @GET
+    @Path("{key}/{anyTypeKey}/typeExtension")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    PagedResult<GroupTO> list(@BeanParam AnyListQuery listQuery);
+    TypeExtensionTO readTypeExtension(
+            @NotNull @PathParam("key") String key,
+            @NotNull @PathParam("anyTypeKey") String anyTypeKey);
+
+    /**
+     * (De)provision all members of the given group from / onto all the resources associated to it.
+     *
+     * @param key group key
+     * @param actionType action type to perform on all group members
+     * @return execution report for the task generated on purpose
+     */
+    @POST
+    @Path("{key}/members/{actionType}")
+    ExecTO bulkMembersAction(
+            @NotNull @PathParam("key") String key,
+            @NotNull @PathParam("actionType") BulkMembersActionType actionType);
 }

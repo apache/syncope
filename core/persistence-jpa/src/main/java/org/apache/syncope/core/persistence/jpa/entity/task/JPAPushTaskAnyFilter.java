@@ -19,28 +19,24 @@
 package org.apache.syncope.core.persistence.jpa.entity.task;
 
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
-import org.apache.syncope.core.persistence.jpa.entity.AbstractEntity;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyType;
 import org.apache.syncope.core.persistence.api.entity.task.PushTaskAnyFilter;
+import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
 
 @Entity
 @Table(name = JPAPushTaskAnyFilter.TABLE, uniqueConstraints =
-        @UniqueConstraint(columnNames = { "pushTask_id", "anyType_name" }))
-public class JPAPushTaskAnyFilter extends AbstractEntity<Long> implements PushTaskAnyFilter {
+        @UniqueConstraint(columnNames = { "pushTask_id", "anyType_id" }))
+public class JPAPushTaskAnyFilter extends AbstractGeneratedKeyEntity implements PushTaskAnyFilter {
 
     private static final long serialVersionUID = 3517381731849788407L;
 
     public static final String TABLE = "PushTaskAnyFilter";
-
-    @Id
-    private Long id;
 
     @ManyToOne
     private JPAPushTask pushTask;
@@ -50,11 +46,6 @@ public class JPAPushTaskAnyFilter extends AbstractEntity<Long> implements PushTa
 
     @NotNull
     private String fiql;
-
-    @Override
-    public Long getKey() {
-        return id;
-    }
 
     @Override
     public PushTask getPushTask() {

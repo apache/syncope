@@ -30,98 +30,94 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
-import static org.junit.Assert.assertNotNull;
-
 @FixMethodOrder(MethodSorters.JVM)
 public class ParametersITCase extends AbstractConsoleITCase {
 
     @Before
     public void login() {
         doLogin(ADMIN_UNAME, ADMIN_PWD);
-        browsingToParameters();
+        TESTER.clickLink("body:configurationLI:configurationUL:parametersLI:parameters");
+        TESTER.assertRenderedPage(Parameters.class);
     }
 
     @Test
     public void readParameter() {
-        wicketTester.assertComponent("body:content:parametersPanel", WebMarkupContainer.class);
+        TESTER.assertComponent("body:content:parametersPanel", WebMarkupContainer.class);
         assertNotNull(findComponentByProp(SCHEMA, "body:content:parametersPanel", "token.expireTime"));
     }
 
     @Test
     public void createParameter() {
-        wicketTester.assertComponent("body:content:parametersPanel", WebMarkupContainer.class);
+        TESTER.assertComponent("body:content:parametersPanel", WebMarkupContainer.class);
 
-        wicketTester.clickLink("body:content:parametersPanel:container:content:add");
-        wicketTester.assertComponent("body:content:parametersPanel:modal", Modal.class);
+        TESTER.clickLink("body:content:parametersPanel:container:content:add");
+        TESTER.assertComponent("body:content:parametersPanel:outerObjectsRepeater:0:outer", Modal.class);
 
-        FormTester formTester = wicketTester.newFormTester("body:content:parametersPanel:modal:form");
+        FormTester formTester =
+                TESTER.newFormTester("body:content:parametersPanel:outerObjectsRepeater:0:outer:form");
         formTester.submit("content:parametersCreateWizardPanel:form:buttons:next");
 
-        formTester = wicketTester.newFormTester("body:content:parametersPanel:modal:form");
+        formTester = TESTER.newFormTester("body:content:parametersPanel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:parametersCreateWizardPanel:form:view:content:schema:textField", "testParam");
         formTester.setValue("content:parametersCreateWizardPanel:form:view:content:attrs:0:panel:textField", "test");
 
         formTester.submit("content:parametersCreateWizardPanel:form:buttons:finish");
 
-        wicketTester.assertInfoMessages("Operation executed successfully");
+        TESTER.assertInfoMessages("Operation executed successfully");
 
-        wicketTester.cleanupFeedbackMessages();
-        wicketTester.assertRenderedPage(Parameters.class);
+        TESTER.cleanupFeedbackMessages();
+        TESTER.assertRenderedPage(Parameters.class);
     }
 
     @Test
     public void updateParameter() {
-        wicketTester.assertComponent("body:content:parametersPanel", WebMarkupContainer.class);
+        TESTER.assertComponent("body:content:parametersPanel", WebMarkupContainer.class);
 
         Component result = findComponentByProp(SCHEMA, "body:content:parametersPanel", "token.expireTime");
         assertNotNull(result);
-        wicketTester.clickLink(result.getPageRelativePath() + ":cells:4:cell:panelEdit:editLink");
+        TESTER.clickLink(result.getPageRelativePath() + ":cells:4:cell:panelEdit:editLink");
 
-        FormTester formTester = wicketTester.newFormTester(
+        FormTester formTester = TESTER.newFormTester(
                 "body:content:parametersPanel:container:content:modalDetails:form");
 
         formTester.setValue("content:parametersDetailsPanel:container:parametersForm:panel:spinner", "70");
-        wicketTester.clickLink("body:content:parametersPanel:"
+        TESTER.clickLink("body:content:parametersPanel:"
                 + "container:content:modalDetails:dialog:footer:inputs:0:submit");
 
-        wicketTester.assertInfoMessages("Operation executed successfully");
-        wicketTester.cleanupFeedbackMessages();
-        wicketTester.assertRenderedPage(Parameters.class);
+        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.cleanupFeedbackMessages();
+        TESTER.assertRenderedPage(Parameters.class);
     }
 
     @Test
     public void deleteParameter() {
-        wicketTester.assertComponent("body:content:parametersPanel", WebMarkupContainer.class);
+        TESTER.assertComponent("body:content:parametersPanel", WebMarkupContainer.class);
 
-        wicketTester.clickLink("body:content:parametersPanel:container:content:add");
-        wicketTester.assertComponent("body:content:parametersPanel:modal", Modal.class);
+        TESTER.clickLink("body:content:parametersPanel:container:content:add");
+        TESTER.assertComponent("body:content:parametersPanel:outerObjectsRepeater:0:outer", Modal.class);
 
-        FormTester formTester = wicketTester.newFormTester("body:content:parametersPanel:modal:form");
+        FormTester formTester =
+                TESTER.newFormTester("body:content:parametersPanel:outerObjectsRepeater:0:outer:form");
         formTester.submit("content:parametersCreateWizardPanel:form:buttons:next");
 
-        formTester = wicketTester.newFormTester("body:content:parametersPanel:modal:form");
+        formTester = TESTER.newFormTester("body:content:parametersPanel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:parametersCreateWizardPanel:form:view:content:schema:textField", "deleteParam");
         formTester.setValue("content:parametersCreateWizardPanel:form:view:content:attrs:0:panel:textField", "test");
 
         formTester.submit("content:parametersCreateWizardPanel:form:buttons:finish");
 
-        wicketTester.assertInfoMessages("Operation executed successfully");
-        wicketTester.cleanupFeedbackMessages();
+        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.cleanupFeedbackMessages();
 
-        wicketTester.clickLink("body:content:parametersPanel:"
+        TESTER.clickLink("body:content:parametersPanel:"
                 + "container:content:searchContainer:resultTable:tablePanel:"
                 + "groupForm:checkgroup:dataTable:bottomToolbars:toolbars:3:span:navigator:last");
 
         Component result = findComponentByProp(SCHEMA, "body:content:parametersPanel", "deleteParam");
         assertNotNull(result);
-        wicketTester.clickLink(result.getPageRelativePath() + ":cells:4:cell:panelDelete:deleteLink");
+        TESTER.clickLink(result.getPageRelativePath() + ":cells:4:cell:panelDelete:deleteLink");
 
-        wicketTester.assertInfoMessages("Operation executed successfully");
-        wicketTester.cleanupFeedbackMessages();
-    }
-
-    private void browsingToParameters() {
-        wicketTester.clickLink("body:configurationLI:configurationUL:parametersLI:parameters");
-        wicketTester.assertRenderedPage(Parameters.class);
+        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.cleanupFeedbackMessages();
     }
 }

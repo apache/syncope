@@ -29,13 +29,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class JPASecurityQuestionDAO extends AbstractDAO<SecurityQuestion, Long> implements SecurityQuestionDAO {
+public class JPASecurityQuestionDAO extends AbstractDAO<SecurityQuestion> implements SecurityQuestionDAO {
 
     @Autowired
     private UserDAO userDAO;
 
     @Override
-    public SecurityQuestion find(final Long key) {
+    public SecurityQuestion find(final String key) {
         return entityManager().find(JPASecurityQuestion.class, key);
     }
 
@@ -52,7 +52,7 @@ public class JPASecurityQuestionDAO extends AbstractDAO<SecurityQuestion, Long> 
     }
 
     @Override
-    public void delete(final Long key) {
+    public void delete(final String key) {
         SecurityQuestion securityQuestion = find(key);
         if (securityQuestion == null) {
             return;

@@ -21,19 +21,16 @@ package org.apache.syncope.core.persistence.jpa.dao;
 import java.util.Collection;
 import java.util.List;
 import javax.persistence.TypedQuery;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
-import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
-import org.apache.syncope.core.persistence.jpa.entity.JPAAnyUtilsFactory;
 import org.apache.syncope.core.persistence.jpa.entity.JPADerSchema;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class JPADerSchemaDAO extends AbstractDAO<DerSchema, String> implements DerSchemaDAO {
+public class JPADerSchemaDAO extends AbstractDAO<DerSchema> implements DerSchemaDAO {
 
     @Autowired
     private ExternalResourceDAO resourceDAO;
@@ -49,7 +46,7 @@ public class JPADerSchemaDAO extends AbstractDAO<DerSchema, String> implements D
                 append(JPADerSchema.class.getSimpleName()).
                 append(" e WHERE ");
         for (AnyTypeClass anyTypeClass : anyTypeClasses) {
-            queryString.append("e.anyTypeClass.name='").append(anyTypeClass.getKey()).append("' OR ");
+            queryString.append("e.anyTypeClass.id='").append(anyTypeClass.getKey()).append("' OR ");
         }
 
         TypedQuery<DerSchema> query = entityManager().createQuery(
@@ -77,10 +74,7 @@ public class JPADerSchemaDAO extends AbstractDAO<DerSchema, String> implements D
             return;
         }
 
-        AnyUtilsFactory anyUtilsFactory = new JPAAnyUtilsFactory();
-        for (AnyTypeKind anyTypeKind : AnyTypeKind.values()) {
-            resourceDAO.deleteMapping(key, anyUtilsFactory.getInstance(anyTypeKind).derIntMappingType());
-        }
+        resourceDAO.deleteMapping(key);
 
         if (schema.getAnyTypeClass() != null) {
             schema.getAnyTypeClass().getDerSchemas().remove(schema);

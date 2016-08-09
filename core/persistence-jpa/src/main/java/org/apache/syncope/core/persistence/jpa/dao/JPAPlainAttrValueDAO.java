@@ -43,10 +43,10 @@ import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttrValue;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class JPAPlainAttrValueDAO extends AbstractDAO<PlainAttrValue, Long> implements PlainAttrValueDAO {
+public class JPAPlainAttrValueDAO extends AbstractDAO<PlainAttrValue> implements PlainAttrValueDAO {
 
     @SuppressWarnings("unchecked")
-    private <T extends PlainAttrValue> Class<? extends AbstractPlainAttrValue> getJPAEntityReference(
+    private <T extends PlainAttrValue> Class<? extends AbstractPlainAttrValue> getEntityReference(
             final Class<T> reference) {
 
         return AbstractPlainAttrValue.class.isAssignableFrom(reference)
@@ -71,14 +71,14 @@ public class JPAPlainAttrValueDAO extends AbstractDAO<PlainAttrValue, Long> impl
     }
 
     @Override
-    public <T extends PlainAttrValue> T find(final Long key, final Class<T> reference) {
-        return reference.cast(entityManager().find(getJPAEntityReference(reference), key));
+    public <T extends PlainAttrValue> T find(final String key, final Class<T> reference) {
+        return reference.cast(entityManager().find(getEntityReference(reference), key));
     }
 
     @Override
     public <T extends PlainAttrValue> List<T> findAll(final Class<T> reference) {
         TypedQuery<T> query = entityManager().createQuery(
-                "SELECT e FROM " + getJPAEntityReference(reference).getSimpleName() + " e", reference);
+                "SELECT e FROM " + getEntityReference(reference).getSimpleName() + " e", reference);
         return query.getResultList();
     }
 
@@ -88,8 +88,8 @@ public class JPAPlainAttrValueDAO extends AbstractDAO<PlainAttrValue, Long> impl
     }
 
     @Override
-    public <T extends PlainAttrValue> void delete(final Long id, final Class<T> reference) {
-        T attributeValue = find(id, reference);
+    public <T extends PlainAttrValue> void delete(final String key, final Class<T> reference) {
+        T attributeValue = find(key, reference);
         if (attributeValue == null) {
             return;
         }

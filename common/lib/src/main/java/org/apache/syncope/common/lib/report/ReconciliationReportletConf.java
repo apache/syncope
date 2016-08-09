@@ -51,10 +51,13 @@ public class ReconciliationReportletConf extends AbstractReportletConf {
 
     }
 
+    @SearchCondition(type = "USER")
     private String userMatchingCond;
 
+    @SearchCondition(type = "GROUP")
     private String groupMatchingCond;
 
+    @SearchCondition(type = "")
     private String anyObjectMatchingCond;
 
     private final List<Feature> features = new ArrayList<>();

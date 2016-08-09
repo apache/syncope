@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.jpa.dao;
 
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
@@ -33,20 +32,19 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
-public class JPAConfDAO extends AbstractDAO<Conf, Long> implements ConfDAO {
+public class JPAConfDAO extends AbstractDAO<Conf> implements ConfDAO {
+
+    private static final String KEY = "cd64d66f-6fff-4008-b966-a06b1cc1436d";
 
     @Autowired
     private PlainSchemaDAO schemaDAO;
 
-    @Autowired
-    private PlainAttrDAO attrDAO;
-
     @Override
     public Conf get() {
-        Conf instance = entityManager().find(JPAConf.class, 1L);
+        Conf instance = entityManager().find(JPAConf.class, KEY);
         if (instance == null) {
             instance = new JPAConf();
-            instance.setKey(1L);
+            instance.setKey(KEY);
 
             instance = entityManager().merge(instance);
         }
@@ -94,8 +92,8 @@ public class JPAConfDAO extends AbstractDAO<Conf, Long> implements ConfDAO {
         if (old != null && (!attr.getSchema().isUniqueConstraint()
                 || (!attr.getUniqueValue().getStringValue().equals(old.getUniqueValue().getStringValue())))) {
 
-            instance.getPlainAttrs().remove(old);
-            attrDAO.delete(old.getKey(), CPlainAttr.class);
+            old.setOwner(null);
+            instance.remove(old);
         }
 
         instance.add(attr);
@@ -109,8 +107,8 @@ public class JPAConfDAO extends AbstractDAO<Conf, Long> implements ConfDAO {
         Conf instance = get();
         CPlainAttr attr = instance.getPlainAttr(key);
         if (attr != null) {
-            instance.getPlainAttrs().remove(attr);
-            attrDAO.delete(attr.getKey(), CPlainAttr.class);
+            attr.setOwner(null);
+            instance.remove(attr);
 
             instance = entityManager().merge(instance);
         }

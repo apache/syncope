@@ -44,6 +44,14 @@ public class GroupValidator extends AbstractValidator<GroupCheck, Group> {
                     addPropertyNode("owner").addConstraintViolation();
         }
 
+        if (isValid && !KEY_PATTERN.matcher(group.getName()).matches()) {
+            isValid = false;
+
+            context.buildConstraintViolationWithTemplate(
+                    getTemplate(EntityViolationType.InvalidName, "Invalid group name")).
+                    addPropertyNode("name").addConstraintViolation();
+        }
+
         if (isValid) {
             Set<AnyType> anyTypes = new HashSet<>();
             for (ADynGroupMembership memb : group.getADynMemberships()) {

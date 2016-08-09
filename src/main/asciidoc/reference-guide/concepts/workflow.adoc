@@ -1,0 +1,156 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+//
+=== Workflow
+
+Workflow manages the internal identity lifecycle by defining statuses and transitions that every user, group or any
+object in Apache Syncope will traverse. A workflow instance is started once identities get created, and shut down when
+removed.
+
+Workflow is triggered during the <<provisioning,provisioning>> process as first step to create, update or delete
+identities into the internal storage.
+
+[NOTE]
+.Workflow Adapters
+====
+The workflow features are defined by the workflow adapter interfaces:
+
+ifeval::["{snapshotOrRelease}" == "release"]
+* https://github.com/apache/syncope/blob/syncope-{docVersion}/core/workflow-api/src/main/java/org/apache/syncope/core/workflow/api/UserWorkflowAdapter.java[UserWorkflowAdapter^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+* https://github.com/apache/syncope/blob/master/core/workflow-api/src/main/java/org/apache/syncope/core/workflow/api/UserWorkflowAdapter.java[UserWorkflowAdapter^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "release"]
+* https://github.com/apache/syncope/blob/syncope-{docVersion}/core/workflow-api/src/main/java/org/apache/syncope/core/workflow/api/GroupWorkflowAdapter.java[GroupWorkflowAdapter^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+* https://github.com/apache/syncope/blob/master/core/workflow-api/src/main/java/org/apache/syncope/core/workflow/api/GroupWorkflowAdapter.java[GroupWorkflowAdapter^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "release"]
+* https://github.com/apache/syncope/blob/syncope-{docVersion}/core/workflow-api/src/main/java/org/apache/syncope/core/workflow/api/AnyObjectWorkflowAdapter.java[AnyObjectWorkflowAdapter^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+* https://github.com/apache/syncope/blob/master/core/workflow-api/src/main/java/org/apache/syncope/core/workflow/api/AnyObjectWorkflowAdapter.java[AnyObjectWorkflowAdapter^]
+endif::[]
+
+Default implementations are available:
+
+ifeval::["{snapshotOrRelease}" == "release"]
+* https://github.com/apache/syncope/blob/syncope-{docVersion}/core/workflow-java/src/main/java/org/apache/syncope/core/workflow/java/DefaultUserWorkflowAdapter.java[DefaultUserWorkflowAdapter^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+* https://github.com/apache/syncope/blob/master/core/workflow-java/src/main/java/org/apache/syncope/core/workflow/java/DefaultUserWorkflowAdapter.java[DefaultUserWorkflowAdapter^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "release"]
+* https://github.com/apache/syncope/blob/syncope-{docVersion}/core/workflow-java/src/main/java/org/apache/syncope/core/workflow/java/DefaultGroupWorkflowAdapter.java[DefaultGroupWorkflowAdapter^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+* https://github.com/apache/syncope/blob/master/core/workflow-java/src/main/java/org/apache/syncope/core/workflow/java/DefaultGroupWorkflowAdapter.java[DefaultGroupWorkflowAdapter^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "release"]
+* https://github.com/apache/syncope/blob/syncope-{docVersion}/core/workflow-java/src/main/java/org/apache/syncope/core/workflow/java/DefaultAnyObjectWorkflowAdapter.java[DefaultAnyObjectWorkflowAdapter^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+* https://github.com/apache/syncope/blob/master/core/workflow-java/src/main/java/org/apache/syncope/core/workflow/java/DefaultAnyObjectWorkflowAdapter.java[DefaultAnyObjectWorkflowAdapter^]
+endif::[]
+
+Custom adapters can be provided by implementing the related interfaces, also as bridges towards third-party tools as 
+https://camunda.org/[Camunda^] or http://jbpm.jboss.org/[jBPM^].
+====
+
+==== Activiti User Workflow Adapter
+
+An advanced adapter is provided for users, based on http://www.activiti.org/[Activiti BPM^], the reference open source 
+http://www.bpmn.org/[BPMN 2.0^] implementation.
+
+The
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/workflow-activiti/src/main/java/org/apache/syncope/core/workflow/activiti/ActivitiUserWorkflowAdapter.java[ActivitiUserWorkflowAdapter^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/core/workflow-activiti/src/main/java/org/apache/syncope/core/workflow/activiti/ActivitiUserWorkflowAdapter.java[ActivitiUserWorkflowAdapter^]
+endif::[]
+is bootstrapped from
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/workflow-activiti/src/main/resources/userWorkflow.bpmn20.xml[userWorkflow.bpmn20.xml^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/core/workflow-activiti/src/main/resources/userWorkflow.bpmn20.xml[userWorkflow.bpmn20.xml^]
+endif::[]
+and presents several advantages and more features, if compared to the default user adapter:
+
+. Besides mandatory statuses, which are modeled as BPMN `userTask` instances, more can be freely added
+at runtime, provided that adequate transitions and conditions are also inserted; more details about available BPMN
+constructs in the http://www.activiti.org/userguide/index.html#bpmnConstructs[Activiti User Guide^]. +
+Additional statuses and transitions allow the internal processes of Apache Syncope to better adapt to suit organizational flows.
+. Custom logic can be injected into the workflow process by providing BPMN `serviceTask` instances.
+. http://www.activiti.org/userguide/index.html#forms[Activiti forms^] are used for implementing <<approval,approval>>.
+. The http://www.activiti.org/userguide/index.html#activitiModeler[Activiti Modeler^] can be enabled in the
+<<admin-console,admin console>>, thus allowing web-based graphical modeling of the workflow definition.
+
+[.text-center]
+image::userWorkflow.png[title="Default Activiti user workflow",alt="Default Activiti user workflow"] 
+
+===== Approval
+
+Every transition in the Activiti user workflow definition can be subjected to approval.
+
+The underlying idea is that some kind of self-modifications (group memberships, external resource assignments, ...)
+might not be allowed to 'plain' users, as there could be conditions which require management approval.
+Managers could also be asked for completing the information provided before the requested operation is completed.
+
+In order to define an approval form, a dedicated BPMN `userTask` needs to be defined, following the rules established
+for http://www.activiti.org/userguide/index.html#forms[Activiti forms^].
+
+[[sample-selfreg-approval]]
+.Approving self-registration
+====
+The snippet below shows how to define an approval form in XML; the same operation can be performed via the
+http://www.activiti.org/userguide/index.html#activitiModeler[Activiti Modeler^].
+
+[source,xml]
+----
+<userTask id="createApproval" name="Create approval"
+          activiti:candidateGroups="managingDirector" activiti:formKey="createApproval"> // <1>
+  <extensionElements>
+    <activiti:formProperty id="username" name="Username" type="string"
+                           expression="${user.username}" writable="false"/> // <2>
+    <activiti:formProperty id="approve" name="Approve?" type="boolean"
+                           variable="approve" required="true"/> // <3>
+    <activiti:formProperty id="rejectReason" name="Reason for rejecting" type="string"
+                           variable="rejectReason"/>
+  </extensionElements>
+</userTask>
+----
+<1> `formKey` and `id` must be unique across the workflow definition, `name` is displayed by the admin console;
+`candidateGroups` and `candidateUsers` might be defined, even both, to indicate which groups or users should be
+managing these approvals
+<2> `expression` will be evaluated against the current requesting `user` (as workflow variable) and related properties;
+read-only form input can be defined by setting `writable="false"`
+<3> exporting approval inputs into workflow variables is possible via the `variable` attribute; required form input can
+be defined by setting `required="true"`
+====
+
+Once the form is defined, any modification subject to that approval will be manageable via admin console, according to
+the following flow (the actual operations on admin console for the sample above are reported <<console-approval,below>>):
+
+. administrator A sees the new approval notifications +
+. administrator A claims the approval and is then allowed to manage it
+. administrator A reviews the updated user, with ongoing modification applied (no actual modification performed yet)
+. administrator A can approve or reject such modification

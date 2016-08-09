@@ -53,7 +53,7 @@ public class AnyObjectTest extends AbstractTest {
 
     @Test
     public void find() {
-        AnyObject anyObject = anyObjectDAO.find(2L);
+        AnyObject anyObject = anyObjectDAO.find("8559d14d-58c2-46eb-a2d4-a7d35161e8f8");
         assertNotNull(anyObject);
         assertNotNull(anyObject.getType());
         assertFalse(anyObject.getType().getClasses().isEmpty());
@@ -62,8 +62,9 @@ public class AnyObjectTest extends AbstractTest {
     @Test
     public void save() {
         AnyObject anyObject = entityFactory.newEntity(AnyObject.class);
+        anyObject.setName("a name");
         anyObject.setType(anyTypeDAO.find("PRINTER"));
-        anyObject.setRealm(realmDAO.find(SyncopeConstants.ROOT_REALM));
+        anyObject.setRealm(realmDAO.findByFullPath(SyncopeConstants.ROOT_REALM));
 
         anyObject = anyObjectDAO.save(anyObject);
         assertNotNull(anyObject);
@@ -71,10 +72,10 @@ public class AnyObjectTest extends AbstractTest {
 
     @Test
     public void delete() {
-        AnyObject anyObject = anyObjectDAO.find(2L);
+        AnyObject anyObject = anyObjectDAO.find("8559d14d-58c2-46eb-a2d4-a7d35161e8f8");
         anyObjectDAO.delete(anyObject.getKey());
 
-        AnyObject actual = anyObjectDAO.find(2L);
+        AnyObject actual = anyObjectDAO.find("8559d14d-58c2-46eb-a2d4-a7d35161e8f8");
         assertNull(actual);
     }
 }

@@ -20,21 +20,25 @@ package org.apache.syncope.client.console.wizards.any;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.commons.status.StatusUtils;
+import org.apache.syncope.client.console.layout.UserForm;
+import org.apache.syncope.client.console.layout.UserFormLayoutInfo;
 import org.apache.syncope.client.console.rest.UserRestClient;
+import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.PageReference;
-import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.util.ListModel;
 
-public class UserWizardBuilder extends AnyWizardBuilder<UserTO> {
+public class UserWizardBuilder extends AnyWizardBuilder<UserTO> implements UserForm {
 
     private static final long serialVersionUID = 6716803168859873877L;
 
@@ -42,43 +46,50 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> {
 
     private final IModel<List<StatusBean>> statusModel;
 
-    /**
-     * Construct.
-     *
-     * @param id The component id
-     * @param userTO any
-     * @param anyTypeClasses any type classes
-     * @param pageRef Caller page reference.
-     */
     public UserWizardBuilder(
-            final String id,
             final UserTO userTO,
             final List<String> anyTypeClasses,
+            final UserFormLayoutInfo formLayoutInfo,
             final PageReference pageRef) {
-        super(id, userTO, anyTypeClasses, pageRef);
+
+        super(new UserWrapper(userTO), anyTypeClasses, formLayoutInfo, pageRef);
         statusModel = new ListModel<>(new ArrayList<StatusBean>());
     }
 
     @Override
-    protected Serializable onApplyInternal(final AnyHandler<UserTO> modelObject) {
-        final ProvisioningResult<UserTO> actual;
+    protected Serializable onApplyInternal(final AnyWrapper<UserTO> modelObject) {
+        UserTO inner = modelObject.getInnerObject();
 
-        final UserTO inner = modelObject.getInnerObject();
-
-        if (inner.getKey() == null || inner.getKey() == 0) {
-            actual = userRestClient.create(inner, StringUtils.isNotBlank(inner.getPassword()));
+        ProvisioningResult<UserTO> actual;
+        if (inner.getKey() == null) {
+            actual = userRestClient.create(inner, modelObject instanceof UserWrapper
+                    ? UserWrapper.class.cast(modelObject).isStorePasswordInSyncope()
+                    : StringUtils.isNotBlank(inner.getPassword()));
         } else {
-            final UserPatch patch = AnyOperations.diff(inner, getOriginalItem().getInnerObject(), false);
+            UserPatch patch = AnyOperations.diff(inner, getOriginalItem().getInnerObject(), false);
+
+            Set<String> origResourceSet = getOriginalItem().getInnerObject().getResources();
+            Set<String> newResourceSet = new HashSet<>(inner.getResources());
+
+            newResourceSet.removeAll(origResourceSet);
+            for (StatusBean sb : statusModel.getObject()) {
+                newResourceSet.remove(sb.getResourceName());
+            }
+
+            for (String res : newResourceSet) {
+                statusModel.getObject().add(new StatusBean(inner, res));
+            }
+
             if (!statusModel.getObject().isEmpty()) {
                 patch.setPassword(StatusUtils.buildPasswordPatch(inner.getPassword(), statusModel.getObject()));
             }
 
-            // update user just if it is changed
-            if (!patch.isEmpty()) {
-                actual = userRestClient.update(getOriginalItem().getInnerObject().getETagValue(), patch);
-            } else {
+            // update just if it is changed
+            if (patch.isEmpty()) {
                 actual = new ProvisioningResult<>();
-                actual.setAny(inner);
+                actual.setEntity(inner);
+            } else {
+                actual = userRestClient.update(getOriginalItem().getInnerObject().getETagValue(), patch);
             }
         }
 
@@ -86,12 +97,13 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> {
     }
 
     @Override
-    protected UserWizardBuilder addOptionalDetailsPanel(
-            final AnyHandler<UserTO> modelObject, final WizardModel wizardModel) {
-        wizardModel.add(new UserDetails(
-                modelObject, statusModel, false, false, pageRef,
-                modelObject.getInnerObject().getKey() != null && modelObject.getInnerObject().getKey() > 0));
-        return this;
+    protected Details<UserTO> addOptionalDetailsPanel(final AnyWrapper<UserTO> modelObject) {
+
+        return new UserDetails(
+                UserWrapper.class.cast(modelObject), statusModel, mode == AjaxWizard.Mode.TEMPLATE,
+                modelObject.getInnerObject().getKey() != null,
+                UserFormLayoutInfo.class.cast(formLayoutInfo).isPasswordManagement(),
+                pageRef);
     }
 
     /**
@@ -101,8 +113,8 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> {
      * @return the current wizard.
      */
     @Override
-    public UserWizardBuilder setItem(final AnyHandler<UserTO> item) {
-        super.setItem(item);
+    public UserWizardBuilder setItem(final AnyWrapper<UserTO> item) {
+        super.setItem(item == null ? null : new UserWrapper(item.getInnerObject()));
         statusModel.getObject().clear();
         return this;
     }

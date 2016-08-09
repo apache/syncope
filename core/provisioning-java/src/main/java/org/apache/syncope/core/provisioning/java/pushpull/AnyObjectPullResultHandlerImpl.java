@@ -21,7 +21,6 @@ package org.apache.syncope.core.provisioning.java.pushpull;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -45,7 +44,7 @@ public class AnyObjectPullResultHandlerImpl extends AbstractPullResultHandler im
 
     @Override
     protected String getName(final AnyTO anyTO) {
-        return StringUtils.EMPTY;
+        return AnyObjectTO.class.cast(anyTO).getName();
     }
 
     @Override
@@ -54,7 +53,7 @@ public class AnyObjectPullResultHandlerImpl extends AbstractPullResultHandler im
     }
 
     @Override
-    protected Any<?> getAny(final long key) {
+    protected Any<?> getAny(final String key) {
         try {
             return anyObjectDAO.authFind(key);
         } catch (Exception e) {
@@ -64,19 +63,19 @@ public class AnyObjectPullResultHandlerImpl extends AbstractPullResultHandler im
     }
 
     @Override
-    protected AnyTO getAnyTO(final long key) {
+    protected AnyTO getAnyTO(final String key) {
         return anyObjectDataBinder.getAnyObjectTO(key);
     }
 
     @Override
-    protected AnyPatch newPatch(final long key) {
+    protected AnyPatch newPatch(final String key) {
         AnyObjectPatch patch = new AnyObjectPatch();
         patch.setKey(key);
         return patch;
     }
 
     @Override
-    protected WorkflowResult<Long> update(final AnyPatch patch) {
+    protected WorkflowResult<String> update(final AnyPatch patch) {
         return awfAdapter.update((AnyObjectPatch) patch);
     }
 
@@ -84,7 +83,7 @@ public class AnyObjectPullResultHandlerImpl extends AbstractPullResultHandler im
     protected AnyTO doCreate(final AnyTO anyTO, final SyncDelta delta, final ProvisioningReport result) {
         AnyObjectTO anyObjectTO = AnyObjectTO.class.cast(anyTO);
 
-        Map.Entry<Long, List<PropagationStatus>> created = anyObjectProvisioningManager.create(
+        Map.Entry<String, List<PropagationStatus>> created = anyObjectProvisioningManager.create(
                 anyObjectTO, Collections.singleton(profile.getTask().getResource().getKey()), true);
 
         result.setKey(created.getKey());
@@ -102,7 +101,7 @@ public class AnyObjectPullResultHandlerImpl extends AbstractPullResultHandler im
 
         AnyObjectPatch anyObjectPatch = AnyObjectPatch.class.cast(anyPatch);
 
-        Map.Entry<Long, List<PropagationStatus>> updated =
+        Map.Entry<String, List<PropagationStatus>> updated =
                 anyObjectProvisioningManager.update(anyObjectPatch, true);
 
         AnyObjectTO after = anyObjectDataBinder.getAnyObjectTO(updated.getKey());

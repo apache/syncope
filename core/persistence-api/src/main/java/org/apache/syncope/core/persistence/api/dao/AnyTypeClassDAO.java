@@ -21,7 +21,7 @@ package org.apache.syncope.core.persistence.api.dao;
 import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 
-public interface AnyTypeClassDAO extends DAO<AnyTypeClass, String> {
+public interface AnyTypeClassDAO extends DAO<AnyTypeClass> {
 
     AnyTypeClass find(String key);
 

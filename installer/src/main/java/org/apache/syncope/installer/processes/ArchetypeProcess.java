@@ -138,14 +138,15 @@ public class ArchetypeProcess extends BaseProcess {
         fileSystemUtils.createDirectory(modelerDirectory);
 
         if (activiti) {
-            fileSystemUtils.copyFileFromResources(File.separator + PROPERTIES.getProperty("modelerPomFile"),
+            fileSystemUtils.copyFileFromResources(
+                    File.separator + PROPERTIES.getProperty("modelerPomFile"),
                     modelerDirectory + File.separator + PROPERTIES.getProperty("pomFile"), handler);
 
-            final File modelerPomFile = new File(modelerDirectory + File.separator + PROPERTIES.getProperty("pomFile"));
+            File modelerPomFile = new File(modelerDirectory + File.separator + PROPERTIES.getProperty("pomFile"));
 
-            final String contentModelerPomFile = fileSystemUtils.readFile(modelerPomFile);
-            fileSystemUtils.
-                    writeToFile(modelerPomFile, String.format(contentModelerPomFile, modelerDirectory));
+            String contentModelerPomFile =
+                    fileSystemUtils.readFile(modelerPomFile).replace("${syncope.version}", syncopeVersion);
+            fileSystemUtils.writeToFile(modelerPomFile, String.format(contentModelerPomFile, modelerDirectory));
             fileSystemUtils.copyFile(
                     syncopeInstallDir
                     + PROPERTIES.getProperty("consoleResDirectory")
@@ -158,7 +159,7 @@ public class ArchetypeProcess extends BaseProcess {
                     modelerDirectory + File.separator + PROPERTIES.getProperty("saveModel"));
 
             final Properties modelerProperties = new Properties();
-            modelerProperties.setProperty("modeler.directory", modelerDirectory);
+            modelerProperties.setProperty("activiti-modeler.directory", modelerDirectory);
             mavenUtils.mvnCleanPackageWithProperties(modelerDirectory, modelerProperties, customMavenProxySettings);
             FileSystemUtils.delete(new File(modelerDirectory + File.separator + PROPERTIES.getProperty("saveModel")));
             FileSystemUtils.delete(new File(modelerDirectory + File.separator + PROPERTIES.getProperty("urlConfig")));

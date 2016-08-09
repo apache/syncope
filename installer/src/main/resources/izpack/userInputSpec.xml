@@ -17,15 +17,20 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<userInput>
-  <panel id="archetype" order="1" border="false">
+<izpack:userinput version="5.0"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xmlns:izpack="http://izpack.org/schema/userinput"
+                  xsi:schemaLocation="http://izpack.org/schema/userinput
+                                      http://izpack.org/schema/5.0/izpack-userinput-5.0.xsd">  
+
+  <panel id="archetype">
     <field type="title" txt="Maven" bold="true" size="2" />
     
     <field type="divider"/>
     <field type="space"/>
     
     <field type="dir" variable="mvn.directory">
-      <spec id="mvn.directory.id" size="20" set="${ENV[M2_HOME]}"/>
+      <spec id="mvn.directory.id" size="50" set="${ENV[M2_HOME]}"/>
     </field>
     <field type="space"/>
     <field type="text" variable="mvn.groupid">
@@ -95,7 +100,7 @@ under the License.
     </field>
   </panel>
   
-  <panel id="syncope_options" order="2" border="false">
+  <panel id="syncope_options">
     <field type="title" txt="Syncope options" bold="true" size="2" />
     
     <field type="divider"/>
@@ -117,7 +122,7 @@ under the License.
     </field>
   </panel>
   
-  <panel id="persistence" order="3" border="false">
+  <panel id="persistence">
     <field type="title" txt="Database" bold="true" size="2" />
     
     <field type="divider"/>
@@ -134,7 +139,7 @@ under the License.
     </field>
   </panel>
   
-  <panel id="persistence_advanced" order="3" border="false">
+  <panel id="persistence_advanced">
     <field type="title" txt="Database settings" bold="true" size="2" />
     
     <field type="divider"/>
@@ -170,7 +175,7 @@ under the License.
     </field>
   </panel>
   
-  <panel id="container" order="4" border="false">
+  <panel id="container">
     <field type="title" txt="Application Server" bold="true" size="2" />
     
     <field type="divider"/>
@@ -192,7 +197,7 @@ under the License.
     </field>
   </panel>
   
-  <panel id="container_advanced" order="4" border="false">
+  <panel id="container_advanced">
     <field type="title" txt="Application Server Settings" bold="true" size="2" />
     
     <field type="divider"/>
@@ -262,4 +267,4 @@ under the License.
       <spec id="jboss.container.management.port.id" size="20" set="9990"/>
     </field> 
   </panel>
-</userInput>
+</izpack:userinput>

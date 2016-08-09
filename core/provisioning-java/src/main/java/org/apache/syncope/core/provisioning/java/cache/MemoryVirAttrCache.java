@@ -52,19 +52,11 @@ public class MemoryVirAttrCache implements VirAttrCache {
         this.maxCacheSize = maxCacheSize;
     }
 
-    /**
-     * Cache virtual attribute values.
-     *
-     * @param type any object type
-     * @param key any key
-     * @param schemaName virtual attribute name
-     * @param value virtual attribute values
-     */
     @Override
     public void put(
             final String type,
-            final Long key,
-            final String schemaName,
+            final String key,
+            final String schemaKey,
             final VirAttrCacheValue value) {
 
         synchronized (cache) {
@@ -73,33 +65,18 @@ public class MemoryVirAttrCache implements VirAttrCache {
                 free();
             }
 
-            cache.put(new VirAttrCacheKey(type, key, schemaName), value);
+            cache.put(new VirAttrCacheKey(type, key, schemaKey), value);
         }
     }
 
-    /**
-     * Retrieve cached value. Return null in case of virtual attribute not cached.
-     *
-     * @param type any object type
-     * @param key any key
-     * @param schemaName virtual attribute schema name.
-     * @return cached values or null if virtual attribute is not cached.
-     */
     @Override
-    public VirAttrCacheValue get(final String type, final Long key, final String schemaName) {
-        return cache.get(new VirAttrCacheKey(type, key, schemaName));
+    public VirAttrCacheValue get(final String type, final String key, final String schemaKey) {
+        return cache.get(new VirAttrCacheKey(type, key, schemaKey));
     }
 
-    /**
-     * Force entry expiring.
-     *
-     * @param type any object type
-     * @param key any key
-     * @param schemaName virtual attribute schema name
-     */
     @Override
-    public void expire(final String type, final Long key, final String schemaName) {
-        final VirAttrCacheValue value = cache.get(new VirAttrCacheKey(type, key, schemaName));
+    public void expire(final String type, final String key, final String schemaKey) {
+        final VirAttrCacheValue value = cache.get(new VirAttrCacheKey(type, key, schemaKey));
         if (isValidEntry(value)) {
             synchronized (cache) {
                 value.forceExpiring();

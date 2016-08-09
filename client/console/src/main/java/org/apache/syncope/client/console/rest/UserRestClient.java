@@ -19,52 +19,36 @@
 package org.apache.syncope.client.console.rest;
 
 import java.util.List;
+import java.util.Map;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.commons.status.StatusUtils;
 import org.apache.syncope.common.lib.patch.BooleanReplacePatchItem;
 import org.apache.syncope.common.lib.patch.StatusPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
-import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
-import org.apache.syncope.common.lib.to.ConnObjectTO;
+import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.StatusPatchType;
-import org.apache.syncope.common.rest.api.beans.AnyListQuery;
-import org.apache.syncope.common.rest.api.beans.AnySearchQuery;
+import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.AnyService;
-import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 
 /**
  * Console client for invoking rest users services.
  */
-public class UserRestClient extends AbstractAnyRestClient<UserTO> {
+public class UserRestClient extends AbstractAnyRestClient<UserTO, UserPatch> {
 
     private static final long serialVersionUID = -1575748964398293968L;
 
     @Override
-    protected Class<? extends AnyService<?, ?>> getAnyServiceClass() {
+    protected Class<? extends AnyService<UserTO, UserPatch>> getAnyServiceClass() {
         return UserService.class;
-    }
-
-    @Override
-    public int count(final String realm, final String type) {
-        return getService(UserService.class).
-                list(new AnyListQuery.Builder().realm(realm).page(1).size(1).build()).
-                getTotalCount();
-    }
-
-    @Override
-    public List<UserTO> list(final String realm, final int page, final int size, final SortParam<String> sort,
-            final String type) {
-        return getService(UserService.class).
-                list(new AnyListQuery.Builder().realm(realm).page(page).size(size).
-                        orderBy(toOrderBy(sort)).details(false).build()).getResult();
     }
 
     public ProvisioningResult<UserTO> create(final UserTO userTO, final boolean storePassword) {
@@ -73,31 +57,10 @@ public class UserRestClient extends AbstractAnyRestClient<UserTO> {
         });
     }
 
-    public ProvisioningResult<UserTO> update(final String etag, final UserPatch userPatch) {
-        ProvisioningResult<UserTO> result;
-        synchronized (this) {
-            UserService service = getService(etag, UserService.class);
-            result = service.update(userPatch).readEntity(new GenericType<ProvisioningResult<UserTO>>() {
-            });
-            resetClient(UserService.class);
-        }
-        return result;
-    }
-
-    @Override
-    public ProvisioningResult<UserTO> delete(final String etag, final Long key) {
-        return delete(UserService.class, UserTO.class, etag, key);
-    }
-
-    @Override
-    public UserTO read(final Long key) {
-        return getService(UserService.class).read(key);
-    }
-
     @Override
     public int searchCount(final String realm, final String fiql, final String type) {
         return getService(UserService.class).
-                search(new AnySearchQuery.Builder().realm(realm).fiql(fiql).page(1).size(1).build()).
+                search(new AnyQuery.Builder().realm(realm).fiql(fiql).page(1).size(1).build()).
                 getTotalCount();
     }
 
@@ -107,46 +70,74 @@ public class UserRestClient extends AbstractAnyRestClient<UserTO> {
             final String type) {
 
         return getService(UserService.class).
-                search(new AnySearchQuery.Builder().realm(realm).fiql(fiql).page(page).size(size).
+                search(new AnyQuery.Builder().realm(realm).fiql(fiql).page(page).size(size).
                         orderBy(toOrderBy(sort)).details(false).build()).getResult();
     }
 
-    @Override
-    public ConnObjectTO readConnObject(final String resourceName, final Long id) {
-        return getService(ResourceService.class).readConnObject(resourceName, AnyTypeKind.USER.name(), id);
-    }
-
-    public ProvisioningResult<UserTO> mustChangePassword(final String etag, final Long key) {
+    public ProvisioningResult<UserTO> mustChangePassword(final String etag, final boolean value, final String key) {
         final UserPatch userPatch = new UserPatch();
         userPatch.setKey(key);
-        userPatch.setMustChangePassword(new BooleanReplacePatchItem.Builder().value(true).build());
+        userPatch.setMustChangePassword(new BooleanReplacePatchItem.Builder().value(value).build());
         return update(etag, userPatch);
     }
 
-    public void suspend(final String etag, final long userKey, final List<StatusBean> statuses) {
+    public BulkActionResult suspend(final String etag, final String userKey, final List<StatusBean> statuses) {
         StatusPatch statusPatch = StatusUtils.buildStatusPatch(statuses, false);
         statusPatch.setKey(userKey);
         statusPatch.setType(StatusPatchType.SUSPEND);
+
+        BulkActionResult result;
         synchronized (this) {
+            result = new BulkActionResult();
+            Map<String, BulkActionResult.Status> res = result.getResults();
             UserService service = getService(etag, UserService.class);
-            service.status(statusPatch);
+
+            @SuppressWarnings("unchecked")
+            ProvisioningResult<UserTO> provisions = (ProvisioningResult<UserTO>) service.status(statusPatch).
+                    readEntity(ProvisioningResult.class);
+
+            if (statusPatch.isOnSyncope()) {
+                res.put(StringUtils.capitalize(Constants.SYNCOPE),
+                        "suspended".equalsIgnoreCase(provisions.getEntity().getStatus())
+                        ? BulkActionResult.Status.SUCCESS
+                        : BulkActionResult.Status.FAILURE);
+            }
+
+            for (PropagationStatus status : provisions.getPropagationStatuses()) {
+                res.put(status.getResource(), BulkActionResult.Status.valueOf(status.getStatus().name()));
+            }
             resetClient(UserService.class);
         }
+        return result;
     }
 
-    public void reactivate(final String etag, final long userKey, final List<StatusBean> statuses) {
+    public BulkActionResult reactivate(final String etag, final String userKey, final List<StatusBean> statuses) {
         StatusPatch statusPatch = StatusUtils.buildStatusPatch(statuses, true);
         statusPatch.setKey(userKey);
         statusPatch.setType(StatusPatchType.REACTIVATE);
+
+        BulkActionResult result;
         synchronized (this) {
+            result = new BulkActionResult();
+            Map<String, BulkActionResult.Status> res = result.getResults();
             UserService service = getService(etag, UserService.class);
-            service.status(statusPatch);
+
+            @SuppressWarnings("unchecked")
+            ProvisioningResult<UserTO> provisions = (ProvisioningResult<UserTO>) service.status(statusPatch).
+                    readEntity(ProvisioningResult.class);
+
+            if (statusPatch.isOnSyncope()) {
+                res.put(StringUtils.capitalize(Constants.SYNCOPE),
+                        "active".equalsIgnoreCase(provisions.getEntity().getStatus())
+                        ? BulkActionResult.Status.SUCCESS
+                        : BulkActionResult.Status.FAILURE);
+            }
+
+            for (PropagationStatus status : provisions.getPropagationStatuses()) {
+                res.put(status.getResource(), BulkActionResult.Status.valueOf(status.getStatus().name()));
+            }
             resetClient(UserService.class);
         }
-    }
-
-    @Override
-    public BulkActionResult bulkAction(final BulkAction action) {
-        return getService(UserService.class).bulk(action);
+        return result;
     }
 }

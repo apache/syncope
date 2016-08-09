@@ -29,15 +29,17 @@ import org.apache.syncope.common.lib.AbstractBaseBean;
 
 @XmlRootElement(name = "provision")
 @XmlType
-public class ProvisionTO extends AbstractBaseBean implements EntityTO<Long> {
+public class ProvisionTO extends AbstractBaseBean implements EntityTO {
 
     private static final long serialVersionUID = 8298910216218007927L;
 
-    private Long key;
+    private String key;
 
     private String anyType;
 
     private String objectClass;
+
+    private final List<String> auxClasses = new ArrayList<>();
 
     private String syncToken;
 
@@ -46,12 +48,12 @@ public class ProvisionTO extends AbstractBaseBean implements EntityTO<Long> {
     private final List<String> virSchemas = new ArrayList<>();
 
     @Override
-    public Long getKey() {
+    public String getKey() {
         return key;
     }
 
     @Override
-    public void setKey(final Long key) {
+    public void setKey(final String key) {
         this.key = key;
     }
 
@@ -69,6 +71,13 @@ public class ProvisionTO extends AbstractBaseBean implements EntityTO<Long> {
 
     public void setObjectClass(final String objectClass) {
         this.objectClass = objectClass;
+    }
+
+    @XmlElementWrapper(name = "auxClasses")
+    @XmlElement(name = "class")
+    @JsonProperty("auxClasses")
+    public List<String> getAuxClasses() {
+        return auxClasses;
     }
 
     public String getSyncToken() {

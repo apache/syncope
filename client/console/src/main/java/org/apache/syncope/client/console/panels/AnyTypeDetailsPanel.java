@@ -75,7 +75,6 @@ public class AnyTypeDetailsPanel extends Panel {
 
     private List<String> getAvailableAnyTypeClasses() {
         return CollectionUtils.collect(new AnyTypeClassRestClient().list(),
-                EntityTOUtils.<String, AnyTypeClassTO>keyTransformer(),
-                new ArrayList<String>());
+                EntityTOUtils.<AnyTypeClassTO>keyTransformer(), new ArrayList<String>());
     }
 }

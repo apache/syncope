@@ -28,7 +28,6 @@ import org.apache.syncope.common.lib.to.MappingTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
@@ -76,7 +75,7 @@ public class ResourceDataBinderTest extends AbstractTest {
 
         ResourceTO resourceTO = new ResourceTO();
         resourceTO.setKey("resource-issue42");
-        resourceTO.setConnector(100L);
+        resourceTO.setConnector("88a7a819-dab5-46b4-9b90-0b9769eabdb8");
         resourceTO.setEnforceMandatoryCondition(true);
 
         ProvisionTO provisionTO = new ProvisionTO();
@@ -89,7 +88,6 @@ public class ResourceDataBinderTest extends AbstractTest {
 
         MappingItemTO item = new MappingItemTO();
         item.setIntAttrName("userId");
-        item.setIntMappingType(IntMappingType.UserPlainSchema);
         item.setExtAttrName("campo1");
         item.setConnObjectKey(true);
         item.setMandatoryCondition("false");

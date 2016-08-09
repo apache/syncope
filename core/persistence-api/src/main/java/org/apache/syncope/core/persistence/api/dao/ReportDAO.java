@@ -22,9 +22,9 @@ import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportTemplate;
 
-public interface ReportDAO extends DAO<Report, Long> {
+public interface ReportDAO extends DAO<Report> {
 
-    Report find(Long key);
+    Report find(String key);
 
     List<Report> findByTemplate(ReportTemplate template);
 
@@ -32,7 +32,7 @@ public interface ReportDAO extends DAO<Report, Long> {
 
     Report save(Report report);
 
-    void delete(Long key);
+    void delete(String key);
 
     void delete(Report report);
 }

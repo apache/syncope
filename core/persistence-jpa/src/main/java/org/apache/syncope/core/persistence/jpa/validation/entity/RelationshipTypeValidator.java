@@ -31,8 +31,8 @@ public class RelationshipTypeValidator extends AbstractValidator<RelationshipTyp
 
         if (MembershipType.getInstance().getKey().equalsIgnoreCase(object.getKey())) {
             context.buildConstraintViolationWithTemplate(
-                    getTemplate(EntityViolationType.InvalidName, "Invalid RelationshipType name")).
-                    addPropertyNode("name").addConstraintViolation();
+                    getTemplate(EntityViolationType.InvalidKey, "Invalid relationshipType name")).
+                    addPropertyNode("key").addConstraintViolation();
             return false;
         }
 

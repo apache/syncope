@@ -30,17 +30,17 @@ import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
 
 public interface UserProvisioningManager extends ProvisioningManager<UserTO, UserPatch> {
 
-    Pair<Long, List<PropagationStatus>> activate(StatusPatch statusPatch, boolean nullPriorityAsync);
+    Pair<String, List<PropagationStatus>> activate(StatusPatch statusPatch, boolean nullPriorityAsync);
 
-    Pair<Long, List<PropagationStatus>> reactivate(StatusPatch statusPatch, boolean nullPriorityAsync);
+    Pair<String, List<PropagationStatus>> reactivate(StatusPatch statusPatch, boolean nullPriorityAsync);
 
-    Pair<Long, List<PropagationStatus>> suspend(StatusPatch statusPatch, boolean nullPriorityAsync);
+    Pair<String, List<PropagationStatus>> suspend(StatusPatch statusPatch, boolean nullPriorityAsync);
 
-    void internalSuspend(Long key);
+    void internalSuspend(String key);
 
-    Pair<Long, List<PropagationStatus>> create(UserTO userTO, boolean storePassword, boolean nullPriorityAsync);
+    Pair<String, List<PropagationStatus>> create(UserTO userTO, boolean storePassword, boolean nullPriorityAsync);
 
-    Pair<Long, List<PropagationStatus>> create(
+    Pair<String, List<PropagationStatus>> create(
             UserTO userTO,
             boolean storePassword,
             boolean disablePwdPolicyCheck,
@@ -48,18 +48,18 @@ public interface UserProvisioningManager extends ProvisioningManager<UserTO, Use
             Set<String> excludedResources,
             boolean nullPriorityAsync);
 
-    Pair<Long, List<PropagationStatus>> update(
+    Pair<String, List<PropagationStatus>> update(
             UserPatch userPatch,
             ProvisioningReport result,
             Boolean enabled,
             Set<String> excludedResources,
             boolean nullPriorityAsync);
 
-    void requestPasswordReset(Long key);
+    void requestPasswordReset(String key);
 
-    void confirmPasswordReset(Long key, String token, String password);
+    void confirmPasswordReset(String key, String token, String password);
 
     List<PropagationStatus> provision(
-            Long key, boolean changePwd, String password, Collection<String> resources, boolean nullPriorityAsync);
+            String key, boolean changePwd, String password, Collection<String> resources, boolean nullPriorityAsync);
 
 }

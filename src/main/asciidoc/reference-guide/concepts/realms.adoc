@@ -1,0 +1,72 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+//
+=== Realms
+
+Realms define a hierarchical security domain tree, primarily meant for containing users, groups and
+any objects.
+
+Each realm:
+
+. has a unique name and a parent realm - except for the pre-defined _root realm_, which is named `/`;
+. is either leaf or root of a sub-tree of realms;
+. is uniquely identified by the path from root realm, e.g. `/a/b/c` identifies the sub-realm `c` in the sub-tree rooted
+at `b`, having in turn `a` as parent realm, directly under root realm;
+. optionally refers to <<policies-account,account>> and <<policies-password,password>> policies: such policies are
+enforced to all users, groups and any objects in the given realm and sub-realms, unless some sub-realms define their own.
+
+If users, groups and any objects are member of a realm then they are also member of parent realm: as a result, the root
+realm contains everything, and other realms can be seen as containers that split up the total number of entities into
+smaller pools.
+
+This has consequences on <<memberships-relationships,memberhips and relationships>>:
+
+* An user or an any object can be member of groups in the same realm or in one of sub-realms.
+* An user or an any object can be in relation with any objects in the same realm or in one of sub-realms.
+
+Moreover, this partition allows fine-grained control over policy enforcement and, alongside with
+<<entitlements,entitlements>> and <<roles,roles>>, contribute to implement
+<<delegated-administration,delegated administration>>.
+
+[TIP]
+.Logic Templates
+====
+As with <<pull-templates,pull>> it is also possible to add templates to a realm.
+
+The values specified in the template are applied to entities belonging to that realm, hence this can be used as
+a mechanism for setting default values for attributes or external resources on entities.
+====
+
+==== Realm Provisioning
+<<provisioning>> can be enabled for realms: <<mapping,mapping>> information can be provided so that realms
+are considered during <<propagation,propagation>>, <<provisioning-pull,pull>> and <<provisioning-push,push>>.
+
+Typical use cases for realm provisioning apply to modelization of organization-like structure on identity stores, as
+with LDAP and Active Directory.
+
+==== LogicActions
+
+When users, groups or any objects get created, updated or deleted into a realm, custom logic can be invoked by
+associating the given realm with one or more implementations of the
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/LogicActions.java[LogicActions^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/LogicActions.java[LogicActions^]
+endif::[]
+interface.

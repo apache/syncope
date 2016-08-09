@@ -18,104 +18,60 @@
  */
 package org.apache.syncope.client.console.rest;
 
-import java.util.List;
-import javax.ws.rs.core.GenericType;
+import static org.apache.syncope.client.console.rest.BaseRestClient.getService;
 
-import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.syncope.common.lib.patch.GroupPatch;
-import org.apache.syncope.common.lib.to.BulkAction;
-import org.apache.syncope.common.lib.to.BulkActionResult;
-import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.GroupTO;
-import org.apache.syncope.common.lib.to.ProvisioningResult;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.rest.api.beans.AnyListQuery;
-import org.apache.syncope.common.rest.api.beans.AnySearchQuery;
+import org.apache.syncope.common.lib.to.PagedResult;
+import org.apache.syncope.common.lib.types.BulkMembersActionType;
+import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.AnyService;
-import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.syncope.common.rest.api.service.GroupService;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 
 /**
  * Console client for invoking Rest Group's services.
  */
-public class GroupRestClient extends AbstractAnyRestClient<GroupTO> {
+public class GroupRestClient extends AbstractAnyRestClient<GroupTO, GroupPatch> {
 
     private static final long serialVersionUID = -8549081557283519638L;
 
     @Override
-    protected Class<? extends AnyService<?, ?>> getAnyServiceClass() {
+    protected Class<? extends AnyService<GroupTO, GroupPatch>> getAnyServiceClass() {
         return GroupService.class;
-    }
-
-    @Override
-    public int count(final String realm, final String type) {
-        return getService(GroupService.class).
-                list(new AnyListQuery.Builder().realm(realm).page(1).size(1).build()).
-                getTotalCount();
-    }
-
-    @Override
-    public List<GroupTO> list(final String realm, final int page, final int size, final SortParam<String> sort,
-            final String type) {
-        return getService(GroupService.class).
-                list(new AnyListQuery.Builder().realm(realm).page(page).size(size).
-                        orderBy(toOrderBy(sort)).details(false).build()).
-                getResult();
     }
 
     @Override
     public int searchCount(final String realm, final String fiql, final String type) {
         return getService(GroupService.class).
-                search(new AnySearchQuery.Builder().realm(realm).fiql(fiql).page(1).size(1).build()).
+                search(new AnyQuery.Builder().realm(realm).fiql(fiql).page(1).size(1).build()).
                 getTotalCount();
     }
 
     @Override
     public List<GroupTO> search(
-            final String realm, final String fiql, final int page, final int size, final SortParam<String> sort,
+            final String realm,
+            final String fiql,
+            final int page,
+            final int size,
+            final SortParam<String> sort,
             final String type) {
 
-        return getService(GroupService.class).
-                search(new AnySearchQuery.Builder().realm(realm).fiql(fiql).page(page).size(size).
-                        orderBy(toOrderBy(sort)).details(false).build()).
-                getResult();
-    }
+        List<GroupTO> result = new ArrayList<>();
+        PagedResult<GroupTO> res;
+        do {
+            res = getService(GroupService.class).
+                    search(new AnyQuery.Builder().realm(realm).fiql(fiql).page(page).size(size).
+                    orderBy(toOrderBy(sort)).details(false).build());
+            result.addAll(res.getResult());
+        } while (page == -1 && size == -1 && res.getNext() != null);
 
-    @Override
-    public ConnObjectTO readConnObject(final String resourceName, final Long id) {
-        return getService(ResourceService.class).readConnObject(resourceName, AnyTypeKind.GROUP.name(), id);
-    }
-
-    public ProvisioningResult<GroupTO> create(final GroupTO groupTO) {
-        Response response = getService(GroupService.class).create(groupTO);
-        return response.readEntity(new GenericType<ProvisioningResult<GroupTO>>() {
-        });
-    }
-
-    @Override
-    public GroupTO read(final Long key) {
-        return getService(GroupService.class).read(key);
-    }
-
-    public ProvisioningResult<GroupTO> update(final String etag, final GroupPatch patch) {
-        ProvisioningResult<GroupTO> result;
-        synchronized (this) {
-            GroupService service = getService(etag, GroupService.class);
-            result = service.update(patch).readEntity(new GenericType<ProvisioningResult<GroupTO>>() {
-            });
-            resetClient(GroupService.class);
-        }
         return result;
     }
 
-    @Override
-    public ProvisioningResult<GroupTO> delete(final String etag, final Long key) {
-        return delete(GroupService.class, GroupTO.class, etag, key);
-    }
-
-    @Override
-    public BulkActionResult bulkAction(final BulkAction action) {
-        return getService(GroupService.class).bulk(action);
+    public void bulkMembersAction(final String key, final BulkMembersActionType actionType) {
+        getService(GroupService.class).bulkMembersAction(key, actionType);
     }
 }

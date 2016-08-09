@@ -24,34 +24,32 @@ import java.util.List;
 import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
-import org.apache.syncope.common.lib.types.PropagationByResource;
+import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.workflow.api.WorkflowDefinitionFormat;
 import org.apache.syncope.core.workflow.api.WorkflowException;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Simple implementation basically not involving any workflow engine.
  */
-@Transactional(rollbackFor = { Throwable.class })
 public class DefaultAnyObjectWorkflowAdapter extends AbstractAnyObjectWorkflowAdapter {
 
     @Override
-    public WorkflowResult<Long> create(final AnyObjectTO anyObjectTO) {
+    public WorkflowResult<String> create(final AnyObjectTO anyObjectTO) {
         AnyObject anyObject = entityFactory.newEntity(AnyObject.class);
         dataBinder.create(anyObject, anyObjectTO);
         anyObject = anyObjectDAO.save(anyObject);
 
         PropagationByResource propByRes = new PropagationByResource();
-        propByRes.set(ResourceOperation.CREATE, anyObject.getResourceNames());
+        propByRes.set(ResourceOperation.CREATE, anyObject.getResourceKeys());
 
         return new WorkflowResult<>(anyObject.getKey(), propByRes, "create");
     }
 
     @Override
-    protected WorkflowResult<Long> doUpdate(final AnyObject anyObject, final AnyObjectPatch anyObjectPatch) {
+    protected WorkflowResult<String> doUpdate(final AnyObject anyObject, final AnyObjectPatch anyObjectPatch) {
         PropagationByResource propByRes = dataBinder.update(anyObject, anyObjectPatch);
 
         AnyObject updated = anyObjectDAO.save(anyObject);
@@ -65,7 +63,7 @@ public class DefaultAnyObjectWorkflowAdapter extends AbstractAnyObjectWorkflowAd
     }
 
     @Override
-    public WorkflowResult<Long> execute(final AnyObjectTO anyObject, final String taskId) {
+    public WorkflowResult<String> execute(final AnyObjectTO anyObject, final String taskId) {
         throw new WorkflowException(new UnsupportedOperationException("Not supported."));
     }
 

@@ -71,7 +71,7 @@ public class DateTextFieldPanel extends DateFieldPanel {
             @Override
             public void afterRender(final Component component) {
                 Response response = component.getResponse();
-                response.write("\n<span class=\"yui-skin-sam\">&nbsp;<span style=\"");
+                response.write("\n<span class=\"yui-skin-sam\"><span style=\"");
 
                 if (renderOnLoad()) {
                     response.write("display:block;");
@@ -98,7 +98,7 @@ public class DateTextFieldPanel extends DateFieldPanel {
 
     @Override
     public FieldPanel<Date> clone() {
-        final FieldPanel<Date> panel = new DateTextFieldPanel(getId(), name, new Model<Date>(), datePattern);
+        final FieldPanel<Date> panel = new DateTextFieldPanel(getId(), name, new Model<Date>(), fmt.getPattern());
         panel.setRequired(isRequired());
         panel.setReadOnly(isReadOnly());
         panel.setTitle(title);

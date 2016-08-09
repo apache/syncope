@@ -26,7 +26,7 @@ import org.apache.syncope.core.persistence.jpa.entity.JPAMailTemplate;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class JPAMailTemplateDAO extends AbstractDAO<MailTemplate, String> implements MailTemplateDAO {
+public class JPAMailTemplateDAO extends AbstractDAO<MailTemplate> implements MailTemplateDAO {
 
     @Override
     public MailTemplate find(final String key) {

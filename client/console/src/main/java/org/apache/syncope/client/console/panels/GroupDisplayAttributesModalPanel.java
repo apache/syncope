@@ -29,13 +29,13 @@ import org.apache.wicket.PageReference;
  * Modal window with Display group attributes form.
  *
  * @param <T> can be {@link org.apache.syncope.common.lib.to.AnyTO} or
- * {@link org.apache.syncope.client.console.wizards.any.AnyHandler}
+ * {@link org.apache.syncope.client.console.wizards.any.AnyWrapper}
  */
 public class GroupDisplayAttributesModalPanel<T extends Serializable> extends DisplayAttributesModalPanel<T> {
 
     private static final long serialVersionUID = 5194630813773543054L;
 
-    public static final String[] GROUP_DEFAULT_SELECTION = { "key", "name" };
+    public static final String[] DEFAULT_SELECTION = { "key", "name" };
 
     public GroupDisplayAttributesModalPanel(
             final BaseModal<T> modal,
@@ -46,22 +46,22 @@ public class GroupDisplayAttributesModalPanel<T extends Serializable> extends Di
     }
 
     @Override
-    public String getPrefDetailView() {
+    protected String getPrefDetailView() {
         return Constants.PREF_GROUP_DETAILS_VIEW;
     }
 
     @Override
-    public String getPrefAttributeView() {
+    protected String getPrefPlainAttributeView() {
         return Constants.PREF_GROUP_PLAIN_ATTRS_VIEW;
     }
 
     @Override
-    public String getPrefDerivedAttributeView() {
+    protected String getPrefDerivedAttributeView() {
         return Constants.PREF_GROUP_DER_ATTRS_VIEW;
     }
 
     @Override
-    public Class<GroupTO> getTOClass() {
+    protected Class<GroupTO> getTOClass() {
         return GroupTO.class;
     }
 }

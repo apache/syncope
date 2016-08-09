@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            name="Apache Syncope"
+            id="org.apache.syncope.ide.eclipse.plugin">
+      </category>
+      <view
+            name="Apache Syncope Templates"
+            icon="src/main/resources/icons/syncope.png"
+            category="org.apache.syncope.ide.eclipse.plugin"
+            class="org.apache.syncope.ide.eclipse.plugin.views.SyncopeView"
+            id="org.apache.syncope.ide.eclipse.plugin.views.SyncopeView">
+      </view>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="org.eclipse.jdt.ui.JavaPerspective">
+         <view
+               ratio="0.5"
+               relative="org.eclipse.ui.views.ProblemView"
+               relationship="right"
+               id="org.apache.syncope.ide.eclipse.plugin.views.SyncopeView">
+         </view>
+      </perspectiveExtension>
+   </extension>
+   <extension
+         point="org.eclipse.help.contexts">
+      <contexts
+            file="contexts.xml">
+      </contexts>
+   </extension>
+   <extension point="org.eclipse.ui.editors">
+   	<editor id="org.apache.syncope.ide.eclipse.plugin.editors.TemplateEditor"
+         name="Template Editor"
+         icon="src/main/resources/icons/syncope.png"
+         class="org.apache.syncope.ide.eclipse.plugin.editors.TemplateEditor"
+      />
+    <editor id="org.apache.syncope.ide.eclipse.plugin.editors.HTMLEditor"
+         name="HTML Editor"
+         icon="src/main/resources/icons/syncope.png"
+         class="org.apache.syncope.ide.eclipse.plugin.editors.HTMLEditor"
+      />
+   </extension>
+</plugin>

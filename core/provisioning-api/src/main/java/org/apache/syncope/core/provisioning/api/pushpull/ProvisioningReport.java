@@ -19,7 +19,6 @@
 package org.apache.syncope.core.provisioning.api.pushpull;
 
 import java.util.Collection;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -44,7 +43,7 @@ public class ProvisioningReport {
 
     private ResourceOperation operation;
 
-    private Long key;
+    private String key;
 
     private String name;
 
@@ -64,11 +63,11 @@ public class ProvisioningReport {
         this.name = name;
     }
 
-    public Long getKey() {
+    public String getKey() {
         return key;
     }
 
-    public void setKey(final Long key) {
+    public void setKey(final String key) {
         this.key = key;
     }
 
@@ -113,10 +112,10 @@ public class ProvisioningReport {
             return null;
         } else if (level == TraceLevel.FAILURES && status == Status.FAILURE) {
             // only report failures
-            return String.format("Failed %s (id/name): %d/%s with message: %s", operation, key, name, message);
+            return String.format("Failed %s (key/name): %s/%s with message: %s", operation, key, name, message);
         } else {
             // All
-            return String.format("%s %s (id/name): %d/%s %s", operation, status, key, name,
+            return String.format("%s %s (key/name): %s/%s %s", operation, status, key, name,
                     StringUtils.isBlank(message)
                     ? ""
                     : "with message: " + message);
@@ -130,7 +129,7 @@ public class ProvisioningReport {
      * @param level trace level
      * @return report as string
      */
-    public static String produceReport(final Collection<ProvisioningReport> results, final TraceLevel level) {
+    public static String generate(final Collection<ProvisioningReport> results, final TraceLevel level) {
         StringBuilder sb = new StringBuilder();
         for (ProvisioningReport result : results) {
             sb.append(result.getReportString(level)).append('\n');

@@ -20,7 +20,7 @@ package org.apache.syncope.client.cli.commands.configuration;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.SequenceInputStream;
+import java.io.InputStream;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -49,7 +49,7 @@ public class ConfigurationExport extends AbstractConfigurationCommand {
         if (input.parameterNumber() == 1) {
             try {
                 XMLUtils.createXMLFile(
-                        (SequenceInputStream) configurationSyncopeOperations.export().getEntity(),
+                        (InputStream) configurationSyncopeOperations.export().getEntity(),
                         input.firstParameter() + EXPORT_FILE_NAME);
                 configurationResultManager.genericMessage(
                         input.firstParameter() + EXPORT_FILE_NAME + " successfully created");

@@ -84,7 +84,7 @@ if (query != null)  {
 switch ( objectClass ) {
 case "__PRINTER__":
   sql.eachRow("SELECT * FROM TESTPRINTER " + where, 
-    {result.add([__UID__:it.id, __NAME__:it.id, ID:it.id, LOCATION:it.location])} );
+    {result.add([__UID__:it.id, __NAME__:it.id, ID:it.id, PRINTERNAME:it.printername, LOCATION:it.location])} );
   break
 
 default:

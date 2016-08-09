@@ -1,0 +1,125 @@
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+  <wicket:head>
+    <style>
+      .container {
+        display: block;
+        width: 100%;
+      }
+
+      .eventLabel {
+        font-size: 12px;
+        vertical-align: middle;
+        font-family: Verdana,Tahoma,sans-serif;
+        display: table-cell;
+        width: 300px;
+        height: 20px;
+      }
+
+      .divtableheadereventLabel {
+        font-weight: bold;
+        float: left;
+        margin-left: 5px;
+        display: table-cell;
+        width: 70px;
+      }
+
+      .divtableheadercell {
+        display: inline-table;
+        vertical-align: top;
+        text-align: right;
+        width: 105px;
+        height: 20px;
+      }
+
+      .divtablecheckcolumn {
+        display: table-cell;
+        vertical-align: top;
+        text-align: right;
+        width: 105px;
+      }
+
+      .divtablecheck {
+        width: 105px;
+        height: 20px;
+      }
+
+    </style>
+  </wicket:head>
+  <wicket:panel>
+    <div class="eventSelectionWidzard">
+      <div class="container">
+        <div style="display:inline-table;">
+          <div class="eventLabel">
+            &nbsp;
+          </div>
+          <div style="display: table-cell">
+            <div class="divtableheadercell">
+              <div class="divtableheadereventLabel">
+                <eventLabel wicket:id="successLabel"/>
+              </div>
+              <div style="display: table-cell">
+                <input type="checkbox" wicket:id="successSelector" style="margin-top: 0px;margin-bottom: 0px;"/>
+              </div>
+            </div>
+          </div>
+          <div style="display: table-cell">
+            <div class="divtableheadercell">
+              <div class="divtableheadereventLabel">
+                <eventLabel wicket:id="failureLabel"/>
+              </div>
+              <div style="display: table-cell">
+                <input type="checkbox" wicket:id="failureSelector" style="margin-top: 0px;margin-bottom: 0px;"/>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="container">
+        <div class="eventLabel">
+          <div id="divtablerow-eventLabel" wicket:id="categoryView">
+            <div class="eventLabel">
+              <span wicket:id="subcategory">[subcategory]</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="divtablerow-success" class="divtablecheckcolumn">
+          <span wicket:id="successGroup">
+            <div wicket:id="successView" class="divtablecheck">
+              <div class="divtableheadereventLabel">&nbsp;</div>
+              <input type="checkbox" wicket:id="successCheck"/>
+            </div>
+          </span>
+        </div>
+
+        <div id="divtablerow-failure" class="divtablecheckcolumn">
+          <span wicket:id="failureGroup">
+            <div wicket:id="failureView" class="divtablecheck">
+              <div class="divtableheadereventLabel">&nbsp;</div>
+              <input type="checkbox" wicket:id="failureCheck"/>
+            </div>
+          </span>
+        </div>
+      </div>
+    </div>
+  </wicket:panel>
+</html>

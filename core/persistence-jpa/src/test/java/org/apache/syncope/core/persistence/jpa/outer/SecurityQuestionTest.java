@@ -39,21 +39,21 @@ public class SecurityQuestionTest extends AbstractTest {
 
     @Test
     public void test() {
-        User user = userDAO.find(4L);
+        User user = userDAO.findByUsername("bellini");
         assertNull(user.getSecurityQuestion());
         assertNull(user.getSecurityAnswer());
 
-        user.setSecurityQuestion(securityQuestionDAO.find(1L));
+        user.setSecurityQuestion(securityQuestionDAO.find("887028ea-66fc-41e7-b397-620d7ea6dfbb"));
         user.setSecurityAnswer("Rossi");
         userDAO.save(user);
 
         userDAO.flush();
 
-        securityQuestionDAO.delete(1L);
+        securityQuestionDAO.delete("887028ea-66fc-41e7-b397-620d7ea6dfbb");
 
         userDAO.flush();
 
-        user = userDAO.find(4L);
+        user = userDAO.findByUsername("bellini");
 
         assertNull(user.getSecurityQuestion());
         assertNull(user.getSecurityAnswer());

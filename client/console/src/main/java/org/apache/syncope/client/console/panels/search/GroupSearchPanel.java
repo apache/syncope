@@ -58,20 +58,21 @@ public final class GroupSearchPanel extends AbstractSearchPanel {
 
             @Override
             protected List<SearchClause.Type> load() {
-                final List<SearchClause.Type> result = new ArrayList<>();
+                List<SearchClause.Type> result = new ArrayList<>();
                 result.add(SearchClause.Type.ATTRIBUTE);
                 result.add(SearchClause.Type.RESOURCE);
+                result.add(SearchClause.Type.GROUP_MEMBER);
                 return result;
             }
         };
 
-        this.groupNames = new LoadableDetachableModel<Map<Long, String>>() {
+        this.groupNames = new LoadableDetachableModel<Map<String, String>>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
-            protected Map<Long, String> load() {
-                return Collections.<Long, String>emptyMap();
+            protected Map<String, String> load() {
+                return Collections.<String, String>emptyMap();
             }
         };
     }

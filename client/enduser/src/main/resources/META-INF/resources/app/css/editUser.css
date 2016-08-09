@@ -74,7 +74,7 @@ under the License.
 }
 
 .minus{
-  margin-bottom: 2%;
+
 }
 
 .fileButton{
@@ -160,6 +160,27 @@ under the License.
   -webkit-animation:slideOutLeft 0.5s both ease;
   -moz-animation:slideOutLeft 0.5s both ease;
   animation:slideOutLeft 0.5s both ease;   
+}
+
+
+#datetime{
+  line-height: 34px;
+  float: left;
+  margin-top:35px;
+  padding: 0 3px 0px 0px;
+  display: inline-block !important;
+}
+
+#date{
+  position: relative;
+  display: table; 
+  border-collapse: separate;
+}
+
+#timepicker{
+  line-height: 34px; 
+  float: left; 
+  padding: 0 3px 0px 0px;
 }
 
 /** Button breadcrumb **/
@@ -262,3 +283,40 @@ under the License.
   to      { -webkit-transform: translateX(0); }
 }
 
+.multivalue>button{
+  float: right
+}
+.schema-type #date{
+  margin-top: 35px;
+}
+
+.multivalue input{
+  width: calc(100% - 70px);
+  margin-top: 10px
+}
+
+.multivalue input:disabled{
+  width: 100%;  
+}
+
+.multivalue button{
+  margin-top: 2px
+}
+
+.multivalue #datetime{
+  margin-top: 0px
+}
+
+#datetime input{
+  width: 100%;
+  margin-top: 0px
+}
+#timepicker input{
+  width: 50px;
+  margin-top: 0px
+}
+
+
+.multivalue #timepicker {
+  margin-top: -35px;
+}

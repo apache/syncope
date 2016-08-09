@@ -20,12 +20,12 @@ package org.apache.syncope.core.provisioning.api.data;
 
 import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
-import org.apache.syncope.common.lib.types.PropagationByResource;
+import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 
 public interface AnyObjectDataBinder {
 
-    AnyObjectTO getAnyObjectTO(Long key);
+    AnyObjectTO getAnyObjectTO(String key);
 
     AnyObjectTO getAnyObjectTO(AnyObject anyObject, boolean details);
 

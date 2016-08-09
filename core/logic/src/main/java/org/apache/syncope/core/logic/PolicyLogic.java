@@ -25,9 +25,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
-import org.apache.syncope.common.lib.policy.AccountPolicyTO;
-import org.apache.syncope.common.lib.policy.PasswordPolicyTO;
-import org.apache.syncope.common.lib.policy.PullPolicyTO;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -35,11 +32,12 @@ import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.Policy;
+import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.PushPolicy;
 import org.apache.syncope.core.provisioning.api.data.PolicyDataBinder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
-import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 
 @Component
 public class PolicyLogic extends AbstractTransactionalLogic<AbstractPolicyTO> {
@@ -52,48 +50,35 @@ public class PolicyLogic extends AbstractTransactionalLogic<AbstractPolicyTO> {
 
     @PreAuthorize("hasRole('" + StandardEntitlement.POLICY_CREATE + "')")
     public <T extends AbstractPolicyTO> T create(final T policyTO) {
-        return binder.getPolicyTO(policyDAO.save(binder.getPolicy(null, policyTO)));
-    }
-
-    private <T extends AbstractPolicyTO, K extends Policy> T update(final T policyTO, final K policy) {
-        binder.getPolicy(policy, policyTO);
-        K savedPolicy = policyDAO.save(policy);
-        return binder.getPolicyTO(savedPolicy);
+        return binder.getPolicyTO(policyDAO.save(binder.create(policyTO)));
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.POLICY_UPDATE + "')")
-    public PasswordPolicyTO update(final PasswordPolicyTO policyTO) {
+    public AbstractPolicyTO update(final AbstractPolicyTO policyTO) {
         Policy policy = policyDAO.find(policyTO.getKey());
-        if (!(policy instanceof PasswordPolicy)) {
-            throw new NotFoundException("PasswordPolicy with key " + policyTO.getKey());
-        }
-
-        return update(policyTO, policy);
+        return binder.getPolicyTO(policyDAO.save(binder.update(policy, policyTO)));
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.POLICY_UPDATE + "')")
-    public AccountPolicyTO update(final AccountPolicyTO policyTO) {
-        Policy policy = policyDAO.find(policyTO.getKey());
-        if (!(policy instanceof AccountPolicy)) {
-            throw new NotFoundException("AccountPolicy with key " + policyTO.getKey());
+    private Class<? extends Policy> getPolicyClass(final PolicyType policyType) {
+        switch (policyType) {
+            case ACCOUNT:
+                return AccountPolicy.class;
+
+            case PASSWORD:
+                return PasswordPolicy.class;
+
+            case PULL:
+                return PullPolicy.class;
+
+            case PUSH:
+            default:
+                return PushPolicy.class;
         }
-
-        return update(policyTO, policy);
-    }
-
-    @PreAuthorize("hasRole('" + StandardEntitlement.POLICY_UPDATE + "')")
-    public PullPolicyTO update(final PullPolicyTO policyTO) {
-        Policy policy = policyDAO.find(policyTO.getKey());
-        if (!(policy instanceof PullPolicy)) {
-            throw new NotFoundException(PullPolicy.class.getSimpleName() + " with key " + policyTO.getKey());
-        }
-
-        return update(policyTO, policy);
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.POLICY_LIST + "')")
     public <T extends AbstractPolicyTO> List<T> list(final PolicyType type) {
-        return CollectionUtils.collect(policyDAO.find(type), new Transformer<Policy, T>() {
+        return CollectionUtils.collect(policyDAO.find(getPolicyClass(type)), new Transformer<Policy, T>() {
 
             @Override
             public T transform(final Policy input) {
@@ -103,7 +88,7 @@ public class PolicyLogic extends AbstractTransactionalLogic<AbstractPolicyTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.POLICY_READ + "')")
-    public <T extends AbstractPolicyTO> T read(final Long key) {
+    public <T extends AbstractPolicyTO> T read(final String key) {
         Policy policy = policyDAO.find(key);
         if (policy == null) {
             throw new NotFoundException("Policy " + key + " not found");
@@ -113,7 +98,7 @@ public class PolicyLogic extends AbstractTransactionalLogic<AbstractPolicyTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.POLICY_DELETE + "')")
-    public <T extends AbstractPolicyTO> T delete(final Long key) {
+    public <T extends AbstractPolicyTO> T delete(final String key) {
         Policy policy = policyDAO.find(key);
         if (policy == null) {
             throw new NotFoundException("Policy " + key + " not found");
@@ -129,19 +114,19 @@ public class PolicyLogic extends AbstractTransactionalLogic<AbstractPolicyTO> {
     protected AbstractPolicyTO resolveReference(final Method method, final Object... args)
             throws UnresolvedReferenceException {
 
-        Long key = null;
+        String key = null;
 
         if (ArrayUtils.isNotEmpty(args)) {
             for (int i = 0; key == null && i < args.length; i++) {
-                if (args[i] instanceof Long) {
-                    key = (Long) args[i];
+                if (args[i] instanceof String) {
+                    key = (String) args[i];
                 } else if (args[i] instanceof AbstractPolicyTO) {
                     key = ((AbstractPolicyTO) args[i]).getKey();
                 }
             }
         }
 
-        if ((key != null) && !key.equals(0L)) {
+        if (key != null) {
             try {
                 return binder.getPolicyTO(policyDAO.find(key));
             } catch (Throwable ignore) {

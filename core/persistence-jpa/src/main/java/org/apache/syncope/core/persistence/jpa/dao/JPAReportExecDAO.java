@@ -20,19 +20,22 @@ package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.Date;
 import java.util.List;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.api.dao.ReportExecDAO;
+import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
 import org.apache.syncope.core.persistence.jpa.entity.JPAReportExec;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.ReflectionUtils;
 
 @Repository
-public class JPAReportExecDAO extends AbstractDAO<ReportExec, Long> implements ReportExecDAO {
+public class JPAReportExecDAO extends AbstractDAO<ReportExec> implements ReportExecDAO {
 
     @Override
-    public ReportExec find(final Long key) {
+    public ReportExec find(final String key) {
         return entityManager().find(JPAReportExec.class, key);
     }
 
@@ -67,6 +70,54 @@ public class JPAReportExecDAO extends AbstractDAO<ReportExec, Long> implements R
     @Override
     public ReportExec findLatestEnded(final Report report) {
         return findLatest(report, "end");
+    }
+
+    @Override
+    public int count(final String reportKey) {
+        Query countQuery = entityManager().createNativeQuery(
+                "SELECT COUNT(e.id) FROM " + JPAReportExec.TABLE + " e WHERE e.report_id=?1");
+        countQuery.setParameter(1, reportKey);
+
+        return ((Number) countQuery.getSingleResult()).intValue();
+    }
+
+    private String toOrderByStatement(final List<OrderByClause> orderByClauses) {
+        StringBuilder statement = new StringBuilder();
+
+        for (OrderByClause clause : orderByClauses) {
+            String field = clause.getField().trim();
+            if (ReflectionUtils.findField(JPAReportExec.class, field) != null) {
+                statement.append("e.").append(field).append(' ').append(clause.getDirection().name());
+            }
+        }
+
+        if (statement.length() == 0) {
+            statement.append("ORDER BY e.id DESC");
+        } else {
+            statement.insert(0, "ORDER BY ");
+        }
+        return statement.toString();
+    }
+
+    @Override
+    public List<ReportExec> findAll(final Report report,
+            final int page, final int itemsPerPage, final List<OrderByClause> orderByClauses) {
+
+        String queryString =
+                "SELECT e FROM " + JPAReportExec.class.getSimpleName() + " e WHERE e.report=:report "
+                + toOrderByStatement(orderByClauses);
+
+        TypedQuery<ReportExec> query = entityManager().createQuery(queryString, ReportExec.class);
+        query.setParameter("report", report);
+
+        // page starts from 1, while setFirtResult() starts from 0
+        query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
+
+        if (itemsPerPage >= 0) {
+            query.setMaxResults(itemsPerPage);
+        }
+
+        return query.getResultList();
     }
 
     @Override
@@ -115,7 +166,7 @@ public class JPAReportExecDAO extends AbstractDAO<ReportExec, Long> implements R
     }
 
     @Override
-    public void delete(final Long key) {
+    public void delete(final String key) {
         ReportExec execution = find(key);
         if (execution == null) {
             return;

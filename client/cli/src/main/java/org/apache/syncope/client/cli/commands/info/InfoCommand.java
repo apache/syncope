@@ -82,8 +82,8 @@ public class InfoCommand extends AbstractCommand {
             case PUSH_CORRELATION_ACTIONS:
                 info.pushCorrelationActions();
                 break;
-            case REPORTLETS:
-                info.reportlets();
+            case REPORTLET_CONFS:
+                info.reportletConfs();
                 break;
             case SYNC_ACTIONS:
                 info.pullActions();
@@ -135,7 +135,7 @@ public class InfoCommand extends AbstractCommand {
         PROPAGATION_ACTIONS("--propagation-actions"),
         PUSH_ACTIONS("--push-actions"),
         PUSH_CORRELATION_ACTIONS("--push-correlation-actions"),
-        REPORTLETS("--reportlets"),
+        REPORTLET_CONFS("--reportletConfs"),
         SYNC_ACTIONS("--sync-actions"),
         SYNC_CORRELATION_RULES("--sync-correlation-rules"),
         TASK_JOBS("--task-jobs"),

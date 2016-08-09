@@ -24,9 +24,9 @@ import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 
-public interface TaskExecDAO extends DAO<TaskExec, Long> {
+public interface TaskExecDAO extends DAO<TaskExec> {
 
-    TaskExec find(Long key);
+    TaskExec find(String key);
 
     List<TaskExec> findRecent(int max);
 
@@ -34,18 +34,18 @@ public interface TaskExecDAO extends DAO<TaskExec, Long> {
 
     <T extends Task> TaskExec findLatestEnded(T task);
 
-    <T extends Task> List<TaskExec> findAll(
-            T task, Date startedBefore, Date startedAfter, Date endedBefore, Date endedAfter);
-
-    int count(Long taskKey);
+    int count(String taskKey);
 
     <T extends Task> List<TaskExec> findAll(T task, int page, int itemsPerPage, List<OrderByClause> orderByClauses);
 
+    <T extends Task> List<TaskExec> findAll(
+            T task, Date startedBefore, Date startedAfter, Date endedBefore, Date endedAfter);
+
     TaskExec save(TaskExec execution);
 
-    void saveAndAdd(Long taskId, TaskExec execution);
+    void saveAndAdd(String taskKey, TaskExec execution);
 
-    void delete(Long key);
+    void delete(String key);
 
     void delete(TaskExec execution);
 }

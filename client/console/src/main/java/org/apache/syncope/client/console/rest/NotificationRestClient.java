@@ -18,19 +18,27 @@
  */
 package org.apache.syncope.client.console.rest;
 
+import java.io.InputStream;
 import java.util.List;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.to.MailTemplateTO;
 import org.apache.syncope.common.lib.to.NotificationTO;
+import org.apache.syncope.common.lib.types.MailTemplateFormat;
+import org.apache.syncope.common.rest.api.service.MailTemplateService;
 import org.apache.syncope.common.rest.api.service.NotificationService;
 
-public class NotificationRestClient extends BaseRestClient {
+public class NotificationRestClient extends BaseRestClient
+        implements TemplateRestClient<MailTemplateTO, MailTemplateFormat> {
 
     private static final long serialVersionUID = 6328933265096511690L;
 
-    public List<NotificationTO> getAllNotifications() {
+    public List<NotificationTO> list() {
         return getService(NotificationService.class).list();
     }
 
-    public NotificationTO read(final Long key) {
+    public NotificationTO read(final String key) {
         return getService(NotificationService.class).read(key);
     }
 
@@ -42,7 +50,45 @@ public class NotificationRestClient extends BaseRestClient {
         getService(NotificationService.class).update(notificationTO);
     }
 
-    public void delete(final Long key) {
+    public void delete(final String key) {
         getService(NotificationService.class).delete(key);
+    }
+
+    @Override
+    public List<MailTemplateTO> listTemplates() {
+        return getService(MailTemplateService.class).list();
+    }
+
+    @Override
+    public void createTemplate(final MailTemplateTO mailTemplateTO) {
+        getService(MailTemplateService.class).create(mailTemplateTO);
+    }
+
+    @Override
+    public void deleteTemplate(final String key) {
+        getService(MailTemplateService.class).delete(key);
+    }
+
+    @Override
+    public MailTemplateTO readTemplate(final String key) {
+        return getService(MailTemplateService.class).read(key);
+    }
+
+    @Override
+    public String readTemplateFormat(final String key, final MailTemplateFormat format) {
+        try {
+            return IOUtils.toString(InputStream.class.cast(
+                    getService(MailTemplateService.class).getFormat(key, format).getEntity()),
+                    SyncopeConstants.DEFAULT_CHARSET);
+        } catch (Exception e) {
+            LOG.error("Error retrieving mail template {} as {}", key, format, e);
+            return StringUtils.EMPTY;
+        }
+    }
+
+    @Override
+    public void updateTemplateFormat(final String key, final String content, final MailTemplateFormat format) {
+        getService(MailTemplateService.class).setFormat(
+                key, format, IOUtils.toInputStream(content, SyncopeConstants.DEFAULT_CHARSET));
     }
 }

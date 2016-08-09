@@ -75,7 +75,7 @@ public class AnyTypeLogic extends AbstractTransactionalLogic<AnyTypeTO> {
     public AnyTypeTO create(final AnyTypeTO anyTypeTO) {
         if (StringUtils.isBlank(anyTypeTO.getKey())) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
-            sce.getElements().add(AnyType.class.getSimpleName() + " name");
+            sce.getElements().add(AnyType.class.getSimpleName() + " key");
             throw sce;
         }
         if (anyTypeDAO.find(anyTypeTO.getKey()) != null) {
@@ -117,12 +117,12 @@ public class AnyTypeLogic extends AbstractTransactionalLogic<AnyTypeTO> {
         AnyTypeTO deleted = binder.getAnyTypeTO(anyType);
         try {
             anyTypeDAO.delete(key);
+            EntitlementsHolder.getInstance().removeFor(deleted.getKey());
         } catch (IllegalArgumentException e) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidAnyType);
             sce.getElements().add(e.getMessage());
             throw sce;
         }
-        EntitlementsHolder.getInstance().removeFor(deleted.getKey());
         return deleted;
     }
 

@@ -28,6 +28,7 @@ import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
+import org.apache.syncope.core.persistence.api.entity.Membership;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+@Transactional(readOnly = true)
 @Component
 public class DerAttrHandlerImpl implements DerAttrHandler {
 
@@ -57,10 +59,11 @@ public class DerAttrHandlerImpl implements DerAttrHandler {
         return result;
     }
 
-    @Transactional(readOnly = true)
     @Override
     public String getValue(final Any<?> any, final DerSchema schema) {
-        if (!anyUtilsFactory.getInstance(any).getAllowedSchemas(any, DerSchema.class).contains(schema)) {
+        if (!anyUtilsFactory.getInstance(any).
+                getAllowedSchemas(any, DerSchema.class).forSelfContains(schema)) {
+
             LOG.debug("{} not allowed for {}", schema, any);
             return null;
         }
@@ -68,10 +71,31 @@ public class DerAttrHandlerImpl implements DerAttrHandler {
         return getValues(any, Collections.singleton(schema)).get(schema);
     }
 
-    @Transactional(readOnly = true)
+    @Override
+    public String getValue(final Any<?> any, final Membership<?> membership, final DerSchema schema) {
+        if (!anyUtilsFactory.getInstance(any).
+                getAllowedSchemas(any, DerSchema.class).getForMembership(membership.getRightEnd()).contains(schema)) {
+
+            LOG.debug("{} not allowed for {}", schema, any);
+            return null;
+        }
+
+        return getValues(any, Collections.singleton(schema)).get(schema);
+    }
+
     @Override
     public Map<DerSchema, String> getValues(final Any<?> any) {
-        return getValues(any, anyUtilsFactory.getInstance(any).getAllowedSchemas(any, DerSchema.class));
+        return getValues(
+                any,
+                anyUtilsFactory.getInstance(any).getAllowedSchemas(any, DerSchema.class).getForSelf());
+    }
+
+    @Override
+    public Map<DerSchema, String> getValues(final Any<?> any, final Membership<?> membership) {
+        return getValues(
+                any,
+                anyUtilsFactory.getInstance(any).getAllowedSchemas(any, DerSchema.class).
+                getForMembership(membership.getRightEnd()));
     }
 
 }

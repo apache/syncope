@@ -44,8 +44,7 @@ public class ConfigurationResultManager extends CommonsResultManager {
             String attrValue = attrTO.getValues().toString();
             attrValue = attrValue.substring(0, attrValue.length() - 1);
             attrValue = attrValue.substring(1, attrValue.length());
-            tableBuilder.rowValues(
-                    new LinkedList<>(Arrays.asList(attrTO.getSchema(), attrValue)));
+            tableBuilder.rowValues(new LinkedList<>(Arrays.asList(attrTO.getSchema(), attrValue)));
         }
         tableBuilder.build().print();
     }

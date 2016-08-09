@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java.utils;
 
-import org.apache.syncope.core.provisioning.java.MappingManagerImpl;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -134,11 +133,11 @@ public class ConnObjectUtils {
 
         // (for users) if password was not set above, generate
         if (anyTO instanceof UserTO && StringUtils.isBlank(((UserTO) anyTO).getPassword())) {
-            final UserTO userTO = (UserTO) anyTO;
+            UserTO userTO = (UserTO) anyTO;
 
             List<PasswordRuleConf> ruleConfs = new ArrayList<>();
 
-            Realm realm = realmDAO.find(userTO.getRealm());
+            Realm realm = realmDAO.findByFullPath(userTO.getRealm());
             if (realm != null) {
                 for (Realm ancestor : realmDAO.findAncestors(realm)) {
                     if (ancestor.getPasswordPolicy() != null) {
@@ -182,7 +181,7 @@ public class ConnObjectUtils {
      */
     @SuppressWarnings("unchecked")
     @Transactional(readOnly = true)
-    public <T extends AnyPatch> T getAnyPatch(final Long key, final ConnectorObject obj,
+    public <T extends AnyPatch> T getAnyPatch(final String key, final ConnectorObject obj,
             final AnyTO original, final PullTask pullTask, final Provision provision, final AnyUtils anyUtils) {
 
         AnyTO updated = getAnyTOFromConnObject(obj, pullTask, provision, anyUtils);
@@ -222,7 +221,7 @@ public class ConnObjectUtils {
 
         // 1. fill with data from connector object
         anyTO.setRealm(pullTask.getDestinatioRealm().getFullPath());
-        for (MappingItem item : MappingManagerImpl.getPullMappingItems(provision)) {
+        for (MappingItem item : MappingUtils.getPullMappingItems(provision)) {
             mappingManager.setIntValues(item, obj.getAttributeByName(item.getExtAttrName()), anyTO, anyUtils);
         }
 
@@ -260,7 +259,7 @@ public class ConnObjectUtils {
                     }
                 }
 
-                connObjectTO.getPlainAttrs().add(attrTO);
+                connObjectTO.getAttrs().add(attrTO);
             }
         }
 

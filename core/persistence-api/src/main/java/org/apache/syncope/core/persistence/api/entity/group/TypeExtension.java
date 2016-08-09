@@ -23,7 +23,7 @@ import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 
-public interface TypeExtension extends Entity<Long> {
+public interface TypeExtension extends Entity {
 
     Group getGroup();
 

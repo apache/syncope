@@ -18,14 +18,11 @@ under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <wicket:extend>
-    <script lang="text/javascript">
-
-    </script>
     <section class="content-header">
       <h1>&nbsp;</h1>
       <ol class="breadcrumb">
         <li><a wicket:id="dashboardBr"><i class="fa fa-dashboard"></i> <wicket:message key="dashboard"></wicket:message></a></li>
-        <li class="active" id="pageTitleInBradcrumb"><wicket:message key="realms"></wicket:message></li>
+        <li class="active"><wicket:message key="realms"></wicket:message></li>
       </ol>
     </section>
 
@@ -37,6 +34,8 @@ under the License.
         </div>
       </div>
       <div wicket:id="modal"/>
+      <div wicket:id="templateModal"/>
+      <span wicket:id="toggleTemplates"/>
     </section>
   </wicket:extend>
 </html>

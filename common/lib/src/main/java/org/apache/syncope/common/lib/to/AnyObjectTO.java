@@ -33,15 +33,25 @@ import org.apache.commons.lang3.tuple.Pair;
 
 @XmlRootElement(name = "anyObject")
 @XmlType
-public class AnyObjectTO extends AnyTO implements RelatableTO, GroupableTO {
+public class AnyObjectTO extends AnyTO implements GroupableRelatableTO {
 
     private static final long serialVersionUID = 8841697496476959639L;
+
+    private String name;
 
     private final List<RelationshipTO> relationships = new ArrayList<>();
 
     private final List<MembershipTO> memberships = new ArrayList<>();
 
-    private final List<Long> dynGroups = new ArrayList<>();
+    private final List<String> dynGroups = new ArrayList<>();
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(final String name) {
+        this.name = name;
+    }
 
     @XmlElementWrapper(name = "relationships")
     @XmlElement(name = "relationship")
@@ -53,8 +63,8 @@ public class AnyObjectTO extends AnyTO implements RelatableTO, GroupableTO {
 
     @JsonIgnore
     @Override
-    public Map<Pair<String, Long>, RelationshipTO> getRelationshipMap() {
-        Map<Pair<String, Long>, RelationshipTO> result = new HashMap<>(getRelationships().size());
+    public Map<Pair<String, String>, RelationshipTO> getRelationshipMap() {
+        Map<Pair<String, String>, RelationshipTO> result = new HashMap<>(getRelationships().size());
         for (RelationshipTO relationship : getRelationships()) {
             result.put(Pair.of(relationship.getType(), relationship.getRightKey()), relationship);
         }
@@ -73,8 +83,8 @@ public class AnyObjectTO extends AnyTO implements RelatableTO, GroupableTO {
 
     @JsonIgnore
     @Override
-    public Map<Long, MembershipTO> getMembershipMap() {
-        Map<Long, MembershipTO> result = new HashMap<>(getMemberships().size());
+    public Map<String, MembershipTO> getMembershipMap() {
+        Map<String, MembershipTO> result = new HashMap<>(getMemberships().size());
         for (MembershipTO membership : getMemberships()) {
             result.put(membership.getRightKey(), membership);
         }
@@ -87,7 +97,7 @@ public class AnyObjectTO extends AnyTO implements RelatableTO, GroupableTO {
     @XmlElement(name = "role")
     @JsonProperty("dynGroups")
     @Override
-    public List<Long> getDynGroups() {
+    public List<String> getDynGroups() {
         return dynGroups;
     }
 }

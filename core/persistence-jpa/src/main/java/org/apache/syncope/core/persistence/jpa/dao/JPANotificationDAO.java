@@ -18,21 +18,32 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import java.util.Collections;
 import java.util.List;
 import javax.persistence.TypedQuery;
+import org.apache.commons.collections4.Closure;
+import org.apache.commons.collections4.IterableUtils;
+import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
+import org.apache.syncope.core.persistence.api.dao.TaskDAO;
+import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.MailTemplate;
 import org.apache.syncope.core.persistence.api.entity.Notification;
+import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.persistence.jpa.entity.JPANotification;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
-public class JPANotificationDAO extends AbstractDAO<Notification, Long> implements NotificationDAO {
+public class JPANotificationDAO extends AbstractDAO<Notification> implements NotificationDAO {
+
+    @Autowired
+    private TaskDAO taskDAO;
 
     @Transactional(readOnly = true)
     @Override
-    public Notification find(final Long key) {
+    public Notification find(final String key) {
         return entityManager().find(JPANotification.class, key);
     }
 
@@ -60,7 +71,22 @@ public class JPANotificationDAO extends AbstractDAO<Notification, Long> implemen
     }
 
     @Override
-    public void delete(final Long key) {
-        entityManager().remove(find(key));
+    public void delete(final String key) {
+        Notification notification = find(key);
+        if (notification == null) {
+            return;
+        }
+
+        IterableUtils.forEach(taskDAO.findAll(
+                TaskType.NOTIFICATION, null, notification, null, null, -1, -1, Collections.<OrderByClause>emptyList()),
+                new Closure<Task>() {
+
+            @Override
+            public void execute(final Task input) {
+                delete(input.getKey());
+            }
+        });
+
+        entityManager().remove(notification);
     }
 }

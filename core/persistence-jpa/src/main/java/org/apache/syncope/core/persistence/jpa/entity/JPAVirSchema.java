@@ -19,12 +19,11 @@
 package org.apache.syncope.core.persistence.jpa.entity;
 
 import javax.persistence.Basic;
-import javax.persistence.Cacheable;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
+import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -36,20 +35,15 @@ import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAProvision;
-import org.apache.syncope.core.persistence.jpa.validation.entity.SchemaNameCheck;
 
 @Entity
 @Table(name = JPAVirSchema.TABLE)
-@Cacheable
-@SchemaNameCheck
-public class JPAVirSchema extends AbstractEntity<String> implements VirSchema {
+@PrimaryKeyJoinColumn(name = "id", referencedColumnName = "id")
+public class JPAVirSchema extends AbstractSchema implements VirSchema {
 
     private static final long serialVersionUID = 3274006935328590141L;
 
     public static final String TABLE = "VirSchema";
-
-    @Id
-    private String name;
 
     @OneToOne(fetch = FetchType.EAGER)
     private JPAAnyTypeClass anyTypeClass;
@@ -70,16 +64,6 @@ public class JPAVirSchema extends AbstractEntity<String> implements VirSchema {
         super();
 
         readonly = getBooleanAsInteger(false);
-    }
-
-    @Override
-    public String getKey() {
-        return name;
-    }
-
-    @Override
-    public void setKey(final String key) {
-        this.name = key;
     }
 
     @Override

@@ -17,44 +17,73 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
-  <head><title>toggle menu</title></head>
-  <body>
-    <wicket:extend>
-      <div wicket:id="container" >
-        <wicket:container wicket:id="actions" />
-      </div>
+  <wicket:extend>
+    <div wicket:id="container" >
+      <wicket:container wicket:id="actions" />
+    </div>
 
-      <wicket:fragment wicket:id="connectorActions">
-        <ul class="menu">
-          <li><i class="fa fa-plus"></i><a href="#" wicket:id="create"><wicket:message key="resource.menu.add"/></a></li>
-          <li><i class="fa fa-minus"></i><a href="#" wicket:id="delete"><wicket:message key="connector.menu.remove"/></a></li>
-          <li><i class="fa fa-pencil"></i><a href="#" wicket:id="edit"><wicket:message key="connector.menu.edit"/></a></li>
-        </ul>
-      </wicket:fragment>
+    <wicket:fragment wicket:id="connectorActions">
+      <ul class="menu">
+        <wicket:enclosure child="create">
+          <li><a href="#" wicket:id="create"><i class="fa fa-plus"></i><wicket:message key="resource.menu.add"/></a></li>
+        </wicket:enclosure>
+        <wicket:enclosure child="edit">
+          <li><a href="#" wicket:id="edit"><i class="fa fa-pencil"></i><wicket:message key="connector.menu.edit"/></a></li>
+        </wicket:enclosure>
+        <wicket:enclosure child="delete">
+          <li><a href="#" wicket:id="delete"><i class="fa fa-minus"></i><wicket:message key="connector.menu.remove"/></a></li>
+        </wicket:enclosure>
+      </ul>
+    </wicket:fragment>
 
-      <wicket:fragment wicket:id="resourceActions">
-        <ul class="menu">
-          <li><i class="fa fa-minus"></i><a href="#" wicket:id="delete"><wicket:message key="resource.menu.remove"/></a></li>
-          <li><i class="fa fa-pencil"></i><a href="#" wicket:id="edit"><wicket:message key="resource.menu.edit"/></a></li>
-          <li><i class="fa fa-arrow-right"></i><a href="#" wicket:id="propagation"><wicket:message key="task.propagation.list"/></a></li>
-          <li><i class="fa fa-chevron-circle-left"></i><a href="#" wicket:id="pull"><wicket:message key="task.pull.list"/></a></li>
-          <li><i class="fa fa-chevron-circle-right"></i><a href="#" wicket:id="push"><wicket:message key="task.push.list"/></a></li>
-        </ul>
-      </wicket:fragment>
+    <wicket:fragment wicket:id="resourceActions">
+      <ul class="menu">
+        <wicket:enclosure child="edit">
+          <li><a href="#" wicket:id="edit"><i class="fa fa-pencil"></i><wicket:message key="resource.menu.edit"/></a></li>
+        </wicket:enclosure>
+        <wicket:enclosure child="provision">
+          <li><a href="#" wicket:id="provision"><i class="fa fa-exchange"></i><wicket:message key="resource.menu.provision"/></a></li>
+        </wicket:enclosure>
+        <wicket:enclosure child="explore">
+          <li><a href="#" wicket:id="explore"><i class="fa fa-eye"></i><wicket:message key="resource.menu.explore"/></a></li>
+        </wicket:enclosure>
+        <wicket:enclosure child="propagation">
+          <li><a href="#" wicket:id="propagation"><i class="fa fa-arrow-right"></i><wicket:message key="task.propagation.list"/></a></li>
+        </wicket:enclosure>
+        <wicket:enclosure child="pull">
+          <li><a href="#" wicket:id="pull"><i class="fa fa-chevron-circle-left"></i><wicket:message key="task.pull.list"/></a></li>
+        </wicket:enclosure>
+        <wicket:enclosure child="push">
+          <li><a href="#" wicket:id="push"><i class="fa fa-chevron-circle-right"></i><wicket:message key="task.push.list"/></a></li>
+        </wicket:enclosure>
+        <wicket:enclosure child="status">
+          <li><a href="#" wicket:id="status"><i class="fa fa-list-ul"></i><wicket:message key="resource.menu.provisioning.status"/></a></li>
+        </wicket:enclosure>
+        <wicket:enclosure child="delete">
+          <li><a href="#" wicket:id="delete"><i class="fa fa-minus"></i><wicket:message key="resource.menu.remove"/></a></li>
+        </wicket:enclosure>
+      </ul>
+    </wicket:fragment>
 
-      <wicket:fragment wicket:id="locationActions">
-        <ul class="menu">
-          <li><i class="fa fa-plus"></i><a href="#" wicket:id="create"><wicket:message key="connector.menu.add"/></a></li>
-        </ul>
-      </wicket:fragment>
+    <wicket:fragment wicket:id="locationActions">
+      <ul class="menu">
+        <wicket:enclosure child="create">
+          <li><a href="#" wicket:id="create"><i class="fa fa-plus"></i><wicket:message key="connector.menu.add"/></a></li>
+        </wicket:enclosure>
+      </ul>
+    </wicket:fragment>
 
-      <wicket:fragment wicket:id="syncopeActions">
-        <ul class="menu">
-          <li><i class="fa fa-tasks"></i><a href="#" wicket:id="tasks"><wicket:message key="task.generic.list"/></a></li>
-        </ul>
-      </wicket:fragment>
+    <wicket:fragment wicket:id="syncopeActions">
+      <ul class="menu">
+        <wicket:enclosure child="reload">
+          <li><a href="#" wicket:id="reload"><i class="fa fa-refresh"></i><wicket:message key="connectors.reload"/></a></li>
+        </wicket:enclosure>
+        <wicket:enclosure child="tasks">
+          <li><a href="#" wicket:id="tasks"><i class="fa fa-tasks"></i><wicket:message key="task.custom.list"/></a></li>
+        </wicket:enclosure>
+      </ul>
+    </wicket:fragment>
 
-      <wicket:fragment wicket:id="emptyFragment"></wicket:fragment>
-    </wicket:extend>
-  </body>
+    <wicket:fragment wicket:id="emptyFragment"></wicket:fragment>
+  </wicket:extend>
 </html>

@@ -38,10 +38,9 @@ import org.apache.syncope.common.lib.patch.DeassociationPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.BulkAction;
-import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.types.SchemaType;
-import org.apache.syncope.common.rest.api.beans.AnySearchQuery;
+import org.apache.syncope.common.rest.api.beans.AnyQuery;
 
 public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSService {
 
@@ -55,7 +54,7 @@ public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSS
     @GET
     @Path("{key}/{schemaType}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Set<AttrTO> read(@NotNull @PathParam("key") Long key, @NotNull @PathParam("schemaType") SchemaType schemaType);
+    Set<AttrTO> read(@NotNull @PathParam("key") String key, @NotNull @PathParam("schemaType") SchemaType schemaType);
 
     /**
      * Reads the attribute, owned by the given any object, for the given schema type and schema.
@@ -69,7 +68,7 @@ public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSS
     @Path("{key}/{schemaType}/{schema}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     AttrTO read(
-            @NotNull @PathParam("key") Long key,
+            @NotNull @PathParam("key") String key,
             @NotNull @PathParam("schemaType") SchemaType schemaType,
             @NotNull @PathParam("schema") String schema);
 
@@ -82,18 +81,17 @@ public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSS
     @GET
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    TO read(@NotNull @PathParam("key") Long key);
+    TO read(@NotNull @PathParam("key") String key);
 
     /**
      * Returns a paged list of any objects matching the given query.
      *
-     * @param searchQuery query conditions
+     * @param anyQuery query conditions
      * @return paged list of any objects matching the given query
      */
     @GET
-    @Path("search")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    PagedResult<TO> search(@BeanParam AnySearchQuery searchQuery);
+    PagedResult<TO> search(@BeanParam AnyQuery anyQuery);
 
     /**
      * Creates a new any object.
@@ -133,7 +131,7 @@ public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSS
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response update(
-            @NotNull @PathParam("key") Long key,
+            @NotNull @PathParam("key") String key,
             @NotNull @PathParam("schemaType") SchemaType schemaType,
             @NotNull AttrTO attrTO);
 
@@ -162,7 +160,7 @@ public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSS
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     void delete(
-            @NotNull @PathParam("key") Long key,
+            @NotNull @PathParam("key") String key,
             @NotNull @PathParam("schemaType") SchemaType schemaType,
             @NotNull @PathParam("schema") String schema);
 
@@ -177,7 +175,7 @@ public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSS
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response delete(@NotNull @PathParam("key") Long key);
+    Response delete(@NotNull @PathParam("key") String key);
 
     /**
      * Executes resource-related operations on given any object.
@@ -207,11 +205,11 @@ public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSS
      * Executes the provided bulk action.
      *
      * @param bulkAction list of any object ids against which the bulk action will be performed.
-     * @return Bulk action result
+     * @return Response object featuring BulkActionResult as Entity
      */
     @POST
     @Path("bulk")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    BulkActionResult bulk(@NotNull BulkAction bulkAction);
+    Response bulk(@NotNull BulkAction bulkAction);
 }

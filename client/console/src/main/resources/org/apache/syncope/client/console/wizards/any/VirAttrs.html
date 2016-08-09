@@ -16,18 +16,11 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org" >
-  <head><title></title></head>
-  <body>
-    <wicket:panel>
-      <div id="emptyPlaceholder"/>
-      <div wicket:id="virAttrContainer">
-        <div class="form-group" wicket:id="attrs">
-          <span wicket:id="panel">
-            [panel for dynamic input type markup]
-          </span>
-        </div>
-      </div>
-    </wicket:panel>
-  </body>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+  <wicket:extend>
+    <div wicket:id="virSchemas"/>
+    <span wicket:id="membershipsVirSchemas">
+      <div wicket:id="membershipVirSchemas"/>
+    </span>
+  </wicket:extend>
 </html>

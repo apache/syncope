@@ -74,18 +74,15 @@ public class AnyObjectSearchPanel extends AbstractSearchPanel {
             }
         };
 
-        this.groupNames = new LoadableDetachableModel<Map<Long, String>>() {
+        this.groupNames = new LoadableDetachableModel<Map<String, String>>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
-            protected Map<Long, String> load() {
-                List<GroupTO> groupTOs = groupRestClient.list("/",
-                        -1, -1,
-                        new SortParam<>("name", true),
-                        null);
+            protected Map<String, String> load() {
+                List<GroupTO> groupTOs = groupRestClient.search("/", null, -1, -1, new SortParam<>("name", true), null);
 
-                final Map<Long, String> result = new HashMap<>(groupTOs.size());
+                final Map<String, String> result = new HashMap<>(groupTOs.size());
                 for (GroupTO group : groupTOs) {
                     result.put(group.getKey(), group.getName());
                 }
@@ -96,7 +93,7 @@ public class AnyObjectSearchPanel extends AbstractSearchPanel {
     }
 
     protected List<SearchClause.Type> getAvailableTypes() {
-        List<SearchClause.Type> result = new ArrayList<SearchClause.Type>();
+        List<SearchClause.Type> result = new ArrayList<>();
         result.add(SearchClause.Type.ATTRIBUTE);
         result.add(SearchClause.Type.GROUP_MEMBERSHIP);
         result.add(SearchClause.Type.RESOURCE);

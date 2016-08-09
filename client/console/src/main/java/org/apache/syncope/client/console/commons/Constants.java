@@ -18,7 +18,16 @@
  */
 package org.apache.syncope.client.console.commons;
 
+import de.agilecoders.wicket.core.markup.html.bootstrap.components.PopoverBehavior;
+import de.agilecoders.wicket.core.markup.html.bootstrap.components.PopoverConfig;
+import de.agilecoders.wicket.core.markup.html.bootstrap.components.TooltipConfig;
+import org.apache.wicket.Component;
+import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.model.Model;
+
 public final class Constants {
+
+    public static final String SYNCOPE = "syncope";
 
     public static final String ON_CLICK = "click";
 
@@ -86,6 +95,8 @@ public final class Constants {
 
     public static final String PREF_GROUP_PAGINATOR_ROWS = "group.paginator.rows";
 
+    public static final String PREF_CONNOBJECTS_PAGINATOR_ROWS = "connobjects.paginator.rows";
+
     public static final String PREF_ROLE_PAGINATOR_ROWS = "role.paginator.rows";
 
     public static final String PREF_WORKFLOW_FORM_PAGINATOR_ROWS = "role.paginator.workflow.form";
@@ -96,7 +107,17 @@ public final class Constants {
 
     public static final String PREF_NOTIFICATION_PAGINATOR_ROWS = "notification.paginator.rows";
 
+    public static final String PREF_MAIL_TEMPLATE_PAGINATOR_ROWS = "mail.template.paginator.rows";
+
     public static final String PREF_PROPAGATION_TASKS_PAGINATOR_ROWS = "proagationtasks.paginator.rows";
+
+    public static final String PREF_REPORT_TASKS_PAGINATOR_ROWS = "report.paginator.rows";
+
+    public static final String PREF_REPORTLET_TASKS_PAGINATOR_ROWS = "reportlet.paginator.rows";
+
+    public static final String PREF_POLICY_RULE_PAGINATOR_ROWS = "policy.rules.paginator.rows";
+
+    public static final String PREF_POLICY_PAGINATOR_ROWS = "policy.paginator.rows";
 
     public static final String PREF_TASK_EXECS_PAGINATOR_ROWS = "task.execs.paginator.rows";
 
@@ -108,6 +129,8 @@ public final class Constants {
 
     public static final String PREF_PUSH_TASKS_PAGINATOR_ROWS = "pushtasks.paginator.rows";
 
+    public static final String PREF_TYPE_EXTENSIONS_PAGINATOR_ROWS = "typeextensions.paginator.rows";
+
     public static final String PREF_TODO_PAGINATOR_ROWS = "todo.paginator.rows";
 
     public static final String PREF_REPORT_PAGINATOR_ROWS = "report.paginator.rows";
@@ -115,8 +138,6 @@ public final class Constants {
     public static final String PAGEPARAM_CREATE = "CREATE";
 
     public static final String PAGEPARAM_CURRENT_PAGE = "_current_page";
-
-    public static final String PREF_POLICY_PAGINATOR_ROWS = "policy.paginator.rows";
 
     public static final String PREF_ANY_OBJECT_DETAILS_VIEW = "anyobject.%s.details.view";
 
@@ -143,6 +164,27 @@ public final class Constants {
      * ConnId's GuardedByteArray is not in the classpath.
      */
     public static final String GUARDED_BYTE_ARRAY = "org.identityconnectors.common.security.GuardedByteArray";
+
+    public static Component getJEXLPopover(final Component caller, final TooltipConfig.Placement placement) {
+        return new Label("jexlInfo", Model.of()).add(new PopoverBehavior(
+                Model.<String>of(),
+                Model.of(caller.getString("jexl_info")
+                        + "<ul>"
+                        + "<li>" + caller.getString("jexl_ex1") + "</li>"
+                        + "<li>" + caller.getString("jexl_ex2") + "</li>"
+                        + "</ul>"
+                        + "<a href='https://commons.apache.org/proper/commons-jexl/reference/index.html' "
+                        + "target='_blank'>" + caller.getString("jexl_syntax_url") + "</a>"),
+                new PopoverConfig().withHtml(true).withPlacement(placement)) {
+
+            private static final long serialVersionUID = -7867802555691605021L;
+
+            @Override
+            protected String createRelAttribute() {
+                return "jexlInfo";
+            }
+        });
+    }
 
     private Constants() {
         // private constructor for static utility class

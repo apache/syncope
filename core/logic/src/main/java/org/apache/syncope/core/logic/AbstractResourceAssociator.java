@@ -24,19 +24,19 @@ import org.apache.syncope.common.lib.to.ProvisioningResult;
 
 public abstract class AbstractResourceAssociator<A extends AnyTO> extends AbstractLogic<A> {
 
-    public abstract A unlink(Long key, Collection<String> resources);
+    public abstract A unlink(String key, Collection<String> resources);
 
-    public abstract A link(Long key, Collection<String> resources);
+    public abstract A link(String key, Collection<String> resources);
 
     public abstract ProvisioningResult<A> unassign(
-            Long key, Collection<String> resources, boolean nullPriorityAsync);
+            String key, Collection<String> resources, boolean nullPriorityAsync);
 
     public abstract ProvisioningResult<A> assign(
-            Long key, Collection<String> resources, boolean changepwd, String password, boolean nullPriorityAsync);
+            String key, Collection<String> resources, boolean changepwd, String password, boolean nullPriorityAsync);
 
     public abstract ProvisioningResult<A> deprovision(
-            Long key, Collection<String> resources, boolean nullPriorityAsync);
+            String key, Collection<String> resources, boolean nullPriorityAsync);
 
     public abstract ProvisioningResult<A> provision(
-            Long key, Collection<String> resources, boolean changepwd, String password, boolean nullPriorityAsync);
+            String key, Collection<String> resources, boolean changepwd, String password, boolean nullPriorityAsync);
 }

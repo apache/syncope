@@ -102,7 +102,7 @@ public class XMLContentLoader extends AbstractContentDealer implements ContentLo
             in = contentXML.getResource().getInputStream();
 
             SAXParser parser = factory.newSAXParser();
-            parser.parse(in, new ContentLoaderHandler(dataSource, ROOT_ELEMENT));
+            parser.parse(in, new ContentLoaderHandler(dataSource, ROOT_ELEMENT, true));
             LOG.debug("[{}] Default content successfully loaded", domain);
         } finally {
             IOUtils.closeQuietly(in);

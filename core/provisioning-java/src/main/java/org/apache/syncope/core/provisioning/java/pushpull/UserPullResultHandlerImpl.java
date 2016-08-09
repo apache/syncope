@@ -54,7 +54,7 @@ public class UserPullResultHandlerImpl extends AbstractPullResultHandler impleme
     }
 
     @Override
-    protected Any<?> getAny(final long key) {
+    protected Any<?> getAny(final String key) {
         try {
             return userDAO.authFind(key);
         } catch (Exception e) {
@@ -64,19 +64,19 @@ public class UserPullResultHandlerImpl extends AbstractPullResultHandler impleme
     }
 
     @Override
-    protected AnyTO getAnyTO(final long key) {
+    protected AnyTO getAnyTO(final String key) {
         return userDataBinder.getUserTO(key);
     }
 
     @Override
-    protected AnyPatch newPatch(final long key) {
+    protected AnyPatch newPatch(final String key) {
         UserPatch patch = new UserPatch();
         patch.setKey(key);
         return patch;
     }
 
     @Override
-    protected WorkflowResult<Long> update(final AnyPatch patch) {
+    protected WorkflowResult<String> update(final AnyPatch patch) {
         WorkflowResult<Pair<UserPatch, Boolean>> update = uwfAdapter.update((UserPatch) patch);
         return new WorkflowResult<>(
                 update.getResult().getLeft().getKey(), update.getPropByRes(), update.getPerformedTasks());
@@ -87,7 +87,7 @@ public class UserPullResultHandlerImpl extends AbstractPullResultHandler impleme
         UserTO userTO = UserTO.class.cast(anyTO);
 
         Boolean enabled = pullUtils.readEnabled(delta.getObject(), profile.getTask());
-        Map.Entry<Long, List<PropagationStatus>> created =
+        Map.Entry<String, List<PropagationStatus>> created =
                 userProvisioningManager.create(userTO, true, true, enabled,
                         Collections.singleton(profile.getTask().getResource().getKey()), true);
 
@@ -107,7 +107,7 @@ public class UserPullResultHandlerImpl extends AbstractPullResultHandler impleme
         UserPatch userPatch = UserPatch.class.cast(anyPatch);
         Boolean enabled = pullUtils.readEnabled(delta.getObject(), profile.getTask());
 
-        Map.Entry<Long, List<PropagationStatus>> updated = userProvisioningManager.update(
+        Map.Entry<String, List<PropagationStatus>> updated = userProvisioningManager.update(
                 userPatch,
                 result,
                 enabled,
@@ -118,7 +118,7 @@ public class UserPullResultHandlerImpl extends AbstractPullResultHandler impleme
     }
 
     @Override
-    protected void doDelete(final AnyTypeKind kind, final Long key) {
+    protected void doDelete(final AnyTypeKind kind, final String key) {
         try {
             userProvisioningManager.delete(
                     key, Collections.<String>singleton(profile.getTask().getResource().getKey()), true);

@@ -18,14 +18,15 @@
  */
 package org.apache.syncope.core.provisioning.api.data;
 
+import java.util.Map;
 import org.apache.syncope.common.lib.patch.GroupPatch;
 import org.apache.syncope.common.lib.to.GroupTO;
-import org.apache.syncope.common.lib.types.PropagationByResource;
+import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 
 public interface GroupDataBinder {
 
-    GroupTO getGroupTO(Long key);
+    GroupTO getGroupTO(String key);
 
     GroupTO getGroupTO(Group group, boolean details);
 
@@ -33,4 +34,21 @@ public interface GroupDataBinder {
 
     PropagationByResource update(Group group, GroupPatch groupPatch);
 
+    /**
+     * Finds any objects having resources assigned exclusively because of memberships of the given group.
+     *
+     * @param groupKey group key
+     * @return map containing pairs with any object key and operations to be performed on those resources (DELETE,
+     * typically).
+     */
+    Map<String, PropagationByResource> findAnyObjectsWithTransitiveResources(String groupKey);
+
+    /**
+     * Finds users having resources assigned exclusively because of memberships of the given group.
+     *
+     * @param groupKey group key
+     * @return map containing pairs with user key and operations to be performed on those resources (DELETE,
+     * typically).
+     */
+    Map<String, PropagationByResource> findUsersWithTransitiveResources(String groupKey);
 }

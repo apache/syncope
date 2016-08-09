@@ -25,22 +25,22 @@ import org.apache.syncope.common.lib.AbstractBaseBean;
 
 @XmlRootElement(name = "securityQuestion")
 @XmlType
-public class SecurityQuestionTO extends AbstractBaseBean implements EntityTO<Long> {
+public class SecurityQuestionTO extends AbstractBaseBean implements EntityTO {
 
     private static final long serialVersionUID = 5969810939993556530L;
 
-    private Long key;
+    private String key;
 
     private String content;
 
     @Override
-    public Long getKey() {
+    public String getKey() {
         return key;
     }
 
     @PathParam("key")
     @Override
-    public void setKey(final Long key) {
+    public void setKey(final String key) {
         this.key = key;
     }
 

@@ -177,19 +177,3 @@ div.node-action-link .dropdown-menu{
   margin: 0px;
   border-radius: 0.5em;
 }
-
-/**
-START - CRONTAB
-*/
-div#schedule input, div#schedule fieldset {
-  width: 50px;
-  float: left
-}
-
-div#templates {
-  padding-top: 30px;
-  clear: both;
-}
-/**
-END -CRONTAB
-*/

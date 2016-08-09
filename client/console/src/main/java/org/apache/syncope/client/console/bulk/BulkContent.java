@@ -26,12 +26,15 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.status.StatusBean;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
-import org.apache.syncope.client.console.rest.BaseRestClient;
+import org.apache.syncope.client.console.rest.RestClient;
+import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BulkActionResultColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -39,8 +42,6 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.Acti
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
-import org.apache.syncope.common.lib.types.ResourceAssociationAction;
-import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackDefaultDataTable;
@@ -64,7 +65,7 @@ public class BulkContent<T extends Serializable, S> extends MultilevelPanel.Seco
             final Collection<T> items,
             final List<IColumn<T, S>> columns,
             final Collection<ActionLink.ActionType> actions,
-            final BaseRestClient bulkActionExecutor,
+            final RestClient bulkActionExecutor,
             final String keyFieldName) {
 
         this(MultilevelPanel.SECOND_LEVEL_ID, modal, items, columns, actions, bulkActionExecutor, keyFieldName);
@@ -76,7 +77,7 @@ public class BulkContent<T extends Serializable, S> extends MultilevelPanel.Seco
             final Collection<T> items,
             final List<IColumn<T, S>> columns,
             final Collection<ActionLink.ActionType> actions,
-            final BaseRestClient bulkActionExecutor,
+            final RestClient bulkActionExecutor,
             final String keyFieldName) {
 
         super(id);
@@ -122,10 +123,25 @@ public class BulkContent<T extends Serializable, S> extends MultilevelPanel.Seco
                 private static final long serialVersionUID = -3722207913631435501L;
 
                 @Override
+                protected boolean statusCondition(final Serializable modelObject) {
+                    return CollectionUtils.isNotEmpty(items);
+                }
+
+                @Override
                 public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                     try {
+                        if (CollectionUtils.isEmpty(items)) {
+                            throw new IllegalArgumentException("Invalid items");
+                        }
+
+                        String fieldName = keyFieldName;
+
                         BulkActionResult res = null;
                         try {
+                            if (items.iterator().next() instanceof StatusBean) {
+                                throw new IllegalArgumentException("Invalid items");
+                            }
+
                             final BulkAction bulkAction = new BulkAction();
                             bulkAction.setType(BulkAction.Type.valueOf(actionToBeAddresed.name()));
                             for (T item : items) {
@@ -139,19 +155,19 @@ public class BulkContent<T extends Serializable, S> extends MultilevelPanel.Seco
                                     bulkActionExecutor.getClass().getMethod("bulkAction", BulkAction.class).invoke(
                                     bulkActionExecutor, bulkAction));
                         } catch (IllegalArgumentException biae) {
+                            if (!(items.iterator().next() instanceof StatusBean)) {
+                                throw new IllegalArgumentException("Invalid items");
+                            }
+
                             if (!(bulkActionExecutor instanceof AbstractAnyRestClient)) {
                                 throw new IllegalArgumentException("Invalid bulk action executor");
                             }
 
-                            final AbstractAnyRestClient<?> anyRestClient
-                                    = AbstractAnyRestClient.class.cast(bulkActionExecutor);
-
-                            if (items.isEmpty() || !(items.iterator().next() instanceof StatusBean)) {
-                                throw new IllegalArgumentException("Invalid items");
-                            }
+                            final AbstractAnyRestClient<?, ?> anyRestClient = AbstractAnyRestClient.class.cast(
+                                    bulkActionExecutor);
 
                             // Group bean information by anyKey
-                            final Map<Long, List<StatusBean>> beans = new HashMap<>();
+                            final Map<String, List<StatusBean>> beans = new HashMap<>();
                             for (T bean : items) {
                                 final StatusBean sb = StatusBean.class.cast(bean);
                                 final List<StatusBean> sblist;
@@ -164,36 +180,39 @@ public class BulkContent<T extends Serializable, S> extends MultilevelPanel.Seco
                                 sblist.add(sb);
                             }
 
-                            for (Map.Entry<Long, List<StatusBean>> entry : beans.entrySet()) {
+                            for (Map.Entry<String, List<StatusBean>> entry : beans.entrySet()) {
                                 final String etag = anyRestClient.read(entry.getKey()).getETagValue();
-                                try {
-                                    switch (ResourceDeassociationAction.valueOf(actionToBeAddresed.name())) {
-                                        case DEPROVISION:
-                                            res = anyRestClient.deprovision(etag, entry.getKey(), entry.getValue());
-                                            break;
-                                        case UNASSIGN:
-                                            res = anyRestClient.unassign(etag, entry.getKey(), entry.getValue());
-                                            break;
-                                        case UNLINK:
-                                            res = anyRestClient.unlink(etag, entry.getKey(), entry.getValue());
-                                            break;
-                                        default:
-                                            break;
-                                    }
-                                } catch (IllegalArgumentException diae) {
-                                    switch (ResourceAssociationAction.valueOf(actionToBeAddresed.name())) {
-                                        case ASSIGN:
-                                            res = anyRestClient.assign(etag, entry.getKey(), entry.getValue());
-                                            break;
-                                        case LINK:
-                                            res = anyRestClient.link(etag, entry.getKey(), entry.getValue());
-                                            break;
-                                        case PROVISION:
-                                            res = anyRestClient.provision(etag, entry.getKey(), entry.getValue());
-                                            break;
-                                        default:
-                                            break;
-                                    }
+                                switch (actionToBeAddresed.name()) {
+                                    case "DEPROVISION":
+                                        res = anyRestClient.deprovision(etag, entry.getKey(), entry.getValue());
+                                        break;
+                                    case "UNASSIGN":
+                                        res = anyRestClient.unassign(etag, entry.getKey(), entry.getValue());
+                                        break;
+                                    case "UNLINK":
+                                        res = anyRestClient.unlink(etag, entry.getKey(), entry.getValue());
+                                        break;
+                                    case "ASSIGN":
+                                        res = anyRestClient.assign(etag, entry.getKey(), entry.getValue());
+                                        break;
+                                    case "LINK":
+                                        res = anyRestClient.link(etag, entry.getKey(), entry.getValue());
+                                        break;
+                                    case "PROVISION":
+                                        res = anyRestClient.provision(etag, entry.getKey(), entry.getValue());
+                                        break;
+                                    case "REACTIVATE":
+                                        res = ((UserRestClient) anyRestClient).
+                                                reactivate(etag, entry.getKey(), entry.getValue());
+                                        fieldName = "resourceName";
+                                        break;
+                                    case "SUSPEND":
+                                        res = ((UserRestClient) anyRestClient).
+                                                suspend(etag, entry.getKey(), entry.getValue());
+                                        fieldName = "resourceName";
+                                        break;
+                                    default:
+                                        break;
                                 }
                             }
                         }
@@ -203,7 +222,7 @@ public class BulkContent<T extends Serializable, S> extends MultilevelPanel.Seco
                         }
 
                         final List<IColumn<T, S>> newColumnList = new ArrayList<>(columns);
-                        newColumnList.add(newColumnList.size(), new BulkActionResultColumn<T, S>(res, keyFieldName));
+                        newColumnList.add(newColumnList.size(), new BulkActionResultColumn<T, S>(res, fieldName));
 
                         container.addOrReplace(new AjaxFallbackDefaultDataTable<>(
                                 "selectedObjects",
@@ -216,12 +235,13 @@ public class BulkContent<T extends Serializable, S> extends MultilevelPanel.Seco
                         target.add(container);
                         target.add(actionPanel);
 
-                        info(getString(Constants.OPERATION_SUCCEEDED));
+                        SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     } catch (Exception e) {
                         LOG.error("Bulk action failure", e);
-                        error("Operation " + actionToBeAddresed.getActionId() + " not supported");
+                        SyncopeConsoleSession.get().error("Operation " + actionToBeAddresed.getActionId()
+                                + " not supported");
                     }
-                    SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                    ((BasePage) getPage()).getNotificationPanel().refresh(target);
                 }
             }, action, StandardEntitlement.CONFIGURATION_LIST, !items.isEmpty());
         }

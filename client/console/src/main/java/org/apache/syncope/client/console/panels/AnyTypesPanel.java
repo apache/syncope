@@ -29,12 +29,13 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.commons.SearchableDataProvider;
+import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.AnyTypesPanel.AnyTypeProvider;
+import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wizards.AbstractModalPanelBuilder;
@@ -53,21 +54,22 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 
-public class AnyTypesPanel extends AbstractTypesPanel<AnyTypeTO, AnyTypeProvider> {
+public class AnyTypesPanel extends TypesDirectoryPanel<AnyTypeTO, AnyTypeProvider> {
 
     private static final long serialVersionUID = 3905038169553185171L;
+
+    private final AnyTypeRestClient anyTypeRestClient = new AnyTypeRestClient();
 
     public AnyTypesPanel(final String id, final PageReference pageRef) {
         super(id, pageRef);
         disableCheckBoxes();
 
-        this.addNewItemPanelBuilder(new AbstractModalPanelBuilder<AnyTypeTO>(
-                BaseModal.CONTENT_ID, new AnyTypeTO(), pageRef) {
+        this.addNewItemPanelBuilder(new AbstractModalPanelBuilder<AnyTypeTO>(new AnyTypeTO(), pageRef) {
 
             private static final long serialVersionUID = -6388405037134399367L;
 
             @Override
-            public ModalPanel<AnyTypeTO> build(final int index, final AjaxWizard.Mode mode) {
+            public WizardModalPanel<AnyTypeTO> build(final String id, final int index, final AjaxWizard.Mode mode) {
                 final AnyTypeTO modelObject = newModelObject();
                 return new AnyTypeModalPanel(modal, modelObject, pageRef) {
 
@@ -77,25 +79,27 @@ public class AnyTypesPanel extends AbstractTypesPanel<AnyTypeTO, AnyTypeProvider
                     public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                         try {
                             if (getOriginalItem() == null || StringUtils.isBlank(getOriginalItem().getKey())) {
-                                SyncopeConsoleSession.get().getService(AnyTypeService.class).create(modelObject);
+                                anyTypeRestClient.create(modelObject);
                                 SyncopeConsoleSession.get().refreshAuth();
                             } else {
-                                SyncopeConsoleSession.get().getService(AnyTypeService.class).update(modelObject);
+                                anyTypeRestClient.update(modelObject);
                             }
-                            info(getString(Constants.OPERATION_SUCCEEDED));
+                            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                            AnyTypesPanel.this.updateResultTable(target);
                             modal.close(target);
                         } catch (Exception e) {
                             LOG.error("While creating or updating {}", modelObject, e);
-                            error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+                            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().
+                                    getName() : e.getMessage());
                         }
-                        SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                     }
                 };
             }
         }, true);
 
         initResultTable();
-        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, ENABLE, StandardEntitlement.ANYTYPE_CREATE);
+        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.ANYTYPE_CREATE);
     }
 
     @Override
@@ -150,7 +154,7 @@ public class AnyTypesPanel extends AbstractTypesPanel<AnyTypeTO, AnyTypeProvider
             }
         }
 
-        columns.add(new ActionColumn<AnyTypeTO, String>(new ResourceModel("actions", "")) {
+        columns.add(new ActionColumn<AnyTypeTO, String>(new ResourceModel("actions")) {
 
             private static final long serialVersionUID = 906457126287899096L;
 
@@ -180,14 +184,14 @@ public class AnyTypesPanel extends AbstractTypesPanel<AnyTypeTO, AnyTypeProvider
                                             getService(AnyTypeService.class).delete(model.getObject().getKey());
                                     SyncopeConsoleSession.get().refreshAuth();
 
-                                    info(getString(Constants.OPERATION_SUCCEEDED));
+                                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                                     target.add(container);
                                 } catch (Exception e) {
                                     LOG.error("While deleting {}", model.getObject(), e);
-                                    error(StringUtils.isBlank(e.getMessage())
+                                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
                                             ? e.getClass().getName() : e.getMessage());
                                 }
-                                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                             }
                         }, ActionLink.ActionType.DELETE, StandardEntitlement.ANYTYPE_DELETE).
                         build(componentId);
@@ -216,7 +220,7 @@ public class AnyTypesPanel extends AbstractTypesPanel<AnyTypeTO, AnyTypeProvider
         return columns;
     }
 
-    protected final class AnyTypeProvider extends SearchableDataProvider<AnyTypeTO> {
+    protected final class AnyTypeProvider extends DirectoryDataProvider<AnyTypeTO> {
 
         private static final long serialVersionUID = -185944053385660794L;
 
@@ -229,14 +233,14 @@ public class AnyTypesPanel extends AbstractTypesPanel<AnyTypeTO, AnyTypeProvider
 
         @Override
         public Iterator<AnyTypeTO> iterator(final long first, final long count) {
-            final List<AnyTypeTO> list = SyncopeConsoleSession.get().getService(AnyTypeService.class).list();
+            final List<AnyTypeTO> list = anyTypeRestClient.list();
             Collections.sort(list, comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return SyncopeConsoleSession.get().getService(AnyTypeService.class).list().size();
+            return anyTypeRestClient.list().size();
         }
 
         @Override

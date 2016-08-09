@@ -26,7 +26,7 @@ import org.apache.syncope.core.persistence.jpa.entity.JPAReportTemplate;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class JPAReportTemplateDAO extends AbstractDAO<ReportTemplate, String> implements ReportTemplateDAO {
+public class JPAReportTemplateDAO extends AbstractDAO<ReportTemplate> implements ReportTemplateDAO {
 
     @Override
     public ReportTemplate find(final String key) {

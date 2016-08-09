@@ -34,7 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class JPAConnInstanceDAO extends AbstractDAO<ConnInstance, Long> implements ConnInstanceDAO {
+public class JPAConnInstanceDAO extends AbstractDAO<ConnInstance> implements ConnInstanceDAO {
 
     @Autowired
     private ExternalResourceDAO resourceDAO;
@@ -43,7 +43,7 @@ public class JPAConnInstanceDAO extends AbstractDAO<ConnInstance, Long> implemen
     private ConnectorRegistry connRegistry;
 
     @Override
-    public ConnInstance find(final Long key) {
+    public ConnInstance find(final String key) {
         return entityManager().find(JPAConnInstance.class, key);
     }
 
@@ -70,7 +70,7 @@ public class JPAConnInstanceDAO extends AbstractDAO<ConnInstance, Long> implemen
     }
 
     @Override
-    public void delete(final Long key) {
+    public void delete(final String key) {
         ConnInstance connInstance = find(key);
         if (connInstance == null) {
             return;

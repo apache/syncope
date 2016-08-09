@@ -24,6 +24,7 @@ import javax.persistence.TypedQuery;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
+import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
@@ -33,12 +34,13 @@ import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
+import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyTypeClass;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class JPAAnyTypeClassDAO extends AbstractDAO<AnyTypeClass, String> implements AnyTypeClassDAO {
+public class JPAAnyTypeClassDAO extends AbstractDAO<AnyTypeClass> implements AnyTypeClassDAO {
 
     @Autowired
     private AnyTypeDAO anyTypeDAO;
@@ -54,6 +56,9 @@ public class JPAAnyTypeClassDAO extends AbstractDAO<AnyTypeClass, String> implem
 
     @Autowired
     private GroupDAO groupDAO;
+
+    @Autowired
+    private ExternalResourceDAO resourceDAO;
 
     @Override
     public AnyTypeClass find(final String key) {
@@ -105,13 +110,17 @@ public class JPAAnyTypeClassDAO extends AbstractDAO<AnyTypeClass, String> implem
             type.getClasses().remove(anyTypeClass);
         }
 
-        for (TypeExtension typeExt : groupDAO.findTypeExtensionByAnyTypeClass(anyTypeClass)) {
+        for (TypeExtension typeExt : groupDAO.findTypeExtensions(anyTypeClass)) {
             typeExt.getAuxClasses().remove(anyTypeClass);
 
             if (typeExt.getAuxClasses().isEmpty()) {
                 typeExt.getGroup().getTypeExtensions().remove(typeExt);
                 typeExt.setGroup(null);
             }
+        }
+
+        for (Provision provision : resourceDAO.findProvisionsByAuxClass(anyTypeClass)) {
+            provision.getAuxClasses().remove(anyTypeClass);
         }
 
         entityManager().remove(anyTypeClass);

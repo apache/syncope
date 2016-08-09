@@ -25,25 +25,20 @@ import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
-import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResource;
 import org.apache.syncope.core.persistence.jpa.validation.entity.AnyCheck;
 
 @AnyCheck
 @MappedSuperclass
-public abstract class AbstractAny<P extends PlainAttr<?>>
-        extends AbstractAnnotatedEntity<Long>
-        implements Any<P> {
+public abstract class AbstractAny<P extends PlainAttr<?>> extends AbstractAnnotatedEntity implements Any<P> {
 
     private static final long serialVersionUID = -2666540708092702810L;
 
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER)
     private JPARealm realm;
 
     private String workflowId;
@@ -83,33 +78,8 @@ public abstract class AbstractAny<P extends PlainAttr<?>>
     }
 
     @Override
-    public P getPlainAttr(final String plainSchemaName) {
-        return IterableUtils.find(getPlainAttrs(), new Predicate<P>() {
-
-            @Override
-            public boolean evaluate(final P plainAttr) {
-                return plainAttr != null && plainAttr.getSchema() != null
-                        && plainSchemaName.equals(plainAttr.getSchema().getKey());
-            }
-        });
-    }
-
-    protected abstract List<JPAExternalResource> internalGetResources();
-
-    @Override
-    public boolean add(final ExternalResource resource) {
-        checkType(resource, JPAExternalResource.class);
-        return internalGetResources().add((JPAExternalResource) resource);
-    }
-
-    @Override
-    public List<String> getResourceNames() {
+    public List<String> getResourceKeys() {
         return CollectionUtils.collect(
-                getResources(), EntityUtils.<String, ExternalResource>keyTransformer(), new ArrayList<String>());
-    }
-
-    @Override
-    public List<? extends ExternalResource> getResources() {
-        return internalGetResources();
+                getResources(), EntityUtils.<ExternalResource>keyTransformer(), new ArrayList<String>());
     }
 }

@@ -18,33 +18,13 @@
  */
 package org.apache.syncope.common.rest.api.service;
 
-import javax.validation.constraints.NotNull;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.MatrixParam;
 import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
 import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
-import org.apache.syncope.common.lib.to.PagedResult;
-import org.apache.syncope.common.rest.api.beans.AnyListQuery;
 
 /**
  * REST operations for anyObjects.
  */
 @Path("anyObjects")
 public interface AnyObjectService extends AnyService<AnyObjectTO, AnyObjectPatch> {
-
-    /**
-     * Returns a paged list of existing any objects matching the given query, for the given type.
-     *
-     * @param type any type
-     * @param listQuery query conditions
-     * @return paged list of existing any objects matching the given query, for the given type
-     */
-    @GET
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    PagedResult<AnyObjectTO> list(@NotNull @MatrixParam("type") String type, @BeanParam AnyListQuery listQuery);
-
 }

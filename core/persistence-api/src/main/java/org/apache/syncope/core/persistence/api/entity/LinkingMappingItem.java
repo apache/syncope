@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.api.entity;
 
 import java.util.Collections;
 import java.util.List;
-import org.apache.syncope.common.lib.types.IntMappingType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
@@ -39,8 +38,8 @@ public class LinkingMappingItem implements MappingItem {
     }
 
     @Override
-    public Long getKey() {
-        return -1L;
+    public String getKey() {
+        return null;
     }
 
     @Override
@@ -70,26 +69,6 @@ public class LinkingMappingItem implements MappingItem {
 
     @Override
     public void setIntAttrName(final String intAttrName) {
-        // RO instance, nothing to do
-    }
-
-    @Override
-    public IntMappingType getIntMappingType() {
-        switch (virSchema.getProvision().getAnyType().getKind()) {
-            case ANY_OBJECT:
-                return IntMappingType.AnyObjectVirtualSchema;
-
-            case GROUP:
-                return IntMappingType.GroupVirtualSchema;
-
-            case USER:
-            default:
-                return IntMappingType.UserVirtualSchema;
-        }
-    }
-
-    @Override
-    public void setIntMappingType(final IntMappingType intMappingType) {
         // RO instance, nothing to do
     }
 
@@ -130,6 +109,26 @@ public class LinkingMappingItem implements MappingItem {
 
     @Override
     public void setPassword(final boolean password) {
+        // RO instance, nothing to do
+    }
+
+    @Override
+    public String getPropagationJEXLTransformer() {
+        return null;
+    }
+
+    @Override
+    public void setPropagationJEXLTransformer(final String propagationJEXLTransformer) {
+        // RO instance, nothing to do
+    }
+
+    @Override
+    public String getPullJEXLTransformer() {
+        return null;
+    }
+
+    @Override
+    public void setPullJEXLTransformer(final String pullJEXLTransformer) {
         // RO instance, nothing to do
     }
 

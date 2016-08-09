@@ -39,7 +39,8 @@ public class SecurityQuestionITCase extends AbstractITCase {
 
     @Test
     public void read() {
-        SecurityQuestionTO securityQuestionTO = securityQuestionService.read(1L);
+        SecurityQuestionTO securityQuestionTO = securityQuestionService.read(
+                "887028ea-66fc-41e7-b397-620d7ea6dfbb");
         assertNotNull(securityQuestionTO);
     }
 
@@ -70,7 +71,8 @@ public class SecurityQuestionITCase extends AbstractITCase {
 
     @Test
     public void update() {
-        SecurityQuestionTO securityQuestionTO = securityQuestionService.read(1L);
+        SecurityQuestionTO securityQuestionTO = securityQuestionService.read(
+                "887028ea-66fc-41e7-b397-620d7ea6dfbb");
         securityQuestionTO.setContent("What is your favorite color?");
 
         securityQuestionService.update(securityQuestionTO);

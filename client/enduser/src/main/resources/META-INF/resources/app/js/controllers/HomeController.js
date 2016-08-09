@@ -20,20 +20,4 @@
 'use strict';
 
 angular.module("home").controller("HomeController", ['$scope', '$http', '$location', function ($scope, $http, $location) {
-    $scope.title = 'Hello world!';
-    $scope.subtitle = 'Hello world SUBTITLE!';
-    $scope.name = "";
-
-// check if user is logged or not, check session variables: if user isn't logged redirect to login page
-
-      console.log("SONO IN HomeController");
-      
-//      var isLogged = false;
-//      if (!isLogged) {
-//        console.log("REDIRECT TO LOGIN PAGE");
-////        window.location = "./self.html";
-//        $location.path("/self");
-//      }
-
-    
   }]);

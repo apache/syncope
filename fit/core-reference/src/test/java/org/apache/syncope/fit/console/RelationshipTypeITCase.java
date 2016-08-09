@@ -41,17 +41,17 @@ public class RelationshipTypeITCase extends AbstractTypesITCase {
 
         Component result = findComponentByProp(KEY, DATATABLE_PATH, "inclusion");
 
-        wicketTester.assertComponent(
+        TESTER.assertComponent(
                 result.getPageRelativePath() + ":cells:1:cell", Label.class);
 
-        wicketTester.assertComponent(
+        TESTER.assertComponent(
                 result.getPageRelativePath() + ":cells:3:cell:panelEdit:editLink", IndicatingAjaxLink.class);
 
-        wicketTester.clickLink(
+        TESTER.clickLink(
                 result.getPageRelativePath() + ":cells:3:cell:panelEdit:editLink");
 
-        wicketTester.assertComponent(
-                "body:content:tabbedPanel:panel:modal", BaseModal.class);
+        TESTER.assertComponent(
+                "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer", BaseModal.class);
     }
 
     @Test
@@ -60,12 +60,12 @@ public class RelationshipTypeITCase extends AbstractTypesITCase {
         createRelationshipType(name);
         browsingToRelationshipType();
 
-        wicketTester.assertComponent(DATATABLE_PATH, AjaxDataTablePanel.class);
+        TESTER.assertComponent(DATATABLE_PATH, AjaxDataTablePanel.class);
 
         Component result = findComponentByProp(KEY, DATATABLE_PATH, name);
 
-        wicketTester.assertLabel(result.getPageRelativePath() + ":cells:1:cell", name);
-        wicketTester.assertLabel(result.getPageRelativePath() + ":cells:2:cell", "test relationshipType");
+        TESTER.assertLabel(result.getPageRelativePath() + ":cells:1:cell", name);
+        TESTER.assertLabel(result.getPageRelativePath() + ":cells:2:cell", "test relationshipType");
     }
 
     @Test
@@ -74,22 +74,23 @@ public class RelationshipTypeITCase extends AbstractTypesITCase {
         createRelationshipType(name);
         browsingToRelationshipType();
 
-        wicketTester.assertComponent(
+        TESTER.assertComponent(
                 DATATABLE_PATH
                 + ":tablePanel:groupForm:checkgroup:dataTable:"
                 + "body:rows:1:cells:3:cell:panelEdit:editLink", IndicatingAjaxLink.class);
 
-        wicketTester.clickLink(
+        TESTER.clickLink(
                 DATATABLE_PATH
                 + ":tablePanel:groupForm:checkgroup:dataTable:body:rows:1:cells:3:cell:panelEdit:editLink");
 
         final FormTester formTester =
-                wicketTester.newFormTester("body:content:tabbedPanel:panel:modal:form");
+                TESTER.newFormTester("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.setValue(
                 "content:relationshipTypeDetails:container:form:description:textField", "new description");
 
-        wicketTester.clickLink("body:content:tabbedPanel:panel:modal:dialog:footer:inputs:0:submit");
-        wicketTester.assertInfoMessages("Operation executed successfully");
+        TESTER.clickLink(
+                "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
+        TESTER.assertInfoMessages("Operation executed successfully");
     }
 
     @Test
@@ -98,25 +99,24 @@ public class RelationshipTypeITCase extends AbstractTypesITCase {
         createRelationshipType(name);
         browsingToRelationshipType();
 
-        wicketTester.assertComponent(DATATABLE_PATH, AjaxDataTablePanel.class);
+        TESTER.assertComponent(DATATABLE_PATH, AjaxDataTablePanel.class);
 
         Component result = findComponentByProp(KEY, DATATABLE_PATH, name);
 
         assertNotNull(result);
-        wicketTester.assertComponent(
+        TESTER.assertComponent(
                 result.getPageRelativePath() + ":cells:3:cell:panelDelete:deleteLink",
                 IndicatingOnConfirmAjaxLink.class);
 
-        wicketTester.getRequest().addParameter("confirm", "true");
-        wicketTester.clickLink(
-                wicketTester.getComponentFromLastRenderedPage(
+        TESTER.getRequest().addParameter("confirm", "true");
+        TESTER.clickLink(TESTER.getComponentFromLastRenderedPage(
                         result.getPageRelativePath() + ":cells:3:cell:panelDelete:deleteLink"));
 
-        wicketTester.executeAjaxEvent(wicketTester.getComponentFromLastRenderedPage(
+        TESTER.executeAjaxEvent(TESTER.getComponentFromLastRenderedPage(
                 result.getPageRelativePath() + ":cells:3:cell:panelDelete:deleteLink"), "onclick");
-        wicketTester.assertInfoMessages("Operation executed successfully");
+        TESTER.assertInfoMessages("Operation executed successfully");
 
-        wicketTester.cleanupFeedbackMessages();
+        TESTER.cleanupFeedbackMessages();
         result = findComponentByProp(KEY, DATATABLE_PATH, name);
 
         assertNull(result);

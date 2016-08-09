@@ -23,6 +23,7 @@ import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.RealmService;
@@ -48,22 +49,26 @@ public class RealmServiceImpl extends AbstractServiceImpl implements RealmServic
 
     @Override
     public Response create(final String parentPath, final RealmTO realmTO) {
-        RealmTO created = logic.create(StringUtils.prependIfMissing(parentPath, SyncopeConstants.ROOT_REALM), realmTO);
-        URI location = uriInfo.getAbsolutePathBuilder().path(created.getName()).build();
-        return Response.created(location).
-                header(RESTHeaders.RESOURCE_KEY, created.getFullPath()).
-                build();
+        ProvisioningResult<RealmTO> created =
+                logic.create(StringUtils.prependIfMissing(parentPath, SyncopeConstants.ROOT_REALM), realmTO);
+        URI location = uriInfo.getAbsolutePathBuilder().path(created.getEntity().getName()).build();
+        Response.ResponseBuilder builder = Response.created(location).
+                header(RESTHeaders.RESOURCE_KEY, created.getEntity().getFullPath());
+
+        return applyPreference(created, builder).build();
     }
 
     @Override
-    public void update(final RealmTO realmTO) {
+    public Response update(final RealmTO realmTO) {
         realmTO.setFullPath(StringUtils.prependIfMissing(realmTO.getFullPath(), SyncopeConstants.ROOT_REALM));
-        logic.update(realmTO);
+        ProvisioningResult<RealmTO> updated = logic.update(realmTO);
+        return modificationResponse(updated);
     }
 
     @Override
-    public void delete(final String fullPath) {
-        logic.delete(StringUtils.prependIfMissing(fullPath, SyncopeConstants.ROOT_REALM));
+    public Response delete(final String fullPath) {
+        ProvisioningResult<RealmTO> deleted =
+                logic.delete(StringUtils.prependIfMissing(fullPath, SyncopeConstants.ROOT_REALM));
+        return modificationResponse(deleted);
     }
-
 }

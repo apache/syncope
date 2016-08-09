@@ -31,6 +31,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ReportTemplateTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ReportTemplateFormat;
@@ -87,25 +88,29 @@ public class ReportTemplateITCase extends AbstractITCase {
         String csvTemplate =
                 "<xsl:stylesheet xmlns:xsl='http://www.w3.org/1999/XSL/Transform' version='1.0'></xsl:stylesheet>";
         reportTemplateService.setFormat(
-                key, ReportTemplateFormat.CSV, IOUtils.toInputStream(csvTemplate));
+                key, ReportTemplateFormat.CSV, IOUtils.toInputStream(csvTemplate, SyncopeConstants.DEFAULT_CHARSET));
 
         response = reportTemplateService.getFormat(key, ReportTemplateFormat.CSV);
         assertEquals(200, response.getStatus());
         assertTrue(response.getMediaType().toString().startsWith(MediaType.APPLICATION_XML));
         assertTrue(response.getEntity() instanceof InputStream);
-        assertEquals(csvTemplate, IOUtils.toString((InputStream) response.getEntity()));
+        assertEquals(
+                csvTemplate,
+                IOUtils.toString((InputStream) response.getEntity(), SyncopeConstants.DEFAULT_CHARSET));
 
         // 3. set HTML
         String htmlTemplate =
                 "<xsl:stylesheet xmlns:xsl='http://www.w3.org/1999/XSL/Transform' version='1.0'></xsl:stylesheet>";
         reportTemplateService.setFormat(
-                key, ReportTemplateFormat.HTML, IOUtils.toInputStream(htmlTemplate));
+                key, ReportTemplateFormat.HTML, IOUtils.toInputStream(htmlTemplate, SyncopeConstants.DEFAULT_CHARSET));
 
         response = reportTemplateService.getFormat(key, ReportTemplateFormat.HTML);
         assertEquals(200, response.getStatus());
         assertTrue(response.getMediaType().toString().startsWith(MediaType.APPLICATION_XML));
         assertTrue(response.getEntity() instanceof InputStream);
-        assertEquals(htmlTemplate, IOUtils.toString((InputStream) response.getEntity()));
+        assertEquals(
+                htmlTemplate,
+                IOUtils.toString((InputStream) response.getEntity(), SyncopeConstants.DEFAULT_CHARSET));
 
         // 4. remove HTML
         reportTemplateService.removeFormat(key, ReportTemplateFormat.HTML);
@@ -121,7 +126,9 @@ public class ReportTemplateITCase extends AbstractITCase {
         assertEquals(200, response.getStatus());
         assertTrue(response.getMediaType().toString().startsWith(MediaType.APPLICATION_XML));
         assertTrue(response.getEntity() instanceof InputStream);
-        assertEquals(csvTemplate, IOUtils.toString((InputStream) response.getEntity()));
+        assertEquals(
+                csvTemplate,
+                IOUtils.toString((InputStream) response.getEntity(), SyncopeConstants.DEFAULT_CHARSET));
 
         // 5. remove report template
         reportTemplateService.delete(key);
@@ -143,6 +150,18 @@ public class ReportTemplateITCase extends AbstractITCase {
             fail();
         } catch (SyncopeClientException e) {
             assertEquals(ClientExceptionType.NotFound, e.getType());
+        }
+    }
+
+    @Test
+    public void issueSYNCOPE866() {
+        ReportTemplateTO reportTemplateTO = new ReportTemplateTO();
+        reportTemplateTO.setKey("empty");
+        try {
+            reportTemplateService.create(reportTemplateTO);
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.EntityExists, e.getType());
         }
     }
 }

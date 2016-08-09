@@ -35,8 +35,8 @@ public class ParametersCreateModalPanel extends AbstractModalPanel<AttrTO> {
             final PageReference pageRef) {
         super(modal, pageRef);
         this.attrTO = attrTO;
-        add(new ParametersCreateWizardPanel("parametersCreateWizardPanel",
-                new ParametersCreateWizardPanel.ParametersForm(), pageRef).build(AjaxWizard.Mode.CREATE));
+        add(new ParametersCreateWizardPanel(new ParametersCreateWizardPanel.ParametersForm(), pageRef).
+                build("parametersCreateWizardPanel", AjaxWizard.Mode.CREATE));
     }
 
     @Override

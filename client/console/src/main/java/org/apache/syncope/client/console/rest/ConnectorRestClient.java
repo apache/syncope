@@ -24,6 +24,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.ws.rs.core.Response;
+import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.Predicate;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.BulkAction;
@@ -31,10 +34,8 @@ import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ConnBundleTO;
 import org.apache.syncope.common.lib.to.ConnIdObjectClassTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
-import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
-import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.springframework.beans.BeanUtils;
 
 /**
@@ -65,13 +66,33 @@ public class ConnectorRestClient extends BaseRestClient {
         return getObject(service, response.getLocation(), ConnInstanceTO.class);
     }
 
+    public List<String> getExtAttrNames(
+            final String objectClass, final String connectorKey, final Set<ConnConfProperty> conf) {
+
+        ConnInstanceTO connInstanceTO = new ConnInstanceTO();
+        connInstanceTO.setKey(connectorKey);
+        connInstanceTO.getConf().addAll(conf);
+
+        // SYNCOPE-156: use provided info to give schema names (and type!) by ObjectClass
+        ConnIdObjectClassTO connIdObjectClass = IterableUtils.find(
+                buildObjectClassInfo(connInstanceTO, false), new Predicate<ConnIdObjectClassTO>() {
+
+            @Override
+            public boolean evaluate(final ConnIdObjectClassTO object) {
+                return object.getType().equalsIgnoreCase(objectClass);
+            }
+        });
+
+        return connIdObjectClass == null ? new ArrayList<String>() : connIdObjectClass.getAttributes();
+    }
+
     /**
      * Load an already existent connector by its name.
      *
      * @param key the id
      * @return ConnInstanceTO
      */
-    public ConnInstanceTO read(final Long key) {
+    public ConnInstanceTO read(final String key) {
         ConnInstanceTO connectorTO = null;
 
         try {
@@ -91,7 +112,7 @@ public class ConnectorRestClient extends BaseRestClient {
         getService(ConnectorService.class).update(connectorTO);
     }
 
-    public ConnInstanceTO delete(final Long key) {
+    public ConnInstanceTO delete(final String key) {
         ConnInstanceTO connectorTO = getService(ConnectorService.class).
                 read(key, SyncopeConsoleSession.get().getLocale().toString());
         getService(ConnectorService.class).delete(key);
@@ -132,38 +153,22 @@ public class ConnectorRestClient extends BaseRestClient {
         return newProperties;
     }
 
-    /**
-     * Test connector connection.
-     *
-     * @param connectorTO connector
-     * @return Connection status
-     */
-    public boolean check(final ConnInstanceTO connectorTO) {
+    public Pair<Boolean, String> check(final ConnInstanceTO connectorTO) {
         ConnInstanceTO toBeChecked = new ConnInstanceTO();
         BeanUtils.copyProperties(connectorTO, toBeChecked, new String[] { "configuration", "configurationMap" });
         toBeChecked.getConf().addAll(filterProperties(connectorTO.getConf()));
 
         boolean check = false;
+        String errorMessage = null;
         try {
             getService(ConnectorService.class).check(toBeChecked);
             check = true;
         } catch (Exception e) {
             LOG.error("While checking {}", toBeChecked, e);
+            errorMessage = e.getMessage();
         }
 
-        return check;
-    }
-
-    public boolean check(final ResourceTO resourceTO) {
-        boolean check = false;
-        try {
-            getService(ResourceService.class).check(resourceTO);
-            check = true;
-        } catch (Exception e) {
-            LOG.error("Connector not found {}", resourceTO.getConnector(), e);
-        }
-
-        return check;
+        return Pair.of(check, errorMessage);
     }
 
     public List<ConnIdObjectClassTO> buildObjectClassInfo(

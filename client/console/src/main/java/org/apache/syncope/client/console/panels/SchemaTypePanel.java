@@ -32,13 +32,13 @@ import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.commons.SearchableDataProvider;
+import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.SchemaTypePanel.SchemaProvider;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wizards.AbstractModalPanelBuilder;
@@ -62,7 +62,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.springframework.util.ReflectionUtils;
 
-public class SchemaTypePanel extends AbstractTypesPanel<AbstractSchemaTO, SchemaProvider> {
+public class SchemaTypePanel extends TypesDirectoryPanel<AbstractSchemaTO, SchemaProvider> {
 
     private static final long serialVersionUID = 3905038169553185171L;
 
@@ -71,10 +71,12 @@ public class SchemaTypePanel extends AbstractTypesPanel<AbstractSchemaTO, Schema
         private static final long serialVersionUID = 3109256773218160485L;
 
         {
-            put(SchemaType.PLAIN, Arrays.asList(new String[] { "key", "type",
-                "mandatoryCondition", "uniqueConstraint", "multivalue", "readonly" }));
-            put(SchemaType.DERIVED, Arrays.asList(new String[] { "key", "expression" }));
-            put(SchemaType.VIRTUAL, Arrays.asList(new String[] { "key", "provision", "extAttrName", "readonly" }));
+            put(SchemaType.PLAIN, Arrays.asList(new String[] {
+                "key", "type", "mandatoryCondition", "uniqueConstraint", "multivalue", "readonly" }));
+            put(SchemaType.DERIVED, Arrays.asList(new String[] {
+                "key", "expression" }));
+            put(SchemaType.VIRTUAL, Arrays.asList(new String[] {
+                "key", "resource", "anyType", "extAttrName", "readonly" }));
         }
     };
 
@@ -89,13 +91,15 @@ public class SchemaTypePanel extends AbstractTypesPanel<AbstractSchemaTO, Schema
         this.schemaType = schemaType;
 
         try {
-            this.addNewItemPanelBuilder(new AbstractModalPanelBuilder<AbstractSchemaTO>(
-                    BaseModal.CONTENT_ID, schemaType.getToClass().newInstance(), pageRef) {
+            this.addNewItemPanelBuilder(
+                    new AbstractModalPanelBuilder<AbstractSchemaTO>(schemaType.getToClass().newInstance(), pageRef) {
 
                 private static final long serialVersionUID = -6388405037134399367L;
 
                 @Override
-                public ModalPanel<AbstractSchemaTO> build(final int index, final AjaxWizard.Mode mode) {
+                public WizardModalPanel<AbstractSchemaTO> build(
+                        final String id, final int index, final AjaxWizard.Mode mode) {
+
                     final AbstractSchemaTO modelObject = newModelObject();
                     return new SchemaModalPanel(modal, modelObject, pageRef) {
 
@@ -112,20 +116,22 @@ public class SchemaTypePanel extends AbstractTypesPanel<AbstractSchemaTO, Schema
                                             SchemaService.class).update(schemaType, modelObject);
                                 }
 
-                                info(getString(Constants.OPERATION_SUCCEEDED));
+                                SchemaTypePanel.this.updateResultTable(target);
+                                SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                                 modal.close(target);
                             } catch (Exception e) {
                                 LOG.error("While creating or updating {}", modelObject, e);
-                                error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+                                SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().
+                                        getName() : e.getMessage());
                             }
-                            SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                            ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                         }
                     };
                 }
             }, true);
 
             initResultTable();
-            MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, ENABLE, StandardEntitlement.SCHEMA_LIST);
+            MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.SCHEMA_LIST);
         } catch (InstantiationException | IllegalAccessException e) {
             LOG.error("Error create new schema", e);
         }
@@ -148,7 +154,6 @@ public class SchemaTypePanel extends AbstractTypesPanel<AbstractSchemaTO, Schema
 
     @Override
     protected List<IColumn<AbstractSchemaTO, String>> getColumns() {
-
         final List<IColumn<AbstractSchemaTO, String>> columns = new ArrayList<>();
 
         for (final String field : COL_NAMES.get(schemaType)) {
@@ -179,7 +184,7 @@ public class SchemaTypePanel extends AbstractTypesPanel<AbstractSchemaTO, Schema
             }
         }
 
-        columns.add(new ActionColumn<AbstractSchemaTO, String>(new ResourceModel("actions", "")) {
+        columns.add(new ActionColumn<AbstractSchemaTO, String>(new ResourceModel("actions")) {
 
             private static final long serialVersionUID = 906457126287899096L;
 
@@ -219,14 +224,14 @@ public class SchemaTypePanel extends AbstractTypesPanel<AbstractSchemaTO, Schema
                                             break;
                                     }
 
-                                    info(getString(Constants.OPERATION_SUCCEEDED));
+                                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                                     target.add(container);
                                 } catch (Exception e) {
                                     LOG.error("While deleting {}", model.getObject(), e);
-                                    error(StringUtils.isBlank(e.getMessage())
+                                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
                                             ? e.getClass().getName() : e.getMessage());
                                 }
-                                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                             }
                         }, ActionLink.ActionType.DELETE, StandardEntitlement.SCHEMA_DELETE).
                         build(componentId);
@@ -255,7 +260,7 @@ public class SchemaTypePanel extends AbstractTypesPanel<AbstractSchemaTO, Schema
         return columns;
     }
 
-    protected final class SchemaProvider extends SearchableDataProvider<AbstractSchemaTO> {
+    protected final class SchemaProvider extends DirectoryDataProvider<AbstractSchemaTO> {
 
         private static final long serialVersionUID = -185944053385660794L;
 
@@ -265,9 +270,8 @@ public class SchemaTypePanel extends AbstractTypesPanel<AbstractSchemaTO, Schema
 
         private SchemaProvider(final int paginatorRows, final SchemaType schemaType) {
             super(paginatorRows);
-            this.schemaType = schemaType;
 
-            // Default sorting
+            this.schemaType = schemaType;
             setSort("key", SortOrder.ASCENDING);
             comparator = new SortableDataProviderComparator<>(this);
         }

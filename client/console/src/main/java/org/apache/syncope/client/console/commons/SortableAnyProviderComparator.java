@@ -34,7 +34,7 @@ public class SortableAnyProviderComparator<T extends AnyTO> extends SortableData
     private static final long serialVersionUID = 1775967163571699258L;
 
     private static final Set<String> INLINE_PROPS = new HashSet<>(Arrays.asList(
-            new String[] { "key", "status", "token", "username" }));
+            new String[] { "key", "status", "token", "username", "name" }));
 
     public SortableAnyProviderComparator(final SortableDataProvider<T, String> provider) {
         super(provider);
@@ -54,7 +54,7 @@ public class SortableAnyProviderComparator<T extends AnyTO> extends SortableData
 
         private static final long serialVersionUID = -7856686374020091808L;
 
-        private final Map<String, AttrTO> attrs;
+        private final Map<String, AttrTO> plainAttrs;
 
         private final Map<String, AttrTO> derAttrs;
 
@@ -63,7 +63,7 @@ public class SortableAnyProviderComparator<T extends AnyTO> extends SortableData
         AttrModel(final AnyTO anyTO) {
             super();
 
-            this.attrs = anyTO.getPlainAttrMap();
+            this.plainAttrs = anyTO.getPlainAttrMap();
             this.derAttrs = anyTO.getDerAttrMap();
             this.virAttrs = anyTO.getVirAttrMap();
         }
@@ -91,12 +91,12 @@ public class SortableAnyProviderComparator<T extends AnyTO> extends SortableData
 
             final AttrTO attr;
             if (schemaType == null) {
-                attr = this.attrs.get(schema);
+                attr = this.plainAttrs.get(schema);
             } else {
                 switch (schemaType) {
                     case PLAIN:
                     default:
-                        attr = this.attrs.get(schema);
+                        attr = this.plainAttrs.get(schema);
                         break;
 
                     case DERIVED:

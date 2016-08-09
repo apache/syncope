@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -33,21 +32,18 @@ import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
-import org.apache.syncope.core.persistence.jpa.entity.AbstractEntity;
+import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyType;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyTypeClass;
 
 @Entity
 @Table(name = JPATypeExtension.TABLE, uniqueConstraints =
-        @UniqueConstraint(columnNames = { "group_id", "anyType_name" }))
-public class JPATypeExtension extends AbstractEntity<Long> implements TypeExtension {
+        @UniqueConstraint(columnNames = { "group_id", "anyType_id" }))
+public class JPATypeExtension extends AbstractGeneratedKeyEntity implements TypeExtension {
 
     private static final long serialVersionUID = -8367626793791263551L;
 
     public static final String TABLE = "TypeExtension";
-
-    @Id
-    private Long id;
 
     @ManyToOne
     private JPAGroup group;
@@ -59,13 +55,8 @@ public class JPATypeExtension extends AbstractEntity<Long> implements TypeExtens
     @JoinTable(joinColumns =
             @JoinColumn(name = "typeExtension_id"),
             inverseJoinColumns =
-            @JoinColumn(name = "anyTypeClass_name"))
+            @JoinColumn(name = "anyTypeClass_id"))
     private List<JPAAnyTypeClass> auxClasses = new ArrayList<>();
-
-    @Override
-    public Long getKey() {
-        return id;
-    }
 
     @Override
     public Group getGroup() {

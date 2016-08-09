@@ -22,26 +22,17 @@
 angular.module('language')
         .controller('LanguageController', function ($scope) {
 
-          $scope.languages = {
-            availableLanguages: [
-              {id: '1', name: 'Italiano'},
-              {id: '2', name: 'English'},
-              {id: '3', name: 'Portugese'}
-            ],
-            selectedLanguage: {id: '2', name: 'English'}
-          };
-
           $scope.init = function () {
 //            MainService.settings().then(function (response) {
 //              $scope.mainSettings = response;
 //            });
 
-            console.log("Init language controller");
+            console.debug("Init language controller");
           };
 
           $scope.changeLanguage = function (language) {
 
-            console.log("Language changed to: ", language);
+            console.info("Language changed to: ", language);
             
             $scope.languages.selectedLanguage = language;
             
@@ -55,7 +46,7 @@ angular.module('language')
 //            LanguageService.language.query({}, function (response) {
 //              $scope.languages = response;
 //            });
-            console.log("Retriebìving available languages");
+            console.debug("Retrieving available languages");
           };
 
 

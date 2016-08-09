@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.List;
 import java.util.Map;
-import org.apache.syncope.common.lib.types.PropagationByResource;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
@@ -35,35 +34,19 @@ public interface GroupDAO extends AnyDAO<Group> {
 
     Map<String, Integer> countByRealm();
 
-    Group find(String name);
+    Group findByName(String name);
 
-    List<Group> findOwnedByUser(Long userKey);
+    Group authFindByName(String name);
 
-    List<Group> findOwnedByGroup(Long groupKey);
+    List<Group> findOwnedByUser(String userKey);
+
+    List<Group> findOwnedByGroup(String groupKey);
 
     List<AMembership> findAMemberships(Group group);
 
     List<UMembership> findUMemberships(Group group);
 
-    /**
-     * Finds any objects having resources assigned exclusively because of memberships of the given group.
-     *
-     * @param groupKey group key
-     * @return map containing pairs with any object key and operations to be performed on those resources (DELETE,
-     * typically).
-     */
-    Map<Long, PropagationByResource> findAnyObjectsWithTransitiveResources(Long groupKey);
-
-    /**
-     * Finds users having resources assigned exclusively because of memberships of the given group.
-     *
-     * @param groupKey group key
-     * @return map containing pairs with user key and operations to be performed on those resources (DELETE,
-     * typically).
-     */
-    Map<Long, PropagationByResource> findUsersWithTransitiveResources(Long groupKey);
-
-    List<TypeExtension> findTypeExtensionByAnyTypeClass(AnyTypeClass anyTypeClass);
+    List<TypeExtension> findTypeExtensions(AnyTypeClass anyTypeClass);
 
     void refreshDynMemberships(AnyObject anyObject);
 

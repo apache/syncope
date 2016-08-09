@@ -20,6 +20,7 @@ package org.apache.syncope.client.cli.commands.user;
 
 import java.util.List;
 import javax.xml.ws.WebServiceException;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -40,30 +41,30 @@ public class UserSearchByAttribute extends AbstractUserCommand {
 
     public void search() {
         if (input.parameterNumber() == 2) {
-            final String realm = input.firstParameter();
-            final Input.PairParameter pairParameter = input.toPairParameter(input.secondParameter());
+            String realm = input.firstParameter();
+            Pair<String, String> pairParameter = input.toPairParameter(input.secondParameter());
             try {
-                List<UserTO> userTOs;
                 if (!realmSyncopeOperations.exists(realm)) {
-                    userResultManager.genericMessage("Operation performed on root realm because " + realm
-                            + " does not exists");
+                    userResultManager.genericMessage(
+                            "Operation performed on root realm because " + realm + " does not exists");
                 }
-                userTOs = userSyncopeOperations.searchByAttribute(
-                        realm, pairParameter.getKey(), pairParameter.getValue());
-                if (userTOs == null || userTOs.isEmpty()) {
+                List<UserTO> userTOs =
+                        userSyncopeOperations.searchByAttribute(
+                                realm, pairParameter.getKey(), pairParameter.getValue());
+                if (userTOs.isEmpty()) {
                     userResultManager.genericMessage("No users found with attribute "
                             + pairParameter.getKey() + " and value " + pairParameter.getValue());
                 } else {
                     userResultManager.printUsers(userTOs);
                 }
-            } catch (final WebServiceException | SyncopeClientException ex) {
+            } catch (WebServiceException | SyncopeClientException ex) {
                 LOG.error("Error searching user", ex);
                 if (ex.getMessage().startsWith("NotFound")) {
                     userResultManager.notFoundError("User with " + pairParameter.getKey(), pairParameter.getValue());
                 } else {
                     userResultManager.genericError(ex.getMessage());
                 }
-            } catch (final IllegalArgumentException ex) {
+            } catch (IllegalArgumentException ex) {
                 LOG.error("Error searching user", ex);
                 userResultManager.genericError(ex.getMessage());
                 userResultManager.genericError(SEARCH_HELP_MESSAGE);

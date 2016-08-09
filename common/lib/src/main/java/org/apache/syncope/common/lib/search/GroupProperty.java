@@ -24,4 +24,7 @@ public interface GroupProperty extends SyncopeProperty {
 
     CompleteCondition isAssignable();
 
+    CompleteCondition withMembers(String member, String... moreMembers);
+
+    CompleteCondition withoutMembers(String member, String... moreMembers);
 }

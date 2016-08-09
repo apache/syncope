@@ -49,7 +49,7 @@ public class DerAttrTest extends AbstractTest {
         DerSchema info = derSchemaDAO.find("info");
         assertEquals("username + ' - ' + creationDate + '[' + failedLogins + ']'", info.getExpression());
 
-        User user = userDAO.find(3L);
+        User user = userDAO.findByUsername("vivaldi");
         assertNotNull("did not get expected user", user);
 
         String value = derAttrHandler.getValue(user, info);

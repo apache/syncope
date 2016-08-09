@@ -25,8 +25,11 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.core.provisioning.api.PropagationByResource;
+import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
+import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyTemplate;
@@ -37,6 +40,7 @@ import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Policy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.provisioning.api.data.RealmDataBinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,6 +60,9 @@ public class RealmDataBinderImpl implements RealmDataBinder {
 
     @Autowired
     private PolicyDAO policyDAO;
+
+    @Autowired
+    private ExternalResourceDAO resourceDAO;
 
     @Autowired
     private EntityFactory entityFactory;
@@ -97,7 +104,7 @@ public class RealmDataBinderImpl implements RealmDataBinder {
         Realm realm = entityFactory.newEntity(Realm.class);
 
         realm.setName(realmTO.getName());
-        realm.setParent(realmDAO.find(parentPath));
+        realm.setParent(realmDAO.findByFullPath(parentPath));
 
         if (realmTO.getPasswordPolicy() != null) {
             Policy policy = policyDAO.find(realmTO.getPasswordPolicy());
@@ -126,32 +133,46 @@ public class RealmDataBinderImpl implements RealmDataBinder {
 
         setTemplates(realmTO, realm);
 
+        for (String resourceKey : realmTO.getResources()) {
+            ExternalResource resource = resourceDAO.find(resourceKey);
+            if (resource == null) {
+                LOG.debug("Invalid " + ExternalResource.class.getSimpleName() + "{}, ignoring...", resourceKey);
+            } else {
+                realm.add(resource);
+            }
+        }
+
         return realm;
     }
 
     @Override
-    public void update(final Realm realm, final RealmTO realmTO) {
+    public PropagationByResource update(final Realm realm, final RealmTO realmTO) {
         realm.setName(realmTO.getName());
-        realm.setParent(realmTO.getParent() == 0 ? null : realmDAO.find(realmTO.getParent()));
+        realm.setParent(realmTO.getParent() == null ? null : realmDAO.find(realmTO.getParent()));
 
-        if (realmTO.getPasswordPolicy() != null) {
-            Policy policy = policyDAO.find(realmTO.getPasswordPolicy());
-            if (policy instanceof PasswordPolicy) {
-                realm.setPasswordPolicy((PasswordPolicy) policy);
-            } else {
-                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPolicy);
-                sce.getElements().add("Expected " + PasswordPolicy.class.getSimpleName()
-                        + ", found " + policy.getClass().getSimpleName());
-                throw sce;
-            }
-        }
-        if (realmTO.getAccountPolicy() != null) {
+        if (realmTO.getAccountPolicy() == null) {
+            realm.setAccountPolicy(null);
+        } else {
             Policy policy = policyDAO.find(realmTO.getAccountPolicy());
             if (policy instanceof AccountPolicy) {
                 realm.setAccountPolicy((AccountPolicy) policy);
             } else {
                 SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPolicy);
                 sce.getElements().add("Expected " + AccountPolicy.class.getSimpleName()
+                        + ", found " + policy.getClass().getSimpleName());
+                throw sce;
+            }
+        }
+
+        if (realmTO.getPasswordPolicy() == null) {
+            realm.setPasswordPolicy(null);
+        } else {
+            Policy policy = policyDAO.find(realmTO.getPasswordPolicy());
+            if (policy instanceof PasswordPolicy) {
+                realm.setPasswordPolicy((PasswordPolicy) policy);
+            } else {
+                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPolicy);
+                sce.getElements().add("Expected " + PasswordPolicy.class.getSimpleName()
                         + ", found " + policy.getClass().getSimpleName());
                 throw sce;
             }
@@ -161,6 +182,31 @@ public class RealmDataBinderImpl implements RealmDataBinder {
         realm.getActionsClassNames().addAll(realmTO.getActionsClassNames());
 
         setTemplates(realmTO, realm);
+
+        final PropagationByResource propByRes = new PropagationByResource();
+        for (String resourceKey : realmTO.getResources()) {
+            ExternalResource resource = resourceDAO.find(resourceKey);
+            if (resource == null) {
+                LOG.debug("Invalid " + ExternalResource.class.getSimpleName() + "{}, ignoring...", resourceKey);
+            } else {
+                realm.add(resource);
+                propByRes.add(ResourceOperation.CREATE, resource.getKey());
+            }
+        }
+        // remove all resources not contained in the TO
+        CollectionUtils.filter(realm.getResources(), new Predicate<ExternalResource>() {
+
+            @Override
+            public boolean evaluate(final ExternalResource resource) {
+                boolean contained = realmTO.getResources().contains(resource.getKey());
+                if (!contained) {
+                    propByRes.add(ResourceOperation.DELETE, resource.getKey());
+                }
+                return contained;
+            }
+        });
+
+        return propByRes;
     }
 
     @Override
@@ -169,7 +215,7 @@ public class RealmDataBinderImpl implements RealmDataBinder {
 
         realmTO.setKey(realm.getKey());
         realmTO.setName(realm.getName());
-        realmTO.setParent(realm.getParent() == null ? 0 : realm.getParent().getKey());
+        realmTO.setParent(realm.getParent() == null ? null : realm.getParent().getKey());
         realmTO.setFullPath(realm.getFullPath());
         realmTO.setAccountPolicy(realm.getAccountPolicy() == null ? null : realm.getAccountPolicy().getKey());
         realmTO.setPasswordPolicy(realm.getPasswordPolicy() == null ? null : realm.getPasswordPolicy().getKey());
@@ -177,6 +223,10 @@ public class RealmDataBinderImpl implements RealmDataBinder {
 
         for (AnyTemplate template : realm.getTemplates()) {
             realmTO.getTemplates().put(template.getAnyType().getKey(), template.get());
+        }
+
+        for (ExternalResource resource : realm.getResources()) {
+            realmTO.getResources().add(resource.getKey());
         }
 
         return realmTO;

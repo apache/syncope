@@ -25,12 +25,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.commons.SearchableDataProvider;
+import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
-import org.apache.syncope.client.console.panels.AbstractSearchResultPanel;
+import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.rest.BaseRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
@@ -62,7 +61,6 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.protocol.ws.WebSocketSettings;
-import org.apache.wicket.protocol.ws.api.WebSocketBehavior;
 import org.apache.wicket.protocol.ws.api.WebSocketPushBroadcaster;
 import org.apache.wicket.protocol.ws.api.event.WebSocketPushPayload;
 import org.apache.wicket.protocol.ws.api.message.ConnectedMessage;
@@ -81,20 +79,32 @@ public class JobWidget extends BaseWidget {
 
     private static List<JobTO> getAvailable(final SyncopeConsoleSession session) {
         List<JobTO> available = new ArrayList<>();
-        JobTO notificationJob = session.getService(NotificationService.class).getJob();
-        if (notificationJob != null) {
-            available.add(notificationJob);
+
+        if (session.owns(StandardEntitlement.NOTIFICATION_LIST)) {
+            JobTO notificationJob = session.getService(NotificationService.class).getJob();
+            if (notificationJob != null) {
+                available.add(notificationJob);
+            }
         }
-        available.addAll(session.getService(TaskService.class).listJobs());
-        available.addAll(session.getService(ReportService.class).listJobs());
+        if (session.owns(StandardEntitlement.TASK_LIST)) {
+            available.addAll(session.getService(TaskService.class).listJobs());
+        }
+        if (session.owns(StandardEntitlement.REPORT_LIST)) {
+            available.addAll(session.getService(ReportService.class).listJobs());
+        }
 
         return available;
     }
 
     private static List<ExecTO> getRecent(final SyncopeConsoleSession session) {
         List<ExecTO> recent = new ArrayList<>();
-        recent.addAll(session.getService(ReportService.class).listRecentExecutions(10));
-        recent.addAll(session.getService(TaskService.class).listRecentExecutions(10));
+
+        if (session.owns(StandardEntitlement.TASK_LIST)) {
+            recent.addAll(session.getService(ReportService.class).listRecentExecutions(10));
+        }
+        if (session.owns(StandardEntitlement.REPORT_LIST)) {
+            recent.addAll(session.getService(TaskService.class).listRecentExecutions(10));
+        }
 
         return recent;
     }
@@ -115,17 +125,6 @@ public class JobWidget extends BaseWidget {
         recent = getRecent(SyncopeConsoleSession.get());
 
         add(new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList(pageRef)));
-
-        add(new WebSocketBehavior() {
-
-            private static final long serialVersionUID = 7944352891541344021L;
-
-            @Override
-            protected void onConnect(final ConnectedMessage message) {
-                super.onConnect(message);
-                SyncopeConsoleSession.get().scheduleAtFixedRate(new JobInfoUpdater(message), 0, 10, TimeUnit.SECONDS);
-            }
-        });
     }
 
     private List<ITab> buildTabList(final PageReference pageRef) {
@@ -163,19 +162,24 @@ public class JobWidget extends BaseWidget {
         if (event.getPayload() instanceof WebSocketPushPayload) {
             WebSocketPushPayload wsEvent = (WebSocketPushPayload) event.getPayload();
             if (wsEvent.getMessage() instanceof JobWidgetMessage) {
-                available.clear();
-                available.addAll(((JobWidgetMessage) wsEvent.getMessage()).getUpdatedAvailable());
-
-                recent.clear();
-                recent.addAll(((JobWidgetMessage) wsEvent.getMessage()).getUpdatedRecent());
-
-                if (availableJobsPanel != null) {
-                    availableJobsPanel.modelChanged();
-                    wsEvent.getHandler().add(availableJobsPanel);
+                List<JobTO> updatedAvailable = ((JobWidgetMessage) wsEvent.getMessage()).getUpdatedAvailable();
+                if (!updatedAvailable.equals(available)) {
+                    available.clear();
+                    available.addAll(updatedAvailable);
+                    if (availableJobsPanel != null) {
+                        availableJobsPanel.modelChanged();
+                        wsEvent.getHandler().add(availableJobsPanel);
+                    }
                 }
-                if (recentExecPanel != null) {
-                    recentExecPanel.modelChanged();
-                    wsEvent.getHandler().add(recentExecPanel);
+
+                List<ExecTO> updatedRecent = ((JobWidgetMessage) wsEvent.getMessage()).getUpdatedRecent();
+                if (!updatedRecent.equals(recent)) {
+                    recent.clear();
+                    recent.addAll(updatedRecent);
+                    if (recentExecPanel != null) {
+                        recentExecPanel.modelChanged();
+                        wsEvent.getHandler().add(recentExecPanel);
+                    }
                 }
             }
         } else if (event.getPayload() instanceof JobActionPanel.JobActionPayload) {
@@ -186,7 +190,7 @@ public class JobWidget extends BaseWidget {
         }
     }
 
-    private class AvailableJobsPanel extends AbstractSearchResultPanel<
+    private class AvailableJobsPanel extends DirectoryPanel<
         JobTO, JobTO, AvailableJobsProvider, BaseRestClient> {
 
         private static final long serialVersionUID = -8214546246301342868L;
@@ -197,8 +201,8 @@ public class JobWidget extends BaseWidget {
                 private static final long serialVersionUID = 8769126634538601689L;
 
                 @Override
-                protected WizardMgtPanel<JobTO> newInstance(final String id) {
-                    return new AvailableJobsPanel(id, pageRef);
+                protected WizardMgtPanel<JobTO> newInstance(final String id, final boolean wizardInModal) {
+                    throw new UnsupportedOperationException();
                 }
             }.disableCheckBoxes().hidePaginator());
 
@@ -264,7 +268,7 @@ public class JobWidget extends BaseWidget {
 
     }
 
-    protected final class AvailableJobsProvider extends SearchableDataProvider<JobTO> {
+    protected final class AvailableJobsProvider extends DirectoryDataProvider<JobTO> {
 
         private static final long serialVersionUID = 3191573490219472572L;
 
@@ -293,7 +297,7 @@ public class JobWidget extends BaseWidget {
         }
     }
 
-    private class RecentExecPanel extends AbstractSearchResultPanel<
+    private class RecentExecPanel extends DirectoryPanel<
         ExecTO, ExecTO, RecentExecProvider, BaseRestClient> {
 
         private static final long serialVersionUID = -8214546246301342868L;
@@ -304,8 +308,8 @@ public class JobWidget extends BaseWidget {
                 private static final long serialVersionUID = 8769126634538601689L;
 
                 @Override
-                protected WizardMgtPanel<ExecTO> newInstance(final String id) {
-                    return new RecentExecPanel(id, pageRef);
+                protected WizardMgtPanel<ExecTO> newInstance(final String id, final boolean wizardInModal) {
+                    throw new UnsupportedOperationException();
                 }
             }.disableCheckBoxes().hidePaginator());
 
@@ -345,7 +349,7 @@ public class JobWidget extends BaseWidget {
 
     }
 
-    protected final class RecentExecProvider extends SearchableDataProvider<ExecTO> {
+    protected final class RecentExecProvider extends DirectoryDataProvider<ExecTO> {
 
         private static final long serialVersionUID = 2835707012690698633L;
 
@@ -374,7 +378,7 @@ public class JobWidget extends BaseWidget {
         }
     }
 
-    protected final class JobInfoUpdater implements Runnable {
+    public static final class JobInfoUpdater implements Runnable {
 
         private final Application application;
 
@@ -394,18 +398,12 @@ public class JobWidget extends BaseWidget {
                 ThreadContext.setApplication(application);
                 ThreadContext.setSession(session);
 
-                List<JobTO> updatedAvailable = getAvailable(session);
-                List<ExecTO> updatedRecent = getRecent(session);
-                if (!updatedAvailable.equals(available) || !updatedRecent.equals(recent)) {
-                    LOG.debug("Updated Job info found");
-
-                    WebSocketSettings webSocketSettings = WebSocketSettings.Holder.get(application);
-                    WebSocketPushBroadcaster broadcaster =
-                            new WebSocketPushBroadcaster(webSocketSettings.getConnectionRegistry());
-                    broadcaster.broadcast(
-                            new ConnectedMessage(application, session.getId(), key),
-                            new JobWidgetMessage(updatedAvailable, updatedRecent));
-                }
+                WebSocketSettings webSocketSettings = WebSocketSettings.Holder.get(application);
+                WebSocketPushBroadcaster broadcaster = new WebSocketPushBroadcaster(webSocketSettings.
+                        getConnectionRegistry());
+                broadcaster.broadcast(
+                        new ConnectedMessage(application, session.getId(), key),
+                        new JobWidgetMessage(getAvailable(session), getRecent(session)));
             } catch (Throwable t) {
                 LOG.error("Unexpected error while checking for updated Job info", t);
             } finally {

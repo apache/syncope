@@ -21,11 +21,11 @@ package org.apache.syncope.common.lib.to;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.HashSet;
 import java.util.Set;
-
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.TraceLevel;
 
 @XmlRootElement(name = "notificationTask")
@@ -33,6 +33,12 @@ import org.apache.syncope.common.lib.types.TraceLevel;
 public class NotificationTaskTO extends AbstractTaskTO {
 
     private static final long serialVersionUID = 371671242591093846L;
+
+    private String notification;
+
+    private AnyTypeKind anyTypeKind;
+
+    private String entityKey;
 
     private final Set<String> recipients = new HashSet<>();
 
@@ -47,6 +53,30 @@ public class NotificationTaskTO extends AbstractTaskTO {
     private boolean executed;
 
     private TraceLevel traceLevel;
+
+    public String getNotification() {
+        return notification;
+    }
+
+    public void setNotification(final String notification) {
+        this.notification = notification;
+    }
+
+    public AnyTypeKind getAnyTypeKind() {
+        return anyTypeKind;
+    }
+
+    public void setAnyTypeKind(final AnyTypeKind anyTypeKind) {
+        this.anyTypeKind = anyTypeKind;
+    }
+
+    public String getEntityKey() {
+        return entityKey;
+    }
+
+    public void setEntityKey(final String entityKey) {
+        this.entityKey = entityKey;
+    }
 
     @XmlElementWrapper(name = "recipients")
     @XmlElement(name = "recipient")

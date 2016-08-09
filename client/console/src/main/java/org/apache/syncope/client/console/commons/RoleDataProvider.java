@@ -26,7 +26,7 @@ import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 
-public class RoleDataProvider extends SearchableDataProvider<RoleTO> {
+public class RoleDataProvider extends DirectoryDataProvider<RoleTO> {
 
     private static final long serialVersionUID = 6267494272884913376L;
 
@@ -41,9 +41,9 @@ public class RoleDataProvider extends SearchableDataProvider<RoleTO> {
 
     @Override
     public Iterator<RoleTO> iterator(final long first, final long count) {
-        final List<RoleTO> result = restClient.list();
+        List<RoleTO> result = restClient.list();
         Collections.sort(result, comparator);
-        return result.iterator();
+        return result.subList((int) first, (int) first + (int) count).iterator();
     }
 
     @Override

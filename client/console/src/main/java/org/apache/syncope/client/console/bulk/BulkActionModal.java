@@ -22,7 +22,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import org.apache.syncope.client.console.panels.AbstractModalPanel;
-import org.apache.syncope.client.console.rest.BaseRestClient;
+import org.apache.syncope.client.console.rest.RestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.wicket.PageReference;
@@ -38,7 +38,7 @@ public class BulkActionModal<T extends Serializable, S> extends AbstractModalPan
             final Collection<T> items,
             final List<IColumn<T, S>> columns,
             final Collection<ActionLink.ActionType> actions,
-            final BaseRestClient bulkActionExecutor,
+            final RestClient bulkActionExecutor,
             final String keyFieldName) {
 
         super(modal, pageRef);

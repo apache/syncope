@@ -17,35 +17,44 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
-  <head>
-    <title></title>
-  </head>
-  <body>
-    <wicket:panel>
-      <span wicket:id="container">
-        <wicket:container wicket:id="content" />
-      </span>
+  <wicket:panel>
+    <span wicket:id="container">
+      <wicket:container wicket:id="content"/>
+    </span>
 
-      <wicket:fragment wicket:id="wizard">
-        <span wicket:id="wizard"/>
-      </wicket:fragment>
-
-      <wicket:fragment wicket:id="default">
-
-        <wicket:child />
-
-        <wicket:enclosure child="add">
-          <div class="modal-footer" style="text-align: right">
-            <a haref="#"  class="btn btn-primary btn-circle btn-lg" wicket:id="add">
-              <i class="glyphicon glyphicon-plus"></i>
-            </a>
+    <wicket:fragment wicket:id="wizard">
+      <div class="col-xs-12">
+        <div class="box">
+          <div class="box-header">
+            <h3 class="box-title">
+              <span wicket:id="title">[TITLE]</span>
+            </h3>
           </div>
-        </wicket:enclosure>
-      </wicket:fragment>
+          <div class="box-body">
+            <span wicket:id="wizard"/>
+          </div>
+        </div>
+      </div>
+    </wicket:fragment>
 
-      <div wicket:id="modal" />
-      <div wicket:id="alternativeDefaultModal" />
-      <div wicket:id="displayAttributeModal" />
-    </wicket:panel>
-  </body>
+    <wicket:fragment wicket:id="default">
+
+      <wicket:child/>
+
+      <wicket:enclosure child="add">
+        <div class="modal-footer" style="text-align: right">
+          <a haref="#"  class="btn btn-default btn-circle btn-lg pull-left" wicket:id="exit">
+            <i class="fa fa-sign-out"></i>
+          </a>
+          <a haref="#"  class="btn btn-primary btn-circle btn-lg" wicket:id="add">
+            <i class="glyphicon glyphicon-plus"></i>
+          </a>
+        </div>
+      </wicket:enclosure>
+    </wicket:fragment>
+
+    <span wicket:id="outerObjectsRepeater">
+      <div wicket:id="outer"/>
+    </span>
+  </wicket:panel>
 </html>

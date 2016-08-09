@@ -30,19 +30,17 @@ import java.util.Map;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
 
-@XmlRootElement(name = "any")
 @XmlType
 @XmlSeeAlso({ UserTO.class, GroupTO.class, AnyObjectTO.class })
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-public abstract class AnyTO extends ConnObjectTO implements EntityTO<Long> {
+public abstract class AnyTO extends AbstractAnnotatedBean implements EntityTO, AttributableTO {
 
     private static final long serialVersionUID = -754311920679872084L;
 
-    private Long key;
+    private String key;
 
     private String type;
 
@@ -52,6 +50,8 @@ public abstract class AnyTO extends ConnObjectTO implements EntityTO<Long> {
 
     private final List<String> auxClasses = new ArrayList<>();
 
+    private final Set<AttrTO> plainAttrs = new HashSet<>();
+
     private final Set<AttrTO> derAttrs = new HashSet<>();
 
     private final Set<AttrTO> virAttrs = new HashSet<>();
@@ -59,12 +59,12 @@ public abstract class AnyTO extends ConnObjectTO implements EntityTO<Long> {
     private final Set<String> resources = new HashSet<>();
 
     @Override
-    public Long getKey() {
+    public String getKey() {
         return key;
     }
 
     @Override
-    public void setKey(final Long key) {
+    public void setKey(final String key) {
         this.key = key;
     }
 
@@ -99,14 +99,35 @@ public abstract class AnyTO extends ConnObjectTO implements EntityTO<Long> {
         return auxClasses;
     }
 
+    @XmlElementWrapper(name = "plainAttrs")
+    @XmlElement(name = "attribute")
+    @JsonProperty("plainAttrs")
+    @Override
+    public Set<AttrTO> getPlainAttrs() {
+        return plainAttrs;
+    }
+
+    @JsonIgnore
+    @Override
+    public Map<String, AttrTO> getPlainAttrMap() {
+        Map<String, AttrTO> result = new HashMap<>(plainAttrs.size());
+        for (AttrTO attributeTO : plainAttrs) {
+            result.put(attributeTO.getSchema(), attributeTO);
+        }
+
+        return Collections.unmodifiableMap(result);
+    }
+
     @XmlElementWrapper(name = "derAttrs")
     @XmlElement(name = "attribute")
     @JsonProperty("derAttrs")
+    @Override
     public Set<AttrTO> getDerAttrs() {
         return derAttrs;
     }
 
     @JsonIgnore
+    @Override
     public Map<String, AttrTO> getDerAttrMap() {
         Map<String, AttrTO> result = new HashMap<>(derAttrs.size());
         for (AttrTO attributeTO : derAttrs) {
@@ -119,11 +140,13 @@ public abstract class AnyTO extends ConnObjectTO implements EntityTO<Long> {
     @XmlElementWrapper(name = "virAttrs")
     @XmlElement(name = "attribute")
     @JsonProperty("virAttrs")
+    @Override
     public Set<AttrTO> getVirAttrs() {
         return virAttrs;
     }
 
     @JsonIgnore
+    @Override
     public Map<String, AttrTO> getVirAttrMap() {
         Map<String, AttrTO> result = new HashMap<>(virAttrs.size());
         for (AttrTO attributeTO : virAttrs) {

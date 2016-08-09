@@ -19,9 +19,9 @@
 package org.apache.syncope.core.persistence.api.entity.anyobject;
 
 import java.util.List;
-import org.apache.syncope.core.persistence.api.entity.PlainAttr;
+import org.apache.syncope.core.persistence.api.entity.GroupablePlainAttr;
 
-public interface APlainAttr extends PlainAttr<AnyObject> {
+public interface APlainAttr extends GroupablePlainAttr<AnyObject, AMembership> {
 
     @Override
     List<? extends APlainAttrValue> getValues();

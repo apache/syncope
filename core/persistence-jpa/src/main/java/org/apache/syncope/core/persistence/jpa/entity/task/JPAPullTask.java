@@ -38,7 +38,6 @@ import javax.validation.constraints.NotNull;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.types.PullMode;
-import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.AnyTemplate;
@@ -70,13 +69,6 @@ public class JPAPullTask extends AbstractProvisioningTask implements PullTask {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "pullTask")
     private List<JPAAnyTemplatePullTask> templates = new ArrayList<>();
-
-    /**
-     * Default constructor.
-     */
-    public JPAPullTask() {
-        super(TaskType.PULL, null);
-    }
 
     @Override
     public PullMode getPullMode() {

@@ -196,7 +196,7 @@ under the License.
             </properties>
             <configfiles>
               <configfile>
-                <file>${project.build.directory}/classes/context.xml</file>
+                <file>${basedir}/src/main/resources/context.xml</file>
                 <todir>conf/</todir>
                 <tofile>context.xml</tofile>
               </configfile>
@@ -258,8 +258,17 @@ under the License.
       <resource>
         <directory>src/main/resources</directory>
         <filtering>true</filtering>
+        <excludes>
+          <exclude>context.xml</exclude>
+        </excludes>
       </resource>
     </resources>
+    <testResources>
+      <testResource>
+        <directory>src/test/resources</directory>
+        <filtering>true</filtering>
+      </testResource>
+    </testResources>
   </build>
   
   <profiles>
@@ -350,65 +359,14 @@ under the License.
     <profile>
       <id>jrebel</id>
       
+      <properties>
+        <tomcat.version>8.0.36</tomcat.version>
+      </properties>
+      
       <build>
         <defaultGoal>clean verify cargo:run</defaultGoal>
 
-        <plugins>
-          <plugin>
-            <groupId>org.zeroturnaround</groupId>
-            <artifactId>jrebel-maven-plugin</artifactId>
-            <inherited>true</inherited>
-            <configuration>
-              <classpath>
-                <fallback>default</fallback>
-                <resources>
-                  <resource>
-                    <directory>${basedir}/../../common/lib/target/classes</directory>
-                  </resource>
-                  <resource>
-                    <directory>${basedir}/../../common/rest-api/target/classes</directory>
-                  </resource>
-                  
-                  <resource>
-                    <directory>${basedir}/../../client/console/target/classes</directory>
-                  </resource>
-                  <resource>
-                    <directory>${basedir}/../../ext/camel/client-console/target/classes</directory>
-                  </resource>
-                </resources>
-              </classpath>
-              
-              <web>
-                <resources>
-                  <resource>
-                    <target>/</target>
-                    <directory>${basedir}/../../ext/swagger-ui/target/classes/META-INF/resources</directory>
-                  </resource>
-
-                  <resource>
-                    <target>/</target>
-                    <directory>${basedir}/../../client/console/target/classes/META-INF/resources/</directory>
-                  </resource>
-                  <resource>
-                    <target>/</target>
-                    <directory>${basedir}/../../ext/camel/client-console/target/classes</directory>
-                  </resource>
-                </resources>
-              </web>
-    
-              <alwaysGenerate>true</alwaysGenerate>
-            </configuration>
-            <executions>
-              <execution>
-                <id>generate-rebel-xml</id>
-                <phase>process-resources</phase>
-                <goals>
-                  <goal>generate</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-
+        <plugins>         
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-antrun-plugin</artifactId>
@@ -419,9 +377,7 @@ under the License.
                 <phase>package</phase>
                 <configuration>
                   <target>                                               
-                    <copy file="${project.build.directory}/test-classes/core-rebel.xml"
-                          tofile="${basedir}/../core-reference/target/syncope-fit-core-reference-${project.version}/WEB-INF/classes/rebel.xml"
-                          overwrite="true" />
+                    <copy file="${basedir}/../core-reference/target/test-classes/rebel.xml" tofile="${basedir}/../core-reference/target/syncope-fit-core-reference-${project.version}/WEB-INF/classes/rebel.xml" overwrite="true" />
                   </target>
                 </configuration>
                 <goals>
@@ -458,12 +414,15 @@ under the License.
           </plugin>
         </plugins>
         
-        <testResources>
-          <testResource>
+        <resources>
+          <resource>
             <directory>src/test/resources</directory>
             <filtering>true</filtering>
-          </testResource>
-        </testResources>
+            <includes>
+              <include>rebel.xml</include>
+            </includes>
+          </resource>
+        </resources>
       </build>
     </profile>
     
@@ -477,6 +436,14 @@ under the License.
             <artifactId>maven-deploy-plugin</artifactId>
             <configuration>
               <skip>true</skip>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <inherited>false</inherited>
+            <configuration>
+              <skipSource>true</skipSource>
             </configuration>
           </plugin>
         </plugins>

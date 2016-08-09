@@ -23,6 +23,7 @@ import javax.ws.rs.core.MediaType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.WorkflowRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -73,14 +74,15 @@ public class XMLWorkflowEditorModalPanel extends AbstractModalPanel<String> {
     public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
         try {
             wfRestClient.updateDefinition(MediaType.APPLICATION_XML_TYPE, workflowDefArea.getModelObject());
-            info(getString(Constants.OPERATION_SUCCEEDED));
+            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
 
             modal.show(false);
             modal.close(target);
         } catch (SyncopeClientException e) {
-            error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.
+                    getMessage());
         }
-        SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
     }
 
     @Override
@@ -89,6 +91,9 @@ public class XMLWorkflowEditorModalPanel extends AbstractModalPanel<String> {
         response.render(OnLoadHeaderItem.forScript(
                 "CodeMirror.fromTextArea(document.getElementById('workflowDefArea'), {"
                 + "  lineNumbers: true, "
+                + "  lineWrapping: true, "
+                + "  autoCloseTags: true, "
+                + "  mode: 'text/html', "
                 + "  autoRefresh: true"
                 + "}).on('change', updateTextArea);"));
     }

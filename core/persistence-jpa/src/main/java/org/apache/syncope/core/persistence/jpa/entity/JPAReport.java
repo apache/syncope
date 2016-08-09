@@ -25,7 +25,6 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -44,14 +43,11 @@ import org.apache.syncope.core.persistence.jpa.validation.entity.ReportCheck;
 @Entity
 @Table(name = JPAReport.TABLE)
 @ReportCheck
-public class JPAReport extends AbstractEntity<Long> implements Report {
+public class JPAReport extends AbstractGeneratedKeyEntity implements Report {
 
     private static final long serialVersionUID = -587652654964285834L;
 
     public static final String TABLE = "Report";
-
-    @Id
-    private Long id;
 
     @Column(unique = true, nullable = false)
     private String name;
@@ -71,13 +67,8 @@ public class JPAReport extends AbstractEntity<Long> implements Report {
     private Integer active;
 
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "template_name")
+    @JoinColumn(name = "template_id")
     private JPAReportTemplate template;
-
-    @Override
-    public Long getKey() {
-        return id;
-    }
 
     @Override
     public String getName() {

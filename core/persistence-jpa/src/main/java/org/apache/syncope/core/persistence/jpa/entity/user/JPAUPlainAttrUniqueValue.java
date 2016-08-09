@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.jpa.entity.user;
 
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
@@ -39,20 +38,12 @@ public class JPAUPlainAttrUniqueValue extends AbstractPlainAttrValue implements 
 
     public static final String TABLE = "UPlainAttrUniqueValue";
 
-    @Id
-    private Long id;
-
     @OneToOne(optional = false)
     private JPAUPlainAttr attribute;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "schema_name")
+    @JoinColumn(name = "schema_id")
     private JPAPlainSchema schema;
-
-    @Override
-    public Long getKey() {
-        return id;
-    }
 
     @Override
     public UPlainAttr getAttr() {

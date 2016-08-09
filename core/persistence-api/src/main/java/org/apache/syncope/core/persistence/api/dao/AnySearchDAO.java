@@ -25,7 +25,7 @@ import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 
-public interface AnySearchDAO extends DAO<Any<?>, Long> {
+public interface AnySearchDAO extends DAO<Any<?>> {
 
     /**
      * @param adminRealms realms for which the caller owns the proper entitlement(s)

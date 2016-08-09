@@ -18,13 +18,9 @@
  */
 package org.apache.syncope.core.persistence.api.entity;
 
-import org.apache.syncope.common.lib.types.PolicyType;
-
-public interface Policy extends Entity<Long> {
+public interface Policy extends Entity {
 
     String getDescription();
-
-    PolicyType getType();
 
     void setDescription(String description);
 }

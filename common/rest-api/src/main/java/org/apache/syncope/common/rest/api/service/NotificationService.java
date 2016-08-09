@@ -50,7 +50,7 @@ public interface NotificationService extends JAXRSService {
     @GET
     @Path("{key}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    NotificationTO read(@NotNull @PathParam("key") Long key);
+    NotificationTO read(@NotNull @PathParam("key") String key);
 
     /**
      * Returns a list of all notifications.
@@ -88,7 +88,7 @@ public interface NotificationService extends JAXRSService {
      */
     @DELETE
     @Path("{key}")
-    void delete(@NotNull @PathParam("key") Long key);
+    void delete(@NotNull @PathParam("key") String key);
 
     /**
      * Returns details about notification job.

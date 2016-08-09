@@ -18,15 +18,13 @@
  */
 package org.apache.syncope.client.enduser;
 
+import org.apache.syncope.client.enduser.resources.UserSelfIsLogged;
 import java.io.File;
 import java.io.Serializable;
 import org.apache.syncope.client.enduser.pages.HomePage;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
 import java.util.Properties;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.syncope.client.enduser.resources.CaptchaResource;
 import org.apache.syncope.client.enduser.resources.InfoResource;
 import org.apache.syncope.client.enduser.resources.LoginResource;
@@ -60,11 +58,6 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
 
     private static final String ENDUSER_PROPERTIES = "enduser.properties";
 
-    public static final List<Locale> SUPPORTED_LOCALES = Collections.unmodifiableList(Arrays.asList(
-            new Locale[] {
-                Locale.ENGLISH, Locale.ITALIAN, new Locale("pt", "BR")
-            }));
-
     public static SyncopeEnduserApplication get() {
         return (SyncopeEnduserApplication) WebApplication.get();
     }
@@ -74,6 +67,8 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
     private String site;
 
     private String license;
+
+    private String adminUser;
 
     private String anonymousUser;
 
@@ -110,6 +105,8 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
         Args.notNull(site, "<site> not set");
         license = props.getProperty("license");
         Args.notNull(license, "<license> not set");
+        adminUser = props.getProperty("adminUser");
+        Args.notNull(adminUser, "<adminUser> not set");
         anonymousUser = props.getProperty("anonymousUser");
         Args.notNull(anonymousUser, "<anonymousUser> not set");
         anonymousKey = props.getProperty("anonymousKey");
@@ -129,9 +126,13 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
         Args.notNull(port, "<port> not set");
         String rootPath = props.getProperty("rootPath");
         Args.notNull(rootPath, "<rootPath> not set");
+        String useGZIPCompression = props.getProperty("useGZIPCompression");
+        Args.notNull(rootPath, "<useGZIPCompression> not set");
 
-        clientFactory = new SyncopeClientFactoryBean().setAddress(scheme + "://" + host + ":" + port + "/" + rootPath);
-        clientFactory.setContentType(SyncopeClientFactoryBean.ContentType.JSON);
+        clientFactory = new SyncopeClientFactoryBean().
+                setAddress(scheme + "://" + host + ":" + port + "/" + rootPath).
+                setContentType(SyncopeClientFactoryBean.ContentType.JSON).
+                setUseCompression(BooleanUtils.toBoolean(useGZIPCompression));
 
         // resource to provide login functionality managed by wicket
         mountResource("/api/login", new ResourceReference("login") {
@@ -152,6 +153,16 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
             @Override
             public IResource getResource() {
                 return new LogoutResource();
+            }
+        });
+
+        mountResource("/api/self/islogged", new ResourceReference("userSelfIsLogged") {
+
+            private static final long serialVersionUID = -128426276529456602L;
+
+            @Override
+            public IResource getResource() {
+                return new UserSelfIsLogged();
             }
         });
 
@@ -331,6 +342,10 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
 
     public String getLicense() {
         return license;
+    }
+
+    public String getAdminUser() {
+        return adminUser;
     }
 
     public String getAnonymousUser() {

@@ -19,34 +19,33 @@
 package org.apache.syncope.core.rest.cxf.service;
 
 import java.net.URI;
-import java.util.List;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
-import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
-import org.apache.syncope.common.lib.to.ExecTO;
-import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.rest.api.RESTHeaders;
-import org.apache.syncope.common.rest.api.beans.BulkExecDeleteQuery;
-import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
-import org.apache.syncope.common.rest.api.beans.TaskExecQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
+import org.apache.syncope.core.logic.AbstractExecutableLogic;
 import org.apache.syncope.core.logic.TaskLogic;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class TaskServiceImpl extends AbstractServiceImpl implements TaskService {
+public class TaskServiceImpl extends AbstractExecutableService implements TaskService {
 
     @Autowired
     private TaskLogic logic;
+
+    @Override
+    protected AbstractExecutableLogic<?> getExecutableLogic() {
+        return logic;
+    }
 
     @Override
     public Response create(final SchedTaskTO taskTO) {
@@ -64,13 +63,8 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
     }
 
     @Override
-    public void delete(final Long key) {
+    public void delete(final String key) {
         logic.delete(key);
-    }
-
-    @Override
-    public ExecTO execute(final ExecuteQuery query) {
-        return logic.execute(query.getKey(), query.getStartAt(), query.getDryRun());
     }
 
     @SuppressWarnings("unchecked")
@@ -80,8 +74,9 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
                 logic.list(
                         query.getType(),
                         query.getResource(),
+                        query.getNotification(),
                         query.getAnyTypeKind(),
-                        query.getAnyTypeKey(),
+                        query.getEntityKey(),
                         query.getPage(),
                         query.getSize(),
                         getOrderByClauses(query.getOrderBy()),
@@ -91,12 +86,13 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
                 logic.count(
                         query.getType(),
                         query.getResource(),
+                        query.getNotification(),
                         query.getAnyTypeKind(),
-                        query.getAnyTypeKey()));
+                        query.getEntityKey()));
     }
 
     @Override
-    public <T extends AbstractTaskTO> T read(final Long key, final boolean details) {
+    public <T extends AbstractTaskTO> T read(final String key, final boolean details) {
         return logic.read(key, details);
     }
 
@@ -110,39 +106,6 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
     }
 
     @Override
-    public PagedResult<ExecTO> listExecutions(final TaskExecQuery query) {
-        return buildPagedResult(
-                logic.listExecutions(
-                        query.getKey(),
-                        query.getPage(),
-                        query.getSize(),
-                        getOrderByClauses(query.getOrderBy())),
-                query.getPage(),
-                query.getSize(),
-                logic.countExecutions(query.getKey()));
-    }
-
-    @Override
-    public List<ExecTO> listRecentExecutions(final int max) {
-        return logic.listRecentExecutions(max);
-    }
-
-    @Override
-    public void deleteExecution(final Long executionKey) {
-        logic.deleteExecution(executionKey);
-    }
-
-    @Override
-    public BulkActionResult deleteExecutions(final BulkExecDeleteQuery query) {
-        return logic.deleteExecutions(
-                query.getKey(),
-                query.getStartedBefore(),
-                query.getStartedAfter(),
-                query.getEndedBefore(),
-                query.getEndedAfter());
-    }
-
-    @Override
     public BulkActionResult bulk(final BulkAction bulkAction) {
         BulkActionResult result = new BulkActionResult();
 
@@ -150,9 +113,7 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
             case DELETE:
                 for (String key : bulkAction.getTargets()) {
                     try {
-                        result.getResults().put(
-                                String.valueOf(logic.delete(Long.valueOf(key)).getKey()),
-                                BulkActionResult.Status.SUCCESS);
+                        result.getResults().put(logic.delete(key).getKey(), BulkActionResult.Status.SUCCESS);
                     } catch (Exception e) {
                         LOG.error("Error performing delete for task {}", key, e);
                         result.getResults().put(key, BulkActionResult.Status.FAILURE);
@@ -163,7 +124,7 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
             case DRYRUN:
                 for (String key : bulkAction.getTargets()) {
                     try {
-                        logic.execute(Long.valueOf(key), null, true);
+                        logic.execute(key, null, true);
                         result.getResults().put(key, BulkActionResult.Status.SUCCESS);
                     } catch (Exception e) {
                         LOG.error("Error performing dryrun for task {}", key, e);
@@ -175,7 +136,7 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
             case EXECUTE:
                 for (String key : bulkAction.getTargets()) {
                     try {
-                        logic.execute(Long.valueOf(key), null, false);
+                        logic.execute(key, null, false);
                         result.getResults().put(key, BulkActionResult.Status.SUCCESS);
                     } catch (Exception e) {
                         LOG.error("Error performing execute for task {}", key, e);
@@ -188,15 +149,5 @@ public class TaskServiceImpl extends AbstractServiceImpl implements TaskService 
         }
 
         return result;
-    }
-
-    @Override
-    public List<JobTO> listJobs() {
-        return logic.listJobs();
-    }
-
-    @Override
-    public void actionJob(final Long key, final JobAction action) {
-        logic.actionJob(key, action);
     }
 }

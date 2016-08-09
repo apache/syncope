@@ -32,7 +32,7 @@ import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
-import org.apache.syncope.client.console.panels.AbstractResourceModal.CreateEvent;
+import org.apache.syncope.client.console.wizards.resources.AbstractResourceWizardBuilder.CreateEvent;
 import org.apache.syncope.client.console.rest.BaseRestClient;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
@@ -88,7 +88,7 @@ public class Topology extends BasePage {
 
         @Override
         protected List<ResourceTO> load() {
-            return resourceRestClient.getAll();
+            return resourceRestClient.list();
         }
     };
 
@@ -210,7 +210,7 @@ public class Topology extends BasePage {
 
         // required to retrieve parent positions
         final Map<String, TopologyNode> servers = new HashMap<>();
-        final Map<Long, TopologyNode> connectors = new HashMap<>();
+        final Map<String, TopologyNode> connectors = new HashMap<>();
         // -----------------------------------------
 
         // -----------------------------------------
@@ -338,7 +338,7 @@ public class Topology extends BasePage {
                         topologynode.setX(x);
                         topologynode.setY(y);
 
-                        connectors.put(Long.class.cast(topologynode.getKey()), topologynode);
+                        connectors.put(String.class.cast(topologynode.getKey()), topologynode);
                         item.add(topologyNodePanel("conn", topologynode));
 
                         // Update connections
@@ -366,7 +366,7 @@ public class Topology extends BasePage {
         // -----------------------------------------
         // Add Resources
         // -----------------------------------------
-        final List<Long> connToBeProcessed = new ArrayList<>();
+        final List<String> connToBeProcessed = new ArrayList<>();
         for (ResourceTO resourceTO : resModel.getObject()) {
             final TopologyNode topologynode = new TopologyNode(
                     resourceTO.getKey(), resourceTO.getKey(), TopologyNode.Kind.RESOURCE);
@@ -387,16 +387,16 @@ public class Topology extends BasePage {
             }
         }
 
-        final ListView<Long> resources = new ListView<Long>("resources", connToBeProcessed) {
+        final ListView<String> resources = new ListView<String>("resources", connToBeProcessed) {
 
             private static final long serialVersionUID = 697862187148836038L;
 
             @Override
-            protected void populateItem(final ListItem<Long> item) {
-                final Long connectorId = item.getModelObject();
+            protected void populateItem(final ListItem<String> item) {
+                final String connectorKey = item.getModelObject();
 
                 final ListView<TopologyNode> innerListView = new ListView<TopologyNode>("resources",
-                        new ArrayList<>(connections.get(connectorId).values())) {
+                        new ArrayList<>(connections.get(connectorKey).values())) {
 
                     private static final long serialVersionUID = 1L;
 
@@ -405,7 +405,7 @@ public class Topology extends BasePage {
                     @Override
                     protected void populateItem(final ListItem<TopologyNode> item) {
                         final TopologyNode topologynode = item.getModelObject();
-                        final TopologyNode parent = connectors.get(connectorId);
+                        final TopologyNode parent = connectors.get(connectorKey);
 
                         // Set position
                         int kx = size >= 16 ? 800 : (48 * size);

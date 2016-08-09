@@ -21,12 +21,12 @@ under the License.
      
   <route id="createAnyObject">
     <from uri="direct:createAnyObject"/>
-    <setProperty propertyName="any">
+    <setProperty propertyName="actual">
       <simple>${body}</simple>
     </setProperty>
     <doTry>
       <bean ref="awfAdapter" method="create(${body})"/>
-      <process ref="anyObjectCreateProcessor"/>
+      <to uri="propagate:create?anyTypeKind=ANY_OBJECT"/>
       <to uri="direct:createAnyObjectPort"/>
       <doCatch>        
         <exception>java.lang.RuntimeException</exception>
@@ -40,12 +40,12 @@ under the License.
          
   <route id="updateAnyObject">
     <from uri="direct:updateAnyObject"/>
-    <setProperty propertyName="anyPatch">
+    <setProperty propertyName="actual">
       <simple>${body}</simple>
     </setProperty>
     <doTry>
       <bean ref="awfAdapter" method="update(${body})"/>
-      <process ref="anyObjectUpdateProcessor"/>
+      <to uri="propagate:update?anyTypeKind=ANY_OBJECT"/>
       <to uri="direct:updateAnyObjectPort"/>
       <doCatch>        
         <exception>java.lang.RuntimeException</exception>
@@ -60,7 +60,7 @@ under the License.
   <route id="deleteAnyObject">
     <from uri="direct:deleteAnyObject"/>
     <doTry>
-      <process ref="anyObjectDeleteProcessor"/>
+      <to uri="propagate:delete?anyTypeKind=ANY_OBJECT"/>
       <bean ref="awfAdapter" method="delete(${body})"/>
       <setBody>
         <simple>${property.statuses}</simple>
@@ -114,13 +114,13 @@ under the License.
         
   <route id="provisionAnyObject">
     <from uri="direct:provisionAnyObject"/>            
-    <process ref="anyObjectProvisionProcessor"/>
+    <to uri="propagate:provision?anyTypeKind=ANY_OBJECT"/>
     <to uri="direct:provisionAnyObjectPort"/>              
   </route>
 
   <route id="deprovisionAnyObject">
     <from uri="direct:deprovisionAnyObject"/>            
-    <process ref="anyObjectDeprovisionProcessor"/>
+    <to uri="propagate:deprovision?anyTypeKind=ANY_OBJECT"/>
     <to uri="direct:deprovisionAnyObjectPort"/>              
   </route>
     

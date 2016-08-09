@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
-import org.apache.syncope.core.persistence.jpa.entity.user.JPADynRoleMembership;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -30,9 +29,9 @@ import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
+import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -40,31 +39,29 @@ import javax.validation.Valid;
 import org.apache.syncope.core.persistence.api.entity.user.DynRoleMembership;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
+import org.apache.syncope.core.persistence.jpa.entity.user.JPADynRoleMembership;
 import org.apache.syncope.core.persistence.jpa.validation.entity.RoleCheck;
 
 @Entity
 @Table(name = JPARole.TABLE)
 @Cacheable
 @RoleCheck
-public class JPARole extends AbstractEntity<String> implements Role {
+public class JPARole extends AbstractProvidedKeyEntity implements Role {
 
     private static final long serialVersionUID = -7657701119422588832L;
 
     public static final String TABLE = "SyncopeRole";
 
-    @Id
-    private String name;
-
     @ElementCollection(fetch = FetchType.EAGER)
     @Column(name = "entitlement")
     @CollectionTable(name = "SyncopeRole_entitlements",
             joinColumns =
-            @JoinColumn(name = "role_name", referencedColumnName = "name"))
+            @JoinColumn(name = "role_id", referencedColumnName = "id"))
     private Set<String> entitlements = new HashSet<>();
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(joinColumns =
-            @JoinColumn(name = "role_name"),
+            @JoinColumn(name = "role_id"),
             inverseJoinColumns =
             @JoinColumn(name = "realm_id"))
     @Valid
@@ -74,15 +71,8 @@ public class JPARole extends AbstractEntity<String> implements Role {
     @Valid
     private JPADynRoleMembership dynMembership;
 
-    @Override
-    public String getKey() {
-        return name;
-    }
-
-    @Override
-    public void setKey(final String name) {
-        this.name = name;
-    }
+    @Lob
+    private String consoleLayoutInfo;
 
     @Override
     public Set<String> getEntitlements() {
@@ -110,4 +100,15 @@ public class JPARole extends AbstractEntity<String> implements Role {
         checkType(dynMembership, JPADynRoleMembership.class);
         this.dynMembership = (JPADynRoleMembership) dynMembership;
     }
+
+    @Override
+    public String getConsoleLayoutInfo() {
+        return consoleLayoutInfo;
+    }
+
+    @Override
+    public void setConsoleLayoutInfo(final String consoleLayoutInfo) {
+        this.consoleLayoutInfo = consoleLayoutInfo;
+    }
+
 }

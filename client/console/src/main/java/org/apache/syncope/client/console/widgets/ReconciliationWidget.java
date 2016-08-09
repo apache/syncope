@@ -30,7 +30,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
@@ -40,9 +39,10 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.commons.SearchableDataProvider;
+import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
-import org.apache.syncope.client.console.panels.AbstractSearchResultPanel;
+import org.apache.syncope.client.console.pages.BasePage;
+import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.rest.BaseRestClient;
 import org.apache.syncope.client.console.rest.ReportRestClient;
 import org.apache.syncope.client.console.wicket.ajax.markup.html.IndicatorAjaxLink;
@@ -59,7 +59,9 @@ import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.ReportTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.rest.api.service.ReportService;
 import org.apache.wicket.Application;
 import org.apache.wicket.AttributeModifier;
@@ -67,6 +69,7 @@ import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ThreadContext;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
@@ -84,7 +87,6 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.protocol.ws.WebSocketSettings;
-import org.apache.wicket.protocol.ws.api.WebSocketBehavior;
 import org.apache.wicket.protocol.ws.api.WebSocketPushBroadcaster;
 import org.apache.wicket.protocol.ws.api.event.WebSocketPushPayload;
 import org.apache.wicket.protocol.ws.api.message.ConnectedMessage;
@@ -101,7 +103,7 @@ public class ReconciliationWidget extends BaseWidget {
 
     private static final int ROWS = 10;
 
-    private final Long reconciliationReportKey;
+    private final String reconciliationReportKey;
 
     private final BaseModal<Any> detailsModal = new BaseModal<>("detailsModal");
 
@@ -110,8 +112,6 @@ public class ReconciliationWidget extends BaseWidget {
     private final ReportRestClient restClient = new ReportRestClient();
 
     private final WebMarkupContainer overlay;
-
-    private boolean checkReconciliationJob = false;
 
     public ReconciliationWidget(final String id, final PageReference pageRef) {
         super(id);
@@ -127,11 +127,13 @@ public class ReconciliationWidget extends BaseWidget {
         this.reconciliationReportKey = SyncopeConsoleApplication.get().getReconciliationReportKey();
 
         ReportTO reconciliationReport = null;
-        try {
-            reconciliationReport = restClient.read(reconciliationReportKey);
-        } catch (Exception e) {
-            LOG.error("Could not fetch the expected reconciliation report with key {}, aborting",
-                    reconciliationReportKey, e);
+        if (SyncopeConsoleSession.get().owns(StandardEntitlement.REPORT_READ)) {
+            try {
+                reconciliationReport = restClient.read(reconciliationReportKey);
+            } catch (Exception e) {
+                LOG.error("Could not fetch the expected reconciliation report with key {}, aborting",
+                        reconciliationReportKey, e);
+            }
         }
 
         Fragment reportResult = reconciliationReport == null || reconciliationReport.getExecutions().isEmpty()
@@ -140,22 +142,7 @@ public class ReconciliationWidget extends BaseWidget {
         reportResult.setOutputMarkupId(true);
         add(reportResult);
 
-        if (reconciliationReport != null) {
-            add(new WebSocketBehavior() {
-
-                private static final long serialVersionUID = 3507933905864454312L;
-
-                @Override
-                protected void onConnect(final ConnectedMessage message) {
-                    super.onConnect(message);
-
-                    SyncopeConsoleSession.get().scheduleAtFixedRate(
-                            new ReconciliationJobInfoUpdater(message), 0, 10, TimeUnit.SECONDS);
-                }
-            });
-        }
-
-        add(new IndicatorAjaxLink<Void>("refresh") {
+        IndicatorAjaxLink<Void> refresh = new IndicatorAjaxLink<Void>("refresh") {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -167,18 +154,18 @@ public class ReconciliationWidget extends BaseWidget {
                     overlay.setVisible(true);
                     target.add(ReconciliationWidget.this);
 
-                    synchronized (this) {
-                        checkReconciliationJob = true;
-                    }
+                    SyncopeConsoleSession.get().setCheckReconciliationJob(true);
 
-                    info(getString(Constants.OPERATION_SUCCEEDED));
+                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                 } catch (Exception e) {
                     LOG.error("While starting reconciliation report", e);
-                    error("Could not start reconciliation report");
+                    SyncopeConsoleSession.get().error("Could not start reconciliation report");
                 }
-                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-        });
+        };
+        MetaDataRoleAuthorizationStrategy.authorize(refresh, Component.RENDER, StandardEntitlement.REPORT_EXECUTE);
+        add(refresh);
     }
 
     private Fragment buildExecFragment() {
@@ -205,7 +192,7 @@ public class ReconciliationWidget extends BaseWidget {
                 return new ProgressesPanel(panelId, report.getRun(), progressBeans);
             }
         });
-        tabs.add(new AbstractTab(new ResourceModel("users")) {
+        tabs.add(new AbstractTab(Model.of(AnyTypeKind.USER.name())) {
 
             private static final long serialVersionUID = -6815067322125799251L;
 
@@ -214,7 +201,7 @@ public class ReconciliationWidget extends BaseWidget {
                 return new AnysReconciliationPanel(panelId, report.getUsers(), pageRef);
             }
         });
-        tabs.add(new AbstractTab(new ResourceModel("groups")) {
+        tabs.add(new AbstractTab(Model.of(AnyTypeKind.GROUP.name())) {
 
             private static final long serialVersionUID = -6815067322125799251L;
 
@@ -244,13 +231,16 @@ public class ReconciliationWidget extends BaseWidget {
         List<ProgressBean> beans = Collections.emptyList();
         ReconciliationReport report = null;
 
-        ExecTO exec = IterableUtils.find(restClient.listRecentExecutions(ROWS), new Predicate<ExecTO>() {
+        ExecTO exec = null;
+        if (SyncopeConsoleSession.get().owns(StandardEntitlement.REPORT_LIST)) {
+            exec = IterableUtils.find(restClient.listRecentExecutions(ROWS), new Predicate<ExecTO>() {
 
-            @Override
-            public boolean evaluate(final ExecTO exec) {
-                return reconciliationReportKey.equals(exec.getRefKey());
-            }
-        });
+                @Override
+                public boolean evaluate(final ExecTO exec) {
+                    return reconciliationReportKey.equals(exec.getRefKey());
+                }
+            });
+        }
         if (exec == null) {
             LOG.error("Could not find the last execution of reconciliation report");
         } else {
@@ -292,7 +282,7 @@ public class ReconciliationWidget extends BaseWidget {
             }
         }
 
-        return Pair.of(beans, report);
+        return Pair.of(beans, report == null ? new ReconciliationReport(new Date()) : report);
     }
 
     @Override
@@ -306,14 +296,12 @@ public class ReconciliationWidget extends BaseWidget {
 
                 wsEvent.getHandler().add(ReconciliationWidget.this);
 
-                synchronized (this) {
-                    checkReconciliationJob = false;
-                }
+                SyncopeConsoleSession.get().setCheckReconciliationJob(false);
             }
         }
     }
 
-    private class AnysReconciliationPanel extends AbstractSearchResultPanel<
+    private class AnysReconciliationPanel extends DirectoryPanel<
         Any, Any, AnysReconciliationProvider, BaseRestClient> {
 
         private static final long serialVersionUID = -8214546246301342868L;
@@ -326,8 +314,8 @@ public class ReconciliationWidget extends BaseWidget {
                 private static final long serialVersionUID = 8769126634538601689L;
 
                 @Override
-                protected WizardMgtPanel<Any> newInstance(final String id) {
-                    return new AnysReconciliationPanel(id, anys, pageRef);
+                protected WizardMgtPanel<Any> newInstance(final String id, final boolean wizardInModal) {
+                    throw new UnsupportedOperationException();
                 }
             }.disableCheckBoxes().hidePaginator());
 
@@ -453,7 +441,7 @@ public class ReconciliationWidget extends BaseWidget {
         }
     }
 
-    protected final class AnysReconciliationProvider extends SearchableDataProvider<Any> {
+    protected final class AnysReconciliationProvider extends DirectoryDataProvider<Any> {
 
         private static final long serialVersionUID = -1500081449932597854L;
 
@@ -485,7 +473,7 @@ public class ReconciliationWidget extends BaseWidget {
         }
     }
 
-    protected final class ReconciliationJobInfoUpdater implements Runnable {
+    public static final class ReconciliationJobInfoUpdater implements Runnable {
 
         private final String applicationName;
 
@@ -501,37 +489,36 @@ public class ReconciliationWidget extends BaseWidget {
 
         @Override
         public void run() {
-            synchronized (ReconciliationWidget.this) {
-                if (ReconciliationWidget.this.checkReconciliationJob) {
-                    try {
-                        Application application = Application.get(applicationName);
-                        ThreadContext.setApplication(application);
-                        ThreadContext.setSession(session);
+            if (session.isCheckReconciliationJob()) {
+                try {
+                    final Application application = Application.get(applicationName);
+                    ThreadContext.setApplication(application);
+                    ThreadContext.setSession(session);
 
-                        JobTO reportJobTO = IterableUtils.find(session.getService(ReportService.class).listJobs(),
-                                new Predicate<JobTO>() {
+                    JobTO reportJobTO = IterableUtils.find(session.getService(ReportService.class).listJobs(),
+                            new Predicate<JobTO>() {
 
-                            @Override
-                            public boolean evaluate(final JobTO jobTO) {
-                                return SyncopeConsoleApplication.get().
-                                        getReconciliationReportKey().equals(jobTO.getRefKey());
-                            }
-                        });
-                        if (reportJobTO != null && !reportJobTO.isRunning()) {
-                            LOG.debug("Report {} is not running", reconciliationReportKey);
-
-                            WebSocketSettings webSocketSettings = WebSocketSettings.Holder.get(application);
-                            WebSocketPushBroadcaster broadcaster =
-                                    new WebSocketPushBroadcaster(webSocketSettings.getConnectionRegistry());
-                            broadcaster.broadcast(
-                                    new ConnectedMessage(application, session.getId(), key),
-                                    new ReconciliationJobNotRunningMessage());
+                        @Override
+                        public boolean evaluate(final JobTO jobTO) {
+                            return SyncopeConsoleApplication.class.cast(application).
+                                    getReconciliationReportKey().equals(jobTO.getRefKey());
                         }
-                    } catch (Throwable t) {
-                        LOG.error("Unexpected error while checking for updated reconciliation job info", t);
-                    } finally {
-                        ThreadContext.detach();
+                    });
+                    if (reportJobTO != null && !reportJobTO.isRunning()) {
+                        LOG.debug("Report {} is not running",
+                                SyncopeConsoleApplication.class.cast(application).getReconciliationReportKey());
+
+                        WebSocketSettings webSocketSettings = WebSocketSettings.Holder.get(application);
+                        WebSocketPushBroadcaster broadcaster = new WebSocketPushBroadcaster(webSocketSettings.
+                                getConnectionRegistry());
+                        broadcaster.broadcast(
+                                new ConnectedMessage(application, session.getId(), key),
+                                new ReconciliationJobNotRunningMessage());
                     }
+                } catch (Throwable t) {
+                    LOG.error("Unexpected error while checking for updated reconciliation job info", t);
+                } finally {
+                    ThreadContext.detach();
                 }
             }
         }

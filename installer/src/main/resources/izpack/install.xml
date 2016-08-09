@@ -17,7 +17,7 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<izpack:installation version="5.0" 
+<izpack:installation version="5.0"
                      xmlns:izpack="http://izpack.org/schema/installation"
                      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                      xsi:schemaLocation="http://izpack.org/schema/installation
@@ -30,7 +30,7 @@ under the License.
     <authors>
       <author name="Apache Syncope" email="dev@syncope.apache.org"/>
     </authors>
-    <javaversion>${targetJdk}</javaversion>
+    <javaversion>1.7</javaversion>
   </info>
   
   <guiprefs resizable="no" width="850" height="600">    
@@ -132,7 +132,7 @@ under the License.
   <jar src="../syncope-installer-@{syncope.version}.jar" stage="install"/>
   <jar src="lib/commons-logging-@{commons-logging.version}.jar"/>
   <jar src="lib/commons-codec-@{commons-codec.version}.jar"/>
-  <jar src="lib/commons-io-2.4.jar"/>
+  <jar src="lib/commons-io-@{commons-io.version}.jar"/>
   <jar src="lib/httpclient-@{httpclient.version}.jar"/>
   <jar src="lib/httpmime-@{httpclient.version}.jar"/>
   <jar src="lib/httpcore-4.3.3.jar"/>

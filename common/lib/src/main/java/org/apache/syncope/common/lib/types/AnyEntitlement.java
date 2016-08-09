@@ -20,10 +20,12 @@ package org.apache.syncope.common.lib.types;
 
 public enum AnyEntitlement {
     SEARCH,
-    LIST,
     CREATE,
     READ,
     UPDATE,
     DELETE;
 
+    public String getFor(final String anyTypeKey) {
+        return anyTypeKey + "_" + name();
+    }
 }

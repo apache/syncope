@@ -21,7 +21,7 @@ package org.apache.syncope.core.persistence.api.dao;
 import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.Domain;
 
-public interface DomainDAO extends DAO<Domain, String> {
+public interface DomainDAO extends DAO<Domain> {
 
     Domain find(String key);
 

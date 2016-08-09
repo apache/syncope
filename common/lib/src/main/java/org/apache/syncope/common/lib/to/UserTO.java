@@ -38,7 +38,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 
 @XmlRootElement(name = "user")
 @XmlType
-public class UserTO extends AnyTO implements RelatableTO, GroupableTO {
+public class UserTO extends AnyTO implements GroupableRelatableTO {
 
     private static final long serialVersionUID = 7791304495192615740L;
 
@@ -60,7 +60,7 @@ public class UserTO extends AnyTO implements RelatableTO, GroupableTO {
 
     private Integer failedLogins;
 
-    private Long securityQuestion;
+    private String securityQuestion;
 
     private String securityAnswer;
 
@@ -70,7 +70,7 @@ public class UserTO extends AnyTO implements RelatableTO, GroupableTO {
 
     private final List<MembershipTO> memberships = new ArrayList<>();
 
-    private final List<Long> dynGroups = new ArrayList<>();
+    private final List<String> dynGroups = new ArrayList<>();
 
     @Override
     public String getType() {
@@ -156,11 +156,11 @@ public class UserTO extends AnyTO implements RelatableTO, GroupableTO {
         this.lastLoginDate = lastLoginDate;
     }
 
-    public Long getSecurityQuestion() {
+    public String getSecurityQuestion() {
         return securityQuestion;
     }
 
-    public void setSecurityQuestion(final Long securityQuestion) {
+    public void setSecurityQuestion(final String securityQuestion) {
         this.securityQuestion = securityQuestion;
     }
 
@@ -190,8 +190,8 @@ public class UserTO extends AnyTO implements RelatableTO, GroupableTO {
 
     @JsonIgnore
     @Override
-    public Map<Pair<String, Long>, RelationshipTO> getRelationshipMap() {
-        Map<Pair<String, Long>, RelationshipTO> result = new HashMap<>(getRelationships().size());
+    public Map<Pair<String, String>, RelationshipTO> getRelationshipMap() {
+        Map<Pair<String, String>, RelationshipTO> result = new HashMap<>(getRelationships().size());
         for (RelationshipTO relationship : getRelationships()) {
             result.put(Pair.of(relationship.getType(), relationship.getRightKey()), relationship);
         }
@@ -208,8 +208,8 @@ public class UserTO extends AnyTO implements RelatableTO, GroupableTO {
 
     @JsonIgnore
     @Override
-    public Map<Long, MembershipTO> getMembershipMap() {
-        Map<Long, MembershipTO> result = new HashMap<>(getMemberships().size());
+    public Map<String, MembershipTO> getMembershipMap() {
+        Map<String, MembershipTO> result = new HashMap<>(getMemberships().size());
         for (MembershipTO membership : getMemberships()) {
             result.put(membership.getRightKey(), membership);
         }
@@ -222,7 +222,7 @@ public class UserTO extends AnyTO implements RelatableTO, GroupableTO {
     @XmlElement(name = "role")
     @JsonProperty("dynGroups")
     @Override
-    public List<Long> getDynGroups() {
+    public List<String> getDynGroups() {
         return dynGroups;
     }
 

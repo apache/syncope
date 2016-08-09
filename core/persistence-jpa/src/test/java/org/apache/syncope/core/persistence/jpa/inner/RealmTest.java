@@ -57,38 +57,38 @@ public class RealmTest extends AbstractTest {
 
     @Test
     public void find() {
-        Realm realm = realmDAO.find(1L);
+        Realm realm = realmDAO.find("e4c28e7a-9dbf-4ee7-9441-93812a0d4a28");
         assertNotNull(realm);
         assertEquals(SyncopeConstants.ROOT_REALM, realm.getName());
         assertEquals(SyncopeConstants.ROOT_REALM, realm.getFullPath());
 
-        realm = realmDAO.find(3L);
+        realm = realmDAO.find("c5b75db1-fce7-470f-b780-3b9934d82a9d");
         assertNotNull(realm);
         assertEquals("even", realm.getName());
         assertEquals("/even", realm.getFullPath());
-        assertEquals(1, realm.getParent().getKey(), 0);
+        assertEquals("e4c28e7a-9dbf-4ee7-9441-93812a0d4a28", realm.getParent().getKey());
         assertEquals(realmDAO.getRoot(), realm.getParent());
 
-        realm = realmDAO.find("/even/two");
+        realm = realmDAO.findByFullPath("/even/two");
         assertNotNull(realm);
-        assertEquals(4, realm.getKey(), 0);
+        assertEquals("0679e069-7355-4b20-bd11-a5a0a5453c7c", realm.getKey());
         assertEquals("two", realm.getName());
         assertEquals("/even/two", realm.getFullPath());
     }
 
     @Test(expected = MalformedPathException.class)
     public void findInvalidPath() {
-        realmDAO.find("even/two");
+        realmDAO.findByFullPath("even/two");
     }
 
     @Test
     public void findChildren() {
-        List<Realm> children = realmDAO.findChildren(realmDAO.find(SyncopeConstants.ROOT_REALM));
+        List<Realm> children = realmDAO.findChildren(realmDAO.findByFullPath(SyncopeConstants.ROOT_REALM));
         assertEquals(2, children.size());
-        assertTrue(children.contains(realmDAO.find("/odd")));
-        assertTrue(children.contains(realmDAO.find("/even")));
+        assertTrue(children.contains(realmDAO.findByFullPath("/odd")));
+        assertTrue(children.contains(realmDAO.findByFullPath("/even")));
 
-        children = realmDAO.findChildren(realmDAO.find("/odd"));
+        children = realmDAO.findChildren(realmDAO.findByFullPath("/odd"));
         assertTrue(children.isEmpty());
     }
 
@@ -112,24 +112,26 @@ public class RealmTest extends AbstractTest {
     public void save() {
         Realm realm = entityFactory.newEntity(Realm.class);
         realm.setName("last");
-        realm.setParent(realmDAO.find("/even/two"));
+        realm.setParent(realmDAO.findByFullPath("/even/two"));
         assertNull(realm.getKey());
 
         Realm actual = realmDAO.save(realm);
         assertNotNull(actual.getKey());
         assertEquals("last", actual.getName());
         assertEquals("/even/two/last", actual.getFullPath());
-        assertEquals(realmDAO.find("/even/two"), actual.getParent());
-        assertEquals(5L, realm.getAccountPolicy().getKey(), 0);
-        assertEquals(2L, realm.getPasswordPolicy().getKey(), 0);
+        assertEquals(realmDAO.findByFullPath("/even/two"), actual.getParent());
+        assertEquals("20ab5a8c-4b0c-432c-b957-f7fb9784d9f7", realm.getAccountPolicy().getKey());
+        assertEquals("ce93fcda-dc3a-4369-a7b0-a6108c261c85", realm.getPasswordPolicy().getKey());
 
         realm = actual;
-        realm.setAccountPolicy((AccountPolicy) policyDAO.find(6L));
-        realm.setPasswordPolicy((PasswordPolicy) policyDAO.find(4L));
+        realm.setAccountPolicy(
+                (AccountPolicy) policyDAO.find("06e2ed52-6966-44aa-a177-a0ca7434201f"));
+        realm.setPasswordPolicy(
+                (PasswordPolicy) policyDAO.find("986d1236-3ac5-4a19-810c-5ab21d79cba1"));
 
         actual = realmDAO.save(realm);
-        assertEquals(6L, actual.getAccountPolicy().getKey(), 0);
-        assertEquals(4L, actual.getPasswordPolicy().getKey(), 0);
+        assertEquals("06e2ed52-6966-44aa-a177-a0ca7434201f", actual.getAccountPolicy().getKey());
+        assertEquals("986d1236-3ac5-4a19-810c-5ab21d79cba1", actual.getPasswordPolicy().getKey());
     }
 
     @Test
@@ -169,10 +171,10 @@ public class RealmTest extends AbstractTest {
         Realm actual = realmDAO.save(realm);
         assertNotNull(actual);
 
-        Long key = actual.getKey();
-        assertNotNull(realmDAO.find(key));
+        String id = actual.getKey();
+        assertNotNull(realmDAO.find(id));
 
-        realmDAO.delete(key);
-        assertNull(realmDAO.find(key));
+        realmDAO.delete(id);
+        assertNull(realmDAO.find(id));
     }
 }

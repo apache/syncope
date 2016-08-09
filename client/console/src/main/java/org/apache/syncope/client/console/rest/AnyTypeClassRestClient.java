@@ -30,6 +30,10 @@ public class AnyTypeClassRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = -2211371717449597247L;
 
+    public AnyTypeClassTO read(final String key) {
+        return getService(AnyTypeClassService.class).read(key);
+    }
+
     public List<AnyTypeClassTO> list() {
         List<AnyTypeClassTO> types = Collections.emptyList();
 

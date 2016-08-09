@@ -20,9 +20,7 @@ package org.apache.syncope.core.persistence.api.entity;
 
 import java.util.List;
 
-public interface AnyTypeClass extends Entity<String> {
-
-    void setKey(String key);
+public interface AnyTypeClass extends ProvidedKeyEntity {
 
     boolean add(PlainSchema schema);
 

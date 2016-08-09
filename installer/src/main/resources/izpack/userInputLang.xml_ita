@@ -17,7 +17,12 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-<langpack>
+<izpack:langpack version="5.0"
+                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                  xmlns:izpack="http://izpack.org/schema/langpack"
+                  xsi:schemaLocation="http://izpack.org/schema/langpack
+                                      http://izpack.org/schema/5.0/izpack-langpack-5.0.xsd">
+
   <str id="mvn.directory.id" txt="Maven home directory:"/>
   <str id="archetype.mvn.groupid" txt="GroupId:"/>
   <str id="archetype.mvn.artifactid" txt="ArtifactId:"/>
@@ -67,4 +72,4 @@ under the License.
   <str id="jboss.container.user.id" txt="Jboss admin username:"/>
   <str id="jboss.container.pwd.id" txt="Jboss admin password:"/>
   <str id='jboss.container.management.port.id' txt="Jbos management port"/>
-</langpack>
+</izpack:langpack>

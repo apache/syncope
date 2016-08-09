@@ -19,26 +19,56 @@
 'use strict';
 
 angular.module('self')
-        .directive('dynamicPlainAttributes', function (SchemaService) {
+        .directive('dynamicPlainAttributes', function () {
+          var getTemplateUrl = function () {
+            return 'views/dynamicPlainAttributes.html';
+          };
           return {
             restrict: 'E',
-            templateUrl: 'views/dynamicPlainAttributes.html',
+            templateUrl: getTemplateUrl(),
             scope: {
               dynamicForm: "=form",
               user: "="
             },
             controller: function ($scope) {
 
+              $scope.getByGroup = function (group) {
+                var currentPlainSchemas = new Array();
+                for (var i = 0; i < $scope.dynamicForm.plainSchemas.length; i++) {
+                  var attr = $scope.dynamicForm.plainSchemas[i];
+                  if (group === "own" && $scope.dynamicForm.plainSchemas[i].key.indexOf('#') == -1) {
+                    attr.simpleKey = $scope.dynamicForm.plainSchemas[i].key;
+                    currentPlainSchemas.push(attr);
+                  } else {
+                    var prefix = $scope.dynamicForm.plainSchemas[i].key.substr
+                            (0, $scope.dynamicForm.plainSchemas[i].key.indexOf('#'));
+                    if (prefix === group)
+                    {
+                      var shaPosition = $scope.dynamicForm.plainSchemas[i].key.indexOf("#") + 1;
+                      attr.simpleKey = $scope.dynamicForm.plainSchemas[i].key.substring(shaPosition);
+                      currentPlainSchemas.push(attr);
+                    }
+                  }
+                }
+                return currentPlainSchemas;
+              };
+
               $scope.addAttributeField = function (plainSchemaKey) {
-                console.log("Add PLAIN value: ", plainSchemaKey + "_" + ($scope.dynamicForm.attributeTable[plainSchemaKey].fields.length));
+                console.debug("Add PLAIN value:", plainSchemaKey);
+                console.debug(" ", ($scope.dynamicForm.attributeTable[plainSchemaKey].fields.length));
                 $scope.dynamicForm.attributeTable[plainSchemaKey].fields.push(plainSchemaKey + "_" + ($scope.dynamicForm.attributeTable[plainSchemaKey].fields.length));
               };
 
               $scope.removeAttributeField = function (plainSchemaKey, index) {
-                console.log("Remove PLAIN value: " + plainSchemaKey + " attribute index: " + index);
+                console.debug("Remove PLAIN value:", plainSchemaKey);
+                console.debug("attribute index:", index);
                 $scope.dynamicForm.attributeTable[plainSchemaKey].fields.splice(index, 1);
                 // clean user model
                 $scope.user.plainAttrs[plainSchemaKey].values.splice(index, 1);
+              };
+
+              $scope.getTemplateUrl = function () {
+                return "views/dynamicPlainAttributes.html";
               };
             }
           };

@@ -63,7 +63,8 @@ public interface RealmService extends JAXRSService {
      *
      * @param parentPath full path of the parent realm
      * @param realmTO new realm.
-     * @return Response object featuring Location header of created realm
+     * @return Response object featuring Location header of created realm as well as the realm itself
+     * enriched with propagation status information - ProvisioningResult as Entity
      */
     @POST
     @Path("{parentPath:.*}")
@@ -74,18 +75,22 @@ public interface RealmService extends JAXRSService {
      * Updates the realm under the given path.
      *
      * @param realmTO realm to be stored
+     * @return Response object featuring the updated realm enriched with propagation status information
+     * - ProvisioningResult as Entity
      */
     @PUT
     @Path("{fullPath:.*}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    void update(@NotNull RealmTO realmTO);
+    Response update(@NotNull RealmTO realmTO);
 
     /**
-     * Deletes the notification matching the given key.
+     * Deletes the realm under the given path.
      *
-     * @param fullPath key for notification to be deleted
+     * @param fullPath realm path
+     * @return Response object featuring the deleted realm enriched with propagation status information
+     * - ProvisioningResult as Entity
      */
     @DELETE
     @Path("{fullPath:.*}")
-    void delete(@NotNull @PathParam("fullPath") String fullPath);
+    Response delete(@NotNull @PathParam("fullPath") String fullPath);
 }

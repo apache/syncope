@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.tasks;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -32,21 +33,21 @@ public class PullTasks extends AbstractTasks {
     private static final long serialVersionUID = -4013796607157549641L;
 
     public <T extends AnyTO> PullTasks(
-            final BaseModal<?> baseModal, final PageReference pageReference, final String resource) {
+            final BaseModal<?> baseModal, final PageReference pageRef, final String resource) {
         super(BaseModal.CONTENT_ID);
 
         final MultilevelPanel mlp = new MultilevelPanel("tasks");
         add(mlp);
 
-        mlp.setFirstLevel(new PullTaskSearchResultPanel(baseModal, mlp, resource, pageReference) {
+        mlp.setFirstLevel(new PullTaskDirectoryPanel(baseModal, mlp, resource, pageRef) {
 
             private static final long serialVersionUID = -2195387360323687302L;
 
             @Override
             protected void viewTask(final PullTaskTO taskTO, final AjaxRequestTarget target) {
                 mlp.next(
-                        new StringResourceModel("task.view", this, new Model<>(taskTO)).getObject(),
-                        new TaskExecutionDetails<>(baseModal, taskTO, pageReference), target);
+                        new StringResourceModel("task.view", this, new Model<>(Pair.of(null, taskTO))).getObject(),
+                        new TaskExecutionDetails<>(baseModal, taskTO, pageRef), target);
             }
         });
     }

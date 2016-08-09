@@ -20,12 +20,10 @@ package org.apache.syncope.client.console.wizards.any;
 
 import java.util.Collections;
 import java.util.List;
-import org.apache.syncope.client.console.commons.JexlHelpUtils;
 import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.panels.ListViewPanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
@@ -34,7 +32,6 @@ import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.ComponentTag;
-import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -48,30 +45,25 @@ public class UserDetails extends Details<UserTO> {
     private static final String PASSWORD_CONTENT_PATH = "body:content";
 
     public UserDetails(
-            final AnyHandler<UserTO> handler,
+            final UserWrapper wrapper,
             final IModel<List<StatusBean>> statusModel,
-            final boolean resetPassword,
             final boolean templateMode,
-            final PageReference pageRef,
-            final boolean includeStatusPanel) {
-        super(handler, statusModel, pageRef, includeStatusPanel);
+            final boolean includeStatusPanel,
+            final boolean showPasswordManagement,
+            final PageReference pageRef) {
+        super(wrapper, statusModel, templateMode, includeStatusPanel, pageRef);
 
-        final UserTO userTO = handler.getInnerObject();
+        final UserTO userTO = wrapper.getInnerObject();
         // ------------------------
         // Username
         // ------------------------
-        final FieldPanel<String> username = new AjaxTextFieldPanel(
+        final AjaxTextFieldPanel username = new AjaxTextFieldPanel(
                 "username", "username", new PropertyModel<String>(userTO, "username"), false);
 
-        final WebMarkupContainer jexlHelp = JexlHelpUtils.getJexlHelpWebContainer("usernameJexlHelp");
-
-        final AjaxLink<?> questionMarkJexlHelp = JexlHelpUtils.getAjaxLink(jexlHelp, "usernameQuestionMarkJexlHelp");
-        add(questionMarkJexlHelp);
-        questionMarkJexlHelp.add(jexlHelp);
-
-        if (!templateMode) {
+        if (templateMode) {
+            username.enableJexlHelp();
+        } else {
             username.addRequiredLabel();
-            questionMarkJexlHelp.setVisible(false);
         }
         add(username);
         // ------------------------
@@ -88,20 +80,19 @@ public class UserDetails extends Details<UserTO> {
 
             @Override
             public Panel getPanel(final String panelId) {
-                final PasswordPanel panel = new PasswordPanel(panelId, userTO, resetPassword, templateMode);
+                PasswordPanel panel = new PasswordPanel(panelId, wrapper, templateMode);
                 panel.setEnabled(model.getObject() >= 0);
                 return panel;
             }
-        }
-        ), model) {
+        }), model) {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = -2898628183677758699L;
 
             @Override
             protected Component newTitle(final String markupId, final ITab tab, final Accordion.State state) {
                 return new AjaxLink<Integer>(markupId) {
 
-                    private static final long serialVersionUID = 1L;
+                    private static final long serialVersionUID = 7021195294339489084L;
 
                     @Override
                     protected void onComponentTag(final ComponentTag tag) {
@@ -115,12 +106,14 @@ public class UserDetails extends Details<UserTO> {
 
                         boolean enable = model.getObject() >= 0;
 
-                        final Component passwordPanel = getParent().get(PASSWORD_CONTENT_PATH);
-                        passwordPanel.setEnabled(enable);
-                        statusPanel.setCheckAvailability(enable
-                                ? ListViewPanel.CheckAvailability.AVAILABLE
-                                : ListViewPanel.CheckAvailability.DISABLED);
+                        if (statusPanel.isVisibleInHierarchy()) {
+                            statusPanel.setCheckAvailability(enable
+                                    ? ListViewPanel.CheckAvailability.AVAILABLE
+                                    : ListViewPanel.CheckAvailability.DISABLED);
+                        }
 
+                        Component passwordPanel = getParent().get(PASSWORD_CONTENT_PATH);
+                        passwordPanel.setEnabled(enable);
                         target.add(passwordPanel);
                     }
                 }.setBody(new ResourceModel("password.change", "Change password ..."));
@@ -128,6 +121,7 @@ public class UserDetails extends Details<UserTO> {
         };
 
         accordion.setOutputMarkupId(true);
+        accordion.setVisible(showPasswordManagement);
         add(accordion);
         // ------------------------        
     }

@@ -28,13 +28,14 @@ import javax.ws.rs.core.StreamingOutput;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.rest.api.service.ConfigurationService;
 import org.apache.syncope.core.logic.ConfigurationLogic;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ConfigurationServiceImpl extends AbstractServiceImpl implements ConfigurationService {
 
-    private static final String CONTENT_XML = "content.xml";
+    private static final String CONTENT_XML = "Content.xml";
 
     @Autowired
     private ConfigurationLogic logic;
@@ -50,7 +51,9 @@ public class ConfigurationServiceImpl extends AbstractServiceImpl implements Con
         };
         return Response.ok(sout).
                 type(MediaType.TEXT_XML).
-                header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + CONTENT_XML).
+                header(
+                        HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=" + AuthContextUtils.getDomain() + CONTENT_XML).
                 build();
     }
 

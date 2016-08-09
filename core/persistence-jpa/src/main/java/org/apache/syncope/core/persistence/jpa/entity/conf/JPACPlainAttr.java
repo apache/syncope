@@ -23,7 +23,6 @@ import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -51,12 +50,6 @@ public class JPACPlainAttr extends AbstractPlainAttr<Conf> implements CPlainAttr
     public static final String TABLE = "CPlainAttr";
 
     /**
-     * Auto-generated id for this table.
-     */
-    @Id
-    private Long id;
-
-    /**
      * The owner of this attribute.
      */
     @ManyToOne(fetch = FetchType.EAGER)
@@ -75,11 +68,6 @@ public class JPACPlainAttr extends AbstractPlainAttr<Conf> implements CPlainAttr
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "attribute")
     @Valid
     private JPACPlainAttrUniqueValue uniqueValue;
-
-    @Override
-    public Long getKey() {
-        return id;
-    }
 
     @Override
     public Conf getOwner() {
@@ -122,7 +110,7 @@ public class JPACPlainAttr extends AbstractPlainAttr<Conf> implements CPlainAttr
 
     @Override
     public void setUniqueValue(final PlainAttrUniqueValue uniqueValue) {
-        checkType(owner, JPACPlainAttrUniqueValue.class);
+        checkType(uniqueValue, JPACPlainAttrUniqueValue.class);
         this.uniqueValue = (JPACPlainAttrUniqueValue) uniqueValue;
     }
 }

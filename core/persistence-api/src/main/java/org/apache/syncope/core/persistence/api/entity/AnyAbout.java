@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.entity;
 
-public interface AnyAbout extends Entity<Long> {
+public interface AnyAbout extends Entity {
 
     Notification getNotification();
 

@@ -84,11 +84,11 @@ public class AbstractProvisioningTaskTO extends SchedTaskTO {
         this.performDelete = performDelete;
     }
 
-    public boolean isPullStatus() {
+    public boolean isSyncStatus() {
         return syncStatus;
     }
 
-    public void setPullStatus(final boolean syncStatus) {
+    public void setSyncStatus(final boolean syncStatus) {
         this.syncStatus = syncStatus;
     }
 

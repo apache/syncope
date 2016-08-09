@@ -31,11 +31,11 @@ import org.apache.syncope.common.lib.report.AbstractReportletConf;
 
 @XmlRootElement(name = "report")
 @XmlType
-public class ReportTO extends AbstractStartEndBean implements EntityTO<Long> {
+public class ReportTO extends AbstractStartEndBean implements EntityTO {
 
     private static final long serialVersionUID = 5274568072084814410L;
 
-    private Long key;
+    private String key;
 
     private String name;
 
@@ -56,13 +56,13 @@ public class ReportTO extends AbstractStartEndBean implements EntityTO<Long> {
     private String template;
 
     @Override
-    public Long getKey() {
+    public String getKey() {
         return key;
     }
 
     @PathParam("key")
     @Override
-    public void setKey(final Long key) {
+    public void setKey(final String key) {
         this.key = key;
     }
 

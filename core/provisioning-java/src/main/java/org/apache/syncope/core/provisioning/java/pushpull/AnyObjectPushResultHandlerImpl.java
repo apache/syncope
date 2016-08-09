@@ -41,7 +41,7 @@ public class AnyObjectPushResultHandlerImpl extends AbstractPushResultHandler im
     }
 
     @Override
-    protected Any<?> getAny(final long key) {
+    protected Any<?> getAny(final String key) {
         try {
             return anyObjectDAO.authFind(key);
         } catch (Exception e) {
@@ -51,19 +51,19 @@ public class AnyObjectPushResultHandlerImpl extends AbstractPushResultHandler im
     }
 
     @Override
-    protected AnyTO getAnyTO(final long key) {
+    protected AnyTO getAnyTO(final String key) {
         return anyObjectDataBinder.getAnyObjectTO(key);
     }
 
     @Override
-    protected AnyPatch newPatch(final long key) {
+    protected AnyPatch newPatch(final String key) {
         AnyObjectPatch patch = new AnyObjectPatch();
         patch.setKey(key);
         return patch;
     }
 
     @Override
-    protected WorkflowResult<Long> update(final AnyPatch patch) {
+    protected WorkflowResult<String> update(final AnyPatch patch) {
         return awfAdapter.update((AnyObjectPatch) patch);
     }
 

@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.jpa.validation.entity;
 import java.lang.annotation.Annotation;
 import java.util.regex.Pattern;
 import javax.validation.ConstraintValidator;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,8 +30,8 @@ public abstract class AbstractValidator<A extends Annotation, T> implements Cons
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractValidator.class);
 
-    protected static final Pattern NAME_PATTERN =
-            Pattern.compile("^[\\w \\-@.]+", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
+    protected static final Pattern KEY_PATTERN =
+            Pattern.compile("^" + SyncopeConstants.NAME_PATTERN, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
 
     @Override
     public void initialize(final A annotation) {

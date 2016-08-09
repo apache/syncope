@@ -36,7 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema, String> implements PlainSchemaDAO {
+public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema> implements PlainSchemaDAO {
 
     @Autowired
     private PlainAttrDAO plainAttrDAO;
@@ -55,7 +55,7 @@ public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema, String> implemen
                 append(JPAPlainSchema.class.getSimpleName()).
                 append(" e WHERE ");
         for (AnyTypeClass anyTypeClass : anyTypeClasses) {
-            queryString.append("e.anyTypeClass.name='").append(anyTypeClass.getKey()).append("' OR ");
+            queryString.append("e.anyTypeClass.id='").append(anyTypeClass.getKey()).append("' OR ");
         }
 
         TypedQuery<PlainSchema> query = entityManager().createQuery(
@@ -74,7 +74,7 @@ public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema, String> implemen
     @Override
     public <T extends PlainAttr<?>> List<T> findAttrs(final PlainSchema schema, final Class<T> reference) {
         TypedQuery<T> query = entityManager().createQuery(
-                "SELECT e FROM " + ((JPAPlainAttrDAO) plainAttrDAO).getJPAEntityReference(reference).getSimpleName()
+                "SELECT e FROM " + ((JPAPlainAttrDAO) plainAttrDAO).getEntityReference(reference).getSimpleName()
                 + " e WHERE e.schema=:schema", reference);
         query.setParameter("schema", schema);
 
@@ -101,7 +101,7 @@ public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema, String> implemen
                 plainAttrDAO.delete(attr.getKey(), anyUtils.plainAttrClass());
             }
 
-            resourceDAO.deleteMapping(key, anyUtils.plainIntMappingType());
+            resourceDAO.deleteMapping(key);
         }
 
         if (schema.getAnyTypeClass() != null) {

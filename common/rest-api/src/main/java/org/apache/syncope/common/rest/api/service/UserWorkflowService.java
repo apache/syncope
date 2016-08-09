@@ -55,7 +55,7 @@ public interface UserWorkflowService extends JAXRSService {
     @GET
     @Path("forms/{userKey}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    WorkflowFormTO getFormForUser(@NotNull @PathParam("userKey") Long userKey);
+    WorkflowFormTO getFormForUser(@NotNull @PathParam("userKey") String userKey);
 
     /**
      * Claims the form for the given task id.

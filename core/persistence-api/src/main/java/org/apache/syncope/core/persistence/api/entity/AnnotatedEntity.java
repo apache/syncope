@@ -20,7 +20,7 @@ package org.apache.syncope.core.persistence.api.entity;
 
 import java.util.Date;
 
-public interface AnnotatedEntity<KEY> extends Entity<KEY> {
+public interface AnnotatedEntity extends Entity {
 
     Date getCreationDate();
 

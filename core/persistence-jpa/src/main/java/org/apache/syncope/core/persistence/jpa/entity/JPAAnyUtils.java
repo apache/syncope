@@ -18,14 +18,20 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import org.apache.commons.lang3.ClassUtils;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.IntMappingType;
+import org.apache.syncope.core.persistence.api.dao.AllowedSchemas;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -55,6 +61,40 @@ import org.springframework.transaction.annotation.Transactional;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class JPAAnyUtils implements AnyUtils {
+
+    private static final Set<String> USER_FIELD_NAMES = new HashSet<>();
+
+    private static final Set<String> GROUP_FIELD_NAMES = new HashSet<>();
+
+    private static final Set<String> ANY_OBJECT_FIELD_NAMES = new HashSet<>();
+
+    static {
+        initFieldNames(JPAUser.class, USER_FIELD_NAMES);
+        initFieldNames(JPAGroup.class, GROUP_FIELD_NAMES);
+        initFieldNames(JPAAnyObject.class, ANY_OBJECT_FIELD_NAMES);
+    }
+
+    private static void initFieldNames(final Class<?> entityClass, final Set<String> keys) {
+        List<Class<?>> classes = ClassUtils.getAllSuperclasses(entityClass);
+        classes.add(entityClass);
+        for (Class<?> clazz : classes) {
+            for (Field field : clazz.getDeclaredFields()) {
+                if (!Modifier.isStatic(field.getModifiers())
+                        && !field.getName().startsWith("pc")
+                        && !Collection.class.isAssignableFrom(field.getType())
+                        && !Map.class.isAssignableFrom(field.getType())) {
+
+                    keys.add("id".equals(field.getName()) ? "key" : field.getName());
+                }
+            }
+        }
+    }
+
+    public static boolean matchesFieldName(final String candidate) {
+        return USER_FIELD_NAMES.contains(candidate)
+                || GROUP_FIELD_NAMES.contains(candidate)
+                || ANY_OBJECT_FIELD_NAMES.contains(candidate);
+    }
 
     private final AnyTypeKind anyTypeKind;
 
@@ -98,8 +138,30 @@ public class JPAAnyUtils implements AnyUtils {
     }
 
     @Override
+    public boolean isFieldName(final String name) {
+        Set<String> names;
+
+        switch (anyTypeKind) {
+            case GROUP:
+                names = GROUP_FIELD_NAMES;
+                break;
+
+            case ANY_OBJECT:
+                names = ANY_OBJECT_FIELD_NAMES;
+                break;
+
+            case USER:
+            default:
+                names = USER_FIELD_NAMES;
+                break;
+        }
+
+        return names.contains(name);
+    }
+
+    @Override
     public <T extends PlainAttr<?>> Class<T> plainAttrClass() {
-        Class result = null;
+        Class result;
 
         switch (anyTypeKind) {
             case GROUP:
@@ -233,75 +295,6 @@ public class JPAAnyUtils implements AnyUtils {
     }
 
     @Override
-    public IntMappingType plainIntMappingType() {
-        IntMappingType result = null;
-
-        switch (anyTypeKind) {
-            case GROUP:
-                result = IntMappingType.GroupPlainSchema;
-                break;
-
-            case ANY_OBJECT:
-                result = IntMappingType.AnyObjectPlainSchema;
-                break;
-
-            case USER:
-                result = IntMappingType.UserPlainSchema;
-                break;
-
-            default:
-        }
-
-        return result;
-    }
-
-    @Override
-    public IntMappingType derIntMappingType() {
-        IntMappingType result = null;
-
-        switch (anyTypeKind) {
-            case GROUP:
-                result = IntMappingType.GroupDerivedSchema;
-                break;
-
-            case ANY_OBJECT:
-                result = IntMappingType.AnyObjectDerivedSchema;
-                break;
-
-            case USER:
-                result = IntMappingType.UserDerivedSchema;
-                break;
-
-            default:
-        }
-
-        return result;
-    }
-
-    @Override
-    public IntMappingType virIntMappingType() {
-        IntMappingType result = null;
-
-        switch (anyTypeKind) {
-            case GROUP:
-                result = IntMappingType.GroupVirtualSchema;
-                break;
-
-            case ANY_OBJECT:
-                result = IntMappingType.AnyObjectVirtualSchema;
-                break;
-
-            case USER:
-                result = IntMappingType.UserVirtualSchema;
-                break;
-
-            default:
-        }
-
-        return result;
-    }
-
-    @Override
     public <T extends AnyTO> T newAnyTO() {
         T result = null;
 
@@ -342,17 +335,17 @@ public class JPAAnyUtils implements AnyUtils {
 
     @Transactional(readOnly = true)
     @Override
-    public <S extends Schema> Set<S> getAllowedSchemas(final Any<?> any, final Class<S> reference) {
-        Set<S> schemas = new HashSet<>();
+    public <S extends Schema> AllowedSchemas<S> getAllowedSchemas(final Any<?> any, final Class<S> reference) {
+        AllowedSchemas<S> result = null;
 
         if (any instanceof User) {
-            schemas.addAll(userDAO.findAllowedSchemas((User) any, reference));
+            result = userDAO.findAllowedSchemas((User) any, reference);
         } else if (any instanceof Group) {
-            schemas.addAll(groupDAO.findAllowedSchemas((Group) any, reference));
+            result = groupDAO.findAllowedSchemas((Group) any, reference);
         } else if (any instanceof AnyObject) {
-            schemas.addAll(anyObjectDAO.findAllowedSchemas((AnyObject) any, reference));
+            result = anyObjectDAO.findAllowedSchemas((AnyObject) any, reference);
         }
 
-        return schemas;
+        return result;
     }
 }

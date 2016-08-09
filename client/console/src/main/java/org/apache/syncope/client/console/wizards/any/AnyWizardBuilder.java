@@ -18,14 +18,15 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
-import java.io.Serializable;
-
 import java.util.Collections;
 import java.util.List;
-
-import org.apache.syncope.client.console.commons.Mode;
 import org.apache.syncope.client.console.commons.status.StatusBean;
-import org.apache.syncope.client.console.rest.AnyObjectRestClient;
+import org.apache.syncope.client.console.layout.AbstractAnyFormLayout;
+import org.apache.syncope.client.console.layout.AnyForm;
+import org.apache.syncope.client.console.layout.AnyObjectFormLayoutInfo;
+import org.apache.syncope.client.console.layout.GroupFormLayoutInfo;
+import org.apache.syncope.client.console.layout.UserFormLayoutInfo;
+import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -34,85 +35,140 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.model.util.ListModel;
 
-public abstract class AnyWizardBuilder<T extends AnyTO> extends AjaxWizardBuilder<AnyHandler<T>>
-        implements Serializable {
+public abstract class AnyWizardBuilder<A extends AnyTO> extends AjaxWizardBuilder<AnyWrapper<A>> {
 
     private static final long serialVersionUID = -2480279868319546243L;
 
-    protected final AnyObjectRestClient anyObjectRestClient = new AnyObjectRestClient();
-
     protected final List<String> anyTypeClasses;
+
+    protected AbstractAnyFormLayout<A, ? extends AnyForm<A>> formLayoutInfo;
 
     /**
      * Construct.
      *
-     * @param id The component id
      * @param anyTO any
      * @param anyTypeClasses any type classes
-     * @param pageRef Caller page reference.
+     * @param formLayoutInfo form layout info
+     * @param pageRef caller page reference.
      */
     public AnyWizardBuilder(
-            final String id, final T anyTO, final List<String> anyTypeClasses, final PageReference pageRef) {
-        super(id, new AnyHandler<>(anyTO), pageRef);
+            final A anyTO,
+            final List<String> anyTypeClasses,
+            final AbstractAnyFormLayout<A, ? extends AnyForm<A>> formLayoutInfo,
+            final PageReference pageRef) {
+
+        super(new AnyWrapper<>(anyTO), pageRef);
         this.anyTypeClasses = anyTypeClasses;
+        this.formLayoutInfo = formLayoutInfo;
     }
 
     /**
      * Construct.
      *
-     * @param id The component id
-     * @param handler any handler
+     * @param wrapper any wrapper
      * @param anyTypeClasses any type classes
-     * @param pageRef Caller page reference.
+     * @param formLayoutInfo form layout info
+     * @param pageRef caller page reference.
      */
     public AnyWizardBuilder(
-            final String id,
-            final AnyHandler<T> handler,
+            final AnyWrapper<A> wrapper,
             final List<String> anyTypeClasses,
+            final AbstractAnyFormLayout<A, ? extends AnyForm<A>> formLayoutInfo,
             final PageReference pageRef) {
-        super(id, handler, pageRef);
+
+        super(wrapper, pageRef);
         this.anyTypeClasses = anyTypeClasses;
+        this.formLayoutInfo = formLayoutInfo;
     }
 
     @Override
-    protected WizardModel buildModelSteps(final AnyHandler<T> modelObject, final WizardModel wizardModel) {
-        final String[] clazzes = anyTypeClasses.toArray(new String[] {});
+    protected WizardModel buildModelSteps(final AnyWrapper<A> modelObject, final WizardModel wizardModel) {
         // optional details panel step
-        addOptionalDetailsPanel(modelObject, wizardModel);
-
-        if ((this instanceof GroupWizardBuilder) && (modelObject.getInnerObject() instanceof GroupTO)) {
-            wizardModel.add(new Ownership(GroupHandler.class.cast(modelObject), pageRef));
-            wizardModel.add(new DynamicMemberships(GroupHandler.class.cast(modelObject)));
+        final Details<A> details = addOptionalDetailsPanel(modelObject);
+        if (details != null) {
+            wizardModel.add(details);
         }
 
-        wizardModel.add(new AuxClasses(modelObject.getInnerObject(), clazzes));
+        if ((this instanceof GroupWizardBuilder)
+                && (modelObject.getInnerObject() instanceof GroupTO)
+                && (formLayoutInfo instanceof GroupFormLayoutInfo)) {
+
+            GroupFormLayoutInfo groupFormLayoutInfo = GroupFormLayoutInfo.class.cast(formLayoutInfo);
+            if (groupFormLayoutInfo.isOwnership()) {
+                wizardModel.add(new Ownership(GroupWrapper.class.cast(modelObject), pageRef));
+            }
+            if (groupFormLayoutInfo.isDynamicMemberships()) {
+                wizardModel.add(new DynamicMemberships(GroupWrapper.class.cast(modelObject)));
+            }
+        }
+
+        if (formLayoutInfo.isAuxClasses()) {
+            wizardModel.add(new AuxClasses(modelObject.getInnerObject(), anyTypeClasses));
+        }
+
+        if (formLayoutInfo instanceof UserFormLayoutInfo
+                && UserFormLayoutInfo.class.cast(formLayoutInfo).isGroups()
+                || formLayoutInfo instanceof AnyObjectFormLayoutInfo
+                && AnyObjectFormLayoutInfo.class.cast(formLayoutInfo).isGroups()) {
+
+            wizardModel.add(new Groups(modelObject.getInnerObject(), mode == AjaxWizard.Mode.TEMPLATE));
+        }
 
         // attributes panel steps
-        wizardModel.add(new PlainAttrs(modelObject.getInnerObject(), null, Mode.ADMIN, clazzes));
-        wizardModel.add(new DerAttrs(modelObject.getInnerObject(), clazzes));
-        wizardModel.add(new VirAttrs(modelObject.getInnerObject(), clazzes));
+        if (formLayoutInfo.isPlainAttrs()) {
+            wizardModel.add(new PlainAttrs(
+                    modelObject.getInnerObject(),
+                    null,
+                    mode,
+                    anyTypeClasses,
+                    formLayoutInfo.getWhichPlainAttrs()));
+        }
+        if (formLayoutInfo.isDerAttrs() && mode != AjaxWizard.Mode.TEMPLATE) {
+            wizardModel.add(new DerAttrs(
+                    modelObject.getInnerObject(), anyTypeClasses, formLayoutInfo.getWhichDerAttrs()));
+        }
+        if (formLayoutInfo.isVirAttrs()) {
+            wizardModel.add(new VirAttrs(
+                    modelObject.getInnerObject(), mode, anyTypeClasses, formLayoutInfo.getWhichVirAttrs()));
+        }
 
-        // role panel step (jst available for users)
-        if ((this instanceof UserWizardBuilder) && (modelObject.getInnerObject() instanceof UserTO)) {
+        // role panel step (just available for users)
+        if ((this instanceof UserWizardBuilder)
+                && (modelObject.getInnerObject() instanceof UserTO)
+                && (formLayoutInfo instanceof UserFormLayoutInfo)
+                && UserFormLayoutInfo.class.cast(formLayoutInfo).isRoles()) {
+
             wizardModel.add(new Roles(UserTO.class.cast(modelObject.getInnerObject())));
         }
 
-        // relationship panel step (jst available for users)
-        if (!(this instanceof GroupWizardBuilder)) {
+        // relationship panel step (available for users and any objects)
+        if (((formLayoutInfo instanceof UserFormLayoutInfo)
+                && UserFormLayoutInfo.class.cast(formLayoutInfo).isRelationships())
+                || ((formLayoutInfo instanceof AnyObjectFormLayoutInfo)
+                && AnyObjectFormLayoutInfo.class.cast(formLayoutInfo).isRelationships())) {
+
             wizardModel.add(new Relationships(modelObject.getInnerObject(), pageRef));
         }
 
         // resource panel step
-        wizardModel.add(new Resources(modelObject.getInnerObject()));
+        if (formLayoutInfo.isResources()) {
+            wizardModel.add(new Resources(modelObject.getInnerObject()));
+        }
+
         return wizardModel;
     }
-    
-    protected AnyWizardBuilder<T> addOptionalDetailsPanel(
-            final AnyHandler<T> modelObject, final WizardModel wizardModel) {
-        if (modelObject.getInnerObject().getKey() != null && modelObject.getInnerObject().getKey() > 0) {
-            wizardModel.add(new Details<>(
-                    modelObject, new ListModel<>(Collections.<StatusBean>emptyList()), pageRef, true));
+
+    protected Details<A> addOptionalDetailsPanel(final AnyWrapper<A> modelObject) {
+
+        if (modelObject.getInnerObject().getKey() != null) {
+            return new Details<>(
+                    modelObject,
+                    new ListModel<>(Collections.<StatusBean>emptyList()),
+                    mode == AjaxWizard.Mode.TEMPLATE,
+                    true,
+                    pageRef);
+        } else {
+            return null;
         }
-        return this;
     }
 }

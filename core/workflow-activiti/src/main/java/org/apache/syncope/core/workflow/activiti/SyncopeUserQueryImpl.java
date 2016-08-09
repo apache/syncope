@@ -40,7 +40,7 @@ public class SyncopeUserQueryImpl implements UserQuery {
 
     private String username;
 
-    private Long memberOf;
+    private String memberOf;
 
     private List<User> result;
 
@@ -92,11 +92,7 @@ public class SyncopeUserQueryImpl implements UserQuery {
 
     @Override
     public UserQuery memberOfGroup(final String groupId) {
-        try {
-            memberOf = Long.valueOf(groupId);
-        } catch (NumberFormatException e) {
-            // ignore
-        }
+        memberOf = groupId;
         return this;
     }
 
@@ -136,15 +132,15 @@ public class SyncopeUserQueryImpl implements UserQuery {
 
     private void execute() {
         if (username != null) {
-            org.apache.syncope.core.persistence.api.entity.user.User user = userDAO.find(username);
+            org.apache.syncope.core.persistence.api.entity.user.User user = userDAO.findByUsername(username);
             if (user == null) {
                 result = Collections.<User>emptyList();
-            } else if (memberOf == null || userDAO.findAllGroupKeys(user).contains(memberOf)) {
+            } else if (memberOf == null || userDAO.findAllGroupNames(user).contains(memberOf)) {
                 result = Collections.singletonList(fromSyncopeUser(user));
             }
         }
         if (memberOf != null) {
-            Group group = groupDAO.find(memberOf);
+            Group group = groupDAO.findByName(memberOf);
             if (group == null) {
                 result = Collections.<User>emptyList();
             } else {

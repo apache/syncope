@@ -19,29 +19,25 @@
 package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.wicket.Component;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.list.ListItem;
-import org.apache.wicket.markup.html.list.ListView;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Toggle panel.
  *
- * @param <T>
+ * @param <T> model object type
  */
-public abstract class TogglePanel<T extends Serializable> extends Panel {
+public abstract class TogglePanel<T extends Serializable> extends WizardMgtPanel<T> {
 
     private static final long serialVersionUID = -2025535531121434056L;
 
@@ -59,15 +55,22 @@ public abstract class TogglePanel<T extends Serializable> extends Panel {
 
     private final Label header;
 
-    private List<Component> outerObjects = new ArrayList<>();
+    private final String activeId;
 
-    public TogglePanel(final String id) {
-        super(id);
+    public TogglePanel(final String id, final PageReference pageRef) {
+        this(id, id, pageRef);
+    }
+
+    public TogglePanel(final String id, final String markupId, final PageReference pageRef) {
+        super(id, true);
+        this.activeId = markupId;
         setRenderBodyOnly(true);
         setOutputMarkupId(true);
+        disableContainerAutoRefresh();
+        setPageRef(pageRef);
 
         container = new WebMarkupContainer("togglePanelContainer");
-        add(container.setMarkupId(id));
+        super.addInnerObject(container.setMarkupId(markupId == null ? id : markupId));
 
         header = new Label("label", StringUtils.EMPTY);
         header.setOutputMarkupId(true);
@@ -96,31 +99,6 @@ public abstract class TogglePanel<T extends Serializable> extends Panel {
                 // do nothing
             }
         }));
-
-        add(new ListView<Component>("outerObjectsRepeater", outerObjects) {
-
-            private static final long serialVersionUID = -9180479401817023838L;
-
-            @Override
-            protected void populateItem(final ListItem<Component> item) {
-                item.add(item.getModelObject());
-            }
-
-        });
-
-    }
-
-    /**
-     * Add object outside the main container.
-     * Use this method just to be not influenced by specific inner object css'.
-     * Be sure to provide <tt>outer</tt> as id.
-     *
-     * @param childs components to be added.
-     * @return the current panel instance.
-     */
-    public TogglePanel<T> addOuterObject(final Component... childs) {
-        outerObjects.addAll(Arrays.asList(childs));
-        return this;
     }
 
     /**
@@ -129,6 +107,7 @@ public abstract class TogglePanel<T extends Serializable> extends Panel {
      * @param childs components to be added.
      * @return the current panel instance.
      */
+    @Override
     public TogglePanel<T> addInnerObject(final Component... childs) {
         container.addOrReplace(childs);
         return this;
@@ -139,6 +118,11 @@ public abstract class TogglePanel<T extends Serializable> extends Panel {
         target.add(this.header);
     }
 
+    protected void close(final AjaxRequestTarget target) {
+        status = Status.INACTIVE;
+        toggle(target, false);
+    }
+
     /**
      * Force toggle via java. To be used when the onclick has been intercepted before.
      *
@@ -146,9 +130,10 @@ public abstract class TogglePanel<T extends Serializable> extends Panel {
      * @param toggle toggle action.
      */
     public void toggle(final AjaxRequestTarget target, final boolean toggle) {
-        final String selector = String.format("$(\"div#%s\")", getId());
+        final String selector = String.format("$(\"div#%s\")", activeId);
         if (toggle) {
             if (status == Status.INACTIVE) {
+                target.add(TogglePanel.this.container);
                 target.appendJavaScript(
                         selector + ".toggle(\"slow\");"
                         + selector + ".attr(\"class\", \"topology-menu active-topology-menu\");");

@@ -26,9 +26,9 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.AttributableTO;
 
-public class AttrColumn<T extends AnyTO> extends AbstractColumn<T, String> {
+public class AttrColumn<T extends AttributableTO> extends AbstractColumn<T, String> {
 
     private static final long serialVersionUID = 2624734332447371372L;
 
@@ -57,15 +57,15 @@ public class AttrColumn<T extends AnyTO> extends AbstractColumn<T, String> {
                 }
                 break;
 
-            case VIRTUAL:
-                if (rowModel.getObject().getVirAttrMap().containsKey(name)) {
-                    values = rowModel.getObject().getVirAttrMap().get(name).getValues();
-                }
-                break;
-
             case DERIVED:
                 if (rowModel.getObject().getDerAttrMap().containsKey(name)) {
                     values = rowModel.getObject().getDerAttrMap().get(name).getValues();
+                }
+                break;
+
+            case VIRTUAL:
+                if (rowModel.getObject().getVirAttrMap().containsKey(name)) {
+                    values = rowModel.getObject().getVirAttrMap().get(name).getValues();
                 }
                 break;
 

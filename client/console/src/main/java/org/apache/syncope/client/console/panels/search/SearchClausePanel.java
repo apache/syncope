@@ -70,7 +70,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
     private final IModel<List<String>> dnames;
 
-    private final IModel<Map<Long, String>> groupNames;
+    private final IModel<Map<String, String>> groupNames;
 
     private final IModel<List<String>> roleNames;
 
@@ -96,7 +96,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
             final IModel<List<SearchClause.Type>> types,
             final IModel<List<String>> anames,
             final IModel<List<String>> dnames,
-            final IModel<Map<Long, String>> groupNames,
+            final IModel<Map<String, String>> groupNames,
             final IModel<List<String>> roleNames,
             final IModel<List<String>> resourceNames
     ) {
@@ -152,6 +152,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
                     case ROLE_MEMBERSHIP:
                     case GROUP_MEMBERSHIP:
+                    case GROUP_MEMBER:
                     case RESOURCE:
                         return Arrays.asList(
                                 SearchClause.Comparator.EQUALS,
@@ -190,7 +191,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
                     case GROUP_MEMBERSHIP:
                         final List<String> groups = CollectionUtils.collect(groupNames.getObject().keySet(),
-                                StringValueTransformer.<Long>stringValueTransformer(), new ArrayList<String>());
+                                StringValueTransformer.<String>stringValueTransformer(), new ArrayList<String>());
 
                         Collections.sort(groups);
                         return groups;
@@ -265,16 +266,14 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
         operatorContainer.setOutputMarkupId(true);
         field.add(operatorContainer);
 
-        final BootstrapToggleConfig config = new BootstrapToggleConfig();
-        config
-                .withOnStyle(BootstrapToggleConfig.Style.info).withOffStyle(BootstrapToggleConfig.Style.warning)
-                .withSize(BootstrapToggleConfig.Size.mini)
-                .withOnLabel("AND")
-                .withOffLabel("OR");
+        final BootstrapToggleConfig config = new BootstrapToggleConfig().
+                withOnStyle(BootstrapToggleConfig.Style.info).
+                withOffStyle(BootstrapToggleConfig.Style.warning).
+                withSize(BootstrapToggleConfig.Size.mini);
 
         operatorFragment.add(new BootstrapToggle("operator", new Model<Boolean>() {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = -7157802546272668001L;
 
             @Override
             public Boolean getObject() {
@@ -287,16 +286,16 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
             }
         }, config) {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = 2969634208049189343L;
 
             @Override
             protected IModel<String> getOffLabel() {
-                return Model.of(getString("Off", null, "OR"));
+                return Model.of("OR");
             }
 
             @Override
             protected IModel<String> getOnLabel() {
-                return Model.of(getString("On", null, "AND"));
+                return Model.of("AND");
             }
 
             @Override
@@ -343,7 +342,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
         field.add(comparator);
 
         final AjaxTextFieldPanel value = new AjaxTextFieldPanel(
-                "value", "value", new PropertyModel<String>(searchClause, "value"));
+                "value", "value", new PropertyModel<String>(searchClause, "value"), false);
         value.hideLabel().setOutputMarkupId(true);
         field.add(value);
 
@@ -378,8 +377,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                         || type.getModelObject() == SearchClause.Type.RELATIONSHIP) {
                     if (comparator.getModelObject() == SearchClause.Comparator.IS_NULL
                             || comparator.getModelObject() == SearchClause.Comparator.IS_NOT_NULL) {
-
-                        value.setModelObject(null);
+                        value.setModelObject(StringUtils.EMPTY);
                         value.setEnabled(false);
                     } else {
                         value.setEnabled(true);
@@ -428,27 +426,36 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                         comparator.setRequired(true);
                     }
 
-                    value.setEnabled(comparator.getModelObject() != SearchClause.Comparator.IS_NULL
-                            && comparator.getModelObject() != SearchClause.Comparator.IS_NOT_NULL);
+                    if (comparator.getModelObject() == SearchClause.Comparator.IS_NULL
+                            || comparator.getModelObject() == SearchClause.Comparator.IS_NOT_NULL) {
+                        value.setEnabled(false);
+                        value.setModelObject(StringUtils.EMPTY);
+                    }
                     property.setChoiceRenderer(new DefaultChoiceRender());
                     break;
 
                 case ROLE_MEMBERSHIP:
                     property.setChoiceRenderer(new DefaultChoiceRender());
                     value.setEnabled(false);
-                    value.setModelObject("");
+                    value.setModelObject(StringUtils.EMPTY);
                     break;
 
                 case GROUP_MEMBERSHIP:
                     property.setChoiceRenderer(new GroupChoiceRender());
                     value.setEnabled(false);
-                    value.setModelObject("");
+                    value.setModelObject(StringUtils.EMPTY);
+                    break;
+
+                case GROUP_MEMBER:
+                    value.setEnabled(true);
+                    property.setEnabled(false);
+                    property.setModelObject(null);
                     break;
 
                 case RESOURCE:
                     property.setChoiceRenderer(new DefaultChoiceRender());
                     value.setEnabled(false);
-                    value.setModelObject("");
+                    value.setModelObject(StringUtils.EMPTY);
                     break;
 
                 case RELATIONSHIP:
@@ -456,7 +463,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                     if (comparator.getModelObject() == SearchClause.Comparator.IS_NULL
                             || comparator.getModelObject() == SearchClause.Comparator.IS_NOT_NULL) {
                         value.setEnabled(false);
-                        value.setModelObject("");
+                        value.setModelObject(StringUtils.EMPTY);
                         property.setEnabled(true);
                     } else {
                         value.setEnabled(true);
@@ -532,6 +539,20 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
                             case NOT_EQUALS:
                                 display = "NOT IN";
+                                break;
+
+                            default:
+                                display = StringUtils.EMPTY;
+                        }
+                        break;
+                    case GROUP_MEMBER:
+                        switch (object) {
+                            case EQUALS:
+                                display = "WITH";
+                                break;
+
+                            case NOT_EQUALS:
+                                display = "NOT WITH";
                                 break;
 
                             default:
@@ -690,7 +711,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
         @Override
         public Object getDisplayValue(final String object) {
-            return groupNames.getObject().get(Long.parseLong(object));
+            return groupNames.getObject().get(object);
         }
     }
 

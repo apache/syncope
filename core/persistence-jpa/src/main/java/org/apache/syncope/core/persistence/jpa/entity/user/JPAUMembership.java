@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.jpa.entity.user;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import org.apache.syncope.core.persistence.api.entity.MembershipType;
@@ -28,19 +27,16 @@ import org.apache.syncope.core.persistence.api.entity.RelationshipType;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.persistence.jpa.entity.AbstractEntity;
+import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
 
 @Entity
 @Table(name = JPAUMembership.TABLE)
-public class JPAUMembership extends AbstractEntity<Long> implements UMembership {
+public class JPAUMembership extends AbstractGeneratedKeyEntity implements UMembership {
 
     private static final long serialVersionUID = -14584450896965100L;
 
     public static final String TABLE = "UMembership";
-
-    @Id
-    private Long id;
 
     @ManyToOne
     @Column(name = "user_id")
@@ -49,11 +45,6 @@ public class JPAUMembership extends AbstractEntity<Long> implements UMembership 
     @ManyToOne
     @Column(name = "group_id")
     private JPAGroup rightEnd;
-
-    @Override
-    public Long getKey() {
-        return id;
-    }
 
     @Override
     public MembershipType getType() {

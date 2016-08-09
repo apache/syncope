@@ -20,7 +20,7 @@ package org.apache.syncope.core.persistence.api.entity.user;
 
 import org.apache.syncope.core.persistence.api.entity.Entity;
 
-public interface SecurityQuestion extends Entity<Long> {
+public interface SecurityQuestion extends Entity {
 
     String getContent();
 

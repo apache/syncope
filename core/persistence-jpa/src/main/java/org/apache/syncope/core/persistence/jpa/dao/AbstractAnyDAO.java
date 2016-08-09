@@ -23,8 +23,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 import javax.persistence.NoResultException;
@@ -35,6 +37,7 @@ import org.apache.commons.jexl3.parser.ParserConstants;
 import org.apache.commons.jexl3.parser.Token;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.core.persistence.api.dao.AllowedSchemas;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
@@ -54,6 +57,7 @@ import org.apache.syncope.core.persistence.api.entity.Schema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
@@ -63,7 +67,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A, Long> implements AnyDAO<A> {
+public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> implements AnyDAO<A> {
 
     @Autowired
     protected PlainSchemaDAO plainSchemaDAO;
@@ -91,7 +95,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A, Lo
 
     @Transactional(readOnly = true)
     @Override
-    public A authFind(final Long key) {
+    public A authFind(final String key) {
         if (key == null) {
             throw new NotFoundException("Null key");
         }
@@ -110,7 +114,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A, Lo
     @Transactional(readOnly = true)
     @Override
     @SuppressWarnings("unchecked")
-    public A find(final Long key) {
+    public A find(final String key) {
         return (A) entityManager().find(getAnyUtils().anyClass(), key);
     }
 
@@ -133,7 +137,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A, Lo
 
     private Query findByAttrValueQuery(final String entityName) {
         return entityManager().createQuery("SELECT e FROM " + entityName + " e"
-                + " WHERE e.attribute.schema.name = :schemaName AND (e.stringValue IS NOT NULL"
+                + " WHERE e.attribute.schema.id = :schemaKey AND (e.stringValue IS NOT NULL"
                 + " AND e.stringValue = :stringValue)"
                 + " OR (e.booleanValue IS NOT NULL AND e.booleanValue = :booleanValue)"
                 + " OR (e.dateValue IS NOT NULL AND e.dateValue = :dateValue)"
@@ -143,10 +147,10 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A, Lo
 
     @Override
     @SuppressWarnings("unchecked")
-    public List<A> findByAttrValue(final String schemaName, final PlainAttrValue attrValue) {
-        PlainSchema schema = plainSchemaDAO.find(schemaName);
+    public List<A> findByAttrValue(final String schemaKey, final PlainAttrValue attrValue) {
+        PlainSchema schema = plainSchemaDAO.find(schemaKey);
         if (schema == null) {
-            LOG.error("Invalid schema name '{}'", schemaName);
+            LOG.error("Invalid schema name '{}'", schemaKey);
             return Collections.<A>emptyList();
         }
 
@@ -154,7 +158,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A, Lo
                 ? getAnyUtils().plainAttrUniqueValueClass().getName()
                 : getAnyUtils().plainAttrValueClass().getName();
         Query query = findByAttrValueQuery(entityName);
-        query.setParameter("schemaName", schemaName);
+        query.setParameter("schemaKey", schemaKey);
         query.setParameter("stringValue", attrValue.getStringValue());
         query.setParameter("booleanValue", attrValue.getBooleanValue() == null
                 ? null
@@ -179,18 +183,18 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A, Lo
     }
 
     @Override
-    public A findByAttrUniqueValue(final String schemaName, final PlainAttrValue attrUniqueValue) {
-        PlainSchema schema = plainSchemaDAO.find(schemaName);
+    public A findByAttrUniqueValue(final String schemaKey, final PlainAttrValue attrUniqueValue) {
+        PlainSchema schema = plainSchemaDAO.find(schemaKey);
         if (schema == null) {
-            LOG.error("Invalid schema name '{}'", schemaName);
+            LOG.error("Invalid schema name '{}'", schemaKey);
             return null;
         }
         if (!schema.isUniqueConstraint()) {
-            LOG.error("This schema has not unique constraint: '{}'", schemaName);
+            LOG.error("This schema has not unique constraint: '{}'", schemaKey);
             return null;
         }
 
-        List<A> result = findByAttrValue(schemaName, attrUniqueValue);
+        List<A> result = findByAttrValue(schemaKey, attrUniqueValue);
         return result.isEmpty()
                 ? null
                 : result.iterator().next();
@@ -210,7 +214,9 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A, Lo
             attrValues.add(attrValue);
         } else {
             for (String token : attrValue.split(Pattern.quote(literals.get(0)))) {
-                attrValues.addAll(split(token, literals.subList(1, literals.size())));
+                if (!token.isEmpty()) {
+                    attrValues.addAll(split(token, literals.subList(1, literals.size())));
+                }
             }
         }
 
@@ -292,8 +298,8 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A, Lo
                 // verify schema existence and get schema type
                 PlainSchema schema = plainSchemaDAO.find(identifiers.get(i));
                 if (schema == null) {
-                    LOG.error("Invalid schema name '{}'", identifiers.get(i));
-                    throw new IllegalArgumentException("Invalid schema name " + identifiers.get(i));
+                    LOG.error("Invalid schema id '{}'", identifiers.get(i));
+                    throw new IllegalArgumentException("Invalid schema id " + identifiers.get(i));
                 }
 
                 // clear builder
@@ -302,11 +308,11 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A, Lo
                 bld.append("(");
 
                 // set schema name
-                bld.append("s.name = '").append(identifiers.get(i)).append("'");
+                bld.append("s.id = '").append(identifiers.get(i)).append("'");
 
                 bld.append(" AND ");
 
-                bld.append("s.name = a.schema_name").append(" AND ");
+                bld.append("s.id = a.schema_id").append(" AND ");
 
                 bld.append("a.id = v.attribute_id");
 
@@ -344,10 +350,10 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A, Lo
     }
 
     @Override
-    public List<A> findByDerAttrValue(final String schemaName, final String value) {
-        DerSchema schema = derSchemaDAO.find(schemaName);
+    public List<A> findByDerAttrValue(final String schemaKey, final String value) {
+        DerSchema schema = derSchemaDAO.find(schemaKey);
         if (schema == null) {
-            LOG.error("Invalid schema name '{}'", schemaName);
+            LOG.error("Invalid schema name '{}'", schemaKey);
             return Collections.<A>emptyList();
         }
 
@@ -376,7 +382,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A, Lo
 
         List<A> result = new ArrayList<>();
         for (Object anyKey : query.getResultList()) {
-            A any = find(Long.parseLong(anyKey.toString()));
+            A any = find(anyKey.toString());
             if (!result.contains(any)) {
                 result.add(any);
             }
@@ -418,33 +424,55 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A, Lo
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
     @SuppressWarnings("unchecked")
-    public <S extends Schema> Collection<S> findAllowedSchemas(final A any, final Class<S> reference) {
-        Set<AnyTypeClass> classes = new HashSet<>();
-        classes.addAll(any.getType().getClasses());
-        classes.addAll(any.getAuxClasses());
+    public <S extends Schema> AllowedSchemas<S> findAllowedSchemas(final A any, final Class<S> reference) {
+        AllowedSchemas<S> result = new AllowedSchemas<>();
+
+        // schemas given by type and aux classes
+        Set<AnyTypeClass> typeOwnClasses = new HashSet<>();
+        typeOwnClasses.addAll(any.getType().getClasses());
+        typeOwnClasses.addAll(any.getAuxClasses());
+
+        for (AnyTypeClass typeClass : typeOwnClasses) {
+            if (reference.equals(PlainSchema.class)) {
+                result.getForSelf().addAll((Collection<? extends S>) typeClass.getPlainSchemas());
+            } else if (reference.equals(DerSchema.class)) {
+                result.getForSelf().addAll((Collection<? extends S>) typeClass.getDerSchemas());
+            } else if (reference.equals(VirSchema.class)) {
+                result.getForSelf().addAll((Collection<? extends S>) typeClass.getVirSchemas());
+            }
+        }
+
+        // schemas given by type extensions
+        Map<Group, List<? extends AnyTypeClass>> typeExtensionClasses = new HashMap<>();
         if (any instanceof User) {
             for (UMembership memb : ((User) any).getMemberships()) {
                 for (TypeExtension typeExtension : memb.getRightEnd().getTypeExtensions()) {
-                    classes.addAll(typeExtension.getAuxClasses());
+                    typeExtensionClasses.put(memb.getRightEnd(), typeExtension.getAuxClasses());
                 }
             }
         } else if (any instanceof AnyObject) {
             for (AMembership memb : ((AnyObject) any).getMemberships()) {
                 for (TypeExtension typeExtension : memb.getRightEnd().getTypeExtensions()) {
-                    classes.addAll(typeExtension.getAuxClasses());
+                    if (any.getType().equals(typeExtension.getAnyType())) {
+                        typeExtensionClasses.put(memb.getRightEnd(), typeExtension.getAuxClasses());
+                    }
                 }
             }
         }
 
-        Set<S> result = new HashSet<>();
-
-        for (AnyTypeClass typeClass : classes) {
-            if (reference.equals(PlainSchema.class)) {
-                result.addAll((Collection<? extends S>) typeClass.getPlainSchemas());
-            } else if (reference.equals(DerSchema.class)) {
-                result.addAll((Collection<? extends S>) typeClass.getDerSchemas());
-            } else if (reference.equals(VirSchema.class)) {
-                result.addAll((Collection<? extends S>) typeClass.getVirSchemas());
+        for (Map.Entry<Group, List<? extends AnyTypeClass>> entry : typeExtensionClasses.entrySet()) {
+            result.getForMemberships().put(entry.getKey(), new HashSet<S>());
+            for (AnyTypeClass typeClass : entry.getValue()) {
+                if (reference.equals(PlainSchema.class)) {
+                    result.getForMemberships().get(entry.getKey()).
+                            addAll((Collection<? extends S>) typeClass.getPlainSchemas());
+                } else if (reference.equals(DerSchema.class)) {
+                    result.getForMemberships().get(entry.getKey()).
+                            addAll((Collection<? extends S>) typeClass.getDerSchemas());
+                } else if (reference.equals(VirSchema.class)) {
+                    result.getForMemberships().get(entry.getKey()).
+                            addAll((Collection<? extends S>) typeClass.getVirSchemas());
+                }
             }
         }
 
@@ -462,7 +490,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A, Lo
     }
 
     @Override
-    public void delete(final Long key) {
+    public void delete(final String key) {
         A any = find(key);
         if (any == null) {
             return;

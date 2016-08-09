@@ -18,29 +18,49 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
+import static org.apache.wicket.Component.RENDER;
+import static org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy.ACTION_PERMISSIONS;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.wicket.authroles.authorization.strategies.role.metadata.ActionPermissions;
+import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.util.ListModel;
 
-public class Resources extends WizardStep {
+public class Resources extends WizardStep implements WizardModel.ICondition {
 
     private static final long serialVersionUID = 552437609667518888L;
 
+    private final ListModel<String> available;
+
     public <T extends AnyTO> Resources(final T entityTO) {
+        // -----------------------------------------------------------------
+        // Pre-Authorizations
+        // -----------------------------------------------------------------
+        final ActionPermissions permissions = new ActionPermissions();
+        setMetaData(ACTION_PERMISSIONS, permissions);
+        permissions.authorize(RENDER,
+                new org.apache.wicket.authroles.authorization.strategies.role.Roles(StandardEntitlement.RESOURCE_LIST));
+        // -----------------------------------------------------------------
+
         this.setOutputMarkupId(true);
+        this.available = new ListModel<>(Collections.<String>emptyList());
 
         add(new AjaxPalettePanel.Builder<String>().build("resources",
                 new PropertyModel<List<String>>(entityTO, "resources") {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = 3799387950428254072L;
 
             @Override
             public List<String> getObject() {
@@ -52,8 +72,18 @@ public class Resources extends WizardStep {
                 entityTO.getResources().clear();
                 entityTO.getResources().addAll(object);
             }
-        }, new ListModel<>(CollectionUtils.collect(new ResourceRestClient().getAll(),
-                        EntityTOUtils.<String, ResourceTO>keyTransformer(),
-                        new ArrayList<String>()))).hideLabel().setOutputMarkupId(true));
+        }, available).hideLabel().setOutputMarkupId(true));
+    }
+
+    @Override
+    public boolean evaluate() {
+        if (SyncopeConsoleApplication.get().getSecuritySettings().getAuthorizationStrategy().
+                isActionAuthorized(this, RENDER)) {
+            available.setObject(CollectionUtils.collect(new ResourceRestClient().list(),
+                    EntityTOUtils.<ResourceTO>keyTransformer(), new ArrayList<String>()));
+            return CollectionUtils.isNotEmpty(available.getObject());
+        } else {
+            return false;
+        }
     }
 }

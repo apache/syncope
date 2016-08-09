@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 import javax.annotation.Resource;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
@@ -36,6 +37,7 @@ import org.apache.commons.collections4.Predicate;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -66,9 +68,12 @@ import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyUtilsFactory;
+import org.apache.syncope.core.persistence.jpa.entity.JPARole;
+import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPADynRoleMembership;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUDynGroupMembership;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
+import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.stereotype.Repository;
@@ -77,6 +82,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
+
+    private static final Pattern USERNAME_PATTERN =
+            Pattern.compile("^" + SyncopeConstants.NAME_PATTERN, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
 
     @Autowired
     private RealmDAO realmDAO;
@@ -161,12 +169,12 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
 
     @Transactional(readOnly = true)
     @Override
-    public User authFind(final String username) {
+    public User authFindByUsername(final String username) {
         if (username == null) {
             throw new NotFoundException("Null username");
         }
 
-        User user = find(username);
+        User user = findByUsername(username);
         if (user == null) {
             throw new NotFoundException("User " + username);
         }
@@ -177,7 +185,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
     }
 
     @Override
-    public User find(final String username) {
+    public User findByUsername(final String username) {
         TypedQuery<User> query = entityManager().createQuery("SELECT e FROM " + JPAUser.class.getSimpleName()
                 + " e WHERE e.username = :username", User.class);
         query.setParameter("username", username);
@@ -340,12 +348,16 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
                 throw new AccountPolicyException("Not allowed: " + user.getUsername());
             }
 
+            if (!USERNAME_PATTERN.matcher(user.getUsername()).matches()) {
+                throw new AccountPolicyException("Character(s) not allowed");
+            }
+
             for (AccountPolicy policy : getAccountPolicies(user)) {
                 for (AccountRuleConf ruleConf : policy.getRuleConfs()) {
                     Class<? extends AccountRule> ruleClass =
                             implementationLookup.getAccountRuleClass(ruleConf.getClass());
                     if (ruleClass == null) {
-                        LOG.warn("Could not find matching password rule for {}", ruleConf.getClass());
+                        LOG.warn("Could not find matching account rule for {}", ruleConf.getClass());
                     } else {
                         // fetch (or create) rule
                         AccountRule rule;
@@ -417,23 +429,57 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
     public List<Role> findDynRoleMemberships(final User user) {
-        TypedQuery<Role> query = entityManager().createQuery(
-                "SELECT e.role FROM " + JPADynRoleMembership.class.getSimpleName()
-                + " e WHERE :user MEMBER OF e.users", Role.class);
-        query.setParameter("user", user);
+        Query query = entityManager().createNativeQuery(
+                "SELECT t2.id FROM " + JPADynRoleMembership.TABLE + " t0 "
+                + "INNER JOIN " + JPADynRoleMembership.TABLE + "_User t1 "
+                + "ON t0.id = t1.dynRoleMembership_id "
+                + "LEFT OUTER JOIN " + JPARole.TABLE + " t2 "
+                + "ON t0.ROLE_ID = t2.id "
+                + "WHERE (t1.user_id = ?1)");
+        query.setParameter(1, user.getKey());
 
-        return query.getResultList();
+        List<Role> result = new ArrayList<>();
+        for (Object key : query.getResultList()) {
+            String actualKey = key instanceof Object[]
+                    ? (String) ((Object[]) key)[0]
+                    : ((String) key);
+
+            Role role = roleDAO.find(actualKey);
+            if (role == null) {
+                LOG.error("Could not find role with id {}, even though returned by the native query", actualKey);
+            } else if (!result.contains(role)) {
+                result.add(role);
+            }
+        }
+        return result;
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
     public List<Group> findDynGroupMemberships(final User user) {
-        TypedQuery<Group> query = entityManager().createQuery(
-                "SELECT e.group FROM " + JPAUDynGroupMembership.class.getSimpleName()
-                + " e WHERE :user MEMBER OF e.users", Group.class);
-        query.setParameter("user", user);
+        Query query = entityManager().createNativeQuery(
+                "SELECT t2.id FROM " + JPAUDynGroupMembership.TABLE + " t0 "
+                + "INNER JOIN " + JPAUDynGroupMembership.TABLE + "_User t1 "
+                + "ON t0.id = t1.uDynGroupMembership_id "
+                + "LEFT OUTER JOIN " + JPAGroup.TABLE + " t2 "
+                + "ON t0.GROUP_ID = t2.id "
+                + "WHERE (t1.user_id = ?1)");
+        query.setParameter(1, user.getKey());
 
-        return query.getResultList();
+        List<Group> result = new ArrayList<>();
+        for (Object key : query.getResultList()) {
+            String actualKey = key instanceof Object[]
+                    ? (String) ((Object[]) key)[0]
+                    : ((String) key);
+
+            Group group = groupDAO.find(actualKey);
+            if (group == null) {
+                LOG.error("Could not find group with id {}, even though returned by the native query", actualKey);
+            } else if (!result.contains(group)) {
+                result.add(group);
+            }
+        }
+        return result;
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
@@ -458,12 +504,18 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
-    public Collection<Long> findAllGroupKeys(final User user) {
-        return CollectionUtils.collect(findAllGroups(user), new Transformer<Group, Long>() {
+    public Collection<String> findAllGroupKeys(final User user) {
+        return CollectionUtils.collect(findAllGroups(user), EntityUtils.<Group>keyTransformer());
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+    @Override
+    public Collection<String> findAllGroupNames(final User user) {
+        return CollectionUtils.collect(findAllGroups(user), new Transformer<Group, String>() {
 
             @Override
-            public Long transform(final Group input) {
-                return input.getKey();
+            public String transform(final Group input) {
+                return input.getName();
             }
         });
     }
@@ -482,14 +534,8 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
-    public Collection<String> findAllResourceNames(final User user) {
-        return CollectionUtils.collect(findAllResources(user), new Transformer<ExternalResource, String>() {
-
-            @Override
-            public String transform(final ExternalResource input) {
-                return input.getKey();
-            }
-        });
+    public Collection<String> findAllResourceNames(final String key) {
+        return CollectionUtils.collect(findAllResources(authFind(key)), EntityUtils.keyTransformer());
     }
 
 }

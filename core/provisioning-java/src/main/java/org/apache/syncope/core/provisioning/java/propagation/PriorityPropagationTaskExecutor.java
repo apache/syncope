@@ -57,8 +57,16 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
     @Resource(name = "propagationTaskExecutorAsyncExecutor")
     protected ThreadPoolTaskExecutor executor;
 
-    @Override
-    public PropagationTaskCallable newPropagationTaskCallable(
+    /**
+     * Creates new instances of {@link PropagationTaskCallable} for usage with
+     * {@link java.util.concurrent.CompletionService}.
+     *
+     * @param task to be executed
+     * @param reporter to report propagation execution status
+     * @return new {@link PropagationTaskCallable} instance for usage with
+     * {@link java.util.concurrent.CompletionService}
+     */
+    protected PropagationTaskCallable newPropagationTaskCallable(
             final PropagationTask task, final PropagationReporter reporter) {
 
         PropagationTaskCallable callable = (PropagationTaskCallable) ApplicationContextProvider.getBeanFactory().

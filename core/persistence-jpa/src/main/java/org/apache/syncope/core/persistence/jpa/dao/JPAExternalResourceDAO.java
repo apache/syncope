@@ -23,8 +23,6 @@ import java.util.List;
 import java.util.Set;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
-import org.apache.syncope.common.lib.types.IntMappingType;
-import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
@@ -34,6 +32,7 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
+import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
@@ -41,6 +40,8 @@ import org.apache.syncope.core.persistence.api.entity.Policy;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
+import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
+import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAMappingItem;
@@ -53,7 +54,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
-public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource, String> implements ExternalResourceDAO {
+public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implements ExternalResourceDAO {
 
     @Autowired
     private TaskDAO taskDAO;
@@ -89,45 +90,43 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource, String
     }
 
     @Override
-    public Provision findProvision(final Long key) {
-        return entityManager().find(JPAProvision.class, key);
+    public List<Provision> findProvisionsByAuxClass(final AnyTypeClass anyTypeClass) {
+        TypedQuery<Provision> query = entityManager().createQuery(
+                "SELECT e FROM " + JPAProvision.class.getSimpleName()
+                + " e WHERE :anyTypeClass MEMBER OF e.auxClasses", Provision.class);
+        query.setParameter("anyTypeClass", anyTypeClass);
+
+        return query.getResultList();
     }
 
-    private StringBuilder getByPolicyQuery(final PolicyType type) {
+    private StringBuilder getByPolicyQuery(final Class<? extends Policy> policyClass) {
         StringBuilder query = new StringBuilder("SELECT e FROM ").
                 append(JPAExternalResource.class.getSimpleName()).
                 append(" e WHERE e.");
-        switch (type) {
-            case ACCOUNT:
-                query.append("accountPolicy");
-                break;
 
-            case PASSWORD:
-                query.append("passwordPolicy");
-                break;
-
-            case PULL:
-                query.append("pullPolicy");
-                break;
-
-            default:
-                break;
+        if (AccountPolicy.class.isAssignableFrom(policyClass)) {
+            query.append("accountPolicy");
+        } else if (PasswordPolicy.class.isAssignableFrom(policyClass)) {
+            query.append("passwordPolicy");
+        } else if (PullPolicy.class.isAssignableFrom(policyClass)) {
+            query.append("pullPolicy");
         }
+
         return query;
     }
 
     @Override
     public List<ExternalResource> findByPolicy(final Policy policy) {
         TypedQuery<ExternalResource> query = entityManager().createQuery(
-                getByPolicyQuery(policy.getType()).append(" = :policy").toString(), ExternalResource.class);
+                getByPolicyQuery(policy.getClass()).append(" = :policy").toString(), ExternalResource.class);
         query.setParameter("policy", policy);
         return query.getResultList();
     }
 
     @Override
-    public List<ExternalResource> findWithoutPolicy(final PolicyType type) {
+    public List<ExternalResource> findWithoutPolicy(final Class<? extends Policy> policyClass) {
         TypedQuery<ExternalResource> query = entityManager().createQuery(
-                getByPolicyQuery(type).append(" IS NULL").toString(), ExternalResource.class);
+                getByPolicyQuery(policyClass).append(" IS NULL").toString(), ExternalResource.class);
         return query.getResultList();
     }
 
@@ -160,22 +159,17 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource, String
 
     @Override
     @SuppressWarnings("unchecked")
-    public void deleteMapping(final String intAttrName, final IntMappingType intMappingType) {
-        if (IntMappingType.getEmbedded().contains(intMappingType)) {
-            return;
-        }
-
+    public void deleteMapping(final String intAttrName) {
         TypedQuery<MappingItem> query = entityManager().createQuery(
                 "SELECT m FROM " + JPAMappingItem.class.getSimpleName()
-                + " m WHERE m.intAttrName=:intAttrName AND m.intMappingType=:intMappingType", MappingItem.class);
+                + " m WHERE m.intAttrName=:intAttrName", MappingItem.class);
         query.setParameter("intAttrName", intAttrName);
-        query.setParameter("intMappingType", intMappingType);
 
-        Set<Long> itemKeys = new HashSet<>();
+        Set<String> itemKeys = new HashSet<>();
         for (MappingItem item : query.getResultList()) {
             itemKeys.add(item.getKey());
         }
-        for (Long itemKey : itemKeys) {
+        for (String itemKey : itemKeys) {
             MappingItem item = entityManager().find(JPAMappingItem.class, itemKey);
             if (item != null) {
                 item.getMapping().getItems().remove(item);

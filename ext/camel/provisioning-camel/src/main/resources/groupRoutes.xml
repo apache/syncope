@@ -21,12 +21,12 @@ under the License.
      
   <route id="createGroup">
     <from uri="direct:createGroup"/>
-    <setProperty propertyName="any">
+    <setProperty propertyName="actual">
       <simple>${body}</simple>
     </setProperty>
     <doTry>
       <bean ref="gwfAdapter" method="create(${body})"/>
-      <process ref="groupCreateProcessor"/>
+      <to uri="propagate:create?anyTypeKind=GROUP"/>
       <to uri="direct:createGroupPort"/>
       <doCatch>        
         <exception>java.lang.RuntimeException</exception>
@@ -40,12 +40,12 @@ under the License.
                
   <route id="createGroupPull">
     <from uri="direct:createGroupInPull"/>
-    <setProperty propertyName="any">
+    <setProperty propertyName="actual">
       <simple>${body}</simple>
     </setProperty>
     <doTry>
       <bean ref="gwfAdapter" method="create(${body})"/>
-      <process ref="groupCreateInPullProcessor"/>
+      <to uri="propagate:create?anyTypeKind=GROUP&amp;pull=true"/>
       <to uri="direct:createGroupInPullPort"/>
       <doCatch>        
         <exception>java.lang.RuntimeException</exception>
@@ -59,12 +59,12 @@ under the License.
          
   <route id="updateGroup">
     <from uri="direct:updateGroup"/>
-    <setProperty propertyName="anyPatch">
+    <setProperty propertyName="actual">
       <simple>${body}</simple>
     </setProperty>
     <doTry>
       <bean ref="gwfAdapter" method="update(${body})"/>
-      <process ref="groupUpdateProcessor"/>
+      <to uri="propagate:update?anyTypeKind=GROUP"/>
       <to uri="direct:updateGroupPort"/>
       <doCatch>        
         <exception>java.lang.RuntimeException</exception>
@@ -79,7 +79,7 @@ under the License.
   <route id="deleteGroup">
     <from uri="direct:deleteGroup"/>
     <doTry>
-      <process ref="groupDeleteProcessor"/>
+      <to uri="propagate:delete?anyTypeKind=GROUP"/>
       <bean ref="gwfAdapter" method="delete(${body})"/>
       <setBody>
         <simple>${property.statuses}</simple>
@@ -133,13 +133,13 @@ under the License.
         
   <route id="provisionGroup">
     <from uri="direct:provisionGroup"/>            
-    <process ref="groupProvisionProcessor"/>
+    <to uri="propagate:provision?anyTypeKind=GROUP"/>
     <to uri="direct:provisionGroupPort"/>              
   </route>
 
   <route id="deprovisionGroup">
     <from uri="direct:deprovisionGroup"/>            
-    <process ref="groupDeprovisionProcessor"/>
+    <to uri="propagate:deprovision?anyTypeKind=GROUP"/>
     <to uri="direct:deprovisionGroupPort"/>              
   </route>
     

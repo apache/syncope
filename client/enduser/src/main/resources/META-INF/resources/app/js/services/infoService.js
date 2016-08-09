@@ -31,7 +31,7 @@ angular.module('SyncopeEnduserApp')
                       .then(function (response) {
                         return response.data;
                       }, function (response) {
-                        console.log("Something went wrong while retrieving info resource", response);
+                        console.error("Something went wrong while retrieving info resource", response);
                         return $q.reject(response.data || response.statusText);
                       });
             };

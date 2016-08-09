@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.api.dao;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
@@ -27,11 +26,11 @@ import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.Schema;
 
-public interface AnyDAO<A extends Any<?>> extends DAO<A, Long> {
+public interface AnyDAO<A extends Any<?>> extends DAO<A> {
 
-    A authFind(Long key);
+    A authFind(String key);
 
-    A find(Long key);
+    A find(String key);
 
     A findByWorkflowId(String workflowId);
 
@@ -72,13 +71,13 @@ public interface AnyDAO<A extends Any<?>> extends DAO<A, Long> {
      */
     List<A> findAll(Set<String> adminRealms, int page, int itemsPerPage, List<OrderByClause> orderBy);
 
-    <S extends Schema> Collection<S> findAllowedSchemas(A any, Class<S> reference);
+    <S extends Schema> AllowedSchemas<S> findAllowedSchemas(A any, Class<S> reference);
 
     int count(Set<String> adminRealms);
 
     A save(A any);
 
-    void delete(Long key);
+    void delete(String key);
 
     void delete(A any);
 

@@ -57,10 +57,6 @@ public class WorkflowRestClient extends BaseRestClient {
         return diagram;
     }
 
-    public boolean isActivitiEnabledForUsers() {
-        return SyncopeConsoleSession.get().getPlatformInfo().getUserWorkflowAdapter().contains("Activiti");
-    }
-
     public void updateDefinition(final MediaType mediaType, final String definition) {
         getService(mediaType).importDefinition(AnyTypeKind.USER, definition);
     }

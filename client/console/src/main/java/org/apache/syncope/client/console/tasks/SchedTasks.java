@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.tasks;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -37,7 +38,7 @@ public class SchedTasks extends AbstractTasks {
         final MultilevelPanel mlp = new MultilevelPanel("tasks");
         add(mlp);
 
-        mlp.setFirstLevel(new SchedTaskSearchResultPanel<SchedTaskTO>(
+        mlp.setFirstLevel(new SchedTaskDirectoryPanel<SchedTaskTO>(
                 baseModal, mlp, SchedTaskTO.class, pageReference) {
 
             private static final long serialVersionUID = -2195387360323687302L;
@@ -45,7 +46,7 @@ public class SchedTasks extends AbstractTasks {
             @Override
             protected void viewTask(final SchedTaskTO taskTO, final AjaxRequestTarget target) {
                 mlp.next(
-                        new StringResourceModel("task.view", this, new Model<>(taskTO)).getObject(),
+                        new StringResourceModel("task.view", this, new Model<>(Pair.of(null, taskTO))).getObject(),
                         new TaskExecutionDetails<>(baseModal, taskTO, pageReference), target);
             }
         });

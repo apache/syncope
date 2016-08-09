@@ -25,6 +25,7 @@ import java.util.Map;
 import org.apache.syncope.client.console.PreferenceManager;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.common.lib.search.SearchableFields;
@@ -41,7 +42,7 @@ import org.apache.wicket.model.util.ListModel;
 /**
  * Modal window with Display attributes form.
  *
- * @param <T> can be {@link AnyTO} or {@link org.apache.syncope.client.console.wizards.any.AnyHandler}
+ * @param <T> can be {@link AnyTO} or {@link org.apache.syncope.client.console.wizards.any.AnyWrapper}
  */
 public abstract class DisplayAttributesModalPanel<T extends Serializable> extends AbstractModalPanel<T> {
 
@@ -73,7 +74,7 @@ public abstract class DisplayAttributesModalPanel<T extends Serializable> extend
     public DisplayAttributesModalPanel(
             final BaseModal<T> modal,
             final PageReference pageRef,
-            final List<String> schemaNames,
+            final List<String> pSchemaNames,
             final List<String> dSchemaNames,
             final String type) {
 
@@ -90,13 +91,13 @@ public abstract class DisplayAttributesModalPanel<T extends Serializable> extend
             }
         };
 
-        final IModel<List<String>> names = new LoadableDetachableModel<List<String>>() {
+        final IModel<List<String>> psnames = new LoadableDetachableModel<List<String>>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
             protected List<String> load() {
-                return schemaNames;
+                return pSchemaNames;
             }
         };
 
@@ -111,76 +112,69 @@ public abstract class DisplayAttributesModalPanel<T extends Serializable> extend
         };
 
         selectedDetails = prefMan.getList(getRequest(), getPrefDetailView());
-        selectedPlainSchemas = prefMan.getList(getRequest(), getPrefAttributeView());
+        selectedPlainSchemas = prefMan.getList(getRequest(), getPrefPlainAttributeView());
         selectedDerSchemas = prefMan.getList(getRequest(), getPrefDerivedAttributeView());
 
         final WebMarkupContainer container = new WebMarkupContainer("container");
         container.setOutputMarkupId(true);
         add(container);
 
-        final AjaxPalettePanel<String> plainSchema =
-                new AjaxPalettePanel.Builder<String>()
-                .setAllowOrder(true)
-                .setAllowMoveAll(true)
-                .build("plainSchemas",
-                        new PropertyModel<List<String>>(this, "selectedPlainSchemas"),
-                        new ListModel<>(names.getObject()));
-
-        plainSchema.hideLabel();
-        plainSchema.setOutputMarkupId(true);
-        container.add(plainSchema);
-
-        final AjaxPalettePanel<String> details =
-                new AjaxPalettePanel.Builder<String>()
-                .setAllowOrder(true)
-                .setAllowMoveAll(true)
-                .build("details",
+        AjaxPalettePanel<String> details = new AjaxPalettePanel.Builder<String>().
+                setAllowOrder(true).
+                setAllowMoveAll(true).
+                build("details",
                         new PropertyModel<List<String>>(this, "selectedDetails"),
                         new ListModel<>(fnames.getObject()));
-
         details.hideLabel();
         details.setOutputMarkupId(true);
         container.add(details);
 
-        final AjaxPalettePanel<String> derSchema =
-                new AjaxPalettePanel.Builder<String>()
-                .setAllowOrder(true)
-                .setAllowMoveAll(true)
-                .build("derSchemas",
+        AjaxPalettePanel<String> plainSchemas = new AjaxPalettePanel.Builder<String>().
+                setAllowOrder(true).
+                setAllowMoveAll(true).
+                build("plainSchemas",
+                        new PropertyModel<List<String>>(this, "selectedPlainSchemas"),
+                        new ListModel<>(psnames.getObject()));
+        plainSchemas.hideLabel();
+        plainSchemas.setOutputMarkupId(true);
+        container.add(plainSchemas);
+
+        AjaxPalettePanel<String> derSchemas = new AjaxPalettePanel.Builder<String>().
+                setAllowOrder(true).
+                setAllowMoveAll(true).
+                build("derSchemas",
                         new PropertyModel<List<String>>(this, "selectedDerSchemas"),
                         new ListModel<>(dsnames.getObject()));
-        derSchema.hideLabel();
-        derSchema.setOutputMarkupId(true);
-        container.add(derSchema);
+        derSchemas.hideLabel();
+        derSchemas.setOutputMarkupId(true);
+        container.add(derSchemas);
     }
 
     @Override
     public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-        if (selectedDetails.size() + selectedPlainSchemas.size() + selectedDerSchemas.size()
-                > MAX_SELECTIONS) {
-
-            error(getString("tooManySelections"));
+        if (selectedDetails.size() + selectedPlainSchemas.size() + selectedDerSchemas.size() > MAX_SELECTIONS) {
+            SyncopeConsoleSession.get().error(getString("tooManySelections"));
             onError(target, form);
         } else {
             final Map<String, List<String>> prefs = new HashMap<>();
 
             prefs.put(getPrefDetailView(), selectedDetails);
-            prefs.put(getPrefAttributeView(), selectedPlainSchemas);
+            prefs.put(getPrefPlainAttributeView(), selectedPlainSchemas);
             prefs.put(getPrefDerivedAttributeView(), selectedDerSchemas);
             prefMan.setList(getRequest(), getResponse(), prefs);
 
-            info(getString(Constants.OPERATION_SUCCEEDED));
+            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
             modal.close(target);
-            SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+            ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
         }
     }
 
-    public abstract String getPrefDetailView();
+    protected abstract String getPrefDetailView();
 
-    public abstract String getPrefAttributeView();
+    protected abstract String getPrefPlainAttributeView();
 
-    public abstract String getPrefDerivedAttributeView();
+    protected abstract String getPrefDerivedAttributeView();
 
-    public abstract Class<? extends AnyTO> getTOClass();
+    protected abstract Class<? extends AnyTO> getTOClass();
 
 }

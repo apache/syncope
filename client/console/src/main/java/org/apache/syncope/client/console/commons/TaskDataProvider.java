@@ -25,24 +25,23 @@ import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 
-public abstract class TaskDataProvider<T extends AbstractTaskTO> extends SearchableDataProvider<T> {
+public abstract class TaskDataProvider<T extends AbstractTaskTO> extends DirectoryDataProvider<T> {
 
     private static final long serialVersionUID = -20112718133295756L;
 
     private final SortableDataProviderComparator<T> comparator;
 
-    protected final TaskType id;
+    protected final TaskType taskType;
 
     private final TaskRestClient taskRestClient;
 
-    public TaskDataProvider(final int paginatorRows, final TaskType id, final TaskRestClient taskRestClient) {
+    public TaskDataProvider(final int paginatorRows, final TaskType taskType, final TaskRestClient taskRestClient) {
         super(paginatorRows);
-        this.taskRestClient = taskRestClient;
 
-        //Default sorting
-        setSort("key", SortOrder.DESCENDING);
-        comparator = new SortableDataProviderComparator<T>(this);
-        this.id = id;
+        this.taskRestClient = taskRestClient;
+        setSort("start", SortOrder.DESCENDING);
+        comparator = new SortableDataProviderComparator<>(this);
+        this.taskType = taskType;
     }
 
     public SortableDataProviderComparator<T> getComparator() {
@@ -51,7 +50,7 @@ public abstract class TaskDataProvider<T extends AbstractTaskTO> extends Searcha
 
     @Override
     public long size() {
-        return taskRestClient.count(id);
+        return taskRestClient.count(taskType);
     }
 
     @Override

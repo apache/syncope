@@ -33,7 +33,7 @@ public final class AuditElements implements Serializable {
     @XmlEnum
     public enum EventCategoryType {
 
-        REST(StringUtils.EMPTY),
+        LOGIC(StringUtils.EMPTY),
         TASK(StringUtils.EMPTY),
         PROPAGATION("PropagationTask"),
         PULL("PullTask"),

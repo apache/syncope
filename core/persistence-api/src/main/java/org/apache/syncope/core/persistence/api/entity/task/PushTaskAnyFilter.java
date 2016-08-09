@@ -21,7 +21,7 @@ package org.apache.syncope.core.persistence.api.entity.task;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 
-public interface PushTaskAnyFilter extends Entity<Long> {
+public interface PushTaskAnyFilter extends Entity {
 
     PushTask getPushTask();
 

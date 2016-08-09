@@ -36,13 +36,13 @@ public class CamelGroupProvisioningManager
         extends AbstractCamelProvisioningManager implements GroupProvisioningManager {
 
     @Override
-    public Pair<Long, List<PropagationStatus>> create(final GroupTO any, final boolean nullPriorityAsync) {
+    public Pair<String, List<PropagationStatus>> create(final GroupTO any, final boolean nullPriorityAsync) {
         return create(any, Collections.<String>emptySet(), nullPriorityAsync);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public Pair<Long, List<PropagationStatus>> create(
+    public Pair<String, List<PropagationStatus>> create(
             final GroupTO groupTO, final Set<String> excludedResources, final boolean nullPriorityAsync) {
 
         PollingConsumer pollingConsumer = getConsumer("direct:createGroupPort");
@@ -64,9 +64,9 @@ public class CamelGroupProvisioningManager
 
     @Override
     @SuppressWarnings("unchecked")
-    public Pair<Long, List<PropagationStatus>> create(
+    public Pair<String, List<PropagationStatus>> create(
             final GroupTO groupTO,
-            final Map<Long, String> groupOwnerMap,
+            final Map<String, String> groupOwnerMap,
             final Set<String> excludedResources,
             final boolean nullPriorityAsync) {
 
@@ -89,13 +89,13 @@ public class CamelGroupProvisioningManager
     }
 
     @Override
-    public Pair<Long, List<PropagationStatus>> update(final GroupPatch anyPatch, final boolean nullPriorityAsync) {
+    public Pair<String, List<PropagationStatus>> update(final GroupPatch anyPatch, final boolean nullPriorityAsync) {
         return update(anyPatch, Collections.<String>emptySet(), nullPriorityAsync);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public Pair<Long, List<PropagationStatus>> update(
+    public Pair<String, List<PropagationStatus>> update(
             final GroupPatch anyPatch, final Set<String> excludedResources, final boolean nullPriorityAsync) {
 
         PollingConsumer pollingConsumer = getConsumer("direct:updateGroupPort");
@@ -116,14 +116,14 @@ public class CamelGroupProvisioningManager
     }
 
     @Override
-    public List<PropagationStatus> delete(final Long key, final boolean nullPriorityAsync) {
+    public List<PropagationStatus> delete(final String key, final boolean nullPriorityAsync) {
         return delete(key, Collections.<String>emptySet(), nullPriorityAsync);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public List<PropagationStatus> delete(
-            final Long key, final Set<String> excludedResources, final boolean nullPriorityAsync) {
+            final String key, final Set<String> excludedResources, final boolean nullPriorityAsync) {
 
         PollingConsumer pollingConsumer = getConsumer("direct:deleteGroupPort");
 
@@ -143,7 +143,7 @@ public class CamelGroupProvisioningManager
     }
 
     @Override
-    public Long unlink(final GroupPatch groupPatch) {
+    public String unlink(final GroupPatch groupPatch) {
         PollingConsumer pollingConsumer = getConsumer("direct:unlinkGroupPort");
 
         sendMessage("direct:unlinkGroup", groupPatch);
@@ -154,11 +154,11 @@ public class CamelGroupProvisioningManager
             throw (RuntimeException) exchange.getProperty(Exchange.EXCEPTION_CAUGHT);
         }
 
-        return exchange.getIn().getBody(Long.class);
+        return exchange.getIn().getBody(String.class);
     }
 
     @Override
-    public Long link(final GroupPatch groupPatch) {
+    public String link(final GroupPatch groupPatch) {
         PollingConsumer pollingConsumer = getConsumer("direct:linkGroupPort");
 
         sendMessage("direct:linkGroup", groupPatch);
@@ -169,13 +169,13 @@ public class CamelGroupProvisioningManager
             throw (RuntimeException) exchange.getProperty(Exchange.EXCEPTION_CAUGHT);
         }
 
-        return exchange.getIn().getBody(Long.class);
+        return exchange.getIn().getBody(String.class);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public List<PropagationStatus> provision(
-            final Long key, final Collection<String> resources, final boolean nullPriorityAsync) {
+            final String key, final Collection<String> resources, final boolean nullPriorityAsync) {
 
         PollingConsumer pollingConsumer = getConsumer("direct:provisionGroupPort");
 
@@ -197,7 +197,7 @@ public class CamelGroupProvisioningManager
     @Override
     @SuppressWarnings("unchecked")
     public List<PropagationStatus> deprovision(
-            final Long key, final Collection<String> resources, final boolean nullPriorityAsync) {
+            final String key, final Collection<String> resources, final boolean nullPriorityAsync) {
 
         PollingConsumer pollingConsumer = getConsumer("direct:deprovisionGroupPort");
 

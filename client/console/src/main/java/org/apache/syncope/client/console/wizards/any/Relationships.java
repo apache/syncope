@@ -31,12 +31,12 @@ import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.SerializableTransformer;
-import org.apache.syncope.client.console.panels.AnyObjectSearchResultPanel;
+import org.apache.syncope.client.console.panels.AnyDirectoryPanel;
 import org.apache.syncope.client.console.panels.ListViewPanel;
 import org.apache.syncope.client.console.panels.ListViewPanel.ListViewReload;
 import org.apache.syncope.client.console.panels.search.AnyObjectSearchPanel;
-import org.apache.syncope.client.console.panels.search.AnyObjectSelectionSearchResultPanel;
-import org.apache.syncope.client.console.panels.search.AnySelectionSearchResultPanel;
+import org.apache.syncope.client.console.panels.search.AnyObjectSelectionDirectoryPanel;
+import org.apache.syncope.client.console.panels.search.AnySelectionDirectoryPanel;
 import org.apache.syncope.client.console.panels.search.SearchClause;
 import org.apache.syncope.client.console.panels.search.SearchClausePanel;
 import org.apache.syncope.client.console.panels.search.SearchUtils;
@@ -45,6 +45,7 @@ import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
@@ -53,7 +54,7 @@ import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
-import org.apache.syncope.common.lib.to.RelatableTO;
+import org.apache.syncope.common.lib.to.GroupableRelatableTO;
 import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.to.RelationshipTypeTO;
 import org.apache.syncope.common.lib.types.AnyEntitlement;
@@ -91,6 +92,7 @@ public class Relationships extends WizardStep {
 
     public Relationships(final AnyTO anyTO, final PageReference pageRef) {
         super();
+        setTitleModel(new ResourceModel("any.relationships"));
         this.anyTO = anyTO;
         this.pageRef = pageRef;
 
@@ -132,10 +134,9 @@ public class Relationships extends WizardStep {
                                             public void onClick(
                                                     final AjaxRequestTarget target, final RelationshipTO modelObject) {
                                                 removeRelationships(relationships, modelObject);
-                                                send(Relationships.this, Broadcast.DEPTH, new ListViewReload(target));
+                                                send(Relationships.this, Broadcast.DEPTH, new ListViewReload<>(target));
                                             }
-                                        }, ActionLink.ActionType.DELETE,
-                                                String.format("%s_%s", anyTO.getType(), AnyEntitlement.UPDATE)).
+                                        }, ActionType.DELETE, AnyEntitlement.UPDATE.getFor(anyTO.getType())).
                                         build(panelId);
                             }
                         };
@@ -165,15 +166,14 @@ public class Relationships extends WizardStep {
                 addFragment.add(new Specification().setRenderBodyOnly(true));
                 target.add(Relationships.this);
             }
-        }, ActionLink.ActionType.CREATE, String.format("%s_%s", anyTO.getType(), AnyEntitlement.UPDATE)).
-                build("actions"));
+        }, ActionType.CREATE, AnyEntitlement.UPDATE.getFor(anyTO.getType())).build("actions"));
 
         return viewFragment;
     }
 
     private List<RelationshipTO> getCurrentRelationships() {
-        return anyTO instanceof RelatableTO
-                ? RelatableTO.class.cast(anyTO).getRelationships()
+        return anyTO instanceof GroupableRelatableTO
+                ? GroupableRelatableTO.class.cast(anyTO).getRelationships()
                 : Collections.<RelationshipTO>emptyList();
     }
 
@@ -218,7 +218,7 @@ public class Relationships extends WizardStep {
 
         private AnyObjectSearchPanel anyObjectSearchPanel;
 
-        private WizardMgtPanel<AnyHandler<AnyObjectTO>> anyObjectSearchResultPanel;
+        private WizardMgtPanel<AnyWrapper<AnyObjectTO>> anyObjectDirectoryPanel;
 
         public Specification() {
             super("specification");
@@ -226,8 +226,7 @@ public class Relationships extends WizardStep {
 
             final ArrayList<String> availableRels = CollectionUtils.collect(
                     SyncopeConsoleSession.get().getService(RelationshipTypeService.class).list(),
-                    EntityTOUtils.<String, RelationshipTypeTO>keyTransformer(),
-                    new ArrayList<String>());
+                    EntityTOUtils.<RelationshipTypeTO>keyTransformer(), new ArrayList<String>());
 
             final AjaxDropDownChoicePanel<String> type = new AjaxDropDownChoicePanel<>(
                     "type", "type", new PropertyModel<String>(rel, "type"));
@@ -333,14 +332,14 @@ public class Relationships extends WizardStep {
                                 build("searchPanel");
                         fragment.add(anyObjectSearchPanel.setRenderBodyOnly(true));
 
-                        anyObjectSearchResultPanel = new AnyObjectSelectionSearchResultPanel.Builder(
+                        anyObjectDirectoryPanel = new AnyObjectSelectionDirectoryPanel.Builder(
                                 anyTypeClassRestClient.list(anyType.getClasses()),
                                 anyType.getKey(),
                                 pageRef).setFiltered(true).
                                 setFiql(SyncopeClient.getAnyObjectSearchConditionBuilder(anyType.getKey()).
                                         is("key").notNullValue().query()).
-                                build("searchResultPanel");
-                        fragment.add(anyObjectSearchResultPanel.setRenderBodyOnly(true));
+                                setWizardInModal(true).build("searchResultPanel");
+                        fragment.add(anyObjectDirectoryPanel.setRenderBodyOnly(true));
                     }
                     target.add(container);
                 }
@@ -354,12 +353,12 @@ public class Relationships extends WizardStep {
                         getTarget();
                 final String fiql = SearchUtils.buildFIQL(anyObjectSearchPanel.getModel().getObject(),
                         SyncopeClient.getAnyObjectSearchConditionBuilder(anyObjectSearchPanel.getBackObjectType()));
-                AnyObjectSearchResultPanel.class.cast(anyObjectSearchResultPanel).search(fiql, target);
-            } else if (event.getPayload() instanceof AnySelectionSearchResultPanel.ItemSelection) {
-                final AjaxRequestTarget target = AnySelectionSearchResultPanel.ItemSelection.class.cast(event.
+                AnyDirectoryPanel.class.cast(anyObjectDirectoryPanel).search(fiql, target);
+            } else if (event.getPayload() instanceof AnySelectionDirectoryPanel.ItemSelection) {
+                final AjaxRequestTarget target = AnySelectionDirectoryPanel.ItemSelection.class.cast(event.
                         getPayload()).getTarget();
 
-                AnyTO right = AnySelectionSearchResultPanel.ItemSelection.class.cast(event.getPayload()).getSelection();
+                AnyTO right = AnySelectionDirectoryPanel.ItemSelection.class.cast(event.getPayload()).getSelection();
                 rel.setRightKey(right.getKey());
 
                 Relationships.this.addNewRelationships(rel);

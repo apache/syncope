@@ -41,7 +41,6 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.util.string.Strings;
 
 public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel<List<T>> {
@@ -58,11 +57,11 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
 
     public AjaxPalettePanel(
             final String id, final IModel<List<T>> model, final Builder.Query<T> choices, final Builder<T> builder) {
-        super(id, id, model);
+        super(id, builder.name == null ? id : builder.name, model);
 
         choicesModel = new PaletteLoadableDetachableModel(builder) {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = -108100712154481840L;
 
             @Override
             protected List<T> getChoices() {
@@ -73,12 +72,12 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
     }
 
     public AjaxPalettePanel(
-            final String id, final IModel<List<T>> model, final ListModel<T> choices, final Builder<T> builder) {
-        super(id, id, model);
+            final String id, final IModel<List<T>> model, final IModel<List<T>> choices, final Builder<T> builder) {
+        super(id, builder.name == null ? id : builder.name, model);
 
         choicesModel = new PaletteLoadableDetachableModel(builder) {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = -108100712154481840L;
 
             @Override
             protected List<T> getChoices() {
@@ -86,7 +85,7 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
                         ? getFilteredList(choices.getObject(), getFilter().replaceAll("\\*", "\\.\\*"))
                         : choices.getObject();
             }
-        };     
+        };
         initialize(model, builder);
     }
 
@@ -174,7 +173,7 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
 
         form.add(new AjaxSubmitLink("search") {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = -1765773642975892072L;
 
             @Override
             protected void onAfterSubmit(final AjaxRequestTarget target, final Form<?> form) {
@@ -182,6 +181,10 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
                 target.add(palette);
             }
         });
+    }
+
+    public LoadableDetachableModel<List<T>> getChoicesModel() {
+        return choicesModel;
     }
 
     @Override
@@ -194,9 +197,13 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
         return palette.getModelCollection();
     }
 
+    public void reload(final AjaxRequestTarget target) {
+        target.add(palette);
+    }
+
     public static class Builder<T extends Serializable> implements Serializable {
 
-        private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = 991248996001040352L;
 
         private IChoiceRenderer<T> renderer;
 
@@ -209,16 +216,23 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
         private String availableLabel;
 
         private boolean filtered;
-        
+
         private final AjaxPaletteConf conf = new AjaxPaletteConf();
 
         private String filter = conf.getDefaultFilter();
+
+        private String name;
 
         public Builder() {
             this.allowMoveAll = false;
             this.allowOrder = false;
             this.filtered = false;
             this.renderer = new SelectChoiceRenderer<>();
+        }
+
+        public Builder<T> setName(final String name) {
+            this.name = name;
+            return this;
         }
 
         public Builder<T> setAllowOrder(final boolean allowOrder) {
@@ -257,7 +271,7 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
             return this;
         }
 
-        public AjaxPalettePanel<T> build(final String id, final IModel<List<T>> model, final ListModel<T> choices) {
+        public AjaxPalettePanel<T> build(final String id, final IModel<List<T>> model, final IModel<List<T>> choices) {
             return new AjaxPalettePanel<>(id, model, choices, this);
         }
 
@@ -267,7 +281,7 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
 
         public abstract static class Query<T extends Serializable> implements Serializable {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = 3582312993557742858L;
 
             public abstract List<T> execute(final String filter);
         }
@@ -275,7 +289,7 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
 
     private abstract class PaletteLoadableDetachableModel extends LoadableDetachableModel<List<T>> {
 
-        private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = -7745220313769774616L;
 
         private final Builder<T> builder;
 

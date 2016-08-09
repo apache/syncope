@@ -168,7 +168,7 @@ public class DateTimeFieldPanel extends DateFieldPanel {
 
     @Override
     public FieldPanel<Date> clone() {
-        final FieldPanel<Date> panel = new DateTimeFieldPanel(getId(), name, new Model<Date>(null), datePattern);
+        final FieldPanel<Date> panel = new DateTimeFieldPanel(getId(), name, new Model<Date>(null), fmt.getPattern());
 
         panel.setRequired(isRequired());
         panel.setReadOnly(isReadOnly());

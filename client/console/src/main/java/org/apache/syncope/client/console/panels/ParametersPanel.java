@@ -27,8 +27,9 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.commons.SearchableDataProvider;
+import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.ParametersPanel.ParametersProvider;
 import org.apache.syncope.client.console.rest.BaseRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
@@ -55,7 +56,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
-public class ParametersPanel extends AbstractSearchResultPanel<
+public class ParametersPanel extends DirectoryPanel<
         AttrTO, AttrTO, ParametersProvider, BaseRestClient> {
 
     private static final long serialVersionUID = 2765863608539154422L;
@@ -77,8 +78,8 @@ public class ParametersPanel extends AbstractSearchResultPanel<
             private static final long serialVersionUID = 8769126634538601689L;
 
             @Override
-            protected WizardMgtPanel<AttrTO> newInstance(final String id) {
-                return new ParametersPanel(id, this);
+            protected WizardMgtPanel<AttrTO> newInstance(final String id, final boolean wizardInModal) {
+                throw new UnsupportedOperationException();
             }
         });
 
@@ -95,20 +96,19 @@ public class ParametersPanel extends AbstractSearchResultPanel<
 
         addInnerObject(modalDetails);
 
-        this.addNewItemPanelBuilder(new AbstractModalPanelBuilder<AttrTO>(
-                BaseModal.CONTENT_ID, new AttrTO(), pageRef) {
+        this.addNewItemPanelBuilder(new AbstractModalPanelBuilder<AttrTO>(new AttrTO(), pageRef) {
 
             private static final long serialVersionUID = 1995192603527154740L;
 
             @Override
-            public ModalPanel<AttrTO> build(final int index, final AjaxWizard.Mode mode) {
+            public WizardModalPanel<AttrTO> build(final String id, final int index, final AjaxWizard.Mode mode) {
                 return new ParametersCreateModalPanel(modal, newModelObject(), pageRef);
             }
         }, true);
         modal.size(Modal.Size.Medium);
         initResultTable();
 
-        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, ENABLE, StandardEntitlement.CONFIGURATION_SET);
+        MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.CONFIGURATION_SET);
     }
 
     public ParametersPanel(
@@ -138,7 +138,7 @@ public class ParametersPanel extends AbstractSearchResultPanel<
         columns.add(new PropertyColumn<AttrTO, String>(new ResourceModel("schema"), "schema", "schema"));
         columns.add(new PropertyColumn<AttrTO, String>(new ResourceModel("values"), "values"));
 
-        columns.add(new ActionColumn<AttrTO, String>(new ResourceModel("actions", "")) {
+        columns.add(new ActionColumn<AttrTO, String>(new ResourceModel("actions")) {
 
             private static final long serialVersionUID = 906457126287899096L;
 
@@ -152,7 +152,7 @@ public class ParametersPanel extends AbstractSearchResultPanel<
                             @Override
                             public void onClick(final AjaxRequestTarget target, final AttrTO ignore) {
                                 target.add(modalDetails);
-                                modalDetails.addSumbitButton();
+                                modalDetails.addSubmitButton();
                                 modalDetails.header(new StringResourceModel("any.edit"));
                                 modalDetails.setContent(
                                         new ParametersEditModalPanel(modalDetails, model.getObject(), pageRef));
@@ -170,14 +170,14 @@ public class ParametersPanel extends AbstractSearchResultPanel<
                                             delete(model.getObject().getSchema());
                                     SyncopeConsoleSession.get().getService(SchemaService.class).
                                             delete(SchemaType.PLAIN, model.getObject().getSchema());
-                                    info(getString(Constants.OPERATION_SUCCEEDED));
+                                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                                     target.add(container);
                                 } catch (Exception e) {
                                     LOG.error("While deleting {}", model.getObject(), e);
-                                    error(StringUtils.isBlank(e.getMessage())
+                                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
                                             ? e.getClass().getName() : e.getMessage());
                                 }
-                                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                             }
                         }, ActionLink.ActionType.DELETE, StandardEntitlement.CONFIGURATION_DELETE).
                         build(componentId);
@@ -206,7 +206,7 @@ public class ParametersPanel extends AbstractSearchResultPanel<
         return columns;
     }
 
-    protected final class ParametersProvider extends SearchableDataProvider<AttrTO> {
+    protected final class ParametersProvider extends DirectoryDataProvider<AttrTO> {
 
         private static final long serialVersionUID = -185944053385660794L;
 

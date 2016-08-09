@@ -20,14 +20,12 @@ package org.apache.syncope.client.console.wizards;
 
 import java.io.Serializable;
 import org.apache.commons.lang3.SerializationUtils;
-import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.wicket.PageReference;
+import org.apache.wicket.event.IEventSink;
 
-public abstract class AbstractModalPanelBuilder<T extends Serializable> implements Serializable {
+public abstract class AbstractModalPanelBuilder<T extends Serializable> implements ModalPanelBuilder<T> {
 
     private static final long serialVersionUID = 5241745929825564456L;
-
-    protected final String id;
 
     protected final PageReference pageRef;
 
@@ -35,20 +33,18 @@ public abstract class AbstractModalPanelBuilder<T extends Serializable> implemen
 
     private T item;
 
+    protected IEventSink eventSink = null;
+
     /**
      * Construct.
      *
-     * @param id The component id
      * @param defaultItem default item.
      * @param pageRef Caller page reference.
      */
-    public AbstractModalPanelBuilder(final String id, final T defaultItem, final PageReference pageRef) {
-        this.id = id;
+    public AbstractModalPanelBuilder(final T defaultItem, final PageReference pageRef) {
         this.defaultItem = defaultItem;
         this.pageRef = pageRef;
     }
-
-    public abstract ModalPanel<T> build(final int index, final AjaxWizard.Mode mode);
 
     protected void onCancelInternal(final T modelObject) {
     }
@@ -62,6 +58,7 @@ public abstract class AbstractModalPanelBuilder<T extends Serializable> implemen
         return item;
     }
 
+    @Override
     public T getDefaultItem() {
         return defaultItem;
     }
@@ -76,18 +73,25 @@ public abstract class AbstractModalPanelBuilder<T extends Serializable> implemen
         return SerializationUtils.clone(item);
     }
 
-    /**
-     * Replaces the default value provided with the constructor and nullify working item object.
-     *
-     * @param item new value.
-     * @return the current wizard factory instance.
-     */
+    @Override
     public AbstractModalPanelBuilder<T> setItem(final T item) {
         this.item = item;
         return this;
     }
 
+    @Override
     public PageReference getPageReference() {
         return pageRef;
+    }
+
+    @Override
+    public ModalPanelBuilder<T> setEventSink(final IEventSink eventSink) {
+        this.eventSink = eventSink;
+        return this;
+    }
+
+    @Override
+    public IEventSink getEventSink() {
+        return eventSink;
     }
 }

@@ -29,7 +29,7 @@ public class VirSchemaTO extends AbstractSchemaTO {
 
     private String resource;
 
-    private long provision;
+    private String anyType;
 
     private String extAttrName;
 
@@ -49,12 +49,12 @@ public class VirSchemaTO extends AbstractSchemaTO {
         this.resource = resource;
     }
 
-    public long getProvision() {
-        return provision;
+    public String getAnyType() {
+        return anyType;
     }
 
-    public void setProvision(final long provision) {
-        this.provision = provision;
+    public void setAnyType(final String anyType) {
+        this.anyType = anyType;
     }
 
     public String getExtAttrName() {

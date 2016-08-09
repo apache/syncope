@@ -100,7 +100,7 @@ public class MailTemplateTest extends AbstractTest {
         user.getPlainAttrs().add(new AttrTO.Builder().schema("firstname").value("John").build());
         user.getPlainAttrs().add(new AttrTO.Builder().schema("surname").value("Doe").build());
         user.getPlainAttrs().add(new AttrTO.Builder().schema("email").value("john.doe@syncope.apache.org").build());
-        user.getMemberships().add(new MembershipTO.Builder().group(23, "a group").build());
+        user.getMemberships().add(new MembershipTO.Builder().group(UUID.randomUUID().toString(), "a group").build());
         ctx.put("user", user);
 
         String token = "token " + UUID.randomUUID().toString();

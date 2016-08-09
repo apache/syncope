@@ -88,8 +88,6 @@ public final class StandardEntitlement {
 
     public static final String USER_SEARCH = "USER_SEARCH";
 
-    public static final String USER_LIST = "USER_LIST";
-
     public static final String USER_CREATE = "USER_CREATE";
 
     public static final String USER_READ = "USER_READ";
@@ -197,6 +195,8 @@ public final class StandardEntitlement {
     public static final String NOTIFICATION_UPDATE = "NOTIFICATION_UPDATE";
 
     public static final String NOTIFICATION_DELETE = "NOTIFICATION_DELETE";
+
+    public static final String NOTIFICATION_EXECUTE = "NOTIFICATION_EXECUTE";
 
     public static final String REPORT_TEMPLATE_LIST = "REPORT_TEMPLATE_LIST";
 

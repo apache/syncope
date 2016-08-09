@@ -48,7 +48,7 @@ public class SelectChoiceRenderer<T> implements IChoiceRenderer<T> {
 
             @Override
             public boolean evaluate(final T object) {
-                return id.equals(getIdValue(object, 0));
+                return id != null && id.equals(getIdValue(object, 0));
             }
         });
     }

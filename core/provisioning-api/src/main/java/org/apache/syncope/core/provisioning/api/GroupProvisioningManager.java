@@ -29,9 +29,12 @@ import org.apache.syncope.common.lib.to.GroupTO;
 
 public interface GroupProvisioningManager extends ProvisioningManager<GroupTO, GroupPatch> {
 
-    Pair<Long, List<PropagationStatus>> create(
-            GroupTO groupTO, Map<Long, String> groupOwnerMap, Set<String> excludedResources, boolean nullPriorityAsync);
+    Pair<String, List<PropagationStatus>> create(
+            GroupTO groupTO,
+            Map<String, String> groupOwnerMap,
+            Set<String> excludedResources,
+            boolean nullPriorityAsync);
 
-    List<PropagationStatus> provision(Long key, Collection<String> resources, boolean nullPriorityAsync);
+    List<PropagationStatus> provision(String key, Collection<String> resources, boolean nullPriorityAsync);
 
 }

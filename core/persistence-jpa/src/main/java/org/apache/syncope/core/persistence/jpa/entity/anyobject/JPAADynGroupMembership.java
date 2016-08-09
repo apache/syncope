@@ -21,7 +21,6 @@ package org.apache.syncope.core.persistence.jpa.entity.anyobject;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -44,9 +43,6 @@ public class JPAADynGroupMembership extends AbstractDynMembership<AnyObject> imp
 
     public static final String TABLE = "ADynGroupMembership";
 
-    @Id
-    private Long id;
-
     @OneToOne
     private JPAGroup group;
 
@@ -59,11 +55,6 @@ public class JPAADynGroupMembership extends AbstractDynMembership<AnyObject> imp
             inverseJoinColumns =
             @JoinColumn(name = "anyObject_id"))
     private List<JPAAnyObject> anyObjects = new ArrayList<>();
-
-    @Override
-    public Long getKey() {
-        return id;
-    }
 
     @Override
     public Group getGroup() {

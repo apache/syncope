@@ -73,7 +73,7 @@ public class UserDeleteAll extends AbstractUserCommand {
                         }
                         userResultManager.genericMessage("Deleted users: " + deletedUsers);
                         if (!users.isEmpty()) {
-                            userResultManager.printUndeletedUsers(users);
+                            userResultManager.printFailedUsers(users);
                         }
                     } else {
                         userResultManager.genericError("Authentication error");

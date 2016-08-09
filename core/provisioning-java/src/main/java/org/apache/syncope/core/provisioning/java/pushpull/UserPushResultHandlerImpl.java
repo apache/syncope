@@ -25,7 +25,7 @@ import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.PropagationByResource;
+import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
@@ -65,7 +65,7 @@ public class UserPushResultHandlerImpl extends AbstractPushResultHandler impleme
     }
 
     @Override
-    protected Any<?> getAny(final long key) {
+    protected Any<?> getAny(final String key) {
         try {
             return userDAO.authFind(key);
         } catch (Exception e) {
@@ -75,19 +75,19 @@ public class UserPushResultHandlerImpl extends AbstractPushResultHandler impleme
     }
 
     @Override
-    protected AnyTO getAnyTO(final long key) {
+    protected AnyTO getAnyTO(final String key) {
         return userDataBinder.getUserTO(key);
     }
 
     @Override
-    protected AnyPatch newPatch(final long key) {
+    protected AnyPatch newPatch(final String key) {
         UserPatch patch = new UserPatch();
         patch.setKey(key);
         return patch;
     }
 
     @Override
-    protected WorkflowResult<Long> update(final AnyPatch patch) {
+    protected WorkflowResult<String> update(final AnyPatch patch) {
         WorkflowResult<Pair<UserPatch, Boolean>> update = uwfAdapter.update((UserPatch) patch);
         return new WorkflowResult<>(
                 update.getResult().getLeft().getKey(), update.getPropByRes(), update.getPerformedTasks());

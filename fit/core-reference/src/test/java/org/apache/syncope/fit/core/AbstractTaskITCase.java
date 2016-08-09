@@ -47,22 +47,22 @@ import org.apache.syncope.fit.AbstractITCase;
 
 public abstract class AbstractTaskITCase extends AbstractITCase {
 
-    protected static final Long PULL_TASK_ID = 4L;
+    protected static final String PULL_TASK_KEY = "c41b9b71-9bfa-4f90-89f2-84787def4c5c";
 
-    protected static final Long SCHED_TASK_ID = 5L;
+    protected static final String SCHED_TASK_KEY = "e95555d2-1b09-42c8-b25b-f4c4ec597979";
 
     protected static class ThreadExec implements Callable<ExecTO> {
 
         private final TaskService taskService;
 
-        private final Long taskKey;
+        private final String taskKey;
 
         private final int maxWaitSeconds;
 
         private final boolean dryRun;
 
         public ThreadExec(
-                final TaskService taskService, final Long taskKey, final int maxWaitSeconds, final boolean dryRun) {
+                final TaskService taskService, final String taskKey, final int maxWaitSeconds, final boolean dryRun) {
 
             this.taskService = taskService;
             this.taskKey = taskKey;
@@ -83,7 +83,7 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
         for (int i = 0; i < 10; i++) {
             String cUserName = "test" + i;
             try {
-                UserTO cUserTO = readUser(cUserName);
+                UserTO cUserTO = userService.read(cUserName);
                 userService.delete(cUserTO.getKey());
             } catch (Exception e) {
                 // Ignore
@@ -91,7 +91,7 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
         }
     }
 
-    protected static ExecTO execTask(final TaskService taskService, final Long taskKey, final String initialStatus,
+    protected static ExecTO execTask(final TaskService taskService, final String taskKey, final String initialStatus,
             final int maxWaitSeconds, final boolean dryRun) {
 
         AbstractTaskTO taskTO = taskService.read(taskKey, true);
@@ -127,24 +127,24 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
     }
 
     public static ExecTO execProvisioningTask(
-            final TaskService taskService, final Long taskKey, final int maxWaitSeconds, final boolean dryRun) {
+            final TaskService taskService, final String taskKey, final int maxWaitSeconds, final boolean dryRun) {
 
         return execTask(taskService, taskKey, "JOB_FIRED", maxWaitSeconds, dryRun);
     }
 
     protected static ExecTO execNotificationTask(
-            final TaskService taskService, final Long taskKey, final int maxWaitSeconds) {
+            final TaskService taskService, final String taskKey, final int maxWaitSeconds) {
 
         return execTask(taskService, taskKey, NotificationJob.Status.SENT.name(), maxWaitSeconds, false);
     }
 
     protected void execProvisioningTasks(final TaskService taskService,
-            final Set<Long> taskKeys, final int maxWaitSeconds, final boolean dryRun) throws Exception {
+            final Set<String> taskKeys, final int maxWaitSeconds, final boolean dryRun) throws Exception {
 
         ExecutorService service = Executors.newFixedThreadPool(taskKeys.size());
         List<Future<ExecTO>> futures = new ArrayList<>();
 
-        for (Long key : taskKeys) {
+        for (String key : taskKeys) {
             futures.add(service.submit(new ThreadExec(taskService, key, maxWaitSeconds, dryRun)));
             // avoid flooding the test server
             try {
@@ -162,7 +162,7 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
 
     protected NotificationTaskTO findNotificationTaskBySender(final String sender) {
         PagedResult<NotificationTaskTO> tasks =
-                taskService.list(new TaskQuery.Builder().type(TaskType.NOTIFICATION).build());
+                taskService.list(new TaskQuery.Builder(TaskType.NOTIFICATION).page(1).size(100).build());
         assertNotNull(tasks);
         assertFalse(tasks.getResult().isEmpty());
 

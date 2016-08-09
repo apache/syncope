@@ -1,0 +1,69 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+//
+=== Roles
+
+Roles map set of <<entitlements,entitlements>> to set of <<realms,realms>>.
+
+[TIP]
+.Static and Dynamic Memberships
+====
+Users are _statically_ assigned to roles when assignments are explicitely set.
+
+With role definition, however, a condition can be expressed so that all matching users are _dynamic_ members of the
+role.
+====
+
+==== Delegated Administration
+
+The idea is that any user U assigned to a role R, which provides entitlements E~1~...E~n~ for realms Re~1~...Re~k~ can 
+exercise E~i~ on entities (users, groups, any objects of given types, depending on E~i~) under any Re~j~ or related
+sub-realms.
+
+.Authorization
+====
+Let's suppose that we want to implement the following scenario:
+
+****
+Administrator A can create users under realm R~5~ but not under realm R~7~, administrator B can update users under 
+realm R~6~ and R~8~, administrator C can update groups under realm R~8~.
+****
+
+As by default, Apache Syncope will have defined the following entitlements, among others:
+
+* `USER_CREATE`
+* `USER_UPDATE`
+* `GROUP_UPDATE`
+
+Hence, here is how entitlements should be assigned (via roles) to administrators in order to implement the scenario 
+above:
+
+* Administrator A: `USER_CREATE` on R~5~
+* Administrator B: `USER_UPDATE` on R~6~ and R~8~
+* Administrator C: `GROUP_UPDATE` on R~8~
+====
+
+[NOTE]
+.Group Ownership
+====
+Groups can designate user or another group as _owner_.
+
+The practical consequence of this setting is that users owning a group (either because they are directly set as owners
+or members of the owning group) is that they are entitled to perform all operations (create, update, delete, ...) on the
+owned group, regardless of the realm.
+====

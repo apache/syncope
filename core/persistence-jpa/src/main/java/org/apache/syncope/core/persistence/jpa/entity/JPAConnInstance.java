@@ -30,7 +30,6 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
-import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.OneToMany;
@@ -50,16 +49,13 @@ import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResour
 @Entity
 @Table(name = JPAConnInstance.TABLE)
 @ConnInstanceCheck
-public class JPAConnInstance extends AbstractEntity<Long> implements ConnInstance {
+public class JPAConnInstance extends AbstractGeneratedKeyEntity implements ConnInstance {
 
     private static final long serialVersionUID = -2294708794497208872L;
 
     public static final String TABLE = "ConnInstance";
 
     private static final int DEFAULT_TIMEOUT = 10;
-
-    @Id
-    private Long id;
 
     /**
      * URI identifying the local / remote ConnId location where the related connector bundle is found.
@@ -127,11 +123,6 @@ public class JPAConnInstance extends AbstractEntity<Long> implements ConnInstanc
     private Integer connRequestTimeout = DEFAULT_TIMEOUT;
 
     private JPAConnPoolConf poolConf;
-
-    @Override
-    public Long getKey() {
-        return id;
-    }
 
     @Override
     public String getLocation() {

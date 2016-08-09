@@ -21,7 +21,7 @@ package org.apache.syncope.core.persistence.api.entity.resource;
 import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 
-public interface Mapping extends Entity<Long> {
+public interface Mapping extends Entity {
 
     Provision getProvision();
 

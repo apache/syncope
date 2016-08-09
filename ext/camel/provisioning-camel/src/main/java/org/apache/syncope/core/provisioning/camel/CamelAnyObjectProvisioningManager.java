@@ -36,13 +36,13 @@ public class CamelAnyObjectProvisioningManager
         extends AbstractCamelProvisioningManager implements AnyObjectProvisioningManager {
 
     @Override
-    public Pair<Long, List<PropagationStatus>> create(final AnyObjectTO any, final boolean nullPriorityAsync) {
+    public Pair<String, List<PropagationStatus>> create(final AnyObjectTO any, final boolean nullPriorityAsync) {
         return create(any, Collections.<String>emptySet(), nullPriorityAsync);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public Pair<Long, List<PropagationStatus>> create(
+    public Pair<String, List<PropagationStatus>> create(
             final AnyObjectTO anyObjectTO, final Set<String> excludedResources, final boolean nullPriorityAsync) {
 
         PollingConsumer pollingConsumer = getConsumer("direct:createAnyObjectPort");
@@ -63,13 +63,15 @@ public class CamelAnyObjectProvisioningManager
     }
 
     @Override
-    public Pair<Long, List<PropagationStatus>> update(final AnyObjectPatch anyPatch, final boolean nullPriorityAsync) {
+    public Pair<String, List<PropagationStatus>> update(
+            final AnyObjectPatch anyPatch, final boolean nullPriorityAsync) {
+
         return update(anyPatch, Collections.<String>emptySet(), nullPriorityAsync);
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    public Pair<Long, List<PropagationStatus>> update(
+    public Pair<String, List<PropagationStatus>> update(
             final AnyObjectPatch anyPatch, final Set<String> excludedResources, final boolean nullPriorityAsync) {
 
         PollingConsumer pollingConsumer = getConsumer("direct:updateAnyObjectPort");
@@ -90,14 +92,14 @@ public class CamelAnyObjectProvisioningManager
     }
 
     @Override
-    public List<PropagationStatus> delete(final Long anyObjectObjectKey, final boolean nullPriorityAsync) {
+    public List<PropagationStatus> delete(final String anyObjectObjectKey, final boolean nullPriorityAsync) {
         return delete(anyObjectObjectKey, Collections.<String>emptySet(), nullPriorityAsync);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public List<PropagationStatus> delete(
-            final Long key, final Set<String> excludedResources, final boolean nullPriorityAsync) {
+            final String key, final Set<String> excludedResources, final boolean nullPriorityAsync) {
 
         PollingConsumer pollingConsumer = getConsumer("direct:deleteAnyObjectPort");
 
@@ -117,7 +119,7 @@ public class CamelAnyObjectProvisioningManager
     }
 
     @Override
-    public Long unlink(final AnyObjectPatch anyObjectPatch) {
+    public String unlink(final AnyObjectPatch anyObjectPatch) {
         PollingConsumer pollingConsumer = getConsumer("direct:unlinkAnyObjectPort");
 
         sendMessage("direct:unlinkAnyObject", anyObjectPatch);
@@ -128,11 +130,11 @@ public class CamelAnyObjectProvisioningManager
             throw (RuntimeException) exchange.getProperty(Exchange.EXCEPTION_CAUGHT);
         }
 
-        return exchange.getIn().getBody(Long.class);
+        return exchange.getIn().getBody(String.class);
     }
 
     @Override
-    public Long link(final AnyObjectPatch anyObjectPatch) {
+    public String link(final AnyObjectPatch anyObjectPatch) {
         PollingConsumer pollingConsumer = getConsumer("direct:linkAnyObjectPort");
 
         sendMessage("direct:linkAnyObject", anyObjectPatch);
@@ -143,13 +145,13 @@ public class CamelAnyObjectProvisioningManager
             throw (RuntimeException) exchange.getProperty(Exchange.EXCEPTION_CAUGHT);
         }
 
-        return exchange.getIn().getBody(Long.class);
+        return exchange.getIn().getBody(String.class);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public List<PropagationStatus> provision(
-            final Long key, final Collection<String> resources, final boolean nullPriorityAsync) {
+            final String key, final Collection<String> resources, final boolean nullPriorityAsync) {
 
         PollingConsumer pollingConsumer = getConsumer("direct:provisionAnyObjectPort");
 
@@ -171,7 +173,7 @@ public class CamelAnyObjectProvisioningManager
     @Override
     @SuppressWarnings("unchecked")
     public List<PropagationStatus> deprovision(
-            final Long key, final Collection<String> resources, final boolean nullPriorityAsync) {
+            final String key, final Collection<String> resources, final boolean nullPriorityAsync) {
 
         PollingConsumer pollingConsumer = getConsumer("direct:deprovisionAnyObjectPort");
 

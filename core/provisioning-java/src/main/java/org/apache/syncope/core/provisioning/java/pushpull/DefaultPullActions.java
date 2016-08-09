@@ -20,6 +20,8 @@ package org.apache.syncope.core.provisioning.java.pushpull;
 
 import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.EntityTO;
+import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionException;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
 import org.identityconnectors.framework.common.objects.SyncDelta;
@@ -46,72 +48,75 @@ public abstract class DefaultPullActions implements PullActions {
     }
 
     @Override
-    public <A extends AnyTO> SyncDelta beforeDelete(
-            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final A any)
+    public SyncDelta beforeDelete(
+            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final EntityTO entity)
             throws JobExecutionException {
 
         return delta;
     }
 
     @Override
-    public <A extends AnyTO> SyncDelta beforeAssign(
-            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final A any)
+    public SyncDelta beforeAssign(
+            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final EntityTO entity)
             throws JobExecutionException {
 
         return delta;
     }
 
     @Override
-    public <A extends AnyTO> SyncDelta beforeProvision(
-            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final A any)
+    public SyncDelta beforeProvision(
+            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final EntityTO entity)
             throws JobExecutionException {
 
         return delta;
     }
 
     @Override
-    public <A extends AnyTO> SyncDelta beforeLink(
-            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final A any)
+    public SyncDelta beforeLink(
+            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final EntityTO entity)
             throws JobExecutionException {
 
         return delta;
     }
 
     @Override
-    public <A extends AnyTO> SyncDelta beforeUnassign(
-            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final A any)
+    public SyncDelta beforeUnassign(
+            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final EntityTO entity)
             throws JobExecutionException {
 
         return delta;
     }
 
     @Override
-    public <A extends AnyTO> SyncDelta beforeDeprovision(
-            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final A any)
+    public SyncDelta beforeDeprovision(
+            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final EntityTO entity)
             throws JobExecutionException {
 
         return delta;
     }
 
     @Override
-    public <A extends AnyTO> SyncDelta beforeUnlink(
-            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final A any)
+    public SyncDelta beforeUnlink(
+            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final EntityTO entity)
             throws JobExecutionException {
 
         return delta;
     }
 
     @Override
-    public void onError(
-            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final ProvisioningReport result,
-            final Exception error) throws JobExecutionException {
-    }
-
-    @Override
-    public <A extends AnyTO> void after(
-            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final A any,
+    public void after(
+            final ProvisioningProfile<?, ?> profile, final SyncDelta delta, final EntityTO entity,
             final ProvisioningReport result)
             throws JobExecutionException {
+    }
+
+    @Override
+    public IgnoreProvisionException onError(
+            final ProvisioningProfile<?, ?> profile,
+            final SyncDelta delta,
+            final Exception e) throws JobExecutionException {
+
+        return null;
     }
 
     @Override

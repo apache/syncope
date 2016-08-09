@@ -18,12 +18,14 @@
  */
 package org.apache.syncope.core.workflow.activiti.task;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.syncope.common.lib.patch.PasswordPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
-import org.apache.syncope.common.lib.types.PropagationByResource;
+import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
+import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.apache.syncope.core.workflow.api.WorkflowException;
 import org.apache.syncope.core.workflow.activiti.ActivitiUserWorkflowAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,7 +58,9 @@ public class PasswordReset extends AbstractActivitiServiceTask {
         UserPatch userPatch = new UserPatch();
         userPatch.setKey(user.getKey());
         userPatch.setPassword(new PasswordPatch.Builder().
-                onSyncope(true).resources(userDAO.findAllResourceNames(user)).value(password).build());
+                onSyncope(true).
+                resources(CollectionUtils.collect(userDAO.findAllResources(user), EntityUtils.keyTransformer())).
+                value(password).build());
 
         PropagationByResource propByRes = dataBinder.update(user, userPatch);
 

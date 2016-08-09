@@ -19,6 +19,7 @@
 package org.apache.syncope.common.rest.api.beans;
 
 import java.io.Serializable;
+import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.QueryParam;
@@ -31,6 +32,8 @@ import org.apache.syncope.common.rest.api.service.JAXRSService;
 public class ConnObjectTOListQuery implements Serializable {
 
     private static final long serialVersionUID = -371488230250055359L;
+
+    private static final int MAX_SIZE = 100;
 
     public static class Builder {
 
@@ -64,10 +67,15 @@ public class ConnObjectTOListQuery implements Serializable {
     private String orderBy;
 
     public Integer getSize() {
-        return size;
+        return size == null
+                ? 25
+                : size > MAX_SIZE
+                        ? MAX_SIZE
+                        : size;
     }
 
     @Min(1)
+    @Max(MAX_SIZE)
     @QueryParam(JAXRSService.PARAM_SIZE)
     @DefaultValue("25")
     public void setSize(final Integer size) {

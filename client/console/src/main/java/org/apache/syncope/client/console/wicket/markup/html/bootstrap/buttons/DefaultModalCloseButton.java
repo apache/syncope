@@ -19,10 +19,12 @@
 package org.apache.syncope.client.console.wicket.markup.html.bootstrap.buttons;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.ModalCloseButton;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.wicket.ajax.IAjaxIndicatorAware;
 import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.model.ResourceModel;
 
-public class DefaultModalCloseButton extends ModalCloseButton {
+public class DefaultModalCloseButton extends ModalCloseButton implements IAjaxIndicatorAware {
 
     private static final long serialVersionUID = -1097993976905448580L;
 
@@ -30,5 +32,10 @@ public class DefaultModalCloseButton extends ModalCloseButton {
         super(new ResourceModel("cancel", "Cancel"));
         add(new AttributeAppender("class", " pull-left"));
         setOutputMarkupId(true);
+    }
+
+    @Override
+    public String getAjaxIndicatorMarkupId() {
+        return StringUtils.EMPTY;
     }
 }

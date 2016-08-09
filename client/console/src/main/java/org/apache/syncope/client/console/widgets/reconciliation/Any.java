@@ -28,7 +28,7 @@ public class Any extends AbstractBaseBean {
 
     private String type;
 
-    private long key;
+    private String key;
 
     private String name;
 
@@ -44,11 +44,11 @@ public class Any extends AbstractBaseBean {
         this.type = type;
     }
 
-    public long getKey() {
+    public String getKey() {
         return key;
     }
 
-    public void setKey(final long key) {
+    public void setKey(final String key) {
         this.key = key;
     }
 

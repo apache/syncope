@@ -21,7 +21,7 @@ package org.apache.syncope.core.persistence.api.dao;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.conf.Conf;
 
-public interface ConfDAO extends DAO<Conf, Long> {
+public interface ConfDAO extends DAO<Conf> {
 
     CPlainAttr find(String key);
 

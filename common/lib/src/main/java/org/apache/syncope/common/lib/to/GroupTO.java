@@ -42,9 +42,9 @@ public class GroupTO extends AnyTO {
 
     private String name;
 
-    private Long userOwner;
+    private String userOwner;
 
-    private Long groupOwner;
+    private String groupOwner;
 
     private String udynMembershipCond;
 
@@ -72,19 +72,19 @@ public class GroupTO extends AnyTO {
         this.name = name;
     }
 
-    public Long getUserOwner() {
+    public String getUserOwner() {
         return userOwner;
     }
 
-    public void setUserOwner(final Long userOwner) {
+    public void setUserOwner(final String userOwner) {
         this.userOwner = userOwner;
     }
 
-    public Long getGroupOwner() {
+    public String getGroupOwner() {
         return groupOwner;
     }
 
-    public void setGroupOwner(final Long groupOwner) {
+    public void setGroupOwner(final String groupOwner) {
         this.groupOwner = groupOwner;
     }
 

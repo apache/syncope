@@ -61,7 +61,7 @@ public class PlatformInfo extends AbstractBaseBean {
 
     private final Set<String> entitlements = new HashSet<>();
 
-    private final Set<String> reportlets = new HashSet<>();
+    private final Set<String> reportletConfs = new HashSet<>();
 
     private final Set<String> accountRules = new HashSet<>();
 
@@ -155,11 +155,11 @@ public class PlatformInfo extends AbstractBaseBean {
         return entitlements;
     }
 
-    @XmlElementWrapper(name = "reportlets")
-    @XmlElement(name = "reportlet")
-    @JsonProperty("reportlets")
-    public Set<String> getReportlets() {
-        return reportlets;
+    @XmlElementWrapper(name = "reportletConfs")
+    @XmlElement(name = "reportletConf")
+    @JsonProperty("reportletConfs")
+    public Set<String> getReportletConfs() {
+        return reportletConfs;
     }
 
     @XmlElementWrapper(name = "accountRules")

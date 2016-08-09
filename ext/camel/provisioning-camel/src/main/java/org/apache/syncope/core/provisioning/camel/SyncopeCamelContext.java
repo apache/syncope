@@ -29,6 +29,7 @@ import org.apache.camel.model.Constants;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.spring.SpringCamelContext;
 import org.apache.commons.io.IOUtils;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.CamelRouteDAO;
 import org.apache.syncope.core.persistence.api.entity.CamelRoute;
@@ -86,7 +87,7 @@ public class SyncopeCamelContext {
             for (CamelRoute route : routes) {
                 InputStream input = null;
                 try {
-                    input = IOUtils.toInputStream(route.getContent());
+                    input = IOUtils.toInputStream(route.getContent(), SyncopeConstants.DEFAULT_CHARSET);
                     LSInput lsinput = domImpl.createLSInput();
                     lsinput.setByteStream(input);
 

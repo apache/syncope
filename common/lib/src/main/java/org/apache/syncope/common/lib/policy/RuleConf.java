@@ -19,9 +19,10 @@
 package org.apache.syncope.common.lib.policy;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import java.io.Serializable;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
-public interface RuleConf {
+public interface RuleConf extends Serializable {
 
     /**
      * Give name of related rule instance.

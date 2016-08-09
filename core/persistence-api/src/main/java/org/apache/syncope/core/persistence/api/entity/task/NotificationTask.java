@@ -19,9 +19,23 @@
 package org.apache.syncope.core.persistence.api.entity.task;
 
 import java.util.Set;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.TraceLevel;
+import org.apache.syncope.core.persistence.api.entity.Notification;
 
 public interface NotificationTask extends Task {
+
+    Notification getNotification();
+
+    void setNotification(Notification notification);
+
+    String getEntityKey();
+
+    void setEntityKey(String entityKey);
+
+    AnyTypeKind getAnyTypeKind();
+
+    void setAnyTypeKind(AnyTypeKind anyTypeKind);
 
     void setSender(String sender);
 

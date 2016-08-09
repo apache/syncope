@@ -46,7 +46,7 @@ public class PropagationTaskCallableImpl implements PropagationTaskCallable {
 
     private final Collection<? extends GrantedAuthority> authorities;
 
-    private PropagationTaskExecutor executor;
+    private AbstractPropagationTaskExecutor executor;
 
     private PropagationTask task;
 
@@ -61,7 +61,9 @@ public class PropagationTaskCallableImpl implements PropagationTaskCallable {
 
     @Override
     public void setExecutor(final PropagationTaskExecutor executor) {
-        this.executor = executor;
+        if (executor instanceof AbstractPropagationTaskExecutor) {
+            this.executor = (AbstractPropagationTaskExecutor) executor;
+        }
     }
 
     @Override

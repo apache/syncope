@@ -1,0 +1,71 @@
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+  <head>
+    <title>Multivalue conatiner</title>
+  </head>
+  <body>
+    <wicket:extend>
+      <wicket:enclosure child="field-label">
+        <label wicket:id="field-label">[LABEL]</label><span wicket:id="required"/>
+        <span wicket:id="externalAction"/>
+      </wicket:enclosure>
+
+      <span wicket:id="multiValueContainer">
+        <form wicket:id="innerForm">
+          <span wicket:id="content">[content]</span>
+        </form>
+      </span>
+
+      <wicket:fragment wicket:id="noDataFragment">
+        <div class="form-group">
+          <div class="multipanel-box box input-group" style="background-color:#EEE">
+            <label wicket:id="field-label">[LABEL]</label>
+          </div>
+          <span wicket:id="panelPlus" class="input-group-addon">[plus]</span>
+        </div>
+      </wicket:fragment>
+
+      <wicket:fragment wicket:id="dataFragment">
+        <span wicket:id="view">
+          <div class="form-group">
+            <div class="input-group">
+              <div class="multipanel-box box">
+                <span wicket:id="panel">[form field]</span>
+              </div>
+              <div class="multipanel-btn-minus input-group-addon">
+                <a wicket:id="drop" class="btn btn-danger btn-circle btn-lg"><i class="glyphicon glyphicon-minus"></i></a>
+              </div>
+            </div>
+            <span wicket:id="panelPlus">[plus]</span>
+          </div>
+        </span>
+      </wicket:fragment>
+
+      <wicket:fragment wicket:id="fragmentPlus">
+        <div class="form-group pull-right input-group multipanel-btn-plus">
+          <a wicket:id="add" class="btn btn-primary btn-circle btn-lg"><i class="glyphicon glyphicon-plus"></i></a>
+        </div>
+      </wicket:fragment>
+
+      <wicket:fragment wicket:id="emptyFragment">
+      </wicket:fragment>
+    </wicket:extend>
+  </body>
+</html>

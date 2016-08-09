@@ -24,17 +24,22 @@ import java.text.MessageFormat;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.panels.ConnectorModal;
-import org.apache.syncope.client.console.panels.ResourceModal;
+import org.apache.syncope.client.console.pages.BasePage;
+import org.apache.syncope.client.console.panels.ConnObjects;
+import org.apache.syncope.client.console.wizards.resources.ConnectorWizardBuilder;
+import org.apache.syncope.client.console.wizards.resources.ResourceWizardBuilder;
 import org.apache.syncope.client.console.panels.TogglePanel;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
+import org.apache.syncope.client.console.status.ResourceStatusModal;
 import org.apache.syncope.client.console.tasks.PropagationTasks;
 import org.apache.syncope.client.console.tasks.PushTasks;
 import org.apache.syncope.client.console.tasks.SchedTasks;
 import org.apache.syncope.client.console.tasks.PullTasks;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.confirmation.ConfirmationModalBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
+import org.apache.syncope.client.console.wicket.markup.html.form.IndicatingOnConfirmAjaxLink;
+import org.apache.syncope.client.console.wizards.AjaxWizard;
+import org.apache.syncope.client.console.wizards.resources.ResourceProvisionPanel;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
@@ -50,6 +55,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.StringResourceModel;
 
 public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
@@ -61,24 +67,40 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
     private final WebMarkupContainer container;
 
-    private final PageReference pageRef;
+    protected final BaseModal<Serializable> propTaskModal;
 
-    protected final BaseModal<Serializable> resourceModal;
+    protected final BaseModal<Serializable> schedTaskModal;
 
-    protected final BaseModal<Serializable> taskModal;
+    protected final BaseModal<Serializable> provisionModal;
 
     public TopologyTogglePanel(final String id, final PageReference pageRef) {
-        super(id);
-        this.pageRef = pageRef;
+        super(id, pageRef);
 
-        resourceModal = new BaseModal<>("outer");
-        resourceModal.addSumbitButton();
-        resourceModal.size(Modal.Size.Large);
-        addOuterObject(resourceModal);
+        modal.size(Modal.Size.Large);
+        setFooterVisibility(false);
+        setWindowClosedReloadCallback(modal);
 
-        taskModal = new BaseModal<>("outer");
-        taskModal.size(Modal.Size.Large);
-        addOuterObject(taskModal);
+        propTaskModal = new BaseModal<>("outer");
+        propTaskModal.size(Modal.Size.Large);
+        addOuterObject(propTaskModal);
+
+        schedTaskModal = new BaseModal<Serializable>("outer") {
+
+            private static final long serialVersionUID = 389935548143327858L;
+
+            @Override
+            protected void onConfigure() {
+                super.onConfigure();
+                setFooterVisible(false);
+            }
+        };
+        schedTaskModal.size(Modal.Size.Large);
+        addOuterObject(schedTaskModal);
+
+        provisionModal = new BaseModal<>("outer");
+        provisionModal.size(Modal.Size.Large);
+        provisionModal.addSubmitButton();
+        addOuterObject(provisionModal);
 
         container = new WebMarkupContainer("container");
         container.setOutputMarkupPlaceholderTag(true);
@@ -120,30 +142,49 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
     }
 
     private Fragment getSyncopeFragment(final PageReference pageRef) {
-        final Fragment fragment = new Fragment("actions", "syncopeActions", this);
+        Fragment fragment = new Fragment("actions", "syncopeActions", this);
 
-        final AjaxLink<String> tasks = new IndicatingAjaxLink<String>("tasks") {
+        AjaxLink<String> reload = new IndicatingOnConfirmAjaxLink<String>("reload", "connectors.confirm.reload", true) {
+
+            private static final long serialVersionUID = -2075933173666007020L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+                try {
+                    connectorRestClient.reload();
+                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                } catch (Exception e) {
+                    LOG.error("While reloading all connectors", e);
+                    SyncopeConsoleSession.get().error(
+                            StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+                }
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+            }
+        };
+        fragment.add(reload);
+        MetaDataRoleAuthorizationStrategy.authorize(reload, RENDER, StandardEntitlement.CONNECTOR_RELOAD);
+
+        AjaxLink<String> tasks = new IndicatingAjaxLink<String>("tasks") {
 
             private static final long serialVersionUID = 3776750333491622263L;
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                target.add(taskModal.setContent(new SchedTasks(taskModal, pageRef)));
-                taskModal.header(new ResourceModel("task.generic.list", "Scheduled tasks"));
-                taskModal.show(true);
+                target.add(propTaskModal.setContent(new SchedTasks(propTaskModal, pageRef)));
+                propTaskModal.header(new ResourceModel("task.custom.list"));
+                propTaskModal.show(true);
             }
         };
         fragment.add(tasks);
-
-        MetaDataRoleAuthorizationStrategy.authorize(tasks, ENABLE, StandardEntitlement.TASK_LIST);
+        MetaDataRoleAuthorizationStrategy.authorize(tasks, RENDER, StandardEntitlement.TASK_LIST);
 
         return fragment;
     }
 
     private Fragment getLocationFragment(final TopologyNode node, final PageReference pageRef) {
-        final Fragment fragment = new Fragment("actions", "locationActions", this);
+        Fragment fragment = new Fragment("actions", "locationActions", this);
 
-        final AjaxLink<String> create = new IndicatingAjaxLink<String>("create") {
+        AjaxLink<String> create = new IndicatingAjaxLink<String>("create") {
 
             private static final long serialVersionUID = 3776750333491622263L;
 
@@ -153,110 +194,109 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 modelObject.setLocation(node.getKey().toString());
 
                 final IModel<ConnInstanceTO> model = new CompoundPropertyModel<>(modelObject);
-                resourceModal.setFormModel(model);
+                modal.setFormModel(model);
 
-                target.add(resourceModal.setContent(new ConnectorModal(resourceModal, pageRef, model)));
+                target.add(modal.setContent(new ConnectorWizardBuilder(modelObject, pageRef).
+                        build(BaseModal.CONTENT_ID, AjaxWizard.Mode.CREATE)));
 
-                resourceModal.header(new Model<>(MessageFormat.format(getString("connector.new"), node.getKey())));
+                modal.header(new Model<>(MessageFormat.format(getString("connector.new"), node.getKey())));
 
                 MetaDataRoleAuthorizationStrategy.
-                        authorize(resourceModal.addSumbitButton(), ENABLE, StandardEntitlement.CONNECTOR_CREATE);
+                        authorize(modal.getForm(), RENDER, StandardEntitlement.CONNECTOR_CREATE);
 
-                resourceModal.show(true);
+                modal.show(true);
             }
         };
         fragment.add(create);
-
-        MetaDataRoleAuthorizationStrategy.authorize(create, ENABLE, StandardEntitlement.CONNECTOR_CREATE);
+        MetaDataRoleAuthorizationStrategy.authorize(create, RENDER, StandardEntitlement.CONNECTOR_CREATE);
 
         return fragment;
     }
 
     private Fragment getConnectorFragment(final TopologyNode node, final PageReference pageRef) {
-        final Fragment fragment = new Fragment("actions", "connectorActions", this);
+        Fragment fragment = new Fragment("actions", "connectorActions", this);
 
-        final AjaxLink<String> delete = new IndicatingAjaxLink<String>("delete") {
+        AjaxLink<String> delete = new IndicatingOnConfirmAjaxLink<String>("delete", true) {
 
             private static final long serialVersionUID = 3776750333491622263L;
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 try {
-                    connectorRestClient.delete(Long.class.cast(node.getKey()));
+                    connectorRestClient.delete(String.class.cast(node.getKey()));
                     target.appendJavaScript(String.format("jsPlumb.remove('%s');", node.getKey()));
-                    info(getString(Constants.OPERATION_SUCCEEDED));
+                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    toggle(target, false);
                 } catch (SyncopeClientException e) {
-                    error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
                     LOG.error("While deleting resource {}", node.getKey(), e);
+                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.
+                            getMessage());
                 }
-                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
         };
-
+        MetaDataRoleAuthorizationStrategy.authorize(delete, RENDER, StandardEntitlement.CONNECTOR_DELETE);
         fragment.add(delete);
-        delete.add(new ConfirmationModalBehavior());
 
-        MetaDataRoleAuthorizationStrategy.authorize(delete, ENABLE, StandardEntitlement.CONNECTOR_DELETE);
-
-        final AjaxLink<String> create = new IndicatingAjaxLink<String>("create") {
+        AjaxLink<String> create = new IndicatingAjaxLink<String>("create") {
 
             private static final long serialVersionUID = 3776750333491622263L;
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 final ResourceTO modelObject = new ResourceTO();
-                modelObject.setConnector(Long.class.cast(node.getKey()));
+                modelObject.setConnector(String.class.cast(node.getKey()));
                 modelObject.setConnectorDisplayName(node.getDisplayName());
 
                 final IModel<ResourceTO> model = new CompoundPropertyModel<>(modelObject);
-                resourceModal.setFormModel(model);
+                modal.setFormModel(model);
 
-                target.add(resourceModal.setContent(new ResourceModal<>(resourceModal, pageRef, model, true)));
+                target.add(modal.setContent(new ResourceWizardBuilder(modelObject, pageRef).
+                        build(BaseModal.CONTENT_ID, AjaxWizard.Mode.CREATE)));
 
-                resourceModal.header(new Model<>(MessageFormat.format(getString("resource.new"), node.getKey())));
+                modal.header(new Model<>(MessageFormat.format(getString("resource.new"), node.getKey())));
 
                 MetaDataRoleAuthorizationStrategy.
-                        authorize(resourceModal.addSumbitButton(), ENABLE, StandardEntitlement.RESOURCE_CREATE);
+                        authorize(modal.getForm(), RENDER, StandardEntitlement.RESOURCE_CREATE);
 
-                resourceModal.show(true);
+                modal.show(true);
             }
         };
+        MetaDataRoleAuthorizationStrategy.authorize(create, RENDER, StandardEntitlement.RESOURCE_CREATE);
         fragment.add(create);
 
-        MetaDataRoleAuthorizationStrategy.authorize(create, ENABLE, StandardEntitlement.RESOURCE_CREATE);
-
-        final AjaxLink<String> edit = new IndicatingAjaxLink<String>("edit") {
+        AjaxLink<String> edit = new IndicatingAjaxLink<String>("edit") {
 
             private static final long serialVersionUID = 3776750333491622263L;
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                final ConnInstanceTO modelObject = connectorRestClient.read(Long.class.cast(node.getKey()));
+                final ConnInstanceTO modelObject = connectorRestClient.read(String.class.cast(node.getKey()));
 
                 final IModel<ConnInstanceTO> model = new CompoundPropertyModel<>(modelObject);
-                resourceModal.setFormModel(model);
+                modal.setFormModel(model);
 
-                target.add(resourceModal.setContent(new ConnectorModal(resourceModal, pageRef, model)));
+                target.add(modal.setContent(new ConnectorWizardBuilder(modelObject, pageRef).
+                        build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT)));
 
-                resourceModal.header(new Model<>(MessageFormat.format(getString("connector.edit"), node.getKey())));
+                modal.header(new Model<>(MessageFormat.format(getString("connector.edit"), node.getDisplayName())));
 
                 MetaDataRoleAuthorizationStrategy.
-                        authorize(resourceModal.addSumbitButton(), ENABLE, StandardEntitlement.CONNECTOR_UPDATE);
+                        authorize(modal.getForm(), RENDER, StandardEntitlement.CONNECTOR_UPDATE);
 
-                resourceModal.show(true);
+                modal.show(true);
             }
         };
+        MetaDataRoleAuthorizationStrategy.authorize(edit, RENDER, StandardEntitlement.CONNECTOR_UPDATE);
         fragment.add(edit);
-
-        MetaDataRoleAuthorizationStrategy.authorize(edit, ENABLE, StandardEntitlement.CONNECTOR_UPDATE);
 
         return fragment;
     }
 
     private Fragment getResurceFragment(final TopologyNode node, final PageReference pageRef) {
-        final Fragment fragment = new Fragment("actions", "resourceActions", this);
+        Fragment fragment = new Fragment("actions", "resourceActions", this);
 
-        final AjaxLink<String> delete = new IndicatingAjaxLink<String>("delete") {
+        AjaxLink<String> delete = new IndicatingOnConfirmAjaxLink<String>("delete", true) {
 
             private static final long serialVersionUID = 3776750333491622263L;
 
@@ -265,86 +305,141 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 try {
                     resourceRestClient.delete(node.getKey().toString());
                     target.appendJavaScript(String.format("jsPlumb.remove('%s');", node.getKey()));
-                    info(getString(Constants.OPERATION_SUCCEEDED));
+                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    toggle(target, false);
                 } catch (SyncopeClientException e) {
-                    error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
                     LOG.error("While deleting resource {}", node.getKey(), e);
+                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.
+                            getMessage());
                 }
-                SyncopeConsoleSession.get().getNotificationPanel().refresh(target);
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
         };
+        MetaDataRoleAuthorizationStrategy.authorize(delete, RENDER, StandardEntitlement.RESOURCE_DELETE);
         fragment.add(delete);
 
-        delete.add(new ConfirmationModalBehavior());
-
-        MetaDataRoleAuthorizationStrategy.authorize(delete, ENABLE, StandardEntitlement.RESOURCE_DELETE);
-
-        final AjaxLink<String> edit = new IndicatingAjaxLink<String>("edit") {
+        AjaxLink<String> edit = new IndicatingAjaxLink<String>("edit") {
 
             private static final long serialVersionUID = 3776750333491622263L;
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                final ResourceTO modelObject = resourceRestClient.read(node.getKey().toString());
+                ResourceTO modelObject = resourceRestClient.read(node.getKey().toString());
 
-                final IModel<ResourceTO> model = new CompoundPropertyModel<>(modelObject);
-                resourceModal.setFormModel(model);
+                IModel<ResourceTO> model = new CompoundPropertyModel<>(modelObject);
+                modal.setFormModel(model);
 
-                target.add(resourceModal.setContent(new ResourceModal<>(resourceModal, pageRef, model, false)));
+                target.add(modal.setContent(new ResourceWizardBuilder(modelObject, pageRef).
+                        build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT)));
 
-                resourceModal.header(new Model<>(MessageFormat.format(getString("resource.edit"), node.getKey())));
+                modal.header(new Model<>(MessageFormat.format(getString("resource.edit"), node.getKey())));
 
                 MetaDataRoleAuthorizationStrategy.
-                        authorize(resourceModal.addSumbitButton(), ENABLE, StandardEntitlement.RESOURCE_UPDATE);
+                        authorize(modal.getForm(), RENDER, StandardEntitlement.RESOURCE_UPDATE);
 
-                resourceModal.show(true);
+                modal.show(true);
             }
         };
+        MetaDataRoleAuthorizationStrategy.authorize(edit, RENDER, StandardEntitlement.RESOURCE_UPDATE);
         fragment.add(edit);
-        MetaDataRoleAuthorizationStrategy.authorize(edit, ENABLE, StandardEntitlement.RESOURCE_UPDATE);
 
-        final AjaxLink<String> propagation = new IndicatingAjaxLink<String>("propagation") {
+        AjaxLink<String> status = new IndicatingAjaxLink<String>("status") {
+
+            private static final long serialVersionUID = 3776750333491622263L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+                ResourceTO modelObject = resourceRestClient.read(node.getKey().toString());
+                target.add(propTaskModal.setContent(
+                        new ResourceStatusModal(propTaskModal, pageRef, modelObject)));
+                propTaskModal.header(new ResourceModel("resource.provisioning.status", "Provisioning Status"));
+                propTaskModal.show(true);
+            }
+        };
+        MetaDataRoleAuthorizationStrategy.authorize(status, RENDER, StandardEntitlement.USER_UPDATE);
+        fragment.add(status);
+
+        AjaxLink<String> provision = new IndicatingAjaxLink<String>("provision") {
+
+            private static final long serialVersionUID = 3776750333491622263L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+                ResourceTO modelObject = resourceRestClient.read(node.getKey().toString());
+
+                IModel<ResourceTO> model = new CompoundPropertyModel<>(modelObject);
+                provisionModal.setFormModel(model);
+
+                target.add(provisionModal.setContent(new ResourceProvisionPanel(provisionModal, modelObject, pageRef)));
+
+                provisionModal.header(new Model<>(MessageFormat.format(getString("resource.edit"), node.getKey())));
+
+                MetaDataRoleAuthorizationStrategy.
+                        authorize(provisionModal.getForm(), RENDER, StandardEntitlement.RESOURCE_UPDATE);
+
+                provisionModal.show(true);
+            }
+        };
+        MetaDataRoleAuthorizationStrategy.authorize(edit, RENDER, StandardEntitlement.RESOURCE_UPDATE);
+        fragment.add(provision);
+
+        AjaxLink<String> explore = new IndicatingAjaxLink<String>("explore") {
+
+            private static final long serialVersionUID = 3776750333491622263L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+                target.add(propTaskModal.setContent(new ConnObjects(propTaskModal, node.getKey().toString(), pageRef)));
+                propTaskModal.header(new StringResourceModel("resource.explore.list", Model.of(node)));
+                propTaskModal.show(true);
+            }
+        };
+        MetaDataRoleAuthorizationStrategy.authorize(explore, RENDER, StandardEntitlement.RESOURCE_LIST_CONNOBJECT);
+        fragment.add(explore);
+
+        AjaxLink<String> propagation = new IndicatingAjaxLink<String>("propagation") {
 
             private static final long serialVersionUID = 3776750333491622263L;
 
             @Override
             @SuppressWarnings("unchecked")
             public void onClick(final AjaxRequestTarget target) {
-                target.add(taskModal.setContent(new PropagationTasks(taskModal, pageRef, node.getKey().toString())));
-                taskModal.header(new ResourceModel("task.propagation.list", "Propagation tasks"));
-                taskModal.show(true);
+                target.add(propTaskModal.setContent(
+                        new PropagationTasks(propTaskModal, node.getKey().toString(), pageRef)));
+                propTaskModal.header(new ResourceModel("task.propagation.list"));
+                propTaskModal.show(true);
             }
         };
+        MetaDataRoleAuthorizationStrategy.authorize(propagation, RENDER, StandardEntitlement.TASK_LIST);
         fragment.add(propagation);
-        MetaDataRoleAuthorizationStrategy.authorize(propagation, ENABLE, StandardEntitlement.TASK_LIST);
 
-        final AjaxLink<String> pull = new IndicatingAjaxLink<String>("pull") {
+        AjaxLink<String> pull = new IndicatingAjaxLink<String>("pull") {
 
             private static final long serialVersionUID = 3776750333491622263L;
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                target.add(taskModal.setContent(new PullTasks(taskModal, pageRef, node.getKey().toString())));
-                taskModal.header(new ResourceModel("task.pull.list"));
-                taskModal.show(true);
+                target.add(schedTaskModal.setContent(new PullTasks(schedTaskModal, pageRef, node.getKey().toString())));
+                schedTaskModal.header(new ResourceModel("task.pull.list"));
+                schedTaskModal.show(true);
             }
         };
+        MetaDataRoleAuthorizationStrategy.authorize(pull, RENDER, StandardEntitlement.TASK_LIST);
         fragment.add(pull);
-        MetaDataRoleAuthorizationStrategy.authorize(pull, ENABLE, StandardEntitlement.TASK_LIST);
 
-        final AjaxLink<String> push = new IndicatingAjaxLink<String>("push") {
+        AjaxLink<String> push = new IndicatingAjaxLink<String>("push") {
 
             private static final long serialVersionUID = 3776750333491622263L;
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                target.add(taskModal.setContent(new PushTasks(taskModal, pageRef, node.getKey().toString())));
-                taskModal.header(new ResourceModel("task.push.list", "Push tasks"));
-                taskModal.show(true);
+                target.add(schedTaskModal.setContent(new PushTasks(schedTaskModal, pageRef, node.getKey().toString())));
+                schedTaskModal.header(new ResourceModel("task.push.list"));
+                schedTaskModal.show(true);
             }
         };
+        MetaDataRoleAuthorizationStrategy.authorize(push, RENDER, StandardEntitlement.TASK_LIST);
         fragment.add(push);
-        MetaDataRoleAuthorizationStrategy.authorize(push, ENABLE, StandardEntitlement.TASK_LIST);
 
         return fragment;
     }
