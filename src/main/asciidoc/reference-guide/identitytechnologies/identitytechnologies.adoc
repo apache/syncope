@@ -23,7 +23,7 @@ Identity and Access Management (IAM) is not implemented by a single technology; 
 heterogeneous technologies - differing by maturity, scope, applicability and feature coverage - which require some
 'glue' to fit together.
 
-As with other application domains, it can be observed that tools appeared earlier tend to partially overlap with more 
+As with other application domains, it can be observed that tools that appeared earlier tend to partially overlap with more 
 recent, targeted products.
 
 include::identitystores.adoc[]

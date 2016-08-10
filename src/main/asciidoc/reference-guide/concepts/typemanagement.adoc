@@ -19,19 +19,19 @@
 === Type Management
 
 In order to manage which attributes can be owned by users, groups and any object, and which values can be provided,
-Apache Syncope defines a simple yet powerful type management system, vaguely inspired by  the LDAP/X.500 information
+Apache Syncope defines a simple yet powerful type management system, vaguely inspired by the LDAP/X.500 information
 model.
 
 ==== Schema
 
-A schema instance describes the values that attributes with that schema will held; it can be defined plain, derived or
+A schema instance describes the values that attributes with that schema will hold; it can be defined plain, derived or
 virtual.
 
 ===== Plain
 
-Values for attributes with such schema kind are provided during user, group or any object create / update.
+Values for attributes with such schema types are provided during user, group or any object create / update.
 
-When defining a plain schema, the following information is to be provided:
+When defining a plain schema, the following information must be provided:
 
 * Type
 ** `String`
@@ -42,13 +42,13 @@ http://docs.oracle.com/javase/7/docs/api/java/text/DecimalFormat.html[DecimalFor
 ** `Boolean`
 ** `Date` - allows to specify a _conversion pattern_ to / from string, according to 
 http://docs.oracle.com/javase/7/docs/api/java/text/DateFormat.html[DateFormat^]
-** `Enum` - requires to provide
+** `Enum`
 *** enumeration values (mandatory)
 *** enumeration labels (optional, values will be used alternatively)
-** `Encrypted` - requires to provide
+** `Encrypted`
 *** secret key
 *** cipher algorithm
-** `Binary` - requires to provide the declared mime type
+** `Binary` - it is required to provide the declared mime type
 * Validator class - (optional) Java class validating the value(s) provided for attributes, see 
 ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-jpa/src/main/java/org/apache/syncope/core/persistence/jpa/attrvalue/validation/EmailAddressValidator.java[EmailAddressValidator^]
@@ -59,7 +59,7 @@ endif::[]
 for reference
 * Mandatory condition - http://commons.apache.org/proper/commons-jexl/[JEXL^] expression indicating whether values for 
 this schema must be necessarily provided or not; compared to simple boolean value, such condition allows to express
-complex statements like as 'be mandatory only if this other attribute value is above 14', and so on
+complex statements like 'be mandatory only if this other attribute value is above 14', and so on
 * Unique constraint - make sure that no duplicate value(s) for this schema are found
 * Multivalue flag - whether single or multiple values are supported
 * Read-only flag - whether value(s) for this schema are modifiable only via internal code (say workflow tasks) or 
@@ -67,12 +67,12 @@ can be instead provided during ordinary <<provisioning,provisioning>>
 
 ===== Derived
 
-Sometimes it is handful to obtain values as arbitrary combination of other attributes' values: for example, with 
+Sometimes it is useful to obtain values as arbitrary combinations of other attributes' values: for example, with 
 `firstname` and `surname` plain schemas, it is natural to think that `fullname` could be somehow defined as the 
 concatenation of `firstname` 's and `surname` 's values, separated by a blank space.
 
-Derived schemas are always read-only and require to specify a http://commons.apache.org/proper/commons-jexl/[JEXL^]
-expression referencing plain schema(s). +
+Derived schemas are always read-only and require a http://commons.apache.org/proper/commons-jexl/[JEXL^]
+expression to be specified that reference plain schema types. +
 For the sample above, it would be
 
  firstname + ' ' + surname

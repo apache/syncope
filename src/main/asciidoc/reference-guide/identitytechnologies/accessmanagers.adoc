@@ -18,9 +18,8 @@
 //
 ==== Access Managers
 
-_Access Managers_ focus on application front-end, sitting as mediators to application access and taking authentication
-(how users are let accessing a given system) and authorization (which capabilities each user owns on a given system)
-in charge.
+_Access Managers_ focus on the application front-end, enforcing application access via authentication
+(how users are let access a given system) and authorization (which capabilities each user owns on a given system).
 
 Several practices and standards can be implemented by access managers:
 

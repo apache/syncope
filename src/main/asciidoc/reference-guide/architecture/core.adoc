@@ -35,7 +35,7 @@ Syncope deployment to complement the native features with domain-specific operat
 An <<swagger-ui,extension>> is available, providing full http://swagger.io/[Swagger^] features,
 which enables in-browser access to all the REST endpoints defined.
 
-At technical level, the RESTful interface is a fully-compliant 
+At a technical level, the RESTful interface is a fully-compliant 
 https://en.wikipedia.org/wiki/Java_API_for_RESTful_Web_Services[JAX-RS 2.0^] implementation based on 
 http://cxf.apache.org[Apache CXF^], natively dealing both with JSON and XML payloads.
 
@@ -43,9 +43,9 @@ More details are available in the dedicated <<restful-services,usage>> section.
 
 ==== Logic
 
-Right below the external interface level, the overall business logic, orchestrating the other layers for implementing
-the operations that can be triggered via REST services, and controling some additional features (notifications, 
-reports and audit over all).
+Right below the external interface level, the overall business logic is responsible for orchestrating the other layers, by implementing
+the operations that can be triggered via REST services. It is also responsible for controling some additional features (notifications, 
+reports and auditing).
 
 [[provisioning-layer]]
 ==== Provisioning
@@ -65,7 +65,7 @@ The default implementation can be sometimes tailored to meet the requirements of
 it is the crucial decision point for defining and enforcing the consistency and transformations between internal and 
 external data.
 
-In addition, an http://camel.apache.org/[Apache Camel^]-based implementation is also available as 
+In addition, an http://camel.apache.org/[Apache Camel^]-based implementation is also available as an 
 <<apache-camel-provisioning-engine,extension>>, which brings all the power of runtime changes and adaptation.
 
 [[workflow-layer]]
@@ -73,9 +73,9 @@ In addition, an http://camel.apache.org/[Apache Camel^]-based implementation is 
 
 The Workflow layer is responsible for managing the internal lifecycle of users, groups and any objects.
 
-Besides the default engine, another based on http://www.activiti.org/[Activiti BPM^], the 
-reference open source http://www.bpmn.org/[BPMN 2.0^] implementation, is available for users, enabling advanced features
-as approval management and new statuses definition. An optional web-based GUI editor is also available.
+Besides the default engine, another engine is available based on http://www.activiti.org/[Activiti BPM^], the 
+reference open source http://www.bpmn.org/[BPMN 2.0^] implementation. It enables advanced features such
+as approval management and new statuses definitions. An optional web-based GUI editor is also available.
 
 [.text-center]
 image::userWorkflow.png[title="Default Activiti user workflow",alt="Default Activiti user workflow"] 
@@ -85,7 +85,7 @@ https://camunda.org/[Camunda^] or http://jbpm.jboss.org/[jBPM^], can be written 
 
 ==== Persistence
 
-All data (users, groups, attributes, resources, ...) is internally managed at high level using a standard 
+All data (users, groups, attributes, resources, ...) is internally managed at a high level using a standard 
 https://en.wikipedia.org/wiki/Java_Persistence_API[JPA 2.0^] approach. The data is persisted into an underlying 
 database, referred to as *_Internal Storage_*. Consistency is ensured via the comprehensive
 http://docs.spring.io/spring/docs/4.2.x/spring-framework-reference/html/transaction.html[transaction management^] 
@@ -96,7 +96,7 @@ with no code changes: MySQL, MariaDB, PostgreSQL, Oracle and MS SQL Server are f
 
 ==== Security
 
-Rather than being a separated layer, Security features are triggered throughout incoming request processing.
+Rather than being a separate layer, Security features are triggered throughout incoming request processing.
 
 A fine-grained set of entitlements is defined which can be granted to administrators, thus enabling the 
 implementation of <<delegated-administration,delegated administration>> scenarios.

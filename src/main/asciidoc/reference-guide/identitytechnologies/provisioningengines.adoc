@@ -18,7 +18,7 @@
 //
 ==== Provisioning Engines
 
-The main role of _Provisioning Engines_ is to keep Identity Stores as much synchronized as possible.
+The main role of _Provisioning Engines_ is to keep Identity Stores synchronized as much as possible.
 
 Some other characteristics and features provided:
 
@@ -37,5 +37,5 @@ image::identityLifecycle.png[title="Identity Lifecycle",alt="Identity Lifecycle"
 
 [NOTE]
 ====
-Technologically, *Apache Syncope* is primarily a *Provisioning Engine*.
+From a technology point of view, *Apache Syncope* is primarily a *Provisioning Engine*.
 ====

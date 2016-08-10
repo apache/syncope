@@ -25,7 +25,7 @@ Starting with Apache Syncope 2.0, the following identities are supported:
 
 * *Users* represent the virtual identities build up of account information fragmented across the associated external 
 resources
-* *Groups* have the double purpose of representing entities on external resources supporting this concept (say LDAP or
+* *Groups* have the dual purpose of representing entities on external resources supporting this concept (say LDAP or
 Active Directory) and putting together users or any objects for implementing group-based provisioning, e.g. to
 dynamically associate users or any objects to external resources
 * *Any Objects* actually cover very different entities that can be modeled: printers, services, sensors, ...
@@ -37,11 +37,11 @@ For each of the identities above, Apache Syncope is capable of maintaining:
 <<configuration-parameters, below>> for details - which can be used for authentication;
 . set of attributes, with each attribute being a `(key,values)` pair where
 
- ** `key` is a string label (i.e. `surname`);
- ** `values` is a (possibly singleton) collection of data (i.e. `[Doe]` but also 
+ ** `key` is a string label (e.g. `surname`);
+ ** `values` is a (possibly singleton) collection of data (e.g. `[Doe]` but also 
 `[\john.doe@syncope.apache.org, \jdoe@gmail.com]`)
  ; the type of values that can be assigned to each attribute is defined via the <<schema,schema>> matching the `key`
-value: being schema defined as _plain_, _derived_ and _virtual_, so can be attributes;
+value (i.e. _plain_, _derived_ and _virtual_);
 . associations with <<external-resources,external resources>>, for <<provisioning,provisioning>>.
 
 [IMPORTANT]
@@ -60,7 +60,7 @@ Moreover, users and any objects can be part of groups, or associated to other an
 .Memberships and Relationships
 ====
 When an user or an any object is assigned to a group, a *_membership_* is defined; the (static) members of a group
-benefit of <<type-extensions,type extensions>>.
+benefit from <<type-extensions,type extensions>>.
 
 When an user or an any object is associated to another any object, a *_relationship_* is defined, of one of available
 <<relationshiptype,relationship types>>.
@@ -69,7 +69,7 @@ When an user or an any object is associated to another any object, a *_relations
 [TIP]
 .Static and Dynamic Memberships
 ====
-Users and any objects are _statically_ assigned to groups when memberships are explicitely set.
+Users and any objects are _statically_ assigned to groups when memberships are explicitly set.
 
 With group definition, however, a condition can be expressed so that all matching users and any objects are
 _dynamic_ members of the group. +

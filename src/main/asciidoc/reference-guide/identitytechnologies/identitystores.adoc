@@ -54,13 +54,13 @@ such as for SOAP, CSV, PowerShell and Active Directory – are also provided.
 [CAUTION]
 .Aren't Identity Stores enough?
 ====
-One might suppose that a single identity store can solve all the identity needs inside an organization, but few
-drawbacks are just around the corner:
+One might suppose that a single identity store can solve all the identity needs inside an organization, but there
+are a few drawbacks with this approach:
 
 . Heterogeneity of systems
 . Lack of a single source of information (HR for corporate id, Groupware for mail address, ...)
 . Often applications require a local user database
 . Inconsistent policies across the infrastructure
 . Lack of workflow management
-. Hidden infrastructure management cost, growing with organization
+. Hidden infrastructure management cost, growing with the size of the organization
 ====
