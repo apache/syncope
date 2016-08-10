@@ -42,7 +42,7 @@ public abstract class AbstractResourceWizardBuilder<T extends Serializable> exte
 
         private static final long serialVersionUID = -4488921035707289039L;
 
-        private final Serializable key;
+        private final String key;
 
         private final String displayName;
 
@@ -51,7 +51,7 @@ public abstract class AbstractResourceWizardBuilder<T extends Serializable> exte
         private final TopologyNode.Kind kind;
 
         public CreateEvent(
-                final Serializable key,
+                final String key,
                 final String displayName,
                 final TopologyNode.Kind kind,
                 final Serializable parent,
@@ -63,7 +63,7 @@ public abstract class AbstractResourceWizardBuilder<T extends Serializable> exte
             this.parent = parent;
         }
 
-        public Serializable getKey() {
+        public String getKey() {
             return key;
         }
 

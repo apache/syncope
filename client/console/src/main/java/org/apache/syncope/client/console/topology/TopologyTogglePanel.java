@@ -48,7 +48,9 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
+import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -78,7 +80,6 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
         modal.size(Modal.Size.Large);
         setFooterVisibility(false);
-        setWindowClosedReloadCallback(modal);
 
         propTaskModal = new BaseModal<>("outer");
         propTaskModal.size(Modal.Size.Large);
@@ -111,6 +112,17 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
     public void toggleWithContent(final AjaxRequestTarget target, final TopologyNode node) {
         setHeader(target, node.getDisplayName());
+
+        modal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+
+            private static final long serialVersionUID = 8804221891699487139L;
+
+            @Override
+            public void onClose(final AjaxRequestTarget target) {
+                modal.show(false);
+                send(pageRef.getPage(), Broadcast.DEPTH, new UpdateEvent(node.getKey(), target));
+            }
+        });
 
         switch (node.getKind()) {
             case SYNCOPE:
@@ -442,5 +454,26 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
         fragment.add(push);
 
         return fragment;
+    }
+
+    public final class UpdateEvent {
+
+        private final AjaxRequestTarget target;
+
+        private final String key;
+
+        public UpdateEvent(final String key, final AjaxRequestTarget target) {
+            this.target = target;
+            this.key = key;
+        }
+
+        public AjaxRequestTarget getTarget() {
+            return target;
+        }
+
+        public String getKey() {
+            return key;
+        }
+
     }
 }

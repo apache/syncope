@@ -19,18 +19,27 @@
 package org.apache.syncope.client.console.topology;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.rest.ConnectorRestClient;
+import org.apache.syncope.client.console.topology.TopologyNode.Kind;
+import org.apache.syncope.client.console.topology.TopologyTogglePanel.UpdateEvent;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.IAjaxIndicatorAware;
 import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.behavior.Behavior;
+import org.apache.wicket.event.IEvent;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 
 public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
 
     private static final long serialVersionUID = -8775095410207013913L;
+
+    private final Label label;
+
+    private final TopologyNode node;
 
     protected enum Status {
         ACTIVE,
@@ -40,12 +49,15 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
 
     public TopologyNodePanel(final String id, final TopologyNode node) {
         super(id);
+        this.node = node;
 
         final String resourceName = node.getDisplayName().length() > 14
                 ? node.getDisplayName().subSequence(0, 10) + "..."
                 : node.getDisplayName();
 
-        add(new Label("label", resourceName));
+        label = new Label("label", resourceName);
+        label.setOutputMarkupId(true);
+        add(label);
 
         final String title;
 
@@ -98,4 +110,25 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
     public String getAjaxIndicatorMarkupId() {
         return "veil";
     }
+
+    @Override
+    public void onEvent(final IEvent<?> event) {
+        if (event.getPayload() instanceof UpdateEvent) {
+            final UpdateEvent updateEvent = UpdateEvent.class.cast(event.getPayload());
+            final String key = updateEvent.getKey();
+            final AjaxRequestTarget target = updateEvent.getTarget();
+
+            if (node.getKind() == Kind.CONNECTOR && key.equalsIgnoreCase(node.getKey())) {
+                String displayName = new ConnectorRestClient().read(key).getDisplayName();
+
+                final String resourceName = displayName.length() > 14
+                        ? displayName.subSequence(0, 10) + "..."
+                        : displayName;
+
+                label.setDefaultModelObject(resourceName);
+                target.add(label);
+            }
+        }
+    }
+
 }

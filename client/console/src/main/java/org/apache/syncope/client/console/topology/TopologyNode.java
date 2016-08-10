@@ -43,7 +43,7 @@ public class TopologyNode implements Serializable {
 
     private static final long serialVersionUID = -1506421230369224142L;
 
-    private final Serializable key;
+    private final String key;
 
     private final String displayName;
 
@@ -59,13 +59,13 @@ public class TopologyNode implements Serializable {
 
     private int y;
 
-    public TopologyNode(final Serializable key, final String displayName, final Kind kind) {
+    public TopologyNode(final String key, final String displayName, final Kind kind) {
         this.key = key;
         this.displayName = displayName;
         this.kind = kind;
     }
 
-    public Serializable getKey() {
+    public String getKey() {
         return key;
     }
 
