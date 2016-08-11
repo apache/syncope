@@ -23,7 +23,7 @@ Connector Bundles:: The components able to connect to identity stores; not speci
 as they are part of the http://connid.tirasa.net[ConnId^] project.
 Connector Instances:: Instances of connector bundles, obtained by assigning values to the defined configuration 
 properties. For instance, there is only a single `DatabaseTable` (the bundle) that can be instantiated
-several times, for example if there is need to connect to different databases.
+several times, for example if there is a need to connect to different databases.
 External Resources:: Meant to encapsulate all information about how Apache Syncope will use connector instances for 
 provisioning. For each entity supported by the related connector bundle (user, group, printer, services, ...),
 <<mapping,mapping>> information can be specified.
@@ -46,7 +46,7 @@ be JDBC URL, table name, etc.
 * capabilities - define what operations are allowed on this connector: during <<provisioning,provisioning>>, if a
 certain operation is invoked but the corresponding capability is not set on the related connector instance, no actual
 action is performed on the underlying connector; the capabilities are:
-** `AUTHENTICATE` - consent <<pass-through-authentication, pass-through authentication>>
+** `AUTHENTICATE` - consent to <<pass-through-authentication, pass-through authentication>>
 ** `CREATE` - create objects on the underlying connector
 ** `UPDATE` - update objects on the underlying connector
 ** `DELETE` - delete objects on the underlying connector
@@ -61,16 +61,16 @@ action is performed on the underlying connector; the capabilities are:
 Capabilities and individual configuration properties can be set for _override_: in this case, all the external resources
 using the given connector instance will have the chance to override some configuration values, or the capabilities set.
 
-This can be useful when the same connector instance is shared among different resources, with small difference in the
+This can be useful when the same connector instance is shared among different resources, with little difference in the
 required configuration or capabilities.
 ====
 
 ==== External Resource details
 
-Given a selected connector instance, the following information is required for defining an external resource:
+Given a selected connector instance, the following information is required to define an external resource:
 
 * priority - integer value, in use by the default <<propagation,propagation task executor>>
-* generate random password flag - under some circumstances, password might be mandatory but no actual value could be
+* generate random password flag - under some circumstances, a password might be mandatory but no actual value could be
 available: with this flag set, a random value will be generated, compliant with the defined
 <<policies-password,password policy>> (if set)
 * propagation actions - which <<propagationactions,actions>> shall be executed during propagation
@@ -89,19 +89,19 @@ resource
 
 ==== Mapping
 
-One of the most crucial information to provide, when configuring an external resource, is the mapping between internal
-and external data. Such information, in fact, plays a key role for <<provisioning,provisioning>>.
+The mapping between internal and external data is of crucial importance when
+configuring an external resource. Such information, in fact, plays a key role for <<provisioning,provisioning>>.
 
 [.text-center]
 image::mapping.png[title="Sample mapping",alt="Sample mapping"]
 
 For each of the <<anytype,any types>> supported by the underlying connector, a different mapping is provided.
 
-Mapping is essentially a collection of _mapping items_ describing the correspondance between an user / group / any
-object attribute and its counterpart on the identity store represented by the current external resource; each item
+A mapping is essentially a collection of _mapping items_ describing the correspondance between an user / group / any
+object attribute and its counterpart on the identity store represented by the current external resource. Each item
 specifies:
 
-* internal attribute - the <<schema, schema>> acting as source or destination of provisioning operations; must be
+* internal attribute - the <<schema, schema>> acting as the source or destination of provisioning operations; it must be
 specified by an expression matching one of the following models:
 ** `schema` - resolves to the attribute for the given `schema`, owned by the mapped entity (user, group, any object)
 ** `groups[groupName].schema` - resolves to the attribute for the given `schema`, owned by the group with name
@@ -109,7 +109,7 @@ specified by an expression matching one of the following models:
 ** `anyObjects[anyObjectName].schema` - resolves to the attribute for the given `schema`, owned by the any object with
 name `anyObjectName`, if a relationship with the mapped entity exists
 ** `memberships[groupName].schema` - resolves to the attribute for the given `schema`, owned by the membership for group
-`groupName` of the mapped entity (user, any object), if such membership exists
+`groupName` of the mapped entity (user, any object), if such a membership exists
 * external attribute - the name of the attribute on the identity store
 * transformers - http://commons.apache.org/proper/commons-jexl/[JEXL^] expression or Java class implementing
 ifeval::["{snapshotOrRelease}" == "release"]
@@ -120,18 +120,18 @@ https://github.com/apache/syncope/blob/master/core/provisioning-api/src/main/jav
 endif::[]
 ; the purpose is to transform values before they are sent to or received from the underlying connector
 * mandatory condition - http://commons.apache.org/proper/commons-jexl/[JEXL^] expression indicating whether values for 
-this mapping item must be necessarily available or not; compared to simple boolean value, such condition allows to
-express complex statements like as 'be mandatory only if this other attribute value is above 14', and so on
+this mapping item must be necessarily available or not; compared to a simple boolean value, such condition allows
+complex statements to be expressed such as 'be mandatory only if this other attribute value is above 14', and so on
 * remote key flag - should this item be considered as the key value on the identity store?
-* password flag (users only) - should this item be treated as password value?
+* password flag (users only) - should this item be treated as the password value?
 * purpose - should this item be considered for <<propagation,propagation>> / <<provisioning-push,push>>,
 <<provisioning-pull,pull>>, both or none? 
 
-Besides items, some more data needs to be specified for a complete mapping:
+Besides the items documented above, some more data needs to be specified for a complete mapping:
 
 * ConnId `objectClass` - which
 http://connid.tirasa.net/apidocs/1.4/org/identityconnectors/framework/common/objects/ObjectClass.html[object class^]
-shall be used during communication with identity store; predefined are `\\__ACCOUNT__` for users and 
+shall be used during communication with the identity store; predefined are `\\__ACCOUNT__` for users and 
 `\\__GROUP__` for groups
 * Object link - only required by some connector bundles as
 https://connid.atlassian.net/wiki/display/BASE/LDAP[LDAP^] and
@@ -140,7 +140,7 @@ for generating the DN (distinguished name) values
 
 .Mapping items
 ====
-The following mapping item binds mandatory the internal `name` schema with external attribute `cn` for both 
+The following mapping item binds the mandatory internal `name` schema with the external attribute `cn` for both 
 propagation / push and pull.
 
 [source,json]
@@ -156,9 +156,9 @@ propagation / push and pull.
 }
 ----
 
-The following mapping item binds optional the internal `aLong` schema for the membership of the `additional` group
-with external attribute `age` for propagation / push only; moreover, specifies JEXL expression which appends `.0`
-to the selected `aLong` value before sending out to the underlying connector.
+The following mapping item binds the optional internal `aLong` schema for the membership of the `additional` group
+with the external attribute `age` for propagation / push only; in addition, it specifies a JEXL expression which appends `.0`
+to the selected `aLong` value before sending it out to the underlying connector.
 
 [source,json]
 ----

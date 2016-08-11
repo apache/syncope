@@ -82,31 +82,32 @@ evaluating the related JEXL expression
 
 ===== Virtual
 
-Virtual attributes are somehow linked from identity stores rather than kept internally.
+Virtual attributes are somehow linked from identity stores rather than stored internally.
 
-The typical use case is when attribute values can change on identity store without notice, and there is need of 
-having always access to the most recent available values.
+The typical use case is when attribute values can change in the identity store without notice, and it is required to
+always have access to the most recent values that are available.
 
-It can also be said that virtual schemas are for attributes whose ownership is not of Syncope but of identity stores;
+It can also be said that virtual schemas are for attributes whose ownership is not that of Syncope but of an identity store;
 the external resources for such identity stores are said to be the _linking resources_.
 
 [TIP]
 As best practice, only attributes for which Apache Syncope retains ownership should be modeled as plain attributes;
-others should be virtual, instead.
+attributes for which Apache Syncope does not retain ownership should be modeled
+as virtual instead.
 
-When defining a virtual schema, the following information is to be provided:
+When defining a virtual schema, the following information must be provided:
 
 * External resource - linking resource
-* External attribute - attribute to be linked on external resource
-* Any Type - reference <<anytype,Any Type>> on external resource
-* Read-only flag - whether the external attribute value(s) for this schema can only be read, or written too
+* External attribute - attribute to be linked on the external resource
+* Any Type - reference <<anytype,Any Type>> on the external resource
+* Read-only flag - whether the external attribute value(s) for this schema can only be read, or whether they can be written to as well
 
 .Virtual Attribute Cache
 ****
 For performance optimization, virtual attributes are managed by an internal cache to control the actual access to 
 the linked identity stores.
 
-The actual cache implements the 
+The internal cache implements the 
 ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/cache/VirAttrCache.java[VirAttrCache^]
 endif::[]
@@ -136,7 +137,7 @@ endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
 https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/cache/DisabledVirAttrCache.java[DisabledVirAttrCache^]
 endif::[]
-| Pass-through cache which actually does not provide any caching: use when actual access to identity store is required.
+| Pass-through cache which actually does not provide any caching: use when direct access to the identity store is required.
 
 |===
 ****
@@ -153,7 +154,7 @@ given user / group / any object instance) and for <<type-extensions,type extensi
 Any types represent the type of identities that Apache Syncope is able to manage; besides the predefined `USER` and 
 `GROUP`, more types can be created to model workstations, printers, folders, sensors, services, ...
 
-For all any types defined, a set of <<anytypeclass, classes>> can be selected so that instances af a given any type will
+For all any defined types, a set of <<anytypeclass, classes>> can be selected so that instances af a given any type will
 be enabled to populate attributes for schemas in those classes.
 
 .Any types and attributes allowed for users, groups and any objects
@@ -251,7 +252,7 @@ increase readability):
 
 ==== RelationshipType
 
-Relationships allow to create a link between an user and an any object, or between two any objects; relationship types
+Relationships allow the creation of a link between a user and an any object, or between two any objects; relationship types
 define the available link types.
 
 .Relationship between any objects (printers)
@@ -294,14 +295,14 @@ The following any object of type `PRINTER` contains a relationship of type `neig
 
 ==== Type Extensions
 
-When an user (or an any object) is part of a group, a _membership_ is defined.
+When a user (or an any object) is part of a group, a _membership_ is defined.
 
 It is sometimes useful to define attributes which are bound to a particular membership: if, for example, the
 `University A` and `University B` groups are available, a student might have different e-mail addresses for each
 university. How can this be modeled?
 
 Type extensions define a set of <<anytypeclass,classes>> associated to a group, that can be automatically
-assigned to a given user (or any object) when becoming member of such group.
+assigned to a given user (or any object) when becoming a member of such group.
 
 .Membership with type extension
 ====
