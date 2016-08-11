@@ -74,20 +74,20 @@ authentication (https://en.wikipedia.org/wiki/Single_sign-on[Single Sign-On^]), 
 
 [NOTE]
 ====
-Technologically, *Apache Syncope* is primarily a *Provisioning Engine*.
+From a technology point of view, *Apache Syncope* is primarily a *Provisioning Engine*.
 ====
 
 ==== Aren't Identity Stores enough?
 
-One might suppose that a single identity store can solve all the identity needs inside an organization, but few
-drawbacks are just around the corner:
+One might suppose that a single identity store can solve all the identity needs inside an organization, but there
+are a few drawbacks with this approach:
 
 . Heterogeneity of systems
 . Lack of a single source of information (HR for corporate id, Groupware for mail address, ...)
 . Often applications require a local user database
 . Inconsistent policies across the infrastructure
 . Lack of workflow management
-. Hidden infrastructure management cost, growing with organization
+. Hidden infrastructure management cost, growing with the size of the organization
 
 === A bird's eye view on the Architecture
 
@@ -108,7 +108,7 @@ https://en.wikipedia.org/wiki/Representational_state_transfer[RESTful^] interfac
 written in any programming language, to consume IdM services.
 
  * *_Logic_* implements the overall business logic that can be triggered via REST services, and controls some additional
-features (notifications, reports and audit over all)
+features (notifications, reports and auditing)
  * *_Provisioning_* is involved with managing the internal (via workflow) and external (via specific connectors) 
 representation of users, groups and any objects. +
 This component often needs to be tailored to meet the requirements of a specific deployment, as it is the crucial decision 
