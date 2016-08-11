@@ -28,11 +28,8 @@ import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.util.tester.FormTester;
 import org.junit.Before;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
 
-@FixMethodOrder(MethodSorters.JVM)
 public class ReportsITCase extends AbstractConsoleITCase {
 
     @Before

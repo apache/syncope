@@ -40,11 +40,8 @@ import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.policy.PullPolicySpec;
 import org.apache.syncope.fit.AbstractITCase;
 import org.apache.syncope.fit.core.reference.TestPullRule;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
 
-@FixMethodOrder(MethodSorters.JVM)
 public class PolicyITCase extends AbstractITCase {
 
     private PullPolicyTO buildPullPolicyTO() {

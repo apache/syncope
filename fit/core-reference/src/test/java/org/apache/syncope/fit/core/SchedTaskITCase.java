@@ -46,11 +46,8 @@ import org.apache.syncope.common.rest.api.beans.ExecQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.fit.core.reference.TestSampleJobDelegate;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
 
-@FixMethodOrder(MethodSorters.JVM)
 public class SchedTaskITCase extends AbstractTaskITCase {
 
     @Test

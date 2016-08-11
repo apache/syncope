@@ -25,6 +25,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Locale;
 import java.util.Map;
+import javax.sql.DataSource;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.CollectionUtils;
@@ -59,13 +60,19 @@ import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.identityconnectors.framework.common.objects.ObjectClass;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-@FixMethodOrder(MethodSorters.JVM)
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:testJDBCEnv.xml" })
 public class VirAttrITCase extends AbstractITCase {
+
+    @Autowired
+    private DataSource testDataSource;
 
     @Test
     public void issueSYNCOPE16() {

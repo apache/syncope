@@ -30,12 +30,9 @@ import org.apache.syncope.client.console.pages.SecurityQuestions;
 import org.apache.syncope.client.console.pages.Types;
 import org.apache.syncope.client.console.pages.Workflow;
 import org.apache.syncope.client.console.topology.Topology;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
 
-@FixMethodOrder(MethodSorters.JVM)
-public class BaseITCase extends AbstractConsoleITCase {
+public class BrowseITCase extends AbstractConsoleITCase {
 
     @Test
     public void loginPage() {

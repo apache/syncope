@@ -64,15 +64,15 @@ import org.apache.syncope.core.provisioning.api.utils.ExceptionUtils2;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.junit.BeforeClass;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
+import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-@ContextConfiguration(locations = { "classpath:migrationContext.xml" })
-@FixMethodOrder(MethodSorters.JVM)
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:migrationEnv.xml" })
 public class MigrationITCase extends AbstractTaskITCase {
 
     private static final String CONNINSTANCE_DISPLAY_NAME = "syncope12DB";

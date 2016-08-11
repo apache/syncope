@@ -34,11 +34,8 @@ import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.Assume;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
 
-@FixMethodOrder(MethodSorters.JVM)
 public class CamelRouteITCase extends AbstractITCase {
 
     @Test

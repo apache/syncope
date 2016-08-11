@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.naming.NamingException;
+import javax.sql.DataSource;
 import javax.ws.rs.core.GenericType;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.common.util.Base64Utility;
@@ -70,14 +71,20 @@ import org.apache.syncope.fit.AbstractITCase;
 import org.apache.syncope.fit.core.reference.DoubleValueLogicActions;
 import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-@FixMethodOrder(MethodSorters.JVM)
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:testJDBCEnv.xml" })
 public class UserIssuesITCase extends AbstractITCase {
+
+    @Autowired
+    private DataSource testDataSource;
 
     @Test
     public void issue186() {

@@ -24,14 +24,11 @@ import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.util.tester.FormTester;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.wicket.markup.html.form.IndicatingOnConfirmAjaxLink;
 import org.junit.Before;
 
-@FixMethodOrder(MethodSorters.JVM)
 public class GroupsITCase extends AbstractConsoleITCase {
 
     private final String tabPanel = "body:content:body:container:content:tabbedPanel:panel:searchResult:";

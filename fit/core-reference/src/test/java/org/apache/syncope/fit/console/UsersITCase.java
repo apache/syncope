@@ -25,19 +25,16 @@ import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.util.tester.FormTester;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.wicket.markup.html.form.IndicatingOnConfirmAjaxLink;
 import org.junit.Before;
 
-@FixMethodOrder(MethodSorters.JVM)
 public class UsersITCase extends AbstractConsoleITCase {
 
     private static final String TAB_PANEL = "body:content:body:container:content:tabbedPanel:panel:searchResult:";
 
-    private static final String SEARCH_RES_CONTAINER = TAB_PANEL + "container:content:";
+    private static final String CONTAINER = TAB_PANEL + "container:content:";
 
     @Before
     public void login() {
@@ -66,7 +63,7 @@ public class UsersITCase extends AbstractConsoleITCase {
         TESTER.clickLink("body:realmsLI:realms");
         TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:1:link");
 
-        Component component = findComponentByProp("username", SEARCH_RES_CONTAINER
+        Component component = findComponentByProp("username", CONTAINER
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "verdi");
         assertNotNull(component);
 
@@ -81,7 +78,7 @@ public class UsersITCase extends AbstractConsoleITCase {
         TESTER.clickLink("body:realmsLI:realms");
         TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:1:link");
 
-        Component component = findComponentByProp("username", SEARCH_RES_CONTAINER
+        Component component = findComponentByProp("username", CONTAINER
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "rossini");
         assertNotNull(component);
 
@@ -102,7 +99,7 @@ public class UsersITCase extends AbstractConsoleITCase {
         TESTER.clickLink("body:realmsLI:realms");
         TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:1:link");
 
-        Component component = findComponentByProp("username", SEARCH_RES_CONTAINER
+        Component component = findComponentByProp("username", CONTAINER
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "puccini");
         assertNotNull(component);
 
@@ -153,7 +150,7 @@ public class UsersITCase extends AbstractConsoleITCase {
 
         TESTER.clickLink(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:action:panelClose:closeLink");
 
-        component = findComponentByProp("username", SEARCH_RES_CONTAINER
+        component = findComponentByProp("username", CONTAINER
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "puccini");
         assertNotNull(component);
     }
@@ -167,11 +164,11 @@ public class UsersITCase extends AbstractConsoleITCase {
 
         TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:1:link");
 
-        Component component = findComponentByProp("username", SEARCH_RES_CONTAINER
+        Component component = findComponentByProp("username", CONTAINER
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "puccini");
         assertNull(component);
 
-        component = findComponentByProp("username", SEARCH_RES_CONTAINER
+        component = findComponentByProp("username", CONTAINER
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "rossini");
         assertNotNull(component);
 
@@ -217,7 +214,7 @@ public class UsersITCase extends AbstractConsoleITCase {
 
         TESTER.clickLink(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:action:panelClose:closeLink");
 
-        component = findComponentByProp("username", SEARCH_RES_CONTAINER
+        component = findComponentByProp("username", CONTAINER
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "rossini");
         assertNotNull(component);
 
@@ -247,7 +244,7 @@ public class UsersITCase extends AbstractConsoleITCase {
         TESTER.clickLink("body:realmsLI:realms");
         TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:1:link");
 
-        Component component = findComponentByProp("username", SEARCH_RES_CONTAINER
+        Component component = findComponentByProp("username", CONTAINER
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "rossini");
         assertNotNull(component);
 

@@ -28,19 +28,16 @@ import org.apache.wicket.validation.validator.StringValidator;
 import org.junit.Test;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.junit.FixMethodOrder;
-import org.junit.runners.MethodSorters;
 
-@FixMethodOrder(MethodSorters.JVM)
 public class AjaxTextFieldITCase extends AbstractConsoleITCase {
 
-    private final IModel<String> textModel = Model.of((String) null);
+    private static final IModel<String> TEXT_MODEL = Model.of((String) null);
 
     @Test
     public void emptyInputConvertedToNull() {
         TestPage<String, AjaxTextFieldPanel> testPage =
                 new TestPage.Builder<String, AjaxTextFieldPanel>().build(
-                        new AjaxTextFieldPanel(TestPage.FIELD, TestPage.FIELD, textModel));
+                        new AjaxTextFieldPanel(TestPage.FIELD, TestPage.FIELD, TEXT_MODEL));
         TESTER.startPage(testPage);
         FormTester formTester = TESTER.newFormTester(testPage.getForm().getId());
         formTester.setValue("field:textField", "");
@@ -52,9 +49,9 @@ public class AjaxTextFieldITCase extends AbstractConsoleITCase {
     public void valueAttribute() {
         TestPage<String, AjaxTextFieldPanel> testPage =
                 new TestPage.Builder<String, AjaxTextFieldPanel>().build(
-                        new AjaxTextFieldPanel(TestPage.FIELD, TestPage.FIELD, textModel));
+                        new AjaxTextFieldPanel(TestPage.FIELD, TestPage.FIELD, TEXT_MODEL));
         String text = "sometext";
-        textModel.setObject(text);
+        TEXT_MODEL.setObject(text);
         TESTER.startPage(testPage);
         assertTrue(TESTER.getLastResponseAsString().contains(Strings.escapeMarkup(text)));
     }
@@ -63,7 +60,7 @@ public class AjaxTextFieldITCase extends AbstractConsoleITCase {
     public void nullIsNotValidated() {
         TestPage<String, AjaxTextFieldPanel> testPage =
                 new TestPage.Builder<String, AjaxTextFieldPanel>().build(
-                        new AjaxTextFieldPanel(TestPage.FIELD, TestPage.FIELD, textModel));
+                        new AjaxTextFieldPanel(TestPage.FIELD, TestPage.FIELD, TEXT_MODEL));
         testPage.getFieldPanel().getField().setRequired(false);
         testPage.getFieldPanel().getField().add(StringValidator.minimumLength(2));
         TESTER.startPage(testPage);
@@ -78,7 +75,7 @@ public class AjaxTextFieldITCase extends AbstractConsoleITCase {
     public void requiredAttribute() {
         TestPage<String, AjaxTextFieldPanel> testPage =
                 new TestPage.Builder<String, AjaxTextFieldPanel>().build(
-                        new AjaxTextFieldPanel(TestPage.FIELD, TestPage.FIELD, textModel));
+                        new AjaxTextFieldPanel(TestPage.FIELD, TestPage.FIELD, TEXT_MODEL));
         testPage.getFieldPanel().setOutputMarkupId(true);
         testPage.getFieldPanel().getField().setRequired(true);
         TESTER.startPage(testPage);

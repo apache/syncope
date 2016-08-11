@@ -30,11 +30,8 @@ import org.apache.syncope.client.console.wicket.markup.html.form.IndicatingOnCon
 import org.apache.wicket.Component;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.util.tester.FormTester;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
 
-@FixMethodOrder(MethodSorters.JVM)
 public class AnyTypeClassesITCase extends AbstractTypesITCase {
 
     @Test

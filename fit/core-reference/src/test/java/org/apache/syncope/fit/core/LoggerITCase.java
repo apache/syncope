@@ -44,11 +44,8 @@ import org.apache.syncope.core.logic.ResourceLogic;
 import org.apache.syncope.core.logic.GroupLogic;
 import org.apache.syncope.core.logic.UserLogic;
 import org.apache.syncope.fit.AbstractITCase;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
 
-@FixMethodOrder(MethodSorters.JVM)
 public class LoggerITCase extends AbstractITCase {
 
     @Test

@@ -38,7 +38,7 @@ public interface ImplementationLookup extends SyncopeLoader {
         RECONCILIATION_FILTER_BUILDER,
         LOGIC_ACTIONS,
         PROPAGATION_ACTIONS,
-        SYNC_ACTIONS,
+        PULL_ACTIONS,
         PUSH_ACTIONS,
         PULL_CORRELATION_RULE,
         VALIDATOR,

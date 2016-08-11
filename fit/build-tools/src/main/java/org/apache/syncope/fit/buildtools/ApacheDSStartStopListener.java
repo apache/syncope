@@ -59,9 +59,6 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  */
 public class ApacheDSStartStopListener implements ServletContextListener {
 
-    /**
-     * Logger.
-     */
     private static final Logger LOG = LoggerFactory.getLogger(ApacheDSStartStopListener.class);
 
     private DirectoryService service;

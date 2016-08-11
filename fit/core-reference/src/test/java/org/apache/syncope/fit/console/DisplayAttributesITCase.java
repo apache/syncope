@@ -22,11 +22,8 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import org.apache.syncope.client.console.pages.Realms;
 import org.apache.wicket.util.tester.FormTester;
 import org.junit.Before;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
 
-@FixMethodOrder(MethodSorters.JVM)
 public class DisplayAttributesITCase extends AbstractConsoleITCase {
 
     @Before

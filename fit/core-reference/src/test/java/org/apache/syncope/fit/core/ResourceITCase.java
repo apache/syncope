@@ -56,11 +56,8 @@ import org.apache.syncope.common.rest.api.beans.ConnObjectTOListQuery;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.apache.syncope.fit.AbstractITCase;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
 
-@FixMethodOrder(MethodSorters.JVM)
 public class ResourceITCase extends AbstractITCase {
 
     private ResourceTO buildResourceTO(final String resourceKey) {

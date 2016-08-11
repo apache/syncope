@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
+import javax.sql.DataSource;
 import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
@@ -89,14 +90,20 @@ import org.apache.syncope.fit.core.reference.TestPullActions;
 import org.apache.syncope.fit.core.reference.TestPullRule;
 import org.identityconnectors.framework.common.objects.Name;
 import org.junit.BeforeClass;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-@FixMethodOrder(MethodSorters.JVM)
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:testJDBCEnv.xml" })
 public class PullTaskITCase extends AbstractTaskITCase {
+
+    @Autowired
+    private DataSource testDataSource;
 
     @BeforeClass
     public static void testPullActionsSetup() {

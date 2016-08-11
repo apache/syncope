@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.fit;
 
+import static org.junit.Assert.assertNotNull;
+
 import java.io.InputStream;
 import java.net.URI;
 import java.util.Locale;
@@ -27,7 +29,6 @@ import java.util.UUID;
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.naming.directory.InitialDirContext;
-import javax.sql.DataSource;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
@@ -79,17 +80,12 @@ import org.apache.syncope.common.rest.api.service.UserWorkflowService;
 import org.apache.syncope.common.rest.api.service.WorkflowService;
 import org.identityconnectors.common.security.Encryptor;
 import org.junit.BeforeClass;
-import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.junit.FixMethodOrder;
+import org.junit.runners.MethodSorters;
 
-import static org.junit.Assert.assertNotNull;
-
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:testJDBCContext.xml" })
+@FixMethodOrder(MethodSorters.JVM)
 public abstract class AbstractITCase {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractITCase.class);
@@ -211,9 +207,6 @@ public abstract class AbstractITCase {
     protected static SecurityQuestionService securityQuestionService;
 
     protected static CamelRouteService camelRouteService;
-
-    @Autowired
-    protected DataSource testDataSource;
 
     @BeforeClass
     public static void securitySetup() {

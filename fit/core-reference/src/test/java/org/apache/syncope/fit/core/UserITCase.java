@@ -84,11 +84,8 @@ import org.apache.syncope.fit.AbstractITCase;
 import org.apache.syncope.fit.ActivitiDetector;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.junit.Assume;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
 
-@FixMethodOrder(MethodSorters.JVM)
 public class UserITCase extends AbstractITCase {
 
     private static final FastDateFormat DATE_FORMAT = DateFormatUtils.ISO_DATE_FORMAT;

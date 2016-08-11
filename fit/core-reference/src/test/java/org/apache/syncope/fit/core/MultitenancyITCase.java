@@ -62,11 +62,8 @@ import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.junit.BeforeClass;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
 
-@FixMethodOrder(MethodSorters.JVM)
 public class MultitenancyITCase extends AbstractITCase {
 
     @BeforeClass
@@ -212,7 +209,8 @@ public class MultitenancyITCase extends AbstractITCase {
             assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(status));
 
             // verify that pulled user is found
-            PagedResult<UserTO> matchingUsers = adminClient.getService(UserService.class).search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+            PagedResult<UserTO> matchingUsers = adminClient.getService(UserService.class).search(new AnyQuery.Builder().
+                    realm(SyncopeConstants.ROOT_REALM).
                     fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("pullFromLDAP").query()).
                     build());
             assertNotNull(matchingUsers);

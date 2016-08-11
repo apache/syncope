@@ -28,12 +28,9 @@ import org.apache.wicket.Component;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.util.tester.FormTester;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
 
-@FixMethodOrder(MethodSorters.JVM)
-public class RelationshipTypeITCase extends AbstractTypesITCase {
+public class RelationshipTypesITCase extends AbstractTypesITCase {
 
     @Test
     public void read() {
@@ -110,7 +107,7 @@ public class RelationshipTypeITCase extends AbstractTypesITCase {
 
         TESTER.getRequest().addParameter("confirm", "true");
         TESTER.clickLink(TESTER.getComponentFromLastRenderedPage(
-                        result.getPageRelativePath() + ":cells:3:cell:panelDelete:deleteLink"));
+                result.getPageRelativePath() + ":cells:3:cell:panelDelete:deleteLink"));
 
         TESTER.executeAjaxEvent(TESTER.getComponentFromLastRenderedPage(
                 result.getPageRelativePath() + ":cells:3:cell:panelDelete:deleteLink"), "onclick");

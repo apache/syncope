@@ -45,11 +45,8 @@ import org.apache.syncope.client.cli.commands.user.UserCommand;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.BeforeClass;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
 
-@FixMethodOrder(MethodSorters.JVM)
 public class CLIITCase extends AbstractITCase {
 
     private static final String SCRIPT_FILENAME = "syncopeadm";

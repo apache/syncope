@@ -20,13 +20,7 @@ package org.apache.syncope.fit.console;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
-import javax.servlet.ServletContext;
-import org.apache.syncope.client.console.SyncopeConsoleApplication;
-import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
-import org.apache.syncope.client.console.init.ConsoleInitializer;
-import org.apache.syncope.client.console.init.MIMETypesLoader;
 import org.apache.syncope.client.console.pages.Login;
-import org.apache.syncope.fit.AbstractITCase;
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.behavior.AbstractAjaxBehavior;
@@ -38,8 +32,19 @@ import org.apache.wicket.util.tester.WicketTester;
 import org.apache.wicket.util.visit.IVisit;
 import org.apache.wicket.util.visit.IVisitor;
 import org.junit.BeforeClass;
+import org.junit.FixMethodOrder;
+import org.junit.runners.MethodSorters;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public abstract class AbstractConsoleITCase extends AbstractITCase {
+@FixMethodOrder(MethodSorters.JVM)
+public abstract class AbstractConsoleITCase {
+
+    protected static final Logger LOG = LoggerFactory.getLogger(AbstractConsoleITCase.class);
+
+    protected static final String ADMIN_UNAME = "admin";
+
+    protected static final String ADMIN_PWD = "password";
 
     protected static final String KEY = "key";
 
@@ -49,26 +54,7 @@ public abstract class AbstractConsoleITCase extends AbstractITCase {
 
     @BeforeClass
     public static void setUp() {
-        synchronized (KEY) {
-            if (TESTER == null) {
-                TESTER = new WicketTester(new SyncopeConsoleApplication() {
-
-                    @Override
-                    protected void init() {
-                        ServletContext ctx = getServletContext();
-                        ClassPathScanImplementationLookup lookup = new ClassPathScanImplementationLookup();
-                        lookup.load();
-                        ctx.setAttribute(ConsoleInitializer.CLASSPATH_LOOKUP, lookup);
-
-                        MIMETypesLoader mimeTypes = new MIMETypesLoader();
-                        mimeTypes.load();
-                        ctx.setAttribute(ConsoleInitializer.MIMETYPES_LOADER, mimeTypes);
-
-                        super.init();
-                    }
-                });
-            }
-        }
+        TESTER = ConsoleSetup.TESTER;
     }
 
     protected void doLogin(final String user, final String passwd) {

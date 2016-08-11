@@ -186,7 +186,7 @@ public class SyncopeLogic extends AbstractLogic<AbstractBaseBean> {
                         addAll(implLookup.getClassNames(Type.RECONCILIATION_FILTER_BUILDER));
                 PLATFORM_INFO.getLogicActions().addAll(implLookup.getClassNames(Type.LOGIC_ACTIONS));
                 PLATFORM_INFO.getPropagationActions().addAll(implLookup.getClassNames(Type.PROPAGATION_ACTIONS));
-                PLATFORM_INFO.getPullActions().addAll(implLookup.getClassNames(Type.SYNC_ACTIONS));
+                PLATFORM_INFO.getPullActions().addAll(implLookup.getClassNames(Type.PULL_ACTIONS));
                 PLATFORM_INFO.getPushActions().addAll(implLookup.getClassNames(Type.PUSH_ACTIONS));
                 PLATFORM_INFO.getPullCorrelationRules().addAll(implLookup.getClassNames(Type.PULL_CORRELATION_RULE));
                 PLATFORM_INFO.getValidators().addAll(implLookup.getClassNames(Type.VALIDATOR));

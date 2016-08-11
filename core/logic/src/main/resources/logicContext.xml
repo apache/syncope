@@ -38,4 +38,6 @@ under the License.
 
   <bean class="${logicInvocationHandler}"/>
 
+  <bean class="${classPathScanImplementationLookup}"/>
+
 </beans>

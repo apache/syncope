@@ -47,7 +47,7 @@ public class RestClientExceptionMapper implements ExceptionMapper<Exception>, Re
     @Override
     public Response toResponse(final Exception exception) {
         throw new UnsupportedOperationException(
-                "Call of toResponse() method is not expected in RestClientExceptionnMapper");
+                "Call of toResponse() method is not expected in " + RestClientExceptionMapper.class.getSimpleName());
     }
 
     @Override

@@ -31,11 +31,8 @@ import javax.ws.rs.core.Response;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.Assume;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
 
-@FixMethodOrder(MethodSorters.JVM)
 public class SwaggerITCase extends AbstractITCase {
 
     @Test

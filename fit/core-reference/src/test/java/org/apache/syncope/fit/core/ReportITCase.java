@@ -51,11 +51,8 @@ import org.apache.syncope.common.rest.api.beans.BulkExecDeleteQuery;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
 import org.apache.syncope.common.rest.api.service.ReportService;
 import org.apache.syncope.fit.AbstractITCase;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
 
-@FixMethodOrder(MethodSorters.JVM)
 public class ReportITCase extends AbstractITCase {
 
     private ReportTO createReport(final ReportTO report) {

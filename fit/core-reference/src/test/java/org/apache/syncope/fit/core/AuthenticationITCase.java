@@ -30,6 +30,7 @@ import java.security.AccessControlException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import javax.sql.DataSource;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.CollectionUtils;
@@ -75,13 +76,19 @@ import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.Assume;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-@FixMethodOrder(MethodSorters.JVM)
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:testJDBCEnv.xml" })
 public class AuthenticationITCase extends AbstractITCase {
+
+    @Autowired
+    private DataSource testDataSource;
 
     private int getFailedLogins(final UserService userService, final String userKey) {
         UserTO readUserTO = userService.read(userKey);
@@ -206,7 +213,8 @@ public class AuthenticationITCase extends AbstractITCase {
         UserService userService2 = clientFactory.create(userTO.getUsername(), "password123").
                 getService(UserService.class);
 
-        PagedResult<UserTO> matchingUsers = userService2.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+        PagedResult<UserTO> matchingUsers = userService2.search(new AnyQuery.Builder().
+                realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().isNotNull("key").query()).build());
         assertNotNull(matchingUsers);
         assertFalse(matchingUsers.getResult().isEmpty());

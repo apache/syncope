@@ -55,11 +55,8 @@ import org.apache.syncope.core.logic.notification.NotificationJob;
 import org.apache.syncope.fit.core.reference.TestNotificationRecipientsProvider;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
 
-@FixMethodOrder(MethodSorters.JVM)
 public class NotificationTaskITCase extends AbstractTaskITCase {
 
     private static final String MAIL_ADDRESS = "notificationtest@syncope.apache.org";

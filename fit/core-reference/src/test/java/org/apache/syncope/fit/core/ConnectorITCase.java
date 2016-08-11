@@ -63,11 +63,8 @@ import org.apache.syncope.fit.AbstractITCase;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.junit.BeforeClass;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
 
-@FixMethodOrder(MethodSorters.JVM)
 public class ConnectorITCase extends AbstractITCase {
 
     private static String connectorServerLocation;

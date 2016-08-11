@@ -22,7 +22,7 @@ under the License.
        xsi:schemaLocation="http://www.springframework.org/schema/beans
                            http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-  <bean id="confDirectoryPropertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+  <bean id="confDirectoryPropertyConfigurer" class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
     <property name="order" value="1"/>
     <property name="ignoreResourceNotFound" value="true"/>
     <property name="ignoreUnresolvablePlaceholders" value="true"/>
@@ -39,7 +39,7 @@ under the License.
       </list>
     </property>
   </bean>
-  <bean id="classpathPropertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+  <bean id="classpathPropertyConfigurer" class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
     <property name="locations">
       <list>
         <value>classpath:persistence.properties</value>

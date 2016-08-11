@@ -27,11 +27,8 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.util.tester.FormTester;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
 
-@FixMethodOrder(MethodSorters.JVM)
 public class PoliciesITCase extends AbstractConsoleITCase {
 
     @Before

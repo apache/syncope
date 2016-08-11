@@ -31,6 +31,7 @@ import static org.junit.Assert.fail;
 import java.security.AccessControlException;
 import java.util.Map;
 import java.util.Set;
+import javax.sql.DataSource;
 import javax.ws.rs.core.GenericType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -55,13 +56,19 @@ import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.Assume;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-@FixMethodOrder(MethodSorters.JVM)
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:testJDBCEnv.xml" })
 public class UserSelfITCase extends AbstractITCase {
+
+    @Autowired
+    private DataSource testDataSource;
 
     @Test
     public void selfRegistrationAllowed() {

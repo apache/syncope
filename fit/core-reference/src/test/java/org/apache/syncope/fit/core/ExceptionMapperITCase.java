@@ -35,11 +35,8 @@ import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.BeforeClass;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
 
-@FixMethodOrder(MethodSorters.JVM)
 public class ExceptionMapperITCase extends AbstractITCase {
 
     private static final Properties ERROR_MESSAGES = new Properties();

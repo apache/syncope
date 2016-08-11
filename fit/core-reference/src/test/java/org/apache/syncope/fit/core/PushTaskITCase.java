@@ -27,6 +27,7 @@ import static org.junit.Assert.fail;
 
 import java.util.HashSet;
 import java.util.Set;
+import javax.sql.DataSource;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
@@ -56,13 +57,19 @@ import org.apache.syncope.common.rest.api.service.NotificationService;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.identityconnectors.framework.common.objects.ObjectClass;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-@FixMethodOrder(MethodSorters.JVM)
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:testJDBCEnv.xml" })
 public class PushTaskITCase extends AbstractTaskITCase {
+
+    @Autowired
+    private DataSource testDataSource;
 
     @Test
     public void getPushActionsClasses() {

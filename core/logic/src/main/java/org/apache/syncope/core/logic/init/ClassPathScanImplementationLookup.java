@@ -50,7 +50,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AssignableTypeFilter;
-import org.springframework.stereotype.Component;
 import org.springframework.util.ClassUtils;
 import org.apache.syncope.core.provisioning.api.pushpull.ReconciliationFilterBuilder;
 import org.apache.syncope.core.provisioning.api.pushpull.PullCorrelationRule;
@@ -62,7 +61,6 @@ import org.apache.syncope.core.provisioning.java.pushpull.PlainAttrsPullCorrelat
 /**
  * Cache class names for all implementations of Syncope interfaces found in classpath, for later usage.
  */
-@Component
 public class ClassPathScanImplementationLookup implements ImplementationLookup {
 
     private static final Logger LOG = LoggerFactory.getLogger(ImplementationLookup.class);
@@ -170,7 +168,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                 }
 
                 if (PullActions.class.isAssignableFrom(clazz) && !isAbsractClazz) {
-                    classNames.get(Type.SYNC_ACTIONS).add(bd.getBeanClassName());
+                    classNames.get(Type.PULL_ACTIONS).add(bd.getBeanClassName());
                 }
 
                 if (PushActions.class.isAssignableFrom(clazz) && !isAbsractClazz) {

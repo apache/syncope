@@ -20,7 +20,6 @@ package org.apache.syncope.fit.console;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
@@ -29,16 +28,13 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePane
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.util.tester.FormTester;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
 
-@FixMethodOrder(MethodSorters.JVM)
 public class AjaxPalettePanelITCase extends AbstractConsoleITCase {
 
-    private static final IModel<List<String>> SELECTED = new ListModel<>(new ArrayList<>(Arrays.asList("A", "D")));
+    private static final IModel<List<String>> SELECTED = new ListModel<>(Arrays.asList("A", "D"));
 
-    private static final ListModel<String> ALL = new ListModel<>(new ArrayList<>(Arrays.asList("A", "B", "C", "D")));
+    private static final ListModel<String> ALL = new ListModel<>(Arrays.asList("A", "B", "C", "D"));
 
     @Test
     public void isRendered() {

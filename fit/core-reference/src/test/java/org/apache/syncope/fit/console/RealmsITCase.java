@@ -28,11 +28,8 @@ import org.apache.syncope.client.console.panels.TogglePanel;
 import org.apache.wicket.Component;
 import org.apache.wicket.util.tester.FormTester;
 import org.junit.Before;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
 
-@FixMethodOrder(MethodSorters.JVM)
 public class RealmsITCase extends AbstractConsoleITCase {
 
     @Before
@@ -113,9 +110,9 @@ public class RealmsITCase extends AbstractConsoleITCase {
         TESTER.executeAjaxEvent("body:content:realmChoicePanel:container:realms:btn", Constants.ON_CLICK);
         TESTER.executeAjaxEvent("body:content:realmChoicePanel:container:realms:dropdown-menu:buttons:3:button",
                 Constants.ON_CLICK);
-        
+
         TESTER.assertLabel("body:content:realmChoicePanel:container:realm", "/odd");
-        
+
         TESTER.clickLink(
                 "body:content:body:container:content:tabbedPanel:panel:actions:actions:panelTemplate:templateLink");
         TESTER.assertComponent("body:content:toggleTemplates", TogglePanel.class);
@@ -133,7 +130,7 @@ public class RealmsITCase extends AbstractConsoleITCase {
 
         TESTER.assertInfoMessages("Operation executed successfully");
         TESTER.cleanupFeedbackMessages();
-        
+
         TESTER.assertLabel("body:content:realmChoicePanel:container:realm", "/odd");
 
         TESTER.clickLink(
@@ -149,7 +146,7 @@ public class RealmsITCase extends AbstractConsoleITCase {
 
         TESTER.assertModelValue("body:content:templateModal:form:content:form:view:username:textField",
                 "'k' + firstname");
-        
+
         formTester = TESTER.newFormTester("body:content:templateModal:form:content:form");
         formTester.setValue("view:username:textField", "");
         formTester.submit("buttons:finish");
@@ -192,10 +189,10 @@ public class RealmsITCase extends AbstractConsoleITCase {
 
         TESTER.assertModelValue("body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
                 + "secondLevelContainer:second:remoteObject:propView:0:value:oldAttribute:textField", null);
-        
+
         TESTER.assertModelValue("body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
                 + "secondLevelContainer:second:remoteObject:propView:1:value:oldAttribute:textField", null);
-        
+
         TESTER.assertModelValue("body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
                 + "secondLevelContainer:second:remoteObject:propView:2:value:oldAttribute:textField", null);
 
@@ -253,10 +250,10 @@ public class RealmsITCase extends AbstractConsoleITCase {
 
         TESTER.assertModelValue("body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
                 + "secondLevelContainer:second:remoteObject:propView:1:value:newAttribute:textField", null);
-        
+
         TESTER.assertModelValue("body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
                 + "secondLevelContainer:second:remoteObject:propView:2:value:newAttribute:textField", null);
-        
+
         TESTER.clickLink("body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
                 + "secondLevelContainer:back");
 

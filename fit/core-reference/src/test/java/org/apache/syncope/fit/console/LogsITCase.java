@@ -50,7 +50,7 @@ public class LogsITCase extends AbstractConsoleITCase {
         TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:0:link");
         TESTER.assertComponent(CONTAINER_PATH, WebMarkupContainer.class);
 
-        assertNotNull(searchLog(KEY, CONTAINER_PATH, "org.apache.camel"));
+        assertNotNull(searchLog(KEY, CONTAINER_PATH, "io.swagger"));
     }
 
     @Test
@@ -58,7 +58,7 @@ public class LogsITCase extends AbstractConsoleITCase {
         TESTER.clickLink("body:content:tabbedPanel:tabs-container:tabs:0:link");
         TESTER.assertComponent(CONTAINER_PATH, WebMarkupContainer.class);
 
-        Component result = searchLog(KEY, CONTAINER_PATH, "org.apache.camel");
+        Component result = searchLog(KEY, CONTAINER_PATH, "io.swagger");
         assertNotNull(result);
 
         TESTER.getRequest().addParameter(
