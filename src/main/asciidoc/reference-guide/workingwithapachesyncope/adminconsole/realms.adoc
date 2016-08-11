@@ -18,7 +18,7 @@
 //
 [[console-realms]]
 ===== Realms
-The realms tab provides the admin with the power to manage users, groups and any objects, for all any types defined.
+The realms tab provides the admin with the power to manage Users, Groups and Any Objects, for all Any Types defined.
 
 image::realmsUser.png[console-realms-user]
 
@@ -29,7 +29,7 @@ Allows the admin to
 * Create user
 * Force password change for user
 * Manage resources available to user
-* Enable/Disable users
+* Enable/Disable Users
 * Clone a user
 * Edit user details
 * View and edit propagation tasks of user

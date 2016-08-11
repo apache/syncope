@@ -18,8 +18,8 @@
 //
 === Realms
 
-Realms define a hierarchical security domain tree, primarily meant for containing users, groups and
-any objects.
+Realms define a hierarchical security domain tree, primarily meant for containing Users, Groups and
+Any Objects.
 
 Each realm:
 
@@ -28,16 +28,16 @@ Each realm:
 . is uniquely identified by the path from root realm, e.g. `/a/b/c` identifies the sub-realm `c` in the sub-tree rooted
 at `b`, having in turn `a` as parent realm, directly under root realm;
 . optionally refers to <<policies-account,account>> and <<policies-password,password>> policies: such policies are
-enforced to all users, groups and any objects in the given realm and sub-realms, unless some sub-realms define their own.
+enforced to all Users, Groups and Any Objects in the given realm and sub-realms, unless some sub-realms define their own.
 
-If users, groups and any objects are member of a realm then they are also member of parent realm: as a result, the root
+If Users, Groups and Any Objects are member of a realm then they are also member of parent realm: as a result, the root
 realm contains everything, and other realms can be seen as containers that split up the total number of entities into
 smaller pools.
 
 This has consequences on <<memberships-relationships,memberhips and relationships>>:
 
-* An user or an any object can be member of groups in the same realm or in one of sub-realms.
-* An user or an any object can be in relation with any objects in the same realm or in one of sub-realms.
+* An user or an any object can be member of Groups in the same realm or in one of sub-realms.
+* An user or an any object can be in relation with Any Objects in the same realm or in one of sub-realms.
 
 Moreover, this partition allows fine-grained control over policy enforcement and, alongside with
 <<entitlements,entitlements>> and <<roles,roles>>, contribute to implement
@@ -56,12 +56,12 @@ a mechanism for setting default values for attributes or external resources on e
 <<provisioning>> can be enabled for realms: <<mapping,mapping>> information can be provided so that realms
 are considered during <<propagation,propagation>>, <<provisioning-pull,pull>> and <<provisioning-push,push>>.
 
-Typical use cases for realm provisioning apply to modelization of organization-like structure on identity stores, as
+Typical use cases for realm provisioning apply to modelization of organization-like structure on Identity Stores, as
 with LDAP and Active Directory.
 
 ==== LogicActions
 
-When users, groups or any objects get created, updated or deleted into a realm, custom logic can be invoked by
+When Users, Groups or Any Objects get created, updated or deleted into a realm, custom logic can be invoked by
 associating the given realm with one or more implementations of the
 ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/LogicActions.java[LogicActions^]

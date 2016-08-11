@@ -20,10 +20,10 @@
 
 _Identity Stores_ are the places where identity-related information is stored.
 
-An identity store can be shared among several systems: as a result, there is a single place where account data is
+An Identity Store can be shared among several systems: as a result, there is a single place where account data is
 managed by administrators, and the same password can be used for the same user for accessing different applications.
 
-Various identity store types are available:
+Various Identity Store types are available:
 
 * Flat files (XML, CSV, ...)
 * LDAP
@@ -38,7 +38,7 @@ image::theExternalWorld.jpg[title="Apache Syncope and the external world",alt="A
 
 .ConnId
 ****
-Apache Syncope relies on http://connid.tirasa.net[ConnId^] for communication with identity stores; ConnId is designed to
+Apache Syncope relies on http://connid.tirasa.net[ConnId^] for communication with Identity Stores; ConnId is designed to
 separate the implementation of an application from the dependencies of the system that the application is attempting to 
 connect to.
 
@@ -54,7 +54,7 @@ such as for SOAP, CSV, PowerShell and Active Directory – are also provided.
 [CAUTION]
 .Aren't Identity Stores enough?
 ====
-One might suppose that a single identity store can solve all the identity needs inside an organization, but there
+One might suppose that a single Identity Store can solve all the identity needs inside an organization, but there
 are a few drawbacks with this approach:
 
 . Heterogeneity of systems

@@ -28,8 +28,8 @@ Overview::
 
 Contains widgets to display
 
-* Number of users
-* Number of groups
+* Number of Users
+* Number of Groups
 * Number of external resource instances available (Printer as a default)
 * Number of resources
 * Configuration Status: Shows the status of missing or incomplete configurations.

@@ -19,7 +19,7 @@
 [[provisioning-pull]]
 ==== Pull
 
-Pull is the mechanism used to acquire identity data from identity stores; for each external resource, one or more
+Pull is the mechanism used to acquire identity data from Identity Stores; for each external resource, one or more
 <<tasks-pull,pull tasks>> can be defined, run and scheduled for period execution.
 
 Pull task execution involves querying the external resource and then processing each entity in an isolated transaction; 
@@ -54,7 +54,7 @@ by default, unmatching entities gets internally created, and matching updated.
 [TIP]
 .Pull Mode
 ====
-The identity store can be queried in different ways, depending on the _pull mode_ specified:
+The Identity Store can be queried in different ways, depending on the _pull mode_ specified:
 
 ****
 FULL RECONCILIATION:: The complete list of entities available is processed.
@@ -70,13 +70,13 @@ this condition. +
 [TIP]
 .Pull Templates
 ====
-With every <<tasks-pull,pull task>> it is possible to add a template for each defined <<anytype,any type>>.
+With every <<tasks-pull,pull task>> it is possible to add a template for each defined <<anytype,Any Type>>.
 
 As the values specified in the template are applied to pulled entities, this can be used as mechanism for setting
 default values for attributes or external resources on entities.
 
-A typical use case is, when pulling users from the external resource `R`, to automatically assign `R` so that every
-further modification in Apache Syncope to such users will be <<propagation,propagated>> back to `R`.
+A typical use case is, when pulling Users from the external resource `R`, to automatically assign `R` so that every
+further modification in Apache Syncope to such Users will be <<propagation,propagated>> back to `R`.
 ====
 
 ===== PullActions

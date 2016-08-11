@@ -18,11 +18,11 @@
 //
 ==== Propagation
 
-Whenever a change is performed via REST on users, groups or any objects:
+Whenever a change is performed via REST on Users, Groups or Any Objects:
 
 . a set of <<tasks-propagation,propagation tasks>> is generated, one for each associated external resource;
 . the generated propagation tasks are executed, e.g. the corresponding operations (create, update or delete) are sent
-out, via connectors, to the configured identity stores; the tasks can be saved for later re-execution.
+out, via connectors, to the configured Identity Stores; the tasks can be saved for later re-execution.
 
 [TIP]
 .Which external resources?
@@ -31,8 +31,8 @@ Depending on the entity being created / updated / deleted, different external re
 propagation process:
 
 * *group*: only the external resources directly assigned
-* *user*: the external resources directly assigned plus the ones assigned to groups configured for the user
-* *any object*: the external resources directly assigned plus the ones assigned to groups configured for the any object
+* *user*: the external resources directly assigned plus the ones assigned to Groups configured for the user
+* *any object*: the external resources directly assigned plus the ones assigned to Groups configured for the Any Object
 ====
 
 By default, the propagation process is controlled by the
@@ -50,7 +50,7 @@ which implements the following logic:
 fails
 * status and eventual error message (in case of no resource priority) can be saved for reporting, in case the related
 external resource was configured with adequate tracing
-* minimize the set of operations to be actually performed onto the identity store by attempting to read the external
+* minimize the set of operations to be actually performed onto the Identity Store by attempting to read the external
 object corresponding to the internal entity and comparing with the modifications provided
 
 Different implementations of the

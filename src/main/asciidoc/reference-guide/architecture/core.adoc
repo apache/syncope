@@ -51,10 +51,10 @@ reports and auditing).
 ==== Provisioning
 
 The Provisioning layer is involved with managing the internal (via workflow) and external (via specific connectors) 
-representation of users, groups and any objects.
+representation of Users, Groups and Any Objects.
 
-One of the most important features provided is the <<mapping,mapping>> definition: internal data (users, for example) 
-representation is correlated with information available on the available identity stores. +
+One of the most important features provided is the <<mapping,mapping>> definition: internal data (Users, for example) 
+representation is correlated with information available on the available Identity Stores. +
 Such definitions constitute the pillars of inbound (pull) and outbound (propagation / push)
 <<provisioning,provisioning>>.
 
@@ -71,7 +71,7 @@ In addition, an http://camel.apache.org/[Apache Camel^]-based implementation is 
 [[workflow-layer]]
 ==== Workflow
 
-The Workflow layer is responsible for managing the internal lifecycle of users, groups and any objects.
+The Workflow layer is responsible for managing the internal lifecycle of Users, Groups and Any Objects.
 
 Besides the default engine, another engine is available based on http://www.activiti.org/[Activiti BPM^], the 
 reference open source http://www.bpmn.org/[BPMN 2.0^] implementation. It enables advanced features such

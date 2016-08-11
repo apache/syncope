@@ -18,7 +18,7 @@
 //
 
 ===== Group command
-The group command retrieves information about the configured groups.
+The group command retrieves information about the configured Groups.
 
 [discrete]
 ====== Help message
@@ -43,9 +43,9 @@ Usage: group [options]
 ====== Options
 
 --details::
-This option shows a table with the amount of available groups and some additional information.
+This option shows a table with the amount of available Groups and some additional information.
 --list::
-Running the command with this option you will see the list of the groups.
+Running the command with this option you will see the list of the Groups.
 --read::
 The option to read the group passed as input.
 --read-attr-by-schema-type::

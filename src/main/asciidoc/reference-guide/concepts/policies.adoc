@@ -40,15 +40,15 @@ Account policies allow to impose constraints on username values, and are involve
 
 [NOTE]
 ====
-When set for realm R, an account policy is enforced to all users of R and sub-realms.
+When set for realm R, an account policy is enforced to all Users of R and sub-realms.
 
-When set for resource R, an account policy is enforced to all users that have R assigned.
+When set for resource R, an account policy is enforced to all Users that have R assigned.
 ====
 
 When defining an account policy, the following information is to be provided:
 
-* max authentication attempts - how many times users are allowed to fail authentication before getting suspended
-* propagate suspension - when suspended as consequence of too many authentication failures, should users also be
+* max authentication attempts - how many times Users are allowed to fail authentication before getting suspended
+* propagate suspension - when suspended as consequence of too many authentication failures, should Users also be
 suspended on associated resources or not?
 * pass-through resources - which <<external-resource-details,external resources>> are involved with
 <<pass-through-authentication,pass-through authentication>>
@@ -121,7 +121,7 @@ external resource (provided that the underlying <<connector-instance-details,con
 capability set): the first check succeeding will successfully authenticate the user.
 
 This feature allows, for example, to avoid storing password values in the internal storage and to reuse credentials
-contained in identity stores (with no need of pulling them out), or to implement authentication chains.
+contained in Identity Stores (with no need of pulling them out), or to implement authentication chains.
 
 [[policies-password]]
 ==== Password
@@ -130,14 +130,14 @@ Password policies allow to impose constraints on password values.
 
 [NOTE]
 ====
-When set for realm R, a password policy is enforced to all users of R and sub-realms.
+When set for realm R, a password policy is enforced to all Users of R and sub-realms.
 
-When set for resource R, a password policy is enforced to all users that have R assigned.
+When set for resource R, a password policy is enforced to all Users that have R assigned.
 ====
 
 When defining a password policy, the following information is to be provided:
 
-* allow null password - whether password is mandatory for users or not
+* allow null password - whether password is mandatory for Users or not
 * history length - how many values shall be considered in the history
 * rules - set of password rules to evaluate with the current policy
 
@@ -219,14 +219,14 @@ referring to configuration class
 
 Pull policies are evaluated during the execution of <<tasks-pull,pull tasks>> and are meant to:
 
-. help matching existing users, groups and any objects during <<provisioning-pull,pull>>, thus generating update events
+. help matching existing Users, Groups and Any Objects during <<provisioning-pull,pull>>, thus generating update events
 (rathern than create)
 . determine which action shall be taken in case such match is not unique (e.g. what to do if the same external account
-can be mapped to two distinct users in Apache Syncope?)
+can be mapped to two distinct Users in Apache Syncope?)
 
 [NOTE]
 ====
-When set for resource R, a pull policy is enforced to all users, groups and any objects pulled from R.
+When set for resource R, a pull policy is enforced to all Users, Groups and Any Objects pulled from R.
 ====
 
 When defining a pull policy, the following information is to be provided:
@@ -236,13 +236,13 @@ When defining a pull policy, the following information is to be provided:
 ** `FIRSTMATCH` - pull first matching object only
 ** `LASTMATCH` - pull last matching object only
 ** `ALL` - pull all matching objects
-* rules - set of correlation rules to evaluate with the current policy; for each defined <<anytype,any type>>, a
+* rules - set of correlation rules to evaluate with the current policy; for each defined <<anytype,Any Type>>, a
 different rule is required
 
 ===== Pull Correlation Rules
 
 Pull correlation rules define how to match objects received from <<connector-instance-details,connector instances>>
-with existing users, groups or any objects.
+with existing Users, Groups or Any Objects.
 
 The 
 ifeval::["{snapshotOrRelease}" == "release"]
@@ -273,5 +273,5 @@ Push policies are evaluated during the execution of <<tasks-push,push tasks>>.
 
 [NOTE]
 ====
-When set for resource R, a push policy is enforced to all users, groups and any objects pushed to R.
+When set for resource R, a push policy is enforced to all Users, Groups and Any Objects pushed to R.
 ====

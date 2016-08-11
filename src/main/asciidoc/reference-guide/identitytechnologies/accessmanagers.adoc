@@ -19,9 +19,9 @@
 ==== Access Managers
 
 _Access Managers_ focus on the application front-end, enforcing application access via authentication
-(how users are let access a given system) and authorization (which capabilities each user owns on a given system).
+(how Users are let access a given system) and authorization (which capabilities each user owns on a given system).
 
-Several practices and standards can be implemented by access managers:
+Several practices and standards can be implemented by Access Managers:
 
 * https://en.wikipedia.org/wiki/Single_sign-on[Single Sign-On^]
 * http://oauth.net/[OAuth^]

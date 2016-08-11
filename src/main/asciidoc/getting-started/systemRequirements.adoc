@@ -22,7 +22,7 @@
 === Hardware
 
 The hardware requirements depend greatly on the given deployment, in particular the total number of
-managed entities (users, groups and any objects), their attributes and resources.
+managed entities (Users, Groups and Any Objects), their attributes and resources.
 
  * CPU: dual core, 2 GHz (minimum)
  * RAM: 2 GB (minimum)

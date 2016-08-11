@@ -20,7 +20,7 @@
 ===== Extensions
 The extensions tab shows the extensions installed on the given Apache Syncope deployment.
 
-Among the available extensions, the one for Apache Camel-based provisioning is often installed: users can inspect the
+Among the available extensions, the one for Apache Camel-based provisioning is often installed: Users can inspect the
 performance measures for the various routes defined.
 
 image::consoleCamelExtension.png[console-camel-extension]

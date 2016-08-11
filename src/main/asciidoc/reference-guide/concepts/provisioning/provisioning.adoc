@@ -34,7 +34,7 @@ image::provisioningFlow.png[title="Provisioning flow",alt="Provisioning flow"]
 
 The provisioning operations can be initiated in several different ways:
 
-* by creating, updating or deleting users, groups or any objects via REST (thus involving the underlying 
+* by creating, updating or deleting Users, Groups or Any Objects via REST (thus involving the underlying 
 <<logic,logic>> layer)
 * by requesting execution of pull or push tasks via REST
 * by triggering periodic pull or push task execution

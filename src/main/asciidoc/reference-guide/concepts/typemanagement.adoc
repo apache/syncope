@@ -18,7 +18,7 @@
 //
 === Type Management
 
-In order to manage which attributes can be owned by users, groups and any object, and which values can be provided,
+In order to manage which attributes can be owned by Users, Groups and any object, and which values can be provided,
 Apache Syncope defines a simple yet powerful type management system, vaguely inspired by the LDAP/X.500 information
 model.
 
@@ -82,13 +82,13 @@ evaluating the related JEXL expression
 
 ===== Virtual
 
-Virtual attributes are somehow linked from identity stores rather than stored internally.
+Virtual attributes are somehow linked from Identity Stores rather than stored internally.
 
-The typical use case is when attribute values can change in the identity store without notice, and it is required to
+The typical use case is when attribute values can change in the Identity Store without notice, and it is required to
 always have access to the most recent values that are available.
 
-It can also be said that virtual schemas are for attributes whose ownership is not that of Syncope but of an identity store;
-the external resources for such identity stores are said to be the _linking resources_.
+It can also be said that virtual schemas are for attributes whose ownership is not that of Syncope but of an Identity Store;
+the external resources for such Identity Stores are said to be the _linking resources_.
 
 [TIP]
 As best practice, only attributes for which Apache Syncope retains ownership should be modeled as plain attributes;
@@ -105,7 +105,7 @@ When defining a virtual schema, the following information must be provided:
 .Virtual Attribute Cache
 ****
 For performance optimization, virtual attributes are managed by an internal cache to control the actual access to 
-the linked identity stores.
+the linked Identity Stores.
 
 The internal cache implements the 
 ifeval::["{snapshotOrRelease}" == "release"]
@@ -137,7 +137,7 @@ endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
 https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/cache/DisabledVirAttrCache.java[DisabledVirAttrCache^]
 endif::[]
-| Pass-through cache which actually does not provide any caching: use when direct access to the identity store is required.
+| Pass-through cache which actually does not provide any caching: use when direct access to the Identity Store is required.
 
 |===
 ****
@@ -146,7 +146,7 @@ endif::[]
 
 Any type classes are aggregations of plain, derived and virtual schemas, provided with unique identifiers.
 
-Classes can be assigned to <<anytype, any types>> and are also available as auxiliary (hence to be specified on a
+Classes can be assigned to <<anytype, Any Types>> and are also available as auxiliary (hence to be specified on a
 given user / group / any object instance) and for <<type-extensions,type extensions>>.
 
 ==== AnyType
@@ -154,10 +154,10 @@ given user / group / any object instance) and for <<type-extensions,type extensi
 Any types represent the type of identities that Apache Syncope is able to manage; besides the predefined `USER` and 
 `GROUP`, more types can be created to model workstations, printers, folders, sensors, services, ...
 
-For all any types that are defined, a set of <<anytypeclass, classes>> can be selected so that instances af a given any type will
+For all Any Types that are defined, a set of <<anytypeclass, classes>> can be selected so that instances af a given any type will
 be enabled to populate attributes for schemas in those classes.
 
-.Any types and attributes allowed for users, groups and any objects
+.Any types and attributes allowed for Users, Groups and Any Objects
 ====
 Assuming that the following schemas are available:
 
@@ -165,12 +165,12 @@ Assuming that the following schemas are available:
 . derived: `fullname`
 . virtual: `enrollment`
 
-and that the following any type classes are defined:
+and that the following Any Type classes are defined:
 
 . `minimal` - containing `firstname`, `surname` and `fullname`
 . `member` - containing `email` and `enrollment`
 
-and that the `USER` any type has only `minimal` assigned, then the following users are valid (details are simplified to
+and that the `USER` Any Type has only `minimal` assigned, then the following Users are valid (details are simplified to
 increase readability):
 
 [source,json]
@@ -252,10 +252,10 @@ increase readability):
 
 ==== RelationshipType
 
-Relationships allow the creation of a link between a user and an any object, or between two any objects; relationship types
+Relationships allow the creation of a link between a user and an any object, or between two Any Objects; relationship types
 define the available link types.
 
-.Relationship between any objects (printers)
+.Relationship between Any Objects (printers)
 ====
 The following any object of type `PRINTER` contains a relationship of type `neighborhood` with another `PRINTER`
 (details are simplified to increase readability):
@@ -298,7 +298,7 @@ The following any object of type `PRINTER` contains a relationship of type `neig
 When a user (or an any object) is part of a group, a _membership_ is defined.
 
 It is sometimes useful to define attributes which are bound to a particular membership: if, for example, the
-`University A` and `University B` groups are available, a student might have different e-mail addresses for each
+`University A` and `University B` Groups are available, a student might have different e-mail addresses for each
 university. How can this be modeled?
 
 Type extensions define a set of <<anytypeclass,classes>> associated to a group, that can be automatically

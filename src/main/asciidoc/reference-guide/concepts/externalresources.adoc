@@ -19,7 +19,7 @@
 === External Resources
 
 ****
-Connector Bundles:: The components able to connect to identity stores; not specifically bound to Apache Syncope, 
+Connector Bundles:: The components able to connect to Identity Stores; not specifically bound to Apache Syncope, 
 as they are part of the http://connid.tirasa.net[ConnId^] project.
 Connector Instances:: Instances of connector bundles, obtained by assigning values to the defined configuration 
 properties. For instance, there is only a single `DatabaseTable` (the bundle) that can be instantiated
@@ -78,9 +78,9 @@ available: with this flag set, a random value will be generated, compliant with 
 <<propagation,propagation>>, <<provisioning-pull,pull>> and <<provisioning-push,push>>
 * configuration - see <<connector-instance-details,above>>
 * capabilities - see <<connector-instance-details,above>>
-* account policy - which <<policies-account,account policy>> to enforce on users, groups and any objects assigned to
+* account policy - which <<policies-account,account policy>> to enforce on Users, Groups and Any Objects assigned to
 this external resource
-* password policy - which <<policies-password,password policy>> to enforce on users, groups and any objects assigned to
+* password policy - which <<policies-password,password policy>> to enforce on Users, Groups and Any Objects assigned to
 this external resource
 * pull policy - which <<policies-pull,pull policy>> to apply during <<provisioning-pull,pull>> on this external
 resource
@@ -95,10 +95,10 @@ configuring an external resource. Such information, in fact, plays a key role fo
 [.text-center]
 image::mapping.png[title="Sample mapping",alt="Sample mapping"]
 
-For each of the <<anytype,any types>> supported by the underlying connector, a different mapping is provided.
+For each of the <<anytype,Any Types>> supported by the underlying connector, a different mapping is provided.
 
 A mapping is essentially a collection of _mapping items_ describing the correspondance between an user / group / any
-object attribute and its counterpart on the identity store represented by the current external resource. Each item
+object attribute and its counterpart on the Identity Store represented by the current external resource. Each item
 specifies:
 
 * internal attribute - the <<schema, schema>> acting as the source or destination of provisioning operations; it must be
@@ -110,7 +110,7 @@ specified by an expression matching one of the following models:
 name `anyObjectName`, if a relationship with the mapped entity exists
 ** `memberships[groupName].schema` - resolves to the attribute for the given `schema`, owned by the membership for group
 `groupName` of the mapped entity (user, any object), if such a membership exists
-* external attribute - the name of the attribute on the identity store
+* external attribute - the name of the attribute on the Identity Store
 * transformers - http://commons.apache.org/proper/commons-jexl/[JEXL^] expression or Java class implementing
 ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/data/MappingItemTransformer.java[MappingItemTransformer^]
@@ -122,8 +122,8 @@ endif::[]
 * mandatory condition - http://commons.apache.org/proper/commons-jexl/[JEXL^] expression indicating whether values for 
 this mapping item must be necessarily available or not; compared to a simple boolean value, such condition allows
 complex statements to be expressed such as 'be mandatory only if this other attribute value is above 14', and so on
-* remote key flag - should this item be considered as the key value on the identity store?
-* password flag (users only) - should this item be treated as the password value?
+* remote key flag - should this item be considered as the key value on the Identity Store?
+* password flag (Users only) - should this item be treated as the password value?
 * purpose - should this item be considered for <<propagation,propagation>> / <<provisioning-push,push>>,
 <<provisioning-pull,pull>>, both or none? 
 
@@ -131,8 +131,8 @@ Besides the items documented above, some more data needs to be specified for a c
 
 * ConnId `objectClass` - which
 http://connid.tirasa.net/apidocs/1.4/org/identityconnectors/framework/common/objects/ObjectClass.html[object class^]
-shall be used during communication with the identity store; predefined are `\\__ACCOUNT__` for users and 
-`\\__GROUP__` for groups
+shall be used during communication with the Identity Store; predefined are `\\__ACCOUNT__` for Users and 
+`\\__GROUP__` for Groups
 * Object link - only required by some connector bundles as
 https://connid.atlassian.net/wiki/display/BASE/LDAP[LDAP^] and
 https://connid.atlassian.net/wiki/pages/viewpage.action?pageId=360482[Active Directory^], generally specifies the model

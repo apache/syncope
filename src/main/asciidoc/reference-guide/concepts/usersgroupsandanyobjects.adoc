@@ -18,7 +18,7 @@
 //
 === Users, Groups and Any Objects
 
-Users, groups and any objects are definitely the key entities to manage: as explained <<introduction,above>>
+Users, Groups and Any Objects are definitely the key entities to manage: as explained <<introduction,above>>
 in fact, the whole identity management concept is literally about managing identity data.
 
 Starting with Apache Syncope 2.0, the following identities are supported:
@@ -26,14 +26,14 @@ Starting with Apache Syncope 2.0, the following identities are supported:
 * *Users* represent the virtual identities build up of account information fragmented across the associated external 
 resources
 * *Groups* have the dual purpose of representing entities on external resources supporting this concept (say LDAP or
-Active Directory) and putting together users or any objects for implementing group-based provisioning, e.g. to
-dynamically associate users or any objects to external resources
+Active Directory) and putting together Users or Any Objects for implementing group-based provisioning, e.g. to
+dynamically associate Users or Any Objects to external resources
 * *Any Objects* actually cover very different entities that can be modeled: printers, services, sensors, ...
 
 For each of the identities above, Apache Syncope is capable of maintaining:
 
-. `name` (`username`, for users) - string value uniquely identifying a specific user, group or any object instance;
-. `password` (users only) - hashed or encrypted value, depending on the selected `password.cipher.algorithm` - see
+. `name` (`username`, for Users) - string value uniquely identifying a specific user, group or any object instance;
+. `password` (Users only) - hashed or encrypted value, depending on the selected `password.cipher.algorithm` - see
 <<configuration-parameters, below>> for details - which can be used for authentication;
 . set of attributes, with each attribute being a `(key,values)` pair where
 
@@ -49,11 +49,11 @@ value (i.e. _plain_, _derived_ and _virtual_);
 ====
 Each user / group / any object will be able to hold values for all schemas:
 
-. defined in the <<AnyTypeClass,any type classes>> associated to their <<AnyType, any type>>;
-. defined in the <<AnyTypeClass,any type classes>> configured as *_auxiliary_* for the specific instance.
+. defined in the <<AnyTypeClass,Any Type classes>> associated to their <<AnyType, any type>>;
+. defined in the <<AnyTypeClass,Any Type classes>> configured as *_auxiliary_* for the specific instance.
 ====
 
-Moreover, users and any objects can be part of groups, or associated to other any objects.
+Moreover, Users and Any Objects can be part of Groups, or associated to other any objects.
 
 [[memberships-relationships]]
 [NOTE]
@@ -69,9 +69,9 @@ When an user or an any object is associated to another any object, a *_relations
 [TIP]
 .Static and Dynamic Memberships
 ====
-Users and any objects are _statically_ assigned to groups when memberships are explicitly set.
+Users and Any Objects are _statically_ assigned to Groups when memberships are explicitly set.
 
-With group definition, however, a condition can be expressed so that all matching users and any objects are
+With group definition, however, a condition can be expressed so that all matching Users and Any Objects are
 _dynamic_ members of the group. +
 Dynamic memberships have some limitations: for example, <<type-extensions,type extensions>> do not apply;
 group-based provisioning is still effective.

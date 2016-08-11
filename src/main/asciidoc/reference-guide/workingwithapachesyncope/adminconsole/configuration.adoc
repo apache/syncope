@@ -34,7 +34,7 @@ not be displayed.
 Notifications::
 
 This allows the admin to set events and corresponding templates for mail notification to be sent
-to the users. Trace level defines the condition in which an event will trigger the sending of a
+to the Users. Trace level defines the condition in which an event will trigger the sending of a
 notification. Templates for such notifications can also be added and edited using this tab.
 
 Parameters::
@@ -56,5 +56,5 @@ with the realms that they are enforced upon.
 
 Security Question::
 
-The admin can use this to define a set of security questions which the endusers can choose from
+The admin can use this to define a set of security questions which the endUsers can choose from
 to allow them to recover their account in case of a forgotten password.

@@ -25,14 +25,14 @@ Roles map set of <<entitlements,entitlements>> to set of <<realms,realms>>.
 ====
 Users are _statically_ assigned to roles when assignments are explicitely set.
 
-With role definition, however, a condition can be expressed so that all matching users are _dynamic_ members of the
+With role definition, however, a condition can be expressed so that all matching Users are _dynamic_ members of the
 role.
 ====
 
 ==== Delegated Administration
 
 The idea is that any user U assigned to a role R, which provides entitlements E~1~...E~n~ for realms Re~1~...Re~k~ can 
-exercise E~i~ on entities (users, groups, any objects of given types, depending on E~i~) under any Re~j~ or related
+exercise E~i~ on entities (Users, Groups, Any Objects of given types, depending on E~i~) under any Re~j~ or related
 sub-realms.
 
 .Authorization
@@ -40,8 +40,8 @@ sub-realms.
 Let's suppose that we want to implement the following scenario:
 
 ****
-Administrator A can create users under realm R~5~ but not under realm R~7~, administrator B can update users under 
-realm R~6~ and R~8~, administrator C can update groups under realm R~8~.
+Administrator A can create Users under realm R~5~ but not under realm R~7~, administrator B can update users under 
+realm R~6~ and R~8~, administrator C can update Groups under realm R~8~.
 ****
 
 As by default, Apache Syncope will have defined the following entitlements, among others:
@@ -63,7 +63,7 @@ above:
 ====
 Groups can designate user or another group as _owner_.
 
-The practical consequence of this setting is that users owning a group (either because they are directly set as owners
+The practical consequence of this setting is that Users owning a group (either because they are directly set as owners
 or members of the owning group) is that they are entitled to perform all operations (create, update, delete, ...) on the
 owned group, regardless of the realm.
 ====

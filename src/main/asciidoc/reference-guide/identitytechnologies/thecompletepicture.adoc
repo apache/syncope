@@ -19,7 +19,7 @@
 ==== The Complete Picture
 
 The picture below shows a typical scenario where an organization's infrastructure is helped by identity technologies in
-providing secure and trusted application access to end-users, while keeping different levels of data and processes under
+providing secure and trusted application access to end-Users, while keeping different levels of data and processes under
 control for business owners, help-desk operators and system administrators.
 
 [.text-center]

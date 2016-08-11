@@ -22,14 +22,14 @@ The main role of _Provisioning Engines_ is to keep Identity Stores synchronized 
 
 Some other characteristics and features provided:
 
-* Adapt to identity store data and application models
-* Do not require changes in identity stores or applications
-* Build virtual unified view of identity data distributed across several identity stores
+* Adapt to Identity Store data and application models
+* Do not require changes in Identity Stores or applications
+* Build virtual unified view of identity data distributed across several Identity Stores
 * Allow to define and enforce security policies
 * Permit workflow definition, with transitions subject to approval
 * Focused on application back-end
 
-In brief, provisioning engines take heterogeneous identity stores (and business requirements) as input and build up
+In brief, provisioning engines take heterogeneous Identity Stores (and business requirements) as input and build up
 high-level identity data management throughout what is called the *Identity Lifecycle*.
 
 [.text-center]

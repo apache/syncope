@@ -76,7 +76,7 @@ https://camunda.org/[Camunda^] or http://jbpm.jboss.org/[jBPM^].
 
 ==== Activiti User Workflow Adapter
 
-An advanced adapter is provided for users, based on http://www.activiti.org/[Activiti BPM^], the reference open source 
+An advanced adapter is provided for Users, based on http://www.activiti.org/[Activiti BPM^], the reference open source 
 http://www.bpmn.org/[BPMN 2.0^] implementation.
 
 The
@@ -112,7 +112,7 @@ image::userWorkflow.png[title="Default Activiti user workflow",alt="Default Acti
 Every transition in the Activiti user workflow definition can be subjected to approval.
 
 The underlying idea is that some kind of self-modifications (group memberships, external resource assignments, ...)
-might not be allowed to 'plain' users, as there could be conditions which require management approval.
+might not be allowed to 'plain' Users, as there could be conditions which require management approval.
 Managers could also be asked for completing the information provided before the requested operation is completed.
 
 In order to define an approval form, a dedicated BPMN `userTask` needs to be defined, following the rules established
@@ -139,7 +139,7 @@ http://www.activiti.org/userguide/index.html#activitiModeler[Activiti Modeler^].
 </userTask>
 ----
 <1> `formKey` and `id` must be unique across the workflow definition, `name` is displayed by the admin console;
-`candidateGroups` and `candidateUsers` might be defined, even both, to indicate which groups or users should be
+`candidateGroups` and `candidateUsers` might be defined, even both, to indicate which Groups or Users should be
 managing these approvals
 <2> `expression` will be evaluated against the current requesting `user` (as workflow variable) and related properties;
 read-only form input can be defined by setting `writable="false"`
