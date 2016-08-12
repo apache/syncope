@@ -51,13 +51,36 @@ under the License.
         <activiti:formProperty id="rejectReason" name="Reason for rejecting" type="string" variable="rejectReason"/>
       </extensionElements>
     </userTask>
-    <sequenceFlow id="flow3" sourceRef="createApproval" targetRef="createApprovalGW"/>
-    <exclusiveGateway id="createApprovalGW"/>
+    <sequenceFlow id="flow3" sourceRef="createApproval" targetRef="CreateApprovalEvaluation"/>
+    <scriptTask id="CreateApprovalEvaluation" name="Create approval evaluation" scriptFormat="groovy" activiti:autoStoreVariables="false">
+      <script><![CDATA[
+try {
+  if (approve){
+    execution.setVariable("task", 'approve');
+  } else {
+    execution.setVariable("task", 'reject');
+  }
+} catch(Exception ae) {
+  try {
+    if (task != 'delete') {
+      execution.setVariable("task", null);
+    }
+  } catch(Exception te) {
+    execution.setVariable("task", null);
+  }
+}]]></script>
+    </scriptTask>   
+    <sequenceFlow id="sid-56E7041A-748A-4C71-ABF3-7DCA0BEC8991" sourceRef="CreateApprovalEvaluation" targetRef="createApprovalGW"/>
+    <exclusiveGateway id="createApprovalGW" default="sid-76B82B68-099D-4729-B8CF-D028386FE900"/>
+    <sequenceFlow id="sid-76B82B68-099D-4729-B8CF-D028386FE900" sourceRef="createApprovalGW" targetRef="createApproval"/>
     <sequenceFlow id="createApprovalGW2EnableGW" sourceRef="createApprovalGW" targetRef="enableGW">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approve}]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${task == 'approve'}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="createApproval2Reject" sourceRef="createApprovalGW" targetRef="reject">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${!approve}]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${task == 'reject'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="sid-B2EEC511-2924-4A95-B0B8-E35DA268DD58" sourceRef="createApprovalGW" targetRef="rejectedGw">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${task == 'delete'}]]></conditionExpression>
     </sequenceFlow>
     <exclusiveGateway id="enableGW"/>
     <sequenceFlow id="createApprovalGW2OptIn" sourceRef="enableGW" targetRef="generateToken">
@@ -70,7 +93,7 @@ under the License.
     </sequenceFlow>
     <sequenceFlow id="createApprovalGW2Active" sourceRef="enableGW" targetRef="active">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${enabled}]]></conditionExpression>
-    </sequenceFlow>    
+    </sequenceFlow>
     <sequenceFlow id="createApprovalGW2Suspended" sourceRef="enableGW" targetRef="suspend">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${!enabled}]]></conditionExpression>
     </sequenceFlow>
@@ -88,9 +111,9 @@ under the License.
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${!user.checkToken(token)}]]></conditionExpression>
     </sequenceFlow>
     <scriptTask id="removeToken" name="Remove Token and Activate" scriptFormat="groovy" activiti:autoStoreVariables="false">
-      <script>
+      <script><![CDATA[
         user.removeToken()    
-      </script>
+      ]]></script>
     </scriptTask>
     <sequenceFlow id="flow7" sourceRef="removeToken" targetRef="active"/>
     <userTask id="active" name="Active"/>
@@ -108,16 +131,16 @@ under the License.
     </sequenceFlow>
     <sequenceFlow id="active2Suspend" sourceRef="activeGw" targetRef="suspend">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${task == 'suspend'}]]></conditionExpression>
-    </sequenceFlow>    
+    </sequenceFlow>
     <sequenceFlow id="active2Delete" sourceRef="activeGw" targetRef="delete">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${task == 'delete'}]]></conditionExpression>
-    </sequenceFlow>    
+    </sequenceFlow>
     <sequenceFlow id="active2RequestPasswordReset" sourceRef="activeGw" targetRef="generateToken4PasswordReset">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${task == 'requestPasswordReset'}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="active2ConfirmPasswordReset" sourceRef="activeGw" targetRef="checkToken4ConfirmPasswordReset">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${task == 'confirmPasswordReset'}]]></conditionExpression>
-    </sequenceFlow>    
+    </sequenceFlow>
     <userTask id="updateApproval" name="Update approval" activiti:candidateGroups="7" activiti:formKey="updateApproval">
       <extensionElements>
         <activiti:formProperty id="username" name="Username" type="string" expression="${user.username}" writable="false"/>
@@ -125,22 +148,45 @@ under the License.
         <activiti:formProperty id="rejectReason" name="Reason for rejecting" type="string" variable="rejectReason"/>
       </extensionElements>
     </userTask>
-    <sequenceFlow id="flow8bis" sourceRef="updateApproval" targetRef="updateApprovalGW"/>
-    <exclusiveGateway id="updateApprovalGW"/>
+    <sequenceFlow id="sid-A2BDF803-688C-4A4D-9D33-6D859C029245" sourceRef="updateApproval" targetRef="UpdateApprovalEvaluation"/>
+    <scriptTask id="UpdateApprovalEvaluation" name="Update approval evaluation" scriptFormat="groovy" activiti:autoStoreVariables="false">
+      <script><![CDATA[
+try {
+  if (approve){
+    execution.setVariable("task", 'approve');
+  } else {
+    execution.setVariable("task", 'reject');
+  }
+} catch(Exception ae) {
+  try {
+    if (task != 'delete') {
+      execution.setVariable("task", null);
+    }
+  } catch(Exception te) {
+    execution.setVariable("task", null);
+  }
+}]]></script>
+    </scriptTask>
+    <sequenceFlow id="sid-53FA7F29-CE60-4AE6-921D-AF7331CDB19F" sourceRef="UpdateApprovalEvaluation" targetRef="updateApprovalGW"/>
+    <exclusiveGateway id="updateApprovalGW" default="sid-E58BBC2D-8831-4CF2-A798-14B258FE569B"/>
+    <sequenceFlow id="sid-E58BBC2D-8831-4CF2-A798-14B258FE569B" sourceRef="updateApprovalGW" targetRef="updateApproval"/>
     <sequenceFlow id="updateApprovalGW2Update" sourceRef="updateApprovalGW" targetRef="update">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approve}]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${task == 'approve'}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="updateApprovalGW2Reject" sourceRef="updateApprovalGW" targetRef="rejectUpdate">
-      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${!approve}]]></conditionExpression>
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${task == 'reject'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="sid-B5FFEBCA-1FBF-457F-BC55-39FD387188B2" sourceRef="updateApprovalGW" targetRef="delete">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${task == 'delete'}]]></conditionExpression>
     </sequenceFlow>
     <scriptTask id="rejectUpdate" name="Reject update" scriptFormat="groovy" activiti:autoStoreVariables="false">
-      <script>
+      <script><![CDATA[
         execution.setVariable("propByResource", null);
-      </script>
+      ]]></script>
     </scriptTask>
     <sequenceFlow id="flow8ter" sourceRef="rejectUpdate" targetRef="active"/>
     <serviceTask id="update" name="Update" activiti:expression="#{update.execute(execution.processInstanceId)}"/>
-    <sequenceFlow id="flow9" sourceRef="update" targetRef="active"/>    
+    <sequenceFlow id="flow9" sourceRef="update" targetRef="active"/>
     <serviceTask id="suspend" name="Suspend" activiti:expression="#{suspend.execute(execution.processInstanceId)}"/>
     <sequenceFlow id="flow10" sourceRef="suspend" targetRef="suspended"/>
     <userTask id="suspended" name="Suspended"/>
@@ -155,10 +201,10 @@ under the License.
     <serviceTask id="reactivate" name="Reactivate" activiti:expression="#{reactivate.execute(execution.processInstanceId)}"/>
     <sequenceFlow id="flow12" sourceRef="reactivate" targetRef="active"/>
     <scriptTask id="reject" name="Reject" scriptFormat="groovy" activiti:autoStoreVariables="false">
-      <script>
+      <script><![CDATA[
         def scriptVar = rejectReason
         execution.setVariable("propByResource", null);
-      </script>
+      ]]></script>
     </scriptTask>
     <sequenceFlow id="flow13" sourceRef="reject" targetRef="rejected"/>
     <userTask id="rejected" name="Rejected"/>
@@ -169,7 +215,7 @@ under the License.
     </sequenceFlow>
     <sequenceFlow id="rejected2Rejected" sourceRef="rejectedGw" targetRef="rejected">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${empty task}]]></conditionExpression>
-    </sequenceFlow>    
+    </sequenceFlow>
     <userTask id="deleteApproval" name="Delete approval" activiti:candidateGroups="7" activiti:formKey="deleteApproval">
       <extensionElements>
         <activiti:formProperty id="username" name="Username" type="string" expression="${user.username}" writable="false"/>
@@ -186,11 +232,11 @@ under the License.
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${!approve}]]></conditionExpression>
     </sequenceFlow>
     <scriptTask id="rejectDelete" name="Reject delete" scriptFormat="groovy" activiti:autoStoreVariables="false">
-      <script>
+      <script><![CDATA[
         execution.setVariable("propByResource", null);
-      </script>
+      ]]></script>
     </scriptTask>
-    <sequenceFlow id="flow14ter" sourceRef="rejectDelete" targetRef="active"/>            
+    <sequenceFlow id="flow14ter" sourceRef="rejectDelete" targetRef="active"/>
 
     <serviceTask id="generateToken4PasswordReset" name="Generate token" activiti:expression="#{generateToken.execute(execution.processInstanceId)}"/>
     <sequenceFlow id="flow15" sourceRef="generateToken4PasswordReset" targetRef="notify4RequestPasswordReset"/>
@@ -200,7 +246,7 @@ under the License.
     <serviceTask id="checkToken4ConfirmPasswordReset" name="Check token, remove and update password" activiti:expression="#{passwordReset.execute(execution.processInstanceId)}"/>
     <sequenceFlow id="flow17" sourceRef="checkToken4ConfirmPasswordReset" targetRef="notify4ConfirmPasswordReset"/>
     <serviceTask id="notify4ConfirmPasswordReset" name="Notification" activiti:expression="#{notify.execute(execution.processInstanceId)}"/>
-    <sequenceFlow id="flow18" sourceRef="notify4ConfirmPasswordReset" targetRef="active"/>    
+    <sequenceFlow id="flow18" sourceRef="notify4ConfirmPasswordReset" targetRef="active"/>
     
     <serviceTask id="delete" name="Delete" activiti:expression="#{delete.execute(execution.processInstanceId)}"/>
     <sequenceFlow id="flow99" sourceRef="delete" targetRef="theEnd"/>
@@ -216,13 +262,13 @@ under the License.
         <omgdc:Bounds height="60.0" width="100.0" x="80.0" y="497.0"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="createGW" id="BPMNShape_createGW">
-        <omgdc:Bounds height="40.0" width="40.0" x="230.0" y="506.0"/>
+        <omgdc:Bounds height="40.0" width="40.0" x="230.0" y="507.0"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="createApproval" id="BPMNShape_createApproval">
         <omgdc:Bounds height="60.0" width="100.0" x="320.0" y="560.0"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="createApprovalGW" id="BPMNShape_createApprovalGW">
-        <omgdc:Bounds height="40.0" width="40.0" x="470.0" y="556.0"/>
+        <omgdc:Bounds height="40.0" width="40.0" x="470.0" y="570.0"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="enableGW" id="BPMNShape_enableGW">
         <omgdc:Bounds height="40.0" width="40.0" x="590.0" y="429.0"/>
@@ -231,16 +277,16 @@ under the License.
         <omgdc:Bounds height="60.0" width="100.0" x="710.0" y="610.0"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="generateToken" id="BPMNShape_generateToken">
-        <omgdc:Bounds height="60.0" width="100.0" x="702.0" y="188.0"/>
+        <omgdc:Bounds height="60.0" width="100.0" x="710.0" y="213.0"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="created" id="BPMNShape_created">
         <omgdc:Bounds height="60.0" width="100.0" x="852.0" y="213.0"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="optinGW" id="BPMNShape_optinGW">
-        <omgdc:Bounds height="40.0" width="40.0" x="1002.0" y="240.0"/>
+        <omgdc:Bounds height="40.0" width="40.0" x="1002.0" y="223.0"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="removeToken" id="BPMNShape_removeToken">
-        <omgdc:Bounds height="60.0" width="100.0" x="1092.0" y="248.0"/>
+        <omgdc:Bounds height="60.0" width="100.0" x="1080.0" y="213.0"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="active" id="BPMNShape_active">
         <omgdc:Bounds height="60.0" width="100.0" x="1030.0" y="511.0"/>
@@ -252,7 +298,7 @@ under the License.
         <omgdc:Bounds height="60.0" width="100.0" x="1490.0" y="740.0"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="updateApprovalGW" id="BPMNShape_updateApprovalGW">
-        <omgdc:Bounds height="40.0" width="40.0" x="1670.0" y="740.0"/>
+        <omgdc:Bounds height="40.0" width="40.0" x="1670.0" y="750.0"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="rejectUpdate" id="BPMNShape_rejectUpdate">
         <omgdc:Bounds height="60.0" width="100.0" x="1790.0" y="840.0"/>
@@ -279,7 +325,7 @@ under the License.
         <omgdc:Bounds height="60.0" width="100.0" x="710.0" y="770.0"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="rejectedGw" id="BPMNShape_rejectedGw">
-        <omgdc:Bounds height="40.0" width="40.0" x="890.0" y="775.0"/>
+        <omgdc:Bounds height="40.0" width="40.0" x="890.0" y="780.0"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="deleteApproval" id="BPMNShape_deleteApproval">
         <omgdc:Bounds height="60.0" width="100.0" x="1490.0" y="280.0"/>
@@ -290,12 +336,6 @@ under the License.
       <bpmndi:BPMNShape bpmnElement="rejectDelete" id="BPMNShape_rejectDelete">
         <omgdc:Bounds height="60.0" width="100.0" x="1790.0" y="240.0"/>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="delete" id="BPMNShape_delete">
-        <omgdc:Bounds height="60.0" width="100.0" x="1940.0" y="358.0"/>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="theEnd" id="BPMNShape_theEnd">
-        <omgdc:Bounds height="28.0" width="28.0" x="2078.1893792531678" y="374.0"/>
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="generateToken4PasswordReset" id="BPMNShape_generateToken4PasswordReset">
         <omgdc:Bounds height="59.99999999999994" width="100.0" x="1543.209935088986" y="452.6749142927693"/>
       </bpmndi:BPMNShape>
@@ -303,15 +343,23 @@ under the License.
         <omgdc:Bounds height="60.00000000000006" width="100.0" x="1748.9712597675173" y="452.6749142927692"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="checkToken4ConfirmPasswordReset" id="BPMNShape_checkToken4ConfirmPasswordReset">
-        <omgdc:Bounds height="60.0" width="100.0" x="1558.797798366986" y="561.167207412115"/>
+        <omgdc:Bounds height="60.0" width="100.0" x="1543.209935088986" y="561.167207412115"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="notify4ConfirmPasswordReset" id="BPMNShape_notify4ConfirmPasswordReset">
         <omgdc:Bounds height="60.0" width="100.0" x="1748.971259767517" y="561.167207412115"/>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge bpmnElement="flow17" id="BPMNEdge_flow17">
-        <omgdi:waypoint x="1658.797798366986" y="591.167207412115"/>
-        <omgdi:waypoint x="1748.971259767517" y="591.167207412115"/>
-      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape bpmnElement="delete" id="BPMNShape_delete">
+        <omgdc:Bounds height="60.0" width="100.0" x="1940.0" y="358.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="theEnd" id="BPMNShape_theEnd">
+        <omgdc:Bounds height="28.0" width="28.0" x="2078.1893792531678" y="374.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="CreateApprovalEvaluation" id="BPMNShape_CreateApprovalEvaluation">
+        <omgdc:Bounds height="80.0" width="100.0" x="320.0" y="732.0"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="UpdateApprovalEvaluation" id="BPMNShape_UpdateApprovalEvaluation">
+        <omgdc:Bounds height="80.0" width="100.0" x="1490.0" y="824.5833282470703"/>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge bpmnElement="flow12" id="BPMNEdge_flow12">
         <omgdi:waypoint x="1940.0" y="129.51612903225805"/>
         <omgdi:waypoint x="1928.0" y="127.0"/>
@@ -323,6 +371,131 @@ under the License.
         <omgdi:waypoint x="1752.0" y="150.0"/>
         <omgdi:waypoint x="1752.0" y="200.0"/>
         <omgdi:waypoint x="1820.0" y="200.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow10" id="BPMNEdge_flow10">
+        <omgdi:waypoint x="1590.0" y="130.0"/>
+        <omgdi:waypoint x="1602.0" y="130.0"/>
+        <omgdi:waypoint x="1602.0" y="150.0"/>
+        <omgdi:waypoint x="1640.0" y="150.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-E58BBC2D-8831-4CF2-A798-14B258FE569B" id="BPMNEdge_sid-E58BBC2D-8831-4CF2-A798-14B258FE569B">
+        <omgdi:waypoint x="1670.4333333333334" y="770.4333333333333"/>
+        <omgdi:waypoint x="1590.0" y="770.1661129568106"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="createApproval2Reject" id="BPMNEdge_createApproval2Reject">
+        <omgdi:waypoint x="510.0" y="590.0"/>
+        <omgdi:waypoint x="522.0" y="590.0"/>
+        <omgdi:waypoint x="522.0" y="689.0"/>
+        <omgdi:waypoint x="560.0" y="689.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="updateApprovalGW2Update" id="BPMNEdge_updateApprovalGW2Update">
+        <omgdi:waypoint x="1710.0" y="770.0"/>
+        <omgdi:waypoint x="1752.0" y="770.0"/>
+        <omgdi:waypoint x="1752.0" y="730.0"/>
+        <omgdi:waypoint x="1790.0" y="730.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="rejected2Delete" id="BPMNEdge_rejected2Delete">
+        <omgdi:waypoint x="930.0" y="800.0"/>
+        <omgdi:waypoint x="972.0" y="800.0"/>
+        <omgdi:waypoint x="1223.0" y="1000.5833740234375"/>
+        <omgdi:waypoint x="1990.0" y="1000.5833740234375"/>
+        <omgdi:waypoint x="1990.0" y="418.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="updateApprovalGW2Reject" id="BPMNEdge_updateApprovalGW2Reject">
+        <omgdi:waypoint x="1710.0" y="770.0"/>
+        <omgdi:waypoint x="1752.0" y="770.0"/>
+        <omgdi:waypoint x="1752.0" y="870.0"/>
+        <omgdi:waypoint x="1790.0" y="870.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow8ter" id="BPMNEdge_flow8ter">
+        <omgdi:waypoint x="1840.0" y="900.0"/>
+        <omgdi:waypoint x="1840.0" y="924.5833740234375"/>
+        <omgdi:waypoint x="1238.0" y="924.5833740234375"/>
+        <omgdi:waypoint x="1114.0" y="837.5833740234375"/>
+        <omgdi:waypoint x="1083.4391678338632" y="571.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow17" id="BPMNEdge_flow17">
+        <omgdi:waypoint x="1643.209935088986" y="591.167207412115"/>
+        <omgdi:waypoint x="1748.971259767517" y="591.167207412115"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow18" id="BPMNEdge_flow18">
+        <omgdi:waypoint x="1748.971259767517" y="619.2818713118841"/>
+        <omgdi:waypoint x="1673.0" y="662.0"/>
+        <omgdi:waypoint x="1130.0" y="551.2023608768972"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow15" id="BPMNEdge_flow15">
+        <omgdi:waypoint x="1643.209935088986" y="482.67491429276924"/>
+        <omgdi:waypoint x="1748.9712597675173" y="482.67491429276924"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow16" id="BPMNEdge_flow16">
+        <omgdi:waypoint x="1748.9712597675173" y="459.5618225523418"/>
+        <omgdi:waypoint x="1592.0" y="387.0"/>
+        <omgdi:waypoint x="1130.0" y="525.9609375"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow13" id="BPMNEdge_flow13">
+        <omgdi:waypoint x="660.0" y="689.0"/>
+        <omgdi:waypoint x="672.0" y="689.0"/>
+        <omgdi:waypoint x="672.0" y="800.0"/>
+        <omgdi:waypoint x="710.0" y="800.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow14" id="BPMNEdge_flow14">
+        <omgdi:waypoint x="760.0" y="770.0"/>
+        <omgdi:waypoint x="760.0" y="732.0"/>
+        <omgdi:waypoint x="910.0" y="732.0"/>
+        <omgdi:waypoint x="910.0" y="780.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="createApprovalGW2EnableGW" id="BPMNEdge_createApprovalGW2EnableGW">
+        <omgdi:waypoint x="510.0" y="590.0"/>
+        <omgdi:waypoint x="522.0" y="590.0"/>
+        <omgdi:waypoint x="522.0" y="449.0"/>
+        <omgdi:waypoint x="590.0" y="449.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="create2Activate" id="BPMNEdge_create2Activate">
+        <omgdi:waypoint x="270.0" y="527.0"/>
+        <omgdi:waypoint x="282.0" y="527.0"/>
+        <omgdi:waypoint x="282.0" y="449.0"/>
+        <omgdi:waypoint x="590.0" y="449.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="active2RequestPasswordReset" id="BPMNEdge_active2RequestPasswordReset">
+        <omgdi:waypoint x="1440.0" y="540.0"/>
+        <omgdi:waypoint x="1593.0" y="540.0"/>
+        <omgdi:waypoint x="1593.100069528527" y="512.6749142927692"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="created2Activate" id="BPMNEdge_created2Activate">
+        <omgdi:waypoint x="1042.0" y="243.0"/>
+        <omgdi:waypoint x="1080.0" y="243.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="createAsAnonymous2Approval" id="BPMNEdge_createAsAnonymous2Approval">
+        <omgdi:waypoint x="270.0" y="527.0"/>
+        <omgdi:waypoint x="282.0" y="527.0"/>
+        <omgdi:waypoint x="282.0" y="590.0"/>
+        <omgdi:waypoint x="320.0" y="590.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-76B82B68-099D-4729-B8CF-D028386FE900" id="BPMNEdge_sid-76B82B68-099D-4729-B8CF-D028386FE900">
+        <omgdi:waypoint x="470.0" y="590.0"/>
+        <omgdi:waypoint x="420.0" y="590.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-B5FFEBCA-1FBF-457F-BC55-39FD387188B2" id="BPMNEdge_sid-B5FFEBCA-1FBF-457F-BC55-39FD387188B2">
+        <omgdi:waypoint x="1690.5" y="789.5"/>
+        <omgdi:waypoint x="1690.5" y="821.5833740234375"/>
+        <omgdi:waypoint x="1990.0" y="821.5833740234375"/>
+        <omgdi:waypoint x="1990.0" y="418.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow14ter" id="BPMNEdge_flow14ter">
+        <omgdi:waypoint x="1790.0" y="260.7451923076923"/>
+        <omgdi:waypoint x="1424.0" y="193.0"/>
+        <omgdi:waypoint x="1109.655172413793" y="511.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="createApprovalGW2OptIn" id="BPMNEdge_createApprovalGW2OptIn">
+        <omgdi:waypoint x="630.0" y="449.0"/>
+        <omgdi:waypoint x="760.0" y="449.0"/>
+        <omgdi:waypoint x="760.0" y="273.0"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="createApprovalGW2Activate" id="BPMNEdge_createApprovalGW2Activate">
+        <omgdi:waypoint x="630.0" y="449.0"/>
+        <omgdi:waypoint x="672.0" y="449.0"/>
+        <omgdi:waypoint x="672.0" y="640.0"/>
+        <omgdi:waypoint x="710.0" y="640.0"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="active2DeleteApproval" id="BPMNEdge_active2DeleteApproval">
         <omgdi:waypoint x="1440.0" y="540.0"/>
@@ -336,46 +509,28 @@ under the License.
         <omgdi:waypoint x="1602.0" y="320.0"/>
         <omgdi:waypoint x="1670.0" y="320.0"/>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow10" id="BPMNEdge_flow10">
-        <omgdi:waypoint x="1590.0" y="130.0"/>
-        <omgdi:waypoint x="1602.0" y="130.0"/>
-        <omgdi:waypoint x="1602.0" y="150.0"/>
-        <omgdi:waypoint x="1640.0" y="150.0"/>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="active2RequestPasswordReset" id="BPMNEdge_active2RequestPasswordReset">
-        <omgdi:waypoint x="1439.5" y="540.5"/>
-        <omgdi:waypoint x="1593.209935088986" y="540.5"/>
-        <omgdi:waypoint x="1593.209935088986" y="512.6749142927692"/>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="active2ConfirmPasswordReset" id="BPMNEdge_active2ConfirmPasswordReset">
-        <omgdi:waypoint x="1439.5" y="540.5"/>
-        <omgdi:waypoint x="1608.797798366986" y="540.5"/>
-        <omgdi:waypoint x="1608.797798366986" y="561.167207412115"/>
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="deleteApprovalGW2Delete" id="BPMNEdge_deleteApprovalGW2Delete">
         <omgdi:waypoint x="1710.0" y="320.0"/>
         <omgdi:waypoint x="1752.0" y="320.0"/>
         <omgdi:waypoint x="1752.0" y="388.0"/>
         <omgdi:waypoint x="1940.0" y="388.0"/>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="createApproval2Reject" id="BPMNEdge_createApproval2Reject">
-        <omgdi:waypoint x="510.0" y="576.0"/>
-        <omgdi:waypoint x="522.0" y="576.0"/>
-        <omgdi:waypoint x="522.0" y="689.0"/>
-        <omgdi:waypoint x="560.0" y="689.0"/>
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="active2Delete" id="BPMNEdge_active2Delete">
         <omgdi:waypoint x="1440.0" y="540.0"/>
         <omgdi:waypoint x="1452.0" y="540.0"/>
-        <omgdi:waypoint x="1452.0" y="680.6812757582483"/>
-        <omgdi:waypoint x="1955.9214707261015" y="680.6812757582483"/>
-        <omgdi:waypoint x="1986.506931044467" y="418.0"/>
+        <omgdi:waypoint x="1452.0" y="680.0"/>
+        <omgdi:waypoint x="1955.0" y="680.0"/>
+        <omgdi:waypoint x="1986.4041095890411" y="418.0"/>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="updateApprovalGW2Update" id="BPMNEdge_updateApprovalGW2Update">
-        <omgdi:waypoint x="1710.0" y="760.0"/>
-        <omgdi:waypoint x="1752.0" y="760.0"/>
-        <omgdi:waypoint x="1752.0" y="730.0"/>
-        <omgdi:waypoint x="1790.0" y="730.0"/>
+      <bpmndi:BPMNEdge bpmnElement="sid-A2BDF803-688C-4A4D-9D33-6D859C029245" id="BPMNEdge_sid-A2BDF803-688C-4A4D-9D33-6D859C029245">
+        <omgdi:waypoint x="1540.0" y="800.0"/>
+        <omgdi:waypoint x="1540.0" y="824.5833282470703"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="sid-B2EEC511-2924-4A95-B0B8-E35DA268DD58" id="BPMNEdge_sid-B2EEC511-2924-4A95-B0B8-E35DA268DD58">
+        <omgdi:waypoint x="490.0" y="610.0"/>
+        <omgdi:waypoint x="490.0" y="859.0"/>
+        <omgdi:waypoint x="910.0" y="859.0"/>
+        <omgdi:waypoint x="910.0" y="820.0"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="active2UpdateApproval" id="BPMNEdge_active2UpdateApproval">
         <omgdi:waypoint x="1440.0" y="540.0"/>
@@ -383,35 +538,11 @@ under the License.
         <omgdi:waypoint x="1454.0" y="770.0"/>
         <omgdi:waypoint x="1490.0" y="770.0"/>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="rejected2Delete" id="BPMNEdge_rejected2Delete">
-        <omgdi:waypoint x="930.0" y="795.0"/>
-        <omgdi:waypoint x="972.0" y="795.0"/>
-        <omgdi:waypoint x="1470.0" y="911.0"/>
-        <omgdi:waypoint x="1990.0" y="911.0"/>
-        <omgdi:waypoint x="1990.0" y="418.0"/>
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="createApprovalGW2Active" id="BPMNEdge_createApprovalGW2Active">
         <omgdi:waypoint x="630.0" y="449.0"/>
-        <omgdi:waypoint x="674.0" y="449.0"/>
-        <omgdi:waypoint x="674.0" y="540.0"/>
-        <omgdi:waypoint x="1030.0" y="540.8768472906404"/>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="updateApprovalGW2Reject" id="BPMNEdge_updateApprovalGW2Reject">
-        <omgdi:waypoint x="1710.0" y="760.0"/>
-        <omgdi:waypoint x="1752.0" y="760.0"/>
-        <omgdi:waypoint x="1752.0" y="870.0"/>
-        <omgdi:waypoint x="1790.0" y="870.0"/>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow8ter" id="BPMNEdge_flow8ter">
-        <omgdi:waypoint x="1790.0" y="879.6774193548387"/>
-        <omgdi:waypoint x="1778.0" y="882.0"/>
-        <omgdi:waypoint x="1225.0" y="787.0"/>
-        <omgdi:waypoint x="1080.0" y="726.0"/>
-        <omgdi:waypoint x="1080.0" y="571.0"/>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow15" id="BPMNEdge_flow15">
-        <omgdi:waypoint x="1643.209935088986" y="482.6749142927693"/>
-        <omgdi:waypoint x="1748.9712597675173" y="482.67491429276924"/>
+        <omgdi:waypoint x="761.0" y="449.0"/>
+        <omgdi:waypoint x="761.0" y="541.0"/>
+        <omgdi:waypoint x="1030.0" y="541.0"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="suspended2Reactivate" id="BPMNEdge_suspended2Reactivate">
         <omgdi:waypoint x="1860.0" y="200.0"/>
@@ -419,35 +550,15 @@ under the License.
         <omgdi:waypoint x="1902.0" y="140.0"/>
         <omgdi:waypoint x="1940.0" y="140.0"/>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow13" id="BPMNEdge_flow13">
-        <omgdi:waypoint x="660.0" y="689.0"/>
-        <omgdi:waypoint x="672.0" y="689.0"/>
-        <omgdi:waypoint x="672.0" y="800.0"/>
-        <omgdi:waypoint x="710.0" y="800.0"/>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow14" id="BPMNEdge_flow14">
-        <omgdi:waypoint x="760.0" y="770.0"/>
-        <omgdi:waypoint x="760.0" y="732.8074937730017"/>
-        <omgdi:waypoint x="910.0" y="732.8074937730017"/>
-        <omgdi:waypoint x="910.0" y="775.0"/>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="createApprovalGW2EnableGW" id="BPMNEdge_createApprovalGW2EnableGW">
-        <omgdi:waypoint x="510.0" y="576.0"/>
-        <omgdi:waypoint x="522.0" y="576.0"/>
-        <omgdi:waypoint x="522.0" y="449.0"/>
-        <omgdi:waypoint x="590.0" y="449.0"/>
+      <bpmndi:BPMNEdge bpmnElement="sid-53FA7F29-CE60-4AE6-921D-AF7331CDB19F" id="BPMNEdge_sid-53FA7F29-CE60-4AE6-921D-AF7331CDB19F">
+        <omgdi:waypoint x="1590.0" y="833.0555521647135"/>
+        <omgdi:waypoint x="1677.7342416529327" y="777.7342416529327"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="active2Update" id="BPMNEdge_active2Update">
         <omgdi:waypoint x="1440.0" y="540.0"/>
         <omgdi:waypoint x="1456.0" y="540.0"/>
         <omgdi:waypoint x="1456.0" y="730.0"/>
         <omgdi:waypoint x="1790.0" y="730.0"/>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="create2Activate" id="BPMNEdge_create2Activate">
-        <omgdi:waypoint x="270.0" y="526.0"/>
-        <omgdi:waypoint x="282.0" y="526.0"/>
-        <omgdi:waypoint x="282.0" y="449.0"/>
-        <omgdi:waypoint x="590.0" y="449.0"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="active2Suspend" id="BPMNEdge_active2Suspend">
         <omgdi:waypoint x="1440.0" y="540.0"/>
@@ -460,45 +571,25 @@ under the License.
         <omgdi:waypoint x="1990.0" y="200.0"/>
         <omgdi:waypoint x="1990.0" y="358.0"/>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="created2Activate" id="BPMNEdge_created2Activate">
-        <omgdi:waypoint x="1042.0" y="260.0"/>
-        <omgdi:waypoint x="1054.0" y="260.0"/>
-        <omgdi:waypoint x="1054.0" y="278.0"/>
-        <omgdi:waypoint x="1092.0" y="278.0"/>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="createAsAnonymous2Approval" id="BPMNEdge_createAsAnonymous2Approval">
-        <omgdi:waypoint x="270.0" y="526.0"/>
-        <omgdi:waypoint x="282.0" y="526.0"/>
-        <omgdi:waypoint x="282.0" y="590.0"/>
-        <omgdi:waypoint x="320.0" y="590.0"/>
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow3" id="BPMNEdge_flow3">
-        <omgdi:waypoint x="420.0" y="590.0"/>
-        <omgdi:waypoint x="432.0" y="590.0"/>
-        <omgdi:waypoint x="432.0" y="576.0"/>
-        <omgdi:waypoint x="470.0" y="576.0"/>
+        <omgdi:waypoint x="370.0" y="620.0"/>
+        <omgdi:waypoint x="370.0" y="732.0"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
         <omgdi:waypoint x="180.0" y="527.0"/>
-        <omgdi:waypoint x="192.0" y="527.0"/>
-        <omgdi:waypoint x="192.0" y="526.0"/>
-        <omgdi:waypoint x="230.0" y="526.0"/>
+        <omgdi:waypoint x="230.0" y="527.0"/>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="rejected2Rejected" id="BPMNEdge_rejected2Rejected">
-        <omgdi:waypoint x="890.6451612903226" y="795.6451612903226"/>
-        <omgdi:waypoint x="810.0" y="798.3333333333334"/>
+      <bpmndi:BPMNEdge bpmnElement="sid-56E7041A-748A-4C71-ABF3-7DCA0BEC8991" id="BPMNEdge_sid-56E7041A-748A-4C71-ABF3-7DCA0BEC8991">
+        <omgdi:waypoint x="396.3736263736264" y="732.0"/>
+        <omgdi:waypoint x="482.05298013245033" y="602.0529801324503"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow5" id="BPMNEdge_flow5">
-        <omgdi:waypoint x="802.0" y="218.0"/>
-        <omgdi:waypoint x="814.0" y="218.0"/>
-        <omgdi:waypoint x="814.0" y="243.0"/>
+        <omgdi:waypoint x="810.0" y="243.0"/>
         <omgdi:waypoint x="852.0" y="243.0"/>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">
-        <omgdi:waypoint x="810.0" y="640.0"/>
-        <omgdi:waypoint x="822.0" y="640.0"/>
-        <omgdi:waypoint x="959.0" y="640.0"/>
-        <omgdi:waypoint x="1043.3333333333333" y="571.0"/>
+      <bpmndi:BPMNEdge bpmnElement="rejected2Rejected" id="BPMNEdge_rejected2Rejected">
+        <omgdi:waypoint x="890.0" y="800.0"/>
+        <omgdi:waypoint x="810.0" y="800.0"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="createApprovalGW2Suspended" id="BPMNEdge_createApprovalGW2Suspended">
         <omgdi:waypoint x="630.0" y="449.0"/>
@@ -506,58 +597,34 @@ under the License.
         <omgdi:waypoint x="672.0" y="130.0"/>
         <omgdi:waypoint x="1490.0" y="130.0"/>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow14ter" id="BPMNEdge_flow14ter">
-        <omgdi:waypoint x="1790.0" y="260.7608891486752"/>
-        <omgdi:waypoint x="1424.117736926915" y="193.1523534073587"/>
-        <omgdi:waypoint x="1109.678315230625" y="511.0"/>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="createApprovalGW2OptIn" id="BPMNEdge_createApprovalGW2OptIn">
-        <omgdi:waypoint x="630.0" y="449.0"/>
-        <omgdi:waypoint x="674.0" y="449.0"/>
-        <omgdi:waypoint x="700.0" y="449.0"/>
-        <omgdi:waypoint x="745.2467532467532" y="248.0"/>
+      <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">
+        <omgdi:waypoint x="810.0" y="640.0"/>
+        <omgdi:waypoint x="822.0" y="640.0"/>
+        <omgdi:waypoint x="959.0" y="640.0"/>
+        <omgdi:waypoint x="1043.3333333333333" y="571.0"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow1" id="BPMNEdge_flow1">
         <omgdi:waypoint x="30.0" y="527.0"/>
         <omgdi:waypoint x="80.0" y="527.0"/>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow16" id="BPMNEdge_flow16">
-        <omgdi:waypoint x="1748.9712597675173" y="459.5470829510475"/>
-        <omgdi:waypoint x="1592.4096593525787" y="387.128477171313"/>
-        <omgdi:waypoint x="1130.0" y="525.9854974413342"/>
+      <bpmndi:BPMNEdge bpmnElement="active2ConfirmPasswordReset" id="BPMNEdge_active2ConfirmPasswordReset">
+        <omgdi:waypoint x="1440.0" y="540.0"/>
+        <omgdi:waypoint x="1593.209935088986" y="540.0"/>
+        <omgdi:waypoint x="1593.209935088986" y="561.167207412115"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="created2Created" id="BPMNEdge_created2Created">
-        <omgdi:waypoint x="1002.0" y="260.0"/>
-        <omgdi:waypoint x="990.0" y="260.0"/>
-        <omgdi:waypoint x="990.0" y="243.0"/>
+        <omgdi:waypoint x="1002.0" y="243.0"/>
         <omgdi:waypoint x="952.0" y="243.0"/>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow18" id="BPMNEdge_flow18">
-        <omgdi:waypoint x="1748.971259767517" y="619.7464352880323"/>
-        <omgdi:waypoint x="1673.525420205687" y="662.8701121105813"/>
-        <omgdi:waypoint x="1130.0" y="551.266629529393"/>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="createApprovalGW2Activate" id="BPMNEdge_createApprovalGW2Activate">
-        <omgdi:waypoint x="630.0" y="449.0"/>
-        <omgdi:waypoint x="672.0" y="449.0"/>
-        <omgdi:waypoint x="672.0" y="640.0"/>
-        <omgdi:waypoint x="710.0" y="640.0"/>
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow7" id="BPMNEdge_flow7">
-        <omgdi:waypoint x="1134.9277566539924" y="308.0"/>
-        <omgdi:waypoint x="1087.0722433460076" y="511.0"/>
+        <omgdi:waypoint x="1124.96644295302" y="273.0"/>
+        <omgdi:waypoint x="1085.03355704698" y="511.0"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow6" id="BPMNEdge_flow6">
-        <omgdi:waypoint x="952.0" y="252.67741935483872"/>
-        <omgdi:waypoint x="964.0" y="255.0"/>
-        <omgdi:waypoint x="964.0" y="260.0"/>
-        <omgdi:waypoint x="1002.0" y="260.0"/>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow9" id="BPMNEdge_flow9">
-        <omgdi:waypoint x="1828.6246202240113" y="760.0"/>
-        <omgdi:waypoint x="1811.88836468294" y="804.1381014189917"/>
-        <omgdi:waypoint x="1474.4398193359375" y="804.1381014189917"/>
-        <omgdi:waypoint x="1124.969521769241" y="571.0"/>
+        <omgdi:waypoint x="902.0" y="273.0"/>
+        <omgdi:waypoint x="902.0" y="310.0"/>
+        <omgdi:waypoint x="1022.0" y="310.0"/>
+        <omgdi:waypoint x="1022.0" y="263.0"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="deleteApprovalGW2Reject" id="BPMNEdge_deleteApprovalGW2Reject">
         <omgdi:waypoint x="1710.0" y="320.0"/>
@@ -565,19 +632,21 @@ under the License.
         <omgdi:waypoint x="1752.0" y="270.0"/>
         <omgdi:waypoint x="1790.0" y="270.0"/>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow8bis" id="BPMNEdge_flow8bis">
-        <omgdi:waypoint x="1590.0" y="770.0"/>
-        <omgdi:waypoint x="1602.0" y="770.0"/>
-        <omgdi:waypoint x="1602.0" y="760.0"/>
-        <omgdi:waypoint x="1670.0" y="760.0"/>
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge bpmnElement="flow99" id="BPMNEdge_flow99">
-        <omgdi:waypoint x="2040.0" y="388.0"/>
-        <omgdi:waypoint x="2078.1893792531678" y="388.0"/>
+      <bpmndi:BPMNEdge bpmnElement="flow9" id="BPMNEdge_flow9">
+        <omgdi:waypoint x="1890.0" y="730.0"/>
+        <omgdi:waypoint x="1937.0" y="730.0"/>
+        <omgdi:waypoint x="1937.0" y="946.5833740234375"/>
+        <omgdi:waypoint x="1236.0" y="946.5833740234375"/>
+        <omgdi:waypoint x="1080.0" y="844.5833740234375"/>
+        <omgdi:waypoint x="1080.0" y="571.0"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge bpmnElement="flow8" id="BPMNEdge_flow8">
         <omgdi:waypoint x="1130.0" y="540.8529411764706"/>
         <omgdi:waypoint x="1400.058651026393" y="540.0586510263929"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow99" id="BPMNEdge_flow99">
+        <omgdi:waypoint x="2040.0" y="388.0"/>
+        <omgdi:waypoint x="2078.1893792531678" y="388.0"/>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
