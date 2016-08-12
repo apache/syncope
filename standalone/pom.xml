@@ -190,7 +190,7 @@ under the License.
                 </copy>
 
                 <!-- Other custom Tomcat resources -->
-                <copy file="../fit/core-reference/target/classes/context.xml" todir="${work.dir}/apache-tomcat-${tomcat.version}/conf" overwrite="true" />
+                <copy file="../fit/core-reference/src/main/resources/context.xml" todir="${work.dir}/apache-tomcat-${tomcat.version}/conf" overwrite="true" />
                 <copy file="src/main/resources/setenv.sh" todir="${work.dir}/apache-tomcat-${tomcat.version}/bin" />
                 <copy file="src/main/resources/setenv.bat" todir="${work.dir}/apache-tomcat-${tomcat.version}/bin" />
                 <replace file="${work.dir}/apache-tomcat-${tomcat.version}/conf/server.xml" token="8080" value="${cargo.servlet.port}" />
