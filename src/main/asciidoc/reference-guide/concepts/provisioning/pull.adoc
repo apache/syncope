@@ -29,8 +29,8 @@ a retrieved entity can be:
 enclosing external resource;
 . _unmatching_ otherwise.
 
-Once assessed this, entities are processed according to the matching / unmatching rules specified for the pull task:
-by default, unmatching entities gets internally created, and matching updated.
+Once this has been assessed, entities are processed according to the matching / unmatching rules specified for the pull task:
+by default, unmatching entities get created internally, and matching entities are updated.
 
 .Matching Rules
 ****
@@ -54,15 +54,15 @@ by default, unmatching entities gets internally created, and matching updated.
 [TIP]
 .Pull Mode
 ====
-The Identity Store can be queried in different ways, depending on the _pull mode_ specified:
+The Identity Store can be queried in different ways, depending on the _pull mode_ that is specified:
 
 ****
 FULL RECONCILIATION:: The complete list of entities available is processed.
 FILTERED RECONCILIATION:: The subset matching the provided filter of all available entities is processed.
-INCREMENTAL:: Only the actual modifications performed since last pull task execution are considered. This mode requires
+INCREMENTAL:: Only the actual modifications performed since the last pull task execution are considered. This mode requires
 the underlying connector bundle to implement the ConnId `SYNC` operation - only some of the available bundles match
 this condition. +
-*This is the only mode allowing to pull delete events*, which may end up in causing internal entities removal.
+*This is the only mode which allows pulling delete events*, which may end up causing the removal of internal entities.
 ****
 ====
 
@@ -91,7 +91,7 @@ https://github.com/apache/syncope/blob/master/core/provisioning-api/src/main/jav
 endif::[]
 interface.
 
-Some examples are included by default, see table below.
+Some examples are included by default, see the table below.
 
 [cols="1,2"]
 |===
@@ -103,7 +103,7 @@ endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
 https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/LDAPMembershipPullActions.java[LDAPMembershipPullActions^]
 endif::[]
-| If user is associated to group on LDAP, keeps the corresponding user as member of the corresponding group on Syncope.
+| If a User is associated with a Group in LDAP, keep the corresponding User as a member of the corresponding Group in Syncope.
 
 | 
 ifeval::["{snapshotOrRelease}" == "release"]

@@ -30,8 +30,8 @@ an internal entity can be:
 enclosing external resource;
 . _unmatching_ otherwise.
 
-Once assessed this, entities are processed according to the matching / unmatching rules specified for the push task:
-by default, unmatching entities are pushed to Identity Stores, and matching updated.
+Once this has been assessed, entities are processed according to the matching / unmatching rules specified for the push task:
+by default, unmatching entities are pushed to Identity Stores, and matching entities are updated.
 
 .Matching Rules
 ****

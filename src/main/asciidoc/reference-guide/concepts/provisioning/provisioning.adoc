@@ -18,10 +18,9 @@
 //
 === Provisioning
 
-As introduced <<provisioning-engines,above>>, provisioning is actually _the_ core feature provided by Apache Syncope.
+As described <<provisioning-engines,above>>, provisioning is actually _the_ core feature provided by Apache Syncope.
 
-Essentially, it can be seen as the process of keeping the identity data, on Syncope and related external resources, 
-synchronized according to the specifications provided by the <<mapping,mapping>> by performing create, update and
+Essentially, it can be seen as the process of keeping the identity data synchronized between Syncope and related external resources, according to the specifications provided by the <<mapping,mapping>>. It does this by performing create, update and
 delete operations onto the <<persistence,internal storage>> or external resources via connectors.
 
 ==== Overview
@@ -37,7 +36,7 @@ The provisioning operations can be initiated in several different ways:
 * by creating, updating or deleting Users, Groups or Any Objects via REST (thus involving the underlying 
 <<logic,logic>> layer)
 * by requesting execution of pull or push tasks via REST
-* by triggering periodic pull or push task execution
+* by triggering periodic pull or push task executions
 
 include::propagation.adoc[]
 

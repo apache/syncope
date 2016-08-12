@@ -30,9 +30,9 @@ out, via connectors, to the configured Identity Stores; the tasks can be saved f
 Depending on the entity being created / updated / deleted, different external resources are taken into account by the
 propagation process:
 
-* *group*: only the external resources directly assigned
-* *user*: the external resources directly assigned plus the ones assigned to Groups configured for the user
-* *any object*: the external resources directly assigned plus the ones assigned to Groups configured for the Any Object
+* *Group*: only the external resources directly assigned
+* *User*: the external resources directly assigned plus the ones assigned to Groups configured for the User
+* *Any Object*: the external resources directly assigned plus the ones assigned to Groups configured for the Any Object
 ====
 
 By default, the propagation process is controlled by the
@@ -48,7 +48,7 @@ which implements the following logic:
 * tasks for resources with no priority are executed afterwards, concurrently
 * the execution of a given set of tasks is halted (and global failure is reported) whenever the first sequential task
 fails
-* status and eventual error message (in case of no resource priority) can be saved for reporting, in case the related
+* status and eventual error message (in case of no resource priority) can be saved for reporting, in the case where the related
 external resource was configured with adequate tracing
 * minimize the set of operations to be actually performed onto the Identity Store by attempting to read the external
 object corresponding to the internal entity and comparing with the modifications provided
@@ -86,7 +86,7 @@ endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
 https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/LDAPMembershipPropagationActions.java[LDAPMembershipPropagationActions^]
 endif::[]
-| If user is associated to group in Syncope, keeps the corresponding user as member of the corresponding group on LDAP.
+| If a User is associated with a Group in Syncope, keep the corresponding User as a amember of the corresponding Group in LDAP.
 
 | 
 ifeval::["{snapshotOrRelease}" == "release"]
