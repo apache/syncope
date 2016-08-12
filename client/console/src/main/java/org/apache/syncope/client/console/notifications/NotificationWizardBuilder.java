@@ -27,6 +27,7 @@ import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.search.AbstractSearchPanel;
 import org.apache.syncope.client.console.panels.search.AnyObjectSearchPanel;
@@ -62,6 +63,7 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
@@ -214,22 +216,22 @@ public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationWra
                     new AnyTypeRestClient().list(),
                     EntityTOUtils.<AnyTypeTO>keyTransformer(), new ArrayList<String>());
 
-            final AjaxDropDownChoicePanel<String> type =
-                    new AjaxDropDownChoicePanel<>("about", "about", new Model<String>() {
+            final AjaxDropDownChoicePanel<String> type = new AjaxDropDownChoicePanel<>("about", "about",
+                    new Model<String>() {
 
-                        private static final long serialVersionUID = -2350296434572623272L;
+                private static final long serialVersionUID = -2350296434572623272L;
 
-                        @Override
-                        public String getObject() {
-                            return model.getObject().getLeft();
-                        }
+                @Override
+                public String getObject() {
+                    return model.getObject().getLeft();
+                }
 
-                        @Override
-                        public void setObject(final String object) {
-                            model.setObject(Pair.of(object, model.getObject().getRight()));
-                        }
+                @Override
+                public void setObject(final String object) {
+                    model.setObject(Pair.of(object, model.getObject().getRight()));
+                }
 
-                    });
+            });
             type.setChoices(anyTypeTOs);
             type.addRequiredLabel();
             add(type);
@@ -300,8 +302,8 @@ public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationWra
             aboutContainer.setOutputMarkupId(true);
             add(aboutContainer);
 
-            final IModel<List<Pair<String, List<SearchClause>>>> model =
-                    new PropertyModel<>(modelObject, "aboutClauses");
+            final IModel<List<Pair<String, List<SearchClause>>>> model
+                    = new PropertyModel<>(modelObject, "aboutClauses");
 
             aboutContainer.add(new MultiPanel<Pair<String, List<SearchClause>>>("abouts", "abouts", model, false) {
 
@@ -343,12 +345,23 @@ public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationWra
 
         private static final long serialVersionUID = -7709805590497687958L;
 
+        private final IModel<List<String>> recipientProviders = new LoadableDetachableModel<List<String>>() {
+
+            private static final long serialVersionUID = 5275935387613157447L;
+
+            @Override
+            protected List<String> load() {
+                return new ArrayList<>(
+                        SyncopeConsoleSession.get().getPlatformInfo().getNotificationRecipientsProviders());
+            }
+        };
+
         public Recipients(final NotificationWrapper modelObject) {
             final NotificationTO notificationTO = modelObject.getInnerObject();
             final boolean createFlag = notificationTO.getKey() == null;
 
-            final AjaxTextFieldPanel staticRecipientsFieldPanel =
-                    new AjaxTextFieldPanel("panel", "staticRecipients", new Model<String>());
+            final AjaxTextFieldPanel staticRecipientsFieldPanel = new AjaxTextFieldPanel("panel", "staticRecipients",
+                    new Model<String>());
             staticRecipientsFieldPanel.addValidator(EmailAddressValidator.getInstance());
 
             final MultiFieldPanel<String> staticRecipients = new MultiFieldPanel.Builder<>(
@@ -361,6 +374,12 @@ public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationWra
                     new PropertyModel<List<SearchClause>>(modelObject, "recipientClauses")).
                     required(false).build("recipients");
             add(recipients);
+
+            AjaxDropDownChoicePanel<String> recipientsProviderClassName = new AjaxDropDownChoicePanel<>(
+                    "recipientsProviderClassName", "recipientsProviderClassName",
+                    new PropertyModel<String>(notificationTO, "recipientsProviderClassName"), false);
+            recipientsProviderClassName.setChoices(recipientProviders.getObject());
+            add(recipientsProviderClassName);
 
             final AjaxCheckBoxPanel selfAsRecipient = new AjaxCheckBoxPanel("selfAsRecipient",
                     getString("selfAsRecipient"), new PropertyModel<Boolean>(notificationTO, "selfAsRecipient"));
