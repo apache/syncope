@@ -60,5 +60,6 @@ Java <<client-library,Client Library>> (the basis of Admin UI, End-user UI and C
 
 ==== Eclipse IDE Plugin
 
-The Eclipse IDE plugin allows remote management of notification e-mail and report templates, and constitutes an example
-of a Java application relying on the Client Library for interacting with the Core via REST.
+The Eclipse IDE plugin allows remote management of <<notification-templates,notification e-mail>> and
+<<report-templates,report>> templates, and constitutes an example of a Java application relying on the Client Library
+for interacting with the Core via REST.

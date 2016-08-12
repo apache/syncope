@@ -21,40 +21,47 @@
 The configuration tab allows the admin to customize the syncope deployment to fit the needs of the
 organization. It provides the following functionality
 
+[[console-configuration-audit]]
 Audit::
 
 Allows the admin to inspect the functionality of various components of the syncope deployment.
 
+[[console-configuration-logs]]
 Logs::
 
 The admin can set the level of logs that are to be displayed. For example, the admin can set it
 to display only the errors of io.swagger, in which case the warnings and information logs will
 not be displayed.
 
+[[console-configuration-notifications]]
 Notifications::
 
 This allows the admin to set events and corresponding templates for mail notification to be sent
 to the Users. Trace level defines the condition in which an event will trigger the sending of a
 notification. Templates for such notifications can also be added and edited using this tab.
 
+[[console-configuration-parameters]]
 Parameters::
 
 Presents the user with a list of key value pairs containing variables used in the syncope
 deployment such as token.expireTime and password.cipher.algorithm . These can be edited by the
 admin to further customize the deployment.
 
+[[console-configuration-policies]]
 Policies::
 
 Allows the admin to define rules for account, passwords and pulls. Accounts and password policies
 are defined using java classes while pull policies are defined from within the console using
 correlation rules.
 
+[[console-configuration-roles]]
 Roles::
 
 Displays and provides editing functionality for roles and their corresponding entitlements along
 with the realms that they are enforced upon.
 
-Security Question::
+[[console-configuration-security-questions]]
+Security Questions::
 
 The admin can use this to define a set of security questions which the endUsers can choose from
 to allow them to recover their account in case of a forgotten password.

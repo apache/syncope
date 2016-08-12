@@ -31,7 +31,7 @@ provisioning. For each entity supported by the related connector bundle (user, g
 
 ==== Connector Instance details
 
-When defining a connector instance, the following information is to be provided:
+When defining a connector instance, the following information must be provided:
 
 * connector bundle - one of the several
 https://github.com/Tirasa/ConnId/blob/master/README.md#available-connectors[already available^], or some to be

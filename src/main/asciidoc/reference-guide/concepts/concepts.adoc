@@ -36,7 +36,7 @@ include::policies.adoc[]
 
 include::workflow.adoc[]
 
-=== Notifications
+include::notifications.adoc[]
 
 === Tasks
 
@@ -57,6 +57,10 @@ include::workflow.adoc[]
 
 === Reports
 
+==== Report Templates
+
 === Audit
+
+==== Audit Events
 
 === Domains

@@ -45,7 +45,7 @@ When set for realm R, an account policy is enforced to all Users of R and sub-re
 When set for resource R, an account policy is enforced to all Users that have R assigned.
 ====
 
-When defining an account policy, the following information is to be provided:
+When defining an account policy, the following information must be provided:
 
 * max authentication attempts - how many times Users are allowed to fail authentication before getting suspended
 * propagate suspension - when suspended as consequence of too many authentication failures, should Users also be
@@ -135,7 +135,7 @@ When set for realm R, a password policy is enforced to all Users of R and sub-re
 When set for resource R, a password policy is enforced to all Users that have R assigned.
 ====
 
-When defining a password policy, the following information is to be provided:
+When defining a password policy, the following information must be provided:
 
 * allow null password - whether password is mandatory for Users or not
 * history length - how many values shall be considered in the history
@@ -229,7 +229,7 @@ can be mapped to two distinct Users in Apache Syncope?)
 When set for resource R, a pull policy is enforced to all Users, Groups and Any Objects pulled from R.
 ====
 
-When defining a pull policy, the following information is to be provided:
+When defining a pull policy, the following information must be provided:
 
 * conflict resolution action
 ** `IGNORE` - do nothing
