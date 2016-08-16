@@ -18,9 +18,6 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
-import static org.apache.wicket.Component.RENDER;
-import static org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy.ACTION_PERMISSIONS;
-
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -47,6 +44,8 @@ import org.apache.wicket.util.lang.Args;
 import org.apache.syncope.common.lib.to.GroupableRelatableTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.ActionPermissions;
+import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.authroles.authorization.strategies.role.Roles;
 import org.apache.wicket.extensions.wizard.WizardModel.ICondition;
 
 public class Groups extends WizardStep implements ICondition {
@@ -64,9 +63,8 @@ public class Groups extends WizardStep implements ICondition {
         // Pre-Authorizations
         // -----------------------------------------------------------------
         final ActionPermissions permissions = new ActionPermissions();
-        setMetaData(ACTION_PERMISSIONS, permissions);
-        permissions.authorize(RENDER,
-                new org.apache.wicket.authroles.authorization.strategies.role.Roles(StandardEntitlement.GROUP_SEARCH));
+        setMetaData(MetaDataRoleAuthorizationStrategy.ACTION_PERMISSIONS, permissions);
+        permissions.authorize(RENDER, new Roles(StandardEntitlement.GROUP_SEARCH));
         // -----------------------------------------------------------------
 
         setOutputMarkupId(true);

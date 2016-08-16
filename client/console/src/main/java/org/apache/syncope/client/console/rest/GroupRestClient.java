@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.console.rest;
 
-import static org.apache.syncope.client.console.rest.BaseRestClient.getService;
-
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.syncope.common.lib.patch.GroupPatch;
@@ -64,7 +62,7 @@ public class GroupRestClient extends AbstractAnyRestClient<GroupTO, GroupPatch> 
         do {
             res = getService(GroupService.class).
                     search(new AnyQuery.Builder().realm(realm).fiql(fiql).page(page).size(size).
-                    orderBy(toOrderBy(sort)).details(false).build());
+                            orderBy(toOrderBy(sort)).details(false).build());
             result.addAll(res.getResult());
         } while (page == -1 && size == -1 && res.getNext() != null);
 

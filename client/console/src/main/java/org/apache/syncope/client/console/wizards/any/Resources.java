@@ -18,9 +18,6 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
-import static org.apache.wicket.Component.RENDER;
-import static org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy.ACTION_PERMISSIONS;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -33,6 +30,7 @@ import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.ActionPermissions;
+import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.model.PropertyModel;
@@ -49,7 +47,7 @@ public class Resources extends WizardStep implements WizardModel.ICondition {
         // Pre-Authorizations
         // -----------------------------------------------------------------
         final ActionPermissions permissions = new ActionPermissions();
-        setMetaData(ACTION_PERMISSIONS, permissions);
+        setMetaData(MetaDataRoleAuthorizationStrategy.ACTION_PERMISSIONS, permissions);
         permissions.authorize(RENDER,
                 new org.apache.wicket.authroles.authorization.strategies.role.Roles(StandardEntitlement.RESOURCE_LIST));
         // -----------------------------------------------------------------

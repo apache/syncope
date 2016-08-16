@@ -18,9 +18,6 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
-import static org.apache.wicket.Component.RENDER;
-import static org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy.ACTION_PERMISSIONS;
-
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.checkbox.bootstraptoggle.BootstrapToggle;
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.checkbox.bootstraptoggle.BootstrapToggleConfig;
 import java.util.ArrayList;
@@ -53,6 +50,8 @@ import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.ActionPermissions;
+import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.authroles.authorization.strategies.role.Roles;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
@@ -106,11 +105,10 @@ public class Ownership extends WizardStep implements WizardModel.ICondition {
         // Pre-Authorizations
         // -----------------------------------------------------------------
         final ActionPermissions permissions = new ActionPermissions();
-        setMetaData(ACTION_PERMISSIONS, permissions);
-        permissions.authorize(RENDER,
-                new org.apache.wicket.authroles.authorization.strategies.role.Roles(new StringBuilder().
-                        append(StandardEntitlement.USER_SEARCH).append(",").
-                        append(StandardEntitlement.GROUP_SEARCH).toString()));
+        setMetaData(MetaDataRoleAuthorizationStrategy.ACTION_PERMISSIONS, permissions);
+        permissions.authorize(RENDER, new Roles(new StringBuilder().
+                append(StandardEntitlement.USER_SEARCH).append(",").
+                append(StandardEntitlement.GROUP_SEARCH).toString()));
         // -----------------------------------------------------------------
 
         setTitleModel(new ResourceModel("group.ownership"));
@@ -171,7 +169,7 @@ public class Ownership extends WizardStep implements WizardModel.ICondition {
 
         ownerContainer = new WebMarkupContainer("ownerContainer");
         ownerContainer.setOutputMarkupId(true);
-        this.add(ownerContainer);
+        add(ownerContainer);
 
         groupSearchFragment = new Fragment("search", "groupSearchFragment", this);
         groupSearchPanel = new GroupSearchPanel.Builder(

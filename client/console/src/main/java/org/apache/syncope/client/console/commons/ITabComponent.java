@@ -15,13 +15,11 @@
  */
 package org.apache.syncope.client.console.commons;
 
-import static org.apache.wicket.Component.RENDER;
-import static org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy.ACTION_PERMISSIONS;
-
 import java.util.UUID;
 import org.apache.wicket.Component;
 import org.apache.wicket.authroles.authorization.strategies.role.Roles;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.ActionPermissions;
+import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.model.IModel;
@@ -46,7 +44,7 @@ public abstract class ITabComponent extends Component implements ITab {
         this.title = title;
 
         final ActionPermissions permissions = new ActionPermissions();
-        setMetaData(ACTION_PERMISSIONS, permissions);
+        setMetaData(MetaDataRoleAuthorizationStrategy.ACTION_PERMISSIONS, permissions);
         permissions.authorize(RENDER, new Roles(roles));
     }
 
