@@ -108,9 +108,9 @@ public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationWra
     @Override
     protected WizardModel buildModelSteps(final NotificationWrapper modelObject, final WizardModel wizardModel) {
         wizardModel.add(new NotificationWizardBuilder.Details(modelObject));
+        wizardModel.add(new NotificationWizardBuilder.Recipients(modelObject));
         wizardModel.add(new NotificationWizardBuilder.Events(modelObject));
         wizardModel.add(new NotificationWizardBuilder.Abouts(modelObject));
-        wizardModel.add(new NotificationWizardBuilder.Recipients(modelObject));
         return wizardModel;
     }
 
@@ -132,19 +132,6 @@ public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationWra
                     new PropertyModel<String>(notificationTO, "subject"));
             subject.addRequiredLabel();
             add(subject);
-
-            AjaxTextFieldPanel recipientAttrName = new AjaxTextFieldPanel(
-                    "recipientAttrName", new ResourceModel("recipientAttrName", "recipientAttrName").getObject(),
-                    new PropertyModel<String>(notificationTO, "recipientAttrName"));
-            recipientAttrName.setChoices(getSchemaNames());
-            recipientAttrName.addRequiredLabel();
-            recipientAttrName.setTitle(getString("intAttrNameInfo.help")
-                    + "<div style=\"font-size: 10px;\">"
-                    + "<code>groups[groupName].attribute</code>\n"
-                    + "<code>anyObjects[anyObjectName].attribute</code>\n"
-                    + "<code>memberships[groupName].attribute</code>\n"
-                    + "</div>", true);
-            add(recipientAttrName);
 
             AjaxDropDownChoicePanel<String> template = new AjaxDropDownChoicePanel<>(
                     "template", getString("template"),
@@ -183,6 +170,8 @@ public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationWra
         private static final long serialVersionUID = -7709805590497687958L;
 
         public Events(final NotificationWrapper modelObject) {
+            setTitleModel(new ResourceModel("events"));
+
             add(new EventCategoryPanel(
                     "eventSelection",
                     loggerRestClient.listEvents(),
@@ -212,27 +201,25 @@ public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationWra
             super(id, model);
             setOutputMarkupId(true);
 
-            List<String> anyTypeTOs = CollectionUtils.collect(
+            final AjaxDropDownChoicePanel<String> type =
+                    new AjaxDropDownChoicePanel<>("about", "anyType", new Model<String>() {
+
+                        private static final long serialVersionUID = -2350296434572623272L;
+
+                        @Override
+                        public String getObject() {
+                            return model.getObject().getLeft();
+                        }
+
+                        @Override
+                        public void setObject(final String object) {
+                            model.setObject(Pair.of(object, model.getObject().getRight()));
+                        }
+
+                    });
+            type.setChoices(CollectionUtils.collect(
                     new AnyTypeRestClient().list(),
-                    EntityTOUtils.<AnyTypeTO>keyTransformer(), new ArrayList<String>());
-
-            final AjaxDropDownChoicePanel<String> type = new AjaxDropDownChoicePanel<>("about", "about",
-                    new Model<String>() {
-
-                private static final long serialVersionUID = -2350296434572623272L;
-
-                @Override
-                public String getObject() {
-                    return model.getObject().getLeft();
-                }
-
-                @Override
-                public void setObject(final String object) {
-                    model.setObject(Pair.of(object, model.getObject().getRight()));
-                }
-
-            });
-            type.setChoices(anyTypeTOs);
+                    EntityTOUtils.<AnyTypeTO>keyTransformer(), new ArrayList<String>()));
             type.addRequiredLabel();
             add(type);
 
@@ -298,12 +285,14 @@ public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationWra
         private static final long serialVersionUID = -7709805590497687958L;
 
         public Abouts(final NotificationWrapper modelObject) {
+            setTitleModel(new ResourceModel("about"));
+
             final WebMarkupContainer aboutContainer = new WebMarkupContainer("about");
             aboutContainer.setOutputMarkupId(true);
             add(aboutContainer);
 
-            final IModel<List<Pair<String, List<SearchClause>>>> model
-                    = new PropertyModel<>(modelObject, "aboutClauses");
+            final IModel<List<Pair<String, List<SearchClause>>>> model =
+                    new PropertyModel<>(modelObject, "aboutClauses");
 
             aboutContainer.add(new MultiPanel<Pair<String, List<SearchClause>>>("abouts", "abouts", model, false) {
 
@@ -357,23 +346,33 @@ public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationWra
         };
 
         public Recipients(final NotificationWrapper modelObject) {
-            final NotificationTO notificationTO = modelObject.getInnerObject();
-            final boolean createFlag = notificationTO.getKey() == null;
+            setTitleModel(new ResourceModel("recipients"));
 
-            final AjaxTextFieldPanel staticRecipientsFieldPanel = new AjaxTextFieldPanel("panel", "staticRecipients",
-                    new Model<String>());
+            NotificationTO notificationTO = modelObject.getInnerObject();
+
+            AjaxTextFieldPanel recipientAttrName = new AjaxTextFieldPanel(
+                    "recipientAttrName", new ResourceModel("recipientAttrName", "recipientAttrName").getObject(),
+                    new PropertyModel<String>(notificationTO, "recipientAttrName"));
+            recipientAttrName.setChoices(getSchemaNames());
+            recipientAttrName.addRequiredLabel();
+            recipientAttrName.setTitle(getString("intAttrNameInfo.help")
+                    + "<div style=\"font-size: 10px;\">"
+                    + "<code>groups[groupName].attribute</code>\n"
+                    + "<code>anyObjects[anyObjectName].attribute</code>\n"
+                    + "<code>memberships[groupName].attribute</code>\n"
+                    + "</div>", true);
+            add(recipientAttrName);
+
+            AjaxTextFieldPanel staticRecipientsFieldPanel =
+                    new AjaxTextFieldPanel("panel", "staticRecipients", new Model<String>());
             staticRecipientsFieldPanel.addValidator(EmailAddressValidator.getInstance());
-
-            final MultiFieldPanel<String> staticRecipients = new MultiFieldPanel.Builder<>(
+            add(new MultiFieldPanel.Builder<>(
                     new PropertyModel<List<String>>(notificationTO, "staticRecipients")).
-                    build("staticRecipients", "staticRecipients", staticRecipientsFieldPanel);
+                    build("staticRecipients", "staticRecipients", staticRecipientsFieldPanel).hideLabel());
 
-            add(staticRecipients.hideLabel());
-
-            final AnyObjectSearchPanel recipients = new UserSearchPanel.Builder(
+            add(new UserSearchPanel.Builder(
                     new PropertyModel<List<SearchClause>>(modelObject, "recipientClauses")).
-                    required(false).build("recipients");
-            add(recipients);
+                    required(false).build("recipients"));
 
             AjaxDropDownChoicePanel<String> recipientsProviderClassName = new AjaxDropDownChoicePanel<>(
                     "recipientsProviderClassName", "recipientsProviderClassName",
@@ -381,15 +380,13 @@ public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationWra
             recipientsProviderClassName.setChoices(recipientProviders.getObject());
             add(recipientsProviderClassName);
 
-            final AjaxCheckBoxPanel selfAsRecipient = new AjaxCheckBoxPanel("selfAsRecipient",
+            AjaxCheckBoxPanel selfAsRecipient = new AjaxCheckBoxPanel("selfAsRecipient",
                     getString("selfAsRecipient"), new PropertyModel<Boolean>(notificationTO, "selfAsRecipient"));
-            add(selfAsRecipient);
-
-            if (createFlag) {
+            if (notificationTO.getKey() == null) {
                 selfAsRecipient.getField().setDefaultModelObject(Boolean.FALSE);
             }
+            add(selfAsRecipient);
         }
-
     }
 
     private List<String> getSchemaNames() {
