@@ -49,7 +49,7 @@ value (i.e. _plain_, _derived_ and _virtual_);
 ====
 Each user / group / any object will be able to hold values for all schemas:
 
-. defined in the <<AnyTypeClass,Any Type classes>> associated to their <<AnyType, any type>>;
+. defined in the <<AnyTypeClass,Any Type classes>> associated to their <<AnyType, Any Type>>;
 . defined in the <<AnyTypeClass,Any Type classes>> configured as *_auxiliary_* for the specific instance.
 ====
 

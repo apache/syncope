@@ -43,7 +43,7 @@ public List<RealmTO> list(final String fullPath) {
 Entitlements are granted via <<roles, roles>> to Users, scoped under certain <<realms,realms>>, thus allowing
 <<delegated-administration,delegated administration>>.
 
-[NOTE]
+[WARNING]
 ====
 The set of available entitlements is
 ifeval::["{snapshotOrRelease}" == "release"]

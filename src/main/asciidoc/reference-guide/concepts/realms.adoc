@@ -54,7 +54,7 @@ a mechanism for setting default values for attributes or external resources on e
 
 ==== Realm Provisioning
 <<provisioning>> can be enabled for realms: <<mapping,mapping>> information can be provided so that realms
-are considered during <<propagation,propagation>>, <<provisioning-pull,pull>> and <<provisioning-push,push>> tasks.
+are considered during <<propagation,propagation>>, <<provisioning-pull,pull>> and <<provisioning-push,push>> execution.
 
 A typical use case for realm provisioning is to model an organization-like structure on Identity Stores, as
 with LDAP and Active Directory.

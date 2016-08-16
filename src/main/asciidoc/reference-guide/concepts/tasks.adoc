@@ -1,0 +1,191 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+//
+=== Tasks
+
+Tasks control the effective operations ongoing in the <<core>>.
+
+Whilst tasks define what and how to perform, they are supposed to be run by some entity (depending on the actual task
+type, see below for details); their execution result can be saved for later examination.
+
+[[tasks-propagation]]
+==== Propagation
+
+A propagation task encapsulates all the information required - according to the defined <<mapping,mapping>> - to create,
+update or delete a given User, Group or Any Object, to / from a certain Identity Store:
+
+* operation - `CREATE`, `UPDATE` or `DELETE`
+* connObjectKey - value for ConnId 
+http://connid.tirasa.net/apidocs/1.4/org/identityconnectors/framework/common/objects/Uid.html[unique identifier^]
+on the Identity Store
+* oldConnObjectKey - the former unique identifier on the Identity Store: bears value only during updates involving the
+unique identifier
+* attributes - set of ConnId
+http://connid.tirasa.net/apidocs/1.4/org/identityconnectors/framework/common/objects/Attribute.html[attributes^] built
+upon internal identity data and configured mapping
+* resource - related <<external-resources,external resource>>
+* objectClass - ConnId
+http://connid.tirasa.net/apidocs/1.4/org/identityconnectors/framework/common/objects/ObjectClass.html[object class^]
+* entity - reference to the internal identity: User, Group or Any Object
+
+[NOTE]
+====
+Propagation tasks are automatically generated via the
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/PropagationManagerImpl.java[PropagationManager^],
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/PropagationManagerImpl.java[PropagationManager^],
+endif::[]
+executed (by default) via the
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/PriorityPropagationTaskExecutor.java[PriorityPropagationTaskExecutor^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/PriorityPropagationTaskExecutor.java[PriorityPropagationTaskExecutor^]
+endif::[]
+during the <<propagation,propagation>> process, and are permanently saved - for later re-execution or for examining
+the execution details - depending on the trace levels set on the related
+<<external-resource-details,external resource>>.
+====
+
+[[tasks-pull]]
+==== Pull
+
+Pull tasks are required to define and trigger the <<provisioning-pull,pull>> process from Identity Stores.
+
+When defining a pull task, the following information must be provided:
+
+* related <<external-resources,external resource>>
+* chosen <<pull-mode,pull mode>>
+* destination <<realms,Realm>> - where entities selected for creation are going to be placed
+* whether creation, update or deletion on internal storage are allowed or not
+* whether to synchronize the status information from the related identity store
+* selected <<provisioning-pull,matching and unmatching rules>>
+* optional <<pullactions,pull action(s)>>
+* <<pull-templates,entity templates>>
+* scheduling information:
+** when to start
+** http://www.quartz-scheduler.org/documentation/quartz-2.2.x/tutorials/crontrigger.html[cron expression^]
+
+[NOTE]
+====
+Pull tasks are executed, either upon request or because scheduled, via the
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/PullJobDelegate.java[PullJobDelegate^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/PullJobDelegate.java[PullJobDelegate^]
+endif::[]
+during the <<provisioning-pull,pull>> process, and are permanently saved - for later re-execution or for examining
+the execution details - depending on the trace level set on the related
+<<external-resource-details,external resource>>.
+====
+
+[[tasks-push]]
+==== Push
+
+Push tasks are required to define and trigger the <<provisioning-push,push>> process to Identity Stores.
+
+When defining a push task, the following information must be provided:
+
+* related <<external-resources,external resource>>
+* filter information for selecting which internal entities will be pushed onto the identity store
+* whether creation, update or deletion on the identity store are allowed or not
+* whether to synchronize the status information with internal storage
+* selected <<provisioning-push,matching and unmatching rules>>
+* optional <<pushactions,push action(s)>>
+* scheduling information:
+** when to start
+** http://www.quartz-scheduler.org/documentation/quartz-2.2.x/tutorials/crontrigger.html[cron expression^]
+
+[NOTE]
+====
+Push tasks are executed, either upon request or because scheduled, via the
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/PushJobDelegate.java[PushJobDelegate^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/PushJobDelegate.java[PushJobDelegate^]
+endif::[]
+during the <<provisioning-push,push>> process, and are permanently saved - for later re-execution or for examining
+the execution details - depending on the trace level set on the related
+<<external-resource-details,external resource>>.
+====
+
+[[tasks-notification]]
+==== Notification
+
+A notification tasks encapsulates all the information required for sending out a notification e-mail, according to the
+specification provided in a given <<notifications,notification>>:
+
+* entity - reference to the internal identity - User, Group or Any Object - the notification task refers to
+* sender e-mail address
+* e-mail subject
+* effective e-mail recipient(s)
+* e-mail body as plaintext and / or HTML
+
+[NOTE]
+====
+Notification tasks are automatically generated via the
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/notification/NotificationManagerImpl.java[NotificationManager^],
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/notification/NotificationManagerImpl.java[NotificationManager^],
+endif::[]
+executed via the
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/logic/src/main/java/org/apache/syncope/core/logic/notification/NotificationJob.java[NotificationJob^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/core/logic/src/main/java/org/apache/syncope/core/logic/notification/NotificationJob.java[NotificationJob^]
+endif::[]
+and are permanently saved - for later re-execution or for examining the execution details - depending on the trace level
+ set on the related <<notifications,notification>>.
+====
+
+[[tasks-custom]]
+==== Custom
+
+Custom tasks allow to inject logic into the <<core>>, available for execution and scheduling.
+
+When defining a custom task, the following information must be provided:
+
+* job delegate class: Java class extending
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/job/AbstractSchedTaskJobDelegate.java[AbstractSchedTaskJobDelegate^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/job/AbstractSchedTaskJobDelegate.java[AbstractSchedTaskJobDelegate^]
+endif::[]
+providing the custom logic to execute
+* scheduling information:
+** when to start
+** http://www.quartz-scheduler.org/documentation/quartz-2.2.x/tutorials/crontrigger.html[cron expression^]
+
+[TIP]
+====
+Custom tasks are ideal for implementing periodic checks or clean-up operations, possibly in coordination with other
+components; some examples:
+
+* move users from "peding delete" to "deleted" status 15 days after they reached the "pending delete" status (requires
+interaction with <<activiti-user-workflow-adapter>>)
+* send out notification e-mails to users whose password is about to expire on an Identity Store
+* disable all users not logging in into the system for the past 6 months
+====

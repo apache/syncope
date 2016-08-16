@@ -38,22 +38,7 @@ include::workflow.adoc[]
 
 include::notifications.adoc[]
 
-=== Tasks
-
-[[tasks-propagation]]
-==== Propagation
-
-[[tasks-pull]]
-==== Pull
-
-[[tasks-push]]
-==== Push
-
-[[tasks-notification]]
-==== Notification
-
-[[tasks-generic]]
-==== Generic
+include::tasks.adoc[]
 
 === Reports
 

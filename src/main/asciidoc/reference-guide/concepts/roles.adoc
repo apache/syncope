@@ -63,7 +63,7 @@ above:
 ====
 Groups can designate a user or another group as _owner_.
 
-The practical consequence of this setting is that Users owning a group (either because they are directly set as owners
+The practical consequence of this setting is that Users owning a Group (either because they are directly set as owners
 or members of the owning group) is that they are entitled to perform all operations (create, update, delete, ...) on the
-owned group, regardless of the realm.
+owned group, regardless of the Realm.
 ====
