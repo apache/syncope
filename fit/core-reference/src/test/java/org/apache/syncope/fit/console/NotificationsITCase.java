@@ -47,7 +47,6 @@ public class NotificationsITCase extends AbstractConsoleITCase {
         FormTester formTester = TESTER.newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
 
-        formTester.setValue("content:form:view:recipientAttrName:textField", "email");
         formTester.select("content:form:view:template:dropDownChoiceField", 2);
         formTester.select("content:form:view:traceLevel:dropDownChoiceField", 0);
         formTester.setValue("content:form:view:sender:textField", sender);
@@ -57,11 +56,25 @@ public class NotificationsITCase extends AbstractConsoleITCase {
         formTester.submit("content:form:buttons:next");
         TESTER.assertNoErrorMessage();
 
+        // -------------------------------
+        // recipients
+        // -------------------------------
         formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
+        TESTER.executeAjaxEvent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form:content:form:"
+                + "view:staticRecipients:multiValueContainer:innerForm:content:panelPlus:add", Constants.ON_CLICK);
+        formTester.setValue("content:form:view:staticRecipients:multiValueContainer:innerForm:content:view:0:panel:"
+                + "textField", "recipient@syncope.org");
+        formTester.setValue("content:form:view:selfAsRecipient:checkboxField", true);
+        formTester.setValue("content:form:view:recipientAttrName:textField", "email");
+
+        TESTER.cleanupFeedbackMessages();
+        formTester.submit("content:form:buttons:next");
+        TESTER.assertNoErrorMessage();
 
         // -------------------------------
         // generate event to populate eventsPanel
         // -------------------------------
+        formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:form:view:eventSelection:categoryContainer:category:dropDownChoiceField", "0");
         TESTER.executeAjaxEvent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form:"
                 + "content:form:view:eventSelection:categoryContainer:category:dropDownChoiceField",
@@ -86,16 +99,6 @@ public class NotificationsITCase extends AbstractConsoleITCase {
 
         formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
         TESTER.cleanupFeedbackMessages();
-        formTester.submit("content:form:buttons:next");
-        TESTER.assertNoErrorMessage();
-        TESTER.assertNoInfoMessage();
-
-        formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
-        TESTER.executeAjaxEvent("body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form:content:form:"
-                + "view:staticRecipients:multiValueContainer:innerForm:content:panelPlus:add", Constants.ON_CLICK);
-        formTester.setValue("content:form:view:staticRecipients:multiValueContainer:innerForm:content:view:0:panel:"
-                + "textField", "recipient@syncope.org");
-        formTester.setValue("content:form:view:selfAsRecipient:checkboxField", true);
 
         TESTER.cleanupFeedbackMessages();
         formTester.submit("content:form:buttons:finish");
