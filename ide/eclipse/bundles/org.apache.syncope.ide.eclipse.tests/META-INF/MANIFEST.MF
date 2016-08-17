@@ -1,0 +1,21 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: org.apache.syncope.ide.eclipse.tests
+Bundle-SymbolicName: org.apache.syncope.ide.eclipse.tests;singleton:=true
+Bundle-Version: 2.0.0.qualifier
+Bundle-ActivationPolicy: lazy
+Bundle-Vendor: 
+Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Require-Bundle: org.eclipse.swtbot.go,
+ org.eclipse.jface.text,
+ org.eclipse.core.resources,
+ org.eclipse.ui,
+ org.eclipse.ui.editors,
+ org.eclipse.ui.ide,
+ org.eclipse.core.runtime,
+ org.eclipse.swtbot.swt.finder,
+ org.eclipse.swtbot.eclipse.finder,
+ org.apache.log4j,
+ org.eclipse.swtbot.junit4_x,
+ org.apache.syncope.ide.eclipse.plugin,
+ org.eclipse.swtbot.eclipse.ui
