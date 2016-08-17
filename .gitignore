@@ -11,3 +11,5 @@ maven-eclipse.xml
 archetype/src/main/resources/archetype-resources/pom.xml
 ide/eclipse/bundles/org.apache.syncope.ide.eclipse.plugin/bin/
 ide/eclipse/bundles/org.apache.syncope.ide.eclipse.plugin/lib/
+ide/eclipse/bundles/org.apache.syncope.ide.eclipse.tests/bin/
+ide/eclipse/bundles/org.apache.syncope.ide.eclipse.tests/screenshots/

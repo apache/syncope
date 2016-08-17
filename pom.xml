@@ -1575,7 +1575,12 @@ under the License.
           <groupId>org.eclipse.tycho</groupId>
           <artifactId>tycho-p2-repository-plugin</artifactId>
           <version>${tycho-version}</version>
-        </plugin>                
+        </plugin>   
+        <plugin>
+          <groupId>org.eclipse.tycho</groupId>
+          <artifactId>tycho-surefire-plugin</artifactId>
+          <version>${tycho-version}</version>
+        </plugin>             
       </plugins>
     </pluginManagement>
 
