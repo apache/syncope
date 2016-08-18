@@ -1,0 +1,169 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+//
+=== Reports
+
+Reports are a powerful tool to extract, filter and format relevant information from a running Apache Syncope deployment,
+for a wide range of purposes: from business to https://en.wikipedia.org/wiki/DevOps[DevOps^].
+
+A report is essentially defined by a <<report-templates,template>> and a sequence of <<reportlets,reportlets>>, where
+the latter is responsible for extracting the required information and the former defines how execution results will be
+presented, in the various available formats.
+
+Reports can be execute upon request or scheduled: executions result can be downloaded as:
+
+* XML
+* HTML
+* https://en.wikipedia.org/wiki/Portable_Document_Format[PDF^]
+* https://en.wikipedia.org/wiki/Rich_Text_Format[RTF^]
+* https://en.wikipedia.org/wiki/Comma-separated_values[CSV^]
+
+==== Report Templates
+
+A report template is defined as a triple of https://en.wikipedia.org/wiki/XSLT[XSLT^] documents, distinguished by their
+target format:
+
+* `FO` - transforms the given report result as https://en.wikipedia.org/wiki/XSL_Formatting_Objects[XSL-FO], which
+will be then made available as PDF and RTF
+* `HTML` - outputs the given report result as HTML
+* `CSV` - outputs the given report result as CSV
+
+[NOTE]
+====
+Report templates can be easily managed either via <<console-reports,admin console>> or <<eclipse-ide-plugin>>.
+====
+
+==== Reportlets
+
+Reportlets are the building blocks of reports.
+
+Each reportlet is composed by:
+
+* a Java class extending
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/logic/src/main/java/org/apache/syncope/core/logic/report/AbstractReportlet.java[AbstractReportlet^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/core/logic/src/main/java/org/apache/syncope/core/logic/report/AbstractReportlet.java[AbstractReportlet^]
+endif::[]
+and implementing the information extraction logic and generating an XML stream as result
+* a Java class extending
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/common/lib/src/main/java/org/apache/syncope/common/lib/report/AbstractReportletConf.java[AbstractReportletConf^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/common/lib/src/main/java/org/apache/syncope/common/lib/report/AbstractReportletConf.java[AbstractReportletConf^]
+endif::[]
+and embedding the configuration options that can be tuned when incorporating a given reportlet into a report; when
+properly annotated, such options are manageable via <<console-reports,admin console>>
+
+Some reportlets are available by default (and briefly presented below) either for direct usage and for acting as
+reference when building new reportlets for specific Apache Syncope deployments.
+
+===== Static Reportlet
+
+Defined by
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/logic/src/main/java/org/apache/syncope/core/logic/report/StaticReportlet.java[StaticReportlet^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/core/logic/src/main/java/org/apache/syncope/core/logic/report/StaticReportlet.java[StaticReportlet^]
+endif::[]
+and
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/common/lib/src/main/java/org/apache/syncope/common/lib/report/StaticReportletConf.java[StaticReportletConf^],
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/common/lib/src/main/java/org/apache/syncope/common/lib/report/StaticReportletConf.java[StaticReportletConf^],
+endif::[]
+it is essentially an handy way to inject static values (of various types) into a report.
+
+===== User and Group Reportles
+Defined by
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/logic/src/main/java/org/apache/syncope/core/logic/report/UserReportlet.java[UserReportlet^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/core/logic/src/main/java/org/apache/syncope/core/logic/report/UserReportlet.java[UserReportlet^]
+endif::[]
+and
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/common/lib/src/main/java/org/apache/syncope/common/lib/report/UserReportletConf.java[UserReportletConf^],
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/common/lib/src/main/java/org/apache/syncope/common/lib/report/UserReportletConf.java[UserReportletConf^],
+endif::[]
+it can be used for reporting various information about Users available in the internal storage, their attributes,
+memberships and relationships, external resources and so on.
+
+A similar reportlet is also available for Groups, defined by
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/logic/src/main/java/org/apache/syncope/core/logic/report/GroupReportlet.java[GroupReportlet^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/core/logic/src/main/java/org/apache/syncope/core/logic/report/GroupReportlet.java[GroupReportlet^]
+endif::[]
+and
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/common/lib/src/main/java/org/apache/syncope/common/lib/report/GroupReportletConf.java[GroupReportletConf^].
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/common/lib/src/main/java/org/apache/syncope/common/lib/report/GroupReportletConf.java[GroupReportletConf^].
+endif::[]
+
+===== Reconciliation Reportlet
+
+Defined by
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/logic/src/main/java/org/apache/syncope/core/logic/report/ReconciliationReportlet.java[ReconciliationReportlet^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/core/logic/src/main/java/org/apache/syncope/core/logic/report/ReconciliationReportlet.java[ReconciliationReportlet^]
+endif::[]
+and
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/common/lib/src/main/java/org/apache/syncope/common/lib/report/ReconciliationReportletConf.java[ReconciliationReportletConf^],
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/common/lib/src/main/java/org/apache/syncope/common/lib/report/ReconciliationReportletConf.java[ReconciliationReportletConf^],
+endif::[]
+it provides the global reconciliation status for all Users, Groups and Any Objects available in the internal storage,
+e.g. whether such entities are available on all Identity Stores matching the assigned
+<<external-resources,external resources>> and, if so, whether the <<mapping,mapped>> attributes feature the expected
+values.
+
+An instance of reconciliation reportlet is run by default from admin console's <<dashboard,dashboard>>, and results
+are available as a widget.
+
+===== Audit Reportlet
+
+Defined by
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/logic/src/main/java/org/apache/syncope/core/logic/report/AuditReportlet.java[AuditReportlet^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/core/logic/src/main/java/org/apache/syncope/core/logic/report/AuditReportlet.java[AuditReportlet^]
+endif::[]
+and
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/common/lib/src/main/java/org/apache/syncope/common/lib/report/AuditReportletConf.java[AuditReportletConf^],
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/common/lib/src/main/java/org/apache/syncope/common/lib/report/AuditReportletConf.java[AuditReportletConf^],
+endif::[]
+it is mostly a sample reportlet showing how to extract data produced by <<audit>>.

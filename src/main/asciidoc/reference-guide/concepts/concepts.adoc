@@ -40,9 +40,7 @@ include::notifications.adoc[]
 
 include::tasks.adoc[]
 
-=== Reports
-
-==== Report Templates
+include::reports.adoc[]
 
 === Audit
 
