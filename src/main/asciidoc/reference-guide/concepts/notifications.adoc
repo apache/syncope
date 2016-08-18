@@ -52,7 +52,7 @@ of the generated <<tasks-notification,notification tasks>>
 ==== Notification Events
 
 Notification (and <<audit-events,Audit>>) events are essentially a mean to identify the invocation of specific methods
-within the Apache Syncope <<core>>, in line with _join points_ in the
+within the <<core>>, in line with _join points_ in the
 https://en.wikipedia.org/wiki/Aspect-oriented_programming[Aspect Oriented Programming (AOP)^].
 
 An event is identified by the following five coordinates:

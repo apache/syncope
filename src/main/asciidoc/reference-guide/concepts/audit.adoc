@@ -16,32 +16,20 @@
 // specific language governing permissions and limitations
 // under the License.
 //
-== Concepts
 
-include::usersgroupsandanyobjects.adoc[]
+=== Audit
 
-include::typemanagement.adoc[]
+The audit feature allows to capture <<audit-events,events>> occuring within the <<core>> and to log relevant information
+about them as entries into the `SYNCOPEAUDIT` table of the internal storage.
 
-include::externalresources.adoc[]
+Once events are reported in the table above, they can be used as input for external tools.
 
-include::realms.adoc[]
+[TIP]
+====
+An example of how audit entries can be extracted for reporting is shown by the <<audit-reportlet>>.
+====
 
-include::entitlements.adoc[]
+==== Audit Events
 
-include::roles.adoc[]
-
-include::provisioning/provisioning.adoc[]
-
-include::policies.adoc[]
-
-include::workflow.adoc[]
-
-include::notifications.adoc[]
-
-include::tasks.adoc[]
-
-include::reports.adoc[]
-
-include::audit.adoc[]
-
-=== Domains
+What described for <<notification-events,notification events>> is also valid for audit events, examples included -
+except for admin console <<console-configuration-audit,tooling>>, which is naturally distinct.
