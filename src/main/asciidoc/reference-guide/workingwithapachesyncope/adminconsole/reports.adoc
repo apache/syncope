@@ -22,11 +22,4 @@ The reports tab presents the admin with the reports generated from various jobs 
 deployment. These reports are displayed using report templates which can be defined for FO, HTML
 and CSV formats. This tab also allows the admin to create and edit such templates.
 
-Missing information:
-
-* reports can be run several times, each execution can be exported in the supported formats
-* reports can be defined by composing reportlet instances
-* predefined reportlets are available, more can be developed
-
 image::consoleReports.png[console-reports]
-

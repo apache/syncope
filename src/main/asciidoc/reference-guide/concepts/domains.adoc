@@ -16,19 +16,21 @@
 // specific language governing permissions and limitations
 // under the License.
 //
-=== Audit
+=== Domains
 
-The audit feature allows to capture <<audit-events,events>> occuring within the <<core>> and to log relevant information
-about them as entries into the `SYNCOPEAUDIT` table of the internal storage.
+Domains are built to facilitate https://en.wikipedia.org/wiki/Multitenancy[multitenancy^].
 
-Once events are reported in the table above, they can be used as input for external tools.
+Domains allow the physical separation of all data managed by Apache Syncope, by storing the data for different domains
+into different database instances. Therefore, Apache Syncope can facilitate Users, Groups, Any Objects,
+External Resources, Policies, Tasks, etc. from different domains (e.g. tenants) in a single <<core,core>> instance. 
+
+By default, a single `Master` domain is defined, which also bears the configuration for additional domains.
+
+[.text-center]
+image::domains.png[title="Domains",alt="Domains"]
 
 [TIP]
 ====
-An example of how audit entries can be extracted for reporting is shown by the <<audit-reportlet>>.
+Each domain's persistence unit can be configured to work with one of <<persistence,supported DBMSes>>: `Master` can be
+on MySQL, `Domain1` on PostgreSQL, `DomainN` on Oracle and so on.
 ====
-
-==== Audit Events
-
-What described for <<notification-events,notification events>> is also valid for audit events, examples included -
-except for admin console <<console-configuration-audit,tooling>>, which is naturally distinct.
