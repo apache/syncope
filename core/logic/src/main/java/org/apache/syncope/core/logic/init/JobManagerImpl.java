@@ -142,21 +142,9 @@ public class JobManagerImpl implements JobManager, SyncopeLoader {
             final Map<String, Object> jobMap)
             throws SchedulerException {
 
-        synchronized (scheduler.getScheduler()) {
-            boolean jobAlreadyRunning = false;
-            for (JobExecutionContext jobCtx : scheduler.getScheduler().getCurrentlyExecutingJobs()) {
-                if (jobName.equals(jobCtx.getJobDetail().getKey().getName())
-                        && Scheduler.DEFAULT_GROUP.equals(jobCtx.getJobDetail().getKey().getGroup())) {
-
-                    jobAlreadyRunning = true;
-
-                    LOG.debug("Job {} already running, cancel", jobCtx.getJobDetail().getKey());
-                }
-            }
-
-            if (jobAlreadyRunning) {
-                return;
-            }
+        if (isRunningHere(new JobKey(jobName, Scheduler.DEFAULT_GROUP))) {
+            LOG.debug("Job {} already running, cancel", jobName);
+            return;
         }
 
         // 0. unregister job
