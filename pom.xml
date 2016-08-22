@@ -392,7 +392,7 @@ under the License.
     <log.directory>${project.build.directory}/log</log.directory>
     <activiti-modeler.directory>${project.build.directory}/activiti-modeler</activiti-modeler.directory>
 
-    <swagger-core.version>1.5.9</swagger-core.version>    
+    <swagger-core.version>1.5.10</swagger-core.version>    
     <swagger-ui.version>2.2.0</swagger-ui.version>
         
     <jquery.version>2.2.4</jquery.version>
