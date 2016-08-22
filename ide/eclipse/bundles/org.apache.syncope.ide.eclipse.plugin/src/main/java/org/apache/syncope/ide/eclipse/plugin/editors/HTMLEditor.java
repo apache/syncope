@@ -32,7 +32,7 @@ import org.eclipse.ui.texteditor.TextEditorAction;
 
 public class HTMLEditor extends TextEditor {
     
-    private static final String RESOURCE_BUNDLE = "/src/main/resources/HTMLEditor";
+    private static final String RESOURCE_BUNDLE = "HTMLEditor";
             
     public HTMLEditor() {
         super();
