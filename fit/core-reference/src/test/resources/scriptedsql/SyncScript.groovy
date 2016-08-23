@@ -75,7 +75,7 @@ if (action.equalsIgnoreCase("GET_LATEST_SYNC_TOKEN")) {
     sql.eachRow("SELECT * FROM TESTPRINTER WHERE lastmodification > ${lastmodification}",
       {
         result.add([
-            operation:"CREATE_OR_UPDATE", 
+            operation:it.deleted ? "DELETE": "CREATE_OR_UPDATE", 
             uid:it.id.toString(), 
             token:it.lastmodification.getTime(), 
             attributes:[

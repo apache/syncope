@@ -80,36 +80,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
 
     protected abstract AnyTO doCreate(AnyTO anyTO, SyncDelta delta, ProvisioningReport result);
 
-    protected AnyTO doLink(final AnyTO before, final boolean unlink) {
-        AnyPatch patch = newPatch(before.getKey());
-        patch.setKey(before.getKey());
-        patch.getResources().add(new StringPatchItem.Builder().
-                operation(unlink ? PatchOperation.DELETE : PatchOperation.ADD_REPLACE).
-                value(profile.getTask().getResource().getKey()).build());
-
-        return getAnyTO(update(patch).getResult());
-    }
-
     protected abstract AnyTO doUpdate(AnyTO before, AnyPatch anyPatch, SyncDelta delta, ProvisioningReport result);
-
-    protected AnyPatch doDeprovision(final AnyTypeKind kind, final String key, final boolean unlink) {
-        PropagationByResource propByRes = new PropagationByResource();
-        propByRes.add(ResourceOperation.DELETE, profile.getTask().getResource().getKey());
-        taskExecutor.execute(propagationManager.getDeleteTasks(
-                kind,
-                key,
-                propByRes,
-                null));
-
-        AnyPatch anyPatch = null;
-        if (unlink) {
-            anyPatch = newPatch(key);
-            anyPatch.getResources().add(new StringPatchItem.Builder().
-                    operation(PatchOperation.DELETE).
-                    value(profile.getTask().getResource().getKey()).build());
-        }
-        return anyPatch;
-    }
 
     protected void doDelete(final AnyTypeKind kind, final String key) {
         PropagationByResource propByRes = new PropagationByResource();
@@ -189,6 +160,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
 
         if (!profile.getTask().isPerformCreate()) {
             LOG.debug("PullTask not configured for create");
+            finalize(UnmatchingRule.toEventName(UnmatchingRule.ASSIGN), Result.SUCCESS, null, null, delta);
             return Collections.<ProvisioningReport>emptyList();
         }
 
@@ -204,6 +176,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
 
         if (profile.isDryRun()) {
             result.setKey(null);
+            finalize(UnmatchingRule.toEventName(UnmatchingRule.ASSIGN), Result.SUCCESS, null, null, delta);
         } else {
             SyncDelta actionedDelta = delta;
             for (PullActions action : profile.getActions()) {
@@ -222,6 +195,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
 
         if (!profile.getTask().isPerformCreate()) {
             LOG.debug("PullTask not configured for create");
+            finalize(UnmatchingRule.toEventName(UnmatchingRule.PROVISION), Result.SUCCESS, null, null, delta);
             return Collections.<ProvisioningReport>emptyList();
         }
 
@@ -235,6 +209,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
 
         if (profile.isDryRun()) {
             result.setKey(null);
+            finalize(UnmatchingRule.toEventName(UnmatchingRule.PROVISION), Result.SUCCESS, null, null, delta);
         } else {
             SyncDelta actionedDelta = delta;
             for (PullActions action : profile.getActions()) {
@@ -310,6 +285,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
 
         if (!profile.getTask().isPerformUpdate()) {
             LOG.debug("PullTask not configured for update");
+            finalize(MatchingRule.toEventName(MatchingRule.UPDATE), Result.SUCCESS, null, null, delta);
             return Collections.<ProvisioningReport>emptyList();
         }
 
@@ -400,6 +376,9 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
 
         if (!profile.getTask().isPerformUpdate()) {
             LOG.debug("PullTask not configured for update");
+            finalize(unlink
+                    ? MatchingRule.toEventName(MatchingRule.UNASSIGN)
+                    : MatchingRule.toEventName(MatchingRule.DEPROVISION), Result.SUCCESS, null, null, delta);
             return Collections.<ProvisioningReport>emptyList();
         }
 
@@ -444,7 +423,21 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                             }
                         }
 
-                        AnyPatch anyPatch = doDeprovision(provision.getAnyType().getKind(), key, unlink);
+                        PropagationByResource propByRes = new PropagationByResource();
+                        propByRes.add(ResourceOperation.DELETE, profile.getTask().getResource().getKey());
+                        taskExecutor.execute(propagationManager.getDeleteTasks(
+                                provision.getAnyType().getKind(),
+                                key,
+                                propByRes,
+                                null));
+
+                        AnyPatch anyPatch = null;
+                        if (unlink) {
+                            anyPatch = newPatch(key);
+                            anyPatch.getResources().add(new StringPatchItem.Builder().
+                                    operation(PatchOperation.DELETE).
+                                    value(profile.getTask().getResource().getKey()).build());
+                        }
                         if (anyPatch == null) {
                             output = getAnyTO(key);
                         } else {
@@ -495,6 +488,9 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
 
         if (!profile.getTask().isPerformUpdate()) {
             LOG.debug("PullTask not configured for update");
+            finalize(unlink
+                    ? MatchingRule.toEventName(MatchingRule.UNLINK)
+                    : MatchingRule.toEventName(MatchingRule.LINK), Result.SUCCESS, null, null, delta);
             return Collections.<ProvisioningReport>emptyList();
         }
 
@@ -539,7 +535,12 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                             }
                         }
 
-                        output = doLink(before, unlink);
+                        AnyPatch patch = newPatch(before.getKey());
+                        patch.getResources().add(new StringPatchItem.Builder().
+                                operation(unlink ? PatchOperation.DELETE : PatchOperation.ADD_REPLACE).
+                                value(profile.getTask().getResource().getKey()).build());
+
+                        output = getAnyTO(update(patch).getResult());
 
                         for (PullActions action : profile.getActions()) {
                             action.after(profile, delta, AnyTO.class.cast(output), result);
@@ -566,7 +567,8 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                         resultStatus = Result.FAILURE;
                     }
                 }
-                finalize(unlink ? MatchingRule.toEventName(MatchingRule.UNLINK)
+                finalize(unlink
+                        ? MatchingRule.toEventName(MatchingRule.UNLINK)
                         : MatchingRule.toEventName(MatchingRule.LINK), resultStatus, before, output, delta);
             }
             updResults.add(result);
@@ -583,6 +585,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
 
         if (!profile.getTask().isPerformDelete()) {
             LOG.debug("PullTask not configured for delete");
+            finalize(ResourceOperation.DELETE.name().toLowerCase(), Result.SUCCESS, null, null, delta);
             return Collections.<ProvisioningReport>emptyList();
         }
 
@@ -660,11 +663,9 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
         result.setAnyType(provision.getAnyType().getKey());
         result.setStatus(ProvisioningReport.Status.SUCCESS);
 
-        if (!profile.isDryRun()) {
-            finalize(matching
-                    ? MatchingRule.toEventName(MatchingRule.IGNORE)
-                    : UnmatchingRule.toEventName(UnmatchingRule.IGNORE), Result.SUCCESS, null, null, delta);
-        }
+        finalize(matching
+                ? MatchingRule.toEventName(MatchingRule.IGNORE)
+                : UnmatchingRule.toEventName(UnmatchingRule.IGNORE), Result.SUCCESS, null, null, delta);
 
         return result;
     }
@@ -780,6 +781,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                 }
             } else if (SyncDeltaType.DELETE == delta.getDeltaType()) {
                 if (anyKeys.isEmpty()) {
+                    finalize(ResourceOperation.DELETE.name().toLowerCase(), Result.SUCCESS, null, null, delta);
                     LOG.debug("No match found for deletion");
                 } else {
                     profile.getResults().addAll(delete(delta, anyKeys, provision));

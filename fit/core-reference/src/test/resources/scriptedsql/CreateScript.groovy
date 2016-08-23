@@ -37,7 +37,7 @@ def sql = new Sql(connection);
 
 switch ( objectClass ) {  
 case "__PRINTER__":
-  sql.execute("INSERT INTO TESTPRINTER (id, printername, location, lastmodification) values (?,?,?,?)",
+  sql.execute("INSERT INTO TESTPRINTER (id, printername, location, lastmodification) VALUES (?,?,?,?)",
     [
       id,
       attributes.get("PRINTERNAME").get(0),

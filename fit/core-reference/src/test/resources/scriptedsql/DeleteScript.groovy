@@ -35,7 +35,7 @@ assert uid != null
 
 switch ( objectClass ) {
 case "__PRINTER__":
-  sql.execute("DELETE FROM TESTPRINTER where id= ?",[uid])
+  sql.execute("UPDATE TESTPRINTER SET deleted = ?, lastmodification = ? WHERE id = ?", [true, new Date(), uid])
   break
 
 default:

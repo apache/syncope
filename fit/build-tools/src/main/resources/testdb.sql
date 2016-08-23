@@ -47,4 +47,5 @@ CREATE TABLE testPRINTER (
 id CHAR(36) PRIMARY KEY,
 printername VARCHAR(80),
 location VARCHAR(80),
+deleted BOOLEAN DEFAULT FALSE,
 lastModification TIMESTAMP);

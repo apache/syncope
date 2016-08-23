@@ -1152,7 +1152,7 @@ under the License.
         objectClassName="__ACCOUNT__" resource_id="resource-testdb" anyTypeKind="USER" entityKey="1417acbe-cbf6-4277-9372-e75e04f97000"
         attributes='[{"name":"__PASSWORD__","value":[{"readOnly":false,"disposed":false,"encryptedBytes":"m9nh2US0Sa6m+cXccCq0Xw==","base64SHA1Hash":"GFJ69qfjxEOdrmt+9q+0Cw2uz60="}]},{"name":"__NAME__","value":["userId"],"nameValue":"userId"},{"name":"fullname","value":["fullname"]},{"name":"type","value":["type"]}]'/>
   <Task DTYPE="PullTask" id="30cfd653-257b-495f-8665-281281dbcb3d" name="Scripted SQL" resource_id="resource-db-scripted"
-        destinationRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28" performCreate="1" performUpdate="1" performDelete="1" syncStatus="0" pullMode="INCREMENTAL"
+        destinationRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28" performCreate="1" performUpdate="1" performDelete="0" syncStatus="0" pullMode="INCREMENTAL"
         unmatchingRule="PROVISION" matchingRule="UPDATE" active="1"/>
 
   <MailTemplate id="requestPasswordReset"
