@@ -422,7 +422,7 @@ under the License.
     <angular-translate.version>2.11.1</angular-translate.version>
     
     <ng-password-strength.version>0.2.1</ng-password-strength.version>
-    <lodash.version>4.0.0</lodash.version>
+    <lodash.version>4.15.0</lodash.version>
     <kendo-ui-core.version>2014.2.716</kendo-ui-core.version>
     <select2.version>3.4.8</select2.version>
     <fileSaver.version>0.0.2</fileSaver.version>
