@@ -248,7 +248,9 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
         if (resource == null) {
             throw new NotFoundException("Resource '" + resourceName + "'");
         }
-        return binder.getConnInstanceTO(connFactory.getConnector(resource).getConnInstance());
+        ConnInstanceTO connInstance = binder.getConnInstanceTO(connFactory.getConnector(resource).getConnInstance());
+        connInstance.setKey(resource.getConnector().getKey());
+        return connInstance;
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.CONNECTOR_RELOAD + "')")

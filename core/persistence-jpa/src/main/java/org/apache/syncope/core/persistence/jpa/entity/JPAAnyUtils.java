@@ -38,6 +38,7 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
+import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.Schema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
@@ -292,6 +293,25 @@ public class JPAAnyUtils implements AnyUtils {
         }
 
         return result;
+    }
+
+    @Override
+    public <T extends PlainAttrValue> T clonePlainAttrValue(final T src) {
+        T dst;
+        if (src instanceof PlainAttrUniqueValue) {
+            dst = newPlainAttrUniqueValue();
+        } else {
+            dst = newPlainAttrValue();
+        }
+
+        dst.setBinaryValue(src.getBinaryValue());
+        dst.setBooleanValue(src.getBooleanValue());
+        dst.setDateValue(src.getDateValue());
+        dst.setDoubleValue(src.getDoubleValue());
+        dst.setLongValue(src.getLongValue());
+        dst.setStringValue(src.getStringValue());
+
+        return dst;
     }
 
     @Override

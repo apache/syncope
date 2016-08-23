@@ -22,7 +22,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IteratorUtils;
-import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
@@ -193,7 +192,6 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                     populateMapping(
                             provisionTO.getMapping(),
                             mapping,
-                            entityFactory.newEntity(MappingItem.class),
                             allowedSchemas);
                 }
 
@@ -292,7 +290,6 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
     private void populateMapping(
             final MappingTO mappingTO,
             final Mapping mapping,
-            final MappingItem prototype,
             final AnyTypeClassTO allowedSchemas) {
 
         mapping.setConnObjectLink(mappingTO.getConnObjectLink());
@@ -350,7 +347,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                             scce.addException(invalidMandatoryCondition);
                         }
 
-                        MappingItem item = SerializationUtils.clone(prototype);
+                        MappingItem item = entityFactory.newEntity(MappingItem.class);
                         BeanUtils.copyProperties(itemTO, item, MAPPINGITEM_IGNORE_PROPERTIES);
                         item.setMapping(mapping);
                         if (item.isConnObjectKey()) {

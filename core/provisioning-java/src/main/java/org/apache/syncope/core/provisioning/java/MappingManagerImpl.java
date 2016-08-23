@@ -24,7 +24,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.collections4.ListUtils;
-import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -60,7 +59,6 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.GroupableRelatable;
 import org.apache.syncope.core.persistence.api.entity.Membership;
-import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Schema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
@@ -352,8 +350,8 @@ public class MappingManagerImpl implements MappingManager {
         List<PlainAttrValue> values = new ArrayList<>();
         boolean transform = true;
 
+        AnyUtils anyUtils = anyUtilsFactory.getInstance(reference);
         if (intAttrName.getField() != null) {
-            AnyUtils anyUtils = anyUtilsFactory.getInstance(reference);
             PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
 
             switch (intAttrName.getField()) {
@@ -434,14 +432,10 @@ public class MappingManagerImpl implements MappingManager {
                     }
                     if (attr != null) {
                         if (attr.getUniqueValue() != null) {
-                            PlainAttrUniqueValue value = SerializationUtils.clone(attr.getUniqueValue());
-                            value.setAttr(null);
-                            values.add(value);
+                            values.add(anyUtils.clonePlainAttrValue(attr.getUniqueValue()));
                         } else if (attr.getValues() != null) {
                             for (PlainAttrValue value : attr.getValues()) {
-                                PlainAttrValue shadow = SerializationUtils.clone(value);
-                                shadow.setAttr(null);
-                                values.add(shadow);
+                                values.add(anyUtils.clonePlainAttrValue(value));
                             }
                         }
                     }
@@ -454,7 +448,6 @@ public class MappingManagerImpl implements MappingManager {
                                 ? derAttrHandler.getValue(reference, derSchema)
                                 : derAttrHandler.getValue(reference, membership, derSchema);
                         if (value != null) {
-                            AnyUtils anyUtils = anyUtilsFactory.getInstance(reference);
                             PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
                             attrValue.setStringValue(value);
                             values.add(attrValue);
@@ -472,7 +465,6 @@ public class MappingManagerImpl implements MappingManager {
                         virAttrCache.expire(
                                 reference.getType().getKey(), reference.getKey(), intAttrName.getSchemaName());
 
-                        AnyUtils anyUtils = anyUtilsFactory.getInstance(reference);
                         List<String> virValues = membership == null
                                 ? virAttrHandler.getValues(reference, virSchema)
                                 : virAttrHandler.getValues(reference, membership, virSchema);

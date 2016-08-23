@@ -44,6 +44,8 @@ public interface AnyUtils {
 
     <T extends PlainAttrValue> T newPlainAttrUniqueValue();
 
+    <T extends PlainAttrValue> T clonePlainAttrValue(T src);
+    
     <T extends AnyTO> T newAnyTO();
 
     Set<ExternalResource> getAllResources(Any<?> any);

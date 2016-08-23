@@ -23,7 +23,6 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
@@ -31,6 +30,7 @@ import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.SyncopeLoader;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
+import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.ConnectorFactory;
@@ -54,6 +54,8 @@ public class ConnectorManager implements ConnectorRegistry, ConnectorFactory, Sy
 
     @Autowired
     private ExternalResourceDAO resourceDAO;
+
+    private EntityFactory entityFactory;
 
     @Override
     public Integer getPriority() {
@@ -81,7 +83,21 @@ public class ConnectorManager implements ConnectorRegistry, ConnectorFactory, Sy
             final Set<ConnConfProperty> confOverride,
             final Set<ConnectorCapability> capabilitiesOverride) {
 
-        ConnInstance override = SerializationUtils.clone(connInstance);
+        synchronized (this) {
+            if (entityFactory == null) {
+                entityFactory = ApplicationContextProvider.getApplicationContext().getBean(EntityFactory.class);
+            }
+        }
+
+        ConnInstance override = entityFactory.newEntity(ConnInstance.class);
+        override.setConnectorName(connInstance.getConnectorName());
+        override.setDisplayName(connInstance.getDisplayName());
+        override.setBundleName(connInstance.getBundleName());
+        override.setVersion(connInstance.getVersion());
+        override.setLocation(connInstance.getLocation());
+        override.setConf(connInstance.getConf());
+        override.getCapabilities().addAll(connInstance.getCapabilities());
+        override.setConnRequestTimeout(connInstance.getConnRequestTimeout());
 
         Map<String, ConnConfProperty> overridable = new HashMap<>();
         Set<ConnConfProperty> conf = new HashSet<>();
