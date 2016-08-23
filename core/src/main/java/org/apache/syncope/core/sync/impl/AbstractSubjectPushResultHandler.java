@@ -317,7 +317,6 @@ public abstract class AbstractSubjectPushResultHandler extends AbstractSyncopeRe
     }
 
     protected AbstractSubject update(final AbstractSubject sbj, final Boolean enabled) {
-
         final Set<MembershipMod> membsToAdd = new HashSet<MembershipMod>();
         final Set<String> vattrToBeRemoved = new HashSet<String>();
         final Set<String> membVattrToBeRemoved = new HashSet<String>();

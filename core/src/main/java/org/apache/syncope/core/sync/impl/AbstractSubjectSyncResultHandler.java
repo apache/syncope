@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.sync.impl;
 
-import org.apache.syncope.core.sync.SyncUtilities;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -40,6 +38,7 @@ import org.apache.syncope.core.rest.data.AttributableTransformer;
 import org.apache.syncope.core.sync.IgnoreProvisionException;
 import org.apache.syncope.core.sync.SyncActions;
 import org.apache.syncope.core.sync.SyncResult;
+import org.apache.syncope.core.sync.SyncUtilities;
 import org.apache.syncope.core.util.AttributableUtil;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.SyncDelta;
@@ -139,6 +138,7 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
 
         if (!profile.getSyncTask().isPerformCreate()) {
             LOG.debug("SyncTask not configured for create");
+            finalize(UnmatchingRule.toEventName(UnmatchingRule.ASSIGN), Result.SUCCESS, null, null, delta);
             return Collections.<SyncResult>emptyList();
         }
 
@@ -160,6 +160,7 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
 
         if (profile.isDryRun()) {
             result.setId(0L);
+            finalize(UnmatchingRule.toEventName(UnmatchingRule.ASSIGN), Result.SUCCESS, null, null, delta);
         } else {
             SyncDelta _delta = delta;
             for (SyncActions action : profile.getActions()) {
@@ -177,6 +178,7 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
 
         if (!profile.getSyncTask().isPerformCreate()) {
             LOG.debug("SyncTask not configured for create");
+            finalize(UnmatchingRule.toEventName(UnmatchingRule.PROVISION), Result.SUCCESS, null, null, delta);
             return Collections.<SyncResult>emptyList();
         }
 
@@ -196,6 +198,7 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
 
         if (profile.isDryRun()) {
             result.setId(0L);
+            finalize(UnmatchingRule.toEventName(UnmatchingRule.PROVISION), Result.SUCCESS, null, null, delta);
         } else {
             SyncDelta _delta = delta;
             for (SyncActions action : profile.getActions()) {
@@ -270,6 +273,7 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
 
         if (!profile.getSyncTask().isPerformUpdate()) {
             LOG.debug("SyncTask not configured for update");
+            finalize(MatchingRule.toEventName(MatchingRule.UPDATE), Result.SUCCESS, null, null, delta);
             return Collections.<SyncResult>emptyList();
         }
 
@@ -357,6 +361,9 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
 
         if (!profile.getSyncTask().isPerformUpdate()) {
             LOG.debug("SyncTask not configured for update");
+            finalize(unlink
+                    ? MatchingRule.toEventName(MatchingRule.UNASSIGN)
+                    : MatchingRule.toEventName(MatchingRule.DEPROVISION), Result.SUCCESS, null, null, delta);
             return Collections.<SyncResult>emptyList();
         }
 
@@ -445,6 +452,9 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
 
         if (!profile.getSyncTask().isPerformUpdate()) {
             LOG.debug("SyncTask not configured for update");
+            finalize(unlink
+                    ? MatchingRule.toEventName(MatchingRule.UNLINK)
+                    : MatchingRule.toEventName(MatchingRule.LINK), Result.SUCCESS, null, null, delta);
             return Collections.<SyncResult>emptyList();
         }
 
@@ -513,7 +523,8 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
                         resultStatus = Result.FAILURE;
                     }
                 }
-                finalize(unlink ? MatchingRule.toEventName(MatchingRule.UNLINK)
+                finalize(unlink
+                        ? MatchingRule.toEventName(MatchingRule.UNLINK)
                         : MatchingRule.toEventName(MatchingRule.LINK), resultStatus, before, output, delta);
             }
             updResults.add(result);
@@ -527,6 +538,7 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
 
         if (!profile.getSyncTask().isPerformDelete()) {
             LOG.debug("SyncTask not configured for delete");
+            finalize(ResourceOperation.DELETE.name().toLowerCase(), Result.SUCCESS, null, null, delta);
             return Collections.<SyncResult>emptyList();
         }
 
@@ -576,7 +588,6 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
                 }
 
                 delResults.add(result);
-
             } catch (NotFoundException e) {
                 LOG.error("Could not find {} {}", attrUtil.getType(), id, e);
             } catch (UnauthorizedRoleException e) {
@@ -604,11 +615,9 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
         result.setStatus(SyncResult.Status.SUCCESS);
         ignoreResults.add(result);
 
-        if (!profile.isDryRun()) {
-            finalize(matching
-                    ? MatchingRule.toEventName(MatchingRule.IGNORE)
-                    : UnmatchingRule.toEventName(UnmatchingRule.IGNORE), Result.SUCCESS, null, null, delta);
-        }
+        finalize(matching
+                ? MatchingRule.toEventName(MatchingRule.IGNORE)
+                : UnmatchingRule.toEventName(UnmatchingRule.IGNORE), Result.SUCCESS, null, null, delta);
 
         return ignoreResults;
     }
@@ -693,6 +702,7 @@ public abstract class AbstractSubjectSyncResultHandler extends AbstractSyncopeRe
                 }
             } else if (SyncDeltaType.DELETE == delta.getDeltaType()) {
                 if (subjectIds.isEmpty()) {
+                    finalize(ResourceOperation.DELETE.name().toLowerCase(), Result.SUCCESS, null, null, delta);
                     LOG.debug("No match found for deletion");
                 } else {
                     profile.getResults().addAll(delete(delta, subjectIds, attrUtil));
