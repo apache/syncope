@@ -99,6 +99,10 @@ under the License.
     <property name="usePathParamsToCompareOperations" value="false"/>
   </bean>
   
+  <bean id="extendedSwagger2Serializers" class="org.apache.syncope.core.rest.cxf.ExtendedSwagger2Serializers">
+    <property name="dynamicBasePath" value="true"/>
+    <property name="replaceTags" value="true"/>
+  </bean>
   <bean id="swagger2Feature" class="org.apache.syncope.core.rest.cxf.Swagger2Feature">
     <property name="title" value="Apache Syncope"/>
     <property name="version" value="${syncope.version}"/>
@@ -109,8 +113,7 @@ under the License.
     <property name="scanAllResources" value="true"/>
     <property name="activateOnlyIfJaxrsSupported" value="true"/>
     
-    <property name="dynamicBasePath" value="true"/>
-    <property name="replaceTags" value="true"/>
+    <property name="swagger2Serializers" ref="extendedSwagger2Serializers"/>
   </bean>
 
   <jaxrs:server id="restContainer" address="/"
