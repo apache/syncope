@@ -16,41 +16,9 @@
 // specific language governing permissions and limitations
 // under the License.
 //
-
 ===== Dashboard
-The dashboard provides an overall view of the current state of the syncope deployment. It
-consists of various widgets and tabs that show the different metrics and details of each component
-of the syncope deployment.
+
+The dashboard provides an overall view of the current state of the Apache Syncope deployment. It
+consists of various widgets and tabs that show the different metrics and details of each component available.
 
 image::consoleDashboard.png[console-dashboard]
-
-Overview::
-
-Contains widgets to display
-
-* Number of Users
-* Number of Groups
-* Number of external resource instances available (Printer as a default)
-* Number of resources
-* Configuration Status: Shows the status of missing or incomplete configurations.
-* System Load: Shows the CPU and Memory usage of the syncope deployment on the server.
-* User Status: Shows the status of tasks for admin such as provisioning resources to user.
-* Users, Groups and Any Objects Distribution
-
-Control::
-
-Allows admin to
-
-* Run a predefined list of jobs
-* View Reconciliation status of recently run jobs
-
-Extensions::
-
-The default syncope installation comes with camel metrics enabled which allows the user to see how
-many
-
-* Users have been activated
-* Passwords have been reset
-* Objects have been created
-* Groups have been created
-* Group pulls have been created...

@@ -18,9 +18,6 @@
 //
 [[console-extensions]]
 ===== Extensions
-The extensions tab shows the extensions installed on the given Apache Syncope deployment.
 
-Among the available extensions, the one for Apache Camel-based provisioning is often installed: Users can inspect the
-performance measures for the various routes defined.
-
-image::consoleCamelExtension.png[console-camel-extension]
+The <<extensions,extensions>> configured for the given deployment are dynamically reported in the navigation menu: each
+extension generally produces one or more pages and makes one or more widgets available in the <<dashboard,dashboard>>.

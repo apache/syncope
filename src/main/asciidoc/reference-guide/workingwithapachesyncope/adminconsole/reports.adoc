@@ -18,8 +18,9 @@
 //
 [[console-reports]]
 ===== Reports
-The reports tab presents the admin with the reports generated from various jobs run on the syncope
-deployment. These reports are displayed using report templates which can be defined for FO, HTML
-and CSV formats. This tab also allows the admin to create and edit such templates.
+
+The reports page presents the designated administators with the list of <<reports,reports>> configured on the given
+deployment. +
+This page also allows the administators to create and edit <<report-templates,report templates>>.
 
 image::consoleReports.png[console-reports]

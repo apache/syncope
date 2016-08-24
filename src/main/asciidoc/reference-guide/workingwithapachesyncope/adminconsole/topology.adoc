@@ -16,11 +16,10 @@
 // specific language governing permissions and limitations
 // under the License.
 //
-
 ===== Topology
-The topology tab provides a mapped view of the available connector bundles, instances and
-resources available and configured in the syncope deployment. It also allows the admin to perform
-all the actions listed in the realms tab.
+
+The topology page provides a mapped view of the available <<connector-instance-details,connectors>> and
+<<external-resource-details,external resources>> available and configured in the given deployment. +
+Different actions are available when clicking on the various nodes.
 
 image::consoleTopology.png[console-topology]
-
