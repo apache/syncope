@@ -1,0 +1,92 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+//
+=== Extensions
+
+Extensions allow to optionally enrich the _vanilla_ Apache Syncope with useful features, without the need of bloating
+every single deployment with non-needed libraries and configurations.
+
+With reference to <<architecture,architecture>>, an extension might add a <<rest>> endpoint, manage the
+<<persistence,persistence>> of additional entities, extend the <<security,security>> mechanisms, tweak the
+<<provisioning-layer,provisioning layer>>, add features to the <<admin-console-component,admin console>>, or even bring
+all such things together.
+
+Extensions are available from different sources:
+
+. as Maven artifacts published from the Apache Syncope codebase, part of the official releases - this is the case of the
+ones detailed below;
+. as Maven artifacts published by third parties;
+. as part of a given deployment sources, as explained <<customization-extensions, in the following>>.
+
+==== Apache Camel Provisioning Engine
+
+This extension delegates the <<provisioning,provisioning>> process execution to a set of
+http://camel.apache.org[Apache Camel^] routes.
+
+The pre-loaded routes can be dynamically changed at runtime via REST or admin console, and modifications are immediately
+made available for processing.
+
+For example, on creating a new user, you may wish to send an email to an administrator; or if a user is
+reactivated, you may wish to reactivate the user's home page on a web server. +
+All these things and more are possible using the myriad of
+http://camel.apache.org/components.html[components^] that are available to be used in Apache Camel routes.
+
+[NOTE]
+.Extension Sources
+====
+The sources of this extension are available from the Apache Syncope
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/tree/syncope-{docVersion}/ext/camel[source tree^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/tree/master/ext/camel[source tree^]
+endif::[]
+.
+====
+
+[TIP]
+====
+This extension is adding features to all components and layers available and can be taken as reference when creating
+<<customization-extensions,new extensions>>.
+====
+
+==== Swagger
+
+This extension enables http://swagger.io/swagger-ui/[Swagger UI^] as web interface for dealing with Apache Syncope
+<<rest,RESTful>> services.
+
+Once installed, Swagger UI is available at
+[source]
+--
+http://host:port/syncope/swagger/
+--
+
+where `host` and `port` reflect your Java EE container installation.
+
+[NOTE]
+.Extension Sources
+====
+The sources of this extension are available from the Apache Syncope
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/tree/syncope-{docVersion}/ext/swagger-ui[source tree^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/tree/master/ext/swagger-ui[source tree^]
+endif::[]
+.
+====

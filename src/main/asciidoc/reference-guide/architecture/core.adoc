@@ -32,7 +32,7 @@ This interface enables third-party applications, written in any programming lang
 The rich pre-defined set of endpoints can be extended by adding new ones, which might be needed on a given Apache
 Syncope deployment to complement the native features with domain-specific operations.
 
-An <<swagger-ui,extension>> is available, providing full http://swagger.io/[Swagger^] features,
+An <<swagger,extension>> is available, providing full http://swagger.io/[Swagger^] features,
 which enables in-browser access to all the REST endpoints defined.
 
 At a technical level, the RESTful interface is a fully-compliant 
