@@ -1971,6 +1971,13 @@ under the License.
                       <link>http://docs.oracle.com/javaee/7/api/</link>
                       <link>http://www.slf4j.org/api/</link>
                       <link>http://connid.tirasa.net/apidocs/1.4/</link>
+                      <link>http://cxf.apache.org/javadoc/latest-3.1.x/</link>
+                      <link>http://fasterxml.github.io/jackson-core/javadoc/2.8/</link>
+                      <link>http://fasterxml.github.io/jackson-databind/javadoc/2.8/</link>
+                      <link>http://fasterxml.github.io/jackson-annotations/javadoc/2.8/</link>
+                      <link>http://fasterxml.github.io/jackson-dataformat-xml/javadoc/2.8/</link>
+                      <link>http://fasterxml.github.io/jackson-dataformat-yaml/javadoc/2.8/</link>
+                      <link>http://fasterxml.github.io/jackson-datatype-joda/javadoc/2.8/</link>
                       <link>http://camel.apache.org/maven/current/camel-core/apidocs/</link>
                       <link>http://camel.apache.org/maven/current/camel-spring/apidocs/</link>
                       <link>https://ci.apache.org/projects/wicket/apidocs/7.x/</link>
