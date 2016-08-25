@@ -197,7 +197,7 @@ public class CLIITCase extends AbstractITCase {
 
                 @Override
                 public boolean evaluate(final String line) {
-                    return line.startsWith(" > USER ID:");
+                    return line.startsWith(" > USER KEY:");
                 }
             });
             assertEquals(5, users);
