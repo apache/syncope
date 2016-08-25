@@ -28,7 +28,7 @@ public class NotificationRead extends AbstractNotificationCommand {
 
     private static final Logger LOG = LoggerFactory.getLogger(NotificationRead.class);
 
-    private static final String READ_HELP_MESSAGE = "notification --read {NOTIFICATION-ID} {NOTIFICATION-ID} [...]";
+    private static final String READ_HELP_MESSAGE = "notification --read {NOTIFICATION-KEY} {NOTIFICATION-KEY} [...]";
 
     private final Input input;
 

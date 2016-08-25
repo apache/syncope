@@ -27,7 +27,7 @@ public class AnyObjectDelete extends AbstractAnyObjectCommand {
 
     private static final Logger LOG = LoggerFactory.getLogger(AnyObjectDelete.class);
 
-    private static final String DELETE_HELP_MESSAGE = "any --delete {ANY-ID} {ANY-ID} [...]";
+    private static final String DELETE_HELP_MESSAGE = "any --delete {ANY_OBJECT-KEY} {ANY_OBJECT-KEY} [...]";
 
     private final Input input;
 

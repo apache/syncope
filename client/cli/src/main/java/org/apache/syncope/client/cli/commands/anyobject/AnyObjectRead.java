@@ -27,7 +27,7 @@ public class AnyObjectRead extends AbstractAnyObjectCommand {
 
     private static final Logger LOG = LoggerFactory.getLogger(AnyObjectRead.class);
 
-    private static final String READ_HELP_MESSAGE = "any --read {ANY-ID} {ANY-ID} [...]";
+    private static final String READ_HELP_MESSAGE = "any --read {ANY_OBJECT-KEY} {ANY_OBJECT-KEY} [...]";
 
     private final Input input;
 
@@ -39,7 +39,7 @@ public class AnyObjectRead extends AbstractAnyObjectCommand {
         if (input.parameterNumber() >= 1) {
             for (final String parameter : input.getParameters()) {
                 try {
-                    anyResultManager.printGroup(anySyncopeOperations.read(parameter));
+                    anyResultManager.printAny(anySyncopeOperations.read(parameter));
                 } catch (final SyncopeClientException ex) {
                     LOG.error("Error reading group", ex);
                     if (ex.getMessage().startsWith("NotFound")) {

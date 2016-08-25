@@ -39,7 +39,7 @@ public class ConnectorResultManager extends CommonsResultManager {
     }
 
     public void printConnector(final ConnInstanceTO connInstanceTO) {
-        System.out.println(" > CONNECTOR ID: " + connInstanceTO.getKey());
+        System.out.println(" > CONNECTOR KEY: " + connInstanceTO.getKey());
         System.out.println("    bundle name: " + connInstanceTO.getBundleName());
         System.out.println("    connector name: " + connInstanceTO.getConnectorName());
         System.out.println("    display name: " + connInstanceTO.getDisplayName());

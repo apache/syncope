@@ -28,7 +28,7 @@ public class PolicyDelete extends AbstractPolicyCommand {
 
     private static final Logger LOG = LoggerFactory.getLogger(PolicyDelete.class);
 
-    private static final String DELETE_HELP_MESSAGE = "policy --delete {POLICY-ID} {POLICY-ID} [...]";
+    private static final String DELETE_HELP_MESSAGE = "policy --delete {POLICY-KEY} {POLICY-KEY} [...]";
 
     private final Input input;
 

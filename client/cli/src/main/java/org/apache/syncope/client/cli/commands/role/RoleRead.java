@@ -31,7 +31,7 @@ public class RoleRead extends AbstractRoleCommand {
 
     private static final Logger LOG = LoggerFactory.getLogger(RoleRead.class);
 
-    private static final String READ_HELP_MESSAGE = "role --read {ROLE-NAME} {ROLE-NAME} [...]";
+    private static final String READ_HELP_MESSAGE = "role --read {ROLE-KEY} {ROLE-KEY} [...]";
 
     private final Input input;
 

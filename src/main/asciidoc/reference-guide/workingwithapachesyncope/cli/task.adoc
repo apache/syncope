@@ -16,9 +16,8 @@
 // specific language governing permissions and limitations
 // under the License.
 //
-
 ===== Task command
-The Task command retrieves information about the Task configuration in Apache Syncope.
+This command works with <<tasks,tasks>>.
 
 [discrete]
 ====== Help message
@@ -34,15 +33,15 @@ Usage: task [options]
     --list-running-jobs
     --list-scheduled-jobs
     --read 
-       Syntax: --read {TASK-ID} {TASK-ID} [...]
+       Syntax: --read {TASK-KEY} {TASK-KEY} [...]
     --read-execution 
-       Syntax: --read-execution {TASK-EXEC-ID} {TASK-EXEC-ID} [...]
+       Syntax: --read-execution {TASK-EXEC-KEY} {TASK-EXEC-KEY} [...]
     --delete 
-       Syntax: --delete {TASK-ID} {TASK-ID} [...]
+       Syntax: --delete {TASK-KEY} {TASK-KEY} [...]
     --delete-execution 
-       Syntax: --delete-execution {TASK-EXEC-ID} {TASK-EXEC-ID} [...]
+       Syntax: --delete-execution {TASK-EXEC-KEY} {TASK-EXEC-KEY} [...]
     --execute 
-       Syntax: --execute {TASK-ID} {DRY-RUN}
+       Syntax: --execute {TASK-KEY} {DRY-RUN}
           Dry run: true / false
 ----
 
@@ -60,10 +59,10 @@ Running the command with this option you will see the list of the actual runnig 
 --read::
 The option to read all the information of a task.
 --read-execution::
-The option to read all the information of executions task.
+The option to read all the information of the specified task execution(s).
 --delete::
 The option to delete specified tasks.
 --delete-execution::
-The option to delete specified execution tasks.
+The option to delete the specified task execution(s).
 --execute::
-The option to execute specified execution tasks.
+The option to execute the specified task.

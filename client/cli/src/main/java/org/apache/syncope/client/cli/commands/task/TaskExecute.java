@@ -29,7 +29,7 @@ public class TaskExecute extends AbstractTaskCommand {
 
     private static final Logger LOG = LoggerFactory.getLogger(TaskExecute.class);
 
-    private static final String EXECUTE_HELP_MESSAGE = "task --execute {TASK-ID} {DRY-RUN}\n"
+    private static final String EXECUTE_HELP_MESSAGE = "task --execute {TASK-KEY} {DRY-RUN}\n"
             + "          Dry run: true / false";
 
     private final Input input;

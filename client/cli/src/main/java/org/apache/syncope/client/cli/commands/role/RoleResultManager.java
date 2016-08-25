@@ -34,7 +34,7 @@ public class RoleResultManager extends CommonsResultManager {
     }
 
     private void printRole(final RoleTO roleTO) {
-        System.out.println(" > ROLE ID: " + roleTO.getKey());
+        System.out.println(" > ROLE KEY: " + roleTO.getKey());
         System.out.println("    REALMS: ");
         printRealms(roleTO.getRealms());
         System.out.println("    ENTITLEMENTS:");

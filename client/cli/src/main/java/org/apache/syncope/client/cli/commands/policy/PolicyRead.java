@@ -30,7 +30,7 @@ public class PolicyRead extends AbstractPolicyCommand {
 
     private static final Logger LOG = LoggerFactory.getLogger(PolicyRead.class);
 
-    private static final String READ_HELP_MESSAGE = "policy --read {POLICY-ID} {POLICY-ID} [...]";
+    private static final String READ_HELP_MESSAGE = "policy --read {POLICY-KEY} {POLICY-KEY} [...]";
 
     private final Input input;
 

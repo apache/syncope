@@ -31,7 +31,7 @@ public class ResourceRead extends AbstractResourceCommand {
 
     private static final Logger LOG = LoggerFactory.getLogger(ResourceRead.class);
 
-    private static final String READ_HELP_MESSAGE = "resource --read {RESOURCE-NAME} {RESOURCE-NAME} [...]";
+    private static final String READ_HELP_MESSAGE = "resource --read {RESOURCE-KEY} {RESOURCE-KEY} [...]";
 
     private final Input input;
 

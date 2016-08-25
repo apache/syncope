@@ -37,7 +37,7 @@ public class ReportResultManager extends CommonsResultManager {
     }
 
     private void printReport(final ReportTO reportTO) {
-        System.out.println(" > REPORT ID: " + reportTO.getKey());
+        System.out.println(" > REPORT KEY: " + reportTO.getKey());
         System.out.println("    name: " + reportTO.getName());
         System.out.println("    cron expression: " + reportTO.getCronExpression());
         System.out.println("    latest execution status: " + reportTO.getLatestExecStatus());
@@ -66,7 +66,7 @@ public class ReportResultManager extends CommonsResultManager {
 
     public void printReportExecutions(final List<ExecTO> reportExecTOs) {
         for (final ExecTO reportExecTO : reportExecTOs) {
-            System.out.println("       REPORT EXEC ID: " + reportExecTO.getKey());
+            System.out.println("       REPORT EXEC KEY: " + reportExecTO.getKey());
             System.out.println("       status: " + reportExecTO.getStatus());
             System.out.println("       message: " + reportExecTO.getMessage());
             System.out.println("       start date: " + reportExecTO.getStart());

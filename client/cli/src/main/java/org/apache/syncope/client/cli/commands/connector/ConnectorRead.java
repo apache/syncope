@@ -28,7 +28,7 @@ public class ConnectorRead extends AbstractConnectorCommand {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConnectorRead.class);
 
-    private static final String READ_HELP_MESSAGE = "connector --read {CONNECTOR-ID} {CONNECTOR-ID} [...]";
+    private static final String READ_HELP_MESSAGE = "connector --read {CONNECTOR-KEY} {CONNECTOR-KEY} [...]";
 
     private final Input input;
 

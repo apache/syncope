@@ -27,7 +27,7 @@ public class GroupDelete extends AbstractGroupCommand {
 
     private static final Logger LOG = LoggerFactory.getLogger(GroupDelete.class);
 
-    private static final String DELETE_HELP_MESSAGE = "group --delete {GROUP-ID} {GROUP-ID} [...]";
+    private static final String DELETE_HELP_MESSAGE = "group --delete {GROUP-KEY} {GROUP-KEY} [...]";
 
     private final Input input;
 

@@ -16,9 +16,8 @@
 // specific language governing permissions and limitations
 // under the License.
 //
-
 ===== Configuration command
-The configuration command retrieves information about the Syncope configuration.
+This command works with <<configuration-parameters,configuration parameters>>.
 
 [discrete]
 ====== Help message

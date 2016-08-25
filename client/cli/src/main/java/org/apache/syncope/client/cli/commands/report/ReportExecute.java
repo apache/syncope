@@ -28,7 +28,7 @@ public class ReportExecute extends AbstractReportCommand {
 
     private static final Logger LOG = LoggerFactory.getLogger(ReportExecute.class);
 
-    private static final String EXECUTE_HELP_MESSAGE = "report --execute {REPORT-ID}";
+    private static final String EXECUTE_HELP_MESSAGE = "report --execute {REPORT-KEY}";
 
     private final Input input;
 

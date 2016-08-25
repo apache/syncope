@@ -29,7 +29,7 @@ public class ConnectorListConfigurationProperties extends AbstractConnectorComma
     private static final Logger LOG = LoggerFactory.getLogger(ConnectorListConfigurationProperties.class);
 
     private static final String LIST_CONFIGURATION_HELP_MESSAGE
-            = "connector --list-configuration-properties {CONNECTOR-ID} {CONNECTOR-ID} [...]";
+            = "connector --list-configuration-properties {CONNECTOR-KEY} {CONNECTOR-KEY} [...]";
 
     private final Input input;
 

@@ -16,9 +16,8 @@
 // specific language governing permissions and limitations
 // under the License.
 //
-
 ===== Resource command
-The resource command retrieves information about the resources.
+This command works with <<external-resource-details,external resources>>.
 
 [discrete]
 ====== Help message
@@ -30,9 +29,9 @@ Usage: resource [options]
     --details 
     --list 
     --read 
-       Syntax: --read {RESOURCE-NAME} {RESOURCE-NAME} [...]
+       Syntax: --read {RESOURCE-KEY} {RESOURCE-KEY} [...]
     --delete 
-       Syntax: --delete {RESOURCE-NAME} {RESOURCE-NAME} [...]
+       Syntax: --delete {RESOURCE-KEY} {RESOURCE-KEY} [...]
 ----
 
 [discrete]

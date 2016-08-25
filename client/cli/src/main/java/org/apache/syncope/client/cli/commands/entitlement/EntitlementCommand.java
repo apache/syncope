@@ -43,8 +43,8 @@ public class EntitlementCommand extends AbstractCommand {
             case READ_BY_USERNAME:
                 new EntitlementReadByUsername(input).read();
                 break;
-            case READ_BY_USERID:
-                new EntitlementReadByUserId(input).read();
+            case READ_BY_USERKEY:
+                new EntitlementReadByUserKey(input).read();
                 break;
             case SEARCH_BY_ROLE:
                 new EntitlementSearchByRole(input).search();
@@ -70,7 +70,7 @@ public class EntitlementCommand extends AbstractCommand {
         HELP("--help"),
         LIST("--list"),
         READ_BY_USERNAME("--read-by-username"),
-        READ_BY_USERID("--read-by-userid"),
+        READ_BY_USERKEY("--read-by-userkey"),
         SEARCH_BY_ROLE("--search-by-role"),
         LIST_ROLE("--list-role");
 

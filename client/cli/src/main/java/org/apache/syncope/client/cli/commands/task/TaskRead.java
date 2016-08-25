@@ -30,7 +30,7 @@ public class TaskRead extends AbstractTaskCommand {
 
     private static final Logger LOG = LoggerFactory.getLogger(TaskRead.class);
 
-    private static final String READ_HELP_MESSAGE = "task --read {TASK-ID} {TASK-ID} [...]";
+    private static final String READ_HELP_MESSAGE = "task --read {TASK-KEY} {TASK-KEY} [...]";
 
     private final Input input;
 

@@ -39,7 +39,7 @@ public class UserResultManager extends CommonsResultManager {
     }
 
     private void printUser(final UserTO userTO) {
-        System.out.println(" > USER ID: " + userTO.getKey());
+        System.out.println(" > USER KEY: " + userTO.getKey());
         System.out.println("    username: " + userTO.getUsername());
         System.out.println("    realm: " + userTO.getRealm());
         System.out.println("    status: " + userTO.getStatus());
@@ -64,8 +64,8 @@ public class UserResultManager extends CommonsResultManager {
         System.out.println("    failed logins: " + userTO.getFailedLogins());
         System.out.println("RELATIONSHIPS:");
         printRelationships(userTO.getRelationships());
-        System.out.println("    security question id: " + userTO.getSecurityQuestion());
-        System.out.println("    security question answer id: " + userTO.getSecurityAnswer());
+        System.out.println("    security question key: " + userTO.getSecurityQuestion());
+        System.out.println("    security question answer key: " + userTO.getSecurityAnswer());
         System.out.println("");
     }
 
@@ -103,7 +103,7 @@ public class UserResultManager extends CommonsResultManager {
 
     public void printFailedUsers(final Map<String, String> users) {
         final Table.TableBuilder tableBuilder =
-                new Table.TableBuilder("Users not deleted").header("user id").header("cause");
+                new Table.TableBuilder("Users not deleted").header("user key").header("cause");
         for (final Map.Entry<String, String> entrySet : users.entrySet()) {
             tableBuilder.rowValues(new LinkedList<>(Arrays.asList(entrySet.getKey(), entrySet.getValue())));
         }

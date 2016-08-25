@@ -32,7 +32,7 @@ public class QuestionResultManager extends CommonsResultManager {
     }
 
     public void printQuestion(final SecurityQuestionTO securityQuestionTO) {
-        System.out.println(" > SECURITY QUESTION ID: " + securityQuestionTO.getKey());
+        System.out.println(" > SECURITY QUESTION KEY: " + securityQuestionTO.getKey());
         System.out.println("    content: " + securityQuestionTO.getContent());
         System.out.println("");
     }

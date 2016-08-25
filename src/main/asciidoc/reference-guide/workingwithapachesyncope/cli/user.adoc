@@ -16,9 +16,8 @@
 // specific language governing permissions and limitations
 // under the License.
 //
-
 ===== User command
-The user command retrieves information about the Users.
+This command works with <<users-groups-and-any-objects,users>>.
 
 [discrete]
 ====== Help message
@@ -32,19 +31,19 @@ Usage: user [options]
     --get-user-key
        Syntax: --get-user-key {USERNAME} {USERNAME} [...]
     --get-username
-       Syntax: --get-username {USER-ID} {USER-ID} [...]
-    --read-by-usernam
-       Syntax: --read-by-usernam {USERNAME} {USERNAME} [...]
-    --read-by-userid
-       Syntax: --read-by-userid {USER-ID} {USER-ID} [...]
+       Syntax: --get-username {USER-KEY} {USER-KEY} [...]
+    --read-by-username
+       Syntax: --read-by-username {USERNAME} {USERNAME} [...]
+    --read-by-userkey
+       Syntax: --read-by-userkey {USER-KEY} {USER-KEY} [...]
     --search-by-attribute
        Syntax: --search-by-attribute {REALM} {ATTR-NAME}={ATTR-VALUE}
     --search-by-role
-       Syntax: --search-by-role {REALM} {ROLE-ID}
+       Syntax: --search-by-role {REALM} {ROLE-KEY}
     --search-by-resource
-       Syntax: --search-by-resource {REALM} {RESOURCE-NAME}
+       Syntax: --search-by-resource {REALM} {RESOURCE-KEY}
     --delete
-       Syntax: --delete {USER-ID} {USER-ID} [...]
+       Syntax: --delete {USER-KEY} {USER-KEY} [...]
     --delete-all 
        Syntax: --delete-all {REALM}
     --delete-by-attribute
@@ -62,9 +61,9 @@ ask you a confirmation before execution, because as you can imagine this operati
 --get-user-key::
 The option to get the user key starting from a username.
 --get-username::
-The option to get the username starting from a user id.
---read-by-userid::
-The option to read user information by their user id.
+The option to get the username starting from a user key.
+--read-by-userkey::
+The option to read user information by their user key.
 --read-by-usernam::
 The option to read user information by their username.
 --search-by-attribute::

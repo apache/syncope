@@ -16,9 +16,8 @@
 // specific language governing permissions and limitations
 // under the License.
 //
-
 ===== Group command
-The group command retrieves information about the configured Groups.
+This command works with <<users-groups-and-any-objects,groups>>.
 
 [discrete]
 ====== Help message
@@ -30,13 +29,13 @@ Usage: group [options]
     --details 
     --list 
     --read 
-       Syntax: --read {GROUP-ID} {GROUP-ID} [...]
-    --read-attr-by-schema-type {GROUP-ID} {SCHEMA-TYPE}
+       Syntax: --read {GROUP-KEY} {GROUP-KEY} [...]
+    --read-attr-by-schema-type {GROUP-KEY} {SCHEMA-TYPE}
        Schema type: PLAIN / DERIVED / VIRTUAL
-    --read-attr-by-schema {GROUP-ID} {SCHEMA-TYPE} {SCHEMA-NAME}
+    --read-attr-by-schema {GROUP-KEY} {SCHEMA-TYPE} {SCHEMA-NAME}
        Schema type: PLAIN / DERIVED / VIRTUAL
     --delete 
-       Syntax: --delete {GROUP-ID} {GROUP-ID} [...]
+       Syntax: --delete {GROUP-KEY} {GROUP-KEY} [...]
 ----
 
 [discrete]

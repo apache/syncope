@@ -45,7 +45,7 @@ public class AnyObjectCommand extends AbstractCommand {
                 new AnyObjectRead(input).read();
                 break;
             case READ_ATTRIBUTES_BY_SCHEMA:
-                new AnyObjectReadAttributeBySchemaTypeAndSchemaName(input).read();
+                new AnyObjectReadAttributeBySchemaTypeAndSchemaKey(input).read();
                 break;
             case READ_ATTRIBUTES_BY_SCHEMA_TYPE:
                 new AnyObjectReadAttributesBySchemaType(input).read();

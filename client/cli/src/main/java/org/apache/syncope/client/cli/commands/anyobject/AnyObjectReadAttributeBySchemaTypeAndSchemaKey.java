@@ -25,17 +25,17 @@ import org.apache.syncope.common.lib.types.SchemaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AnyObjectReadAttributeBySchemaTypeAndSchemaName extends AbstractAnyObjectCommand {
+public class AnyObjectReadAttributeBySchemaTypeAndSchemaKey extends AbstractAnyObjectCommand {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AnyObjectReadAttributeBySchemaTypeAndSchemaName.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AnyObjectReadAttributeBySchemaTypeAndSchemaKey.class);
 
     private static final String READ_HELP_MESSAGE
-            = "any --read-attr-by-schema {ANY-ID} {SCHEMA-TYPE} {SCHEMA-NAME}\n"
+            = "any --read-attr-by-schema {ANY_OBJECT-KEY} {SCHEMA-TYPE} {SCHEMA-KEY}\n"
             + "   Schema type: PLAIN / DERIVED / VIRTUAL";
 
     private final Input input;
 
-    public AnyObjectReadAttributeBySchemaTypeAndSchemaName(final Input input) {
+    public AnyObjectReadAttributeBySchemaTypeAndSchemaKey(final Input input) {
         this.input = input;
     }
 

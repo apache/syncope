@@ -18,7 +18,7 @@
 //
 
 ===== Entitlement command
-The entitlement command retrieves information about the entitlments.
+This command works with <<entitlements,entitlements>>.
 
 [discrete]
 ====== Help message
@@ -32,10 +32,10 @@ Usage: entitlement [options]
        Syntax: --list-role {ENTITLEMENT-NAME}
     --read-by-username
        Syntax: --read-by-username {USERNAME}
-    --read-by-userid
-       Syntax: --read-by-userid {USER-ID}
+    --read-by-userkey
+       Syntax: --read-by-userkey {USER-KEY}
     --search-by-role
-       Syntax: --search-by-role {ROLE-ID}
+       Syntax: --search-by-role {ROLE-KEY}
 ----
 
 [discrete]
@@ -47,7 +47,7 @@ Running the command with this option you will see the list of the entitlements.
 Running the command with this option you will see the list of the roles with a certain entitlement.
 --read-by-username::
 The option to read the entitlements of the username passed as input.
---read-by-userid::
-The option to read the entitlements of the userid passed as input.
+--read-by-userkey::
+The option to read the entitlements of the user key passed as input.
 --search-by-role::
 The option to read the entitlements of a certain role.

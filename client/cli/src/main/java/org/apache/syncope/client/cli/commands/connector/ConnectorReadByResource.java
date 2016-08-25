@@ -28,8 +28,7 @@ public class ConnectorReadByResource extends AbstractConnectorCommand {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConnectorReadByResource.class);
 
-    private static final String READ_HELP_MESSAGE
-            = "connector --read-by-resource {RESOURCE-NAME} {RESOURCE-NAME} [...]";
+    private static final String READ_HELP_MESSAGE = "connector --read-by-resource {RESOURCE-KEY} {RESOURCE-KEY} [...]";
 
     private final Input input;
 

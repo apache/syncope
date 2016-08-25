@@ -36,12 +36,12 @@ public class ResourceResultManager extends CommonsResultManager {
     }
 
     private void printResource(final ResourceTO resourceTO) {
-        System.out.println(" > RESOURCE ID: " + resourceTO.getKey());
+        System.out.println(" > RESOURCE KEY: " + resourceTO.getKey());
         System.out.println("    connector dispaly name: " + resourceTO.getConnectorDisplayName());
-        System.out.println("    connector id: " + resourceTO.getConnector());
-        System.out.println("    account policy id: " + resourceTO.getAccountPolicy());
-        System.out.println("    password policy id: " + resourceTO.getPasswordPolicy());
-        System.out.println("    pull policy id: " + resourceTO.getPullPolicy());
+        System.out.println("    connector key: " + resourceTO.getConnector());
+        System.out.println("    account policy key: " + resourceTO.getAccountPolicy());
+        System.out.println("    password policy key: " + resourceTO.getPasswordPolicy());
+        System.out.println("    pull policy key: " + resourceTO.getPullPolicy());
         System.out.println("    propagation actions class: " + resourceTO.getPropagationActionsClassNames());
         System.out.println("    propagation priority: " + resourceTO.getPropagationPriority());
         System.out.println("    PROVISIONS:");
@@ -58,7 +58,7 @@ public class ResourceResultManager extends CommonsResultManager {
 
     private void printProvision(final List<ProvisionTO> provisionTOs) {
         for (final ProvisionTO provisionTO : provisionTOs) {
-            System.out.println("       provision id: " + provisionTO.getKey());
+            System.out.println("       provision key: " + provisionTO.getKey());
             System.out.println("       any type: " + provisionTO.getAnyType());
             System.out.println("       object class: " + provisionTO.getObjectClass());
             System.out.println("       sync token: " + provisionTO.getSyncToken());

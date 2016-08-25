@@ -30,7 +30,7 @@ public class UserSearchByRole extends AbstractUserCommand {
 
     private static final Logger LOG = LoggerFactory.getLogger(UserSearchByRole.class);
 
-    private static final String SEARCH_HELP_MESSAGE = "user --search-by-role {REALM} {ROLE-NAME}";
+    private static final String SEARCH_HELP_MESSAGE = "user --search-by-role {REALM} {ROLE-KEY}";
 
     private final Input input;
 

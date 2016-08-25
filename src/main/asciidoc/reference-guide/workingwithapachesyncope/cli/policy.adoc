@@ -16,9 +16,8 @@
 // specific language governing permissions and limitations
 // under the License.
 //
-
 ===== Policy command
-The policy command retrieves information about the policies for each type.
+This command works with <<policies,policies>>.
 
 [discrete]
 ====== Help message
@@ -30,11 +29,11 @@ Usage: policy [options]
     --details 
     --list 
        Syntax: --list-policy {POLICY-TYPE} 
-          Policy type: ACCOUNT / PASSWORD / SYNC / PUSH
+          Policy type: ACCOUNT / PASSWORD / PULL / PUSH
     --read 
-       Syntax: --read {POLICY-ID} {POLICY-ID} [...]
+       Syntax: --read {POLICY-KEY} {POLICY-KEY} [...]
     --delete 
-       Syntax: --delete {POLICY-ID} {POLICY-ID} [...]
+       Syntax: --delete {POLICY-KEY} {POLICY-KEY} [...]
 ----
 
 [discrete]

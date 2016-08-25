@@ -31,7 +31,7 @@ public class ReportRead extends AbstractReportCommand {
 
     private static final Logger LOG = LoggerFactory.getLogger(ReportRead.class);
 
-    private static final String READ_HELP_MESSAGE = "report --read {REPORT-ID} {REPORT-ID} [...]";
+    private static final String READ_HELP_MESSAGE = "report --read {REPORT-KEY} {REPORT-KEY} [...]";
 
     private final Input input;
 

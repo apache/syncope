@@ -28,7 +28,8 @@ public class NotificationDelete extends AbstractNotificationCommand {
 
     private static final Logger LOG = LoggerFactory.getLogger(NotificationDelete.class);
 
-    private static final String DELETE_HELP_MESSAGE = "notification --delete {NOTIFICATION-ID} {NOTIFICATION-ID} [...]";
+    private static final String DELETE_HELP_MESSAGE =
+            "notification --delete {NOTIFICATION-KEY} {NOTIFICATION-KEY} [...]";
 
     private final Input input;
 

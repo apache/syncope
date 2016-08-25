@@ -28,7 +28,7 @@ public class TaskDelete extends AbstractTaskCommand {
 
     private static final Logger LOG = LoggerFactory.getLogger(TaskDelete.class);
 
-    private static final String DELETE_HELP_MESSAGE = "task --delete {TASK-ID} {TASK-ID} [...]";
+    private static final String DELETE_HELP_MESSAGE = "task --delete {TASK-KEY} {TASK-KEY} [...]";
 
     private final Input input;
 

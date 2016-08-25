@@ -27,7 +27,7 @@ public class GroupRead extends AbstractGroupCommand {
 
     private static final Logger LOG = LoggerFactory.getLogger(GroupRead.class);
 
-    private static final String READ_HELP_MESSAGE = "group --read {GROUP-ID} {GROUP-ID} [...]";
+    private static final String READ_HELP_MESSAGE = "group --read {GROUP-KEY} {GROUP-KEY} [...]";
 
     private final Input input;
 

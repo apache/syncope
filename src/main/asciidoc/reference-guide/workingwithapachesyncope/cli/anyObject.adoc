@@ -16,30 +16,40 @@
 // specific language governing permissions and limitations
 // under the License.
 //
-===== Domain command
-This command works with <<domains,domains>>.
+===== Any command
+This command works with <<users-groups-and-any-objects,any objects>>.
 
 [discrete]
 ====== Help message
 [source,bash]
 ----
-Usage: domain [options]
+Usage: any [options]
   Options:
     --help 
     --details 
     --list 
+    --read 
+       Syntax: --read {ANY_OBJECT-KEY} {ANY_OBJECT-KEY} [...]
+    --read-attr-by-schema-type {ANY_OBJECT-KEY} {SCHEMA-TYPE}
+       Schema type: PLAIN / DERIVED / VIRTUAL
+    --read-attr-by-schema {ANY_OBJECT-KEY} {SCHEMA-TYPE} {SCHEMA-NAME}
+       Schema type: PLAIN / DERIVED / VIRTUAL
     --delete 
-       Syntax: --delete {DOMAIN-KEY} {DOMAIN-KEY} [...]
+       Syntax: --delete {ANY_OBJECT-KEY} {ANY_OBJECT-KEY} [...]
 ----
 
 [discrete]
 ====== Options
 
 --details::
-This option shows a table with domain amount.
-
+This option shows a table with the amount of available Any Objects and some additional information.
 --list::
-Running the command with this option you will see the list of the domains.
-
+Running the command with this option you will see the list of the Any Objects.
+--read::
+The option to read the any object passed as input.
+--read-attr-by-schema-type::
+The option to read the specified attribute type of the any object passed as input.
+--read-attr-by-schema::
+The option to read the specified attribute name of the any object passed as input.
 --delete::
-The option to delete a specified domain.
+The option to delete a specified any object.

@@ -16,9 +16,8 @@
 // specific language governing permissions and limitations
 // under the License.
 //
-
 ===== Info command
-The info command shows some information about the Syncope installation.
+This command reports general information about the current Apache Syncope deployment.
 
 [discrete]
 ====== Help message

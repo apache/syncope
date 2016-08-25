@@ -28,7 +28,7 @@ public class QuestionDelete extends AbstractQuestionCommand {
 
     private static final Logger LOG = LoggerFactory.getLogger(QuestionDelete.class);
 
-    private static final String DELETE_HELP_MESSAGE = "question --delete {QUESTION-ID} {QUESTION-ID} [...]";
+    private static final String DELETE_HELP_MESSAGE = "question --delete {QUESTION-KEY} {QUESTION-KEY} [...]";
 
     private final Input input;
 

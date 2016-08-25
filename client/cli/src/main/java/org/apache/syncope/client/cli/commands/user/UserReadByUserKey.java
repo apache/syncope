@@ -27,15 +27,15 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class UserReadByUserId extends AbstractUserCommand {
+public class UserReadByUserKey extends AbstractUserCommand {
 
-    private static final Logger LOG = LoggerFactory.getLogger(UserReadByUserId.class);
+    private static final Logger LOG = LoggerFactory.getLogger(UserReadByUserKey.class);
 
-    private static final String READ_HELP_MESSAGE = "user --read-by-userid {USER-ID} {USER-ID} [...]";
+    private static final String READ_HELP_MESSAGE = "user --read-by-userkey {USER-KEY} {USER-KEY} [...]";
 
     private final Input input;
 
-    public UserReadByUserId(final Input input) {
+    public UserReadByUserKey(final Input input) {
         this.input = input;
     }
 

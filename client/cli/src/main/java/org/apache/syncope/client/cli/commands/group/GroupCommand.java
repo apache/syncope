@@ -49,7 +49,7 @@ public class GroupCommand extends AbstractCommand {
                 new GroupReadAttributesBySchemaType(input).read();
                 break;
             case READ_ATTRIBUTES_BY_SCHEMA:
-                new GroupReadAttributeBySchemaTypeAndSchemaName(input).read();
+                new GroupReadAttributeBySchemaTypeAndSchemaKey(input).read();
                 break;
             case DELETE:
                 new GroupDelete(input).delete();

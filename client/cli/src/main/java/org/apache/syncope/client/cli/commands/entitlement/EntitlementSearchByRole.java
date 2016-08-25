@@ -28,7 +28,7 @@ public class EntitlementSearchByRole extends AbstractEntitlementCommand {
 
     private static final Logger LOG = LoggerFactory.getLogger(EntitlementSearchByRole.class);
 
-    private static final String READ_HELP_MESSAGE = "entitlement --search-by-role {ROLE-ID}";
+    private static final String READ_HELP_MESSAGE = "entitlement --search-by-role {ROLE-KEY}";
 
     private final Input input;
 

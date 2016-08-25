@@ -16,9 +16,8 @@
 // specific language governing permissions and limitations
 // under the License.
 //
-
 ===== Schema command
-The schema command serves retrieves information about the schema categories.
+This command works with <<schema,schemas>>.
 
 [discrete]
 ====== Help message

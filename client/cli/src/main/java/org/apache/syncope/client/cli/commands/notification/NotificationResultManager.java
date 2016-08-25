@@ -32,7 +32,7 @@ public class NotificationResultManager extends CommonsResultManager {
     }
 
     public void printNotification(final NotificationTO notificationTO) {
-        System.out.println(" > NOTIFICATION ID: " + notificationTO.getKey());
+        System.out.println(" > NOTIFICATION KEY: " + notificationTO.getKey());
         System.out.println("    events: " + notificationTO.getEvents());
         System.out.println("    sender: " + notificationTO.getSender());
         System.out.println("    subject: " + notificationTO.getSubject());

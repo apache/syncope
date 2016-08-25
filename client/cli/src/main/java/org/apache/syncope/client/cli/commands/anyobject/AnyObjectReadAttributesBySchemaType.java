@@ -29,7 +29,7 @@ public class AnyObjectReadAttributesBySchemaType extends AbstractAnyObjectComman
 
     private static final Logger LOG = LoggerFactory.getLogger(AnyObjectReadAttributesBySchemaType.class);
 
-    private static final String READ_HELP_MESSAGE = "any --read-attr-by-schema-type {ANY-ID} {SCHEMA-TYPE}\n"
+    private static final String READ_HELP_MESSAGE = "any --read-attr-by-schema-type {ANY_OBJECT-KEY} {SCHEMA-TYPE}\n"
             + "   Schema type: PLAIN / DERIVED / VIRTUAL";
 
     private final Input input;

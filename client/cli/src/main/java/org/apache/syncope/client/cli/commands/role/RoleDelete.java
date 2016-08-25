@@ -28,7 +28,7 @@ public class RoleDelete extends AbstractRoleCommand {
 
     private static final Logger LOG = LoggerFactory.getLogger(RoleDelete.class);
 
-    private static final String DELETE_HELP_MESSAGE = "role --delete {ROLE-NAME} {ROLE-NAME} [...]";
+    private static final String DELETE_HELP_MESSAGE = "role --delete {ROLE-KEY} {ROLE-KEY} [...]";
 
     private final Input input;
 

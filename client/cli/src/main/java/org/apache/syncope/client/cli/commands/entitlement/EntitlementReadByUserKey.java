@@ -24,15 +24,15 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EntitlementReadByUserId extends AbstractEntitlementCommand {
+public class EntitlementReadByUserKey extends AbstractEntitlementCommand {
 
-    private static final Logger LOG = LoggerFactory.getLogger(EntitlementReadByUserId.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EntitlementReadByUserKey.class);
 
-    private static final String READ_HELP_MESSAGE = "entitlement --read-by-userid {USER-ID}";
+    private static final String READ_HELP_MESSAGE = "entitlement --read-by-userkey {USER-KEY}";
 
     private final Input input;
 
-    public EntitlementReadByUserId(final Input input) {
+    public EntitlementReadByUserKey(final Input input) {
         this.input = input;
     }
 

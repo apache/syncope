@@ -16,9 +16,8 @@
 // specific language governing permissions and limitations
 // under the License.
 //
-
 ===== Notification command
-The notification command retrieves information about the configured notifications.
+This command works with <<notifications,notifications>>.
 
 [discrete]
 ====== Help message
@@ -29,9 +28,9 @@ Usage: notification [options]
     --help 
     --list 
     --read 
-       Syntax: --read {NOTIFICATION-ID} 
+       Syntax: --read {NOTIFICATION-KEY} 
     --delete 
-       Syntax: --delete {NOTIFICATION-ID}
+       Syntax: --delete {NOTIFICATION-KEY}
 ----
 
 [discrete]

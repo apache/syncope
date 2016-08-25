@@ -16,9 +16,8 @@
 // specific language governing permissions and limitations
 // under the License.
 //
-
 ===== Logger command
-The logger command retrieves information about the logger configuration in Apache Syncope.
+This command is meant for tweaking runtime logger configuration.
 
 [discrete]
 ====== Help message
@@ -56,6 +55,6 @@ The option to change the value of the logger passed as input.
 This option is especially helpful in production environment when every log is disabled and you need to change them for a 
 while in DEBUG mode.
 --create::
-For the moment the logger command is one of the few command with a create option to add a new logger configuration.
+The option to add a new logger configuration.
 --delete::
 The option to delete a specified logger.

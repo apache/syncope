@@ -28,7 +28,7 @@ public class ResourceDelete extends AbstractResourceCommand {
 
     private static final Logger LOG = LoggerFactory.getLogger(ResourceDelete.class);
 
-    private static final String DELETE_HELP_MESSAGE = "resource --delete {RESOURCE-NAME} {RESOURCE-NAME} [...]";
+    private static final String DELETE_HELP_MESSAGE = "resource --delete {RESOURCE-KEY} {RESOURCE-KEY} [...]";
 
     private final Input input;
 

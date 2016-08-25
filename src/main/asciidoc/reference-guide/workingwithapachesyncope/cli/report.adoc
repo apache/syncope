@@ -16,9 +16,8 @@
 // specific language governing permissions and limitations
 // under the License.
 //
-
 ===== Report command
-The report command retrieves information about the configured reports.
+This command works with <<reports,reports>>.
 
 [discrete]
 ====== Help message
@@ -31,17 +30,17 @@ Usage: report [options]
     --list 
     --list-jobs 
     --read 
-       Syntax: --read {REPORT-ID} {REPORT-ID} [...] 
+       Syntax: --read {REPORT-KEY} {REPORT-KEY} [...] 
     --delete 
-       Syntax: --delete {REPORT-ID} {REPORT-ID} [...]
+       Syntax: --delete {REPORT-KEY} {REPORT-KEY} [...]
     --execute 
-       Syntax: --execute {REPORT-ID} 
+       Syntax: --execute {REPORT-KEY} 
     --read-execution 
-       Syntax: --read-execution {EXECUTION-ID} {EXECUTION-ID} [...]
+       Syntax: --read-execution {EXECUTION-KEY} {EXECUTION-KEY} [...]
     --delete-execution 
-       Syntax: --delete-execution {EXECUTION-ID} {EXECUTION-ID} [...]
+       Syntax: --delete-execution {EXECUTION-KEY} {EXECUTION-KEY} [...]
     --export-execution-result 
-       Syntax: --export-execution-result {EXECUTION-ID} {EXECUTION-ID} [...] {FORMAT}
+       Syntax: --export-execution-result {EXECUTION-KEY} {EXECUTION-KEY} [...] {FORMAT}
           Format: CSV / HTML / PDF / XML / RTF
 ----
 

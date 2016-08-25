@@ -25,17 +25,17 @@ import org.apache.syncope.common.lib.types.SchemaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class GroupReadAttributeBySchemaTypeAndSchemaName extends AbstractGroupCommand {
+public class GroupReadAttributeBySchemaTypeAndSchemaKey extends AbstractGroupCommand {
 
-    private static final Logger LOG = LoggerFactory.getLogger(GroupReadAttributeBySchemaTypeAndSchemaName.class);
+    private static final Logger LOG = LoggerFactory.getLogger(GroupReadAttributeBySchemaTypeAndSchemaKey.class);
 
     private static final String READ_HELP_MESSAGE
-            = "group --read-attr-by-schema {GROUP-ID} {SCHEMA-TYPE} {SCHEMA-NAME}\n"
+            = "group --read-attr-by-schema {GROUP-KEY} {SCHEMA-TYPE} {SCHEMA-KEY}\n"
             + "   Schema type: PLAIN / DERIVED / VIRTUAL";
 
     private final Input input;
 
-    public GroupReadAttributeBySchemaTypeAndSchemaName(final Input input) {
+    public GroupReadAttributeBySchemaTypeAndSchemaKey(final Input input) {
         this.input = input;
     }
 

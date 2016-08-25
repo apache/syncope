@@ -40,7 +40,7 @@ public interface NotificationManager {
     long countExecutionsWithStatus(final String taskKey, final String status);
 
     /**
-     * Create notification tasks for each notification matching the given user id and (some of) tasks performed.
+     * Create notification tasks for each notification matching provided conditions.
      *
      * @param type event category type
      * @param category event category

@@ -31,7 +31,7 @@ public class ConnectorDelete extends AbstractConnectorCommand {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConnectorDelete.class);
 
-    private static final String DELETE_HELP_MESSAGE = "connector --delete {CONNECTOR-ID} {CONNECTOR-ID} [...]";
+    private static final String DELETE_HELP_MESSAGE = "connector --delete {CONNECTOR-KEY} {CONNECTOR-KEY} [...]";
 
     private final Input input;
 

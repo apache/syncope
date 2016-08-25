@@ -28,7 +28,7 @@ public class ReportDelete extends AbstractReportCommand {
 
     private static final Logger LOG = LoggerFactory.getLogger(ReportDelete.class);
 
-    private static final String DELETE_HELP_MESSAGE = "report --delete {REPORT-ID} {REPORT-ID} [...]";
+    private static final String DELETE_HELP_MESSAGE = "report --delete {REPORT-KEY} {REPORT-KEY} [...]";
 
     private final Input input;
 

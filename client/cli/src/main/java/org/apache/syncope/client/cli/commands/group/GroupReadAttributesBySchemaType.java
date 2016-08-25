@@ -29,7 +29,7 @@ public class GroupReadAttributesBySchemaType extends AbstractGroupCommand {
 
     private static final Logger LOG = LoggerFactory.getLogger(GroupReadAttributesBySchemaType.class);
 
-    private static final String READ_HELP_MESSAGE = "group --read-attr-by-schema-type {GROUP-ID} {SCHEMA-TYPE}\n"
+    private static final String READ_HELP_MESSAGE = "group --read-attr-by-schema-type {GROUP-KEY} {SCHEMA-TYPE}\n"
             + "   Schema type: PLAIN / DERIVED / VIRTUAL";
 
     private final Input input;

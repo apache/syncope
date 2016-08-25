@@ -43,8 +43,8 @@ public class UserCommand extends AbstractCommand {
             case LIST:
                 new UserList(input).list();
                 break;
-            case READ_BY_ID:
-                new UserReadByUserId(input).read();
+            case READ_BY_KEY:
+                new UserReadByUserKey(input).read();
                 break;
             case READ_BY_USERNAME:
                 new UserReadByUsername(input).read();
@@ -85,7 +85,7 @@ public class UserCommand extends AbstractCommand {
         HELP("--help"),
         DETAILS("--details"),
         LIST("--list"),
-        READ_BY_ID("--read-by-userid"),
+        READ_BY_KEY("--read-by-userkey"),
         READ_BY_USERNAME("--read-by-username"),
         SEARCH_BY_ATTRIBUTE("--search-by-attribute"),
         SEARCH_BY_ROLE("--search-by-role"),

@@ -33,14 +33,14 @@ public class RealmResultManager extends CommonsResultManager {
     }
 
     private void printRealm(final RealmTO realmTO) {
-        System.out.println(" > REALM ID: " + realmTO.getKey());
+        System.out.println(" > REALM KEY: " + realmTO.getKey());
         System.out.println("    name: " + realmTO.getName());
         System.out.println("    full path: " + realmTO.getFullPath());
         System.out.println("    actions: " + realmTO.getActionsClassNames());
         System.out.println("    templates: " + realmTO.getTemplates());
-        System.out.println("    parent id: " + realmTO.getParent());
-        System.out.println("    account policy id: " + realmTO.getAccountPolicy());
-        System.out.println("    password policy id: " + realmTO.getPasswordPolicy());
+        System.out.println("    parent key: " + realmTO.getParent());
+        System.out.println("    account policy key: " + realmTO.getAccountPolicy());
+        System.out.println("    password policy key: " + realmTO.getPasswordPolicy());
         System.out.println("");
     }
 

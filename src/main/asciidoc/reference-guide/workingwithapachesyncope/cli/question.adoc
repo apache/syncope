@@ -16,9 +16,8 @@
 // specific language governing permissions and limitations
 // under the License.
 //
-
 ===== Question command
-The question command gets information about the user question to retrieve their password.
+This command works with security questions for usage with <<password-reset,password reset>>.
 
 [discrete]
 ====== Help message
@@ -29,9 +28,9 @@ Usage: question [options]
     --help 
     --list 
     --read 
-       Syntax: --read {QUESTION-ID} {QUESTION-ID} [...]
+       Syntax: --read {QUESTION-KEY} {QUESTION-KEY} [...]
     --delete 
-       Syntax: --delete {QUESTION-ID} {QUESTION-ID} [...]
+       Syntax: --delete {QUESTION-KEY} {QUESTION-KEY} [...]
 ----
 
 [discrete]

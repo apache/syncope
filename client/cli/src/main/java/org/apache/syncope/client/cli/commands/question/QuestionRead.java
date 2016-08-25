@@ -31,7 +31,7 @@ public class QuestionRead extends AbstractQuestionCommand {
 
     private static final Logger LOG = LoggerFactory.getLogger(QuestionRead.class);
 
-    private static final String READ_HELP_MESSAGE = "question --read {QUESTION-ID} {QUESTION-ID} [...]";
+    private static final String READ_HELP_MESSAGE = "question --read {QUESTION-KEY} {QUESTION-KEY} [...]";
 
     private final Input input;
 

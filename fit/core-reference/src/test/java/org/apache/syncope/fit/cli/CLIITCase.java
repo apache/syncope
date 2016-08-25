@@ -178,7 +178,7 @@ public class CLIITCase extends AbstractITCase {
         try {
             PROCESS_BUILDER.command(getCommand(
                     new UserCommand().getClass().getAnnotation(Command.class).name(),
-                    UserCommand.UserOptions.READ_BY_ID.getOptionName(),
+                    UserCommand.UserOptions.READ_BY_KEY.getOptionName(),
                     String.valueOf(userKey1)));
             Process process = PROCESS_BUILDER.start();
             String result = IOUtils.toString(process.getInputStream(), SyncopeConstants.DEFAULT_CHARSET);
@@ -187,7 +187,7 @@ public class CLIITCase extends AbstractITCase {
 
             PROCESS_BUILDER.command(getCommand(
                     new UserCommand().getClass().getAnnotation(Command.class).name(),
-                    UserCommand.UserOptions.READ_BY_ID.getOptionName(),
+                    UserCommand.UserOptions.READ_BY_KEY.getOptionName(),
                     String.valueOf(userKey1), String.valueOf(userKey2),
                     String.valueOf(userKey3), String.valueOf(userKey4), String.valueOf(userKey5)));
             Process process2 = PROCESS_BUILDER.start();
@@ -206,7 +206,7 @@ public class CLIITCase extends AbstractITCase {
 
             PROCESS_BUILDER.command(getCommand(
                     new UserCommand().getClass().getAnnotation(Command.class).name(),
-                    UserCommand.UserOptions.READ_BY_ID.getOptionName(),
+                    UserCommand.UserOptions.READ_BY_KEY.getOptionName(),
                     String.valueOf(userKey1), String.valueOf(userKey2),
                     String.valueOf(userKey3), String.valueOf(userKey4), String.valueOf(userKey5)));
             Process process3 = PROCESS_BUILDER.start();

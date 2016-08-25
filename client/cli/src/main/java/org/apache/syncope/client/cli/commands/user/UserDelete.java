@@ -28,7 +28,7 @@ public class UserDelete extends AbstractUserCommand {
 
     private static final Logger LOG = LoggerFactory.getLogger(UserDelete.class);
 
-    private static final String DELETE_HELP_MESSAGE = "user --delete {USER-ID} {USER-ID} [...]";
+    private static final String DELETE_HELP_MESSAGE = "user --delete {USER-KEY} {USER-KEY} [...]";
 
     private final Input input;
 

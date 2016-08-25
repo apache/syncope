@@ -36,7 +36,7 @@ public class ReportExportExecution extends AbstractReportCommand {
     private static final Logger LOG = LoggerFactory.getLogger(ReportExportExecution.class);
 
     private static final String EXPORT_EXECUTION_HELP_MESSAGE
-            = "report --export-execution-result {EXECUTION-ID} {EXECUTION-ID} [...] {FORMAT}\n"
+            = "report --export-execution-result {EXECUTION-KEY} {EXECUTION-KEY} [...] {FORMAT}\n"
             + "          Format: CSV / HTML / PDF / XML / RTF";
 
     private final Input input;

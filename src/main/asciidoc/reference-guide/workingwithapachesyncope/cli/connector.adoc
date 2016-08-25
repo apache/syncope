@@ -16,9 +16,8 @@
 // specific language governing permissions and limitations
 // under the License.
 //
-
 ===== Connector command
-The connector command serves to retrieve information about the connector configuration in Apache Syncope.
+This command works with <<connector-instance-details,connectors>>.
 
 [discrete]
 ====== Help message
@@ -31,11 +30,11 @@ Usage: connector [options]
     --list 
     --list-bundles 
     --list-configuration-properties
-       Syntax: --list-configuration-properties {CONNECTOR-ID} {CONNECTOR-ID} [...]
+       Syntax: --list-configuration-properties {CONNECTOR-KEY} {CONNECTOR-KEY} [...]
     --read 
-       Syntax: --read {CONNECTOR-ID} {CONNECTOR-ID} [...]
+       Syntax: --read {CONNECTOR-KEY} {CONNECTOR-KEY} [...]
     --delete 
-       Syntax: --delete {CONNECTOR-ID} {CONNECTOR-ID} [...]
+       Syntax: --delete {CONNECTOR-KEY} {CONNECTOR-KEY} [...]
 ----
 
 [discrete]

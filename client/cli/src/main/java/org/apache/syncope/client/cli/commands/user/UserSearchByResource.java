@@ -30,7 +30,7 @@ public class UserSearchByResource extends AbstractUserCommand {
 
     private static final Logger LOG = LoggerFactory.getLogger(UserSearchByResource.class);
 
-    private static final String SEARCH_HELP_MESSAGE = "user --search-by-resource {REALM} {RESOURCE-NAME}";
+    private static final String SEARCH_HELP_MESSAGE = "user --search-by-resource {REALM} {RESOURCE-KEY}";
 
     private final Input input;
 

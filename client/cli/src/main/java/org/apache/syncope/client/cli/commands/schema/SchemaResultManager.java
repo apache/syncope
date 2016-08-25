@@ -55,7 +55,7 @@ public class SchemaResultManager extends CommonsResultManager {
     }
 
     private void printPlanSchemaDetailed(final PlainSchemaTO schemaTO) {
-        System.out.println(" > SCHEMA ID: " + schemaTO.getKey());
+        System.out.println(" > SCHEMA KEY: " + schemaTO.getKey());
         System.out.println("    type: " + schemaTO.getType().toString());
         System.out.println("    any type class: " + schemaTO.getAnyTypeClass());
         System.out.println("    conversion pattern: " + schemaTO.getConversionPattern());

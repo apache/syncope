@@ -30,12 +30,12 @@ public class AnyObjectResultManager extends CommonsResultManager {
     public void printAnys(final List<AnyObjectTO> anyObjectTOs) {
         System.out.println("");
         for (final AnyObjectTO anyObjectTO : anyObjectTOs) {
-            printGroup(anyObjectTO);
+            printAny(anyObjectTO);
         }
     }
 
-    public void printGroup(final AnyObjectTO anyObjectTO) {
-        System.out.println(" > ANY ID: " + anyObjectTO.getKey());
+    public void printAny(final AnyObjectTO anyObjectTO) {
+        System.out.println(" > ANY OBJECT KEY: " + anyObjectTO.getKey());
         System.out.println("    type: " + anyObjectTO.getType());
         System.out.println("    realm: " + anyObjectTO.getRealm());
         System.out.println("    status: " + anyObjectTO.getStatus());

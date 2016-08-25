@@ -29,7 +29,7 @@ public class ReportDeleteExecution extends AbstractReportCommand {
     private static final Logger LOG = LoggerFactory.getLogger(ReportDeleteExecution.class);
 
     private static final String DELETE_EXECUTION_HELP_MESSAGE
-            = "report --delete-execution {EXECUTION-ID} {EXECUTION-ID} [...]";
+            = "report --delete-execution {EXECUTION-KEY} {EXECUTION-KEY} [...]";
 
     private final Input input;
 

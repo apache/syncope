@@ -33,6 +33,8 @@ include::user.adoc[]
 
 include::group.adoc[]
 
+include::anyObject.adoc[]
+
 include::role.adoc[]
 
 include::realm.adoc[]

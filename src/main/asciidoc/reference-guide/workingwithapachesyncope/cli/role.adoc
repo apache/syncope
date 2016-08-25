@@ -16,9 +16,8 @@
 // specific language governing permissions and limitations
 // under the License.
 //
-
 ===== Role command
-The role command retrieves information about the roles.
+This command works with <<roles,roles>>.
 
 [discrete]
 ====== Help message
@@ -30,9 +29,9 @@ Usage: role [options]
     --details 
     --list 
     --read 
-       Syntax: --read {ROLE-NAME} {ROLE-NAME} [...]
+       Syntax: --read {ROLE-KEY} {ROLE-KEY} [...]
     --delete 
-       Syntax: --delete {ROLE-NAME} {ROLE-NAME} [...]
+       Syntax: --delete {ROLE-KEY} {ROLE-KEY} [...]
 ----
 
 [discrete]
