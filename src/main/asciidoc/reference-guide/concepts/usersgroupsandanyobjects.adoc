@@ -41,7 +41,7 @@ For each of the identities above, Apache Syncope is capable of maintaining:
  ** `values` is a (possibly singleton) collection of data (e.g. `[Doe]` but also 
 `[\john.doe@syncope.apache.org, \jdoe@gmail.com]`)
  ; the type of values that can be assigned to each attribute is defined via the <<schema,schema>> matching the `key`
-value (i.e. _plain_, _derived_ and _virtual_);
+value (e.g. _plain_, _derived_ and _virtual_);
 . associations with <<external-resources,external resources>>, for <<provisioning,provisioning>>.
 
 [IMPORTANT]
@@ -76,3 +76,30 @@ _dynamic_ members of the group. +
 Dynamic memberships have some limitations: for example, <<type-extensions,type extensions>> do not apply;
 group-based provisioning is still effective.
 ====
+
+==== Password Reset
+
+When users lost their password, a feature is available to help gaining back access to Apache Syncope: password reset.
+
+The process can be outlined as follows:
+
+. user asks for password reset, typically via <<enduser-component,end-user>>
+. user is asked to provide an answer to the security question that was selected during self-registration or self-update
+. if the expected answer is provided, a unique token with time-constrained validity is internally generated and an
+e-mail is sent to the configured address for the user with a link - again, typically to the
+<<enduser-component,end-user>> - containing such token value
+. user clicks on the received link and provides new password value, typically via <<enduser-component,end-user>>
+. user receives confirmation via e-mail
+
+[TIP]
+====
+The process above requires the availability of <<console-configuration-security-questions,security questions>> that
+users can pick up and provide answers for.
+
+The usage of security questions can be however disabled by setting the `passwordReset.securityQuestion` value - see
+<<configuration-parameters, below>> for details.
+====
+
+[NOTE]
+In addition to the password reset feature, administrators can set a flag on a given user so that he / she is forced to
+update their password value at next login.

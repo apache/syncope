@@ -102,6 +102,7 @@ When defining a virtual schema, the following information must be provided:
 * Any Type - reference <<anytype,Any Type>> on the external resource
 * Read-only flag - whether the external attribute value(s) for this schema can only be read, or whether they can be written to as well
 
+[[virtual-attribute-cache]]
 .Virtual Attribute Cache
 ****
 For performance optimization, virtual attributes are managed by an internal cache to control the actual access to 
@@ -154,8 +155,8 @@ given user / group / any object instance) and for <<type-extensions,type extensi
 Any types represent the type of identities that Apache Syncope is able to manage; besides the predefined `USER` and 
 `GROUP`, more types can be created to model workstations, printers, folders, sensors, services, ...
 
-For all Any Types that are defined, a set of <<anytypeclass, classes>> can be selected so that instances af a given any type will
-be enabled to populate attributes for schemas in those classes.
+For all Any Types that are defined, a set of <<anytypeclass, classes>> can be selected so that instances af a given
+Any Type will be enabled to populate attributes for schemas in those classes.
 
 .Any types and attributes allowed for Users, Groups and Any Objects
 ====

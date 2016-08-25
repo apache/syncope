@@ -61,4 +61,4 @@ Displays and provides editing functionality for <<roles,roles>>.
 Security Questions::
 
 The administrators can use this page to define a set of security questions which the users can choose from when
-managing their own profile, to allow them to recover their account in case of a forgotten password.
+managing their own profile, to allow them to recover their account in case of a <<password-reset,forgotten password>>.
