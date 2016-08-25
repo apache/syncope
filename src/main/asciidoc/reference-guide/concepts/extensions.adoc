@@ -73,10 +73,10 @@ This extension enables http://swagger.io/swagger-ui/[Swagger UI^] as web interfa
 Once installed, Swagger UI is available at
 [source]
 --
-http://host:port/syncope/swagger/
+protocol://host:port/syncope/swagger/
 --
 
-where `host` and `port` reflect your Java EE container installation.
+where `protocol`, `host` and `port` reflect your Java EE container installation.
 
 [NOTE]
 .Extension Sources

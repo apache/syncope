@@ -155,22 +155,22 @@ sudo service tomcat8 start
 [[deb-components]]
 ==== Components
 
-CAUTION: The following assumes that Apache Tomcat is reachable on host `host.domain` and port `port`. 
+CAUTION: The following assumes that `protocol`, `host` and `port` reflect your Apache Tomcat installation.
 
 [cols="1,2"]
 |===
 
 | Complete REST API reference
-| http://host.domain:port/syncope/index.html
+| protocol://host:port/syncope/index.html
 
 | http://swagger.io/[Swagger^] UI
-| http://host.domain:port/syncope/swagger/
+| protocol://host:port/syncope/swagger/
 
 | Administration console
-| http://host.domain:port/syncope-console/ +
+| protocol://host:port/syncope-console/
 
 | End-user UI
-| http://localhost:9080/syncope-enduser/
+| protocol://host:port/syncope-enduser/
 
 |===
 
@@ -290,23 +290,23 @@ image::installer-14.png[installer-14]
 [[installer-components]]
 ==== Components
 
-CAUTION: The following assumes that the Java EE container is reachable on host `host.domain` and port `port`. 
+CAUTION: The following assumes that `protocol`, `host` and `port` reflect your Java EE container installation.
 
 [cols="1,2"]
 |===
 
 | Complete REST API reference
-| http://host.domain:port/syncope/index.html
+| protocol://host:port/syncope/index.html
 
 | http://swagger.io/[Swagger^] UI
-| http://host.domain:port/syncope/swagger/
+| protocol://host:port/syncope/swagger/
 
 | Administration console
-| http://localhost:9080/syncope-console/ +
+| protocol://host:port/syncope-console/ +
 Credentials: `admin` / `password`
 
 | End-user UI
-| http://localhost:9080/syncope-enduser/
+| protocol://host:port/syncope-enduser/
 
 |===
 
@@ -505,10 +505,11 @@ The installation process creates `cli.properties`, which contains all the requir
 Syncope REST API services.
 The file content looks like the following:
 
-[source]
+....
 syncope.rest.services=http://localhost:9080/syncope/rest
 syncope.admin.user=admin
 syncope.admin.password=QePSFVTnzwQowM4ohhaUYcE6aW47MVZ/
+....
 
 where:
 

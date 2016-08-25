@@ -20,10 +20,10 @@
 Once the Java EE container has initialized, the admin console can be accessed at:
 [source]
 --
-http://host:port/syncope-console/
+protocol://host:port/syncope-console/
 --
 
-where `host` and `port` reflect your Java EE container installation.
+where `protocol`, `host` and `port` reflect your Java EE container installation.
 
 You should be greeted with the following web page.
 
