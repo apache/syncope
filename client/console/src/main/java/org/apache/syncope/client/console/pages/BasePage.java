@@ -164,7 +164,7 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
 
         liContainer = new WebMarkupContainer(getLIContainerId("realms"));
         body.add(liContainer);
-        BookmarkablePageLink<Page> link = BookmarkablePageLinkBuilder.build("realms", Realms.class);
+        BookmarkablePageLink<? extends BasePage> link = BookmarkablePageLinkBuilder.build("realms", Realms.class);
         MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.ENABLE, StandardEntitlement.REALM_LIST);
         liContainer.add(link);
 
@@ -259,7 +259,7 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
             }
         });
         body.add(new Label("domain", SyncopeConsoleSession.get().getDomain()));
-        body.add(new BookmarkablePageLink<Page>("logout", Logout.class));
+        body.add(new BookmarkablePageLink<>("logout", Logout.class));
 
         // set 'active' menu item for everything but extensions
         // 1. check if current class is set to top-level menu
@@ -306,8 +306,8 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
         }
 
         // Extensions
-        ClassPathScanImplementationLookup classPathScanImplementationLookup
-                = (ClassPathScanImplementationLookup) SyncopeConsoleApplication.get().
+        ClassPathScanImplementationLookup classPathScanImplementationLookup =
+                (ClassPathScanImplementationLookup) SyncopeConsoleApplication.get().
                 getServletContext().getAttribute(ConsoleInitializer.CLASSPATH_LOOKUP);
         List<Class<? extends BaseExtPage>> extPageClasses = classPathScanImplementationLookup.getExtPageClasses();
 

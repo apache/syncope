@@ -23,16 +23,17 @@ import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 
 public final class BookmarkablePageLinkBuilder {
 
-    public static <T> BookmarkablePageLink<T> build(
-            final String key, final Class<? extends BasePage> defaultPageClass) {
+    public static <T extends BasePage> BookmarkablePageLink<T> build(
+            final String key, final Class<T> defaultPageClass) {
 
         return build(key, key, defaultPageClass);
     }
 
-    public static <T> BookmarkablePageLink<T> build(
-            final String key, final String id, final Class<? extends BasePage> defaultPageClass) {
+    public static <T extends BasePage> BookmarkablePageLink<T> build(
+            final String key, final String id, final Class<T> defaultPageClass) {
 
-        Class<? extends BasePage> pageClass = SyncopeConsoleApplication.get().getPageClass(key);
+        @SuppressWarnings("unchecked")
+        Class<T> pageClass = (Class<T>) SyncopeConsoleApplication.get().getPageClass(key);
         return new BookmarkablePageLink<>(
                 id,
                 pageClass == null ? defaultPageClass : pageClass);

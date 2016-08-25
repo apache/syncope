@@ -25,16 +25,14 @@ On GNU / Linux - Mac OS X, create `$CATALINA_HOME/bin/setenv.sh` with similar co
 
 ....
 JAVA_OPTS="-Djava.awt.headless=true -Dfile.encoding=UTF-8 -server \
--Xms1536m -Xmx1536m -XX:NewSize=256m -XX:MaxNewSize=256m -XX:PermSize=256m \
--XX:MaxPermSize=256m -XX:+DisableExplicitGC"
+-Xms1536m -Xmx1536m -XX:NewSize=256m -XX:MaxNewSize=256m -XX:+DisableExplicitGC"
 ....
 
 On MS Windows, create `%CATALINA_HOME%\bin\setenv.bat` with similar content (keep everything on a single line):
 
 ....
 set JAVA_OPTS=-Djava.awt.headless=true -Dfile.encoding=UTF-8 -server
--Xms1536m -Xmx1536m -XX:NewSize=256m -XX:MaxNewSize=256m -XX:PermSize=256m
--XX:MaxPermSize=256m -XX:+DisableExplicitGC
+-Xms1536m -Xmx1536m -XX:NewSize=256m -XX:MaxNewSize=256m -XX:+DisableExplicitGC
 ....
 
 It is recommended to define a separate datasource for each <<domains,domain>> (the following example is for the `Master`

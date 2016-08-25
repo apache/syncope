@@ -109,7 +109,7 @@ public class ApprovalsWidget extends AlertWidget<WorkflowFormTO> {
 
     @Override
     protected AbstractLink getEventsLink(final String linkid) {
-        BookmarkablePageLink<Object> approvals = BookmarkablePageLinkBuilder.build(linkid, Approvals.class);
+        BookmarkablePageLink<Approvals> approvals = BookmarkablePageLinkBuilder.build(linkid, Approvals.class);
         MetaDataRoleAuthorizationStrategy.authorize(approvals, WebPage.ENABLE, StandardEntitlement.WORKFLOW_FORM_LIST);
         return approvals;
     }

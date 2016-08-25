@@ -31,7 +31,6 @@ import org.apache.syncope.client.console.pages.Types;
 import org.apache.syncope.client.console.topology.Topology;
 import org.apache.syncope.common.lib.info.NumbersInfo;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
-import org.apache.wicket.Page;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
@@ -48,17 +47,17 @@ public class CompletenessWidget extends BaseWidget {
 
     private final WebMarkupContainer actions;
 
-    private final BookmarkablePageLink<Page> topology;
+    private final BookmarkablePageLink<Topology> topology;
 
-    private final BookmarkablePageLink<Page> policies;
+    private final BookmarkablePageLink<Policies> policies;
 
-    private final BookmarkablePageLink<Page> notifications;
+    private final BookmarkablePageLink<Notifications> notifications;
 
-    private final BookmarkablePageLink<Page> types;
+    private final BookmarkablePageLink<Types> types;
 
-    private final BookmarkablePageLink<Page> securityquestions;
+    private final BookmarkablePageLink<SecurityQuestions> securityquestions;
 
-    private final BookmarkablePageLink<Page> roles;
+    private final BookmarkablePageLink<Roles> roles;
 
     public CompletenessWidget(final String id, final Map<NumbersInfo.ConfItem, Boolean> confCompleteness) {
         super(id);

@@ -221,7 +221,7 @@ under the License.
                   <cargo.tomcat.ajp.port>${cargo.tomcat.ajp.port}</cargo.tomcat.ajp.port>
                   <cargo.rmi.port>${cargo.rmi.port}</cargo.rmi.port>
 
-                  <cargo.jvmargs>-noverify -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:MaxPermSize=256m</cargo.jvmargs>
+                  <cargo.jvmargs>-noverify -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC</cargo.jvmargs>
                 </properties>
               </configuration>
               <deployables>

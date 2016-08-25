@@ -16,8 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-@XmlSchema(namespace = SyncopeConstants.NAMESPACE)
+@XmlSchema(
+        namespace = SyncopeConstants.NS,
+        xmlns = { @XmlNs(prefix = SyncopeConstants.NS_PREFIX,
+                    namespaceURI = SyncopeConstants.NS) })
 package org.apache.syncope.common.lib.types;
 
+import javax.xml.bind.annotation.XmlNs;
 import javax.xml.bind.annotation.XmlSchema;
 import org.apache.syncope.common.lib.SyncopeConstants;

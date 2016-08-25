@@ -24,7 +24,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope</groupId>
     <artifactId>syncope-core</artifactId>
-    <version>2.0.1-SNAPSHOT</version>
+    <version>2.1.0-SNAPSHOT</version>
   </parent>
 
   <name>Apache Syncope Core REST CXF</name>
@@ -241,7 +241,7 @@ under the License.
                     </parameter>
                     <parameter>
                       <name>schema-prefix</name>
-                      <value>syncope1</value>
+                      <value>syncope2</value>
                     </parameter>
                   </parameters>
                   <outputProperties>
@@ -253,7 +253,7 @@ under the License.
                   <fileMappers>
                     <fileMapper implementation="org.codehaus.plexus.components.io.filemappers.RegExpFileMapper">
                       <pattern>^.*$</pattern>
-                      <replacement>schema_1_syncope1.html</replacement>
+                      <replacement>schema_1_syncope2.html</replacement>
                     </fileMapper>
                   </fileMappers>
                 </transformationSet>
@@ -276,8 +276,8 @@ under the License.
                     <replace file="${project.build.directory}/generated/wadl/index.html" token="../webjars/jquery-ui/$/jquery-ui.min.js" value="http://code.jquery.com/ui/${jquery-ui.version}/jquery-ui.min.js" />
                     <replace file="${project.build.directory}/generated/wadl/index.html" token="../webjars/jquery-ui-themes/$/smoothness/jquery-ui.min.css" value="https://code.jquery.com/ui/${jquery-ui.version}/themes/smoothness/jquery-ui.css" />      
 
-                    <replace file="${project.build.directory}/generated/wadl/schema_1_syncope1.html" token="../webjars/highlightjs/$/highlight.min.js" value="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/${highlightjs.version}/highlight.min.js" />
-                    <replace file="${project.build.directory}/generated/wadl/schema_1_syncope1.html" token="../webjars/highlightjs/$/styles/default.min.css" value="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/${highlightjs.version}/styles/default.min.css" />      
+                    <replace file="${project.build.directory}/generated/wadl/schema_1_syncope2.html" token="../webjars/highlightjs/$/highlight.min.js" value="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/${highlightjs.version}/highlight.min.js" />
+                    <replace file="${project.build.directory}/generated/wadl/schema_1_syncope2.html" token="../webjars/highlightjs/$/styles/default.min.css" value="http://cdnjs.cloudflare.com/ajax/libs/highlight.js/${highlightjs.version}/styles/default.min.css" />      
 
                     <copy todir="${site.deploymentBaseDir}/rest/2.0">
                       <fileset dir="${project.build.directory}/generated/wadl" />

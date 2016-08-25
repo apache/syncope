@@ -40,7 +40,7 @@ under the License.
     <property name="namespacePrefixes">
       <map>
         <entry key="http://syncope.apache.org/2.0">
-          <value>syncope</value>
+          <value>syncope2</value>
         </entry>
       </map>      
     </property>
@@ -91,7 +91,8 @@ under the License.
   
   <bean id="wadlGenerator" class="org.apache.syncope.core.rest.cxf.WadlGenerator">
     <property name="applicationTitle" value="Apache Syncope ${syncope.version}"/>
-    <property name="namespacePrefix" value="syncope"/>
+    <property name="namespacePrefix" value="syncope2"/>
+    <property name="incrementNamespacePrefix" value="false"/>    
     <property name="linkAnyMediaTypeToXmlSchema" value="true"/>
     <property name="useJaxbContextForQnames" value="true"/>
     <property name="addResourceAndMethodIds" value="true"/>
@@ -108,24 +109,23 @@ under the License.
   <bean id="extendedSwagger2Serializers" class="org.apache.syncope.core.rest.cxf.ExtendedSwagger2Serializers">
     <property name="dynamicBasePath" value="true"/>
     <property name="replaceTags" value="true"/>
-  </bean>
-  <bean id="swagger2Feature" class="org.apache.syncope.core.rest.cxf.Swagger2Feature">
-    <property name="title" value="Apache Syncope"/>
-    <property name="version" value="${syncope.version}"/>
-    <property name="description" value="Apache Syncope ${syncope.version}"/>    
-    <property name="contact" value="dev@syncope.apache.org"/>
-    
-    <property name="resourcePackage" value="org.apache.syncope.common.rest.api.service"/>
-    <property name="scanAllResources" value="true"/>
-    <property name="activateOnlyIfJaxrsSupported" value="true"/>
-    
     <property name="javaDocPaths">
       <list>
         <value>/WEB-INF/lib/syncope-common-rest-api-${syncope.version}-javadoc.jar</value>
         <value>/WEB-INF/lib/syncope-ext-camel-rest-api-${syncope.version}-javadoc.jar</value>
       </list>
     </property>
-
+  </bean>
+  <bean id="swagger2Feature" class="org.apache.cxf.jaxrs.swagger.Swagger2Feature">
+    <property name="title" value="Apache Syncope"/>
+    <property name="version" value="${syncope.version}"/>
+    <property name="description" value="Apache Syncope ${syncope.version}"/>    
+    <property name="contact" value="dev@syncope.apache.org"/>    
+    
+    <property name="resourcePackage" value="org.apache.syncope.common.rest.api.service"/>
+    <property name="scanAllResources" value="true"/>
+    <property name="activateOnlyIfJaxrsSupported" value="true"/>
+    
     <property name="swagger2Serializers" ref="extendedSwagger2Serializers"/>
   </bean>
 

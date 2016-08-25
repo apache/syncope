@@ -19,9 +19,9 @@ cache:
   - $HOME/.m2
 language: java
 jdk:
-  - openjdk7
+  - openjdk8
 before_install:
-  - echo 'MAVEN_OPTS="-Xms512m -Xmx1024m -XX:PermSize=256m -XX:MaxPermSize=512m"' >~/.mavenrc
+  - echo 'MAVEN_OPTS="-Xms512m -Xmx1024m"' >~/.mavenrc
 # default install is mvn install --quiet -DskipTests=true
 install: mvn --show-version --quiet -P all,skipTests
 script:
