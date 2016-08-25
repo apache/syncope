@@ -51,7 +51,7 @@ of the generated <<tasks-notification,notification tasks>>
 
 ==== Notification Events
 
-Notification (and <<audit-events,Audit>>) events are essentially a mean to identify the invocation of specific methods
+Notification (and <<audit-events,Audit>>) events are essentially a means of identifying the invocation of specific methods
 within the <<core>>, in line with _join points_ in the
 https://en.wikipedia.org/wiki/Aspect-oriented_programming[Aspect Oriented Programming (AOP)^].
 
@@ -70,7 +70,7 @@ for `TASK` the various <<tasks-custom>> Tasks configured, for `PROPAGATION`, `PU
 . event type - the final identification of the event; depends on the other coordinates
 . success or failure - whether the current event shall be considered in case of success or failure
 
-The admin console provides <<console-configuration-notifications,tooling>> for assisted specification of valid events. 
+The admin console provides <<console-configuration-notifications,tooling>> to assist with the specification of valid events. 
 
 [TIP]
 ====
@@ -94,7 +94,7 @@ successful execution of the event identified by the `unexpected identification` 
 
 [NOTE]
 ====
-Custom events can be used when in need of triggering notifications from non-predefined joint points, as BPMN `userTask`
+Custom events can be used to trigger notifications from non-predefined joint points, as BPMN `userTask`
 instances within the <<activiti-user-workflow-adapter>>, <<propagationactions>>, <<pushactions>>, <<pullactions>> or
 other custom code.
 ====
@@ -106,13 +106,13 @@ to be used respectively for plaintext and HTML e-mails, and is available for sel
 
 [NOTE]
 ====
-Notification templates can be easily managed either via <<console-configuration-notifications,admin console>> or
-<<eclipse-ide-plugin>>.
+Notification templates can be easily managed either via the <<console-configuration-notifications,admin console>> or
+the <<eclipse-ide-plugin>>.
 ====
 
 The full power of JEXL expressions - see http://commons.apache.org/proper/commons-jexl/reference/syntax.html[reference^]
 and http://commons.apache.org/proper/commons-jexl/reference/examples.html[some examples^] - is available. +
-Among others, the `user` variable, instance of 
+For example, the `user` variable, an instance of 
 ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/common/lib/src/main/java/org/apache/syncope/common/lib/to/UserTO.java[UserTO^]
 endif::[]

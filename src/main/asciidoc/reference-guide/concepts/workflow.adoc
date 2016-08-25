@@ -20,9 +20,9 @@
 
 Workflow manages the internal identity lifecycle by defining statuses and transitions that every user, group or any
 object in Apache Syncope will traverse. A workflow instance is started once identities get created, and shut down when
-removed.
+they are removed.
 
-Workflow is triggered during the <<provisioning,provisioning>> process as first step to create, update or delete
+Workflow is triggered during the <<provisioning,provisioning>> process as the first step in creating, updating or deleting
 identities into the internal storage.
 
 [NOTE]
@@ -97,7 +97,7 @@ and presents several advantages and more features, if compared to the default us
 
 . Besides mandatory statuses, which are modeled as BPMN `userTask` instances, more can be freely added
 at runtime, provided that adequate transitions and conditions are also inserted; more details about available BPMN
-constructs in the http://www.activiti.org/userguide/index.html#bpmnConstructs[Activiti User Guide^]. +
+constructs are available in the http://www.activiti.org/userguide/index.html#bpmnConstructs[Activiti User Guide^]. +
 Additional statuses and transitions allow the internal processes of Apache Syncope to better adapt to suit organizational flows.
 . Custom logic can be injected into the workflow process by providing BPMN `serviceTask` instances.
 . http://www.activiti.org/userguide/index.html#forms[Activiti forms^] are used for implementing <<approval,approval>>.
@@ -113,7 +113,7 @@ Every transition in the Activiti user workflow definition can be subjected to ap
 
 The underlying idea is that some kind of self-modifications (group memberships, external resource assignments, ...)
 might not be allowed to 'plain' Users, as there could be conditions which require management approval.
-Managers could also be asked for completing the information provided before the requested operation is completed.
+Managers could also be asked to complete the information provided before the requested operation is finished.
 
 In order to define an approval form, a dedicated BPMN `userTask` needs to be defined, following the rules established
 for http://www.activiti.org/userguide/index.html#forms[Activiti forms^].
@@ -147,8 +147,8 @@ read-only form input can be defined by setting `writable="false"`
 be defined by setting `required="true"`
 ====
 
-Once the form is defined, any modification subject to that approval will be manageable via admin console, according to
-the following flow (the actual operations on admin console for the sample above are reported <<console-approval,below>>):
+Once the form is defined, any modification subject to that approval will be manageable via the admin console, according to
+the following flow (the actual operations on the admin console for the sample above are reported <<console-approval,below>>):
 
 . administrator A sees the new approval notifications +
 . administrator A claims the approval and is then allowed to manage it
