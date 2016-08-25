@@ -138,7 +138,8 @@ under the License.
                 </goals>
                 <configuration>
                   <applicationTitle>Apache Syncope ${project.version}</applicationTitle>
-                  <namespacePrefix>syncope</namespacePrefix>
+                  <namespacePrefix>syncope2</namespacePrefix>
+                  <incrementNamespacePrefix>false</incrementNamespacePrefix>
                   <linkAnyMediaTypeToXmlSchema>true</linkAnyMediaTypeToXmlSchema>
                   <useJaxbContextForQnames>true</useJaxbContextForQnames>
                   <addResourceAndMethodIds>true</addResourceAndMethodIds>
