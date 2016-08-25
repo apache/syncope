@@ -32,7 +32,7 @@ include::adminconsole/adminconsole.adoc[]
 
 include::cli/cli.adoc[]
 
-include::restfulservices/restful-services.adoc[]
+include::restfulservices.adoc[]
 
 === Customization
 
