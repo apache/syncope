@@ -22,10 +22,9 @@ All the features provided by the <<core>> are available as RESTful services.
 
 The base URL for invoking such services is normally set as
 
-[source]
---
+....
 protocol://host:port/syncope/rest/
---
+....
 
 where `protocol`, `host` and `port` reflect your Java EE container installation.
 
@@ -35,10 +34,9 @@ where `protocol`, `host` and `port` reflect your Java EE container installation.
 A complete REST reference generated from https://en.wikipedia.org/wiki/Web_Application_Description_Language[WADL^] is
 http://syncope.apache.org/rest/2.0/index.html[published^] as well as made available with each deployment at
 
-[source]
---
+....
 protocol://host:port/syncope/
---
+....
 
 where `protocol`, `host` and `port` reflect your Java EE container installation.
 ====
@@ -144,7 +142,7 @@ loggerService.update(LoggerType.LOG, loggerTO);
 More RESTful services could be available besides the 
 http://syncope.apache.org/apidocs/2.0/org/apache/syncope/common/rest/api/service/package-summary.html[default set^],
 as there might be <<extensions,extensions>> installed in the given deployment; the
-<<apache-camel-provisioning-engine>> provides the
+<<apache-camel-provisioning-manager>> provides the
 http://syncope.apache.org/apidocs/2.0/org/apache/syncope/common/rest/api/service/CamelRouteService.html[CamelRouteService^],
 for instance.
 

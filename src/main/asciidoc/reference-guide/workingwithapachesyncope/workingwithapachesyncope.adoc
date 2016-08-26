@@ -30,23 +30,13 @@ to check system requirements and to choose among the various options for obtaini
 
 include::adminconsole/adminconsole.adoc[]
 
+include::enduser.adoc[]
+
 include::cli/cli.adoc[]
 
 include::restfulservices.adoc[]
 
-=== Customization
-
-[[customization-core]]
-==== Core
-
-[[customization-console]]
-==== Console
-
-[[customization-enduser]]
-==== Enduser
-
-[[customization-extensions]]
-==== Extensions
+include::customization.adoc[]
 
 === Deploying in production
 

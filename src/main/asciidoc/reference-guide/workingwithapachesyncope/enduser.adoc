@@ -1,0 +1,49 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+//
+=== Enduser Application
+Once the Java EE container has initialized, the enduser application can be accessed at:
+
+....
+protocol://host:port/syncope-enduser/
+....
+
+where `protocol`, `host` and `port` reflect your Java EE container installation.
+
+The scope of the enduser application is primarily to provide a dedicated web-based entry-point for self-registration,
+self-service and <<password-reset,password reset>>.
+
+[.text-center]
+image::enduserLogin.png[enduser-login]
+
+Usually, organizations thend to require deep customizations not only in the appearance but often also in the actual
+mechanisms behind, in order to best suit their processes and flows. +
+This is the main reason why the enduser application is composed of an
+https://angularjs.org/[AngularJS^] frontend - which eases extension and full customization - featured by an
+http://wicket.apache.org[Apache Wicket^] backend - which proxies access to the <<core>>, thus skipping several security
+concerns at a glance.
+
+Nonetheless, the introduction of a client-side technology as AngularJS brought some important security issues to
+attention; above all, https://en.wikipedia.org/wiki/Cross-site_request_forgery[CRSF^] /
+https://en.wikipedia.org/wiki/Cross-site_request_forgery[XSRF^] and https://en.wikipedia.org/wiki/Internet_bot[BOT^]
+attacks. +
+The enduser application offers protection mechanisms against all of them, and optionally consent to embed external
+features as https://www.google.com/recaptcha/intro/index.html[Google re-Captcha^].
+
+While full-fledged front-end features are provided, it is important to highlight how these are primarily meant for
+<<customization-enduser,customization>> on a given deployment.

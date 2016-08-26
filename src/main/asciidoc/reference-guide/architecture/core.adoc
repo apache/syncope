@@ -66,7 +66,7 @@ it is the crucial decision point for defining and enforcing the consistency and 
 external data.
 
 In addition, an http://camel.apache.org/[Apache Camel^]-based implementation is also available as an 
-<<apache-camel-provisioning-engine,extension>>, which brings all the power of runtime changes and adaptation.
+<<apache-camel-provisioning-manager,extension>>, which brings all the power of runtime changes and adaptation.
 
 [[workflow-layer]]
 ==== Workflow

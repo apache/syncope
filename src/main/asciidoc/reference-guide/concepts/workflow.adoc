@@ -25,6 +25,7 @@ they are removed.
 Workflow is triggered during the <<provisioning,provisioning>> process as the first step in creating, updating or deleting
 identities into the internal storage.
 
+[[workflow-adapters]]
 [NOTE]
 .Workflow Adapters
 ====

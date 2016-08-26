@@ -33,7 +33,7 @@ ones detailed below;
 . as Maven artifacts published by third parties;
 . as part of a given deployment source code, as explained <<customization-extensions, in the following>>.
 
-==== Apache Camel Provisioning Engine
+==== Apache Camel Provisioning Manager
 
 This extension delegates the <<provisioning,provisioning>> process execution to a set of
 http://camel.apache.org[Apache Camel^] routes.
@@ -49,7 +49,7 @@ http://camel.apache.org/components.html[components^] that are available to be us
 [NOTE]
 .Extension Sources
 ====
-The sources of this extension are available from the Apache Syncope
+The source code of this extension is available from the Apache Syncope
 ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/tree/syncope-{docVersion}/ext/camel[source tree^]
 endif::[]
@@ -71,10 +71,10 @@ This extension enables http://swagger.io/swagger-ui/[Swagger UI^] as web interfa
 <<rest,RESTful>> services.
 
 Once installed, Swagger UI is available at
-[source]
---
+
+....
 protocol://host:port/syncope/swagger/
---
+....
 
 where `protocol`, `host` and `port` reflect your Java EE container installation.
 
