@@ -31,6 +31,6 @@ image::domains.png[title="Domains",alt="Domains"]
 
 [TIP]
 ====
-Each domain's persistence unit can be configured to work with one of <<persistence,supported DBMSes>>: `Master` can be
+Each domain's persistence unit can be configured to work with one of the <<persistence,supported DBMSes>>: `Master` can be
 on MySQL, `Domain1` on PostgreSQL, `DomainN` on Oracle and so on.
 ====

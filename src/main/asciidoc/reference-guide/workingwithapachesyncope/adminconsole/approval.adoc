@@ -20,7 +20,7 @@
 [[console-approval]]
 ===== Approval
 
-The images below refers to the self-registration approval <<sample-selfreg-approval,sample>> and to the typical approval
+The images below refer to the self-registration approval <<sample-selfreg-approval,sample>> and to the typical approval
 flow as explained <<approval,above>>.
 
 image::approval1.png[title="Approval notification",alt="Approval notification"]

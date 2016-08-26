@@ -37,7 +37,7 @@ Usage: notification [options]
 ====== Options
 
 --list::
-Running the command with this option you will see the list of notificaitons with their configuration.
+Running the command with this option you will see the list of notifications with their configuration.
 --read::
 The option to read all the information of the specified notifications.
 --delete::

@@ -17,7 +17,7 @@
 // under the License.
 //
 ===== Question command
-This command works with security questions for usage with <<password-reset,password reset>>.
+This command works with security questions for use with <<password-reset,password reset>>.
 
 [discrete]
 ====== Help message

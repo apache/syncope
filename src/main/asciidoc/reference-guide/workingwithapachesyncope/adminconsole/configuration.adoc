@@ -24,13 +24,13 @@ organization.
 [[console-configuration-audit]]
 Audit::
 
-Allows to configure the <<audit,auditing>> features.
+Controls the configuration of the <<audit,auditing>> features.
 
 [[console-configuration-logs]]
 Logs::
 
 The logging levels available can be dynamically adjusted; for example, the admin can set it
-to display only the errors of `io.swagger`, in which case the warnings and information logs will not be reported.
+to display only the errors of `io.swagger`, in which case the warning and information logs will not be reported.
 
 [[console-configuration-notifications]]
 Notifications::
@@ -41,10 +41,10 @@ This page also allows the administators to create and edit <<notification-templa
 [[console-configuration-parameters]]
 Parameters::
 
-Presents the administrators with the list of defined <<configuration-parameters,configurtion parameters>> used in the
+Presents the administrators with the list of defined <<configuration-parameters,configuration parameters>> used in the
 given deployment such as `token.expireTime` and `password.cipher.algorithm`.
 These can be edited to further customize the deployment. +
-New parameters can also be added, for usage with custom code. 
+New parameters can also be added, for use with custom code. 
 
 [[console-configuration-policies]]
 Policies::

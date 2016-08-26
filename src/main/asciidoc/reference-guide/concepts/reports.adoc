@@ -25,7 +25,7 @@ A report is essentially defined by a <<report-templates,template>> and a sequenc
 the latter is responsible for extracting the required information and the former defines how execution results will be
 presented, in the various available formats.
 
-Reports can be execute upon request or scheduled: executions result can be downloaded as:
+Reports can be executed upon request or scheduled: execution results can be downloaded as:
 
 * XML
 * HTML
@@ -45,7 +45,7 @@ will be then made available as PDF and RTF
 
 [NOTE]
 ====
-Report templates can be easily managed either via <<console-reports,admin console>> or <<eclipse-ide-plugin>>.
+Report templates can be easily managed either via the <<console-reports,admin console>> or the <<eclipse-ide-plugin>>.
 ====
 
 ==== Reportlets
@@ -70,10 +70,10 @@ ifeval::["{snapshotOrRelease}" == "snapshot"]
 https://github.com/apache/syncope/blob/master/common/lib/src/main/java/org/apache/syncope/common/lib/report/AbstractReportletConf.java[AbstractReportletConf^]
 endif::[]
 and embedding the configuration options that can be tuned when incorporating a given reportlet into a report; when
-properly annotated, such options are manageable via <<console-reports,admin console>>
+properly annotated, such options are manageable via the <<console-reports,admin console>>
 
-Some reportlets are available by default (and briefly presented below) either for direct usage and for acting as
-reference when building new reportlets for specific Apache Syncope deployments.
+Some reportlets are available by default (and briefly presented below) either for direct usage or for acting as
+a reference when building new reportlets for specific Apache Syncope deployments.
 
 ===== Static Reportlet
 
@@ -91,7 +91,7 @@ endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
 https://github.com/apache/syncope/blob/master/common/lib/src/main/java/org/apache/syncope/common/lib/report/StaticReportletConf.java[StaticReportletConf^],
 endif::[]
-it is essentially an handy way to inject static values (of various types) into a report.
+it is essentially a handy way to inject static values (of various types) into a report.
 
 ===== User and Group Reportles
 Defined by
@@ -108,7 +108,7 @@ endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
 https://github.com/apache/syncope/blob/master/common/lib/src/main/java/org/apache/syncope/common/lib/report/UserReportletConf.java[UserReportletConf^],
 endif::[]
-it can be used for reporting various information about Users available in the internal storage, their attributes,
+it can be used to report various information about Users available in the internal storage, their attributes,
 memberships and relationships, external resources and so on.
 
 A similar reportlet is also available for Groups, defined by
@@ -147,7 +147,7 @@ e.g. whether such entities are available on all Identity Stores matching the ass
 <<external-resources,external resources>> and, if so, whether the <<mapping,mapped>> attributes feature the expected
 values.
 
-An instance of reconciliation reportlet is run by default from admin console's <<dashboard,dashboard>>, and results
+An instance of reconciliation reportlet is run by default from the admin console's <<dashboard,dashboard>>, and results
 are available as a widget.
 
 ===== Audit Reportlet

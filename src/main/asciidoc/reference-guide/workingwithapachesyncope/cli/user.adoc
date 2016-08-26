@@ -55,9 +55,9 @@ Usage: user [options]
 
 --details::
 This option shows a table with some details about the Users.
--- List option::
+--list::
 Running the command with this option you will see the list of all Users in the environment. However, the system will 
-ask you a confirmation before execution, because as you can imagine this operation might produce very large output.
+ask you a confirmation before execution, because as you can imagine this operation might produce a very large output.
 --get-user-key::
 The option to get the user key starting from a username.
 --get-username::
@@ -72,9 +72,9 @@ The option to search a list of Users with a common attribute.
 The option to search a list of Users with a specified role.
 --search-by-resource::
 The option to search a list of Users with a specified resource.
---delete
+--delete::
 The option to delete a specified user.
---delete-by-attribute
+--delete-by-attribute::
 The option to delete the Users with a common attribute.
---delete-all
+--delete-all::
 The option to delete all Users of the realm passed as input.

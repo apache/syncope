@@ -30,5 +30,5 @@ An example of how audit entries can be extracted for reporting is shown by the <
 
 ==== Audit Events
 
-What described for <<notification-events,notification events>> is also valid for audit events, examples included -
-except for admin console <<console-configuration-audit,tooling>>, which is naturally distinct.
+The information provided for <<notification-events,notification events>> is also valid for audit events, including examples -
+except for the admin console <<console-configuration-audit,tooling>>, which is naturally distinct.

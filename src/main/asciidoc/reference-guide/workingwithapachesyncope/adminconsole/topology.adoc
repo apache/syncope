@@ -18,8 +18,8 @@
 //
 ===== Topology
 
-The topology page provides a mapped view of the available <<connector-instance-details,connectors>> and
-<<external-resource-details,external resources>> available and configured in the given deployment. +
+The topology page provides a mapped view of the <<connector-instance-details,connectors>> and
+<<external-resource-details,external resources>> that are available and configured in the given deployment. +
 Different actions are available when clicking on the various nodes.
 
 image::consoleTopology.png[console-topology]

@@ -55,7 +55,7 @@ Running the command with this option you will see the list of selected tasks typ
 --list-scheduled-jobs::
 Running the command with this option you will see the list of the actual scheduled jobs.
 --list-running-jobs::
-Running the command with this option you will see the list of the actual runnig jobs.
+Running the command with this option you will see the list of the actual running jobs.
 --read::
 The option to read all the information of a task.
 --read-execution::

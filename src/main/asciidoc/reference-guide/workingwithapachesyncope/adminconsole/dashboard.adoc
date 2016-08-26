@@ -19,6 +19,6 @@
 ===== Dashboard
 
 The dashboard provides an overall view of the current state of the Apache Syncope deployment. It
-consists of various widgets and tabs that show the different metrics and details of each component available.
+consists of various widgets and tabs that show the different metrics and details of each component that is available.
 
 image::consoleDashboard.png[console-dashboard]

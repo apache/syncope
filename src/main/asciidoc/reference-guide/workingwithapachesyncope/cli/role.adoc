@@ -40,7 +40,7 @@ Usage: role [options]
 --details::
 This option shows a table with some details about the roles.
 --list::
-Running the command with this option you will see the list of roles with the realm where they are configured and their entitlments.
+Running the command with this option you will see the list of roles with the realm where they are configured and their entitlements.
 --read::
 The option to read all the information of specified roles.
 --delete::

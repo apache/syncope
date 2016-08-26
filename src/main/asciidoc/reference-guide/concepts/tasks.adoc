@@ -18,7 +18,7 @@
 //
 === Tasks
 
-Tasks control the effective operations ongoing in the <<core>>.
+Tasks control the effective operations that are ongoing in the <<core>>.
 
 Whilst tasks define what and how to perform, they are supposed to be run by some entity (depending on the actual task
 type, see below for details); their execution result can be saved for later examination.
@@ -26,7 +26,7 @@ type, see below for details); their execution result can be saved for later exam
 [[tasks-propagation]]
 ==== Propagation
 
-A propagation task encapsulates all the information required - according to the defined <<mapping,mapping>> - to create,
+A propagation task encapsulates all the information that is required - according to the defined <<mapping,mapping>> - to create,
 update or delete a given User, Group or Any Object, to / from a certain Identity Store:
 
 * operation - `CREATE`, `UPDATE` or `DELETE`
@@ -85,7 +85,7 @@ When defining a pull task, the following information must be provided:
 
 [NOTE]
 ====
-Pull tasks are executed, either upon request or because scheduled, via the
+Pull tasks are executed, either upon request or due to a schedule, via the
 ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/PullJobDelegate.java[PullJobDelegate^]
 endif::[]
@@ -116,7 +116,7 @@ When defining a push task, the following information must be provided:
 
 [NOTE]
 ====
-Push tasks are executed, either upon request or because scheduled, via the
+Push tasks are executed, either upon request or due to a schedule, via the
 ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/PushJobDelegate.java[PushJobDelegate^]
 endif::[]
@@ -131,7 +131,7 @@ the execution details - depending on the trace level set on the related
 [[tasks-notification]]
 ==== Notification
 
-A notification tasks encapsulates all the information required for sending out a notification e-mail, according to the
+A notification task encapsulates all the information that is required to send out a notification e-mail, according to the
 specification provided in a given <<notifications,notification>>:
 
 * entity - reference to the internal identity - User, Group or Any Object - the notification task refers to
@@ -163,7 +163,7 @@ and are permanently saved - for later re-execution or for examining the executio
 [[tasks-custom]]
 ==== Custom
 
-Custom tasks allow to inject logic into the <<core>>, available for execution and scheduling.
+Custom tasks allow for the injection of logic into the <<core>> in the area of execution and scheduling.
 
 When defining a custom task, the following information must be provided:
 
@@ -184,8 +184,8 @@ providing the custom logic to execute
 Custom tasks are ideal for implementing periodic checks or clean-up operations, possibly in coordination with other
 components; some examples:
 
-* move users from "peding delete" to "deleted" status 15 days after they reached the "pending delete" status (requires
+* move users from "pending delete" to "deleted" status 15 days after they reached the "pending delete" status (requires
 interaction with <<activiti-user-workflow-adapter>>)
 * send out notification e-mails to users whose password is about to expire on an Identity Store
-* disable all users not logging in into the system for the past 6 months
+* disable all users not logging into the system for the past 6 months
 ====

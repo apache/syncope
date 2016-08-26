@@ -38,7 +38,7 @@ Usage: resource [options]
 ====== Options
 
 --details::
-This option shows a table with amount of available resources.
+This option shows a table with the amount of available resources.
 --list::
 Running the command with this option you will see the list of resources.
 --read::

@@ -18,8 +18,8 @@
 //
 === Extensions
 
-Extensions allow to optionally enrich the _vanilla_ Apache Syncope with useful features, without the need of bloating
-every single deployment with non-needed libraries and configurations.
+The _vanilla_ Apache Syncope deployment can be optional enriched with useful features via an Extension, instead of bloating
+every single deployment with unneeded libraries and configurations.
 
 With reference to <<architecture,architecture>>, an extension might add a <<rest>> endpoint, manage the
 <<persistence,persistence>> of additional entities, extend the <<security,security>> mechanisms, tweak the
@@ -31,7 +31,7 @@ Extensions are available from different sources:
 . as Maven artifacts published from the Apache Syncope codebase, part of the official releases - this is the case of the
 ones detailed below;
 . as Maven artifacts published by third parties;
-. as part of a given deployment sources, as explained <<customization-extensions, in the following>>.
+. as part of a given deployment source code, as explained <<customization-extensions, in the following>>.
 
 ==== Apache Camel Provisioning Engine
 
@@ -61,7 +61,7 @@ endif::[]
 
 [TIP]
 ====
-This extension is adding features to all components and layers available and can be taken as reference when creating
+This extension adds features to all components and layers that are available, and can be taken as reference when creating
 <<customization-extensions,new extensions>>.
 ====
 
@@ -81,7 +81,7 @@ where `protocol`, `host` and `port` reflect your Java EE container installation.
 [NOTE]
 .Extension Sources
 ====
-The sources of this extension are available from the Apache Syncope
+The source code of this extension is available from the Apache Syncope
 ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/tree/syncope-{docVersion}/ext/swagger-ui[source tree^]
 endif::[]

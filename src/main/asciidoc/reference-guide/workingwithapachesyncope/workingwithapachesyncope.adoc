@@ -18,7 +18,7 @@
 //
 == Working with Apache Syncope
 
-Before moving forward, please ensure to have access to an Apache Syncope running deployment.
+Before proceeding, please ensure that you have access to a running Apache Syncope deployment.
 You can take a look at the
 ifeval::["{backend}" == "html5"]
 http://syncope.apache.org/docs/getting-started.html[Apache Syncope Getting Started Guide]
@@ -26,7 +26,7 @@ endif::[]
 ifeval::["{backend}" == "pdf"]
 http://syncope.apache.org/docs/getting-started.pdf[Apache Syncope Getting Started Guide]
 endif::[]
-to check system requirements and choose among the various options for obtaining Apache Syncope.
+to check system requirements and to choose among the various options for obtaining Apache Syncope.
 
 include::adminconsole/adminconsole.adoc[]
 
