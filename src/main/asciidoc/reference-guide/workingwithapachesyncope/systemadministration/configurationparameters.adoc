@@ -1,0 +1,44 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+//
+
+==== Configuration Parameters
+
+Most run-time configuration options are available as parameters and can be tuned either via the admin console, CLI or
+barely invoking the REST layer through http://curl.haxx.se/[curl^]:
+
+* `password.cipher.algorithm` - which cipher algorithm shall be used for encrypting password values; supported 
+algorithms include `SHA-1`, `SHA-256`, `SHA-512`, `AES`, `S-MD5`, `S-SHA-1`, `S-SHA-256`, `S-SHA-512` and `BCRYPT`;
+salting options are available in the `security.properties` file;
+* `notificationjob.cronExpression` -
+http://www.quartz-scheduler.org/documentation/quartz-2.2.x/tutorials/crontrigger.html[cron^] expression describing how
+frequently the pending <<tasks-notification,notification tasks>> are processed: empty means disabled;
+* `notification.maxRetries` - how many times the delivery of a given notification should be attempted before giving up;
+* `token.length` - the length of the random tokens that can be generated as part of various <<workflow,workflow>>
+processes, including <<password-reset,password reset>>;
+* `token.expireTime` - the time after which the generated random tokens expire;
+* `selfRegistration.allowed` - whether self-registration (tipically via the enduser application) is allowed;
+* `passwordReset.allowed` - whether the <<password-reset,password reset>> feature (tipically via the enduser
+application) is allowed;
+* `passwordReset.securityQuestion` - whether the <<password-reset,password reset>> feature involves security questions;
+* `authentication.statuses` - the list of <<workflow,workflow>> statuses for which users are allowed to authenticate;
+* `log.lastlogindate` - whether the system updates the `lastLoginDate` field of users upon authentication;
+* `tasks.interruptMaxRetries` - how many attempts shall be made when interrupting a running <<task,task>>;
+* `return.password.value` - whether the hashed password value shall be returned when reading users.
+
+Besides this default set, new configuration parameters can be define to support <<customization,custom>> code.

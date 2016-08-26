@@ -1,0 +1,113 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+//
+==== JavaEE Container
+
+===== Apache Tomcat 8 and 8.5
+
+On GNU / Linux - Mac OS X, create `$CATALINA_HOME/bin/setenv.sh` with similar content
+(keep everything on a single line):
+
+....
+JAVA_OPTS="-Djava.awt.headless=true -Dfile.encoding=UTF-8 -server \
+-Xms1536m -Xmx1536m -XX:NewSize=256m -XX:MaxNewSize=256m -XX:PermSize=256m \
+-XX:MaxPermSize=256m -XX:+DisableExplicitGC"
+....
+
+On MS Windows, create `%CATALINA_HOME%\bin\setenv.bat` with similar content (keep everything on a single line):
+
+....
+set JAVA_OPTS=-Djava.awt.headless=true -Dfile.encoding=UTF-8 -server
+-Xms1536m -Xmx1536m -XX:NewSize=256m -XX:MaxNewSize=256m -XX:PermSize=256m
+-XX:MaxPermSize=256m -XX:+DisableExplicitGC
+....
+
+It is recommended to define a separate datasource for each <<domains,domain>> (the following example is for the `Master`
+domain and MySQL): please also check that the connection parameters are the same as configured for <<dbms>>:
+
+[source,xml]
+....
+<Resource name="jdbc/MasterDataSource" auth="Container" type="javax.sql.DataSource"
+          factory="org.apache.tomcat.jdbc.pool.DataSourceFactory" testWhileIdle="true"
+          testOnBorrow="true" testOnReturn="true" validationQuery="SELECT 1" validationInterval="30000"
+          maxActive="100" minIdle="2" maxWait="10000" initialSize="2" removeAbandonedTimeout="20000"
+          removeAbandoned="true" logAbandoned="true" suspectTimeout="20000"
+          timeBetweenEvictionRunsMillis="5000" minEvictableIdleTimeMillis="5000"
+          jdbcInterceptors="org.apache.tomcat.jdbc.pool.interceptor.ConnectionState;
+            org.apache.tomcat.jdbc.pool.interceptor.StatementFinalizer"
+          username="syncope" password="syncope" driverClassName="com.mysql.jdbc.Driver"
+          url="jdbc:mysql://localhost:3306/syncope?characterEncoding=UTF-8"/>
+....
+
+[CAUTION]
+Be sure to put the corresponding JDBC driver JAR file under `$CATALINA_HOME/lib` for each datasource defined.
+
+===== Glassfish 4.1 and Payara Server
+
+When using a datasource for internal storage, be sure to add
+
+[source,xml]
+....
+<resource-ref>
+  <res-ref-name>jdbc/MasterDataSource</res-ref-name>
+  <jndi-name>jdbc/MasterDataSource</jndi-name>
+</resource-ref>
+....
+
+right after `</context-root>` in `core/src/main/webapp/WEB-INF/glassfish-web.xml`, assuming that your Glassfish instance
+provides a datasource named `jdbc/MasterDataSource`.
+
+===== Wildfly 9 and 10
+
+Replace
+
+....
+      classpath*:/*Context.xml
+....
+
+with
+
+....
+      classpath*:/*Context.xml
+      /WEB-INF/classes/restCXFContext.xml
+....
+
+in `core/src/main/webapp/WEB-INF/web.xml`.
+
+Download
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/fit/core-reference/src/main/resources/jboss/restCXFContext.xml[restCXFContext.xml^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/fit/core-reference/src/main/resources/jboss/restCXFContext.xml[restCXFContext.xml^]
+endif::[]
+and save it under `core/src/main/resources/`.
+
+Finally, add
+
+[source,xml]
+....
+<property name="jpaPropertyMap">
+  <map>
+    <entry key="openjpa.MetaDataFactory" 
+           value="jpa(URLs=vfs:/content/${project.build.finalName}.war/WEB-INF/classes, Resources=${Master.orm})"/>
+  </map>
+</property>
+....
+
+in `core/src/main/resources/domains/MasterDomain.xml` for the `MasterEntityManagerFactory` bean.

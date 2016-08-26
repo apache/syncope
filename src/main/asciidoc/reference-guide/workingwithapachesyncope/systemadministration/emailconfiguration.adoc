@@ -16,34 +16,17 @@
 // specific language governing permissions and limitations
 // under the License.
 //
-=== Admin Console
-Once the Java EE container has initialized, the admin console can be accessed at:
+==== E-mail Configuration
 
-....
-protocol://host:port/syncope-console/
-....
+The `mail.properties` holds the configuration options to enable the effective delivery of <<notifications,notification>>
+e-mails:
 
-where `protocol`, `host` and `port` reflect your Java EE container installation.
-
-You should be greeted by the following web page.
-
-[.text-center]
-image::consoleLogin.png[console-login]
-
-You can use the <<set-admin-credentials,default admin credentials>> to login.
-
-==== Pages
-
-include::dashboard.adoc[]
-
-include::realms.adoc[]
-
-include::topology.adoc[]
-
-include::reports.adoc[]
-
-include::configuration.adoc[]
-
-include::approval.adoc[]
-
-include::extensions.adoc[]
+* `smtpHost` - the mail server host, typically an SMTP host;
+* `smtpPort` - the mail server port;
+* `smtpUser` - (optional) the username for the account at the mail host;
+* `smtpPassword` - (optional) the password for the account at the mail host;
+* `smtpProtocol` - the mail protocol;
+* `smtpEncoding` - the default encoding to use for MIME messages;
+* `smtpConnectionTimeout` - the connection timeout value in milliseconds, to the mail host;
+* `mailDebug` - when `true`, enable the debugging of email, including the handshake, authentication, delivery and
+disconnection.

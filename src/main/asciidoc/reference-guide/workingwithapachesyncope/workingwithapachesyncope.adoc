@@ -38,20 +38,4 @@ include::restfulservices.adoc[]
 
 include::customization.adoc[]
 
-=== Deploying in production
-
-==== DBMS
-
-==== JavaEE Container
-
-==== High-Availability
-
-=== Runtime Management
-
-==== Configuration Parameters
-
-==== Domains Management
-
-==== HowTOs
-
-===== Changing admin password
+include::systemadministration/systemadministration.adoc[]
