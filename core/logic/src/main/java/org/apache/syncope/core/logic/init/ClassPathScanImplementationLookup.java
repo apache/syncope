@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
 import org.apache.syncope.common.lib.report.ReportletConf;
@@ -65,6 +64,8 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
 
     private static final Logger LOG = LoggerFactory.getLogger(ImplementationLookup.class);
 
+    private static final String DEFAULT_BASE_PACKAGE = "org.apache.syncope.core";
+
     private Map<Type, Set<String>> classNames;
 
     private Map<Class<? extends ReportletConf>, Class<? extends Reportlet>> reportletClasses;
@@ -76,6 +77,15 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
     @Override
     public Integer getPriority() {
         return 400;
+    }
+
+    /**
+     * This method can be overridden by subclasses to customize classpath scan.
+     *
+     * @return basePackage for classpath scanning
+     */
+    protected String getBasePackage() {
+        return DEFAULT_BASE_PACKAGE;
     }
 
     @Override
@@ -105,7 +115,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
         scanner.addIncludeFilter(new AssignableTypeFilter(Validator.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(NotificationRecipientsProvider.class));
 
-        for (BeanDefinition bd : scanner.findCandidateComponents(StringUtils.EMPTY)) {
+        for (BeanDefinition bd : scanner.findCandidateComponents(getBasePackage())) {
             try {
                 Class<?> clazz = ClassUtils.resolveClassName(
                         bd.getBeanClassName(), ClassUtils.getDefaultClassLoader());
@@ -224,5 +234,4 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
 
         return passwordRuleClasses.get(passwordRuleConfClass);
     }
-
 }

@@ -25,7 +25,6 @@ import java.util.Comparator;
 import java.util.List;
 import org.apache.commons.collections4.ComparatorUtils;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.pages.BaseExtPage;
 import org.apache.syncope.client.console.annotations.BinaryPreview;
 import org.apache.syncope.client.console.annotations.ExtPage;
@@ -44,6 +43,8 @@ public class ClassPathScanImplementationLookup {
 
     private static final Logger LOG = LoggerFactory.getLogger(ClassPathScanImplementationLookup.class);
 
+    private static final String DEFAULT_BASE_PACKAGE = "org.apache.syncope.client.console";
+
     private List<Class<? extends BasePage>> pages;
 
     private List<Class<? extends AbstractBinaryPreviewer>> previewers;
@@ -51,6 +52,15 @@ public class ClassPathScanImplementationLookup {
     private List<Class<? extends BaseExtPage>> extPages;
 
     private List<Class<? extends BaseExtWidget>> extWidgets;
+
+    /**
+     * This method can be overridden by subclasses to customize classpath scan.
+     *
+     * @return basePackage for classpath scanning
+     */
+    protected String getBasePackage() {
+        return DEFAULT_BASE_PACKAGE;
+    }
 
     @SuppressWarnings("unchecked")
     public void load() {
@@ -65,7 +75,7 @@ public class ClassPathScanImplementationLookup {
         scanner.addIncludeFilter(new AssignableTypeFilter(BaseExtPage.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(BaseExtWidget.class));
 
-        for (BeanDefinition bd : scanner.findCandidateComponents(StringUtils.EMPTY)) {
+        for (BeanDefinition bd : scanner.findCandidateComponents(getBasePackage())) {
             try {
                 Class<?> clazz = ClassUtils.resolveClassName(
                         bd.getBeanClassName(), ClassUtils.getDefaultClassLoader());
@@ -161,5 +171,4 @@ public class ClassPathScanImplementationLookup {
     public List<Class<? extends BaseExtWidget>> getExtWidgetClasses() {
         return extWidgets;
     }
-
 }
