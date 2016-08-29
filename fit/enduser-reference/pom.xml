@@ -189,8 +189,8 @@ under the License.
             </goals>
             <configuration>
               <workingDirectory>${enduser-test.dir}/nodejs</workingDirectory>
-              <nodeVersion>v5.3.0</nodeVersion>
-              <npmVersion>3.3.12</npmVersion>
+              <nodeVersion>${nodejs.version}</nodeVersion>
+              <npmVersion>${npm.version}</npmVersion>
             </configuration>
           </execution>
         </executions>
@@ -199,7 +199,7 @@ under the License.
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
-        <version>1.2.1</version>
+        <version>1.5.0</version>
         <executions>
           <execution>            
             <id>Install Protractor</id>
@@ -224,7 +224,7 @@ under the License.
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
-        <version>1.2.1</version>
+        <version>1.5.0</version>
         <executions>
           <execution>            
             <id>Install Agent</id>
@@ -247,7 +247,7 @@ under the License.
       <plugin>
         <groupId>com.github.greengerong</groupId>
         <artifactId>maven-ng-protractor</artifactId>
-        <version>0.0.1</version>
+        <version>0.0.2</version>
         <configuration>
           <protractor>${enduser-test.dir}/nodejs/bin/protractor</protractor>
           <beforeRunning>${project.basedir}/kill-chrome.bat</beforeRunning>

@@ -463,9 +463,14 @@ under the License.
     <rootpom.basedir>${basedir}</rootpom.basedir>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
+    <exec-maven-plugin.version></exec-maven-plugin.version>
+
     <phantomjs.driver.version>1.2.0</phantomjs.driver.version>
     <phantomjs.plugin.version>0.7</phantomjs.plugin.version>
     <phantomjs.version>2.1.1</phantomjs.version>
+    
+    <nodejs.version>v5.3.0</nodejs.version>    
+    <npm.version>3.3.12</npm.version>        
     
   </properties>
 
