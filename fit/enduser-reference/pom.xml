@@ -35,6 +35,7 @@ under the License.
   
   <properties>
     <rootpom.basedir>${basedir}/../..</rootpom.basedir>
+    <enduser-test.dir>${project.build.directory}/enduser-test</enduser-test.dir>
   </properties>
 
   <dependencies>
@@ -126,10 +127,146 @@ under the License.
       <type>war</type>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>com.github.detro</groupId>
+      <artifactId>phantomjsdriver</artifactId>       
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
     <plugins>
+      <plugin>
+        <groupId>com.github.klieber</groupId>
+        <artifactId>phantomjs-maven-plugin</artifactId>        
+        <executions>
+          <execution>
+            <goals>
+              <goal>install</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <version>${phantomjs.version}</version>
+          <checkSystemPath>false</checkSystemPath>          
+        </configuration>
+      </plugin>
+           
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <inherited>true</inherited>
+        <executions>
+          <execution>
+            <id>setup-enduser-it</id>
+            <phase>pre-integration-test</phase>
+            <configuration>
+              <target>               
+                <mkdir dir="${enduser-test.dir}" />
+                <copy todir="${enduser-test.dir}" overwrite="true">
+                  <fileset 
+                    dir="${basedir}/src/test/resources/org/apache/syncope/client/enduser/protractor/" 
+                    includes="**/*" />                  
+                </copy>
+                <replace file="${enduser-test.dir}/protractor-conf.js" 
+                         token="@phantomjs.binary.path@" value="${phantomjs.binary}"/>
+                <delete file="${basedir}/../core-reference/target/syncope-fit-core-reference-${project.version}/WEB-INF/classes/userWorkflow.bpmn20.xml"/>
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>     
+                                                                        
+      <plugin>
+        <groupId>com.github.eirslett</groupId>
+        <artifactId>frontend-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>install node and npm</id>
+            <phase>pre-integration-test</phase>            
+            <goals>
+              <goal>install-node-and-npm</goal>
+            </goals>
+            <configuration>
+              <workingDirectory>${enduser-test.dir}/nodejs</workingDirectory>
+              <nodeVersion>${nodejs.version}</nodeVersion>
+              <npmVersion>${npm.version}</npmVersion>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+           
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <executions>
+          <execution>            
+            <id>Install Protractor</id>
+            <phase>pre-integration-test</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <workingDirectory>${enduser-test.dir}/nodejs/node/node_modules</workingDirectory>
+              <executable>${enduser-test.dir}/nodejs/node/node</executable>
+              <arguments>
+                <argument>npm/bin/npm-cli.js</argument>
+                <argument>install</argument>
+                <argument>-g</argument>
+                <argument>protractor</argument>                
+              </arguments>
+            </configuration>
+          </execution>
+          <execution>            
+            <id>Install Agent</id>
+            <phase>pre-integration-test</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <workingDirectory>${enduser-test.dir}/nodejs/lib</workingDirectory>
+              <executable>${enduser-test.dir}/nodejs/node/node</executable>
+              <arguments>
+                <argument>node_modules/protractor/bin/webdriver-manager</argument>
+                <argument>update</argument>                             
+              </arguments>
+            </configuration>
+          </execution>
+          <execution>            
+            <id>Execute Tests</id>
+            <phase>integration-test</phase>
+            <goals>
+              <goal>exec</goal>
+            </goals>
+            <configuration>
+              <skip>${skipTests}</skip>           
+              <executable>${enduser-test.dir}/nodejs/node/node</executable>
+              <arguments>
+                <argument>${enduser-test.dir}/nodejs/bin/protractor</argument>
+                <argument>${enduser-test.dir}/protractor-conf.js</argument>                             
+              </arguments>
+            </configuration>
+          </execution>                          
+        </executions>
+      </plugin>
+            
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <inherited>true</inherited>
+        <executions>
+          <execution>
+            <id>verify</id>
+            <goals>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      
       <plugin>
         <groupId>org.codehaus.cargo</groupId>
         <artifactId>cargo-maven2-plugin</artifactId>
@@ -199,6 +336,22 @@ under the License.
             </deployable>
           </deployables>
         </configuration>
+        <executions>
+          <execution>
+            <id>start-container</id>
+            <phase>pre-integration-test</phase>
+            <goals>
+              <goal>start</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>stop-container</id>
+            <phase>post-integration-test</phase>
+            <goals>
+              <goal>stop</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
       
       <plugin>
@@ -323,7 +476,8 @@ under the License.
       <id>jrebel</id>
       
       <properties>
-        <tomcat.version>8.0.36</tomcat.version>
+        <tomcat.version>8.0.36</tomcat.version>              
+        <skipTests>true</skipTests>
       </properties>      
 
       <build>

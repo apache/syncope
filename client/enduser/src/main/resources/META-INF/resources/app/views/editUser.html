@@ -32,7 +32,7 @@ under the License.
             <div growl reference="2" inline="true"></div>              
             <div id="status-buttons" class="btn-group btn-breadcrumb">
               <a href="#/self" class="btn btn-default" ng-show="createMode"><i class="glyphicon glyphicon-home"></i></a>
-              <a class="btn btn-default" ng-show="!createMode" ng-click="logout()"><i class="glyphicon glyphicon-off"style="color:red"></i></a>
+              <a id="logout" class="btn btn-default" ng-show="!createMode" ng-click="logout()"><i class="glyphicon glyphicon-off"style="color:red"></i></a>
               <!--add class breadcrumb-disabled-link to buttons to prevent click-->              
               <a ng-repeat="(key, value) in wizard" ui-sref-active="active" ui-sref=".{{key}}" class="btn btn-default" 
                  ng-class="createMode ? 'disable-link' : ''">{{key | translate}}</a>       
