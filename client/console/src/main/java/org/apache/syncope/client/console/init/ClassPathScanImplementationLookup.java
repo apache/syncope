@@ -20,12 +20,14 @@ package org.apache.syncope.client.console.init;
 
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.apache.commons.collections4.ComparatorUtils;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.pages.BaseExtPage;
 import org.apache.syncope.client.console.annotations.BinaryPreview;
 import org.apache.syncope.client.console.annotations.ExtPage;
@@ -51,6 +53,8 @@ public class ClassPathScanImplementationLookup {
     private List<Class<? extends BaseExtPage>> extPages;
 
     private List<Class<? extends BaseExtWidget>> extWidgets;
+    
+    private List<String> basePackages = Arrays.asList("org.apache.syncope.client.console");
 
     @SuppressWarnings("unchecked")
     public void load() {
@@ -65,7 +69,11 @@ public class ClassPathScanImplementationLookup {
         scanner.addIncludeFilter(new AssignableTypeFilter(BaseExtPage.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(BaseExtWidget.class));
 
-        for (BeanDefinition bd : scanner.findCandidateComponents(StringUtils.EMPTY)) {
+        Set<BeanDefinition> beanDefinitions = new HashSet<>();
+        for (String basePackage: getBasePackages()) {
+            beanDefinitions.addAll(scanner.findCandidateComponents(basePackage));
+        }
+        for (BeanDefinition bd : beanDefinitions) {
             try {
                 Class<?> clazz = ClassUtils.resolveClassName(
                         bd.getBeanClassName(), ClassUtils.getDefaultClassLoader());
@@ -161,5 +169,15 @@ public class ClassPathScanImplementationLookup {
     public List<Class<? extends BaseExtWidget>> getExtWidgetClasses() {
         return extWidgets;
     }
+    
+    /**
+     * @return basePackages for syncope class classpath scanning
+     */
+    protected List<String> getBasePackages() {
+        return basePackages;
+    }
 
+    public void setBasePackages(final List<String> basePackages) {
+        this.basePackages = basePackages;
+    }
 }
