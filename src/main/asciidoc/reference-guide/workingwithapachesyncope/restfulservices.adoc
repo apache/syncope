@@ -42,14 +42,14 @@ where `protocol`, `host` and `port` reflect your Java EE container installation.
 ====
 
 [TIP]
-The <<swagger,Swagger extension>> might be greatly helpful when working with RESTful services.
+The <<swagger,Swagger extension>> might also help greatly when working with RESTful services.
 
 ==== Client Library
 
-The Java client library is meant for simplifying the interaction with the <<core>> by hiding the underlying HTTP
+The Java client library simplifies the interaction with the <<core>> by hiding the underlying HTTP
 communication details and providing native methods and payload objects.
 
-The library is available as Maven artifact:
+The library is available as a Maven artifact:
 
 [source,xml,subs="verbatim,attributes"]
 ----
@@ -83,7 +83,7 @@ endif::[]
 [discrete]
 ===== Initialization
 
-You need first to build an instance of `SyncopeClientFactoryBean` by providing the deployment base URL, as follows:
+First you need to build an instance of `SyncopeClientFactoryBean` by providing the deployment base URL, as follows:
 
 [source,java]
 ----
@@ -92,7 +92,7 @@ SyncopeClientFactoryBean clientFactory = new SyncopeClientFactoryBean().
 ----
 
 You might also select a specific <<domains,domain>> - other than `Master`, choose to exchange XML payloads - rather
-than JSON (default), or to select the
+than JSON (default), or to select 
 https://en.wikipedia.org/wiki/HTTP_compression[HTTP compression^] (more options in the
 http://syncope.apache.org/apidocs/2.0/org/apache/syncope/client/lib/SyncopeClientFactoryBean.html[Javadoc^]):
 
@@ -195,7 +195,7 @@ PagedResult<GroupTO> matchingGroups = groupService.search(
 ----
 <1> get the total number of users available in the given deployment (and <<domains,domain>>)
 <2> get users in the root realm with username matching the provided wildcard expression
-<3> get users in the root realm with no values for `loginDate`, e.g. that have never authenticated to the
+<3> get users in the root realm with no values for `loginDate`, i.e. that have never authenticated to the
 given deployment
 <4> get users in the root realm with <<roles,role>> `Other` assigned
 <5> get all any objects in the root realm with <<anytype,type>> `PRINTER`

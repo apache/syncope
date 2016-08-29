@@ -18,13 +18,13 @@
 //
 ==== Deal with internal storage export - import
 
-Almost every configurable aspect of a given deployment is contained into the <<persistence,internal storage>>:
+Almost every configurable aspect of a given deployment is contained in the <<persistence,internal storage>>:
 schemas, connectors, resources, mapping, roles, groups, tasks and other parameters.
 
-During the implementation phase of an Apache Syncope-based project, it might be handful to move such configuration back
+During the implementation phase of an Apache Syncope-based project, it might be useful to move such configuration back
 and forth from one Apache Syncope instance to another (say developer's laptop and production server). +
-An option is clearly acting at low level by empowering DBMS' dump & restore capabilities, but what if developer is
-running MySQL (or even in-memory H2) while sysadmin features Oracle?
+One option is clearly to act at a low level by empowering DBMS' dump & restore capabilities, but what if the developer is
+running MySQL (or even in-memory H2) while the sysadmin features Oracle?
 
 [CAUTION]
 .Wipe existing content
@@ -64,7 +64,7 @@ lower_case_table_names=1
 
 ===== Export
 
-This task can be accomplished either via admin console, CLI or by barely invoking the REST layer through
+This task can be accomplished either via the admin console, CLI or by barely invoking the REST layer through
 http://curl.haxx.se/[curl^], for example:
 
 ....
@@ -74,8 +74,9 @@ curl -X GET -u admin:password -o MasterContent.xml \
 
 ===== Import
 
-Basically, all you need to do is to replace the local `MasterContent.xml` with the one exported as explained above; but
-where such file located?
+Basically, all you need to do is to replace the local `MasterContent.xml` with the one exported as explained above; this
+file is located at:
+
 
 * `$TOMCAT_HOME/webapps/syncope/WEB-INF/classes/domains/MasterContent.xml` for Standalone
 * `/usr/share/tomcat8/webapps/syncope/WEB-INF/classes/domains/MasterContent.xml` for Debian packages

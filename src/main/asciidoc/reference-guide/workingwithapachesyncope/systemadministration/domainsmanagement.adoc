@@ -26,10 +26,10 @@ that the domain name is `Two`, such files are:
 * `domains/TwoContent.xml` - for content <<deal-with-internal-storage-export-import,initialization>>.
 
 When adding a new domain to an existing deployment it is possible to copy, rename and edit the files available for
-the `Master` dommain, always present.
+the `Master` domain, which is always present.
 
 [CAUTION]
 Adding a new domain requires re-deploying the <<core>> application and restarting the Java EE container.
 
-Once a new domain is added, the admin credentials for such domain can be set via admin console, CLI or
+Once a new domain is added, the admin credentials for such domain can be set via the admin console, CLI or
 barely invoking the REST layer through http://curl.haxx.se/[curl^].

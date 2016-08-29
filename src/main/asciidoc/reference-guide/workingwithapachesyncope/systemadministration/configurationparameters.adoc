@@ -32,8 +32,8 @@ frequently the pending <<tasks-notification,notification tasks>> are processed: 
 * `token.length` - the length of the random tokens that can be generated as part of various <<workflow,workflow>>
 processes, including <<password-reset,password reset>>;
 * `token.expireTime` - the time after which the generated random tokens expire;
-* `selfRegistration.allowed` - whether self-registration (tipically via the enduser application) is allowed;
-* `passwordReset.allowed` - whether the <<password-reset,password reset>> feature (tipically via the enduser
+* `selfRegistration.allowed` - whether self-registration (typically via the enduser application) is allowed;
+* `passwordReset.allowed` - whether the <<password-reset,password reset>> feature (typically via the enduser
 application) is allowed;
 * `passwordReset.securityQuestion` - whether the <<password-reset,password reset>> feature involves security questions;
 * `authentication.statuses` - the list of <<workflow,workflow>> statuses for which users are allowed to authenticate;
@@ -41,4 +41,4 @@ application) is allowed;
 * `tasks.interruptMaxRetries` - how many attempts shall be made when interrupting a running <<task,task>>;
 * `return.password.value` - whether the hashed password value shall be returned when reading users.
 
-Besides this default set, new configuration parameters can be define to support <<customization,custom>> code.
+Besides this default set, new configuration parameters can be defined to support <<customization,custom>> code.

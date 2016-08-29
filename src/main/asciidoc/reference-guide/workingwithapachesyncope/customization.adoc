@@ -19,14 +19,14 @@
 === Customization
 
 [CAUTION]
-Only Maven projects can be customized: if using Standalone, Debian packages or GUI installer, none of the customizations
+Only Maven projects can be customized: if using Standalone, Debian packages or the GUI installer, none of the customizations
 discussed below can be applied.
 
-Apache Syncope is conceived for being as much flexible as possible, to best suite the various environments
+Apache Syncope is designed to be as flexible as possible, to best suit the various environments
 in which it can be deployed. Besides other aspects, this means that every feature and component can be extended or
 replaced.
 
-Once created the project from the provided Maven archetype, the generated source tree is available for either adding
+Once the project has been created from the provided Maven archetype, the generated source tree is available for either adding
 new features or replacing existing components.
 
 [[override-behavior]]
@@ -63,19 +63,19 @@ endif::[]
 This general behavior might have exceptions, as highlighted below.
 ====
 
-As a general way to operate, the Embedded Mode (see the
+In general, the Embedded Mode (see the
 ifeval::["{backend}" == "html5"]
 http://syncope.apache.org/docs/getting-started.html[Apache Syncope Getting Started Guide]
 endif::[]
 ifeval::["{backend}" == "pdf"]
 http://syncope.apache.org/docs/getting-started.pdf[Apache Syncope Getting Started Guide]
 endif::[]
-for details) allows to work comfortably from a single workstation, with no need of additional setup; such mode is
+for details) allows the user to work comfortably from a single workstation, with no need of additional setup; it is
 effectively implemented as the `all`
 https://maven.apache.org/guides/introduction/introduction-to-profiles.html[Maven profile^], where the available optional
 components and extensions are enabled. +
 When deploying the generated WAR artifacts into an external <<javaee-container>> however, the required components and
-extensions need to be explicitly selected and enabled, as shown in the following.
+extensions need to be explicitly selected and enabled, as shown in the following text.
 
 [[deployment-directories]]
 .Deployment directories
@@ -83,7 +83,7 @@ extensions need to be explicitly selected and enabled, as shown in the following
 Apache Syncope needs three base directories to be defined:
 
 * bundles - where the <<external-resources,connector bundles>> are stored;
-* log - where all system logs are written;
+* log - where all the system logs are written;
 * conf (optional) - where configuration files are located, if overriding the default values is needed.
 
 [WARNING]
@@ -109,7 +109,7 @@ mvn clean verify \
   -Dlog.directory=/opt/syncope/log
 ....
 
-After downloading all of the needed dependencies, three WAR files will be produced:
+After downloading all of the dependencies that are needed, three WAR files will be produced:
 
 . `core/target/syncope.war`
 . `console/target/syncope-console.war`
@@ -170,20 +170,20 @@ https://github.com/apache/syncope/blob/master/ext/camel/rest-cxf/src/main/java/o
 endif::[]
 for reference.
 
-By following such conventions, the new REST endpoint will be automatically picked up alongside with default services.
+By following such conventions, the new REST endpoint will be automatically picked up alongside the default services.
 ====
 
 [WARNING]
 ====
 The <<override-behavior,override behavior>> might have exceptions; if you need to customize one of the
-Spring context definitions as 
+Spring context definitions. For example, if you want to customize 
 ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/spring/src/main/resources/securityContext.xml[securityContext.xml^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
 https://github.com/apache/syncope/blob/master/core/spring/src/main/resources/securityContext.xml[securityContext.xml^]
 endif::[]
-for example, you will also need to replace, in `core/src/main/webapp/WEB-INF/web.xml`,
+, you will also need to replace the following text in `core/src/main/webapp/WEB-INF/web.xml`,
 
 ....
 classpath*:/*Context.xml
@@ -290,7 +290,7 @@ The files in use by the Apache Wicket-based backend are still subject to the gen
 [[customization-extensions]]
 ==== Extensions
 
-<<extensions>> can be part of a local project, to encapsulate special features which are specific of a given deployment.
+<<extensions>> can be part of a local project, to encapsulate special features which are specific to a given deployment.
 
 For example, the http://www.chorevolution.eu/[CHOReVOLUTION^] IdM - based on Apache Syncope - provides
 https://tuleap.ow2.org/plugins/git/chorevolution/syncope?p=syncope.git&a=tree&f=ext/choreography[an extension^]

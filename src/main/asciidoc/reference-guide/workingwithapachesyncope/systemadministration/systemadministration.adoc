@@ -19,10 +19,10 @@
 === System Administration
 
 [[properties-files-location]]
-.Where are the configration files?
+.Where are the configuration files?
 ****
-Depending on which Apache Syncope distribution you are running on, the configuration files mentioned in the following
-might reside in different locations.
+Depending on which Apache Syncope distribution you are running, the configuration files mentioned in the following
+text might reside in different locations.
 
 Standalone:: Assuming that `$CATALINA_HOME` is the Apache Tomcat base directory created when the distribution archive
 was unzipped, the configuration files are located under
@@ -31,18 +31,18 @@ was unzipped, the configuration files are located under
 * `$CATALINA_HOME/webapps/syncope-console/WEB-INF/classes/`
 * `$CATALINA_HOME/webapps/syncope-enduser/WEB-INF/classes/`
 
-Debian packages:: The configuration files will be fist searched in `/etc/apache-syncope`, then under
+Debian packages:: The configuration files will be first searched in `/etc/apache-syncope`, then under
 
 * `/usr/share/tomcat8/webapps/syncope/WEB-INF/classes/`
 * `/usr/share/tomcat8/webapps/syncope-console/WEB-INF/classes/`
 * `/usr/share/tomcat8/webapps/syncope-enduser/WEB-INF/classes/`
 
-GUI installer:: Assuming that `$CONF_DIRECTORY` is the one selected from installer, the configuration files will be fist
+GUI installer:: Assuming that `$CONF_DIRECTORY` is the directory selected from the installer, the configuration files will be first
 searched in `$CONF_DIRECTORY`, then under the selected Java EE container's application classpath.
 
-Maven project:: Assuming that `$CONF_DIRECTORY` is the one passed among
+Maven project:: Assuming that `$CONF_DIRECTORY` is the directory passed among
 <<deployment-directories,deployment directories>> at build time and that `$SOURCE` is the path where the Maven project
-was generated, the configuration files will be fist searched in
+was generated, the configuration files will be first searched in
 `$CONF_DIRECTORY`, then under the selected Java EE container's application classpath, according to the content of
 
 * `$SOURCE/core/target/classes/`

@@ -82,7 +82,7 @@ quartz.sql=tables_mariadb_innodb.sql
 ....
 
 [WARNING]
-This assumes that the InnoDB engine is enabled in your MriaDB instance - if this is not the case, then change the value
+This assumes that the InnoDB engine is enabled in your MariaDB instance - if this is not the case, then change the value
 for `quartz.sql` to `tables_mariadb.sql`.
 
 In `domains/Master.properties` (for the `Master` domain):

@@ -26,7 +26,7 @@ interface for Activiti BPM, into any Apache Syncope artifact; thus, some manual 
 working Apache Syncope deployment, for use with the admin console.
 
 [WARNING]
-This procedure requires Apache Maven since it is using a fake project to perform all required setup tasks.
+This procedure requires Apache Maven since it is using a fake project to perform all of the required setup tasks.
 
 First of all, generate a new Maven project as described in the
 ifeval::["{backend}" == "html5"]
@@ -42,5 +42,5 @@ mvn -P all clean install
 ....
 
 At this point, copy the `console/target/activiti-modeler/` directory in the desired location of the host where the
-admin console is deployed, then set the value of `activitiModelerDirectory` with such path in the `console.properties`
+admin console is deployed, then set the value of `activitiModelerDirectory` with this path in the `console.properties`
 file.

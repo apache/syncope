@@ -18,7 +18,7 @@
 //
 ==== High-Availability
 
-When deploying multiple Apache Syncope instances insisting on a single database or database cluster, it is of
+When deploying multiple Apache Syncope instances with a single database or database cluster, it is of
 fundamental importance that the contained OpenJPA instances are correctly configured for
 http://openjpa.apache.org/builds/2.4.1/apache-openjpa/docs/ref_guide_event.html[remote event notification^]. +
 Such configuration, in fact, allows the OpenJPA data cache to remain synchronized when deployed in multiple JVMs, thus
