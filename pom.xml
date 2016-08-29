@@ -463,6 +463,10 @@ under the License.
     <rootpom.basedir>${basedir}</rootpom.basedir>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
+    <phantomjs.driver.version>1.2.0</phantomjs.driver.version>
+    <phantomjs.plugin.version>0.7</phantomjs.plugin.version>
+    <phantomjs.version>2.1.1</phantomjs.version>
+    
   </properties>
 
   <dependencyManagement>
@@ -1323,6 +1327,12 @@ under the License.
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
         <version>${junit.version}</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.github.detro</groupId>
+        <artifactId>phantomjsdriver</artifactId>
+        <version>${phantomjs.driver.version}</version>
         <scope>test</scope>
       </dependency>
     </dependencies>
