@@ -18,7 +18,6 @@
  */
 
 'use strict';
-
 angular.module('self')
         .directive('dynamicPlainAttribute', function ($filter) {
           return {
@@ -39,8 +38,9 @@ angular.module('self')
                     break;
                   case "Enum":
                     $scope.enumerationValues = [];
+
                     //SYNCOPE-911 empty value option on non required attributes 
-                    if(schema.mandatoryCondition != "true"){
+                    if (schema.mandatoryCondition !== "true") {
                       $scope.enumerationValues.push("");
                     }
                     var enumerationValuesSplitted = schema.enumerationValues.toString().split(";");
@@ -50,6 +50,7 @@ angular.module('self')
                     $scope.user.plainAttrs[schema.key].values[index] = $scope.user.plainAttrs[schema.key].values[index]
                             || $scope.enumerationValues[0];
                     break;
+
                   case "Binary":
                     $scope.userFile = $scope.userFile || '';
                     $element.bind("change", function (changeEvent) {
@@ -67,22 +68,20 @@ angular.module('self')
 
                     $scope.download = function () {
                       var byteString = atob($scope.user.plainAttrs[schema.key].values[index]);
-
                       var ab = new ArrayBuffer(byteString.length);
                       var ia = new Uint8Array(ab);
                       for (var i = 0; i < byteString.length; i++) {
                         ia[i] = byteString.charCodeAt(i);
                       }
-
                       var blob = new Blob([ia], {type: schema.mimeType});
-
                       saveAs(blob, schema.key);
                     };
-                    $scope.remove = function () {
+
+                    //file upload and preview                    
+                    $('#fileInput').on('fileclear', function () {
                       $scope.user.plainAttrs[schema.key].values.splice(index, 1);
-                      $scope.userFile = '';
-                      $("#fileInput").replaceWith($("#fileInput").clone(true));
-                    };
+                    });
+                    $scope.previewImg = $scope.user.plainAttrs[schema.key].values[index];
                     break;
 
                   case "Date":
@@ -189,7 +188,7 @@ angular.module('self')
 
                   case "Boolean":
                     $scope.user.plainAttrs[schema.key].values[index] =
-                            $scope.user.plainAttrs[schema.key].values[index] == "true" ? true : false;
+                            $scope.user.plainAttrs[schema.key].values[index] === "true" ? true : false;
                     break;
 
                 }
