@@ -420,6 +420,7 @@ under the License.
     <angular-ui-select.version>0.17.1</angular-ui-select.version>
     <angular-treasure-overlay-spinner.version>1.1.0</angular-treasure-overlay-spinner.version>
     <angular-translate.version>2.11.1</angular-translate.version>
+    <bootstrap-fileinput.version>4.3.4</bootstrap-fileinput.version>
     
     <ng-password-strength.version>0.2.1</ng-password-strength.version>
     <lodash.version>4.15.0</lodash.version>
@@ -1227,6 +1228,13 @@ under the License.
         <artifactId>angular-translate-storage-cookie</artifactId>
         <version>${angular-translate.version}</version>
       </dependency>      
+
+      <dependency>
+        <groupId>org.webjars.bower</groupId>
+        <artifactId>bootstrap-fileinput</artifactId>
+        <version>${bootstrap-fileinput.version}</version>
+      </dependency>      
+
       <dependency>
         <groupId>org.webjars.bower</groupId>
         <artifactId>ng-password-strength</artifactId>

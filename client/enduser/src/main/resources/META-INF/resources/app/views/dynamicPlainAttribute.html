@@ -72,22 +72,19 @@ under the License.
   </div>
 
   <div ng-switch-when="Binary" ng-init="initAttribute(schema, index)">
-    <!--<div enctype="multipart/form-data" accept-charset="UTF-8">-->
-    <div >
-      <input id="fileInput" type="file" ng-required="{{schema.mandatoryCondition}}"/>
-      <button type="button" title="Download file" class="fileButton btn btn-default btn-sm" ng-click="download()">
-        <i class="glyphicon glyphicon-download" ></i>
-      </button>
-      <button type="button" class="fileButton btn btn-default btn-sm" title="Remove file" ng-click="remove()">
-        <i class="glyphicon glyphicon-remove-sign" ></i>
-      </button>
-      <h4><span class="label label-primary" ng-model="userFile">{{userFile}}</span></h4>
-    </div>
-
+    <input file-input type="file" id="fileInput" name="fileInput">
+    <button type="button" title="Download file" class="fileButton btn btn-default btn-sm" ng-click="download()">
+      <i class="glyphicon glyphicon-download" ></i>
+    </button>
   </div>
+
   <input ng-switch-default class="form-control" type="text"
          ng-model="user.plainAttrs[schema.key].values[index]"
          ng-required="{{schema.mandatoryCondition}}" 
          ng-disabled="schema.readonly" ng-init="initAttribute(schema, index)"/>
-
 </div>
+
+
+
+
+
