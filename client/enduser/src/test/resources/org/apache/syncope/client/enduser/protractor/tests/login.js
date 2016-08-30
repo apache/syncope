@@ -17,9 +17,9 @@
  * under the License.
  */
 
-describe('syncope enduser login', function() {
+describe('syncope enduser login', function () {
 
-  it('login bellini', function() {
+  it('login bellini', function () {
     browser.get('http://localhost:9080/syncope-enduser/app/');
 
     element(by.model('credentials.username')).sendKeys('bellini');
@@ -28,5 +28,6 @@ describe('syncope enduser login', function() {
 
     expect(element(by.model('user.username')).getAttribute('value')).toEqual('bellini');
   });
+
 });
 
