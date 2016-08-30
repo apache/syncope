@@ -21,6 +21,7 @@ exports.config = {
 
         capabilities: {
           'browserName': 'phantomjs',
+          'phantomjs.binary.path': '@phantomjs.binary.path@',
           'phantomjs.ghostdriver.cli.args': ['--loglevel=DEBUG']
         },
 
