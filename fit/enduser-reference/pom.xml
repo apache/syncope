@@ -183,6 +183,7 @@ under the License.
       <plugin>
         <groupId>com.github.eirslett</groupId>
         <artifactId>frontend-maven-plugin</artifactId>
+        <version>1.0</version>
         <executions>
           <execution>
             <id>install node and npm</id>
@@ -220,15 +221,7 @@ under the License.
                 <argument>protractor</argument>                
               </arguments>
             </configuration>
-          </execution>          
-        </executions>
-      </plugin>
-      
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>exec-maven-plugin</artifactId>
-        <version>1.5.0</version>
-        <executions>
+          </execution>
           <execution>            
             <id>Install Agent</id>
             <phase>pre-integration-test</phase>
@@ -243,30 +236,25 @@ under the License.
                 <argument>update</argument>                             
               </arguments>
             </configuration>
-          </execution>          
-        </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>com.github.greengerong</groupId>
-        <artifactId>maven-ng-protractor</artifactId>
-        <version>0.0.2</version>        
-        <configuration>
-          <protractor>${enduser-test.dir}/nodejs/bin/protractor</protractor>
-          <beforeRunning>${project.basedir}/kill-chrome.bat</beforeRunning>
-          <configFile>${enduser-test.dir}/protractor-conf.js</configFile>          
-        </configuration>
-        <executions>
-          <execution>
-            <id>ng-protractor</id>
+          </execution>
+          <execution>            
+            <id>Execute Tests</id>
             <phase>integration-test</phase>
             <goals>
-              <goal>run</goal>
+              <goal>exec</goal>
             </goals>
-          </execution>
+            <configuration>
+              <skip>${skipTests}</skip>           
+              <executable>${enduser-test.dir}/nodejs/node/node</executable>
+              <arguments>
+                <argument>${enduser-test.dir}/nodejs/bin/protractor</argument>
+                <argument>${enduser-test.dir}/protractor-conf.js</argument>                             
+              </arguments>
+            </configuration>
+          </execution>                          
         </executions>
       </plugin>
-      
+            
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-failsafe-plugin</artifactId>
