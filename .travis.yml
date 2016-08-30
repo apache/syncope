@@ -32,4 +32,4 @@ after_failure:
   - cat fit/core/reference/target/failsafe-reports/org.apache.syncope.fit.*-output.txt
 notifications:
   email:
-    - dev@syncope.apache.org
+    - giacomolm@hotmail.it
