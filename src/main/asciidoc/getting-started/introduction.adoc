@@ -54,7 +54,7 @@ image::identityLifecycle.png[title="Identity Lifecycle",alt="Identity Lifecycle"
 ****
 With Apache Syncope 2.0.0, the managed identities are not limited anymore to Users and Groups. New object types can be
 defined so that Any Object's data can be managed through Syncope: workstations, printers, folders, sensors, services,
-and so on. This positions Apache Syncope at the forefront for bringing Identity Management in the IoT world.
+and so on. This positions Apache Syncope at the forefront for bringing Identity Management to the IoT world.
 ****
 
 === Identity and Access Management - Reference Scenario
@@ -62,7 +62,7 @@ and so on. This positions Apache Syncope at the forefront for bringing Identity 
 [.text-center]
 image::iam-scenario.png[title="IAM Scenario",alt="IAM Scenario"]
 
-The picture above shows the tecnologies involved in a complete IAM solution:
+The picture above shows the technologies involved in a complete IAM solution:
 
 * *_Identity Store_* (as RDBMS, LDAP, Active Directory, meta- and virtual-directories) - the repository for account data
 * *_Provisioning Engine_* - synchronizes account data across Identity Stores and a broad range of data formats, models, 
@@ -114,7 +114,7 @@ representation of Users, Groups and Any Objects. +
 This component often needs to be tailored to meet the requirements of a specific deployment, as it is the crucial decision 
 point for defining and enforcing the consistency and transformations between internal and external data. The default
 all-Java implementation can be extended for this purpose. In addition, an http://camel.apache.org/[Apache Camel^]-based 
-implementation is also available as extension, which brings all the power of runtime changes and adaptation.
+implementation is also available as an extension, which brings all the power of runtime changes and adaptation.
  * *_Workflow_*  is one of the pluggable aspects of Apache Syncope: this lets every deployment choose the preferred engine
 from a provided list - including the one based on http://www.activiti.org/[Activiti BPM^], the reference open source 
 http://www.bpmn.org/[BPMN 2.0^] implementation - or define new, custom ones. 
