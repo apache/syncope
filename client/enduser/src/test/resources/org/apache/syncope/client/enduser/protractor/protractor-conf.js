@@ -24,6 +24,8 @@ exports.config = {
           'phantomjs.binary.path': '@phantomjs.binary.path@',
           'phantomjs.ghostdriver.cli.args': ['--loglevel=DEBUG']
         },
+        
+        allScriptsTimeout: 41000,
 
         // Spec patterns are relative to the current working directly when protractor is called.
         specs: ['tests/*.js'],
