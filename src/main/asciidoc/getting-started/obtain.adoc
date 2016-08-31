@@ -424,7 +424,7 @@ Credentials: `admin` / `password`
 
 | External resource: LDAP
 | An http://directory.apache.org/apacheds/[Apache DS^] instance is available. +
-You can configure any LDAP client (as http://jxplorer.org/[JXplorer^], for example) with the following information: +
+You can configure any LDAP client (such as http://jxplorer.org/[JXplorer^], for example) with the following information: +
  +
  host: `localhost` +
  port: `1389` +

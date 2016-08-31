@@ -61,11 +61,11 @@ public abstract class AbstractBaseResource extends AbstractResource {
     }
 
     protected final boolean captchaCheck(final String enteredCaptcha, final Object currentCaptcha) {
-        String toCheck = currentCaptcha.toString();
+
         return SyncopeEnduserApplication.get().isCaptchaEnabled()
-                ? StringUtils.isBlank(toCheck) || enteredCaptcha == null
+                ? StringUtils.isBlank(currentCaptcha.toString()) || enteredCaptcha == null
                 ? false
-                : enteredCaptcha.equals(toCheck)
+                : enteredCaptcha.equals(currentCaptcha.toString())
                 : true;
     }
 }
