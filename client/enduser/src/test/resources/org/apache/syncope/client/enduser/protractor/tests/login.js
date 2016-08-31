@@ -27,6 +27,8 @@ describe('syncope enduser login', function () {
     element(by.id('login-btn')).click();
 
     expect(element(by.model('user.username')).getAttribute('value')).toEqual('bellini');
+    
+    element(by.id('logout')).click();
   });
 
 });

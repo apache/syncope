@@ -22,30 +22,42 @@ describe('syncope enduser user creation', function () {
   it('create donizetti', function () {
     browser.get('http://localhost:9080/syncope-enduser/app/');
 
+    browser.wait(element(by.id('register')).isPresent());
     element(by.id('register')).click();
-    
+
     element(by.model('user.username')).sendKeys('donizetti');
     element(by.model('user.password')).sendKeys('Password123');
     element(by.model('confirmPassword.value')).sendKeys('Password123');
-    
+
     element.all(by.id('next')).first().click();
-    
+
     element.all(by.id('next')).first().click();
-    
+
     element.all(by.name('fullname')).first().sendKeys('Gaetano Donizetti');
     element.all(by.name('userId')).first().sendKeys('donizetti@apache.org');
     element.all(by.name('firstname')).first().sendKeys('Gaetano');
     element.all(by.name('surname')).first().sendKeys('Donizetti');
-    
+
     element.all(by.id('next')).first().click();
-    
+
     element.all(by.id('next')).first().click();
-    
+
     element.all(by.id('next')).first().click();
-    
+
     element.all(by.id('next')).first().click();
-    
+
     element(by.id('save')).click();
+    
+    browser.wait(element(by.id('redirect')).isPresent());    
+    element(by.id('redirect')).click();
+
+    element(by.model('credentials.username')).sendKeys('donizetti');
+    element(by.model('credentials.password')).sendKeys('Password123');
+    element(by.id('login-btn')).click();
+
+    expect(element(by.model('user.username')).getAttribute('value')).toEqual('donizetti');
+    
+    element(by.id('logout')).click();
 
   });
 
