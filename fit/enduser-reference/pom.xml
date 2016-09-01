@@ -171,9 +171,7 @@ under the License.
                 </copy>
                 <replace file="${enduser-test.dir}/protractor-conf.js" 
                          token="@phantomjs.binary.path@" value="${phantomjs.binary}"/>
-                <copy file="${basedir}/src/test/resources/userWorkflow.bpmn20.xml" 
-                      tofile="${basedir}/../core-reference/target/syncope-fit-core-reference-${project.version}/WEB-INF/classes/userWorkflow.bpmn20.xml" 
-                      overwrite="true" />
+                <delete file="${basedir}/../core-reference/target/syncope-fit-core-reference-${project.version}/WEB-INF/classes/userWorkflow.bpmn20.xml"/>
               </target>
             </configuration>
             <goals>
