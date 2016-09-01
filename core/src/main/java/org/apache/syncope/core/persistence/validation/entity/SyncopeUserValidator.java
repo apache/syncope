@@ -74,7 +74,8 @@ public class SyncopeUserValidator extends AbstractValidator<SyncopeUserCheck, Sy
                 }
 
                 // update user's password history with encrypted password
-                if (maxPPSpecHistory > 0 && object.getPassword() != null) {
+                if (maxPPSpecHistory > 0 && object.getPassword() != null
+                        && !object.getPasswordHistory().contains(object.getPassword())) {
                     object.getPasswordHistory().add(object.getPassword());
                 }
                 // keep only the last maxPPSpecHistory items in user's password history
