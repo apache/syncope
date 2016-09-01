@@ -25,7 +25,7 @@ exports.config = {
           'phantomjs.ghostdriver.cli.args': ['--loglevel=DEBUG']
         },
         
-        allScriptsTimeout: 41000,
+        allScriptsTimeout: 121000,
 
         // Spec patterns are relative to the current working directly when protractor is called.
         specs: ['tests/*.js'],
