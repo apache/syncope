@@ -1824,19 +1824,25 @@ under the License.
         <plugins>
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-source-plugin</artifactId>
-            <version>3.0.1</version>
-            <configuration>
-              <excludes>
-                <exclude>**/ide/eclipse/**/lib/**</exclude>
-              </excludes>
-            </configuration>
+            <artifactId>maven-assembly-plugin</artifactId>
             <executions>
               <execution>
-                <id>attach-sources</id>
+                <id>source-release-assembly</id>
+                <phase>none</phase>
+              </execution>
+              <execution>
+                <id>source-release-assembly-no-eclipse-libs</id>
+                <phase>package</phase>
                 <goals>
-                  <goal>jar-no-fork</goal>
+                  <goal>single</goal>
                 </goals>
+                <configuration>
+                  <runOnlyAtExecutionRoot>true</runOnlyAtExecutionRoot>
+                  <descriptors>
+                    <descriptor>src/assemble/${sourceReleaseAssemblyDescriptor}.xml</descriptor>
+                  </descriptors>
+                  <tarLongFileMode>gnu</tarLongFileMode>
+                </configuration>
               </execution>
             </executions>
           </plugin>
