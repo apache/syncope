@@ -18,6 +18,10 @@
 //
 ==== DBMS
 
+[CAUTION]
+The changes reported below to support different DBMSes are not complete files, but only show the lines that need to be
+updated.
+
 ===== PostgreSQL
 
 In `provisioning.properties`:
