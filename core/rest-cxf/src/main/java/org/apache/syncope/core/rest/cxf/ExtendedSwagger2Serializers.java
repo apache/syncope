@@ -129,7 +129,8 @@ public class ExtendedSwagger2Serializers extends SwaggerSerializers implements S
                     ClassResourceInfo cri = operations.get(entry.getKey());
 
                     tag = new Tag();
-                    tag.setName(cri.getURITemplate().getValue());
+                    String tagName = StringUtils.removeStart(cri.getURITemplate().getValue(), "/");
+                    tag.setName(StringUtils.isEmpty(tagName) ? "_" : tagName);
                     if (javadocProvider != null) {
                         tag.setDescription(javadocProvider.getClassDoc(cri));
                     }

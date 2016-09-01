@@ -351,7 +351,7 @@ under the License.
 
     <camel.version>2.17.3</camel.version>	
 
-    <jackson.version>2.8.1</jackson.version>
+    <jackson.version>2.8.2</jackson.version>
 
     <spring.version>4.3.2.RELEASE</spring.version>
     <spring-security.version>4.1.3.RELEASE</spring-security.version>
@@ -393,8 +393,8 @@ under the License.
     <activiti-modeler.directory>${project.build.directory}/activiti-modeler</activiti-modeler.directory>
 
     <swagger-core.version>1.5.10</swagger-core.version>    
-    <swagger-ui.version>2.2.0</swagger-ui.version>
-        
+    <swagger-ui.version>2.2.2</swagger-ui.version>
+
     <jquery.version>2.2.4</jquery.version>
     <jquery-ui.version>1.11.4</jquery-ui.version>
     <jquery-slimscroll.version>1.3.8</jquery-slimscroll.version>
@@ -402,6 +402,7 @@ under the License.
     
     <bootstrap.version>3.3.7</bootstrap.version>
     <bootstrap-select.version>1.7.3</bootstrap-select.version>
+    <bootstrap-fileinput.version>4.3.4</bootstrap-fileinput.version>
     <bootbox.version>4.4.0</bootbox.version>
     <font-awesome.version>4.6.3</font-awesome.version>
     <ionicons.version>2.0.1</ionicons.version>
@@ -420,7 +421,6 @@ under the License.
     <angular-ui-select.version>0.17.1</angular-ui-select.version>
     <angular-treasure-overlay-spinner.version>1.1.0</angular-treasure-overlay-spinner.version>
     <angular-translate.version>2.11.1</angular-translate.version>
-    <bootstrap-fileinput.version>4.3.4</bootstrap-fileinput.version>
     
     <ng-password-strength.version>0.2.1</ng-password-strength.version>
     <lodash.version>4.15.0</lodash.version>
@@ -695,6 +695,16 @@ under the License.
         <groupId>com.fasterxml.jackson.dataformat</groupId>
         <artifactId>jackson-dataformat-xml</artifactId>
         <version>${jackson.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.codehaus.woodstox</groupId>
+            <artifactId>stax2-api</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>com.fasterxml.woodstox</groupId>
+            <artifactId>woodstox-core</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
 
       <dependency>
@@ -1113,6 +1123,21 @@ under the License.
         <version>${bootstrap-select.version}</version>
       </dependency>
       <dependency>
+        <groupId>org.webjars.bower</groupId>
+        <artifactId>bootstrap-fileinput</artifactId>
+        <version>${bootstrap-fileinput.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.webjars.bower</groupId>
+            <artifactId>jquery</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.webjars.bower</groupId>
+            <artifactId>bootstrap</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>      
+      <dependency>
         <groupId>org.webjars</groupId>
         <artifactId>font-awesome</artifactId>
         <version>${font-awesome.version}</version>
@@ -1224,12 +1249,6 @@ under the License.
         <groupId>org.webjars.bower</groupId>
         <artifactId>angular-translate-storage-cookie</artifactId>
         <version>${angular-translate.version}</version>
-      </dependency>      
-
-      <dependency>
-        <groupId>org.webjars.bower</groupId>
-        <artifactId>bootstrap-fileinput</artifactId>
-        <version>${bootstrap-fileinput.version}</version>
       </dependency>      
 
       <dependency>
@@ -1468,7 +1487,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-war-plugin</artifactId>
-          <version>2.6</version>
+          <version>3.0.0</version>
           <configuration>
             <webResources>
               <resource>
