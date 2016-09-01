@@ -17,19 +17,7 @@
  * under the License.
  */
 
-describe('syncope enduser login', function () {
+var abstract = require('./abstract.js');
 
-  it('login bellini', function () {
-    browser.get('http://localhost:9080/syncope-enduser/app/');
-
-    element(by.model('credentials.username')).sendKeys('bellini');
-    element(by.model('credentials.password')).sendKeys('password');
-    element(by.id('login-btn')).click();
-
-    expect(element(by.model('user.username')).getAttribute('value')).toEqual('bellini');
-    
-    element(by.id('logout')).click();
-  });
-
-});
+abstract.doLogin("bellini", "password");
 
