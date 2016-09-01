@@ -2,6 +2,61 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 2.0.0.M5
+================================================================================
+** Sub-task
+    * [SYNCOPE-809] - Eclipse plugin
+
+** Bug
+    * [SYNCOPE-872] - Type extensions not considered for user form
+    * [SYNCOPE-878] - Failure on bulk deletion of users
+    * [SYNCOPE-879] - Auto-completion not working for internal and external attribute names
+    * [SYNCOPE-881] - Users not removed from transitive external resources when deleted
+    * [SYNCOPE-883] - Can't access REST API via browser
+    * [SYNCOPE-884] - Error in REST API when specifying application/xml accept header
+    * [SYNCOPE-886] - Error enablig/disabling user on a single resource
+    * [SYNCOPE-887] - Hidden password in pull task user template
+    * [SYNCOPE-888] - No error thrown if resource mapping internal attribute doesn't exist
+    * [SYNCOPE-891] - Resource Provisioning Error
+    * [SYNCOPE-892] - RuntimeException when resizing tables
+    * [SYNCOPE-893] - International characters in group name
+    * [SYNCOPE-898] - Cannot set realm in user / group / any object templates for pull task
+    * [SYNCOPE-899] - neighborhood relationship type has no description
+    * [SYNCOPE-900] - Can't edit Camel routes in Console
+    * [SYNCOPE-901] - Syncope 2.0.0.X maven source artifacts missing
+    * [SYNCOPE-905] - Wrong entitlement evaluation
+    * [SYNCOPE-907] - Creating any object with relationship to another results in self-relationship
+    * [SYNCOPE-908] - Exception when searching for any object to fill relationship
+    * [SYNCOPE-911] - Enduser should allow empty values on non required select fields
+    * [SYNCOPE-912] - Registered users receive an error message after saving their own profile
+    * [SYNCOPE-915] - When changing connector's display name, the topology is not refreshed
+    * [SYNCOPE-916] - Content exporter includes unwanted items
+    * [SYNCOPE-918] - When a user has been successfully updated, logout link doesn't bring back to home page.
+    * [SYNCOPE-921] - Approval list not reloaded after approve/reject operations
+    * [SYNCOPE-923] - Sync / Pull task not configured for delete causes incremental sync to prematurely stop
+    * [SYNCOPE-927] - User creation randomly fails if capctha check has been disabled
+    * [SYNCOPE-928] -  Table that stores user passwords store duplicate entries
+
+** Improvement
+    * [SYNCOPE-700] - Documentation artifacts
+    * [SYNCOPE-854] - Uploaded file preview for enduser
+    * [SYNCOPE-894] - Allow international characters in username, group's and any object's names
+    * [SYNCOPE-895] - Enable Secure Processing on all DocumentBuilderFactory/TransfomerFactory instances
+    * [SYNCOPE-896] - Non-mandatory DropDown attributes should show a blank value when no value is specified
+    * [SYNCOPE-902] - Provide helper method to retrieve all the groups of a user
+    * [SYNCOPE-906] - Allow reference to username and group / any object name as search parameters
+    * [SYNCOPE-909] - Consolidate Camel Processors
+    * [SYNCOPE-910] - Introduce new Camel propagation component
+    * [SYNCOPE-913] - Add and remove buttons in multivalue fields are not aligned
+    * [SYNCOPE-914] - Spinner should be always in front of any other element
+    * [SYNCOPE-919] - Adjust activiti user workflow to be able to remove users in createApproval status
+    * [SYNCOPE-920] - Allow to specify recipients provider class for notifications
+    * [SYNCOPE-925] - Allow domain selection from Swagger UI
+
+** Wish
+    * [SYNCOPE-885] - Skip configuration screen if no applicable values
+    * [SYNCOPE-890] - Display information on "Enable Realm Provisioning"
+
 Release Notes - Syncope - Version 2.0.0-M4
 ================================================================================
 
