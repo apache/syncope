@@ -101,6 +101,9 @@
         <exclude>
           ide/eclipse/bundles/org.apache.syncope.ide.eclipse.plugin/lib/**
         </exclude>        
+        <exclude>
+          ide/eclipse/bundles/org.apache.syncope.ide.eclipse.plugin/bin/**
+        </exclude>        
       </excludes>
     </fileSet>
     <!--  license, readme, etc. calculated at build time  -->
