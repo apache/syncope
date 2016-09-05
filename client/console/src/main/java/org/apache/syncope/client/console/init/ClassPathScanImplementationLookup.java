@@ -25,7 +25,6 @@ import java.util.Comparator;
 import java.util.List;
 import org.apache.commons.collections4.ComparatorUtils;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.pages.BaseExtPage;
 import org.apache.syncope.client.console.annotations.BinaryPreview;
 import org.apache.syncope.client.console.annotations.ExtPage;
@@ -51,6 +50,8 @@ public class ClassPathScanImplementationLookup {
     private List<Class<? extends BaseExtPage>> extPages;
 
     private List<Class<? extends BaseExtWidget>> extWidgets;
+    
+    private final String basePackage = "org.apache.syncope.client.console";
 
     @SuppressWarnings("unchecked")
     public void load() {
@@ -65,7 +66,7 @@ public class ClassPathScanImplementationLookup {
         scanner.addIncludeFilter(new AssignableTypeFilter(BaseExtPage.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(BaseExtWidget.class));
 
-        for (BeanDefinition bd : scanner.findCandidateComponents(StringUtils.EMPTY)) {
+        for (BeanDefinition bd : scanner.findCandidateComponents(basePackage)) {
             try {
                 Class<?> clazz = ClassUtils.resolveClassName(
                         bd.getBeanClassName(), ClassUtils.getDefaultClassLoader());
@@ -161,5 +162,13 @@ public class ClassPathScanImplementationLookup {
     public List<Class<? extends BaseExtWidget>> getExtWidgetClasses() {
         return extWidgets;
     }
-
+    
+    /**
+     * This method can be overridden by subclasses to customize classpath scan.
+     *
+     * @return basePackage for syncope class classpath scanning
+     */
+    protected String getBasePackage() {
+        return basePackage;
+    }
 }

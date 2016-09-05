@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
 import org.apache.syncope.common.lib.report.ReportletConf;
@@ -72,6 +71,8 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
     private Map<Class<? extends AccountRuleConf>, Class<? extends AccountRule>> accountRuleClasses;
 
     private Map<Class<? extends PasswordRuleConf>, Class<? extends PasswordRule>> passwordRuleClasses;
+    
+    private final String basePackage = "org.apache.syncope.core";
 
     @Override
     public Integer getPriority() {
@@ -105,7 +106,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
         scanner.addIncludeFilter(new AssignableTypeFilter(Validator.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(NotificationRecipientsProvider.class));
 
-        for (BeanDefinition bd : scanner.findCandidateComponents(StringUtils.EMPTY)) {
+        for (BeanDefinition bd : scanner.findCandidateComponents(basePackage)) {
             try {
                 Class<?> clazz = ClassUtils.resolveClassName(
                         bd.getBeanClassName(), ClassUtils.getDefaultClassLoader());
@@ -225,4 +226,12 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
         return passwordRuleClasses.get(passwordRuleConfClass);
     }
 
+    /**
+     * This method can be overridden by subclasses to customize classpath scan.
+     *
+     * @return basePackage for syncope class classpath scanning
+     */
+    protected String getBasePackage() {
+        return basePackage;
+    }
 }
