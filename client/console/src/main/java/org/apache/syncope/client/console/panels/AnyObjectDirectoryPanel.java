@@ -169,8 +169,7 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
                         @Override
                         public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
                             final IModel<AnyWrapper<AnyObjectTO>> formModel = new CompoundPropertyModel<>(
-                                    new AnyWrapper<>(
-                                            model.getObject()));
+                                    new AnyWrapper<>(model.getObject()));
                             altDefaultModal.setFormModel(formModel);
 
                             target.add(altDefaultModal.setContent(new AnyStatusModal<>(
