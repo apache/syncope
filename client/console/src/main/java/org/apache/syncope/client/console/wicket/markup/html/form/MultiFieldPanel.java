@@ -23,7 +23,6 @@ import java.util.List;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
@@ -32,17 +31,13 @@ public abstract class MultiFieldPanel<E extends Serializable> extends AbstractMu
 
     private static final long serialVersionUID = -6322397761456513324L;
 
-    private final FieldPanel<? extends Serializable> panelTemplate;
-
     private MultiFieldPanel(
             final String id,
             final String name,
             final IModel<List<E>> model,
-            final FieldPanel<? extends Serializable> panelTemplate,
             final boolean eventTemplate) {
 
         super(id, name, model, eventTemplate);
-        this.panelTemplate = panelTemplate;
     }
 
     public static class Builder<E extends Serializable> implements Serializable {
@@ -79,7 +74,7 @@ public abstract class MultiFieldPanel<E extends Serializable> extends AbstractMu
         }
 
         public MultiFieldPanel<E> build(final String id, final String name, final FieldPanel<E> panelTemplate) {
-            return new MultiFieldPanel<E>(id, name, model, panelTemplate, eventTemplate) {
+            return new MultiFieldPanel<E>(id, name, model, eventTemplate) {
 
                 private static final long serialVersionUID = 6600411297376841521L;
 
@@ -103,7 +98,6 @@ public abstract class MultiFieldPanel<E extends Serializable> extends AbstractMu
 
                             @Override
                             protected void onUpdate(final AjaxRequestTarget target) {
-                                send(getPage(), Broadcast.BREADTH, new MultiValueSelectorEvent(target));
                             }
                         });
                     }

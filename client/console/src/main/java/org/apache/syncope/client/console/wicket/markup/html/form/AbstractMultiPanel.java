@@ -24,7 +24,6 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.wicket.ajax.markup.html.IndicatorAjaxSubmitLink;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
@@ -134,19 +133,6 @@ public abstract class AbstractMultiPanel<INNER> extends AbstractFieldPanel<List<
         return this;
     }
 
-    public static class MultiValueSelectorEvent {
-
-        private final AjaxRequestTarget target;
-
-        public MultiValueSelectorEvent(final AjaxRequestTarget target) {
-            this.target = target;
-        }
-
-        public AjaxRequestTarget getTarget() {
-            return target;
-        }
-    }
-
     protected abstract INNER newModelObject();
 
     private final class InnerView extends ListView<INNER> {
@@ -185,10 +171,6 @@ public abstract class AbstractMultiPanel<INNER> extends AbstractFieldPanel<List<
                     }
 
                     target.add(container);
-
-                    if (eventTemplate) {
-                        send(getPage(), Broadcast.BREADTH, new MultiValueSelectorEvent(target));
-                    }
                 }
 
                 @Override
