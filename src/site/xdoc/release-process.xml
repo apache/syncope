@@ -165,6 +165,20 @@ under the License.
 git push]]></source>
           </li>
           <li>
+            From <tt>$SYNCOPE_RELEASE_DIR</tt>, update
+            <ol>
+              <li>
+                <tt>ide/eclipse/bundles/org.apache.syncope.ide.eclipse.plugin/META-INF/MANIFEST.MF</tt>
+              </li>
+              <li>
+                <tt>ide/eclipse/bundles/org.apache.syncope.ide.eclipse.tests/META-INF/MANIFEST.MF</tt>
+              </li>
+            </ol>
+            with <tt>$VERSION</tt> under <tt>Bundle-Version</tt>, then commit and push:
+            <source><![CDATA[git commit -a -m "Updating MANIFEST.MF files for release"
+git push]]></source>
+          </li>
+          <li>
             From <tt>$SYNCOPE_SITE_DIR</tt>, update the <tt>src/site/xdoc/downloads.xml</tt> 
             site page by changing the relevant URLs, then commit and push:
             <source><![CDATA[git commit -m "Updating downloads site page for release" src/site/xdoc/downloads.xml
@@ -240,6 +254,20 @@ gpg: Signature made ...]]></source>
 cd ..
 tar -czf $VERSION.tar.gz $VERSION/
 cd $VERSION]]></source>
+          </li>
+          <li>
+            Set the updated version for next development iteration (as provided above to <tt>release:prepare</tt>) in
+            <ol>
+              <li>
+                <tt>ide/eclipse/bundles/org.apache.syncope.ide.eclipse.plugin/META-INF/MANIFEST.MF</tt>
+              </li>
+              <li>
+                <tt>ide/eclipse/bundles/org.apache.syncope.ide.eclipse.tests/META-INF/MANIFEST.MF</tt>
+              </li>
+            </ol>
+            under <tt>Bundle-Version</tt>, then commit and push:
+            <source><![CDATA[git commit -a -m "Updating MANIFEST.MF files for next development iteration"
+git push]]></source>            
           </li>
         </ol>
       </subsection>
