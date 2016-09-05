@@ -464,6 +464,12 @@ under the License.
     <rootpom.basedir>${basedir}</rootpom.basedir>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
+    <phantomjs.driver.version>1.2.0</phantomjs.driver.version>
+    <phantomjs.version>2.1.1</phantomjs.version>
+    
+    <nodejs.version>v5.3.0</nodejs.version>    
+    <npm.version>3.3.12</npm.version>        
+    
   </properties>
 
   <dependencyManagement>
@@ -1352,6 +1358,12 @@ under the License.
         <version>${junit.version}</version>
         <scope>test</scope>
       </dependency>
+      <dependency>
+        <groupId>com.github.detro</groupId>
+        <artifactId>phantomjsdriver</artifactId>
+        <version>${phantomjs.driver.version}</version>
+        <scope>test</scope>
+      </dependency>
     </dependencies>
       
   </dependencyManagement>
@@ -1602,7 +1614,23 @@ under the License.
           <groupId>org.eclipse.tycho</groupId>
           <artifactId>tycho-surefire-plugin</artifactId>
           <version>${tycho-version}</version>
-        </plugin>             
+        </plugin>
+        
+        <plugin>
+          <groupId>com.github.klieber</groupId>
+          <artifactId>phantomjs-maven-plugin</artifactId>
+          <version>0.7</version>
+        </plugin>      
+        <plugin>
+          <groupId>com.github.eirslett</groupId>
+          <artifactId>frontend-maven-plugin</artifactId>
+          <version>1.0</version>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>exec-maven-plugin</artifactId>
+          <version>1.5.0</version>
+        </plugin>
       </plugins>
     </pluginManagement>
 
