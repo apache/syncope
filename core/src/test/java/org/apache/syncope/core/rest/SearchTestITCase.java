@@ -216,4 +216,17 @@ public class SearchTestITCase extends AbstractTest {
 
         assertTrue(matchedUsers.getResult().size() > usersWithType.size());
     }
+
+    @Test
+    public void issueSYNCOPE929() {
+        PagedResult<UserTO> matchingUsers = userService.search(
+                "(surname==Rossini,gender==M);surname==Bellini");
+
+        assertNotNull(matchingUsers);
+
+        assertFalse(matchingUsers.getResult().isEmpty());
+        for (UserTO user : matchingUsers.getResult()) {
+            assertTrue(user.getUsername().startsWith("bellini"));
+        }
+    }
 }
