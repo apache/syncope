@@ -61,15 +61,6 @@ public class ExtendedSwagger2Serializers extends SwaggerSerializers implements S
 
     protected List<ClassResourceInfo> cris;
 
-    protected final List<String> domains = new ArrayList<>();
-
-    public ExtendedSwagger2Serializers() {
-        super();
-
-        domains.addAll(ApplicationContextProvider.getApplicationContext().
-                getBean(DomainsHolder.class).getDomains().keySet());
-    }
-
     @Override
     public void setDynamicBasePath(final boolean dynamicBasePath) {
         this.dynamicBasePath = dynamicBasePath;
@@ -108,6 +99,10 @@ public class ExtendedSwagger2Serializers extends SwaggerSerializers implements S
         }
 
         if (replaceTags || javadocProvider != null) {
+            List<String> domains = new ArrayList<>(
+                    ApplicationContextProvider.getApplicationContext().
+                    getBean(DomainsHolder.class).getDomains().keySet());
+
             Map<String, ClassResourceInfo> operations = new HashMap<>();
             Map<Pair<String, String>, OperationResourceInfo> methods = new HashMap<>();
             for (ClassResourceInfo cri : cris) {
