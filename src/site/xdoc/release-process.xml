@@ -543,8 +543,9 @@ svn commit -m "Cleaning up older releases"]]></source>
             wiki page based on the HTML release reports from JIRA
           </li>
           <li>
-            Update the <a href="https://cwiki.apache.org/confluence/display/SYNCOPE/Create+a+new+Syncope+project">Create
-              new project</a> wiki page to point to the new release artifacts
+            (if releasing from <tt>1_2_X</tt>) Update the
+            <a href="https://cwiki.apache.org/confluence/display/SYNCOPE/Create+a+new+Syncope+project">Create
+            new project</a> wiki page to point to the new release artifacts
           </li>
           <li>
             Update the <a href="https://issues.apache.org/jira/plugins/servlet/project-config/SYNCOPE/versions">JIRA 
