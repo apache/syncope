@@ -19,6 +19,7 @@
 package org.apache.syncope.core.provisioning.java.job;
 
 import java.util.Date;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttr;
@@ -30,71 +31,76 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 public class IdentityRecertification extends AbstractSchedTaskJobDelegate {
 
-    @Autowired
-    private UserDAO userDao;
+    private static final String RECERTIFICATION_TIME = "identity.recertification.day.interval";
 
-    @Autowired 
-    private UserWorkflowAdapter engine;
-    
     @Autowired
     private ConfDAO confDAO;
 
-    private long recertificationTimeLong = -1;
+    @Autowired
+    private UserDAO userDAO;
 
-    public static final String RECERTIFICATION_TIME = "identity.recertification.day.interval";
+    @Autowired
+    private UserWorkflowAdapter uwfAdapter;
+
+    private long recertificationTime = -1;
+
+    protected void init() {
+        synchronized (this) {
+            if (recertificationTime == -1) {
+                CPlainAttr recertificationTimeAttr = confDAO.find(RECERTIFICATION_TIME);
+                if (recertificationTimeAttr == null
+                        || recertificationTimeAttr.getValues().get(0).getLongValue() == null) {
+
+                    recertificationTime = -1;
+                    return;
+                }
+
+                recertificationTime = recertificationTimeAttr.getValues().get(0).getLongValue() * 1000 * 60 * 60 * 24;
+            }
+        }
+    }
+
+    protected boolean isToBeRecertified(final User user) {
+        Date lastCertificationDate = user.getLastRecertification();
+
+        if (lastCertificationDate != null) {
+            if (lastCertificationDate.getTime() + recertificationTime < System.currentTimeMillis()) {
+                LOG.debug("{} is to be recertified", user);
+                return true;
+            } else {
+                LOG.debug("{} do not need to be recertified", user);
+                return false;
+            }
+        }
+
+        return true;
+    }
 
     @Override
     protected String doExecute(final boolean dryRun) throws JobExecutionException {
+        LOG.info("IdentityRecertification {} running [SchedTask {}]", (dryRun
+                ? "dry "
+                : ""), task.getKey());
 
-        LOG.info("TestIdentityRecertification {} running [SchedTask {}]", (dryRun
-              ? "dry "
-              : ""), task.getKey());
         init();
-
-        if (recertificationTimeLong == -1) {
+        if (recertificationTime == -1) {
             LOG.debug("Identity Recertification disabled");
-            return ("IDENTITY RECERT DISABLED");
+            return ("IDENTITY RECERTIFICATION DISABLED");
         }
 
-        for (User u :userDao.findAll()) {
-            LOG.debug("Processing user: {}", u.getUsername());
+        for (User user : userDAO.findAll()) {
+            LOG.debug("Processing user: {}", user.getUsername());
 
-            if (u.getWorkflowId() != null && !u.getWorkflowId().equals("")
-                    && toBeRecertified(u) && !dryRun) {
-                engine.requestCertify(u);
+            if (StringUtils.isNotBlank(user.getWorkflowId()) && isToBeRecertified(user) && !dryRun) {
+                uwfAdapter.requestCertify(user);
             } else {
-                LOG.warn("Workflow for user: {} is null or empty", u.getUsername());
+                LOG.warn("Workflow for {} is null or empty", user);
             }
         }
 
         return (dryRun
                 ? "DRY "
                 : "") + "RUNNING";
-    }
-
-    public void init() {
-        CPlainAttr recertificationTime = confDAO.find(RECERTIFICATION_TIME);
-        if (recertificationTime == null || recertificationTime.getValues().get(0).getLongValue() == null) {
-            recertificationTimeLong = -1;
-            return;
-        }
-        recertificationTimeLong = recertificationTime.getValues().get(0).getLongValue() * 1000 * 60 * 60 * 24;
-    }
-
-    public boolean toBeRecertified(final User user) {
-
-        Date lastCertificationDate = user.getLastRecertification();
-
-        if (lastCertificationDate != null) {
-            if (lastCertificationDate.getTime() + recertificationTimeLong < System.currentTimeMillis()) {
-                LOG.debug("User:  {}  to be recertified", user.getUsername());
-                return true;
-            } else {
-                LOG.debug("User: {} do not needs to be recertified", user.getUsername());
-                return false;
-            }
-        }
-        return true;
     }
 
     @Override

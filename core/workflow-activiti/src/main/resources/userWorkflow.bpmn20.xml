@@ -83,7 +83,7 @@ under the License.
     <serviceTask id="delete" name="Delete" activiti:expression="#{delete.execute(execution.processInstanceId)}"/>
     <sequenceFlow id="flow99" sourceRef="delete" targetRef="theEnd"/>
     <!-- Recertification tasks -->
-    <userTask id="RecertificationRequest" name="Recertification Request" activiti:formKey="recertify">
+    <userTask id="recertificationRequest" name="Recertification Request" activiti:formKey="recertify">
       <extensionElements>
         <activiti:formProperty id="fullname" name="Identity" type="string" expression="${user.getPlainAttr('fullname').getUniqueValue().getStringValue()}" writable="false"/> 
         <activiti:formProperty id="username" name="Username" type="string" expression="${user.username}" writable="false"/>
@@ -92,11 +92,11 @@ under the License.
       </extensionElements>
     </userTask>
     <serviceTask id="recertify-task" name="Recertify" activiti:expression="#{recertify.execute(execution.processInstanceId)}"/>
-    <sequenceFlow id="recert-request-start-flow" sourceRef="activeGw" targetRef="RecertificationRequest">
+    <sequenceFlow id="recert-request-start-flow" sourceRef="activeGw" targetRef="recertificationRequest">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${task == 'request-certify'}]]></conditionExpression>
     </sequenceFlow>
     <exclusiveGateway id="recert-condition"/>
-    <sequenceFlow id="recert-flow1" sourceRef="RecertificationRequest" targetRef="recertify-task"/>
+    <sequenceFlow id="recert-flow1" sourceRef="recertificationRequest" targetRef="recertify-task"/>
     <sequenceFlow id="recert-flow2" sourceRef="recertify-task" targetRef="recert-condition"/>
     <sequenceFlow id="recert-approved-flow" sourceRef="recert-condition" targetRef="active">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${approve}]]></conditionExpression>
@@ -110,19 +110,16 @@ under the License.
   
   <bpmndi:BPMNDiagram id="BPMNDiagram_userWorkflow">
     <bpmndi:BPMNPlane bpmnElement="userWorkflow" id="BPMNPlane_userWorkflow">
-      <bpmndi:BPMNShape bpmnElement="RecertificationRequest" id="BPMNShape_RecertificationRequest">
+      <bpmndi:BPMNShape bpmnElement="recertificationRequest" id="BPMNShape_recertificationRequest">
         <omgdc:Bounds height="80.0" width="100.0" x="1370.0" y="375.0"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="recertify-task" id="BPMNShape_recertify-task">
         <omgdc:Bounds height="80.0" width="100.0" x="1230.0" y="375.0"/>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape bpmnElement="theEnd" id="BPMNShape_theEnd">
-        <omgdc:Bounds height="28.0" width="28.0" x="2080.0" y="451.0"/>
-      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="recert-condition" id="BPMNShape_recert-condition">
         <omgdc:Bounds height="39.99999999999994" width="40.0" x="1178.1817939458806" y="475.4545368832992"/>
       </bpmndi:BPMNShape>
-     <bpmndi:BPMNShape bpmnElement="theStart" id="BPMNShape_theStart">
+      <bpmndi:BPMNShape bpmnElement="theStart" id="BPMNShape_theStart">
         <omgdc:Bounds height="30.0" width="30.0" x="540.0" y="525.0"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape bpmnElement="create" id="BPMNShape_create">

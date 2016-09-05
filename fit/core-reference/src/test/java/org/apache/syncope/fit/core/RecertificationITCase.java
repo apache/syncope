@@ -28,7 +28,7 @@ import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
 @FixMethodOrder(MethodSorters.JVM)
-public class RecertificationITCase extends AbstractTaskITCase{
+public class RecertificationITCase extends AbstractTaskITCase {
 
     @Test
     public void recertification() {
@@ -36,16 +36,15 @@ public class RecertificationITCase extends AbstractTaskITCase{
 
         List<WorkflowFormTO> forms = userWorkflowService.getForms();
         assertFalse(forms.isEmpty());
-        for (WorkflowFormTO f : forms) {
-            userWorkflowService.claimForm(f.getTaskId());
-            WorkflowFormPropertyTO w = f.getPropertyMap().get("approve");
-            w.setValue("true");
-            userWorkflowService.submitForm(f);
+        for (WorkflowFormTO form : forms) {
+            userWorkflowService.claimForm(form.getTaskId());
+            WorkflowFormPropertyTO property = form.getPropertyMap().get("approve");
+            property.setValue("true");
+            userWorkflowService.submitForm(form);
         }
 
         forms = userWorkflowService.getForms();
         assertTrue(forms.isEmpty());
-
     }
 
 }
