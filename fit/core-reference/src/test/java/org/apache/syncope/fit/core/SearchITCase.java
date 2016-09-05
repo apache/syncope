@@ -443,4 +443,17 @@ public class SearchITCase extends AbstractITCase {
                 getTotalCount();
         assertEquals(nonOrdered, orderedByNullable);
     }
+    
+    @Test
+    public void issueSYNCOPE929() {
+        PagedResult<UserTO> matchingUsers = userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                fiql("(surname==Rossini,gender==M);surname==Bellini").build());
+        
+        assertNotNull(matchingUsers);
+
+        assertFalse(matchingUsers.getResult().isEmpty());
+        for (UserTO user : matchingUsers.getResult()) {
+            assertTrue(user.getUsername().startsWith("bellini"));
+        }
+    }
 }

@@ -473,17 +473,23 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
                 break;
 
             case AND:
-                query.append(getQuery(nodeCond.getLeftNodeCond(), parameters, svs)).
+                String andSubQuery = getQuery(nodeCond.getLeftNodeCond(), parameters, svs).toString();
+                // Add extra parentheses
+                andSubQuery = andSubQuery.replaceFirst("WHERE ", "WHERE (");
+                query.append(andSubQuery).
                         append(" AND any_id IN ( ").
                         append(getQuery(nodeCond.getRightNodeCond(), parameters, svs)).
-                        append(")");
+                        append("))");
                 break;
 
             case OR:
-                query.append(getQuery(nodeCond.getLeftNodeCond(), parameters, svs)).
+                String orSubQuery = getQuery(nodeCond.getLeftNodeCond(), parameters, svs).toString();
+                // Add extra parentheses
+                orSubQuery = orSubQuery.replaceFirst("WHERE ", "WHERE (");
+                query.append(orSubQuery).
                         append(" OR any_id IN ( ").
                         append(getQuery(nodeCond.getRightNodeCond(), parameters, svs)).
-                        append(")");
+                        append("))");
                 break;
 
             default:

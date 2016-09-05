@@ -602,4 +602,30 @@ public class AnySearchTest extends AbstractTest {
         assertNotNull(count);
         assertTrue(count > 0);
     }
+    
+    @Test
+    public void issueSYNCOPE929() {
+        AttributeCond rossiniCond = new AttributeCond(AttributeCond.Type.EQ);
+        rossiniCond.setSchema("surname");
+        rossiniCond.setExpression("Rossini");
+        
+        AttributeCond genderCond = new AttributeCond(AttributeCond.Type.EQ);
+        genderCond.setSchema("gender");
+        genderCond.setExpression("M");
+
+        SearchCond orCond = 
+            SearchCond.getOrCond(SearchCond.getLeafCond(rossiniCond),
+                                 SearchCond.getLeafCond(genderCond));
+        
+        AttributeCond belliniCond = new AttributeCond(AttributeCond.Type.EQ);
+        belliniCond.setSchema("surname");
+        belliniCond.setExpression("Bellini");
+        
+        SearchCond searchCond = 
+            SearchCond.getAndCond(orCond, SearchCond.getLeafCond(belliniCond));
+
+        List<User> users = searchDAO.search(searchCond, AnyTypeKind.USER);
+        assertNotNull(users);
+        assertEquals(1, users.size());
+    }
 }
