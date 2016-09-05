@@ -151,7 +151,6 @@ public class CamelRouteLoader implements SyncopeLoader {
                 TransformerFactory tf = null;
                 DOMImplementationLS domImpl = null;
                 NodeList routeNodes;
-                // When https://issues.jboss.org/browse/WFLY-4416 is resolved, this is not needed any more
                 if (IS_JBOSS) {
                     tf = TransformerFactory.newInstance();
                     tf.setFeature(javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING, true);
