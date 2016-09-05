@@ -195,7 +195,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
      * Saves resources to be propagated and password for later - after form submission - propagation.
      *
      * @param user user
-     * @param password pasword
+     * @param password password
      * @param propByRes current propagation actions against resources
      */
     protected void saveForFormSubmit(final User user, final String password, final PropagationByResource propByRes) {
@@ -349,10 +349,28 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
+    public WorkflowResult<String> requestCertify(final User user) {
+        String authUser = AuthContextUtils.getUsername();
+        engine.getRuntimeService().setVariable(user.getWorkflowId(), FORM_SUBMITTER, authUser);
+
+        LOG.debug("Executing request-certify");
+        Set<String> performedTasks = doExecuteTask(user, "request-certify", null);
+                
+        PropagationByResource propByRes = engine.getRuntimeService().getVariable(
+                user.getWorkflowId(), PROP_BY_RESOURCE, PropagationByResource.class);
+
+        saveForFormSubmit(
+                user, null, propByRes);
+                
+        return new WorkflowResult<>(user.getKey(), null, performedTasks);
+    }
+
+    @Override
     protected WorkflowResult<String> doSuspend(final User user) {
         Set<String> performedTasks = doExecuteTask(user, "suspend", null);
         updateStatus(user);
         User updated = userDAO.save(user);
+
 
         return new WorkflowResult<>(updated.getKey(), null, performedTasks);
     }
