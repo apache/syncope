@@ -19,12 +19,10 @@
 package org.apache.syncope.core.logic.init;
 
 import java.lang.reflect.Modifier;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
@@ -76,7 +74,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
 
     private Map<Class<? extends PasswordRuleConf>, Class<? extends PasswordRule>> passwordRuleClasses;
     
-    private List<String> basePackages = Arrays.asList("org.apache.syncope.fit.core", "org.apache.syncope.core");
+    private final String basePackage = "org.apache.syncope.core";
 
     @Override
     public Integer getPriority() {
@@ -110,11 +108,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
         scanner.addIncludeFilter(new AssignableTypeFilter(Validator.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(NotificationRecipientsProvider.class));
 
-        Set<BeanDefinition> beanDefinitions = new HashSet<>();
-        for (String basePackage: getBasePackages()) {
-            beanDefinitions.addAll(scanner.findCandidateComponents(basePackage));
-        }
-        for (BeanDefinition bd : beanDefinitions) {
+        for (BeanDefinition bd : scanner.findCandidateComponents(basePackage)) {
             try {
                 Class<?> clazz = ClassUtils.resolveClassName(
                         bd.getBeanClassName(), ClassUtils.getDefaultClassLoader());
@@ -233,15 +227,13 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
 
         return passwordRuleClasses.get(passwordRuleConfClass);
     }
-    
-    /**
-     * @return basePackages for syncope class classpath scanning
-     */
-    protected List<String> getBasePackages() {
-        return basePackages;
-    }
 
-    public void setBasePackages(final List<String> basePackages) {
-        this.basePackages = basePackages;
+    /**
+     * This method can be overridden by subclasses to customize classpath scan.
+     *
+     * @return basePackage for syncope class classpath scanning
+     */
+    protected String getBasePackage() {
+        return basePackage;
     }
 }
