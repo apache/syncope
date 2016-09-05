@@ -33,6 +33,14 @@ under the License.
   <artifactId>syncope-ide-eclipse</artifactId>
   <packaging>pom</packaging>
 
+  <repositories>
+    <repository>
+      <id>eclipse-mars</id>
+      <layout>p2</layout>
+      <url>http://download.eclipse.org/releases/mars/</url>
+    </repository>
+  </repositories>
+
   <properties>
     <rootpom.basedir>${basedir}/../..</rootpom.basedir>
   </properties>
