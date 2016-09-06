@@ -109,6 +109,16 @@ public class SyncopeCamelContext {
         } else if (!camelContext.getRouteDefinitions().isEmpty()) {
             camelContext.getRouteDefinitions().remove(camelContext.getRouteDefinition(routeKey));
             loadContext(Collections.singletonList(routeDAO.find(routeKey)));
+            
+            // Start the Camel Context if it's stopped, as maybe this update fixes a previous route error which
+            // caused startup to fail
+            if (camelContext.isStopped()) {
+                try {
+                    camelContext.start();
+                } catch (Exception e) {
+                    LOG.error("While restarting Camel context", e);
+                }
+            }
         }
     }
 
