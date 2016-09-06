@@ -25,7 +25,7 @@ under the License.
     </ui-select-match>
     <ui-select-choices repeat="group in dynamicForm.groups | propsFilter: {selected: dynamicForm.selectedGroups} 
                        track by group.rightKey" class="ui-select-choices">
-      <div ng-bind-html="group.groupName | highlight: $select.search"></div>
+      <div id="{{group.groupName}}" ng-bind-html="group.groupName | highlight: $select.search"></div>
     </ui-select-choices>
   </ui-select>
 </div>
