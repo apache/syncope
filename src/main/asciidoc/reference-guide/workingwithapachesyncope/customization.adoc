@@ -19,15 +19,15 @@
 === Customization
 
 [CAUTION]
-Only Maven projects can be customized: if using Standalone, Debian packages or the GUI installer, none of the customizations
-discussed below can be applied.
+Only Maven projects can be customized: if using Standalone, Debian packages or the GUI installer, none of the
+customizations discussed below can be applied.
 
 Apache Syncope is designed to be as flexible as possible, to best suit the various environments
 in which it can be deployed. Besides other aspects, this means that every feature and component can be extended or
 replaced.
 
-Once the project has been created from the provided Maven archetype, the generated source tree is available for either adding
-new features or replacing existing components.
+Once the project has been created from the provided Maven archetype, the generated source tree is available for either
+adding new features or replacing existing components.
 
 [[override-behavior]]
 [TIP]
@@ -119,6 +119,11 @@ If no failures are encountered, your basic Apache Syncope project is now ready t
 
 [[customization-core]]
 ==== Core
+
+[CAUTION]
+When providing custom Java classes implementing the defined interfaces or extending the existing
+implementations, their package *must* be rooted under `org.apache.syncope.core`, otherwise they will not be available
+at runtime.
 
 Besides replacing existing classes as explained <<override-behavior,above>>, new implementations can be provided under
 `core/src/main/java` for the following components:
@@ -263,6 +268,11 @@ Add the following dependency to `core/pom.xml`:
 
 [[customization-console]]
 ==== Console
+
+[CAUTION]
+When providing custom Java classes implementing the defined interfaces or extending the existing
+implementations, their package *must* be rooted under `org.apache.syncope.client.console`, otherwise they will not be
+available at runtime.
 
 [discrete]
 ===== Enable the <<apache-camel-provisioning-manager>>
