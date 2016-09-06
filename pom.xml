@@ -2064,6 +2064,10 @@ under the License.
                       <link>http://camel.apache.org/maven/current/camel-core/apidocs/</link>
                       <link>http://camel.apache.org/maven/current/camel-spring/apidocs/</link>
                       <link>https://ci.apache.org/projects/wicket/apidocs/7.x/</link>
+                      <link>https://commons.apache.org/proper/commons-lang/javadocs/api-release/</link>
+                      <link>https://commons.apache.org/proper/commons-io/javadocs/api-2.5/</link>
+                      <link>https://commons.apache.org/proper/commons-jexl/apidocs/</link>
+                      <link>https://commons.apache.org/proper/commons-collections/javadocs/</link>
                       <link>http://docs.spring.io/spring/docs/4.3.x/javadoc-api/</link>
                       <link>http://docs.spring.io/spring-security/site/docs/4.0.x/apidocs/</link>
                       <link>http://activiti.org/javadocs/</link>
