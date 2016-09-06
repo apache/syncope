@@ -32,7 +32,7 @@ describe('syncope enduser user edit', function () {
   it('should edit user credentials', function () {
     browser.get('http://localhost:9080/syncope-enduser/app/');
 
-//login
+    //login
     element(by.model('credentials.username')).sendKeys('bellini');
     element(by.model('credentials.password')).sendKeys('password');
     element.all(by.options('language.name for language in languages.availableLanguages track by language.id')).
@@ -43,34 +43,39 @@ describe('syncope enduser user edit', function () {
             get(0).click();
     element(by.id('login-btn')).click();
 
-//credential
+    //credential
     element(by.model('user.username')).clear();
     element(by.model('user.username')).sendKeys('bellini');
     element(by.model('user.password')).clear();
     element(by.model('user.password')).sendKeys('password');
     element(by.model('confirmPassword.value')).sendKeys('password');
     var secQuestion = element(by.model('user.securityQuestion'));
-    var selectedSecQuestion = secQuestion.all(by.options('securityQuestion.key as securityQuestion.content for securityQuestion in availableSecurityQuestions')).last();
+    var selectedSecQuestion = secQuestion.all(by.options
+            ('securityQuestion.key as securityQuestion.content for securityQuestion in availableSecurityQuestions'))
+            .last();
     selectedSecQuestion.click();
     element(by.model('user.securityAnswer')).sendKeys('Agata Ferlito');
-    browser.driver.sleep(1000);
+//    browser.driver.sleep(1000);
     next();
 
-//groups
+    //groups
     var group = element(by.model('dynamicForm.selectedGroups'));
     var selectedGroup = group.element(by.css('.ui-select-search'));
     group.click();
-    
+
+    // add "additional", a group with type extensions, and "root".
     selectedGroup.sendKeys('additional');
     element.all(by.css('.ui-select-choices-row-inner span')).first().click();
     selectedGroup.sendKeys('root');
     element.all(by.css('.ui-select-choices-row-inner span')).first().click();
-    browser.driver.sleep(1500);
-        
     next();
 
-//plainSchemas
-
+    //plainSchemas
+    //  count groups in plainschemas: "own" and "additional".
+    element.all(by.repeater('groupSchema in dynamicForm.groupSchemas')).then(function (groupSchema) {
+      expect(groupSchema.length).toBe(2);
+    })
+    //  fills own fields
     element(by.css('[name="fullname"]')).clear();
     element(by.css('[name="fullname"]')).sendKeys('Vincenzo Bellini');
     element(by.css('[name="userId"]')).clear();
@@ -84,7 +89,12 @@ describe('syncope enduser user edit', function () {
     element(by.css('[name="surname"]')).sendKeys('Bellini');
     element(by.css('[name="ctype"]')).clear();
     element(by.css('[name="ctype"]')).sendKeys('bellinictype');
-
+    next();
+    //derSchemas
+    next();
+    //virSchemas
+    next();
+    //Resources
     next();
 
   });
