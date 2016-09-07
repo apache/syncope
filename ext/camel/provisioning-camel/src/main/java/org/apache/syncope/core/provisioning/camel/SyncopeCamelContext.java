@@ -62,6 +62,8 @@ public class SyncopeCamelContext {
         synchronized (this) {
             if (camelContext == null) {
                 camelContext = new SpringCamelContext(ApplicationContextProvider.getApplicationContext());
+                camelContext.setStreamCaching(false);
+                camelContext.setAllowUseOriginalMessage(false);
                 camelContext.addRoutePolicyFactory(new MetricsRoutePolicyFactory());
             }
         }
