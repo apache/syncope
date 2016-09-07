@@ -962,3 +962,7 @@ div#selectionContainer select {
 /**
 END - EVENTS
 */
+
+fieldset.input-group {
+  width: 100%;
+}

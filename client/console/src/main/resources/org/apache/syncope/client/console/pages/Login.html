@@ -40,15 +40,20 @@ under the License.
         <span wicket:id="feedback" role="alert"/>
 
         <form class="form-signin" wicket:id="login">
-          <fieldset class="form-group input-group">
+          <fieldset class="form-group">
             <input type="text" wicket:id="username" class="form-control" 
                    wicket:message="placeholder:username" required="required" autofocus="autofocus" />
+
             <input type="password" wicket:id="password" class="form-control" 
                    wicket:message="placeholder:password" required="required" />
 
-            <select wicket:id="language"/>
-            <div />
-            <select wicket:id="domain"/>
+            <fieldset class="input-group">
+              <select wicket:id="language"/>
+            </fieldset>
+
+            <fieldset class="input-group">
+              <select wicket:id="domain"/>
+            </fieldset>
 
             <button wicket:id="submit" type="submit" 
                     class="btn btn-lg btn-primary btn-block btn-signin"><wicket:message key="submit"/></button>
