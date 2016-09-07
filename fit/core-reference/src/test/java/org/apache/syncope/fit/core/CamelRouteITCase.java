@@ -33,6 +33,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.fit.AbstractITCase;
+import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Test;
 
@@ -165,6 +166,51 @@ public class CamelRouteITCase extends AbstractITCase {
             userTO = createUser(userTO).getEntity();
             assertNotNull(userTO);
             assertEquals("true", userTO.getPlainAttrMap().get("camelAttribute").getValues().get(0));
+        } finally {
+            doUpdate(oldRoute.getKey(), oldRoute.getContent());
+        }
+    }
+
+    @Test
+    public void issueSYNCOPE931() {
+        Assume.assumeTrue(CamelDetector.isCamelEnabledForUsers(syncopeService));
+
+        CamelRouteTO oldRoute = camelRouteService.read("createUser");
+        assertNotNull(oldRoute);
+        String routeContent = "<route id=\"createUser\">\n"
+                + "  <from uri=\"direct:createUser\"/>\n"
+                + "  <setProperty propertyName=\"actual\">\n"
+                + "    <simple>${body}</simple>\n"
+                + "  </setProperty>\n"
+                + "  <doTry>\n"
+                + "    <bean ref=\"uwfAdapter\" method=\"create(${body},${property.disablePwdPolicyCheck},\n"
+                + "                             ${property.enabled},${property.storePassword})\"/>\n"
+                + "    <to uri=\"propagate:create123?anyTypeKind=USER\"/>\n"
+                + "    <to uri=\"direct:createPort\"/>\n"
+                + "    <to uri=\"log:myLog\"/>\n"
+                + "    <doCatch>        \n"
+                + "      <exception>java.lang.RuntimeException</exception>\n"
+                + "      <handled>\n"
+                + "        <constant>false</constant>\n"
+                + "      </handled>\n"
+                + "      <to uri=\"direct:createPort\"/>\n"
+                + "    </doCatch>\n"
+                + "  </doTry>\n"
+                + "</route>";
+
+        // Try to update a route with an incorrect propagation type
+        try {
+            doUpdate("createUser", routeContent);
+            Assert.fail("Error expected on an incorrect propagation type");
+        } catch (Exception ex) {
+            // Expected
+        }
+
+        // Now update the route again with the correct propagation type
+        routeContent = routeContent.replaceFirst("create123", "create");
+        try {
+            CamelRouteTO route = doUpdate("createUser", routeContent);
+            assertEquals(routeContent, route.getContent());
         } finally {
             doUpdate(oldRoute.getKey(), oldRoute.getContent());
         }
