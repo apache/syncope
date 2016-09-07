@@ -17,22 +17,22 @@
  * under the License.
  */
 
-//var abstract = require('./abstract.js');
+var abstract = require('./abstract.js');
 
 describe('syncope enduser user edit', function () {
 
-  function next() {
-    element.all(by.id('next')).last().click();
-  }
-  ;
-
-  function cancel() {
-    element.all(by.id('cancel')).last().click();
+  function waitSpinner() {
+    element.all(by.css('treasure-overlay-spinner')).isDisplayed().then(function (result) {
+      if (result) {
+        browser.driver.sleep(3000);
+      }
+    });
   }
   ;
 
   it('should edit user credentials', function () {
-    browser.get('http://localhost:9080/syncope-enduser/app/');
+
+    abstract.goHome();
 
     //login
     element(by.model('credentials.username')).sendKeys('bellini');
@@ -44,8 +44,6 @@ describe('syncope enduser user edit', function () {
     element.all(by.options('language.name for language in languages.availableLanguages track by language.id')).
             get(0).click();
     element(by.id('login-btn')).click();
-
-//    abstract.doLogin("bellini", "password");
 
     //credential
     element(by.model('user.username')).clear();
@@ -59,33 +57,37 @@ describe('syncope enduser user edit', function () {
             .last();
     selectedSecQuestion.click();
     element(by.model('user.securityAnswer')).sendKeys('Agata Ferlito');
-    browser.driver.sleep(1000);
-    next();
+    abstract.doNext();
 
     //groups
     var group = element(by.model('dynamicForm.selectedGroups'));
     var selectedGroup = group.element(by.css('.ui-select-search'));
     group.click();
 
-    // add "additional", a group with type extensions, and "root".
     selectedGroup.sendKeys('additional');
     element.all(by.css('.ui-select-choices-row-inner span')).first().click();
+    waitSpinner();
+
     selectedGroup.sendKeys('root');
     element.all(by.css('.ui-select-choices-row-inner span')).first().click();
-    browser.driver.sleep(1000);
-    next();
+    waitSpinner();
+
+    abstract.doNext();
 
     //plainSchemas
-    //  count groups in plainschemas: "own" and "additional".
     element.all(by.repeater('groupSchema in dynamicForm.groupSchemas')).then(function (groupSchema) {
       expect(groupSchema.length).toBe(2);
-    })
-    //  fills own fields
+    });
+
     element(by.css('[name="fullname"]')).clear();
     element(by.css('[name="fullname"]')).sendKeys('Vincenzo Bellini');
+    browser.manage().timeouts().pageLoadTimeout(5000);
+
     element(by.css('[name="userId"]')).clear();
     element(by.css('[name="userId"]')).sendKeys('bellini@apache.org');
-    var selectedDate = element(by.model('selectedDate')).click();
+    browser.manage().timeouts().pageLoadTimeout(5000);
+
+    var selectedDate = element(by.model('selectedDate'));
     selectedDate.clear();
     selectedDate.sendKeys('2009-06-21');
     element(by.css('[name="firstname"]')).clear();
@@ -94,15 +96,19 @@ describe('syncope enduser user edit', function () {
     element(by.css('[name="surname"]')).sendKeys('Bellini');
     element(by.css('[name="ctype"]')).clear();
     element(by.css('[name="ctype"]')).sendKeys('bellinictype');
-    next();
+
+    abstract.doNext();
+
     //derSchemas
-    next();
+    abstract.doNext();
+
     //virSchemas
-    next();
+    abstract.doNext();
+
     //Resources
-    next();
-    browser.driver.sleep(1000);
-    element.all(by.id('cancel')).last().click();
-    browser.driver.sleep(1000);
+    abstract.doNext();
+
+    //Captcha
+    abstract.doCancel();
   });
 });

@@ -18,7 +18,7 @@
  */
 
 var abstract = require('./abstract.js');
-
+abstract.goHome();
 abstract.doCreate();
 
 describe('waitSuccess', function () {
@@ -26,5 +26,3 @@ describe('waitSuccess', function () {
     browser.wait(element(by.id('redirect')).isPresent());      
   });
 });
-
-//abstract.doLogin("donizetti", "password123");

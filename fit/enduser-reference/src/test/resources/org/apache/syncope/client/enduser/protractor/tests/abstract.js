@@ -17,13 +17,11 @@
  * under the License.
  */
 
-var home = 'http://localhost:9080/syncope-enduser/app/';
 
 exports.doCreate = function () {
   describe('doCreate', function () {
 
     it('create donizetti', function () {
-      browser.get(home);
 
       browser.wait(element(by.id('register')).isPresent());
       element(by.id('register')).click();
@@ -49,8 +47,9 @@ exports.doCreate = function () {
 
       element.all(by.id('next')).first().click();
 
-      element(by.id('save')).click();
-     
+      element.all(by.id('cancel')).last().click();
+
+
     });
   });
 };
@@ -67,9 +66,19 @@ exports.doLogin = function (username, password) {
 
       expect(element(by.model('user.username')).getAttribute('value')).toEqual(username);
 
-//      element(by.id('logout')).click();
     });
   });
-}
+};
 
+exports.goHome = function () {
+  var home = 'http://localhost:9080/syncope-enduser/app/';
+  browser.get(home);
+};
 
+exports.doNext = function () {
+  element.all(by.id('next')).last().click();
+};
+
+exports.doCancel = function () {
+  element.all(by.id('cancel')).last().click();
+};

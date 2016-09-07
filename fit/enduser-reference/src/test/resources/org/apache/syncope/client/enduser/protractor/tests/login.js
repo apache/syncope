@@ -17,15 +17,12 @@
  * under the License.
  */
 
-//var abstract = require('./abstract.js');
-
-//abstract.doLogin("rossini", "password");
-
+var abstract = require('./abstract.js');
 
 describe('syncope enduser user login', function () {
 
   it('should login user', function () {
-    browser.get('http://localhost:9080/syncope-enduser/app/');
+    abstract.goHome();
 
     element(by.model('credentials.username')).sendKeys('rossini');
     element(by.model('credentials.password')).sendKeys('password');
@@ -35,6 +32,8 @@ describe('syncope enduser user login', function () {
             });
     element.all(by.options('language.name for language in languages.availableLanguages track by language.id')).
             get(1).click();
+    browser.driver.sleep(3000);
+
     element(by.id('login-btn')).click();
 
   });

@@ -17,18 +17,20 @@
  * under the License.
  */
 exports.config = {
-        directConnect: false,
-
-        capabilities: {
-          'browserName': 'phantomjs',
-          'phantomjs.binary.path': '@phantomjs.binary.path@',
-          'phantomjs.ghostdriver.cli.args': ['--loglevel=DEBUG']
-        },
-        
-        allScriptsTimeout: 241000,
-
-        // Spec patterns are relative to the current working directly when protractor is called.
-        specs: ['tests/*.js'],
-        
-        exclude: ['tests/abstract.js'],
+  directConnect: false,
+  capabilities: {
+    'browserName': 'phantomjs',
+    'phantomjs.binary.path': '@phantomjs.binary.path@',
+    'phantomjs.ghostdriver.cli.args': ['--loglevel=DEBUG']
+  },
+  
+  allScriptsTimeout: 241000,
+  
+  jasmineNodeOpts: {
+    defaultTimeoutInterval: 2500000
+  },
+  
+  // Spec patterns are relative to the current working directly when protractor is called.
+  specs: ['tests/*.js'],
+  exclude: ['tests/abstract.js']
 };
