@@ -53,7 +53,7 @@ exports.doCreate = function () {
      
     });
   });
-}
+};
 
 exports.doLogin = function (username, password) {
   describe('doLogin', function () {
@@ -67,7 +67,7 @@ exports.doLogin = function (username, password) {
 
       expect(element(by.model('user.username')).getAttribute('value')).toEqual(username);
 
-      element(by.id('logout')).click();
+//      element(by.id('logout')).click();
     });
   });
 }

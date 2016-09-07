@@ -17,6 +17,8 @@
  * under the License.
  */
 
+//var abstract = require('./abstract.js');
+
 describe('syncope enduser user edit', function () {
 
   function next() {
@@ -43,6 +45,8 @@ describe('syncope enduser user edit', function () {
             get(0).click();
     element(by.id('login-btn')).click();
 
+//    abstract.doLogin("bellini", "password");
+
     //credential
     element(by.model('user.username')).clear();
     element(by.model('user.username')).sendKeys('bellini');
@@ -55,7 +59,7 @@ describe('syncope enduser user edit', function () {
             .last();
     selectedSecQuestion.click();
     element(by.model('user.securityAnswer')).sendKeys('Agata Ferlito');
-//    browser.driver.sleep(1000);
+    browser.driver.sleep(1000);
     next();
 
     //groups
@@ -68,6 +72,7 @@ describe('syncope enduser user edit', function () {
     element.all(by.css('.ui-select-choices-row-inner span')).first().click();
     selectedGroup.sendKeys('root');
     element.all(by.css('.ui-select-choices-row-inner span')).first().click();
+    browser.driver.sleep(1000);
     next();
 
     //plainSchemas
@@ -96,10 +101,8 @@ describe('syncope enduser user edit', function () {
     next();
     //Resources
     next();
-
+    browser.driver.sleep(1000);
+    element.all(by.id('cancel')).last().click();
+    browser.driver.sleep(1000);
   });
 });
-
-
-
-

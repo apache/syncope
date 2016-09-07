@@ -27,4 +27,4 @@ describe('waitSuccess', function () {
   });
 });
 
-abstract.doLogin("donizetti", "Password123");
+//abstract.doLogin("donizetti", "password123");
