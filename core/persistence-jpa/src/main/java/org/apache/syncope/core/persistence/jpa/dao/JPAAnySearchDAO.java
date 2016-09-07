@@ -35,6 +35,7 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -885,16 +886,18 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
     private String getQuery(final AnyCond cond, final boolean not, final List<Object> parameters,
             final SearchSupport svs) {
 
+        AnyCond condClone = SerializationUtils.clone(cond);
+        
         AnyUtils attrUtils = anyUtilsFactory.getInstance(svs.anyTypeKind());
 
         // Keeps track of difference between entity's getKey() and JPA @Id fields
-        if ("key".equals(cond.getSchema())) {
-            cond.setSchema("id");
+        if ("key".equals(condClone.getSchema())) {
+            condClone.setSchema("id");
         }
 
-        Field anyField = ReflectionUtils.findField(attrUtils.anyClass(), cond.getSchema());
+        Field anyField = ReflectionUtils.findField(attrUtils.anyClass(), condClone.getSchema());
         if (anyField == null) {
-            LOG.warn("Ignoring invalid schema '{}'", cond.getSchema());
+            LOG.warn("Ignoring invalid schema '{}'", condClone.getSchema());
             return EMPTY_QUERY;
         }
 
@@ -931,27 +934,21 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
                 LOG.error("Could not find {}#getKey", anyField.getType(), e);
             }
 
-            if (relMethod != null) {
-                if (Long.class.isAssignableFrom(relMethod.getReturnType())) {
-                    cond.setSchema(cond.getSchema() + "_id");
-                    schema.setType(AttrSchemaType.Long);
-                }
-                if (String.class.isAssignableFrom(relMethod.getReturnType())) {
-                    cond.setSchema(cond.getSchema() + "_id");
-                    schema.setType(AttrSchemaType.String);
-                }
+            if (relMethod != null && String.class.isAssignableFrom(relMethod.getReturnType())) {
+                condClone.setSchema(condClone.getSchema() + "_id");
+                schema.setType(AttrSchemaType.String);
             }
         }
 
         PlainAttrValue attrValue = attrUtils.newPlainAttrValue();
-        if (cond.getType() != AttributeCond.Type.LIKE
-                && cond.getType() != AttributeCond.Type.ISNULL
-                && cond.getType() != AttributeCond.Type.ISNOTNULL) {
+        if (condClone.getType() != AttributeCond.Type.LIKE
+                && condClone.getType() != AttributeCond.Type.ISNULL
+                && condClone.getType() != AttributeCond.Type.ISNOTNULL) {
 
             try {
-                schema.getValidator().validate(cond.getExpression(), attrValue);
+                schema.getValidator().validate(condClone.getExpression(), attrValue);
             } catch (ValidationException e) {
-                LOG.error("Could not validate expression '" + cond.getExpression() + "'", e);
+                LOG.error("Could not validate expression '" + condClone.getExpression() + "'", e);
                 return EMPTY_QUERY;
             }
         }
@@ -959,7 +956,7 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
         StringBuilder query = new StringBuilder("SELECT DISTINCT any_id FROM ").
                 append(svs.field().name).append(" WHERE ");
 
-        fillAttributeQuery(query, attrValue, schema, cond, not, parameters, svs);
+        fillAttributeQuery(query, attrValue, schema, condClone, not, parameters, svs);
 
         return query.toString();
     }
