@@ -53,23 +53,19 @@ abstract class AbstractCamelProvisioningManager {
 
     protected final List<String> knownURIs = new ArrayList<>();
 
-    protected SpringCamelContext getContext() {
-        return contextFactory.getContext();
-    }
-
     protected void sendMessage(final String uri, final Object obj) {
-        Exchange exchange = new DefaultExchange(getContext());
+        Exchange exchange = new DefaultExchange(contextFactory.getContext());
 
         DefaultMessage message = new DefaultMessage();
         message.setBody(obj);
         exchange.setIn(message);
 
-        ProducerTemplate template = getContext().createProducerTemplate();
+        ProducerTemplate template = contextFactory.getContext().createProducerTemplate();
         template.send(uri, exchange);
     }
 
     protected void sendMessage(final String uri, final Object body, final Map<String, Object> properties) {
-        Exchange exchange = new DefaultExchange(getContext());
+        Exchange exchange = new DefaultExchange(contextFactory.getContext());
 
         for (Map.Entry<String, Object> property : properties.entrySet()) {
             exchange.setProperty(property.getKey(), property.getValue());
@@ -79,14 +75,14 @@ abstract class AbstractCamelProvisioningManager {
         DefaultMessage message = new DefaultMessage();
         message.setBody(body);
         exchange.setIn(message);
-        ProducerTemplate template = getContext().createProducerTemplate();
+        ProducerTemplate template = contextFactory.getContext().createProducerTemplate();
         template.send(uri, exchange);
     }
 
     protected PollingConsumer getConsumer(final String uri) {
         if (!knownURIs.contains(uri)) {
             knownURIs.add(uri);
-            Endpoint endpoint = getContext().getEndpoint(uri);
+            Endpoint endpoint = contextFactory.getContext().getEndpoint(uri);
             PollingConsumer pollingConsumer = null;
             try {
                 pollingConsumer = endpoint.createPollingConsumer();
