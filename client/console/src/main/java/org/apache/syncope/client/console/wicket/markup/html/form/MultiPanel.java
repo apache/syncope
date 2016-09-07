@@ -29,9 +29,8 @@ public abstract class MultiPanel<INNER extends Serializable> extends AbstractMul
     public MultiPanel(
             final String id,
             final String name,
-            final IModel<List<INNER>> model,
-            final boolean eventTemplate) {
+            final IModel<List<INNER>> model) {
 
-        super(id, name, model, eventTemplate);
+        super(id, name, model);
     }
 }

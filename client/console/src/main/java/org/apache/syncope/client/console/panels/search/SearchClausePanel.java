@@ -98,8 +98,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
             final IModel<List<String>> dnames,
             final IModel<Map<String, String>> groupNames,
             final IModel<List<String>> roleNames,
-            final IModel<List<String>> resourceNames
-    ) {
+            final IModel<List<String>> resourceNames) {
 
         super(id, name, clause);
 
@@ -130,7 +129,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
         field = new FormComponent<SearchClause>("container", this.clause) {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = -8204140666393922700L;
 
         };
 
@@ -138,7 +137,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
         comparators = new LoadableDetachableModel<List<Comparator>>() {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
             protected List<Comparator> load() {
@@ -172,7 +171,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
         properties = new LoadableDetachableModel<List<String>>() {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
             protected List<String> load() {

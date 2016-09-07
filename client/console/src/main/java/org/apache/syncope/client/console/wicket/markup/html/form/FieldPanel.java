@@ -188,7 +188,7 @@ public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPa
     }
 
     /**
-     * To be overridded to add settings depending components.
+     * Override to add settings depending components.
      * It has to be used by default to add components depending by index model.
      *
      * @return the current field panel.

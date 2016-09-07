@@ -34,10 +34,9 @@ public abstract class MultiFieldPanel<E extends Serializable> extends AbstractMu
     private MultiFieldPanel(
             final String id,
             final String name,
-            final IModel<List<E>> model,
-            final boolean eventTemplate) {
+            final IModel<List<E>> model) {
 
-        super(id, name, model, eventTemplate);
+        super(id, name, model);
     }
 
     public static class Builder<E extends Serializable> implements Serializable {
@@ -74,7 +73,7 @@ public abstract class MultiFieldPanel<E extends Serializable> extends AbstractMu
         }
 
         public MultiFieldPanel<E> build(final String id, final String name, final FieldPanel<E> panelTemplate) {
-            return new MultiFieldPanel<E>(id, name, model, eventTemplate) {
+            return new MultiFieldPanel<E>(id, name, model) {
 
                 private static final long serialVersionUID = 6600411297376841521L;
 

@@ -110,7 +110,7 @@ public class PolicySpecModalPanel extends AbstractModalPanel<PullPolicyTO> {
 
         };
 
-        add(new MultiPanel<CorrelationRule>("correlationRules", "correlationRules", model, false) {
+        add(new MultiPanel<CorrelationRule>("correlationRules", "correlationRules", model) {
 
             private static final long serialVersionUID = -2481579077338205547L;
 

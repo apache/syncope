@@ -40,8 +40,6 @@ public abstract class AbstractMultiPanel<INNER> extends AbstractFieldPanel<List<
 
     private final ListView<INNER> view;
 
-    private final boolean eventTemplate;
-
     private final WebMarkupContainer container;
 
     private final Form<?> form;
@@ -49,12 +47,9 @@ public abstract class AbstractMultiPanel<INNER> extends AbstractFieldPanel<List<
     public AbstractMultiPanel(
             final String id,
             final String name,
-            final IModel<List<INNER>> model,
-            final boolean eventTemplate) {
+            final IModel<List<INNER>> model) {
 
         super(id, name, model);
-
-        this.eventTemplate = eventTemplate;
 
         // -----------------------
         // Object container definition

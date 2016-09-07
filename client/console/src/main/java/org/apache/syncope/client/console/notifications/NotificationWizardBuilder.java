@@ -294,7 +294,7 @@ public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationWra
             final IModel<List<Pair<String, List<SearchClause>>>> model =
                     new PropertyModel<>(modelObject, "aboutClauses");
 
-            aboutContainer.add(new MultiPanel<Pair<String, List<SearchClause>>>("abouts", "abouts", model, false) {
+            aboutContainer.add(new MultiPanel<Pair<String, List<SearchClause>>>("abouts", "abouts", model) {
 
                 private static final long serialVersionUID = -2481579077338205547L;
 
