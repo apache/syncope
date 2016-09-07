@@ -38,6 +38,7 @@ import org.apache.syncope.core.persistence.api.dao.CamelRouteDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.CamelRoute;
 import org.apache.syncope.core.provisioning.api.data.CamelRouteDataBinder;
+import org.apache.syncope.core.provisioning.camel.CamelException;
 import org.apache.syncope.core.provisioning.camel.SyncopeCamelContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -84,11 +85,20 @@ public class CamelRouteLogic extends AbstractTransactionalLogic<CamelRouteTO> {
         if (route == null) {
             throw new NotFoundException("CamelRoute with key=" + routeTO.getKey());
         }
+        String originalContent = route.getContent();
 
         LOG.debug("Updating route {} with content {}", routeTO.getKey(), routeTO.getContent());
         binder.update(route, routeTO);
 
-        context.updateContext(routeTO.getKey());
+        try {
+            context.updateContext(routeTO.getKey());
+        } catch (CamelException e) {
+            // if an exception was thrown while updating the context, restore the former route definition
+            LOG.debug("Update of route {} failed, reverting", routeTO.getKey());
+            context.restoreRoute(routeTO.getKey(), originalContent);
+
+            throw e;
+        }
     }
 
     @PreAuthorize("hasRole('" + CamelEntitlement.ROUTE_UPDATE + "')")
@@ -106,7 +116,7 @@ public class CamelRouteLogic extends AbstractTransactionalLogic<CamelRouteTO> {
         } else {
             MetricRegistry registry = registryService.getMetricsRegistry();
             for (Map.Entry<String, Timer> entry : registry.getTimers().entrySet()) {
-                CamelMetrics.MeanRate meanRate = new CamelMetrics.MeanRate();                
+                CamelMetrics.MeanRate meanRate = new CamelMetrics.MeanRate();
                 meanRate.setRouteId(StringUtils.substringBetween(entry.getKey(), ".", "."));
                 meanRate.setValue(entry.getValue().getMeanRate());
                 metrics.getResponseMeanRates().add(meanRate);

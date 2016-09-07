@@ -20,6 +20,7 @@ package org.apache.syncope.core.provisioning.camel;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import javax.xml.bind.JAXBContext;
@@ -28,6 +29,8 @@ import org.apache.camel.component.metrics.routepolicy.MetricsRoutePolicyFactory;
 import org.apache.camel.model.Constants;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.spring.SpringCamelContext;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
 import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
@@ -37,6 +40,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Node;
 import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 import org.w3c.dom.ls.DOMImplementationLS;
@@ -64,18 +69,25 @@ public class SyncopeCamelContext {
         if (camelContext.getRouteDefinitions().isEmpty()) {
             List<CamelRoute> routes = routeDAO.findAll();
             LOG.debug("{} route(s) are going to be loaded ", routes.size());
-            loadContext(routes);
+            loadContext(CollectionUtils.collect(routes, new Transformer<CamelRoute, String>() {
+
+                @Override
+                public String transform(final CamelRoute input) {
+                    return input.getContent();
+                }
+            }));
             try {
                 camelContext.start();
             } catch (Exception e) {
                 LOG.error("While starting Camel context", e);
+                throw new CamelException(e);
             }
         }
 
         return camelContext;
     }
 
-    private void loadContext(final List<CamelRoute> routes) {
+    private void loadContext(final Collection<String> routes) {
         try {
             DOMImplementationRegistry reg = DOMImplementationRegistry.newInstance();
             DOMImplementationLS domImpl = (DOMImplementationLS) reg.getDOMImplementation("LS");
@@ -84,10 +96,10 @@ public class SyncopeCamelContext {
             JAXBContext jaxbContext = JAXBContext.newInstance(Constants.JAXB_CONTEXT_PACKAGES);
             Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
             List<RouteDefinition> routeDefs = new ArrayList<>();
-            for (CamelRoute route : routes) {
+            for (String route : routes) {
                 InputStream input = null;
                 try {
-                    input = IOUtils.toInputStream(route.getContent(), SyncopeConstants.DEFAULT_CHARSET);
+                    input = IOUtils.toInputStream(route, SyncopeConstants.DEFAULT_CHARSET);
                     LSInput lsinput = domImpl.createLSInput();
                     lsinput.setByteStream(input);
 
@@ -100,25 +112,29 @@ public class SyncopeCamelContext {
             camelContext.addRouteDefinitions(routeDefs);
         } catch (Exception e) {
             LOG.error("While loading Camel context {}", e);
+            throw new CamelException(e);
         }
     }
 
+    @Transactional(propagation = Propagation.SUPPORTS)
     public void updateContext(final String routeKey) {
         if (camelContext == null) {
             getContext();
         } else if (!camelContext.getRouteDefinitions().isEmpty()) {
             camelContext.getRouteDefinitions().remove(camelContext.getRouteDefinition(routeKey));
-            loadContext(Collections.singletonList(routeDAO.find(routeKey)));
-            
-            // Start the Camel Context if it's stopped, as maybe this update fixes a previous route error which
-            // caused startup to fail
-            if (camelContext.isStopped()) {
-                try {
-                    camelContext.start();
-                } catch (Exception e) {
-                    LOG.error("While restarting Camel context", e);
-                }
-            }
+            loadContext(Collections.singletonList(routeDAO.find(routeKey).getContent()));
+        }
+    }
+
+    public void restoreRoute(final String routeKey, final String routeContent) {
+        try {
+            camelContext.getRouteDefinitions().remove(camelContext.getRouteDefinition(routeKey));
+            loadContext(Collections.singletonList(routeContent));
+
+            camelContext.start();
+        } catch (Exception e) {
+            LOG.error("While restoring Camel route {}", routeKey, e);
+            throw new CamelException(e);
         }
     }
 
@@ -128,6 +144,7 @@ public class SyncopeCamelContext {
             camelContext.start();
         } catch (Exception e) {
             LOG.error("While restarting Camel context", e);
+            throw new CamelException(e);
         }
     }
 
