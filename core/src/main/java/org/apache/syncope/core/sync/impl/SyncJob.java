@@ -124,13 +124,15 @@ public class SyncJob extends AbstractSyncJob<SyncTask, SyncActions> {
         profile.setDryRun(dryRun);
         profile.setResAct(getSyncPolicySpec(syncTask).getConflictResolutionAction());
 
+        ExternalResource resource = resourceDAO.find(syncTask.getResource().getName());
+
         // Prepare handler for SyncDelta objects (users)
         UserSyncResultHandler uhandler =
                 (UserSyncResultHandler) ApplicationContextProvider.getApplicationContext().getBeanFactory().
                 createBean(UserSyncResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
         uhandler.setProfile(profile);
         uhandler.setSyncJob(this);
-        latestUSyncToken = null;
+        latestUSyncToken = resource.getUsyncToken();
 
         // Prepare handler for SyncDelta objects (roles/groups)
         RoleSyncResultHandler rhandler =
@@ -138,7 +140,7 @@ public class SyncJob extends AbstractSyncJob<SyncTask, SyncActions> {
                 createBean(RoleSyncResultHandler.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
         rhandler.setProfile(profile);
         rhandler.setSyncJob(this);
-        latestRSyncToken = null;
+        latestRSyncToken = resource.getRsyncToken();
 
         if (!profile.isDryRun()) {
             for (SyncActions action : actions) {
@@ -169,7 +171,6 @@ public class SyncJob extends AbstractSyncJob<SyncTask, SyncActions> {
 
             if (!dryRun && !syncTask.isFullReconciliation()) {
                 try {
-                    ExternalResource resource = resourceDAO.find(syncTask.getResource().getName());
                     if (uMapping != null) {
                         resource.setUsyncToken(latestUSyncToken);
                     }
