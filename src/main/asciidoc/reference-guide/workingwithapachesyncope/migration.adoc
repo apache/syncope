@@ -1,0 +1,259 @@
+//
+// Licensed to the Apache Software Foundation (ASF) under one
+// or more contributor license agreements.  See the NOTICE file
+// distributed with this work for additional information
+// regarding copyright ownership.  The ASF licenses this file
+// to you under the Apache License, Version 2.0 (the
+// "License"); you may not use this file except in compliance
+// with the License.  You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+//
+=== Migration from Apache Syncope 1.2
+
+Apache Syncope 2.0 brings
+https://cwiki.apache.org/confluence/display/SYNCOPE/Jazz[several enhancements and new features^], compared to 1.2.
+
+For this reason, it is not possible to _update_ an existing 1.2 deployment but it is rather necessary to _migrate_ the
+whole configuration, users and roles to a brand new 2.0 deployment.
+
+==== Preparation
+
+With reference to the
+ifeval::["{backend}" == "html5"]
+http://syncope.apache.org/docs/getting-started.html[Apache Syncope Getting Started Guide,]
+endif::[]
+ifeval::["{backend}" == "pdf"]
+http://syncope.apache.org/docs/getting-started.pdf[Apache Syncope Getting Started Guide,]
+endif::[]
+perform the following steps:
+
+. Install the CLI application
+. Create a new Maven project for Apache Syncope 2.0 then add the following dependency to `core/pom.xml`
+
+[source,xml,subs="verbatim,attributes"]
+----
+<dependency>
+  <groupId>org.apache.syncope.core</groupId>
+  <artifactId>syncope-core-migration</artifactId>
+  <version>{docVersion}</version>
+</dependency>
+----
+
+==== Migrate configuration
+
+[discrete]
+===== Export configuration from 1.2
+
+First, export the configuration from the 1.2 deployment via
+
+....
+curl -X GET -u username:password -o content.xml protocol://host:port/syncope/rest/configurations/stream
+....
+
+where `username`, `password`, `protocol`, `host` and `port` reflect the Java EE container installation for the 1.2
+deployment. +
+The configuration of the 1.2 deployment is now in the `content.xml` file.
+
+[discrete]
+===== Obtain configuration file for 2.0
+
+Now process the exported configuration of the 1.2 deployment to obtain a basic 2.0 configuration, by invoking the CLI as
+follows:
+
+.On GNU / Linux - Mac OS X
+....
+./syncopeadm.sh migrate --conf /path/to/context.xml /dest/path/to/MasterContent.xml
+....
+
+.On Windows
+....
+syncopeadm.bat migrate --conf \path\to\context.xml \dest\path\to\MasterContent.xml
+....
+
+The result of such invocation is the generated `MasterContent.xml` file and possibly an output message like as follows:
+
+....
+You are running: migrate --conf /path/to/context.xml /dest/path/to/MasterContent.xml
+
+Virtual items, require manual intervention:
+<?xml version='1.0' encoding='UTF-8'?><dataset>
+  <VirSchema key="virtualdata"/>
+  <VirSchema key="virtualPropagation"/>
+  <VirSchema key="rvirtualdata"/>
+  <VirSchema key="mvirtualdata"/>
+  <VirSchema READONLY="1" key="virtualReadOnly"/>
+  <MappingItem extAttrName="name" mapping_id="1" intAttrName="virtualdata"
+               mandatoryCondition="type == 'F'" password="0" purpose="BOTH"/>
+  <MappingItem password="0" mapping_id="11" extAttrName="givenname"
+               intAttrName="virtualReadOnly" mandatoryCondition="false" purpose="BOTH"/>
+  <MappingItem password="0" mapping_id="11" extAttrName="givenname"
+               intAttrName="virtualPropagation" mandatoryCondition="false" purpose="BOTH"/>
+  <MappingItem extAttrName="businessCategory" mapping_id="1"
+               intAttrName="rvirtualdata" mandatoryCondition="false" password="0" purpose="BOTH"/>
+  <MappingItem mapping_id="17" password="0" extAttrName="USERNAME"
+               intAttrName="virtualdata" mandatoryCondition="false" purpose="BOTH"/>
+  <MappingItem mapping_id="17" password="0" extAttrName="SURNAME"
+               intAttrName="virtualPropagation" mandatoryCondition="false" purpose="BOTH"/>
+</dataset>
+
+
+ - Migration completed; file successfully created under /dest/path/to/MasterContent.xml
+....
+
+<<virtual,Virtual schemas>> and associated <<mapping,mapping>> cannot be automatically migrated: take note of the
+message above for further operations.
+
+[discrete]
+===== Finalize configuration for 2.0
+
+After putting the generated `MasterContent.xml` file under the `core/src/test/resources/domains` folder in the new 2.0
+Maven project, build and start in embedded mode, while always watching the log files under:
+
+* `core/target/log/`
+* `console/target/log/`
+* `enduser/target/log/`
+
+If errors are found, make appropriate corrections into `core/src/test/resources/domains/MasterContent.xml` - this might
+involve migrating custom classes originally developed for 1.2 into their respective
+<<customization-core,2.0 counterparts>>.
+
+When no exceptions are reported in the logs, log in the admin console and check if all configuration items
+(schema definitions, external resources, notifications, ...) were correctly migrated. If anything is missing, take care
+of re-adding manually.
+
+If using delegated administration under 1.2, reconstruct <<roles,roles>> and <<entitlements,entitlements>> under the
+new security model.
+
+Now, define the virtual schema and mapping items according to the output message obtained above when invoking the
+CLI.
+
+[WARNING]
+If making modifications via the admin console, do not forget to <<deal-with-internal-storage-export-import,export>>
+the updated configuration before shutting down the embedded mode, then use the downloaded file to update
+`core/src/test/resources/domains/MasterContent.xml`.
+
+Finally, verify that all operations (create, updated, delete, propagate, sync / push) about users and roles used in the
+1.2 deployment are working fine (create, updated, delete, propagate, pull / push) with users and groups in the 2.0
+Maven project.
+
+When everything works as expected, <<deal-with-internal-storage-export-import,export>>
+the updated configuration before shutting down the embedded mode and use the downloaded file to update both
+`core/src/main/resources/domains/MasterContent.xml` and `core/src/test/resources/domains/MasterContent.xml`.
+
+==== Migrate users and roles
+
+After deploying the 2.0 Maven project into one of supported <<javaee-container,Java EE containers>>, with internal
+storage set to one of supported <<dbms,DBMSes>>, ensure that the 1.2 deployment's internal storage DBMS is reachable.
+
+The steps below are to be performed on the 2.0 deployment.
+
+[discrete]
+===== Define migration <<anytypeclass>>
+
+Create the following <<plain,plain schemas>>:
+
+. `migrationCipherAlgorithm` - string, read-only
+. `migrationResources` - string, multi-value, read-only
+. `migrationMemberships` - string, multi-value, read-only
+
+Then, define the `migration` AnyTypeClass and assign the three plain schemas above.
+
+[discrete]
+===== Create migration <<connector-instance-details,Connector>>
+
+Create an instance of the https://connid.atlassian.net/wiki/display/BASE/Scripted+SQL[Scripted SQL^] bundle:
+
+. set connection details to the 1.2 deployment's internal storage DBMS
+. download the Groovy
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/tree/syncope-{docVersion}/core/migration/src/main/resources/scripted[scripts^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/tree/master/core/migration/src/main/resources/scripted[scripts^]
+endif::[]
+and configure accordingly
+. assign the `SEARCH` and `SYNC` capabilities
+
+[discrete]
+===== Create migration <<external-resource-details,External Resource>> and <<mapping>>
+
+Create an External Resource for the Connector created above, and set the <<provision,provisioning>> rules for:
+
+* `USER` as `\\__ACCOUNT__`, with at the least the following mapping:
+|===
+| Internal Attribute | External Attribute | Other
+
+| `username`
+| `username`
+| flagged as remote key, mandatory, purpose: `PULL`
+
+| `password`
+|
+| flagged as password, mandatory, purpose: `PULL`
+
+| `migrationCipherAlgorithm`
+| `cipherAlgorithm`
+| mandatory, purpose: `PULL`
+
+| `migrationResources`
+| `\\__RESOURCES__`
+| purpose: `PULL`
+
+|===
+* `GROUP` as `\\__GROUP__`,  with at the least the following mapping:
+|===
+| Internal Attribute | External Attribute | Other
+
+| `name`
+| `name`
+| flagged as remote key, mandatory, purpose: `PULL`
+
+| `migrationResources`
+| `\\__RESOURCES__`
+| purpose: `PULL`
+
+| `migrationMemberships`
+| `\\__MEMBERSHIPS__`
+| mandatory, purpose: `PULL`
+
+|===
+
+[WARNING]
+More attributes should be added to the mapping information in order to pull values from the 1.2 deployments.
+
+[discrete]
+===== Setup migration <<tasks-pull,Pull Task>>
+
+Setup a pull task for the External Resource created above, set it for `FULL_RECONCILIATION` <<pull-mode,mode>> and
+configure the 
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/migration/src/main/java/org/apache/syncope/core/migration/MigrationPullActions.java[MigrationPullActions^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/core/migration/src/main/java/org/apache/syncope/core/migration/MigrationPullActions.java[MigrationPullActions^]
+endif::[]
+class among <<pullactions>>.
+
+[discrete]
+===== Migrate
+
+Before actual migration, use the admin console features to explore the External Resource and check that all expected
+information is reported.
+
+Another check to perform is to run the pull task set up above with the <<dryrun,DryRun>> option and watch the execution
+results.
+
+Finally, execute the pull task and check the execution results.
+
+[TIP]
+If the number of users and roles to import from the 1.2 deployment is high, it is suggested to change the pull mode to
+`FILTERED_RECONCILIATION` for a relevant subset of entities to migrate, check the results and eventually switch back
+to `FULL_RECONCILIATION`.

@@ -97,6 +97,14 @@ the execution details - depending on the trace level set on the related
 <<external-resource-details,external resource>>.
 ====
 
+[[dryrun]]
+[TIP]
+.DryRun
+====
+It is possible to simulate the execution of a pull (or push) task without performing any actual modification by
+selecting the _DryRun_ option. The execution results will be still available for examination.
+====
+
 [[tasks-push]]
 ==== Push
 
