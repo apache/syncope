@@ -19,9 +19,9 @@
 === Migration from Apache Syncope 1.2
 
 Apache Syncope 2.0 brings
-https://cwiki.apache.org/confluence/display/SYNCOPE/Jazz[several enhancements and new features^], compared to 1.2.
+https://cwiki.apache.org/confluence/display/SYNCOPE/Jazz[several enhancements and new features^], compared to the 1.2 release.
 
-For this reason, it is not possible to _update_ an existing 1.2 deployment but it is rather necessary to _migrate_ the
+For this reason, it is not possible to _update_ an existing 1.2 deployment, rather it is necessary to _migrate_ the
 whole configuration, users and roles to a brand new 2.0 deployment.
 
 ==== Preparation
@@ -36,7 +36,7 @@ endif::[]
 perform the following steps:
 
 . Install the CLI application
-. Create a new Maven project for Apache Syncope 2.0 then add the following dependency to `core/pom.xml`
+. Create a new Maven project for Apache Syncope 2.0 and then add the following dependency to `core/pom.xml`
 
 [source,xml,subs="verbatim,attributes"]
 ----
@@ -78,7 +78,7 @@ follows:
 syncopeadm.bat migrate --conf \path\to\context.xml \dest\path\to\MasterContent.xml
 ....
 
-The result of such invocation is the generated `MasterContent.xml` file and possibly an output message like as follows:
+The result of this invocation is the generated `MasterContent.xml` file and possibly an output message such as the following:
 
 ....
 You are running: migrate --conf /path/to/context.xml /dest/path/to/MasterContent.xml
@@ -125,9 +125,9 @@ If errors are found, make appropriate corrections into `core/src/test/resources/
 involve migrating custom classes originally developed for 1.2 into their respective
 <<customization-core,2.0 counterparts>>.
 
-When no exceptions are reported in the logs, log in the admin console and check if all configuration items
+When no exceptions are reported in the logs, log into the admin console and check if all configuration items
 (schema definitions, external resources, notifications, ...) were correctly migrated. If anything is missing, take care
-of re-adding manually.
+to re-add them manually.
 
 If using delegated administration under 1.2, reconstruct <<roles,roles>> and <<entitlements,entitlements>> under the
 new security model.
@@ -140,8 +140,8 @@ If making modifications via the admin console, do not forget to <<deal-with-inte
 the updated configuration before shutting down the embedded mode, then use the downloaded file to update
 `core/src/test/resources/domains/MasterContent.xml`.
 
-Finally, verify that all operations (create, updated, delete, propagate, sync / push) about users and roles used in the
-1.2 deployment are working fine (create, updated, delete, propagate, pull / push) with users and groups in the 2.0
+Finally, verify that all operations (create, update, delete, propagate, sync / push) about users and roles used in the
+1.2 deployment are working fine (create, update, delete, propagate, pull / push) with users and groups in the 2.0
 Maven project.
 
 When everything works as expected, <<deal-with-internal-storage-export-import,export>>
@@ -187,7 +187,7 @@ and configure accordingly
 
 Create an External Resource for the Connector created above, and set the <<provision,provisioning>> rules for:
 
-* `USER` as `\\__ACCOUNT__`, with at the least the following mapping:
+* `USER` as `\\__ACCOUNT__`, with at least the following mapping:
 |===
 | Internal Attribute | External Attribute | Other
 
@@ -208,7 +208,7 @@ Create an External Resource for the Connector created above, and set the <<provi
 | purpose: `PULL`
 
 |===
-* `GROUP` as `\\__GROUP__`,  with at the least the following mapping:
+* `GROUP` as `\\__GROUP__`,  with at least the following mapping:
 |===
 | Internal Attribute | External Attribute | Other
 
