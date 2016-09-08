@@ -261,8 +261,6 @@ public class JobWidget extends BaseWidget {
 
             columns.add(new DatePropertyColumn<JobTO>(new ResourceModel("start"), "start", "start"));
 
-            columns.add(new PropertyColumn<JobTO, String>(new ResourceModel("status"), "status", "status"));
-
             return columns;
         }
 

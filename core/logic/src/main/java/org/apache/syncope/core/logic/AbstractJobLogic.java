@@ -67,7 +67,6 @@ abstract class AbstractJobLogic<T extends AbstractBaseBean> extends AbstractTran
                     } else {
                         jobTO.setScheduled(true);
                         jobTO.setStart(jobTriggers.get(0).getStartTime());
-                        jobTO.setStatus(scheduler.getScheduler().getTriggerState(jobTriggers.get(0).getKey()).name());
                     }
 
                     jobTO.setRunning(jobManager.isRunning(jobKey));

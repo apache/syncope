@@ -84,14 +84,6 @@ public class JobTO extends AbstractBaseBean {
         this.scheduled = scheduled;
     }
 
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(final String status) {
-        this.status = status;
-    }
-
     public Date getStart() {
         return start == null
                 ? null

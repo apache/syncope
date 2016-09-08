@@ -214,7 +214,6 @@ public class TaskResultManager extends CommonsResultManager {
     public void printJobs(final List<JobTO> jobTOs) {
         for (final JobTO jobTO : jobTOs) {
             System.out.println("       TASK: " + jobTO.getRefDesc());
-            System.out.println("       status: " + jobTO.getStatus());
             System.out.println("       start date: " + jobTO.getStart());
             System.out.println("       running: " + jobTO.isRunning());
             System.out.println("       scheduled: " + jobTO.isScheduled());
