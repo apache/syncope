@@ -162,11 +162,16 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
             try {
                 switch (pullTask.getPullMode()) {
                     case INCREMENTAL:
+                        if (!dryRun) {
+                            latestSyncTokens.put(orgUnit.getObjectClass(), orgUnit.getSyncToken());
+                        }
+
                         connector.sync(
                                 orgUnit.getObjectClass(),
                                 orgUnit.getSyncToken(),
                                 rhandler,
                                 options);
+
                         if (!dryRun) {
                             orgUnit.setSyncToken(latestSyncTokens.get(orgUnit.getObjectClass()));
                             resourceDAO.save(orgUnit.getResource());
@@ -241,11 +246,16 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
 
                     switch (pullTask.getPullMode()) {
                         case INCREMENTAL:
+                            if (!dryRun) {
+                                latestSyncTokens.put(provision.getObjectClass(), provision.getSyncToken());
+                            }
+
                             connector.sync(
                                     provision.getObjectClass(),
                                     provision.getSyncToken(),
                                     handler,
                                     options);
+
                             if (!dryRun) {
                                 provision.setSyncToken(latestSyncTokens.get(provision.getObjectClass()));
                                 resourceDAO.save(provision.getResource());
