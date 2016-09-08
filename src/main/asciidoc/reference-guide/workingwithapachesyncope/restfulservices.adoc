@@ -44,6 +44,72 @@ where `protocol`, `host` and `port` reflect your Java EE container installation.
 [TIP]
 The <<swagger,Swagger extension>> might also help greatly when working with RESTful services.
 
+==== REST Headers
+
+Besides the common HTTP headers as `Accept`, `Content-Type`, ... more are supported, as reported below.
+
+[TIP]
+Dealing with the headers below when using the <<client-library>> is possible via the `SyncopeClient` class methods.
+
+===== X-Syncope-Domain
+
+`X-Syncope-Domain` can be optionally set for requests (when not set, `Master` is assumed) to select the target
+<<domains,domain>>. +
+Value for this header is provided in all responses.
+
+===== X-Syncope-Key and Location
+
+When creating an entity (User, Group, Schema, External Resource, ...) these two headers are populated respectively with
+the entity key (which may be auto-generated) and the absolute URI identifying the new REST resource.
+
+===== X-Application-Error-Code and X-Application-Error-Info
+
+If the requested operation is in error, `X-Application-Error-Code` will contain the error code (mostly from
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/common/lib/src/main/java/org/apache/syncope/common/lib/types/ClientExceptionType.java[ClientExceptionType^])
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/common/lib/src/main/java/org/apache/syncope/common/lib/types/ClientExceptionType.java[ClientExceptionType^])
+endif::[]
+and `X-Application-Error-Info` might be optionally populated with more details, if available.
+
+===== X-Syncope-Null-Priority-Async
+
+When set to `true`, this request header instructs the <<propagation,propagation process>> to not wait for completion
+when communicating with <<external-resource-details,External Resources>> with no priority set.
+
+===== Prefer and Preference-Applied
+
+Some REST endpoints - typically for creating, updating or deleting Users, Groups or Any Objects - return by default the
+entity in the response payload. +
+If this is not required, the `Prefer` request header can be set to `return-no-content` (`return-content` will instead
+keep the default behavior).
+
+When `Prefer` is specified in the request, the response will feature the `Preference-Applied` header, with value set
+to the effective preference applied.
+
+[TIP]
+Use `Prefer` in scenarios where it is important to avoid unnecessary data in the response payload.
+
+===== ETag, If-Match and If-None-Match
+
+For each response containing Users, Groups or Any Objects, the https://en.wikipedia.org/wiki/HTTP_ETag[ETag^] header is
+generated, which contains the latest modification date.
+
+This value can be passed, during subsequent modifying requests for the same entity, via the `If-Match` or
+`If-None-Match` headers. +
+When the provided `If-Match` value does not match the latest modification date of the entity, an error is reported and
+the requested operation is not performed.
+
+[TIP]
+The combined usage of `ETag` and `If-Match` can be enforced to implement optimistic concurrency control over Users,
+Groups and Any Objects operations.
+
+===== X-Syncope-Entitlements
+
+When invoking the REST endpoint `/users/self` in `GET`, the `X-Syncope-Entitlements` response header will list all
+the <<entitlements,entitlements>> owned by the requesting user.
+
 ==== Client Library
 
 The Java client library simplifies the interaction with the <<core>> by hiding the underlying HTTP
