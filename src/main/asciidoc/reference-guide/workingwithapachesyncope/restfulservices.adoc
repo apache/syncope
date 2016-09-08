@@ -46,16 +46,17 @@ The <<swagger,Swagger extension>> might also help greatly when working with REST
 
 ==== REST Headers
 
-Besides the common HTTP headers as `Accept`, `Content-Type`, ... more are supported, as reported below.
+Apache Syncope supports a number of HTTP headers as detailed below, in addition
+to the common HTTP headers such as `Accept`, `Content-Type`, etc.
 
 [TIP]
-Dealing with the headers below when using the <<client-library>> is possible via the `SyncopeClient` class methods.
+It is possible to deal with the headers below when using the <<client-library>> via the `SyncopeClient` class methods.
 
 ===== X-Syncope-Domain
 
 `X-Syncope-Domain` can be optionally set for requests (when not set, `Master` is assumed) to select the target
 <<domains,domain>>. +
-Value for this header is provided in all responses.
+The value for this header is provided in all responses.
 
 ===== X-Syncope-Key and Location
 
@@ -75,13 +76,13 @@ and `X-Application-Error-Info` might be optionally populated with more details, 
 
 ===== X-Syncope-Null-Priority-Async
 
-When set to `true`, this request header instructs the <<propagation,propagation process>> to not wait for completion
+When set to `true`, this request header instructs the <<propagation,propagation process>> not to wait for completion
 when communicating with <<external-resource-details,External Resources>> with no priority set.
 
 ===== Prefer and Preference-Applied
 
-Some REST endpoints - typically for creating, updating or deleting Users, Groups or Any Objects - return by default the
-entity in the response payload. +
+Some REST endpoints - typically for creating, updating or deleting Users, Groups or Any Objects - return the
+entity in the response payload by default. +
 If this is not required, the `Prefer` request header can be set to `return-no-content` (`return-content` will instead
 keep the default behavior).
 
@@ -96,7 +97,7 @@ Use `Prefer` in scenarios where it is important to avoid unnecessary data in the
 For each response containing Users, Groups or Any Objects, the https://en.wikipedia.org/wiki/HTTP_ETag[ETag^] header is
 generated, which contains the latest modification date.
 
-This value can be passed, during subsequent modifying requests for the same entity, via the `If-Match` or
+This value can be passed, during subsequent requests to modify the same entity, via the `If-Match` or
 `If-None-Match` headers. +
 When the provided `If-Match` value does not match the latest modification date of the entity, an error is reported and
 the requested operation is not performed.
