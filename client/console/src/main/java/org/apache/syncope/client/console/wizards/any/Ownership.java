@@ -173,7 +173,8 @@ public class Ownership extends WizardStep implements WizardModel.ICondition {
 
         groupSearchFragment = new Fragment("search", "groupSearchFragment", this);
         groupSearchPanel = new GroupSearchPanel.Builder(
-                new ListModel<>(new ArrayList<SearchClause>())).required(false).enableSearch().build("groupsearch");
+                new ListModel<>(new ArrayList<SearchClause>())).required(false).enableSearch(Ownership.this).
+                build("groupsearch");
         groupSearchFragment.add(groupSearchPanel.setRenderBodyOnly(true));
 
         AnyTypeTO anyTypeTO = anyTypeRestClient.read(AnyTypeKind.GROUP.name());
@@ -187,7 +188,8 @@ public class Ownership extends WizardStep implements WizardModel.ICondition {
 
         userSearchFragment = new Fragment("search", "userSearchFragment", this);
         userSearchPanel = UserSearchPanel.class.cast(new UserSearchPanel.Builder(
-                new ListModel<>(new ArrayList<SearchClause>())).required(false).enableSearch().build("usersearch"));
+                new ListModel<>(new ArrayList<SearchClause>())).required(false).enableSearch(Ownership.this).
+                build("usersearch"));
         userSearchFragment.add(userSearchPanel.setRenderBodyOnly(true));
 
         anyTypeTO = anyTypeRestClient.read(AnyTypeKind.USER.name());

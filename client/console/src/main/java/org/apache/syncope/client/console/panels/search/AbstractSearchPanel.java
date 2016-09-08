@@ -33,6 +33,7 @@ import org.apache.syncope.common.lib.to.AbstractSchemaTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.SchemaType;
+import org.apache.wicket.event.IEventSink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
@@ -87,8 +88,15 @@ public abstract class AbstractSearchPanel extends Panel {
 
         protected boolean enableSearch = false;
 
+        protected IEventSink resultContainer;
+
         public Builder(final IModel<List<SearchClause>> model) {
             this.model = model;
+        }
+
+        public Builder<T> enableSearch(final IEventSink resultContainer) {
+            this.resultContainer = resultContainer;
+            return enableSearch();
         }
 
         public Builder<T> enableSearch() {
@@ -132,7 +140,7 @@ public abstract class AbstractSearchPanel extends Panel {
                 types, anames, dnames, groupNames, roleNames, resourceNames);
 
         if (enableSearch) {
-            searchClausePanel.enableSearch();
+            searchClausePanel.enableSearch(builder.resultContainer);
         }
 
         final MultiFieldPanel.Builder<SearchClause> searchView = new MultiFieldPanel.Builder<SearchClause>(model) {

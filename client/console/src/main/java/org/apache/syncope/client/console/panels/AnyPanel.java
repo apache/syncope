@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.panels;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.client.console.layout.AnyObjectFormLayoutInfo;
@@ -173,18 +174,35 @@ public class AnyPanel extends Panel implements ModalPanel {
 
     private AbstractSearchPanel getSearchPanel(final String id) {
         final AbstractSearchPanel panel;
+
+        final List<SearchClause> clauses = new ArrayList<>();
+        final SearchClause clause = new SearchClause();
+        clauses.add(clause);
+
         switch (anyTypeTO.getKind()) {
             case USER:
+                clause.setComparator(SearchClause.Comparator.EQUALS);
+                clause.setType(SearchClause.Type.ATTRIBUTE);
+                clause.setProperty("username");
+
                 panel = new UserSearchPanel.Builder(
-                        new ListModel<>(new ArrayList<SearchClause>())).required(false).enableSearch().build(id);
+                        new ListModel<>(clauses)).required(false).enableSearch().build(id);
                 break;
             case GROUP:
+                clause.setComparator(SearchClause.Comparator.EQUALS);
+                clause.setType(SearchClause.Type.ATTRIBUTE);
+                clause.setProperty("name");
+
                 panel = new GroupSearchPanel.Builder(
-                        new ListModel<>(new ArrayList<SearchClause>())).required(false).enableSearch().build(id);
+                        new ListModel<>(clauses)).required(false).enableSearch().build(id);
                 break;
             case ANY_OBJECT:
+                clause.setComparator(SearchClause.Comparator.EQUALS);
+                clause.setType(SearchClause.Type.ATTRIBUTE);
+                clause.setProperty("name");
+
                 panel = new AnyObjectSearchPanel.Builder(anyTypeTO.getKey(),
-                        new ListModel<>(new ArrayList<SearchClause>())).required(false).enableSearch().build(id);
+                        new ListModel<>(clauses)).required(false).enableSearch().build(id);
                 break;
             default:
                 panel = null;

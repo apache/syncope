@@ -76,7 +76,7 @@ public class GroupsITCase extends AbstractConsoleITCase {
         TESTER.clickLink("body:content:body:container:content:tabbedPanel:panel:accordionPanel:tabs:0:title");
 
         TESTER.executeAjaxEvent("body:content:body:container:content:tabbedPanel:panel:accordionPanel:tabs:0:body:"
-                + "content:searchFormContainer:search:multiValueContainer:innerForm:content:panelPlus:add",
+                + "content:searchFormContainer:search:multiValueContainer:innerForm:content:view:0:panelPlus:add",
                 Constants.ON_CLICK);
 
         TESTER.assertComponent("body:content:body:container:content:tabbedPanel:panel:accordionPanel:tabs:0:body:"

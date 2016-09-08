@@ -59,7 +59,7 @@ public class AjaxDropDownChoicePanel<T extends Serializable> extends FieldPanel<
                 }
             });
         }
-        
+
         setNullValid(true);
     }
 

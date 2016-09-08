@@ -59,6 +59,7 @@ public abstract class AbstractMultiPanel<INNER> extends AbstractFieldPanel<List<
         add(container);
 
         form = new Form<>("innerForm");
+        form.setDefaultButton(null);
         container.add(form);
         // -----------------------
 

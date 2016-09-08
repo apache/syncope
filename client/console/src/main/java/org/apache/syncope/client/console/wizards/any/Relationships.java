@@ -328,7 +328,7 @@ public class Relationships extends WizardStep {
                         anyObjectSearchPanel = new AnyObjectSearchPanel.Builder(
                                 anyType.getKey(),
                                 new ListModel<>(new ArrayList<SearchClause>())).
-                                enableSearch().
+                                enableSearch(Specification.this).
                                 build("searchPanel");
                         fragment.add(anyObjectSearchPanel.setRenderBodyOnly(true));
 

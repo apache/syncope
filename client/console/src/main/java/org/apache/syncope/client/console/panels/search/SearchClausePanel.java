@@ -35,17 +35,23 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.search.SearchClause.Comparator;
 import org.apache.syncope.client.console.panels.search.SearchClause.Operator;
 import org.apache.syncope.client.console.panels.search.SearchClause.Type;
+import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxEventBehavior;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.common.lib.to.RelationshipTypeTO;
 import org.apache.syncope.common.rest.api.service.RelationshipTypeService;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
+import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.attributes.AjaxCallListener;
+import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
 import org.apache.wicket.event.Broadcast;
+import org.apache.wicket.event.IEventSink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.Form;
@@ -88,6 +94,8 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
     private final AjaxSubmitLink searchButton;
 
+    private IEventSink resultContainer;
+
     public SearchClausePanel(
             final String id,
             final String name,
@@ -118,7 +126,11 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-                send(this, Broadcast.BUBBLE, new SearchEvent(target));
+                if (resultContainer == null) {
+                    send(this, Broadcast.BUBBLE, new SearchEvent(target));
+                } else {
+                    send(resultContainer, Broadcast.EXACT, new SearchEvent(target));
+                }
             }
         };
 
@@ -224,8 +236,42 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
         };
     }
 
-    public void enableSearch() {
+    public void enableSearch(final IEventSink resultContainer) {
+        this.resultContainer = resultContainer;
         this.searchButton.setEnabled(true);
+
+        field.add(AttributeModifier.replace(
+                "onkeydown",
+                Model.of("if(event.keyCode == 13) {event.preventDefault();}")));
+
+        field.add(new AjaxEventBehavior("onkeydown") {
+
+            private static final long serialVersionUID = -7133385027739964990L;
+
+            @Override
+            protected void onEvent(final AjaxRequestTarget target) {
+                if (resultContainer == null) {
+                    send(SearchClausePanel.this, Broadcast.BUBBLE, new SearchEvent(target));
+                } else {
+                    send(resultContainer, Broadcast.EXACT, new SearchEvent(target));
+                }
+            }
+
+            @Override
+            protected void updateAjaxAttributes(final AjaxRequestAttributes attributes) {
+                super.updateAjaxAttributes(attributes);
+
+                attributes.getAjaxCallListeners().add(new AjaxCallListener() {
+
+                    private static final long serialVersionUID = 7160235486520935153L;
+
+                    @Override
+                    public CharSequence getPrecondition(final Component component) {
+                        return "if (Wicket.Event.keyCode(attrs.event)  == 13) { return true; } else { return false; }";
+                    }
+                });
+            }
+        });
     }
 
     @Override
@@ -344,6 +390,41 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                 "value", "value", new PropertyModel<String>(searchClause, "value"), false);
         value.hideLabel().setOutputMarkupId(true);
         field.add(value);
+
+        value.getField().add(AttributeModifier.replace(
+                "onkeydown",
+                Model.of("if(event.keyCode == 13) {event.preventDefault();}")));
+
+        value.getField().add(new IndicatorAjaxEventBehavior("onkeydown") {
+
+            private static final long serialVersionUID = -7133385027739964990L;
+
+            @Override
+            protected void onEvent(final AjaxRequestTarget target) {
+                target.focusComponent(null);
+                value.getField().inputChanged();
+                value.getField().validate();
+                if (value.getField().isValid()) {
+                    value.getField().valid();
+                    value.getField().updateModel();
+                }
+            }
+
+            @Override
+            protected void updateAjaxAttributes(final AjaxRequestAttributes attributes) {
+                super.updateAjaxAttributes(attributes);
+
+                attributes.getAjaxCallListeners().add(new AjaxCallListener() {
+
+                    private static final long serialVersionUID = 7160235486520935153L;
+
+                    @Override
+                    public CharSequence getPrecondition(final Component component) {
+                        return "if (Wicket.Event.keyCode(attrs.event)  == 13) { return true; } else { return false; }";
+                    }
+                });
+            }
+        });
 
         final AjaxDropDownChoicePanel<SearchClause.Type> type = new AjaxDropDownChoicePanel<>(
                 "type", "type", new PropertyModel<SearchClause.Type>(searchClause, "type"));
@@ -669,7 +750,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
         panel.setReadOnly(this.isReadOnly());
         panel.setRequired(this.isRequired());
         if (searchButton.isEnabled()) {
-            panel.enableSearch();
+            panel.enableSearch(resultContainer);
         }
         return panel;
     }
