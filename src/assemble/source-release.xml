@@ -32,11 +32,11 @@
       <outputDirectory/>
       <useDefaultExcludes>true</useDefaultExcludes>
       <excludes>
-	<!--  build output  -->
-	<exclude>
-	  %regex[(?!((?!${project.build.directory}/)[^/]+/)*src/).*${project.build.directory}.*]
-	</exclude>
-	<!--
+        <!--  build output  -->
+        <exclude>
+          %regex[(?!((?!${project.build.directory}/)[^/]+/)*src/).*${project.build.directory}.*]
+        </exclude>
+	    <!--
             NOTE: Most of the following excludes should not be required 
             if the standard release process is followed. This is because the 
             release plugin checks out project sources into a location like
@@ -105,13 +105,6 @@
           ide/eclipse/bundles/org.apache.syncope.ide.eclipse.plugin/bin/**
         </exclude>        
       </excludes>
-    </fileSet>
-    <!--  license, readme, etc. calculated at build time  -->
-    <fileSet>
-      <directory>
-        ${project.build.directory}/maven-shared-archive-resources/META-INF
-      </directory>
-      <outputDirectory/>
     </fileSet>
   </fileSets>
 </assembly>
