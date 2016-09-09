@@ -2,6 +2,27 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 2.0.0
+================================================================================
+
+** Bug
+    * [SYNCOPE-738] - Startup errors with Wildfly due to Camel route loading
+    * [SYNCOPE-929] - Braces are ignored for FIQL strings
+    * [SYNCOPE-930] - Exception when dropping the last "Base Contexts to Synchronize" from LDAP connector
+    * [SYNCOPE-931] - Error in Camel route causes subsequent failures
+    * [SYNCOPE-933] - Dashboard: status COMPLETE is reported for running jobs
+    * [SYNCOPE-934] - Bad form (including login) appearance with IE 11
+    * [SYNCOPE-935] - Attribute 'type' shouldn't be available to create a group filter
+    * [SYNCOPE-936] - Sync token reset to NULL when no SyncDelta items are available
+
+** Improvement
+    * [SYNCOPE-853] - Add AngularJS tests for enduser
+    * [SYNCOPE-926] - Syncope 2.x startup improvements
+    * [SYNCOPE-932] - Search UI improvements
+
+** New Feature
+    * [SYNCOPE-880] - Identity Recertification
+
 Release Notes - Syncope - Version 2.0.0.M5
 ================================================================================
 ** Sub-task
