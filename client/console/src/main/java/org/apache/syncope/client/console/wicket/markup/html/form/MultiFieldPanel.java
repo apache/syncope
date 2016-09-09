@@ -54,7 +54,6 @@ public abstract class MultiFieldPanel<E extends Serializable> extends AbstractMu
         /**
          * Set on_change event in order to send MultiValueSelectorEvent to page.
          *
-         * @see MultiValueSelectorEvent
          * @param eventTemplate whether this is an event template
          * @return this instance, for fluent building
          */
