@@ -66,7 +66,7 @@ public class SecurityQuestionServiceImpl extends AbstractServiceImpl implements 
 
     @Override
     public SecurityQuestionTO readByUser(final String username) {
-        return logic.read(username);
+        return logic.readByUser(username);
     }
 
 }
