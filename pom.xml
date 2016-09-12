@@ -437,7 +437,7 @@ under the License.
     <select2.version>3.4.8</select2.version>
     <fileSaver.version>0.0.2</fileSaver.version>
     
-    <izpack.version>5.0.9</izpack.version>
+    <izpack.version>5.0.10</izpack.version>
     <httpclient.version>4.3.6</httpclient.version>
     <maven-invoker.version>2.1.1</maven-invoker.version>
     <tycho-version>0.23.1</tycho-version>
@@ -1527,7 +1527,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.cargo</groupId>
           <artifactId>cargo-maven2-plugin</artifactId>
-          <version>1.5.1</version>
+          <version>1.6.0</version>
           <configuration>
             <container>
               <containerId>tomcat8x</containerId>
