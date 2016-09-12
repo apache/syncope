@@ -118,7 +118,7 @@ to
 
 Connector bundles can be added or replaced at run-time by performing the following steps:
 
-. https://github.com/Tirasa/ConnId/blob/master/README.md#available-connectors[Download^] the required connector bundle
+. https://github.com/Tirasa/ConnId/blob/tree/2_0_X/README.md#available-connectors[Download^] the required connector bundle
 JAR file;
 . Copy the downloaded JAR file into one of configured <<configure-connid-locations,ConnId locations>>, typically the
 `bundles` directory where the other connector bundles are already available.

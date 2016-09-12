@@ -177,7 +177,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/tree/syncope-{docVersion}/core/migration/src/main/resources/scripted[scripts^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/tree/master/core/migration/src/main/resources/scripted[scripts^]
+https://github.com/apache/syncope/tree/tree/2_0_X/core/migration/src/main/resources/scripted[scripts^]
 endif::[]
 and configure accordingly
 . assign the `SEARCH` and `SYNC` capabilities
@@ -238,7 +238,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/migration/src/main/java/org/apache/syncope/core/migration/MigrationPullActions.java[MigrationPullActions^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/migration/src/main/java/org/apache/syncope/core/migration/MigrationPullActions.java[MigrationPullActions^]
+https://github.com/apache/syncope/blob/tree/2_0_X/core/migration/src/main/java/org/apache/syncope/core/migration/MigrationPullActions.java[MigrationPullActions^]
 endif::[]
 class among <<pullactions>>.
 
