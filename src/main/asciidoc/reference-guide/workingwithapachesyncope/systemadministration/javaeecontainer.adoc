@@ -94,7 +94,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/fit/core-reference/src/main/resources/jboss/restCXFContext.xml[restCXFContext.xml^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/tree/2_0_X/fit/core-reference/src/main/resources/jboss/restCXFContext.xml[restCXFContext.xml^]
+https://github.com/apache/syncope/tree/2_0_X/fit/core-reference/src/main/resources/jboss/restCXFContext.xml[restCXFContext.xml^]
 endif::[]
 and save it under `core/src/main/resources/`.
 

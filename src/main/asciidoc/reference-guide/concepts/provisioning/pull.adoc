@@ -63,7 +63,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/pushpull/ReconciliationFilterBuilder.java[ReconciliationFilterBuilder^])
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/tree/2_0_X/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/pushpull/ReconciliationFilterBuilder.java[ReconciliationFilterBuilder^])
+https://github.com/apache/syncope/tree/2_0_X/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/pushpull/ReconciliationFilterBuilder.java[ReconciliationFilterBuilder^])
 endif::[]
 of all available entities is processed.
 INCREMENTAL:: Only the actual modifications performed since the last pull task execution are considered. This mode
@@ -94,7 +94,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/pushpull/PullActions.java[PullActions^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/tree/2_0_X/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/pushpull/PullActions.java[PullActions^]
+https://github.com/apache/syncope/tree/2_0_X/core/provisioning-api/src/main/java/org/apache/syncope/core/provisioning/api/pushpull/PullActions.java[PullActions^]
 endif::[]
 interface.
 
@@ -108,7 +108,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/LDAPMembershipPullActions.java[LDAPMembershipPullActions^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/tree/2_0_X/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/LDAPMembershipPullActions.java[LDAPMembershipPullActions^]
+https://github.com/apache/syncope/tree/2_0_X/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/LDAPMembershipPullActions.java[LDAPMembershipPullActions^]
 endif::[]
 | If a User is associated with a Group in LDAP, keep the corresponding User as a member of the corresponding Group in Syncope.
 
@@ -117,7 +117,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/LDAPPasswordPullActions.java[LDAPPasswordPullActions^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/tree/2_0_X/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/LDAPPasswordPullActions.java[LDAPPasswordPullActions^]
+https://github.com/apache/syncope/tree/2_0_X/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/LDAPPasswordPullActions.java[LDAPPasswordPullActions^]
 endif::[]
 | Import hashed password values from LDAP;
 the cipher algorithm associated with the password must match the value of `passwordHashAlgorithm` for the 
@@ -128,7 +128,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/DBPasswordPullActions.java[DBPasswordPullActions^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/tree/2_0_X/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/DBPasswordPullActions.java[DBPasswordPullActions^]
+https://github.com/apache/syncope/tree/2_0_X/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/pushpull/DBPasswordPullActions.java[DBPasswordPullActions^]
 endif::[]
 | Import hashed password values from DBMS;
 the cipher algorithm associated with the password must match the value of `Password cipher algorithm` for the 
