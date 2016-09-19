@@ -46,7 +46,7 @@ public class GroupTemplateWizardBuilder extends GroupWizardBuilder implements Te
         } else {
             GroupTO groupTO = new GroupTO();
             if (templatable instanceof RealmTO) {
-                groupTO.setRealm(RealmTO.class.cast(templatable).getFullPath());
+                groupTO.setRealm(String.format("'%s'", RealmTO.class.cast(templatable).getFullPath()));
             }
             setItem(new GroupWrapper(groupTO));
         }

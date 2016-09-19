@@ -48,7 +48,7 @@ public class AnyObjectTemplateWizardBuilder extends AnyObjectWizardBuilder
             AnyObjectTO anyObjectTO = new AnyObjectTO();
             anyObjectTO.setType(anyType);
             if (templatable instanceof RealmTO) {
-                anyObjectTO.setRealm(RealmTO.class.cast(templatable).getFullPath());
+                anyObjectTO.setRealm(String.format("'%s'", RealmTO.class.cast(templatable).getFullPath()));
             }
             setItem(new AnyWrapper<>(anyObjectTO));
         }

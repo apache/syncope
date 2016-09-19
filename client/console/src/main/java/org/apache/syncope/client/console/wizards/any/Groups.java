@@ -59,6 +59,8 @@ public class Groups extends WizardStep implements ICondition {
     public <T extends AnyTO> Groups(final T anyTO, final boolean templateMode) {
         super();
 
+        final String realm = templateMode ? "/" : anyTO.getRealm();
+
         // -----------------------------------------------------------------
         // Pre-Authorizations
         // -----------------------------------------------------------------
@@ -110,7 +112,7 @@ public class Groups extends WizardStep implements ICondition {
             public List<MembershipTO> execute(final String filter) {
                 return CollectionUtils.collect(
                         groupRestClient.search(
-                                anyTO.getRealm(),
+                                realm,
                                 SyncopeClient.getGroupSearchConditionBuilder().
                                 isAssignable().and().is("name").equalTo(filter).query(),
                                 -1, -1,
@@ -129,7 +131,7 @@ public class Groups extends WizardStep implements ICondition {
         }).hideLabel().setOutputMarkupId(true));
 
         allGroups = groupRestClient.search(
-                templateMode ? "/" : anyTO.getRealm(), null, -1, -1, new SortParam<>("name", true), null);
+                templateMode ? "/" : realm, null, -1, -1, new SortParam<>("name", true), null);
 
         final Map<String, GroupTO> allGroupsByKey = new LinkedHashMap<>(allGroups.size());
         for (GroupTO group : allGroups) {
