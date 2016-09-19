@@ -61,8 +61,6 @@ import org.apache.syncope.core.spring.BeanUtils;
 import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
-import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
-import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
@@ -192,12 +190,9 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
         AnyUtils anyUtils = anyUtilsFactory.getInstance(AnyTypeKind.USER);
         if (user.getRealm() != null) {
-            AssignableCond assignableCond = new AssignableCond();
-            assignableCond.setRealmFullPath(user.getRealm().getFullPath());
-
             // relationships
             Collection<String> assignableAnyObjects = CollectionUtils.collect(
-                    searchDAO.search(SearchCond.getLeafCond(assignableCond), AnyTypeKind.ANY_OBJECT),
+                    searchDAO.searchAssignable(user.getRealm().getFullPath(), AnyTypeKind.ANY_OBJECT),
                     EntityUtils.keyTransformer());
 
             for (RelationshipTO relationshipTO : userTO.getRelationships()) {
@@ -229,7 +224,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
             // memberships
             Collection<String> assignableGroups = CollectionUtils.collect(
-                    searchDAO.search(SearchCond.getLeafCond(assignableCond), AnyTypeKind.GROUP),
+                    searchDAO.searchAssignable(user.getRealm().getFullPath(), AnyTypeKind.GROUP),
                     EntityUtils.keyTransformer());
 
             for (MembershipTO membershipTO : userTO.getMemberships()) {
