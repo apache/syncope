@@ -45,8 +45,6 @@ import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.spring.BeanUtils;
 import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
-import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
-import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
@@ -166,12 +164,9 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
 
         AnyUtils anyUtils = anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT);
         if (anyObject.getRealm() != null) {
-            AssignableCond assignableCond = new AssignableCond();
-            assignableCond.setRealmFullPath(anyObject.getRealm().getFullPath());
-
             // relationships
             Collection<String> assignableAnyObjects = CollectionUtils.collect(
-                    searchDAO.search(SearchCond.getLeafCond(assignableCond), AnyTypeKind.ANY_OBJECT),
+                    searchDAO.searchAssignable(anyObject.getRealm().getFullPath(), AnyTypeKind.ANY_OBJECT),
                     EntityUtils.keyTransformer());
 
             for (RelationshipTO relationshipTO : anyObjectTO.getRelationships()) {
@@ -213,7 +208,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
 
             // memberships
             Collection<String> assignableGroups = CollectionUtils.collect(
-                    searchDAO.search(SearchCond.getLeafCond(assignableCond), AnyTypeKind.GROUP),
+                    searchDAO.searchAssignable(anyObject.getRealm().getFullPath(), AnyTypeKind.GROUP),
                     EntityUtils.keyTransformer());
 
             for (MembershipTO membershipTO : anyObjectTO.getMemberships()) {
