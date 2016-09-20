@@ -89,11 +89,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.apache.syncope.core.persistence.api.entity.GroupableRelatable;
 import org.apache.syncope.core.provisioning.java.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
+import org.apache.syncope.core.provisioning.api.data.SchemaDataBinder;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 
 abstract class AbstractAnyDataBinder {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractAnyDataBinder.class);
+
+    @Autowired
+    protected SchemaDataBinder schemaDataBinder;
 
     @Autowired
     protected RealmDAO realmDAO;
@@ -198,8 +202,8 @@ abstract class AbstractAnyDataBinder {
         List<String> valuesProvided = schema.isMultivalue()
                 ? values
                 : (values.isEmpty()
-                        ? Collections.<String>emptyList()
-                        : Collections.singletonList(values.iterator().next()));
+                ? Collections.<String>emptyList()
+                : Collections.singletonList(values.iterator().next()));
 
         for (String value : valuesProvided) {
             if (StringUtils.isBlank(value)) {
@@ -549,40 +553,48 @@ abstract class AbstractAnyDataBinder {
         }
     }
 
-    protected void fillTO(final AnyTO anyTO,
+    protected void fillTO(
+            final AnyTO anyTO,
             final String realmFullPath,
             final Collection<? extends AnyTypeClass> auxClasses,
             final Collection<? extends PlainAttr<?>> plainAttrs,
             final Map<DerSchema, String> derAttrs,
             final Map<VirSchema, List<String>> virAttrs,
-            final Collection<? extends ExternalResource> resources) {
+            final Collection<? extends ExternalResource> resources,
+            final boolean details) {
 
         anyTO.setRealm(realmFullPath);
 
         CollectionUtils.collect(auxClasses, EntityUtils.<AnyTypeClass>keyTransformer(), anyTO.getAuxClasses());
 
         for (PlainAttr<?> plainAttr : plainAttrs) {
-            anyTO.getPlainAttrs().add(new AttrTO.Builder().
+            AttrTO.Builder attrTOBuilder = new AttrTO.Builder().
                     schema(plainAttr.getSchema().getKey()).
-                    values(plainAttr.getValuesAsStrings()).
-                    readonly(plainAttr.getSchema().isReadonly()).
-                    build());
+                    values(plainAttr.getValuesAsStrings());
+            if (details) {
+                attrTOBuilder.schemaInfo(schemaDataBinder.getPlainSchemaTO(plainAttr.getSchema()));
+            }
+            anyTO.getPlainAttrs().add(attrTOBuilder.build());
         }
 
         for (Map.Entry<DerSchema, String> entry : derAttrs.entrySet()) {
-            anyTO.getDerAttrs().add(new AttrTO.Builder().
+            AttrTO.Builder attrTOBuilder = new AttrTO.Builder().
                     schema(entry.getKey().getKey()).
-                    value(entry.getValue()).
-                    readonly(true).
-                    build());
+                    value(entry.getValue());
+            if (details) {
+                attrTOBuilder.schemaInfo(schemaDataBinder.getDerSchemaTO(entry.getKey()));
+            }
+            anyTO.getDerAttrs().add(attrTOBuilder.build());
         }
 
         for (Map.Entry<VirSchema, List<String>> entry : virAttrs.entrySet()) {
-            anyTO.getVirAttrs().add(new AttrTO.Builder().
+            AttrTO.Builder attrTOBuilder = new AttrTO.Builder().
                     schema(entry.getKey().getKey()).
-                    values(entry.getValue()).
-                    readonly(entry.getKey().isReadonly()).
-                    build());
+                    values(entry.getValue());
+            if (details) {
+                attrTOBuilder.schemaInfo(schemaDataBinder.getVirSchemaTO(entry.getKey()));
+            }
+            anyTO.getVirAttrs().add(attrTOBuilder.build());
         }
 
         for (ExternalResource resource : resources) {
@@ -611,7 +623,7 @@ abstract class AbstractAnyDataBinder {
             membershipTO.getPlainAttrs().add(new AttrTO.Builder().
                     schema(plainAttr.getSchema().getKey()).
                     values(plainAttr.getValuesAsStrings()).
-                    readonly(plainAttr.getSchema().isReadonly()).
+                    schemaInfo(schemaDataBinder.getPlainSchemaTO(plainAttr.getSchema())).
                     build());
         }
 
@@ -619,7 +631,7 @@ abstract class AbstractAnyDataBinder {
             membershipTO.getDerAttrs().add(new AttrTO.Builder().
                     schema(entry.getKey().getKey()).
                     value(entry.getValue()).
-                    readonly(true).
+                    schemaInfo(schemaDataBinder.getDerSchemaTO(entry.getKey())).
                     build());
         }
 
@@ -627,7 +639,7 @@ abstract class AbstractAnyDataBinder {
             membershipTO.getVirAttrs().add(new AttrTO.Builder().
                     schema(entry.getKey().getKey()).
                     values(entry.getValue()).
-                    readonly(entry.getKey().isReadonly()).
+                    schemaInfo(schemaDataBinder.getVirSchemaTO(entry.getKey())).
                     build());
         }
 

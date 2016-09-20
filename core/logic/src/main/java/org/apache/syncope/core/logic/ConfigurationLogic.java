@@ -103,7 +103,7 @@ public class ConfigurationLogic extends AbstractTransactionalLogic<AttrTO> {
 
     @PreAuthorize("hasRole('" + StandardEntitlement.CONFIGURATION_SET + "')")
     public void set(final AttrTO value) {
-        confDAO.save(binder.getAttribute(value));
+        confDAO.save(binder.getAttr(value));
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.CONFIGURATION_EXPORT + "')")

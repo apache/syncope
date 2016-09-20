@@ -570,7 +570,8 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                 user.getPlainAttrs(),
                 derAttrHandler.getValues(user),
                 virAttrValues,
-                userDAO.findAllResources(user));
+                userDAO.findAllResources(user),
+                details);
 
         if (details) {
             // roles

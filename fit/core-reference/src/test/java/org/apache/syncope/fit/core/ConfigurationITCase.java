@@ -58,6 +58,7 @@ public class ConfigurationITCase extends AbstractITCase {
         configurationService.set(conf);
 
         AttrTO actual = configurationService.get(conf.getSchema());
+        actual.setSchemaInfo(null);
         assertEquals(actual, conf);
     }
 
@@ -81,6 +82,7 @@ public class ConfigurationITCase extends AbstractITCase {
         configurationService.set(conf);
 
         AttrTO actual = configurationService.get(conf.getSchema());
+        actual.setSchemaInfo(null);
         assertEquals(actual, conf);
     }
 

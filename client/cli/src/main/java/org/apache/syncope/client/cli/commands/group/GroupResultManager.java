@@ -71,9 +71,6 @@ public class GroupResultManager extends CommonsResultManager {
                 .append(attribute.getSchema())
                 .append(": ")
                 .append(attribute.getValues());
-        if (attribute.isReadonly()) {
-            attributeMessageBuilder.append(" - is readonly");
-        }
         System.out.println(attributeMessageBuilder.toString());
         System.out.println("");
     }

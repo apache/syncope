@@ -132,7 +132,7 @@ public class XSLTTransformer extends AbstractSAXTransformer implements CachingPi
         if (parameters == null) {
             this.parameters = null;
         } else {
-            this.parameters = new HashMap<>(parameters);
+            this.parameters = new HashMap<String, Object>(parameters);
         }
     }
 

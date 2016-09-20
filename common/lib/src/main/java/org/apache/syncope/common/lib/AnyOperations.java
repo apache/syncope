@@ -186,8 +186,11 @@ public final class AnyOperations {
                             attrTO(new AttrTO.Builder().schema(attrTO.getSchema()).build()).
                             build());
                 }
-            } else {
-                AttrPatch patch = new AttrPatch.Builder().operation(PatchOperation.ADD_REPLACE).attrTO(attrTO).build();
+            } else if (!originalAttrs.containsKey(attrTO.getSchema())
+                    || !originalAttrs.get(attrTO.getSchema()).getValues().equals(attrTO.getValues())) {
+
+                AttrPatch patch = new AttrPatch.Builder().operation(PatchOperation.ADD_REPLACE).attrTO(attrTO).
+                        build();
                 if (!patch.isEmpty()) {
                     result.getPlainAttrs().add(patch);
                 }

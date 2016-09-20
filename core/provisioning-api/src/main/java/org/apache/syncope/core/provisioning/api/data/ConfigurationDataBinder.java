@@ -28,6 +28,6 @@ public interface ConfigurationDataBinder {
 
     List<AttrTO> getConfTO();
 
-    CPlainAttr getAttribute(AttrTO attributeTO);
+    CPlainAttr getAttr(AttrTO attrTO);
 
 }
