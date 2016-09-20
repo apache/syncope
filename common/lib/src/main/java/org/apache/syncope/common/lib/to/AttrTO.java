@@ -45,8 +45,8 @@ public class AttrTO extends AbstractBaseBean {
             return this;
         }
 
-        public Builder readonly(final boolean readonly) {
-            instance.setReadonly(readonly);
+        public Builder schemaInfo(final AbstractSchemaTO schemaInfo) {
+            instance.schemaInfo = schemaInfo;
             return this;
         }
 
@@ -71,6 +71,11 @@ public class AttrTO extends AbstractBaseBean {
     }
 
     /**
+     * (Optional) schema information for this attribute.
+     */
+    private AbstractSchemaTO schemaInfo;
+
+    /**
      * Name of the schema that this attribute is referring to.
      */
     private String schema;
@@ -81,9 +86,15 @@ public class AttrTO extends AbstractBaseBean {
     private final List<String> values = new ArrayList<>();
 
     /**
-     * Whether this attribute is read-only or not.
+     * @return schema information for this attribute; may be {@code NULL}
      */
-    private boolean readonly = false;
+    public AbstractSchemaTO getSchemaInfo() {
+        return schemaInfo;
+    }
+
+    public void setSchemaInfo(final AbstractSchemaTO schemaInfo) {
+        this.schemaInfo = schemaInfo;
+    }
 
     /**
      * @return the name of the schema that this attribute is referring to
@@ -109,13 +120,5 @@ public class AttrTO extends AbstractBaseBean {
     @JsonProperty("values")
     public List<String> getValues() {
         return values;
-    }
-
-    public boolean isReadonly() {
-        return readonly;
-    }
-
-    public void setReadonly(final boolean readonly) {
-        this.readonly = readonly;
     }
 }

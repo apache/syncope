@@ -48,28 +48,23 @@ public class ConfigurationDataBinderImpl extends AbstractAnyDataBinder implement
 
     @Override
     public List<AttrTO> getConfTO() {
-        final List<AttrTO> attrTOs = new ArrayList<>();
-        for (final CPlainAttr plainAttr : confDAO.get().getPlainAttrs()) {
-            final AttrTO attrTO = new AttrTO();
-            attrTO.setSchema(plainAttr.getSchema().getKey());
-            attrTO.getValues().addAll(plainAttr.getValuesAsStrings());
-            attrTO.setReadonly(plainAttr.getSchema().isReadonly());
-            attrTOs.add(attrTO);
+        List<AttrTO> attrTOs = new ArrayList<>();
+        for (CPlainAttr attr : confDAO.get().getPlainAttrs()) {
+            attrTOs.add(getAttrTO(attr));
         }
         return attrTOs;
     }
 
     @Override
     public AttrTO getAttrTO(final CPlainAttr attr) {
-        AttrTO attributeTO = new AttrTO();
-        attributeTO.setSchema(attr.getSchema().getKey());
-        attributeTO.getValues().addAll(attr.getValuesAsStrings());
-        attributeTO.setReadonly(attr.getSchema().isReadonly());
-
-        return attributeTO;
+        return new AttrTO.Builder().
+                schemaInfo(schemaDataBinder.getPlainSchemaTO(attr.getSchema())).
+                schema(attr.getSchema().getKey()).
+                values(attr.getValuesAsStrings()).
+                build();
     }
 
-    private void fillAttribute(final List<String> values,
+    private void fillAttr(final List<String> values,
             final PlainSchema schema, final CPlainAttr attr, final SyncopeClientException invalidValues) {
 
         // if schema is multivalue, all values are considered for addition;
@@ -77,8 +72,8 @@ public class ConfigurationDataBinderImpl extends AbstractAnyDataBinder implement
         List<String> valuesProvided = schema.isMultivalue()
                 ? values
                 : (values.isEmpty()
-                        ? Collections.<String>emptyList()
-                        : Collections.singletonList(values.iterator().next()));
+                ? Collections.<String>emptyList()
+                : Collections.singletonList(values.iterator().next()));
 
         if (valuesProvided.isEmpty()) {
             JexlContext jexlContext = new MapContext();
@@ -120,16 +115,16 @@ public class ConfigurationDataBinderImpl extends AbstractAnyDataBinder implement
     }
 
     @Override
-    public CPlainAttr getAttribute(final AttrTO attributeTO) {
-        PlainSchema schema = getPlainSchema(attributeTO.getSchema());
+    public CPlainAttr getAttr(final AttrTO attrTO) {
+        PlainSchema schema = getPlainSchema(attrTO.getSchema());
         if (schema == null) {
-            throw new NotFoundException("Conf schema " + attributeTO.getSchema());
+            throw new NotFoundException("Conf schema " + attrTO.getSchema());
         } else {
             SyncopeClientException invalidValues = SyncopeClientException.build(ClientExceptionType.InvalidValues);
 
             CPlainAttr attr = entityFactory.newEntity(CPlainAttr.class);
             attr.setSchema(schema);
-            fillAttribute(attributeTO.getValues(), schema, attr, invalidValues);
+            fillAttr(attrTO.getValues(), schema, attr, invalidValues);
 
             if (!invalidValues.isEmpty()) {
                 throw invalidValues;

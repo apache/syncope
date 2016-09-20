@@ -106,7 +106,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                         return new PlainSchemas(
                                 panelId,
                                 membershipSchemas.get(membershipTO.getGroupKey()),
-                                new ListModel<AttrTO>(getAttrsFromTO(membershipTO)));
+                                new ListModel<>(getAttrsFromTO(membershipTO)));
                     }
                 }), Model.of(-1)).setOutputMarkupId(true));
             }
@@ -150,8 +150,8 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
             if (attrMap.get(schema.getKey()) == null || attrMap.get(schema.getKey()).getValues().isEmpty()) {
                 attrTO.getValues().add("");
 
-                // is important to set readonly only after values setting
-                attrTO.setReadonly(schema.isReadonly());
+                // is important to set the schema info only after values setting
+                attrTO.setSchemaInfo(schema);
             } else {
                 attrTO.getValues().addAll(attrMap.get(schema.getKey()).getValues());
             }
@@ -175,8 +175,8 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
             if (attrMap.get(schema.getKey()) == null || attrMap.get(schema.getKey()).getValues().isEmpty()) {
                 attrTO.getValues().add("");
 
-                // is important to set readonly only after values setting
-                attrTO.setReadonly(schema.isReadonly());
+                // is important to set the schema info only after values setting
+                attrTO.setSchemaInfo(schema);
             } else {
                 attrTO.getValues().addAll(attrMap.get(schema.getKey()).getValues());
             }
@@ -232,7 +232,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                 break;
 
             case Enum:
-                panel = new AjaxDropDownChoicePanel<>("panel", schemaTO.getKey(), new Model<String>(), false);
+                panel = new AjaxDropDownChoicePanel<>("panel", schemaTO.getKey(), new Model<>(), false);
                 ((AjaxDropDownChoicePanel<String>) panel).setChoices(SchemaUtils.getEnumeratedValues(schemaTO));
 
                 if (StringUtils.isNotBlank(schemaTO.getEnumerationKeys())) {

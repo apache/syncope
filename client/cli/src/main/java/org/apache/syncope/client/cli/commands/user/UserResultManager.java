@@ -88,9 +88,6 @@ public class UserResultManager extends CommonsResultManager {
                     .append(attrTO.getSchema())
                     .append(": ")
                     .append(attrTO.getValues());
-            if (attrTO.isReadonly()) {
-                attributeSentence.append(" - is readonly.");
-            }
             System.out.println(attributeSentence);
         }
     }

@@ -97,7 +97,8 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                 anyObject.getPlainAttrs(),
                 derAttrHandler.getValues(anyObject),
                 virAttrValues,
-                anyObjectDAO.findAllResources(anyObject));
+                anyObjectDAO.findAllResources(anyObject),
+                details);
 
         if (details) {
             // relationships

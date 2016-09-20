@@ -175,19 +175,21 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
                 protected void populateItem(final ListItem<AttrTO> item) {
                     AttrTO attrTO = item.getModelObject();
 
-                    attrTO.setReadonly(attrTO.isReadonly());
+                    AjaxTextFieldPanel panel =
+                            new AjaxTextFieldPanel("panel", attrTO.getSchema(), new Model<String>(), false);
 
-                    final AjaxTextFieldPanel panel
-                            = new AjaxTextFieldPanel("panel", attrTO.getSchema(), new Model<String>(), false);
+                    boolean readonly = attrTO.getSchemaInfo() == null
+                            ? false
+                            : VirSchemaTO.class.cast(attrTO.getSchemaInfo()).isReadonly();
 
                     if (mode == AjaxWizard.Mode.TEMPLATE) {
-                        item.add(panel.enableJexlHelp().setEnabled(!attrTO.isReadonly()));
+                        item.add(panel.enableJexlHelp().setEnabled(!readonly));
                     } else {
                         item.add(new MultiFieldPanel.Builder<>(
                                 new PropertyModel<List<String>>(attrTO, "values")).build(
                                 "panel",
                                 attrTO.getSchema(),
-                                panel).setEnabled(!attrTO.isReadonly()));
+                                panel).setEnabled(!readonly));
                     }
                 }
             });

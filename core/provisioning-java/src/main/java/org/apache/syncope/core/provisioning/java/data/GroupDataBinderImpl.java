@@ -332,8 +332,14 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         Map<VirSchema, List<String>> virAttrValues = details
                 ? virAttrHandler.getValues(group)
                 : Collections.<VirSchema, List<String>>emptyMap();
-        fillTO(groupTO, group.getRealm().getFullPath(), group.getAuxClasses(),
-                group.getPlainAttrs(), derAttrValues, virAttrValues, group.getResources());
+        fillTO(groupTO,
+                group.getRealm().getFullPath(),
+                group.getAuxClasses(),
+                group.getPlainAttrs(),
+                derAttrValues,
+                virAttrValues,
+                group.getResources(),
+                details);
 
         if (group.getUDynMembership() != null) {
             groupTO.setUDynMembershipCond(group.getUDynMembership().getFIQLCond());
