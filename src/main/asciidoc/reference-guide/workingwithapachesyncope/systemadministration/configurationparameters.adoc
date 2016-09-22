@@ -28,7 +28,11 @@ salting options are available in the `security.properties` file;
 * `notificationjob.cronExpression` -
 http://www.quartz-scheduler.org/documentation/quartz-2.2.x/tutorials/crontrigger.html[cron^] expression describing how
 frequently the pending <<tasks-notification,notification tasks>> are processed: empty means disabled;
+[NOTE]
+Restarting the Java EE container is required when changing value for this parameter.
 * `notification.maxRetries` - how many times the delivery of a given notification should be attempted before giving up;
+[NOTE]
+Restarting the Java EE container is required when changing value for this parameter.
 * `token.length` - the length of the random tokens that can be generated as part of various <<workflow,workflow>>
 processes, including <<password-reset,password reset>>;
 * `token.expireTime` - the time after which the generated random tokens expire;
