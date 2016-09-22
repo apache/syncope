@@ -28,8 +28,6 @@ import javax.persistence.EntityExistsException;
 import javax.persistence.PersistenceException;
 import javax.persistence.RollbackException;
 import javax.validation.ValidationException;
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
@@ -99,15 +97,6 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
             builder = sce.isComposite()
                     ? getSyncopeClientCompositeExceptionResponse(sce.asComposite())
                     : getSyncopeClientExceptionResponse(sce);
-        } else if (ex instanceof WebApplicationException) {
-            Response response = ((WebApplicationException) ex).getResponse();
-
-            ErrorTO error = new ErrorTO();
-            error.setStatus(response.getStatus());
-            error.setType(ClientExceptionType.Unknown);
-            error.getElements().add(ExceptionUtils.getRootCauseMessage(ex));
-
-            builder = builder(response).entity(error);
         } else if (ex instanceof AccessDeniedException) {
             builder = Response.status(Response.Status.UNAUTHORIZED).
                     header(RESTHeaders.ERROR_CODE, Response.Status.UNAUTHORIZED.getReasonPhrase()).
@@ -260,8 +249,6 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
     }
 
     private ResponseBuilder processBadRequestExceptions(final Exception ex) {
-        ResponseBuilder builder = Response.status(Response.Status.BAD_REQUEST);
-
         // This exception might be raised by Activiti (if enabled)
         Class<?> ibatisPersistenceException = null;
         try {
@@ -270,13 +257,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
             // ignore
         }
 
-        if (ex instanceof BadRequestException) {
-            if (((BadRequestException) ex).getResponse() == null) {
-                return builder;
-            } else {
-                return builder(((BadRequestException) ex).getResponse());
-            }
-        } else if (ex instanceof WorkflowException) {
+        if (ex instanceof WorkflowException) {
             return builder(ClientExceptionType.Workflow, ExceptionUtils.getRootCauseMessage(ex));
         } else if (ex instanceof PersistenceException) {
             return builder(ClientExceptionType.GenericPersistence, ExceptionUtils.getRootCauseMessage(ex));
