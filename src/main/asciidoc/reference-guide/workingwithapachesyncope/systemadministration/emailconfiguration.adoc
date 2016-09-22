@@ -30,3 +30,7 @@ e-mails:
 * `smtpConnectionTimeout` - the connection timeout value in milliseconds, to the mail host;
 * `mailDebug` - when `true`, enable the debugging of email, including the handshake, authentication, delivery and
 disconnection.
+
+[WARNING]
+Be sure to provide a sensible value for the `notificationjob.cronExpression` configuration parameter, see
+<<configuration-parameters, below>> for details.
