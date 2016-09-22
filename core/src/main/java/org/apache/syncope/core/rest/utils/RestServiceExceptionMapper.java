@@ -28,8 +28,6 @@ import javax.persistence.EntityExistsException;
 import javax.persistence.PersistenceException;
 import javax.persistence.RollbackException;
 import javax.validation.ValidationException;
-import javax.ws.rs.BadRequestException;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
@@ -76,13 +74,15 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
     @Autowired
     private Environment env;
 
-    private static final Map<String, String> exceptionCodeMap;
+    private static final Map<String, String> EXCEPTION_CODE_MAP = new HashMap<String, String>() {
 
-    static {
-        exceptionCodeMap = new HashMap<String, String>();
-        exceptionCodeMap.put("23000", "UniqueConstraintViolation");
-        exceptionCodeMap.put("23505", "UniqueConstraintViolation");
-    }
+        private static final long serialVersionUID = -7688359318035249200L;
+
+        {
+            put("23000", "UniqueConstraintViolation");
+            put("23505", "UniqueConstraintViolation");
+        }
+    };
 
     @Override
     public Response toResponse(final Exception ex) {
@@ -95,15 +95,6 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
             builder = sce.isComposite()
                     ? getSyncopeClientCompositeExceptionResponse(sce.asComposite())
                     : getSyncopeClientExceptionResponse(sce);
-        } else if (ex instanceof WebApplicationException) {
-            Response response = ((WebApplicationException) ex).getResponse();
-
-            ErrorTO error = new ErrorTO();
-            error.setStatus(response.getStatus());
-            error.setType(ClientExceptionType.Unknown);
-            error.getElements().add(getExMessage(ex));
-
-            builder = JAXRSUtils.fromResponse(response).entity(error);
         } else if (ex instanceof AccessDeniedException) {
             builder = Response.status(Response.Status.UNAUTHORIZED).
                     header(HttpHeaders.WWW_AUTHENTICATE, BASIC_REALM_UNAUTHORIZED);
@@ -224,8 +215,8 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
         if (iee != null) {
             ClientExceptionType exType =
                     iee.getEntityClassSimpleName().endsWith("Policy")
-                            ? ClientExceptionType.InvalidPolicy
-                            : ClientExceptionType.valueOf("Invalid" + iee.getEntityClassSimpleName());
+                    ? ClientExceptionType.InvalidPolicy
+                    : ClientExceptionType.valueOf("Invalid" + iee.getEntityClassSimpleName());
 
             ResponseBuilder builder = Response.status(Response.Status.BAD_REQUEST);
             builder.header(RESTHeaders.ERROR_CODE, exType.getHeaderValue());
@@ -249,15 +240,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
     }
 
     private ResponseBuilder processBadRequestExceptions(final Exception ex) {
-        ResponseBuilder builder = Response.status(Response.Status.BAD_REQUEST);
-
-        if (ex instanceof BadRequestException) {
-            if (((BadRequestException) ex).getResponse() == null) {
-                return builder;
-            } else {
-                return JAXRSUtils.fromResponse(((BadRequestException) ex).getResponse());
-            }
-        } else if (ex instanceof WorkflowException) {
+        if (ex instanceof WorkflowException) {
             return builder(Response.Status.BAD_REQUEST, ClientExceptionType.Workflow, getExMessage(ex));
         } else if (ex instanceof PersistenceException) {
             return builder(Response.Status.BAD_REQUEST, ClientExceptionType.GenericPersistence, getExMessage(ex));
@@ -301,7 +284,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
         String message = null;
         if (throwable instanceof SQLException) {
             String SQLState = ((SQLException) throwable).getSQLState();
-            String messageKey = exceptionCodeMap.get(SQLState);
+            String messageKey = EXCEPTION_CODE_MAP.get(SQLState);
             if (messageKey != null) {
                 message = env.getProperty("errMessage." + messageKey);
             }
