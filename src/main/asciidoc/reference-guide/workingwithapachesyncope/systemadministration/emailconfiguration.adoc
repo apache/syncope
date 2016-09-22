@@ -31,6 +31,10 @@ e-mails:
 * `mailDebug` - when `true`, enable the debugging of email, including the handshake, authentication, delivery and
 disconnection.
 
+[NOTE]
+In order to make the changes to `mail.properties` effective, the Java EE container needs to be restarted.
+
 [WARNING]
-Be sure to provide a sensible value for the `notificationjob.cronExpression` configuration parameter, see
-<<configuration-parameters, below>> for details.
+Be sure to provide a sensible value for the `notificationjob.cronExpression` configuration parameter, otherwise
+the <<tasks-notification, notification tasks>> will not be triggered; see <<configuration-parameters, below>> for
+details.
