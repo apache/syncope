@@ -141,7 +141,8 @@ try {
     <sequenceFlow id="active2ConfirmPasswordReset" sourceRef="activeGw" targetRef="checkToken4ConfirmPasswordReset">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${task == 'confirmPasswordReset'}]]></conditionExpression>
     </sequenceFlow>
-    <userTask id="updateApproval" name="Update approval" activiti:candidateGroups="7" activiti:formKey="updateApproval">
+    <userTask id="updateApproval" name="Update approval"
+              activiti:candidateGroups="managingDirector" activiti:formKey="updateApproval">
       <extensionElements>
         <activiti:formProperty id="username" name="Username" type="string" expression="${user.username}" writable="false"/>
         <activiti:formProperty id="approve" name="Approve?" type="boolean" variable="approve" required="true"/>
@@ -187,7 +188,8 @@ try {
     <sequenceFlow id="flow8ter" sourceRef="rejectUpdate" targetRef="active"/>
     <serviceTask id="update" name="Update" activiti:expression="#{update.execute(execution.processInstanceId)}"/>
     <sequenceFlow id="flow9" sourceRef="update" targetRef="active"/>
-    <userTask id="recertificationRequest" name="Recertification Request" activiti:candidateGroups="managingDirector" activiti:formKey="recertify">
+    <userTask id="recertificationRequest" name="Recertification Request"
+              activiti:candidateGroups="managingDirector" activiti:formKey="recertify">
       <extensionElements>
         <activiti:formProperty id="fullname" name="Identity" type="string" expression="${user.getPlainAttr('fullname').getUniqueValue().getStringValue()}" writable="false"/>
         <activiti:formProperty id="username" name="Username" type="string" expression="${user.username}" writable="false"/>
@@ -238,7 +240,8 @@ try {
     <sequenceFlow id="rejected2Rejected" sourceRef="rejectedGw" targetRef="rejected">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${empty task}]]></conditionExpression>
     </sequenceFlow>
-    <userTask id="deleteApproval" name="Delete approval" activiti:candidateGroups="7" activiti:formKey="deleteApproval">
+    <userTask id="deleteApproval" name="Delete approval"
+              activiti:candidateGroups="managingDirector" activiti:formKey="deleteApproval">
       <extensionElements>
         <activiti:formProperty id="username" name="Username" type="string" expression="${user.username}" writable="false"/>
         <activiti:formProperty id="approve" name="Approve?" type="boolean" variable="approve" required="true"/>
