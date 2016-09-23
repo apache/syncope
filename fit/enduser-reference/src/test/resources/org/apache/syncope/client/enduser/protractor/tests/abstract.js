@@ -16,60 +16,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
-
-exports.doCreate = function () {
-  describe('doCreate', function () {
-
-    it('create donizetti', function () {
-
-      browser.wait(element(by.id('register')).isPresent());
-      element(by.id('register')).click();
-
-      element(by.model('user.username')).sendKeys('donizetti');
-      element(by.model('user.password')).sendKeys('Password123');
-      element(by.model('confirmPassword.value')).sendKeys('Password123');
-
-      element.all(by.id('next')).first().click();
-
-      element.all(by.id('next')).first().click();
-
-      element.all(by.name('fullname')).first().sendKeys('Gaetano Donizetti');
-      element.all(by.name('userId')).first().sendKeys('donizetti@apache.org');
-      element.all(by.name('firstname')).first().sendKeys('Gaetano');
-      element.all(by.name('surname')).first().sendKeys('Donizetti');
-
-      element.all(by.id('next')).first().click();
-
-      element.all(by.id('next')).first().click();
-
-      element.all(by.id('next')).first().click();
-
-      element.all(by.id('next')).first().click();
-
-      element.all(by.id('cancel')).last().click();
-
-
-    });
-  });
-};
-
-exports.doLogin = function (username, password) {
-  describe('doLogin', function () {
-
-    it('login user ', function () {
-      browser.get(home);
-
-      element(by.model('credentials.username')).sendKeys(username);
-      element(by.model('credentials.password')).sendKeys(password);
-      element(by.id('login-btn')).click();
-
-      expect(element(by.model('user.username')).getAttribute('value')).toEqual(username);
-
-    });
-  });
-};
-
 exports.goHome = function () {
   var home = 'http://localhost:9080/syncope-enduser/app/';
   browser.get(home);
@@ -82,3 +28,16 @@ exports.doNext = function () {
 exports.doCancel = function () {
   element.all(by.id('cancel')).last().click();
 };
+
+exports.doSave = function () {
+  element.all(by.id('save')).last().click();
+};
+
+exports.waitSpinner = function () {
+  element.all(by.css('treasure-overlay-spinner')).isDisplayed().then(function (result) {
+    if (result) {
+      browser.driver.sleep(3000);
+    }
+  });
+}
+;

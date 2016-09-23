@@ -17,24 +17,21 @@
  * under the License.
  */
 
+
 var abstract = require('./abstract.js');
 
-describe('syncope enduser user login', function () {
+describe('syncope enduser user reset password', function () {
 
-  it('should login user', function () {
+  it('should reset password for user bellini', function () {
+    console.log("password reset test");
     abstract.goHome();
+    browser.wait(element(by.id('passwordreset')).isPresent());
+    element(by.id('passwordreset')).click();
 
-    element(by.model('credentials.username')).sendKeys('rossini');
-    element(by.model('credentials.password')).sendKeys('password');
-    element.all(by.options('language.name for language in languages.availableLanguages track by language.id')).
-            then(function (language) {
-              expect(language.length).toBe(3);
-            });
-    element.all(by.options('language.name for language in languages.availableLanguages track by language.id')).
-            get(1).click();
-    browser.driver.sleep(3000);
+    element(by.model('user.username')).sendKeys('donizetti');
+    element(by.model('user.username')).sendKeys(protractor.Key.TAB);
 
-    element(by.id('login-btn')).click();
-
+    browser.wait(element(by.id('user.securityanswer')).isPresent());
+    element(by.model('user.securityanswer')).sendKeys('Agata Ferlito');
   });
 });

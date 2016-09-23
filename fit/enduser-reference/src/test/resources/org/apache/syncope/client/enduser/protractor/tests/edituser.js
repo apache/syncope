@@ -16,22 +16,11 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
 var abstract = require('./abstract.js');
-
 describe('syncope enduser user edit', function () {
+  it('should edit user', function () {
 
-  function waitSpinner() {
-    element.all(by.css('treasure-overlay-spinner')).isDisplayed().then(function (result) {
-      if (result) {
-        browser.driver.sleep(3000);
-      }
-    });
-  }
-  ;
-
-  it('should edit user credentials', function () {
-
+    console.log("user edit test");
     abstract.goHome();
 
     //login
@@ -42,7 +31,8 @@ describe('syncope enduser user edit', function () {
               expect(language.length).toBe(3);
             });
     element.all(by.options('language.name for language in languages.availableLanguages track by language.id')).
-            get(0).click();
+            get(1).click();
+
     element(by.id('login-btn')).click();
 
     //credential
@@ -63,29 +53,22 @@ describe('syncope enduser user edit', function () {
     var group = element(by.model('dynamicForm.selectedGroups'));
     var selectedGroup = group.element(by.css('.ui-select-search'));
     group.click();
-
-    selectedGroup.sendKeys('additional');
-    element.all(by.css('.ui-select-choices-row-inner span')).first().click();
-    waitSpinner();
+    //adds group root
 
     selectedGroup.sendKeys('root');
     element.all(by.css('.ui-select-choices-row-inner span')).first().click();
-    waitSpinner();
-
+    abstract.waitSpinner();
     abstract.doNext();
 
     //plainSchemas
     element.all(by.repeater('groupSchema in dynamicForm.groupSchemas')).then(function (groupSchema) {
-      expect(groupSchema.length).toBe(2);
+      expect(groupSchema.length).toBe(1);
     });
 
     element(by.css('[name="fullname"]')).clear();
     element(by.css('[name="fullname"]')).sendKeys('Vincenzo Bellini');
-    browser.manage().timeouts().pageLoadTimeout(5000);
-
     element(by.css('[name="userId"]')).clear();
     element(by.css('[name="userId"]')).sendKeys('bellini@apache.org');
-    browser.manage().timeouts().pageLoadTimeout(5000);
 
     var selectedDate = element(by.model('selectedDate'));
     selectedDate.clear();
@@ -98,17 +81,13 @@ describe('syncope enduser user edit', function () {
     element(by.css('[name="ctype"]')).sendKeys('bellinictype');
 
     abstract.doNext();
-
     //derSchemas
     abstract.doNext();
-
     //virSchemas
     abstract.doNext();
-
     //Resources
     abstract.doNext();
-
     //Captcha
-    abstract.doCancel();
+    element.all(by.id('save')).last().click();
   });
 });
