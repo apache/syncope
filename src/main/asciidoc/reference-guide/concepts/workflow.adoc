@@ -119,6 +119,25 @@ Managers could also be asked to complete the information provided before the req
 In order to define an approval form, a dedicated BPMN `userTask` needs to be defined, following the rules established
 for http://www.activiti.org/userguide/index.html#forms[Activiti forms^].
 
+[NOTE]
+.What is required for administrators to manage approval?
+====
+The following conditions must be met, for an User `U` to act as administrator for approval:
+
+. `U` must own the following <<entitlements,entitlements>>, for all the required realms:
+.. `WORKFLOW_FORM_CLAIM`
+.. `WORKFLOW_FORM_LIST`
+.. `WORKFLOW_FORM_READ`
+.. `WORKFLOW_FORM_SUBMIT`
+.. `USER_READ`
+. The BPMN `userTask` must either indicate `U` among `candidateUsers` or at least one of the groups assigned to `U`
+among `candidateGroups`, as required by
+http://www.activiti.org/userguide/index.html#bpmnUserTaskUserAssignmentExtension[Activiti's task assignment rules^]
+
+The special super-user `admin` is entitled to manage all approvals, even those not specifying any
+`candidateUsers` or `candidateGroups`.
+====
+
 [[sample-selfreg-approval]]
 .Approving self-registration
 ====
@@ -141,7 +160,7 @@ http://www.activiti.org/userguide/index.html#activitiModeler[Activiti Modeler^].
 ----
 <1> `formKey` and `id` must be unique across the workflow definition, `name` is displayed by the admin console;
 `candidateGroups` and `candidateUsers` might be defined, even both, to indicate which Groups or Users should be
-managing these approvals
+managing these approvals; if none are specified, only `admin` is entitled to manage such approval
 <2> `expression` will be evaluated against the current requesting `user` (as workflow variable) and related properties;
 read-only form input can be defined by setting `writable="false"`
 <3> exporting approval inputs into workflow variables is possible via the `variable` attribute; required form input can
