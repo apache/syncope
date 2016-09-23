@@ -19,7 +19,7 @@
 exports.config = {
   directConnect: false,
   capabilities: {
-    'browserName': 'phantomjs',
+    'browserName': 'chrome',
     'phantomjs.binary.path': '@phantomjs.binary.path@',
     'phantomjs.ghostdriver.cli.args': ['--loglevel=DEBUG']
   },
