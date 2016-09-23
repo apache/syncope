@@ -91,8 +91,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
           if (!$scope.user.plainAttrs[plainSchemaKey]) {
             $scope.user.plainAttrs[plainSchemaKey] = {
               schema: plainSchemaKey,
-              values: [],
-              readonly: schemas.plainSchemas[i].readonly
+              values: []
             };
             // initialize multivalue schema and support table: create mode, only first value
             if (schemas.plainSchemas[i].multivalue) {
@@ -118,8 +117,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
           if (!$scope.user.derAttrs[derSchemaKey]) {
             $scope.user.derAttrs[derSchemaKey] = {
               schema: derSchemaKey,
-              values: [],
-              readonly: true
+              values: []
             };
           }
         }
@@ -130,8 +128,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
           if (!$scope.user.virAttrs[virSchemaKey]) {
             $scope.user.virAttrs[virSchemaKey] = {
               schema: virSchemaKey,
-              values: [],
-              readonly: schemas.virSchemas[i].readonly
+              values: []
             };
             // initialize multivalue schema and support table: create mode, only first value
             $scope.dynamicForm.virtualAttributeTable[schemas.virSchemas[i].key] = {
