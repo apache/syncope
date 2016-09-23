@@ -101,7 +101,7 @@ public class ExtendedSwagger2Serializers extends SwaggerSerializers implements S
         if (replaceTags || javadocProvider != null) {
             List<String> domains = new ArrayList<>(
                     ApplicationContextProvider.getApplicationContext().
-                    getBean(DomainsHolder.class).getDomains().keySet());
+                            getBean(DomainsHolder.class).getDomains().keySet());
 
             Map<String, ClassResourceInfo> operations = new HashMap<>();
             Map<Pair<String, String>, OperationResourceInfo> methods = new HashMap<>();
@@ -124,8 +124,7 @@ public class ExtendedSwagger2Serializers extends SwaggerSerializers implements S
                     ClassResourceInfo cri = operations.get(entry.getKey());
 
                     tag = new Tag();
-                    String tagName = StringUtils.removeStart(cri.getURITemplate().getValue(), "/");
-                    tag.setName(StringUtils.isEmpty(tagName) ? "_" : tagName);
+                    tag.setName(cri.getURITemplate().getValue().replaceAll("/", "_"));
                     if (javadocProvider != null) {
                         tag.setDescription(javadocProvider.getClassDoc(cri));
                     }
