@@ -16,11 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 var abstract = require('./abstract.js');
 describe('syncope enduser user edit', function () {
   it('should edit user', function () {
 
-    console.log("user edit test");
+    console.log("");
+    console.log("user edit");
     abstract.goHome();
 
     //login
@@ -36,11 +38,12 @@ describe('syncope enduser user edit', function () {
     element(by.id('login-btn')).click();
 
     //credential
+    browser.wait(element(by.id('user.username')).isPresent());
     element(by.model('user.username')).clear();
     element(by.model('user.username')).sendKeys('bellini');
     element(by.model('user.password')).clear();
-    element(by.model('user.password')).sendKeys('password');
-    element(by.model('confirmPassword.value')).sendKeys('password');
+    element(by.model('user.password')).sendKeys('Password123');
+    element(by.model('confirmPassword.value')).sendKeys('Password123');
     var secQuestion = element(by.model('user.securityQuestion'));
     var selectedSecQuestion = secQuestion.all(by.options
             ('securityQuestion.key as securityQuestion.content for securityQuestion in availableSecurityQuestions'))
@@ -53,8 +56,8 @@ describe('syncope enduser user edit', function () {
     var group = element(by.model('dynamicForm.selectedGroups'));
     var selectedGroup = group.element(by.css('.ui-select-search'));
     group.click();
-    //adds group root
 
+    //adds group root
     selectedGroup.sendKeys('root');
     element.all(by.css('.ui-select-choices-row-inner span')).first().click();
     abstract.waitSpinner();
@@ -75,12 +78,11 @@ describe('syncope enduser user edit', function () {
     selectedDate.sendKeys('2009-06-21');
     element(by.css('[name="firstname"]')).clear();
     element(by.css('[name="firstname"]')).sendKeys('Vincenzo');
-    element(by.css('[name="surname"]')).clear();
-    element(by.css('[name="surname"]')).sendKeys('Bellini');
     element(by.css('[name="ctype"]')).clear();
     element(by.css('[name="ctype"]')).sendKeys('bellinictype');
 
     abstract.doNext();
+
     //derSchemas
     abstract.doNext();
     //virSchemas
@@ -88,6 +90,9 @@ describe('syncope enduser user edit', function () {
     //Resources
     abstract.doNext();
     //Captcha
+    abstract.waitSpinner();
     element.all(by.id('save')).last().click();
+    abstract.waitSpinner();
   });
 });
+

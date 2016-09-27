@@ -17,21 +17,38 @@
  * under the License.
  */
 
-
 var abstract = require('./abstract.js');
 
-describe('syncope enduser user reset password', function () {
-
-  it('should reset password for user bellini', function () {
-    console.log("password reset test");
+describe('syncope enduser user password reset ', function () {
+  it('should reset password for user donizetti', function () {
+    console.log("");
+    console.log("user password reset");
     abstract.goHome();
-    browser.wait(element(by.id('passwordreset')).isPresent());
-    element(by.id('passwordreset')).click();
 
-    element(by.model('user.username')).sendKeys('donizetti');
+    abstract.waitSpinner();
+    element(by.id('passwordreset')).click();
+    abstract.waitSpinner();
+
+    var user = element(by.model('user.username'));
+    user.click();
+    user.sendKeys('donizetti');
+    user.click();
     element(by.model('user.username')).sendKeys(protractor.Key.TAB);
 
-    browser.wait(element(by.id('user.securityanswer')).isPresent());
-    element(by.model('user.securityanswer')).sendKeys('Agata Ferlito');
+    var secQuest = element(by.model('userSecurityQuestion'));
+    expect(secQuest.isEnabled()).toBe(false);
+    expect(element(by.model('userSecurityQuestion')).getAttribute('value')).toEqual('What\'s your mother\'s maiden name?');
+    abstract.waitSpinner();
+
+    var secAns = element(by.model('user.securityAnswer'));
+    var EC = protractor.ExpectedConditions;
+    browser.wait(EC.presenceOf(secAns), 5000).then(function () {
+      secAns.click();
+      secAns.sendKeys('Domenica Oliva Nava');
+    }, function (error) {
+      expect(true).toBe(false);
+    });
+
+    element.all(by.id('resetpassword')).last().click();
   });
 });
