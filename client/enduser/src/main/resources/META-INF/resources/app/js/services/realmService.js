@@ -25,14 +25,9 @@ angular.module('self')
 
             var realmService = {};
 
-            realmService.getAvailableRealmsStub = function () {
-              return  ["/"];
-            };
-
             realmService.getAvailableRealms = function () {
-              return  $http.get("/syncope-enduser/api/realms")
+              return $http.get("/syncope-enduser/api/realms")
                       .then(function (response) {
-                        console.debug("realms response: ", response);
                         return response.data;
                       }, function (response) {
                         console.error("Something went wrong during realms retrieval, exit with status: ", response);
@@ -40,8 +35,5 @@ angular.module('self')
                       });
             };
 
-            realmService.getUserRealm = function () {
-              return  "/";
-            };
             return realmService;
           }]);

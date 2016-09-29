@@ -35,7 +35,7 @@ angular.module('self')
             };
 
             securityQuestionService.getSecurityQuestionByUser = function (username) {
-              return  $http.get("/syncope-enduser/api/securityQuestions/byUser/"+username)
+              return  $http.get("/syncope-enduser/api/securityQuestions/byUser/" + username)
                       .then(function (response) {
                         return response.data;
                       }, function (response) {

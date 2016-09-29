@@ -28,6 +28,6 @@ public interface RealmDataBinder {
 
     PropagationByResource update(Realm realm, RealmTO realmTO);
 
-    RealmTO getRealmTO(Realm realm);
+    RealmTO getRealmTO(Realm realm, boolean admin);
 
 }

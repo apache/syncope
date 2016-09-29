@@ -221,9 +221,9 @@ public class RealmPullResultHandlerImpl
                 propByRes.add(ResourceOperation.CREATE, resource);
             }
             List<PropagationTask> tasks = propagationManager.createTasks(realm, propByRes, null);
-            PropagationReporter propagationReporter = taskExecutor.execute(tasks, false);
+            taskExecutor.execute(tasks, false);
 
-            RealmTO actual = binder.getRealmTO(realm);
+            RealmTO actual = binder.getRealmTO(realm, true);
 
             result.setKey(actual.getKey());
             result.setName(profile.getTask().getDestinatioRealm().getFullPath() + "/" + actual.getName());
@@ -265,7 +265,7 @@ public class RealmPullResultHandlerImpl
 
         LOG.debug("About to update {}", realm);
 
-        RealmTO before = binder.getRealmTO(realm);
+        RealmTO before = binder.getRealmTO(realm, true);
 
         ProvisioningReport result = new ProvisioningReport();
         result.setOperation(ResourceOperation.UPDATE);
@@ -327,7 +327,7 @@ public class RealmPullResultHandlerImpl
         result.setStatus(ProvisioningReport.Status.SUCCESS);
         result.setKey(realm.getKey());
 
-        RealmTO before = binder.getRealmTO(realm);
+        RealmTO before = binder.getRealmTO(realm, true);
 
         Object output;
         Result resultStatus;
@@ -351,9 +351,9 @@ public class RealmPullResultHandlerImpl
 
                 if (unlink) {
                     realm.getResources().remove(profile.getTask().getResource());
-                    output = binder.getRealmTO(realmDAO.save(realm));
+                    output = binder.getRealmTO(realmDAO.save(realm), true);
                 } else {
-                    output = binder.getRealmTO(realm);
+                    output = binder.getRealmTO(realm, true);
                 }
 
                 for (PullActions action : profile.getActions()) {
@@ -403,7 +403,7 @@ public class RealmPullResultHandlerImpl
         result.setStatus(ProvisioningReport.Status.SUCCESS);
         result.setKey(realm.getKey());
 
-        RealmTO before = binder.getRealmTO(realm);
+        RealmTO before = binder.getRealmTO(realm, true);
 
         Object output;
         Result resultStatus;
@@ -476,7 +476,7 @@ public class RealmPullResultHandlerImpl
         ProvisioningReport result = new ProvisioningReport();
 
         try {
-            RealmTO before = binder.getRealmTO(realm);
+            RealmTO before = binder.getRealmTO(realm, true);
 
             result.setKey(realm.getKey());
             result.setName(realm.getFullPath());

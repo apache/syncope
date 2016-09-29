@@ -19,25 +19,22 @@
 package org.apache.syncope.client.enduser.resources;
 
 import java.io.IOException;
+import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
-import org.apache.syncope.common.lib.to.AnyTypeTO;
-import org.apache.syncope.common.rest.api.service.AnyTypeService;
+import org.apache.syncope.common.lib.to.AnyTypeClassTO;
+import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
 import org.apache.wicket.request.resource.AbstractResource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class SyncopeAnyTypeResource extends AbstractBaseResource {
+public class AnyTypeClassResource extends AbstractBaseResource {
 
     private static final long serialVersionUID = 7475706378304995200L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(SyncopeAnyTypeResource.class);
+    private final AnyTypeClassService anyTypeClassService;
 
-    private final AnyTypeService anyTypeService;
-
-    public SyncopeAnyTypeResource() {
-        anyTypeService = SyncopeEnduserSession.get().getService(AnyTypeService.class);
+    public AnyTypeClassResource() {
+        anyTypeClassService = SyncopeEnduserSession.get().getService(AnyTypeClassService.class);
     }
 
     @Override
@@ -56,19 +53,18 @@ public class SyncopeAnyTypeResource extends AbstractBaseResource {
                 return response;
             }
 
-            String kind = attributes.getParameters().get(0).toString();
-            final AnyTypeTO anyTypeTO = anyTypeService.read(kind);
+            final List<AnyTypeClassTO> anyTypeClassTOs = anyTypeClassService.list();
 
             response.setWriteCallback(new AbstractResource.WriteCallback() {
 
                 @Override
                 public void writeData(final Attributes attributes) throws IOException {
-                    attributes.getResponse().write(MAPPER.writeValueAsString(anyTypeTO));
+                    attributes.getResponse().write(MAPPER.writeValueAsString(anyTypeClassTOs));
                 }
             });
             response.setStatusCode(Response.Status.OK.getStatusCode());
         } catch (Exception e) {
-            LOG.error("Error retrieving available any type details", e);
+            LOG.error("Error retrieving available auxiliary classes", e);
             response.setError(Response.Status.BAD_REQUEST.getStatusCode(), new StringBuilder()
                     .append("ErrorMessage{{ ")
                     .append(e.getMessage())

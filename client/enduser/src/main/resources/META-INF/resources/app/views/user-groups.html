@@ -19,8 +19,7 @@ under the License.
 <div id="attribute" class="form-group row upper-select">
   <label>{{"REALM"|translate}}</label>
   <select class="form-control"
-          ng-disabled="true"
-          ng-model="user.realm"
+          ng-model="user.realm" ng-change="refreshGroups()"
           ng-required="true">
     <option ng-repeat="realm in availableRealms" value="{{realm}}">{{realm}}</option>
   </select>

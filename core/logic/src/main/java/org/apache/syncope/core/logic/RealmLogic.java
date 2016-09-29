@@ -48,6 +48,7 @@ import org.apache.syncope.core.provisioning.api.data.RealmDataBinder;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
@@ -70,7 +71,7 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
     @Autowired
     private PropagationTaskExecutor taskExecutor;
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.REALM_LIST + "')")
+    @PreAuthorize("isAuthenticated()")
     public List<RealmTO> list(final String fullPath) {
         Realm realm = realmDAO.findByFullPath(fullPath);
         if (realm == null) {
@@ -79,11 +80,12 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
             throw new NotFoundException(fullPath);
         }
 
+        final boolean admin = AuthContextUtils.getAuthorizations().keySet().contains(StandardEntitlement.REALM_LIST);
         return CollectionUtils.collect(realmDAO.findDescendants(realm), new Transformer<Realm, RealmTO>() {
 
             @Override
             public RealmTO transform(final Realm input) {
-                return binder.getRealmTO(input);
+                return binder.getRealmTO(input, admin);
             }
         }, new ArrayList<RealmTO>());
     }
@@ -105,7 +107,7 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
         PropagationReporter propagationReporter = taskExecutor.execute(tasks, false);
 
         ProvisioningResult<RealmTO> result = new ProvisioningResult<>();
-        result.setEntity(binder.getRealmTO(realm));
+        result.setEntity(binder.getRealmTO(realm, true));
         result.getPropagationStatuses().addAll(propagationReporter.getStatuses());
 
         return result;
@@ -127,7 +129,7 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
         PropagationReporter propagationReporter = taskExecutor.execute(tasks, false);
 
         ProvisioningResult<RealmTO> result = new ProvisioningResult<>();
-        result.setEntity(binder.getRealmTO(realm));
+        result.setEntity(binder.getRealmTO(realm, true));
         result.getPropagationStatuses().addAll(propagationReporter.getStatuses());
 
         return result;
@@ -170,7 +172,7 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
         PropagationReporter propagationReporter = taskExecutor.execute(tasks, false);
 
         ProvisioningResult<RealmTO> result = new ProvisioningResult<>();
-        result.setEntity(binder.getRealmTO(realm));
+        result.setEntity(binder.getRealmTO(realm, true));
         result.getPropagationStatuses().addAll(propagationReporter.getStatuses());
 
         realmDAO.delete(realm);
@@ -196,7 +198,7 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
 
         if (fullPath != null) {
             try {
-                return binder.getRealmTO(realmDAO.findByFullPath(fullPath));
+                return binder.getRealmTO(realmDAO.findByFullPath(fullPath), true);
             } catch (Throwable e) {
                 LOG.debug("Unresolved reference", e);
                 throw new UnresolvedReferenceException(e);

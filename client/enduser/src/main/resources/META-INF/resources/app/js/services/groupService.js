@@ -26,7 +26,7 @@ angular.module('self')
             var groupService = {};
 
             groupService.getGroups = function (realm) {
-              return  $http.get("/syncope-enduser/api/groups?realm="+encodeURI(realm))
+              return  $http.get("/syncope-enduser/api/groups?realm=" + encodeURI(realm))
                       .then(function (response) {
                         return response.data;
                       }, function (response) {

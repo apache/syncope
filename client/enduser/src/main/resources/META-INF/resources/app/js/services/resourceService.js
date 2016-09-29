@@ -31,7 +31,7 @@ angular.module('self')
                       .then(function (response) {
                         return response.data;
                       }, function (response) {
-                        console.debug("Something went wrong during resources retrieval, exit with status: ", response);
+                        console.error("Something went wrong during resources retrieval, exit with status: ", response);
                         return $q.reject(response.data || response.statusText);
                       });
             };
