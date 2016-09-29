@@ -189,23 +189,23 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
         }, new ArrayList<GroupTO>());
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.GROUP_SEARCH + "')")
+    @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     @Override
     public int searchCount(final SearchCond searchCondition, final String realm) {
         return searchDAO.count(
-                getEffectiveRealms(AuthContextUtils.getAuthorizations().get(StandardEntitlement.GROUP_SEARCH), realm),
+                getEffectiveRealms(SyncopeConstants.FULL_ADMIN_REALMS, realm),
                 searchCondition, AnyTypeKind.GROUP);
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.GROUP_SEARCH + "')")
+    @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     @Override
     public List<GroupTO> search(final SearchCond searchCondition, final int page, final int size,
             final List<OrderByClause> orderBy, final String realm, final boolean details) {
 
         List<Group> matchingGroups = searchDAO.search(
-                getEffectiveRealms(AuthContextUtils.getAuthorizations().get(StandardEntitlement.GROUP_SEARCH), realm),
+                getEffectiveRealms(SyncopeConstants.FULL_ADMIN_REALMS, realm),
                 searchCondition, page, size, orderBy, AnyTypeKind.GROUP);
         return CollectionUtils.collect(matchingGroups, new Transformer<Group, GroupTO>() {
 

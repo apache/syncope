@@ -106,9 +106,7 @@ public class Ownership extends WizardStep implements WizardModel.ICondition {
         // -----------------------------------------------------------------
         final ActionPermissions permissions = new ActionPermissions();
         setMetaData(MetaDataRoleAuthorizationStrategy.ACTION_PERMISSIONS, permissions);
-        permissions.authorize(RENDER, new Roles(new StringBuilder().
-                append(StandardEntitlement.USER_SEARCH).append(",").
-                append(StandardEntitlement.GROUP_SEARCH).toString()));
+        permissions.authorize(RENDER, new Roles(StandardEntitlement.USER_SEARCH));
         // -----------------------------------------------------------------
 
         setTitleModel(new ResourceModel("group.ownership"));

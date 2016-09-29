@@ -16,6 +16,7 @@
 package org.apache.syncope.client.console.commons;
 
 import java.util.UUID;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.Component;
 import org.apache.wicket.authroles.authorization.strategies.role.Roles;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.ActionPermissions;
@@ -34,7 +35,7 @@ public abstract class ITabComponent extends Component implements ITab {
     private final IModel<String> title;
 
     /**
-     * Constructor
+     * Constructor.
      *
      * @param title IModel used to represent the title of the tab. Must contain a string
      * @param roles authorized roles
@@ -45,7 +46,11 @@ public abstract class ITabComponent extends Component implements ITab {
 
         final ActionPermissions permissions = new ActionPermissions();
         setMetaData(MetaDataRoleAuthorizationStrategy.ACTION_PERMISSIONS, permissions);
-        permissions.authorize(RENDER, new Roles(roles));
+        if (StringUtils.isBlank(roles)) {
+            permissions.authorizeAll(RENDER);
+        } else {
+            permissions.authorize(RENDER, new Roles(roles));
+        }
     }
 
     /**

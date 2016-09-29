@@ -395,7 +395,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                             target.add(container);
                         }
                     }
-                }, ActionType.RELOAD, StandardEntitlement.GROUP_SEARCH).build(componentId);
+                }, ActionType.RELOAD).build(componentId);
             }
         });
 
