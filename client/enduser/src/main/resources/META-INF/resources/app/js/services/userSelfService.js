@@ -40,7 +40,6 @@ angular.module('login')
                                 headers: {'captcha': captcha}
                               })
                       .then(function (response) {
-                        console.debug("response save: ", response);
                         var username = response;
                         return username;
                       }, function (response) {

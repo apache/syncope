@@ -29,23 +29,21 @@ import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.GroupService;
 import org.apache.wicket.request.resource.AbstractResource;
 
-public class SyncopeGroupResource extends AbstractBaseResource {
+public class GroupResource extends AbstractBaseResource {
 
     private static final long serialVersionUID = 7475706378304995200L;
 
     private final GroupService groupService;
 
-    public SyncopeGroupResource() {
+    public GroupResource() {
         groupService = SyncopeEnduserSession.get().getService(GroupService.class);
     }
 
     @Override
     protected ResourceResponse newResourceResponse(final Attributes attributes) {
-
         LOG.debug("Search all available groups");
 
         ResourceResponse response = new ResourceResponse();
-
         try {
 
             HttpServletRequest request = (HttpServletRequest) attributes.getRequest().getContainerRequest();
@@ -55,10 +53,9 @@ public class SyncopeGroupResource extends AbstractBaseResource {
                 return response;
             }
 
-            String realm = java.net.URLDecoder.decode(attributes.getParameters().get("realm").toString(
-                    SyncopeConstants.ROOT_REALM), "UTF-8");
-            final List<GroupTO> groupTOs = groupService.search(new AnyQuery.Builder().realm(realm).build()).
-                    getResult();
+            String realm = java.net.URLDecoder.decode(attributes.getParameters().get("realm").
+                    toString(SyncopeConstants.ROOT_REALM), "UTF-8");
+            final List<GroupTO> groupTOs = groupService.search(new AnyQuery.Builder().realm(realm).build()).getResult();
 
             response.setWriteCallback(new AbstractResource.WriteCallback() {
 
@@ -69,7 +66,7 @@ public class SyncopeGroupResource extends AbstractBaseResource {
             });
             response.setStatusCode(Response.Status.OK.getStatusCode());
         } catch (Exception e) {
-            LOG.error("Error retrieving available grupss", e);
+            LOG.error("Error retrieving available groups", e);
             response.setError(Response.Status.BAD_REQUEST.getStatusCode(), new StringBuilder()
                     .append("ErrorMessage{{ ")
                     .append(e.getMessage())

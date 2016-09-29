@@ -19,35 +19,29 @@
 package org.apache.syncope.client.enduser.resources;
 
 import java.io.IOException;
-import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
-import org.apache.syncope.common.lib.to.ResourceTO;
-import org.apache.syncope.common.rest.api.service.ResourceService;
+import org.apache.syncope.common.lib.to.AnyTypeTO;
+import org.apache.syncope.common.rest.api.service.AnyTypeService;
 import org.apache.wicket.request.resource.AbstractResource;
-import org.apache.wicket.request.resource.IResource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class SyncopeResourceResource extends AbstractBaseResource {
+public class AnyTypeResource extends AbstractBaseResource {
 
     private static final long serialVersionUID = 7475706378304995200L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(SyncopeResourceResource.class);
+    private final AnyTypeService anyTypeService;
 
-    private final ResourceService resourceService;
-
-    public SyncopeResourceResource() {
-        resourceService = SyncopeEnduserSession.get().getService(ResourceService.class);
+    public AnyTypeResource() {
+        anyTypeService = SyncopeEnduserSession.get().getService(AnyTypeService.class);
     }
 
     @Override
-    protected AbstractResource.ResourceResponse newResourceResponse(final IResource.Attributes attributes) {
+    protected ResourceResponse newResourceResponse(final Attributes attributes) {
 
-        LOG.debug("Search all available resources");
+        LOG.debug("Get all available auxiliary classes");
 
-        AbstractResource.ResourceResponse response = new AbstractResource.ResourceResponse();
+        ResourceResponse response = new ResourceResponse();
 
         try {
 
@@ -58,18 +52,19 @@ public class SyncopeResourceResource extends AbstractBaseResource {
                 return response;
             }
 
-            final List<ResourceTO> resourceTOs = resourceService.list();
+            String kind = attributes.getParameters().get(0).toString();
+            final AnyTypeTO anyTypeTO = anyTypeService.read(kind);
 
             response.setWriteCallback(new AbstractResource.WriteCallback() {
 
                 @Override
-                public void writeData(final IResource.Attributes attributes) throws IOException {
-                    attributes.getResponse().write(MAPPER.writeValueAsString(resourceTOs));
+                public void writeData(final Attributes attributes) throws IOException {
+                    attributes.getResponse().write(MAPPER.writeValueAsString(anyTypeTO));
                 }
             });
             response.setStatusCode(Response.Status.OK.getStatusCode());
         } catch (Exception e) {
-            LOG.error("Error retrieving available resources", e);
+            LOG.error("Error retrieving available any type details", e);
             response.setError(Response.Status.BAD_REQUEST.getStatusCode(), new StringBuilder()
                     .append("ErrorMessage{{ ")
                     .append(e.getMessage())

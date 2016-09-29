@@ -31,10 +31,11 @@ import org.apache.syncope.client.enduser.resources.LoginResource;
 import org.apache.syncope.client.enduser.resources.LogoutResource;
 import org.apache.syncope.client.enduser.resources.SchemaResource;
 import org.apache.syncope.client.enduser.resources.SecurityQuestionResource;
-import org.apache.syncope.client.enduser.resources.SyncopeAnyClassTypeResource;
-import org.apache.syncope.client.enduser.resources.SyncopeAnyTypeResource;
-import org.apache.syncope.client.enduser.resources.SyncopeGroupResource;
-import org.apache.syncope.client.enduser.resources.SyncopeResourceResource;
+import org.apache.syncope.client.enduser.resources.AnyTypeClassResource;
+import org.apache.syncope.client.enduser.resources.AnyTypeResource;
+import org.apache.syncope.client.enduser.resources.GroupResource;
+import org.apache.syncope.client.enduser.resources.ExternalResourceResource;
+import org.apache.syncope.client.enduser.resources.RealmResource;
 import org.apache.syncope.client.enduser.resources.UserSelfChangePassword;
 import org.apache.syncope.client.enduser.resources.UserSelfConfirmPasswordReset;
 import org.apache.syncope.client.enduser.resources.UserSelfCreateResource;
@@ -245,7 +246,7 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
 
             @Override
             public IResource getResource() {
-                return new SyncopeResourceResource();
+                return new ExternalResourceResource();
             }
         });
 
@@ -290,13 +291,23 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
             }
         });
 
+        mountResource("/api/realms", new ResourceReference("realms") {
+
+            private static final long serialVersionUID = -128426276529456602L;
+
+            @Override
+            public IResource getResource() {
+                return new RealmResource();
+            }
+        });
+
         mountResource("/api/groups", new ResourceReference("groups") {
 
             private static final long serialVersionUID = -128426276529456602L;
 
             @Override
             public IResource getResource() {
-                return new SyncopeGroupResource();
+                return new GroupResource();
             }
         });
 
@@ -306,7 +317,7 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
 
             @Override
             public IResource getResource() {
-                return new SyncopeAnyClassTypeResource();
+                return new AnyTypeClassResource();
             }
         });
 
@@ -316,7 +327,7 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
 
             @Override
             public IResource getResource() {
-                return new SyncopeAnyTypeResource();
+                return new AnyTypeResource();
             }
         });
 

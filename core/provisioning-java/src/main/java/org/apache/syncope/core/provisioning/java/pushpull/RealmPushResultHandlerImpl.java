@@ -107,7 +107,7 @@ public class RealmPushResultHandlerImpl
     }
 
     private void link(final Realm realm, final Boolean unlink) {
-        RealmTO realmTO = binder.getRealmTO(realm);
+        RealmTO realmTO = binder.getRealmTO(realm, true);
         if (unlink) {
             realmTO.getResources().remove(profile.getTask().getResource().getKey());
         } else {
@@ -118,14 +118,14 @@ public class RealmPushResultHandlerImpl
     }
 
     private void unassign(final Realm realm) {
-        RealmTO realmTO = binder.getRealmTO(realm);
+        RealmTO realmTO = binder.getRealmTO(realm, true);
         realmTO.getResources().remove(profile.getTask().getResource().getKey());
 
         deprovision(update(realmTO));
     }
 
     private void assign(final Realm realm) {
-        RealmTO realmTO = binder.getRealmTO(realm);
+        RealmTO realmTO = binder.getRealmTO(realm, true);
         realmTO.getResources().add(profile.getTask().getResource().getKey());
 
         provision(update(realmTO));
@@ -222,7 +222,7 @@ public class RealmPushResultHandlerImpl
                             if (!profile.getTask().isPerformUpdate()) {
                                 LOG.debug("PushTask not configured for update");
                             } else {
-                                update(binder.getRealmTO(realm));
+                                update(binder.getRealmTO(realm, true));
                             }
 
                             break;

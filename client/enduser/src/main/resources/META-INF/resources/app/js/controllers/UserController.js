@@ -21,9 +21,9 @@
 
 'use strict';
 
-angular.module("self").controller("UserController", ['$scope', '$rootScope', '$location', '$compile', "$state", 'AuthService',
-  'UserSelfService', 'SchemaService', 'RealmService', 'ResourceService', 'SecurityQuestionService', 'GroupService',
-  'AnyService', 'UserUtil', 'GenericUtil', "ValidationExecutor",
+angular.module("self").controller("UserController", ['$scope', '$rootScope', '$location', '$compile', "$state",
+  'AuthService', 'UserSelfService', 'SchemaService', 'RealmService', 'ResourceService', 'SecurityQuestionService',
+  'GroupService', 'AnyService', 'UserUtil', 'GenericUtil', "ValidationExecutor",
   function ($scope, $rootScope, $location, $compile, $state, AuthService, UserSelfService, SchemaService, RealmService,
           ResourceService, SecurityQuestionService, GroupService, AnyService, UserUtil, GenericUtil, ValidationExecutor) {
 
@@ -106,7 +106,8 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
             };
             // add other values
             for (var j = 1; j < $scope.user.plainAttrs[plainSchemaKey].values.length; j++) {
-              $scope.dynamicForm.attributeTable[schemas.plainSchemas[i].key].fields.push(schemas.plainSchemas[i].key + "_" + j);
+              $scope.dynamicForm.attributeTable[schemas.plainSchemas[i].key].fields.
+                      push(schemas.plainSchemas[i].key + "_" + j);
             }
           }
         }
@@ -141,7 +142,8 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
             };
             // add other values
             for (var j = 1; j < $scope.user.virAttrs[virSchemaKey].values.length; j++) {
-              $scope.dynamicForm.virtualAttributeTable[schemas.virSchemas[i].key].fields.push(schemas.virSchemas[i].key + "_" + j);
+              $scope.dynamicForm.virtualAttributeTable[schemas.virSchemas[i].key].fields.
+                      push(schemas.virSchemas[i].key + "_" + j);
             }
           }
         }
@@ -166,11 +168,12 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
       };
 
       var initRealms = function () {
-        $scope.availableRealms = RealmService.getAvailableRealmsStub();
-      };
-
-      var initUserRealm = function () {
-        $scope.user.realm = RealmService.getUserRealm();
+        RealmService.getAvailableRealms().then(function (response) {
+          for (var i in response) {
+            $scope.availableRealms.push(response[i].fullPath);
+          }
+          $scope.availableRealms.sort();
+        });
       };
 
       var initResources = function () {
@@ -192,6 +195,10 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
           $scope.showError("An error occur during retrieving groups " + e, $scope.notification)
         });
       };
+
+      $scope.refreshGroups = function () {
+        initGroups();
+      }
 
       var initAuxClasses = function () {
         //fetching default user classes, that should remain in any case
@@ -330,7 +337,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
         $scope.user = {
           username: '',
           password: '',
-          realm: '',
+          realm: '/',
           securityQuestion: undefined,
           securityAnswer: '',
           plainAttrs: {},
@@ -339,8 +346,6 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
           resources: [],
           auxClasses: []
         };
-        // retrieve user realm or all available realms
-        initUserRealm();
         // initialize auxiliary schemas in case of pre-existing classes
         for (var index in $scope.dynamicForm.selectedAuxClasses) {
           initUserSchemas($scope.dynamicForm.selectedAuxClasses[index]);

@@ -30,7 +30,8 @@ angular.module('self')
                       .then(function (response) {
                         return response.data;
                       }, function (response) {
-                        console.debug("Something went wrong during auxiliaryClasses retrieval, exit with status: ", response);
+                        console.error("Something went wrong during auxiliaryClasses retrieval, exit with status: ",
+                                response);
                         return $q.reject(response.data || response.statusText);
                       });
             };
@@ -40,7 +41,8 @@ angular.module('self')
                       .then(function (response) {
                         return response.data;
                       }, function (response) {
-                        console.error("Something went wrong during anyType user API retrieval, exit with status: ", response);
+                        console.error("Something went wrong during anyType user API retrieval, exit with status: ",
+                                response);
                         return $q.reject(response.data || response.statusText);
                       });
             };

@@ -210,23 +210,26 @@ public class RealmDataBinderImpl implements RealmDataBinder {
     }
 
     @Override
-    public RealmTO getRealmTO(final Realm realm) {
+    public RealmTO getRealmTO(final Realm realm, final boolean admin) {
         RealmTO realmTO = new RealmTO();
 
         realmTO.setKey(realm.getKey());
         realmTO.setName(realm.getName());
         realmTO.setParent(realm.getParent() == null ? null : realm.getParent().getKey());
         realmTO.setFullPath(realm.getFullPath());
-        realmTO.setAccountPolicy(realm.getAccountPolicy() == null ? null : realm.getAccountPolicy().getKey());
-        realmTO.setPasswordPolicy(realm.getPasswordPolicy() == null ? null : realm.getPasswordPolicy().getKey());
-        realmTO.getActionsClassNames().addAll(realm.getActionsClassNames());
 
-        for (AnyTemplate template : realm.getTemplates()) {
-            realmTO.getTemplates().put(template.getAnyType().getKey(), template.get());
-        }
+        if (admin) {
+            realmTO.setAccountPolicy(realm.getAccountPolicy() == null ? null : realm.getAccountPolicy().getKey());
+            realmTO.setPasswordPolicy(realm.getPasswordPolicy() == null ? null : realm.getPasswordPolicy().getKey());
+            realmTO.getActionsClassNames().addAll(realm.getActionsClassNames());
 
-        for (ExternalResource resource : realm.getResources()) {
-            realmTO.getResources().add(resource.getKey());
+            for (AnyTemplate template : realm.getTemplates()) {
+                realmTO.getTemplates().put(template.getAnyType().getKey(), template.get());
+            }
+
+            for (ExternalResource resource : realm.getResources()) {
+                realmTO.getResources().add(resource.getKey());
+            }
         }
 
         return realmTO;

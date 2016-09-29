@@ -23,33 +23,27 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
-import org.apache.syncope.common.lib.to.AnyTypeClassTO;
-import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
+import org.apache.syncope.common.lib.to.RealmTO;
+import org.apache.syncope.common.rest.api.service.RealmService;
 import org.apache.wicket.request.resource.AbstractResource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class SyncopeAnyClassTypeResource extends AbstractBaseResource {
+public class RealmResource extends AbstractBaseResource {
 
     private static final long serialVersionUID = 7475706378304995200L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(SyncopeAnyClassTypeResource.class);
+    private final RealmService realmService;
 
-    private final AnyTypeClassService anyTypeClassService;
-
-    public SyncopeAnyClassTypeResource() {
-        anyTypeClassService = SyncopeEnduserSession.get().getService(AnyTypeClassService.class);
+    public RealmResource() {
+        realmService = SyncopeEnduserSession.get().getService(RealmService.class);
     }
 
     @Override
     protected ResourceResponse newResourceResponse(final Attributes attributes) {
-
-        LOG.debug("Get all available auxiliary classes");
+        LOG.debug("Search all available realms");
 
         ResourceResponse response = new ResourceResponse();
 
         try {
-
             HttpServletRequest request = (HttpServletRequest) attributes.getRequest().getContainerRequest();
             if (!xsrfCheck(request)) {
                 LOG.error("XSRF TOKEN does not match");
@@ -57,24 +51,25 @@ public class SyncopeAnyClassTypeResource extends AbstractBaseResource {
                 return response;
             }
 
-            final List<AnyTypeClassTO> anyTypeClassTOs = anyTypeClassService.list();
+            final List<RealmTO> realmTOs = realmService.list();
 
             response.setWriteCallback(new AbstractResource.WriteCallback() {
 
                 @Override
                 public void writeData(final Attributes attributes) throws IOException {
-                    attributes.getResponse().write(MAPPER.writeValueAsString(anyTypeClassTOs));
+                    attributes.getResponse().write(MAPPER.writeValueAsString(realmTOs));
                 }
             });
             response.setStatusCode(Response.Status.OK.getStatusCode());
         } catch (Exception e) {
-            LOG.error("Error retrieving available auxiliary classes", e);
+            LOG.error("Error retrieving available realms", e);
             response.setError(Response.Status.BAD_REQUEST.getStatusCode(), new StringBuilder()
                     .append("ErrorMessage{{ ")
                     .append(e.getMessage())
                     .append(" }}")
                     .toString());
         }
+
         return response;
     }
 
