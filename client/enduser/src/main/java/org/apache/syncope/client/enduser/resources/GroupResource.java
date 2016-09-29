@@ -23,6 +23,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
+import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
@@ -55,7 +56,9 @@ public class GroupResource extends AbstractBaseResource {
 
             String realm = java.net.URLDecoder.decode(attributes.getParameters().get("realm").
                     toString(SyncopeConstants.ROOT_REALM), "UTF-8");
-            final List<GroupTO> groupTOs = groupService.search(new AnyQuery.Builder().realm(realm).build()).getResult();
+            final List<GroupTO> groupTOs = groupService.search(new AnyQuery.Builder().realm(realm).
+                    fiql(SyncopeClient.getGroupSearchConditionBuilder().isAssignable().query()).
+                    build()).getResult();
 
             response.setWriteCallback(new AbstractResource.WriteCallback() {
 

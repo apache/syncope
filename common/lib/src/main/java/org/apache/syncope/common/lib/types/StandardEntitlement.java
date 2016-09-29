@@ -96,8 +96,6 @@ public final class StandardEntitlement {
 
     public static final String USER_DELETE = "USER_DELETE";
 
-    public static final String GROUP_SEARCH = "GROUP_SEARCH";
-
     public static final String GROUP_CREATE = "GROUP_CREATE";
 
     public static final String GROUP_READ = "GROUP_READ";

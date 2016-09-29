@@ -181,6 +181,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
           for (var i in response) {
             $scope.dynamicForm.resources.push(response[i].key);
           }
+          $scope.dynamicForm.resources.sort();
         });
       };
 
@@ -191,6 +192,11 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
           for (var i in response) {
             $scope.dynamicForm.groups.push({"rightKey": response[i].key, "groupName": response[i].name});
           }
+          $scope.dynamicForm.groups.sort(function (a, b) {
+            var x = a.groupName;
+            var y = b.groupName;
+            return x < y ? -1 : x > y ? 1 : 0;
+          });
         }, function (e) {
           $scope.showError("An error occur during retrieving groups " + e, $scope.notification)
         });

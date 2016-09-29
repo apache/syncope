@@ -42,10 +42,8 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.util.lang.Args;
 import org.apache.syncope.common.lib.to.GroupableRelatableTO;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.ActionPermissions;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
-import org.apache.wicket.authroles.authorization.strategies.role.Roles;
 import org.apache.wicket.extensions.wizard.WizardModel.ICondition;
 
 public class Groups extends WizardStep implements ICondition {
@@ -66,7 +64,7 @@ public class Groups extends WizardStep implements ICondition {
         // -----------------------------------------------------------------
         final ActionPermissions permissions = new ActionPermissions();
         setMetaData(MetaDataRoleAuthorizationStrategy.ACTION_PERMISSIONS, permissions);
-        permissions.authorize(RENDER, new Roles(StandardEntitlement.GROUP_SEARCH));
+        permissions.authorizeAll(RENDER);
         // -----------------------------------------------------------------
 
         setOutputMarkupId(true);
@@ -114,7 +112,7 @@ public class Groups extends WizardStep implements ICondition {
                         groupRestClient.search(
                                 realm,
                                 SyncopeClient.getGroupSearchConditionBuilder().
-                                isAssignable().and().is("name").equalTo(filter).query(),
+                                        isAssignable().and().is("name").equalTo(filter).query(),
                                 -1, -1,
                                 new SortParam<>("name", true),
                                 null),
@@ -160,6 +158,6 @@ public class Groups extends WizardStep implements ICondition {
     public boolean evaluate() {
         return CollectionUtils.isNotEmpty(allGroups)
                 && SyncopeConsoleApplication.get().getSecuritySettings().getAuthorizationStrategy().
-                isActionAuthorized(this, RENDER);
+                        isActionAuthorized(this, RENDER);
     }
 }
