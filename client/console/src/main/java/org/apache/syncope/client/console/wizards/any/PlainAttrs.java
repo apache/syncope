@@ -33,6 +33,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPa
 import org.apache.syncope.client.console.wicket.markup.html.form.BinaryFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.DateTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.DateTimeFieldPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.EncryptedFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
@@ -266,8 +267,8 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                 break;
 
             case Long:
-                panel = new AjaxSpinnerFieldPanel.Builder<Long>()
-                        .build("panel", schemaTO.getKey(), Long.class, new Model<Long>());
+                panel = new AjaxSpinnerFieldPanel.Builder<Long>().
+                        build("panel", schemaTO.getKey(), Long.class, new Model<Long>());
 
                 if (required) {
                     panel.addRequiredLabel();
@@ -275,8 +276,8 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                 break;
 
             case Double:
-                panel = new AjaxSpinnerFieldPanel.Builder<Double>().step(0.1)
-                        .build("panel", schemaTO.getKey(), Double.class, new Model<Double>());
+                panel = new AjaxSpinnerFieldPanel.Builder<Double>().step(0.1).
+                        build("panel", schemaTO.getKey(), Double.class, new Model<Double>());
 
                 if (required) {
                     panel.addRequiredLabel();
@@ -285,6 +286,14 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
             case Binary:
                 panel = new BinaryFieldPanel("panel", schemaTO.getKey(), new Model<String>(), schemaTO.getMimeType());
+
+                if (required) {
+                    panel.addRequiredLabel();
+                }
+                break;
+
+            case Encrypted:
+                panel = new EncryptedFieldPanel("panel", schemaTO.getKey(), new Model<String>());
 
                 if (required) {
                     panel.addRequiredLabel();

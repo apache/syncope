@@ -34,7 +34,6 @@ import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.ResourceAssociationAction;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.rest.api.service.AnyService;
-import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 
 public abstract class AbstractAnyRestClient<TO extends AnyTO, P extends AnyPatch> extends BaseRestClient {
@@ -63,7 +62,7 @@ public abstract class AbstractAnyRestClient<TO extends AnyTO, P extends AnyPatch
             result = getService(etag, getAnyServiceClass()).update(patch).
                     readEntity(new GenericType<ProvisioningResult<TO>>() {
                     });
-            resetClient(UserService.class);
+            resetClient(getAnyServiceClass());
         }
         return result;
     }
