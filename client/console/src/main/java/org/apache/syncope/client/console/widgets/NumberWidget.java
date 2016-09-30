@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.widgets;
 
 import java.util.Collections;
 import java.util.List;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.AnyTypeComparator;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
@@ -31,6 +32,8 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.syncope.client.console.pages.Realms;
 import org.apache.syncope.client.console.pages.Roles;
 import org.apache.syncope.client.console.topology.Topology;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.wicket.request.component.IRequestablePage;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 public class NumberWidget extends BaseWidget {
@@ -48,65 +51,78 @@ public class NumberWidget extends BaseWidget {
 
         WebMarkupContainer box = new WebMarkupContainer("box");
         box.add(new AttributeAppender("class", " " + bg));
-        box.add(new AjaxEventBehavior("onmousedown") {
+
+        boolean isAuthorized = true;
+        final PageParameters pageParameters = new PageParameters();
+        final Class<? extends IRequestablePage> responsePage;
+        List<AnyTypeTO> anyTypeTOs = new AnyTypeRestClient().list();
+        switch (id) {
+            case "totalUsers":
+                pageParameters.add("selectedIndex", 1);
+                responsePage = Realms.class;
+                isAuthorized = SyncopeConsoleSession.get().owns(StandardEntitlement.USER_SEARCH);
+                break;
+
+            case "totalGroups":
+                pageParameters.add("selectedIndex", 2);
+                responsePage = Realms.class;
+                break;
+
+            case "totalAny1OrRoles":
+                if (icon.equals("ion ion-gear-a")) {
+                    Collections.sort(anyTypeTOs, new AnyTypeComparator());
+                    Integer selectedIndex = null;
+                    for (int i = 0; i < anyTypeTOs.size() && selectedIndex == null; i++) {
+                        if (anyTypeTOs.get(i).getKey().equals(label)) {
+                            selectedIndex = i + 1;
+                            pageParameters.add("selectedIndex", selectedIndex);
+                        }
+                    }
+                    responsePage = Realms.class;
+                    isAuthorized = SyncopeConsoleSession.get().owns(label + "_SEARCH");
+                } else {
+                    responsePage = Roles.class;
+                    isAuthorized = SyncopeConsoleSession.get().owns(StandardEntitlement.ROLE_LIST);
+                }
+                break;
+
+            case "totalAny2OrResources":
+                if (icon.equals("ion ion-gear-a")) {
+                    Collections.sort(anyTypeTOs, new AnyTypeComparator());
+                    Integer selectedIndex = null;
+                    for (int i = 0; i < anyTypeTOs.size() && selectedIndex == null; i++) {
+                        if (anyTypeTOs.get(i).getKey().equals(label)) {
+                            selectedIndex = i + 1;
+                            pageParameters.add("selectedIndex", selectedIndex);
+                        }
+                    }
+                    responsePage = Realms.class;
+                    isAuthorized = SyncopeConsoleSession.get().owns(label + "_SEARCH");
+                } else {
+                    responsePage = Topology.class;
+                    isAuthorized = SyncopeConsoleSession.get().owns(StandardEntitlement.CONNECTOR_LIST)
+                            && SyncopeConsoleSession.get().owns(StandardEntitlement.RESOURCE_LIST);
+                }
+                break;
+
+            default:
+                pageParameters.add("selectedIndex", 0);
+                responsePage = Realms.class;
+        }
+
+        AjaxEventBehavior clickToRealms = new AjaxEventBehavior("onmousedown") {
 
             private static final long serialVersionUID = -7133385027739964990L;
 
             @Override
             protected void onEvent(final AjaxRequestTarget target) {
-                List<AnyTypeTO> anyTypeTOs = new AnyTypeRestClient().list();
-                PageParameters pageParameters = new PageParameters();
-                switch (id) {
-                    case "totalUsers":
-                        pageParameters.add("selectedIndex", 1);
-                        setResponsePage(Realms.class, pageParameters);
-                        break;
-
-                    case "totalGroups":
-                        pageParameters.add("selectedIndex", 2);
-                        setResponsePage(Realms.class, pageParameters);
-                        break;
-
-                    case "totalAny1OrRoles":
-                        if (icon.equals("ion ion-gear-a")) {
-                            Collections.sort(anyTypeTOs, new AnyTypeComparator());
-                            int selectedIndex = 1;
-                            for (final AnyTypeTO anyTypeTO : anyTypeTOs) {
-                                if (anyTypeTO.getKey().equals(label)) {
-                                    pageParameters.add("selectedIndex", selectedIndex);
-                                    break;
-                                }
-                                selectedIndex++;
-                            }
-                            setResponsePage(Realms.class, pageParameters);
-                        } else {
-                            setResponsePage(Roles.class);
-                        }
-                        break;
-
-                    case "totalAny2OrResources":
-                        if (icon.equals("ion ion-gear-a")) {
-                            Collections.sort(anyTypeTOs, new AnyTypeComparator());
-                            int selectedIndex = 1;
-                            for (final AnyTypeTO anyTypeTO : anyTypeTOs) {
-                                if (anyTypeTO.getKey().equals(label)) {
-                                    pageParameters.add("selectedIndex", selectedIndex);
-                                    break;
-                                }
-                                selectedIndex++;
-                            }
-                            setResponsePage(Realms.class, pageParameters);
-                        } else {
-                            setResponsePage(Topology.class);
-                        }
-                        break;
-
-                    default:
-                        pageParameters.add("selectedIndex", 0);
-                        setResponsePage(Realms.class, pageParameters);
-                }
+                setResponsePage(responsePage, pageParameters);
             }
-        });
+        };
+        if (isAuthorized) {
+            box.add(clickToRealms);
+        }
+
         add(box);
 
         numberLabel = new Label("number", number);
