@@ -26,9 +26,9 @@ angular.module('self')
             var schemaService = {};
 
             schemaService.getUserSchemas = function (anyTypeClass) {
-              var param = anyTypeClass ? "?anyTypeClass=" + encodeURI(anyTypeClass) : "";
+              var classParam = anyTypeClass ? "?anyTypeClass=" + encodeURI(anyTypeClass) : "";
 
-              return  $http.get("/syncope-enduser/api/schemas" + param)
+              return  $http.get("/syncope-enduser/api/schemas" + classParam)
                       .then(function (response) {
                         return response.data;
                       }, function (response) {

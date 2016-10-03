@@ -22,9 +22,7 @@
 angular.module('self')
         .factory('GroupService', ['$resource', '$q', '$http',
           function ($group, $q, $http) {
-
             var groupService = {};
-
             groupService.getGroups = function (realm) {
               return  $http.get("/syncope-enduser/api/groups?realm=" + encodeURI(realm))
                       .then(function (response) {

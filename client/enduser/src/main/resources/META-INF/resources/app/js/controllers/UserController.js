@@ -37,7 +37,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
     $scope.availableRealms = [];
     $scope.availableSecurityQuestions = [];
 
-    $scope.initialSecurityQuestion = undefined;
+    $scope.initialSecurityQuestion = '';
     $scope.captchaInput = {
       value: ""
     };
@@ -198,7 +198,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
             return x < y ? -1 : x > y ? 1 : 0;
           });
         }, function (e) {
-          $scope.showError("An error occur during retrieving groups " + e, $scope.notification)
+          $scope.showError("An error occur during retrieving groups " + e, $scope.notification);
         });
       };
 
@@ -243,9 +243,11 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
         UserSelfService.read().then(function (response) {
           $scope.user = UserUtil.getUnwrappedUser(response);
           $scope.user.password = undefined;
+          
           $scope.initialSecurityQuestion = $scope.user.securityQuestion;
           // initialize already assigned resources
           $scope.dynamicForm.selectedResources = $scope.user.resources;
+ 
           // initialize already assigned groups -- keeping the same structure of groups       
           for (var index in $scope.user.memberships) {
             $scope.dynamicForm.selectedGroups.push(
@@ -296,9 +298,8 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
 
         //removing derived schemas
         for (var i = 0; i < $scope.dynamicForm.derSchemas.length; i++) {
-          if ((anyTypeClass && $scope.dynamicForm.derSchemas[i].anyTypeClass == anyTypeClass)
+          if ((anyTypeClass && $scope.dynamicForm.derSchemas[i].anyTypeClass === anyTypeClass)
                   || (group && $scope.dynamicForm.derSchemas[i].key.includes(group + '#'))) {
-
             //cleaning both form and user model
             delete $scope.user.derAttrs[$scope.dynamicForm.derSchemas[i].key];
             $scope.dynamicForm.derSchemas.splice(i, 1);
@@ -307,9 +308,8 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
         }
         //removing virtual schemas
         for (var i = 0; i < $scope.dynamicForm.virSchemas.length; i++) {
-          if ((anyTypeClass && $scope.dynamicForm.virSchemas[i].anyTypeClass == anyTypeClass)
+          if ((anyTypeClass && $scope.dynamicForm.virSchemas[i].anyTypeClass === anyTypeClass)
                   || (group && $scope.dynamicForm.virSchemas[i].key.includes(group + '#'))) {
-
             //cleaning both form and user model
             delete $scope.user.virAttrs[$scope.dynamicForm.virSchemas[i].key];
             $scope.dynamicForm.virSchemas.splice(i, 1);
@@ -344,7 +344,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
           username: '',
           password: '',
           realm: '/',
-          securityQuestion: undefined,
+          securityQuestion: '',
           securityAnswer: '',
           plainAttrs: {},
           derAttrs: {},
@@ -410,6 +410,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
         });
       }
     };
+    
     $scope.retrieveSecurityQuestion = function (user) {
       if ($rootScope.pwdResetRequiringSecurityQuestions) {
         if (user && user.username && user.username.length) {
@@ -431,6 +432,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
         }
       }
     };
+    
     $scope.resetPassword = function (user) {
       if (user && user.username) {
         $scope.retrieveSecurityQuestion(user);
