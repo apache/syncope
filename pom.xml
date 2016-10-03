@@ -411,7 +411,7 @@ under the License.
     
     <bootstrap.version>3.3.7</bootstrap.version>
     <bootstrap-select.version>1.7.3</bootstrap-select.version>
-    <bootstrap-fileinput.version>4.3.4</bootstrap-fileinput.version>
+    <bootstrap-fileinput.version>4.3.5</bootstrap-fileinput.version>
     <bootbox.version>4.4.0</bootbox.version>
     <font-awesome.version>4.6.3</font-awesome.version>
     <ionicons.version>2.0.1</ionicons.version>
