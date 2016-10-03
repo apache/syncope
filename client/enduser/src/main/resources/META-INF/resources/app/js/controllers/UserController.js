@@ -276,7 +276,6 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
       };
 
       var removeUserSchemas = function (anyTypeClass, group) {
-
         //removing plain groupSchemas
         for (var i = 0; i < $scope.dynamicForm.groupSchemas.length; i++) {
           if ($scope.dynamicForm.groupSchemas[i] === group) {

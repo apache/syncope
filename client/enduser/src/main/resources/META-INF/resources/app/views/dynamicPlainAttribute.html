@@ -22,18 +22,59 @@ under the License.
          ng-model="user.plainAttrs[schema.key].values[index]"
          ng-required="{{schema.mandatoryCondition}}" validate="true"
          ng-disabled="schema.readonly" ng-init="initAttribute(schema, index)" name="{{schema.key}}"/>
-  <input ng-switch-when="Encrypted" class="form-control" type="text"
-         ng-model="user.plainAttrs[schema.key].values[index]"
-         ng-required="{{schema.mandatoryCondition}}" validate="true"
-         ng-disabled="schema.readonly" ng-init="initAttribute(schema, index)"
-         ame="{{schema.key}}"/>
+
+  <div ng-switch-when="Encrypted" class="input-group input-group-sm">
+    <span class="input-group-btn">  
+      <button type="button" class="btn btn-default btn-flat"
+              onclick="var pwd = $(this).parent().next('input');
+                  if (pwd.is('[readonly]')) {
+                    if (pwd.val() === '') {
+                      pwd.removeAttr('readonly');
+                      $(this).children().attr('class', 'fa fa-unlock');
+                    } else {
+                      var response = confirm('This will remove the current value. Continue?');
+                      if (response == true) {
+                        pwd.removeAttr('readonly');
+                        pwd.val('');
+                        $(this).children().attr('class', 'fa fa-unlock');
+                      }
+                    }
+                  }
+              ">
+        <i class="fa fa-lock"></i>
+      </button>
+    </span>
+    <input class="form-control" type="password" readonly="true"
+           ng-model="user.plainAttrs[schema.key].values[index]"
+           ng-required="{{schema.mandatoryCondition}}" validate="true"
+           ng-disabled="schema.readonly" ng-init="initAttribute(schema, index)" name="{{schema.key}}"/>
+    <span class="input-group-btn">  
+      <button type="button" class="btn btn-default btn-flat"
+              onmousedown="var pwd = $(this).parent().prev('input');
+                  if (!pwd.is('[readonly]')) {
+                    pwd.attr('type', 'text');
+                    $(this).children().attr('class', 'fa fa-eye-slash');
+                  }"
+              onmouseup="var pwd = $(this).parent().prev('input');
+                  if (!pwd.is('[readonly]')) {
+                    pwd.attr('type', 'password');
+                    $(this).children().attr('class', 'fa fa-eye');
+                  }"
+              >
+        <i class="fa fa-eye"></i>
+      </button>
+    </span>
+  </div>
+
   <div ng-switch-when="Boolean">
     <input type="checkbox" ng-model="user.plainAttrs[schema.key].values[index]" ng-required="{{schema.mandatoryCondition}}" 
            ng-init="initAttribute(schema, index)" />
   </div>
+
   <input ng-switch-when="Long" class="form-control" type="number" ng-model="user.plainAttrs[schema.key].values[index]" 
          ng-required="{{schema.mandatoryCondition}}" validate="true"
          ng-init="initAttribute(schema, index)" name="{{schema.key}}"/>
+
   <input ng-switch-when="Double" class="form-control" type="number" ng-model="user.plainAttrs[schema.key].values[index]"
          ng-required="{{schema.mandatoryCondition}}" validate="true"
          ng-init="initAttribute(schema, index)" name="{{schema.key}}"/>
@@ -72,7 +113,7 @@ under the License.
   </div>
 
   <div ng-switch-when="Binary" ng-init="initAttribute(schema, index)">
-    <input file-input type="file" id="fileInput" name="fileInput">
+    <input file-input type="file" id="fileInput" name="fileInput"/>
     <button type="button" title="Download file" class="fileButton btn btn-default btn-sm" ng-click="download()">
       <i class="glyphicon glyphicon-download" ></i>
     </button>
