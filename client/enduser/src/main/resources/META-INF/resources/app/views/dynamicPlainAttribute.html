@@ -26,13 +26,14 @@ under the License.
   <div ng-switch-when="Encrypted" class="input-group input-group-sm">
     <span class="input-group-btn">  
       <button type="button" class="btn btn-default btn-flat"
+              confirm="{{'CONFIRM_REMOVE'| translate}}"
               onclick="var pwd = $(this).parent().next('input');
                   if (pwd.is('[readonly]')) {
                     if (pwd.val() === '') {
                       pwd.removeAttr('readonly');
                       $(this).children().attr('class', 'fa fa-unlock');
                     } else {
-                      var response = confirm('This will remove the current value. Continue?');
+                      var response = confirm($(this).attr('confirm'));
                       if (response == true) {
                         pwd.removeAttr('readonly');
                         pwd.val('');
