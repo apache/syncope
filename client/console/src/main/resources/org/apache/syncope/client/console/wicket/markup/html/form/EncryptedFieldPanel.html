@@ -25,14 +25,16 @@ under the License.
     <div class="input-group input-group-sm">
       <span class="input-group-btn">  
         <button type="button" class="btn btn-warning btn-flat"
+                wicket:message="confirm:confirmMessage"
                 onclick="var pwd = $(this).parent().next('input');
                     var children = $(this).children();
+                    var confirmMessage = $(this).attr('confirm');
                     if (pwd.is('[readonly]')) {
                       if (pwd.val() === '') {
                         pwd.removeAttr('readonly');
                         children.attr('class', 'fa fa-unlock');
                       } else {
-                        bootbox.confirm('This will remove the current value. Continue?', function (result) {
+                        bootbox.confirm(confirmMessage, function (result) {
                           if (result === true) {
                             pwd.removeAttr('readonly');
                             pwd.val('');
