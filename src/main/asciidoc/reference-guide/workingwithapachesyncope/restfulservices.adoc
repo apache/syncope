@@ -111,6 +111,37 @@ Groups and Any Objects operations.
 When invoking the REST endpoint `/users/self` in `GET`, the `X-Syncope-Entitlements` response header will list all
 the <<entitlements,entitlements>> owned by the requesting user.
 
+==== Bulk Operations
+
+Some REST endpoints feature the _bulk mode_, e.g. the capability to perform a given operation onto several items at the
+same time.
+
+The table below shows the bulk operations available.
+
+[cols="1,5a"]
+|===
+
+|Any Objects
+| * `DELETE` - remove several any objects at once
+
+|Groups
+| * `PROVISION` - provision all members of the given group onto all the associated external resources
+ * `DEPROVISION` - deprovision all members of the given group from all the associated external resources
+ * `DELETE` - remove several groups at once
+
+|Users
+| * `SUSPEND` - suspend several users at once
+* `REACTIVATE` - set several users at once back to the active state
+* `MUSTCHANGEPASSWORD` - force several users at once to change their passwords
+* `DELETE` - remove several users at once
+
+| Tasks
+| * `DRYRUN` - executes several tasks at once, with the <<dryrun>> option set
+* `EXECUTE` - executes several tasks at once
+* `DELETE` - remove several tasks at once
+
+|===
+
 ==== Client Library
 
 The Java client library simplifies the interaction with the <<core>> by hiding the underlying HTTP

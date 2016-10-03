@@ -26,7 +26,6 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.ComparatorUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.ResourceDeassociationPatch;
-import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.PagedConnObjectTOResult;
@@ -116,10 +115,6 @@ public class ResourceRestClient extends BaseRestClient {
 
     public void delete(final String name) {
         getService(ResourceService.class).delete(name);
-    }
-
-    public BulkActionResult bulkAction(final BulkAction action) {
-        return getService(ResourceService.class).bulk(action);
     }
 
     public BulkActionResult bulkAssociationAction(

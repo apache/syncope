@@ -30,7 +30,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.ResourceDeassociationPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.PagedConnObjectTOResult;
@@ -176,24 +175,6 @@ public class ResourceServiceImpl extends AbstractServiceImpl implements Resource
             } catch (Exception e) {
                 LOG.warn("While executing {} on {} {}", patch.getAction(), patch.getAnyTypeKey(), anyKey, e);
                 result.getResults().put(anyKey, BulkActionResult.Status.FAILURE);
-            }
-        }
-
-        return result;
-    }
-
-    @Override
-    public BulkActionResult bulk(final BulkAction bulkAction) {
-        BulkActionResult result = new BulkActionResult();
-
-        if (bulkAction.getType() == BulkAction.Type.DELETE) {
-            for (String key : bulkAction.getTargets()) {
-                try {
-                    result.getResults().put(logic.delete(key).getKey(), BulkActionResult.Status.SUCCESS);
-                } catch (Exception e) {
-                    LOG.error("Error performing delete for resource {}", key, e);
-                    result.getResults().put(key, BulkActionResult.Status.FAILURE);
-                }
             }
         }
 

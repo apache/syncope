@@ -21,8 +21,6 @@ package org.apache.syncope.core.rest.cxf.service;
 import java.net.URI;
 import java.util.List;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.lib.to.BulkAction;
-import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ConnBundleTO;
 import org.apache.syncope.common.lib.to.ConnIdObjectClassTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
@@ -92,23 +90,5 @@ public class ConnectorServiceImpl extends AbstractServiceImpl implements Connect
     @Override
     public void reload() {
         logic.reload();
-    }
-
-    @Override
-    public BulkActionResult bulk(final BulkAction bulkAction) {
-        BulkActionResult result = new BulkActionResult();
-
-        if (bulkAction.getType() == BulkAction.Type.DELETE) {
-            for (String key : bulkAction.getTargets()) {
-                try {
-                    result.getResults().put(logic.delete(key).getKey(), BulkActionResult.Status.SUCCESS);
-                } catch (Exception e) {
-                    LOG.error("Error performing delete for connector {}", key, e);
-                    result.getResults().put(key, BulkActionResult.Status.FAILURE);
-                }
-            }
-        }
-
-        return result;
     }
 }

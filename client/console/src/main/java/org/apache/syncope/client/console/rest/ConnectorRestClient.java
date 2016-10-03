@@ -29,8 +29,6 @@ import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.BulkAction;
-import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ConnBundleTO;
 import org.apache.syncope.common.lib.to.ConnIdObjectClassTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
@@ -186,9 +184,5 @@ public class ConnectorRestClient extends BaseRestClient {
 
     public void reload() {
         getService(ConnectorService.class).reload();
-    }
-
-    public BulkActionResult bulkAction(final BulkAction action) {
-        return getService(ConnectorService.class).bulk(action);
     }
 }
