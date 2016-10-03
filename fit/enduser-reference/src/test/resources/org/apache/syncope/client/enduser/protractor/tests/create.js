@@ -50,6 +50,8 @@ describe('syncope enduser user create', function () {
     element.all(by.id('next')).first().click();
 
     //plainSchemas
+    abstract.waitSpinner();
+    browser.wait(element(by.name('fullname')).isPresent());
     element.all(by.name('fullname')).first().sendKeys('Gaetano Donizetti');
     element.all(by.name('userId')).first().sendKeys('donizetti@apache.org');
     element.all(by.name('firstname')).first().sendKeys('Gaetano');
