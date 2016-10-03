@@ -53,6 +53,8 @@ describe('syncope enduser user edit', function () {
     abstract.doNext();
 
     //groups
+    abstract.waitSpinner();
+    browser.wait(element(by.model('dynamicForm.selectedGroups')).isPresent());
     var group = element(by.model('dynamicForm.selectedGroups'));
     var selectedGroup = group.element(by.css('.ui-select-search'));
     group.click();
