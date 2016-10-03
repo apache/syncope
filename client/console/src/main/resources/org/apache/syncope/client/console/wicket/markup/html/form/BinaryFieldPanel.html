@@ -17,34 +17,31 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
-  <head><title></title></head>
-  <body>
-    <wicket:extend>
-      <wicket:enclosure child="field-label">
-        <label wicket:id="field-label">[LABEL]</label><span wicket:id="required"/>
-        <span wicket:id="externalAction"/>
-      </wicket:enclosure>
-      <fieldset class="input-group">
-        <input style="display: none;" wicket:id="textField"/>
-        <div>
-          <form wicket:id="uploadForm" encType="multipart/form-data" method="post" accept-charset="UTF-8">
-            <span wicket:id="previewContainer">
-              <span wicket:id="panelPreview">[panelPreview]</span>
-              <wicket:fragment wicket:id="previewFragment">
-                <div wicket:id = "previewer" class="ui-widget-content ui-corner-all form-group"></div>
-              </wicket:fragment>
-              <wicket:fragment wicket:id="emptyFragment">
-              </wicket:fragment>
-            </span>
-            <input wicket:id="fileUpload" type="file"/>
-            <div>
-              <a href="#" wicket:id="downloadLink"><i title="download" alt="file download icon" class="glyphicon glyphicon-download"></i></a>
-              <a href="#" wicket:id="resetLink"><i title="remove value" alt="remove value icon" class="glyphicon glyphicon-remove"></i></a>
-              <span wicket:id="preview"/>
-            </div>
-          </form>
-        </div>
-      </fieldset>
-    </wicket:extend>
-  </body>
+  <wicket:extend>
+    <wicket:enclosure child="field-label">
+      <label wicket:id="field-label">[LABEL]</label><span wicket:id="required"/>
+      <span wicket:id="externalAction"/>
+    </wicket:enclosure>
+    <fieldset class="input-group">
+      <input style="display: none;" wicket:id="textField"/>
+      <div>
+        <form wicket:id="uploadForm" encType="multipart/form-data" method="post" accept-charset="UTF-8">
+          <span wicket:id="previewContainer">
+            <span wicket:id="panelPreview">[panelPreview]</span>
+            <wicket:fragment wicket:id="previewFragment">
+              <div wicket:id = "previewer" class="ui-widget-content ui-corner-all form-group"></div>
+            </wicket:fragment>
+            <wicket:fragment wicket:id="emptyFragment">
+            </wicket:fragment>
+          </span>
+          <input wicket:id="fileUpload" type="file"/>
+          <div>
+            <a href="#" wicket:id="downloadLink"><i title="download" alt="file download icon" class="glyphicon glyphicon-download"></i></a>
+            <a href="#" wicket:id="resetLink"><i title="remove value" alt="remove value icon" class="glyphicon glyphicon-remove"></i></a>
+            <span wicket:id="preview"/>
+          </div>
+        </form>
+      </div>
+    </fieldset>
+  </wicket:extend>
 </html>
