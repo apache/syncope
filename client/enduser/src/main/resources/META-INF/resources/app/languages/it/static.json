@@ -41,5 +41,6 @@
   "SUCCESSFULLY_UPDATED": "aggiornato con successo",
   "PASSWORD_UPDATED": ": password succesfully updated",
   "GOBACKHOME": "Clicca su questo link per tornare alla home page",
+  "CONFIRM_REMOVE": "Questa azione rimuoverà il valore corrente. Continuare?",
   "own": "Propri"
 }
