@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -44,7 +43,6 @@ import org.apache.commons.collections4.Transformer;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.ConnBundleTO;
 import org.apache.syncope.common.lib.to.ConnIdObjectClassTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
@@ -692,49 +690,6 @@ public class ConnectorITCase extends AbstractITCase {
     @Test
     public void reload() {
         connectorService.reload();
-    }
-
-    @Test
-    public void bulkAction() {
-        BulkAction bulkAction = new BulkAction();
-        bulkAction.setType(BulkAction.Type.DELETE);
-
-        ConnInstanceTO conn = connectorService.read(
-                "5aa5b8be-7521-481a-9651-c557aea078c1", Locale.ENGLISH.getLanguage());
-
-        conn.setKey(null);
-        conn.setDisplayName("forBulk1");
-
-        bulkAction.getTargets().add(String.valueOf(getObject(
-                connectorService.create(conn).getLocation(), ConnectorService.class, ConnInstanceTO.class).getKey()));
-
-        conn.setDisplayName("forBulk2");
-
-        bulkAction.getTargets().add(String.valueOf(getObject(
-                connectorService.create(conn).getLocation(), ConnectorService.class, ConnInstanceTO.class).getKey()));
-
-        Iterator<String> itor = bulkAction.getTargets().iterator();
-
-        assertNotNull(connectorService.read(itor.next(), Locale.ENGLISH.getLanguage()));
-        assertNotNull(connectorService.read(itor.next(), Locale.ENGLISH.getLanguage()));
-
-        connectorService.bulk(bulkAction);
-
-        itor = bulkAction.getTargets().iterator();
-
-        try {
-            connectorService.read(itor.next(), Locale.ENGLISH.getLanguage());
-            fail();
-        } catch (SyncopeClientException e) {
-            assertNotNull(e);
-        }
-
-        try {
-            connectorService.read(itor.next(), Locale.ENGLISH.getLanguage());
-            fail();
-        } catch (SyncopeClientException e) {
-            assertNotNull(e);
-        }
     }
 
     @Test

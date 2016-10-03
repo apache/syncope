@@ -32,8 +32,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.syncope.common.lib.to.BulkAction;
-import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ConnBundleTO;
 import org.apache.syncope.common.lib.to.ConnIdObjectClassTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
@@ -156,16 +154,4 @@ public interface ConnectorService extends JAXRSService {
     @POST
     @Path("reload")
     void reload();
-
-    /**
-     * Executes the provided bulk action.
-     *
-     * @param bulkAction list of connector instance keys against which the bulk action will be performed.
-     * @return Bulk action result
-     */
-    @POST
-    @Path("bulk")
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    BulkActionResult bulk(@NotNull BulkAction bulkAction);
 }

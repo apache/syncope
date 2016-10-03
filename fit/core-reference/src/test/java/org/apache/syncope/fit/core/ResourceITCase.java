@@ -37,7 +37,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
-import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.MappingItemTO;
@@ -516,35 +515,6 @@ public class ResourceITCase extends AbstractITCase {
         } catch (SyncopeClientException e) {
             assertEquals(Response.Status.BAD_REQUEST, e.getType().getResponseStatus());
             assertEquals(ClientExceptionType.RequiredValuesMissing, e.getType());
-        }
-    }
-
-    @Test
-    public void bulkAction() {
-        resourceService.create(buildResourceTO("forBulk1"));
-        resourceService.create(buildResourceTO("forBulk2"));
-
-        assertNotNull(resourceService.read("forBulk1"));
-        assertNotNull(resourceService.read("forBulk2"));
-
-        final BulkAction bulkAction = new BulkAction();
-        bulkAction.setType(BulkAction.Type.DELETE);
-
-        bulkAction.getTargets().add(String.valueOf("forBulk1"));
-        bulkAction.getTargets().add(String.valueOf("forBulk2"));
-
-        resourceService.bulk(bulkAction);
-
-        try {
-            resourceService.read("forBulk1");
-            fail();
-        } catch (SyncopeClientException e) {
-        }
-
-        try {
-            resourceService.read("forBulk2");
-            fail();
-        } catch (SyncopeClientException e) {
         }
     }
 
