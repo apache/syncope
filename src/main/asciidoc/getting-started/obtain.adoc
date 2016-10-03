@@ -59,7 +59,7 @@ instructions.
 [[standalone-components]]
 ==== Components
 
-The set of available components, including access URLs and credentials, is the same as reported for 
+The set of provided components, including access URLs and credentials, is the same as reported for 
 <<paths-and-components,embedded mode>>, with the exception of log files, available here under `$CATALINA_HOME/logs`.
 
 [TIP]
@@ -158,6 +158,12 @@ CAUTION: The following assumes that `protocol`, `host` and `port` reflect your A
 
 [cols="1,2"]
 |===
+
+| Log files
+| Available under `/var/log/apache-syncope`
+
+| ConnId bundles
+| Available under `/var/lib/apache-syncope/bundles`
 
 | Complete REST API reference
 | protocol://host:port/syncope/index.html
