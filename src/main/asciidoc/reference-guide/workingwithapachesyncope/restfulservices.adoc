@@ -140,6 +140,12 @@ The table below shows the bulk operations available.
 * `EXECUTE` - executes several tasks at once
 * `DELETE` - remove several tasks at once
 
+| External Resources
+| * `DEPROVISION` - delete several users, groups or any objects at once from an external resource but keep in the
+internal storage and leave the external resource associated
+ * `UNLINK` - remove the association between several users, groups or any objects at once and an external resource,
+without performing any deprovisioning operation
+ * `UNASSIGN` - unlink and deprovision several users, groups or any objects at once from an external resource
 |===
 
 ==== Client Library
