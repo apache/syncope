@@ -237,6 +237,7 @@ public final class AttributableOperations {
         }
 
         // 3. security question / answer
+        result.setSecurityQuestion(0L);
         if (updated.getSecurityQuestion() == null) {
             result.setSecurityQuestion(null);
             result.setSecurityAnswer(null);
