@@ -19,54 +19,52 @@
 'use strict';
 
 angular.module('self')
-        .directive('navigationButtons', ['$state', 'GenericUtil', 'ValidationExecutor', function ($state, GenericUtil, ValidationExecutor) {
-            return {
-              restrict: 'E',
-              templateUrl: 'views/navigationButtons.html',
-              scope: {
+        .directive('navigationButtons', ['$state', '$rootScope', 'GenericUtil', 'ValidationExecutor', function ($state, $rootScope, GenericUtil, ValidationExecutor) {
+        return {
+        restrict: 'E',
+                templateUrl: 'views/navigationButtons.html',
+                scope: {
                 base: "@",
-                current: "@"
-              },
-              link: function (scope, element, attrs) {
+                        current: "@"
+                },
+                link: function (scope, element, attrs) {
                 var base = (scope.base && scope.base != "" ? scope.base + "." : "");
-                scope.wizard = scope.$eval(attrs.wizard) || scope.$parent.wizard;
-                scope.previous = "none";
-                if (scope.wizard) {
-                  var urls = Object.keys(scope.wizard);
-                  var index = urls.indexOf(scope.current);
-                  scope.previous = (index > 0 ? base + urls[index - 1] : scope.previous = "none");
-                  scope.next = (index < urls.length - 1 ? base + urls[index + 1] : scope.next = "none");
+                        $rootScope.wizard = scope.$eval(attrs.wizard) || scope.$parent.wizard;
+                        scope.previous = "none";
+                        if ($rootScope.wizard) {
+                var urls = Object.keys($rootScope.wizard);
+                        var index = urls.indexOf(scope.current);
+                        scope.previous = (index > 0 ? base + urls[index - 1] : scope.previous = "none");
+                        scope.next = (index < urls.length - 1 ? base + urls[index + 1] : scope.next = "none");
                 }
-              },
-              controller: function ($scope) {
+                },
+                controller: function ($scope) {
 
                 $scope.validateAndNext = function (event, state) {
-                  //getting the enclosing form in order to access to its name                
-                  var currentForm = GenericUtil.getEnclosingForm(event.target);
-                  if (currentForm != null) {
-                    if (ValidationExecutor.validate(currentForm, $scope.$parent)) {
-                      if (state) {
-                        $scope.nextTab(state);
-                      } else if ($scope.wizard) {
-                        $scope.nextTab($scope.next);
-                      }
-                    }
-                  }
+                //getting the enclosing form in order to access to its name                
+                var currentForm = GenericUtil.getEnclosingForm(event.target);
+                        if (currentForm != null) {
+                if (ValidationExecutor.validate(currentForm, $scope.$parent)) {
+                if (state) {
+                $scope.nextTab(state);
+                } else if ($rootScope.wizard) {
+                $scope.nextTab($scope.next);
+                }
+                }
+                }
 
                 };
+                        $scope.nextTab = function (state) {
+                        //change route through parent event
+                        console.log("State: ", state);
+                                $state.go(state);
+                        };
+                                $scope.previousTab = function () {
+                                //change route through parent event
+                                $state.go($scope.previous);
+                                };
+                        }
 
-                $scope.nextTab = function (state) {
-                  //change route through parent event
-                  console.log("State: ", state);
-                  $state.go(state);
-                };
-
-                $scope.previousTab = function () {
-                  //change route through parent event
-                  $state.go($scope.previous);
-                };
-              }
-
-            }
-            ;
-          }]);
+                        }
+                ;
+                }]);
