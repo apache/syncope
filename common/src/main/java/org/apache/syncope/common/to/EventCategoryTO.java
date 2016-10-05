@@ -51,6 +51,8 @@ public class EventCategoryTO extends AbstractBaseBean {
 
     /**
      * Constructor for the given Type event category.
+     *
+     * @param type event category type
      */
     public EventCategoryTO(final AuditElements.EventCategoryType type) {
         this.type = type;

@@ -233,7 +233,7 @@ public interface ReportService extends JAXRSService {
      * Execute a control action on an existing report
      *
      * @param reportId id of report
-     * @param action
+     * @param action action to execute
      */
     @POST
     @Path("{reportId}")

@@ -301,7 +301,7 @@ public interface TaskService extends JAXRSService {
      * Execute a control action on an existing task
      *
      * @param taskId id of task
-     * @param action
+     * @param action action to execute
      */
     @POST
     @Path("{taskId}")
