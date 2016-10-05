@@ -106,38 +106,37 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
             builder = builder(Response.Status.CONFLICT, ClientExceptionType.DataIntegrityViolation, getJPAMessage(ex));
         } else if (ex instanceof JpaSystemException) {
             builder = builder(Response.Status.CONFLICT, ClientExceptionType.DataIntegrityViolation, getJPAMessage(ex));
+        } else if (ex instanceof NotFoundException) {
+            builder = builder(Response.Status.NOT_FOUND, ClientExceptionType.NotFound, getExMessage(ex));
         } else {
-            builder = processNotFoundExceptions(ex);
+            builder = processInvalidEntityExceptions(ex);
             if (builder == null) {
-                builder = processInvalidEntityExceptions(ex);
-                if (builder == null) {
-                    builder = processBadRequestExceptions(ex);
-                }
-                // process JAX-RS validation errors
-                if (builder == null && ex instanceof ValidationException) {
-                    builder = JAXRSUtils.fromResponse(validationEM.toResponse((ValidationException) ex)).
-                            header(RESTHeaders.ERROR_CODE, ClientExceptionType.RESTValidation.getHeaderValue()).
-                            header(RESTHeaders.ERROR_INFO,
-                                    ClientExceptionType.RESTValidation.getInfoHeaderValue(getExMessage(ex)));
+                builder = processBadRequestExceptions(ex);
+            }
+            // process JAX-RS validation errors
+            if (builder == null && ex instanceof ValidationException) {
+                builder = JAXRSUtils.fromResponse(validationEM.toResponse((ValidationException) ex)).
+                        header(RESTHeaders.ERROR_CODE, ClientExceptionType.RESTValidation.getHeaderValue()).
+                        header(RESTHeaders.ERROR_INFO,
+                                ClientExceptionType.RESTValidation.getInfoHeaderValue(getExMessage(ex)));
 
-                    ErrorTO error = new ErrorTO();
-                    error.setStatus(ClientExceptionType.RESTValidation.getResponseStatus().getStatusCode());
-                    error.setType(ClientExceptionType.RESTValidation);
-                    error.getElements().add(getExMessage(ex));
-                    builder.entity(error);
-                }
-                // ...or just report as InternalServerError
-                if (builder == null) {
-                    builder = Response.status(Response.Status.INTERNAL_SERVER_ERROR).
-                            header(RESTHeaders.ERROR_INFO,
-                                    ClientExceptionType.Unknown.getInfoHeaderValue(getExMessage(ex)));
+                ErrorTO error = new ErrorTO();
+                error.setStatus(ClientExceptionType.RESTValidation.getResponseStatus().getStatusCode());
+                error.setType(ClientExceptionType.RESTValidation);
+                error.getElements().add(getExMessage(ex));
+                builder.entity(error);
+            }
+            // ...or just report as InternalServerError
+            if (builder == null) {
+                builder = Response.status(Response.Status.INTERNAL_SERVER_ERROR).
+                        header(RESTHeaders.ERROR_INFO,
+                                ClientExceptionType.Unknown.getInfoHeaderValue(getExMessage(ex)));
 
-                    ErrorTO error = new ErrorTO();
-                    error.setStatus(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
-                    error.setType(ClientExceptionType.Unknown);
-                    error.getElements().add(getExMessage(ex));
-                    builder.entity(error);
-                }
+                ErrorTO error = new ErrorTO();
+                error.setStatus(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode());
+                error.setType(ClientExceptionType.Unknown);
+                error.getElements().add(getExMessage(ex));
+                builder.entity(error);
             }
         }
 
@@ -190,14 +189,6 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
         }
 
         return builder.entity(errors);
-    }
-
-    private ResponseBuilder processNotFoundExceptions(final Exception ex) {
-        if (ex instanceof javax.ws.rs.NotFoundException || ex instanceof NotFoundException) {
-            return builder(Response.Status.NOT_FOUND, ClientExceptionType.NotFound, getExMessage(ex));
-        }
-
-        return null;
     }
 
     private ResponseBuilder processInvalidEntityExceptions(final Exception ex) {
