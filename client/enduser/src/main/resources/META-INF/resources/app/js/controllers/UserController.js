@@ -17,7 +17,7 @@
  * under the License.
  */
 
-/* global message, component, $state, rootScope */
+/* global message, component, $state, rootScope, $q */
 
 'use strict';
 
@@ -73,6 +73,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
             $scope.dynamicForm.groupSchemas.push(group);
           //initializing user schemas values
           initSchemaValues(schemas);
+          initWizard();
         }, function (response) {
           var errorMessage;
           // parse error response 
@@ -82,6 +83,26 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
           }
           console.error("Error retrieving user schemas: ", errorMessage);
         });
+      };
+
+      var initWizard = function () {
+        $rootScope.wizard = {
+          "credentials": "/credentials",
+          "groups": "/groups"
+        };
+        if ($scope.dynamicForm.plainSchemas.length > 0) {
+          $rootScope.wizard["plainSchemas"] = "/plainSchemas";
+        }
+        if ($scope.dynamicForm.derSchemas.length > 0) {
+          $rootScope.wizard["derivedSchemas"] = "/derivedSchemas";
+        }
+        if ($scope.dynamicForm.virSchemas.length > 0) {
+          $rootScope.wizard["virtualSchemas"] = "/virtualSchemas";
+        }
+        if ($scope.dynamicForm.resources.length > 0) {
+          $rootScope.wizard["resources"] = "/resources";
+        }
+        $rootScope.wizard["finish"] = "/finish";
       };
 
       var initSchemaValues = function (schemas) {
@@ -182,6 +203,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
             $scope.dynamicForm.resources.push(response[i].key);
           }
           $scope.dynamicForm.resources.sort();
+          initWizard();
         });
       };
 
@@ -243,11 +265,11 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
         UserSelfService.read().then(function (response) {
           $scope.user = UserUtil.getUnwrappedUser(response);
           $scope.user.password = undefined;
-          
+
           $scope.initialSecurityQuestion = $scope.user.securityQuestion;
           // initialize already assigned resources
           $scope.dynamicForm.selectedResources = $scope.user.resources;
- 
+
           // initialize already assigned groups -- keeping the same structure of groups       
           for (var index in $scope.user.memberships) {
             $scope.dynamicForm.selectedGroups.push(
@@ -333,9 +355,18 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
           initUserSchemas(null, group);
       });
 
+      $scope.$on('addFinish', function (event) {
+        $rootScope.wizard.finish = {
+          url: "/finish"
+        };
+      });
+
+
+
       $scope.$on('groupRemoved', function (event, group) {
         if (group)
           removeUserSchemas(null, group);
+        initWizard();
       });
 
       if ($scope.createMode) {
@@ -409,7 +440,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
         });
       }
     };
-    
+
     $scope.retrieveSecurityQuestion = function (user) {
       if ($rootScope.pwdResetRequiringSecurityQuestions) {
         if (user && user.username && user.username.length) {
@@ -431,7 +462,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
         }
       }
     };
-    
+
     $scope.resetPassword = function (user) {
       if (user && user.username) {
         $scope.retrieveSecurityQuestion(user);
