@@ -111,7 +111,7 @@ public class PolicyController extends AbstractTransactionalController<AbstractPo
     public PasswordPolicyTO getGlobalPasswordPolicy() {
         PasswordPolicy policy = policyDAO.getGlobalPasswordPolicy();
         if (policy == null) {
-            throw new NotFoundException("No password policy found");
+            throw new javax.ws.rs.NotFoundException("No global password policy found");
         }
 
         return (PasswordPolicyTO) binder.getPolicyTO(policy);
@@ -121,7 +121,7 @@ public class PolicyController extends AbstractTransactionalController<AbstractPo
     public AccountPolicyTO getGlobalAccountPolicy() {
         AccountPolicy policy = policyDAO.getGlobalAccountPolicy();
         if (policy == null) {
-            throw new NotFoundException("No account policy found");
+            throw new javax.ws.rs.NotFoundException("No global account policy found");
         }
 
         return (AccountPolicyTO) binder.getPolicyTO(policy);
@@ -131,7 +131,7 @@ public class PolicyController extends AbstractTransactionalController<AbstractPo
     public SyncPolicyTO getGlobalSyncPolicy() {
         SyncPolicy policy = policyDAO.getGlobalSyncPolicy();
         if (policy == null) {
-            throw new NotFoundException("No sync policy found");
+            throw new javax.ws.rs.NotFoundException("No global sync policy found");
         }
 
         return (SyncPolicyTO) binder.getPolicyTO(policy);
