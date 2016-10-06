@@ -267,6 +267,9 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
                 toUpdate.getRealm());
         securityChecks(effectiveRealms, toUpdate.getRealm(), toUpdate.getKey());
 
+        // ensures the actual user key is effectively on the patch - as the binder.getUserTO(statusPatch.getKey())
+        // call above works with username as well
+        statusPatch.setKey(toUpdate.getKey());
         Pair<String, List<PropagationStatus>> updated = setStatusOnWfAdapter(statusPatch, nullPriorityAsync);
 
         return after(
