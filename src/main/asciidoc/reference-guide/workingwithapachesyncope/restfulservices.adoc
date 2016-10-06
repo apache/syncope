@@ -349,3 +349,21 @@ Map<String, Set<String>> realm2entitlements = self.getLeft(); // <2>
 <1> http://syncope.apache.org/apidocs/2.0/org/apache/syncope/common/lib/to/UserTO.html[UserTO^] of the requesting user
 <2> for each <<realms,realm>>, the owned <<entitlements,entitlements>>
 ====
+
+.Change user status
+====
+[source,java]
+----
+String key = ...; // <1>
+StatusPatch statusPatch = new StatusPatch();
+statusPatch.setKey(key);
+statusPatch.setType(StatusPatchType.SUSPEND); // <2>
+UserTO userTO = userService.status(statusPatch).
+  readEntity(new GenericType<ProvisioningResult<UserTO>>() {
+  }).getEntity(); // <3>
+----
+<1> assume the key of the user to be suspended is known in advance
+<2> `ACTIVATE`, `SUSPEND`, `REACTIVATE` values are accepted, and honored depending on the actual status of the user
+being updated
+<3> request for user update and read back the updated entity
+====
