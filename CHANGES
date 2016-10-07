@@ -2,6 +2,23 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 1.2.9
+================================================================================
+
+** Bug
+    * [SYNCOPE-876] - Fake after object reported by propagation in case of delete
+    * [SYNCOPE-923] - Sync / Pull task not configured for delete causes incremental sync to prematurely stop
+    * [SYNCOPE-928] -  Table that stores user passwords store duplicate entries
+    * [SYNCOPE-929] - Braces are ignored for FIQL strings
+    * [SYNCOPE-936] - Sync token reset to NULL when no SyncDelta items are available
+    * [SYNCOPE-939] - Password history not checked when user changes password
+    * [SYNCOPE-943] - Security question gets deleted when changing a user attribute in the console
+    * [SYNCOPE-954] - Wicket exception when running an enable or disable action
+
+** Improvement
+    * [SYNCOPE-877] - Better handling of not found exception logged at global policy retrieval time
+    * [SYNCOPE-949] - Leave WebApplicationException to default processing
+
 Release Notes - Syncope - Version 1.2.8
 ================================================================================
 
