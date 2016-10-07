@@ -502,7 +502,7 @@ under the License.
       <dependency>
         <groupId>javax.ws.rs</groupId>
         <artifactId>javax.ws.rs-api</artifactId>
-        <version>2.0.1</version>
+        <version>2.1-m01</version>
       </dependency>
       <dependency>
         <groupId>org.apache.geronimo.javamail</groupId>
@@ -556,6 +556,11 @@ under the License.
       <dependency>
         <groupId>org.apache.cxf</groupId>
         <artifactId>cxf-rt-rs-client</artifactId>
+        <version>${cxf.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.cxf</groupId>
+        <artifactId>cxf-rt-features-logging</artifactId>
         <version>${cxf.version}</version>
       </dependency>
       <!-- /CXF -->

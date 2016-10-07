@@ -49,7 +49,7 @@ under the License.
     </dependency>
     <dependency>
       <groupId>org.apache.cxf</groupId>
-      <artifactId>cxf-rt-databinding-jaxb</artifactId>
+      <artifactId>cxf-rt-features-logging</artifactId>
     </dependency>
     
     <dependency>

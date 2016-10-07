@@ -30,7 +30,7 @@ import javax.ws.rs.core.MediaType;
 import javax.xml.bind.Marshaller;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.feature.Feature;
-import org.apache.cxf.feature.LoggingFeature;
+import org.apache.cxf.ext.logging.LoggingFeature;
 import org.apache.cxf.jaxrs.provider.JAXBElementProvider;
 import org.apache.cxf.staxutils.DocumentDepthProperties;
 import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
