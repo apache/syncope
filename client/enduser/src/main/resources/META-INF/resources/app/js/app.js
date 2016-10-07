@@ -256,7 +256,6 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$translate
       };
     });
   }]);
-
 app.run(['$rootScope', '$location', '$state', 'AuthService',
   function ($rootScope, $location, $state, AuthService) {
     // main program
@@ -421,12 +420,16 @@ app.controller('ApplicationController', ['$scope', '$rootScope', 'InfoService', 
       $scope.$on('hideErrorMessage', function (event, popupMessage) {
         $scope.hideError(popupMessage, $scope.notification);
       });
-
-      $rootScope.wizard = {
-        "credentials": "/credentials",
-        "groups": "/groups"
+      //wizard active element
+      $scope.wizard = {
+        "credentials": {url: "/credentials"},
+        "groups": {url: "/groups"},
+        "plainSchemas": {url: "/plainSchemas"},
+        "derivedSchemas": {url: "/derivedSchemas"},
+        "virtualSchemas": {url: "/virtualSchemas"},
+        "resources": {url: "/resources"},
+        "finish": {url: "/finish"}
       };
-
       $scope.clearCache = function () {
         $templateCache.removeAll();
       };
