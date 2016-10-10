@@ -421,7 +421,7 @@ under the License.
     
     <wicket.version>7.4.0</wicket.version>
     <wicket-jqueryui.version>7.4.0</wicket-jqueryui.version>
-    <wicket-bootstrap.version>0.10.8</wicket-bootstrap.version>
+    <wicket-bootstrap.version>0.10.10</wicket-bootstrap.version>
     <wicket-chartjs.version>7.0.1</wicket-chartjs.version>
 
     <angular.version>1.5.8</angular.version>
