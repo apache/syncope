@@ -261,6 +261,8 @@ app.run(['$rootScope', '$location', '$state', 'AuthService',
     // main program
     // keep user logged in after page refresh
     //If the route change failed due to authentication error, redirect them out
+    $rootScope.endReached = false;
+
     $rootScope.$on('$routeChangeError', function (event, current, previous, rejection) {
       if (rejection === 'Not Authenticated') {
         $location.path('/self');
@@ -283,6 +285,7 @@ app.run(['$rootScope', '$location', '$state', 'AuthService',
           $state.go('self');
         }
         );
+
       } else if (toState.name === 'home' || toState.name === 'self') {
         AuthService.islogged().then(function (response) {
           if (response === "true") {
@@ -295,6 +298,9 @@ app.run(['$rootScope', '$location', '$state', 'AuthService',
           $state.go('self');
         }
         );
+        //enable "finish" button on every page in create mode
+      } else if (toState.name === 'create.finish') {
+        $rootScope.endReached = true;
       } else {
         $state.go(toState);
       }

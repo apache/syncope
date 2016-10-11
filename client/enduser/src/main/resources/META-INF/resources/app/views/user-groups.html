@@ -33,6 +33,9 @@ under the License.
   <auxiliary form="dynamicForm" user="user"></auxiliary>
 </div>
 <div id="attribute" class="form-group row">
+  <button id="save" ng-show="!createMode" type="button" class="btn btn-default pull-right" ng-click="finish()">{{'FINISH'| translate}}</button>
+  <button id="save" ng-show="createMode && endReached" type="button" class="btn btn-default pull-right" ng-click="finish()">{{'FINISH'| translate}}</button>
+
   <navigation-buttons ng-show="createMode" base="create" current="groups" wizard="{{wizard}}"></navigation-buttons>
   <navigation-buttons ng-show="!createMode" base="update" current="groups" wizard="{{wizard}}"></navigation-buttons>
   <div class="pull-left">

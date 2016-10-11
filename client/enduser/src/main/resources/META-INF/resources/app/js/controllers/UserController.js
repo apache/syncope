@@ -204,7 +204,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
 
       $scope.refreshGroups = function () {
         initGroups();
-      }
+      };
 
       var initAuxClasses = function () {
         //fetching default user classes, that should remain in any case
@@ -213,15 +213,15 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
           AnyService.getAuxClasses().then(function (response) {
             for (var i = 0; i < response.length; i++) {
               //we should only add schemas that aren't in the anyUserType
-              if ($scope.dynamicForm.anyUserType.indexOf(response[i].key) == -1) {
+              if ($scope.dynamicForm.anyUserType.indexOf(response[i].key) === -1) {
                 $scope.dynamicForm.auxClasses.push(response[i].key);
               }
             }
           }, function (e) {
-            $scope.showError("An error occur during retrieving auxiliary classes " + e, $scope.notification)
+            $scope.showError("An error occur during retrieving auxiliary classes " + e, $scope.notification);
           });
         }, function (e) {
-          $scope.showError("An error occur during retrieving auxiliary classes " + e, $scope.notification)
+          $scope.showError("An error occur during retrieving auxiliary classes " + e, $scope.notification);
         });
       };
 
@@ -243,6 +243,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
         UserSelfService.read().then(function (response) {
           $scope.user = UserUtil.getUnwrappedUser(response);
           $scope.user.password = undefined;
+
           
           $scope.initialSecurityQuestion = $scope.user.securityQuestion;
           // initialize already assigned resources
@@ -367,7 +368,6 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
     };
 
     $scope.saveUser = function (user) {
-      console.debug("Save user: ", user);
       var wrappedUser = UserUtil.getWrappedUser(user);
       if ($scope.createMode) {
         UserSelfService.create(wrappedUser, $scope.captchaInput.value).then(function (response) {
@@ -409,7 +409,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
         });
       }
     };
-    
+
     $scope.retrieveSecurityQuestion = function (user) {
       if ($rootScope.pwdResetRequiringSecurityQuestions) {
         if (user && user.username && user.username.length) {
@@ -431,7 +431,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
         }
       }
     };
-    
+
     $scope.resetPassword = function (user) {
       if (user && user.username) {
         $scope.retrieveSecurityQuestion(user);
@@ -521,4 +521,14 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
         console.error("Logout failed: ", response);
       });
     };
+
+    $scope.finish = function (message) {
+      console.info("finish");
+      if ($scope.createMode) {
+        $state.go('create.finish');
+      } else {
+        $state.go('update.finish');
+      }
+    };
+
   }]);

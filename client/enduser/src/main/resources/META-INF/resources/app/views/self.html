@@ -34,12 +34,12 @@ under the License.
             <form id="login-form" class="form form-signin" novalidate>
               <fieldset class="form-group input-group">
                 <div class="form-group">
-                  <input autofocus="autofocus" type="text" class="form-control" id="login-username" placeholder="Username"
-                         ng-required ng-model="credentials.username" placeholder="username">
+                  <input autofocus="autofocus" type="text" class="form-control" id="login-username" placeholder="{{'USERNAME_PLACEHOLDER'| translate}}"
+                         ng-required ng-model="credentials.username">
                 </div>
                 <div class="form-group">
-                  <input type="password" class="form-control" id="login-password" placeholder="Password" 
-                         ng-required ng-model="credentials.password" placeholder="password">
+                  <input type="password" class="form-control" id="login-password" placeholder="{{'PASSWORD_PLACEHOLDER'| translate}}" 
+                         ng-required ng-model="credentials.password">
                 </div>
                 <div class="form-group">
                   <select  ng-change="switchLanguage()" id="language" style="width: 100%" class="btn dropdown-toggle btn-default" 

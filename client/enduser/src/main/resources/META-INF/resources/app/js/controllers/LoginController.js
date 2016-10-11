@@ -92,7 +92,6 @@ angular.module("login").controller("LoginController", ['$scope', '$http', '$loca
       });
     };
     $scope.switchLanguage = function () {
-      console.log('$scope.languages.selectedLanguage', $scope.languages.selectedLanguage.code);
       $translate.use($scope.languages.selectedLanguage.code);
     };
   }]);

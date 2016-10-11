@@ -50,7 +50,7 @@ angular.module('login')
               return $http
                       .get('/syncope-enduser/api/self/islogged')
                       .then(function (response) {
-                        console.debug("user logged:", response.data);
+//                        console.debug("user logged:", response.data);
                         return response.data;
                       }, function (response) {
                         console.error("error retrieving user login status");

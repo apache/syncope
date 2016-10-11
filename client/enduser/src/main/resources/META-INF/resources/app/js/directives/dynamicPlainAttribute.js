@@ -95,13 +95,10 @@ angular.module('self')
                     $scope.bindDateToModel = function (selectedDate, selectedTime) {
                       if (selectedDate && selectedTime) {
                         var extractedDate = selectedDate.toString().substring(0, 15);
-                        console.debug("selectedDate: ", extractedDate);
                         var extractedTime = selectedTime.toString().substring(16);
-                        console.debug("selectedTime: ", extractedTime);
                         var resultDate = extractedDate + ' ' + extractedTime;
                         var tmpdate = new Date(resultDate);
                         var milliseconds = tmpdate.getTime();
-                        console.debug("resultDate in milliseconds", milliseconds);
                         $scope.user.plainAttrs[schema.key].values[index] = milliseconds;
                       }
                     };
@@ -112,7 +109,7 @@ angular.module('self')
 
                     // Disable weekend selection
                     $scope.disabled = function (date, mode) {
-                      // example if you want to disable weekends
+                      // if you want to disable weekends:
                       // return (mode === 'day' && (date.getDay() === 0 || date.getDay() === 6));
                       return false;
                     };
