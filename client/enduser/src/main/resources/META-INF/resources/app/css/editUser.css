@@ -139,13 +139,14 @@ under the License.
   /*width: 15%;*/
 }
 
-#form-views             { width:auto; }
+#form-views { width:100%; }
 
 /* basic styling for entering and leaving */
 /* left and right to add to ensure full width: position:absolute; left:30px; right:30px; */
 #form-views.ng-enter,
 #form-views.ng-leave      { 
-  transition:0.5s all ease; -moz-transition:0.5s all ease; -webkit-transition:0.5s all ease; 
+    position: absolute;
+  transition:0.5s all ease-in; -moz-transition:0.5s all ease-in; -webkit-transition:0.5s all ease; 
 }
 
 /* enter animation */
@@ -157,6 +158,7 @@ under the License.
 
 /* leave animation */
 #form-views.ng-leave            { 
+  position:absolute;
   -webkit-animation:slideOutLeft 0.5s both ease;
   -moz-animation:slideOutLeft 0.5s both ease;
   animation:slideOutLeft 0.5s both ease;   
@@ -260,30 +262,30 @@ under the License.
 ============================================================================= */
 /* slide out to the left */
 @keyframes slideOutLeft {
-  to      { transform: translateX(-200%); }
+  to      { transform: translateX(-300%); }
 }
 @-moz-keyframes slideOutLeft {  
-  to      { -moz-transform: translateX(-200%); }
+  to      { -moz-transform: translateX(-300%); }
 }
 @-webkit-keyframes slideOutLeft {
-  to      { -webkit-transform: translateX(-200%); }
+  to      { -webkit-transform: translateX(-300%); }
 }
 
 /* slide in from the right */
 @keyframes slideInRight {
-  from    { transform:translateX(200%); }
+  from    { transform:translateX(300%); }
   to      { transform: translateX(0); }
 }
 @-moz-keyframes slideInRight {
-  from    { -moz-transform:translateX(200%); }
+  from    { -moz-transform:translateX(300%); }
   to      { -moz-transform: translateX(0); }
 }
 @-webkit-keyframes slideInRight {
-  from    { -webkit-transform:translateX(200%); }
+  from    { -webkit-transform:translateX(300%); }
   to      { -webkit-transform: translateX(0); }
 }
 
-.multivalue>button{
+.multivalue button{
   float: right
 }
 .schema-type #date{

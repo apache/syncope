@@ -28,7 +28,7 @@ angular.module('self')
                 current: "@"
               },
               link: function (scope, element, attrs) {
-                var base = (scope.base && scope.base != "" ? scope.base + "." : "");
+                var base = (scope.base && scope.base !== "" ? scope.base + "." : "");
                 scope.wizard = scope.$eval(attrs.wizard) || scope.$parent.wizard;
                 scope.previous = "none";
                 if (scope.wizard) {
@@ -43,7 +43,7 @@ angular.module('self')
                 $scope.validateAndNext = function (event, state) {
                   //getting the enclosing form in order to access to its name                
                   var currentForm = GenericUtil.getEnclosingForm(event.target);
-                  if (currentForm != null) {
+                  if (currentForm !== null) {
                     if (ValidationExecutor.validate(currentForm, $scope.$parent)) {
                       if (state) {
                         $scope.nextTab(state);
@@ -57,7 +57,6 @@ angular.module('self')
 
                 $scope.nextTab = function (state) {
                   //change route through parent event
-                  console.log("State: ", state);
                   $state.go(state);
                 };
 

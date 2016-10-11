@@ -18,7 +18,7 @@ under the License.
 -->
 <ui-select on-select="addResource($item, $model)" on-remove="removeResource($item, $model)" multiple
            ng-model="dynamicForm.selectedResources" theme="select2" class="attribute-ui-select">
-  <ui-select-match placeholder="Select resource..." class="ui-select-match">{{$item}}</ui-select-match>
+  <ui-select-match placeholder="{{'RESOURCES_PLACEHOLDER'|translate}}" class="ui-select-match">{{$item}}</ui-select-match>
   <ui-select-choices repeat="resource in dynamicForm.resources" class="ui-select-choices">
     <div ng-bind-html="resource | highlight: $select.search"></div>
   </ui-select-choices>

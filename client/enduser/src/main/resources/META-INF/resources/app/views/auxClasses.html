@@ -20,7 +20,7 @@ under the License.
   <ui-select on-select="addAuxClass($item, $model)" on-remove="removeAuxClass($item, $model)" multiple
              ng-model="dynamicForm.selectedAuxClasses" theme="select2" class="attribute-ui-select" 
              ng-disabled="{{auxClassDisabled}}">
-    <ui-select-match placeholder="Click to select auxiliary class..." class="ui-select-match">
+    <ui-select-match placeholder="{{'AUXILIARY_CLASSES_PLACEHOLDER'| translate}}" class="ui-select-match">
       {{$item}}
     </ui-select-match>
     <ui-select-choices repeat="auxClass in dynamicForm.auxClasses" class="ui-select-choices">
