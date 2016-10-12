@@ -43,6 +43,7 @@ import org.apache.syncope.client.enduser.resources.UserSelfPasswordReset;
 import org.apache.syncope.client.enduser.resources.UserSelfReadResource;
 import org.apache.syncope.client.enduser.resources.UserSelfUpdateResource;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.wicket.Page;
 import org.apache.wicket.Session;
 import org.apache.wicket.WicketRuntimeException;
@@ -68,6 +69,8 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
     private String site;
 
     private String license;
+
+    private String domain;
 
     private String adminUser;
 
@@ -106,6 +109,7 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
         Args.notNull(site, "<site> not set");
         license = props.getProperty("license");
         Args.notNull(license, "<license> not set");
+        domain = props.getProperty("domain", SyncopeConstants.MASTER_DOMAIN);
         adminUser = props.getProperty("adminUser");
         Args.notNull(adminUser, "<adminUser> not set");
         anonymousUser = props.getProperty("anonymousUser");
@@ -353,6 +357,10 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
 
     public String getLicense() {
         return license;
+    }
+
+    public String getDomain() {
+        return domain;
     }
 
     public String getAdminUser() {

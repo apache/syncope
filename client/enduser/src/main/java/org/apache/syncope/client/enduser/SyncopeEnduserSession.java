@@ -30,7 +30,6 @@ import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.lib.SyncopeClient;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.info.PlatformInfo;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -103,7 +102,8 @@ public class SyncopeEnduserSession extends WebSession {
 
         try {
             client = SyncopeEnduserApplication.get().getClientFactory().
-                    setDomain(SyncopeConstants.MASTER_DOMAIN).create(username, password);
+                    setDomain(SyncopeEnduserApplication.get().getDomain()).
+                    create(username, password);
 
             Pair<Map<String, Set<String>>, UserTO> self = client.self();
             selfTO = self.getValue();
