@@ -35,7 +35,7 @@ under the License.
               <a id="logout" class="btn btn-default" ng-show="!createMode" ng-click="logout()"><i class="glyphicon glyphicon-off"style="color:red"></i></a>
               <!--add class breadcrumb-disabled-link to buttons to prevent click-->              
               <a ng-repeat="(key, value) in wizard" ui-sref-active="active" ui-sref=".{{key}}" class="btn btn-default" 
-                 ng-class="createMode ? 'disable-link' : ''">{{key | translate}}</a>       
+                 ng-class="createMode && !endReached ? 'disable-link' : ''">{{key | translate}}</a>       
             </div>
           </div>
         </div>

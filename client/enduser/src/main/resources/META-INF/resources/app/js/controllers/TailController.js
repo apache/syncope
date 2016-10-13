@@ -20,9 +20,10 @@
 'use strict';
 
 angular.module("self")
-        .controller("TailController", 
-                function ($scope, $location) {
+        .controller("TailController", ['$scope', '$rootScope', '$location',
+                function ($scope, $rootScope, $location) {
                   $scope.redirect = function () {
                     $location.path('/self');
+                    $rootScope.endReached = false;
                   };
-                });
+                }]);
