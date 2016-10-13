@@ -513,6 +513,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
     $scope.logout = function (message) {
       AuthService.logout().then(function (response) {
         console.info("Logout successfully");
+        $rootScope.endReached = false;
         $location.path('/self');
         if (message) {
           $scope.showSuccess(message, $scope.notification);
