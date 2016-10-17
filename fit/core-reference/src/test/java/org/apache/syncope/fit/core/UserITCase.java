@@ -88,7 +88,7 @@ import org.junit.Test;
 
 public class UserITCase extends AbstractITCase {
 
-    private static final FastDateFormat DATE_FORMAT = DateFormatUtils.ISO_DATE_FORMAT;
+    private static final FastDateFormat DATE_FORMAT = DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT;
 
     private boolean getBooleanAttribute(final ConnObjectTO connObjectTO, final String attrName) {
         return Boolean.parseBoolean(connObjectTO.getAttrMap().get(attrName).getValues().get(0));
