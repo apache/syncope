@@ -48,7 +48,8 @@ public class LoadWidget extends BaseWidget {
         List<Long> memValues = new ArrayList<>();
 
         for (SystemInfo.LoadInstant instant : systeminfo.getLoad()) {
-            labels.add(DateFormatUtils.ISO_DATETIME_FORMAT.format(systeminfo.getStartTime() + instant.getUptime()));
+            labels.add(DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT.
+                    format(systeminfo.getStartTime() + instant.getUptime()));
 
             cpuValues.add(instant.getSystemLoadAverage() * 1000);
             memValues.add(instant.getTotalMemory());
