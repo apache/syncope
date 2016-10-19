@@ -20,6 +20,7 @@ package org.apache.syncope.core.rest.cxf;
 
 import io.swagger.models.parameters.HeaderParameter;
 import io.swagger.models.parameters.Parameter;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.cxf.jaxrs.swagger.DefaultSwagger2Serializers;
@@ -32,6 +33,15 @@ import org.apache.syncope.core.spring.ApplicationContextProvider;
 public class ExtendedSwagger2Serializers extends DefaultSwagger2Serializers implements Swagger2Serializers {
 
     private List<String> domains;
+
+    public ExtendedSwagger2Serializers() {
+        super();
+
+        URL[] javaDocURLs = JavaDocUtils.getJavaDocURLs();
+        if (javaDocURLs != null) {
+            super.setJavaDocURLs(javaDocURLs);
+        }
+    }
 
     @Override
     protected void addParameters(final List<Parameter> parameters) {
