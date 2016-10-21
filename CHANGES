@@ -2,6 +2,27 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 2.0.1
+================================================================================
+
+** Bug
+    * [SYNCOPE-937] - Security question not loaded while resetting the user password
+    * [SYNCOPE-940] - Handle authorization issues more gracefully in the console
+    * [SYNCOPE-942] - Bug in changing security answer in the Enduser UI
+    * [SYNCOPE-944] - Cannot manually assign groups provided with dynamic assignment rules
+    * [SYNCOPE-946] - Encrypted attribute values not managed as password values
+    * [SYNCOPE-947] - Missing quotes defining realm (JEXL) expression in user/group/anyobject templates for realms
+    * [SYNCOPE-950] - Self-registration / self-update not working
+    * [SYNCOPE-953] - Enduser shows groups of the selected realm rather than groups assignable to users in the selected realm
+
+** Improvement
+    * [SYNCOPE-948] - Optionally provide schema information with attribute values
+    * [SYNCOPE-949] - Leave WebApplicationException to default processing
+    * [SYNCOPE-952] - Provide realm management to enduser
+    * [SYNCOPE-958] - Enduser improvements
+    * [SYNCOPE-959] - Specify working domain in enduser.properties
+    * [SYNCOPE-960] - Make the breadcrumb in creation navigable only when the Finish page has been reached
+
 Release Notes - Syncope - Version 2.0.0
 ================================================================================
 
