@@ -24,7 +24,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope.ext</groupId>
     <artifactId>syncope-ext-camel</artifactId>
-    <version>2.0.1-SNAPSHOT</version>
+    <version>2.0.1</version>
   </parent>
 
   <name>Apache Syncope Extensions: Camel Persistence API</name>
