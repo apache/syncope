@@ -41,6 +41,8 @@ processes, including <<password-reset,password reset>>;
 application) is allowed;
 * `passwordReset.securityQuestion` - whether the <<password-reset,password reset>> feature involves security questions;
 * `authentication.statuses` - the list of <<workflow,workflow>> statuses for which users are allowed to authenticate;
+[WARNING]
+Suspended Users are anyway not allowed to authenticate.
 * `log.lastlogindate` - whether the system updates the `lastLoginDate` field of users upon authentication;
 * `tasks.interruptMaxRetries` - how many attempts shall be made when interrupting a running <<task,task>>;
 * `return.password.value` - whether the hashed password value shall be returned when reading users;
