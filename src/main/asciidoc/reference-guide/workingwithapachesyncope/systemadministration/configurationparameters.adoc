@@ -46,7 +46,7 @@ Suspended Users are anyway not allowed to authenticate.
 * `log.lastlogindate` - whether the system updates the `lastLoginDate` field of users upon authentication;
 * `tasks.interruptMaxRetries` - how many attempts shall be made when interrupting a running <<task,task>>;
 * `return.password.value` - whether the hashed password value shall be returned when reading users;
-* `identity.recertification.day.interval` - number of days bewteen
+* `identity.recertification.day.interval` - number of days between
 <<identity-recertification,identity recertifications>>.
 
 Besides this default set, new configuration parameters can be defined to support <<customization,custom>> code.
