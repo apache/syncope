@@ -45,7 +45,7 @@ public class AjaxDropDownChoicePanel<T extends Serializable> extends FieldPanel<
         super(id, name, model);
 
         field = new BootstrapSelect<>(
-                "dropDownChoiceField", model, Collections.<T>emptyList(), new ChoiceRenderer<T>());
+                "dropDownChoiceField", model, Collections.<T>emptyList(), new ChoiceRenderer<>());
         add(field.setLabel(new Model<>(name)).setOutputMarkupId(true));
 
         if (enableOnBlur) {
