@@ -39,6 +39,7 @@ under the License.
 
   <modules>
     <module>eclipse</module>
+    <module>netbeans</module>
   </modules>
 
   <profiles>
