@@ -402,7 +402,7 @@ under the License.
     <activiti-modeler.directory>${project.build.directory}/activiti-modeler</activiti-modeler.directory>
 
     <swagger-core.version>1.5.10</swagger-core.version>    
-    <swagger-ui.version>2.2.5</swagger-ui.version>
+    <swagger-ui.version>2.2.6</swagger-ui.version>
 
     <jquery.version>2.2.4</jquery.version>
     <jquery-ui.version>1.11.4</jquery-ui.version>
@@ -410,7 +410,7 @@ under the License.
     <jquery-cookie.version>1.4.1-1</jquery-cookie.version>
     
     <bootstrap.version>3.3.7</bootstrap.version>
-    <bootstrap-select.version>1.7.3</bootstrap-select.version>
+    <bootstrap-select.version>1.11.2</bootstrap-select.version>
     <bootstrap-fileinput.version>4.3.5</bootstrap-fileinput.version>
     <bootbox.version>4.4.0</bootbox.version>
     <font-awesome.version>4.6.3</font-awesome.version>
@@ -419,9 +419,9 @@ under the License.
     <codemirror.version>5.13.2</codemirror.version>
     <jsplumb.version>2.0.7</jsplumb.version>
     
-    <wicket.version>7.4.0</wicket.version>
+    <wicket.version>7.5.0</wicket.version>
     <wicket-jqueryui.version>7.4.0</wicket-jqueryui.version>
-    <wicket-bootstrap.version>0.10.10</wicket-bootstrap.version>
+    <wicket-bootstrap.version>0.10.11</wicket-bootstrap.version>
     <wicket-chartjs.version>7.0.1</wicket-chartjs.version>
 
     <angular.version>1.5.8</angular.version>
