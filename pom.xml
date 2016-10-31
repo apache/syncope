@@ -442,6 +442,12 @@ under the License.
     <maven-invoker.version>2.1.1</maven-invoker.version>
     <tycho-version>0.23.1</tycho-version>
 
+    <org-netbeans-api-version>RELEASE802</org-netbeans-api-version>
+    <org-netbeans-version>RELEASE82</org-netbeans-version>
+    <ianal-maven-plugin-version>1.0-alpha-1</ianal-maven-plugin-version>
+    <maven-jar-plugin-version>3.0.0</maven-jar-plugin-version>
+    <nbm-maven-plugin-version>3.13</nbm-maven-plugin-version>
+
     <testds.port>1389</testds.port>
     <testdb.webport>9082</testdb.webport>
 
@@ -1386,6 +1392,10 @@ under the License.
       <snapshots>
         <enabled>true</enabled>
       </snapshots>
+    </repository>
+    <repository>
+      <id>netbeans</id>
+      <url>http://bits.netbeans.org/maven2/</url>
     </repository>
   </repositories>
 
