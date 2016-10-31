@@ -20,19 +20,28 @@ under the License.
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>org.apache.syncope</groupId>
-        <artifactId>syncope</artifactId>
-        <version>2.0.0-SNAPSHOT</version>
+      <groupId>org.apache.syncope</groupId>
+      <artifactId>syncope-ide</artifactId>
+      <version>2.0.2-SNAPSHOT</version>
     </parent>
-    <artifactId>netbeans-plugin</artifactId>
-    <name>Apache Syncope Netbeans Plugin</name>
+
+    <name>Apache Syncope IDE Netbeans</name>
+    <description>Apache Syncope IDE Netbeans</description>
+    <groupId>org.apache.syncope.ide</groupId>
+    <artifactId>syncope-ide-netbeans</artifactId>
+
     <packaging>nbm</packaging>
+
+    <properties>
+      <rootpom.basedir>${basedir}/../..</rootpom.basedir>
+    </properties>
+
     <build>
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>nbm-maven-plugin</artifactId>
-                <version>3.13</version>
+                <version>${nbm-maven-plugin-version}</version>
                 <extensions>true</extensions>
                 <configuration>
                     <useOSGiDependencies>false</useOSGiDependencies>
@@ -41,7 +50,7 @@ under the License.
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.0.0</version>
+                <version>${maven-jar-plugin-version}</version>
                 <configuration>
                     <archive>
                         <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
@@ -51,69 +60,84 @@ under the License.
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>ianal-maven-plugin</artifactId>
-                <version>1.0-alpha-1</version>
+                <version>${ianal-maven-plugin-version}</version>
                 <configuration>
                     <skip>true</skip>
                 </configuration>
             </plugin>
         </plugins>
     </build>
+
     <dependencies>
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-netbeans-api-annotations-common</artifactId>
+            <version>${org-netbeans-api-version}</version>
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-windows</artifactId>
+            <version>${org-netbeans-api-version}</version>
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-util</artifactId>
+            <version>${org-netbeans-version}</version>
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-util-ui</artifactId>
+            <version>${org-netbeans-version}</version>
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-util-lookup</artifactId>
+            <version>${org-netbeans-api-version}</version>
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-awt</artifactId>
+            <version>${org-netbeans-api-version}</version>
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-netbeans-modules-settings</artifactId>
+            <version>${org-netbeans-api-version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.syncope.common</groupId>
             <artifactId>syncope-common-lib</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.syncope.client</groupId>
             <artifactId>syncope-client-lib</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-io</artifactId>
+            <version>${org-netbeans-api-version}</version>
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-nodes</artifactId>
+            <version>${org-netbeans-api-version}</version>
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-text</artifactId>
+            <version>${org-netbeans-api-version}</version>
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-filesystems</artifactId>
+            <version>${org-netbeans-api-version}</version>
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-openide-loaders</artifactId>
+            <version>${org-netbeans-api-version}</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
@@ -122,20 +146,24 @@ under the License.
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-netbeans-core-multiview</artifactId>
+            <version>${org-netbeans-api-version}</version>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-netbeans-modules-editor-lib2</artifactId>
+            <version>${org-netbeans-api-version}</version>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-netbeans-api-progress</artifactId>
+            <version>${org-netbeans-api-version}</version>
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-netbeans-api-progress-nb</artifactId>
+            <version>${org-netbeans-version}</version>
         </dependency>
     </dependencies>
 </project>
