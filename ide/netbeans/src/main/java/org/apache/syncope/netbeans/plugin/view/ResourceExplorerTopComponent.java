@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.netbeans.plugin.view;
 
-//import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -54,10 +53,6 @@ import org.netbeans.api.editor.EditorRegistry;
 import org.netbeans.api.progress.ProgressHandle;
 import org.netbeans.api.progress.ProgressHandleFactory;
 import org.netbeans.api.settings.ConvertAsProperties;
-//import org.netbeans.core.spi.multiview.MultiViewDescription;
-//import org.netbeans.core.spi.multiview.MultiViewElement;
-//import org.netbeans.core.spi.multiview.MultiViewFactory;
-//import org.netbeans.core.spi.multiview.text.MultiViewEditorElement;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.cookies.OpenCookie;
@@ -66,8 +61,6 @@ import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.util.Cancellable;
 import org.openide.util.Exceptions;
-//import org.openide.util.HelpCtx;
-//import org.openide.util.Lookup;
 import org.openide.util.RequestProcessor;
 import org.openide.windows.TopComponent;
 
@@ -471,10 +464,6 @@ public final class ResourceExplorerTopComponent extends TopComponent {
         DataObject data = DataObject.find(fob);
         OpenCookie cookie = (OpenCookie) data.getCookie(OpenCookie.class);
         cookie.open();
-
-/*        TopComponent ctc = MultiViewFactory.createMultiView(descriptionArray, descriptionArray[0]);
-        ctc.open();
-        ctc.requestActive();*/
     }
 
     private void openReportEditor(final String name) throws IOException {

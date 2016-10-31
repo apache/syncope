@@ -31,9 +31,6 @@ public final class ResourceConnector {
 
     private static MailTemplateManagerService MAIL_TTEMPLATE_MANAGER_SERVICE;
     private static ReportTemplateManagerService REPORT_TEMPLATE_MANAGER_SERVICE;
-
-    private ResourceConnector() {
-    }
     
     public static MailTemplateManagerService getMailTemplateManagerService() throws IOException {
         if (MAIL_TTEMPLATE_MANAGER_SERVICE == null) {
