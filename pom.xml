@@ -367,7 +367,7 @@ under the License.
 
     <openjpa.version>2.4.1</openjpa.version>
     <commons-dbcp.version>2.1.1</commons-dbcp.version>
-    <bval.version>1.1.1</bval.version>
+    <bval.version>1.1.2</bval.version>
 
     <jasypt.version>1.9.2</jasypt.version>
 
