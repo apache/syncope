@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.upgrader;
 
-import org.apache.syncope.upgrader.util.XMLDeserializer;
-import org.apache.syncope.upgrader.util.SyncopeDefParams;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -94,6 +92,8 @@ import org.apache.syncope.core.util.POJOHelper;
 import org.apache.syncope.core.util.ResourceWithFallbackLoader;
 import org.apache.syncope.core.workflow.user.activiti.ActivitiImportUtils;
 import org.apache.syncope.core.workflow.user.activiti.ActivitiUserWorkflowAdapter;
+import org.apache.syncope.upgrader.util.XMLDeserializer;
+import org.apache.syncope.upgrader.util.SyncopeDefParams;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.SyncToken;
 import org.slf4j.Logger;
@@ -256,20 +256,35 @@ public class ContentUpgrader implements InitializingBean {
                 final String oldConf = (String) jsonConf.get(resource);
                 if (StringUtils.isNotBlank(oldConf)) {
                     LOG.info("Upgrading resource {} jsonConf", resource.getName());
-                    resource.setConnInstanceConfiguration(
-                            XMLDeserializer.<HashSet<ConnConfProperty>>deserialize(oldConf));
+
+                    if ("%3Cset%2F%3E".equals(oldConf)) {
+                        LOG.debug("Resource configuration {} is null", resource.getName());
+                        resource.setConnInstanceConfiguration(new HashSet<ConnConfProperty>());
+                    } else {
+                        final HashSet<ConnConfProperty> configurations =
+                                XMLDeserializer.<HashSet<ConnConfProperty>>deserialize(oldConf);
+                        LOG.debug("Resource configuration {} is {}", resource.getName(), configurations);
+                        resource.setConnInstanceConfiguration(
+                                configurations == null ? new HashSet<ConnConfProperty>() : configurations);
+                    }
                 }
 
                 final String oldUSyncToken = (String) uSyncToken.get(resource);
-                final String oldRSyncToken = (String) rSyncToken.get(resource);
-
                 if (StringUtils.isNotBlank(oldUSyncToken)) {
                     LOG.info("Upgrading resource {} userializedSyncToken", resource.getName());
-                    resource.setUsyncToken(XMLDeserializer.<SyncToken>deserialize(oldUSyncToken));
+                    
+                    // handle differences between ConnId 1.3.3 and ConnId 1.4.0
+                    resource.setUsyncToken(XMLDeserializer.<SyncToken>deserialize(
+                            oldUSyncToken.replaceAll("__value", "value")));
                 }
+                final String oldRSyncToken = (String) rSyncToken.get(resource);
+
                 if (StringUtils.isNotBlank(oldRSyncToken)) {
                     LOG.info("Upgrading resource {} rserializedSyncToken", resource.getName());
-                    resource.setRsyncToken(XMLDeserializer.<SyncToken>deserialize(oldRSyncToken));
+
+                    // handle differences between ConnId 1.3.3 and ConnId 1.4.0
+                    resource.setRsyncToken(XMLDeserializer.<SyncToken>deserialize(
+                            oldRSyncToken.replaceAll("__value", "value")));
                 }
             } catch (Exception e) {
                 LOG.error("While upgrading resource {}", resource, e);
@@ -325,15 +340,21 @@ public class ContentUpgrader implements InitializingBean {
                 final String oldUserTemplate = (String) userTemplate.get(task);
                 final String oldRoleTemplate = (String) roleTemplate.get(task);
                 if (oldUserTemplate != null) {
-                    task.setUserTemplate(XMLDeserializer.<UserTO>deserialize(oldUserTemplate.replaceAll(
-                            "attributes", "attrs").replaceAll("derivedAttributes", "derAttrs").replaceAll(
-                                    "virtualAttributes", "virAttrs")));
+                    task.setUserTemplate(XMLDeserializer.<UserTO>deserialize(
+                            oldUserTemplate.replaceAll("attributes", "attrs").
+                                    replaceAll("derivedAttributes", "derAttrs").
+                                    replaceAll("virtualAttributes", "virAttrs").
+                                    replaceAll("%3Cresources%2F%3E", StringUtils.EMPTY).
+                                    replaceAll("%3CpropagationStatusTOs%2F%3E", StringUtils.EMPTY)));
                 }
                 if (oldRoleTemplate != null) {
                     LOG.info("Upgrading syncTask {} roleTemplate", task.getName());
-                    task.setRoleTemplate(XMLDeserializer.<RoleTO>deserialize(oldRoleTemplate.replaceAll(
-                            "attributes", "attrs").replaceAll("derivedAttributes", "derAttrs").replaceAll(
-                                    "virtualAttributes", "virAttrs")));
+                    task.setRoleTemplate(XMLDeserializer.<RoleTO>deserialize(
+                            oldRoleTemplate.replaceAll("attributes", "attrs").
+                                    replaceAll("derivedAttributes", "derAttrs").
+                                    replaceAll("virtualAttributes", "virAttrs").
+                                    replaceAll("%3Cresources%2F%3E", StringUtils.EMPTY).
+                                    replaceAll("%3CpropagationStatusTOs%2F%3E", StringUtils.EMPTY)));
                 }
                 task.setUnmatchingRule(UnmatchingRule.IGNORE);
                 task.setMatchingRule(MatchingRule.IGNORE);
