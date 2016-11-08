@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.tasks;
 
 import java.util.Arrays;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
@@ -181,6 +182,6 @@ public class CrontabPanel extends Panel {
                     append(daysOfWeek.getField().getInput().trim()).toString();
         }
 
-        return cronExpression;
+        return StringUtils.isNotBlank(cronExpression) ? cronExpression : null;
     }
 }

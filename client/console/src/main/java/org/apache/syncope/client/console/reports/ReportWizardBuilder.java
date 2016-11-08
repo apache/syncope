@@ -41,12 +41,15 @@ public class ReportWizardBuilder extends AjaxWizardBuilder<ReportTO> {
 
     private final ReportRestClient restClient = new ReportRestClient();
 
+    private CrontabPanel crontabPanel;
+
     public ReportWizardBuilder(final ReportTO reportTO, final PageReference pageRef) {
         super(reportTO, pageRef);
     }
 
     @Override
     protected Serializable onApplyInternal(final ReportTO modelObject) {
+        modelObject.setCronExpression(crontabPanel.getCronExpression());
         if (modelObject.getKey() == null) {
             restClient.create(modelObject);
         } else {
@@ -100,8 +103,9 @@ public class ReportWizardBuilder extends AjaxWizardBuilder<ReportTO> {
         private static final long serialVersionUID = -785981096328637758L;
 
         public Schedule(final ReportTO reportTO) {
-            add(new CrontabPanel(
-                    "schedule", new PropertyModel<String>(reportTO, "cronExpression"), reportTO.getCronExpression()));
+            crontabPanel = new CrontabPanel(
+                    "schedule", new PropertyModel<String>(reportTO, "cronExpression"), reportTO.getCronExpression());
+            add(crontabPanel);
         }
 
     }
