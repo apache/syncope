@@ -34,7 +34,7 @@ provisioning. For each entity supported by the related connector bundle (user, g
 When defining a connector instance, the following information must be provided:
 
 * connector bundle - one of the several
-https://github.com/Tirasa/ConnId/tree/2_0_X/README.md#available-connectors[already available^], or some to be
+https://github.com/Tirasa/ConnId/tree/master/README.md#available-connectors[already available^], or some to be
 https://connid.atlassian.net/wiki/display/BASE/Create+new+connector[made from scratch^], in order to fulfill specific
 requirements
 * pooling information
