@@ -362,7 +362,7 @@ under the License.
 
     <jackson.version>2.8.4</jackson.version>
 
-    <spring.version>4.3.3.RELEASE</spring.version>
+    <spring.version>4.3.4.RELEASE</spring.version>
     <spring-security.version>4.1.3.RELEASE</spring-security.version>
 
     <openjpa.version>3.0.0-SNAPSHOT</openjpa.version>
@@ -1522,7 +1522,7 @@ under the License.
         <plugin>
           <groupId>org.codehaus.cargo</groupId>
           <artifactId>cargo-maven2-plugin</artifactId>
-          <version>1.6.0</version>
+          <version>1.6.1</version>
           <configuration>
             <container>
               <containerId>tomcat8x</containerId>
