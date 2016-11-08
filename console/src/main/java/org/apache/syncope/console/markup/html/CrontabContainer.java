@@ -31,22 +31,23 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.springframework.util.StringUtils;
 
 public class CrontabContainer extends WebMarkupContainer {
 
     private static final long serialVersionUID = 7879593326085337650L;
 
-    private final TextField seconds;
+    private final TextField<String> seconds;
 
-    private final TextField minutes;
+    private final TextField<String> minutes;
 
-    private final TextField hours;
+    private final TextField<String> hours;
 
-    private final TextField daysOfMonth;
+    private final TextField<String> daysOfMonth;
 
-    private final TextField months;
+    private final TextField<String> months;
 
-    private final TextField daysOfWeek;
+    private final TextField<String> daysOfWeek;
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public CrontabContainer(final String id, final PropertyModel<String> cronExpressionModel,
@@ -179,6 +180,6 @@ public class CrontabContainer extends WebMarkupContainer {
                     append(daysOfWeek.getInput().trim()).toString();
         }
 
-        return cronExpression;
+        return StringUtils.hasText(cronExpression) ? cronExpression : null;
     }
 }

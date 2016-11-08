@@ -82,9 +82,7 @@ public abstract class AbstractSchedTaskModalPage extends TaskModalPage {
             @Override
             protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                 SchedTaskTO taskTO = (SchedTaskTO) form.getModelObject();
-                taskTO.setCronExpression(StringUtils.hasText(taskTO.getCronExpression())
-                        ? crontab.getCronExpression()
-                        : null);
+                taskTO.setCronExpression(crontab.getCronExpression());
 
                 try {
                     submitAction(taskTO);
