@@ -61,6 +61,8 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
 
     private PushTaskWrapper wrapper = null;
 
+    private CrontabPanel crontabPanel;
+
     private final LoadableDetachableModel<List<String>> realms = new LoadableDetachableModel<List<String>>() {
 
         private static final long serialVersionUID = 5275935387613157437L;
@@ -92,6 +94,7 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
             wrapper.fillFilterConditions();
         }
 
+        modelObject.setCronExpression(crontabPanel.getCronExpression());
         if (modelObject.getKey() == null) {
             taskRestClient.create(modelObject);
         } else {
@@ -291,8 +294,9 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
         private static final long serialVersionUID = -785981096328637758L;
 
         public Schedule(final SchedTaskTO taskTO) {
-            add(new CrontabPanel(
-                    "schedule", new PropertyModel<String>(taskTO, "cronExpression"), taskTO.getCronExpression()));
+            crontabPanel = new CrontabPanel(
+                    "schedule", new PropertyModel<String>(taskTO, "cronExpression"), taskTO.getCronExpression());
+            add(crontabPanel);
         }
     }
 }
