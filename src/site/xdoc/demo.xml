@@ -37,7 +37,8 @@ under the License.
           <li>
             <em>Administration</em>
             <ul>
-              <li>admin / password</li>
+              <li>admin / password / Master</li>
+              <li>admin / password2 / Two</li>
             </ul>
           </li>
           <li>
