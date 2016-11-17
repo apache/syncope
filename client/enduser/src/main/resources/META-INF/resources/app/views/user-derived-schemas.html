@@ -22,7 +22,7 @@ under the License.
 
 <div id="attribute" class="form-group row">
   <button id="save" ng-show="!createMode" type="button" class="btn btn-default pull-right" ng-click="finish()">{{'FINISH'| translate}}</button>
-  <button id="save" ng-show="createMode && endReached" type="button" class="btn btn-default pull-right" ng-click="finish()">{{'FINISH'| translate}}</button>
+  <button id="finish" ng-show="createMode && endReached" type="button" class="btn btn-default pull-right" ng-click="finish()">{{'FINISH'| translate}}</button>
   <navigation-buttons ng-show="createMode" base="create" current="derivedSchemas" wizard="{{wizard}}"></navigation-buttons>
   <navigation-buttons ng-show="!createMode" base="update" current="derivedSchemas" wizard="{{wizard}}"></navigation-buttons>
   <div class="pull-left">
