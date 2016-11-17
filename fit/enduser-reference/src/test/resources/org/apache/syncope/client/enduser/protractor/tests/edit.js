@@ -20,7 +20,6 @@
 var abstract = require('./abstract.js');
 describe('syncope enduser user edit', function () {
   it('should edit user', function () {
-
     console.log("");
     console.log("user edit");
     abstract.goHome();
@@ -34,7 +33,6 @@ describe('syncope enduser user edit', function () {
             });
     element.all(by.options('language.name for language in languages.availableLanguages track by language.id')).
             get(1).click();
-
     element(by.id('login-btn')).click();
 
     //credential
@@ -53,12 +51,13 @@ describe('syncope enduser user edit', function () {
     abstract.doNext();
 
     //groups
-    abstract.waitSpinner();
+    browser.wait(element(by.model('user.realm')).isPresent());
+    element(by.model('user.realm')).click();
+    element.all(by.repeater('realm in availableRealms')).get(0).click();
     browser.wait(element(by.model('dynamicForm.selectedGroups')).isPresent());
     var group = element(by.model('dynamicForm.selectedGroups'));
     var selectedGroup = group.element(by.css('.ui-select-search'));
     group.click();
-
     //adds group root
     selectedGroup.sendKeys('root');
     element.all(by.css('.ui-select-choices-row-inner span')).first().click();
@@ -69,22 +68,17 @@ describe('syncope enduser user edit', function () {
     element.all(by.repeater('groupSchema in dynamicForm.groupSchemas')).then(function (groupSchema) {
       expect(groupSchema.length).toBe(1);
     });
-
-    element(by.css('[name="fullname"]')).clear();
-    element(by.css('[name="fullname"]')).sendKeys('Vincenzo Bellini');
-    element(by.css('[name="userId"]')).clear();
-    element(by.css('[name="userId"]')).sendKeys('bellini@apache.org');
-
-    var selectedDate = element(by.model('selectedDate'));
-    selectedDate.clear();
-    selectedDate.sendKeys('2009-06-21');
-    element(by.css('[name="firstname"]')).clear();
-    element(by.css('[name="firstname"]')).sendKeys('Vincenzo');
-    element(by.css('[name="ctype"]')).clear();
-    element(by.css('[name="ctype"]')).sendKeys('bellinictype');
-
+    element.all(by.css('[name="fullname"]')).first().clear();
+    element.all(by.css('[name="fullname"]')).first().sendKeys('Vincenzo Bellini');
+    element.all(by.css('[name="userId"]')).first().clear();
+    element.all(by.css('[name="userId"]')).first().sendKeys('bellini@apache.org');
+    element.all(by.model('selectedDate')).first().clear();
+    element.all(by.model('selectedDate')).first().sendKeys('2009-06-21');
+    element.all(by.css('[name="firstname"]')).first().clear();
+    element.all(by.css('[name="firstname"]')).first().sendKeys('Vincenzo');
+    element.all(by.css('[name="ctype"]')).first().clear();
+    element.all(by.css('[name="ctype"]')).first().sendKeys('bellinictype');
     abstract.doNext();
-
     //derSchemas
     abstract.doNext();
     //virSchemas
