@@ -41,7 +41,7 @@ under the License.
                   <input type="password" class="form-control" id="login-password" placeholder="{{'PASSWORD_PLACEHOLDER'| translate}}" 
                          ng-required ng-model="credentials.password">
                 </div>
-                <div class="form-group">
+                <div class="form-group" ng-controller="UserController">
                   <select  ng-change="switchLanguage()" id="language" style="width: 100%" class="btn dropdown-toggle btn-default" 
                            ng-options="language.name for language in languages.availableLanguages track by language.id" 
                            ng-model="languages.selectedLanguage"></select>
