@@ -23,9 +23,9 @@
 
 angular.module("self").controller("UserController", ['$scope', '$rootScope', '$location', '$compile', "$state",
   'AuthService', 'UserSelfService', 'SchemaService', 'RealmService', 'ResourceService', 'SecurityQuestionService',
-  'GroupService', 'AnyService', 'UserUtil', 'GenericUtil', "ValidationExecutor",
+  'GroupService', 'AnyService', 'UserUtil', 'GenericUtil', 'ValidationExecutor', '$translate',
   function ($scope, $rootScope, $location, $compile, $state, AuthService, UserSelfService, SchemaService, RealmService,
-          ResourceService, SecurityQuestionService, GroupService, AnyService, UserUtil, GenericUtil, ValidationExecutor) {
+          ResourceService, SecurityQuestionService, GroupService, AnyService, UserUtil, GenericUtil, ValidationExecutor, $translate) {
 
     $scope.user = {};
     $scope.confirmPassword = {
@@ -244,11 +244,11 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
           $scope.user = UserUtil.getUnwrappedUser(response);
           $scope.user.password = undefined;
 
-          
+
           $scope.initialSecurityQuestion = $scope.user.securityQuestion;
           // initialize already assigned resources
           $scope.dynamicForm.selectedResources = $scope.user.resources;
- 
+
           // initialize already assigned groups -- keeping the same structure of groups       
           for (var index in $scope.user.memberships) {
             $scope.dynamicForm.selectedGroups.push(
@@ -267,7 +267,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
             $scope.$emit("groupAdded", $scope.user.memberships[index].groupName);
           }
           if ($scope.user.mustChangePassword) {
-            $location.path('/mustchangepassword')
+            $location.path('/mustchangepassword');
           } else {
             initProperties();
           }
@@ -439,6 +439,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
           console.info("User " + $scope.user.username);
           $rootScope.currentUser = $scope.user.username;
           $rootScope.currentOp = "PASSWORD_UPDATED";
+          $translate.use($scope.languages.selectedLanguage.code);
           $state.go('success');
         }, function (response) {
           var errorMessage;
@@ -467,6 +468,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
           if (user && user.password && token) {
             UserSelfService.confirmPasswordReset({"newPassword": user.password, "token": token}).then(function (data) {
               $scope.showSuccess(data, $scope.notification);
+              $translate.use($scope.languages.selectedLanguage.code);
               $location.path('/self');
             }, function (response) {
               var errorMessage;
@@ -510,9 +512,23 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
       }
     };
 
+    $scope.languages = {
+      availableLanguages: [
+        {id: '1', name: 'Italiano', code: 'it'},
+        {id: '2', name: 'English', code: 'en'},
+        {id: '3', name: 'Deutsch', code: 'de'}
+      ],
+      selectedLanguage: {id: '2', name: 'English', code: 'en'}
+    };
+
+    $scope.switchLanguage = function () {
+      $translate.use($scope.languages.selectedLanguage.code);
+    };
+
     $scope.logout = function (message) {
       AuthService.logout().then(function (response) {
         console.info("Logout successfully");
+        $translate.use($scope.languages.selectedLanguage.code);
         $rootScope.endReached = false;
         $location.path('/self');
         if (message) {
@@ -521,6 +537,13 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
       }, function (response) {
         console.error("Logout failed: ", response);
       });
+    };
+
+    $scope.redirect = function () {
+      console.log("$scope.languages.selectedLanguage.code", $scope.languages.selectedLanguage.code);
+      $translate.use($scope.languages.selectedLanguage.code);
+      $location.path('/self');
+      $rootScope.endReached = false;
     };
 
     $scope.finish = function (message) {

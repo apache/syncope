@@ -53,8 +53,8 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$translate
     $translateProvider.useLoader('$translatePartialLoader', {
       urlTemplate: 'languages/{lang}/{part}.json'
     })
-            .preferredLanguage('en')
-            .useCookieStorage();
+            .preferredLanguage('en');
+//            .useCookieStorage();
 
     // route configuration
     $stateProvider

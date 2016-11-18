@@ -18,25 +18,16 @@
  */
 
 'use strict';
-angular.module("login").controller("LoginController", ['$scope', '$http', '$location',
-  'AuthService', '$translate', '$translatePartialLoader', function ($scope, $http,
-          $location, AuthService, $translate) {
+angular.module("login").controller("LoginController", ['$scope', '$http', '$location', 'AuthService',
+  function ($scope, $http, $location, AuthService) {
 
     $scope.credentials = {
       username: '',
       password: '',
       errorMessage: ''
     };
-    $scope.languages = {
-      availableLanguages: [
-        {id: '1', name: 'Italiano', code: 'it'},
-        {id: '2', name: 'English', code: 'en'},
-        {id: '3', name: 'Deutsch', code: 'de'}
-      ],
-      selectedLanguage: {id: '2', name: 'English', code: 'en'}
-    };
-    $scope.login = function (credentials) {
 
+    $scope.login = function (credentials) {
       AuthService.login($scope.credentials).then(function (user) {
         console.info("Login success for: ", user);
         // reset error message
@@ -55,6 +46,7 @@ angular.module("login").controller("LoginController", ['$scope', '$http', '$loca
         $scope.showError($scope.credentials.errorMessage, $scope.notification);
       });
     };
+    
     $scope.logout = function () {
       AuthService.logout().then(function (response) {
         console.info("Logout successfully");
@@ -90,8 +82,5 @@ angular.module("login").controller("LoginController", ['$scope', '$http', '$loca
       $http.get("/syncope-enduser/api/schema").success(function (data) {
         console.debug("schemaAPI response: ", data);
       });
-    };
-    $scope.switchLanguage = function () {
-      $translate.use($scope.languages.selectedLanguage.code);
     };
   }]);
