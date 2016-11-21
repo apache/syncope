@@ -156,6 +156,11 @@ straightforward: just add the `<profile>` below to `enduser/pom.xml`:
 </profile>
 ----
 
+Now, from the `enduser` subdirectory, execute:
+
+[source,bash]
+mvn -P embedded,debug
+
 At this point your favorite IDE can be attached to the port `8000`; please note that you might need to add
 `-XX:MaxPermSize=512m` to `<cargo.jvmargs>` in order to run with JDK 7.
 ====
