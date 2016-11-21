@@ -117,6 +117,49 @@ After downloading all of the dependencies that are needed, three WAR files will 
 
 If no failures are encountered, your basic Apache Syncope project is now ready to be deployed.
 
+[[embedded-debug]]
+[TIP]
+.JPDA Debug in Embedded Mode
+====
+The Java™ Platform Debugger Architecture (http://docs.oracle.com/javase/8/docs/technotes/guides/jpda/index.html[JPDA^])
+is a collection of APIs aimed to help with debugging Java code.
+
+Enhancing the `embedded` profile of the `enduser` module to enable the JPDA socket is quite
+straightforward: just add the `<profile>` below to `enduser/pom.xml`:
+
+[source,xml,subs="verbatim,attributes"]
+----
+<profile>
+  <id>debug</id>
+
+  <build>
+    <plugin>
+      <plugin>
+        <groupId>org.codehaus.cargo</groupId>
+        <artifactId>cargo-maven2-plugin</artifactId>
+        <inherited>true</inherited>
+        <configuration>
+          <configuration>
+            <properties>
+              <cargo.jvmargs>
+              -Xdebug
+              -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n
+              -noverify -XX:+CMSClassUnloadingEnabled
+              -XX:+UseConcMarkSweepGC -Xmx1024m -Xms512m
+              </cargo.jvmargs>
+            </properties>
+          </configuration>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</profile>
+----
+
+At this point your favorite IDE can be attached to the port `8000`; please note that you might need to add
+`-XX:MaxPermSize=512m` to `<cargo.jvmargs>` in order to run with JDK 7.
+====
+
 [[customization-core]]
 ==== Core
 
