@@ -35,4 +35,10 @@ public interface SyncopeProperty extends Property {
 
     CompleteCondition hasNotResources(String resource, String... moreResources);
 
+    /** Is textual property equal (ignoring case) to given literal or matching given pattern ? */
+    CompleteCondition equalIgnoreCaseTo(String value, String ...moreValues);
+
+    /** Is textual property different (ignoring case) than given literal or not matching given pattern? */
+    CompleteCondition notEqualIgnoreCaseTo(String literalOrPattern);
+
 }

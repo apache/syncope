@@ -33,6 +33,7 @@ import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
+import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -49,10 +50,13 @@ import org.apache.syncope.core.persistence.api.dao.search.MemberCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipTypeCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
+import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
+import org.apache.syncope.core.persistence.jpa.entity.conf.JPACPlainAttrValue;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -71,6 +75,9 @@ public class AnySearchTest extends AbstractTest {
 
     @Autowired
     private AnySearchDAO searchDAO;
+
+    @Autowired
+    private ConfDAO confDAO;
 
     @Test
     public void anyObjectMatch() {
@@ -154,10 +161,58 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
+    public void searchCaseInsensitiveWithLikeCondition() {
+        AttributeCond fullnameLeafCond = new AttributeCond(AttributeCond.Type.ILIKE);
+        fullnameLeafCond.setSchema("fullname");
+        fullnameLeafCond.setExpression("%O%");
+
+        MembershipCond groupCond = new MembershipCond();
+        groupCond.setGroup("root");
+
+        AttributeCond loginDateCond = new AttributeCond(AttributeCond.Type.EQ);
+        loginDateCond.setSchema("loginDate");
+        loginDateCond.setExpression("2009-05-26");
+
+        SearchCond subCond = SearchCond.getAndCond(
+                SearchCond.getLeafCond(fullnameLeafCond), SearchCond.getLeafCond(groupCond));
+
+        assertTrue(subCond.isValid());
+
+        SearchCond cond = SearchCond.getAndCond(subCond, SearchCond.getLeafCond(loginDateCond));
+
+        assertTrue(cond.isValid());
+
+        List<User> users = searchDAO.search(cond, AnyTypeKind.USER);
+        assertNotNull(users);
+        assertEquals(1, users.size());
+    }
+
+    @Test
     public void searchWithNotCondition() {
         AttributeCond fullnameLeafCond = new AttributeCond(AttributeCond.Type.EQ);
         fullnameLeafCond.setSchema("fullname");
         fullnameLeafCond.setExpression("Giuseppe Verdi");
+
+        SearchCond cond = SearchCond.getNotLeafCond(fullnameLeafCond);
+        assertTrue(cond.isValid());
+
+        List<User> users = searchDAO.search(cond, AnyTypeKind.USER);
+        assertNotNull(users);
+        assertEquals(4, users.size());
+
+        Set<String> ids = new HashSet<>(users.size());
+        for (User user : users) {
+            ids.add(user.getKey());
+        }
+        assertTrue(ids.contains("1417acbe-cbf6-4277-9372-e75e04f97000"));
+        assertTrue(ids.contains("b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee"));
+    }
+
+    @Test
+    public void searchCaseInsensitiveWithNotCondition() {
+        AttributeCond fullnameLeafCond = new AttributeCond(AttributeCond.Type.IEQ);
+        fullnameLeafCond.setSchema("fullname");
+        fullnameLeafCond.setExpression("giuseppe verdi");
 
         SearchCond cond = SearchCond.getNotLeafCond(fullnameLeafCond);
         assertTrue(cond.isValid());
@@ -349,6 +404,26 @@ public class AnySearchTest extends AbstractTest {
         AttributeCond idRightCond = new AttributeCond(AttributeCond.Type.LIKE);
         idRightCond.setSchema("fullname");
         idRightCond.setExpression("Giuseppe V%");
+
+        SearchCond searchCondition = SearchCond.getOrCond(
+                SearchCond.getLeafCond(usernameLeafCond),
+                SearchCond.getLeafCond(idRightCond));
+
+        List<User> matchingUsers = searchDAO.search(
+                searchCondition, AnyTypeKind.USER);
+        assertNotNull(matchingUsers);
+        assertEquals(2, matchingUsers.size());
+    }
+
+    @Test
+    public void searchByUsernameAndFullnameIgnoreCase() {
+        AnyCond usernameLeafCond = new AnyCond(AnyCond.Type.IEQ);
+        usernameLeafCond.setSchema("username");
+        usernameLeafCond.setExpression("RoSsini");
+
+        AttributeCond idRightCond = new AttributeCond(AttributeCond.Type.ILIKE);
+        idRightCond.setSchema("fullname");
+        idRightCond.setExpression("gIuseppe v%");
 
         SearchCond searchCondition = SearchCond.getOrCond(
                 SearchCond.getLeafCond(usernameLeafCond),
@@ -627,5 +702,16 @@ public class AnySearchTest extends AbstractTest {
         List<User> users = searchDAO.search(searchCond, AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
+    }
+
+    private void add(final CPlainAttr newAttr, final String value) {
+        JPACPlainAttrValue attrValue;
+        if (newAttr.getSchema().isUniqueConstraint()) {
+            attrValue = new JPACPlainAttrValue();
+            ((PlainAttrUniqueValue) attrValue).setSchema(newAttr.getSchema());
+        } else {
+            attrValue = new JPACPlainAttrValue();
+        }
+        newAttr.add(value, attrValue);
     }
 }
