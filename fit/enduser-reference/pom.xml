@@ -428,6 +428,17 @@ under the License.
               </execution>
             </executions>
           </plugin>
+          
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <executions>
+              <execution>            
+                <id>Execute Tests</id>
+                <phase>none</phase>
+              </execution>                          
+            </executions>
+          </plugin>
         </plugins>
       </build>
     </profile>
@@ -536,6 +547,17 @@ under the License.
                 <id>stop-container</id>
                 <phase>none</phase>
               </execution>
+            </executions>
+          </plugin>
+          
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <executions>
+              <execution>            
+                <id>Execute Tests</id>
+                <phase>none</phase>
+              </execution>                          
             </executions>
           </plugin>
         </plugins>
