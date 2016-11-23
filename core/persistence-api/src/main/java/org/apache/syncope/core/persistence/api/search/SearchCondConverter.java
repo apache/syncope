@@ -20,9 +20,9 @@ package org.apache.syncope.core.persistence.api.search;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.cxf.jaxrs.ext.search.SearchBean;
-import org.apache.cxf.jaxrs.ext.search.fiql.FiqlParser;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.search.AbstractFiqlSearchConditionBuilder;
+import org.apache.syncope.common.lib.search.SyncopeFiqlParser;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 
@@ -37,10 +37,10 @@ public final class SearchCondConverter {
      * @param fiqlExpression FIQL string
      * @param realms optional realm to provide to {@link SearchCondVisitor}
      * @return {@link SearchCond} instance for given FIQL expression
-     * @see FiqlParser
+     * @see SyncopeFiqlParser
      */
     public static SearchCond convert(final String fiqlExpression, final String... realms) {
-        FiqlParser<SearchBean> fiqlParser = new FiqlParser<>(
+        SyncopeFiqlParser<SearchBean> fiqlParser = new SyncopeFiqlParser<>(
                 SearchBean.class, AbstractFiqlSearchConditionBuilder.CONTEXTUAL_PROPERTIES);
 
         try {

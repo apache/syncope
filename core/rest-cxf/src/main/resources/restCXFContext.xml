@@ -120,8 +120,9 @@ under the License.
   <jaxrs:server id="restContainer" address="/"
                 basePackages="org.apache.syncope.common.rest.api.service, org.apache.syncope.core.rest.cxf.service" 
                 staticSubresourceResolution="true">
-    <jaxrs:properties> 
-      <entry key="search.lax.property.match" value="true"/> 
+    <jaxrs:properties>
+      <entry key="search.parser.class" value="org.apache.syncope.common.lib.search.SyncopeFiqlParser"/>
+      <entry key="search.lax.property.match" value="true"/>
       <entry key="convert.wadl.resources.to.dom" value="false"/>
     </jaxrs:properties> 
     <jaxrs:inInterceptors>

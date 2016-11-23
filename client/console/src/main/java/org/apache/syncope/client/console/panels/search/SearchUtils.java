@@ -30,11 +30,12 @@ import org.apache.cxf.jaxrs.ext.search.ConditionType;
 import org.apache.cxf.jaxrs.ext.search.SearchBean;
 import org.apache.cxf.jaxrs.ext.search.SearchCondition;
 import org.apache.cxf.jaxrs.ext.search.client.CompleteCondition;
-import org.apache.cxf.jaxrs.ext.search.fiql.FiqlParser;
 import org.apache.syncope.common.lib.search.AbstractFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.search.AnyObjectFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.search.GroupFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.search.SpecialAttr;
+import org.apache.syncope.common.lib.search.SyncopeFiqlParser;
+import org.apache.syncope.common.lib.search.SyncopeFiqlSearchCondition;
 import org.apache.syncope.common.lib.search.SyncopeProperty;
 import org.apache.syncope.common.lib.search.UserFiqlSearchConditionBuilder;
 import org.slf4j.Logger;
@@ -65,7 +66,7 @@ public final class SearchUtils implements Serializable {
         final List<SearchClause> res = new ArrayList<>();
         if (StringUtils.isNotBlank(fiql)) {
             try {
-                FiqlParser<SearchBean> fiqlParser = new FiqlParser<>(
+                SyncopeFiqlParser<SearchBean> fiqlParser = new SyncopeFiqlParser<>(
                         SearchBean.class, AbstractFiqlSearchConditionBuilder.CONTEXTUAL_PROPERTIES);
                 res.addAll(getSearchClauses(fiqlParser.parse(fiql)));
             } catch (Exception e) {
@@ -140,7 +141,16 @@ public final class SearchUtils implements Serializable {
             res.setType(SearchClause.Type.ATTRIBUTE);
         }
 
-        switch (sc.getConditionType()) {
+        ConditionType ct = sc.getConditionType();
+        if (sc instanceof SyncopeFiqlSearchCondition && sc.getConditionType() == ConditionType.CUSTOM) {
+            SyncopeFiqlSearchCondition<SearchBean> sfsc = (SyncopeFiqlSearchCondition<SearchBean>) sc;
+            if (SyncopeFiqlParser.IEQ.equals(sfsc.getOperator())) {
+                ct = ConditionType.EQUALS;
+            } else if (SyncopeFiqlParser.NIEQ.equals(sfsc.getOperator())) {
+                ct = ConditionType.NOT_EQUALS;
+            }
+        }
+        switch (ct) {
             case EQUALS:
                 if (SpecialAttr.RELATIONSHIP_TYPES.toString().equals(property)) {
                     res.setComparator(SpecialAttr.NULL.toString().equals(value)
@@ -273,12 +283,12 @@ public final class SearchUtils implements Serializable {
                                 break;
 
                             case NOT_EQUALS:
-                                condition = property.notEqualTo(clause.getValue());
+                                condition = property.notEqualTolIgnoreCase(clause.getValue());
                                 break;
 
                             case EQUALS:
                             default:
-                                condition = property.equalTo(clause.getValue());
+                                condition = property.equalToIgnoreCase(clause.getValue());
                                 break;
                         }
                     }

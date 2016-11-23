@@ -154,10 +154,58 @@ public class AnySearchTest extends AbstractTest {
     }
 
     @Test
+    public void searchCaseInsensitiveWithLikeCondition() {
+        AttributeCond fullnameLeafCond = new AttributeCond(AttributeCond.Type.ILIKE);
+        fullnameLeafCond.setSchema("fullname");
+        fullnameLeafCond.setExpression("%O%");
+
+        MembershipCond groupCond = new MembershipCond();
+        groupCond.setGroup("root");
+
+        AttributeCond loginDateCond = new AttributeCond(AttributeCond.Type.EQ);
+        loginDateCond.setSchema("loginDate");
+        loginDateCond.setExpression("2009-05-26");
+
+        SearchCond subCond = SearchCond.getAndCond(
+                SearchCond.getLeafCond(fullnameLeafCond), SearchCond.getLeafCond(groupCond));
+
+        assertTrue(subCond.isValid());
+
+        SearchCond cond = SearchCond.getAndCond(subCond, SearchCond.getLeafCond(loginDateCond));
+
+        assertTrue(cond.isValid());
+
+        List<User> users = searchDAO.search(cond, AnyTypeKind.USER);
+        assertNotNull(users);
+        assertEquals(1, users.size());
+    }
+
+    @Test
     public void searchWithNotCondition() {
         AttributeCond fullnameLeafCond = new AttributeCond(AttributeCond.Type.EQ);
         fullnameLeafCond.setSchema("fullname");
         fullnameLeafCond.setExpression("Giuseppe Verdi");
+
+        SearchCond cond = SearchCond.getNotLeafCond(fullnameLeafCond);
+        assertTrue(cond.isValid());
+
+        List<User> users = searchDAO.search(cond, AnyTypeKind.USER);
+        assertNotNull(users);
+        assertEquals(4, users.size());
+
+        Set<String> ids = new HashSet<>(users.size());
+        for (User user : users) {
+            ids.add(user.getKey());
+        }
+        assertTrue(ids.contains("1417acbe-cbf6-4277-9372-e75e04f97000"));
+        assertTrue(ids.contains("b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee"));
+    }
+
+    @Test
+    public void searchCaseInsensitiveWithNotCondition() {
+        AttributeCond fullnameLeafCond = new AttributeCond(AttributeCond.Type.IEQ);
+        fullnameLeafCond.setSchema("fullname");
+        fullnameLeafCond.setExpression("giuseppe verdi");
 
         SearchCond cond = SearchCond.getNotLeafCond(fullnameLeafCond);
         assertTrue(cond.isValid());
@@ -349,6 +397,26 @@ public class AnySearchTest extends AbstractTest {
         AttributeCond idRightCond = new AttributeCond(AttributeCond.Type.LIKE);
         idRightCond.setSchema("fullname");
         idRightCond.setExpression("Giuseppe V%");
+
+        SearchCond searchCondition = SearchCond.getOrCond(
+                SearchCond.getLeafCond(usernameLeafCond),
+                SearchCond.getLeafCond(idRightCond));
+
+        List<User> matchingUsers = searchDAO.search(
+                searchCondition, AnyTypeKind.USER);
+        assertNotNull(matchingUsers);
+        assertEquals(2, matchingUsers.size());
+    }
+
+    @Test
+    public void searchByUsernameAndFullnameIgnoreCase() {
+        AnyCond usernameLeafCond = new AnyCond(AnyCond.Type.IEQ);
+        usernameLeafCond.setSchema("username");
+        usernameLeafCond.setExpression("RoSsini");
+
+        AttributeCond idRightCond = new AttributeCond(AttributeCond.Type.ILIKE);
+        idRightCond.setSchema("fullname");
+        idRightCond.setExpression("gIuseppe v%");
 
         SearchCond searchCondition = SearchCond.getOrCond(
                 SearchCond.getLeafCond(usernameLeafCond),
@@ -602,27 +670,27 @@ public class AnySearchTest extends AbstractTest {
         assertNotNull(count);
         assertTrue(count > 0);
     }
-    
+
     @Test
     public void issueSYNCOPE929() {
         AttributeCond rossiniCond = new AttributeCond(AttributeCond.Type.EQ);
         rossiniCond.setSchema("surname");
         rossiniCond.setExpression("Rossini");
-        
+
         AttributeCond genderCond = new AttributeCond(AttributeCond.Type.EQ);
         genderCond.setSchema("gender");
         genderCond.setExpression("M");
 
-        SearchCond orCond = 
-            SearchCond.getOrCond(SearchCond.getLeafCond(rossiniCond),
-                                 SearchCond.getLeafCond(genderCond));
-        
+        SearchCond orCond =
+                SearchCond.getOrCond(SearchCond.getLeafCond(rossiniCond),
+                        SearchCond.getLeafCond(genderCond));
+
         AttributeCond belliniCond = new AttributeCond(AttributeCond.Type.EQ);
         belliniCond.setSchema("surname");
         belliniCond.setExpression("Bellini");
-        
-        SearchCond searchCond = 
-            SearchCond.getAndCond(orCond, SearchCond.getLeafCond(belliniCond));
+
+        SearchCond searchCond =
+                SearchCond.getAndCond(orCond, SearchCond.getLeafCond(belliniCond));
 
         List<User> users = searchDAO.search(searchCond, AnyTypeKind.USER);
         assertNotNull(users);

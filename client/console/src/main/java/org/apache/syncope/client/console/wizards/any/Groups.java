@@ -128,8 +128,7 @@ public class Groups extends WizardStep implements ICondition {
             }
         }).hideLabel().setOutputMarkupId(true));
 
-        allGroups = groupRestClient.search(
-                templateMode ? "/" : realm, null, -1, -1, new SortParam<>("name", true), null);
+        allGroups = groupRestClient.search("/", null, -1, -1, new SortParam<>("name", true), null);
 
         final Map<String, GroupTO> allGroupsByKey = new LinkedHashMap<>(allGroups.size());
         for (GroupTO group : allGroups) {

@@ -47,8 +47,8 @@ public class SearchITCase extends AbstractITCase {
         // LIKE
         PagedResult<UserTO> matchingUsers = userService.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                fiql(SyncopeClient.getUserSearchConditionBuilder().
-                        is("fullname").equalTo("*o*").and("fullname").equalTo("*i*").query()).build());
+                        fiql(SyncopeClient.getUserSearchConditionBuilder().
+                                is("fullname").equalTo("*o*").and("fullname").equalTo("*i*").query()).build());
         assertNotNull(matchingUsers);
         assertFalse(matchingUsers.getResult().isEmpty());
 
@@ -74,11 +74,31 @@ public class SearchITCase extends AbstractITCase {
     }
 
     @Test
+    public void searchUserIgnoreCase() {
+        PagedResult<UserTO> matchingUsers = userService.search(
+                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                        fiql(SyncopeClient.getUserSearchConditionBuilder().
+                                is("username").equalToIgnoreCase("RoSsINI").and("key").lessThan(2).query()).build());
+        assertNotNull(matchingUsers);
+        assertEquals(1, matchingUsers.getResult().size());
+        assertEquals("rossini", matchingUsers.getResult().iterator().next().getUsername());
+        assertEquals("1417acbe-cbf6-4277-9372-e75e04f97000", matchingUsers.getResult().iterator().next().getKey());
+
+        matchingUsers = userService.search(
+                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                        fiql("(fullname=~*oSsINi)").page(1).size(2).build());
+        assertNotNull(matchingUsers);
+        assertEquals(1, matchingUsers.getResult().size());
+        assertEquals("rossini", matchingUsers.getResult().iterator().next().getUsername());
+        assertEquals("1417acbe-cbf6-4277-9372-e75e04f97000", matchingUsers.getResult().iterator().next().getKey());
+    }
+
+    @Test
     public void searchByUsernameAndKey() {
         PagedResult<UserTO> matchingUsers = userService.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                fiql(SyncopeClient.getUserSearchConditionBuilder().
-                        is("username").equalTo("rossini").and("key").lessThan(2).query()).build());
+                        fiql(SyncopeClient.getUserSearchConditionBuilder().
+                                is("username").equalTo("rossini").and("key").lessThan(2).query()).build());
         assertNotNull(matchingUsers);
         assertEquals(1, matchingUsers.getResult().size());
         assertEquals("rossini", matchingUsers.getResult().iterator().next().getUsername());
@@ -101,8 +121,8 @@ public class SearchITCase extends AbstractITCase {
     public void searchByGroup() {
         PagedResult<UserTO> matchingUsers = userService.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                fiql(SyncopeClient.getUserSearchConditionBuilder().inGroups("root").query()).
-                build());
+                        fiql(SyncopeClient.getUserSearchConditionBuilder().inGroups("root").query()).
+                        build());
         assertNotNull(matchingUsers);
         assertFalse(matchingUsers.getResult().isEmpty());
 
@@ -124,8 +144,8 @@ public class SearchITCase extends AbstractITCase {
 
         PagedResult<UserTO> matchingUsers = userService.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                fiql(SyncopeClient.getUserSearchConditionBuilder().inGroups(group.getKey()).query()).
-                build());
+                        fiql(SyncopeClient.getUserSearchConditionBuilder().inGroups(group.getKey()).query()).
+                        build());
         assertNotNull(matchingUsers);
         assertFalse(matchingUsers.getResult().isEmpty());
 
@@ -142,8 +162,8 @@ public class SearchITCase extends AbstractITCase {
     public void searchByRole() {
         PagedResult<UserTO> matchingUsers = userService.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                fiql(SyncopeClient.getUserSearchConditionBuilder().inRoles("Other").query()).
-                build());
+                        fiql(SyncopeClient.getUserSearchConditionBuilder().inRoles("Other").query()).
+                        build());
         assertNotNull(matchingUsers);
         assertFalse(matchingUsers.getResult().isEmpty());
 
@@ -166,8 +186,8 @@ public class SearchITCase extends AbstractITCase {
 
         PagedResult<UserTO> matchingUsers = userService.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                fiql(SyncopeClient.getUserSearchConditionBuilder().inRoles(role.getKey()).query()).
-                build());
+                        fiql(SyncopeClient.getUserSearchConditionBuilder().inRoles(role.getKey()).query()).
+                        build());
         assertNotNull(matchingUsers);
         assertFalse(matchingUsers.getResult().isEmpty());
 
@@ -184,8 +204,8 @@ public class SearchITCase extends AbstractITCase {
     public void searchUserByResourceName() {
         PagedResult<UserTO> matchingUsers = userService.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                fiql(SyncopeClient.getUserSearchConditionBuilder().hasResources(RESOURCE_NAME_MAPPINGS2).query()).
-                build());
+                        fiql(SyncopeClient.getUserSearchConditionBuilder().hasResources(RESOURCE_NAME_MAPPINGS2).query()).
+                        build());
         assertNotNull(matchingUsers);
         assertFalse(matchingUsers.getResult().isEmpty());
 
@@ -203,8 +223,9 @@ public class SearchITCase extends AbstractITCase {
         // LIKE
         PagedResult<UserTO> matchingUsers = userService.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                fiql(SyncopeClient.getUserSearchConditionBuilder().
-                        is("fullname").equalTo("*o*").and("fullname").equalTo("*i*").query()).page(1).size(2).build());
+                        fiql(SyncopeClient.getUserSearchConditionBuilder().
+                                is("fullname").equalTo("*o*").and("fullname").equalTo("*i*").query()).page(1).size(2).
+                        build());
         assertNotNull(matchingUsers);
 
         assertFalse(matchingUsers.getResult().isEmpty());
@@ -259,7 +280,7 @@ public class SearchITCase extends AbstractITCase {
     public void nested() {
         PagedResult<UserTO> matchingUsers = userService.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                fiql("((fullname==*o*,fullname==*i*);$resources!=ws-target-resource-1)").page(1).size(2).build());
+                        fiql("((fullname==*o*,fullname==*i*);$resources!=ws-target-resource-1)").page(1).size(2).build());
         assertNotNull(matchingUsers);
 
         assertFalse(matchingUsers.getResult().isEmpty());
@@ -415,8 +436,8 @@ public class SearchITCase extends AbstractITCase {
     public void orderBy() {
         PagedResult<UserTO> matchingUsers = userService.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                fiql(SyncopeClient.getUserSearchConditionBuilder().is("userId").equalTo("*@apache.org").query()).
-                orderBy(SyncopeClient.getOrderByClauseBuilder().asc("status").desc("firstname").build()).build());
+                        fiql(SyncopeClient.getUserSearchConditionBuilder().is("userId").equalTo("*@apache.org").query()).
+                        orderBy(SyncopeClient.getOrderByClauseBuilder().asc("status").desc("firstname").build()).build());
         assertNotNull(matchingUsers);
 
         assertFalse(matchingUsers.getResult().isEmpty());
@@ -443,12 +464,13 @@ public class SearchITCase extends AbstractITCase {
                 getTotalCount();
         assertEquals(nonOrdered, orderedByNullable);
     }
-    
+
     @Test
     public void issueSYNCOPE929() {
-        PagedResult<UserTO> matchingUsers = userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                fiql("(surname==Rossini,gender==M);surname==Bellini").build());
-        
+        PagedResult<UserTO> matchingUsers = userService.search(
+                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
+                        fiql("(surname==Rossini,gender==M);surname==Bellini").build());
+
         assertNotNull(matchingUsers);
 
         assertFalse(matchingUsers.getResult().isEmpty());
