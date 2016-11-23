@@ -133,7 +133,7 @@ straightforward: just add the `<profile>` below to `enduser/pom.xml`:
   <id>debug</id>
 
   <build>
-    <plugin>
+    <plugins>
       <plugin>
         <groupId>org.codehaus.cargo</groupId>
         <artifactId>cargo-maven2-plugin</artifactId>
