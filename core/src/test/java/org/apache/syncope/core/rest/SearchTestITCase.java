@@ -43,7 +43,7 @@ public class SearchTestITCase extends AbstractTest {
         // LIKE
         PagedResult<UserTO> matchedUsers = userService.search(
                 SyncopeClient.getUserSearchConditionBuilder().
-                is("fullname").equalTo("*o*").and("fullname").equalTo("*i*").query());
+                        is("fullname").equalTo("*o*").and("fullname").equalTo("*i*").query());
         assertNotNull(matchedUsers);
         assertFalse(matchedUsers.getResult().isEmpty());
 
@@ -66,10 +66,26 @@ public class SearchTestITCase extends AbstractTest {
     }
 
     @Test
+    public void searchUserIgnoreCase() {
+        PagedResult<UserTO> matchingUsers = userService.search(
+                SyncopeClient.getUserSearchConditionBuilder().
+                        is("username").equalToIgnoreCase("RoSsINI").and("id").lessThan(2).query());
+
+        assertNotNull(matchingUsers);
+        assertEquals(1, matchingUsers.getResult().size());
+        assertEquals("rossini", matchingUsers.getResult().iterator().next().getUsername());
+
+        matchingUsers = userService.search("(fullname=~*oSsINi)");
+        assertNotNull(matchingUsers);
+        assertEquals(1, matchingUsers.getResult().size());
+        assertEquals("rossini", matchingUsers.getResult().iterator().next().getUsername());
+    }
+
+    @Test
     public void searchByUsernameAndId() {
         final PagedResult<UserTO> matchingUsers = userService.search(
                 SyncopeClient.getUserSearchConditionBuilder().
-                is("username").equalTo("rossini").and("id").lessThan(2).query());
+                        is("username").equalTo("rossini").and("id").lessThan(2).query());
 
         assertNotNull(matchingUsers);
         assertEquals(1, matchingUsers.getResult().size());
@@ -109,7 +125,7 @@ public class SearchTestITCase extends AbstractTest {
         // LIKE
         PagedResult<UserTO> matchedUsers = userService.search(
                 SyncopeClient.getUserSearchConditionBuilder().
-                is("fullname").equalTo("*o*").and("fullname").equalTo("*i*").query(), 1, 2);
+                        is("fullname").equalTo("*o*").and("fullname").equalTo("*i*").query(), 1, 2);
         assertNotNull(matchedUsers);
 
         assertFalse(matchedUsers.getResult().isEmpty());
@@ -144,8 +160,8 @@ public class SearchTestITCase extends AbstractTest {
 
         PagedResult<UserTO> users = userService.search(
                 SyncopeClient.getUserSearchConditionBuilder().
-                is("lastLoginDate").lexicalNotBefore("2016-03-02 15:21:22").
-                and("username").equalTo("bellini").query());
+                        is("lastLoginDate").lexicalNotBefore("2016-03-02 15:21:22").
+                        and("username").equalTo("bellini").query());
         assertNotNull(users);
         assertEquals(1, users.getTotalCount());
         assertEquals(1, users.getResult().size());

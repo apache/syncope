@@ -518,9 +518,16 @@ public class SubjectSearchDAOImpl extends AbstractDAOImpl implements SubjectSear
             final AbstractNormalSchema schema, final AttributeCond cond, final boolean not,
             final List<Object> parameters, final SearchSupport svs) {
 
-        String column = (cond instanceof SubjectCond)
-                ? cond.getSchema()
-                : "' AND " + svs.fieldName(schema.getType());
+        // activate ignoreCase only for EQ and LIKE operators
+        boolean ignoreCase = AttributeCond.Type.ILIKE == cond.getType() || AttributeCond.Type.IEQ == cond.getType();
+
+        String column = (cond instanceof SubjectCond) ? cond.getSchema() : svs.fieldName(schema.getType());
+        if (ignoreCase) {
+            column = "LOWER (" + column + ")";
+        }
+        if (!(cond instanceof SubjectCond)) {
+            column = "' AND " + column;
+        }
 
         switch (cond.getType()) {
 
@@ -536,13 +543,19 @@ public class SubjectSearchDAOImpl extends AbstractDAOImpl implements SubjectSear
                         : " IS NOT NULL");
                 break;
 
+            case ILIKE:
             case LIKE:
                 if (schema.getType() == AttributeSchemaType.String || schema.getType() == AttributeSchemaType.Enum) {
                     query.append(column);
                     if (not) {
                         query.append(" NOT ");
                     }
-                    query.append(" LIKE ?").append(setParameter(parameters, cond.getExpression()));
+                    query.append(" LIKE ");
+                    if (ignoreCase) {
+                        query.append("LOWER(?").append(setParameter(parameters, cond.getExpression())).append(')');
+                    } else {
+                        query.append('?').append(setParameter(parameters, cond.getExpression()));
+                    }
                 } else {
                     if (!(cond instanceof SubjectCond)) {
                         query.append("' AND");
@@ -552,6 +565,7 @@ public class SubjectSearchDAOImpl extends AbstractDAOImpl implements SubjectSear
                 }
                 break;
 
+            case IEQ:
             case EQ:
                 query.append(column);
                 if (not) {
@@ -559,7 +573,11 @@ public class SubjectSearchDAOImpl extends AbstractDAOImpl implements SubjectSear
                 } else {
                     query.append('=');
                 }
-                query.append('?').append(setParameter(parameters, attrValue.getValue()));
+                if (ignoreCase) {
+                    query.append("LOWER(?").append(setParameter(parameters, attrValue.getValue())).append(')');
+                } else {
+                    query.append('?').append(setParameter(parameters, attrValue.getValue()));
+                }
                 break;
 
             case GE:

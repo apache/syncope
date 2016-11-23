@@ -118,10 +118,60 @@ public class AttributableSearchTest {
     }
 
     @Test
+    public void searchCaseInsensitiveWithLikeCondition() {
+        AttributeCond fullnameLeafCond = new AttributeCond(AttributeCond.Type.ILIKE);
+        fullnameLeafCond.setSchema("fullname");
+        fullnameLeafCond.setExpression("%O%");
+
+        MembershipCond groupCond = new MembershipCond();
+        groupCond.setRoleId(1L);
+
+        AttributeCond loginDateCond = new AttributeCond(AttributeCond.Type.EQ);
+        loginDateCond.setSchema("loginDate");
+        loginDateCond.setExpression("2009-05-26");
+
+        SearchCond subCond = SearchCond.getAndCond(
+                SearchCond.getLeafCond(fullnameLeafCond), SearchCond.getLeafCond(groupCond));
+
+        assertTrue(subCond.isValid());
+
+        SearchCond cond = SearchCond.getAndCond(subCond, SearchCond.getLeafCond(loginDateCond));
+
+        assertTrue(cond.isValid());
+
+        List<SyncopeUser> users =
+                searchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()), cond, SubjectType.USER);
+        assertNotNull(users);
+        assertEquals(1, users.size());
+    }
+
+    @Test
     public void searchWithNotCondition() {
         AttributeCond fullnameLeafCond = new AttributeCond(AttributeCond.Type.EQ);
         fullnameLeafCond.setSchema("fullname");
         fullnameLeafCond.setExpression("Giuseppe Verdi");
+
+        SearchCond cond = SearchCond.getNotLeafCond(fullnameLeafCond);
+        assertTrue(cond.isValid());
+
+        List<SyncopeUser> users =
+                searchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()), cond, SubjectType.USER);
+        assertNotNull(users);
+        assertEquals(4, users.size());
+
+        Set<Long> ids = new HashSet<Long>(users.size());
+        for (SyncopeUser user : users) {
+            ids.add(user.getId());
+        }
+        assertTrue(ids.contains(1L));
+        assertTrue(ids.contains(3L));
+    }
+
+    @Test
+    public void searchCaseInsensitiveWithNotCondition() {
+        AttributeCond fullnameLeafCond = new AttributeCond(AttributeCond.Type.IEQ);
+        fullnameLeafCond.setSchema("fullname");
+        fullnameLeafCond.setExpression("giuseppe verdi");
 
         SearchCond cond = SearchCond.getNotLeafCond(fullnameLeafCond);
         assertTrue(cond.isValid());
@@ -321,6 +371,28 @@ public class AttributableSearchTest {
     }
 
     @Test
+    public void searchByUsernameAndFullnameIgnoreCase() {
+        SubjectCond usernameLeafCond = new SubjectCond(SubjectCond.Type.IEQ);
+        usernameLeafCond.setSchema("username");
+        usernameLeafCond.setExpression("RoSsini");
+
+        AttributeCond idRightCond = new AttributeCond(AttributeCond.Type.ILIKE);
+        idRightCond.setSchema("fullname");
+        idRightCond.setExpression("gIuseppe v%");
+
+        SearchCond searchCondition = SearchCond.getOrCond(
+                SearchCond.getLeafCond(usernameLeafCond),
+                SearchCond.getLeafCond(idRightCond));
+
+        List<SyncopeUser> matchingUsers =
+                searchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()), searchCondition,
+                        SubjectType.USER);
+
+        assertNotNull(matchingUsers);
+        assertEquals(2, matchingUsers.size());
+    }
+
+    @Test
     public void searchById() {
         SubjectCond idLeafCond = new SubjectCond(SubjectCond.Type.LT);
         idLeafCond.setSchema("id");
@@ -380,7 +452,7 @@ public class AttributableSearchTest {
         orderByClauses.add(orderByClause);
 
         List<SyncopeUser> users = searchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()),
-                searchCondition, Collections.singletonList(orderByClause),
+                searchCondition, orderByClauses,
                 SubjectType.USER);
         assertEquals(searchDAO.count(EntitlementUtil.getRoleIds(entitlementDAO.findAll()),
                 searchCondition, SubjectType.USER),
@@ -490,15 +562,15 @@ public class AttributableSearchTest {
         genderCond.setExpression("M");
 
         SearchCond orCond =
-            SearchCond.getOrCond(SearchCond.getLeafCond(rossiniCond),
-                                 SearchCond.getLeafCond(genderCond));
+                SearchCond.getOrCond(SearchCond.getLeafCond(rossiniCond),
+                        SearchCond.getLeafCond(genderCond));
 
         AttributeCond belliniCond = new AttributeCond(AttributeCond.Type.EQ);
         belliniCond.setSchema("surname");
         belliniCond.setExpression("Bellini");
 
         SearchCond searchCond =
-            SearchCond.getAndCond(orCond, SearchCond.getLeafCond(belliniCond));
+                SearchCond.getAndCond(orCond, SearchCond.getLeafCond(belliniCond));
 
         List<SyncopeUser> users = searchDAO.search(EntitlementUtil.getRoleIds(entitlementDAO.findAll()),
                 searchCond, SubjectType.USER);

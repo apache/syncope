@@ -26,12 +26,22 @@ import org.apache.cxf.jaxrs.ext.search.client.Property;
  */
 public abstract interface SyncopeProperty extends Property {
 
+    /** Is textual property equal to (ignoring case) given literal or matching given pattern? */
+    CompleteCondition equalToIgnoreCase(String value, String... moreValues);
+
+    /** Is textual property different (ignoring case) than given literal or not matching given pattern? */
+    CompleteCondition notEqualTolIgnoreCase(String literalOrPattern);
+
+    /** Is property null? */
     CompleteCondition nullValue();
 
+    /** Is property not null? */
     CompleteCondition notNullValue();
-    
+
+    /** Is user, group or any object owning given resource(s)? */
     CompleteCondition hasResources(String resource, String... moreResources);
 
+    /** Is user, group or any object not owning given resource(s)? */
     CompleteCondition hasNotResources(String resource, String... moreResources);
 
 }

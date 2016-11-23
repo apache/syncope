@@ -27,10 +27,11 @@ import org.apache.cxf.jaxrs.ext.search.ConditionType;
 import org.apache.cxf.jaxrs.ext.search.SearchBean;
 import org.apache.cxf.jaxrs.ext.search.SearchCondition;
 import org.apache.cxf.jaxrs.ext.search.client.CompleteCondition;
-import org.apache.cxf.jaxrs.ext.search.fiql.FiqlParser;
 import org.apache.syncope.common.search.RoleFiqlSearchConditionBuilder;
 import org.apache.syncope.common.search.SearchableFields;
 import org.apache.syncope.common.search.SpecialAttr;
+import org.apache.syncope.common.search.SyncopeFiqlParser;
+import org.apache.syncope.common.search.SyncopeFiqlSearchCondition;
 import org.apache.syncope.common.search.SyncopeFiqlSearchConditionBuilder;
 import org.apache.syncope.common.search.SyncopeProperty;
 import org.apache.syncope.common.search.UserFiqlSearchConditionBuilder;
@@ -111,23 +112,23 @@ public abstract class AbstractSearchPanel extends Panel {
         searchFeedback = new NotificationPanel("searchFeedback", "notificationpanel_top_right",
                 new IFeedbackMessageFilter() {
 
-                    private static final long serialVersionUID = 6895024863321391672L;
+            private static final long serialVersionUID = 6895024863321391672L;
 
-                    @Override
-                    public boolean accept(final FeedbackMessage message) {
-                        boolean result;
+            @Override
+            public boolean accept(final FeedbackMessage message) {
+                boolean result;
 
-                        // messages reported on the session have a null reporter
-                        if (message.getReporter() == null) {
-                            result = false;
-                        } else {
-                            // only accept messages coming from the children of the search form container
-                            result = searchFormContainer.contains(message.getReporter(), true);
-                        }
+                // messages reported on the session have a null reporter
+                if (message.getReporter() == null) {
+                    result = false;
+                } else {
+                    // only accept messages coming from the children of the search form container
+                    result = searchFormContainer.contains(message.getReporter(), true);
+                }
 
-                        return result;
-                    }
-                });
+                return result;
+            }
+        });
         searchFeedback.setOutputMarkupId(true);
         add(searchFeedback);
 
@@ -135,7 +136,7 @@ public abstract class AbstractSearchPanel extends Panel {
         this.searchClauses.add(new SearchClause());
         if (StringUtils.isNotBlank(fiql)) {
             try {
-                FiqlParser<SearchBean> fiqlParser = new FiqlParser<SearchBean>(
+                SyncopeFiqlParser<SearchBean> fiqlParser = new SyncopeFiqlParser<SearchBean>(
                         SearchBean.class, SyncopeFiqlSearchConditionBuilder.CONTEXTUAL_PROPERTIES);
                 List<SearchClause> parsed = getSearchClauses(fiqlParser.parse(fiql));
 
@@ -232,7 +233,16 @@ public abstract class AbstractSearchPanel extends Panel {
             searchClause.setType(SearchClause.Type.ATTRIBUTE);
         }
 
-        switch (sc.getConditionType()) {
+        ConditionType ct = sc.getConditionType();
+        if (sc instanceof SyncopeFiqlSearchCondition && sc.getConditionType() == ConditionType.CUSTOM) {
+            SyncopeFiqlSearchCondition<SearchBean> sfsc = (SyncopeFiqlSearchCondition<SearchBean>) sc;
+            if (SyncopeFiqlParser.IEQ.equals(sfsc.getOperator())) {
+                ct = ConditionType.EQUALS;
+            } else if (SyncopeFiqlParser.NIEQ.equals(sfsc.getOperator())) {
+                ct = ConditionType.NOT_EQUALS;
+            }
+        }
+        switch (ct) {
             case EQUALS:
                 searchClause.setComparator(SpecialAttr.NULL.toString().equals(value)
                         ? SearchClause.Comparator.IS_NULL : SearchClause.Comparator.EQUALS);
@@ -319,9 +329,9 @@ public abstract class AbstractSearchPanel extends Panel {
                 case ENTITLEMENT:
                     condition = searchClauses.get(i).getComparator() == SearchClause.Comparator.EQUALS
                             ? ((RoleFiqlSearchConditionBuilder) builder).
-                            hasEntitlements(searchClauses.get(i).getProperty())
+                                    hasEntitlements(searchClauses.get(i).getProperty())
                             : ((RoleFiqlSearchConditionBuilder) builder).
-                            hasNotEntitlements(searchClauses.get(i).getProperty());
+                                    hasNotEntitlements(searchClauses.get(i).getProperty());
                     break;
 
                 case MEMBERSHIP:
@@ -373,12 +383,12 @@ public abstract class AbstractSearchPanel extends Panel {
                             break;
 
                         case NOT_EQUALS:
-                            condition = property.notEqualTo(searchClauses.get(i).getValue());
+                            condition = property.notEqualTolIgnoreCase(searchClauses.get(i).getValue());
                             break;
 
                         case EQUALS:
                         default:
-                            condition = property.equalTo(searchClauses.get(i).getValue());
+                            condition = property.equalToIgnoreCase(searchClauses.get(i).getValue());
                             break;
                     }
                 default:

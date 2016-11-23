@@ -47,6 +47,34 @@ public class SearchCondConverterTest extends AbstractNonDAOTest {
     }
 
     @Test
+    public void ieq() {
+        String fiqlExpression = SyncopeClient.getUserSearchConditionBuilder().
+                is("username").equalToIgnoreCase("rossini").query();
+        assertEquals("username=~rossini", fiqlExpression);
+
+        SubjectCond attrCond = new SubjectCond(AttributeCond.Type.IEQ);
+        attrCond.setSchema("username");
+        attrCond.setExpression("rossini");
+        SearchCond simpleCond = SearchCond.getLeafCond(attrCond);
+
+        assertEquals(simpleCond, SearchCondConverter.convert(fiqlExpression));
+    }
+
+    @Test
+    public void nieq() {
+        String fiqlExpression = SyncopeClient.getUserSearchConditionBuilder().
+                is("username").notEqualTolIgnoreCase("rossini").query();
+        assertEquals("username!~rossini", fiqlExpression);
+
+        SubjectCond attrCond = new SubjectCond(AttributeCond.Type.IEQ);
+        attrCond.setSchema("username");
+        attrCond.setExpression("rossini");
+        SearchCond simpleCond = SearchCond.getNotLeafCond(attrCond);
+
+        assertEquals(simpleCond, SearchCondConverter.convert(fiqlExpression));
+    }
+
+    @Test
     public void like() {
         String fiqlExpression = SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("ros*").query();
         assertEquals("username==ros*", fiqlExpression);
@@ -55,6 +83,35 @@ public class SearchCondConverterTest extends AbstractNonDAOTest {
         attrCond.setSchema("username");
         attrCond.setExpression("ros%");
         SearchCond simpleCond = SearchCond.getLeafCond(attrCond);
+
+        assertEquals(simpleCond, SearchCondConverter.convert(fiqlExpression));
+    }
+
+    @Test
+    public void ilike() {
+        String fiqlExpression = SyncopeClient.getUserSearchConditionBuilder().
+                is("username").equalToIgnoreCase("ros*").query();
+        assertEquals("username=~ros*", fiqlExpression);
+
+        AttributeCond attrCond = new SubjectCond(AttributeCond.Type.ILIKE);
+        attrCond.setSchema("username");
+        attrCond.setExpression("ros%");
+        SearchCond simpleCond = SearchCond.getLeafCond(attrCond);
+
+        assertEquals(simpleCond, SearchCondConverter.convert(fiqlExpression));
+    }
+
+    @Test
+    public void nilike() {
+        String fiqlExpression = SyncopeClient.getUserSearchConditionBuilder().
+                is("username").notEqualTolIgnoreCase("ros*").
+                query();
+        assertEquals("username!~ros*", fiqlExpression);
+
+        AttributeCond attrCond = new SubjectCond(AttributeCond.Type.ILIKE);
+        attrCond.setSchema("username");
+        attrCond.setExpression("ros%");
+        SearchCond simpleCond = SearchCond.getNotLeafCond(attrCond);
 
         assertEquals(simpleCond, SearchCondConverter.convert(fiqlExpression));
     }

@@ -47,6 +47,7 @@ public abstract class SyncopeFiqlSearchConditionBuilder extends FiqlSearchCondit
         return new Builder(properties);
     }
 
+    @Override
     public SyncopeProperty is(final String property) {
         return newBuilderInstance().is(property);
     }
@@ -105,6 +106,16 @@ public abstract class SyncopeFiqlSearchConditionBuilder extends FiqlSearchCondit
         public CompleteCondition hasNotResources(final String resource, final String... moreResources) {
             this.result = SpecialAttr.RESOURCES.toString();
             return condition(FiqlParser.NEQ, resource, (Object[]) moreResources);
+        }
+
+        @Override
+        public CompleteCondition equalToIgnoreCase(final String value, final String... moreValues) {
+            return condition(SyncopeFiqlParser.IEQ, value, (Object[]) moreValues);
+        }
+
+        @Override
+        public CompleteCondition notEqualTolIgnoreCase(final String literalOrPattern) {
+            return condition(SyncopeFiqlParser.NIEQ, literalOrPattern);
         }
     }
 }

@@ -107,6 +107,7 @@ under the License.
       <bean id="queryResourceInfoComparator" class="org.apache.syncope.core.rest.utils.QueryResourceInfoComparator"/>
     </jaxrs:resourceComparator>
     <jaxrs:properties> 
+      <entry key="search.parser.class" value="org.apache.syncope.common.search.SyncopeFiqlParser"/>
       <entry key="search.lax.property.match" value="true"/> 
     </jaxrs:properties> 
     <jaxrs:inInterceptors>
