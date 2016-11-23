@@ -53,11 +53,63 @@ public class SearchCondConverterTest {
     }
 
     @Test
+    public void ieq() {
+        String fiqlExpression = new UserFiqlSearchConditionBuilder().is("username").equalIgnoreCaseTo("rossini").query();
+        assertEquals("username=~rossini", fiqlExpression);
+
+        AnyCond attrCond = new AnyCond(AttributeCond.Type.IEQ);
+        attrCond.setSchema("username");
+        attrCond.setExpression("rossini");
+        SearchCond simpleCond = SearchCond.getLeafCond(attrCond);
+
+        assertEquals(simpleCond, SearchCondConverter.convert(fiqlExpression));
+    }
+
+    @Test
+    public void nieq() {
+        String fiqlExpression = new UserFiqlSearchConditionBuilder().is("username").notEqualIgnoreCaseTo("rossini").query();
+        assertEquals("username!~rossini", fiqlExpression);
+
+        AnyCond attrCond = new AnyCond(AttributeCond.Type.IEQ);
+        attrCond.setSchema("username");
+        attrCond.setExpression("rossini");
+        SearchCond simpleCond = SearchCond.getLeafCond(attrCond);
+
+        assertEquals(simpleCond, SearchCondConverter.convert(fiqlExpression));
+    }
+
+    @Test
     public void like() {
         String fiqlExpression = new UserFiqlSearchConditionBuilder().is("username").equalTo("ros*").query();
         assertEquals("username==ros*", fiqlExpression);
 
         AttributeCond attrCond = new AnyCond(AttributeCond.Type.LIKE);
+        attrCond.setSchema("username");
+        attrCond.setExpression("ros%");
+        SearchCond simpleCond = SearchCond.getLeafCond(attrCond);
+
+        assertEquals(simpleCond, SearchCondConverter.convert(fiqlExpression));
+    }
+
+    @Test
+    public void ilike() {
+        String fiqlExpression = new UserFiqlSearchConditionBuilder().is("username").equalIgnoreCaseTo("ros*").query();
+        assertEquals("username=~ros*", fiqlExpression);
+
+        AttributeCond attrCond = new AnyCond(AttributeCond.Type.ILIKE);
+        attrCond.setSchema("username");
+        attrCond.setExpression("ros%");
+        SearchCond simpleCond = SearchCond.getLeafCond(attrCond);
+
+        assertEquals(simpleCond, SearchCondConverter.convert(fiqlExpression));
+    }
+
+    @Test
+    public void nilike() {
+        String fiqlExpression = new UserFiqlSearchConditionBuilder().is("username").notEqualIgnoreCaseTo("ros*").query();
+        assertEquals("username!~ros*", fiqlExpression);
+
+        AttributeCond attrCond = new AnyCond(AttributeCond.Type.ILIKE);
         attrCond.setSchema("username");
         attrCond.setExpression("ros%");
         SearchCond simpleCond = SearchCond.getLeafCond(attrCond);

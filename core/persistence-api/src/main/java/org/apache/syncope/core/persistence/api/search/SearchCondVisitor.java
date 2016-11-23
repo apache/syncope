@@ -27,6 +27,8 @@ import org.apache.cxf.jaxrs.ext.search.SearchUtils;
 import org.apache.cxf.jaxrs.ext.search.visitor.AbstractSearchConditionVisitor;
 import org.apache.syncope.common.lib.search.SearchableFields;
 import org.apache.syncope.common.lib.search.SpecialAttr;
+import org.apache.syncope.common.lib.search.SyncopeFiqlParser;
+import org.apache.syncope.common.lib.search.SyncopeFiqlSearchCondition;
 import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
 import org.apache.syncope.core.persistence.api.dao.search.ResourceCond;
@@ -68,15 +70,28 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
         String name = getRealPropertyName(sc.getStatement().getProperty());
         SpecialAttr specialAttrName = SpecialAttr.fromString(name);
 
-        String value = SearchUtils.toSqlWildcardString(sc.getStatement().getValue().toString(), false).
-                replaceAll("\\\\_", "_");
+        String value = SearchUtils.toSqlWildcardString(sc.getStatement().getValue().toString(), false)
+                .replaceAll("\\\\_", "_");
         SpecialAttr specialAttrValue = SpecialAttr.fromString(value);
 
         AttributeCond attributeCond = createAttributeCond(name);
         attributeCond.setExpression(value);
 
         SearchCond leaf;
+        boolean ignoreCase = false;
+        SyncopeFiqlSearchCondition<SearchBean> syncopeSc = (SyncopeFiqlSearchCondition<SearchBean>) sc;
         switch (sc.getConditionType()) {
+
+            case CUSTOM:
+                // CUSTOM FIQL operators: we handle only NEQ aSyncopeFiqlSearchConditionnd IEQ operators for now
+                switch (syncopeSc.getOperator()) {
+                    case SyncopeFiqlParser.NIEQ:
+                    case SyncopeFiqlParser.IEQ:
+                        break;
+                    default:
+                        throw new IllegalArgumentException(
+                                String.format("Condition type %s is not supported", syncopeSc.getOperator()));
+                }
             case EQUALS:
             case NOT_EQUALS:
                 if (specialAttrName == null) {
@@ -84,9 +99,13 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
                         attributeCond.setType(AttributeCond.Type.ISNULL);
                         attributeCond.setExpression(null);
                     } else if (value.indexOf('%') == -1) {
-                        attributeCond.setType(AttributeCond.Type.EQ);
+                        attributeCond.setType(sc.getConditionType() == ConditionType.CUSTOM
+                                ? AttributeCond.Type.IEQ
+                                : AttributeCond.Type.EQ);
                     } else {
-                        attributeCond.setType(AttributeCond.Type.LIKE);
+                        attributeCond.setType(sc.getConditionType() == ConditionType.CUSTOM
+                                ? AttributeCond.Type.ILIKE
+                                : AttributeCond.Type.LIKE);
                     }
 
                     leaf = SearchCond.getLeafCond(attributeCond);
@@ -133,7 +152,7 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
                             assignableCond.setRealmFullPath(realm);
                             leaf = SearchCond.getLeafCond(assignableCond);
                             break;
-                            
+
                         case MEMBER:
                             MemberCond memberCond = new MemberCond();
                             memberCond.setMember(value);
@@ -145,13 +164,13 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
                                     String.format("Special attr name %s is not supported", specialAttrName));
                     }
                 }
-                if (sc.getConditionType() == ConditionType.NOT_EQUALS) {
+                if (sc.getConditionType() == ConditionType.NOT_EQUALS
+                        || SyncopeFiqlParser.NEQ.equals(syncopeSc.getOperator())) {
                     if (leaf.getAttributeCond() != null
                             && leaf.getAttributeCond().getType() == AttributeCond.Type.ISNULL) {
 
                         leaf.getAttributeCond().setType(AttributeCond.Type.ISNOTNULL);
-                    } else if (leaf.getAnyCond() != null
-                            && leaf.getAnyCond().getType() == AnyCond.Type.ISNULL) {
+                    } else if (leaf.getAnyCond() != null && leaf.getAnyCond().getType() == AnyCond.Type.ISNULL) {
 
                         leaf.getAnyCond().setType(AttributeCond.Type.ISNOTNULL);
                     } else {

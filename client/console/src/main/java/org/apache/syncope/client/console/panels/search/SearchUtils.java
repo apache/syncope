@@ -35,6 +35,7 @@ import org.apache.syncope.common.lib.search.AbstractFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.search.AnyObjectFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.search.GroupFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.search.SpecialAttr;
+import org.apache.syncope.common.lib.search.SyncopeFiqlParser;
 import org.apache.syncope.common.lib.search.SyncopeProperty;
 import org.apache.syncope.common.lib.search.UserFiqlSearchConditionBuilder;
 import org.slf4j.Logger;
@@ -65,7 +66,7 @@ public final class SearchUtils implements Serializable {
         final List<SearchClause> res = new ArrayList<>();
         if (StringUtils.isNotBlank(fiql)) {
             try {
-                FiqlParser<SearchBean> fiqlParser = new FiqlParser<>(
+                FiqlParser<SearchBean> fiqlParser = new SyncopeFiqlParser<>(
                         SearchBean.class, AbstractFiqlSearchConditionBuilder.CONTEXTUAL_PROPERTIES);
                 res.addAll(getSearchClauses(fiqlParser.parse(fiql)));
             } catch (Exception e) {
