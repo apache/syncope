@@ -703,7 +703,7 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
         if (SyncopeConstants.UUID_PATTERN.matcher(cond.getMember()).matches()) {
             memberKey = cond.getMember();
         } else {
-            Any member = userDAO.findByUsername(cond.getMember());
+            Any<?> member = userDAO.findByUsername(cond.getMember());
             if (member == null) {
                 member = anyObjectDAO.findByName(cond.getMember());
             }
@@ -745,9 +745,16 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
             final PlainSchema schema, final AttributeCond cond, final boolean not,
             final List<Object> parameters, final SearchSupport svs) {
 
-        String column = (cond instanceof AnyCond)
-                ? cond.getSchema()
-                : "' AND " + svs.fieldName(schema.getType());
+        // activate ignoreCase only for EQ and LIKE operators
+        boolean ignoreCase = AttributeCond.Type.ILIKE == cond.getType() || AttributeCond.Type.IEQ == cond.getType();
+        
+        String column = (cond instanceof AnyCond)  ? cond.getSchema() :  svs.fieldName(schema.getType());
+        if (ignoreCase) {
+            column = "LOWER (" + column + ")";
+        }
+        if (!(cond instanceof AnyCond)) {
+            column = "' AND " + column;
+        }
 
         switch (cond.getType()) {
 
@@ -763,13 +770,19 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
                         : " IS NOT NULL");
                 break;
 
+            case ILIKE:
             case LIKE:
                 if (schema.getType() == AttrSchemaType.String || schema.getType() == AttrSchemaType.Enum) {
                     query.append(column);
                     if (not) {
                         query.append(" NOT ");
                     }
-                    query.append(" LIKE ?").append(setParameter(parameters, cond.getExpression()));
+                    query.append(" LIKE ");
+                    if (ignoreCase) {
+                        query.append("LOWER(?").append(setParameter(parameters, cond.getExpression())).append(')');
+                    } else {
+                        query.append('?').append(setParameter(parameters, cond.getExpression()));
+                    }
                 } else {
                     if (!(cond instanceof AnyCond)) {
                         query.append("' AND");
@@ -779,6 +792,7 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
                 }
                 break;
 
+            case IEQ:
             case EQ:
                 query.append(column);
                 if (not) {
@@ -786,7 +800,11 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
                 } else {
                     query.append('=');
                 }
-                query.append('?').append(setParameter(parameters, attrValue.getValue()));
+                if (ignoreCase) {
+                    query.append("LOWER(?").append(setParameter(parameters, attrValue.getValue())).append(')');
+                } else {
+                    query.append('?').append(setParameter(parameters, attrValue.getValue()));
+                }
                 break;
 
             case GE:

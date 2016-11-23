@@ -27,6 +27,8 @@ import org.apache.cxf.jaxrs.ext.search.SearchUtils;
 import org.apache.cxf.jaxrs.ext.search.visitor.AbstractSearchConditionVisitor;
 import org.apache.syncope.common.lib.search.SearchableFields;
 import org.apache.syncope.common.lib.search.SpecialAttr;
+import org.apache.syncope.common.lib.search.SyncopeFiqlParser;
+import org.apache.syncope.common.lib.search.SyncopeFiqlSearchCondition;
 import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
 import org.apache.syncope.core.persistence.api.dao.search.ResourceCond;
@@ -75,8 +77,21 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
         AttributeCond attributeCond = createAttributeCond(name);
         attributeCond.setExpression(value);
 
+        ConditionType ct = sc.getConditionType();
+        if (sc instanceof SyncopeFiqlSearchCondition && sc.getConditionType() == ConditionType.CUSTOM) {
+            SyncopeFiqlSearchCondition<SearchBean> sfsc = (SyncopeFiqlSearchCondition<SearchBean>) sc;
+            if (SyncopeFiqlParser.IEQ.equals(sfsc.getOperator())) {
+                ct = ConditionType.EQUALS;
+            } else if (SyncopeFiqlParser.NIEQ.equals(sfsc.getOperator())) {
+                ct = ConditionType.NOT_EQUALS;
+            } else {
+                throw new IllegalArgumentException(
+                        String.format("Condition type %s is not supported", sfsc.getOperator()));
+            }
+        }
+
         SearchCond leaf;
-        switch (sc.getConditionType()) {
+        switch (ct) {
             case EQUALS:
             case NOT_EQUALS:
                 if (specialAttrName == null) {
@@ -84,9 +99,13 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
                         attributeCond.setType(AttributeCond.Type.ISNULL);
                         attributeCond.setExpression(null);
                     } else if (value.indexOf('%') == -1) {
-                        attributeCond.setType(AttributeCond.Type.EQ);
+                        attributeCond.setType(sc.getConditionType() == ConditionType.CUSTOM
+                                ? AttributeCond.Type.IEQ
+                                : AttributeCond.Type.EQ);
                     } else {
-                        attributeCond.setType(AttributeCond.Type.LIKE);
+                        attributeCond.setType(sc.getConditionType() == ConditionType.CUSTOM
+                                ? AttributeCond.Type.ILIKE
+                                : AttributeCond.Type.LIKE);
                     }
 
                     leaf = SearchCond.getLeafCond(attributeCond);
@@ -133,7 +152,7 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
                             assignableCond.setRealmFullPath(realm);
                             leaf = SearchCond.getLeafCond(assignableCond);
                             break;
-                            
+
                         case MEMBER:
                             MemberCond memberCond = new MemberCond();
                             memberCond.setMember(value);
@@ -145,14 +164,12 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
                                     String.format("Special attr name %s is not supported", specialAttrName));
                     }
                 }
-                if (sc.getConditionType() == ConditionType.NOT_EQUALS) {
+                if (ct == ConditionType.NOT_EQUALS) {
                     if (leaf.getAttributeCond() != null
                             && leaf.getAttributeCond().getType() == AttributeCond.Type.ISNULL) {
 
                         leaf.getAttributeCond().setType(AttributeCond.Type.ISNOTNULL);
-                    } else if (leaf.getAnyCond() != null
-                            && leaf.getAnyCond().getType() == AnyCond.Type.ISNULL) {
-
+                    } else if (leaf.getAnyCond() != null && leaf.getAnyCond().getType() == AnyCond.Type.ISNULL) {
                         leaf.getAnyCond().setType(AttributeCond.Type.ISNOTNULL);
                     } else {
                         leaf = SearchCond.getNotLeafCond(leaf);
@@ -181,8 +198,7 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
                 break;
 
             default:
-                throw new IllegalArgumentException(
-                        String.format("Condition type %s is not supported", sc.getConditionType().name()));
+                throw new IllegalArgumentException(String.format("Condition type %s is not supported", ct.name()));
         }
 
         return leaf;

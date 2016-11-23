@@ -28,7 +28,9 @@ public class AttributeCond extends AbstractSearchCond {
     public enum Type {
 
         LIKE,
+        ILIKE,
         EQ,
+        IEQ,
         GT,
         LT,
         GE,

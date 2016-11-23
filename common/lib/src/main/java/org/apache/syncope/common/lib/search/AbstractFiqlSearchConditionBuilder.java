@@ -109,5 +109,15 @@ public abstract class AbstractFiqlSearchConditionBuilder extends FiqlSearchCondi
             this.result = SpecialAttr.RESOURCES.toString();
             return condition(FiqlParser.NEQ, resource, (Object[]) moreResources);
         }
+
+        @Override
+        public CompleteCondition equalToIgnoreCase(final String value, final String... moreValues) {
+            return condition(SyncopeFiqlParser.IEQ, value, (Object[]) moreValues);
+        }
+
+        @Override
+        public CompleteCondition notEqualTolIgnoreCase(final String literalOrPattern) {
+            return condition(SyncopeFiqlParser.NIEQ, literalOrPattern);
+        }
     }
 }
