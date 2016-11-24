@@ -376,6 +376,18 @@ After downloading all of the needed dependencies, three WAR files will be produc
 
 If no failures are encountered, your basic Apache Syncope project is now ready to go.
 
+[NOTE]
+====
+Before actual deployment onto a standalone Java EE container, you need to further check the **Customization** chapter of
+the
+ifeval::["{backend}" == "html5"]
+http://syncope.apache.org/docs/reference-guide.html[Apache Syncope Reference Guide]
+endif::[]
+ifeval::["{backend}" == "pdf"]
+http://syncope.apache.org/docs/reference-guide.pdf[Apache Syncope Reference Guide]
+endif::[]
+====
+
 ==== Embedded Mode
 
 Every Apache Syncope project has the ability to run a full-blown in-memory environment, particularly useful either when
