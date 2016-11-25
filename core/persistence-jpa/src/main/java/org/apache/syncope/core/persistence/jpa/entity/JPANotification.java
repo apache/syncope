@@ -43,11 +43,9 @@ import org.apache.syncope.core.persistence.api.entity.AnyAbout;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.MailTemplate;
 import org.apache.syncope.core.persistence.api.entity.Notification;
-import org.apache.syncope.core.persistence.jpa.validation.entity.NotificationCheck;
 
 @Entity
 @Table(name = JPANotification.TABLE)
-@NotificationCheck
 public class JPANotification extends AbstractGeneratedKeyEntity implements Notification {
 
     private static final long serialVersionUID = 3112582296912757537L;

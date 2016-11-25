@@ -31,7 +31,6 @@ public enum EntityViolationType {
     InvalidMapping("org.apache.syncope.core.persistence.validation.mapping"),
     InvalidKey("org.apache.syncope.core.persistence.validation.key"),
     InvalidName("org.apache.syncope.core.persistence.validation.name"),
-    InvalidNotification("org.apache.syncope.core.persistence.validation.notification"),
     InvalidPassword("org.apache.syncope.core.persistence.validation.user.password"),
     InvalidPolicy("org.apache.syncope.core.persistence.validation.policy"),
     InvalidPropagationTask("org.apache.syncope.core.persistence.validation.propagationtask"),
