@@ -62,18 +62,7 @@ public class UserDAOImpl extends AbstractSubjectDAOImpl implements UserDAO {
 
     @Override
     public SyncopeUser find(final Long id) {
-        TypedQuery<SyncopeUser> query = entityManager.createQuery(
-                "SELECT e FROM " + SyncopeUser.class.getSimpleName() + " e WHERE e.id = :id", SyncopeUser.class);
-        query.setParameter("id", id);
-
-        SyncopeUser result = null;
-        try {
-            result = query.getSingleResult();
-        } catch (NoResultException e) {
-            LOG.debug("No user found with id {}", id, e);
-        }
-
-        return result;
+        return entityManager.find(SyncopeUser.class, id);
     }
 
     @Override

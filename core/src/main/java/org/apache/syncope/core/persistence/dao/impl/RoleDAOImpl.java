@@ -24,7 +24,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
@@ -95,18 +94,7 @@ public class RoleDAOImpl extends AbstractSubjectDAOImpl implements RoleDAO {
 
     @Override
     public SyncopeRole find(final Long id) {
-        TypedQuery<SyncopeRole> query = entityManager.createQuery("SELECT e FROM SyncopeRole e WHERE e.id = :id",
-                SyncopeRole.class);
-        query.setParameter("id", id);
-
-        SyncopeRole result = null;
-        try {
-            result = query.getSingleResult();
-        } catch (NoResultException e) {
-            LOG.debug("No role found with id {}", id, e);
-        }
-
-        return result;
+        return entityManager.find(SyncopeRole.class, id);
     }
 
     @Override
