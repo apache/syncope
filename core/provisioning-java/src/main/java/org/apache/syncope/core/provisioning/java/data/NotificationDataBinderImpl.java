@@ -19,10 +19,12 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import java.util.Map;
+import java.util.regex.Matcher;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.provisioning.api.data.NotificationDataBinder;
 import org.apache.syncope.common.lib.to.NotificationTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -86,14 +88,31 @@ public class NotificationDataBinderImpl implements NotificationDataBinder {
     public void update(final Notification notification, final NotificationTO notificationTO) {
         BeanUtils.copyProperties(notificationTO, notification, IGNORE_PROPERTIES);
 
+        SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
+
         MailTemplate template = mailTemplateDAO.find(notificationTO.getTemplate());
         if (template == null) {
-            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
             sce.getElements().add("template");
-            throw sce;
         }
         notification.setTemplate(template);
-        notification.setTemplate(mailTemplateDAO.find(notificationTO.getTemplate()));
+
+        if (notification.getEvents().isEmpty()) {
+            sce.getElements().add("events");
+        }
+
+        if (!notification.getStaticRecipients().isEmpty()) {
+            for (String mail : notification.getStaticRecipients()) {
+                Matcher matcher = SyncopeConstants.EMAIL_PATTERN.matcher(mail);
+                if (!matcher.matches()) {
+                    LOG.error("Invalid mail address: {}", mail);
+                    sce.getElements().add("staticRecipients: " + mail);
+                }
+            }
+        }
+
+        if (!sce.isEmpty()) {
+            throw sce;
+        }
 
         // 1. add or update all (valid) abouts from TO
         for (Map.Entry<String, String> entry : notificationTO.getAbouts().entrySet()) {

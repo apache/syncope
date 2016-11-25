@@ -21,6 +21,7 @@ package org.apache.syncope.fit.core;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.List;
@@ -44,7 +45,7 @@ public class NotificationITCase extends AbstractITCase {
 
         notificationTO.getAbouts().put(AnyTypeKind.USER.name(),
                 SyncopeClient.getUserSearchConditionBuilder().
-                is("fullname").equalTo("*o*").and("fullname").equalTo("*i*").query());
+                        is("fullname").equalTo("*o*").and("fullname").equalTo("*i*").query());
 
         notificationTO.setRecipientAttrName("email");
 
@@ -170,5 +171,25 @@ public class NotificationITCase extends AbstractITCase {
         assertNotNull(actual.getKey());
         notificationTO.setKey(actual.getKey());
         assertEquals(actual, notificationTO);
+    }
+
+    @Test
+    public void issueSYNCOPE974() {
+        NotificationTO notificationTO = new NotificationTO();
+        notificationTO.setRecipientAttrName("email");
+        notificationTO.setSelfAsRecipient(false);
+        notificationTO.setSender("sender@ukr.net");
+        notificationTO.setSubject("subject 21");
+        notificationTO.setTemplate("requestPasswordReset");
+        notificationTO.setTraceLevel(TraceLevel.ALL);
+        notificationTO.setActive(true);
+
+        try {
+            notificationService.create(notificationTO);
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.RequiredValuesMissing, e.getType());
+            assertTrue(e.getMessage().contains("events"));
+        }
     }
 }
