@@ -747,8 +747,8 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
 
         // activate ignoreCase only for EQ and LIKE operators
         boolean ignoreCase = AttributeCond.Type.ILIKE == cond.getType() || AttributeCond.Type.IEQ == cond.getType();
-        
-        String column = (cond instanceof AnyCond)  ? cond.getSchema() :  svs.fieldName(schema.getType());
+
+        String column = (cond instanceof AnyCond) ? cond.getSchema() : svs.fieldName(schema.getType());
         if (ignoreCase) {
             column = "LOWER (" + column + ")";
         }
@@ -864,7 +864,9 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
 
         PlainAttrValue attrValue = attrUtils.newPlainAttrValue();
         try {
-            if (cond.getType() != AttributeCond.Type.LIKE && cond.getType() != AttributeCond.Type.ISNULL
+            if (cond.getType() != AttributeCond.Type.LIKE
+                    && cond.getType() != AttributeCond.Type.ILIKE
+                    && cond.getType() != AttributeCond.Type.ISNULL
                     && cond.getType() != AttributeCond.Type.ISNOTNULL) {
 
                 schema.getValidator().validate(cond.getExpression(), attrValue);
@@ -905,7 +907,7 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
             final SearchSupport svs) {
 
         AnyCond condClone = SerializationUtils.clone(cond);
-        
+
         AnyUtils attrUtils = anyUtilsFactory.getInstance(svs.anyTypeKind());
 
         // Keeps track of difference between entity's getKey() and JPA @Id fields
@@ -960,6 +962,7 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
 
         PlainAttrValue attrValue = attrUtils.newPlainAttrValue();
         if (condClone.getType() != AttributeCond.Type.LIKE
+                && condClone.getType() != AttributeCond.Type.ILIKE
                 && condClone.getType() != AttributeCond.Type.ISNULL
                 && condClone.getType() != AttributeCond.Type.ISNOTNULL) {
 
