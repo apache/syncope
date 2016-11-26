@@ -864,8 +864,8 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
 
         PlainAttrValue attrValue = attrUtils.newPlainAttrValue();
         try {
-            if (cond.getType() != AttributeCond.Type.LIKE && cond.getType() != AttributeCond.Type.ISNULL
-                    && cond.getType() != AttributeCond.Type.ISNOTNULL) {
+            if (cond.getType() != AttributeCond.Type.LIKE && cond.getType() != AttributeCond.Type.ILIKE
+                    && cond.getType() != AttributeCond.Type.ISNULL && cond.getType() != AttributeCond.Type.ISNOTNULL) {
 
                 schema.getValidator().validate(cond.getExpression(), attrValue);
             }
@@ -960,6 +960,7 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
 
         PlainAttrValue attrValue = attrUtils.newPlainAttrValue();
         if (condClone.getType() != AttributeCond.Type.LIKE
+                && condClone.getType() != AttributeCond.Type.ILIKE
                 && condClone.getType() != AttributeCond.Type.ISNULL
                 && condClone.getType() != AttributeCond.Type.ISNOTNULL) {
 
