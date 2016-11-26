@@ -637,7 +637,9 @@ public class SubjectSearchDAOImpl extends AbstractDAOImpl implements SubjectSear
 
         AbstractAttrValue attrValue = attrUtil.newAttrValue();
         try {
-            if (cond.getType() != AttributeCond.Type.LIKE && cond.getType() != AttributeCond.Type.ISNULL
+            if (cond.getType() != AttributeCond.Type.LIKE
+                    && cond.getType() != AttributeCond.Type.ILIKE
+                    && cond.getType() != AttributeCond.Type.ISNULL
                     && cond.getType() != AttributeCond.Type.ISNOTNULL) {
 
                 schema.getValidator().validate(cond.getExpression(), attrValue);
@@ -723,7 +725,9 @@ public class SubjectSearchDAOImpl extends AbstractDAOImpl implements SubjectSear
         }
 
         AbstractAttrValue attrValue = attrUtil.newAttrValue();
-        if (cond.getType() != AttributeCond.Type.LIKE && cond.getType() != AttributeCond.Type.ISNULL
+        if (cond.getType() != AttributeCond.Type.LIKE
+                && cond.getType() != AttributeCond.Type.ILIKE
+                && cond.getType() != AttributeCond.Type.ISNULL
                 && cond.getType() != AttributeCond.Type.ISNOTNULL) {
 
             try {
