@@ -238,8 +238,8 @@ public class LoggerController extends AbstractTransactionalController<LoggerTO> 
 
         try {
             final ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
-            final MetadataReaderFactory metadataReaderFactory
-                    = new CachingMetadataReaderFactory(resourcePatternResolver);
+            final MetadataReaderFactory metadataReaderFactory =
+                    new CachingMetadataReaderFactory(resourcePatternResolver);
 
             final String packageSearchPath = ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX
                     + ClassUtils.convertClassNameToResourcePath(
@@ -257,10 +257,13 @@ public class LoggerController extends AbstractTransactionalController<LoggerTO> 
                         final EventCategoryTO eventCategoryTO = new EventCategoryTO();
                         eventCategoryTO.setCategory(clazz.getSimpleName());
                         for (Method method : clazz.getDeclaredMethods()) {
-                            if (Modifier.isPublic(method.getModifiers())) {
+                            if (Modifier.isPublic(method.getModifiers())
+                                    && !eventCategoryTO.getEvents().contains(method.getName())) {
+
                                 eventCategoryTO.getEvents().add(method.getName());
                             }
                         }
+
                         events.add(eventCategoryTO);
                     }
                 }

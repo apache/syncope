@@ -28,6 +28,8 @@ import java.text.ParseException;
 import java.util.List;
 import javax.ws.rs.core.Response;
 import javax.xml.ws.WebServiceException;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Predicate;
 import org.apache.syncope.common.SyncopeClientException;
 import org.apache.syncope.common.to.EventCategoryTO;
 import org.apache.syncope.common.to.LoggerTO;
@@ -216,7 +218,7 @@ public class LoggerTestITCase extends AbstractTest {
         }
         assertTrue(found);
     }
-    
+
     @Test
     public void issueSYNCOPE708() {
         try {
@@ -227,5 +229,22 @@ public class LoggerTestITCase extends AbstractTest {
         } catch (final SyncopeClientException ex) {
             assertEquals(Response.Status.NOT_FOUND, ex.getType().getResponseStatus());
         }
+    }
+
+    @Test
+    public void issueSYNCOPE976() {
+        List<EventCategoryTO> events = loggerService.events();
+        assertNotNull(events);
+
+        EventCategoryTO userController = (EventCategoryTO) CollectionUtils.find(events, new Predicate() {
+
+            @Override
+            public boolean evaluate(final Object object) {
+                return object instanceof EventCategoryTO
+                        && "UserController".equals(((EventCategoryTO) object).getCategory());
+            }
+        });
+        assertNotNull(userController);
+        assertEquals(1, CollectionUtils.cardinality("create", userController.getEvents()));
     }
 }
