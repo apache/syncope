@@ -20,9 +20,10 @@ under the License.
   <resources form="dynamicForm" user="user"></resources>
 </div>
 <div id="attribute" class="form-group row">
+  <div id="navButtons">
   <navigation-buttons ng-show="createMode" base="create" current="resources" wizard="{{wizard}}"></navigation-buttons>
   <navigation-buttons ng-show="!createMode" base="update" current="resources" wizard="{{wizard}}"></navigation-buttons>
-
+  </div>
   <div class="pull-left">
     <a id="cancel" href="#/self" class="btn btn-danger" ng-click="logout()">{{'CANCEL'| translate}}</a>
   </div>

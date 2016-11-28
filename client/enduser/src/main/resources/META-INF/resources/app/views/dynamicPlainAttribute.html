@@ -81,7 +81,7 @@ under the License.
          ng-init="initAttribute(schema, index)" name="{{schema.key}}"/>
 
   <div ng-switch-when="Date" id="date">
-    <span id="datetime">
+    <div id="datetime">
       <input type="text" class="form-control" 
              uib-datepicker-popup
              ng-model="selectedDate"
@@ -90,17 +90,17 @@ under the License.
              is-open="status.opened" datepicker-options="dateOptions"
              ng-required="{{schema.mandatoryCondition}}" close-text="Close"
              ng-init="initAttribute(schema, index)"/>
-      <button type="button" class="btn btn-default" ng-click="open($event)" >
+      <button id="calendar" type="button" class="btn btn-default" ng-click="open($event)" >
         <i class="glyphicon glyphicon-calendar"></i>
       </button>
-    </span>
-    <span id="timepicker" ng-if="(schema.conversionPattern.indexOf('H') > -1 ||
+    </div>
+    <div id="timepicker" ng-if="(schema.conversionPattern.indexOf('H') > -1 ||
                 schema.conversionPattern.indexOf('h') > -1)">
       <uib-timepicker ng-model="selectedTime" 
                       ng-change="bindDateToModel(selectedDate, selectedTime)"
                       hour-step="hstep" minute-step="mstep" show-meridian="ismeridian">
       </uib-timepicker>
-    </span>
+    </div>
   </div>
 
   <div ng-switch-when="Enum" ng-init="initAttribute(schema, index)">

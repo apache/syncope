@@ -30,10 +30,13 @@ under the License.
 .k-notification-wrap{
   white-space: normal !important;
   word-wrap: break-word !important;
+  font-size: 12px;
+
 }
 
 .k-notification{
   width : 320px;
+  font-size: 12px;
 }
 
 .suggestions{

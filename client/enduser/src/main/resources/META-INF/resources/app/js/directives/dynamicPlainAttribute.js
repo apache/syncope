@@ -177,7 +177,7 @@ angular.module('self')
                       mstep: [1, 5, 10, 15, 25, 30]
                     };
 
-                    $scope.ismeridian = true;
+                    $scope.ismeridian = false;
                     $scope.toggleMode = function () {
                       $scope.ismeridian = !$scope.ismeridian;
                     };

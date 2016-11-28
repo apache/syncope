@@ -21,10 +21,12 @@ under the License.
   <div class="form-group row">
     <captcha input="captchaInput" enabled="captchaEnabled"></captcha>
   </div>
-  <button id="save" type="submit" class="btn btn-default pull-right">{{'SAVE'| translate}}</button>
-  <navigation-buttons ng-show="createMode" base="create" current="finish" wizard="{{wizard}}"></navigation-buttons>
-  <navigation-buttons ng-show="!createMode" base="update" current="finish" wizard="{{wizard}}"></navigation-buttons>
+  <div id="navButtons">
+    <navigation-buttons ng-show="createMode" base="create" current="finish" wizard="{{wizard}}"></navigation-buttons>
+    <navigation-buttons ng-show="!createMode" base="update" current="finish" wizard="{{wizard}}"></navigation-buttons>
+    <button id="save" type="submit" class="btn btn-default pull-right">{{'SAVE'| translate}}</button>
+  </div>
   <div class="pull-left">
-    <a id="cancel" href="#/self" class="btn btn-danger" ng-click="logout()">{{'CANCEL' | translate}}</a>
+    <a id="cancel" href="#/self" class="btn btn-danger" ng-click="logout()">{{'CANCEL'| translate}}</a>
   </div>
 </div>
