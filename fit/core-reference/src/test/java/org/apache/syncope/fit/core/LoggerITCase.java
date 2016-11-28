@@ -28,6 +28,8 @@ import java.text.ParseException;
 import java.util.List;
 import javax.ws.rs.core.Response;
 import javax.xml.ws.WebServiceException;
+import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.EventCategoryTO;
 import org.apache.syncope.common.lib.to.LoggerTO;
@@ -224,5 +226,21 @@ public class LoggerITCase extends AbstractITCase {
         } catch (final SyncopeClientException ex) {
             assertEquals(Response.Status.NOT_FOUND, ex.getType().getResponseStatus());
         }
+    }
+
+    @Test
+    public void issueSYNCOPE976() {
+        List<EventCategoryTO> events = loggerService.events();
+        assertNotNull(events);
+
+        EventCategoryTO userLogic = IterableUtils.find(events, new Predicate<EventCategoryTO>() {
+
+            @Override
+            public boolean evaluate(final EventCategoryTO object) {
+                return "UserLogic".equals(object.getCategory());
+            }
+        });
+        assertNotNull(userLogic);
+        assertEquals(1, IterableUtils.frequency(userLogic.getEvents(), "create"));
     }
 }
