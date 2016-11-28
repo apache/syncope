@@ -278,10 +278,13 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
                         EventCategoryTO eventCategoryTO = new EventCategoryTO();
                         eventCategoryTO.setCategory(clazz.getSimpleName());
                         for (Method method : clazz.getDeclaredMethods()) {
-                            if (Modifier.isPublic(method.getModifiers())) {
+                            if (Modifier.isPublic(method.getModifiers())
+                                    && !eventCategoryTO.getEvents().contains(method.getName())) {
+
                                 eventCategoryTO.getEvents().add(method.getName());
                             }
                         }
+
                         events.add(eventCategoryTO);
                     }
                 }
