@@ -48,6 +48,7 @@ import org.apache.syncope.core.provisioning.api.utils.policy.InvalidPasswordRule
 import org.identityconnectors.common.Base64;
 import org.identityconnectors.common.security.GuardedByteArray;
 import org.identityconnectors.common.security.GuardedString;
+import org.identityconnectors.common.security.SecurityUtil;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.slf4j.Logger;
@@ -91,21 +92,9 @@ public class ConnObjectUtils {
         final StringBuilder result = new StringBuilder();
 
         if (pwd instanceof GuardedString) {
-            ((GuardedString) pwd).access(new GuardedString.Accessor() {
-
-                @Override
-                public void access(final char[] clearChars) {
-                    result.append(clearChars);
-                }
-            });
+            result.append(SecurityUtil.decrypt((GuardedString) pwd));
         } else if (pwd instanceof GuardedByteArray) {
-            ((GuardedByteArray) pwd).access(new GuardedByteArray.Accessor() {
-
-                @Override
-                public void access(final byte[] clearBytes) {
-                    result.append(new String(clearBytes));
-                }
-            });
+            result.append(SecurityUtil.decrypt((GuardedByteArray) pwd));
         } else if (pwd instanceof String) {
             result.append((String) pwd);
         } else {
