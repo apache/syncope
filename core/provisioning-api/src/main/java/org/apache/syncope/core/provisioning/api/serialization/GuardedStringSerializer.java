@@ -26,6 +26,7 @@ import java.lang.reflect.Field;
 import org.identityconnectors.common.Base64;
 import org.identityconnectors.common.security.EncryptorFactory;
 import org.identityconnectors.common.security.GuardedString;
+import org.identityconnectors.common.security.SecurityUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,16 +60,8 @@ class GuardedStringSerializer extends JsonSerializer<GuardedString> {
         }
         jgen.writeBooleanField("disposed", disposed);
 
-        final StringBuilder cleartext = new StringBuilder();
-        source.access(new GuardedString.Accessor() {
-
-            @Override
-            public void access(final char[] clearChars) {
-                cleartext.append(clearChars);
-            }
-        });
         byte[] encryptedBytes =
-                EncryptorFactory.getInstance().getDefaultEncryptor().encrypt(cleartext.toString().getBytes());
+                EncryptorFactory.getInstance().getDefaultEncryptor().encrypt(SecurityUtil.decrypt(source).getBytes());
         jgen.writeStringField("encryptedBytes", Base64.encode(encryptedBytes));
 
         String base64SHA1Hash = null;

@@ -36,6 +36,7 @@ import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
 import org.apache.syncope.core.provisioning.java.job.SetUMembershipsJob;
 import org.apache.syncope.core.provisioning.java.pushpull.SchedulingPullActions;
 import org.identityconnectors.common.security.GuardedString;
+import org.identityconnectors.common.security.SecurityUtil;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.SyncDelta;
@@ -98,18 +99,9 @@ public class MigrationPullActions extends SchedulingPullActions {
             GuardedString passwordValue = AttributeUtil.getPasswordValue(delta.getObject().getAttributes());
 
             if (cipherAlgorithm != null && passwordValue != null) {
-                final StringBuilder password = new StringBuilder();
-                passwordValue.access(new GuardedString.Accessor() {
-
-                    @Override
-                    public void access(final char[] clearChars) {
-                        password.append(clearChars);
-                    }
-                });
-
                 User user = userDAO.find(entity.getKey());
                 LOG.debug("Setting encoded password for {}", user);
-                user.setEncodedPassword(password.toString(), cipherAlgorithm);
+                user.setEncodedPassword(SecurityUtil.decrypt(passwordValue), cipherAlgorithm);
             }
         } else if (entity instanceof GroupTO) {
             // handles group membership
