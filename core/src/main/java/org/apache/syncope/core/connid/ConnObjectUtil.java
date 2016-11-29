@@ -75,6 +75,7 @@ import org.apache.syncope.core.util.jexl.JexlUtil;
 import org.identityconnectors.common.Base64;
 import org.identityconnectors.common.security.GuardedByteArray;
 import org.identityconnectors.common.security.GuardedString;
+import org.identityconnectors.common.security.SecurityUtil;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
@@ -256,8 +257,7 @@ public class ConnObjectUtil {
         final T subjectTO = attrUtil.newSubjectTO();
 
         // 1. fill with data from connector object
-        for (AbstractMappingItem item : 
-                attrUtil.getMappingItems(syncTask.getResource(), MappingPurpose.SYNCHRONIZATION)) {
+        for (AbstractMappingItem item : attrUtil.getMappingItems(syncTask.getResource(), MappingPurpose.SYNCHRONIZATION)) {
             Attribute attribute = obj.getAttributeByName(item.getExtAttrName());
 
             AttributeTO attributeTO;
@@ -278,8 +278,8 @@ public class ConnObjectUtil {
                     if (subjectTO instanceof UserTO) {
                         ((UserTO) subjectTO).setUsername(attribute == null || attribute.getValue().isEmpty()
                                 || attribute.getValue().get(0) == null
-                                        ? null
-                                        : attribute.getValue().get(0).toString());
+                                ? null
+                                : attribute.getValue().get(0).toString());
                     }
                     break;
 
@@ -287,8 +287,8 @@ public class ConnObjectUtil {
                     if (subjectTO instanceof RoleTO) {
                         ((RoleTO) subjectTO).setName(attribute == null || attribute.getValue().isEmpty()
                                 || attribute.getValue().get(0) == null
-                                        ? null
-                                        : attribute.getValue().get(0).toString());
+                                ? null
+                                : attribute.getValue().get(0).toString());
                     }
                     break;
 
@@ -477,21 +477,9 @@ public class ConnObjectUtil {
         final StringBuilder result = new StringBuilder();
 
         if (pwd instanceof GuardedString) {
-            ((GuardedString) pwd).access(new GuardedString.Accessor() {
-
-                @Override
-                public void access(final char[] clearChars) {
-                    result.append(clearChars);
-                }
-            });
+            result.append(SecurityUtil.decrypt((GuardedString) pwd));
         } else if (pwd instanceof GuardedByteArray) {
-            ((GuardedByteArray) pwd).access(new GuardedByteArray.Accessor() {
-
-                @Override
-                public void access(final byte[] clearBytes) {
-                    result.append(new String(clearBytes));
-                }
-            });
+            result.append(SecurityUtil.decrypt((GuardedByteArray) pwd));
         } else if (pwd instanceof String) {
             result.append((String) pwd);
         } else {
@@ -546,7 +534,7 @@ public class ConnObjectUtil {
 
         final IntMappingType type = attrUtil.getType() == AttributableType.USER
                 ? IntMappingType.UserVirtualSchema : attrUtil.getType() == AttributableType.ROLE
-                        ? IntMappingType.RoleVirtualSchema : IntMappingType.MembershipVirtualSchema;
+                ? IntMappingType.RoleVirtualSchema : IntMappingType.MembershipVirtualSchema;
 
         final Map<String, ConnectorObject> externalResources = new HashMap<String, ConnectorObject>();
 

@@ -31,6 +31,7 @@ import com.thoughtworks.xstream.converters.MarshallingContext;
 import com.thoughtworks.xstream.converters.UnmarshallingContext;
 import com.thoughtworks.xstream.io.HierarchicalStreamReader;
 import com.thoughtworks.xstream.io.HierarchicalStreamWriter;
+import org.identityconnectors.common.security.SecurityUtil;
 
 /**
  * Help in XStream serialization of GuardedString by (de)serializing instances using the default Encryptor (which works
@@ -70,16 +71,8 @@ public class GuardedStringConverter implements Converter {
         writer.endNode();
 
         writer.startNode("encryptedBytes");
-        final StringBuilder cleartext = new StringBuilder();
-        ((GuardedString) source).access(new GuardedString.Accessor() {
-
-            @Override
-            public void access(final char[] clearChars) {
-                cleartext.append(clearChars);
-            }
-        });
-        final byte[] encryptedBytes =
-                EncryptorFactory.getInstance().getDefaultEncryptor().encrypt(cleartext.toString().getBytes());
+        final byte[] encryptedBytes = EncryptorFactory.getInstance().getDefaultEncryptor().
+                encrypt(SecurityUtil.decrypt((GuardedString) source).getBytes());
         writer.setValue(Base64.encode(encryptedBytes));
         writer.endNode();
     }
