@@ -19,9 +19,9 @@ under the License.
 <div ng-show="{{captchaEnabled}}">
   <nav class="navbar">
     <div class="container-fluid" style="text-align: center">
-      <div style="text-align:center;">
+      <div id="captchainput" >
         <img id="captchaImg" alt="captcha" ng-src="{{captchaUrl}}'"/>
-        <div style="margin-top: 5%; margin-bottom: 10px">
+        <div id="captchaButtons" style="margin-top: 5%; margin-bottom: 10px">
           <button id="refresh" type="button" class="btn btn-default btn-xs glyphicon glyphicon-refresh" 
                   ng-click="refreshCaptcha()" title="Refresh Captcha"></button>
           <a id="refresh" class="btn btn-default btn-xs glyphicon glyphicon-question-sign" title="What is?" 

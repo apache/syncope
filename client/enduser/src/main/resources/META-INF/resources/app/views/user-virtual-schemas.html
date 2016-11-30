@@ -25,7 +25,7 @@ under the License.
   <div id="navButtons">
     <navigation-buttons ng-show="createMode" base="create" current="virtualSchemas" wizard="{{wizard}}"></navigation-buttons>
     <navigation-buttons ng-show="!createMode" base="update" current="virtualSchemas" wizard="{{wizard}}"></navigation-buttons>
-    <button id="save" ng-show="!createMode" type="button" class="btn btn-default pull-right" ng-click="finish()">{{'FINISH'| translate}}</button>
+    <button id="finish" ng-show="!createMode" type="button" class="btn btn-default pull-right" ng-click="finish()">{{'FINISH'| translate}}</button>
     <button id="finish" ng-show="createMode && endReached" type="button" class="btn btn-default pull-right" ng-click="finish()">{{'FINISH'| translate}}</button>
   </div>
   <div class="pull-left">
