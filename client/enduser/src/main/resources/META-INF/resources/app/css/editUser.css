@@ -31,7 +31,7 @@ under the License.
   text-align: center;
 }
 
-#form-container .breadcrumb-header   { 
+#form-container .breadcrumb-header{
   margin: auto;
   width: 80%; 
   padding:10px; 
@@ -96,7 +96,7 @@ under the License.
 }
 
 #previous {
-  background: -moz-linear-gradient(top, #a9db80 0%, #96c56f 100%);  /*FF3.6+ 
+  background: -moz-linear-gradient(top, #a9db80 0%, #96c56f 100%);  /*FF3.6+ */
   background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#a9db80), color-stop(100%,#96c56f));  /*Chrome,Safari4+ */
   background: -webkit-linear-gradient(top, #a9db80 0%,#96c56f 100%);  /*Chrome10+,Safari5.1+ */
   background: -o-linear-gradient(top, #a9db80 0%,#96c56f 100%);  /*Opera 11.10+*/ 
@@ -166,6 +166,16 @@ under the License.
   margin-top: 0%;
   width: 70px;
 }
+
+
+.container-fluid {
+  padding-right: 15px;
+  padding-left: 15px;
+  margin-right: auto;
+  margin-left: auto;
+  width: 63%;
+}
+
 
 #form-views { width:100%; }
 
@@ -292,6 +302,7 @@ under the License.
   color: #dd301b;
   font-weight: 600;
 }
+
 /*--------------end default style*/
 
 /*style for devices max width 350 */
@@ -329,6 +340,20 @@ under the License.
     padding: 0px 0px 1px 0px
   }
 
+  /*.container-fluid {
+      padding-right: 15px;
+      padding-left: 31px;
+      margin-right: auto;
+      margin-left: auto;
+      width: 100%;
+    }
+    
+    #captchaButtons {
+      width: 20%;
+      margin-left: 100px;
+      padding-bottom: 5px;
+    }*/
+
 }
 
 /*style for devices max width 400 */
@@ -337,19 +362,19 @@ under the License.
   input[type=file] {
     display: block;
   }
-  
+
   .panel-body {
     padding: 0px;
   }
-  
+
   #datetime input {
     width: 100%;
   }
-  
+
   #form-container {
     padding: 1px 0px 0px 0px;
   }
-  
+
   #form-container .breadcrumb-header   { 
     margin: auto;
     width: 100%; 
@@ -357,7 +382,7 @@ under the License.
     text-align: left;
     overflow: auto;
   }
-  
+
   .btn-group{
     position: relative;
     display: inline-flex;
@@ -367,18 +392,22 @@ under the License.
     margin-top: 10px;
     padding: 0px 0px 1px 0px
   }
-  
+
   .btn-breadcrumb .btn {
     padding:6px 12px 6px 12px;
   }
-  
+
   .btn-breadcrumb .btn:first-child {
     padding:6px 6px 6px 10px;
   }
-  
+
   .btn-breadcrumb .btn:last-child {
     padding:6px 18px 6px 24px;
   }
+  /*
+    #refresh{
+      margin-top:1px;
+    }*/
 
 }
 
@@ -426,7 +455,7 @@ under the License.
     color: #333;
     background-color: #fff;
     border-color: #ccc;
-    width: 100%;
+    /*width: 100%;*/
   }
 
   .card-container.card {
@@ -437,11 +466,11 @@ under the License.
   .btn-breadcrumb .btn {
     padding:6px 12px 6px 12px;
   }
-  
+
   .btn-breadcrumb .btn:first-child {
     padding:6px 6px 6px 10px;
   }
-  
+
   .btn-breadcrumb .btn:last-child {
     padding:6px 18px 6px 24px;
   }
@@ -461,6 +490,7 @@ under the License.
     padding-left: 0px;
     margin-right: auto;
     margin-left: auto;
+    /*margin-top: -4px;*/
   }
 
   .input-group .form-control{
@@ -513,7 +543,17 @@ under the License.
 
   .row{
     margin-left: -34px;
-    margin-right: -76px;
+    margin-right: 0px;
+    width: 100%
+  }
+
+  .navbar {
+    position: relative;
+    min-height: 50px;
+    width: 100%;
+    margin-left: 33px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
   }
 
   #datetime{
@@ -551,6 +591,16 @@ under the License.
     margin-left: 48px;
   }
 
+
+  .container-fluid {
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: 33px;
+    margin-left: 33px;
+    width: 82%;
+  }
+
 }
 
 /*style for devices max width 800) */
@@ -579,6 +629,12 @@ under the License.
     margin-left: 35px;
     margin-top: 10px;
     padding: 0px 0px 1px 0px
+  }
+
+  #captchaImg {
+    display: block;
+    margin: 0 auto;
+    width: 100%;
   }
 
 }
