@@ -102,14 +102,14 @@ public class LDAPMembershipPropagationActions extends DefaultPropagationActions 
 
                 Set<String> groups = new HashSet<>(groupConnObjectLinks);
                 Attribute ldapGroups = AttributeUtil.find(getGroupMembershipAttrName(), attributes);
-
                 if (ldapGroups != null) {
                     for (Object obj : ldapGroups.getValue()) {
                         groups.add(obj.toString());
                     }
+                    attributes.remove(ldapGroups);
                 }
-
                 attributes.add(AttributeBuilder.build(getGroupMembershipAttrName(), groups));
+
                 task.setAttributes(attributes);
             }
         } else {
