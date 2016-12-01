@@ -49,6 +49,7 @@ public class ConnIdStartStopListener implements ServletContextListener {
 
         for (String bundleFile : new String[] {
             "testconnectorserver.soap.bundle",
+            "testconnectorserver.rest.bundle",
             "testconnectorserver.dbtable.bundle",
             "testconnectorserver.scriptedsql.bundle",
             "testconnectorserver.csvdir.bundle",

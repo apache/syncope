@@ -351,6 +351,7 @@ under the License.
 
     <connid.version>1.4.2.0</connid.version>
     <connid.soap.version>1.4.1</connid.soap.version>
+    <connid.rest.version>1.0.1</connid.rest.version>
     <connid.database.version>2.2.4</connid.database.version>
     <connid.csvdir.version>0.8.5</connid.csvdir.version>
     <connid.ldap.version>1.5.1</connid.ldap.version>
@@ -1348,13 +1349,6 @@ under the License.
         <scope>test</scope>
       </dependency>
       <dependency>
-        <groupId>net.tirasa.connid.bundles.soap</groupId>
-        <artifactId>wssample</artifactId>
-        <version>${connid.soap.version}</version>
-        <type>war</type>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
         <groupId>com.icegreen</groupId>
         <artifactId>greenmail</artifactId>
         <version>1.5.2</version>
@@ -1457,6 +1451,11 @@ under the License.
                 <groupId>net.tirasa.connid.bundles.soap</groupId>
                 <artifactId>net.tirasa.connid.bundles.soap</artifactId>
                 <version>${connid.soap.version}</version>
+              </artifactItem>
+              <artifactItem>
+                <groupId>net.tirasa.connid.bundles</groupId>
+                <artifactId>net.tirasa.connid.bundles.rest</artifactId>
+                <version>${connid.rest.version}</version>
               </artifactItem>
               <artifactItem>
                 <groupId>net.tirasa.connid.bundles</groupId>

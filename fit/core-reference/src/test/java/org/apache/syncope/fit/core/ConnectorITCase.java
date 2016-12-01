@@ -132,7 +132,7 @@ public class ConnectorITCase extends AbstractITCase {
         endpointSchema.setRequired(true);
         ConnConfProperty endpoint = new ConnConfProperty();
         endpoint.setSchema(endpointSchema);
-        endpoint.getValues().add("http://localhost:8888/wssample/services");
+        endpoint.getValues().add("http://localhost:8888/syncope-fit-build-tools/cxf/soap");
         endpoint.getValues().add("Provisioning");
         conf.add(endpoint);
 
@@ -239,7 +239,7 @@ public class ConnectorITCase extends AbstractITCase {
         endpointSchema.setRequired(true);
         ConnConfProperty endpoint = new ConnConfProperty();
         endpoint.setSchema(endpointSchema);
-        endpoint.getValues().add("http://localhost:8888/wssample/services");
+        endpoint.getValues().add("http://localhost:8888/syncope-fit-build-tools/cxf/soap");
         conf.add(endpoint);
 
         ConnConfPropSchema servicenameSchema = new ConnConfPropSchema();
@@ -652,7 +652,7 @@ public class ConnectorITCase extends AbstractITCase {
 
             conf = new HashSet<>();
             endpoint.getValues().clear();
-            endpoint.getValues().add("http://localhost:9080/wssample/services/provisioning");
+            endpoint.getValues().add("http://localhost:9080/syncope-fit-build-tools/cxf/soap/provisioning");
             conf.add(endpoint);
 
             resourceTO.getConfOverride().addAll(conf);

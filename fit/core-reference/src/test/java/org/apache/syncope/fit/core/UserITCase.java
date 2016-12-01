@@ -41,6 +41,7 @@ import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.patch.AssociationPatch;
@@ -1309,4 +1310,55 @@ public class UserITCase extends AbstractITCase {
         }
     }
 
+    @Test
+    public void restResource() {
+        UserTO userTO = getUniqueSampleTO("rest@syncope.apache.org");
+        userTO.getResources().clear();
+        userTO.getResources().add("rest-target-resource");
+
+        // 1. create
+        ProvisioningResult<UserTO> result = userService.create(userTO).readEntity(
+                new GenericType<ProvisioningResult<UserTO>>() {
+        });
+        assertEquals(1, result.getPropagationStatuses().size());
+        assertEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
+        assertEquals("rest-target-resource", result.getPropagationStatuses().get(0).getResource());
+        assertEquals("surname", userTO.getPlainAttrMap().get("surname").getValues().get(0));
+
+        // verify user exists on the backend REST service
+        WebClient webClient = WebClient.create(
+                "http://localhost:9080/syncope-fit-build-tools/cxf/rest/users/" + result.getEntity().getKey());
+        Response response = webClient.get();
+        assertEquals(200, response.getStatus());
+        assertNotNull(response.getEntity());
+
+        // 2. update
+        UserPatch patch = new UserPatch();
+        patch.setKey(result.getEntity().getKey());
+        patch.getPlainAttrs().add(new AttrPatch.Builder().
+                attrTO(new AttrTO.Builder().schema("surname").value("surname2").build()).build());
+        result = userService.update(patch).readEntity(
+                new GenericType<ProvisioningResult<UserTO>>() {
+        });
+        assertEquals(1, result.getPropagationStatuses().size());
+        assertEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
+        assertEquals("rest-target-resource", result.getPropagationStatuses().get(0).getResource());
+        assertEquals("surname2", result.getEntity().getPlainAttrMap().get("surname").getValues().get(0));
+
+        // verify user still exists on the backend REST service
+        response = webClient.get();
+        assertEquals(200, response.getStatus());
+        assertNotNull(response.getEntity());
+
+        // 3. delete
+        result = userService.delete(result.getEntity().getKey()).readEntity(
+                new GenericType<ProvisioningResult<UserTO>>() {
+        });
+        assertEquals(1, result.getPropagationStatuses().size());
+        assertEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
+        assertEquals("rest-target-resource", result.getPropagationStatuses().get(0).getResource());
+
+        // verify user was removed by the backend REST service
+        assertEquals(404, webClient.get().getStatus());
+    }
 }

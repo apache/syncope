@@ -451,9 +451,10 @@ You can configure any LDAP client (such as http://jxplorer.org/[JXplorer^], for 
  bind password: `secret`
 
 | External resource: SOAP
-| An example SOAP server is available at http://localhost:9080/wssample/services +
- +
- You can check its internal data by visiting http://localhost:9080/wssample/exploredb.jsp
+| An example SOAP service is available at http://localhost:9080/syncope-fit-build-tools/cxf/soap
+
+| External resource: REST
+| An example REST service is available at http://localhost:9080/syncope-fit-build-tools/cxf/rest
 
 | External resource: database
 | http://www.h2database.com/[H2^] TCP database is available. +

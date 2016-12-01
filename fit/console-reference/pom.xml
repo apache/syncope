@@ -117,12 +117,6 @@ under the License.
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>net.tirasa.connid.bundles.soap</groupId>
-      <artifactId>wssample</artifactId>
-      <type>war</type>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.apache.syncope.fit</groupId>
       <artifactId>syncope-fit-core-reference</artifactId>
       <version>${project.version}</version>
@@ -203,14 +197,6 @@ under the License.
             </configfiles>
           </configuration>
           <deployables>
-            <deployable>
-              <groupId>net.tirasa.connid.bundles.soap</groupId>
-              <artifactId>wssample</artifactId>
-              <type>war</type>
-              <properties>
-                <context>wssample</context>
-              </properties>
-            </deployable>
             <deployable>
               <groupId>org.apache.syncope.fit</groupId>
               <artifactId>syncope-fit-build-tools</artifactId>
