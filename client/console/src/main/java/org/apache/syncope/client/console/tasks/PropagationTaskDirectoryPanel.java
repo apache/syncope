@@ -80,8 +80,13 @@ public abstract class PropagationTaskDirectoryPanel
         columns.add(new PropertyColumn<PropagationTaskTO, String>(new StringResourceModel(
                 "operation", this, null), "operation", "operation"));
 
-        columns.add(new PropertyColumn<PropagationTaskTO, String>(
-                new StringResourceModel("anyTypeKind", this, null), "anyTypeKind", "anyTypeKind"));
+        if (resource == null) {
+            columns.add(new PropertyColumn<PropagationTaskTO, String>(new StringResourceModel(
+                    "resource", this, null), "resource", "resource"));
+        } else {
+            columns.add(new PropertyColumn<PropagationTaskTO, String>(
+                    new StringResourceModel("anyTypeKind", this, null), "anyTypeKind", "anyTypeKind"));
+        }
 
         columns.add(new PropertyColumn<PropagationTaskTO, String>(
                 new StringResourceModel("entityKey", this, null), "entityKey", "entityKey"));
