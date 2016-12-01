@@ -152,12 +152,6 @@ under the License.
           <scope>test</scope>
         </dependency>
         <dependency>
-          <groupId>net.tirasa.connid.bundles.soap</groupId>
-          <artifactId>wssample</artifactId>
-          <type>war</type>
-          <scope>test</scope>
-        </dependency>
-        <dependency>
           <groupId>com.h2database</groupId>
           <artifactId>h2</artifactId>
           <scope>test</scope>
@@ -225,14 +219,6 @@ under the License.
                 </properties>
               </configuration>
               <deployables>
-                <deployable>
-                  <groupId>net.tirasa.connid.bundles.soap</groupId>
-                  <artifactId>wssample</artifactId>
-                  <type>war</type>
-                  <properties>
-                    <context>wssample</context>
-                  </properties>
-                </deployable>
                 <deployable>
                   <groupId>org.apache.syncope.fit</groupId>
                   <artifactId>syncope-fit-build-tools</artifactId>

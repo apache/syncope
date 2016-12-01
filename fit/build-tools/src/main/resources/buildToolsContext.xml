@@ -45,6 +45,9 @@ under the License.
   <bean id="testconnectorserver.soap.bundle" class="java.lang.String">
     <constructor-arg value="net.tirasa.connid.bundles.soap-${connid.soap.version}.jar"/>
   </bean>  
+  <bean id="testconnectorserver.rest.bundle" class="java.lang.String">
+    <constructor-arg value="net.tirasa.connid.bundles.rest-${connid.rest.version}.jar"/>
+  </bean>  
   <bean id="testconnectorserver.dbtable.bundle" class="java.lang.String">
     <constructor-arg value="net.tirasa.connid.bundles.db.table-${connid.database.version}.jar"/>
   </bean>  

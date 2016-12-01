@@ -46,12 +46,6 @@ under the License.
 
   <dependencies>
     <dependency>
-      <groupId>net.tirasa.connid.bundles.soap</groupId>
-      <artifactId>wssample</artifactId>
-      <type>war</type>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
       <groupId>org.apache.syncope.fit</groupId>
       <artifactId>syncope-fit-build-tools</artifactId>
       <version>${project.version}</version>
@@ -168,18 +162,15 @@ under the License.
                 <mkdir dir="${work.dir}/apache-tomcat-${tomcat.version}/${test.csvdir.path}" />
                 <copy file="../fit/core-reference/src/test/resources/test.csv" todir="${work.dir}/apache-tomcat-${tomcat.version}/${test.csvdir.path}" />
 
-                <!-- ConnId's SOAP wssample (provides endpoint for SOAP resources) -->
-                <copy file="${settings.localRepository}/net/tirasa/connid/bundles/soap/wssample/${connid.soap.version}/wssample-${connid.soap.version}.war" tofile="${work.dir}/apache-tomcat-${tomcat.version}/webapps/wssample.war" />
-
-                <!-- Syncope build tools (provide H2 and Apache DS resources + ConnId connector server) -->
-                <copy todir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-build-tools">
+                <!-- Syncope build tools (provide H2, Apache DS and REST / SOAP resources + ConnId connector server) -->
+                <copy todir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-fit-build-tools">
                   <fileset dir="../fit/build-tools/target/syncope-fit-build-tools-${project.version}" includes="**/*" />
                 </copy>
-                <copy todir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-build-tools/WEB-INF/lib">
+                <copy todir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-fit-build-tools/WEB-INF/lib">
                   <fileset dir="../fit/core-reference/target/bundles/" includes="**/*" />
                 </copy>
-                <zip destfile="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-build-tools.war" basedir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-build-tools" />
-                <delete dir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-build-tools" />
+                <zip destfile="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-fit-build-tools.war" basedir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-fit-build-tools" />
+                <delete dir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-fit-build-tools" />
 
                 <!-- Tomcat shared libraries: H2, groovy, StAX2 API, Woodstox -->
                 <copy file="${settings.localRepository}/com/h2database/h2/${h2.version}/h2-${h2.version}.jar" todir="${work.dir}/apache-tomcat-${tomcat.version}/lib" />
@@ -263,6 +254,11 @@ under the License.
       <resource>
         <directory>../fit/core-reference/src/test/resources/scriptedsql</directory>
         <targetPath>core/scriptedsql</targetPath>
+        <filtering>true</filtering>
+      </resource>
+      <resource>
+        <directory>../fit/core-reference/src/test/resources/rest</directory>
+        <targetPath>core/rest</targetPath>
         <filtering>true</filtering>
       </resource>
 
