@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -81,13 +82,18 @@ public abstract class DisplayAttributesModalPanel<T extends Serializable> extend
         super(modal, pageRef);
         this.type = type;
 
+        final List<String> detailslList = SearchableFields.get(getTOClass());
+        Collections.sort(detailslList);
+        Collections.sort(pSchemaNames);
+        Collections.sort(dSchemaNames);
+
         final IModel<List<String>> fnames = new LoadableDetachableModel<List<String>>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
             protected List<String> load() {
-                return SearchableFields.get(getTOClass());
+                return detailslList;
             }
         };
 
