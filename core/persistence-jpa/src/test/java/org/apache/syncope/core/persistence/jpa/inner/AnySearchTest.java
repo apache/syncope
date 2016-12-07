@@ -35,6 +35,8 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
@@ -49,6 +51,8 @@ import org.apache.syncope.core.persistence.api.dao.search.MemberCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipTypeCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -71,6 +75,12 @@ public class AnySearchTest extends AbstractTest {
 
     @Autowired
     private AnySearchDAO searchDAO;
+
+    @Autowired
+    private AnyTypeDAO anyTypeDAO;
+
+    @Autowired
+    private RealmDAO realmDAO;
 
     @Test
     public void anyObjectMatch() {
@@ -474,20 +484,20 @@ public class AnySearchTest extends AbstractTest {
                 SearchCond.getLeafCond(relationshipTypeCond), SearchCond.getLeafCond(tcond));
         assertTrue(searchCondition.isValid());
 
-        List<Any<?>> matching = searchDAO.search(searchCondition, AnyTypeKind.ANY_OBJECT);
+        List<AnyObject> matching = searchDAO.search(searchCondition, AnyTypeKind.ANY_OBJECT);
         assertNotNull(matching);
         assertEquals(2, matching.size());
-        assertTrue(IterableUtils.matchesAny(matching, new Predicate<Any<?>>() {
+        assertTrue(IterableUtils.matchesAny(matching, new Predicate<AnyObject>() {
 
             @Override
-            public boolean evaluate(final Any<?> any) {
+            public boolean evaluate(final AnyObject any) {
                 return "fc6dbc3a-6c07-4965-8781-921e7401a4a5".equals(any.getKey());
             }
         }));
-        assertTrue(IterableUtils.matchesAny(matching, new Predicate<Any<?>>() {
+        assertTrue(IterableUtils.matchesAny(matching, new Predicate<AnyObject>() {
 
             @Override
-            public boolean evaluate(final Any<?> any) {
+            public boolean evaluate(final AnyObject any) {
                 return "8559d14d-58c2-46eb-a2d4-a7d35161e8f8".equals(any.getKey());
             }
         }));
@@ -695,5 +705,54 @@ public class AnySearchTest extends AbstractTest {
         List<User> users = searchDAO.search(searchCond, AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
+    }
+
+    @Test
+    public void issueSYNCOPE980() {
+        AnyType service = entityFactory.newEntity(AnyType.class);
+        service.setKey("SERVICE");
+        service.setKind(AnyTypeKind.ANY_OBJECT);
+        service = anyTypeDAO.save(service);
+
+        Group citizen = groupDAO.findByName("citizen");
+        assertNotNull(citizen);
+
+        AnyObject anyObject = entityFactory.newEntity(AnyObject.class);
+        anyObject.setName("one");
+        anyObject.setType(service);
+        anyObject.setRealm(realmDAO.findByFullPath(SyncopeConstants.ROOT_REALM));
+
+        AMembership membership = entityFactory.newEntity(AMembership.class);
+        membership.setRightEnd(citizen);
+        membership.setLeftEnd(anyObject);
+
+        anyObject.add(membership);
+        anyObjectDAO.save(anyObject);
+
+        anyObject = anyObjectDAO.find("fc6dbc3a-6c07-4965-8781-921e7401a4a5");
+        membership = entityFactory.newEntity(AMembership.class);
+        membership.setRightEnd(citizen);
+        membership.setLeftEnd(anyObject);
+        anyObject.add(membership);
+        anyObjectDAO.save(anyObject);
+
+        anyObjectDAO.flush();
+
+        MembershipCond groupCond = new MembershipCond();
+        groupCond.setGroup("citizen");
+
+        SearchCond searchCondition = SearchCond.getLeafCond(groupCond);
+
+        List<AnyObject> matching = searchDAO.search(searchCondition, AnyTypeKind.ANY_OBJECT);
+        assertEquals(2, matching.size());
+
+        AnyTypeCond anyTypeCond = new AnyTypeCond();
+        anyTypeCond.setAnyTypeKey(service.getKey());
+
+        searchCondition = SearchCond.getAndCond(
+                SearchCond.getLeafCond(groupCond), SearchCond.getLeafCond(anyTypeCond));
+
+        matching = searchDAO.search(searchCondition, AnyTypeKind.ANY_OBJECT);
+        assertEquals(1, matching.size());
     }
 }

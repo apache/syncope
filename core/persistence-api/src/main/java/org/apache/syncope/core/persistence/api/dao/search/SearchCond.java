@@ -55,9 +55,9 @@ public class SearchCond extends AbstractSearchCond {
 
     private MemberCond memberCond;
 
-    private SearchCond leftNodeCond;
+    private SearchCond leftSearchCond;
 
-    private SearchCond rightNodeCond;
+    private SearchCond rightSearchCond;
 
     public static SearchCond getLeafCond(final AnyTypeCond anyTypeCond) {
         SearchCond nodeCond = new SearchCond();
@@ -189,8 +189,8 @@ public class SearchCond extends AbstractSearchCond {
         SearchCond nodeCond = new SearchCond();
 
         nodeCond.type = Type.AND;
-        nodeCond.leftNodeCond = leftCond;
-        nodeCond.rightNodeCond = rightCond;
+        nodeCond.leftSearchCond = leftCond;
+        nodeCond.rightSearchCond = rightCond;
 
         return nodeCond;
     }
@@ -208,8 +208,8 @@ public class SearchCond extends AbstractSearchCond {
         SearchCond nodeCond = new SearchCond();
 
         nodeCond.type = Type.OR;
-        nodeCond.leftNodeCond = leftCond;
-        nodeCond.rightNodeCond = rightCond;
+        nodeCond.leftSearchCond = leftCond;
+        nodeCond.rightSearchCond = rightCond;
 
         return nodeCond;
     }
@@ -229,6 +229,42 @@ public class SearchCond extends AbstractSearchCond {
 
     public void setAnyTypeCond(final AnyTypeCond anyTypeCond) {
         this.anyTypeCond = anyTypeCond;
+    }
+
+    /**
+     * Not a simple getter: recursively scans the search condition tree.
+     *
+     * @return the AnyType key or {@code NULL} if no type condition was found
+     */
+    public String hasAnyTypeCond() {
+        String anyTypeName = null;
+
+        if (type == null) {
+            return anyTypeName;
+        }
+
+        switch (type) {
+            case LEAF:
+            case NOT_LEAF:
+                if (anyTypeCond != null) {
+                    anyTypeName = anyTypeCond.getAnyTypeKey();
+                }
+                break;
+
+            case AND:
+            case OR:
+                if (leftSearchCond != null) {
+                    anyTypeName = leftSearchCond.hasAnyTypeCond();
+                }
+                if (anyTypeName == null && rightSearchCond != null) {
+                    anyTypeName = rightSearchCond.hasAnyTypeCond();
+                }
+                break;
+
+            default:
+        }
+
+        return anyTypeName;
     }
 
     public AnyCond getAnyCond() {
@@ -267,47 +303,16 @@ public class SearchCond extends AbstractSearchCond {
         return memberCond;
     }
 
-    public SearchCond getLeftNodeCond() {
-        return leftNodeCond;
+    public SearchCond getLeftSearchCond() {
+        return leftSearchCond;
     }
 
-    public SearchCond getRightNodeCond() {
-        return rightNodeCond;
+    public SearchCond getRightSearchCond() {
+        return rightSearchCond;
     }
 
     public Type getType() {
         return type;
-    }
-
-    public String hasAnyTypeCond() {
-        String anyTypeName = null;
-
-        if (type == null) {
-            return anyTypeName;
-        }
-
-        switch (type) {
-            case LEAF:
-            case NOT_LEAF:
-                if (anyTypeCond != null) {
-                    anyTypeName = anyTypeCond.getAnyTypeKey();
-                }
-                break;
-
-            case AND:
-            case OR:
-                if (leftNodeCond != null) {
-                    anyTypeName = leftNodeCond.hasAnyTypeCond();
-                }
-                if (anyTypeName == null && rightNodeCond != null) {
-                    anyTypeName = rightNodeCond.hasAnyTypeCond();
-                }
-                break;
-
-            default:
-        }
-
-        return anyTypeName;
     }
 
     @Override
@@ -335,9 +340,9 @@ public class SearchCond extends AbstractSearchCond {
 
             case AND:
             case OR:
-                isValid = (leftNodeCond == null || rightNodeCond == null)
+                isValid = (leftSearchCond == null || rightSearchCond == null)
                         ? false
-                        : leftNodeCond.isValid() && rightNodeCond.isValid();
+                        : leftSearchCond.isValid() && rightSearchCond.isValid();
                 break;
 
             default:
