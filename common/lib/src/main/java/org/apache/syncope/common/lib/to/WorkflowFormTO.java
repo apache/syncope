@@ -77,19 +77,33 @@ public class WorkflowFormTO extends AbstractBaseBean {
     }
 
     public Date getCreateTime() {
-        return createTime;
+        if (createTime != null) {
+            return new Date(createTime.getTime());
+        }
+        return null;
     }
 
     public void setCreateTime(final Date createTime) {
-        this.createTime = createTime;
+        if (createTime != null) {
+            this.createTime = new Date(createTime.getTime());
+        } else {
+            this.createTime = null;
+        }
     }
 
     public Date getDueDate() {
-        return dueDate;
+        if (dueDate != null) {
+            return new Date(dueDate.getTime());
+        }
+        return null;
     }
 
     public void setDueDate(final Date dueDate) {
-        this.dueDate = dueDate;
+        if (dueDate != null) {
+            this.dueDate = new Date(dueDate.getTime());
+        } else {
+            this.dueDate = null;
+        }
     }
 
     public String getOwner() {

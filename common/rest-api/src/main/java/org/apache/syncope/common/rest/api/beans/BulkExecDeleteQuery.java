@@ -83,39 +83,67 @@ public class BulkExecDeleteQuery extends AbstractBaseBean {
     }
 
     public Date getStartedBefore() {
-        return startedBefore;
+        if (startedBefore != null) {
+            return new Date(startedBefore.getTime());
+        }
+        return null;
     }
 
     @QueryParam("startedBefore")
     public void setStartedBefore(final Date startedBefore) {
-        this.startedBefore = startedBefore;
+        if (startedBefore != null) {
+            this.startedBefore = new Date(startedBefore.getTime());
+        } else {
+            this.startedBefore = null;
+        }
     }
 
     public Date getStartedAfter() {
-        return startedAfter;
+        if (startedAfter != null) {
+            return new Date(startedAfter.getTime());
+        }
+        return null;
     }
 
     @QueryParam("startedAfter")
     public void setStartedAfter(final Date startedAfter) {
-        this.startedAfter = startedAfter;
+        if (startedAfter != null) {
+            this.startedAfter = new Date(startedAfter.getTime());
+        } else {
+            this.startedAfter = null;
+        }
     }
 
     public Date getEndedBefore() {
-        return endedBefore;
+        if (endedBefore != null) {
+            return new Date(endedBefore.getTime());
+        }
+        return null;
     }
 
     @QueryParam("endedBefore")
     public void setEndedBefore(final Date endedBefore) {
-        this.endedBefore = endedBefore;
+        if (endedBefore != null) {
+            this.endedBefore = new Date(endedBefore.getTime());
+        } else {
+            this.endedBefore = null;
+        }
     }
 
     public Date getEndedAfter() {
-        return endedAfter;
+        if (endedAfter != null) {
+            return new Date(endedAfter.getTime());
+        }
+        return null;
     }
 
     @QueryParam("endedAfter")
     public void setEndedAfter(final Date endedAfter) {
-        this.endedAfter = endedAfter;
+        if (endedAfter != null) {
+            this.endedAfter = new Date(endedAfter.getTime());
+        } else {
+            this.endedAfter = null;
+        }
     }
 
 }

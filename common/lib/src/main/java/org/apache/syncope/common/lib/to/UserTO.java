@@ -113,14 +113,17 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
     }
 
     public Date getTokenExpireTime() {
-        return tokenExpireTime == null
-                ? null
-                : new Date(tokenExpireTime.getTime());
+        if (tokenExpireTime != null) {
+            return new Date(tokenExpireTime.getTime());
+        }
+        return null;
     }
 
     public void setTokenExpireTime(final Date tokenExpireTime) {
         if (tokenExpireTime != null) {
             this.tokenExpireTime = new Date(tokenExpireTime.getTime());
+        } else {
+            this.tokenExpireTime = null;
         }
     }
 
@@ -133,7 +136,10 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
     }
 
     public Date getChangePwdDate() {
-        return changePwdDate;
+        if (changePwdDate != null) {
+            return new Date(changePwdDate.getTime());
+        }
+        return null;
     }
 
     public Integer getFailedLogins() {
@@ -141,11 +147,18 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
     }
 
     public Date getLastLoginDate() {
-        return lastLoginDate;
+        if (lastLoginDate != null) {
+            return new Date(lastLoginDate.getTime());
+        }
+        return null;
     }
 
     public void setChangePwdDate(final Date changePwdDate) {
-        this.changePwdDate = changePwdDate;
+        if (changePwdDate != null) {
+            this.changePwdDate = new Date(changePwdDate.getTime());
+        } else {
+            this.changePwdDate = null;
+        }
     }
 
     public void setFailedLogins(final Integer failedLogins) {
@@ -153,7 +166,11 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
     }
 
     public void setLastLoginDate(final Date lastLoginDate) {
-        this.lastLoginDate = lastLoginDate;
+        if (lastLoginDate != null) {
+            this.lastLoginDate = new Date(lastLoginDate.getTime());
+        } else {
+            this.lastLoginDate = null;
+        }
     }
 
     public String getSecurityQuestion() {

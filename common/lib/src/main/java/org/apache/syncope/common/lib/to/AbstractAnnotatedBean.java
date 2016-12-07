@@ -73,11 +73,18 @@ public class AbstractAnnotatedBean extends AbstractBaseBean {
     }
 
     public Date getCreationDate() {
-        return creationDate;
+        if (creationDate != null) {
+            return new Date(creationDate.getTime());
+        }
+        return null;
     }
 
     public void setCreationDate(final Date creationDate) {
-        this.creationDate = creationDate;
+        if (creationDate != null) {
+            this.creationDate = new Date(creationDate.getTime());
+        } else {
+            this.creationDate = null;
+        }
     }
 
     public String getLastModifier() {
@@ -89,11 +96,18 @@ public class AbstractAnnotatedBean extends AbstractBaseBean {
     }
 
     public Date getLastChangeDate() {
-        return lastChangeDate;
+        if (lastChangeDate != null) {
+            return new Date(lastChangeDate.getTime());
+        }
+        return null;
     }
 
     public void setLastChangeDate(final Date lastChangeDate) {
-        this.lastChangeDate = lastChangeDate;
+        if (lastChangeDate != null) {
+            this.lastChangeDate = new Date(lastChangeDate.getTime());
+        } else {
+            this.lastChangeDate = null;
+        }
     }
 
     @JsonIgnore
