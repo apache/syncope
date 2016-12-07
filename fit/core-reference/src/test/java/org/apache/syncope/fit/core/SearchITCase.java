@@ -30,11 +30,16 @@ import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.patch.AnyObjectPatch;
+import org.apache.syncope.common.lib.patch.MembershipPatch;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
+import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.RoleService;
 import org.apache.syncope.fit.AbstractITCase;
@@ -476,6 +481,44 @@ public class SearchITCase extends AbstractITCase {
         assertFalse(matchingUsers.getResult().isEmpty());
         for (UserTO user : matchingUsers.getResult()) {
             assertTrue(user.getUsername().startsWith("bellini"));
+        }
+    }
+
+    @Test
+    public void issueSYNCOPE980() {
+        AnyTypeTO service = new AnyTypeTO();
+        service.setKey("SERVICE");
+        service.setKind(AnyTypeKind.ANY_OBJECT);
+        Response response = anyTypeService.create(service);
+        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatusInfo().getStatusCode());
+
+        String serviceKey = null;
+        try {
+            AnyObjectTO anyObjectTO = new AnyObjectTO();
+            anyObjectTO.setName("one");
+            anyObjectTO.setRealm(SyncopeConstants.ROOT_REALM);
+            anyObjectTO.setType(service.getKey());
+            anyObjectTO.getMemberships().add(
+                    new MembershipTO.Builder().group("29f96485-729e-4d31-88a1-6fc60e4677f3").build());
+            serviceKey = createAnyObject(anyObjectTO).getEntity().getKey();
+
+            AnyObjectPatch anyObjectPatch = new AnyObjectPatch();
+            anyObjectPatch.setKey("fc6dbc3a-6c07-4965-8781-921e7401a4a5");
+            anyObjectPatch.getMemberships().add(
+                    new MembershipPatch.Builder().group("29f96485-729e-4d31-88a1-6fc60e4677f3").build());
+            updateAnyObject(anyObjectPatch);
+
+            PagedResult<AnyObjectTO> matching = anyObjectService.search(new AnyQuery.Builder().fiql(
+                    SyncopeClient.getAnyObjectSearchConditionBuilder(service.getKey()).
+                            inGroups("29f96485-729e-4d31-88a1-6fc60e4677f3").
+                            query()).build());
+            assertEquals(1, matching.getSize());
+            assertEquals(serviceKey, matching.getResult().get(0).getKey());
+        } finally {
+            if (serviceKey != null) {
+                anyObjectService.delete(serviceKey);
+            }
+            anyTypeService.delete(service.getKey());
         }
     }
 }
