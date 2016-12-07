@@ -70,16 +70,23 @@ public class ExecuteQuery extends AbstractBaseBean {
     }
 
     public Date getStartAt() {
-        return startAt;
+        if (startAt != null) {
+            return new Date(startAt.getTime());
+        }
+        return null;
     }
 
     @QueryParam("startAt")
     public void setStartAt(final Date startAt) {
-        this.startAt = startAt;
+        if (startAt != null) {
+            this.startAt = new Date(startAt.getTime());
+        } else {
+            this.startAt = null;
+        }
     }
 
     public Boolean getDryRun() {
-        return dryRun == null ? false : dryRun;
+        return dryRun == null ? Boolean.FALSE : dryRun;
     }
 
     @QueryParam("dryRun")

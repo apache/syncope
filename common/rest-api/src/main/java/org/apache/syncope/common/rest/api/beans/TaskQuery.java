@@ -166,7 +166,7 @@ public class TaskQuery extends AbstractQuery {
     }
 
     public Boolean getDetails() {
-        return details == null ? true : details;
+        return details == null ? Boolean.TRUE : details;
     }
 
     @QueryParam(JAXRSService.PARAM_DETAILS)
