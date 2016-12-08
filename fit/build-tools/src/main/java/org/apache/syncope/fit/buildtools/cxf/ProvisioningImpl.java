@@ -19,6 +19,7 @@
 package org.apache.syncope.fit.buildtools.cxf;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -63,12 +64,14 @@ public class ProvisioningImpl implements Provisioning {
         try {
             conn = DataSourceUtils.getConnection(dataSource);
 
-            Statement statement = conn.createStatement();
+            PreparedStatement statement =
+                conn.prepareStatement("DELETE FROM user WHERE userId=?");
+            statement.setString(1, accountid);
 
             String query = "DELETE FROM user WHERE userId='" + accountid + "';";
             LOG.debug("Execute query: " + query);
 
-            statement.executeUpdate(query);
+            statement.executeUpdate();
 
             return accountid;
         } catch (SQLException e) {
@@ -113,7 +116,6 @@ public class ProvisioningImpl implements Provisioning {
 
         try {
             conn = DataSourceUtils.getConnection(dataSource);
-            final Statement statement = conn.createStatement();
 
             String value;
 
@@ -155,10 +157,13 @@ public class ProvisioningImpl implements Provisioning {
             }
 
             if (set.length() > 0) {
+                PreparedStatement statement =
+                    conn.prepareStatement("UPDATE user SET " + set.toString() + " WHERE userId=?");
+                statement.setString(1, accountid);
                 String query = "UPDATE user SET " + set.toString() + " WHERE userId='" + accountid + "';";
                 LOG.debug("Execute query: " + query);
 
-                statement.executeUpdate(query);
+                statement.executeUpdate();
             }
 
             return accountid;
@@ -339,22 +344,25 @@ public class ProvisioningImpl implements Provisioning {
         Connection conn = null;
         try {
             conn = DataSourceUtils.getConnection(dataSource);
-            Statement statement = conn.createStatement();
+            PreparedStatement statement =
+                conn.prepareStatement("SELECT userId FROM user WHERE userId=?");
+            statement.setString(1, username);
 
             final String query = "SELECT userId FROM user WHERE userId='" + username + "';";
 
             LOG.debug("Execute query: " + query);
 
-            ResultSet rs = statement.executeQuery(query);
+            ResultSet rs = statement.executeQuery();
 
             resolved = rs.next() ? rs.getString(1) : null;
 
             if (resolved == null) {
-                statement = conn.createStatement();
+                statement = conn.prepareStatement("SELECT roleName FROM role WHERE roleName=?");
+                statement.setString(1, username);
                 final String roleQuery = "SELECT roleName FROM role WHERE roleName='" + username + "';";
                 LOG.debug("Execute query: " + roleQuery);
 
-                rs = statement.executeQuery(roleQuery);
+                rs = statement.executeQuery();
 
                 resolved = rs.next() ? rs.getString(1) : null;
             }
