@@ -435,7 +435,7 @@ public abstract class EventCategoryPanel extends Panel {
         }
     }
 
-    private class ChangeCategoryEvent {
+    private static class ChangeCategoryEvent {
 
         private final AjaxRequestTarget target;
 

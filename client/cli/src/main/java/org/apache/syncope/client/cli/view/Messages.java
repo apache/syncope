@@ -25,7 +25,7 @@ public final class Messages {
 
     private static final ResourceBundle MESSAGES = ResourceBundle.getBundle("messages");
 
-    private static final String OPTION_COMMAND_MESSAGE_TEMPLATE = "\n - Usage: %s\n";
+    private static final String OPTION_COMMAND_MESSAGE_TEMPLATE = "%n - Usage: %s%n";
 
     private static final String CREATED_MESSAGE_TEMPLATE = "%s %s successfully created";
 
@@ -43,7 +43,7 @@ public final class Messages {
     private static final String NOT_BOOLEAN_MESSAGE_TEMPLATE = "Error reading %s. It isn't a valid %s "
             + "value because it isn't a boolean value";
 
-    private static final String DEFAULT_MESSAGE_TEMPLATE = "%s is not a valid option. \n\b %s";
+    private static final String DEFAULT_MESSAGE_TEMPLATE = "%s is not a valid option. %n\b %s";
 
     public static void printCommandOptionMessage(final String message) {
         System.out.println(String.format(OPTION_COMMAND_MESSAGE_TEMPLATE, message));

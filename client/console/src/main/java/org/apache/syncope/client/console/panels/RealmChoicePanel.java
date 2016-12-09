@@ -226,7 +226,7 @@ public class RealmChoicePanel extends Panel {
     public RealmTO moveToParentRealm(final String key) {
         for (Pair<RealmTO, List<RealmTO>> subtree : tree.values()) {
             for (RealmTO child : subtree.getRight()) {
-                if (child.getKey() == key) {
+                if (child.getKey() != null && child.getKey().equals(key)) {
                     model.setObject(subtree.getLeft());
                     return subtree.getLeft();
                 }

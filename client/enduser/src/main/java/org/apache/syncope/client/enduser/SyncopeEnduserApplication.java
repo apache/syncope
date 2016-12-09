@@ -20,6 +20,7 @@ package org.apache.syncope.client.enduser;
 
 import org.apache.syncope.client.enduser.resources.UserSelfIsLogged;
 import java.io.File;
+import java.io.InputStream;
 import java.io.Serializable;
 import org.apache.syncope.client.enduser.pages.HomePage;
 import java.util.Properties;
@@ -90,8 +91,8 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
 
         // read enduser.properties
         Properties props = new Properties();
-        try {
-            props.load(getClass().getResourceAsStream("/" + ENDUSER_PROPERTIES));
+        try (InputStream is = getClass().getResourceAsStream("/" + ENDUSER_PROPERTIES)) {
+            props.load(is);
             File enduserDir = new File(props.getProperty("enduser.directory"));
             if (enduserDir.exists() && enduserDir.canRead() && enduserDir.isDirectory()) {
                 File enduserDirProps = FileUtils.getFile(enduserDir, ENDUSER_PROPERTIES);

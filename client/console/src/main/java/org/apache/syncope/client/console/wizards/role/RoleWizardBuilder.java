@@ -71,9 +71,9 @@ public class RoleWizardBuilder extends AjaxWizardBuilder<RoleWrapper> {
      */
     @Override
     public AjaxWizardBuilder<RoleWrapper> setItem(final RoleWrapper item) {
-        return (AjaxWizardBuilder<RoleWrapper>) (item == null
-                ? super.setItem(item)
-                : super.setItem(new RoleWrapper(item.getInnerObject())));
+        return (AjaxWizardBuilder<RoleWrapper>) (item != null
+                ? super.setItem(new RoleWrapper(item.getInnerObject()))
+                : super.setItem(null));
     }
 
     @Override
@@ -119,7 +119,7 @@ public class RoleWizardBuilder extends AjaxWizardBuilder<RoleWrapper> {
                             required(false).build(panelId);
                 }
             }), Model.of(StringUtils.isBlank(modelObject.getDynMembershipCond()) ? -1 : 0)).setOutputMarkupId(true));
-            // ------------------------ 
+            // ------------------------
         }
     }
 

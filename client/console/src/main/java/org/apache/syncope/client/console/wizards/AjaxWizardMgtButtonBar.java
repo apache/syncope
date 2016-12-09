@@ -43,7 +43,6 @@ public class AjaxWizardMgtButtonBar<T extends Serializable> extends WizardButton
         super(id, wizard);
         this.mode = mode;
         wizard.setOutputMarkupId(true);
-        wizard.getWizardModel().isCancelVisible();
     }
 
     @Override

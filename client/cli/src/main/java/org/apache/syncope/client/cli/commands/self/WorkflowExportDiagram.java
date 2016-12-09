@@ -44,9 +44,10 @@ public class WorkflowExportDiagram extends AbstractWorkflowCommand {
             try {
                 final Response response = workflowSyncopeOperations.exportDiagram(input.firstParameter());
                 final byte[] diagram = IOUtils.readBytesFromStream((InputStream) response.getEntity());
-                final FileOutputStream fos = new FileOutputStream("/tmp/diagram.png");
-                fos.write(diagram);
-                fos.close();
+                try (final FileOutputStream fos = new FileOutputStream("/tmp/diagram.png")) {
+                    fos.write(diagram);
+                    fos.close();
+                }
                 workflowResultManager.genericMessage("Diagram created: /tmp/diagram.png");
             } catch (final SyncopeClientException | WebServiceException ex) {
                 if (ex.getMessage().startsWith("NotFound")) {

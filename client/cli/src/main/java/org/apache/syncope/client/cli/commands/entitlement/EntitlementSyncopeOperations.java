@@ -70,8 +70,9 @@ public class EntitlementSyncopeOperations {
     public Set<RoleTO> rolePerEntitlements(final String entitlement) {
         final Set<RoleTO> roles = new HashSet<>();
         for (final RoleTO role : roleSyncopeOperations.list()) {
-            role.getEntitlements().contains(entitlement);
-            roles.add(role);
+            if (role.getEntitlements().contains(entitlement)) {
+                roles.add(role);
+            }
         }
         return roles;
     }

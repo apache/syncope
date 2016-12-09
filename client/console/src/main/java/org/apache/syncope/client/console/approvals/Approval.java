@@ -23,8 +23,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
@@ -134,7 +132,6 @@ public abstract class Approval extends Panel {
 
                     case Enum:
                         MapChoiceRenderer<String, String> enumCR = new MapChoiceRenderer<>(prop.getEnumValues());
-                        final Map<String, String> map = MapUtils.invertMap(prop.getEnumValues());
 
                         field = new AjaxDropDownChoicePanel(
                                 "value", label, new PropertyModel<String>(prop, "value"), false).

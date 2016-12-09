@@ -87,7 +87,7 @@ public abstract class AlertWidget<T extends Serializable> extends Panel {
             @Override
             protected void onComponentTag(final ComponentTag tag) {
                 super.onComponentTag(tag);
-                if (Integer.valueOf(getDefaultModelObject().toString()) > 0) {
+                if (Integer.parseInt(getDefaultModelObject().toString()) > 0) {
                     tag.put("class", "label label-danger");
                 } else {
                     tag.put("class", "label label-info");

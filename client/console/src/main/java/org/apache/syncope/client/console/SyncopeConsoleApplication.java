@@ -23,6 +23,7 @@ import de.agilecoders.wicket.core.settings.BootstrapSettings;
 import de.agilecoders.wicket.core.settings.IBootstrapSettings;
 import de.agilecoders.wicket.core.settings.SingleThemeProvider;
 import java.io.File;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -123,8 +124,8 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
 
         // read console.properties
         Properties props = new Properties();
-        try {
-            props.load(getClass().getResourceAsStream("/" + CONSOLE_PROPERTIES));
+        try (InputStream is = getClass().getResourceAsStream("/" + CONSOLE_PROPERTIES)) {
+            props.load(is);
             File consoleDir = new File(props.getProperty("console.directory"));
             if (consoleDir.exists() && consoleDir.canRead() && consoleDir.isDirectory()) {
                 File consoleDirProps = FileUtils.getFile(consoleDir, CONSOLE_PROPERTIES);

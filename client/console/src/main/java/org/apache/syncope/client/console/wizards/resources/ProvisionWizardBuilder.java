@@ -141,7 +141,7 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> imple
     /**
      * AuxClasses definition step.
      */
-    private final class AuxClasses extends WizardStep {
+    private static final class AuxClasses extends WizardStep {
 
         private static final long serialVersionUID = 5315236191866427500L;
 
@@ -155,7 +155,7 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> imple
     /**
      * Mapping definition step.
      */
-    private final class Mapping extends WizardStep {
+    private static final class Mapping extends WizardStep {
 
         private static final long serialVersionUID = 3454904947720856253L;
 

@@ -119,7 +119,7 @@ public class ResourceStatusDataProvider extends DirectoryDataProvider<StatusBean
                 return statusUtils.getStatusBean(
                         input,
                         resource,
-                        connObjects == null ? null : connObjects.iterator().next().getConnObjectTO(),
+                        connObjects.isEmpty() ? null : connObjects.iterator().next().getConnObjectTO(),
                         input instanceof GroupTO);
             }
         }, new ArrayList<StatusBean>());
