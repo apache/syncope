@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -224,7 +225,12 @@ public abstract class AbstractAttrs<S extends AbstractSchemaTO> extends WizardSt
         return CollectionUtils.isNotEmpty(attrTOs.getObject()) || CollectionUtils.isNotEmpty(membershipTOs.getObject());
     }
 
-    protected static class AttrComparator implements Comparator<AttrTO> {
+    protected static class AttrComparator implements Comparator<AttrTO>, Serializable {
+
+        /**
+         *
+         */
+        private static final long serialVersionUID = -5105030477767941060L;
 
         @Override
         public int compare(final AttrTO left, final AttrTO right) {

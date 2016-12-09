@@ -57,7 +57,7 @@ public final class ReconciliationReportParser {
                 switch (streamReader.getLocalName()) {
                     case "users":
                         Anys users = new Anys();
-                        users.setTotal(Integer.valueOf(streamReader.getAttributeValue("", "total")));
+                        users.setTotal(Integer.parseInt(streamReader.getAttributeValue("", "total")));
                         report.setUsers(users);
                         break;
 
@@ -71,7 +71,7 @@ public final class ReconciliationReportParser {
 
                     case "groups":
                         Anys groups = new Anys();
-                        groups.setTotal(Integer.valueOf(streamReader.getAttributeValue("", "total")));
+                        groups.setTotal(Integer.parseInt(streamReader.getAttributeValue("", "total")));
                         report.setGroups(groups);
                         break;
 
@@ -87,7 +87,7 @@ public final class ReconciliationReportParser {
                         lastAnyType = streamReader.getAttributeValue("", "type");
                         Anys anyObjects = new Anys();
                         anyObjects.setAnyType(lastAnyType);
-                        anyObjects.setTotal(Integer.valueOf(streamReader.getAttributeValue("", "total")));
+                        anyObjects.setTotal(Integer.parseInt(streamReader.getAttributeValue("", "total")));
                         report.getAnyObjects().add(anyObjects);
                         break;
 

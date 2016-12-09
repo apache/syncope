@@ -58,9 +58,9 @@ public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> implements Gro
      */
     @Override
     public AjaxWizardBuilder<AnyWrapper<GroupTO>> setItem(final AnyWrapper<GroupTO> item) {
-        return (AjaxWizardBuilder<AnyWrapper<GroupTO>>) (item == null
-                ? super.setItem(item)
-                : super.setItem(new GroupWrapper(item.getInnerObject())));
+        return (AjaxWizardBuilder<AnyWrapper<GroupTO>>) (item != null
+                ? super.setItem(new GroupWrapper(item.getInnerObject()))
+                : super.setItem(null));
     }
 
     @Override

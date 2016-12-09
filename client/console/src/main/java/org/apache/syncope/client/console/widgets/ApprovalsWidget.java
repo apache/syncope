@@ -69,7 +69,7 @@ public class ApprovalsWidget extends AlertWidget<WorkflowFormTO> {
             if (wsEvent.getMessage() instanceof ApprovalsWidgetMessage) {
                 List<WorkflowFormTO> updatedApprovals = ((ApprovalsWidgetMessage) wsEvent.getMessage()).
                         getUpdatedApprovals();
-                if (!latestAlerts.equals(updatedApprovals)) {
+                if (!latestAlerts.getObject().equals(updatedApprovals)) {
                     latestAlerts.getObject().clear();
                     latestAlerts.getObject().addAll(updatedApprovals);
 
@@ -229,7 +229,12 @@ public class ApprovalsWidget extends AlertWidget<WorkflowFormTO> {
 
     }
 
-    private static class WorkflowFormComparator implements Comparator<WorkflowFormTO> {
+    private static class WorkflowFormComparator implements Comparator<WorkflowFormTO>, Serializable {
+
+        /**
+         *
+         */
+        private static final long serialVersionUID = 4650217602780789075L;
 
         @Override
         public int compare(final WorkflowFormTO o1, final WorkflowFormTO o2) {

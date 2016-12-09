@@ -25,7 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 
 public final class Table {
 
-    private static final String TABLE_TITLE_FORMAT = "#  %s  #\n";
+    private static final String TABLE_TITLE_FORMAT = "#  %s  #%n";
 
     private final String title;
 

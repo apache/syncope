@@ -114,7 +114,7 @@ public class DateTimeFieldPanel extends DateFieldPanel {
     /**
      * Custom form validator for registering and handling DateTimeField components that are in it.
      */
-    private class DateTimeFormValidator extends AbstractFormValidator {
+    private static class DateTimeFormValidator extends AbstractFormValidator {
 
         private static final long serialVersionUID = 6842264694946633582L;
 

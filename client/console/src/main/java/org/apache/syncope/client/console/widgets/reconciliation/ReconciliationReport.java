@@ -36,7 +36,11 @@ public class ReconciliationReport extends AbstractBaseBean {
     private final List<Anys> anyObjects = new ArrayList<>();
 
     public ReconciliationReport(final Date run) {
-        this.run = run;
+        if (run != null) {
+            this.run = new Date(run.getTime());
+        } else {
+            this.run = null;
+        }
     }
 
     public Date getRun() {

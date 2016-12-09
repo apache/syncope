@@ -118,8 +118,8 @@ public class StatusUtils implements Serializable {
         final AttrTO status = attributeTOs.get(ConnIdSpecialAttributeName.ENABLE);
 
         return status != null && status.getValues() != null && !status.getValues().isEmpty()
-                ? Boolean.parseBoolean(status.getValues().get(0))
-                : null;
+                ? Boolean.valueOf(status.getValues().get(0))
+                : Boolean.FALSE;
     }
 
     private String getConnObjectLink(final ConnObjectTO objectTO) {
