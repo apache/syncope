@@ -1407,7 +1407,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-resources-plugin</artifactId>
-          <version>3.0.1</version>
+          <version>3.0.2</version>
           <configuration>
             <useDefaultDelimiters>false</useDefaultDelimiters>
             <delimiters>
@@ -1766,7 +1766,7 @@ under the License.
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-resources-plugin</artifactId>
-        <version>3.0.1</version>
+        <version>3.0.2</version>
         <executions>
           <execution>
             <id>copy-artifact-legal-files</id>
