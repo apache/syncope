@@ -24,8 +24,8 @@ public final class ConsoleProperties {
             + "host=localhost\n"
             + "port=8080";
 
-    public static final String CONSOLE = "scheme=%s\n"
-            + "host=%s\n"
+    public static final String CONSOLE = "scheme=%s%n"
+            + "host=%s%n"
             + "port=%s";
 
     private ConsoleProperties() {

@@ -75,7 +75,7 @@ public class HttpUtils {
 
         this.isSsl = isSsl;
         this.host = host;
-        this.port = Integer.valueOf(port);
+        this.port = Integer.parseInt(port);
 
         if (isSsl) {
             httpClient = createHttpsClient();
