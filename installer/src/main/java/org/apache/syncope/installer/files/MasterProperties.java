@@ -70,7 +70,7 @@ public final class MasterProperties {
 
     public static final String ORACLE = ""
             + "Master.driverClassName=oracle.jdbc.OracleDriver\n"
-            + "Master.url=jdbc:oracle:thin:@pioppo:1521:orcl\n"
+            + "Master.url=%s\n"
             + "Master.schema=%s\n"
             + "Master.username=%s\n"
             + "Master.password=%s\n"
@@ -81,8 +81,7 @@ public final class MasterProperties {
 
     public static final String SQLSERVER = ""
             + "Master.driverClassName=com.microsoft.sqlserver.jdbc.SQLServerDriver\n"
-            + "Master.url=jdbc:sqlserver://acacia:1433;database=syncope;selectMethod=cursor;"
-            + "sendStringParametersAsUnicode=false\n"
+            + "Master.url=%s\n"
             + "Master.schema=%s\n"
             + "Master.username=%s\n"
             + "Master.password=%s\n"
