@@ -349,7 +349,7 @@ public class SyncopeView extends ViewPart {
                 ISelection selection = viewer.getSelection();
                 TreeObject obj = (TreeObject) ((IStructuredSelection) selection).getFirstElement();
                 TreeParent tp = (TreeParent) vcp.getParent(obj);
-                if (tp.getName().equals(MAIL_TEMPLATE_LABEL)) {
+                if (MAIL_TEMPLATE_LABEL.equals(tp.getName())) {
                     MailTemplateService mailTemplateService = SYNCOPE_CLIENT.getService(
                         MailTemplateService.class);
                     mailTemplateService.delete(obj.getName());
@@ -366,7 +366,7 @@ public class SyncopeView extends ViewPart {
 
     protected void openTemplateInEditor(final TreeObject obj) {
         TreeParent tp = (TreeParent) vcp.getParent(obj);
-        if (tp.getName().equals(MAIL_TEMPLATE_LABEL)) {
+        if (MAIL_TEMPLATE_LABEL.equals(tp.getName())) {
             final MailTemplateService mailTemplateService = SYNCOPE_CLIENT.getService(
                 MailTemplateService.class);
             final String[] templateData = new String[2];

@@ -77,7 +77,7 @@ public class ApacheDSStartStopListener implements ServletContextListener {
     private Partition addPartition(final String partitionId, final String partitionDn, final DnFactory dnFactory)
             throws Exception {
 
-        // Create a new partition with the given partition id 
+        // Create a new partition with the given partition id
         JdbmPartition partition = new JdbmPartition(service.getSchemaManager(), dnFactory);
         partition.setId(partitionId);
         partition.setPartitionPath(new File(service.getInstanceLayout().getPartitionsDirectory(), partitionId).toURI());
@@ -173,7 +173,7 @@ public class ApacheDSStartStopListener implements ServletContextListener {
         // then the system partition
         // this is a MANDATORY partition
         // DO NOT add this via addPartition() method, trunk code complains about duplicate partition
-        // while initializing 
+        // while initializing
         JdbmPartition systemPartition = new JdbmPartition(service.getSchemaManager(), service.getDnFactory());
         systemPartition.setId("system");
         systemPartition.setPartitionPath(
@@ -229,7 +229,7 @@ public class ApacheDSStartStopListener implements ServletContextListener {
             initDirectoryService(sce.getServletContext(), workDir, loadDefaultContent);
 
             server = new LdapServer();
-            server.setTransports(new TcpTransport(Integer.valueOf(
+            server.setTransports(new TcpTransport(Integer.parseInt(
                     WebApplicationContextUtils.getWebApplicationContext(sce.getServletContext()).
                     getBean("testds.port", String.class))));
             server.setDirectoryService(service);

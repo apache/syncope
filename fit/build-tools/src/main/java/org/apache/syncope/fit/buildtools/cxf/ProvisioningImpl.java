@@ -73,6 +73,8 @@ public class ProvisioningImpl implements Provisioning {
 
             statement.executeUpdate();
 
+            statement.close();
+
             return accountid;
         } catch (SQLException e) {
             throw new ProvisioningException("Delete operation failed", e);
@@ -164,6 +166,7 @@ public class ProvisioningImpl implements Provisioning {
                 LOG.debug("Execute query: " + query);
 
                 statement.executeUpdate();
+                statement.close();
             }
 
             return accountid;
@@ -225,6 +228,8 @@ public class ProvisioningImpl implements Provisioning {
             }
 
             LOG.debug("Retrieved users: {}", results);
+            rs.close();
+            statement.close();
         } catch (SQLException e) {
             LOG.error("Search operation failed", e);
         } finally {
@@ -307,6 +312,8 @@ public class ProvisioningImpl implements Provisioning {
 
             statement.executeUpdate(query);
 
+            statement.close();
+
             return accountid;
         } catch (SQLException e) {
             LOG.error("Creation failed:\n" + query, e);
@@ -356,6 +363,8 @@ public class ProvisioningImpl implements Provisioning {
 
             resolved = rs.next() ? rs.getString(1) : null;
 
+            statement.close();
+
             if (resolved == null) {
                 statement = conn.prepareStatement("SELECT roleName FROM role WHERE roleName=?");
                 statement.setString(1, username);
@@ -365,6 +374,8 @@ public class ProvisioningImpl implements Provisioning {
                 rs = statement.executeQuery();
 
                 resolved = rs.next() ? rs.getString(1) : null;
+
+                statement.close();
             }
         } catch (SQLException e) {
             throw new ProvisioningException("Resolve operation failed", e);

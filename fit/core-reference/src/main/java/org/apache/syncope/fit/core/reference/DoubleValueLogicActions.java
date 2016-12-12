@@ -40,7 +40,7 @@ public class DoubleValueLogicActions extends DefaultLogicActions {
                 List<String> values = new ArrayList<>(attr.getValues().size());
                 for (String value : attr.getValues()) {
                     try {
-                        values.add(String.valueOf(2 * Long.valueOf(value)));
+                        values.add(String.valueOf(2 * Long.parseLong(value)));
                     } catch (NumberFormatException e) {
                         // ignore
                     }
@@ -60,7 +60,7 @@ public class DoubleValueLogicActions extends DefaultLogicActions {
                 List<String> values = new ArrayList<>(patch.getAttrTO().getValues().size());
                 for (String value : patch.getAttrTO().getValues()) {
                     try {
-                        values.add(String.valueOf(2 * Long.valueOf(value)));
+                        values.add(String.valueOf(2 * Long.parseLong(value)));
                     } catch (NumberFormatException e) {
                         // ignore
                     }

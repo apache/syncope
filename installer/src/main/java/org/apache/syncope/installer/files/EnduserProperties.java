@@ -24,8 +24,8 @@ public final class EnduserProperties {
             + "host=localhost\n"
             + "port=8080";
 
-    public static final String ENDUSER = "scheme=%s\n"
-            + "host=%s\n"
+    public static final String ENDUSER = "scheme=%s%n"
+            + "host=%s%n"
             + "port=%s";
 
     private EnduserProperties() {
