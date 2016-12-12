@@ -93,13 +93,13 @@ public class PersistenceProcess extends BaseProcess {
             case ORACLE:
                 provisioningProperties.append(ProvisioningProperties.ORACLE);
                 masterProperties.append(String.format(
-                        MasterProperties.ORACLE, schema, persistenceUrl, persistenceUser, persistencePassword));
+                        MasterProperties.ORACLE, persistenceUrl, schema, persistenceUser, persistencePassword));
                 break;
 
             case SQLSERVER:
                 provisioningProperties.append(ProvisioningProperties.SQLSERVER);
                 masterProperties.append(String.format(
-                        MasterProperties.SQLSERVER, schema, persistenceUrl, persistenceUser, persistencePassword));
+                        MasterProperties.SQLSERVER, persistenceUrl, schema, persistenceUser, persistencePassword));
                 break;
 
             default:
