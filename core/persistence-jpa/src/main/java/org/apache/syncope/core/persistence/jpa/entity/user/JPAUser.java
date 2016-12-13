@@ -372,7 +372,7 @@ public class JPAUser
 
     @Override
     public Integer getFailedLogins() {
-        return failedLogins == null ? 0 : failedLogins;
+        return failedLogins == null ? Integer.valueOf(0) : failedLogins;
     }
 
     @Override
@@ -406,12 +406,19 @@ public class JPAUser
 
     @Override
     public Date getLastRecertification() {
-        return lastRecertification;
+        if (lastRecertification != null) {
+            return new Date(lastRecertification.getTime());
+        }
+        return null;
     }
 
     @Override
     public void setLastRecertification(final Date lastRecertification) {
-        this.lastRecertification = lastRecertification;
+        if (lastRecertification != null) {
+            this.lastRecertification = new Date(lastRecertification.getTime());
+        } else {
+            this.lastRecertification = null;
+        }
     }
 
     @Override

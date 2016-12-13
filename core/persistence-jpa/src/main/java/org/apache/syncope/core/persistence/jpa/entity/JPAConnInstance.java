@@ -209,9 +209,9 @@ public class JPAConnInstance extends AbstractGeneratedKeyEntity implements ConnI
     @Override
     public Integer getConnRequestTimeout() {
         // DEFAULT_TIMEOUT will be returned in case of null timeout:
-        // * instances created by the content loader 
+        // * instances created by the content loader
         // * or with a timeout nullified explicitely
-        return connRequestTimeout == null ? DEFAULT_TIMEOUT : connRequestTimeout;
+        return connRequestTimeout == null ? Integer.valueOf(DEFAULT_TIMEOUT) : connRequestTimeout;
     }
 
     @Override

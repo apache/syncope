@@ -60,7 +60,10 @@ public class VirAttrCacheValue {
     }
 
     public Date getCreationDate() {
-        return creationDate;
+        if (creationDate != null) {
+            return new Date(creationDate.getTime());
+        }
+        return null;
     }
 
     public void forceExpiring() {
@@ -72,10 +75,17 @@ public class VirAttrCacheValue {
     }
 
     public Date getLastAccessDate() {
-        return lastAccessDate;
+        if (lastAccessDate != null) {
+            return new Date(lastAccessDate.getTime());
+        }
+        return null;
     }
 
     public void setLastAccessDate(final Date lastAccessDate) {
-        this.lastAccessDate = lastAccessDate;
+        if (lastAccessDate != null) {
+            this.lastAccessDate = new Date(lastAccessDate.getTime());
+        } else {
+            this.lastAccessDate = null;
+        }
     }
 }

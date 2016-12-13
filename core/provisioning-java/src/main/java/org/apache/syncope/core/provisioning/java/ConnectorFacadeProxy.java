@@ -318,9 +318,7 @@ public class ConnectorFacadeProxy implements Connector {
         try {
             return future == null ? null : future.get(connInstance.getConnRequestTimeout(), TimeUnit.SECONDS);
         } catch (java.util.concurrent.TimeoutException e) {
-            if (future != null) {
-                future.cancel(true);
-            }
+            future.cancel(true);
             throw new TimeoutException("Request timeout");
         } catch (Exception e) {
             LOG.error("Connector request execution failure", e);
