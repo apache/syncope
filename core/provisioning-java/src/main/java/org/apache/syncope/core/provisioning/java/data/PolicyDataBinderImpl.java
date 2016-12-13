@@ -19,7 +19,6 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import org.apache.syncope.core.provisioning.api.data.PolicyDataBinder;
-import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.policy.AbstractAccountRuleConf;
 import org.apache.syncope.common.lib.policy.AbstractPasswordRuleConf;
 import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
@@ -28,7 +27,6 @@ import org.apache.syncope.common.lib.policy.AccountRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordPolicyTO;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
 import org.apache.syncope.common.lib.policy.PullPolicyTO;
-import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
@@ -56,13 +54,6 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
 
     @Autowired
     private EntityFactory entityFactory;
-
-    private void throwInvalidPolicy(final Policy policy, final AbstractPolicyTO policyTO) {
-        SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidPolicy);
-        sce.getElements().add(String.format("Cannot update %s from %s",
-                policy.getClass().getSimpleName(), policyTO.getClass().getSimpleName()));
-        throw sce;
-    }
 
     @SuppressWarnings("unchecked")
     private <T extends Policy> T getPolicy(final T policy, final AbstractPolicyTO policyTO) {
