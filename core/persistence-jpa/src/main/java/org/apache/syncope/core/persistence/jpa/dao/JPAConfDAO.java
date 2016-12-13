@@ -21,10 +21,12 @@ package org.apache.syncope.core.persistence.jpa.dao;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
+import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.conf.Conf;
 import org.apache.syncope.core.persistence.jpa.entity.conf.JPACPlainAttr;
+import org.apache.syncope.core.persistence.jpa.entity.conf.JPACPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.jpa.entity.conf.JPACPlainAttrValue;
 import org.apache.syncope.core.persistence.jpa.entity.conf.JPAConf;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,9 +70,9 @@ public class JPAConfDAO extends AbstractDAO<Conf> implements ConfDAO {
                 JPACPlainAttr newAttr = new JPACPlainAttr();
                 newAttr.setSchema(schemaDAO.find(key));
 
-                JPACPlainAttrValue attrValue;
+                PlainAttrValue attrValue;
                 if (newAttr.getSchema().isUniqueConstraint()) {
-                    attrValue = new JPACPlainAttrValue();
+                    attrValue = new JPACPlainAttrUniqueValue();
                     ((PlainAttrUniqueValue) attrValue).setSchema(newAttr.getSchema());
                 } else {
                     attrValue = new JPACPlainAttrValue();

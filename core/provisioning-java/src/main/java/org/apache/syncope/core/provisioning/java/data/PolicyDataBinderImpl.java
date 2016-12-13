@@ -71,8 +71,6 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
         if (policyTO instanceof PasswordPolicyTO) {
             if (result == null) {
                 result = (T) entityFactory.newEntity(PasswordPolicy.class);
-            } else if (!(policyTO instanceof PasswordPolicyTO)) {
-                throwInvalidPolicy(policy, policyTO);
             }
 
             PasswordPolicy passwordPolicy = PasswordPolicy.class.cast(result);
@@ -88,8 +86,6 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
         } else if (policyTO instanceof AccountPolicyTO) {
             if (result == null) {
                 result = (T) entityFactory.newEntity(AccountPolicy.class);
-            } else if (!(policyTO instanceof AccountPolicyTO)) {
-                throwInvalidPolicy(policy, policyTO);
             }
 
             AccountPolicy accountPolicy = AccountPolicy.class.cast(result);
@@ -115,8 +111,6 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
         } else if (policyTO instanceof PullPolicyTO) {
             if (result == null) {
                 result = (T) entityFactory.newEntity(PullPolicy.class);
-            } else if (!(policyTO instanceof PullPolicyTO)) {
-                throwInvalidPolicy(policy, policyTO);
             }
 
             ((PullPolicy) result).setSpecification(((PullPolicyTO) policyTO).getSpecification());

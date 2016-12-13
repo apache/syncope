@@ -93,7 +93,13 @@ public abstract class AbstractAnnotatedEntity extends AbstractGeneratedKeyEntity
 
     @Override
     public Date getLastChangeDate() {
-        return lastChangeDate == null ? creationDate : lastChangeDate;
+        if (lastChangeDate != null) {
+            return new Date(lastChangeDate.getTime());
+        } else if (creationDate != null) {
+            return new Date(creationDate.getTime());
+        }
+
+        return null;
     }
 
     @Override

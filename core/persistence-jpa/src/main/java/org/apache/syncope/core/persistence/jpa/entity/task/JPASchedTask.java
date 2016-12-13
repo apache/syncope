@@ -57,12 +57,19 @@ public class JPASchedTask extends AbstractTask implements SchedTask {
 
     @Override
     public Date getStartAt() {
-        return startAt;
+        if (startAt != null) {
+            return new Date(startAt.getTime());
+        }
+        return null;
     }
 
     @Override
     public void setStartAt(final Date start) {
-        this.startAt = start;
+        if (start != null) {
+            this.startAt = new Date(start.getTime());
+        } else {
+            this.startAt = null;
+        }
     }
 
     @Override
