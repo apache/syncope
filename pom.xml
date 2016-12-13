@@ -341,7 +341,7 @@ under the License.
 
     <activiti.version>5.16.6</activiti.version>
 
-    <aspectj.version>1.8.10</aspectj.version>
+    <aspectj.version>1.8.9</aspectj.version>
 
     <cxf.version>3.0.12</cxf.version>	
     <spring.version>4.0.9.RELEASE</spring.version>
