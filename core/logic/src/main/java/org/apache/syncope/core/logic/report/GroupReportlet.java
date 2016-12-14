@@ -246,32 +246,34 @@ public class GroupReportlet extends AbstractReportlet {
         handler.startElement("", "", "configurations", null);
         handler.startElement("", "", "groupAttributes", atts);
 
-        for (Feature feature : conf.getFeatures()) {
-            atts.clear();
-            handler.startElement("", "", "feature", atts);
-            handler.characters(feature.name().toCharArray(), 0, feature.name().length());
-            handler.endElement("", "", "feature");
-        }
+        if (conf != null) {
+            for (Feature feature : conf.getFeatures()) {
+                atts.clear();
+                handler.startElement("", "", "feature", atts);
+                handler.characters(feature.name().toCharArray(), 0, feature.name().length());
+                handler.endElement("", "", "feature");
+            }
 
-        for (String attr : conf.getPlainAttrs()) {
-            atts.clear();
-            handler.startElement("", "", "attribute", atts);
-            handler.characters(attr.toCharArray(), 0, attr.length());
-            handler.endElement("", "", "attribute");
-        }
+            for (String attr : conf.getPlainAttrs()) {
+                atts.clear();
+                handler.startElement("", "", "attribute", atts);
+                handler.characters(attr.toCharArray(), 0, attr.length());
+                handler.endElement("", "", "attribute");
+            }
 
-        for (String derAttr : conf.getDerAttrs()) {
-            atts.clear();
-            handler.startElement("", "", "derAttribute", atts);
-            handler.characters(derAttr.toCharArray(), 0, derAttr.length());
-            handler.endElement("", "", "derAttribute");
-        }
+            for (String derAttr : conf.getDerAttrs()) {
+                atts.clear();
+                handler.startElement("", "", "derAttribute", atts);
+                handler.characters(derAttr.toCharArray(), 0, derAttr.length());
+                handler.endElement("", "", "derAttribute");
+            }
 
-        for (String virAttr : conf.getVirAttrs()) {
-            atts.clear();
-            handler.startElement("", "", "virAttribute", atts);
-            handler.characters(virAttr.toCharArray(), 0, virAttr.length());
-            handler.endElement("", "", "virAttribute");
+            for (String virAttr : conf.getVirAttrs()) {
+                atts.clear();
+                handler.startElement("", "", "virAttribute", atts);
+                handler.characters(virAttr.toCharArray(), 0, virAttr.length());
+                handler.endElement("", "", "virAttribute");
+            }
         }
 
         handler.endElement("", "", "groupAttributes");

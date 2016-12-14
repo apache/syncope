@@ -520,7 +520,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
 
     @Override
     protected UserTO resolveReference(final Method method, final Object... args) throws UnresolvedReferenceException {
-        Object key = null;
+        String key = null;
 
         if (!"confirmPasswordReset".equals(method.getName()) && ArrayUtils.isNotEmpty(args)) {
             for (int i = 0; key == null && i < args.length; i++) {
@@ -534,7 +534,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
             }
         }
 
-        if (key instanceof String) {
+        if (key != null) {
             try {
                 return binder.getUserTO((String) key);
             } catch (Throwable ignore) {

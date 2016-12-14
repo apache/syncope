@@ -20,6 +20,7 @@ package org.apache.syncope.core.logic.init;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
@@ -115,6 +116,7 @@ public class JobManagerImpl implements JobManager, SyncopeLoader {
 
         Connection conn = DataSourceUtils.getConnection(domainsHolder.getDomains().get(SyncopeConstants.MASTER_DOMAIN));
         PreparedStatement stmt = null;
+        ResultSet resultSet = null;
         try {
             stmt = conn.prepareStatement(
                     "SELECT 1 FROM " + Constants.DEFAULT_TABLE_PREFIX + "FIRED_TRIGGERS "
@@ -122,10 +124,12 @@ public class JobManagerImpl implements JobManager, SyncopeLoader {
             stmt.setString(1, jobKey.getName());
             stmt.setString(2, jobKey.getGroup());
 
-            return stmt.executeQuery().next();
+            resultSet = stmt.executeQuery();
+            return resultSet.next();
         } catch (SQLException e) {
             throw new SchedulerException(e);
         } finally {
+            IOUtil.quietClose(resultSet);
             IOUtil.quietClose(stmt);
             IOUtil.quietClose(conn);
         }
