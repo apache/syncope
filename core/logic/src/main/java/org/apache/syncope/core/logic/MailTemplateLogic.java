@@ -169,14 +169,14 @@ public class MailTemplateLogic extends AbstractTransactionalLogic<MailTemplateTO
         if (ArrayUtils.isNotEmpty(args)) {
             for (int i = 0; key == null && i < args.length; i++) {
                 if (args[i] instanceof Long) {
-                    key = (String) args[i];
+                    key = ((Long) args[i]).toString();
                 } else if (args[i] instanceof MailTemplateTO) {
                     key = ((MailTemplateTO) args[i]).getKey();
                 }
             }
         }
 
-        if ((key != null) && !key.equals(0L)) {
+        if ((key != null) && !key.equals("0")) {
             try {
                 return getMailTemplateTO(key);
             } catch (Throwable ignore) {

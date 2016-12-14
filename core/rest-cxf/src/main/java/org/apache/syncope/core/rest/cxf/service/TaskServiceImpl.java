@@ -25,9 +25,7 @@ import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.PagedResult;
-import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
-import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
@@ -50,7 +48,7 @@ public class TaskServiceImpl extends AbstractExecutableService implements TaskSe
     @Override
     public Response create(final SchedTaskTO taskTO) {
         SchedTaskTO createdTask;
-        if (taskTO instanceof PullTaskTO || taskTO instanceof PushTaskTO || taskTO instanceof SchedTaskTO) {
+        if (taskTO != null) {
             createdTask = logic.createSchedTask(taskTO);
         } else {
             throw new BadRequestException();
