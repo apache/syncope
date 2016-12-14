@@ -181,15 +181,15 @@ public class ReportTemplateLogic extends AbstractTransactionalLogic<ReportTempla
 
         if (ArrayUtils.isNotEmpty(args)) {
             for (int i = 0; key == null && i < args.length; i++) {
-                if (args[i] instanceof Long) {
-                    key = ((Long) args[i]).toString();
+                if (args[i] instanceof String) {
+                    key = ((String) args[i]).toString();
                 } else if (args[i] instanceof ReportTemplateTO) {
                     key = ((ReportTemplateTO) args[i]).getKey();
                 }
             }
         }
 
-        if ((key != null) && !key.equals("0")) {
+        if (key != null) {
             try {
                 return getReportTemplateTO(key);
             } catch (Throwable ignore) {
