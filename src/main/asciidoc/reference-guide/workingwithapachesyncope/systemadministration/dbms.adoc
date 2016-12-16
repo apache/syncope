@@ -102,7 +102,7 @@ Master.url=jdbc:mariadb://localhost:3306/syncope?characterEncoding=UTF-8
 Master.schema=
 Master.username=syncope
 Master.password=syncope
-Master.databasePlatform=org.apache.openjpa.jdbc.sql.MariaDBDictionary
+Master.databasePlatform=org.apache.openjpa.jdbc.sql.MariaDBDictionary(blobTypeName=LONGBLOB)
 Master.orm=META-INF/spring-orm.xml
 ....
 
