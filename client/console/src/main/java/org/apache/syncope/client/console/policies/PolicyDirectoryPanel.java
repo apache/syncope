@@ -80,7 +80,7 @@ public abstract class PolicyDirectoryPanel<T extends AbstractPolicyTO>
 
     };
 
-    protected final BaseModal<T> policySpecModal = new BaseModal<T>("outer");
+    protected final BaseModal<T> policySpecModal = new BaseModal<>("outer");
 
     private final PolicyType policyType;
 

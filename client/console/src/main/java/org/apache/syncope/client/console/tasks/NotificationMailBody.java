@@ -18,16 +18,16 @@
  */
 package org.apache.syncope.client.console.tasks;
 
-import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 
-public class ExecMessage extends MultilevelPanel.SecondLevel {
+public class NotificationMailBody extends Panel {
 
     private static final long serialVersionUID = 3163146190501510888L;
 
-    public ExecMessage(final String message) {
-        super();
-        add(new Label("message", Model.of(message)).setOutputMarkupId(true));
+    public NotificationMailBody(final String id, final String body) {
+        super(id);
+        add(new Label("body", Model.of(body)).setOutputMarkupId(true));
     }
 }

@@ -131,7 +131,7 @@ public class ConnObjects extends Panel implements ModalPanel {
 
             connObjects.next(
                     new StringResourceModel("connObject.view", this, new Model<>(connObjectTO)).getObject(),
-                    new ConnObjectDetails(baseModal, connObjectTO, pageRef),
+                    new ConnObjectDetails(connObjectTO),
                     target);
         }
 

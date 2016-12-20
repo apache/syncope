@@ -65,8 +65,8 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
         super.add(new Fragment("panelEdit", "emptyFragment", this));
         super.add(new Fragment("panelTypeExtensions", "emptyFragment", this));
         super.add(new Fragment("panelFoEdit", "emptyFragment", this));
-        super.add(new Fragment("panelHtmlEdit", "emptyFragment", this));
-        super.add(new Fragment("panelTextEdit", "emptyFragment", this));
+        super.add(new Fragment("panelHtml", "emptyFragment", this));
+        super.add(new Fragment("panelText", "emptyFragment", this));
         super.add(new Fragment("panelCompose", "emptyFragment", this));
         super.add(new Fragment("panelLayoutEdit", "emptyFragment", this));
         super.add(new Fragment("panelReset", "emptyFragment", this));
@@ -414,10 +414,10 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                 }.setVisible(link.isEnabled(model.getObject())));
                 break;
 
-            case HTML_EDIT:
-                fragment = new Fragment("panelHtmlEdit", "fragmentHtmlEdit", this);
+            case HTML:
+                fragment = new Fragment("panelHtml", "fragmentHtml", this);
 
-                fragment.addOrReplace(new IndicatingAjaxLink<Void>("htmlEditLink") {
+                fragment.addOrReplace(new IndicatingAjaxLink<Void>("htmlLink") {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
@@ -434,10 +434,10 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                 }.setVisible(link.isEnabled(model.getObject())));
                 break;
 
-            case TEXT_EDIT:
-                fragment = new Fragment("panelTextEdit", "fragmentTextEdit", this);
+            case TEXT:
+                fragment = new Fragment("panelText", "fragmentText", this);
 
-                fragment.addOrReplace(new IndicatingAjaxLink<Void>("textEditLink") {
+                fragment.addOrReplace(new IndicatingAjaxLink<Void>("textLink") {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
@@ -1192,11 +1192,11 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                 super.addOrReplace(new Fragment("panelFoEdit", "emptyFragment", this));
                 break;
 
-            case HTML_EDIT:
-                super.addOrReplace(new Fragment("panelHtmlEdit", "emptyFragment", this));
+            case HTML:
+                super.addOrReplace(new Fragment("panelHtml", "emptyFragment", this));
                 break;
 
-            case TEXT_EDIT:
+            case TEXT:
                 super.addOrReplace(new Fragment("panelTestEdit", "emptyFragment", this));
                 break;
 

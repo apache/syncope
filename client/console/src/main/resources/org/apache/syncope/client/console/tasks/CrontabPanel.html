@@ -17,21 +17,18 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
-  <head><title></title></head>
-  <body>
-    <wicket:panel>
-      <label for="cron"><wicket:message key="cron"/></label>
-      <div id="schedule" class="form-group">
-        <span wicket:id="seconds"/>
-        <span wicket:id="minutes"/>
-        <span wicket:id="hours"/>
-        <span wicket:id="daysOfMonth"/>
-        <span wicket:id="months"/>
-        <span wicket:id="daysOfWeek"/>
-      </div>
-      <div id="templates" class="form-group">
-        <span wicket:id="cronTemplateChooser"/>
-      </div>
-    </wicket:panel>
-  </body>
+  <wicket:panel>
+    <label for="cron"><wicket:message key="cron"/></label>
+    <div id="schedule" class="form-group">
+      <span wicket:id="seconds"/>
+      <span wicket:id="minutes"/>
+      <span wicket:id="hours"/>
+      <span wicket:id="daysOfMonth"/>
+      <span wicket:id="months"/>
+      <span wicket:id="daysOfWeek"/>
+    </div>
+    <div id="templates" class="form-group">
+      <span wicket:id="cronTemplateChooser"/>
+    </div>
+  </wicket:panel>
 </html>

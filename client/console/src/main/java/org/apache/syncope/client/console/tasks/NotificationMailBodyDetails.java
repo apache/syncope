@@ -19,15 +19,19 @@
 package org.apache.syncope.client.console.tasks;
 
 import org.apache.syncope.client.console.panels.MultilevelPanel;
-import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.model.Model;
 
-public class ExecMessage extends MultilevelPanel.SecondLevel {
+/**
+ * Notification e-mail body (for a given {@link org.apache.syncope.common.lib.to.NotificationTaskTO}.
+ */
+public class NotificationMailBodyDetails extends MultilevelPanel.SecondLevel {
 
-    private static final long serialVersionUID = 3163146190501510888L;
+    private static final long serialVersionUID = -4110576026663173545L;
 
-    public ExecMessage(final String message) {
+    public NotificationMailBodyDetails(final String body) {
         super();
-        add(new Label("message", Model.of(message)).setOutputMarkupId(true));
+
+        MultilevelPanel mlp = new MultilevelPanel("body");
+        mlp.setFirstLevel(new NotificationMailBody(MultilevelPanel.FIRST_LEVEL_ID, body));
+        add(mlp);
     }
 }

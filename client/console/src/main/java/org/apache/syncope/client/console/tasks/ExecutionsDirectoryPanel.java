@@ -94,7 +94,7 @@ public abstract class ExecutionsDirectoryPanel
         resultTableBuilder.setMultiLevelPanel(baseModal, multiLevelPanelRef);
     }
 
-    protected abstract void next(final String title, final SecondLevel secondLevel, final AjaxRequestTarget target);
+    protected abstract void next(String title, SecondLevel secondLevel, AjaxRequestTarget target);
 
     @Override
     protected List<IColumn<ExecTO, String>> getColumns() {
@@ -116,9 +116,7 @@ public abstract class ExecutionsDirectoryPanel
             public ActionLinksPanel<ExecTO> getActions(final String componentId, final IModel<ExecTO> model) {
                 final ExecTO taskExecutionTO = model.getObject();
 
-                final ActionLinksPanel.Builder<ExecTO> panel = ActionLinksPanel.builder();
-
-                panel.
+                final ActionLinksPanel.Builder<ExecTO> panel = ActionLinksPanel.<ExecTO>builder().
                         add(new ActionLink<ExecTO>() {
 
                             private static final long serialVersionUID = -3722207913631435501L;

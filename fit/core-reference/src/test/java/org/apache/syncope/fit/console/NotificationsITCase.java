@@ -154,7 +154,7 @@ public class NotificationsITCase extends AbstractConsoleITCase {
                 + "content:tasks:firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:"
                 + "groupForm:checkgroup:dataTable", "Notification for SYNCOPE-81");
 
-        TESTER.clickLink(result.getPageRelativePath() + ":cells:8:cell:panelExecute:executeLink");
+        TESTER.clickLink(result.getPageRelativePath() + ":cells:9:cell:panelExecute:executeLink");
 
         TESTER.assertInfoMessages("Operation executed successfully");
         TESTER.cleanupFeedbackMessages();
@@ -171,10 +171,10 @@ public class NotificationsITCase extends AbstractConsoleITCase {
                 + "content:tasks:firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:"
                 + "groupForm:checkgroup:dataTable", "Notification for SYNCOPE-81");
 
-        TESTER.clickLink(result.getPageRelativePath() + ":cells:8:cell:panelView:viewLink");
+        TESTER.clickLink(result.getPageRelativePath() + ":cells:9:cell:panelView:viewLink");
 
         TESTER.assertLabel("body:content:tabbedPanel:panel:outerObjectsRepeater:3:outer:form:content:tasks:"
-                + "secondLevelContainer:title", "Notifications with subject &#039;Notification for SYNCOPE-81&#039;");
+                + "secondLevelContainer:title", "Executions");
 
         TESTER.clickLink("body:content:tabbedPanel:panel:outerObjectsRepeater:3:outer:form:content:tasks:"
                 + "secondLevelContainer:back");

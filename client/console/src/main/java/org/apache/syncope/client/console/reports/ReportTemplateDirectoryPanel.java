@@ -98,8 +98,8 @@ public class ReportTemplateDirectoryPanel
             @Override
             public WizardModalPanel<ReportTemplateTO> build(
                     final String id, final int index, final AjaxWizard.Mode mode) {
-                return new TemplateModal<ReportTemplateTO, ReportTemplateFormat>(
-                        modal, restClient, new ReportTemplateTO(), pageReference);
+
+                return new TemplateModal<>(modal, restClient, new ReportTemplateTO(), pageReference);
             }
         }, true);
 
@@ -130,14 +130,14 @@ public class ReportTemplateDirectoryPanel
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final ReportTemplateTO ignore) {
-                        TemplateContentModal.TemplateContent<ReportTemplateFormat> content
-                                = new TemplateContentModal.TemplateContent<ReportTemplateFormat>(
+                        TemplateContentModal.TemplateContent<ReportTemplateFormat> content =
+                                new TemplateContentModal.TemplateContent<>(
                                         model.getObject().getKey(), ReportTemplateFormat.FO);
                         content.setContent(
                                 restClient.readTemplateFormat(model.getObject().getKey(), ReportTemplateFormat.FO));
 
                         utilityModal.header(new ResourceModel("report.template.fo", "FO Content"));
-                        utilityModal.setContent(new TemplateContentModal<ReportTemplateTO, ReportTemplateFormat>(
+                        utilityModal.setContent(new TemplateContentModal<>(
                                 utilityModal, restClient, content, pageRef));
                         utilityModal.show(true);
                         target.add(utilityModal);
@@ -150,19 +150,18 @@ public class ReportTemplateDirectoryPanel
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final ReportTemplateTO ignore) {
-                        TemplateContentModal.TemplateContent<ReportTemplateFormat> content
-                                = new TemplateContentModal.TemplateContent<ReportTemplateFormat>(
+                        TemplateContentModal.TemplateContent<ReportTemplateFormat> content =
+                                new TemplateContentModal.TemplateContent<>(
                                         model.getObject().getKey(), ReportTemplateFormat.HTML);
                         content.setContent(
                                 restClient.readTemplateFormat(model.getObject().getKey(), ReportTemplateFormat.HTML));
 
                         utilityModal.header(new ResourceModel("report.template.html", "HTML Content"));
-                        utilityModal.setContent(new TemplateContentModal<ReportTemplateTO, ReportTemplateFormat>(
-                                utilityModal, restClient, content, pageRef));
+                        utilityModal.setContent(new TemplateContentModal<>(utilityModal, restClient, content, pageRef));
                         utilityModal.show(true);
                         target.add(utilityModal);
                     }
-                }, ActionLink.ActionType.HTML_EDIT, StandardEntitlement.MAIL_TEMPLATE_UPDATE);
+                }, ActionLink.ActionType.HTML, StandardEntitlement.MAIL_TEMPLATE_UPDATE);
 
                 panel.add(new ActionLink<ReportTemplateTO>() {
 
@@ -170,20 +169,19 @@ public class ReportTemplateDirectoryPanel
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final ReportTemplateTO ignore) {
-                        TemplateContentModal.TemplateContent<ReportTemplateFormat> content
-                                = new TemplateContentModal.TemplateContent<ReportTemplateFormat>(
+                        TemplateContentModal.TemplateContent<ReportTemplateFormat> content =
+                                new TemplateContentModal.TemplateContent<>(
                                         model.getObject().getKey(), ReportTemplateFormat.CSV);
                         content.setContent(
                                 restClient.readTemplateFormat(model.getObject().getKey(), ReportTemplateFormat.CSV));
 
                         utilityModal.setFormModel(content);
                         utilityModal.header(new ResourceModel("report.template.text", "TEXT Content"));
-                        utilityModal.setContent(new TemplateContentModal<ReportTemplateTO, ReportTemplateFormat>(
-                                utilityModal, restClient, content, pageRef));
+                        utilityModal.setContent(new TemplateContentModal<>(utilityModal, restClient, content, pageRef));
                         utilityModal.show(true);
                         target.add(utilityModal);
                     }
-                }, ActionLink.ActionType.TEXT_EDIT, StandardEntitlement.MAIL_TEMPLATE_UPDATE);
+                }, ActionLink.ActionType.TEXT, StandardEntitlement.MAIL_TEMPLATE_UPDATE);
 
                 panel.add(new ActionLink<ReportTemplateTO>() {
 

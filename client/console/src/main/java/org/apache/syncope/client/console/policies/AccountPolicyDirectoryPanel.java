@@ -45,7 +45,7 @@ public class AccountPolicyDirectoryPanel extends PolicyDirectoryPanel<AccountPol
     public AccountPolicyDirectoryPanel(final String id, final PageReference pageRef) {
         super(id, PolicyType.ACCOUNT, pageRef);
 
-        this.addNewItemPanelBuilder(new PolicyModalPanelBuilder<AccountPolicyTO>(
+        this.addNewItemPanelBuilder(new PolicyModalPanelBuilder<>(
                 new AccountPolicyTO(), modal, pageRef), true);
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.POLICY_CREATE);
 
@@ -73,7 +73,7 @@ public class AccountPolicyDirectoryPanel extends PolicyDirectoryPanel<AccountPol
 
             @Override
             public void onClick(final AjaxRequestTarget target, final AccountPolicyTO ignore) {
-                target.add(ruleCompositionModal.setContent(new PolicyRuleDirectoryPanel<AccountPolicyTO>(
+                target.add(ruleCompositionModal.setContent(new PolicyRuleDirectoryPanel<>(
                         ruleCompositionModal, model.getObject().getKey(), PolicyType.ACCOUNT, pageRef)));
 
                 ruleCompositionModal.header(new StringResourceModel(

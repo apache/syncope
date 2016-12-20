@@ -45,7 +45,7 @@ public class PasswordPolicyDirectoryPanel extends PolicyDirectoryPanel<PasswordP
         super(id, PolicyType.PASSWORD, pageRef);
 
         this.addNewItemPanelBuilder(
-                new PolicyModalPanelBuilder<PasswordPolicyTO>(new PasswordPolicyTO(), modal, pageRef), true);
+                new PolicyModalPanelBuilder<>(new PasswordPolicyTO(), modal, pageRef), true);
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.POLICY_CREATE);
 
         initResultTable();
@@ -69,7 +69,7 @@ public class PasswordPolicyDirectoryPanel extends PolicyDirectoryPanel<PasswordP
 
             @Override
             public void onClick(final AjaxRequestTarget target, final PasswordPolicyTO ignore) {
-                target.add(ruleCompositionModal.setContent(new PolicyRuleDirectoryPanel<PasswordPolicyTO>(
+                target.add(ruleCompositionModal.setContent(new PolicyRuleDirectoryPanel<>(
                         ruleCompositionModal, model.getObject().getKey(), PolicyType.PASSWORD, pageRef)));
 
                 ruleCompositionModal.header(new StringResourceModel(

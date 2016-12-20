@@ -34,6 +34,7 @@ import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.CollectionPropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
+import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
@@ -42,6 +43,7 @@ import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.MailTemplateFormat;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
@@ -75,12 +77,17 @@ public abstract class NotificationTaskDirectoryPanel
         initResultTable();
     }
 
+    protected abstract void viewMailBody(MailTemplateFormat format, String content, AjaxRequestTarget target);
+
     @Override
     protected List<IColumn<NotificationTaskTO, String>> getColumns() {
         final List<IColumn<NotificationTaskTO, String>> columns = new ArrayList<>();
 
-        columns.add(new PropertyColumn<NotificationTaskTO, String>(
+        columns.add(new KeyPropertyColumn<NotificationTaskTO>(
                 new StringResourceModel("key", this, null), "key", "key"));
+
+        columns.add(new PropertyColumn<NotificationTaskTO, String>(
+                new StringResourceModel("sender", this, null), "sender", "sender"));
 
         columns.add(new PropertyColumn<NotificationTaskTO, String>(
                 new StringResourceModel("subject", this, null), "subject", "subject"));
@@ -117,6 +124,24 @@ public abstract class NotificationTaskDirectoryPanel
                                 viewTask(taskTO, target);
                             }
                         }, ActionLink.ActionType.VIEW, StandardEntitlement.TASK_READ).
+                        add(new ActionLink<NotificationTaskTO>() {
+
+                            private static final long serialVersionUID = -3722207913631435501L;
+
+                            @Override
+                            public void onClick(final AjaxRequestTarget target, final NotificationTaskTO modelObject) {
+                                viewMailBody(MailTemplateFormat.TEXT, taskTO.getTextBody(), target);
+                            }
+                        }, ActionLink.ActionType.TEXT, StandardEntitlement.TASK_READ).
+                        add(new ActionLink<NotificationTaskTO>() {
+
+                            private static final long serialVersionUID = -3722207913631435501L;
+
+                            @Override
+                            public void onClick(final AjaxRequestTarget target, final NotificationTaskTO modelObject) {
+                                viewMailBody(MailTemplateFormat.HTML, taskTO.getHtmlBody(), target);
+                            }
+                        }, ActionLink.ActionType.HTML, StandardEntitlement.TASK_READ).
                         add(new ActionLink<NotificationTaskTO>() {
 
                             private static final long serialVersionUID = -3722207913631435501L;
