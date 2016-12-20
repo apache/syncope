@@ -45,7 +45,7 @@ public class PullPolicyDirectoryPanel extends PolicyDirectoryPanel<PullPolicyTO>
         defaultItem.setSpecification(new PullPolicySpec());
 
         this.addNewItemPanelBuilder(
-                new PolicyModalPanelBuilder<PullPolicyTO>(defaultItem, modal, pageRef), true);
+                new PolicyModalPanelBuilder<>(defaultItem, modal, pageRef), true);
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.POLICY_CREATE);
 
         initResultTable();

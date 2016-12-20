@@ -96,8 +96,8 @@ public class MailTemplateDirectoryPanel
             @Override
             public WizardModalPanel<MailTemplateTO> build(
                     final String id, final int index, final AjaxWizard.Mode mode) {
-                return new TemplateModal<MailTemplateTO, MailTemplateFormat>(
-                        modal, restClient, new MailTemplateTO(), pageReference);
+
+                return new TemplateModal<>(modal, restClient, new MailTemplateTO(), pageReference);
             }
         }, true);
 
@@ -128,19 +128,19 @@ public class MailTemplateDirectoryPanel
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final MailTemplateTO ignore) {
-                        TemplateContentModal.TemplateContent<MailTemplateFormat> content
-                                = new TemplateContentModal.TemplateContent<MailTemplateFormat>(
+                        TemplateContentModal.TemplateContent<MailTemplateFormat> content =
+                                new TemplateContentModal.TemplateContent<>(
                                         model.getObject().getKey(), MailTemplateFormat.HTML);
                         content.setContent(
                                 restClient.readTemplateFormat(model.getObject().getKey(), MailTemplateFormat.HTML));
 
                         utilityModal.header(new ResourceModel("mail.template.html", "HTML Content"));
-                        utilityModal.setContent(new TemplateContentModal<MailTemplateTO, MailTemplateFormat>(
+                        utilityModal.setContent(new TemplateContentModal<>(
                                 utilityModal, restClient, content, pageRef));
                         utilityModal.show(true);
                         target.add(utilityModal);
                     }
-                }, ActionLink.ActionType.HTML_EDIT, StandardEntitlement.MAIL_TEMPLATE_UPDATE);
+                }, ActionLink.ActionType.HTML, StandardEntitlement.MAIL_TEMPLATE_UPDATE);
 
                 panel.add(new ActionLink<MailTemplateTO>() {
 
@@ -148,20 +148,20 @@ public class MailTemplateDirectoryPanel
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final MailTemplateTO ignore) {
-                        TemplateContentModal.TemplateContent<MailTemplateFormat> content
-                                = new TemplateContentModal.TemplateContent<MailTemplateFormat>(
+                        TemplateContentModal.TemplateContent<MailTemplateFormat> content =
+                                new TemplateContentModal.TemplateContent<>(
                                         model.getObject().getKey(), MailTemplateFormat.TEXT);
                         content.setContent(
                                 restClient.readTemplateFormat(model.getObject().getKey(), MailTemplateFormat.TEXT));
 
                         utilityModal.setFormModel(content);
                         utilityModal.header(new ResourceModel("mail.template.text", "TEXT Content"));
-                        utilityModal.setContent(new TemplateContentModal<MailTemplateTO, MailTemplateFormat>(
+                        utilityModal.setContent(new TemplateContentModal<>(
                                 utilityModal, restClient, content, pageRef));
                         utilityModal.show(true);
                         target.add(utilityModal);
                     }
-                }, ActionLink.ActionType.TEXT_EDIT, StandardEntitlement.MAIL_TEMPLATE_UPDATE);
+                }, ActionLink.ActionType.TEXT, StandardEntitlement.MAIL_TEMPLATE_UPDATE);
 
                 panel.add(new ActionLink<MailTemplateTO>() {
 

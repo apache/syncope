@@ -19,18 +19,14 @@
 package org.apache.syncope.client.console.panels;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wizards.any.ConnObjectPanel;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
-import org.apache.wicket.PageReference;
 
 public class ConnObjectDetails extends MultilevelPanel.SecondLevel {
 
     private static final long serialVersionUID = -6532127408741991806L;
 
-    public ConnObjectDetails(
-            final BaseModal<?> baseModal, final ConnObjectTO connObjectTO, final PageReference pageRef) {
-
+    public ConnObjectDetails(final ConnObjectTO connObjectTO) {
         super();
 
         MultilevelPanel mlp = new MultilevelPanel("details");

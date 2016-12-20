@@ -21,11 +21,13 @@ package org.apache.syncope.client.console.notifications;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
+import org.apache.syncope.client.console.tasks.NotificationMailBodyDetails;
 import org.apache.syncope.client.console.tasks.NotificationTaskDirectoryPanel;
 import org.apache.syncope.client.console.tasks.TaskExecutionDetails;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.MailTemplateFormat;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -71,6 +73,16 @@ public class NotificationTasks extends Panel implements ModalPanel {
                         new StringResourceModel("task.view", this, new Model<>(Pair.of(null, taskTO))).getObject(),
                         new TaskExecutionDetails<>(null, taskTO, pageReference), target);
             }
+
+            @Override
+            protected void viewMailBody(
+                    final MailTemplateFormat format, final String content, final AjaxRequestTarget target) {
+
+                mlp.next(
+                        new StringResourceModel("content", this).setParameters(format.name()).getObject(),
+                        new NotificationMailBodyDetails(content), target);
+            }
+
         });
     }
 }

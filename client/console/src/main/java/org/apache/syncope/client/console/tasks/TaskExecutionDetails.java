@@ -26,7 +26,7 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 
 /**
- * Modal window with Task form (to stop and start execution).
+ * Task executions.
  *
  * @param <T> actual type of task
  */

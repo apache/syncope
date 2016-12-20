@@ -64,7 +64,7 @@ public abstract class TaskDirectoryPanel<T extends AbstractTaskTO>
         resultTableBuilder.setMultiLevelPanel(baseModal, multiLevelPanelRef);
     }
 
-    protected abstract void viewTask(final T taskTO, final AjaxRequestTarget target);
+    protected abstract void viewTask(T taskTO, AjaxRequestTarget target);
 
     protected abstract class TasksProvider<T extends AbstractTaskTO> extends DirectoryDataProvider<T> {
 
