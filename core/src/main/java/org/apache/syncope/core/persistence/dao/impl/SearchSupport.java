@@ -47,7 +47,9 @@ class SearchSupport {
         }
     }
 
-    private final SubjectType type;
+    protected final SubjectType type;
+
+    protected boolean nonMandatorySchemas = false;
 
     public SearchSupport(final SubjectType type) {
         this.type = type;

@@ -44,4 +44,6 @@ class OrderBySupport {
 
     protected List<Item> items = new ArrayList<Item>();
 
+    protected boolean nonMandatorySchemas = false;
+
 }

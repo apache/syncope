@@ -102,8 +102,8 @@ public class AttributableSearchTest {
         loginDateCond.setSchema("loginDate");
         loginDateCond.setExpression("2009-05-26");
 
-        SearchCond subCond = SearchCond.getAndCond(SearchCond.getLeafCond(fullnameLeafCond), SearchCond.getLeafCond(
-                membershipCond));
+        SearchCond subCond = SearchCond.getAndCond(
+                SearchCond.getLeafCond(fullnameLeafCond), SearchCond.getLeafCond(membershipCond));
 
         assertTrue(subCond.isValid());
 
@@ -561,9 +561,8 @@ public class AttributableSearchTest {
         genderCond.setSchema("gender");
         genderCond.setExpression("M");
 
-        SearchCond orCond =
-                SearchCond.getOrCond(SearchCond.getLeafCond(rossiniCond),
-                        SearchCond.getLeafCond(genderCond));
+        SearchCond orCond = SearchCond.getOrCond(
+                SearchCond.getLeafCond(rossiniCond), SearchCond.getLeafCond(genderCond));
 
         AttributeCond belliniCond = new AttributeCond(AttributeCond.Type.EQ);
         belliniCond.setSchema("surname");
@@ -576,5 +575,29 @@ public class AttributableSearchTest {
                 searchCond, SubjectType.USER);
         assertNotNull(users);
         assertEquals(1, users.size());
+    }
+
+    @Test
+    public void issueSYNCOPE983() {
+        AttributeCond fullnameLeafCond = new AttributeCond(AttributeCond.Type.LIKE);
+        fullnameLeafCond.setSchema("surname");
+        fullnameLeafCond.setExpression("%o%");
+
+        List<OrderByClause> orderByClauses = new ArrayList<OrderByClause>();
+        OrderByClause orderByClause = new OrderByClause();
+        orderByClause.setField("surname");
+        orderByClause.setDirection(OrderByClause.Direction.ASC);
+        orderByClauses.add(orderByClause);
+        orderByClause = new OrderByClause();
+        orderByClause.setField("username");
+        orderByClause.setDirection(OrderByClause.Direction.DESC);
+        orderByClauses.add(orderByClause);
+
+        List<SyncopeUser> users = searchDAO.search(
+                EntitlementUtil.getRoleIds(entitlementDAO.findAll()),
+                SearchCond.getLeafCond(fullnameLeafCond),
+                orderByClauses,
+                SubjectType.USER);
+        assertFalse(users.isEmpty());
     }
 }

@@ -70,7 +70,6 @@ import org.apache.syncope.common.wrap.ResourceName;
 import org.apache.syncope.core.quartz.AbstractTaskJob;
 import org.identityconnectors.framework.common.objects.Name;
 import org.junit.FixMethodOrder;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
@@ -117,7 +116,6 @@ public class RoleTestITCase extends AbstractTest {
     }
 
     @Test
-    @Ignore
     public void create() {
         RoleTO roleTO = buildRoleTO("lastRole");
         roleTO.getRVirAttrTemplates().add("rvirtualdata");

@@ -50,6 +50,7 @@ import org.apache.syncope.core.persistence.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.dao.search.ResourceCond;
 import org.apache.syncope.core.persistence.dao.search.SearchCond;
 import org.apache.syncope.core.util.AttributableUtil;
+import org.apache.syncope.core.util.EntitlementUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -71,8 +72,11 @@ public class SubjectSearchDAOImpl extends AbstractDAOImpl implements SubjectSear
     @Autowired
     private SchemaDAO schemaDAO;
 
+    @Autowired(required = false)
+    private String adminUser;
+
     private String getAdminRolesFilter(final Set<Long> adminRoles, final SubjectType type) {
-        final StringBuilder adminRolesFilter = new StringBuilder();
+        StringBuilder adminRolesFilter = new StringBuilder("u.subject_id NOT IN (");
 
         if (type == SubjectType.USER) {
             adminRolesFilter.append("SELECT syncopeUser_id AS subject_id FROM Membership WHERE syncopeRole_id NOT IN (");
@@ -98,7 +102,7 @@ public class SubjectSearchDAOImpl extends AbstractDAOImpl implements SubjectSear
             adminRolesFilter.append(")");
         }
 
-        return adminRolesFilter.toString();
+        return adminRolesFilter.append(')').toString();
     }
 
     @Override
@@ -107,12 +111,14 @@ public class SubjectSearchDAOImpl extends AbstractDAOImpl implements SubjectSear
 
         // 1. get the query string from the search condition
         SearchSupport svs = new SearchSupport(type);
-        StringBuilder queryString = getQuery(searchCondition, parameters, type, svs);
+        StringBuilder queryString = getQuery(searchCondition, parameters, svs);
 
-        // 2. take into account administrative roles
+        // 2. take into account administrative roles (skips checks for admin)
         queryString.insert(0, "SELECT u.subject_id FROM (");
-        queryString.append(") u WHERE subject_id NOT IN (");
-        queryString.append(getAdminRolesFilter(adminRoles, type)).append(')');
+        queryString.append(") u ");
+        if (!adminUser.equals(EntitlementUtil.getAuthenticatedUsername())) {
+            queryString.append("WHERE ").append(getAdminRolesFilter(adminRoles, type));
+        }
 
         // 3. prepare the COUNT query
         queryString.insert(0, "SELECT COUNT(subject_id) FROM (");
@@ -168,14 +174,14 @@ public class SubjectSearchDAOImpl extends AbstractDAOImpl implements SubjectSear
     }
 
     @Override
-    public <T extends AbstractSubject> boolean matches(final T subject, final SearchCond searchCondition,
-            final SubjectType type) {
+    public <T extends AbstractSubject> boolean matches(
+            final T subject, final SearchCond searchCondition, final SubjectType type) {
 
         List<Object> parameters = Collections.synchronizedList(new ArrayList<Object>());
 
         // 1. get the query string from the search condition
         SearchSupport svs = new SearchSupport(type);
-        StringBuilder queryString = getQuery(searchCondition, parameters, type, svs);
+        StringBuilder queryString = getQuery(searchCondition, parameters, svs);
 
         boolean matches;
         if (queryString.length() == 0) {
@@ -223,52 +229,55 @@ public class SubjectSearchDAOImpl extends AbstractDAOImpl implements SubjectSear
         }
     }
 
-    private StringBuilder buildSelect(final OrderBySupport orderBySupport) {
+    private StringBuilder buildSelect(final OrderBySupport obs) {
         final StringBuilder select = new StringBuilder("SELECT u.subject_id");
 
-        for (OrderBySupport.Item obs : orderBySupport.items) {
-            select.append(',').append(obs.select);
+        for (OrderBySupport.Item item : obs.items) {
+            select.append(',').append(item.select);
         }
         select.append(" FROM ");
 
         return select;
     }
 
-    private StringBuilder buildWhere(final OrderBySupport orderBySupport, final SubjectType type) {
-        SearchSupport svs = new SearchSupport(type);
+    private StringBuilder buildWhere(final SearchSupport svs, final OrderBySupport obs) {
         final StringBuilder where = new StringBuilder(" u");
-        for (SearchSupport.SearchView searchView : orderBySupport.views) {
+        for (SearchSupport.SearchView searchView : obs.views) {
             where.append(',');
             if (searchView.name.equals(svs.attr().name)) {
-                where.append(" (SELECT * FROM ").append(searchView.name).append(" UNION ").
-                        append("SELECT * FROM ").append(svs.nullAttr().name).append(')');
+                where.append(" (SELECT * FROM ").append(searchView.name);
+
+                if (svs.nonMandatorySchemas || obs.nonMandatorySchemas) {
+                    where.append(" UNION SELECT * FROM ").append(svs.nullAttr().name);
+                }
+
+                where.append(')');
             } else {
                 where.append(searchView.name);
             }
             where.append(' ').append(searchView.alias);
         }
         where.append(" WHERE ");
-        for (SearchSupport.SearchView searchView : orderBySupport.views) {
+        for (SearchSupport.SearchView searchView : obs.views) {
             where.append("u.subject_id=").append(searchView.alias).append(".subject_id AND ");
         }
 
-        for (OrderBySupport.Item obs : orderBySupport.items) {
-            if (StringUtils.isNotBlank(obs.where)) {
-                where.append(obs.where).append(" AND ");
+        for (OrderBySupport.Item item : obs.items) {
+            if (StringUtils.isNotBlank(item.where)) {
+                where.append(item.where).append(" AND ");
             }
         }
-        where.append("u.subject_id NOT IN (");
 
         return where;
     }
 
-    private StringBuilder buildOrderBy(final OrderBySupport orderBySupport) {
+    private StringBuilder buildOrderBy(final OrderBySupport obs) {
         final StringBuilder orderBy = new StringBuilder();
 
-        for (OrderBySupport.Item obs : orderBySupport.items) {
-            orderBy.append(obs.orderBy).append(',');
+        for (OrderBySupport.Item item : obs.items) {
+            orderBy.append(item.orderBy).append(',');
         }
-        if (!orderBySupport.items.isEmpty()) {
+        if (!obs.items.isEmpty()) {
             orderBy.insert(0, " ORDER BY ");
             orderBy.deleteCharAt(orderBy.length() - 1);
         }
@@ -276,83 +285,97 @@ public class SubjectSearchDAOImpl extends AbstractDAOImpl implements SubjectSear
         return orderBy;
     }
 
-    private OrderBySupport parseOrderBy(final SubjectType type, final SearchSupport svs,
-            final List<OrderByClause> orderByClauses) {
+    private OrderBySupport parseOrderBy(final SearchSupport svs, final List<OrderByClause> orderByClauses) {
+        final AttributableUtil attrUtil = AttributableUtil.getInstance(svs.type.asAttributableType());
 
-        final AttributableUtil attrUtil = AttributableUtil.getInstance(type.asAttributableType());
-
-        OrderBySupport orderBySupport = new OrderBySupport();
+        OrderBySupport obs = new OrderBySupport();
 
         for (OrderByClause clause : orderByClauses) {
-            OrderBySupport.Item obs = new OrderBySupport.Item();
+            OrderBySupport.Item item = new OrderBySupport.Item();
 
             Field subjectField = ReflectionUtils.findField(attrUtil.attributableClass(), clause.getField());
             if (subjectField == null) {
                 AbstractNormalSchema schema = schemaDAO.find(clause.getField(), attrUtil.schemaClass());
                 if (schema != null) {
-                    if (schema.isUniqueConstraint()) {
-                        orderBySupport.views.add(svs.uniqueAttr());
+                    // keep track of involvement of non-mandatory schemas in the order by clauses
+                    obs.nonMandatorySchemas = !"true".equals(schema.getMandatoryCondition());
 
-                        obs.select = new StringBuilder().
+                    if (schema.isUniqueConstraint()) {
+                        obs.views.add(svs.uniqueAttr());
+
+                        item.select = new StringBuilder().
                                 append(svs.uniqueAttr().alias).append('.').append(svs.fieldName(schema.getType())).
                                 append(" AS ").append(clause.getField()).toString();
-                        obs.where = new StringBuilder().
+                        item.where = new StringBuilder().
                                 append(svs.uniqueAttr().alias).
                                 append(".schema_name='").append(clause.getField()).append("'").toString();
-                        obs.orderBy = clause.getField() + " " + clause.getDirection().name();
+                        item.orderBy = clause.getField() + " " + clause.getDirection().name();
                     } else {
-                        orderBySupport.views.add(svs.attr());
+                        obs.views.add(svs.attr());
 
-                        obs.select = new StringBuilder().
+                        item.select = new StringBuilder().
                                 append(svs.attr().alias).append('.').append(svs.fieldName(schema.getType())).
                                 append(" AS ").append(clause.getField()).toString();
-                        obs.where = new StringBuilder().
+                        item.where = new StringBuilder().
                                 append(svs.attr().alias).
                                 append(".schema_name='").append(clause.getField()).append("'").toString();
-                        obs.orderBy = clause.getField() + " " + clause.getDirection().name();
+                        item.orderBy = clause.getField() + " " + clause.getDirection().name();
                     }
                 }
             } else {
-                orderBySupport.views.add(svs.field());
+                obs.views.add(svs.field());
 
-                obs.select = svs.field().alias + "." + clause.getField();
-                obs.where = StringUtils.EMPTY;
-                obs.orderBy = svs.field().alias + "." + clause.getField() + " " + clause.getDirection().name();
+                item.select = svs.field().alias + "." + clause.getField();
+                item.where = StringUtils.EMPTY;
+                item.orderBy = svs.field().alias + "." + clause.getField() + " " + clause.getDirection().name();
             }
 
-            if (obs.isEmpty()) {
+            if (item.isEmpty()) {
                 LOG.warn("Cannot build any valid clause from {}", clause);
             } else {
-                orderBySupport.items.add(obs);
+                obs.items.add(item);
             }
         }
 
-        return orderBySupport;
+        return obs;
     }
 
     @SuppressWarnings("unchecked")
-    private <T extends AbstractSubject> List<T> doSearch(final Set<Long> adminRoles,
-            final SearchCond nodeCond, final int page, final int itemsPerPage, final List<OrderByClause> orderBy,
+    private <T extends AbstractSubject> List<T> doSearch(
+            final Set<Long> adminRoles,
+            final SearchCond cond,
+            final int page,
+            final int itemsPerPage,
+            final List<OrderByClause> orderBy,
             final SubjectType type) {
 
         List<Object> parameters = Collections.synchronizedList(new ArrayList<Object>());
 
         // 1. get the query string from the search condition
         SearchSupport svs = new SearchSupport(type);
-        StringBuilder queryString = getQuery(nodeCond, parameters, type, svs);
+        StringBuilder queryString = getQuery(cond, parameters, svs);
 
         // 2. take into account administrative roles and ordering
-        OrderBySupport orderBySupport = parseOrderBy(type, svs, orderBy);
+        OrderBySupport obs = parseOrderBy(svs, orderBy);
         if (queryString.charAt(0) == '(') {
-            queryString.insert(0, buildSelect(orderBySupport));
-            queryString.append(buildWhere(orderBySupport, type));
+            queryString.insert(0, buildSelect(obs));
+            queryString.append(buildWhere(svs, obs));
         } else {
-            queryString.insert(0, buildSelect(orderBySupport).append('('));
-            queryString.append(')').append(buildWhere(orderBySupport, type));
+            queryString.insert(0, buildSelect(obs).append('('));
+            queryString.append(')').append(buildWhere(svs, obs));
         }
-        queryString.
-                append(getAdminRolesFilter(adminRoles, type)).append(')').
-                append(buildOrderBy(orderBySupport));
+        // skips checks for admin
+        if (adminUser.equals(EntitlementUtil.getAuthenticatedUsername())) {
+            String qss = queryString.toString();
+            if (qss.endsWith(" WHERE ")) {
+                queryString.setLength(queryString.length() - 6);
+            } else if (qss.endsWith(" AND ")) {
+                queryString.setLength(queryString.length() - 4);
+            }
+        } else {
+            queryString.append(getAdminRolesFilter(adminRoles, type));
+        }
+        queryString.append(buildOrderBy(obs));
 
         // 3. prepare the search query
         Query query = entityManager.createNativeQuery(queryString.toString());
@@ -394,54 +417,52 @@ public class SubjectSearchDAOImpl extends AbstractDAOImpl implements SubjectSear
         return result;
     }
 
-    private StringBuilder getQuery(final SearchCond nodeCond, final List<Object> parameters,
-            final SubjectType type, final SearchSupport svs) {
-
+    private StringBuilder getQuery(final SearchCond cond, final List<Object> parameters, final SearchSupport svs) {
         StringBuilder query = new StringBuilder();
 
-        switch (nodeCond.getType()) {
+        switch (cond.getType()) {
 
             case LEAF:
             case NOT_LEAF:
-                if (nodeCond.getMembershipCond() != null && SubjectType.USER == type) {
-                    query.append(getQuery(nodeCond.getMembershipCond(), nodeCond.getType() == SearchCond.Type.NOT_LEAF,
+                if (cond.getMembershipCond() != null && SubjectType.USER == svs.type) {
+                    query.append(getQuery(cond.getMembershipCond(), cond.getType() == SearchCond.Type.NOT_LEAF,
                             parameters, svs));
                 }
-                if (nodeCond.getResourceCond() != null) {
-                    query.append(getQuery(nodeCond.getResourceCond(),
-                            nodeCond.getType() == SearchCond.Type.NOT_LEAF, parameters, type, svs));
+                if (cond.getResourceCond() != null) {
+                    query.append(getQuery(cond.getResourceCond(),
+                            cond.getType() == SearchCond.Type.NOT_LEAF, parameters, svs));
                 }
-                if (nodeCond.getEntitlementCond() != null) {
-                    query.append(getQuery(nodeCond.getEntitlementCond(),
-                            nodeCond.getType() == SearchCond.Type.NOT_LEAF, parameters, svs));
+                if (cond.getEntitlementCond() != null) {
+                    query.append(getQuery(cond.getEntitlementCond(),
+                            cond.getType() == SearchCond.Type.NOT_LEAF, parameters, svs));
                 }
-                if (nodeCond.getAttributeCond() != null) {
-                    query.append(getQuery(nodeCond.getAttributeCond(),
-                            nodeCond.getType() == SearchCond.Type.NOT_LEAF, parameters, type, svs));
+                if (cond.getAttributeCond() != null) {
+                    query.append(getQuery(cond.getAttributeCond(),
+                            cond.getType() == SearchCond.Type.NOT_LEAF, parameters, svs));
                 }
-                if (nodeCond.getSubjectCond() != null) {
-                    query.append(getQuery(nodeCond.getSubjectCond(),
-                            nodeCond.getType() == SearchCond.Type.NOT_LEAF, parameters, type, svs));
+                if (cond.getSubjectCond() != null) {
+                    query.append(getQuery(cond.getSubjectCond(),
+                            cond.getType() == SearchCond.Type.NOT_LEAF, parameters, svs));
                 }
                 break;
 
             case AND:
-                String andSubQuery = getQuery(nodeCond.getLeftNodeCond(), parameters, type, svs).toString();
+                String andSubQuery = getQuery(cond.getLeftNodeCond(), parameters, svs).toString();
                 // Add extra parentheses
                 andSubQuery = andSubQuery.replaceFirst("WHERE ", "WHERE (");
                 query.append(andSubQuery).
                         append(" AND subject_id IN ( ").
-                        append(getQuery(nodeCond.getRightNodeCond(), parameters, type, svs)).
+                        append(getQuery(cond.getRightNodeCond(), parameters, svs)).
                         append("))");
                 break;
 
             case OR:
-                String orSubQuery = getQuery(nodeCond.getLeftNodeCond(), parameters, type, svs).toString();
+                String orSubQuery = getQuery(cond.getLeftNodeCond(), parameters, svs).toString();
                 // Add extra parentheses
                 orSubQuery = orSubQuery.replaceFirst("WHERE ", "WHERE (");
                 query.append(orSubQuery).
                         append(" OR subject_id IN ( ").
-                        append(getQuery(nodeCond.getRightNodeCond(), parameters, type, svs)).
+                        append(getQuery(cond.getRightNodeCond(), parameters, svs)).
                         append("))");
                 break;
 
@@ -471,8 +492,8 @@ public class SubjectSearchDAOImpl extends AbstractDAOImpl implements SubjectSear
         return query.toString();
     }
 
-    private String getQuery(final ResourceCond cond, final boolean not, final List<Object> parameters,
-            final SubjectType type, final SearchSupport svs) {
+    private String getQuery(
+            final ResourceCond cond, final boolean not, final List<Object> parameters, final SearchSupport svs) {
 
         final StringBuilder query = new StringBuilder("SELECT DISTINCT subject_id FROM ").
                 append(svs.field().name).append(" WHERE ");
@@ -488,7 +509,7 @@ public class SubjectSearchDAOImpl extends AbstractDAOImpl implements SubjectSear
                 append(" WHERE resource_name=?").
                 append(setParameter(parameters, cond.getResourceName()));
 
-        if (type == SubjectType.USER) {
+        if (svs.type == SubjectType.USER) {
             query.append(" UNION SELECT DISTINCT subject_id FROM ").
                     append(svs.roleResource().name).
                     append(" WHERE resource_name=?").
@@ -624,16 +645,19 @@ public class SubjectSearchDAOImpl extends AbstractDAOImpl implements SubjectSear
         }
     }
 
-    private String getQuery(final AttributeCond cond, final boolean not, final List<Object> parameters,
-            final SubjectType type, final SearchSupport svs) {
+    private String getQuery(
+            final AttributeCond cond, final boolean not, final List<Object> parameters, final SearchSupport svs) {
 
-        final AttributableUtil attrUtil = AttributableUtil.getInstance(type.asAttributableType());
+        final AttributableUtil attrUtil = AttributableUtil.getInstance(svs.type.asAttributableType());
 
         AbstractNormalSchema schema = schemaDAO.find(cond.getSchema(), attrUtil.schemaClass());
         if (schema == null) {
             LOG.warn("Ignoring invalid schema '{}'", cond.getSchema());
             return EMPTY_ATTR_QUERY;
         }
+
+        // keep track of involvement of non-mandatory schemas in the search condition
+        svs.nonMandatorySchemas = !"true".equals(schema.getMandatoryCondition());
 
         AbstractAttrValue attrValue = attrUtil.newAttrValue();
         try {
@@ -673,10 +697,10 @@ public class SubjectSearchDAOImpl extends AbstractDAOImpl implements SubjectSear
     }
 
     @SuppressWarnings("rawtypes")
-    private String getQuery(final SubjectCond cond, final boolean not, final List<Object> parameters,
-            final SubjectType type, final SearchSupport svs) {
+    private String getQuery(
+            final SubjectCond cond, final boolean not, final List<Object> parameters, final SearchSupport svs) {
 
-        final AttributableUtil attrUtil = AttributableUtil.getInstance(type.asAttributableType());
+        final AttributableUtil attrUtil = AttributableUtil.getInstance(svs.type.asAttributableType());
 
         int subjFieldIdx = ArrayUtils.indexOf(SUBJECT_FIELDS, StringUtils.substringBeforeLast(cond.getSchema(), "_"));
         Field subjectField = ReflectionUtils.findField(
