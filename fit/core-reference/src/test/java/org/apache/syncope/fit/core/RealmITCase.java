@@ -168,7 +168,7 @@ public class RealmITCase extends AbstractITCase {
     @Test
     public void delete() {
         RealmTO realm = new RealmTO();
-        realm.setName("deletable");
+        realm.setName("deletable3");
 
         Response response = realmService.create("/even/two", realm);
         RealmTO[] actuals = getObject(response.getLocation(), RealmService.class, RealmTO[].class);

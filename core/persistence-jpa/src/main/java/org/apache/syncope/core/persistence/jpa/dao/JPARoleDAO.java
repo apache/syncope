@@ -111,9 +111,7 @@ public class JPARoleDAO extends AbstractDAO<Role> implements RoleDAO {
     public void refreshDynMemberships(final User user) {
         for (Role role : findAll()) {
             if (role.getDynMembership() != null) {
-                if (searchDAO.matches(user,
-                        SearchCondConverter.convert(role.getDynMembership().getFIQLCond()), AnyTypeKind.USER)) {
-
+                if (searchDAO.matches(user, SearchCondConverter.convert(role.getDynMembership().getFIQLCond()))) {
                     role.getDynMembership().add(user);
                 } else {
                     role.getDynMembership().getMembers().remove(user);

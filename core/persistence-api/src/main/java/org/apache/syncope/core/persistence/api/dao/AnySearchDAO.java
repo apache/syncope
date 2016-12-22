@@ -79,9 +79,8 @@ public interface AnySearchDAO extends DAO<Any<?>> {
      *
      * @param any to be checked
      * @param searchCondition to be verified
-     * @param kind any object
      * @param <T> any
      * @return true if any matches searchCondition
      */
-    <T extends Any<?>> boolean matches(T any, SearchCond searchCondition, AnyTypeKind kind);
+    <T extends Any<?>> boolean matches(T any, SearchCond searchCondition);
 }
