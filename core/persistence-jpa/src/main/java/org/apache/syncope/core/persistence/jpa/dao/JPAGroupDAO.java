@@ -290,8 +290,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
             for (ADynGroupMembership memb : group.getADynMemberships()) {
                 if (searchDAO.matches(
                         anyObject,
-                        buildDynMembershipCond(memb.getFIQLCond(), group.getRealm()),
-                        AnyTypeKind.ANY_OBJECT)) {
+                        buildDynMembershipCond(memb.getFIQLCond(), group.getRealm()))) {
 
                     memb.add(anyObject);
                 } else {
@@ -308,8 +307,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
             if (group.getUDynMembership() != null) {
                 if (searchDAO.matches(
                         user,
-                        buildDynMembershipCond(group.getUDynMembership().getFIQLCond(), group.getRealm()),
-                        AnyTypeKind.USER)) {
+                        buildDynMembershipCond(group.getUDynMembership().getFIQLCond(), group.getRealm()))) {
 
                     group.getUDynMembership().add(user);
                 } else {

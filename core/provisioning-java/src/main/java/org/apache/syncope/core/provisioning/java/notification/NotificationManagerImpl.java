@@ -212,8 +212,8 @@ public class NotificationManagerImpl implements NotificationManager {
             try {
                 NotificationRecipientsProvider recipientsProvider =
                         (NotificationRecipientsProvider) ApplicationContextProvider.getBeanFactory().
-                        createBean(Class.forName(notification.getRecipientsProviderClassName()),
-                                AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+                                createBean(Class.forName(notification.getRecipientsProviderClassName()),
+                                        AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
                 recipientEmails.addAll(recipientsProvider.provideRecipients(notification));
             } catch (Exception e) {
                 LOG.error("Could not fetch recipients from {}", notification.getRecipientsProviderClassName(), e);
@@ -309,8 +309,7 @@ public class NotificationManagerImpl implements NotificationManager {
                     LOG.debug("No events found about {}", any);
                 } else if (anyType == null || any == null
                         || notification.getAbout(anyType) == null
-                        || searchDAO.matches(any,
-                                SearchCondConverter.convert(notification.getAbout(anyType).get()), anyType.getKind())) {
+                        || searchDAO.matches(any, SearchCondConverter.convert(notification.getAbout(anyType).get()))) {
 
                     LOG.debug("Creating notification task for event {} about {}", currentEvent, any);
 

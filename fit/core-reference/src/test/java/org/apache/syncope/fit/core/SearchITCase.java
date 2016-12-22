@@ -20,6 +20,7 @@ package org.apache.syncope.fit.core;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -520,5 +521,15 @@ public class SearchITCase extends AbstractITCase {
             }
             anyTypeService.delete(service.getKey());
         }
+    }
+
+    @Test
+    public void issueSYNCOPE983() {
+        PagedResult<UserTO> users = userService.search(
+                new AnyQuery.Builder().
+                        fiql(SyncopeClient.getUserSearchConditionBuilder().is("surname").equalTo("*o*").query()).
+                        orderBy(SyncopeClient.getOrderByClauseBuilder().asc("surname").desc("username").build()).
+                        build());
+        assertNotEquals(0, users.getTotalCount());
     }
 }

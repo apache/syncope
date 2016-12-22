@@ -89,11 +89,11 @@ public class AnySearchTest extends AbstractTest {
 
         RelationshipCond relationshipCond = new RelationshipCond();
         relationshipCond.setAnyObject("Canon MF 8030cn");
-        assertTrue(searchDAO.matches(anyObject, SearchCond.getLeafCond(relationshipCond), AnyTypeKind.ANY_OBJECT));
+        assertTrue(searchDAO.matches(anyObject, SearchCond.getLeafCond(relationshipCond)));
 
         RelationshipTypeCond relationshipTypeCond = new RelationshipTypeCond();
         relationshipTypeCond.setRelationshipTypeKey("neighborhood");
-        assertTrue(searchDAO.matches(anyObject, SearchCond.getLeafCond(relationshipTypeCond), AnyTypeKind.ANY_OBJECT));
+        assertTrue(searchDAO.matches(anyObject, SearchCond.getLeafCond(relationshipTypeCond)));
     }
 
     @Test
@@ -103,25 +103,25 @@ public class AnySearchTest extends AbstractTest {
 
         MembershipCond groupCond = new MembershipCond();
         groupCond.setGroup("secretary");
-        assertFalse(searchDAO.matches(user, SearchCond.getLeafCond(groupCond), AnyTypeKind.USER));
+        assertFalse(searchDAO.matches(user, SearchCond.getLeafCond(groupCond)));
 
         groupCond.setGroup("root");
-        assertTrue(searchDAO.matches(user, SearchCond.getLeafCond(groupCond), AnyTypeKind.USER));
+        assertTrue(searchDAO.matches(user, SearchCond.getLeafCond(groupCond)));
 
         RoleCond roleCond = new RoleCond();
         roleCond.setRoleKey("Other");
-        assertTrue(searchDAO.matches(user, SearchCond.getLeafCond(roleCond), AnyTypeKind.USER));
+        assertTrue(searchDAO.matches(user, SearchCond.getLeafCond(roleCond)));
 
         user = userDAO.find("c9b2dec2-00a7-4855-97c0-d854842b4b24");
         assertNotNull(user);
 
         RelationshipCond relationshipCond = new RelationshipCond();
         relationshipCond.setAnyObject("fc6dbc3a-6c07-4965-8781-921e7401a4a5");
-        assertTrue(searchDAO.matches(user, SearchCond.getLeafCond(relationshipCond), AnyTypeKind.USER));
+        assertTrue(searchDAO.matches(user, SearchCond.getLeafCond(relationshipCond)));
 
         RelationshipTypeCond relationshipTypeCond = new RelationshipTypeCond();
         relationshipTypeCond.setRelationshipTypeKey("neighborhood");
-        assertTrue(searchDAO.matches(user, SearchCond.getLeafCond(relationshipTypeCond), AnyTypeKind.USER));
+        assertTrue(searchDAO.matches(user, SearchCond.getLeafCond(relationshipTypeCond)));
     }
 
     @Test
@@ -133,7 +133,7 @@ public class AnySearchTest extends AbstractTest {
         attrCond.setSchema("show");
         attrCond.setType(AttributeCond.Type.ISNOTNULL);
 
-        assertTrue(searchDAO.matches(group, SearchCond.getLeafCond(attrCond), AnyTypeKind.GROUP));
+        assertTrue(searchDAO.matches(group, SearchCond.getLeafCond(attrCond)));
     }
 
     @Test
@@ -754,5 +754,31 @@ public class AnySearchTest extends AbstractTest {
 
         matching = searchDAO.search(searchCondition, AnyTypeKind.ANY_OBJECT);
         assertEquals(1, matching.size());
+    }
+
+    @Test
+    public void issueSYNCOPE983() {
+        AttributeCond fullnameLeafCond = new AttributeCond(AttributeCond.Type.LIKE);
+        fullnameLeafCond.setSchema("surname");
+        fullnameLeafCond.setExpression("%o%");
+
+        List<OrderByClause> orderByClauses = new ArrayList<>();
+        OrderByClause orderByClause = new OrderByClause();
+        orderByClause.setField("surname");
+        orderByClause.setDirection(OrderByClause.Direction.ASC);
+        orderByClauses.add(orderByClause);
+        orderByClause = new OrderByClause();
+        orderByClause.setField("username");
+        orderByClause.setDirection(OrderByClause.Direction.DESC);
+        orderByClauses.add(orderByClause);
+
+        List<User> users = searchDAO.search(
+                SyncopeConstants.FULL_ADMIN_REALMS,
+                SearchCond.getLeafCond(fullnameLeafCond),
+                -1,
+                -1,
+                orderByClauses,
+                AnyTypeKind.USER);
+        assertFalse(users.isEmpty());
     }
 }

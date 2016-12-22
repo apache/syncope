@@ -47,14 +47,12 @@ class SearchSupport {
         }
     }
 
-    private final AnyTypeKind anyTypeKind;
+    protected final AnyTypeKind anyTypeKind;
+
+    protected boolean nonMandatorySchemas = false;
 
     SearchSupport(final AnyTypeKind anyTypeKind) {
         this.anyTypeKind = anyTypeKind;
-    }
-
-    public AnyTypeKind anyTypeKind() {
-        return anyTypeKind;
     }
 
     public String fieldName(final AttrSchemaType attrSchemaType) {
