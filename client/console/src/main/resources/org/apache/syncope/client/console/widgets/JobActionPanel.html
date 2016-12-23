@@ -17,17 +17,17 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
-  <wicket:panel>
-    <div wicket:id="controls" style="text-align: right;"></div>
-
+  <wicket:extend>
+    &nbsp;<div style="float: left; margin-left: 10px"  wicket:id="controls"></div>
     <wicket:fragment wicket:id="runningFragment">
-      <i class="fa fa-refresh fa-spin"></i>
+      <i id="actionLink" class="fa fa-refresh fa-spin"></i>
       &nbsp;
       <a href="#" wicket:id="stop" class="fa fa-stop-circle"></a>
     </wicket:fragment>
-
     <wicket:fragment wicket:id="notRunningFragment">
       <a href="#" wicket:id="start" class="fa fa-play-circle"></a>
     </wicket:fragment>
-  </wicket:panel>
+    <!--<div wicket:id="modal"/>-->
+    <a href="#" wicket:id="edit" ><i id="actionLink" class="glyphicon glyphicon-pencil" alt="edit icon" title="Edit"></i></a> 
+  </wicket:extend>
 </html>

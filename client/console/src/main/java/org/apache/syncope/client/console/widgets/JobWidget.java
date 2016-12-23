@@ -30,10 +30,14 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
+import org.apache.syncope.client.console.panels.ExecMessageModal;
 import org.apache.syncope.client.console.rest.BaseRestClient;
+import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
@@ -44,8 +48,10 @@ import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.wicket.Application;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ThreadContext;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.event.IEvent;
+import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
@@ -60,6 +66,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.protocol.ws.WebSocketSettings;
 import org.apache.wicket.protocol.ws.api.WebSocketPushBroadcaster;
 import org.apache.wicket.protocol.ws.api.event.WebSocketPushPayload;
@@ -76,6 +83,28 @@ public class JobWidget extends BaseWidget {
     private static final Logger LOG = LoggerFactory.getLogger(JobWidget.class);
 
     private static final int ROWS = 5;
+
+    private final BaseModal<Serializable> modal = new BaseModal<Serializable>("modal") {
+
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        protected void onConfigure() {
+            super.onConfigure();
+            setFooterVisible(false);
+        }
+    };
+
+    private final BaseModal<Serializable> detailModal = new BaseModal<Serializable>("detailModal") {
+
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        protected void onConfigure() {
+            super.onConfigure();
+            setFooterVisible(true);
+        }
+    };
 
     private static List<JobTO> getAvailable(final SyncopeConsoleSession session) {
         List<JobTO> available = new ArrayList<>();
@@ -120,6 +149,27 @@ public class JobWidget extends BaseWidget {
     public JobWidget(final String id, final PageReference pageRef) {
         super(id);
         setOutputMarkupId(true);
+        add(modal);
+        modal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+
+            private static final long serialVersionUID = 8804221891699487139L;
+
+            @Override
+            public void onClose(final AjaxRequestTarget target) {
+                modal.show(false);
+            }
+        });
+
+        add(detailModal);
+        detailModal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public void onClose(final AjaxRequestTarget target) {
+                detailModal.show(false);
+            }
+        });
 
         available = getAvailable(SyncopeConsoleSession.get());
         recent = getRecent(SyncopeConsoleSession.get());
@@ -190,8 +240,7 @@ public class JobWidget extends BaseWidget {
         }
     }
 
-    private class AvailableJobsPanel extends DirectoryPanel<
-        JobTO, JobTO, AvailableJobsProvider, BaseRestClient> {
+    private class AvailableJobsPanel extends DirectoryPanel<JobTO, JobTO, AvailableJobsProvider, BaseRestClient> {
 
         private static final long serialVersionUID = -8214546246301342868L;
 
@@ -242,11 +291,14 @@ public class JobWidget extends BaseWidget {
                         final IModel<JobTO> rowModel) {
 
                     JobTO jobTO = rowModel.getObject();
-                    JobActionPanel panel = new JobActionPanel(componentId, jobTO, JobWidget.this);
+                    JobActionPanel panel = new JobActionPanel(componentId, jobTO, JobWidget.this, JobWidget.this.modal,
+                            pageRef);
                     MetaDataRoleAuthorizationStrategy.authorize(panel, WebPage.ENABLE,
-                            String.format("%s,%s",
+                            String.format("%s,%s%s,%s",
                                     StandardEntitlement.TASK_EXECUTE,
-                                    StandardEntitlement.REPORT_EXECUTE));
+                                    StandardEntitlement.REPORT_EXECUTE,
+                                    StandardEntitlement.TASK_UPDATE,
+                                    StandardEntitlement.REPORT_UPDATE));
                     cellItem.add(panel);
                 }
 
@@ -341,6 +393,51 @@ public class JobWidget extends BaseWidget {
             columns.add(new DatePropertyColumn<ExecTO>(new ResourceModel("end"), "end", "end"));
 
             columns.add(new PropertyColumn<ExecTO, String>(new ResourceModel("status"), "status", "status"));
+
+            columns.add(new ActionColumn<ExecTO, String>(new ResourceModel("actions")) {
+
+                private static final long serialVersionUID = -3503023501954863131L;
+
+                @Override
+                public ActionLinksPanel<ExecTO> getActions(final String componentId, final IModel<ExecTO> model) {
+
+                    final ActionLinksPanel.Builder<ExecTO> panel = ActionLinksPanel.<ExecTO>builder().
+                            add(new ActionLink<ExecTO>() {
+
+                                private static final long serialVersionUID=  -3722207913631435501L;
+
+                                @Override
+                                public void onClick(final AjaxRequestTarget target, final ExecTO ignore) {
+
+                                    StringResourceModel stringResourceModel =
+                                            new StringResourceModel("execution.view", JobWidget.this, model);
+                                    detailModal.header(stringResourceModel);
+                                    detailModal.
+                                            setContent(new ExecMessageModal(pageRef, model.getObject().getMessage()));
+                                    detailModal.show(true);
+                                    target.add(detailModal);
+                                }
+                            }, ActionLink.ActionType.VIEW, StandardEntitlement.TASK_READ);
+                    return panel.build(componentId, model.getObject());
+                }
+
+                @Override
+                public ActionLinksPanel<Serializable> getHeader(final String componentId) {
+                    final ActionLinksPanel.Builder<Serializable> panel = ActionLinksPanel.builder();
+
+                    return panel.add(new ActionLink<Serializable>() {
+
+                        private static final long serialVersionUID = -7978723352517770644L;
+
+                        @Override
+                        public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
+                            if (target != null) {
+                                target.add(container);
+                            }
+                        }
+                    }, ActionLink.ActionType.RELOAD, StandardEntitlement.TASK_LIST).build(componentId);
+                }
+            });
 
             return columns;
         }
