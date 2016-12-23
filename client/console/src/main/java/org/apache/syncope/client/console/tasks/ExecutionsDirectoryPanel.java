@@ -88,7 +88,7 @@ public abstract class ExecutionsDirectoryPanel
         this.key = key;
         initResultTable();
     }
-
+        
     @Override
     protected void resultTableCustomChanges(final AjaxDataTablePanel.Builder<ExecTO, String> resultTableBuilder) {
         resultTableBuilder.setMultiLevelPanel(baseModal, multiLevelPanelRef);

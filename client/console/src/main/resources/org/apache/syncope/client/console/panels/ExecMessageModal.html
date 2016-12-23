@@ -18,18 +18,8 @@ under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <wicket:panel>
-    <div class="box box-default box-solid">
-      <div class="box-header with-border">
-        <h3 class="box-title"><wicket:message key="jobs"/></h3>
-        <div class="box-tools pull-right">
-          <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
-        </div>
-      </div>
-      <div class="box-body">
-        <div class="box-body" wicket:id="tabbedPanel"/>
-      </div>
-    </div>
-    <div wicket:id="modal"/>
-    <div wicket:id="detailModal"/>
+    <pre wicket:id="executionMessage">
+            [executionMessage]
+    </pre>
   </wicket:panel>
 </html>
