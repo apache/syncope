@@ -50,7 +50,7 @@ public class PasswordPanel extends Panel {
 
         confirmPasswordField.setMarkupId("confirmPassword");
         confirmPasswordField.setPlaceholder("confirmPassword");
-        ((PasswordTextField) confirmPasswordField.getField()).setResetPassword(true);
+        ((PasswordTextField) confirmPasswordField.getField()).setResetPassword(false);
         form.add(confirmPasswordField);
 
         if (templateMode) {
@@ -70,10 +70,9 @@ public class PasswordPanel extends Panel {
             passwordField.setRequired(true);
             passwordField.setMarkupId("password");
             passwordField.setPlaceholder("password");
-            ((PasswordTextField) passwordField.getField()).setResetPassword(true);
+            ((PasswordTextField) passwordField.getField()).setResetPassword(false);
             form.add(passwordField);
             form.add(new EqualPasswordInputValidator(passwordField.getField(), confirmPasswordField.getField()));
-            passwordField.setRequired(true);
         }
 
         AjaxCheckBoxPanel storePasswordInSyncope = new AjaxCheckBoxPanel("storePasswordInSyncope",
