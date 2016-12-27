@@ -79,7 +79,7 @@ under the License.
                 <include>meta-pom.xml</include>
               </includes>
               <outputDir>${basedir}/src/main/resources/archetype-resources</outputDir>
-              <stylesheet>file://${basedir}/src/main/resources/properties2pom.xsl</stylesheet>
+              <stylesheet>${basedir}/src/main/resources/properties2pom.xsl</stylesheet>
               <parameters>
                 <parameter>
                   <name>syncopeVersion</name>
