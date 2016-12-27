@@ -37,7 +37,7 @@ Bundle-ClassPath: lib/commons-codec.jar,
       lib/syncope-common-lib.jar,
       lib/syncope-common-rest-api.jar,
       lib/validation-api.jar,
-      lib/woodstox-core-asl.jar,
+      lib/woodstox-core.jar,
       lib/xmlschema-core.jar,
       lib/jsoup.jar,
       .
