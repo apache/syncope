@@ -48,7 +48,7 @@ public class LoggerCreate extends AbstractLoggerCommand {
             boolean failed = false;
             for (String parameter : input.getParameters()) {
                 LoggerTO loggerTO = new LoggerTO();
-                Pair<String, String> pairParameter = input.toPairParameter(parameter);
+                Pair<String, String> pairParameter = Input.toPairParameter(parameter);
                 try {
                     loggerTO.setKey(pairParameter.getKey());
                     loggerTO.setLevel(LoggerLevel.valueOf(pairParameter.getValue()));

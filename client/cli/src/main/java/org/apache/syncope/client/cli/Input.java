@@ -27,13 +27,21 @@ import org.apache.syncope.client.cli.util.CommandUtils;
 
 public class Input {
 
-    private final AbstractCommand command;
+    public static Pair<String, String> toPairParameter(final String parameter) throws IllegalArgumentException {
+        if (!parameter.contains("=")) {
+            throw new IllegalArgumentException("Parameter syntax error!");
+        }
+        final String[] pairParameterArray = parameter.split("=");
+        return Pair.of(pairParameterArray[0], pairParameterArray[1]);
+    }
 
-    private String option;
+    private final AbstractCommand command;
 
     private final String[] parameters;
 
     private final List<String> commandFields = new ArrayList<>();
+
+    private String option;
 
     public Input(final String[] args)
             throws InstantiationException, IllegalAccessException, IllegalArgumentException {
@@ -49,7 +57,7 @@ public class Input {
         if (args.length > 2) {
             parameters = new String[args.length - 2];
             for (int i = 0; i < parameters.length; i++) {
-                parameters[i] = args[i + 2].replaceAll("\\\\", "");
+                parameters[i] = args[i + 2];
                 commandFields.add(parameters[i]);
             }
         } else {
@@ -95,14 +103,6 @@ public class Input {
 
     public int parameterNumber() {
         return parameters.length;
-    }
-
-    public Pair<String, String> toPairParameter(final String parameter) throws IllegalArgumentException {
-        if (!parameter.contains("=")) {
-            throw new IllegalArgumentException("Parameter syntax error!");
-        }
-        final String[] pairParameterArray = parameter.split("=");
-        return Pair.of(pairParameterArray[0], pairParameterArray[1]);
     }
 
     public String printCommandFields() {

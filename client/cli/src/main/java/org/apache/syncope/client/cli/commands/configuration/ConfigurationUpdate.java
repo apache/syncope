@@ -45,7 +45,7 @@ public class ConfigurationUpdate extends AbstractConfigurationCommand {
             LinkedList<AttrTO> attrList = new LinkedList<>();
             boolean failed = false;
             for (String parameter : input.getParameters()) {
-                Pair<String, String> pairParameter = input.toPairParameter(parameter);
+                Pair<String, String> pairParameter = Input.toPairParameter(parameter);
                 try {
                     AttrTO attrTO = configurationSyncopeOperations.get(pairParameter.getKey());
                     attrTO.getValues().clear();
