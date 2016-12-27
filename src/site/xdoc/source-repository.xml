@@ -25,7 +25,7 @@ under the License.
     <author email="dev@syncope.apache.org">Apache Syncope Documentation Team</author>
   </properties>
 
-  <body>    
+  <body>
     <section name="Web Browsing">    
       <p>To browse use the GIT web interface:<br/>
 
@@ -37,12 +37,25 @@ under the License.
       <p>The source code can be checked out anonymously over HTTPs by doing:
         <source>git clone https://git-wip-us.apache.org/repos/asf/syncope.git</source>
       </p>
+
+      <p class="alert alert-warning">
+        <strong>On MS Windows?</strong> Be sure to
+        <a href="https://help.github.com/articles/dealing-with-line-endings/">properly handle line endings</a>; often
+        it is enough to set
+        <source>git config core.autocrlf true</source>
+      </p>
+    
+      <subsection name="Forking on GitHub">
+        <p>Syncope's git repo is automatically mirrored on github at: <a href="https://github.com/apache/syncope">https://github.com/apache/syncope</a>.</p>
+
+        <p>You can fork that repository, commit changes to your fork, and submit pull requests through GitHub's pull
+          requests.<br/>
+          Be sure to follow our <a href="https://cwiki.apache.org/confluence/display/SYNCOPE/Git+workflow">Git workflow</a>.</p>      
+      </subsection>
     </section>
     
-    <section name="Forking on GitHub">
-      <p>Syncope's git repo is automatically mirrored on github at: <a href="https://github.com/apache/syncope">https://github.com/apache/syncope</a>.</p>
-
-      <p>You can fork that repository, commit changes to your fork, and submit pull requests through GitHub's pull request mechanisms.</p>      
+    <section name="Building">
+      <p>Review and apply the various <a href="building.html">build options</a>.</p>
     </section>
   </body>
 </document>
