@@ -43,7 +43,7 @@ public class UserDeleteByAttribute extends AbstractUserCommand {
     public void delete() {
         if (input.parameterNumber() == 2) {
             String realm = input.firstParameter();
-            Pair<String, String> pairParameter = input.toPairParameter(input.secondParameter());
+            Pair<String, String> pairParameter = Input.toPairParameter(input.secondParameter());
             try {
                 if (!realmSyncopeOperations.exists(realm)) {
                     userResultManager.notFoundError("Realm", realm);

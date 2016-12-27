@@ -47,7 +47,7 @@ public class LoggerUpdate extends AbstractLoggerCommand {
             final LinkedList<LoggerTO> loggerTOs = new LinkedList<>();
             boolean failed = false;
             for (String parameter : input.getParameters()) {
-                Pair<String, String> pairParameter = input.toPairParameter(parameter);
+                Pair<String, String> pairParameter = Input.toPairParameter(parameter);
                 try {
                     LoggerTO loggerTO = loggerSyncopeOperations.read(pairParameter.getKey());
                     loggerTO.setLevel(LoggerLevel.valueOf(pairParameter.getValue()));
