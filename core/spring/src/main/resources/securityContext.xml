@@ -62,6 +62,11 @@ under the License.
 
   <bean id="syncopeAccessDeniedHandler" class="org.apache.syncope.core.spring.security.SyncopeAccessDeniedHandler"/>
   
+  <bean id="firewall" class="org.springframework.security.web.firewall.DefaultHttpFirewall">
+    <property name="allowUrlEncodedSlash" value="true"/>
+  </bean>
+  <security:http-firewall ref="firewall"/>
+
   <security:http security-context-repository-ref="securityContextRepository"
                  use-expressions="false" disable-url-rewriting="false">
 
