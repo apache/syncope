@@ -35,7 +35,7 @@ under the License.
     <section name="Prerequisites">
       <p>
         <ul>
-          <li>JDK 7 or higher</li>
+          <li>JDK 7 or higher for &le; 2.0; JDK 8 or higher for later versions</li>
           <li>
             <a href="http://maven.apache.org/download.html">Apache Maven</a> 3.0.3 or higher</li>
           <li>
@@ -172,6 +172,14 @@ $ mvn -Pjrebel</source>
         As with Debug, but with <a href="http://zeroturnaround.com/software/jrebel/">JRebel</a> features enabled.
         <source>$ export REBEL_HOME=/opt/jrebel
 $ mvn -Pjrebel</source>
+      </subsection>
+
+      <subsection name="ide/eclipse/bundles/org.apache.syncope.ide.eclipse.tests">
+        <h4>Eclipse IDE Plugin</h4>
+        Starts the full environment used by core's integration tests (with same components available when running new 
+        project in <a href="docs/getting-started.html#paths-and-components">embedded mode</a>, and runs the Eclipse IDE
+        plugin tests against it. Cannot run headless.
+        <source>$ mvn -Peclipse-it</source>
       </subsection>
     </section>
 
