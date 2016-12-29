@@ -28,3 +28,6 @@ More information at http://syncope.apache.org
   <img src="https://maven-badges.herokuapp.com/maven-central/org.apache.syncope/syncope/badge.svg"/>
 </a>
 <a href="https://travis-ci.org/apache/syncope"><img src="https://api.travis-ci.org/apache/syncope.png"/></a>
+<a href="https://ci.appveyor.com/project/ApacheSoftwareFoundation/syncope">
+  <img src="https://ci.appveyor.com/api/projects/status/k3moao48iilrq2pw?svg=true"/>
+</a>
