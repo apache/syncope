@@ -57,18 +57,18 @@ public class CLIITCase extends AbstractITCase {
     public static void install() {
         Properties props = new Properties();
         InputStream propStream = null;
+        Process process = null;
         try {
             propStream = CLIITCase.class.getResourceAsStream("/cli-test.properties");
             props.load(propStream);
 
             File workDir = new File(props.getProperty("cli-work.dir"));
-            PROCESS_BUILDER = new ProcessBuilder();
-            PROCESS_BUILDER.directory(workDir);
+            PROCESS_BUILDER = new ProcessBuilder().directory(workDir);
 
             PROCESS_BUILDER.command(getCommand(
                     new InstallCommand().getClass().getAnnotation(Command.class).name(),
                     InstallCommand.Options.SETUP_DEBUG.getOptionName()));
-            Process process = PROCESS_BUILDER.start();
+            process = PROCESS_BUILDER.start();
             process.waitFor();
 
             File cliPropertiesFile = new File(workDir + File.separator + "cli.properties");
@@ -77,6 +77,9 @@ public class CLIITCase extends AbstractITCase {
             fail(e.getMessage());
         } finally {
             IOUtils.closeQuietly(propStream);
+            if (process != null) {
+                process.destroy();
+            }
         }
     }
 
@@ -84,7 +87,8 @@ public class CLIITCase extends AbstractITCase {
         List<String> command = new ArrayList<>();
 
         if (SystemUtils.IS_OS_WINDOWS) {
-            command.add("cmd");
+            command.add("cmd.exe");
+            command.add("/C");
             command.add(SCRIPT_FILENAME + ".bat");
         } else {
             command.add("/bin/bash");
@@ -98,12 +102,14 @@ public class CLIITCase extends AbstractITCase {
 
     @Test
     public void runScriptWithoutOptions() {
+        Process process = null;
         try {
             PROCESS_BUILDER.command(getCommand());
-            Process process = PROCESS_BUILDER.start();
+            process = PROCESS_BUILDER.start();
 
-            String result = IOUtils.toString(process.getInputStream(), SyncopeConstants.DEFAULT_CHARSET);
-            assertTrue(result.startsWith("\nUsage: Main [options]"));
+            String result = IOUtils.toString(process.getInputStream(), SyncopeConstants.DEFAULT_CHARSET).
+                    replaceAll("(?m)^\\s*$[\n\r]{1,}", "");
+            assertTrue(result.startsWith("Usage: Main [options]"));
             assertTrue(result.contains(
                     new EntitlementCommand().getClass().getAnnotation(Command.class).name()
                     + " "
@@ -112,19 +118,23 @@ public class CLIITCase extends AbstractITCase {
                     new GroupCommand().getClass().getAnnotation(Command.class).name()
                     + " "
                     + GroupCommand.GroupOptions.HELP.getOptionName()));
-            process.destroy();
         } catch (IOException e) {
             fail(e.getMessage());
+        } finally {
+            if (process != null) {
+                process.destroy();
+            }
         }
     }
 
     @Test
     public void entitlementCount() {
+        Process process = null;
         try {
             PROCESS_BUILDER.command(getCommand(
                     new EntitlementCommand().getClass().getAnnotation(Command.class).name(),
                     EntitlementCommand.EntitlementOptions.LIST.getOptionName()));
-            Process process = PROCESS_BUILDER.start();
+            process = PROCESS_BUILDER.start();
 
             long entitlements = IterableUtils.countMatches(
                     IOUtils.readLines(process.getInputStream(), SyncopeConstants.DEFAULT_CHARSET),
@@ -136,20 +146,23 @@ public class CLIITCase extends AbstractITCase {
                 }
             });
             assertEquals(syncopeService.platform().getEntitlements().size(), entitlements);
-
-            process.destroy();
         } catch (IOException e) {
             fail(e.getMessage());
+        } finally {
+            if (process != null) {
+                process.destroy();
+            }
         }
     }
 
     @Test
     public void connectorCount() {
+        Process process = null;
         try {
             PROCESS_BUILDER.command(getCommand(
                     new ConnectorCommand().getClass().getAnnotation(Command.class).name(),
                     ConnectorCommand.ConnectorOptions.LIST_BUNDLES.getOptionName()));
-            Process process = PROCESS_BUILDER.start();
+            process = PROCESS_BUILDER.start();
 
             long bundles = IterableUtils.countMatches(
                     IOUtils.readLines(process.getInputStream(), SyncopeConstants.DEFAULT_CHARSET),
@@ -161,10 +174,12 @@ public class CLIITCase extends AbstractITCase {
                 }
             });
             assertEquals(connectorService.getBundles(null).size(), bundles);
-
-            process.destroy();
         } catch (IOException e) {
             fail(e.getMessage());
+        } finally {
+            if (process != null) {
+                process.destroy();
+            }
         }
     }
 
@@ -175,22 +190,24 @@ public class CLIITCase extends AbstractITCase {
         final String userKey3 = "b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee";
         final String userKey4 = "c9b2dec2-00a7-4855-97c0-d854842b4b24";
         final String userKey5 = "823074dc-d280-436d-a7dd-07399fae48ec";
+        Process process1 = null;
+        Process process2 = null;
+        Process process3 = null;
         try {
             PROCESS_BUILDER.command(getCommand(
                     new UserCommand().getClass().getAnnotation(Command.class).name(),
                     UserCommand.UserOptions.READ_BY_KEY.getOptionName(),
                     String.valueOf(userKey1)));
-            Process process = PROCESS_BUILDER.start();
-            String result = IOUtils.toString(process.getInputStream(), SyncopeConstants.DEFAULT_CHARSET);
+            process1 = PROCESS_BUILDER.start();
+            String result = IOUtils.toString(process1.getInputStream(), SyncopeConstants.DEFAULT_CHARSET);
             assertTrue(result.contains("username: " + userService.read(userKey1).getUsername()));
-            process.destroy();
 
             PROCESS_BUILDER.command(getCommand(
                     new UserCommand().getClass().getAnnotation(Command.class).name(),
                     UserCommand.UserOptions.READ_BY_KEY.getOptionName(),
                     String.valueOf(userKey1), String.valueOf(userKey2),
                     String.valueOf(userKey3), String.valueOf(userKey4), String.valueOf(userKey5)));
-            Process process2 = PROCESS_BUILDER.start();
+            process2 = PROCESS_BUILDER.start();
             long users = IterableUtils.countMatches(
                     IOUtils.readLines(process2.getInputStream(), SyncopeConstants.DEFAULT_CHARSET),
                     new Predicate<String>() {
@@ -202,14 +219,12 @@ public class CLIITCase extends AbstractITCase {
             });
             assertEquals(5, users);
 
-            process2.destroy();
-
             PROCESS_BUILDER.command(getCommand(
                     new UserCommand().getClass().getAnnotation(Command.class).name(),
                     UserCommand.UserOptions.READ_BY_KEY.getOptionName(),
                     String.valueOf(userKey1), String.valueOf(userKey2),
                     String.valueOf(userKey3), String.valueOf(userKey4), String.valueOf(userKey5)));
-            Process process3 = PROCESS_BUILDER.start();
+            process3 = PROCESS_BUILDER.start();
             String result3 = IOUtils.toString(process3.getInputStream(), SyncopeConstants.DEFAULT_CHARSET);
             assertTrue(
                     result3.contains("username: " + userService.read(userKey1).getUsername())
@@ -217,61 +232,79 @@ public class CLIITCase extends AbstractITCase {
                     && result3.contains("username: " + userService.read(userKey3).getUsername())
                     && result3.contains("username: " + userService.read(userKey4).getUsername())
                     && result3.contains("username: " + userService.read(userKey5).getUsername()));
-            process3.destroy();
         } catch (IOException e) {
             fail(e.getMessage());
+        } finally {
+            if (process1 != null) {
+                process1.destroy();
+            }
+            if (process2 != null) {
+                process2.destroy();
+            }
+            if (process3 != null) {
+                process3.destroy();
+            }
         }
     }
 
     @Test
     public void roleRead() {
         final String roleId = "Search for realm evenTwo";
+        Process process = null;
         try {
             PROCESS_BUILDER.command(getCommand(
                     new RoleCommand().getClass().getAnnotation(Command.class).name(),
                     RoleCommand.RoleOptions.READ.getOptionName(),
                     roleId));
-            final Process process = PROCESS_BUILDER.start();
+            process = PROCESS_BUILDER.start();
             final String result = IOUtils.toString(process.getInputStream(), SyncopeConstants.DEFAULT_CHARSET);
             assertTrue(result.contains(roleService.read(roleId).getEntitlements().iterator().next()));
-
-            process.destroy();
         } catch (IOException e) {
             fail(e.getMessage());
+        } finally {
+            if (process != null) {
+                process.destroy();
+            }
         }
     }
 
     @Test
     public void reportNotExists() {
+        Process process = null;
         try {
             PROCESS_BUILDER.command(getCommand(
                     new ReportCommand().getClass().getAnnotation(Command.class).name(),
                     ReportCommand.ReportOptions.READ.getOptionName(),
                     "72"));
-            final Process process = PROCESS_BUILDER.start();
+            process = PROCESS_BUILDER.start();
             final String result = IOUtils.toString(process.getInputStream(), SyncopeConstants.DEFAULT_CHARSET);
             assertTrue(result.contains("- Report 72 doesn't exist"));
-
-            process.destroy();
         } catch (IOException e) {
             fail(e.getMessage());
+        } finally {
+            if (process != null) {
+                process.destroy();
+            }
         }
     }
 
     @Test
     public void policyError() {
+        Process process = null;
         try {
             PROCESS_BUILDER.command(getCommand(
                     new PolicyCommand().getClass().getAnnotation(Command.class).name(),
                     PolicyCommand.PolicyOptions.READ.getOptionName(),
                     "wrong"));
-            final Process process = PROCESS_BUILDER.start();
+            process = PROCESS_BUILDER.start();
             final String result = IOUtils.toString(process.getInputStream(), SyncopeConstants.DEFAULT_CHARSET);
             assertTrue(result.contains("- Policy wrong doesn't exist"));
-
-            process.destroy();
         } catch (IOException e) {
             fail(e.getMessage());
+        } finally {
+            if (process != null) {
+                process.destroy();
+            }
         }
     }
 }
