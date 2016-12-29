@@ -40,6 +40,14 @@ under the License.
       </p>
     </section>
     
+    <section name="AppVeyor">
+      <p>
+        <a href="https://ci.appveyor.com/project/ApacheSoftwareFoundation/syncope">
+          <img src="https://ci.appveyor.com/api/projects/status/k3moao48iilrq2pw?svg=true"/>
+        </a>
+      </p>
+    </section>
+
     <section name="Buildbot">
       <p>
         <source><a href="https://ci.apache.org/builders/syncope-master-docs">https://ci.apache.org/builders/syncope-master-docs</a></source>
