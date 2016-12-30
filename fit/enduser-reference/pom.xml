@@ -36,6 +36,8 @@ under the License.
   <properties>
     <rootpom.basedir>${basedir}/../..</rootpom.basedir>
     <enduser-test.dir>${project.build.directory}/enduser-test</enduser-test.dir>
+    <protractor.cmd>${enduser-test.dir}/nodejs/bin/protractor</protractor.cmd>
+    <webdriver-manager.cmd>${enduser-test.dir}/nodejs/bin/webdriver-manager</webdriver-manager.cmd>
   </properties>
 
   <dependencies>
@@ -135,18 +137,19 @@ under the License.
         <artifactId>phantomjs-maven-plugin</artifactId>
         <configuration>
           <version>${phantomjs.version}</version>
-          <checkSystemPath>false</checkSystemPath>          
+          <checkSystemPath>false</checkSystemPath>
           <skip>${skipTests}</skip>
-        </configuration> 
+        </configuration>
         <executions>
           <execution>
+            <id>install-phantomjs</id>
             <goals>
               <goal>install</goal>
             </goals>
           </execution>
         </executions>
       </plugin>
-           
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-antrun-plugin</artifactId>
@@ -156,13 +159,14 @@ under the License.
             <id>setup-enduser-it</id>
             <phase>pre-integration-test</phase>
             <configuration>
-              <target>               
-                <mkdir dir="${enduser-test.dir}" />
+              <target>
+                <mkdir dir="${enduser-test.dir}"/>
                 <copy todir="${enduser-test.dir}" overwrite="true">
-                  <fileset dir="${basedir}/src/test/resources/org/apache/syncope/client/enduser/protractor/" includes="**/*" />                  
+                  <file name="${project.build.directory}/test-classes/protractor-conf.js"/>
+                  <fileset dir="${project.build.directory}/test-classes" includes="tests/**"/>
                 </copy>
-                <replace file="${enduser-test.dir}/protractor-conf.js" token="@phantomjs.binary.path@" value="${phantomjs.binary}" />
-                <delete file="${basedir}/../core-reference/target/syncope-fit-core-reference-${project.version}/WEB-INF/classes/userWorkflow.bpmn20.xml" />
+
+                <delete file="${basedir}/../core-reference/target/syncope-fit-core-reference-${project.version}/WEB-INF/classes/userWorkflow.bpmn20.xml"/>
               </target>
               <skip>${skipTests}</skip>
             </configuration>
@@ -172,7 +176,7 @@ under the License.
           </execution>
         </executions>
       </plugin>     
-                                                                        
+
       <plugin>
         <groupId>com.github.eirslett</groupId>
         <artifactId>frontend-maven-plugin</artifactId>
@@ -182,7 +186,7 @@ under the License.
         </configuration>
         <executions>
           <execution>
-            <id>install node and npm</id>
+            <id>install-node-npm</id>
             <phase>pre-integration-test</phase>            
             <goals>
               <goal>install-node-and-npm</goal>
@@ -204,7 +208,7 @@ under the License.
         </configuration>
         <executions>
           <execution>            
-            <id>Install Protractor</id>
+            <id>install-protractor</id>
             <phase>pre-integration-test</phase>
             <goals>
               <goal>exec</goal>
@@ -221,7 +225,7 @@ under the License.
             </configuration>
           </execution>
           <execution>            
-            <id>Install Agent</id>
+            <id>update-protractor-webdriver-manager</id>
             <phase>pre-integration-test</phase>
             <goals>
               <goal>exec</goal>
@@ -230,13 +234,13 @@ under the License.
               <workingDirectory>${enduser-test.dir}/nodejs/lib</workingDirectory>
               <executable>${enduser-test.dir}/nodejs/node/node</executable>
               <arguments>
-                <argument>node_modules/protractor/bin/webdriver-manager</argument>
+                <argument>${webdriver-manager.cmd}</argument>
                 <argument>update</argument>                             
               </arguments>
             </configuration>
           </execution>
           <execution>            
-            <id>Execute Tests</id>
+            <id>exec-protractor</id>
             <phase>integration-test</phase>
             <goals>
               <goal>exec</goal>
@@ -244,7 +248,7 @@ under the License.
             <configuration>
               <executable>${enduser-test.dir}/nodejs/node/node</executable>
               <arguments>
-                <argument>${enduser-test.dir}/nodejs/bin/protractor</argument>
+                <argument>${protractor.cmd}</argument>
                 <argument>${enduser-test.dir}/protractor-conf.js</argument>                             
               </arguments>
             </configuration>
@@ -380,6 +384,19 @@ under the License.
   </build>
   
   <profiles>
+    <profile>
+      <id>windows-it</id>
+
+      <activation>
+        <os><family>Windows</family></os>
+      </activation>
+
+      <properties>
+	<protractor.cmd>${enduser-test.dir}/nodejs/node/node_modules/protractor/bin/protractor</protractor.cmd>
+	<webdriver-manager.cmd>${enduser-test.dir}/nodejs/node/node_modules/protractor/bin/webdriver-manager</webdriver-manager.cmd>
+      </properties>
+    </profile>
+
     <profile>
       <id>debug</id>
 
