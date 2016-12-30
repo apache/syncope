@@ -388,77 +388,23 @@ under the License.
       <id>windows-it</id>
 
       <activation>
-        <os><family>Windows</family></os>
+        <os>
+          <family>Windows</family>
+        </os>
       </activation>
 
       <properties>
-	<protractor.cmd>${enduser-test.dir}/nodejs/node/node_modules/protractor/bin/protractor</protractor.cmd>
-	<webdriver-manager.cmd>${enduser-test.dir}/nodejs/node/node_modules/protractor/bin/webdriver-manager</webdriver-manager.cmd>
+        <protractor.cmd>${enduser-test.dir}/nodejs/node/node_modules/protractor/bin/protractor</protractor.cmd>
+        <webdriver-manager.cmd>${enduser-test.dir}/nodejs/node/node_modules/protractor/bin/webdriver-manager</webdriver-manager.cmd>
       </properties>
     </profile>
 
-    <profile>
-      <id>debug</id>
-
-      <properties>
-        <skipTests>true</skipTests>
-      </properties>
-
-      <build>
-        <defaultGoal>clean verify cargo:run</defaultGoal>
-
-        <plugins>
-          <plugin>
-            <groupId>org.codehaus.cargo</groupId>
-            <artifactId>cargo-maven2-plugin</artifactId>
-            <inherited>true</inherited>
-            <configuration>
-              <configuration>
-                <properties>
-                  <cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n
-                    -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:MaxPermSize=512m</cargo.jvmargs>
-                </properties>
-              </configuration>
-            </configuration>
-            <executions>
-              <execution>
-                <id>start-container</id>
-                <phase>none</phase>
-              </execution>
-              <execution>
-                <id>stop-container</id>
-                <phase>none</phase>
-              </execution>
-            </executions>
-          </plugin>
-          
-          <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>exec-maven-plugin</artifactId>
-            <executions>
-              <execution>            
-                <id>Execute Tests</id>
-                <phase>none</phase>
-              </execution>                          
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-    
     <profile>
       <id>skipTests</id>
 
       <properties>
         <skipTests>true</skipTests>
       </properties>
-
-      <dependencies>
-        <dependency>
-          <groupId>com.h2database</groupId>
-          <artifactId>h2</artifactId>
-        </dependency>
-      </dependencies>
       
       <build>
         <plugins>      
@@ -494,19 +440,76 @@ under the License.
         </plugins>
       </build>
     </profile>
+
+    <profile>
+      <id>debug</id>
+
+      <build>
+        <defaultGoal>clean verify cargo:run</defaultGoal>
+
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <inherited>true</inherited>
+            <executions>
+              <execution>            
+                <id>exec-protractor</id>
+                <phase>none</phase>
+              </execution>
+            </executions>
+          </plugin>
+      
+          <plugin>
+            <groupId>org.codehaus.cargo</groupId>
+            <artifactId>cargo-maven2-plugin</artifactId>
+            <inherited>true</inherited>
+            <configuration>
+              <configuration>
+                <properties>
+                  <cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n
+                    -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:MaxPermSize=512m</cargo.jvmargs>
+                </properties>
+              </configuration>
+            </configuration>
+            <executions>
+              <execution>
+                <id>start-container</id>
+                <phase>none</phase>
+              </execution>
+              <execution>
+                <id>stop-container</id>
+                <phase>none</phase>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
     
     <profile>
       <id>jrebel</id>
       
       <properties>
         <tomcat.version>8.0.39</tomcat.version>              
-        <skipTests>true</skipTests>
       </properties>      
 
       <build>
         <defaultGoal>clean verify cargo:run</defaultGoal>
 
-        <plugins>          
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <inherited>true</inherited>
+            <executions>
+              <execution>            
+                <id>exec-protractor</id>
+                <phase>none</phase>
+              </execution>
+            </executions>
+          </plugin>
+       
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-antrun-plugin</artifactId>
@@ -550,17 +553,6 @@ under the License.
                 <id>stop-container</id>
                 <phase>none</phase>
               </execution>
-            </executions>
-          </plugin>
-          
-          <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>exec-maven-plugin</artifactId>
-            <executions>
-              <execution>            
-                <id>Execute Tests</id>
-                <phase>none</phase>
-              </execution>                          
             </executions>
           </plugin>
         </plugins>

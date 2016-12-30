@@ -47,28 +47,34 @@ under the License.
 
     <section name="Building Syncope">
       <p>
-        Before building Syncope, you need to setup an environment variable to give Maven more memory.<br/>
+        Before building Syncope, you need to setup an environment variable to give Maven more memory.
+      </p>
+      <p>
         On Unix
         <source>export MAVEN_OPTS="-Xms512m -Xmx1024m -XX:PermSize=256m -XX:MaxPermSize=512m"</source>
+      </p>
+      <p>
         On Windows
         <source>set MAVEN_OPTS=-Xms512m -Xmx1024m -XX:PermSize=256m -XX:MaxPermSize=512m</source>
       </p>
       <p>
-        To build Syncope simply execute (from within the check-out directory):
-        <source>$ mvn install</source>
-        or
+        To build Syncope simply execute (from within the top-level source directory):
         <source>$ mvn clean install</source>
-        for subsequent runs.<br/>
-        To build Syncope without running any test do:
-        <source>$ mvn -PskipTests</source>
-        <b>Important</b>: For subsequent builds (e.g., after code changes are made), 
-        run <code>mvn clean</code> first to build from scratch, before using one of the <code>mvn install</code>
-        commands above.
-        (You may also wish to run <code>git pull</code> after running <code>mvn clean</code> but before running 
-        <code>mvn install</code>.)
+      </p>
+      <p>
+        To build Syncope without running any test nor check do:
+        <source>$ mvn -PskipTests,all</source>
       </p>
     </section>
     
+    <section name="Building documentation">
+      <p>
+        To build Syncope documentation execute (from within the top-level source directory):
+        <source>$ mvn -N -P site clean generate-resources</source>
+        The documentation artifacts are now be available under <tt>target/generated-docs/</tt>.
+      </p>
+    </section>
+
     <section name="More build profiles">
       <p>
         Besides default, other Maven 
@@ -90,6 +96,13 @@ under the License.
         <source>$ mvn -Pdebug,all</source>
         or, without Activiti and Camel support
         <source>$ mvn -Pdebug</source>
+
+        <p>
+          Once started in debug mode, individual test methods can be executed as follows (the
+          <a href="https://maven.apache.org/surefire/maven-surefire-plugin/examples/single-test.html">
+            Maven Surefire Plugins rules</a> apply here):
+          <source>$ mvn test -Dtest=UserITCase#list</source>
+        </p>
 
         <h4>JRebel</h4>
         As with Debug, but with <a href="http://zeroturnaround.com/software/jrebel/">JRebel</a> features enabled.
@@ -168,6 +181,13 @@ $ mvn -Pjrebel</source>
         enduser) and enables remote JPDA debugging on port 8000 in the running Java EE container (Tomcat).
         <source>$ mvn -Pdebug</source>
 
+        <p>
+          Once started in debug mode, the test cases can be executed as follows:
+          <source>$ cd target/enduser-test
+$ nodejs/node/node nodejs/bin/protractor protractor-conf.js</source>
+          where the actual tests to be run can be selected by modifying the <code>protractor-conf.js</code> content.
+        </p>
+
         <h4>JRebel</h4>
         As with Debug, but with <a href="http://zeroturnaround.com/software/jrebel/">JRebel</a> features enabled.
         <source>$ export REBEL_HOME=/opt/jrebel
@@ -181,14 +201,6 @@ $ mvn -Pjrebel</source>
         plugin tests against it. Cannot run headless.
         <source>$ mvn -Peclipse-it</source>
       </subsection>
-    </section>
-
-    <section name="Building documentation">
-      <p>
-        To build Syncope documentation execute (from within the check-out directory):
-        <source>$ mvn -N -P site clean generate-resources</source>
-        The documentation artifacts are now be available under <tt>target/generated-docs/</tt>.
-      </p>
     </section>
   </body>
 </document>
