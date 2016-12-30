@@ -404,7 +404,7 @@ public class JobWidget extends BaseWidget {
                     final ActionLinksPanel.Builder<ExecTO> panel = ActionLinksPanel.<ExecTO>builder().
                             add(new ActionLink<ExecTO>() {
 
-                                private static final long serialVersionUID=  -3722207913631435501L;
+                                private static final long serialVersionUID = -3722207913631435501L;
 
                                 @Override
                                 public void onClick(final AjaxRequestTarget target, final ExecTO ignore) {
