@@ -33,7 +33,7 @@ import org.apache.syncope.common.rest.api.RESTHeaders;
 /**
  * REST operations for workflow definition.
  */
-@Path("workflows/{anyTypeKind}")
+@Path("workflows")
 public interface WorkflowService extends JAXRSService {
 
     /**
@@ -43,6 +43,7 @@ public interface WorkflowService extends JAXRSService {
      * @return workflow definition for matching kind
      */
     @GET
+    @Path("{anyTypeKind}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response exportDefinition(@NotNull @PathParam("anyTypeKind") AnyTypeKind anyTypeKind);
 
@@ -53,7 +54,7 @@ public interface WorkflowService extends JAXRSService {
      * @return workflow diagram representation
      */
     @GET
-    @Path("diagram.png")
+    @Path("{anyTypeKind}/diagram.png")
     @Produces({ RESTHeaders.MEDIATYPE_IMAGE_PNG })
     Response exportDiagram(@NotNull @PathParam("anyTypeKind") AnyTypeKind anyTypeKind);
 
@@ -64,6 +65,7 @@ public interface WorkflowService extends JAXRSService {
      * @param definition workflow definition for matching kind
      */
     @PUT
+    @Path("{anyTypeKind}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     void importDefinition(@NotNull @PathParam("anyTypeKind") AnyTypeKind anyTypeKind, @NotNull String definition);
 

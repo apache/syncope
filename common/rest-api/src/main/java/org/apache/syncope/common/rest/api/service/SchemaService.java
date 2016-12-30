@@ -38,8 +38,20 @@ import org.apache.syncope.common.rest.api.beans.SchemaQuery;
 /**
  * REST operations for attribute schemas.
  */
-@Path("schemas/{type}")
+@Path("schemas")
 public interface SchemaService extends JAXRSService {
+
+    /**
+     * Returns a list of schemas matching the given query.
+     *
+     * @param <T> actual SchemaTO
+     * @param query query conditions
+     * @return list of schemas with matching type, for the given anyTypeClass if provided
+     */
+    @GET
+    @Path("{type}")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    <T extends AbstractSchemaTO> List<T> list(@BeanParam SchemaQuery query);
 
     /**
      * Returns schema matching the given type and key.
@@ -50,21 +62,10 @@ public interface SchemaService extends JAXRSService {
      * @return schema matching the given type and name
      */
     @GET
-    @Path("{key}")
+    @Path("{type}/{key}")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     <T extends AbstractSchemaTO> T read(
             @NotNull @PathParam("type") SchemaType type, @NotNull @PathParam("key") String key);
-
-    /**
-     * Returns a list of schemas matching the given query.
-     *
-     * @param <T> actual SchemaTO
-     * @param query query conditions
-     * @return list of schemas with matching type, for the given anyTypeClass if provided
-     */
-    @GET
-    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    <T extends AbstractSchemaTO> List<T> list(@BeanParam SchemaQuery query);
 
     /**
      * Creates a new schema.
@@ -74,6 +75,7 @@ public interface SchemaService extends JAXRSService {
      * @return Response object featuring Location header of created schema
      */
     @POST
+    @Path("{type}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     Response create(@NotNull @PathParam("type") SchemaType type, @NotNull AbstractSchemaTO schemaTO);
 
@@ -84,7 +86,7 @@ public interface SchemaService extends JAXRSService {
      * @param schemaTO updated schema to be stored
      */
     @PUT
-    @Path("{key}")
+    @Path("{type}/{key}")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     void update(@NotNull @PathParam("type") SchemaType type, @NotNull AbstractSchemaTO schemaTO);
 
@@ -95,6 +97,6 @@ public interface SchemaService extends JAXRSService {
      * @param key name of schema to be deleted
      */
     @DELETE
-    @Path("{key}")
+    @Path("{type}/{key}")
     void delete(@NotNull @PathParam("type") SchemaType type, @NotNull @PathParam("key") String key);
 }
