@@ -406,6 +406,13 @@ under the License.
         <skipTests>true</skipTests>
       </properties>
       
+      <dependencies>
+        <dependency>
+          <groupId>com.h2database</groupId>
+          <artifactId>h2</artifactId>
+        </dependency>
+      </dependencies>
+
       <build>
         <plugins>      
           <plugin>
