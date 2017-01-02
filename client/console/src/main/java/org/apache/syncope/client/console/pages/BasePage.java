@@ -34,7 +34,6 @@ import org.apache.syncope.client.console.rest.ConfigurationRestClient;
 import org.apache.syncope.client.console.topology.Topology;
 import org.apache.syncope.client.console.wicket.markup.head.MetaHeaderItem;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.client.console.wicket.protocol.ws.api.SyncopeWebSocketBehavior;
 import org.apache.syncope.client.console.widgets.ApprovalsWidget;
 import org.apache.syncope.client.console.widgets.JobWidget;
 import org.apache.syncope.client.console.widgets.ReconciliationWidget;
@@ -61,6 +60,7 @@ import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.protocol.ws.api.WebSocketBehavior;
 import org.apache.wicket.protocol.ws.api.message.ConnectedMessage;
 import org.apache.wicket.request.handler.resource.ResourceStreamRequestHandler;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
@@ -88,7 +88,7 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
         super(parameters);
 
         // Native WebSocket
-        add(new SyncopeWebSocketBehavior() {
+        add(new WebSocketBehavior() {
 
             private static final long serialVersionUID = 3109256773218160485L;
 
@@ -259,7 +259,7 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
             }
         });
         body.add(new Label("domain", SyncopeConsoleSession.get().getDomain()));
-        body.add(new BookmarkablePageLink<Page>("logout", Logout.class));
+        body.add(new BookmarkablePageLink<>("logout", Logout.class));
 
         // set 'active' menu item for everything but extensions
         // 1. check if current class is set to top-level menu
