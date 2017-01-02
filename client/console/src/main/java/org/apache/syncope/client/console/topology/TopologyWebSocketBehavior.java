@@ -28,18 +28,18 @@ import java.util.Set;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
-import org.apache.syncope.client.console.wicket.protocol.ws.api.SyncopeWebSocketBehavior;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.wicket.Application;
 import org.apache.wicket.Session;
 import org.apache.wicket.ThreadContext;
+import org.apache.wicket.protocol.ws.api.WebSocketBehavior;
 import org.apache.wicket.protocol.ws.api.WebSocketRequestHandler;
 import org.apache.wicket.protocol.ws.api.message.TextMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TopologyWebSocketBehavior extends SyncopeWebSocketBehavior {
+public class TopologyWebSocketBehavior extends WebSocketBehavior {
 
     private static final long serialVersionUID = -1653665542635275551L;
 

@@ -70,53 +70,45 @@ public class JobActionPanel extends WizardMgtPanel<Serializable> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
+                switch (jobTO.getType()) {
+                    case NOTIFICATION:
+                        break;
 
-                if (null != jobTO.getType()) {
-                    switch (jobTO.getType()) {
+                    case REPORT:
+                        ReportTO reportTO = new ReportRestClient().read(jobTO.getRefKey());
 
-                        case NOTIFICATION:
-                            break;
+                        ReportWizardBuilder rwb = new ReportWizardBuilder(reportTO, pageRef);
+                        rwb.setEventSink(JobActionPanel.this);
 
-                        case REPORT:
+                        target.add(jobModal.setContent(rwb.build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT)));
 
-                            final ReportTO reportTO = new ReportRestClient().read(jobTO.getRefKey());
+                        jobModal.header(new StringResourceModel(
+                                "any.edit",
+                                this,
+                                new Model<>(reportTO)));
 
-                            final ReportWizardBuilder rwb = new ReportWizardBuilder(reportTO, pageRef);
-                            rwb.setEventSink(JobActionPanel.this);
+                        jobModal.show(true);
+                        break;
 
-                            target.add(jobModal.setContent(rwb.build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT)));
+                    case TASK:
+                        SchedTaskTO schedTaskTO = new TaskRestClient().
+                                readSchedTask(SchedTaskTO.class, jobTO.getRefKey());
 
-                            jobModal.header(new StringResourceModel(
-                                    "any.edit",
-                                    this,
-                                    new Model<>(reportTO)));
+                        SchedTaskWizardBuilder<SchedTaskTO> swb = new SchedTaskWizardBuilder<>(schedTaskTO, pageRef);
+                        swb.setEventSink(JobActionPanel.this);
 
-                            jobModal.show(true);
+                        target.add(jobModal.setContent(swb.build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT)));
 
-                            break;
+                        jobModal.header(new StringResourceModel(
+                                "any.edit",
+                                this,
+                                new Model<>(schedTaskTO)));
 
-                        case TASK:
+                        jobModal.show(true);
+                        break;
 
-                            final SchedTaskTO schedTaskTO = new TaskRestClient().
-                                    readSchedTask(SchedTaskTO.class, jobTO.getRefKey());
-
-                            final SchedTaskWizardBuilder swb = new SchedTaskWizardBuilder(schedTaskTO, pageRef);
-                            swb.setEventSink(JobActionPanel.this);
-
-                            target.add(jobModal.setContent(swb.build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT)));
-
-                            jobModal.header(new StringResourceModel(
-                                    "any.edit",
-                                    this,
-                                    new Model<>(schedTaskTO)));
-
-                            jobModal.show(true);
-
-                            break;
-
-                        default:
-                            break;
-                    }
+                    default:
+                        break;
                 }
             }
         };

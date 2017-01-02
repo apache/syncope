@@ -420,7 +420,7 @@ under the License.
     <codemirror.version>5.13.2</codemirror.version>
     <jsplumb.version>2.0.7</jsplumb.version>
     
-    <wicket.version>7.5.0</wicket.version>
+    <wicket.version>7.6.0</wicket.version>
     <wicket-jqueryui.version>7.5.0</wicket-jqueryui.version>
     <wicket-bootstrap.version>0.10.11</wicket-bootstrap.version>
     <wicket-chartjs.version>7.0.1</wicket-chartjs.version>
