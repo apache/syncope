@@ -23,7 +23,7 @@ install:
   - cmd: SET MAVEN_OPTS=-XX:MaxPermSize=2g -Xmx4g
   - cmd: SET JAVA_OPTS=-XX:MaxPermSize=2g -Xmx4g
 build_script:
-  - mvn -T 1C -PskipTests,all --batch-mode
+  - mvn --show-version --quiet -T 1C -PskipTests,all --batch-mode
 test_script:
   - mvn -T 1C clean install --batch-mode
 cache:
