@@ -443,6 +443,11 @@ under the License.
     <maven-invoker.version>3.0.0</maven-invoker.version>
     <tycho-version>0.23.1</tycho-version>
 
+    <org-netbeans-api-version>RELEASE802</org-netbeans-api-version>
+    <org-netbeans-version>RELEASE82</org-netbeans-version>
+    <ianal-maven-plugin-version>1.0-alpha-1</ianal-maven-plugin-version>
+    <maven-jar-plugin-version>3.0.0</maven-jar-plugin-version>
+
     <testds.port>1389</testds.port>
     <testdb.webport>9082</testdb.webport>
 
@@ -1472,7 +1477,100 @@ under the License.
         <artifactId>httpmime</artifactId>
         <version>${httpclient.version}</version>
       </dependency>
-      
+
+      <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-api-annotations-common</artifactId>
+            <version>${org-netbeans-api-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-windows</artifactId>
+            <version>${org-netbeans-api-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-util</artifactId>
+            <version>${org-netbeans-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-util-ui</artifactId>
+            <version>${org-netbeans-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-util-lookup</artifactId>
+            <version>${org-netbeans-api-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-awt</artifactId>
+            <version>${org-netbeans-api-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-modules-settings</artifactId>
+            <version>${org-netbeans-api-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.syncope.common</groupId>
+            <artifactId>syncope-common-lib</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.syncope.client</groupId>
+            <artifactId>syncope-client-lib</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-io</artifactId>
+            <version>${org-netbeans-api-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-nodes</artifactId>
+            <version>${org-netbeans-api-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-text</artifactId>
+            <version>${org-netbeans-api-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-filesystems</artifactId>
+            <version>${org-netbeans-api-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-loaders</artifactId>
+            <version>${org-netbeans-api-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-core-multiview</artifactId>
+            <version>${org-netbeans-api-version}</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-modules-editor-lib2</artifactId>
+            <version>${org-netbeans-api-version}</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-api-progress</artifactId>
+            <version>${org-netbeans-api-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-api-progress-nb</artifactId>
+            <version>${org-netbeans-version}</version>
+        </dependency>
+
       <!-- TEST -->
       <dependency>
         <groupId>com.github.detro</groupId>
@@ -1512,6 +1610,10 @@ under the License.
       <snapshots>
         <enabled>true</enabled>
       </snapshots>
+    </repository>
+    <repository>
+      <id>netbeans</id>
+      <url>http://bits.netbeans.org/maven2/</url>
     </repository>
   </repositories>
 
