@@ -1,0 +1,3 @@
+Bundle-License: http://www.apache.org/licenses/LICENSE-2.0.txt
+Manifest-Version: 1.0
+OpenIDE-Module-Requires: org.openide.windows.WindowManager
