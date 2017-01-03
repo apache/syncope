@@ -23,7 +23,7 @@ import java.util.Map;
 import org.apache.commons.collections4.map.LinkedMap;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.LoggerTO;
+import org.apache.syncope.common.lib.log.LoggerTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

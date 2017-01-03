@@ -16,25 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.panels;
+package org.apache.syncope.common.lib.log;
 
-import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.common.lib.log.LoggerTO;
-import org.apache.syncope.common.lib.types.LoggerType;
-import org.apache.syncope.common.rest.api.service.LoggerService;
-import org.apache.wicket.PageReference;
+import org.apache.syncope.common.lib.AbstractBaseBean;
 
-public class CoreLogPanel extends AbstractLogsPanel<LoggerTO> {
+public class LogAppender extends AbstractBaseBean {
 
-    private static final long serialVersionUID = 3905038169553185171L;
+    private static final long serialVersionUID = 5975199884460548302L;
 
-    public CoreLogPanel(final String id, final PageReference pageReference) {
-        super(id, pageReference, SyncopeConsoleSession.get().getService(LoggerService.class).list(LoggerType.LOG));
+    private String name;
 
+    public String getName() {
+        return name;
     }
 
-    @Override
-    protected void update(final LoggerTO loggerTO) {
-        SyncopeConsoleSession.get().getService(LoggerService.class).update(LoggerType.LOG, loggerTO);
+    public void setName(final String name) {
+        this.name = name;
     }
+
 }

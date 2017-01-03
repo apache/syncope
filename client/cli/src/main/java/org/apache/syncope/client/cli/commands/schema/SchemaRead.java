@@ -18,8 +18,9 @@
  */
 package org.apache.syncope.client.cli.commands.schema;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
+import java.util.List;
 import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.client.cli.util.CommandUtils;
@@ -46,7 +47,7 @@ public class SchemaRead extends AbstractSchemaCommand {
         if (input.parameterNumber() >= 2) {
             final String[] parameters = Arrays.copyOfRange(input.getParameters(), 1, input.parameterNumber());
             try {
-                final LinkedList<AbstractSchemaTO> schemaTOs = new LinkedList<>();
+                final List<AbstractSchemaTO> schemaTOs = new ArrayList<>();
                 for (final String parameter : parameters) {
                     schemaTOs.add(schemaSyncopeOperations.read(input.firstParameter(), parameter));
                 }

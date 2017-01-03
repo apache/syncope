@@ -38,6 +38,7 @@ import org.apache.syncope.client.cli.commands.connector.ConnectorCommand;
 import org.apache.syncope.client.cli.commands.entitlement.EntitlementCommand;
 import org.apache.syncope.client.cli.commands.group.GroupCommand;
 import org.apache.syncope.client.cli.commands.install.InstallCommand;
+import org.apache.syncope.client.cli.commands.logger.LoggerCommand;
 import org.apache.syncope.client.cli.commands.policy.PolicyCommand;
 import org.apache.syncope.client.cli.commands.report.ReportCommand;
 import org.apache.syncope.client.cli.commands.role.RoleCommand;
@@ -299,6 +300,26 @@ public class CLIITCase extends AbstractITCase {
             process = PROCESS_BUILDER.start();
             final String result = IOUtils.toString(process.getInputStream(), SyncopeConstants.DEFAULT_CHARSET);
             assertTrue(result.contains("- Policy wrong doesn't exist"));
+        } catch (IOException e) {
+            fail(e.getMessage());
+        } finally {
+            if (process != null) {
+                process.destroy();
+            }
+        }
+    }
+
+    @Test
+    public void lastStatements() {
+        Process process = null;
+        try {
+            PROCESS_BUILDER.command(getCommand(
+                    new LoggerCommand().getClass().getAnnotation(Command.class).name(),
+                    LoggerCommand.LoggerOptions.LAST_STATEMENTS.getOptionName(),
+                    "connidMemory"));
+            process = PROCESS_BUILDER.start();
+            final String result = IOUtils.toString(process.getInputStream(), SyncopeConstants.DEFAULT_CHARSET);
+            assertTrue(result.contains("\"level\" : \"DEBUG\","));
         } catch (IOException e) {
             fail(e.getMessage());
         } finally {

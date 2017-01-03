@@ -28,7 +28,7 @@ import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.events.EventCategoryPanel;
 import org.apache.syncope.client.console.events.SelectedEventsPanel;
 import org.apache.syncope.client.console.rest.LoggerRestClient;
-import org.apache.syncope.common.lib.to.EventCategoryTO;
+import org.apache.syncope.common.lib.log.EventCategoryTO;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.common.lib.types.StandardEntitlement;

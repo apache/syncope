@@ -21,7 +21,7 @@ package org.apache.syncope.common.rest.api;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import org.apache.syncope.common.lib.to.LoggerTO;
+import org.apache.syncope.common.lib.log.LoggerTO;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.common.lib.types.LoggerLevel;
 

@@ -18,8 +18,9 @@
  */
 package org.apache.syncope.client.cli.view;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
-import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 
@@ -29,9 +30,9 @@ public final class Table {
 
     private final String title;
 
-    private final LinkedList<String> headers;
+    private final List<String> headers;
 
-    private final Set<LinkedList<String>> values;
+    private final Set<List<String>> values;
 
     private int columnsNumber;
 
@@ -47,8 +48,8 @@ public final class Table {
 
     private Table(
             final String title,
-            final LinkedList<String> headers,
-            final Set<LinkedList<String>> values) {
+            final List<String> headers,
+            final Set<List<String>> values) {
         this.title = title;
         this.headers = headers;
         this.values = values;
@@ -94,7 +95,7 @@ public final class Table {
             }
         }
 
-        for (final LinkedList<String> value : values) {
+        for (final List<String> value : values) {
             for (int j = 0; j < columnsSize.length; j++) {
                 if (value.get(j) != null && value.get(j).length() > columnsSize[j]) {
                     columnsSize[j] = value.get(j).length();
@@ -145,7 +146,7 @@ public final class Table {
     private void printeContent() {
         printColumnSpace();
 
-        for (final LinkedList<String> value : values) {
+        for (final List<String> value : values) {
             for (int j = 0; j < columnsNumber; j++) {
                 if (value.get(j) == null) {
                     tmpValuesArray[j] = StringUtils.center("null", columnsSize[j]);
@@ -169,9 +170,9 @@ public final class Table {
 
     public static class TableBuilder {
 
-        private final LinkedList<String> headers = new LinkedList<>();
+        private final List<String> headers = new ArrayList<>();
 
-        private final Set<LinkedList<String>> values = new LinkedHashSet<>();
+        private final Set<List<String>> values = new LinkedHashSet<>();
 
         private final String title;
 
@@ -184,7 +185,7 @@ public final class Table {
             return this;
         }
 
-        public TableBuilder rowValues(final LinkedList<String> row) {
+        public TableBuilder rowValues(final List<String> row) {
             values.add(row);
             return this;
         }

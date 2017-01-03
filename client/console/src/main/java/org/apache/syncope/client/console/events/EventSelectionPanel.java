@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormChoiceComponentUpdatingBehavior;
-import org.apache.syncope.common.lib.to.EventCategoryTO;
+import org.apache.syncope.common.lib.log.EventCategoryTO;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.wicket.ajax.AjaxRequestTarget;

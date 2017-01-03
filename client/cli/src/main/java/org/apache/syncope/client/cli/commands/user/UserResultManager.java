@@ -19,7 +19,6 @@
 package org.apache.syncope.client.cli.commands.user;
 
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -102,7 +101,7 @@ public class UserResultManager extends CommonsResultManager {
         final Table.TableBuilder tableBuilder =
                 new Table.TableBuilder("Users not deleted").header("user key").header("cause");
         for (final Map.Entry<String, String> entrySet : users.entrySet()) {
-            tableBuilder.rowValues(new LinkedList<>(Arrays.asList(entrySet.getKey(), entrySet.getValue())));
+            tableBuilder.rowValues(Arrays.asList(entrySet.getKey(), entrySet.getValue()));
         }
         tableBuilder.build().print();
     }

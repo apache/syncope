@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.to;
+package org.apache.syncope.common.lib.log;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;

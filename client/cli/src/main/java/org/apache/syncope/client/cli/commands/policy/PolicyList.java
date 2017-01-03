@@ -18,11 +18,9 @@
  */
 package org.apache.syncope.client.cli.commands.policy;
 
-import java.util.LinkedList;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.client.cli.util.CommandUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,11 +41,8 @@ public class PolicyList extends AbstractPolicyCommand {
     public void list() {
         if (input.parameterNumber() == 1) {
             try {
-                final LinkedList<AbstractPolicyTO> policyTOs = new LinkedList<>();
-                for (final AbstractPolicyTO policyTO : policySyncopeOperations.list(input.firstParameter())) {
-                    policyTOs.add(policyTO);
-                }
-                policyResultManager.printPoliciesByType(input.firstParameter(), policyTOs);
+                policyResultManager.printPoliciesByType(
+                        input.firstParameter(), policySyncopeOperations.list(input.firstParameter()));
             } catch (final SyncopeClientException ex) {
                 LOG.error("Error listing policy", ex);
                 policyResultManager.genericError(ex.getMessage());

@@ -16,39 +16,39 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.cli.commands.schema;
+package org.apache.syncope.client.cli.commands.logger;
 
-import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
-import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.types.SchemaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SchemaListAll extends AbstractSchemaCommand {
+public class LoggerLastStatements extends AbstractLoggerCommand {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SchemaListAll.class);
+    private static final Logger LOG = LoggerFactory.getLogger(LoggerLastStatements.class);
 
-    private static final String LIST_HELP_MESSAGE = "schema --list-all";
+    private static final String READ_HELP_MESSAGE = "logger --last-statements {APPENDER-NAME}";
 
     private final Input input;
 
-    public SchemaListAll(final Input input) {
+    public LoggerLastStatements(final Input input) {
         this.input = input;
     }
 
-    public void listAll() {
-        if (input.parameterNumber() == 0) {
+    public void read() {
+        if (input.getParameters().length == 1) {
             try {
-                for (final SchemaType schemaType : SchemaType.values()) {
-                    schemaResultManager.toView(schemaType.name(), schemaSyncopeOperations.list(schemaType.name()));
+                loggerResultManager.fromGetLastLogStatements(
+                        loggerSyncopeOperations.getLastLogStatements(input.getParameters()[0]));
+            } catch (final Exception ex) {
+                LOG.error("Error reading last statements", ex);
+                if (ex.getMessage().startsWith("NotFound")) {
+                    loggerResultManager.notFoundError("Memory appender", input.getParameters()[0]);
+                } else {
+                    loggerResultManager.genericError(ex.getMessage());
                 }
-            } catch (final SyncopeClientException | WebServiceException ex) {
-                LOG.error("Error listing schema", ex);
-                schemaResultManager.genericError(ex.getMessage());
             }
         } else {
-            schemaResultManager.unnecessaryParameters(input.listParameters(), LIST_HELP_MESSAGE);
+            loggerResultManager.commandOptionError(READ_HELP_MESSAGE);
         }
     }
 }

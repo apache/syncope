@@ -24,8 +24,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.syncope.common.lib.to.EventCategoryTO;
-import org.apache.syncope.common.lib.to.LoggerTO;
+import org.apache.syncope.common.lib.log.EventCategoryTO;
+import org.apache.syncope.common.lib.log.LoggerTO;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.common.lib.types.LoggerLevel;
 import org.apache.syncope.common.lib.types.LoggerType;
@@ -46,12 +46,12 @@ public class LoggerRestClient extends BaseRestClient {
 
     public Map<String, Set<AuditLoggerName>> listAuditsByCategory() {
         Map<String, Set<AuditLoggerName>> result = new HashMap<>();
-        for (AuditLoggerName auditLoggerName : listAudits()) {
-            if (!result.containsKey(auditLoggerName.getCategory())) {
-                result.put(auditLoggerName.getCategory(), new HashSet<AuditLoggerName>());
+        for (AuditLoggerName audit : listAudits()) {
+            if (!result.containsKey(audit.getCategory())) {
+                result.put(audit.getCategory(), new HashSet<AuditLoggerName>());
             }
 
-            result.get(auditLoggerName.getCategory()).add(auditLoggerName);
+            result.get(audit.getCategory()).add(audit);
         }
 
         return result;

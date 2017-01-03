@@ -16,25 +16,38 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.panels;
+package org.apache.syncope.common.lib.log;
 
-import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.common.lib.log.LoggerTO;
-import org.apache.syncope.common.lib.types.LoggerType;
-import org.apache.syncope.common.rest.api.service.LoggerService;
-import org.apache.wicket.PageReference;
+import javax.ws.rs.PathParam;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+import org.apache.syncope.common.lib.AbstractBaseBean;
+import org.apache.syncope.common.lib.types.LoggerLevel;
 
-public class CoreLogPanel extends AbstractLogsPanel<LoggerTO> {
+@XmlRootElement(name = "logger")
+@XmlType
+public class LoggerTO extends AbstractBaseBean {
 
-    private static final long serialVersionUID = 3905038169553185171L;
+    private static final long serialVersionUID = -7794833835668648505L;
 
-    public CoreLogPanel(final String id, final PageReference pageReference) {
-        super(id, pageReference, SyncopeConsoleSession.get().getService(LoggerService.class).list(LoggerType.LOG));
+    private String key;
 
+    private LoggerLevel level;
+
+    public LoggerLevel getLevel() {
+        return level;
     }
 
-    @Override
-    protected void update(final LoggerTO loggerTO) {
-        SyncopeConsoleSession.get().getService(LoggerService.class).update(LoggerType.LOG, loggerTO);
+    public void setLevel(final LoggerLevel level) {
+        this.level = level;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    @PathParam("key")
+    public void setKey(final String key) {
+        this.key = key;
     }
 }

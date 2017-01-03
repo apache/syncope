@@ -16,39 +16,35 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.cli.commands.schema;
+package org.apache.syncope.client.cli.commands.logger;
 
-import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.types.SchemaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SchemaListAll extends AbstractSchemaCommand {
+public class LoggerListMemoryAppenders extends AbstractLoggerCommand {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SchemaListAll.class);
+    private static final Logger LOG = LoggerFactory.getLogger(LoggerListMemoryAppenders.class);
 
-    private static final String LIST_HELP_MESSAGE = "schema --list-all";
+    private static final String LIST_HELP_MESSAGE = "logger --list-memory-appenders";
 
     private final Input input;
 
-    public SchemaListAll(final Input input) {
+    public LoggerListMemoryAppenders(final Input input) {
         this.input = input;
     }
 
-    public void listAll() {
+    public void list() {
         if (input.parameterNumber() == 0) {
             try {
-                for (final SchemaType schemaType : SchemaType.values()) {
-                    schemaResultManager.toView(schemaType.name(), schemaSyncopeOperations.list(schemaType.name()));
-                }
-            } catch (final SyncopeClientException | WebServiceException ex) {
-                LOG.error("Error listing schema", ex);
-                schemaResultManager.genericError(ex.getMessage());
+                loggerResultManager.fromListMemoryAppenders(loggerSyncopeOperations.listMemoryAppenders());
+            } catch (final SyncopeClientException ex) {
+                LOG.error("Error listing memory appenders", ex);
+                loggerResultManager.genericError(ex.getMessage());
             }
         } else {
-            schemaResultManager.unnecessaryParameters(input.listParameters(), LIST_HELP_MESSAGE);
+            loggerResultManager.unnecessaryParameters(input.listParameters(), LIST_HELP_MESSAGE);
         }
     }
 }

@@ -18,7 +18,8 @@
  */
 package org.apache.syncope.client.cli.commands.task;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.List;
 import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -40,7 +41,7 @@ public class TaskRead extends AbstractTaskCommand {
 
     public void read() {
         if (input.parameterNumber() >= 1) {
-            final LinkedList<AbstractTaskTO> taskTOs = new LinkedList<>();
+            final List<AbstractTaskTO> taskTOs = new ArrayList<>();
             for (final String parameter : input.getParameters()) {
                 try {
                     taskTOs.add(taskSyncopeOperations.read(parameter));

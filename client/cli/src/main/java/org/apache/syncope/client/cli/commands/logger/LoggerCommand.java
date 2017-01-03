@@ -43,6 +43,12 @@ public class LoggerCommand extends AbstractCommand {
             case LIST:
                 new LoggerList(input).list();
                 break;
+            case LIST_MEMORY_APPENDERS:
+                new LoggerListMemoryAppenders(input).list();
+                break;
+            case LAST_STATEMENTS:
+                new LoggerLastStatements(input).read();
+                break;
             case READ:
                 new LoggerRead(input).read();
                 break;
@@ -71,10 +77,12 @@ public class LoggerCommand extends AbstractCommand {
         return loggerResultManager.commandHelpMessage(getClass());
     }
 
-    private enum LoggerOptions {
+    public enum LoggerOptions {
 
         HELP("--help"),
         DETAILS("--details"),
+        LIST_MEMORY_APPENDERS("--list-memory-appenders"),
+        LAST_STATEMENTS("--last-statements"),
         LIST("--list"),
         READ("--read"),
         UPDATE("--update"),

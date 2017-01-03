@@ -20,9 +20,12 @@ package org.apache.syncope.core.rest.cxf.service;
 
 import java.text.ParseException;
 import java.util.List;
+import java.util.Queue;
 import javax.ws.rs.BadRequestException;
-import org.apache.syncope.common.lib.to.EventCategoryTO;
-import org.apache.syncope.common.lib.to.LoggerTO;
+import org.apache.syncope.common.lib.log.EventCategoryTO;
+import org.apache.syncope.common.lib.log.LogAppender;
+import org.apache.syncope.common.lib.log.LogStatementTO;
+import org.apache.syncope.common.lib.log.LoggerTO;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.common.lib.types.LoggerType;
 import org.apache.syncope.common.rest.api.LoggerWrapper;
@@ -36,6 +39,16 @@ public class LoggerServiceImpl extends AbstractServiceImpl implements LoggerServ
 
     @Autowired
     private LoggerLogic logic;
+
+    @Override
+    public List<LogAppender> memoryAppenders() {
+        return logic.memoryAppenders();
+    }
+
+    @Override
+    public Queue<LogStatementTO> getLastLogStatements(final String memoryAppender) {
+        return logic.getLastLogStatements(memoryAppender);
+    }
 
     @Override
     public void delete(final LoggerType type, final String name) {

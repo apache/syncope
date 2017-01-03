@@ -19,7 +19,6 @@
 package org.apache.syncope.client.cli.commands;
 
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -93,7 +92,7 @@ public abstract class CommonsResultManager {
     protected void printDetails(final String title, final Map<String, String> details) {
         final Table.TableBuilder tableBuilder = new Table.TableBuilder(title).header("detail").header("value");
         for (final Map.Entry<String, String> entrySet : details.entrySet()) {
-            tableBuilder.rowValues(new LinkedList<>(Arrays.asList(entrySet.getKey(), entrySet.getValue())));
+            tableBuilder.rowValues(Arrays.asList(entrySet.getKey(), entrySet.getValue()));
         }
         tableBuilder.build().print();
     }

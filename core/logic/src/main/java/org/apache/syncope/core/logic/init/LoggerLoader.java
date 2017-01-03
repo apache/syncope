@@ -20,6 +20,7 @@ package org.apache.syncope.core.logic.init;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Map;
 import javax.sql.DataSource;
 import org.apache.logging.log4j.Level;
@@ -30,6 +31,7 @@ import org.apache.logging.log4j.core.appender.db.jdbc.ColumnConfig;
 import org.apache.logging.log4j.core.appender.db.jdbc.ConnectionSource;
 import org.apache.logging.log4j.core.appender.db.jdbc.JdbcAppender;
 import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.apache.syncope.core.logic.MemoryAppender;
 import org.apache.syncope.core.provisioning.java.AuditManagerImpl;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.persistence.api.DomainsHolder;
@@ -47,6 +49,8 @@ public class LoggerLoader implements SyncopeLoader {
     @Autowired
     private LoggerAccessor loggerAccessor;
 
+    private final Map<String, MemoryAppender> memoryAppenders = new HashMap<>();
+
     @Override
     public Integer getPriority() {
         return 300;
@@ -55,6 +59,12 @@ public class LoggerLoader implements SyncopeLoader {
     @Override
     public void load() {
         final LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+
+        for (Map.Entry<String, Appender> entry : ctx.getConfiguration().getAppenders().entrySet()) {
+            if (entry.getValue() instanceof MemoryAppender) {
+                memoryAppenders.put(entry.getKey(), (MemoryAppender) entry.getValue());
+            }
+        }
 
         // Audit table and DataSource for each configured domain
         ColumnConfig[] columns = {
@@ -95,6 +105,10 @@ public class LoggerLoader implements SyncopeLoader {
         }
 
         ctx.updateLoggers();
+    }
+
+    public Map<String, MemoryAppender> getMemoryAppenders() {
+        return memoryAppenders;
     }
 
     private static class DataSourceConnectionSource implements ConnectionSource {

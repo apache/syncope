@@ -18,15 +18,35 @@
  */
 package org.apache.syncope.client.cli.commands.logger;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.client.cli.SyncopeServices;
-import org.apache.syncope.common.lib.to.LoggerTO;
+import org.apache.syncope.common.lib.log.LogAppender;
+import org.apache.syncope.common.lib.log.LogStatementTO;
+import org.apache.syncope.common.lib.log.LoggerTO;
 import org.apache.syncope.common.lib.types.LoggerType;
 import org.apache.syncope.common.rest.api.service.LoggerService;
 
 public class LoggerSyncopeOperations {
 
     private final LoggerService loggerService = SyncopeServices.get(LoggerService.class);
+
+    public List<String> listMemoryAppenders() {
+        return CollectionUtils.collect(loggerService.memoryAppenders(), new Transformer<LogAppender, String>() {
+
+            @Override
+            public String transform(final LogAppender input) {
+                return input.getName();
+            }
+        }, new ArrayList<String>());
+    }
+
+    public Queue<LogStatementTO> getLastLogStatements(final String appender) {
+        return loggerService.getLastLogStatements(appender);
+    }
 
     public List<LoggerTO> list() {
         return loggerService.list(LoggerType.LOG);
@@ -39,7 +59,7 @@ public class LoggerSyncopeOperations {
     public LoggerTO read(final String loggerName) {
         return loggerService.read(LoggerType.LOG, loggerName);
     }
-    
+
     public void delete(final String loggerName) {
         loggerService.delete(LoggerType.LOG, loggerName);
     }

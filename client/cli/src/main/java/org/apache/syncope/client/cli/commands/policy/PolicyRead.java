@@ -18,7 +18,8 @@
  */
 package org.apache.syncope.client.cli.commands.policy;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.List;
 import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -40,7 +41,7 @@ public class PolicyRead extends AbstractPolicyCommand {
 
     public void read() {
         if (input.parameterNumber() >= 1) {
-            final LinkedList<AbstractPolicyTO> policyTOs = new LinkedList<>();
+            final List<AbstractPolicyTO> policyTOs = new ArrayList<>();
             for (final String parameter : input.getParameters()) {
                 try {
                     policyTOs.add(policySyncopeOperations.read(parameter));
