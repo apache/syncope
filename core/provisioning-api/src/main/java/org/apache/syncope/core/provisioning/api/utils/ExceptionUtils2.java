@@ -32,8 +32,7 @@ public final class ExceptionUtils2 {
         StringBuilder result = new StringBuilder();
 
         for (Throwable throwable : ExceptionUtils.getThrowableList(t)) {
-            result.append(ExceptionUtils.getMessage(throwable)).append('\n').
-                    append(ExceptionUtils.getStackTrace(throwable)).append("\n\n");
+            result.append(ExceptionUtils.getStackTrace(throwable)).append("\n\n");
         }
 
         return result.toString();
