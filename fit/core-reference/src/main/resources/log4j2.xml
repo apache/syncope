@@ -32,6 +32,7 @@ under the License.
         <SizeBasedTriggeringPolicy size="250 MB"/>
       </Policies>
     </RollingRandomAccessFile>
+    <Memory name="mainMemory" size="25"/>
 
     <RollingRandomAccessFile name="persistence" fileName="${log.directory}/core-persistence.log"
                              filePattern="${log.directory}/core-persistence-%d{yyyy-MM-dd}.log.gz"
@@ -44,6 +45,7 @@ under the License.
         <SizeBasedTriggeringPolicy size="250 MB"/>
       </Policies>
     </RollingRandomAccessFile>
+    <Memory name="persistenceMemory" size="25"/>
 
     <RollingRandomAccessFile name="rest" fileName="${log.directory}/core-rest.log"
                              filePattern="${log.directory}/core-rest-%d{yyyy-MM-dd}.log.gz"
@@ -56,6 +58,7 @@ under the License.
         <SizeBasedTriggeringPolicy size="250 MB"/>
       </Policies>
     </RollingRandomAccessFile>
+    <Memory name="restMemory" size="25"/>
 
     <RollingRandomAccessFile name="connid" fileName="${log.directory}/core-connid.log"
                              filePattern="${log.directory}/core-connid-%d{yyyy-MM-dd}.log.gz"
@@ -68,6 +71,7 @@ under the License.
         <SizeBasedTriggeringPolicy size="250 MB"/>
       </Policies>
     </RollingRandomAccessFile>
+    <Memory name="connidMemory" size="25"/>
     
   </appenders>
   
@@ -75,61 +79,79 @@ under the License.
     
     <asyncLogger name="org.apache.syncope.core.persistence" additivity="false" level="INFO">
       <appender-ref ref="persistence"/>
+      <appender-ref ref="persistenceMemory"/>
     </asyncLogger>
     <asyncLogger name="org.springframework.orm" additivity="false" level="INFO">
       <appender-ref ref="persistence"/>
+      <appender-ref ref="persistenceMemory"/>
     </asyncLogger>
     
     <asyncLogger name="org.apache.syncope.core.rest" additivity="false" level="INFO">
       <appender-ref ref="rest"/>
+      <appender-ref ref="restMemory"/>
     </asyncLogger>
     <asyncLogger name="org.springframework.web" additivity="false" level="INFO">
       <appender-ref ref="rest"/>
+      <appender-ref ref="restMemory"/>
     </asyncLogger>
     <asyncLogger name="org.apache.http" additivity="false" level="INFO">
       <appender-ref ref="rest"/>
+      <appender-ref ref="restMemory"/>
     </asyncLogger>
     <asyncLogger name="org.apache.cxf" additivity="false" level="ERROR">
       <appender-ref ref="rest"/>
+      <appender-ref ref="restMemory"/>
     </asyncLogger>
     
     <asyncLogger name="org.identityconnectors" additivity="false" level="DEBUG">
       <appender-ref ref="connid"/>
+      <appender-ref ref="connidMemory"/>
     </asyncLogger>
     <asyncLogger name="net.tirasa.connid" additivity="false" level="DEBUG">
       <appender-ref ref="connid"/>
+      <appender-ref ref="connidMemory"/>
     </asyncLogger>
     <asyncLogger name="org.apache.syncope.core.provisioning.api.ConnIdBundleManager" additivity="false" level="INFO">
       <appender-ref ref="connid"/>
+      <appender-ref ref="connidMemory"/>
     </asyncLogger>
     
     <asyncLogger name="org.apache.syncope" additivity="false" level="INFO">
       <appender-ref ref="main"/>
+      <appender-ref ref="mainMemory"/>
     </asyncLogger>
     <asyncLogger name="org.apache.syncope.core.provisioning" additivity="false" level="INFO">
       <appender-ref ref="main"/>
+      <appender-ref ref="mainMemory"/>
     </asyncLogger>
     <asyncLogger name="org.apache.syncope.core.logic" additivity="false" level="INFO">
       <appender-ref ref="main"/>
+      <appender-ref ref="mainMemory"/>
     </asyncLogger>
     <asyncLogger name="org.springframework" additivity="false" level="INFO">
       <appender-ref ref="main"/>
+      <appender-ref ref="mainMemory"/>
     </asyncLogger>
     <asyncLogger name="org.quartz" additivity="false" level="INFO">
       <appender-ref ref="main"/>
+      <appender-ref ref="mainMemory"/>
     </asyncLogger>
     <asyncLogger name="org.activiti" additivity="false" level="ERROR">
       <appender-ref ref="main"/>
+      <appender-ref ref="mainMemory"/>
     </asyncLogger>
     <asyncLogger name="org.apache.camel" additivity="false" level="ERROR">
       <appender-ref ref="main"/>
+      <appender-ref ref="mainMemory"/>
     </asyncLogger>
     <asyncLogger name="io.swagger" additivity="false" level="ERROR">
       <appender-ref ref="main"/>
+      <appender-ref ref="mainMemory"/>
     </asyncLogger>
     
     <root level="INFO">
       <appender-ref ref="main"/>
+      <appender-ref ref="mainMemory"/>
     </root>
     
   </loggers>

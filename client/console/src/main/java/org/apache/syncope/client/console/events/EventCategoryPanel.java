@@ -37,7 +37,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.common.lib.to.EventCategoryTO;
+import org.apache.syncope.common.lib.log.EventCategoryTO;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.EventCategoryType;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
@@ -210,7 +210,7 @@ public abstract class EventCategoryPanel extends Panel {
                                     null,
                                     null,
                                     parsed.getKey().getEvents().isEmpty()
-                                            ? StringUtils.EMPTY : parsed.getKey().getEvents().iterator().next(),
+                                    ? StringUtils.EMPTY : parsed.getKey().getEvents().iterator().next(),
                                     parsed.getValue());
 
                             custom.setModelObject(StringUtils.EMPTY);
@@ -237,7 +237,7 @@ public abstract class EventCategoryPanel extends Panel {
                                     null,
                                     null,
                                     parsed.getKey().getEvents().isEmpty()
-                                            ? StringUtils.EMPTY : parsed.getKey().getEvents().iterator().next(),
+                                    ? StringUtils.EMPTY : parsed.getKey().getEvents().iterator().next(),
                                     parsed.getValue());
 
                             custom.setModelObject(StringUtils.EMPTY);
@@ -264,7 +264,7 @@ public abstract class EventCategoryPanel extends Panel {
                                     null,
                                     null,
                                     parsed.getKey().getEvents().isEmpty()
-                                            ? StringUtils.EMPTY : parsed.getKey().getEvents().iterator().next(),
+                                    ? StringUtils.EMPTY : parsed.getKey().getEvents().iterator().next(),
                                     parsed.getValue());
 
                             custom.setModelObject(StringUtils.EMPTY);
@@ -399,7 +399,7 @@ public abstract class EventCategoryPanel extends Panel {
                         categoryEvent.getKey().getCategory(),
                         categoryEvent.getKey().getSubcategory(),
                         categoryEvent.getKey().getEvents().isEmpty()
-                                ? StringUtils.EMPTY : categoryEvent.getKey().getEvents().iterator().next(),
+                        ? StringUtils.EMPTY : categoryEvent.getKey().getEvents().iterator().next(),
                         categoryEvent.getValue()));
 
                 category.setEnabled(false);

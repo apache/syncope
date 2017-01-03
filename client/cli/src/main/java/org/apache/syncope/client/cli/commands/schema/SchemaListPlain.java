@@ -18,11 +18,9 @@
  */
 package org.apache.syncope.client.cli.commands.schema;
 
-import java.util.LinkedList;
 import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.AbstractSchemaTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,11 +39,7 @@ public class SchemaListPlain extends AbstractSchemaCommand {
     public void listPlain() {
         if (input.parameterNumber() == 0) {
             try {
-                final LinkedList<AbstractSchemaTO> schemaTOs = new LinkedList<>();
-                for (final AbstractSchemaTO schemaTO : schemaSyncopeOperations.listPlain()) {
-                    schemaTOs.add(schemaTO);
-                }
-                schemaResultManager.printPlainSchemas(schemaTOs);
+                schemaResultManager.printPlainSchemas(schemaSyncopeOperations.listPlain());
             } catch (final SyncopeClientException | WebServiceException ex) {
                 LOG.error("Error listing schema", ex);
                 schemaResultManager.genericError(ex.getMessage());

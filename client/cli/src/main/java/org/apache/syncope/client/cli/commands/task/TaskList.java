@@ -18,11 +18,9 @@
  */
 package org.apache.syncope.client.cli.commands.task;
 
-import java.util.LinkedList;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.client.cli.util.CommandUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,11 +41,8 @@ public class TaskList extends AbstractTaskCommand {
     public void list() {
         if (input.parameterNumber() == 1) {
             try {
-                final LinkedList<AbstractTaskTO> taskTOs = new LinkedList<>();
-                for (final AbstractTaskTO taskTO : taskSyncopeOperations.list(input.firstParameter())) {
-                    taskTOs.add(taskTO);
-                }
-                taskResultManager.printTasksType(input.firstParameter(), taskTOs);
+                taskResultManager.printTasksType(
+                        input.firstParameter(), taskSyncopeOperations.list(input.firstParameter()));
             } catch (final SyncopeClientException ex) {
                 LOG.error("Error listing task", ex);
                 taskResultManager.genericError(ex.getMessage());

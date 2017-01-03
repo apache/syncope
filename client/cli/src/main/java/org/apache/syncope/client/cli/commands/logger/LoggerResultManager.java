@@ -18,44 +18,67 @@
  */
 package org.apache.syncope.client.cli.commands.logger;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Arrays;
-import java.util.LinkedList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import org.apache.syncope.client.cli.commands.CommonsResultManager;
 import org.apache.syncope.client.cli.view.Table;
-import org.apache.syncope.common.lib.to.LoggerTO;
+import org.apache.syncope.common.lib.log.LogStatementTO;
+import org.apache.syncope.common.lib.log.LoggerTO;
 
 public class LoggerResultManager extends CommonsResultManager {
 
-    public void fromList(final LinkedList<LoggerTO> loggerTOs) {
+    private static final ObjectMapper MAPPER = new ObjectMapper();
+
+    public void fromListMemoryAppenders(final List<String> memoryAppenders) {
+        final Table.TableBuilder tableBuilder = new Table.TableBuilder("list memory appenders").header("appender");
+        for (final String appender : memoryAppenders) {
+            tableBuilder.rowValues(Collections.singletonList(appender));
+        }
+        tableBuilder.build().print();
+    }
+
+    public void fromGetLastLogStatements(final Queue<LogStatementTO> statements) throws JsonProcessingException {
+        final Table.TableBuilder tableBuilder = new Table.TableBuilder("last statements").header("statement");
+        for (final LogStatementTO statement : statements) {
+            tableBuilder.rowValues(Collections.singletonList(
+                    MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(statement)));
+        }
+        tableBuilder.build().print();
+    }
+
+    public void fromList(final List<LoggerTO> loggerTOs) {
         fromCommandToView("list loggers", "level", loggerTOs);
     }
 
-    public void fromRead(final LinkedList<LoggerTO> loggerTOs) {
+    public void fromRead(final List<LoggerTO> loggerTOs) {
         fromCommandToView("read loggers", "level", loggerTOs);
     }
 
-    public void fromCreate(final LinkedList<LoggerTO> loggerTOs) {
+    public void fromCreate(final List<LoggerTO> loggerTOs) {
         fromCommandToView("created loggers", "level", loggerTOs);
     }
 
-    public void fromUpdate(final LinkedList<LoggerTO> loggerTOs) {
+    public void fromUpdate(final List<LoggerTO> loggerTOs) {
         fromCommandToView("updated loggers", "new level", loggerTOs);
     }
 
-    public void fromDelete(final LinkedList<LoggerTO> loggerTOs) {
+    public void fromDelete(final List<LoggerTO> loggerTOs) {
         fromCommandToView("deleted loggers", "new level", loggerTOs);
     }
 
     private void fromCommandToView(
             final String title,
             final String secondHeader,
-            final LinkedList<LoggerTO> loggerTOs) {
+            final List<LoggerTO> loggerTOs) {
 
         final Table.TableBuilder tableBuilder = new Table.TableBuilder(title).header("logger").header(secondHeader);
         for (final LoggerTO loggerTO : loggerTOs) {
-            tableBuilder.rowValues(
-                    new LinkedList<>(Arrays.asList(loggerTO.getKey(), loggerTO.getLevel().getLevel().name())));
+            tableBuilder.rowValues(Arrays.asList(loggerTO.getKey(), loggerTO.getLevel().getLevel().name()));
         }
         tableBuilder.build().print();
     }

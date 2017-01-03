@@ -16,38 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.common.lib.to;
+@XmlSchema(
+        namespace = SyncopeConstants.NS,
+        xmlns = { @XmlNs(prefix = SyncopeConstants.NS_PREFIX,
+                    namespaceURI = SyncopeConstants.NS) })
+package org.apache.syncope.common.lib.log;
 
-import javax.ws.rs.PathParam;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-import org.apache.syncope.common.lib.AbstractBaseBean;
-import org.apache.syncope.common.lib.types.LoggerLevel;
-
-@XmlRootElement(name = "logger")
-@XmlType
-public class LoggerTO extends AbstractBaseBean {
-
-    private static final long serialVersionUID = -7794833835668648505L;
-
-    private String key;
-
-    private LoggerLevel level;
-
-    public LoggerLevel getLevel() {
-        return level;
-    }
-
-    public void setLevel(final LoggerLevel level) {
-        this.level = level;
-    }
-
-    public String getKey() {
-        return key;
-    }
-
-    @PathParam("key")
-    public void setKey(final String key) {
-        this.key = key;
-    }
-}
+import javax.xml.bind.annotation.XmlNs;
+import javax.xml.bind.annotation.XmlSchema;
+import org.apache.syncope.common.lib.SyncopeConstants;

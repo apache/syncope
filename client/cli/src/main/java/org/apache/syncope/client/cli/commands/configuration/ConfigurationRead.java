@@ -18,7 +18,8 @@
  */
 package org.apache.syncope.client.cli.commands.configuration;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.List;
 import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -40,7 +41,7 @@ public class ConfigurationRead extends AbstractConfigurationCommand {
 
     public void read() {
         if (input.parameterNumber() >= 1) {
-            final LinkedList<AttrTO> attrList = new LinkedList<>();
+            final List<AttrTO> attrList = new ArrayList<>();
             boolean failed = false;
             for (final String parameter : input.getParameters()) {
                 try {

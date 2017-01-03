@@ -26,13 +26,16 @@ import static org.junit.Assert.fail;
 
 import java.text.ParseException;
 import java.util.List;
+import java.util.Queue;
 import javax.ws.rs.core.Response;
 import javax.xml.ws.WebServiceException;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.EventCategoryTO;
-import org.apache.syncope.common.lib.to.LoggerTO;
+import org.apache.syncope.common.lib.log.EventCategoryTO;
+import org.apache.syncope.common.lib.log.LogAppender;
+import org.apache.syncope.common.lib.log.LogStatementTO;
+import org.apache.syncope.common.lib.log.LoggerTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.EventCategoryType;
@@ -49,6 +52,31 @@ import org.apache.syncope.fit.AbstractITCase;
 import org.junit.Test;
 
 public class LoggerITCase extends AbstractITCase {
+
+    @Test
+    public void listMemoryAppenders() {
+        List<LogAppender> memoryAppenders = loggerService.memoryAppenders();
+        assertNotNull(memoryAppenders);
+        assertFalse(memoryAppenders.isEmpty());
+        for (LogAppender appender : memoryAppenders) {
+            assertNotNull(appender);
+            assertNotNull(appender.getName());
+        }
+    }
+
+    @Test
+    public void lastStatements() {
+        Queue<LogStatementTO> statements = loggerService.getLastLogStatements("connidMemory");
+        assertNotNull(statements);
+        assertFalse(statements.isEmpty());
+
+        LogStatementTO statement = statements.element();
+        assertNotNull(statement);
+        assertNotNull(statement.getLoggerName());
+        assertNotNull(statement.getLevel());
+        assertNotNull(statement.getMessage());
+        assertNotNull(statement.getTimeMillis());
+    }
 
     @Test
     public void listLogs() {

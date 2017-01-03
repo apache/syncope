@@ -22,7 +22,7 @@ import static org.junit.Assert.assertNotNull;
 
 import java.lang.reflect.InvocationTargetException;
 import org.apache.syncope.client.console.pages.Logs;
-import org.apache.syncope.common.lib.to.LoggerTO;
+import org.apache.syncope.common.lib.log.LoggerTO;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
 import org.apache.wicket.core.util.lang.PropertyResolver;

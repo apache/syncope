@@ -18,7 +18,8 @@
  */
 package org.apache.syncope.client.cli.commands.configuration;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.List;
 import javax.xml.ws.WebServiceException;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.cli.Input;
@@ -42,7 +43,7 @@ public class ConfigurationUpdate extends AbstractConfigurationCommand {
 
     public void update() {
         if (input.parameterNumber() >= 1) {
-            LinkedList<AttrTO> attrList = new LinkedList<>();
+            List<AttrTO> attrList = new ArrayList<>();
             boolean failed = false;
             for (String parameter : input.getParameters()) {
                 Pair<String, String> pairParameter = Input.toPairParameter(parameter);

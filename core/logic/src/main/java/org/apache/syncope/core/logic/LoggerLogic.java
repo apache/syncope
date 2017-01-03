@@ -23,6 +23,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Queue;
 import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IteratorUtils;
@@ -34,8 +35,10 @@ import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.to.EventCategoryTO;
-import org.apache.syncope.common.lib.to.LoggerTO;
+import org.apache.syncope.common.lib.log.EventCategoryTO;
+import org.apache.syncope.common.lib.log.LogAppender;
+import org.apache.syncope.common.lib.log.LogStatementTO;
+import org.apache.syncope.common.lib.log.LoggerTO;
 import org.apache.syncope.common.lib.types.AuditElements.EventCategoryType;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -48,6 +51,7 @@ import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.core.logic.init.LoggerLoader;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.LoggerDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -76,6 +80,9 @@ import org.springframework.util.SystemPropertyUtils;
 public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
 
     @Autowired
+    private LoggerLoader loggerLoader;
+
+    @Autowired
     private LoggerDAO loggerDAO;
 
     @Autowired
@@ -97,6 +104,33 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
                 return loggerTO;
             }
         }, new ArrayList<LoggerTO>());
+    }
+
+    @PreAuthorize("hasRole('" + StandardEntitlement.LOG_LIST + "') and authentication.details.domain == "
+            + "T(org.apache.syncope.common.lib.SyncopeConstants).MASTER_DOMAIN")
+    public List<LogAppender> memoryAppenders() {
+        return CollectionUtils.collect(
+                loggerLoader.getMemoryAppenders().keySet(),
+                new Transformer<String, LogAppender>() {
+
+            @Override
+            public LogAppender transform(final String input) {
+                LogAppender logAppender = new LogAppender();
+                logAppender.setName(input);
+                return logAppender;
+            }
+        }, new ArrayList<LogAppender>());
+    }
+
+    @PreAuthorize("hasRole('" + StandardEntitlement.LOG_READ + "') and authentication.details.domain == "
+            + "T(org.apache.syncope.common.lib.SyncopeConstants).MASTER_DOMAIN")
+    public Queue<LogStatementTO> getLastLogStatements(final String memoryAppender) {
+        MemoryAppender appender = loggerLoader.getMemoryAppenders().get(memoryAppender);
+        if (appender == null) {
+            throw new NotFoundException("Appender " + memoryAppender);
+        }
+
+        return appender.getStatements();
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.LOG_LIST + "') and authentication.details.domain == "

@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.cli.commands.user;
 
-import java.util.LinkedList;
 import java.util.Scanner;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -48,7 +47,7 @@ public class UserList extends AbstractUserCommand {
                 final String answer = scanIn.nextLine();
                 if ("yes".equalsIgnoreCase(answer)) {
                     final PagedResult<UserTO> uResult = userSyncopeOperations.list();
-                    userResultManager.printUsers(new LinkedList<>(uResult.getResult()));
+                    userResultManager.printUsers(uResult.getResult());
                 } else if ("no".equalsIgnoreCase(answer)) {
                     userResultManager.genericError("List operation skipped");
                 } else {

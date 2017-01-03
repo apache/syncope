@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.cli.commands.task;
 
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import org.apache.syncope.client.cli.commands.CommonsResultManager;
@@ -35,7 +34,7 @@ import org.apache.syncope.common.lib.types.TaskType;
 
 public class TaskResultManager extends CommonsResultManager {
 
-    public void printTasks(final LinkedList<AbstractTaskTO> taskTOs) {
+    public void printTasks(final List<AbstractTaskTO> taskTOs) {
         System.out.println("");
         for (final AbstractTaskTO taskTO : taskTOs) {
             if (taskTO instanceof NotificationTaskTO) {
@@ -52,7 +51,7 @@ public class TaskResultManager extends CommonsResultManager {
         }
     }
 
-    public void printTasksType(final String taskTypeString, final LinkedList<AbstractTaskTO> taskTOs) {
+    public void printTasksType(final String taskTypeString, final List<AbstractTaskTO> taskTOs) {
         System.out.println("");
         switch (TaskType.valueOf(taskTypeString)) {
             case NOTIFICATION:

@@ -19,6 +19,7 @@
 package org.apache.syncope.common.rest.api.service;
 
 import java.util.List;
+import java.util.Queue;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -28,8 +29,10 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import org.apache.syncope.common.lib.to.EventCategoryTO;
-import org.apache.syncope.common.lib.to.LoggerTO;
+import org.apache.syncope.common.lib.log.EventCategoryTO;
+import org.apache.syncope.common.lib.log.LogAppender;
+import org.apache.syncope.common.lib.log.LogStatementTO;
+import org.apache.syncope.common.lib.log.LoggerTO;
 import org.apache.syncope.common.lib.types.LoggerType;
 
 /**
@@ -39,7 +42,28 @@ import org.apache.syncope.common.lib.types.LoggerType;
 public interface LoggerService extends JAXRSService {
 
     /**
-     * Returns a list of all managed events in audit.
+     * Returns the list of memory appenders available in the current logging configuration.
+     *
+     * @return the list of memory appenders available in the current logging configuration
+     */
+    @GET
+    @Path("memoryAppenders")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    List<LogAppender> memoryAppenders();
+
+    /**
+     * Return the last log statements available in the provided memory appender.
+     *
+     * @param memoryAppender memory appender name
+     * @return the last log statements available in the provided memory appender
+     */
+    @GET
+    @Path("memoryAppenders/{memoryAppender}/lastLogStatements")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    Queue<LogStatementTO> getLastLogStatements(@NotNull @PathParam("memoryAppender") String memoryAppender);
+
+    /**
+     * Returns the list of all managed events in audit.
      *
      * @return list of all managed events in audit
      */

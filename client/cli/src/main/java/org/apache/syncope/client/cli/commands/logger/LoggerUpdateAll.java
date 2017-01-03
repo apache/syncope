@@ -18,12 +18,13 @@
  */
 package org.apache.syncope.client.cli.commands.logger;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.List;
 import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.client.cli.util.CommandUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.LoggerTO;
+import org.apache.syncope.common.lib.log.LoggerTO;
 import org.apache.syncope.common.lib.types.LoggerLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,7 +43,7 @@ public class LoggerUpdateAll extends AbstractLoggerCommand {
 
     public void updateAll() {
         if (input.parameterNumber() == 1) {
-            final LinkedList<LoggerTO> loggerTOs = new LinkedList<>();
+            final List<LoggerTO> loggerTOs = new ArrayList<>();
             boolean failed = false;
             for (final LoggerTO loggerTO : loggerSyncopeOperations.list()) {
                 try {
