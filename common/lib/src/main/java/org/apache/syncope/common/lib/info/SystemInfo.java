@@ -19,6 +19,7 @@
 package org.apache.syncope.common.lib.info;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.Queue;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -87,7 +88,7 @@ public class SystemInfo extends AbstractBaseBean {
     @XmlElementWrapper(name = "load")
     @XmlElement(name = "instant")
     @JsonProperty("load")
-    public CircularFifoQueue<LoadInstant> getLoad() {
+    public Queue<LoadInstant> getLoad() {
         return load;
     }
 
