@@ -18,6 +18,16 @@ under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <wicket:panel>
-    <label wicket:id="label"/>
+    <div style="padding: 5px; font-family: monospace;">
+      [<span wicket:id="instant"></span>]
+      <span wicket:id="logger"></span><br/>
+      <span wicket:id="message"></span>
+      <div wicket:id="collapse">
+        <span>+ <u>Error Details</u></span>
+        <div>
+          <pre wicket:id="stacktrace" style="white-space: pre-wrap;max-width: 95vw;"></pre>
+        </div>
+      </div>
+    </div>
   </wicket:panel>
 </html>

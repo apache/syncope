@@ -280,6 +280,10 @@ public class JobWidget extends BaseWidget {
 
             columns.add(new PropertyColumn<JobTO, String>(new ResourceModel("refDesc"), "refDesc", "refDesc"));
 
+            columns.add(new BooleanPropertyColumn<JobTO>(new ResourceModel("scheduled"), "scheduled", "scheduled"));
+
+            columns.add(new DatePropertyColumn<JobTO>(new ResourceModel("start"), "start", "start"));
+
             columns.add(new AbstractColumn<JobTO, String>(new Model<>(""), "running") {
 
                 private static final long serialVersionUID = -4008579357070833846L;
@@ -308,10 +312,6 @@ public class JobWidget extends BaseWidget {
                 }
 
             });
-
-            columns.add(new BooleanPropertyColumn<JobTO>(new ResourceModel("scheduled"), "scheduled", "scheduled"));
-
-            columns.add(new DatePropertyColumn<JobTO>(new ResourceModel("start"), "start", "start"));
 
             return columns;
         }
@@ -412,8 +412,7 @@ public class JobWidget extends BaseWidget {
                                     StringResourceModel stringResourceModel =
                                             new StringResourceModel("execution.view", JobWidget.this, model);
                                     detailModal.header(stringResourceModel);
-                                    detailModal.
-                                            setContent(new ExecMessageModal(pageRef, model.getObject().getMessage()));
+                                    detailModal.setContent(new ExecMessageModal(model.getObject().getMessage()));
                                     detailModal.show(true);
                                     target.add(detailModal);
                                 }

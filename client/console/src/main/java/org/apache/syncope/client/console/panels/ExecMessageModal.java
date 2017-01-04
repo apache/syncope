@@ -19,16 +19,20 @@
 package org.apache.syncope.client.console.panels;
 
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.wicket.PageReference;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 
 public class ExecMessageModal extends Panel implements ModalPanel {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -8751533037282034918L;
 
-    public ExecMessageModal(final PageReference pageRef, final String executionMessage) {
-        super(BaseModal.CONTENT_ID);
+    public ExecMessageModal(final String executionMessage) {
+        this(BaseModal.CONTENT_ID, executionMessage);
+    }
+
+    public ExecMessageModal(final String id, final String executionMessage) {
+        super(id);
         add(new Label("executionMessage", executionMessage).setOutputMarkupId(true));
     }
+
 }

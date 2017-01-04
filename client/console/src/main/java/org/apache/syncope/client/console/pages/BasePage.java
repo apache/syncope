@@ -259,7 +259,7 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
             }
         });
         body.add(new Label("domain", SyncopeConsoleSession.get().getDomain()));
-        body.add(new BookmarkablePageLink<>("logout", Logout.class));
+        body.add(new BookmarkablePageLink<Page>("logout", Logout.class));
 
         // set 'active' menu item for everything but extensions
         // 1. check if current class is set to top-level menu

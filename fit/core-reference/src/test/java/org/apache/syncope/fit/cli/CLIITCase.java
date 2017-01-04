@@ -316,7 +316,7 @@ public class CLIITCase extends AbstractITCase {
             PROCESS_BUILDER.command(getCommand(
                     new LoggerCommand().getClass().getAnnotation(Command.class).name(),
                     LoggerCommand.LoggerOptions.LAST_STATEMENTS.getOptionName(),
-                    "connidMemory"));
+                    "connid"));
             process = PROCESS_BUILDER.start();
             final String result = IOUtils.toString(process.getInputStream(), SyncopeConstants.DEFAULT_CHARSET);
             assertTrue(result.contains("\"level\" : \"DEBUG\","));

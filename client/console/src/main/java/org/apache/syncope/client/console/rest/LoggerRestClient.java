@@ -18,13 +18,21 @@
  */
 package org.apache.syncope.client.console.rest;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.Predicate;
+import org.apache.commons.collections4.Transformer;
+import org.apache.commons.collections4.TransformerUtils;
 import org.apache.syncope.common.lib.log.EventCategoryTO;
+import org.apache.syncope.common.lib.log.LogAppender;
+import org.apache.syncope.common.lib.log.LogStatementTO;
 import org.apache.syncope.common.lib.log.LoggerTO;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.common.lib.types.LoggerLevel;
@@ -35,6 +43,28 @@ import org.apache.syncope.common.rest.api.service.LoggerService;
 public class LoggerRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = 4579786978763032240L;
+
+    public List<String> listMemoryAppenders() {
+        return CollectionUtils.collect(getService(LoggerService.class).memoryAppenders(),
+                new Transformer<LogAppender, String>() {
+
+            @Override
+            public String transform(final LogAppender input) {
+                return input.getName();
+            }
+        }, new ArrayList<String>());
+    }
+
+    public List<LogStatementTO> getLastLogStatements(final String appender, final long lastStatementTime) {
+        return CollectionUtils.collect(IterableUtils.filteredIterable(
+                getService(LoggerService.class).getLastLogStatements(appender), new Predicate<LogStatementTO>() {
+
+            @Override
+            public boolean evaluate(final LogStatementTO object) {
+                return object.getTimeMillis() > lastStatementTime;
+            }
+        }), TransformerUtils.<LogStatementTO>nopTransformer(), new ArrayList<LogStatementTO>());
+    }
 
     public List<LoggerTO> listLogs() {
         return getService(LoggerService.class).list(LoggerType.LOG);

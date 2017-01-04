@@ -18,10 +18,14 @@
  */
 package org.apache.syncope.common.lib.log;
 
-import java.io.Serializable;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.types.LoggerLevel;
 
-public class LogStatementTO implements Serializable {
+@XmlRootElement(name = "logStatement")
+@XmlType
+public class LogStatementTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = -2931205859104653385L;
 

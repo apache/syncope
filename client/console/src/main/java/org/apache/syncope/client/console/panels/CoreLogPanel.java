@@ -19,10 +19,13 @@
 package org.apache.syncope.client.console.panels;
 
 import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.pages.LogViewer;
 import org.apache.syncope.common.lib.log.LoggerTO;
 import org.apache.syncope.common.lib.types.LoggerType;
 import org.apache.syncope.common.rest.api.service.LoggerService;
 import org.apache.wicket.PageReference;
+import org.apache.wicket.markup.html.link.BookmarkablePageLink;
+import org.apache.wicket.markup.html.link.PopupSettings;
 
 public class CoreLogPanel extends AbstractLogsPanel<LoggerTO> {
 
@@ -31,6 +34,9 @@ public class CoreLogPanel extends AbstractLogsPanel<LoggerTO> {
     public CoreLogPanel(final String id, final PageReference pageReference) {
         super(id, pageReference, SyncopeConsoleSession.get().getService(LoggerService.class).list(LoggerType.LOG));
 
+        BookmarkablePageLink<Void> viewer = new BookmarkablePageLink<>("viewer", LogViewer.class);
+        viewer.setPopupSettings(new PopupSettings().setHeight(600).setWidth(800));
+        loggerContainer.add(viewer);
     }
 
     @Override
