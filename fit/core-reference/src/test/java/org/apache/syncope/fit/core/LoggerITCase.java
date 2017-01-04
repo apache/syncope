@@ -66,7 +66,7 @@ public class LoggerITCase extends AbstractITCase {
 
     @Test
     public void lastStatements() {
-        Queue<LogStatementTO> statements = loggerService.getLastLogStatements("connidMemory");
+        Queue<LogStatementTO> statements = loggerService.getLastLogStatements("connid");
         assertNotNull(statements);
         assertFalse(statements.isEmpty());
 

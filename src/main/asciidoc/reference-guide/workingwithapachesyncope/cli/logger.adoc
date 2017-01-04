@@ -26,7 +26,10 @@ This command is meant for tweaking runtime logger configuration.
 Usage: logger [options]
   Options:
     --help 
-    --details 
+    --details
+    --list-memory-appenders
+    --last-statements
+       Syntax: --last-statements {APPENDER-NAME}
     --list 
     --read 
        Syntax: --read {LOG-NAME} {LOG-NAME} [...]
@@ -47,6 +50,11 @@ Usage: logger [options]
 This option shows a table with some details about logger configuration.
 --list::
 Running the command with this option you will see the table of the loggers configuration.
+--list-memory-appenders
+Running the command with this option you will see the table of the memory appenders, whose last statements can be
+inspected
+--last-statements
+The option to get the last statements available for the passed memory appender
 --read::
 The option to read all the information of specified loggers.
 --update::

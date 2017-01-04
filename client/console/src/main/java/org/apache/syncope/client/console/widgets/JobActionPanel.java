@@ -57,8 +57,13 @@ public class JobActionPanel extends WizardMgtPanel<Serializable> {
 
     private final BaseModal<Serializable> jobModal;
 
-    public JobActionPanel(final String id, final JobTO jobTO, final JobWidget widget,
-            final BaseModal<Serializable> jobModal, final PageReference pageRef) {
+    public JobActionPanel(
+            final String id,
+            final JobTO jobTO,
+            final JobWidget widget,
+            final BaseModal<Serializable> jobModal,
+            final PageReference pageRef) {
+
         super(id, true);
         this.jobModal = jobModal;
         setOutputMarkupId(true);
