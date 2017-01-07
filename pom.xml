@@ -366,7 +366,7 @@ under the License.
     <spring.version>4.3.5.RELEASE</spring.version>
     <spring-security.version>4.2.1.RELEASE</spring-security.version>
 
-    <openjpa.version>2.4.1</openjpa.version>
+    <openjpa.version>2.4.2</openjpa.version>
     <commons-dbcp.version>2.1.1</commons-dbcp.version>
     <bval.version>1.1.2</bval.version>
 
@@ -417,11 +417,11 @@ under the License.
     <font-awesome.version>4.7.0</font-awesome.version>
     <ionicons.version>2.0.1</ionicons.version>
     <highlightjs.version>9.8.0</highlightjs.version>
-    <codemirror.version>5.13.2</codemirror.version>
+    <codemirror.version>5.22.0</codemirror.version>
     <jsplumb.version>2.0.7</jsplumb.version>
     
     <wicket.version>7.6.0</wicket.version>
-    <wicket-jqueryui.version>7.5.0</wicket-jqueryui.version>
+    <wicket-jqueryui.version>7.6.0</wicket-jqueryui.version>
     <wicket-bootstrap.version>0.10.11</wicket-bootstrap.version>
     <wicket-chartjs.version>7.0.1</wicket-chartjs.version>
 
