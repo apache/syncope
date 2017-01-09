@@ -16,35 +16,35 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.netbeans.plugin.service;
+package org.apache.syncope.ide.netbeans.service;
 
 import java.io.InputStream;
 import java.util.List;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
-import org.apache.syncope.common.lib.to.MailTemplateTO;
-import org.apache.syncope.common.lib.types.MailTemplateFormat;
-import org.apache.syncope.common.rest.api.service.MailTemplateService;
+import org.apache.syncope.common.lib.to.ReportTemplateTO;
+import org.apache.syncope.common.lib.types.ReportTemplateFormat;
+import org.apache.syncope.common.rest.api.service.ReportTemplateService;
 
-public class MailTemplateManagerService {
+public class ReportTemplateManagerService {
 
-    private MailTemplateService service;
+    private final ReportTemplateService service;
 
-    public MailTemplateManagerService(final String url, final String userName, final String password) {
+    public ReportTemplateManagerService(final String url, final String userName, final String password) {
         SyncopeClient syncopeClient = new SyncopeClientFactoryBean().setAddress(url).create(userName, password);
-        service = syncopeClient.getService(MailTemplateService.class);
+        service = syncopeClient.getService(ReportTemplateService.class);
     }
 
-    public List<MailTemplateTO> list() {
+    public List<ReportTemplateTO> list() {
         return service.list();
     }
 
-    public boolean create(final MailTemplateTO mailTemplateTO) {
-        return Response.Status.CREATED.getStatusCode() == service.create(mailTemplateTO).getStatus();
+    public boolean create(final ReportTemplateTO reportTemplateTO) {
+        return Response.Status.CREATED.getStatusCode() == service.create(reportTemplateTO).getStatus();
     }
 
-    public MailTemplateTO read(final String key) {
+    public ReportTemplateTO read(final String key) {
         return service.read(key);
     }
 
@@ -53,15 +53,15 @@ public class MailTemplateManagerService {
         return true;
     }
 
-    public Object getFormat(final String key, final MailTemplateFormat format) {
+    public Object getFormat(final String key, final ReportTemplateFormat format) {
         return service.getFormat(key, format).getEntity();
     }
 
-    public void setFormat(final String key, final MailTemplateFormat format, final InputStream templateIn) {
+    public void setFormat(final String key, final ReportTemplateFormat format, final InputStream templateIn) {
         service.setFormat(key, format, templateIn);
     }
 
-    public boolean removeFormat(final String key, final MailTemplateFormat format) {
+    public boolean removeFormat(final String key, final ReportTemplateFormat format) {
         return false;
     }
 

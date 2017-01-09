@@ -16,18 +16,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.netbeans.plugin.constants;
+package org.apache.syncope.ide.netbeans;
+
+import org.apache.syncope.common.lib.types.MailTemplateFormat;
+import org.apache.syncope.common.lib.types.ReportTemplateFormat;
 
 public final class PluginConstants {
 
-    public static final String MAIL_TEMPLTAE_CONSTANT = "Mail Template";
-    public static final String REPORT_XSLTS_CONSTANT = "Report XSLTs";
-    public static final String[] MAIL_TEMPLATE_FORMATS = {"TEXT", "HTML"};
-    public static final String[] REPORT_TEMPLATE_FORMATS = {"HTML", "CSV", "FO"};
+    public static final String MAIL_TEMPLATE = "Mail Template";
+
+    public static final String REPORT_XSLTS = "Report XSLTs";
+
+    public static final String[] MAIL_TEMPLATE_FORMATS = {
+        MailTemplateFormat.HTML.name(), MailTemplateFormat.TEXT.name() };
+
+    public static final String[] REPORT_TEMPLATE_FORMATS = {
+        ReportTemplateFormat.HTML.name(), ReportTemplateFormat.CSV.name(), ReportTemplateFormat.FO.name() };
+
     public static final String DISPLAY_NAME = "Apache Syncope";
+
     public static final String TOOL_TIP_TEXT = "This is a Apache Syncope window";
 
     private PluginConstants() {
     }
-    
+
 }
