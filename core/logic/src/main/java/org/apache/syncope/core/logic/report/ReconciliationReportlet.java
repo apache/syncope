@@ -28,6 +28,7 @@ import java.util.Set;
 import org.apache.commons.collections4.Closure;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -331,7 +332,10 @@ public class ReconciliationReportlet extends AbstractReportlet {
 
                         for (Map.Entry<String, Set<Object>> entry : resourceAttrs.entrySet()) {
                             if (syncopeAttrs.containsKey(entry.getKey())) {
-                                if (!Objects.equals(syncopeAttrs.get(entry.getKey()), entry.getValue())) {
+                                if (!Objects.equals(
+                                        SetUtils.emptyIfNull(syncopeAttrs.get(entry.getKey())),
+                                        SetUtils.emptyIfNull(entry.getValue()))) {
+
                                     misaligned.add(new Misaligned(
                                             resource.getKey(),
                                             connObjectKeyValue,
