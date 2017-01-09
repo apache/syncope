@@ -47,6 +47,12 @@ under the License.
                 <extensions>true</extensions>
                 <configuration>
                     <useOSGiDependencies>false</useOSGiDependencies>
+                    <nbmResources>
+                        <nbmResource>
+                            <directory>src/main/resources/META-INF</directory>
+                            <targetPath>../META-INF</targetPath>
+                        </nbmResource>
+                    </nbmResources>
                 </configuration>
             </plugin>
             <plugin>
@@ -58,6 +64,28 @@ under the License.
                     </archive>
                 </configuration>
             </plugin>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <version>1.7</version>
+                <executions>
+                  <execution>
+                    <phase>package</phase>
+                    <configuration>
+                      <target>
+                        <move file="./target/syncope-ide-netbeans-2.0.2-SNAPSHOT.nbm"
+                            tofile="./target/syncope-ide-netbeans-2.0.2-SNAPSHOT.zip" />
+                        <zip update="true" basedir="legal/" 
+                            destfile="./target/syncope-ide-netbeans-2.0.2-SNAPSHOT.zip" />
+                        <move file="./target/syncope-ide-netbeans-2.0.2-SNAPSHOT.zip"
+                            tofile="./target/syncope-ide-netbeans-2.0.2-SNAPSHOT.nbm" />
+                      </target>
+                    </configuration>
+                    <goals>
+                      <goal>run</goal>
+                    </goals>
+                  </execution>
+                </executions>
+              </plugin>
         </plugins>
     </build>
 
