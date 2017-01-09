@@ -16,28 +16,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.netbeans.plugin.connector;
+package org.apache.syncope.ide.netbeans;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import org.apache.syncope.netbeans.plugin.entity.UserProperties;
-import org.apache.syncope.netbeans.plugin.service.MailTemplateManagerService;
-import org.apache.syncope.netbeans.plugin.service.ReportTemplateManagerService;
+import org.apache.syncope.ide.netbeans.service.MailTemplateManagerService;
+import org.apache.syncope.ide.netbeans.service.ReportTemplateManagerService;
 
 public final class ResourceConnector {
 
     private static MailTemplateManagerService MAIL_TEMPLATE_MANAGER_SERVICE;
+
     private static ReportTemplateManagerService REPORT_TEMPLATE_MANAGER_SERVICE;
 
     private static final Object MAIL_TEMPLATE_MONITOR = new Object();
+
     private static final Object REPORT_TEMPLATE_MONITOR = new Object();
 
     private ResourceConnector() {
     }
-    
+
     public static MailTemplateManagerService getMailTemplateManagerService() throws IOException {
         synchronized (MAIL_TEMPLATE_MONITOR) {
             if (MAIL_TEMPLATE_MANAGER_SERVICE == null) {

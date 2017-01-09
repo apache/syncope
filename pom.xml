@@ -439,12 +439,11 @@ under the License.
     <izpack.version>5.1.0</izpack.version>
     <httpclient.version>4.3.6</httpclient.version>
     <maven-invoker.version>3.0.0</maven-invoker.version>
-    <tycho-version>1.0.0</tycho-version>
-
-    <org-netbeans-api-version>RELEASE802</org-netbeans-api-version>
-    <org-netbeans-version>RELEASE82</org-netbeans-version>
     <ianal-maven-plugin-version>1.0-alpha-1</ianal-maven-plugin-version>
     <maven-jar-plugin-version>3.0.0</maven-jar-plugin-version>
+
+    <tycho-version>1.0.0</tycho-version>
+    <netbeans.version>RELEASE82</netbeans.version>
 
     <testds.port>1389</testds.port>
     <testdb.webport>9082</testdb.webport>
@@ -1424,97 +1423,102 @@ under the License.
       </dependency>
 
       <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-netbeans-api-annotations-common</artifactId>
-            <version>${org-netbeans-api-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-openide-windows</artifactId>
-            <version>${org-netbeans-api-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-openide-util</artifactId>
-            <version>${org-netbeans-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-openide-util-ui</artifactId>
-            <version>${org-netbeans-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-openide-util-lookup</artifactId>
-            <version>${org-netbeans-api-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-openide-awt</artifactId>
-            <version>${org-netbeans-api-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-netbeans-modules-settings</artifactId>
-            <version>${org-netbeans-api-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.syncope.common</groupId>
-            <artifactId>syncope-common-lib</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.syncope.client</groupId>
-            <artifactId>syncope-client-lib</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-openide-io</artifactId>
-            <version>${org-netbeans-api-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-openide-nodes</artifactId>
-            <version>${org-netbeans-api-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-openide-text</artifactId>
-            <version>${org-netbeans-api-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-openide-filesystems</artifactId>
-            <version>${org-netbeans-api-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-openide-loaders</artifactId>
-            <version>${org-netbeans-api-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-netbeans-core-multiview</artifactId>
-            <version>${org-netbeans-api-version}</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-netbeans-modules-editor-lib2</artifactId>
-            <version>${org-netbeans-api-version}</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-netbeans-api-progress</artifactId>
-            <version>${org-netbeans-api-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-netbeans-api-progress-nb</artifactId>
-            <version>${org-netbeans-version}</version>
-        </dependency>
+        <groupId>org.netbeans.api</groupId>
+        <artifactId>org-netbeans-api-annotations-common</artifactId>
+        <version>${netbeans.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.netbeans.api</groupId>
+        <artifactId>org-openide-windows</artifactId>
+        <version>${netbeans.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.netbeans.api</groupId>
+        <artifactId>org-openide-util</artifactId>
+        <version>${netbeans.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.netbeans.api</groupId>
+        <artifactId>org-openide-util-ui</artifactId>
+        <version>${netbeans.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.netbeans.api</groupId>
+        <artifactId>org-openide-util-lookup</artifactId>
+        <version>${netbeans.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.netbeans.api</groupId>
+        <artifactId>org-openide-awt</artifactId>
+        <version>${netbeans.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.netbeans.api</groupId>
+        <artifactId>org-netbeans-modules-settings</artifactId>
+        <version>${netbeans.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.syncope.common</groupId>
+        <artifactId>syncope-common-lib</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.syncope.client</groupId>
+        <artifactId>syncope-client-lib</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.netbeans.api</groupId>
+        <artifactId>org-openide-io</artifactId>
+        <version>${netbeans.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.netbeans.api</groupId>
+        <artifactId>org-openide-nodes</artifactId>
+        <version>${netbeans.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.netbeans.api</groupId>
+        <artifactId>org-openide-text</artifactId>
+        <version>${netbeans.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.netbeans.api</groupId>
+        <artifactId>org-openide-filesystems</artifactId>
+        <version>${netbeans.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.netbeans.api</groupId>
+        <artifactId>org-openide-loaders</artifactId>
+        <version>${netbeans.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.netbeans.api</groupId>
+        <artifactId>org-netbeans-core-multiview</artifactId>
+        <version>${netbeans.version}</version>
+        <type>jar</type>
+      </dependency>
+      <dependency>
+        <groupId>org.netbeans.api</groupId>
+        <artifactId>org-netbeans-modules-editor-lib2</artifactId>
+        <version>${netbeans.version}</version>
+        <type>jar</type>
+      </dependency>
+      <dependency>
+        <groupId>org.netbeans.api</groupId>
+        <artifactId>org-netbeans-api-progress</artifactId>
+        <version>${netbeans.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.netbeans.api</groupId>
+        <artifactId>org-netbeans-api-progress-nb</artifactId>
+        <version>${netbeans.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.netbeans.external</groupId>
+        <artifactId>asm-all-5.0.1</artifactId>
+        <version>${netbeans.version}</version>
+      </dependency>
 
       <!-- TEST -->
       <dependency>
@@ -1667,6 +1671,12 @@ under the License.
         
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-jar-plugin</artifactId>
+          <version>3.0.2</version>
+        </plugin>
+        
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-war-plugin</artifactId>
           <version>3.0.0</version>
           <configuration>
@@ -1783,23 +1793,23 @@ under the License.
         <plugin>
           <groupId>org.eclipse.tycho</groupId>
           <artifactId>tycho-maven-plugin</artifactId>
-          <version>${tycho-version}</version>
+          <version>${tycho.version}</version>
           <extensions>true</extensions>
         </plugin>
         <plugin>
           <groupId>org.eclipse.tycho</groupId>
           <artifactId>target-platform-configuration</artifactId>
-          <version>${tycho-version}</version>
+          <version>${tycho.version}</version>
         </plugin>
         <plugin>
           <groupId>org.eclipse.tycho</groupId>
           <artifactId>tycho-p2-repository-plugin</artifactId>
-          <version>${tycho-version}</version>
+          <version>${tycho.version}</version>
         </plugin>   
         <plugin>
           <groupId>org.eclipse.tycho</groupId>
           <artifactId>tycho-surefire-plugin</artifactId>
-          <version>${tycho-version}</version>
+          <version>${tycho.version}</version>
         </plugin>
         
         <plugin>
@@ -1821,9 +1831,20 @@ under the License.
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>nbm-maven-plugin</artifactId>
-          <version>3.13</version>
+          <version>4.1</version>
         </plugin>
 
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>nbm-maven-plugin</artifactId>
+          <version>4.1</version>
+        </plugin>
+
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>nbm-maven-plugin</artifactId>
+          <version>4.1</version>
+        </plugin>
       </plugins>
     </pluginManagement>
 

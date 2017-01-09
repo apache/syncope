@@ -16,19 +16,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.netbeans.plugin.entity;
+package org.apache.syncope.ide.netbeans;
 
 public class UserProperties {
-    
+
     private String url;
+
     private String userName;
+
     private String password;
 
     public UserProperties() {
     }
 
-    public UserProperties(final String url, final String userName, 
-            final String password) {
+    public UserProperties(final String url, final String userName, final String password) {
         this.url = url;
         this.userName = userName;
         this.password = password;

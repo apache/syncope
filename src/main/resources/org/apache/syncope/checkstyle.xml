@@ -46,7 +46,7 @@ under the License.
 
 -->
 <module name="Checker">
-    <!--
+  <!--
         If you set the basedir property below, then all reported file
         names will be relative to the specified directory. See
         http://checkstyle.sourceforge.net/5.x/config.html#Checker
@@ -82,6 +82,8 @@ under the License.
     <property name="maximum" value="2"/>
     <property name="message" value="Line has trailing spaces."/>
   </module>
+
+  <module name="SuppressionCommentFilter"/>
 
   <module name="TreeWalker">
 
@@ -218,6 +220,7 @@ under the License.
     <module name="TodoComment"/>
     <module name="UpperEll"/>
 
+    <module name="FileContentsHolder"/>
   </module>
 
 </module>
