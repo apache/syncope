@@ -47,7 +47,7 @@ public class ConnObjectPanel extends Panel {
 
     private static final long serialVersionUID = -6469290753080058487L;
 
-    public ConnObjectPanel(final String id, final Pair<ConnObjectTO, ConnObjectTO> connObjectTOs) {
+    public ConnObjectPanel(final String id, final Pair<ConnObjectTO, ConnObjectTO> connObjectTOs, final boolean view) {
         super(id);
 
         final IModel<List<String>> formProps = new LoadableDetachableModel<List<String>>() {
@@ -107,7 +107,12 @@ public class ConnObjectPanel extends Panel {
                 final AttrTO after = afterProfile == null ? null : afterProfile.get(prop);
 
                 valueFragment = new Fragment("value", "doubleValue", ConnObjectPanel.this);
-                valueFragment.add(getValuePanel("oldAttribute", prop, before));
+
+                Panel oldAttribute = getValuePanel("oldAttribute", prop, before);
+                oldAttribute.setOutputMarkupPlaceholderTag(true);
+                oldAttribute.setVisible(!view);
+                valueFragment.add(oldAttribute);
+
                 valueFragment.add(getValuePanel("newAttribute", prop, after));
 
                 if (before == null || after == null

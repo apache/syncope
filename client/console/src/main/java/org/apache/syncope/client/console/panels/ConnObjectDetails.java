@@ -31,7 +31,7 @@ public class ConnObjectDetails extends MultilevelPanel.SecondLevel {
 
         MultilevelPanel mlp = new MultilevelPanel("details");
         mlp.setFirstLevel(
-                new ConnObjectPanel(MultilevelPanel.FIRST_LEVEL_ID, Pair.of((ConnObjectTO) null, connObjectTO)));
+                new ConnObjectPanel(MultilevelPanel.FIRST_LEVEL_ID, Pair.of((ConnObjectTO) null, connObjectTO), true));
         add(mlp);
     }
 
