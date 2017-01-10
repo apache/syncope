@@ -18,12 +18,14 @@
  */
 package org.apache.syncope.client.console.widgets;
 
+import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.reports.ReportWizardBuilder;
+import org.apache.syncope.client.console.reports.ReportletDirectoryPanel;
 import org.apache.syncope.client.console.rest.ReportRestClient;
 import org.apache.syncope.client.console.rest.TaskRestClient;
 import org.apache.syncope.client.console.tasks.SchedTaskWizardBuilder;
@@ -36,11 +38,13 @@ import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.JobType;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.rest.api.service.NotificationService;
 import org.apache.syncope.common.rest.api.service.ReportService;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.markup.html.panel.Fragment;
@@ -57,17 +61,23 @@ public class JobActionPanel extends WizardMgtPanel<Serializable> {
 
     private final BaseModal<Serializable> jobModal;
 
+    private final BaseModal<ReportTO> reportModal;
+
     public JobActionPanel(
             final String id,
             final JobTO jobTO,
             final JobWidget widget,
             final BaseModal<Serializable> jobModal,
+            final BaseModal<ReportTO> reportModal,
             final PageReference pageRef) {
-
         super(id, true);
         this.jobModal = jobModal;
+        this.reportModal = reportModal;
         setOutputMarkupId(true);
-        setWindowClosedReloadCallback(modal);
+        setWindowClosedReloadCallback(jobModal);
+        jobModal.size(Modal.Size.Large);
+        setWindowClosedReloadCallback(reportModal);
+        this.reportModal.size(Modal.Size.Large);
 
         IndicatorAjaxLink<Void> link = new IndicatorAjaxLink<Void>("edit") {
 
@@ -120,6 +130,54 @@ public class JobActionPanel extends WizardMgtPanel<Serializable> {
         link.setOutputMarkupPlaceholderTag(true);
         link.setVisible(!(null != jobTO.getType() && JobType.NOTIFICATION.equals(jobTO.getType())));
         addInnerObject(link);
+
+        IndicatorAjaxLink<Void> composeLink;
+        composeLink =
+                new IndicatorAjaxLink<Void>("compose") {
+
+            private static final long serialVersionUID = -7978723352517770644L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+
+                if (null != jobTO.getType()) {
+                    switch (jobTO.getType()) {
+
+                        case NOTIFICATION:
+                            break;
+
+                        case REPORT:
+
+                            final ReportTO reportTO = new ReportRestClient().read(jobTO.getRefKey());
+
+                            target.add(JobActionPanel.this.reportModal.setContent(
+                                    new ReportletDirectoryPanel(reportModal, jobTO.getRefKey(), pageRef)));
+
+                            MetaDataRoleAuthorizationStrategy.authorize(
+                                    reportModal.getForm(),
+                                    ENABLE, StandardEntitlement.REPORT_UPDATE);
+
+                            reportModal.header(new StringResourceModel(
+                                    "reportlet.conf", this, new Model<>(reportTO)
+                            ));
+
+                            reportModal.show(true);
+
+                            break;
+
+                        case TASK:
+                            break;
+
+                        default:
+                            break;
+                    }
+                }
+            }
+        };
+        composeLink.setOutputMarkupPlaceholderTag(true);
+        composeLink.setVisible(!(null != jobTO.getType() && (JobType.TASK.equals(jobTO.getType())
+                || JobType.NOTIFICATION.equals(jobTO.getType()))));
+        addInnerObject(composeLink);
 
         Fragment controls;
         if (jobTO.isRunning()) {

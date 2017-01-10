@@ -84,7 +84,7 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
 
     private final String report;
 
-    protected ReportletDirectoryPanel(
+    public ReportletDirectoryPanel(
             final BaseModal<ReportTO> baseModal, final String report, final PageReference pageRef) {
         super(BaseModal.CONTENT_ID, pageRef, false);
 
