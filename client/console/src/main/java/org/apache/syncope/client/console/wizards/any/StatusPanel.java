@@ -162,8 +162,8 @@ public class StatusPanel extends Panel {
 
             @Override
             protected boolean statusCondition(final StatusBean bean) {
-                final Pair<ConnObjectTO, ConnObjectTO> pair
-                        = getConnObjectTO(bean.getAnyKey(), bean.getResourceName(), connObjects);
+                final Pair<ConnObjectTO, ConnObjectTO> pair =
+                        getConnObjectTO(bean.getAnyKey(), bean.getResourceName(), connObjects);
 
                 return pair != null && pair.getRight() != null;
             }
@@ -213,7 +213,7 @@ public class StatusPanel extends Panel {
             this.bean = bean;
             this.connObjects = connObjects;
 
-            add(new ConnObjectPanel(REMOTE_OBJECT_PANEL_ID, getConnObjectTO()));
+            add(new ConnObjectPanel(REMOTE_OBJECT_PANEL_ID, getConnObjectTO(), false));
         }
 
         @Override

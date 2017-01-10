@@ -274,7 +274,7 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
 
         public RemoteRealmPanel(final PropagationStatus bean) {
             this.bean = bean;
-            add(new ConnObjectPanel(REMOTE_OBJECT_PANEL_ID, getConnObjectTO()));
+            add(new ConnObjectPanel(REMOTE_OBJECT_PANEL_ID, getConnObjectTO(), false));
         }
 
         @Override

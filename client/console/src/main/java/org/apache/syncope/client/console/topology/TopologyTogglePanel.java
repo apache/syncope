@@ -203,7 +203,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 final ConnInstanceTO modelObject = new ConnInstanceTO();
-                modelObject.setLocation(node.getKey().toString());
+                modelObject.setLocation(node.getKey());
 
                 final IModel<ConnInstanceTO> model = new CompoundPropertyModel<>(modelObject);
                 modal.setFormModel(model);
@@ -315,7 +315,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 try {
-                    resourceRestClient.delete(node.getKey().toString());
+                    resourceRestClient.delete(node.getKey());
                     target.appendJavaScript(String.format("jsPlumb.remove('%s');", node.getKey()));
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     toggle(target, false);
@@ -336,7 +336,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                ResourceTO modelObject = resourceRestClient.read(node.getKey().toString());
+                ResourceTO modelObject = resourceRestClient.read(node.getKey());
 
                 IModel<ResourceTO> model = new CompoundPropertyModel<>(modelObject);
                 modal.setFormModel(model);
@@ -361,7 +361,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                ResourceTO modelObject = resourceRestClient.read(node.getKey().toString());
+                ResourceTO modelObject = resourceRestClient.read(node.getKey());
                 target.add(propTaskModal.setContent(
                         new ResourceStatusModal(propTaskModal, pageRef, modelObject)));
                 propTaskModal.header(new ResourceModel("resource.provisioning.status", "Provisioning Status"));
@@ -377,7 +377,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                ResourceTO modelObject = resourceRestClient.read(node.getKey().toString());
+                ResourceTO modelObject = resourceRestClient.read(node.getKey());
 
                 IModel<ResourceTO> model = new CompoundPropertyModel<>(modelObject);
                 provisionModal.setFormModel(model);
@@ -401,7 +401,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                target.add(propTaskModal.setContent(new ConnObjects(propTaskModal, node.getKey().toString(), pageRef)));
+                target.add(propTaskModal.setContent(new ConnObjects(propTaskModal, node.getKey(), pageRef)));
                 propTaskModal.header(new StringResourceModel("resource.explore.list", Model.of(node)));
                 propTaskModal.show(true);
             }
@@ -417,7 +417,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             @SuppressWarnings("unchecked")
             public void onClick(final AjaxRequestTarget target) {
                 target.add(propTaskModal.setContent(
-                        new PropagationTasks(propTaskModal, node.getKey().toString(), pageRef)));
+                        new PropagationTasks(propTaskModal, node.getKey(), pageRef)));
                 propTaskModal.header(new ResourceModel("task.propagation.list"));
                 propTaskModal.show(true);
             }
@@ -431,7 +431,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                target.add(schedTaskModal.setContent(new PullTasks(schedTaskModal, pageRef, node.getKey().toString())));
+                target.add(schedTaskModal.setContent(new PullTasks(schedTaskModal, pageRef, node.getKey())));
                 schedTaskModal.header(new ResourceModel("task.pull.list"));
                 schedTaskModal.show(true);
             }
@@ -445,7 +445,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                target.add(schedTaskModal.setContent(new PushTasks(schedTaskModal, pageRef, node.getKey().toString())));
+                target.add(schedTaskModal.setContent(new PushTasks(schedTaskModal, pageRef, node.getKey())));
                 schedTaskModal.header(new ResourceModel("task.push.list"));
                 schedTaskModal.show(true);
             }
