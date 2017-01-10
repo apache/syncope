@@ -28,7 +28,6 @@ import java.util.Set;
 import org.apache.commons.collections4.Closure;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -60,6 +59,7 @@ import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.ConnectorFactory;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
+import org.identityconnectors.common.Base64;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
@@ -259,6 +259,22 @@ public class ReconciliationReportlet extends AbstractReportlet {
         handler.endElement("", "", getAnyElementName(any.getType().getKind()));
     }
 
+    private Set<Object> getValues(final Attribute attr) {
+        Set<Object> values;
+        if (attr.getValue() == null || attr.getValue().isEmpty()) {
+            values = Collections.emptySet();
+        } else if (attr.getValue().get(0) instanceof byte[]) {
+            values = new HashSet<>(attr.getValue().size());
+            for (Object single : attr.getValue()) {
+                values.add(Base64.encode((byte[]) single));
+            }
+        } else {
+            values = new HashSet<>(attr.getValue());
+        }
+
+        return values;
+    }
+
     private void doExtract(final ContentHandler handler, final List<? extends Any<?>> anys)
             throws SAXException, ReportException {
 
@@ -300,9 +316,7 @@ public class ReconciliationReportlet extends AbstractReportlet {
 
                         final Map<String, Set<Object>> syncopeAttrs = new HashMap<>();
                         for (Attribute attr : preparedAttrs.getRight()) {
-                            syncopeAttrs.put(
-                                    attr.getName(),
-                                    attr.getValue() == null ? null : new HashSet<>(attr.getValue()));
+                            syncopeAttrs.put(attr.getName(), getValues(attr));
                         }
 
                         final Map<String, Set<Object>> resourceAttrs = new HashMap<>();
@@ -310,9 +324,7 @@ public class ReconciliationReportlet extends AbstractReportlet {
                             if (!OperationalAttributes.PASSWORD_NAME.equals(attr.getName())
                                     && !OperationalAttributes.ENABLE_NAME.equals(attr.getName())) {
 
-                                resourceAttrs.put(
-                                        attr.getName(),
-                                        attr.getValue() == null ? null : new HashSet<>(attr.getValue()));
+                                resourceAttrs.put(attr.getName(), getValues(attr));
                             }
                         }
 
@@ -332,10 +344,7 @@ public class ReconciliationReportlet extends AbstractReportlet {
 
                         for (Map.Entry<String, Set<Object>> entry : resourceAttrs.entrySet()) {
                             if (syncopeAttrs.containsKey(entry.getKey())) {
-                                if (!Objects.equals(
-                                        SetUtils.emptyIfNull(syncopeAttrs.get(entry.getKey())),
-                                        SetUtils.emptyIfNull(entry.getValue()))) {
-
+                                if (!Objects.equals(syncopeAttrs.get(entry.getKey()), entry.getValue())) {
                                     misaligned.add(new Misaligned(
                                             resource.getKey(),
                                             connObjectKeyValue,
