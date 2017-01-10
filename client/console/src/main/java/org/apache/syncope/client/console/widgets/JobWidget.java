@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.widgets;
 
+import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbedPanel;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -41,6 +42,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPane
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
+import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.rest.api.service.NotificationService;
 import org.apache.syncope.common.rest.api.service.ReportService;
@@ -96,6 +98,17 @@ public class JobWidget extends BaseWidget {
     };
 
     private final BaseModal<Serializable> detailModal = new BaseModal<Serializable>("detailModal") {
+
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        protected void onConfigure() {
+            super.onConfigure();
+            setFooterVisible(true);
+        }
+    };
+
+    private final BaseModal<ReportTO> reportModal = new BaseModal<ReportTO>("reportModal") {
 
         private static final long serialVersionUID = 1L;
 
@@ -170,6 +183,19 @@ public class JobWidget extends BaseWidget {
                 detailModal.show(false);
             }
         });
+
+        add(reportModal);
+        reportModal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+
+            private static final long serialVersionUID = 1L;
+
+            @Override
+            public void onClose(final AjaxRequestTarget target) {
+                reportModal.show(false);
+            }
+        });
+
+        reportModal.size(Modal.Size.Large);
 
         available = getAvailable(SyncopeConsoleSession.get());
         recent = getRecent(SyncopeConsoleSession.get());
@@ -296,7 +322,7 @@ public class JobWidget extends BaseWidget {
 
                     JobTO jobTO = rowModel.getObject();
                     JobActionPanel panel = new JobActionPanel(componentId, jobTO, JobWidget.this, JobWidget.this.modal,
-                            pageRef);
+                            JobWidget.this.reportModal, pageRef);
                     MetaDataRoleAuthorizationStrategy.authorize(panel, WebPage.ENABLE,
                             String.format("%s,%s%s,%s",
                                     StandardEntitlement.TASK_EXECUTE,
