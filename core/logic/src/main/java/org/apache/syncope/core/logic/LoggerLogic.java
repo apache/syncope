@@ -23,12 +23,12 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Queue;
 import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.collections4.PredicateUtils;
 import org.apache.commons.collections4.Transformer;
+import org.apache.commons.collections4.TransformerUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
@@ -124,13 +124,16 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
 
     @PreAuthorize("hasRole('" + StandardEntitlement.LOG_READ + "') and authentication.details.domain == "
             + "T(org.apache.syncope.common.lib.SyncopeConstants).MASTER_DOMAIN")
-    public Queue<LogStatementTO> getLastLogStatements(final String memoryAppender) {
+    public List<LogStatementTO> getLastLogStatements(final String memoryAppender) {
         MemoryAppender appender = loggerLoader.getMemoryAppenders().get(memoryAppender);
         if (appender == null) {
             throw new NotFoundException("Appender " + memoryAppender);
         }
 
-        return appender.getStatements();
+        return CollectionUtils.collect(
+                appender.getStatements(),
+                TransformerUtils.<LogStatementTO>nopTransformer(),
+                new ArrayList<LogStatementTO>());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.LOG_LIST + "') and authentication.details.domain == "

@@ -85,6 +85,10 @@ under the License.
       <appender-ref ref="persistenceFile"/>
       <appender-ref ref="persistence"/>
     </asyncLogger>
+    <asyncLogger name="org.apache.ibatis" additivity="false" level="INFO">
+      <appender-ref ref="persistenceFile"/>
+      <appender-ref ref="persistence"/>
+    </asyncLogger>
     
     <asyncLogger name="org.apache.syncope.core.rest" additivity="false" level="INFO">
       <appender-ref ref="restFile"/>

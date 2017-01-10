@@ -20,7 +20,6 @@ package org.apache.syncope.client.cli.commands.logger;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Queue;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.client.cli.SyncopeServices;
@@ -44,7 +43,7 @@ public class LoggerSyncopeOperations {
         }, new ArrayList<String>());
     }
 
-    public Queue<LogStatementTO> getLastLogStatements(final String appender) {
+    public List<LogStatementTO> getLastLogStatements(final String appender) {
         return loggerService.getLastLogStatements(appender);
     }
 

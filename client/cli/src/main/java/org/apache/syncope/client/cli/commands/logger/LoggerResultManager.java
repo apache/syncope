@@ -24,7 +24,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import org.apache.syncope.client.cli.commands.CommonsResultManager;
 import org.apache.syncope.client.cli.view.Table;
 import org.apache.syncope.common.lib.log.LogStatementTO;
@@ -42,7 +41,7 @@ public class LoggerResultManager extends CommonsResultManager {
         tableBuilder.build().print();
     }
 
-    public void fromGetLastLogStatements(final Queue<LogStatementTO> statements) throws JsonProcessingException {
+    public void fromGetLastLogStatements(final List<LogStatementTO> statements) throws JsonProcessingException {
         final Table.TableBuilder tableBuilder = new Table.TableBuilder("last statements").header("statement");
         for (final LogStatementTO statement : statements) {
             tableBuilder.rowValues(Collections.singletonList(
