@@ -19,7 +19,6 @@
 package org.apache.syncope.common.rest.api.service;
 
 import java.util.List;
-import java.util.Queue;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -60,7 +59,7 @@ public interface LoggerService extends JAXRSService {
     @GET
     @Path("memoryAppenders/{memoryAppender}/lastLogStatements")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Queue<LogStatementTO> getLastLogStatements(@NotNull @PathParam("memoryAppender") String memoryAppender);
+    List<LogStatementTO> getLastLogStatements(@NotNull @PathParam("memoryAppender") String memoryAppender);
 
     /**
      * Returns the list of all managed events in audit.

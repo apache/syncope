@@ -26,10 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
+import org.apache.commons.collections4.ComparatorUtils;
 import org.apache.commons.collections4.Transformer;
-import org.apache.commons.collections4.TransformerUtils;
 import org.apache.syncope.common.lib.log.EventCategoryTO;
 import org.apache.syncope.common.lib.log.LogAppender;
 import org.apache.syncope.common.lib.log.LogStatementTO;
@@ -56,18 +54,27 @@ public class LoggerRestClient extends BaseRestClient {
     }
 
     public List<LogStatementTO> getLastLogStatements(final String appender, final long lastStatementTime) {
-        return CollectionUtils.collect(IterableUtils.filteredIterable(
-                getService(LoggerService.class).getLastLogStatements(appender), new Predicate<LogStatementTO>() {
-
-            @Override
-            public boolean evaluate(final LogStatementTO object) {
-                return object.getTimeMillis() > lastStatementTime;
+        List<LogStatementTO> result = new ArrayList<>();
+        for (LogStatementTO statement : getService(LoggerService.class).getLastLogStatements(appender)) {
+            if (statement.getTimeMillis() > lastStatementTime) {
+                result.add(statement);
             }
-        }), TransformerUtils.<LogStatementTO>nopTransformer(), new ArrayList<LogStatementTO>());
+        }
+
+        return result;
     }
 
     public List<LoggerTO> listLogs() {
-        return getService(LoggerService.class).list(LoggerType.LOG);
+        List<LoggerTO> logs = getService(LoggerService.class).list(LoggerType.LOG);
+        Collections.sort(logs, ComparatorUtils.transformedComparator(
+                ComparatorUtils.<String>naturalComparator(), new Transformer<LoggerTO, String>() {
+
+            @Override
+            public String transform(final LoggerTO input) {
+                return input.getKey();
+            }
+        }));
+        return logs;
     }
 
     public List<AuditLoggerName> listAudits() {
@@ -87,10 +94,7 @@ public class LoggerRestClient extends BaseRestClient {
         return result;
     }
 
-    public void setLogLevel(final String key, final LoggerLevel level) {
-        LoggerTO loggerTO = new LoggerTO();
-        loggerTO.setKey(key);
-        loggerTO.setLevel(level);
+    public void setLogLevel(final LoggerTO loggerTO) {
         getService(LoggerService.class).update(LoggerType.LOG, loggerTO);
     }
 

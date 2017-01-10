@@ -20,7 +20,10 @@ package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import org.apache.commons.collections4.ComparatorUtils;
+import org.apache.commons.collections4.Transformer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.LoggerConfig;
@@ -49,19 +52,27 @@ public class ConsoleLogPanel extends AbstractLogsPanel<LoggerTO> {
         private static final long serialVersionUID = -1550459341476431714L;
 
         public List<LoggerTO> getLoggers() {
-            final LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+            LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
 
-            final List<LoggerTO> result = new ArrayList<>();
+            List<LoggerTO> result = new ArrayList<>();
             for (final LoggerConfig logger : ctx.getConfiguration().getLoggers().values()) {
-                final String loggerName = LogManager.ROOT_LOGGER_NAME.equals(logger.getName())
+                String loggerName = LogManager.ROOT_LOGGER_NAME.equals(logger.getName())
                         ? SyncopeConstants.ROOT_LOGGER : logger.getName();
                 if (logger.getLevel() != null) {
-                    final LoggerTO loggerTO = new LoggerTO();
+                    LoggerTO loggerTO = new LoggerTO();
                     loggerTO.setKey(loggerName);
                     loggerTO.setLevel(LoggerLevel.fromLevel(logger.getLevel()));
                     result.add(loggerTO);
                 }
             }
+            Collections.sort(result, ComparatorUtils.transformedComparator(
+                    ComparatorUtils.<String>naturalComparator(), new Transformer<LoggerTO, String>() {
+
+                @Override
+                public String transform(final LoggerTO input) {
+                    return input.getKey();
+                }
+            }));
 
             return result;
         }

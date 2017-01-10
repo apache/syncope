@@ -18,11 +18,9 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.pages.LogViewer;
+import org.apache.syncope.client.console.rest.LoggerRestClient;
 import org.apache.syncope.common.lib.log.LoggerTO;
-import org.apache.syncope.common.lib.types.LoggerType;
-import org.apache.syncope.common.rest.api.service.LoggerService;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.link.PopupSettings;
@@ -31,8 +29,10 @@ public class CoreLogPanel extends AbstractLogsPanel<LoggerTO> {
 
     private static final long serialVersionUID = 3905038169553185171L;
 
+    private final LoggerRestClient restClient = new LoggerRestClient();
+
     public CoreLogPanel(final String id, final PageReference pageReference) {
-        super(id, pageReference, SyncopeConsoleSession.get().getService(LoggerService.class).list(LoggerType.LOG));
+        super(id, pageReference, new LoggerRestClient().listLogs());
 
         BookmarkablePageLink<Void> viewer = new BookmarkablePageLink<>("viewer", LogViewer.class);
         viewer.setPopupSettings(new PopupSettings().setHeight(600).setWidth(800));
@@ -41,6 +41,6 @@ public class CoreLogPanel extends AbstractLogsPanel<LoggerTO> {
 
     @Override
     protected void update(final LoggerTO loggerTO) {
-        SyncopeConsoleSession.get().getService(LoggerService.class).update(LoggerType.LOG, loggerTO);
+        restClient.setLogLevel(loggerTO);
     }
 }

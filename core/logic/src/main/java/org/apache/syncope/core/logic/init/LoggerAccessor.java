@@ -65,8 +65,9 @@ public class LoggerAccessor {
          * otherwise create a SyncopeLogger instance with given name and level.
          */
         for (LoggerConfig logConf : ctx.getConfiguration().getLoggers().values()) {
-            if (!LogManager.ROOT_LOGGER_NAME.equals(logConf.getName()) && logConf.getLevel() != null) {
-                String loggerName = logConf.getName();
+            String loggerName = LogManager.ROOT_LOGGER_NAME.equals(logConf.getName())
+                    ? SyncopeConstants.ROOT_LOGGER : logConf.getName();
+            if (logConf.getLevel() != null) {
                 if (syncopeLoggers.containsKey(loggerName)) {
                     logConf.setLevel(syncopeLoggers.get(loggerName).getLevel().getLevel());
                     syncopeLoggers.remove(loggerName);
@@ -74,9 +75,7 @@ public class LoggerAccessor {
                     Logger syncopeLogger = entityFactory.newEntity(Logger.class);
                     syncopeLogger.setKey(loggerName);
                     syncopeLogger.setLevel(LoggerLevel.fromLevel(logConf.getLevel()));
-                    syncopeLogger.setType(loggerName.startsWith(LoggerType.AUDIT.getPrefix())
-                            ? LoggerType.AUDIT
-                            : LoggerType.LOG);
+                    syncopeLogger.setType(LoggerType.LOG);
                     loggerDAO.save(syncopeLogger);
                 }
             }
@@ -87,9 +86,9 @@ public class LoggerAccessor {
          */
         for (Logger syncopeLogger : syncopeLoggers.values()) {
             LoggerConfig logConf = ctx.getConfiguration().getLoggerConfig(syncopeLogger.getKey());
-            if (!LogManager.ROOT_LOGGER_NAME.equals(logConf.getName()) && logConf.getLevel() != null) {
-                logConf.setLevel(syncopeLogger.getLevel().getLevel());
-            }
+            logConf.setLevel(syncopeLogger.getLevel().getLevel());
         }
+
+        ctx.updateLoggers();
     }
 }

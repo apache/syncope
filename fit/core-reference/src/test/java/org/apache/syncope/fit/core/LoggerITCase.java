@@ -26,7 +26,6 @@ import static org.junit.Assert.fail;
 
 import java.text.ParseException;
 import java.util.List;
-import java.util.Queue;
 import javax.ws.rs.core.Response;
 import javax.xml.ws.WebServiceException;
 import org.apache.commons.collections4.IterableUtils;
@@ -66,11 +65,11 @@ public class LoggerITCase extends AbstractITCase {
 
     @Test
     public void lastStatements() {
-        Queue<LogStatementTO> statements = loggerService.getLastLogStatements("connid");
+        List<LogStatementTO> statements = loggerService.getLastLogStatements("connid");
         assertNotNull(statements);
         assertFalse(statements.isEmpty());
 
-        LogStatementTO statement = statements.element();
+        LogStatementTO statement = statements.get(0);
         assertNotNull(statement);
         assertNotNull(statement.getLoggerName());
         assertNotNull(statement.getLevel());

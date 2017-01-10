@@ -20,7 +20,6 @@ package org.apache.syncope.core.rest.cxf.service;
 
 import java.text.ParseException;
 import java.util.List;
-import java.util.Queue;
 import javax.ws.rs.BadRequestException;
 import org.apache.syncope.common.lib.log.EventCategoryTO;
 import org.apache.syncope.common.lib.log.LogAppender;
@@ -46,7 +45,7 @@ public class LoggerServiceImpl extends AbstractServiceImpl implements LoggerServ
     }
 
     @Override
-    public Queue<LogStatementTO> getLastLogStatements(final String memoryAppender) {
+    public List<LogStatementTO> getLastLogStatements(final String memoryAppender) {
         return logic.getLastLogStatements(memoryAppender);
     }
 
