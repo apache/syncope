@@ -194,7 +194,6 @@ under the License.
             <configuration>
               <workingDirectory>${enduser-test.dir}/nodejs</workingDirectory>
               <nodeVersion>${nodejs.version}</nodeVersion>
-              <npmVersion>${npm.version}</npmVersion>
             </configuration>
           </execution>
         </executions>
@@ -220,7 +219,7 @@ under the License.
                 <argument>npm/bin/npm-cli.js</argument>
                 <argument>install</argument>
                 <argument>-g</argument>
-                <argument>protractor</argument>                
+                <argument>protractor@${protractor.version}</argument>                
               </arguments>
             </configuration>
           </execution>
