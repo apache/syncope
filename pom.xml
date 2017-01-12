@@ -361,7 +361,7 @@ under the License.
 
     <camel.version>2.17.4</camel.version>	
 
-    <jackson.version>2.8.5</jackson.version>
+    <jackson.version>2.8.6</jackson.version>
 
     <spring.version>4.3.5.RELEASE</spring.version>
     <spring-security.version>4.2.1.RELEASE</spring-security.version>
