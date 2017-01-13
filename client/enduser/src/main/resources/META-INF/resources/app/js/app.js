@@ -45,8 +45,11 @@ var app = angular.module('SyncopeEnduserApp', [
   'pascalprecht.translate'
 ]);
 
-app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$translateProvider', '$translatePartialLoaderProvider',
-  function ($stateProvider, $urlRouterProvider, $httpProvider, $translateProvider, $translatePartialLoaderProvider) {
+app.config(['$qProvider', '$stateProvider', '$urlRouterProvider', '$httpProvider', '$translateProvider', '$translatePartialLoaderProvider',
+  function ($qProvider, $stateProvider, $urlRouterProvider, $httpProvider, $translateProvider, $translatePartialLoaderProvider) {
+    
+    //workaround for angular-ui-router issue: [SYNCOPE-997]
+    $qProvider.errorOnUnhandledRejections(false);
 
     $translatePartialLoaderProvider.addPart('static');
     $translatePartialLoaderProvider.addPart('dynamic');
