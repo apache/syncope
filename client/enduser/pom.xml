@@ -70,7 +70,7 @@ under the License.
       <artifactId>angular-resource</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.webjars</groupId>
+      <groupId>org.webjars.bower</groupId>
       <artifactId>angular-ui-router</artifactId>
     </dependency>
     <dependency>
