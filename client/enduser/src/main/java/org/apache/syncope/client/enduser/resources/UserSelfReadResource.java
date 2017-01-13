@@ -56,6 +56,7 @@ public class UserSelfReadResource extends AbstractBaseResource {
             UserTO userTO = SerializationUtils.clone(SyncopeEnduserSession.get().getSelfTO());
             Map<String, AttrTO> userPlainAttrMap = userTO.getPlainAttrMap();
 
+            // Date -> millis conversion
             for (PlainSchemaTO plainSchema : SyncopeEnduserSession.get().getDatePlainSchemas()) {
                 if (userPlainAttrMap.containsKey(plainSchema.getKey())) {
                     FastDateFormat fmt = FastDateFormat.getInstance(plainSchema.getConversionPattern());
@@ -70,6 +71,7 @@ public class UserSelfReadResource extends AbstractBaseResource {
                 }
             }
 
+            // membership attributes management
             for (MembershipTO membership : userTO.getMemberships()) {
                 String groupName = membership.getGroupName();
                 for (AttrTO attr : membership.getPlainAttrs()) {
