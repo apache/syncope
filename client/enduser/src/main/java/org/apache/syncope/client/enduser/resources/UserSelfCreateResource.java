@@ -19,17 +19,22 @@
 package org.apache.syncope.client.enduser.resources;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.SerializationUtils;
+import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
+import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.slf4j.Logger;
@@ -72,6 +77,28 @@ public class UserSelfCreateResource extends AbstractBaseResource {
             }
 
             if (isSelfRegistrationAllowed() && userTO != null) {
+                Map<String, AttrTO> userPlainAttrMap = userTO.getPlainAttrMap();
+
+                // millis -> Date conversion
+                for (PlainSchemaTO plainSchema : SyncopeEnduserSession.get().getDatePlainSchemas()) {
+                    if (userPlainAttrMap.containsKey(plainSchema.getKey())) {
+                        FastDateFormat fmt = FastDateFormat.getInstance(plainSchema.getConversionPattern());
+
+                        AttrTO dateAttr = userPlainAttrMap.get(plainSchema.getKey());
+                        List<String> formattedValues = new ArrayList<>(dateAttr.getValues().size());
+                        for (String value : dateAttr.getValues()) {
+                            try {
+                                formattedValues.add(fmt.format(Long.valueOf(value)));
+                            } catch (NumberFormatException e) {
+                                throw new IllegalArgumentException("Invalid format value for " + value);
+                            }
+                        }
+                        dateAttr.getValues().clear();
+                        dateAttr.getValues().addAll(formattedValues);
+                    }
+                }
+
+                // membership attributes management
                 Set<AttrTO> membAttrs = new HashSet<>();
                 for (AttrTO attr : userTO.getPlainAttrs()) {
                     if (attr.getSchema().contains("#")) {
@@ -149,6 +176,7 @@ public class UserSelfCreateResource extends AbstractBaseResource {
 
                 LOG.debug("Received user self registration request for user: [{}]", userTO.getUsername());
                 LOG.trace("Received user self registration request is: [{}]", userTO);
+
                 // adapt request and create user
                 final Response res = userSelfService.create(userTO, true);
 
@@ -159,9 +187,9 @@ public class UserSelfCreateResource extends AbstractBaseResource {
                         attributes.getResponse().write(res.getStatusInfo().getFamily().equals(
                                 Response.Status.Family.SUCCESSFUL)
                                         ? responseMessage.append("User: ").append(userTO.getUsername()).append(
-                                        " successfully created")
+                                                " successfully created")
                                         : new StringBuilder().append("ErrorMessage{{ ").
-                                        append(res.getStatusInfo().getReasonPhrase()).append(" }}"));
+                                                append(res.getStatusInfo().getReasonPhrase()).append(" }}"));
                     }
                 });
                 response.setStatusCode(res.getStatus());
@@ -176,10 +204,10 @@ public class UserSelfCreateResource extends AbstractBaseResource {
             LOG.error("Could not create userTO", e);
             response.setError(Response.Status.BAD_REQUEST.getStatusCode(),
                     new StringBuilder().
-                    append("ErrorMessage{{ ").
-                    append(e.getMessage()).
-                    append(" }}").
-                    toString());
+                            append("ErrorMessage{{ ").
+                            append(e.getMessage()).
+                            append(" }}").
+                            toString());
         }
         return response;
     }

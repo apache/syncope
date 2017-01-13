@@ -93,9 +93,14 @@ angular.module('self')
                     }
 
                     $scope.bindDateToModel = function (selectedDate, selectedTime) {
-                      if (selectedDate && selectedTime) {
+                      if (selectedDate) {
                         var extractedDate = selectedDate.toString().substring(0, 15);
-                        var extractedTime = selectedTime.toString().substring(16);
+                        var extractedTime;
+                        if (selectedTime) {
+                          extractedTime = selectedTime.toString().substring(16);
+                        } else {
+                          extractedTime = '00:00:00';
+                        }
                         var resultDate = extractedDate + ' ' + extractedTime;
                         var tmpdate = new Date(resultDate);
                         var milliseconds = tmpdate.getTime();
