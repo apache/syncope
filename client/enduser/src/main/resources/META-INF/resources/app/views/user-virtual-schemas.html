@@ -16,19 +16,21 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-
 <div>
   <dynamic-virtual-attributes form="dynamicForm" user="user"></dynamic-virtual-attributes>
 </div>
-
 <div id="attribute" class="form-group row">
-  <div id="navButtons">
-    <navigation-buttons ng-show="createMode" base="create" current="virtualSchemas" wizard="{{wizard}}"></navigation-buttons>
-    <navigation-buttons ng-show="!createMode" base="update" current="virtualSchemas" wizard="{{wizard}}"></navigation-buttons>
-    <button id="finish" ng-show="!createMode" type="button" class="btn btn-default pull-right" ng-click="finish()">{{'FINISH'| translate}}</button>
-    <button id="finish" ng-show="createMode && endReached" type="button" class="btn btn-default pull-right" ng-click="finish()">{{'FINISH'| translate}}</button>
+  <div class="pull-right">
+    <div id="navButtons" class="pull-left">
+      <navigation-buttons ng-show="createMode" base="create" current="virtualSchemas" wizard="{{wizard}}"></navigation-buttons>
+      <navigation-buttons ng-show="!createMode" base="update" current="virtualSchemas" wizard="{{wizard}}"></navigation-buttons>
+    </div>
+    <div class="pull-right">
+      <button id="finish" ng-show="!createMode" type="button" class="btn btn-default pull-right" ng-click="finish()">{{'FINISH'| translate}}</button>
+      <button id="finish" ng-show="createMode && endReached" type="button" class="btn btn-default pull-right" ng-click="finish()">{{'FINISH'| translate}}</button>  
+    </div>
   </div>
   <div class="pull-left">
-    <a id="cancel" href="#/self" class="btn btn-danger" ng-click="logout()">{{'CANCEL'| translate}}</a>
+    <a id="cancel" href="#/self" class="btn btn-danger pull-left" ng-click="logout()">{{'CANCEL'| translate}}</a>
   </div>
 </div>
