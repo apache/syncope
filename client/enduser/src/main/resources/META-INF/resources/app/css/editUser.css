@@ -101,10 +101,10 @@ under the License.
   background: -webkit-linear-gradient(top, #a9db80 0%,#96c56f 100%);  /*Chrome10+,Safari5.1+ */
   background: -o-linear-gradient(top, #a9db80 0%,#96c56f 100%);  /*Opera 11.10+*/ 
   background: -ms-linear-gradient(top, #a9db80 0%,#96c56f 100%);  /*IE10+*/ 
-  float: right;
+  display: inline-block;
   color: black;
-  width: 80px;
-  padding-left: 4px;
+  padding-left: 8px;
+  padding-right: 8px;
   margin-left: 5px;
 }
 
@@ -118,10 +118,12 @@ under the License.
   background: -webkit-linear-gradient(top, #a9db80 0%,#96c56f 100%);  /*Chrome10+,Safari5.1+ */
   background: -o-linear-gradient(top, #a9db80 0%,#96c56f 100%);  /*Opera 11.10+ */
   background: -ms-linear-gradient(top, #a9db80 0%,#96c56f 100%);  /*IE10+ */
+  display: inline-block;
   margin-left: 5px;
+  padding-left: 8px;
+  padding-right: 8px;
   float: right;
   color: black;
-  width: 78px;
 }
 
 #next:hover {
@@ -135,10 +137,11 @@ under the License.
   background: -o-linear-gradient(top, #a9db80 0%,#96c56f 100%);  /*Opera 11.10+ */
   background: -ms-linear-gradient(top, #a9db80 0%,#96c56f 100%);  /*IE10+ */
   color: black;
+  display: inline-block;
+  padding-left: 8px;
+  padding-right: 8px;
   margin-left: 5px;
-  /*margin-right: 5px;*/
-  width: 70px;
-  float: right;
+  margin-right: 5px;
 }
 
 #save:hover {
@@ -151,11 +154,13 @@ under the License.
   background: -webkit-linear-gradient(top, #a9db80 0%,#96c56f 100%);  /*Chrome10+,Safari5.1+*/ 
   background: -o-linear-gradient(top, #a9db80 0%,#96c56f 100%);  /*Opera 11.10+ */
   background: -ms-linear-gradient(top, #a9db80 0%,#96c56f 100%);  /*IE10+*/
+  display: inline-block;
+  margin-left:5px;
+  padding-left: 8px;
+  padding-right: 8px;
   color: black;
   margin-left: 5px;
-  /*margin-right: 5px;*/
-  width: 78px;
-  float:right;
+  margin-right: 5px;
 }
 
 #finish:hover {
@@ -164,9 +169,7 @@ under the License.
 
 #cancel {
   margin-top: 0%;
-  width: 70px;
 }
-
 
 .container-fluid {
   padding-right: 15px;
@@ -317,7 +320,6 @@ under the License.
     padding: 1px 0px 0px 0px;
   }
 
-
   .panel-body {
     padding: 0px;
   }
@@ -340,19 +342,30 @@ under the License.
     padding: 0px 0px 1px 0px
   }
 
-  /*.container-fluid {
-      padding-right: 15px;
-      padding-left: 31px;
-      margin-right: auto;
-      margin-left: auto;
-      width: 100%;
-    }
-    
-    #captchaButtons {
-      width: 20%;
-      margin-left: 100px;
-      padding-bottom: 5px;
-    }*/
+  #finish{
+    padding-left: 2px;
+    padding-right: 2px;
+    margin-left:-27px;
+    margin-top: 2px;
+  }
+  #next{
+    padding-left: 2px;
+    padding-right: 2px;
+    margin-left: 1px;
+  }
+  #previous{
+    padding-left: 2px;
+    padding-right: 2px;
+    margin-left:-126px;
+  }
+  #save{
+    margin-top: 4px;
+    padding-left: 2px;
+    padding-right: 2px;
+    margin-top:-31px;
+    margin-left: -42px;
+    margin-right: 15px;
+  }
 
 }
 
@@ -404,10 +417,29 @@ under the License.
   .btn-breadcrumb .btn:last-child {
     padding:6px 18px 6px 24px;
   }
-  /*
-    #refresh{
-      margin-top:1px;
-    }*/
+
+  #finish{
+    padding-left: 2px;
+    padding-right: 2px;
+    margin-right: -3px;
+    margin-left: 0px;
+  }
+  #next{
+    padding-left: 2px;
+    padding-right: 2px;
+    margin-right: 23px;
+  }
+  #previous{
+    padding-left: 2px;
+    padding-right: 2px;
+    margin-left: 0px
+  }
+  #save{
+    padding-left: 2px;
+    padding-right: 0px;
+    margin-left: -21px;
+    margin-top: 4px;
+  }
 
 }
 
@@ -601,6 +633,29 @@ under the License.
     width: 82%;
   }
 
+  #finish{
+    padding-left: 4px;
+    padding-right: 4px;
+    margin-top: 4px;
+    margin-right: 16px;
+  }
+  #next{
+    padding-left: 6px;
+    padding-right: 4px;
+    margin-right:-15px;
+  }
+  #previous{
+    padding-left: 4px;
+    padding-right: 4px;
+    margin-left: -87px
+  }
+  #save{
+    padding-left: 4px;
+    padding-right: 4px;
+    margin-top:4px;
+    margin-right:25px;
+
+  }
 }
 
 /*style for devices max width 800) */
