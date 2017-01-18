@@ -348,6 +348,44 @@ generated under the local project's `enduser/src/main/webapp/app/` directory and
 The files in use by the Apache Wicket-based backend are still subject to the general
 <<override-behavior,override behavior>>, instead.
 
+[[customization-enduser-translations]]
+===== Translations
+
+The <<enduser-application>> comes with a native translation mechanism.
+
+Under the `enduser/src/main/webapp/app/languages/` directory, a sub-directory for each supported language is available;
+each language sub-directory contains two JSON files:
+
+* `static.json` for application messages;
+* `dynamic.json` for labels (including attributes).
+
+Changing the content of these files will result in updating the Enduser messages accordingly.
+
+[TIP]
+====
+In order to add support for a new language (taking French as reference):
+
+* add the new language entry in `js/controllers/LoginController.js` under `availableLanguages`, by updating
+```
+      availableLanguages: [
+        {id: '1', name: 'Italiano', code: 'it'},
+        {id: '2', name: 'English', code: 'en'},
+        {id: '3', name: 'Deutsch', code: 'de'}
+      ],
+```
+as
+```
+      availableLanguages: [
+        {id: '1', name: 'Italiano', code: 'it'},
+        {id: '2', name: 'English', code: 'en'},
+        {id: '3', name: 'Deutsch', code: 'de'}
+        {id: '4', name: 'Français', code: 'fr'}
+      ],
+```
+* copy the `enduser/src/main/webapp/app/languages/en/` directory into `enduser/src/main/webapp/app/languages/fr/`
+and modify the JSON files under the new directory
+====
+
 [[customization-extensions]]
 ==== Extensions
 
