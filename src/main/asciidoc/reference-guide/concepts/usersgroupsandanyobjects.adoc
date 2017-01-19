@@ -91,6 +91,17 @@ e-mail is sent to the configured address for the user with a link - again, typic
 . user clicks on the received link and provides new password value, typically via <<enduser-component,end-user>>
 . user receives confirmation via e-mail
 
+[WARNING]
+====
+The outlined procedure requires a working <<e-mail-configuration,e-mail configuration>>.
+
+In particular:
+
+* the first e-mail is generated from the `requestPasswordReset` <<notification-templates, notification template>>:
+hence, the token-based access link to the <<enduser-component,end-user>> is managed there;
+* the second e-mail is generated from the `confirmPasswordReset` <<notification-templates, notification template>>.
+====
+
 [TIP]
 ====
 The process above requires the availability of <<console-configuration-security-questions,security questions>> that
