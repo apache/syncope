@@ -28,8 +28,8 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.AccessControlException;
 import java.util.Map;
+import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.helpers.IOUtils;
@@ -72,7 +72,7 @@ public class UserSelfTestITCase extends AbstractTest {
         try {
             userSelfService.create(UserTestITCase.getUniqueSampleTO("anonymous@syncope.apache.org"), true);
             fail();
-        } catch (AccessControlException e) {
+        } catch (ForbiddenException e) {
             assertNotNull(e);
         }
 
@@ -131,7 +131,7 @@ public class UserSelfTestITCase extends AbstractTest {
         try {
             userService2.read(1L);
             fail();
-        } catch (AccessControlException e) {
+        } catch (ForbiddenException e) {
             assertNotNull(e);
         }
 

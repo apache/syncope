@@ -23,8 +23,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 import javax.xml.ws.WebServiceException;
 import org.apache.commons.lang3.StringUtils;
@@ -37,15 +37,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Provider
-public class RestClientExceptionMapper implements ExceptionMapper<Exception>, ResponseExceptionMapper<Exception> {
+public class RestClientExceptionMapper implements ResponseExceptionMapper<Exception> {
 
     private static final Logger LOG = LoggerFactory.getLogger(RestClientExceptionMapper.class);
-
-    @Override
-    public Response toResponse(final Exception exception) {
-        throw new UnsupportedOperationException(
-                "Call of toResponse() method is not expected in RestClientExceptionnMapper");
-    }
 
     @Override
     public Exception fromResponse(final Response response) {
@@ -63,10 +57,13 @@ public class RestClientExceptionMapper implements ExceptionMapper<Exception>, Re
         } // 2. Map SC_UNAUTHORIZED
         else if (statusCode == Response.Status.UNAUTHORIZED.getStatusCode()) {
             ex = new AccessControlException("Remote unauthorized exception");
-        } // 3. Map SC_BAD_REQUEST
+        } // 3. Map SC_FORBIDDEN
+        else if (statusCode == Response.Status.FORBIDDEN.getStatusCode()) {
+            ex = new ForbiddenException();
+        } // 4. Map SC_BAD_REQUEST
         else if (statusCode == Response.Status.BAD_REQUEST.getStatusCode()) {
             ex = new BadRequestException();
-        } // 4. All other codes are mapped to runtime exception with HTTP code information
+        } // 5. All other codes are mapped to runtime exception with HTTP code information
         else {
             ex = new WebServiceException(String.format("Remote exception with status code: %s",
                     Response.Status.fromStatusCode(statusCode).name()));

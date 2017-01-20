@@ -34,6 +34,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
+import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -342,9 +343,7 @@ public class RoleTestITCase extends AbstractTest {
         try {
             roleService2.update(roleMod.getId(), roleMod);
             fail();
-        } catch (SyncopeClientException e) {
-            assertEquals(Response.Status.UNAUTHORIZED, e.getType().getResponseStatus());
-        } catch (AccessControlException e) {
+        } catch (ForbiddenException e) {
             assertNotNull(e);
         }
 

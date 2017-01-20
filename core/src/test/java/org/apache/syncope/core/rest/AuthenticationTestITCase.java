@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.ws.rs.ForbiddenException;
 
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.SyncopeClient;
@@ -150,11 +151,7 @@ public class AuthenticationTestITCase extends AbstractTest {
         try {
             schemaService2.update(AttributableType.ROLE, SchemaType.NORMAL, schemaName, schemaTO);
             fail("Schemaupdate as user schould not work");
-        } catch (SyncopeClientException e) {
-            assertNotNull(e);
-            assertEquals(Response.Status.UNAUTHORIZED, e.getType().getResponseStatus());
-        } catch (AccessControlException e) {
-            // CXF Service will throw this exception
+        } catch (ForbiddenException e) {
             assertNotNull(e);
         }
 

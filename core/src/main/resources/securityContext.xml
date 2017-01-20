@@ -40,7 +40,13 @@ under the License.
     <property name="securityContextRepository" ref="securityContextRepository"/>
   </bean>
 
-  <security:http security-context-repository-ref="securityContextRepository" realm="Apache Syncope authentication">
+  <bean id="basicAuthenticationEntryPoint"
+        class="org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint">
+    <property name="realmName" value="Apache Syncope authentication"/>
+  </bean>
+
+  <security:http security-context-repository-ref="securityContextRepository"
+                 entry-point-ref="basicAuthenticationEntryPoint">
     <security:http-basic/>
     <security:anonymous username="${anonymousUser}"/>
     <security:intercept-url pattern="/**"/>
