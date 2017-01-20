@@ -22,6 +22,7 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.rest.api.service.AnyTypeService;
 import org.apache.wicket.request.resource.AbstractResource;
@@ -54,6 +55,8 @@ public class AnyTypeResource extends AbstractBaseResource {
 
             String kind = attributes.getParameters().get(0).toString();
             final AnyTypeTO anyTypeTO = anyTypeService.read(kind);
+
+            response.setTextEncoding(SyncopeConstants.DEFAULT_ENCODING);
 
             response.setWriteCallback(new AbstractResource.WriteCallback() {
 

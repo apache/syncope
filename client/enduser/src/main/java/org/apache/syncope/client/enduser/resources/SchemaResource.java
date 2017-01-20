@@ -29,6 +29,7 @@ import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.model.SchemaResponse;
 import org.apache.syncope.common.lib.EntityTOUtils;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -136,6 +137,8 @@ public class SchemaResource extends AbstractBaseResource {
             Collections.sort(virSchemas, ComparatorUtils.transformedComparator(
                     ComparatorUtils.<String>naturalComparator(),
                     EntityTOUtils.keyTransformer()));
+
+            response.setTextEncoding(SyncopeConstants.DEFAULT_ENCODING);
 
             response.setWriteCallback(new AbstractResource.WriteCallback() {
 

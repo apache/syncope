@@ -32,6 +32,7 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
@@ -180,6 +181,8 @@ public class UserSelfCreateResource extends AbstractBaseResource {
                 // adapt request and create user
                 final Response res = userSelfService.create(userTO, true);
 
+                response.setTextEncoding(SyncopeConstants.DEFAULT_ENCODING);
+
                 response.setWriteCallback(new WriteCallback() {
 
                     @Override
@@ -187,9 +190,9 @@ public class UserSelfCreateResource extends AbstractBaseResource {
                         attributes.getResponse().write(res.getStatusInfo().getFamily().equals(
                                 Response.Status.Family.SUCCESSFUL)
                                         ? responseMessage.append("User: ").append(userTO.getUsername()).append(
-                                                " successfully created")
+                                        " successfully created")
                                         : new StringBuilder().append("ErrorMessage{{ ").
-                                                append(res.getStatusInfo().getReasonPhrase()).append(" }}"));
+                                        append(res.getStatusInfo().getReasonPhrase()).append(" }}"));
                     }
                 });
                 response.setStatusCode(res.getStatus());
@@ -204,10 +207,10 @@ public class UserSelfCreateResource extends AbstractBaseResource {
             LOG.error("Could not create userTO", e);
             response.setError(Response.Status.BAD_REQUEST.getStatusCode(),
                     new StringBuilder().
-                            append("ErrorMessage{{ ").
-                            append(e.getMessage()).
-                            append(" }}").
-                            toString());
+                    append("ErrorMessage{{ ").
+                    append(e.getMessage()).
+                    append(" }}").
+                    toString());
         }
         return response;
     }

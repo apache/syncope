@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.resources;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.util.io.IOUtils;
 import org.slf4j.Logger;
@@ -55,6 +56,7 @@ public class FilesystemResource extends AbstractResource {
                     replace('/', File.separatorChar);
             LOG.debug("Request for {}", subPath);
 
+            response.setTextEncoding(SyncopeConstants.DEFAULT_ENCODING);
             response.setWriteCallback(new WriteCallback() {
 
                 @Override

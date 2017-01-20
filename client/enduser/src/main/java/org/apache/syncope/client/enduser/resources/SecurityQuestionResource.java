@@ -21,8 +21,10 @@ package org.apache.syncope.client.enduser.resources;
 import java.io.IOException;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.SecurityQuestionTO;
 import org.apache.syncope.common.rest.api.service.SecurityQuestionService;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
@@ -66,7 +68,8 @@ public class SecurityQuestionResource extends AbstractBaseResource {
             //if the username is defined then retrieve its security questions, otherwise retrieve all security questions
             if (!username.isEmpty()) {
                 final SecurityQuestionTO securityQuestionTO = securityQuestionService.readByUser(username.toString());
-
+                response.setContentType(MediaType.APPLICATION_JSON);
+                response.setTextEncoding(SyncopeConstants.DEFAULT_ENCODING);
                 response.setWriteCallback(new AbstractResource.WriteCallback() {
 
                     @Override
