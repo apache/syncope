@@ -19,7 +19,6 @@
 package org.apache.syncope.client.enduser.resources;
 
 import java.io.IOException;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserConstants;

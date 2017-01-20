@@ -21,7 +21,6 @@ package org.apache.syncope.client.enduser.resources;
 import java.io.IOException;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
