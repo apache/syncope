@@ -32,6 +32,7 @@ import java.security.AccessControlException;
 import java.util.Map;
 import java.util.Set;
 import javax.sql.DataSource;
+import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.core.GenericType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -83,7 +84,7 @@ public class UserSelfITCase extends AbstractITCase {
         try {
             userSelfService.create(UserITCase.getUniqueSampleTO("anonymous@syncope.apache.org"), true);
             fail();
-        } catch (AccessControlException e) {
+        } catch (ForbiddenException e) {
             assertNotNull(e);
         }
 
@@ -144,7 +145,7 @@ public class UserSelfITCase extends AbstractITCase {
         try {
             userService2.read("1417acbe-cbf6-4277-9372-e75e04f97000");
             fail();
-        } catch (AccessControlException e) {
+        } catch (ForbiddenException e) {
             assertNotNull(e);
         }
 
@@ -378,7 +379,7 @@ public class UserSelfITCase extends AbstractITCase {
         try {
             vivaldiClient.getService(ResourceService.class).list();
             fail();
-        } catch (AccessControlException e) {
+        } catch (ForbiddenException e) {
             assertNotNull(e);
             assertEquals("Please change your password first", e.getMessage());
         }

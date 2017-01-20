@@ -24,9 +24,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 import javax.xml.ws.WebServiceException;
 import org.apache.commons.lang3.StringUtils;
@@ -40,43 +40,39 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Provider
-public class RestClientExceptionMapper implements ExceptionMapper<Exception>, ResponseExceptionMapper<Exception> {
+public class RestClientExceptionMapper implements ResponseExceptionMapper<Exception> {
 
     private static final Logger LOG = LoggerFactory.getLogger(RestClientExceptionMapper.class);
 
     @Override
-    public Response toResponse(final Exception exception) {
-        throw new UnsupportedOperationException(
-                "Call of toResponse() method is not expected in " + RestClientExceptionMapper.class.getSimpleName());
-    }
-
-    @Override
     public Exception fromResponse(final Response response) {
-        final int statusCode = response.getStatus();
-        Exception ex;
+        int statusCode = response.getStatus();
+        String message = response.getHeaderString(RESTHeaders.ERROR_INFO);
 
+        Exception ex;
         SyncopeClientCompositeException scce = checkSyncopeClientCompositeException(response);
         if (scce != null) {
             // 1. Check for client (possibly composite) exception in HTTP header
             ex = scce.getExceptions().size() == 1
                     ? scce.getExceptions().iterator().next()
                     : scce;
-        } else if (statusCode == Response.Status.UNAUTHORIZED.getStatusCode()
-                || statusCode == Response.Status.FORBIDDEN.getStatusCode()) {
-
-            // 2. Map SC_UNAUTHORIZED and SC_FORBIDDEN
-            String message = response.getHeaderString(RESTHeaders.ERROR_INFO);
+        } else if (statusCode == Response.Status.UNAUTHORIZED.getStatusCode()) {
+            // 2. Map SC_UNAUTHORIZED
             ex = new AccessControlException(StringUtils.isBlank(message)
-                    ? "Remote authorization exception"
+                    ? "Remote unauthorized exception"
+                    : message);
+        } else if (statusCode == Response.Status.FORBIDDEN.getStatusCode()) {
+            // 3. Map SC_FORBIDDEN
+            ex = new ForbiddenException(StringUtils.isBlank(message)
+                    ? "Remote forbidden exception"
                     : message);
         } else if (statusCode == Response.Status.BAD_REQUEST.getStatusCode()) {
-            // 3. Map SC_BAD_REQUEST
-            String message = response.getHeaderString(RESTHeaders.ERROR_INFO);
+            // 4. Map SC_BAD_REQUEST
             ex = StringUtils.isBlank(message)
                     ? new BadRequestException()
                     : new BadRequestException(message);
         } else {
-            // 4. All other codes are mapped to runtime exception with HTTP code information
+            // 5. All other codes are mapped to runtime exception with HTTP code information
             ex = new WebServiceException(String.format("Remote exception with status code: %s",
                     Response.Status.fromStatusCode(statusCode).name()));
         }

@@ -35,6 +35,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
+import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.IterableUtils;
@@ -297,9 +298,7 @@ public class GroupITCase extends AbstractITCase {
         try {
             groupService2.update(groupPatch);
             fail();
-        } catch (SyncopeClientException e) {
-            assertEquals(Response.Status.UNAUTHORIZED, e.getType().getResponseStatus());
-        } catch (AccessControlException e) {
+        } catch (ForbiddenException e) {
             assertNotNull(e);
         }
 

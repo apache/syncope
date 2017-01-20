@@ -34,7 +34,6 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.cxf.jaxrs.client.ResponseExceptionMapper;
 import org.apache.cxf.jaxrs.utils.JAXRSUtils;
 import org.apache.cxf.jaxrs.validation.ValidationExceptionMapper;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
@@ -67,7 +66,7 @@ import org.springframework.transaction.TransactionSystemException;
 @Configuration
 @PropertySource("classpath:errorMessages.properties")
 @Provider
-public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, ResponseExceptionMapper<Exception> {
+public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
 
     private static final Logger LOG = LoggerFactory.getLogger(RestServiceExceptionMapper.class);
 
@@ -92,15 +91,14 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
 
         ResponseBuilder builder;
 
-        if (ex instanceof SyncopeClientException) {
+        if (ex instanceof AccessDeniedException) {
+            // leaves the default exception processing to Spring Security
+            builder = null;
+        } else if (ex instanceof SyncopeClientException) {
             SyncopeClientException sce = (SyncopeClientException) ex;
             builder = sce.isComposite()
                     ? getSyncopeClientCompositeExceptionResponse(sce.asComposite())
                     : getSyncopeClientExceptionResponse(sce);
-        } else if (ex instanceof AccessDeniedException) {
-            builder = Response.status(Response.Status.UNAUTHORIZED).
-                    header(RESTHeaders.ERROR_CODE, Response.Status.UNAUTHORIZED.getReasonPhrase()).
-                    header(RESTHeaders.ERROR_INFO, ex.getMessage());
         } else if (ex instanceof DelegatedAdministrationException) {
             builder = builder(ClientExceptionType.DelegatedAdministration, ExceptionUtils.getRootCauseMessage(ex));
         } else if (ex instanceof EntityExistsException || ex instanceof DuplicateException
@@ -148,13 +146,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception>, R
             }
         }
 
-        return builder.build();
-    }
-
-    @Override
-    public Exception fromResponse(final Response response) {
-        throw new UnsupportedOperationException(
-                "Call of fromResponse() method is not expected in RestServiceExceptionMapper");
+        return builder == null ? null : builder.build();
     }
 
     private ResponseBuilder getSyncopeClientExceptionResponse(final SyncopeClientException ex) {

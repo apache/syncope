@@ -31,6 +31,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import javax.sql.DataSource;
+import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.CollectionUtils;
@@ -166,9 +167,8 @@ public class AuthenticationITCase extends AbstractITCase {
         // 5. update the schema create above (as user) - failure
         try {
             schemaService2.update(SchemaType.PLAIN, schemaTO);
-            fail("Schemaupdate as user should not work");
-        } catch (AccessControlException e) {
-            // CXF Service will throw this exception
+            fail("Schema update as user should not work");
+        } catch (ForbiddenException e) {
             assertNotNull(e);
         }
 
