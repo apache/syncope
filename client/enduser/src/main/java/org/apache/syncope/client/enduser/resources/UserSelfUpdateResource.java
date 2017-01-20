@@ -32,6 +32,7 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
@@ -166,10 +167,12 @@ public class UserSelfUpdateResource extends AbstractBaseResource {
 
             final String responseMessage = res.getStatusInfo().getFamily().equals(Response.Status.Family.SUCCESSFUL)
                     ? new StringBuilder().
-                            append("User").append(userTO.getUsername()).append(" successfully updated").toString()
+                    append("User").append(userTO.getUsername()).append(" successfully updated").toString()
                     : new StringBuilder().
-                            append("ErrorMessage{{ ").append(res.getStatusInfo().getReasonPhrase()).append(" }}").
-                            toString();
+                    append("ErrorMessage{{ ").append(res.getStatusInfo().getReasonPhrase()).append(" }}").
+                    toString();
+
+            response.setTextEncoding(SyncopeConstants.DEFAULT_ENCODING);
             response.setWriteCallback(new WriteCallback() {
 
                 @Override
@@ -184,10 +187,10 @@ public class UserSelfUpdateResource extends AbstractBaseResource {
             LOG.error("Error while updating user", e);
             response.setError(Response.Status.BAD_REQUEST.getStatusCode(),
                     new StringBuilder().
-                            append("ErrorMessage{{ ").
-                            append(e.getMessage()).
-                            append(" }}").
-                            toString());
+                    append("ErrorMessage{{ ").
+                    append(e.getMessage()).
+                    append(" }}").
+                    toString());
         }
         return response;
     }

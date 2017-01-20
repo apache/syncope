@@ -19,12 +19,14 @@
 package org.apache.syncope.client.enduser.resources;
 
 import java.io.IOException;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.adapters.PlatformInfoAdapter;
 import org.apache.syncope.client.enduser.util.SaltGenerator;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.util.cookies.CookieUtils;
 import org.slf4j.Logger;
@@ -51,6 +53,7 @@ public class InfoResource extends AbstractBaseResource {
                 sessionCookieUtils.save(SyncopeEnduserConstants.XSRF_COOKIE, SaltGenerator.generate(
                         SyncopeEnduserSession.get().getId()));
             }
+            response.setTextEncoding(SyncopeConstants.DEFAULT_ENCODING);
             response.setWriteCallback(new WriteCallback() {
 
                 @Override

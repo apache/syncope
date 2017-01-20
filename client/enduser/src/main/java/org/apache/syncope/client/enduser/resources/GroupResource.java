@@ -59,7 +59,7 @@ public class GroupResource extends AbstractBaseResource {
             final List<GroupTO> groupTOs = groupService.search(new AnyQuery.Builder().realm(realm).
                     fiql(SyncopeClient.getGroupSearchConditionBuilder().isAssignable().query()).
                     build()).getResult();
-
+            response.setTextEncoding(SyncopeConstants.DEFAULT_ENCODING);
             response.setWriteCallback(new AbstractResource.WriteCallback() {
 
                 @Override

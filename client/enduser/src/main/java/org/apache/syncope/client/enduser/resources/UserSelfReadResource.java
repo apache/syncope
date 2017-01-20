@@ -23,10 +23,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
@@ -92,6 +94,9 @@ public class UserSelfReadResource extends AbstractBaseResource {
             }
 
             final String selfTOJson = MAPPER.writeValueAsString(userTO);
+            response.setContentType(MediaType.APPLICATION_JSON);
+            response.setTextEncoding(SyncopeConstants.DEFAULT_ENCODING);
+
             response.setWriteCallback(new WriteCallback() {
 
                 @Override
