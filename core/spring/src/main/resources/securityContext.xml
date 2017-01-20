@@ -59,7 +59,7 @@ under the License.
         class="org.apache.syncope.core.spring.security.SyncopeAuthenticationEntryPoint">
     <property name="realmName" value="Apache Syncope authentication"/>
   </bean>
-
+  
   <bean id="syncopeAccessDeniedHandler" class="org.apache.syncope.core.spring.security.SyncopeAccessDeniedHandler"/>
   
   <bean id="firewall" class="org.springframework.security.web.firewall.DefaultHttpFirewall">
@@ -68,10 +68,10 @@ under the License.
   <security:http-firewall ref="firewall"/>
 
   <security:http security-context-repository-ref="securityContextRepository"
+                 entry-point-ref="syncopeAuthenticationEntryPoint"
                  use-expressions="false" disable-url-rewriting="false">
 
-    <security:http-basic entry-point-ref="syncopeAuthenticationEntryPoint"
-                         authentication-details-source-ref="syncopeAuthenticationDetailsSource"/>
+    <security:http-basic authentication-details-source-ref="syncopeAuthenticationDetailsSource"/>
     <security:anonymous username="${anonymousUser}"/>
     <security:intercept-url pattern="/**"/>
     

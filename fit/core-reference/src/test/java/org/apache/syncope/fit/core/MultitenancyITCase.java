@@ -23,9 +23,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
-import java.security.AccessControlException;
 import java.util.List;
 import java.util.Locale;
+import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
@@ -84,14 +84,14 @@ public class MultitenancyITCase extends AbstractITCase {
         try {
             adminClient.getService(DomainService.class).read("Two");
             fail();
-        } catch (AccessControlException e) {
+        } catch (ForbiddenException e) {
             assertNotNull(e);
         }
 
         try {
             adminClient.getService(LoggerService.class).list(LoggerType.LOG);
             fail();
-        } catch (AccessControlException e) {
+        } catch (ForbiddenException e) {
             assertNotNull(e);
         }
 
