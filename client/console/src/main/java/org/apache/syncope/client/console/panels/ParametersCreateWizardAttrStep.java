@@ -25,8 +25,8 @@ import org.apache.syncope.client.console.commons.SchemaUtils;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.client.console.wicket.markup.html.form.DateTextFieldPanel;
-import org.apache.syncope.client.console.wicket.markup.html.form.DateTimeFieldPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDateFieldPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDateTimeFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -98,10 +98,10 @@ public class ParametersCreateWizardAttrStep extends WizardStep {
                         : plainSchemaTO.getConversionPattern();
 
                 if (dataPattern.contains("H")) {
-                    panel = new DateTimeFieldPanel(
+                    panel = new AjaxDateTimeFieldPanel(
                             id, valueHeaderName, new Model<Date>(), dataPattern);
                 } else {
-                    panel = new DateTextFieldPanel(
+                    panel = new AjaxDateFieldPanel(
                             "panel", valueHeaderName, new Model<Date>(), dataPattern);
                 }
                 break;

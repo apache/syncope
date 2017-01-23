@@ -31,8 +31,8 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownCho
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.BinaryFieldPanel;
-import org.apache.syncope.client.console.wicket.markup.html.form.DateTextFieldPanel;
-import org.apache.syncope.client.console.wicket.markup.html.form.DateTimeFieldPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDateFieldPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDateTimeFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.EncryptedFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
@@ -221,9 +221,9 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                         : schemaTO.getConversionPattern();
 
                 if (dataPattern.contains("H")) {
-                    panel = new DateTimeFieldPanel("panel", schemaTO.getKey(), new Model<Date>(), dataPattern);
+                    panel = new AjaxDateTimeFieldPanel("panel", schemaTO.getKey(), new Model<Date>(), dataPattern);
                 } else {
-                    panel = new DateTextFieldPanel("panel", schemaTO.getKey(), new Model<Date>(), dataPattern);
+                    panel = new AjaxDateFieldPanel("panel", schemaTO.getKey(), new Model<Date>(), dataPattern);
                 }
 
                 if (required) {
@@ -339,8 +339,8 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                     FieldPanel panel = getFieldPanel(availableSchemas.get(attrTO.getSchema()));
                     if (mode == AjaxWizard.Mode.TEMPLATE
                             || !availableSchemas.get(attrTO.getSchema()).isMultivalue()) {
-                        item.add(panel);
                         panel.setNewModel(attrTO.getValues());
+                        item.add(panel);
                     } else {
                         item.add(new MultiFieldPanel.Builder<>(
                                 new PropertyModel<List<String>>(attrTO, "values")).build(

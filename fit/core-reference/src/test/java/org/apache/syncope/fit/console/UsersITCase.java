@@ -18,9 +18,11 @@
  */
 package org.apache.syncope.fit.console;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+import java.util.Calendar;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.TextField;
@@ -250,5 +252,91 @@ public class UsersITCase extends AbstractConsoleITCase {
 
         TESTER.assertComponent(component.getPageRelativePath() + ":cells:6:cell:panelDelete:deleteLink",
                 IndicatingOnConfirmAjaxLink.class);
+    }
+
+    @Test
+    public void editDateTimeField() {
+        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:1:link");
+
+        Component component = findComponentByProp("username", CONTAINER
+                + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "puccini");
+        assertNotNull(component);
+
+        TESTER.clickLink(component.getPageRelativePath() + ":cells:6:cell:panelEdit:editLink");
+
+        TESTER.assertComponent(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form:view:username:textField",
+                TextField.class);
+
+        FormTester formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
+        assertNotNull(formTester);
+        formTester.submit("buttons:next");
+
+        formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
+        assertNotNull(formTester);
+        formTester.submit("buttons:next");
+
+        formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
+        assertNotNull(formTester);
+        formTester.submit("buttons:next");
+
+        formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
+        assertNotNull(formTester);
+        formTester.setValue("view:plainSchemas:tabs:0:body:content:schemas:1:panel:field:datepicker", "1/19/17");
+        formTester.setValue("view:plainSchemas:tabs:0:body:content:schemas:1:panel:field:timepicker", "12:00 AM");
+
+        formTester.setValue("view:plainSchemas:tabs:0:body:"
+                + "content:schemas:8:panel:multiValueContainer:innerForm:content:view:0:panel:field", "1/19/17");
+
+        formTester.submit("buttons:finish");
+
+        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.cleanupFeedbackMessages();
+
+        TESTER.assertComponent(TAB_PANEL
+                + "outerObjectsRepeater:0:outer:form:content:customResultBody:resources:firstLevelContainer:first:"
+                + "container:content:group:beans:0:fields:1:field", Label.class);
+
+        TESTER.clickLink(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:action:panelClose:closeLink");
+
+        component = findComponentByProp("username", CONTAINER
+                + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "puccini");
+        assertNotNull(component);
+
+        TESTER.clickLink(component.getPageRelativePath() + ":cells:6:cell:panelEdit:editLink");
+
+        TESTER.assertComponent(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form:view:username:textField",
+                TextField.class);
+
+        formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
+        assertNotNull(formTester);
+        formTester.submit("buttons:next");
+
+        formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
+        assertNotNull(formTester);
+        formTester.submit("buttons:next");
+
+        formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
+        assertNotNull(formTester);
+        formTester.submit("buttons:next");
+
+        Calendar cal = Calendar.getInstance();
+        cal.set(2017, Calendar.JANUARY, 19, 0, 0, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+
+        TESTER.assertModelValue("body:content:body:container:content:"
+                + "tabbedPanel:panel:searchResult:outerObjectsRepeater:"
+                + "0:outer:form:content:form:view:plainSchemas:tabs:0:"
+                + "body:content:schemas:1:panel:field:datepicker", cal.getTime());
+
+        assertEquals(TESTER.getComponentFromLastRenderedPage("body:content:body:"
+                + "container:content:tabbedPanel:panel:searchResult:"
+                + "outerObjectsRepeater:0:outer:form:content:form:view:plainSchemas:"
+                + "tabs:0:body:content:schemas:1:panel:field:timepicker").getDefaultModelObjectAsString(), "12:00 AM");
+
+        TESTER.assertModelValue("body:content:body:container:content:"
+                + "tabbedPanel:panel:searchResult:outerObjectsRepeater:0:outer:form:content:"
+                + "form:view:plainSchemas:tabs:0:body:content:schemas:8:panel:"
+                + "multiValueContainer:innerForm:content:view:0:panel:field", cal.getTime());
     }
 }

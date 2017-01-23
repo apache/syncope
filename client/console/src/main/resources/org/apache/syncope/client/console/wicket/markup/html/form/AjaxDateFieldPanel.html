@@ -17,17 +17,13 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
-  <wicket:panel>
-    <span class="clause">
-      <span style="white-space: nowrap;">
-        <span class="pull-left" style="padding-right: 5px">
-          <input class="form-control input-auto-width" type="text" wicket:id="date" size="12"/>
-        </span>
-        <input class="form-control input-auto-width" type="text" wicket:id="hours" size="2" maxlength="2"/>
-        <span wicket:id="hoursSeparator" class="pull-left">:</span>
-        <input class="form-control input-auto-width" type="text" wicket:id="minutes" size="2" maxlength="2"/>
-        <select class="form-control input-auto-width" wicket:id="amOrPmChoice"></select>
-      </span>
-    </span>
-  </wicket:panel>
+  <wicket:extend>
+    <wicket:enclosure child="field-label">
+      <label wicket:id="field-label">[LABEL]</label><span wicket:id="required"/>
+      <span wicket:id="externalAction"/>
+    </wicket:enclosure>
+    <div class="input-group">
+      <input wicket:id="field" type="text"></input>
+    </div>
+  </wicket:extend>
 </html>
