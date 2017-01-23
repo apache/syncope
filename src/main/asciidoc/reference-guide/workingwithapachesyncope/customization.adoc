@@ -365,22 +365,39 @@ Changing the content of these files will result in updating the Enduser messages
 ====
 In order to add support for a new language (taking French as reference):
 
-* add the new language entry in `js/controllers/LoginController.js` under `availableLanguages`, by updating
+* add the support for the new language by updating `index.html`:
 ```
+  <script src="../webjars/kendo-ui-core/${kendo-ui-core.version}/js/cultures/kendo.culture.it.js"></script>
+  <script src="../webjars/kendo-ui-core/${kendo-ui-core.version}/js/cultures/kendo.culture.en.js"></script>
+  <script src="../webjars/kendo-ui-core/${kendo-ui-core.version}/js/cultures/kendo.culture.de.js"></script>
+```
+in
+```
+  <script src="../webjars/kendo-ui-core/${kendo-ui-core.version}/js/cultures/kendo.culture.it.js"></script>
+  <script src="../webjars/kendo-ui-core/${kendo-ui-core.version}/js/cultures/kendo.culture.en.js"></script>
+  <script src="../webjars/kendo-ui-core/${kendo-ui-core.version}/js/cultures/kendo.culture.de.js"></script>
+  <script src="../webjars/kendo-ui-core/${kendo-ui-core.version}/js/cultures/kendo.culture.fr.js"></script>
+```
+* add the new language entry in `js/app.js` under `availableLanguages`, by updating
+```
+    $rootScope.languages = {
       availableLanguages: [
-        {id: '1', name: 'Italiano', code: 'it'},
-        {id: '2', name: 'English', code: 'en'},
-        {id: '3', name: 'Deutsch', code: 'de'}
-      ],
+        {id: '1', name: 'Italiano', code: 'it', format: 'dd/MM/yyyy HH:mm'},
+        {id: '2', name: 'English', code: 'en', format: 'MM/dd/yyyy HH:mm'},
+        {id: '3', name: 'Deutsch', code: 'de', format: 'dd/MM/yyyy HH:mm'}
+      ]
+    };
 ```
 as
 ```
+    $rootScope.languages = {
       availableLanguages: [
-        {id: '1', name: 'Italiano', code: 'it'},
-        {id: '2', name: 'English', code: 'en'},
-        {id: '3', name: 'Deutsch', code: 'de'}
-        {id: '4', name: 'Français', code: 'fr'}
-      ],
+        {id: '1', name: 'Italiano', code: 'it', format: 'dd/MM/yyyy HH:mm'},
+        {id: '2', name: 'English', code: 'en', format: 'MM/dd/yyyy HH:mm'},
+        {id: '3', name: 'Deutsch', code: 'de', format: 'dd/MM/yyyy HH:mm'}
+        {id: '4', name: 'Français', code: 'fr', format: 'dd/MM/yyyy HH:mm'}
+      ]
+    };
 ```
 * copy the `enduser/src/main/webapp/app/languages/en/` directory into `enduser/src/main/webapp/app/languages/fr/`
 and modify the JSON files under the new directory

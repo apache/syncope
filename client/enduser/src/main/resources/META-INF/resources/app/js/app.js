@@ -47,16 +47,14 @@ var app = angular.module('SyncopeEnduserApp', [
 
 app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$translateProvider', '$translatePartialLoaderProvider',
   function ($stateProvider, $urlRouterProvider, $httpProvider, $translateProvider, $translatePartialLoaderProvider) {
-    
+
     $translatePartialLoaderProvider.addPart('static');
     $translatePartialLoaderProvider.addPart('dynamic');
     $translateProvider.useLoader('$translatePartialLoader', {
       urlTemplate: 'languages/{lang}/{part}.json'
     })
             .preferredLanguage('en');
-//            .useCookieStorage();
 
-    // route configuration
     $stateProvider
             .state('home', {
               url: '/',
@@ -262,6 +260,15 @@ app.run(['$rootScope', '$location', '$state', 'AuthService',
     // keep user logged in after page refresh
     //If the route change failed due to authentication error, redirect them out
     $rootScope.endReached = false;
+
+    $rootScope.languages = {
+      availableLanguages: [
+        {id: '1', name: 'Italiano', code: 'it', format: 'dd/MM/yyyy HH:mm'},
+        {id: '2', name: 'English', code: 'en', format: 'MM/dd/yyyy HH:mm'},
+        {id: '3', name: 'Deutsch', code: 'de', format: 'dd/MM/yyyy HH:mm'}
+      ]
+    };
+    $rootScope.languages.selectedLanguage = $rootScope.languages.availableLanguages[1];
 
     $rootScope.$on('$routeChangeError', function (event, current, previous, rejection) {
       if (rejection === 'Not Authenticated') {

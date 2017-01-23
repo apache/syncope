@@ -17,8 +17,6 @@ specific language governing permissions and limitations
 under the License.
 */
 
-/*default stile*/
-
 * {
   box-sizing: border-box;
 }
@@ -209,12 +207,8 @@ under the License.
   margin-top: 10px;
 }
 
-#datetime{
-  line-height: 34px;
-  float: left;
-  margin-top:-30px;
-  padding: 0 3px 0px 0px;
-  display: -webkit-inline-box;
+span.k-datetimepicker{
+  width: 170%;
 }
 
 #date{
@@ -332,6 +326,7 @@ under the License.
     margin-top: -65px;
   }
 
+
   .btn-group{
     position: relative;
     display: inline-flex;
@@ -366,6 +361,11 @@ under the License.
     margin-left: -42px;
     margin-right: 15px;
   }
+  
+  span.k-datetimepicker {
+    width: 141%;
+    margin-top: -50px;
+}
 
 }
 
@@ -439,6 +439,10 @@ under the License.
     padding-right: 0px;
     margin-left: -21px;
     margin-top: 4px;
+  }
+  
+    span.k-datetimepicker{
+    width: 160%;
   }
 
 }
@@ -567,6 +571,11 @@ under the License.
     float: right; 
     padding: 0 3px 0px 0px;
     margin-top: -65px;
+  }
+
+  span.k-datetimepicker{
+    width: 171%;
+    margin-top: 50%;
   }
 
   .multivalue button{

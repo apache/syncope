@@ -72,8 +72,6 @@ describe('syncope enduser user edit', function () {
     element.all(by.css('[name="fullname"]')).first().sendKeys('Vincenzo Bellini');
     element.all(by.css('[name="userId"]')).first().clear();
     element.all(by.css('[name="userId"]')).first().sendKeys('bellini@apache.org');
-    element.all(by.model('selectedDate')).first().clear();
-    element.all(by.model('selectedDate')).first().sendKeys('2009-06-21');
     element.all(by.css('[name="firstname"]')).first().clear();
     element.all(by.css('[name="firstname"]')).first().sendKeys('Vincenzo');
     element.all(by.css('[name="ctype"]')).first().clear();
