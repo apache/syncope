@@ -31,7 +31,7 @@ import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.client.console.wicket.markup.html.form.DateTimeFieldPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDateTimeFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.common.lib.to.WorkflowFormPropertyTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
@@ -104,7 +104,7 @@ public abstract class Approval extends Panel {
 
                     case Date:
                         final FastDateFormat formatter = FastDateFormat.getInstance(prop.getDatePattern());
-                        field = new DateTimeFieldPanel("value", label, new PropertyModel<Date>(prop, "value") {
+                        field = new AjaxDateTimeFieldPanel("value", label, new PropertyModel<Date>(prop, "value") {
 
                             private static final long serialVersionUID = -3743432456095828573L;
 
