@@ -512,17 +512,9 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
       }
     };
 
-    $scope.languages = {
-      availableLanguages: [
-        {id: '1', name: 'Italiano', code: 'it'},
-        {id: '2', name: 'English', code: 'en'},
-        {id: '3', name: 'Deutsch', code: 'de'}
-      ],
-      selectedLanguage: {id: '2', name: 'English', code: 'en'}
-    };
-
     $scope.switchLanguage = function () {
-      $translate.use($scope.languages.selectedLanguage.code);
+      $translate.use($rootScope.languages.selectedLanguage.code);
+      kendo.culture($rootScope.languages.selectedLanguage.code);
     };
 
     $scope.logout = function (message) {
@@ -540,7 +532,6 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
     };
 
     $scope.redirect = function () {
-      console.log("$scope.languages.selectedLanguage.code", $scope.languages.selectedLanguage.code);
       $translate.use($scope.languages.selectedLanguage.code);
       $location.path('/self');
       $rootScope.endReached = false;
