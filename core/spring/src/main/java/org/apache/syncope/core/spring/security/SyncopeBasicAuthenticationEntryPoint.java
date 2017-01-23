@@ -29,7 +29,7 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationEn
 /**
  * Render Spring's {@link AuthenticationException} as other Syncope errors.
  */
-public class SyncopeAuthenticationEntryPoint extends BasicAuthenticationEntryPoint {
+public class SyncopeBasicAuthenticationEntryPoint extends BasicAuthenticationEntryPoint {
 
     @Override
     public void commence(final HttpServletRequest request, final HttpServletResponse response,

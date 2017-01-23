@@ -55,8 +55,8 @@ under the License.
 
   <bean id="mustChangePasswordFilter" class="org.apache.syncope.core.spring.security.MustChangePasswordFilter"/>
       
-  <bean id="syncopeAuthenticationEntryPoint" 
-        class="org.apache.syncope.core.spring.security.SyncopeAuthenticationEntryPoint">
+  <bean id="basicAuthenticationEntryPoint" 
+        class="org.apache.syncope.core.spring.security.SyncopeBasicAuthenticationEntryPoint">
     <property name="realmName" value="Apache Syncope authentication"/>
   </bean>
   
@@ -68,10 +68,11 @@ under the License.
   <security:http-firewall ref="firewall"/>
 
   <security:http security-context-repository-ref="securityContextRepository"
-                 entry-point-ref="syncopeAuthenticationEntryPoint"
+                 entry-point-ref="basicAuthenticationEntryPoint"
                  use-expressions="false" disable-url-rewriting="false">
 
-    <security:http-basic authentication-details-source-ref="syncopeAuthenticationDetailsSource"/>
+    <security:http-basic entry-point-ref="basicAuthenticationEntryPoint"
+                         authentication-details-source-ref="syncopeAuthenticationDetailsSource"/>
     <security:anonymous username="${anonymousUser}"/>
     <security:intercept-url pattern="/**"/>
     
