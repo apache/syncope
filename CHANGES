@@ -2,6 +2,21 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 1.2.10
+================================================================================
+
+** Bug
+    * [SYNCOPE-963] - Various content upgrade "edge case" failures
+    * [SYNCOPE-965] - Cron expression for scheduled job is not saved from the console
+    * [SYNCOPE-973] - NotFound error returned by user create under high load
+    * [SYNCOPE-975] - Search case insensitive ilike operator triggers search validation
+    * [SYNCOPE-976] - Duplicated events shown by admin console for notifications and audit
+    * [SYNCOPE-999] - REST exception mapper overwrites Spring Security response
+
+** Improvement
+    * [SYNCOPE-971] - Case insensitive search
+    * [SYNCOPE-983] - Search performance improvement with mandatory schemas only
+
 Release Notes - Syncope - Version 1.2.9
 ================================================================================
 
