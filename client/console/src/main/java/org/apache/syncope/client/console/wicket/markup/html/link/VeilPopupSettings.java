@@ -26,7 +26,15 @@ public class VeilPopupSettings extends PopupSettings {
 
     @Override
     public String getPopupJavaScript() {
-        return "document.getElementById('veil').style.display = 'block';" + super.getPopupJavaScript();
+        return "document.getElementById('veil').style.display = 'block';"
+                + super.getPopupJavaScript().substring(0, super.getPopupJavaScript().lastIndexOf("return false;"))
+                + "var loop = setInterval(function() { "
+                + "  if(w.closed) {"
+                + "    clearInterval(loop);"
+                + "    window.location.reload(false);"
+                + "  }"
+                + "}, 1000);"
+                + "return false";
     }
 
 }
