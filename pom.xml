@@ -992,6 +992,11 @@ under the License.
       </dependency>
       <dependency>
         <groupId>com.googlecode.wicket-jquery-ui</groupId>
+        <artifactId>wicket-kendo-ui-culture</artifactId>
+        <version>${wicket-jqueryui.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.googlecode.wicket-jquery-ui</groupId>
         <artifactId>wicket-kendo-ui-theme-bootstrap</artifactId>
         <version>${wicket-jqueryui.version}</version>
       </dependency>
