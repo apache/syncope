@@ -18,12 +18,15 @@
  */
 package org.apache.syncope.client.console.wicket.markup.html.form;
 
+import com.googlecode.wicket.kendo.ui.resource.KendoCultureResourceReference;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -118,5 +121,12 @@ public class DateFieldPanel extends FieldPanel<Date> {
 
         field.setModel(model);
         return this;
+    }
+
+    @Override
+    public void renderHead(final IHeaderResponse response) {
+        super.renderHead(response);
+        response.render(JavaScriptHeaderItem.forReference(
+                new KendoCultureResourceReference(SyncopeConsoleSession.get().getDateFormat().getLocale())));
     }
 }
