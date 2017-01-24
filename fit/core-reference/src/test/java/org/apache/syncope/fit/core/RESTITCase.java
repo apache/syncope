@@ -26,6 +26,9 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.AccessControlException;
+import java.util.List;
+import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.HttpHeaders;
@@ -42,6 +45,7 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.patch.GroupPatch;
 import org.apache.syncope.common.lib.patch.StringReplacePatchItem;
 import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -49,12 +53,39 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.Preference;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
+import org.apache.syncope.common.rest.api.service.ConnectorService;
 import org.apache.syncope.common.rest.api.service.GroupService;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.Test;
 
 public class RESTITCase extends AbstractITCase {
+
+    @Test
+    public void unauthorizedOrForbidden() {
+        // service as admin: it works
+        List<ConnInstanceTO> connectors = connectorService.list(null);
+        assertNotNull(connectors);
+        assertFalse(connectors.isEmpty());
+
+        // service with bad password: 401 unauthorized
+        SyncopeClient badClient = clientFactory.create("bellini", "passwor");
+        try {
+            badClient.getService(ConnectorService.class).list(null);
+            fail();
+        } catch (AccessControlException e) {
+            assertNotNull(e);
+        }
+
+        // service with good password, but no entitlements owned: 403 forbidden
+        SyncopeClient goodClient = clientFactory.create("bellini", "password");
+        try {
+            goodClient.getService(ConnectorService.class).list(null);
+            fail();
+        } catch (ForbiddenException e) {
+            assertNotNull(e);
+        }
+    }
 
     @Test
     public void noContent() throws IOException {
