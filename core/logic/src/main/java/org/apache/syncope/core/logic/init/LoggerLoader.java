@@ -27,6 +27,7 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.appender.db.ColumnMapping;
 import org.apache.logging.log4j.core.appender.db.jdbc.ColumnConfig;
 import org.apache.logging.log4j.core.appender.db.jdbc.ConnectionSource;
 import org.apache.logging.log4j.core.appender.db.jdbc.JdbcAppender;
@@ -67,24 +68,31 @@ public class LoggerLoader implements SyncopeLoader {
         }
 
         // Audit table and DataSource for each configured domain
-        ColumnConfig[] columns = {
-            ColumnConfig.createColumnConfig(ctx.getConfiguration(), "EVENT_DATE", null, null, "true", null, null),
-            ColumnConfig.createColumnConfig(ctx.getConfiguration(), "LOGGER_LEVEL", "%level", null, null, null, null),
-            ColumnConfig.createColumnConfig(ctx.getConfiguration(), "LOGGER", "%logger", null, null, null, null),
-            ColumnConfig.createColumnConfig(ctx.getConfiguration(), "MESSAGE", "%message", null, null, null, null),
-            ColumnConfig.createColumnConfig(ctx.getConfiguration(), "THROWABLE", "%ex{full}", null, null, null, null)
+        ColumnConfig[] columnConfigs = {
+            ColumnConfig.newBuilder().
+            setConfiguration(ctx.getConfiguration()).setName("EVENT_DATE").setEventTimestamp(true).build(),
+            ColumnConfig.newBuilder().
+            setConfiguration(ctx.getConfiguration()).setName("LOGGER_LEVEL").setPattern("%level").build(),
+            ColumnConfig.newBuilder().
+            setConfiguration(ctx.getConfiguration()).setName("LOGGER").setPattern("%logger").build(),
+            ColumnConfig.newBuilder().
+            setConfiguration(ctx.getConfiguration()).setName("MESSAGE").setPattern("%message").build(),
+            ColumnConfig.newBuilder().
+            setConfiguration(ctx.getConfiguration()).setName("THROWABLE").setPattern("%ex{full}").build()
         };
+        ColumnMapping[] columnMappings = new ColumnMapping[0];
         for (Map.Entry<String, DataSource> entry : domainsHolder.getDomains().entrySet()) {
             Appender appender = ctx.getConfiguration().getAppender("audit_for_" + entry.getKey());
             if (appender == null) {
-                appender = JdbcAppender.createAppender(
-                        "audit_for_" + entry.getKey(),
-                        "false",
-                        null,
-                        new DataSourceConnectionSource(entry.getValue()),
-                        "0",
-                        "SYNCOPEAUDIT",
-                        columns);
+                appender = JdbcAppender.newBuilder().
+                        withName("audit_for_" + entry.getKey()).
+                        withIgnoreExceptions(false).
+                        setConnectionSource(new DataSourceConnectionSource(entry.getValue())).
+                        setBufferSize(0).
+                        setTableName("SYNCOPEAUDIT").
+                        setColumnConfigs(columnConfigs).
+                        setColumnMappings(columnMappings).
+                        build();
                 appender.start();
                 ctx.getConfiguration().addAppender(appender);
             }
