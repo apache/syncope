@@ -62,7 +62,7 @@ public class AnyObjectPatch extends AnyPatch {
 
     @Override
     public boolean isEmpty() {
-        return super.isEmpty() && relationships.isEmpty() && memberships.isEmpty();
+        return super.isEmpty() && name == null && relationships.isEmpty() && memberships.isEmpty();
     }
 
 }

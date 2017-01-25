@@ -529,6 +529,10 @@ public final class AnyOperations {
         AnyObjectTO result = SerializationUtils.clone(anyObjectTO);
         patch(anyObjectTO, anyObjectPatch, result);
 
+        if (anyObjectPatch.getName() != null) {
+            result.setName(anyObjectPatch.getName().getValue());
+        }
+
         // 1. relationships
         for (RelationshipPatch relPatch : anyObjectPatch.getRelationships()) {
             if (relPatch.getRelationshipTO() == null) {
