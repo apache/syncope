@@ -2,6 +2,53 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 2.0.2
+================================================================================
+
+** Sub-task
+    * [SYNCOPE-984] - Errors when building on Windows for archetype and Eclipse plugin
+    * [SYNCOPE-985] - org.apache.syncope.client.cli.commands.MigrateTest Fails on Windows
+
+** Bug
+    * [SYNCOPE-965] - Cron expression for scheduled job is not saved from the console
+    * [SYNCOPE-966] - Exception reported when looking at propagation task details from user list
+    * [SYNCOPE-970] - On logout, page translation doesn't reset to default settings.
+    * [SYNCOPE-974] - Incorrect error reported when creating notification with missing events
+    * [SYNCOPE-975] - Search case insensitive ilike operator triggers search validation
+    * [SYNCOPE-976] - Duplicated events shown by admin console for notifications and audit
+    * [SYNCOPE-977] - style missing for captcha buttons in responsive template (under 800px width)
+    * [SYNCOPE-979] - resource id is missing in user propagation task table
+    * [SYNCOPE-980] - AnyObject search filter not honored with inGroups condition
+    * [SYNCOPE-981] - Oracle/SQLServer configuration does not work
+    * [SYNCOPE-982] - Notification tasks modal window does not provide access to actual HTML and TEXT e-mail body
+    * [SYNCOPE-987] - Build issues on Windows
+    * [SYNCOPE-990] - Explore resource detailed view always shows empty left column
+    * [SYNCOPE-992] - Date not registered in self registration
+    * [SYNCOPE-993] - Footer buttons positioning and resizing
+    * [SYNCOPE-994] - Character encoding not being respected
+    * [SYNCOPE-997] - Angular transition errors
+    * [SYNCOPE-999] - REST exception mapper overwrites Spring Security response
+    * [SYNCOPE-1000] - CSVDir connector unclear about required attributes/columns
+    * [SYNCOPE-1001] - Closing the Activiti Modeler popup does not make the spinner to disappear
+    * [SYNCOPE-1002] - Updating any objects' name via console is ineffective
+
+** Improvement
+    * [SYNCOPE-773] - Allow in-place edit in Job dashboard widget
+    * [SYNCOPE-779] - Use Kendo UI Boostrap DateTimePicker
+    * [SYNCOPE-967] - Enduser test update
+    * [SYNCOPE-971] - Case insensitive search
+    * [SYNCOPE-972] - Make Syncope Enduser template responsive
+    * [SYNCOPE-978] - Add sample REST external resource
+    * [SYNCOPE-983] - Search performance improvement with mandatory schemas only
+    * [SYNCOPE-989] - Upgrade FOP to 2.1
+    * [SYNCOPE-996] - Replace Angular Bootstrap DateTimePicker with Kendo UI DateTimePicker
+
+** New Feature
+    * [SYNCOPE-882] - Log viewer
+
+** Task
+    * [SYNCOPE-962] - Upgrade to Wicket 7.5.0
+
 Release Notes - Syncope - Version 2.0.1
 ================================================================================
 
