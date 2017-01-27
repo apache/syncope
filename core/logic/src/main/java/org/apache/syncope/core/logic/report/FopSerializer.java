@@ -49,7 +49,6 @@ public class FopSerializer extends AbstractSAXSerializer implements CachingPipel
      * Create a new FOP serializer that produces the specified mime
      *
      * @param outputFormat the output's mime type
-     * @see {@link MimeConstants}
      */
     public FopSerializer(final String outputFormat) {
         if (outputFormat == null) {
