@@ -141,7 +141,7 @@ under the License.
   <jar src="lib/jackson-annotations-@{jackson.version}.jar"/>
   
   <jar src="lib/maven-invoker-@{maven-invoker.version}.jar"/>
-  <jar src="lib/plexus-utils-3.0.8.jar"/>
+  <jar src="lib/plexus-utils-3.0.24.jar"/>
   
   <panels>
     <panel classname="HTMLHelloPanel" id="welcome"/>
