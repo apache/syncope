@@ -64,7 +64,7 @@ public class MavenUtils {
 
         final InvocationRequest request = new DefaultInvocationRequest();
         request.setGoals(Collections.singletonList("archetype:generate"));
-        request.setInteractive(false);
+        request.setBatchMode(true);
         final Properties properties =
                 archetypeProperties(archetypeVersion, groupId, artifactId, secretKey, anonymousKey);
         request.setProperties(properties);
