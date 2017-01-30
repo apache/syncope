@@ -385,7 +385,7 @@ under the License.
     <codemirror.version>3.23</codemirror.version>
 
     <izpack.version>5.0.5</izpack.version>
-    <maven-invoker.version>2.1.1</maven-invoker.version>
+    <maven-invoker.version>3.0.0</maven-invoker.version>
     
     <jdeb.version>1.4</jdeb.version>
  
