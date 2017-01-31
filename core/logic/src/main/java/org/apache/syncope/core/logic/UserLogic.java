@@ -115,7 +115,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
 
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
-    public Pair<String, UserTO> readSelf() {
+    public Pair<String, UserTO> selfRead() {
         return ImmutablePair.of(
                 POJOHelper.serialize(AuthContextUtils.getAuthorizations()),
                 binder.returnUserTO(binder.getAuthenticatedUserTO()));

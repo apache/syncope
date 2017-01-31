@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AuditElements;
@@ -270,6 +271,10 @@ public class NotificationManagerImpl implements NotificationManager {
             any = userDAO.find(((UserTO) before).getKey());
         } else if (output instanceof UserTO) {
             any = userDAO.find(((UserTO) output).getKey());
+        } else if (output instanceof Pair
+                && ((Pair) output).getRight() instanceof UserTO) {
+
+            any = userDAO.find(((UserTO) ((Pair) output).getRight()).getKey());
         } else if (output instanceof ProvisioningResult
                 && ((ProvisioningResult) output).getEntity() instanceof UserTO) {
 
