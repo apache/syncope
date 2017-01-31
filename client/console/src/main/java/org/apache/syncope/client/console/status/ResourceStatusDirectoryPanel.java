@@ -89,12 +89,12 @@ public class ResourceStatusDirectoryPanel
         final List<IColumn<StatusBean, String>> columns = new ArrayList<>();
 
         columns.add(new PropertyColumn<StatusBean, String>(
-                new StringResourceModel("anyKey", this, null), "anyKey", "anyKey"));
+                new StringResourceModel("anyKey", this), "anyKey", "anyKey"));
 
         columns.add(new PropertyColumn<StatusBean, String>(
-                new StringResourceModel("connObjectLink", this, null), "connObjectLink", "connObjectLink"));
+                new StringResourceModel("connObjectLink", this), "connObjectLink", "connObjectLink"));
 
-        columns.add(new AbstractColumn<StatusBean, String>(new StringResourceModel("status", this, null)) {
+        columns.add(new AbstractColumn<StatusBean, String>(new StringResourceModel("status", this)) {
 
             private static final long serialVersionUID = -3503023501954863131L;
 

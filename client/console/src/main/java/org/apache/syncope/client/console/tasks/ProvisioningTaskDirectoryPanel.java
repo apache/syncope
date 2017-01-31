@@ -72,30 +72,30 @@ public abstract class ProvisioningTaskDirectoryPanel<T extends AbstractProvision
         List<IColumn<T, String>> columns = new ArrayList<>();
 
         columns.add(new KeyPropertyColumn<T>(
-                new StringResourceModel("key", this, null), "key", "key"));
+                new StringResourceModel("key", this), "key", "key"));
 
         columns.add(new PropertyColumn<T, String>(
-                new StringResourceModel("name", this, null), "name", "name"));
+                new StringResourceModel("name", this), "name", "name"));
 
         columns.add(new PropertyColumn<T, String>(
-                new StringResourceModel("description", this, null), "description", "description"));
+                new StringResourceModel("description", this), "description", "description"));
 
         if (reference == PullTaskTO.class) {
             columns.add(new PropertyColumn<T, String>(
-                    new StringResourceModel("destinationRealm", this, null), "destinationRealm", "destinationRealm"));
+                    new StringResourceModel("destinationRealm", this), "destinationRealm", "destinationRealm"));
         }
 
         columns.add(new DatePropertyColumn<T>(
-                new StringResourceModel("lastExec", this, null), "lastExec", "lastExec"));
+                new StringResourceModel("lastExec", this), "lastExec", "lastExec"));
 
         columns.add(new DatePropertyColumn<T>(
-                new StringResourceModel("nextExec", this, null), "nextExec", "nextExec"));
+                new StringResourceModel("nextExec", this), "nextExec", "nextExec"));
 
         columns.add(new PropertyColumn<T, String>(
-                new StringResourceModel("latestExecStatus", this, null), "latestExecStatus", "latestExecStatus"));
+                new StringResourceModel("latestExecStatus", this), "latestExecStatus", "latestExecStatus"));
 
         columns.add(new BooleanPropertyColumn<T>(
-                new StringResourceModel("active", this, null), "active", "active"));
+                new StringResourceModel("active", this), "active", "active"));
 
         return columns;
     }
