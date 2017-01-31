@@ -359,7 +359,7 @@ under the License.
 
     <cxf.version>3.2.0-SNAPSHOT</cxf.version>
 
-    <camel.version>2.18.1</camel.version>	
+    <camel.version>2.18.2</camel.version>	
 
     <jackson.version>2.8.6</jackson.version>
 
