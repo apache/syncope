@@ -117,10 +117,10 @@ public class SecurityQuestionsPanel extends DirectoryPanel<
         List<IColumn<SecurityQuestionTO, String>> columns = new ArrayList<>();
 
         columns.add(new KeyPropertyColumn<SecurityQuestionTO>(
-                new StringResourceModel("key", this, null), "key", "key"));
+                new StringResourceModel("key", this), "key", "key"));
 
         columns.add(new PropertyColumn<SecurityQuestionTO, String>(
-                new StringResourceModel("content", this, null), "content", "content"));
+                new StringResourceModel("content", this), "content", "content"));
 
         columns.add(new ActionColumn<SecurityQuestionTO, String>(new ResourceModel("actions")) {
 

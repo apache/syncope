@@ -107,10 +107,10 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
         final List<IColumn<ReportletWrapper, String>> columns = new ArrayList<>();
 
         columns.add(new PropertyColumn<ReportletWrapper, String>(
-                new StringResourceModel("reportlet", this, null), "name", "name"));
+                new StringResourceModel("reportlet", this), "name", "name"));
 
         columns.add(new AbstractColumn<ReportletWrapper, String>(
-                new StringResourceModel("configuration", this, null)) {
+                new StringResourceModel("configuration", this)) {
 
             private static final long serialVersionUID = -4008579357070833846L;
 

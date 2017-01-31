@@ -84,25 +84,25 @@ public abstract class NotificationTaskDirectoryPanel
         final List<IColumn<NotificationTaskTO, String>> columns = new ArrayList<>();
 
         columns.add(new KeyPropertyColumn<NotificationTaskTO>(
-                new StringResourceModel("key", this, null), "key", "key"));
+                new StringResourceModel("key", this), "key", "key"));
 
         columns.add(new PropertyColumn<NotificationTaskTO, String>(
-                new StringResourceModel("sender", this, null), "sender", "sender"));
+                new StringResourceModel("sender", this), "sender", "sender"));
 
         columns.add(new PropertyColumn<NotificationTaskTO, String>(
-                new StringResourceModel("subject", this, null), "subject", "subject"));
+                new StringResourceModel("subject", this), "subject", "subject"));
 
         columns.add(new CollectionPropertyColumn<NotificationTaskTO>(
-                new StringResourceModel("recipients", this, null), "recipients", "recipients"));
+                new StringResourceModel("recipients", this), "recipients", "recipients"));
 
         columns.add(new DatePropertyColumn<NotificationTaskTO>(
-                new StringResourceModel("start", this, null), "start", "start"));
+                new StringResourceModel("start", this), "start", "start"));
 
         columns.add(new DatePropertyColumn<NotificationTaskTO>(
-                new StringResourceModel("end", this, null), "end", "end"));
+                new StringResourceModel("end", this), "end", "end"));
 
         columns.add(new PropertyColumn<NotificationTaskTO, String>(
-                new StringResourceModel("latestExecStatus", this, null), "latestExecStatus", "latestExecStatus"));
+                new StringResourceModel("latestExecStatus", this), "latestExecStatus", "latestExecStatus"));
 
         columns.add(new ActionColumn<NotificationTaskTO, String>(new ResourceModel("actions", "")) {
 

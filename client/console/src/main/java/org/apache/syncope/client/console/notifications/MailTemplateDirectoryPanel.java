@@ -110,7 +110,7 @@ public class MailTemplateDirectoryPanel
     protected List<IColumn<MailTemplateTO, String>> getColumns() {
         List<IColumn<MailTemplateTO, String>> columns = new ArrayList<>();
         columns.add(new PropertyColumn<MailTemplateTO, String>(
-                new StringResourceModel("key", this, null), "key", "key"));
+                new StringResourceModel("key", this), "key", "key"));
 
         columns.add(new ActionColumn<MailTemplateTO, String>(new ResourceModel("actions", "")) {
 

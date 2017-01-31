@@ -55,13 +55,13 @@ public class AccountPolicyDirectoryPanel extends PolicyDirectoryPanel<AccountPol
     @Override
     protected void addCustomColumnFields(final List<IColumn<AccountPolicyTO, String>> columns) {
         columns.add(new CollectionPropertyColumn<AccountPolicyTO>(new StringResourceModel(
-                "passthroughResources", this, null), "passthroughResources", "passthroughResources"));
+                "passthroughResources", this), "passthroughResources", "passthroughResources"));
 
         columns.add(new PropertyColumn<AccountPolicyTO, String>(new StringResourceModel(
-                "maxAuthenticationAttempts", this, null), "maxAuthenticationAttempts", "maxAuthenticationAttempts"));
+                "maxAuthenticationAttempts", this), "maxAuthenticationAttempts", "maxAuthenticationAttempts"));
 
         columns.add(new BooleanPropertyColumn<AccountPolicyTO>(new StringResourceModel(
-                "propagateSuspension", this, null), "propagateSuspension", "propagateSuspension"));
+                "propagateSuspension", this), "propagateSuspension", "propagateSuspension"));
     }
 
     @Override

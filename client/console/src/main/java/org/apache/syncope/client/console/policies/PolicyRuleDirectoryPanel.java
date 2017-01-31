@@ -105,10 +105,10 @@ public class PolicyRuleDirectoryPanel<T extends AbstractPolicyTO> extends Direct
         final List<IColumn<PolicyRuleWrapper, String>> columns = new ArrayList<>();
 
         columns.add(new PropertyColumn<PolicyRuleWrapper, String>(
-                new StringResourceModel("ruleConf", this, null), "name", "name"));
+                new StringResourceModel("ruleConf", this), "name", "name"));
 
         columns.add(new AbstractColumn<PolicyRuleWrapper, String>(
-                new StringResourceModel("configuration", this, null)) {
+                new StringResourceModel("configuration", this)) {
 
             private static final long serialVersionUID = -4008579357070833846L;
 

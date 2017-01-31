@@ -105,7 +105,7 @@ public class AnyStatusDirectoryPanel
         final List<IColumn<StatusBean, String>> columns = new ArrayList<>();
 
         columns.add(new AbstractColumn<StatusBean, String>(
-                new StringResourceModel("resourceName", this, null), "resourceName") {
+                new StringResourceModel("resourceName", this), "resourceName") {
 
             private static final long serialVersionUID = 2054811145491901166L;
 
@@ -132,9 +132,9 @@ public class AnyStatusDirectoryPanel
         });
 
         columns.add(new PropertyColumn<StatusBean, String>(
-                new StringResourceModel("connObjectLink", this, null), "connObjectLink", "connObjectLink"));
+                new StringResourceModel("connObjectLink", this), "connObjectLink", "connObjectLink"));
 
-        columns.add(new AbstractColumn<StatusBean, String>(new StringResourceModel("status", this, null)) {
+        columns.add(new AbstractColumn<StatusBean, String>(new StringResourceModel("status", this)) {
 
             private static final long serialVersionUID = -3503023501954863131L;
 

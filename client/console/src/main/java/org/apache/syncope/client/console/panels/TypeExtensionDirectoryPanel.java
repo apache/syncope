@@ -129,7 +129,7 @@ public class TypeExtensionDirectoryPanel
         columns.add(new PropertyColumn<TypeExtensionTO, String>(
                 Model.of("Any Type"), "anyType", "anyType"));
         columns.add(new PropertyColumn<TypeExtensionTO, String>(
-                new StringResourceModel("auxClasses", this, null), "auxClasses", "auxClasses"));
+                new StringResourceModel("auxClasses", this), "auxClasses", "auxClasses"));
 
         columns.add(new ActionColumn<TypeExtensionTO, String>(new ResourceModel("actions", "")) {
 

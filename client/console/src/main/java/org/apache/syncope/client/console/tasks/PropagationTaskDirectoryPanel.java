@@ -75,33 +75,33 @@ public abstract class PropagationTaskDirectoryPanel
         final List<IColumn<PropagationTaskTO, String>> columns = new ArrayList<>();
 
         columns.add(new KeyPropertyColumn<PropagationTaskTO>(
-                new StringResourceModel("key", this, null), "key", "key"));
+                new StringResourceModel("key", this), "key", "key"));
 
         columns.add(new PropertyColumn<PropagationTaskTO, String>(new StringResourceModel(
-                "operation", this, null), "operation", "operation"));
+                "operation", this), "operation", "operation"));
 
         if (resource == null) {
             columns.add(new PropertyColumn<PropagationTaskTO, String>(new StringResourceModel(
-                    "resource", this, null), "resource", "resource"));
+                    "resource", this), "resource", "resource"));
         } else {
             columns.add(new PropertyColumn<PropagationTaskTO, String>(
-                    new StringResourceModel("anyTypeKind", this, null), "anyTypeKind", "anyTypeKind"));
+                    new StringResourceModel("anyTypeKind", this), "anyTypeKind", "anyTypeKind"));
         }
 
         columns.add(new PropertyColumn<PropagationTaskTO, String>(
-                new StringResourceModel("entityKey", this, null), "entityKey", "entityKey"));
+                new StringResourceModel("entityKey", this), "entityKey", "entityKey"));
 
         columns.add(new PropertyColumn<PropagationTaskTO, String>(
-                new StringResourceModel("connObjectKey", this, null), "connObjectKey", "connObjectKey"));
+                new StringResourceModel("connObjectKey", this), "connObjectKey", "connObjectKey"));
 
         columns.add(new DatePropertyColumn<PropagationTaskTO>(
-                new StringResourceModel("start", this, null), "start", "start"));
+                new StringResourceModel("start", this), "start", "start"));
 
         columns.add(new DatePropertyColumn<PropagationTaskTO>(
-                new StringResourceModel("end", this, null), "end", "end"));
+                new StringResourceModel("end", this), "end", "end"));
 
         columns.add(new PropertyColumn<PropagationTaskTO, String>(
-                new StringResourceModel("latestExecStatus", this, null), "latestExecStatus", "latestExecStatus"));
+                new StringResourceModel("latestExecStatus", this), "latestExecStatus", "latestExecStatus"));
 
         columns.add(new ActionColumn<PropagationTaskTO, String>(new ResourceModel("actions")) {
 
