@@ -56,7 +56,7 @@ public class UserSelfServiceImpl extends AbstractServiceImpl implements UserSelf
 
     @Override
     public Response read() {
-        Pair<String, UserTO> self = logic.readSelf();
+        Pair<String, UserTO> self = logic.selfRead();
         return Response.ok().
                 header(RESTHeaders.RESOURCE_KEY, self.getValue().getKey()).
                 header(RESTHeaders.OWNED_ENTITLEMENTS, self.getKey()).
@@ -72,7 +72,7 @@ public class UserSelfServiceImpl extends AbstractServiceImpl implements UserSelf
 
     @Override
     public Response update(final UserTO user) {
-        Pair<String, UserTO> self = logic.readSelf();
+        Pair<String, UserTO> self = logic.selfRead();
         return update(AnyOperations.diff(user, self.getValue(), false));
     }
 

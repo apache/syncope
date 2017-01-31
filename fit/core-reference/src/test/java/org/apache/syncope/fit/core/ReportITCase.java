@@ -257,7 +257,7 @@ public class ReportITCase extends AbstractITCase {
                 AuditElements.EventCategoryType.LOGIC,
                 "UserLogic",
                 null,
-                "readSelf",
+                "selfRead",
                 AuditElements.Result.SUCCESS);
 
         try {
