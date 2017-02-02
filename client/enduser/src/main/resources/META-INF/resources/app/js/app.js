@@ -1,5 +1,3 @@
-/* global $templateCache */
-
 /**
  Licensed to the Apache Software Foundation (ASF) under one
  or more contributor license agreements.  See the NOTICE file
@@ -25,7 +23,9 @@ angular.module('login', []);
 angular.module('language', []);
 angular.module('self', []);
 angular.module('info', []);
-// Declare app level module which depends on views, and components
+/*
+ * AngularJS application modules from which depend views and components
+ */
 var app = angular.module('SyncopeEnduserApp', [
   'ui.router',
   'ui.bootstrap',
@@ -47,14 +47,23 @@ var app = angular.module('SyncopeEnduserApp', [
 
 app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$translateProvider', '$translatePartialLoaderProvider',
   function ($stateProvider, $urlRouterProvider, $httpProvider, $translateProvider, $translatePartialLoaderProvider) {
-
+    /*
+       |--------------------------------------------------------------------------
+       | Syncope Enduser AngularJS providers configuration
+       |--------------------------------------------------------------------------
+     */
+    
+    /*
+     * i18n provider
+     */
     $translatePartialLoaderProvider.addPart('static');
     $translatePartialLoaderProvider.addPart('dynamic');
     $translateProvider.useLoader('$translatePartialLoader', {
       urlTemplate: 'languages/{lang}/{part}.json'
-    })
-            .preferredLanguage('en');
-
+    }).preferredLanguage('en');
+    /*
+     * State provider
+     */
     $stateProvider
             .state('home', {
               url: '/',
@@ -209,14 +218,19 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$translate
               url: '/mustchangepassword',
               templateUrl: 'views/mustchangepassword.html'
             });
-    // catch all other routes
-    // send users to the home page 
+    /*
+     * catch all other routes and send users to the home page 
+     */
     $urlRouterProvider.otherwise('/');
-    // HTTP service configuration
+    /*
+     * HTTP provider
+     */
     $httpProvider.defaults.withCredentials = true;
     $httpProvider.defaults.xsrfCookieName = 'XSRF-TOKEN';
     $httpProvider.defaults.xsrfHeaderName = 'X-XSRF-TOKEN';
-    //SYNCOPE-780
+    /*
+     * SYNCOPE-780
+     */
     $httpProvider.defaults.headers.common["If-Modified-Since"] = "0";
     $httpProvider.interceptors.push(function ($q, $rootScope, $location) {
       return {
@@ -231,7 +245,6 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$translate
           return config || $q.when(config);
         },
         'response': function (response) {
-          //$http.pendingRequests.length
           $rootScope.spinner.off();
           return response || $q.when(response);
         },
@@ -256,20 +269,14 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$translate
   }]);
 app.run(['$rootScope', '$location', '$state', 'AuthService',
   function ($rootScope, $location, $state, AuthService) {
-    // main program
-    // keep user logged in after page refresh
-    //If the route change failed due to authentication error, redirect them out
-    $rootScope.endReached = false;
-
-    $rootScope.languages = {
-      availableLanguages: [
-        {id: '1', name: 'Italiano', code: 'it', format: 'dd/MM/yyyy HH:mm'},
-        {id: '2', name: 'English', code: 'en', format: 'MM/dd/yyyy HH:mm'},
-        {id: '3', name: 'Deutsch', code: 'de', format: 'dd/MM/yyyy HH:mm'}
-      ]
-    };
-    $rootScope.languages.selectedLanguage = $rootScope.languages.availableLanguages[1];
-
+    /*
+       |--------------------------------------------------------------------------
+       | Main of Syncope Enduser application
+       |
+       | keep user logged in after page refresh
+       | If the route change failed due to authentication error, redirect them out
+       |--------------------------------------------------------------------------
+     */
     $rootScope.$on('$routeChangeError', function (event, current, previous, rejection) {
       if (rejection === 'Not Authenticated') {
         $location.path('/self');
@@ -305,7 +312,9 @@ app.run(['$rootScope', '$location', '$state', 'AuthService',
           $state.go('self');
         }
         );
-        //enable "finish" button on every page in create mode
+        /*
+         * enable "finish" button on every page in create mode
+         */
       } else if (toState.name === 'create.finish') {
         $rootScope.endReached = true;
       } else {
@@ -324,16 +333,36 @@ app.run(['$rootScope', '$location', '$state', 'AuthService',
   }]);
 app.controller('ApplicationController', ['$scope', '$rootScope', 'InfoService', function ($scope, $rootScope,
           InfoService) {
-    // get syncope info and set cookie, first call
     $scope.initApplication = function () {
+      /* 
+       * disable by default wizard buttons in self-registration
+       */ 
+      $rootScope.endReached = false;
+      /*
+       |--------------------------------------------------------------------------
+       | Syncope Enduser i18n initialization
+       |--------------------------------------------------------------------------
+       */
+      $rootScope.languages = {
+        availableLanguages: [
+          { id: '1', name: 'Italiano', code: 'it', format: 'dd/MM/yyyy HH:mm' },
+          { id: '2', name: 'English', code: 'en', format: 'MM/dd/yyyy HH:mm' },
+          { id: '3', name: 'Deutsch', code: 'de', format: 'dd/MM/yyyy HH:mm' }
+        ]
+      };
+      $rootScope.languages.selectedLanguage = $rootScope.languages.availableLanguages[1];
+      /*
+       |--------------------------------------------------------------------------
+       | Syncope Enduser properties initialization
+       | get info from InfoService API (info settings are initialized every time an user reloads the login page)
+       |--------------------------------------------------------------------------
+       */
       $rootScope.selfRegAllowed = false;
       $rootScope.pwdResetAllowed = false;
       $rootScope.version = "";
       $rootScope.pwdResetRequiringSecurityQuestions = false;
       $rootScope.captchaEnabled = false;
-      //setting default validation
       $rootScope.validationEnabled = true;
-      // call info service (info settings are initialized every time an user reload the login page)
       InfoService.getInfo().then(
               function (response) {
                 $rootScope.pwdResetAllowed = response.pwdResetAllowed;
@@ -345,6 +374,9 @@ app.controller('ApplicationController', ['$scope', '$rootScope', 'InfoService', 
               function (response) {
                 console.error("Something went wrong while accessing info resource", response);
               });
+      /* 
+       * configuration getters
+       */ 
       $rootScope.isSelfRegAllowed = function () {
         return $rootScope.selfRegAllowed === true;
       };
@@ -354,7 +386,26 @@ app.controller('ApplicationController', ['$scope', '$rootScope', 'InfoService', 
       $rootScope.getVersion = function () {
         return $rootScope.version;
       };
-      //Notification management           
+      /* 
+       * USER Attributes sorting strategies
+       */
+      $rootScope.attributesSorting = {
+        ASC: function ( a, b ) {
+          var schemaNameA = a.key;
+          var schemaNameB = b.key;
+          return schemaNameA < schemaNameB ? -1 : schemaNameA > schemaNameB ? 1 : 0;
+        },
+        DESC: function ( a, b ) {
+          var schemaNameA = a.key;
+          var schemaNameB = b.key;
+          return schemaNameA < schemaNameB ? 1 : schemaNameA > schemaNameB ? -1 : 0;
+        }
+      };
+      /*
+       |--------------------------------------------------------------------------
+       | Notification mgmt
+       |--------------------------------------------------------------------------
+       */    
       $scope.notification = $('#notifications').kendoNotification().data("kendoNotification");
       $scope.notification.setOptions({stacking: "down"});
       $scope.notification.options.position["top"] = 20;
@@ -420,9 +471,11 @@ app.controller('ApplicationController', ['$scope', '$rootScope', 'InfoService', 
           }
         }
       };
-      //Intercepting location change event
+      /*
+       * Intercepting location change event
+       * When a location changes, old notifications should be removed
+       */
       $rootScope.$on("$locationChangeStart", function (event, next, current) {
-        //When a location changes, old notifications should be removed
         $scope.hideNotifications(3000);
       });
       //Intercepting xhr start event
@@ -433,7 +486,11 @@ app.controller('ApplicationController', ['$scope', '$rootScope', 'InfoService', 
       $scope.$on('hideErrorMessage', function (event, popupMessage) {
         $scope.hideError(popupMessage, $scope.notification);
       });
-      //wizard active element
+      /*
+       |--------------------------------------------------------------------------
+       | Wizard configuration
+       |--------------------------------------------------------------------------
+       */ 
       $scope.wizard = {
         "credentials": {url: "/credentials"},
         "groups": {url: "/groups"},
@@ -443,6 +500,11 @@ app.controller('ApplicationController', ['$scope', '$rootScope', 'InfoService', 
         "resources": {url: "/resources"},
         "finish": {url: "/finish"}
       };
+      /*
+       |--------------------------------------------------------------------------
+       | Utilities
+       |--------------------------------------------------------------------------
+       */
       $scope.clearCache = function () {
         $templateCache.removeAll();
       };
