@@ -64,9 +64,9 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
         // initialization is done here synchronously to have all schema fields populated correctly
         var schemaService;
         if (group) {
-          schemaService = SchemaService.getTypeExtSchemas(group);
+          schemaService = SchemaService.getTypeExtSchemas(group, $rootScope.attributesSorting.ASC);
         } else {
-          schemaService = SchemaService.getUserSchemas(anyTypeClass);
+          schemaService = SchemaService.getUserSchemas(anyTypeClass, $rootScope.attributesSorting.ASC);
         }
         schemaService.then(function (schemas) {
           if (group && (schemas.plainSchemas.length > 0 || schemas.derSchemas.length > 0 || schemas.virSchemas.length > 0))
@@ -74,14 +74,16 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
           //initializing user schemas values
           initSchemaValues(schemas);
         }, function (response) {
-          var errorMessage;
-          // parse error response 
-          if (response !== undefined) {
-            errorMessage = response.split("ErrorMessage{{")[1];
-            errorMessage = errorMessage.split("}}")[0];
+          // parse error response and log
+          if ( response !== undefined ) {
+            var errorMessages = response.toString().split( "ErrorMessage{{" );
+            if ( errorMessages.length > 1 ) {
+              console.error( "Error retrieving user schemas: ", response.toString().split( "ErrorMessage{{" )[1].split( "}}" )[0] );
+            } else {
+              console.error( "Error retrieving user schemas: ", errorMessages );
+            }
           }
-          console.error("Error retrieving user schemas: ", errorMessage);
-        });
+        } );
       };
 
       var initSchemaValues = function (schemas) {

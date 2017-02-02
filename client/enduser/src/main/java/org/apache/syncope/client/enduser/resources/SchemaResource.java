@@ -23,12 +23,10 @@ import java.util.Collections;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
-import org.apache.commons.collections4.ComparatorUtils;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.model.SchemaResponse;
-import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
@@ -127,16 +125,6 @@ public class SchemaResource extends AbstractBaseResource {
                     schema.setKey(groupParam + "#" + schema.getKey());
                 }
             }
-
-            Collections.sort(plainSchemas, ComparatorUtils.transformedComparator(
-                    ComparatorUtils.<String>naturalComparator(),
-                    EntityTOUtils.keyTransformer()));
-            Collections.sort(derSchemas, ComparatorUtils.transformedComparator(
-                    ComparatorUtils.<String>naturalComparator(),
-                    EntityTOUtils.keyTransformer()));
-            Collections.sort(virSchemas, ComparatorUtils.transformedComparator(
-                    ComparatorUtils.<String>naturalComparator(),
-                    EntityTOUtils.keyTransformer()));
 
             response.setTextEncoding(SyncopeConstants.DEFAULT_ENCODING);
 
