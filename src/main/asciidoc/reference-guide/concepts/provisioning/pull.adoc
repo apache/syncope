@@ -38,8 +38,8 @@ by default, unmatching entities get created internally, and matching entities ar
 * `UPDATE`: update matching entity;
 * `DEPROVISION`: delete external entity;
 * `UNLINK`: remove association with external resource, without performing any (de-)provisioning operation;
-* `LINK`: associate with external resource, without performing any (de-)provisioning operation.
-* `UNASSIGN`: unlink and delete;
+* `LINK`: associate with external resource, without performing any (de-)provisioning operation;
+* `UNASSIGN`: unlink and delete.
 ****
 
 .Unmatching Rules
@@ -47,7 +47,7 @@ by default, unmatching entities get created internally, and matching entities ar
 * `IGNORE`: do not perform any action;
 * `UNLINK`: do not perform any action;
 * `ASSIGN`: create internally, assign the external resource;
-* `PROVISION`: create internally, do not assign the external resource;
+* `PROVISION`: create internally, do not assign the external resource.
 ****
 
 [[pull-mode]]

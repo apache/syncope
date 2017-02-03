@@ -39,8 +39,8 @@ by default, unmatching entities are pushed to Identity Stores, and matching enti
 * `UPDATE`: update matching entity;
 * `DEPROVISION`: delete internal entity;
 * `UNLINK`: remove association with external resource, without performing any (de-)provisioning operation;
-* `LINK`: associate with external resource, without performing any (de-)provisioning operation.
-* `UNASSIGN`: unlink and delete;
+* `LINK`: associate with external resource, without performing any (de-)provisioning operation;
+* `UNASSIGN`: unlink and delete.
 ****
 
 .Unmatching Rules
@@ -48,7 +48,7 @@ by default, unmatching entities are pushed to Identity Stores, and matching enti
 * `IGNORE`: do not perform any action;
 * `UNLINK`: remove association with external resource, without performing any (de-)provisioning operation;
 * `ASSIGN`: create externally, assign the external resource;
-* `PROVISION`: create externally, do not assign the external resource;
+* `PROVISION`: create externally, do not assign the external resource.
 ****
 
 ===== PushActions
