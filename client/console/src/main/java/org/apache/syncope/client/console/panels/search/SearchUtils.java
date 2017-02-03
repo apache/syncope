@@ -205,160 +205,164 @@ public final class SearchUtils implements Serializable {
         for (SearchClause clause : clauses) {
             prevCondition = condition;
 
-            switch (clause.getType()) {
-                case GROUP_MEMBER:
-                    switch (clause.getComparator()) {
-                        case EQUALS:
-                            condition = ((GroupFiqlSearchConditionBuilder) builder).
-                                    withMembers(clause.getValue());
-                            break;
-
-                        case NOT_EQUALS:
-                            condition = ((GroupFiqlSearchConditionBuilder) builder).
-                                    withoutMembers(clause.getValue());
-                            break;
-
-                        default:
-                    }
-                    break;
-
-                case GROUP_MEMBERSHIP:
-                    if (StringUtils.isNotBlank(clause.getProperty())) {
-                        String groupKey = clause.getProperty().split(" ")[0];
-
-                        if (builder instanceof UserFiqlSearchConditionBuilder) {
-                            condition = clause.getComparator() == SearchClause.Comparator.EQUALS
-                                    ? ((UserFiqlSearchConditionBuilder) builder).inGroups(groupKey)
-                                    : ((UserFiqlSearchConditionBuilder) builder).notInGroups(groupKey);
-                        } else {
-                            condition = clause.getComparator() == SearchClause.Comparator.EQUALS
-                                    ? ((AnyObjectFiqlSearchConditionBuilder) builder).inGroups(groupKey)
-                                    : ((AnyObjectFiqlSearchConditionBuilder) builder).notInGroups(groupKey);
-                        }
-                    }
-                    break;
-
-                case RESOURCE:
-                    if (StringUtils.isNotBlank(clause.getProperty())) {
-                        condition = clause.getComparator() == SearchClause.Comparator.EQUALS
-                                ? builder.hasResources(clause.getProperty())
-                                : builder.hasNotResources(clause.getProperty());
-                    }
-                    break;
-
-                case ATTRIBUTE:
-                    if (StringUtils.isNotBlank(clause.getProperty())) {
-                        SyncopeProperty property = builder.is(clause.getProperty());
+            if (clause.getType() != null) {
+                switch (clause.getType()) {
+                    case GROUP_MEMBER:
                         switch (clause.getComparator()) {
-                            case IS_NULL:
-                                condition = builder.isNull(clause.getProperty());
-                                break;
-
-                            case IS_NOT_NULL:
-                                condition = builder.isNotNull(clause.getProperty());
-                                break;
-
-                            case LESS_THAN:
-                                condition = StringUtils.isNumeric(clause.getProperty())
-                                        ? property.lessThan(NumberUtils.toDouble(clause.getValue()))
-                                        : property.lexicalBefore(clause.getValue());
-                                break;
-
-                            case LESS_OR_EQUALS:
-                                condition = StringUtils.isNumeric(clause.getProperty())
-                                        ? property.lessOrEqualTo(NumberUtils.toDouble(clause.getValue()))
-                                        : property.lexicalNotAfter(clause.getValue());
-                                break;
-
-                            case GREATER_THAN:
-                                condition = StringUtils.isNumeric(clause.getProperty())
-                                        ? property.greaterThan(NumberUtils.toDouble(clause.getValue()))
-                                        : property.lexicalAfter(clause.getValue());
-                                break;
-
-                            case GREATER_OR_EQUALS:
-                                condition = StringUtils.isNumeric(clause.getProperty())
-                                        ? property.greaterOrEqualTo(NumberUtils.toDouble(clause.getValue()))
-                                        : property.lexicalNotBefore(clause.getValue());
+                            case EQUALS:
+                                condition = ((GroupFiqlSearchConditionBuilder) builder).
+                                        withMembers(clause.getValue());
                                 break;
 
                             case NOT_EQUALS:
-                                condition = property.notEqualTolIgnoreCase(clause.getValue());
+                                condition = ((GroupFiqlSearchConditionBuilder) builder).
+                                        withoutMembers(clause.getValue());
                                 break;
 
-                            case EQUALS:
                             default:
-                                condition = property.equalToIgnoreCase(clause.getValue());
-                                break;
                         }
-                    }
-                    break;
+                        break;
 
-                case ROLE_MEMBERSHIP:
-                    if (StringUtils.isNotBlank(clause.getProperty())) {
-                        switch (clause.getComparator()) {
-                            case EQUALS:
-                                condition = ((UserFiqlSearchConditionBuilder) builder).inRoles(clause.getProperty());
-                                break;
-                            case NOT_EQUALS:
-                                condition = ((UserFiqlSearchConditionBuilder) builder).notInRoles(clause.getProperty());
-                                break;
-                            default:
-                                break;
+                    case GROUP_MEMBERSHIP:
+                        if (StringUtils.isNotBlank(clause.getProperty())) {
+                            String groupKey = clause.getProperty().split(" ")[0];
+
+                            if (builder instanceof UserFiqlSearchConditionBuilder) {
+                                condition = clause.getComparator() == SearchClause.Comparator.EQUALS
+                                        ? ((UserFiqlSearchConditionBuilder) builder).inGroups(groupKey)
+                                        : ((UserFiqlSearchConditionBuilder) builder).notInGroups(groupKey);
+                            } else {
+                                condition = clause.getComparator() == SearchClause.Comparator.EQUALS
+                                        ? ((AnyObjectFiqlSearchConditionBuilder) builder).inGroups(groupKey)
+                                        : ((AnyObjectFiqlSearchConditionBuilder) builder).notInGroups(groupKey);
+                            }
                         }
-                    }
-                    break;
+                        break;
 
-                case RELATIONSHIP:
-                    if (StringUtils.isNotBlank(clause.getProperty())) {
-                        if (builder instanceof UserFiqlSearchConditionBuilder) {
+                    case RESOURCE:
+                        if (StringUtils.isNotBlank(clause.getProperty())) {
+                            condition = clause.getComparator() == SearchClause.Comparator.EQUALS
+                                    ? builder.hasResources(clause.getProperty())
+                                    : builder.hasNotResources(clause.getProperty());
+                        }
+                        break;
+
+                    case ATTRIBUTE:
+                        if (StringUtils.isNotBlank(clause.getProperty())) {
+                            SyncopeProperty property = builder.is(clause.getProperty());
                             switch (clause.getComparator()) {
-                                case IS_NOT_NULL:
-                                    condition = ((UserFiqlSearchConditionBuilder) builder).
-                                            inRelationshipTypes(clause.getProperty());
-                                    break;
                                 case IS_NULL:
-                                    condition = ((UserFiqlSearchConditionBuilder) builder).
-                                            notInRelationshipTypes(clause.getProperty());
+                                    condition = builder.isNull(clause.getProperty());
                                     break;
-                                case EQUALS:
-                                    condition = ((UserFiqlSearchConditionBuilder) builder).
-                                            inRelationships(clause.getValue());
+
+                                case IS_NOT_NULL:
+                                    condition = builder.isNotNull(clause.getProperty());
                                     break;
+
+                                case LESS_THAN:
+                                    condition = StringUtils.isNumeric(clause.getProperty())
+                                            ? property.lessThan(NumberUtils.toDouble(clause.getValue()))
+                                            : property.lexicalBefore(clause.getValue());
+                                    break;
+
+                                case LESS_OR_EQUALS:
+                                    condition = StringUtils.isNumeric(clause.getProperty())
+                                            ? property.lessOrEqualTo(NumberUtils.toDouble(clause.getValue()))
+                                            : property.lexicalNotAfter(clause.getValue());
+                                    break;
+
+                                case GREATER_THAN:
+                                    condition = StringUtils.isNumeric(clause.getProperty())
+                                            ? property.greaterThan(NumberUtils.toDouble(clause.getValue()))
+                                            : property.lexicalAfter(clause.getValue());
+                                    break;
+
+                                case GREATER_OR_EQUALS:
+                                    condition = StringUtils.isNumeric(clause.getProperty())
+                                            ? property.greaterOrEqualTo(NumberUtils.toDouble(clause.getValue()))
+                                            : property.lexicalNotBefore(clause.getValue());
+                                    break;
+
                                 case NOT_EQUALS:
-                                    condition = ((UserFiqlSearchConditionBuilder) builder).
-                                            notInRelationships(clause.getValue());
+                                    condition = property.notEqualTolIgnoreCase(clause.getValue());
                                     break;
+
+                                case EQUALS:
                                 default:
+                                    condition = property.equalToIgnoreCase(clause.getValue());
                                     break;
                             }
-                        } else {
+                        }
+                        break;
+
+                    case ROLE_MEMBERSHIP:
+                        if (StringUtils.isNotBlank(clause.getProperty())) {
                             switch (clause.getComparator()) {
-                                case IS_NOT_NULL:
-                                    condition = ((AnyObjectFiqlSearchConditionBuilder) builder).
-                                            inRelationshipTypes(clause.getProperty());
-                                    break;
-                                case IS_NULL:
-                                    condition = ((AnyObjectFiqlSearchConditionBuilder) builder).
-                                            notInRelationshipTypes(clause.getProperty());
-                                    break;
                                 case EQUALS:
-                                    condition = ((AnyObjectFiqlSearchConditionBuilder) builder).
-                                            inRelationships(clause.getValue());
+                                    condition = ((UserFiqlSearchConditionBuilder) builder).
+                                            inRoles(clause.getProperty());
                                     break;
                                 case NOT_EQUALS:
-                                    condition = ((AnyObjectFiqlSearchConditionBuilder) builder).
-                                            notInRelationships(clause.getValue());
+                                    condition = ((UserFiqlSearchConditionBuilder) builder).
+                                            notInRoles(clause.getProperty());
                                     break;
                                 default:
                                     break;
                             }
                         }
-                    }
-                    break;
+                        break;
 
-                default:
-                    break;
+                    case RELATIONSHIP:
+                        if (StringUtils.isNotBlank(clause.getProperty())) {
+                            if (builder instanceof UserFiqlSearchConditionBuilder) {
+                                switch (clause.getComparator()) {
+                                    case IS_NOT_NULL:
+                                        condition = ((UserFiqlSearchConditionBuilder) builder).
+                                                inRelationshipTypes(clause.getProperty());
+                                        break;
+                                    case IS_NULL:
+                                        condition = ((UserFiqlSearchConditionBuilder) builder).
+                                                notInRelationshipTypes(clause.getProperty());
+                                        break;
+                                    case EQUALS:
+                                        condition = ((UserFiqlSearchConditionBuilder) builder).
+                                                inRelationships(clause.getValue());
+                                        break;
+                                    case NOT_EQUALS:
+                                        condition = ((UserFiqlSearchConditionBuilder) builder).
+                                                notInRelationships(clause.getValue());
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            } else {
+                                switch (clause.getComparator()) {
+                                    case IS_NOT_NULL:
+                                        condition = ((AnyObjectFiqlSearchConditionBuilder) builder).
+                                                inRelationshipTypes(clause.getProperty());
+                                        break;
+                                    case IS_NULL:
+                                        condition = ((AnyObjectFiqlSearchConditionBuilder) builder).
+                                                notInRelationshipTypes(clause.getProperty());
+                                        break;
+                                    case EQUALS:
+                                        condition = ((AnyObjectFiqlSearchConditionBuilder) builder).
+                                                inRelationships(clause.getValue());
+                                        break;
+                                    case NOT_EQUALS:
+                                        condition = ((AnyObjectFiqlSearchConditionBuilder) builder).
+                                                notInRelationships(clause.getValue());
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }
+                        }
+                        break;
+
+                    default:
+                        break;
+                }
             }
 
             if (notTheFirst) {

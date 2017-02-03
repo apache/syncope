@@ -76,8 +76,11 @@ public class GroupWrapper extends AnyWrapper<GroupTO> {
         if (this.aDynClauses != null && !this.aDynClauses.isEmpty()) {
             for (Map.Entry<String, List<SearchClause>> entry : this.aDynClauses.entrySet()) {
                 if (CollectionUtils.isNotEmpty(entry.getValue())) {
-                    res.put(entry.getKey(), SearchUtils.buildFIQL(entry.getValue(),
-                            SyncopeClient.getAnyObjectSearchConditionBuilder(entry.getKey())));
+                    final String fiql = SearchUtils.buildFIQL(entry.getValue(),
+                            SyncopeClient.getAnyObjectSearchConditionBuilder(entry.getKey()));
+                    if (fiql != null) {
+                        res.put(entry.getKey(), fiql);
+                    }
                 }
             }
         }
