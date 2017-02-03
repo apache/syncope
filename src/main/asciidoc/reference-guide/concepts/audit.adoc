@@ -18,7 +18,7 @@
 //
 === Audit
 
-The audit feature allows to capture <<audit-events,events>> occuring within the <<core>> and to log relevant information
+The audit feature allows to capture <<audit-events,events>> occurring within the <<core>> and to log relevant information
 about them as entries into the `SYNCOPEAUDIT` table of the internal storage.
 
 Once events are reported in the table above, they can be used as input for external tools.
