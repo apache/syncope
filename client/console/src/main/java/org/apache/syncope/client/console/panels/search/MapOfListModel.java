@@ -52,7 +52,7 @@ public class MapOfListModel<T> extends PropertyModel<List<T>> {
         if (map.containsKey(key)) {
             res = map.get(key);
         } else {
-            res = new ArrayList<T>();
+            res = new ArrayList<>();
             map.put(key, res);
         }
         return res;

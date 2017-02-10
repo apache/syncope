@@ -45,7 +45,7 @@ class AttributeDeserializer extends JsonDeserializer<Attribute> {
 
         String name = tree.get("name").asText();
 
-        List<Object> values = new ArrayList<Object>();
+        List<Object> values = new ArrayList<>();
         for (Iterator<JsonNode> itor = tree.get("value").iterator(); itor.hasNext();) {
             JsonNode node = itor.next();
             if (node.isNull()) {
