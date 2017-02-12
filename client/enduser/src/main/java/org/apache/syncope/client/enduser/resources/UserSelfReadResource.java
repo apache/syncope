@@ -42,7 +42,6 @@ public class UserSelfReadResource extends AbstractBaseResource {
 
     @Override
     protected ResourceResponse newResourceResponse(final IResource.Attributes attributes) {
-
         LOG.debug("Requested user self information");
 
         AbstractResource.ResourceResponse response = new AbstractResource.ResourceResponse();

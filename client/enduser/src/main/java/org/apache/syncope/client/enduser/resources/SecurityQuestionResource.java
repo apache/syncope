@@ -31,12 +31,8 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.util.string.StringValue;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SecurityQuestionResource extends AbstractBaseResource {
-
-    private static final Logger LOG = LoggerFactory.getLogger(SecurityQuestionResource.class);
 
     private static final long serialVersionUID = 6453101466981543020L;
 
@@ -48,7 +44,6 @@ public class SecurityQuestionResource extends AbstractBaseResource {
 
     @Override
     protected AbstractResource.ResourceResponse newResourceResponse(final IResource.Attributes attributes) {
-
         LOG.debug("List available security questions");
 
         AbstractResource.ResourceResponse response = new AbstractResource.ResourceResponse();

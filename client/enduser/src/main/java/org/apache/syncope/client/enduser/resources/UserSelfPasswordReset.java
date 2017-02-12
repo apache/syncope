@@ -22,20 +22,17 @@ import java.io.IOException;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.request.resource.IResource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class UserSelfPasswordReset extends AbstractBaseResource {
 
     private static final long serialVersionUID = -2721621682300247583L;
-
-    private static final Logger LOG = LoggerFactory.getLogger(UserSelfPasswordReset.class);
 
     private final UserSelfService userSelfService;
 
@@ -56,11 +53,9 @@ public class UserSelfPasswordReset extends AbstractBaseResource {
             }
 
             Map<String, String[]> parameters = request.getParameterMap();
-            String username;
-            if (parameters.get("username") == null || parameters.get("username").length == 0) {
+            String[] usernameParam = parameters.get("username");
+            if (ArrayUtils.isEmpty(usernameParam)) {
                 throw new Exception("A valid username should be provided");
-            } else {
-                username = parameters.get("username")[0];
             }
 
             if (request.getHeader("captcha") == null
@@ -72,15 +67,16 @@ public class UserSelfPasswordReset extends AbstractBaseResource {
             }
 
             if (SyncopeEnduserSession.get().getPlatformInfo().isPwdResetRequiringSecurityQuestions()) {
-                if (parameters.get("securityanswer") == null || parameters.get("securityanswer").length == 0) {
+                String[] securityAnswerParam = parameters.get("securityAnswer");
+                if (ArrayUtils.isEmpty(securityAnswerParam)) {
                     throw new Exception("A correct security answer should be provided");
                 }
-                userSelfService.requestPasswordReset(username, parameters.get("securityanswer")[0]);
+                userSelfService.requestPasswordReset(usernameParam[0], securityAnswerParam[0]);
             } else {
-                userSelfService.requestPasswordReset(username, null);
+                userSelfService.requestPasswordReset(usernameParam[0], null);
             }
-            final String responseMessage = new StringBuilder().append("Password reset request sent for user ").append(
-                    username).toString();
+            final String responseMessage = new StringBuilder().
+                    append("Password reset request sent for user ").append(usernameParam[0]).toString();
 
             response.setTextEncoding(SyncopeConstants.DEFAULT_ENCODING);
             response.setWriteCallback(new WriteCallback() {
@@ -97,10 +93,10 @@ public class UserSelfPasswordReset extends AbstractBaseResource {
             LOG.error("Error while updating user", e);
             response.setError(Response.Status.BAD_REQUEST.getStatusCode(),
                     new StringBuilder().
-                    append("ErrorMessage{{ ").
-                    append(e.getMessage()).
-                    append(" }}").
-                    toString());
+                            append("ErrorMessage{{ ").
+                            append(e.getMessage()).
+                            append(" }}").
+                            toString());
         }
         return response;
     }
