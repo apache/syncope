@@ -214,7 +214,7 @@ public class ParametersPanel extends DirectoryPanel<
 
         private ParametersProvider(final int paginatorRows) {
             super(paginatorRows);
-            setSort("schema", SortOrder.DESCENDING);
+            setSort("schema", SortOrder.ASCENDING);
             comparator = new SortableDataProviderComparator<>(this);
         }
 

@@ -252,7 +252,7 @@ public abstract class ReportDirectoryPanel
         public ReportDataProvider(final int paginatorRows) {
             super(paginatorRows);
 
-            setSort("key", SortOrder.DESCENDING);
+            setSort("name", SortOrder.ASCENDING);
             comparator = new SortableDataProviderComparator<>(this);
         }
 

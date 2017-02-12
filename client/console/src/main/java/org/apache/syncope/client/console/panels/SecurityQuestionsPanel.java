@@ -46,6 +46,7 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.event.Broadcast;
+import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -68,6 +69,17 @@ public class SecurityQuestionsPanel extends DirectoryPanel<
                 throw new UnsupportedOperationException();
             }
         }.disableCheckBoxes());
+
+        modal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+
+            private static final long serialVersionUID = 8804221891699487139L;
+
+            @Override
+            public void onClose(final AjaxRequestTarget target) {
+                modal.show(false);
+                target.add(container);
+            }
+        });
 
         this.addNewItemPanelBuilder(
                 new AbstractModalPanelBuilder<SecurityQuestionTO>(new SecurityQuestionTO(), pageRef) {
