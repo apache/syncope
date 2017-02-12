@@ -191,7 +191,7 @@ public class ApprovalDirectoryPanel
 
         public ApprovalProvider(final int paginatorRows) {
             super(paginatorRows);
-            setSort("createTime", SortOrder.DESCENDING);
+            setSort("createTime", SortOrder.ASCENDING);
             this.comparator = new SortableDataProviderComparator<>(this);
         }
 

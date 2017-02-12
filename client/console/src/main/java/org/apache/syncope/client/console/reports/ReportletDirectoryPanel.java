@@ -236,7 +236,7 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
             super(paginatorRows);
 
             //Default sorting
-            setSort("name", SortOrder.DESCENDING);
+            setSort("name", SortOrder.ASCENDING);
             comparator = new SortableDataProviderComparator<>(this);
         }
 

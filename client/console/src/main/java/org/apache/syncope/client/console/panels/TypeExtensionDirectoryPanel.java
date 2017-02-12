@@ -179,7 +179,7 @@ public class TypeExtensionDirectoryPanel
         public TypeExtensionDataProvider(final int paginatorRows) {
             super(paginatorRows);
 
-            setSort("anyKey", SortOrder.DESCENDING);
+            setSort("anyKey", SortOrder.ASCENDING);
         }
 
         @Override

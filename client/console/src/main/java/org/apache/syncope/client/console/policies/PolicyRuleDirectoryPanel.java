@@ -233,7 +233,7 @@ public class PolicyRuleDirectoryPanel<T extends AbstractPolicyTO> extends Direct
             super(paginatorRows);
 
             //Default sorting
-            setSort("name", SortOrder.DESCENDING);
+            setSort("name", SortOrder.ASCENDING);
             comparator = new SortableDataProviderComparator<>(this);
         }
 

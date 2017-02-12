@@ -241,7 +241,7 @@ public abstract class PolicyDirectoryPanel<T extends AbstractPolicyTO>
         public PolicyDataProvider(final int paginatorRows) {
             super(paginatorRows);
 
-            setSort("description", SortOrder.DESCENDING);
+            setSort("description", SortOrder.ASCENDING);
             comparator = new SortableDataProviderComparator<>(this);
         }
 
