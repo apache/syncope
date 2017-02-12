@@ -214,7 +214,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                     switch (profile.getTask().getUnmatchingRule()) {
                         case ASSIGN:
                             for (PushActions action : profile.getActions()) {
-                                action.beforeAssign(this.getProfile(), any);
+                                action.beforeAssign(profile, any);
                             }
 
                             if (!profile.getTask().isPerformCreate()) {
@@ -227,7 +227,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
 
                         case PROVISION:
                             for (PushActions action : profile.getActions()) {
-                                action.beforeProvision(this.getProfile(), any);
+                                action.beforeProvision(profile, any);
                             }
 
                             if (!profile.getTask().isPerformCreate()) {
@@ -240,7 +240,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
 
                         case UNLINK:
                             for (PushActions action : profile.getActions()) {
-                                action.beforeUnlink(this.getProfile(), any);
+                                action.beforeUnlink(profile, any);
                             }
 
                             if (!profile.getTask().isPerformUpdate()) {
@@ -264,7 +264,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                     switch (profile.getTask().getMatchingRule()) {
                         case UPDATE:
                             for (PushActions action : profile.getActions()) {
-                                action.beforeUpdate(this.getProfile(), any);
+                                action.beforeUpdate(profile, any);
                             }
                             if (!profile.getTask().isPerformUpdate()) {
                                 LOG.debug("PushTask not configured for update");
@@ -276,7 +276,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
 
                         case DEPROVISION:
                             for (PushActions action : profile.getActions()) {
-                                action.beforeDeprovision(this.getProfile(), any);
+                                action.beforeDeprovision(profile, any);
                             }
 
                             if (!profile.getTask().isPerformDelete()) {
@@ -289,7 +289,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
 
                         case UNASSIGN:
                             for (PushActions action : profile.getActions()) {
-                                action.beforeUnassign(this.getProfile(), any);
+                                action.beforeUnassign(profile, any);
                             }
 
                             if (!profile.getTask().isPerformDelete()) {
@@ -302,7 +302,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
 
                         case LINK:
                             for (PushActions action : profile.getActions()) {
-                                action.beforeLink(this.getProfile(), any);
+                                action.beforeLink(profile, any);
                             }
 
                             if (!profile.getTask().isPerformUpdate()) {
@@ -315,7 +315,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
 
                         case UNLINK:
                             for (PushActions action : profile.getActions()) {
-                                action.beforeUnlink(this.getProfile(), any);
+                                action.beforeUnlink(profile, any);
                             }
 
                             if (!profile.getTask().isPerformUpdate()) {
@@ -335,7 +335,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                 }
 
                 for (PushActions action : profile.getActions()) {
-                    action.after(this.getProfile(), any, result);
+                    action.after(profile, any, result);
                 }
 
                 result.setStatus(ProvisioningReport.Status.SUCCESS);
@@ -352,7 +352,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                 LOG.warn("Error pushing {} towards {}", any, profile.getTask().getResource(), e);
 
                 for (PushActions action : profile.getActions()) {
-                    action.onError(this.getProfile(), any, result, e);
+                    action.onError(profile, any, result, e);
                 }
 
                 throw new JobExecutionException(e);
