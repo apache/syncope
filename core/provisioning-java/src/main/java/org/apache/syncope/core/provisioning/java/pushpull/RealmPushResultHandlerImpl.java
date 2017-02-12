@@ -167,7 +167,7 @@ public class RealmPushResultHandlerImpl
                     switch (profile.getTask().getUnmatchingRule()) {
                         case ASSIGN:
                             for (PushActions action : profile.getActions()) {
-                                action.beforeAssign(this.getProfile(), realm);
+                                action.beforeAssign(profile, realm);
                             }
 
                             if (!profile.getTask().isPerformCreate()) {
@@ -180,7 +180,7 @@ public class RealmPushResultHandlerImpl
 
                         case PROVISION:
                             for (PushActions action : profile.getActions()) {
-                                action.beforeProvision(this.getProfile(), realm);
+                                action.beforeProvision(profile, realm);
                             }
 
                             if (!profile.getTask().isPerformCreate()) {
@@ -193,7 +193,7 @@ public class RealmPushResultHandlerImpl
 
                         case UNLINK:
                             for (PushActions action : profile.getActions()) {
-                                action.beforeUnlink(this.getProfile(), realm);
+                                action.beforeUnlink(profile, realm);
                             }
 
                             if (!profile.getTask().isPerformUpdate()) {
@@ -217,7 +217,7 @@ public class RealmPushResultHandlerImpl
                     switch (profile.getTask().getMatchingRule()) {
                         case UPDATE:
                             for (PushActions action : profile.getActions()) {
-                                action.beforeUpdate(this.getProfile(), realm);
+                                action.beforeUpdate(profile, realm);
                             }
                             if (!profile.getTask().isPerformUpdate()) {
                                 LOG.debug("PushTask not configured for update");
@@ -229,7 +229,7 @@ public class RealmPushResultHandlerImpl
 
                         case DEPROVISION:
                             for (PushActions action : profile.getActions()) {
-                                action.beforeDeprovision(this.getProfile(), realm);
+                                action.beforeDeprovision(profile, realm);
                             }
 
                             if (!profile.getTask().isPerformDelete()) {
@@ -242,7 +242,7 @@ public class RealmPushResultHandlerImpl
 
                         case UNASSIGN:
                             for (PushActions action : profile.getActions()) {
-                                action.beforeUnassign(this.getProfile(), realm);
+                                action.beforeUnassign(profile, realm);
                             }
 
                             if (!profile.getTask().isPerformDelete()) {
@@ -255,7 +255,7 @@ public class RealmPushResultHandlerImpl
 
                         case LINK:
                             for (PushActions action : profile.getActions()) {
-                                action.beforeLink(this.getProfile(), realm);
+                                action.beforeLink(profile, realm);
                             }
 
                             if (!profile.getTask().isPerformUpdate()) {
@@ -268,7 +268,7 @@ public class RealmPushResultHandlerImpl
 
                         case UNLINK:
                             for (PushActions action : profile.getActions()) {
-                                action.beforeUnlink(this.getProfile(), realm);
+                                action.beforeUnlink(profile, realm);
                             }
 
                             if (!profile.getTask().isPerformUpdate()) {
@@ -288,7 +288,7 @@ public class RealmPushResultHandlerImpl
                 }
 
                 for (PushActions action : profile.getActions()) {
-                    action.after(this.getProfile(), realm, result);
+                    action.after(profile, realm, result);
                 }
 
                 result.setStatus(ProvisioningReport.Status.SUCCESS);
@@ -308,7 +308,7 @@ public class RealmPushResultHandlerImpl
                 LOG.warn("Error pushing {} towards {}", realm, profile.getTask().getResource(), e);
 
                 for (PushActions action : profile.getActions()) {
-                    action.onError(this.getProfile(), realm, result, e);
+                    action.onError(profile, realm, result, e);
                 }
 
                 throw new JobExecutionException(e);

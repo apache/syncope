@@ -134,6 +134,7 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
         }
 
         ProvisioningProfile<PushTask, PushActions> profile = new ProvisioningProfile<>(connector, pushTask);
+        profile.getActions().addAll(actions);
         profile.setDryRun(dryRun);
         profile.setResAct(null);
 
@@ -147,7 +148,7 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
         if (pushTask.getResource().getOrgUnit() != null) {
             SyncopePushResultHandler rhandler =
                     (SyncopePushResultHandler) ApplicationContextProvider.getBeanFactory().
-                    createBean(RealmPushResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+                            createBean(RealmPushResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
             rhandler.setProfile(profile);
 
             for (Realm realm : realmDAO.findAll()) {
@@ -166,17 +167,17 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
         // ...then provisions for any types
         AnyObjectPushResultHandler ahandler =
                 (AnyObjectPushResultHandler) ApplicationContextProvider.getBeanFactory().
-                createBean(AnyObjectPushResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+                        createBean(AnyObjectPushResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
         ahandler.setProfile(profile);
 
         UserPushResultHandler uhandler =
                 (UserPushResultHandler) ApplicationContextProvider.getBeanFactory().
-                createBean(UserPushResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+                        createBean(UserPushResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
         uhandler.setProfile(profile);
 
         GroupPushResultHandler ghandler =
                 (GroupPushResultHandler) ApplicationContextProvider.getBeanFactory().
-                createBean(GroupPushResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+                        createBean(GroupPushResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
         ghandler.setProfile(profile);
 
         for (Provision provision : pushTask.getResource().getProvisions()) {
