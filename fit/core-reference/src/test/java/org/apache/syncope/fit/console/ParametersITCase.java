@@ -40,7 +40,7 @@ public class ParametersITCase extends AbstractConsoleITCase {
     @Test
     public void readParameter() {
         TESTER.assertComponent("body:content:parametersPanel", WebMarkupContainer.class);
-        assertNotNull(findComponentByProp(SCHEMA, "body:content:parametersPanel", "token.expireTime"));
+        assertNotNull(findComponentByProp(SCHEMA, "body:content:parametersPanel", "authentication.statuses"));
     }
 
     @Test
@@ -70,7 +70,7 @@ public class ParametersITCase extends AbstractConsoleITCase {
     public void updateParameter() {
         TESTER.assertComponent("body:content:parametersPanel", WebMarkupContainer.class);
 
-        Component result = findComponentByProp(SCHEMA, "body:content:parametersPanel", "token.expireTime");
+        Component result = findComponentByProp(SCHEMA, "body:content:parametersPanel", "notification.maxRetries");
         assertNotNull(result);
         TESTER.clickLink(result.getPageRelativePath() + ":cells:4:cell:panelEdit:editLink");
 
@@ -105,10 +105,6 @@ public class ParametersITCase extends AbstractConsoleITCase {
 
         TESTER.assertInfoMessages("Operation executed successfully");
         TESTER.cleanupFeedbackMessages();
-
-        TESTER.clickLink("body:content:parametersPanel:"
-                + "container:content:searchContainer:resultTable:tablePanel:"
-                + "groupForm:checkgroup:dataTable:bottomToolbars:toolbars:3:span:navigator:last");
 
         Component result = findComponentByProp(SCHEMA, "body:content:parametersPanel", "deleteParam");
         assertNotNull(result);
