@@ -146,9 +146,8 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
 
         // First OrgUnits...
         if (pushTask.getResource().getOrgUnit() != null) {
-            SyncopePushResultHandler rhandler =
-                    (SyncopePushResultHandler) ApplicationContextProvider.getBeanFactory().
-                            createBean(RealmPushResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+            SyncopePushResultHandler rhandler = (SyncopePushResultHandler) ApplicationContextProvider.getBeanFactory().
+                    createBean(RealmPushResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
             rhandler.setProfile(profile);
 
             for (Realm realm : realmDAO.findAll()) {
@@ -165,9 +164,8 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
         }
 
         // ...then provisions for any types
-        AnyObjectPushResultHandler ahandler =
-                (AnyObjectPushResultHandler) ApplicationContextProvider.getBeanFactory().
-                        createBean(AnyObjectPushResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+        AnyObjectPushResultHandler ahandler = (AnyObjectPushResultHandler) ApplicationContextProvider.getBeanFactory().
+                createBean(AnyObjectPushResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
         ahandler.setProfile(profile);
 
         UserPushResultHandler uhandler =
