@@ -27,14 +27,10 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.request.resource.IResource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class UserSelfChangePassword extends AbstractBaseResource {
 
     private static final long serialVersionUID = -2721621682300247583L;
-
-    private static final Logger LOG = LoggerFactory.getLogger(UserSelfChangePassword.class);
 
     private final UserSelfService userSelfService;
 
@@ -44,7 +40,6 @@ public class UserSelfChangePassword extends AbstractBaseResource {
 
     @Override
     protected ResourceResponse newResourceResponse(final IResource.Attributes attributes) {
-
         AbstractResource.ResourceResponse response = new AbstractResource.ResourceResponse();
 
         try {

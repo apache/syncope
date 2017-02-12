@@ -19,22 +19,18 @@
 package org.apache.syncope.client.enduser.resources;
 
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class LogoutResource extends AbstractBaseResource {
 
     private static final long serialVersionUID = -648841355644985051L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(LogoutResource.class);
-
     @Override
     protected ResourceResponse newResourceResponse(final Attributes attributes) {
 
         LOG.debug("Logout from enduser application");
-        
+
         SyncopeEnduserSession.get().invalidate();
-        
+
         ResourceResponse response = new ResourceResponse();
         response.setStatusCode(204);
         return response;

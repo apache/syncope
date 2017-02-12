@@ -28,12 +28,8 @@ import org.apache.syncope.client.enduser.util.SaltGenerator;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.util.cookies.CookieUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class InfoResource extends AbstractBaseResource {
-
-    private static final Logger LOG = LoggerFactory.getLogger(InfoResource.class);
 
     private static final long serialVersionUID = 6453101466981543020L;
 

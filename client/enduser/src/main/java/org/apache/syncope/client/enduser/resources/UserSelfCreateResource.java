@@ -38,14 +38,10 @@ import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class UserSelfCreateResource extends AbstractBaseResource {
 
     private static final long serialVersionUID = -2721621682300247583L;
-
-    private static final Logger LOG = LoggerFactory.getLogger(UserSelfCreateResource.class);
 
     private final UserSelfService userSelfService;
 
@@ -190,9 +186,9 @@ public class UserSelfCreateResource extends AbstractBaseResource {
                         attributes.getResponse().write(res.getStatusInfo().getFamily().equals(
                                 Response.Status.Family.SUCCESSFUL)
                                         ? responseMessage.append("User: ").append(userTO.getUsername()).append(
-                                        " successfully created")
+                                                " successfully created")
                                         : new StringBuilder().append("ErrorMessage{{ ").
-                                        append(res.getStatusInfo().getReasonPhrase()).append(" }}"));
+                                                append(res.getStatusInfo().getReasonPhrase()).append(" }}"));
                     }
                 });
                 response.setStatusCode(res.getStatus());
@@ -207,10 +203,10 @@ public class UserSelfCreateResource extends AbstractBaseResource {
             LOG.error("Could not create userTO", e);
             response.setError(Response.Status.BAD_REQUEST.getStatusCode(),
                     new StringBuilder().
-                    append("ErrorMessage{{ ").
-                    append(e.getMessage()).
-                    append(" }}").
-                    toString());
+                            append("ErrorMessage{{ ").
+                            append(e.getMessage()).
+                            append(" }}").
+                            toString());
         }
         return response;
     }
