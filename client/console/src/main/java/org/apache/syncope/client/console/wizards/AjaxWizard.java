@@ -67,7 +67,7 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
 
     private final Mode mode;
 
-    private IEventSink eventSink = null;
+    private IEventSink eventSink;
 
     private final PageReference pageRef;
 
@@ -257,7 +257,7 @@ public abstract class AjaxWizard<T extends Serializable> extends Wizard
 
         private static final String EVENT_DESCRIPTION = "new";
 
-        private int index = 0;
+        private int index;
 
         public NewItemActionEvent(final T item, final AjaxRequestTarget target) {
             super(item, target);

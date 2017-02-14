@@ -24,7 +24,7 @@ import java.util.Date;
 
 public final class InstallLog {
 
-    private static InstallLog INSTANCE = null;
+    private static InstallLog INSTANCE;
 
     private final File log;
 

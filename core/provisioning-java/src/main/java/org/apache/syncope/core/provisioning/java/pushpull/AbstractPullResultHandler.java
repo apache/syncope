@@ -72,7 +72,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
 
     protected SyncopePullExecutor executor;
 
-    protected Result latestResult = null;
+    protected Result latestResult;
 
     protected abstract String getName(AnyTO anyTO);
 

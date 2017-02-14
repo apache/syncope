@@ -49,7 +49,7 @@ public abstract class ConnObjectListViewPanel extends Panel {
 
     private static final int SIZE = 10;
 
-    private String nextPageCookie = null;
+    private String nextPageCookie;
 
     protected ConnObjectListViewPanel(
             final String id,

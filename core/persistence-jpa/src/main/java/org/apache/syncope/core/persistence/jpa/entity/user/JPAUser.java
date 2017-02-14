@@ -120,7 +120,7 @@ public class JPAUser
      * Subsequent failed logins.
      */
     @Column(nullable = true)
-    private Integer failedLogins = 0;
+    private Integer failedLogins;
 
     /**
      * Username/Login.

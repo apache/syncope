@@ -29,7 +29,7 @@ class MultiParentNode<T> {
 
     private Set<MultiParentNode<T>> children;
 
-    private int level = 0;
+    private int level;
 
     private boolean exploited = false;
 

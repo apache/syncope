@@ -37,7 +37,7 @@ public class StatusBean implements Serializable {
 
     private final String resourceName;
 
-    private String connObjectLink = null;
+    private String connObjectLink;
 
     private Status status = Status.OBJECT_NOT_FOUND;
 

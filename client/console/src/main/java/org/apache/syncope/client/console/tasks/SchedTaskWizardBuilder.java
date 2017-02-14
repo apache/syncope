@@ -59,7 +59,7 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
 
     private final TaskRestClient taskRestClient = new TaskRestClient();
 
-    private PushTaskWrapper wrapper = null;
+    private PushTaskWrapper wrapper;
 
     private CrontabPanel crontabPanel;
 

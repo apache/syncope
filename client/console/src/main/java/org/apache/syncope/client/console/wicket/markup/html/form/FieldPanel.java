@@ -36,9 +36,9 @@ public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPa
 
     private static final long serialVersionUID = -198988924922541273L;
 
-    protected FormComponent<T> field = null;
+    protected FormComponent<T> field;
 
-    protected String title = null;
+    protected String title;
 
     private final Model<Integer> index = Model.of(0);
 

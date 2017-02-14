@@ -71,7 +71,7 @@ public class RealmPullResultHandlerImpl
 
     private SyncopePullExecutor executor;
 
-    private Result latestResult = null;
+    private Result latestResult;
 
     @Override
     public void setPullExecutor(final SyncopePullExecutor executor) {

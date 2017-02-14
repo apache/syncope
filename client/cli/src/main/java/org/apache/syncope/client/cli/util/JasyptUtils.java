@@ -26,7 +26,7 @@ public final class JasyptUtils {
 
     private final BasicTextEncryptor textEncryptor;
 
-    private static JasyptUtils JASYPT_UTILS = null;
+    private static JasyptUtils JASYPT_UTILS;
 
     public static JasyptUtils get() {
         if (JASYPT_UTILS == null) {
