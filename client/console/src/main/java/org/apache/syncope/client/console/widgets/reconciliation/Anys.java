@@ -26,7 +26,7 @@ public class Anys extends AbstractBaseBean {
 
     private static final long serialVersionUID = -2482591351364634179L;
 
-    private int total = 0;
+    private int total;
 
     private String anyType;
 

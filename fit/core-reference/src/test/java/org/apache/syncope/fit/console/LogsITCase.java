@@ -36,7 +36,7 @@ import org.junit.Test;
 
 public class LogsITCase extends AbstractConsoleITCase {
 
-    private final static String CONTAINER_PATH = "body:content:tabbedPanel:panel:loggerContainer";
+    private static final String CONTAINER_PATH = "body:content:tabbedPanel:panel:loggerContainer";
 
     @Before
     public void login() {

@@ -337,7 +337,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
         connector.search(init.getRight().getObjectClass(), null, new SearchResultsHandler() {
 
-            private int count = 0;
+            private int count;
 
             @Override
             public void handleResult(final SearchResult result) {

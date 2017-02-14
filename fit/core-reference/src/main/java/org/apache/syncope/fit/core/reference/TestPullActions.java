@@ -37,7 +37,7 @@ import org.quartz.JobExecutionException;
  */
 public class TestPullActions extends DefaultPullActions {
 
-    private int counter = 0;
+    private int counter;
 
     @Override
     public SyncDelta beforeProvision(

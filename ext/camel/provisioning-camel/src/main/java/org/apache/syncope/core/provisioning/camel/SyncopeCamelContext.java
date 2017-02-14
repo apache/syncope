@@ -56,7 +56,7 @@ public class SyncopeCamelContext {
     @Autowired
     private CamelRouteDAO routeDAO;
 
-    private SpringCamelContext camelContext = null;
+    private SpringCamelContext camelContext;
 
     public SpringCamelContext getContext() {
         synchronized (this) {

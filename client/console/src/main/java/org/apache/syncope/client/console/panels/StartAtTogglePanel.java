@@ -41,7 +41,7 @@ public abstract class StartAtTogglePanel extends TogglePanel<Serializable> {
 
     private static final long serialVersionUID = -3195479265440591519L;
 
-    protected String key = null;
+    protected String key;
 
     protected final Form<?> form;
 

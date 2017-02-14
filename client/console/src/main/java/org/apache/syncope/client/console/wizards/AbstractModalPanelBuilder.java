@@ -33,7 +33,7 @@ public abstract class AbstractModalPanelBuilder<T extends Serializable> implemen
 
     private T item;
 
-    protected IEventSink eventSink = null;
+    protected IEventSink eventSink;
 
     /**
      * Construct.
