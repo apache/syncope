@@ -311,7 +311,7 @@ ifeval::["{snapshotOrRelease}" == "snapshot"]
 
 [subs="verbatim,attributes"]
 ----
-mvn archetype:generate \
+mvn org.apache.maven.plugins:maven-archetype-plugin:2.4:generate \
     -DarchetypeGroupId=org.apache.syncope \
     -DarchetypeArtifactId=syncope-archetype \
     -DarchetypeRepository=http://repository.apache.org/content/repositories/snapshots \
