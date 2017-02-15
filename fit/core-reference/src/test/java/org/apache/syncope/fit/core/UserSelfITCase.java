@@ -150,9 +150,17 @@ public class UserSelfITCase extends AbstractITCase {
 
         Pair<Map<String, Set<String>>, UserTO> self = clientFactory.create("rossini", ADMIN_PWD).self();
         assertEquals("rossini", self.getValue().getUsername());
+    }
 
-        Pair<Map<String, Set<String>>, UserTO> byEmail = clientFactory.create("verdi@syncope.org", ADMIN_PWD).self();
-        assertEquals("verdi", byEmail.getValue().getUsername());
+    @Test
+    public void authenticateByPlainAttribute() {
+        UserTO rossini = userService.read("rossini");
+        assertNotNull(rossini);
+        String userId = rossini.getPlainAttrMap().get("userId").getValues().get(0);
+        assertNotNull(userId);
+
+        Pair<Map<String, Set<String>>, UserTO> self = clientFactory.create(userId, ADMIN_PWD).self();
+        assertEquals(rossini.getUsername(), self.getValue().getUsername());
     }
 
     @Test

@@ -97,7 +97,7 @@ under the License.
   <CPlainAttrValue id="c13660b5-926c-47ea-946d-52db32dd492b"
                    attribute_id="577c6c4d-7149-43c2-9821-9ab4510effbd" stringValue="username"/>
   <CPlainAttrValue id="0f112dbd-00d4-441c-b732-331e7f348f8a"
-                   attribute_id="577c6c4d-7149-43c2-9821-9ab4510effbd" stringValue="email"/>
+                   attribute_id="577c6c4d-7149-43c2-9821-9ab4510effbd" stringValue="userId"/>
 
   <SyncopeSchema id="authentication.statuses"/>
   <PlainSchema id="authentication.statuses" type="String" multivalue="1" uniqueConstraint="0" readonly="0"/>
