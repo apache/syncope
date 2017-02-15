@@ -25,6 +25,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import org.apache.commons.collections4.IterableUtils;
@@ -266,5 +267,28 @@ public class UserTest extends AbstractTest {
         // search by kprefix derived attribute
         list = userDAO.findByDerAttrValue("kprefix", "k" + firstname);
         assertEquals("did not get expected number of users ", 1, list.size());
+    }
+
+    @Test
+    public void issueSYNCOPE1016() {
+        User user = userDAO.findByUsername("vivaldi");
+        Date initial = user.getLastChangeDate();
+        assertNotNull(initial);
+
+        UPlainAttr attr = entityFactory.newEntity(UPlainAttr.class);
+        attr.setOwner(user);
+        attr.setSchema(plainSchemaDAO.find("obscure"));
+        attr.add("testvalue", anyUtilsFactory.getInstance(AnyTypeKind.USER));
+        user.add(attr);
+
+        userDAO.save(user);
+
+        userDAO.flush();
+
+        user = userDAO.findByUsername("vivaldi");
+        Date afterwards = user.getLastChangeDate();
+        assertNotNull(afterwards);
+
+        assertTrue(afterwards.after(initial));
     }
 }
