@@ -441,7 +441,7 @@ under the License.
     <izpack.version>5.0.10</izpack.version>
     <httpclient.version>4.3.6</httpclient.version>
     <maven-invoker.version>3.0.0</maven-invoker.version>
-    <tycho-version>0.26.0</tycho-version>
+    <tycho-version>1.0.0</tycho-version>
 
     <testds.port>1389</testds.port>
     <testdb.webport>9082</testdb.webport>
