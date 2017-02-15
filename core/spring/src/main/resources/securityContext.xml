@@ -86,14 +86,11 @@ under the License.
 
   <bean class="org.apache.syncope.core.spring.security.AuthDataAccessor"/>
 
-  <bean id="syncopeUserDetailsService" class="org.apache.syncope.core.spring.security.SyncopeUserDetailsService"/>
-
   <bean id="syncopeAuthenticationProvider"
         class="org.apache.syncope.core.spring.security.SyncopeAuthenticationProvider">
     <property name="adminPassword" value="${adminPassword}"/>
     <property name="adminPasswordAlgorithm" value="${adminPasswordAlgorithm}"/>
     <property name="anonymousKey" value="${anonymousKey}"/>
-    <property name="userDetailsService" ref="syncopeUserDetailsService"/>
   </bean>
 
   <security:authentication-manager>

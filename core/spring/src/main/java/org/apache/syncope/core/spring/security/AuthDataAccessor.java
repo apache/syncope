@@ -19,10 +19,12 @@
 package org.apache.syncope.core.spring.security;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Resource;
@@ -33,10 +35,10 @@ import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
-import org.apache.syncope.core.provisioning.api.EntitlementsHolder;
+import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
@@ -44,6 +46,8 @@ import org.apache.syncope.core.persistence.api.dao.DomainDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
+import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Domain;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
@@ -61,7 +65,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -101,6 +104,9 @@ public class AuthDataAccessor {
     protected AnyTypeDAO anyTypeDAO;
 
     @Autowired
+    protected AnySearchDAO searchDAO;
+
+    @Autowired
     protected ConnectorFactory connFactory;
 
     @Autowired
@@ -126,13 +132,32 @@ public class AuthDataAccessor {
      * @return {@code null} if no matching user was found, authentication result otherwise
      */
     @Transactional(noRollbackFor = DisabledException.class)
-    public Pair<String, Boolean> authenticate(final Authentication authentication) {
-        String key = null;
-        Boolean authenticated = null;
+    public Pair<User, Boolean> authenticate(final Authentication authentication) {
+        User user = null;
 
-        User user = userDAO.findByUsername(authentication.getName());
+        CPlainAttr authAttrs = confDAO.find("authentication.attributes");
+        List<String> authAttrValues = authAttrs == null
+                ? Collections.singletonList("username")
+                : authAttrs.getValuesAsStrings();
+        for (int i = 0; user == null && i < authAttrValues.size(); i++) {
+            if ("username".equals(authAttrValues.get(i))) {
+                user = userDAO.findByUsername(authentication.getName());
+            } else {
+                AttributeCond attrCond = new AttributeCond(AttributeCond.Type.EQ);
+                attrCond.setSchema(authAttrValues.get(i));
+                attrCond.setExpression(authentication.getName());
+                List<User> users = searchDAO.search(SearchCond.getLeafCond(attrCond), AnyTypeKind.USER);
+                if (users.size() == 1) {
+                    user = users.get(0);
+                } else {
+                    LOG.warn("Value {} provided for {} does not uniquely identifies an user",
+                            authentication.getName(), authAttrValues.get(i));
+                }
+            }
+        }
+
+        Boolean authenticated = null;
         if (user != null) {
-            key = user.getKey();
             authenticated = false;
 
             if (user.isSuspended() != null && user.isSuspended()) {
@@ -167,7 +192,7 @@ public class AuthDataAccessor {
             }
         }
 
-        return ImmutablePair.of(key, authenticated);
+        return ImmutablePair.of(user, authenticated);
     }
 
     protected boolean authenticate(final User user, final String password) {
@@ -239,78 +264,59 @@ public class AuthDataAccessor {
     }
 
     @Transactional
-    public Set<SyncopeGrantedAuthority> load(final String username) {
-        final Set<SyncopeGrantedAuthority> authorities = new HashSet<>();
-        if (anonymousUser.equals(username)) {
-            authorities.add(new SyncopeGrantedAuthority(StandardEntitlement.ANONYMOUS));
-        } else if (adminUser.equals(username)) {
-            CollectionUtils.collect(
-                    EntitlementsHolder.getInstance().getValues(),
-                    new Transformer<String, SyncopeGrantedAuthority>() {
-
-                @Override
-                public SyncopeGrantedAuthority transform(final String entitlement) {
-                    return new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM);
-                }
-            }, authorities);
+    public Set<SyncopeGrantedAuthority> getAuthorities(final User user) {
+        Set<SyncopeGrantedAuthority> authorities = new HashSet<>();
+        if (user.isMustChangePassword()) {
+            authorities.add(new SyncopeGrantedAuthority(StandardEntitlement.MUST_CHANGE_PASSWORD));
         } else {
-            User user = userDAO.findByUsername(username);
-            if (user == null) {
-                throw new UsernameNotFoundException("Could not find any user with id " + username);
-            }
+            final Map<String, Set<String>> entForRealms = new HashMap<>();
 
-            if (user.isMustChangePassword()) {
-                authorities.add(new SyncopeGrantedAuthority(StandardEntitlement.MUST_CHANGE_PASSWORD));
-            } else {
-                final Map<String, Set<String>> entForRealms = new HashMap<>();
+            // Give entitlements as assigned by roles (with realms, where applicable) - assigned either
+            // statically and dynamically
+            for (final Role role : userDAO.findAllRoles(user)) {
+                IterableUtils.forEach(role.getEntitlements(), new Closure<String>() {
 
-                // Give entitlements as assigned by roles (with realms, where applicable) - assigned either
-                // statically and dynamically
-                for (final Role role : userDAO.findAllRoles(user)) {
-                    IterableUtils.forEach(role.getEntitlements(), new Closure<String>() {
-
-                        @Override
-                        public void execute(final String entitlement) {
-                            Set<String> realms = entForRealms.get(entitlement);
-                            if (realms == null) {
-                                realms = new HashSet<>();
-                                entForRealms.put(entitlement, realms);
-                            }
-
-                            CollectionUtils.collect(role.getRealms(), new Transformer<Realm, String>() {
-
-                                @Override
-                                public String transform(final Realm realm) {
-                                    return realm.getFullPath();
-                                }
-                            }, realms);
-                        }
-                    });
-                }
-
-                // Give group entitlements for owned groups
-                for (Group group : groupDAO.findOwnedByUser(user.getKey())) {
-                    for (String entitlement : Arrays.asList(
-                            StandardEntitlement.GROUP_READ,
-                            StandardEntitlement.GROUP_UPDATE,
-                            StandardEntitlement.GROUP_DELETE)) {
-
+                    @Override
+                    public void execute(final String entitlement) {
                         Set<String> realms = entForRealms.get(entitlement);
                         if (realms == null) {
                             realms = new HashSet<>();
                             entForRealms.put(entitlement, realms);
                         }
 
-                        realms.add(RealmUtils.getGroupOwnerRealm(group.getRealm().getFullPath(), group.getKey()));
-                    }
-                }
+                        CollectionUtils.collect(role.getRealms(), new Transformer<Realm, String>() {
 
-                // Finally normalize realms for each given entitlement and generate authorities
-                for (Map.Entry<String, Set<String>> entry : entForRealms.entrySet()) {
-                    SyncopeGrantedAuthority authority = new SyncopeGrantedAuthority(entry.getKey());
-                    authority.addRealms(RealmUtils.normalize(entry.getValue()));
-                    authorities.add(authority);
+                            @Override
+                            public String transform(final Realm realm) {
+                                return realm.getFullPath();
+                            }
+                        }, realms);
+                    }
+                });
+            }
+
+            // Give group entitlements for owned groups
+            for (Group group : groupDAO.findOwnedByUser(user.getKey())) {
+                for (String entitlement : Arrays.asList(
+                        StandardEntitlement.GROUP_READ,
+                        StandardEntitlement.GROUP_UPDATE,
+                        StandardEntitlement.GROUP_DELETE)) {
+
+                    Set<String> realms = entForRealms.get(entitlement);
+                    if (realms == null) {
+                        realms = new HashSet<>();
+                        entForRealms.put(entitlement, realms);
+                    }
+
+                    realms.add(RealmUtils.getGroupOwnerRealm(group.getRealm().getFullPath(), group.getKey()));
                 }
+            }
+
+            // Finally normalize realms for each given entitlement and generate authorities
+            for (Map.Entry<String, Set<String>> entry : entForRealms.entrySet()) {
+                SyncopeGrantedAuthority authority = new SyncopeGrantedAuthority(entry.getKey());
+                authority.addRealms(RealmUtils.normalize(entry.getValue()));
+                authorities.add(authority);
             }
         }
 
