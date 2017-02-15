@@ -90,6 +90,15 @@ under the License.
   <CPlainAttrValue id="b5e8e79d-8039-4318-9698-fe5e181ebe98"
                    attribute_id="e5a712ad-53fd-4102-ba55-fb45caed5f7b" booleanValue="1"/>
 
+  <SyncopeSchema id="authentication.attributes"/>
+  <PlainSchema id="authentication.attributes" type="String" multivalue="1" uniqueConstraint="0" readonly="0"/>
+  <CPlainAttr id="577c6c4d-7149-43c2-9821-9ab4510effbd"
+              owner_id="cd64d66f-6fff-4008-b966-a06b1cc1436d" schema_id="authentication.attributes"/>
+  <CPlainAttrValue id="c13660b5-926c-47ea-946d-52db32dd492b"
+                   attribute_id="577c6c4d-7149-43c2-9821-9ab4510effbd" stringValue="username"/>
+  <CPlainAttrValue id="0f112dbd-00d4-441c-b732-331e7f348f8a"
+                   attribute_id="577c6c4d-7149-43c2-9821-9ab4510effbd" stringValue="email"/>
+
   <SyncopeSchema id="authentication.statuses"/>
   <PlainSchema id="authentication.statuses" type="String" multivalue="1" uniqueConstraint="0" readonly="0"/>
   <CPlainAttr id="888ae8e1-a295-4ee2-a15e-31dbf6dfc3f9"

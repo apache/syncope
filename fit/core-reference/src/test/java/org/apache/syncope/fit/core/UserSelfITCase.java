@@ -28,7 +28,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.security.AccessControlException;
 import java.util.Map;
 import java.util.Set;
 import javax.sql.DataSource;
@@ -151,6 +150,9 @@ public class UserSelfITCase extends AbstractITCase {
 
         Pair<Map<String, Set<String>>, UserTO> self = clientFactory.create("rossini", ADMIN_PWD).self();
         assertEquals("rossini", self.getValue().getUsername());
+
+        Pair<Map<String, Set<String>>, UserTO> byEmail = clientFactory.create("verdi@syncope.org", ADMIN_PWD).self();
+        assertEquals("verdi", byEmail.getValue().getUsername());
     }
 
     @Test
