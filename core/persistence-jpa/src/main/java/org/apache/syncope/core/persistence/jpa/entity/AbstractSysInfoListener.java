@@ -18,15 +18,30 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
-import javax.persistence.PrePersist;
-import javax.persistence.PreUpdate;
+import java.util.Date;
 import org.apache.syncope.core.persistence.api.entity.AnnotatedEntity;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class AnnotatedEntityListener extends AbstractSysInfoListener {
+public abstract class AbstractSysInfoListener {
 
-    @PrePersist
-    @PreUpdate
-    public void setSysInfo(final AnnotatedEntity entity) {
-        setSysInfoOnAnnotatedEntity(entity);
+    protected static final Logger LOG = LoggerFactory.getLogger(AnnotatedEntityListener.class);
+
+    protected void setSysInfoOnAnnotatedEntity(final AnnotatedEntity entity) {
+        String username = AuthContextUtils.getUsername();
+        LOG.debug("Set system properties for '{}'", entity);
+
+        Date now = new Date();
+
+        if (entity.getCreationDate() == null) {
+            LOG.debug("Set creation date '{}' and creator '{}' for '{}'", now, username, entity);
+            entity.setCreationDate(now);
+            entity.setCreator(username);
+        }
+
+        LOG.debug("Set last change date '{}' and modifier '{}' for '{}'", now, username, entity);
+        entity.setLastModifier(username);
+        entity.setLastChangeDate(now);
     }
 }

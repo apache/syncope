@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javax.persistence.Column;
+import javax.persistence.EntityListeners;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
@@ -38,6 +39,7 @@ import org.apache.syncope.core.persistence.jpa.validation.entity.PlainAttrCheck;
 
 @MappedSuperclass
 @PlainAttrCheck
+@EntityListeners(value = PlainAttrListener.class)
 public abstract class AbstractPlainAttr<O extends Any<?>> extends AbstractGeneratedKeyEntity implements PlainAttr<O> {
 
     private static final long serialVersionUID = -9115431608821806124L;

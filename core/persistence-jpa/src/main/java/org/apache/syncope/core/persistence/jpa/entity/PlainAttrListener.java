@@ -20,13 +20,14 @@ package org.apache.syncope.core.persistence.jpa.entity;
 
 import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
-import org.apache.syncope.core.persistence.api.entity.AnnotatedEntity;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 
-public class AnnotatedEntityListener extends AbstractSysInfoListener {
+public class PlainAttrListener extends AbstractSysInfoListener {
 
     @PrePersist
     @PreUpdate
-    public void setSysInfo(final AnnotatedEntity entity) {
-        setSysInfoOnAnnotatedEntity(entity);
+    public void setSysInfoOnOwner(final PlainAttr<?> plainAttr) {
+        LOG.debug("Set system properties for owner of '{}'", plainAttr);
+        setSysInfoOnAnnotatedEntity(plainAttr.getOwner());
     }
 }
