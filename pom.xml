@@ -380,7 +380,7 @@ under the License.
 
     <activiti.version>5.22.0</activiti.version>
 
-    <slf4j.version>1.7.22</slf4j.version>
+    <slf4j.version>1.7.23</slf4j.version>
     <log4j.version>2.8</log4j.version>
     <disruptor.version>3.3.6</disruptor.version>
 
