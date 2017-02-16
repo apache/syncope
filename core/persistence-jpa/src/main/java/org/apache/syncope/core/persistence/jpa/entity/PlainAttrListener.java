@@ -27,7 +27,9 @@ public class PlainAttrListener extends AbstractSysInfoListener {
     @PrePersist
     @PreUpdate
     public void setSysInfoOnOwner(final PlainAttr<?> plainAttr) {
-        LOG.debug("Set system properties for owner of '{}'", plainAttr);
-        setSysInfoOnAnnotatedEntity(plainAttr.getOwner());
+        if (plainAttr.getOwner() != null) {
+            LOG.debug("Set system properties for owner of '{}'", plainAttr);
+            setSysInfoOnAnnotatedEntity(plainAttr.getOwner());
+        }
     }
 }

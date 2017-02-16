@@ -1036,6 +1036,7 @@ public class GroupITCase extends AbstractITCase {
         assertEquals("11.23", groupTO.getPlainAttrMap().get(doubleSchemaName).getValues().get(0));
 
         // 3. update schema, set conversion pattern
+        schema = schemaService.read(SchemaType.PLAIN, schema.getKey());
         schema.setConversionPattern("0.000");
         schemaService.update(SchemaType.PLAIN, schema);
 
