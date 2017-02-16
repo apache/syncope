@@ -40,8 +40,9 @@ processes, including <<password-reset,password reset>>;
 * `passwordReset.allowed` - whether the <<password-reset,password reset>> feature (typically via the enduser
 application) is allowed;
 * `passwordReset.securityQuestion` - whether the <<password-reset,password reset>> feature involves security questions;
-* `authentication.attributes` - the list of attributes whose values can be passed as login name for authentication;
-defaults to `username`
+* `authentication.attributes` - the list of attributes whose values can be passed as login name for authentication,
+defaults to `username`; please note that the related <<plain,plain schemas> must impose the unique constraint, for this
+mechanism to work properly;
 * `authentication.statuses` - the list of <<workflow,workflow>> statuses for which users are allowed to authenticate;
 [WARNING]
 Suspended Users are anyway not allowed to authenticate.
