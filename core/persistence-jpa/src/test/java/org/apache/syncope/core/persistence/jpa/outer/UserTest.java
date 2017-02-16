@@ -271,7 +271,7 @@ public class UserTest extends AbstractTest {
 
     @Test
     public void issueSYNCOPE1016() {
-        User user = userDAO.findByUsername("vivaldi");
+        User user = userDAO.findByUsername("rossini");
         Date initial = user.getLastChangeDate();
         assertNotNull(initial);
 
@@ -285,7 +285,7 @@ public class UserTest extends AbstractTest {
 
         userDAO.flush();
 
-        user = userDAO.findByUsername("vivaldi");
+        user = userDAO.findByUsername("rossini");
         Date afterwards = user.getLastChangeDate();
         assertNotNull(afterwards);
 
