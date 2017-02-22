@@ -168,6 +168,33 @@ under the License.
             <inherited>true</inherited>
             <executions>
               <execution>
+                <id>addActivitiTestContent</id>
+                <phase>prepare-package</phase>
+                <configuration>
+                  <target>
+                    <taskdef resource="net/sf/antcontrib/antcontrib.properties"
+                             classpathref="maven.plugin.classpath"/>
+
+                    <if>
+                      <available file="../core/target/syncope/WEB-INF/lib/activiti-engine-${activiti.version}.jar"/>
+                      <then>
+                        <xslt basedir="../core/target/test-classes/domains" 
+                              includes="MasterContent.xml"
+                              destdir="../core/target"
+                              extension=".xml"
+                              force="true"
+                              style="../core/src/test/resources/addActivitiToContent.xsl"/>
+                        <move file="../core/target/MasterContent.xml"
+                               tofile="../core/target/test-classes/domains/MasterContent.xml"/>
+                      </then>
+                    </if>
+                  </target>
+                </configuration>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+              <execution>
                 <id>setupEmbeddedConf</id>
                 <phase>package</phase>
                 <configuration>
@@ -193,6 +220,13 @@ under the License.
                 </goals>
               </execution>
             </executions>
+            <dependencies>
+              <dependency>
+                <groupId>ant-contrib</groupId>
+                <artifactId>ant-contrib</artifactId>
+                <version>20020829</version>
+              </dependency>
+            </dependencies>
           </plugin>
       
           <plugin>

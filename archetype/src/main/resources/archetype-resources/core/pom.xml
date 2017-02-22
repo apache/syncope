@@ -178,42 +178,7 @@ under the License.
         </dependency>
       </dependencies>
       
-      <build>
-        <plugins>
-          <!-- Adds Activiti test content -->
-          <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>xml-maven-plugin</artifactId>
-            <inherited>true</inherited>
-            <executions>
-              <execution>
-                <phase>prepare-package</phase>
-                <goals>
-                  <goal>transform</goal>
-                </goals>
-              </execution>
-            </executions>
-            <configuration>
-              <transformationSets>
-                <transformationSet>
-                  <dir>${project.build.directory}/test-classes</dir>
-                  <includes>
-                    <include>domains/MasterContent.xml</include>
-                  </includes>
-                  <outputDir>${project.build.directory}/classes</outputDir>
-                  <stylesheet>${basedir}/src/test/resources/addActivitiToContent.xsl</stylesheet>
-                  <outputProperties>
-                    <outputProperty>
-                      <name>indent</name>
-                      <value>yes</value>
-                    </outputProperty>
-                  </outputProperties>
-                </transformationSet>
-              </transformationSets>
-            </configuration>
-          </plugin>                    
-        </plugins>
-        
+      <build>        
         <resources>
           <resource>
             <directory>src/main/resources</directory>
