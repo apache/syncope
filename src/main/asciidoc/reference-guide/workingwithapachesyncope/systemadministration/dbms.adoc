@@ -87,7 +87,7 @@ In `provisioning.properties`:
 
 ....
 quartz.jobstore=org.quartz.impl.jdbcjobstore.StdJDBCDelegate
-quartz.sql=tables_mariadb_innodb.sql
+quartz.sql=tables_mariadb.sql
 ....
 
 [WARNING]
