@@ -20,7 +20,10 @@ package org.apache.syncope.core.provisioning.java;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.common.lib.AbstractBaseBean;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 
 public class AuditEntry extends AbstractBaseBean {
@@ -46,12 +49,31 @@ public class AuditEntry extends AbstractBaseBean {
             @JsonProperty("input") final Object[] input) {
 
         super();
-        
+
         this.who = who;
         this.logger = logger;
-        this.before = before;
-        this.output = output;
-        this.input = input;
+        this.before = filterUserPassword(before);
+        this.output = filterUserPassword(output);
+        this.input = ArrayUtils.clone(input);
+        if (this.input != null) {
+            for (int i = 0; i < this.input.length; i++) {
+                this.input[i] = filterUserPassword(this.input[i]);
+            }
+        }
+    }
+
+    private Object filterUserPassword(final Object object) {
+        Object filtered;
+
+        if (object instanceof UserTO) {
+            UserTO user = SerializationUtils.clone((UserTO) object);
+            user.setPassword(null);
+            filtered = user;
+        } else {
+            filtered = object;
+        }
+
+        return filtered;
     }
 
     public String getWho() {

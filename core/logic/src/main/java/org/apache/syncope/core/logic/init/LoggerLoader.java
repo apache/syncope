@@ -71,13 +71,13 @@ public class LoggerLoader implements SyncopeLoader {
         ColumnConfig[] columnConfigs = {
             ColumnConfig.newBuilder().
             setConfiguration(ctx.getConfiguration()).setName("EVENT_DATE").setEventTimestamp(true).build(),
-            ColumnConfig.newBuilder().
+            ColumnConfig.newBuilder().setUnicode(false).
             setConfiguration(ctx.getConfiguration()).setName("LOGGER_LEVEL").setPattern("%level").build(),
-            ColumnConfig.newBuilder().
+            ColumnConfig.newBuilder().setUnicode(false).
             setConfiguration(ctx.getConfiguration()).setName("LOGGER").setPattern("%logger").build(),
-            ColumnConfig.newBuilder().
+            ColumnConfig.newBuilder().setUnicode(false).
             setConfiguration(ctx.getConfiguration()).setName("MESSAGE").setPattern("%message").build(),
-            ColumnConfig.newBuilder().
+            ColumnConfig.newBuilder().setUnicode(false).
             setConfiguration(ctx.getConfiguration()).setName("THROWABLE").setPattern("%ex{full}").build()
         };
         ColumnMapping[] columnMappings = new ColumnMapping[0];
@@ -100,6 +100,7 @@ public class LoggerLoader implements SyncopeLoader {
             LoggerConfig logConf = new LoggerConfig(
                     AuditManagerImpl.getDomainAuditLoggerName(entry.getKey()), null, false);
             logConf.addAppender(appender, Level.DEBUG, null);
+            logConf.setLevel(Level.DEBUG);
             ctx.getConfiguration().addLogger(AuditManagerImpl.getDomainAuditLoggerName(entry.getKey()), logConf);
 
             AuthContextUtils.execWithAuthContext(entry.getKey(), new AuthContextUtils.Executable<Void>() {
