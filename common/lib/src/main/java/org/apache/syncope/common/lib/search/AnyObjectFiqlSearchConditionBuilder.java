@@ -30,6 +30,8 @@ import org.apache.cxf.jaxrs.ext.search.fiql.FiqlParser;
  */
 public class AnyObjectFiqlSearchConditionBuilder extends AbstractFiqlSearchConditionBuilder {
 
+    private static final long serialVersionUID = -3248603004632741935L;
+
     private final String type;
 
     public AnyObjectFiqlSearchConditionBuilder(final String type) {

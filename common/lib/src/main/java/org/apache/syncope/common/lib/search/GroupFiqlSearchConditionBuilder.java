@@ -28,6 +28,8 @@ import org.apache.cxf.jaxrs.ext.search.fiql.FiqlParser;
  */
 public class GroupFiqlSearchConditionBuilder extends AbstractFiqlSearchConditionBuilder {
 
+    private static final long serialVersionUID = 6275686371606165706L;
+
     @Override
     protected Builder newBuilderInstance() {
         return new Builder(properties);
