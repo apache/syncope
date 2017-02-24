@@ -214,6 +214,6 @@ we are happy to inform you that the password request was successfully executed f
 
   <Report id="c3520ad9-179f-49e7-b315-d684d216dd97" name="reconciliation" active="1" template_id="empty"/>
   <ReportletConfInstance id="d6c2b475-4860-4eb1-8fde-618299c2a97c" report_id="c3520ad9-179f-49e7-b315-d684d216dd97" 
-                         serializedInstance='{"@class":"org.apache.syncope.common.lib.report.ReconciliationReportletConf","name":"dashboardReconciliationReportlet","userMatchingCond":null,"groupMatchingCond":null,"anyObjectMatchingCond":null,"features":["id","username","groupName"]}'/>
+                         serializedInstance='{"@class":"org.apache.syncope.common.lib.report.ReconciliationReportletConf","name":"dashboardReconciliationReportlet","userMatchingCond":null,"groupMatchingCond":null,"anyObjectMatchingCond":null,"features":["key","username","groupName"]}'/>
 
 </dataset>
