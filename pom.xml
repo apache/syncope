@@ -380,7 +380,7 @@ under the License.
 
     <activiti.version>5.22.0</activiti.version>
 
-    <slf4j.version>1.7.23</slf4j.version>
+    <slf4j.version>1.7.24</slf4j.version>
     <log4j.version>2.8</log4j.version>
     <disruptor.version>3.3.6</disruptor.version>
 
@@ -417,7 +417,7 @@ under the License.
     <font-awesome.version>4.7.0</font-awesome.version>
     <ionicons.version>2.0.1</ionicons.version>
     <highlightjs.version>9.8.0</highlightjs.version>
-    <codemirror.version>5.23.0-1</codemirror.version>
+    <codemirror.version>5.24.2</codemirror.version>
     <jsplumb.version>2.0.7</jsplumb.version>
     
     <wicket.version>7.6.0</wicket.version>
