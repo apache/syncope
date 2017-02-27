@@ -327,7 +327,7 @@ generated project:
 ----
 <repositories>
   <repository>
-    <id>ASF</id>
+    <id>apache.snapshots</id>
     <url>https://repository.apache.org/content/repositories/snapshots/</url>
     <snapshots>
       <enabled>true</enabled>
