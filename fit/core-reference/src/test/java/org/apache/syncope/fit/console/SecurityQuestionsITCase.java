@@ -40,7 +40,7 @@ public class SecurityQuestionsITCase extends AbstractConsoleITCase {
         TESTER.assertRenderedPage(SecurityQuestions.class);
     }
 
-    private void createRealm(final String name) {
+    private void createSecurityQuestion(final String name) {
         TESTER.clickLink("body:content:securityQuestionPanel:container:content:add");
 
         TESTER.assertComponent(
@@ -76,12 +76,12 @@ public class SecurityQuestionsITCase extends AbstractConsoleITCase {
 
     @Test
     public void create() {
-        createRealm("What's your preferred team?");
+        createSecurityQuestion("What's your preferred team?");
     }
 
     @Test
     public void update() {
-        createRealm("What's your preferred color?");
+        createSecurityQuestion("What's your preferred color?");
         Component result = findComponentByProp("content", "body:content:securityQuestionPanel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable",
                 "What's your preferred color?");
@@ -105,7 +105,7 @@ public class SecurityQuestionsITCase extends AbstractConsoleITCase {
     @Test
     public void delete() {
         String name = "What's your preferred color?";
-        createRealm(name);
+        createSecurityQuestion(name);
 
         Component result = findComponentByProp("content", "body:content:securityQuestionPanel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable",

@@ -43,13 +43,6 @@ public class SecurityQuestionDetailsPanel extends Panel {
         form.setModel(new CompoundPropertyModel<>(securityQuestionTO));
         container.add(form);
 
-        final AjaxTextFieldPanel key = new AjaxTextFieldPanel(
-                "key", getString("key"), new PropertyModel<String>(securityQuestionTO, "key"));
-        key.addRequiredLabel();
-        final String keyModelObject = String.valueOf(key.getModelObject());
-        key.setEnabled(keyModelObject == null || keyModelObject.isEmpty());
-        form.add(key);
-
         final AjaxTextFieldPanel content = new AjaxTextFieldPanel(
                 "content", getString("content"), new PropertyModel<String>(securityQuestionTO, "content"));
         content.addRequiredLabel();
