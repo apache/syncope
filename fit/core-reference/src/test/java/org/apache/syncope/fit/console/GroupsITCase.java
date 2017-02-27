@@ -18,8 +18,11 @@
  */
 package org.apache.syncope.fit.console;
 
+import static org.apache.syncope.fit.console.AbstractConsoleITCase.TESTER;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.TextField;
@@ -84,13 +87,12 @@ public class GroupsITCase extends AbstractConsoleITCase {
                 + "value:textField", TextField.class);
     }
 
-    @Test
-    public void clickToCloneGroup() {
+    private void cloneGroup(final String group) {
         TESTER.clickLink("body:realmsLI:realms");
         TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:2:link");
 
         Component component = findComponentByProp("name", searchResultContainer
-                + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "director");
+                + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", group);
         assertNotNull(component);
 
         TESTER.clickLink(component.getPageRelativePath() + ":cells:4:cell:panelClone:cloneLink");
@@ -100,17 +102,44 @@ public class GroupsITCase extends AbstractConsoleITCase {
 
         FormTester formTester = TESTER.newFormTester(tabPanel + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);
+        formTester.setValue("view:name:textField", group + "_clone");
+        formTester.submit("buttons:finish");
 
-        formTester.submit("buttons:cancel");
+        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.cleanupFeedbackMessages();
+
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:panel:searchResult:outerObjectsRepeater:0:"
+                + "outer:form:content:action:panelClose:closeLink");
+
+        component = findComponentByProp("name", searchResultContainer
+                + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", group + "_clone");
+        assertNotNull(component);
+    }
+
+    @Test
+    public void clickToCloneGroup() {
+        cloneGroup("director");
+
+        Component component = findComponentByProp("name", searchResultContainer
+                + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "director_clone");
+        assertNotNull(component);
+        TESTER.getRequest().addParameter("confirm", "true");
+        TESTER.clickLink(TESTER.getComponentFromLastRenderedPage(
+                component.getPageRelativePath() + ":cells:4:cell:panelDelete:deleteLink"));
+
+        TESTER.executeAjaxEvent(TESTER.getComponentFromLastRenderedPage(
+                component.getPageRelativePath() + ":cells:4:cell:panelDelete:deleteLink"), Constants.ON_CLICK);
+
+        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.cleanupFeedbackMessages();
     }
 
     @Test
     public void editGroup() {
-        TESTER.clickLink("body:realmsLI:realms");
-        TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:2:link");
+        cloneGroup("director");
 
         Component component = findComponentByProp("name", searchResultContainer
-                + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "director");
+                + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "director_clone");
         assertNotNull(component);
 
         TESTER.clickLink(component.getPageRelativePath() + ":cells:4:cell:panelEdit:editLink");
@@ -120,8 +149,22 @@ public class GroupsITCase extends AbstractConsoleITCase {
 
         FormTester formTester = TESTER.newFormTester(tabPanel + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);
-
         formTester.submit("buttons:next");
+
+        // -------------------------
+        // SYNCOPE-1026
+        // -------------------------
+        assertEquals(TESTER.getComponentFromLastRenderedPage("body:content:body:container:content:tabbedPanel:panel:"
+                + "searchResult:outerObjectsRepeater:0:outer:form:content:form:view:ownerContainer:search:userOwner:"
+                + "textField").getDefaultModelObjectAsString(), "[823074dc-d280-436d-a7dd-07399fae48ec] puccini");
+
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:panel:searchResult:outerObjectsRepeater:0:"
+                + "outer:form:content:form:view:ownerContainer:search:userOwnerReset");
+
+        assertEquals(TESTER.getComponentFromLastRenderedPage("body:content:body:container:content:tabbedPanel:panel:"
+                + "searchResult:outerObjectsRepeater:0:outer:form:content:form:view:ownerContainer:search:userOwner:"
+                + "textField").getDefaultModelObjectAsString(), StringUtils.EMPTY);
+        // -------------------------
 
         formTester = TESTER.newFormTester(tabPanel + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);
@@ -152,6 +195,7 @@ public class GroupsITCase extends AbstractConsoleITCase {
         formTester.submit("buttons:finish");
 
         TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.cleanupFeedbackMessages();
 
         TESTER.assertComponent(tabPanel
                 + "outerObjectsRepeater:0:outer:form:content:customResultBody:resources:firstLevelContainer:first:"
@@ -160,8 +204,18 @@ public class GroupsITCase extends AbstractConsoleITCase {
         TESTER.clickLink(tabPanel + "outerObjectsRepeater:0:outer:form:content:action:panelClose:closeLink");
 
         component = findComponentByProp("name", searchResultContainer
-                + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "director");
+                + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "director_clone");
         assertNotNull(component);
+
+        TESTER.getRequest().addParameter("confirm", "true");
+        TESTER.clickLink(TESTER.getComponentFromLastRenderedPage(
+                component.getPageRelativePath() + ":cells:4:cell:panelDelete:deleteLink"));
+
+        TESTER.executeAjaxEvent(TESTER.getComponentFromLastRenderedPage(
+                component.getPageRelativePath() + ":cells:4:cell:panelDelete:deleteLink"), Constants.ON_CLICK);
+
+        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.cleanupFeedbackMessages();
     }
 
     @Test

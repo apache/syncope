@@ -323,12 +323,11 @@ public class Ownership extends WizardStep implements WizardModel.ICondition {
             } else if (sel instanceof UserTO) {
                 wrapper.getInnerObject().setUserOwner(sel.getKey());
                 wrapper.getInnerObject().setGroupOwner(null);
-                ((UserSelectionDirectoryPanel.ItemSelection) event.getPayload()).getTarget().add(ownerContainer);
             } else if (sel instanceof GroupTO) {
                 wrapper.getInnerObject().setGroupOwner(sel.getKey());
                 wrapper.getInnerObject().setUserOwner(null);
-                ((GroupSelectionDirectoryPanel.ItemSelection) event.getPayload()).getTarget().add(ownerContainer);
             }
+            ((AnySelectionDirectoryPanel.ItemSelection) event.getPayload()).getTarget().add(ownerContainer);
         } else {
             super.onEvent(event);
         }
