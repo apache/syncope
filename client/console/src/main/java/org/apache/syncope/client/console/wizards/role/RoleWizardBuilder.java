@@ -102,7 +102,8 @@ public class RoleWizardBuilder extends AjaxWizardBuilder<RoleWrapper> {
 
         public Details(final RoleWrapper modelObject) {
             add(new AjaxTextFieldPanel(
-                    "key", "key", new PropertyModel<String>(modelObject.getInnerObject(), "key"), false));
+                    "key", "key", new PropertyModel<String>(modelObject.getInnerObject(), "key"), false).
+                    setEnabled(StringUtils.isEmpty(modelObject.getInnerObject().getKey())));
 
             // ------------------------
             // dynMembershipCond
