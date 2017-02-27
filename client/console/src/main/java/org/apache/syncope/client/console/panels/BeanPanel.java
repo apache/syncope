@@ -227,10 +227,6 @@ public class BeanPanel<T extends Serializable> extends Panel {
                                 new PropertyModel<List<String>>(bean.getObject(), fieldName),
                                 new ListModel(Arrays.asList(listItemType.getEnumConstants()))).hideLabel();
                     } else {
-                        if (((List) wrapper.getPropertyValue(fieldName)).isEmpty()) {
-                            ((List) wrapper.getPropertyValue(fieldName)).add(null);
-                        }
-
                         panel = new MultiFieldPanel.Builder<>(
                                 new PropertyModel<List<String>>(bean.getObject(), fieldName)).build(
                                 "value",

@@ -19,7 +19,7 @@
 package org.apache.syncope.client.console.panels;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
@@ -64,7 +64,7 @@ public class RealmDetails extends Panel {
 
         @Override
         protected Map<String, String> load() {
-            Map<String, String> res = new HashMap<>();
+            Map<String, String> res = new LinkedHashMap<>();
             for (AbstractPolicyTO policyTO : policyRestClient.getPolicies(PolicyType.ACCOUNT)) {
                 res.put(policyTO.getKey(), policyTO.getDescription());
             }
@@ -78,7 +78,7 @@ public class RealmDetails extends Panel {
 
         @Override
         protected Map<String, String> load() {
-            Map<String, String> res = new HashMap<>();
+            Map<String, String> res = new LinkedHashMap<>();
             for (AbstractPolicyTO policyTO : policyRestClient.getPolicies(PolicyType.PASSWORD)) {
                 res.put(policyTO.getKey(), policyTO.getDescription());
             }

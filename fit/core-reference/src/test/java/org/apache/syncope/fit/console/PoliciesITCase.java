@@ -18,12 +18,18 @@
  */
 package org.apache.syncope.fit.console;
 
+import static org.apache.syncope.fit.console.AbstractConsoleITCase.TESTER;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.Policies;
+import org.apache.syncope.client.console.pages.Realms;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.util.tester.FormTester;
 import org.junit.Assert;
 import org.junit.Before;
@@ -84,8 +90,9 @@ public class PoliciesITCase extends AbstractConsoleITCase {
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:dialog:footer:buttons:0:button",
                 Constants.ON_CLICK);
 
-        Assert.assertNotNull(findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
-                + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description));
+        component = findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
+                + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description);
+        Assert.assertNotNull(component);
     }
 
     private void createPasswordPolicy(final String description) {
@@ -423,13 +430,10 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         deleteAccountPolicy(description);
     }
 
-    @Test
-    public void createComposeDeleteAccountPolicy() {
-        final String description = "Account Policy To Be Composed";
-        createAccountPolicy(description);
+    private void composeDefaultAccountPolicy(final String policyDescription, final String ruleName) {
 
         Component component = findComponentByProp("description", "body:content:tabbedPanel:panel:container:content:"
-                + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", description);
+                + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", policyDescription);
 
         Assert.assertNotNull(component);
         TESTER.clickLink(component.getPageRelativePath() + ":cells:9:cell:panelCompose:composeLink");
@@ -443,7 +447,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
 
         FormTester formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:outerObjectsRepeater:3:"
                 + "outer:form:content:container:content:wizard:form");
-        formTester.setValue("view:name:textField", "myrule");
+        formTester.setValue("view:name:textField", ruleName);
         formTester.setValue("view:configuration:dropDownChoiceField", "0");
         formTester.submit("buttons:next");
 
@@ -452,6 +456,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
 
         formTester = TESTER.newFormTester("body:content:tabbedPanel:panel:outerObjectsRepeater:3:"
                 + "outer:form:content:container:content:wizard:form");
+        formTester.setValue("view:bean:propView:1:value:spinner", "6");
         formTester.submit("buttons:finish");
 
         TESTER.assertInfoMessages("Operation executed successfully");
@@ -459,7 +464,7 @@ public class PoliciesITCase extends AbstractConsoleITCase {
 
         component = findComponentByProp("name", "body:content:tabbedPanel:panel:outerObjectsRepeater:3:outer:form:"
                 + "content:container:content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable",
-                "myrule");
+                ruleName);
 
         Assert.assertNotNull(component);
 
@@ -467,7 +472,13 @@ public class PoliciesITCase extends AbstractConsoleITCase {
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:3:outer:form:content:container:content:exit");
 
         closeCallBack(modal);
+    }
 
+    @Test
+    public void createComposeDeleteAccountPolicy() {
+        final String description = "Account Policy To Be Composed";
+        createAccountPolicy(description);
+        composeDefaultAccountPolicy(description, "myrule");
         deleteAccountPolicy(description);
     }
 
@@ -662,5 +673,112 @@ public class PoliciesITCase extends AbstractConsoleITCase {
         closeCallBack(modal);
 
         deletePullPolicy(description);
+    }
+
+    @Test
+    public void issueSYNCOPE1030() {
+        final String description = "SYNCOPE-1030";
+        // Create account policy
+        createAccountPolicy(description);
+        composeDefaultAccountPolicy(description, "issue");
+
+        // goto realms
+        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.assertRenderedPage(Realms.class);
+
+        // edit root realm
+        TESTER.clickLink(
+                "body:content:body:container:content:tabbedPanel:panel:actions:actions:panelEdit:editLink");
+        TESTER.assertComponent("body:content:body:outerObjectsRepeater:0:outer", Modal.class);
+
+        // set new account policy
+        TESTER.assertLabel("body:content:body:outerObjectsRepeater:0:outer:form:content:form:view:details:container:"
+                + "accountPolicy:field-label", "Account Policy");
+
+        FormTester formTester = TESTER.newFormTester(
+                "body:content:body:outerObjectsRepeater:0:outer:form:content:form");
+        formTester.select("view:details:container:accountPolicy:dropDownChoiceField", 0);
+        formTester.submit("buttons:finish");
+
+        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.cleanupFeedbackMessages();
+
+        TESTER.executeAjaxEvent(
+                "body:content:body:outerObjectsRepeater:0:outer:form:content:action:panelClose:closeLink",
+                Constants.ON_CLICK);
+
+        // create user with a valid account name
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:1:link");
+
+        Component component = findComponentByProp("username",
+                "body:content:body:container:content:tabbedPanel:panel:searchResult:container:content:"
+                + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "rossini");
+        assertNotNull(component);
+
+        TESTER.clickLink(component.getPageRelativePath() + ":cells:6:cell:panelClone:cloneLink");
+
+        TESTER.assertComponent(
+                "body:content:body:container:content:tabbedPanel:panel:searchResult:"
+                + "outerObjectsRepeater:0:outer:form:content:form:view:username:textField",
+                TextField.class);
+
+        formTester = TESTER.newFormTester(
+                "body:content:body:container:content:tabbedPanel:panel:searchResult:"
+                + "outerObjectsRepeater:0:outer:form:content:form");
+        assertNotNull(formTester);
+        formTester.submit("buttons:next");
+
+        formTester = TESTER.newFormTester(
+                "body:content:body:container:content:tabbedPanel:panel:searchResult:"
+                + "outerObjectsRepeater:0:outer:form:content:form");
+        assertNotNull(formTester);
+        formTester.submit("buttons:next");
+
+        formTester = TESTER.newFormTester(
+                "body:content:body:container:content:tabbedPanel:panel:searchResult:"
+                + "outerObjectsRepeater:0:outer:form:content:form");
+        assertNotNull(formTester);
+        formTester.submit("buttons:next");
+
+        formTester = TESTER.newFormTester(
+                "body:content:body:container:content:tabbedPanel:panel:searchResult:"
+                + "outerObjectsRepeater:0:outer:form:content:form");
+        assertNotNull(formTester);
+
+        formTester.setValue("view:plainSchemas:tabs:0:body:content:schemas:6:panel:textField", "rossini 1030");
+        formTester.setValue("view:plainSchemas:tabs:0:body:content:schemas:14:panel:textField", "ross1030@apace.org");
+        formTester.submit("buttons:finish");
+
+        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.cleanupFeedbackMessages();
+
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:panel:searchResult:"
+                + "outerObjectsRepeater:0:outer:form:content:action:panelClose:closeLink");
+
+        component = findComponentByProp("username",
+                "body:content:body:container:content:tabbedPanel:panel:searchResult:container:content:"
+                + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "rossini_clone");
+        assertNotNull(component);
+
+        // delete the new user
+        TESTER.getRequest().addParameter("confirm", "true");
+        TESTER.clickLink(TESTER.getComponentFromLastRenderedPage(
+                component.getPageRelativePath() + ":cells:6:cell:panelDelete:deleteLink"));
+
+        TESTER.executeAjaxEvent(TESTER.getComponentFromLastRenderedPage(
+                component.getPageRelativePath() + ":cells:6:cell:panelDelete:deleteLink"), "onclick");
+
+        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.cleanupFeedbackMessages();
+
+        component = findComponentByProp("username",
+                "body:content:body:container:content:tabbedPanel:panel:searchResult:container:content:"
+                + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "rossini_clone");
+        assertNull(component);
+
+        // delete default policy
+        TESTER.clickLink("body:configurationLI:configurationUL:policiesLI:policies");
+        TESTER.assertRenderedPage(Policies.class);
+        deleteAccountPolicy(description);
     }
 }
