@@ -18,7 +18,10 @@
  */
 package org.apache.syncope.client.console.rest;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
 import org.apache.syncope.common.lib.types.PolicyType;
@@ -47,6 +50,7 @@ public class PolicyRestClient extends BaseRestClient {
 
         try {
             res.addAll((List<T>) getService(PolicyService.class).list(type));
+            Collections.sort(res, new PolicyComparator());
         } catch (Exception ignore) {
             LOG.debug("No policy found", ignore);
         }
@@ -64,5 +68,16 @@ public class PolicyRestClient extends BaseRestClient {
 
     public void delete(final String key) {
         getService(PolicyService.class).delete(key);
+    }
+
+    private class PolicyComparator implements Comparator<AbstractPolicyTO>, Serializable {
+
+        private static final long serialVersionUID = -4921433085213223115L;
+
+        @Override
+        public int compare(final AbstractPolicyTO left, final AbstractPolicyTO right) {
+            return left == null ? -1 : right == null ? 1 : left.getDescription().compareTo(right.getDescription());
+        }
+
     }
 }

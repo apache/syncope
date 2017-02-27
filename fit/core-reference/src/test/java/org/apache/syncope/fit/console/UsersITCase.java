@@ -86,9 +86,8 @@ public class UsersITCase extends AbstractConsoleITCase {
 
         TESTER.clickLink(component.getPageRelativePath() + ":cells:6:cell:panelClone:cloneLink");
 
-        TESTER.
-                assertComponent(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form:view:username:textField",
-                        TextField.class);
+        TESTER.assertComponent(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form:view:username:textField",
+                TextField.class);
 
         FormTester formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);

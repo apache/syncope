@@ -220,7 +220,7 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
                                     afterObj.getAttrMap().get(ConnIdSpecialAttributeName.NAME).getValues())
                             ? StringUtils.EMPTY
                             : afterObj.getAttrMap().get(ConnIdSpecialAttributeName.NAME).getValues().
-                                    iterator().next();
+                            iterator().next();
 
                     return new Label("field", remoteId);
                 } else if ("status".equalsIgnoreCase(key)) {
