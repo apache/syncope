@@ -41,6 +41,7 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.SerializationUtils;
+import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -624,7 +625,9 @@ public class GroupITCase extends AbstractITCase {
             assertNotNull(e);
         }
 
-        GroupService anonymous = clientFactory.create(ANONYMOUS_UNAME, ANONYMOUS_KEY).getService(GroupService.class);
+        GroupService anonymous = clientFactory.create(
+                new AnonymousAuthenticationHandler(ANONYMOUS_UNAME, ANONYMOUS_KEY)).
+                getService(GroupService.class);
         assertFalse(anonymous.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).build()).
                 getResult().isEmpty());
     }

@@ -24,6 +24,7 @@ import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.search.OrderByClauseBuilder;
+import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.JAXRSService;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
@@ -69,10 +70,14 @@ public abstract class BaseRestClient implements RestClient {
         return builder.build();
     }
 
-    protected static <E extends JAXRSService, T> T getObject(final E service, final URI location,
-            final Class<T> resultClass) {
+    protected static <E extends JAXRSService, T> T getObject(
+            final E service, final URI location, final Class<T> resultClass) {
+
         WebClient webClient = WebClient.fromClient(WebClient.client(service));
         webClient.accept(SyncopeConsoleApplication.get().getMediaType()).to(location.toASCIIString(), false);
-        return webClient.get(resultClass);
+        return webClient.
+                header(RESTHeaders.DOMAIN, SyncopeConsoleSession.get().getDomain()).
+                header(RESTHeaders.TOKEN, SyncopeConsoleSession.get().getJWT()).
+                get(resultClass);
     }
 }

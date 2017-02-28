@@ -18,6 +18,9 @@
  */
 package org.apache.syncope.core.spring.security;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -36,11 +39,13 @@ public class SyncopeGrantedAuthority implements GrantedAuthority {
 
     private static final long serialVersionUID = -5647624636011919735L;
 
+    @JsonProperty
     private final String entitlement;
 
     private final Set<String> realms = SetUtils.orderedSet(new HashSet<String>());
 
-    public SyncopeGrantedAuthority(final String entitlement) {
+    @JsonCreator
+    public SyncopeGrantedAuthority(@JsonProperty("entitlement") final String entitlement) {
         this.entitlement = entitlement;
     }
 
@@ -67,6 +72,7 @@ public class SyncopeGrantedAuthority implements GrantedAuthority {
         return Collections.unmodifiableSet(realms);
     }
 
+    @JsonIgnore
     @Override
     public String getAuthority() {
         return entitlement;

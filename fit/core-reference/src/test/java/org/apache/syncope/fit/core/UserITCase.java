@@ -42,6 +42,7 @@ import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.patch.AssociationPatch;
@@ -325,10 +326,8 @@ public class UserITCase extends AbstractITCase {
             fail("Credentials should be valid and not cause AccessControlException");
         }
 
-        UserSelfService userSelfService2 = clientFactory.create(
-                newUserTO.getUsername(), "passwordXX").getService(UserSelfService.class);
         try {
-            userSelfService2.read();
+            clientFactory.create(newUserTO.getUsername(), "passwordXX").getService(UserSelfService.class);
             fail("Credentials are invalid, thus request should raise AccessControlException");
         } catch (AccessControlException e) {
             assertNotNull(e);
@@ -879,8 +878,8 @@ public class UserITCase extends AbstractITCase {
 
     @Test
     public void async() {
-        UserService asyncService =
-                clientFactory.create(ADMIN_UNAME, ADMIN_PWD).nullPriorityAsync(UserService.class, true);
+        SyncopeClient asyncClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
+        UserService asyncService = asyncClient.nullPriorityAsync(asyncClient.getService(UserService.class), true);
 
         UserTO user = getUniqueSampleTO("async@syncope.apache.org");
         user.getResources().add(RESOURCE_NAME_TESTDB);

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
+import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPasswordPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPullPolicy;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAccountPolicy;
@@ -252,6 +253,8 @@ public class JPAEntityFactory implements EntityFactory {
             result = (E) new JPAADynGroupMembership();
         } else if (reference.equals(UDynGroupMembership.class)) {
             result = (E) new JPAUDynGroupMembership();
+        } else if (reference.equals(AccessToken.class)) {
+            result = (E) new JPAAccessToken();
         } else {
             throw new IllegalArgumentException("Could not find a JPA implementation of " + reference.getName());
         }

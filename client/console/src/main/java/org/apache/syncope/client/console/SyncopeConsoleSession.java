@@ -37,8 +37,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
-import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.DomainTO;
@@ -87,10 +87,6 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
 
     private SyncopeClient client;
 
-    private String username;
-
-    private String password;
-
     private UserTO selfTO;
 
     private Map<String, Set<String>> auth;
@@ -106,9 +102,10 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
     public SyncopeConsoleSession(final Request request) {
         super(request);
 
-        SyncopeClient anonymousClient = SyncopeConsoleApplication.get().getClientFactory().create(
-                SyncopeConsoleApplication.get().getAnonymousUser(),
-                SyncopeConsoleApplication.get().getAnonymousKey());
+        SyncopeClient anonymousClient = SyncopeConsoleApplication.get().getClientFactory().
+                create(new AnonymousAuthenticationHandler(
+                        SyncopeConsoleApplication.get().getAnonymousUser(),
+                        SyncopeConsoleApplication.get().getAnonymousKey()));
 
         platformInfo = anonymousClient.getService(SyncopeService.class).platform();
         systemInfo = anonymousClient.getService(SyncopeService.class).system();
@@ -134,8 +131,16 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
 
     @Override
     public void invalidate() {
+        client.logout();
+        executorService.shutdown();
         super.invalidate();
+    }
+
+    @Override
+    public void invalidateNow() {
+        client.logout();
         executorService.shutdownNow();
+        super.invalidateNow();
     }
 
     public PlatformInfo getPlatformInfo() {
@@ -158,6 +163,10 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
         return StringUtils.isBlank(domain) ? SyncopeConstants.MASTER_DOMAIN : domain;
     }
 
+    public String getJWT() {
+        return client.getJWT();
+    }
+
     @Override
     public boolean authenticate(final String username, final String password) {
         boolean authenticated = false;
@@ -170,8 +179,6 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
             auth = self.getKey();
             selfTO = self.getValue();
 
-            this.username = username;
-            this.password = password;
             authenticated = true;
         } catch (Exception e) {
             LOG.error("Authentication failed", e);
@@ -199,7 +206,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
     }
 
     public void refreshAuth() {
-        authenticate(username, password);
+        client.refresh();
         roles = null;
     }
 
@@ -213,8 +220,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
             services.put(serviceClass, service);
         }
 
-        WebClient.client(service).
-                type(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON);
+        WebClient.client(service).type(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON);
 
         return service;
     }
@@ -231,18 +237,9 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
     }
 
     public <T> T getService(final MediaType mediaType, final Class<T> serviceClass) {
-        T service;
+        T service = client.getService(serviceClass);
 
-        synchronized (SyncopeConsoleApplication.get().getClientFactory()) {
-            SyncopeClientFactoryBean.ContentType preType = SyncopeConsoleApplication.get().getClientFactory().
-                    getContentType();
-
-            SyncopeConsoleApplication.get().getClientFactory().
-                    setContentType(SyncopeClientFactoryBean.ContentType.fromString(mediaType.toString()));
-            service = SyncopeConsoleApplication.get().getClientFactory().
-                    create(username, password).getService(serviceClass);
-            SyncopeConsoleApplication.get().getClientFactory().setContentType(preType);
-        }
+        WebClient.client(service).type(mediaType).accept(mediaType);
 
         return service;
     }

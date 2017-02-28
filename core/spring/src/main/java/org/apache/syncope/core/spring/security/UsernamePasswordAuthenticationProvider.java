@@ -18,22 +18,15 @@
  */
 package org.apache.syncope.core.spring.security;
 
-import java.util.HashSet;
-import java.util.Set;
 import javax.annotation.Resource;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
-import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.spring.security.AuthContextUtils.Executable;
 import org.apache.syncope.core.persistence.api.entity.Domain;
 import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.provisioning.api.EntitlementsHolder;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,9 +38,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 
 @Configurable
-public class SyncopeAuthenticationProvider implements AuthenticationProvider {
+public class UsernamePasswordAuthenticationProvider implements AuthenticationProvider {
 
-    protected static final Logger LOG = LoggerFactory.getLogger(SyncopeAuthenticationProvider.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(UsernamePasswordAuthenticationProvider.class);
 
     @Autowired
     protected AuthDataAccessor dataAccessor;
@@ -58,13 +51,16 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
     @Resource(name = "adminUser")
     protected String adminUser;
 
+    @Resource(name = "adminPassword")
+    protected String adminPassword;
+
+    @Resource(name = "adminPasswordAlgorithm")
+    protected String adminPasswordAlgorithm;
+
     @Resource(name = "anonymousUser")
     protected String anonymousUser;
 
-    protected String adminPassword;
-
-    protected String adminPasswordAlgorithm;
-
+    @Resource(name = "anonymousKey")
     protected String anonymousKey;
 
     protected final Encryptor encryptor = Encryptor.getInstance();
@@ -93,21 +89,13 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
     @Override
     public Authentication authenticate(final Authentication authentication) {
         String domainKey = SyncopeAuthenticationDetails.class.cast(authentication.getDetails()).getDomain();
-        if (StringUtils.isBlank(domainKey)) {
-            domainKey = SyncopeConstants.MASTER_DOMAIN;
-        }
-        SyncopeAuthenticationDetails.class.cast(authentication.getDetails()).setDomain(domainKey);
 
         final String[] username = new String[1];
         Boolean authenticated;
-        final Set<SyncopeGrantedAuthority> authorities = new HashSet<>();
 
         if (anonymousUser.equals(authentication.getName())) {
             username[0] = anonymousUser;
             authenticated = authentication.getCredentials().toString().equals(anonymousKey);
-            if (authenticated) {
-                authorities.add(new SyncopeGrantedAuthority(StandardEntitlement.ANONYMOUS));
-            }
         } else if (adminUser.equals(authentication.getName())) {
             username[0] = adminUser;
             if (SyncopeConstants.MASTER_DOMAIN.equals(domainKey)) {
@@ -131,17 +119,6 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
                     }
                 });
             }
-            if (authenticated) {
-                CollectionUtils.collect(
-                        EntitlementsHolder.getInstance().getValues(),
-                        new Transformer<String, SyncopeGrantedAuthority>() {
-
-                    @Override
-                    public SyncopeGrantedAuthority transform(final String entitlement) {
-                        return new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM);
-                    }
-                }, authorities);
-            }
         } else {
             final Pair<User, Boolean> authResult =
                     AuthContextUtils.execWithAuthContext(domainKey, new Executable<Pair<User, Boolean>>() {
@@ -155,9 +132,7 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
             if (authResult.getLeft() != null && authResult.getRight() != null) {
                 username[0] = authResult.getLeft().getUsername();
 
-                if (authResult.getRight()) {
-                    authorities.addAll(dataAccessor.getAuthorities(authResult.getLeft()));
-                } else {
+                if (!authResult.getRight()) {
                     AuthContextUtils.execWithAuthContext(domainKey, new Executable<Void>() {
 
                         @Override
@@ -184,7 +159,7 @@ public class SyncopeAuthenticationProvider implements AuthenticationProvider {
                     UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
                             username[0],
                             null,
-                            authorities);
+                            dataAccessor.getAuthorities(username[0]));
                     token.setDetails(authentication.getDetails());
 
                     dataAccessor.audit(AuditElements.EventCategoryType.LOGIC,

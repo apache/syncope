@@ -32,8 +32,7 @@ public class ConcurrencyTest {
 
     private static final int THREAD_NUMBER = 1000;
 
-    private static final SyncopeClient client =
-            new SyncopeClientFactoryBean().setAddress("http://url").create("username", "password");
+    private static final SyncopeClient client = new SyncopeClientFactoryBean().setAddress("http://url").create();
 
     @Test
     public void multiThreadTest()
@@ -54,11 +53,11 @@ public class ConcurrencyTest {
                     }
                 }
             };
-	    try {
-		execution.start();
-	    } catch(OutOfMemoryError e) {
-		// ignore
-	    }
+            try {
+                execution.start();
+            } catch (OutOfMemoryError e) {
+                // ignore
+            }
         }
 
         Thread.sleep(THREAD_NUMBER);

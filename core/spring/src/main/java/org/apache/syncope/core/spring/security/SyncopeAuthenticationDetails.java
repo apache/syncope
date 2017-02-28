@@ -20,52 +20,40 @@ package org.apache.syncope.core.spring.security;
 
 import java.io.Serializable;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 
 public class SyncopeAuthenticationDetails implements Serializable {
 
     private static final long serialVersionUID = -5899959397393502897L;
 
-    private final String remoteAddress;
+    private final String remoteHost;
 
-    private final String sessionId;
-
-    private String domain;
+    private final String domain;
 
     public SyncopeAuthenticationDetails(final HttpServletRequest request) {
-        this.remoteAddress = request.getRemoteAddr();
-
-        HttpSession session = request.getSession(false);
-        this.sessionId = session == null ? null : session.getId();
-
         this.domain = request.getHeader(RESTHeaders.DOMAIN);
+        this.remoteHost = request.getRemoteHost();
     }
 
     public SyncopeAuthenticationDetails(final String domain) {
-        this.remoteAddress = null;
-        this.sessionId = null;
         this.domain = domain;
-    }
-
-    public String getRemoteAddress() {
-        return remoteAddress;
-    }
-
-    public String getSessionId() {
-        return sessionId;
+        this.remoteHost = null;
     }
 
     public String getDomain() {
-        return domain;
+        return StringUtils.isBlank(domain)
+                ? SyncopeConstants.MASTER_DOMAIN
+                : domain;
     }
 
-    public void setDomain(final String domain) {
-        this.domain = domain;
+    public String getRemoteHost() {
+        return remoteHost;
     }
 
     @Override

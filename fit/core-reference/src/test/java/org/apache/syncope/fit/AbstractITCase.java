@@ -52,6 +52,7 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.SchemaType;
+import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.AnyObjectService;
 import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
 import org.apache.syncope.common.rest.api.service.AnyTypeService;
@@ -284,7 +285,10 @@ public abstract class AbstractITCase {
         WebClient webClient = WebClient.fromClient(WebClient.client(adminClient.getService(serviceClass)));
         webClient.accept(clientFactory.getContentType().getMediaType()).to(location.toASCIIString(), false);
 
-        return webClient.get(resultClass);
+        return webClient.
+                header(RESTHeaders.DOMAIN, adminClient.getDomain()).
+                header(RESTHeaders.TOKEN, adminClient.getJWT()).
+                get(resultClass);
     }
 
     @SuppressWarnings("unchecked")

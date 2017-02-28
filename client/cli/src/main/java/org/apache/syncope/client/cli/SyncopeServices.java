@@ -53,7 +53,7 @@ public final class SyncopeServices {
                 setUseCompression(BooleanUtils.toBoolean(useGZIPCompression)).
                 create(properties.getProperty("syncope.admin.user"), syncopeAdminPassword);
 
-        LOG.debug("Creting service for {}", clazz.getName());
+        LOG.debug("Creating service for {}", clazz.getName());
         return syncopeClient.getService(clazz);
     }
 

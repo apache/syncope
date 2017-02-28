@@ -104,8 +104,8 @@ public class ResourceRestClient extends BaseRestClient {
     }
 
     public ResourceTO create(final ResourceTO resourceTO) {
-        final ResourceService service = getService(ResourceService.class);
-        final Response response = service.create(resourceTO);
+        ResourceService service = getService(ResourceService.class);
+        Response response = service.create(resourceTO);
         return getObject(service, response.getLocation(), ResourceTO.class);
     }
 

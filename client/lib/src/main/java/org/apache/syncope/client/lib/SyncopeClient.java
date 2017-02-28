@@ -21,7 +21,9 @@ package org.apache.syncope.client.lib;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.ws.rs.core.EntityTag;
@@ -29,7 +31,14 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.cxf.jaxrs.client.Client;
+import org.apache.cxf.jaxrs.client.ClientConfiguration;
+import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.cxf.transport.common.gzip.GZIPInInterceptor;
+import org.apache.cxf.transport.common.gzip.GZIPOutInterceptor;
+import org.apache.cxf.transport.http.URLConnectionHTTPConduit;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.search.AnyObjectFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.search.OrderByClauseBuilder;
 import org.apache.syncope.common.lib.search.GroupFiqlSearchConditionBuilder;
@@ -37,6 +46,7 @@ import org.apache.syncope.common.lib.search.UserFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.rest.api.Preference;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.service.AccessTokenService;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 
 /**
@@ -45,31 +55,96 @@ import org.apache.syncope.common.rest.api.service.UserSelfService;
  */
 public class SyncopeClient {
 
+    private static final String HEADER_SPLIT_PROPERTY = "org.apache.cxf.http.header.split";
+
     private final MediaType mediaType;
 
-    private final RestClientFactoryBean restClientFactory;
+    private final JAXRSClientFactoryBean restClientFactory;
 
     private final RestClientExceptionMapper exceptionMapper;
-
-    private final String username;
-
-    private final String password;
 
     private final boolean useCompression;
 
     public SyncopeClient(
             final MediaType mediaType,
-            final RestClientFactoryBean restClientFactory,
+            final JAXRSClientFactoryBean restClientFactory,
             final RestClientExceptionMapper exceptionMapper,
-            final String username, final String password,
+            final AuthenticationHandler handler,
             final boolean useCompression) {
 
         this.mediaType = mediaType;
         this.restClientFactory = restClientFactory;
+        if (this.restClientFactory.getHeaders() == null) {
+            this.restClientFactory.setHeaders(new HashMap<String, String>());
+        }
         this.exceptionMapper = exceptionMapper;
-        this.username = username;
-        this.password = password;
+        init(handler);
         this.useCompression = useCompression;
+    }
+
+    /**
+     * Initializes the provided {@code restClientFactory} with the authentication capabilities of the provided
+     * {@code handler}.
+     *
+     * Currently supports:
+     * <ul>
+     * <li>{@link JWTAuthenticationHandler}</li>
+     * <li>{@link AnonymousAuthenticationHandler}</li>
+     * <li>{@link BasicAuthenticationHandler}</li>
+     * </ul>
+     * More can be supported by subclasses.
+     *
+     * @param handler authentication handler
+     */
+    protected void init(final AuthenticationHandler handler) {
+        cleanup();
+
+        if (handler instanceof AnonymousAuthenticationHandler) {
+            restClientFactory.setUsername(((AnonymousAuthenticationHandler) handler).getUsername());
+            restClientFactory.setPassword(((AnonymousAuthenticationHandler) handler).getPassword());
+        } else if (handler instanceof BasicAuthenticationHandler) {
+            restClientFactory.setUsername(((BasicAuthenticationHandler) handler).getUsername());
+            restClientFactory.setPassword(((BasicAuthenticationHandler) handler).getPassword());
+
+            String jwt = getService(AccessTokenService.class).login().getHeaderString(RESTHeaders.TOKEN);
+            restClientFactory.getHeaders().put(RESTHeaders.TOKEN, Collections.singletonList(jwt));
+
+            restClientFactory.setUsername(null);
+            restClientFactory.setPassword(null);
+        } else if (handler instanceof JWTAuthenticationHandler) {
+            restClientFactory.getHeaders().put(
+                    RESTHeaders.TOKEN, Collections.singletonList(((JWTAuthenticationHandler) handler).getJwt()));
+        }
+    }
+
+    protected void cleanup() {
+        restClientFactory.getHeaders().remove(RESTHeaders.TOKEN);
+        restClientFactory.setUsername(null);
+        restClientFactory.setPassword(null);
+    }
+
+    /**
+     * Attempts to extend the lifespan of the JWT currently in use.
+     */
+    public void refresh() {
+        getService(AccessTokenService.class).refresh();
+    }
+
+    /**
+     * Invalidates the JWT currently in use.
+     */
+    public void logout() {
+        getService(AccessTokenService.class).logout();
+        cleanup();
+    }
+
+    /**
+     * (Re)initializes the current instance with the authentication capabilities of the provided {@code handler}.
+     *
+     * @param handler authentication handler
+     */
+    public void login(final AuthenticationHandler handler) {
+        init(handler);
     }
 
     /**
@@ -110,6 +185,31 @@ public class SyncopeClient {
     }
 
     /**
+     * Returns the JWT in used by this instance, passed with the {@link RESTHeaders#TOKEN} header in all requests.
+     * It can be null (in case {@link NoAuthenticationHandler} or {@link AnonymousAuthenticationHandler} were used).
+     *
+     * @return the JWT in used by this instance
+     */
+    public String getJWT() {
+        List<String> headerValues = restClientFactory.getHeaders().get(RESTHeaders.TOKEN);
+        return headerValues == null || headerValues.isEmpty()
+                ? null
+                : headerValues.get(0);
+    }
+
+    /**
+     * Returns the domain configured for this instance, or {@link SyncopeConstants#MASTER_DOMAIN} if not set.
+     *
+     * @return the domain configured for this instance
+     */
+    public String getDomain() {
+        List<String> headerValues = restClientFactory.getHeaders().get(RESTHeaders.DOMAIN);
+        return headerValues == null || headerValues.isEmpty()
+                ? SyncopeConstants.MASTER_DOMAIN
+                : headerValues.get(0);
+    }
+
+    /**
      * Creates an instance of the given service class, with configured content type and authentication.
      *
      * @param <T> any service class
@@ -118,7 +218,21 @@ public class SyncopeClient {
      */
     public <T> T getService(final Class<T> serviceClass) {
         synchronized (restClientFactory) {
-            return restClientFactory.createServiceInstance(serviceClass, mediaType, username, password, useCompression);
+            restClientFactory.setServiceClass(serviceClass);
+            T serviceInstance = restClientFactory.create(serviceClass);
+
+            Client client = WebClient.client(serviceInstance);
+            client.type(mediaType).accept(mediaType);
+
+            ClientConfiguration config = WebClient.getConfig(client);
+            config.getRequestContext().put(HEADER_SPLIT_PROPERTY, true);
+            config.getRequestContext().put(URLConnectionHTTPConduit.HTTPURL_CONNECTION_METHOD_REFLECTION, true);
+            if (useCompression) {
+                config.getInInterceptors().add(new GZIPInInterceptor());
+                config.getOutInterceptors().add(new GZIPOutInterceptor());
+            }
+
+            return serviceInstance;
         }
     }
 
@@ -126,8 +240,7 @@ public class SyncopeClient {
     public Pair<Map<String, Set<String>>, UserTO> self() {
         // Explicitly disable header value split because it interferes with JSON deserialization below
         UserSelfService service = getService(UserSelfService.class);
-        WebClient.getConfig(WebClient.client(service)).
-                getRequestContext().put(RestClientFactoryBean.HEADER_SPLIT_PROPERTY, false);
+        WebClient.getConfig(WebClient.client(service)).getRequestContext().put(HEADER_SPLIT_PROPERTY, false);
 
         Response response = service.read();
         if (response.getStatusInfo().getStatusCode() != Response.Status.OK.getStatusCode()) {
@@ -164,19 +277,6 @@ public class SyncopeClient {
     }
 
     /**
-     * Creates an instance of the given service class and sets the given header.
-     *
-     * @param <T> any service class
-     * @param serviceClass service class reference
-     * @param key HTTP header key
-     * @param values HTTP header values
-     * @return service instance of the given reference class, with given header set
-     */
-    public <T> T header(final Class<T> serviceClass, final String key, final Object... values) {
-        return header(getService(serviceClass), key, values);
-    }
-
-    /**
      * Sets the {@code Prefer} header on the give service instance.
      *
      * @param <T> any service class
@@ -189,28 +289,16 @@ public class SyncopeClient {
     }
 
     /**
-     * Creates an instance of the given service class, with {@code Prefer} header set.
-     *
-     * @param <T> any service class
-     * @param serviceClass service class reference
-     * @param preference preference to be set via {@code Prefer} header
-     * @return service instance of the given reference class, with {@code Prefer} header set
-     */
-    public <T> T prefer(final Class<T> serviceClass, final Preference preference) {
-        return header(serviceClass, RESTHeaders.PREFER, preference.toString());
-    }
-
-    /**
      * Asks for asynchronous propagation towards external resources with null priority.
      *
      * @param <T> any service class
-     * @param serviceClass service class reference
+     * @param service service class instance
      * @param nullPriorityAsync whether asynchronous propagation towards external resources with null priority is
      * requested
      * @return service instance of the given reference class, with related header set
      */
-    public <T> T nullPriorityAsync(final Class<T> serviceClass, final boolean nullPriorityAsync) {
-        return header(serviceClass, RESTHeaders.NULL_PRIORITY_ASYNC, nullPriorityAsync);
+    public <T> T nullPriorityAsync(final T service, final boolean nullPriorityAsync) {
+        return header(service, RESTHeaders.NULL_PRIORITY_ASYNC, nullPriorityAsync);
     }
 
     /**
@@ -240,18 +328,6 @@ public class SyncopeClient {
     }
 
     /**
-     * Creates an instance of the given service class, with {@code If-Match} header set.
-     *
-     * @param <T> any service class
-     * @param serviceClass service class reference
-     * @param etag ETag value
-     * @return given service instance, with {@code If-Match} set
-     */
-    public <T> T ifMatch(final Class<T> serviceClass, final EntityTag etag) {
-        return match(getService(serviceClass), etag, false);
-    }
-
-    /**
      * Sets the {@code If-None-Match} header on the given service instance.
      *
      * @param <T> any service class
@@ -261,18 +337,6 @@ public class SyncopeClient {
      */
     public <T> T ifNoneMatch(final T service, final EntityTag etag) {
         return match(service, etag, true);
-    }
-
-    /**
-     * Creates an instance of the given service class, with {@code If-None-Match} header set.
-     *
-     * @param <T> any service class
-     * @param serviceClass service class reference
-     * @param etag ETag value
-     * @return given service instance, with {@code If-None-Match} set
-     */
-    public <T> T ifNoneMatch(final Class<T> serviceClass, final EntityTag etag) {
-        return match(getService(serviceClass), etag, true);
     }
 
     /**

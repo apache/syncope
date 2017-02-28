@@ -18,10 +18,13 @@
  */
 package org.apache.syncope.core.provisioning.java.job;
 
+import java.util.Collections;
 import java.util.Date;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -32,6 +35,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class IdentityRecertification extends AbstractSchedTaskJobDelegate {
 
     private static final String RECERTIFICATION_TIME = "identity.recertification.day.interval";
+
+    private static final int PAGE_SIZE = 10;
 
     @Autowired
     private ConfDAO confDAO;
@@ -88,13 +93,17 @@ public class IdentityRecertification extends AbstractSchedTaskJobDelegate {
             return ("IDENTITY RECERTIFICATION DISABLED");
         }
 
-        for (User user : userDAO.findAll()) {
-            LOG.debug("Processing user: {}", user.getUsername());
+        for (int page = 1; page <= (userDAO.count() / PAGE_SIZE) + 1; page++) {
+            for (User user : userDAO.findAll(
+                    SyncopeConstants.FULL_ADMIN_REALMS, page, PAGE_SIZE, Collections.<OrderByClause>emptyList())) {
 
-            if (StringUtils.isNotBlank(user.getWorkflowId()) && isToBeRecertified(user) && !dryRun) {
-                uwfAdapter.requestCertify(user);
-            } else {
-                LOG.warn("Workflow for {} is null or empty", user);
+                LOG.debug("Processing user: {}", user.getUsername());
+
+                if (StringUtils.isNotBlank(user.getWorkflowId()) && isToBeRecertified(user) && !dryRun) {
+                    uwfAdapter.requestCertify(user);
+                } else {
+                    LOG.warn("Workflow for {} is null or empty", user);
+                }
             }
         }
 

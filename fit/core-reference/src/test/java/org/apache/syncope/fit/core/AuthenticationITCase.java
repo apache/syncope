@@ -38,6 +38,8 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
+import org.apache.syncope.client.lib.BasicAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -98,15 +100,6 @@ public class AuthenticationITCase extends AbstractITCase {
         return readUserTO.getFailedLogins();
     }
 
-    private void assertReadFails(final SyncopeClient client) {
-        try {
-            client.self();
-            fail("access should not work");
-        } catch (Exception e) {
-            assertNotNull(e);
-        }
-    }
-
     @Test
     public void testReadEntitlements() {
         // 1. as not authenticated (not allowed)
@@ -118,7 +111,8 @@ public class AuthenticationITCase extends AbstractITCase {
         }
 
         // 2. as anonymous
-        Pair<Map<String, Set<String>>, UserTO> self = clientFactory.create(ANONYMOUS_UNAME, ANONYMOUS_KEY).self();
+        Pair<Map<String, Set<String>>, UserTO> self = clientFactory.create(
+                new AnonymousAuthenticationHandler(ANONYMOUS_UNAME, ANONYMOUS_KEY)).self();
         assertEquals(1, self.getKey().size());
         assertTrue(self.getKey().keySet().contains(StandardEntitlement.ANONYMOUS));
         assertEquals(ANONYMOUS_UNAME, self.getValue().getUsername());
@@ -342,10 +336,18 @@ public class AuthenticationITCase extends AbstractITCase {
         assertEquals(0, getFailedLogins(userService2, userKey));
 
         // authentications failed ...
-        SyncopeClient badPwdClient = clientFactory.create(userTO.getUsername(), "wrongpwd1");
-        assertReadFails(badPwdClient);
-        assertReadFails(badPwdClient);
-
+        try {
+            clientFactory.create(userTO.getUsername(), "wrongpwd1");
+            fail();
+        } catch (AccessControlException e) {
+            assertNotNull(e);
+        }
+        try {
+            clientFactory.create(userTO.getUsername(), "wrongpwd1");
+            fail();
+        } catch (AccessControlException e) {
+            assertNotNull(e);
+        }
         assertEquals(2, getFailedLogins(userService, userKey));
 
         UserService userService4 = clientFactory.create(userTO.getUsername(), "password123").
@@ -366,15 +368,34 @@ public class AuthenticationITCase extends AbstractITCase {
         assertEquals(0, getFailedLogins(userService, userKey));
 
         // authentications failed ...
-        SyncopeClient badPwdClient = clientFactory.create(userTO.getUsername(), "wrongpwd1");
-        assertReadFails(badPwdClient);
-        assertReadFails(badPwdClient);
-        assertReadFails(badPwdClient);
+        try {
+            clientFactory.create(userTO.getUsername(), "wrongpwd1");
+            fail();
+        } catch (AccessControlException e) {
+            assertNotNull(e);
+        }
+        try {
+            clientFactory.create(userTO.getUsername(), "wrongpwd1");
+            fail();
+        } catch (AccessControlException e) {
+            assertNotNull(e);
+        }
+        try {
+            clientFactory.create(userTO.getUsername(), "wrongpwd1");
+            fail();
+        } catch (AccessControlException e) {
+            assertNotNull(e);
+        }
 
         assertEquals(3, getFailedLogins(userService, userKey));
 
         // last authentication before suspension
-        assertReadFails(badPwdClient);
+        try {
+            clientFactory.create(userTO.getUsername(), "wrongpwd1");
+            fail();
+        } catch (AccessControlException e) {
+            assertNotNull(e);
+        }
 
         userTO = userService.read(userTO.getKey());
         assertNotNull(userTO);
@@ -383,8 +404,12 @@ public class AuthenticationITCase extends AbstractITCase {
         assertEquals("suspended", userTO.getStatus());
 
         // Access with correct credentials should fail as user is suspended
-        SyncopeClient goodPwdClient = clientFactory.create(userTO.getUsername(), "password123");
-        assertReadFails(goodPwdClient);
+        try {
+            clientFactory.create(userTO.getUsername(), "password123");
+            fail();
+        } catch (AccessControlException e) {
+            assertNotNull(e);
+        }
 
         StatusPatch reactivate = new StatusPatch();
         reactivate.setKey(userTO.getKey());
@@ -394,6 +419,7 @@ public class AuthenticationITCase extends AbstractITCase {
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
 
+        SyncopeClient goodPwdClient = clientFactory.create(userTO.getUsername(), "password123");
         assertEquals(0, goodPwdClient.self().getValue().getFailedLogins(), 0);
     }
 
@@ -468,6 +494,8 @@ public class AuthenticationITCase extends AbstractITCase {
         assertTrue(bellini.getRoles().contains(role.getKey()));
 
         // 5. now the instance of the type above can be created successfully
+        belliniClient.logout();
+        belliniClient.login(new BasicAuthenticationHandler("bellini", ADMIN_PWD));
         belliniClient.getService(AnyObjectService.class).create(folder);
     }
 
