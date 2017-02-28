@@ -142,6 +142,15 @@ under the License.
               owner_id="cd64d66f-6fff-4008-b966-a06b1cc1436d" schema_id="identity.recertification.day.interval"/>
   <CPlainAttrValue id="e5fa94db-b524-4309-908d-8198d0b3f77b"
                    attribute_id="bcfd7efc-0605-4b5e-b4bb-85c1d5f64bbb" longValue="-1"/>
+
+  <!--  JWT lifetime in minutes -->                   
+  <SyncopeSchema id="jwt.lifetime.minutes"/>
+  <PlainSchema id="jwt.lifetime.minutes" type="Long"
+               mandatoryCondition="true" multivalue="0" uniqueConstraint="0" readonly="0"/>
+  <CPlainAttr id="cfec3140-562d-459c-ac6a-e3e10758661d"
+              owner_id="cd64d66f-6fff-4008-b966-a06b1cc1436d" schema_id="jwt.lifetime.minutes"/>
+  <CPlainAttrValue id="447e2456-3ff5-41bc-8ff1-cbb0567546cb"
+                   attribute_id="cfec3140-562d-459c-ac6a-e3e10758661d" longValue="120"/>
   
   <AnyType id="USER" kind="USER"/>
   <AnyTypeClass id="BaseUser"/>
@@ -160,6 +169,10 @@ under the License.
   <Task DTYPE="SchedTask" id="e95555d2-1b09-42c8-b25b-f4c4ec598989" name="Identity Recertification Task"  active="0"
         jobDelegateClassName="org.apache.syncope.core.provisioning.java.job.IdentityRecertification"/>
   
+  <Task DTYPE="SchedTask" id="89de5014-e3f5-4462-84d8-d97575740baf" name="Access Token Cleanup Task"  active="1"
+        jobDelegateClassName="org.apache.syncope.core.provisioning.java.job.ExpiredAccessTokenCleanup"
+        cronExpression="0 0/5 * * * ?"/>
+
   <!-- Password reset notifications -->
   <MailTemplate id="requestPasswordReset"
                 textTemplate="Hi,

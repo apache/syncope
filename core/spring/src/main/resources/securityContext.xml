@@ -28,8 +28,37 @@ under the License.
   <bean id="adminUser" class="java.lang.String">
     <constructor-arg value="${adminUser}"/>
   </bean>
+  <bean id="adminPassword" class="java.lang.String">
+    <constructor-arg value="${adminPassword}"/>
+  </bean>
+  <bean id="adminPasswordAlgorithm" class="java.lang.String">
+    <constructor-arg value="${adminPasswordAlgorithm}"/>
+  </bean>
+
   <bean id="anonymousUser" class="java.lang.String">
     <constructor-arg value="${anonymousUser}"/>
+  </bean>
+  <bean id="anonymousKey" class="java.lang.String">
+    <constructor-arg value="${anonymousKey}"/>
+  </bean>
+  
+  <bean id="jwtIssuer" class="java.lang.String">
+    <constructor-arg value="${jwtIssuer}"/>
+  </bean>
+  <bean id="jwsKey" class="java.lang.String">
+    <constructor-arg value="${jwsKey}"/>
+  </bean>
+  <bean id="jwsSignatureVerifier" class="org.apache.cxf.rs.security.jose.jws.HmacJwsSignatureVerifier">
+    <constructor-arg value="${jwsKey}.bytes" index="0"/>
+    <constructor-arg index="1">
+      <value type="org.apache.cxf.rs.security.jose.jwa.SignatureAlgorithm">HS512</value>
+    </constructor-arg>
+  </bean>
+  <bean id="jwsSignatureProvider" class="org.apache.cxf.rs.security.jose.jws.HmacJwsSignatureProvider">
+    <constructor-arg value="${jwsKey}.bytes" index="0"/>
+    <constructor-arg index="1">
+      <value type="org.apache.cxf.rs.security.jose.jwa.SignatureAlgorithm">HS512</value>
+    </constructor-arg>
   </bean>
   
   <bean class="${passwordGenerator}"/>
@@ -37,44 +66,51 @@ under the License.
   
   <security:global-method-security pre-post-annotations="enabled"/>
   
-  <bean id="filterChainProxy" class="org.springframework.security.web.FilterChainProxy">
-    <security:filter-chain-map request-matcher="ant">
-      <security:filter-chain pattern="/**" filters="securityContextPersistenceFilter"/>
-    </security:filter-chain-map>
-  </bean>
-  
   <bean id="securityContextRepository" class='org.springframework.security.web.context.NullSecurityContextRepository'/>
-
   <bean id="securityContextPersistenceFilter"
         class="org.springframework.security.web.context.SecurityContextPersistenceFilter">
     <constructor-arg ref="securityContextRepository"/>
   </bean>
 
-  <bean id="syncopeAuthenticationDetailsSource"
-        class="org.apache.syncope.core.spring.security.SyncopeAuthenticationDetailsSource"/>
+  <bean id="filterChainProxy" class="org.springframework.security.web.FilterChainProxy">
+    <security:filter-chain-map request-matcher="ant">
+      <security:filter-chain pattern="/**" filters="securityContextPersistenceFilter"/>
+    </security:filter-chain-map>
+  </bean>  
 
-  <bean id="mustChangePasswordFilter" class="org.apache.syncope.core.spring.security.MustChangePasswordFilter"/>
+  <bean id="firewall" class="org.springframework.security.web.firewall.DefaultHttpFirewall">
+    <property name="allowUrlEncodedSlash" value="true"/>
+  </bean>
+  <security:http-firewall ref="firewall"/>
+
+  <bean id="authenticationDetailsSource"
+        class="org.apache.syncope.core.spring.security.SyncopeAuthenticationDetailsSource"/>
       
   <bean id="basicAuthenticationEntryPoint" 
         class="org.apache.syncope.core.spring.security.SyncopeBasicAuthenticationEntryPoint">
     <property name="realmName" value="Apache Syncope authentication"/>
   </bean>
   
-  <bean id="syncopeAccessDeniedHandler" class="org.apache.syncope.core.spring.security.SyncopeAccessDeniedHandler"/>
-  
-  <bean id="firewall" class="org.springframework.security.web.firewall.DefaultHttpFirewall">
-    <property name="allowUrlEncodedSlash" value="true"/>
+  <bean id="jwtAuthenticationFilter" class="org.apache.syncope.core.spring.security.JWTAuthenticationFilter">
+    <property name="authenticationManager" ref="authenticationManager"/>
+    <property name="authenticationEntryPoint" ref="basicAuthenticationEntryPoint"/>
+    <property name="authenticationDetailsSource" ref="authenticationDetailsSource"/>
   </bean>
-  <security:http-firewall ref="firewall"/>
+  
+  <bean id="mustChangePasswordFilter" class="org.apache.syncope.core.spring.security.MustChangePasswordFilter"/>
 
-  <security:http security-context-repository-ref="securityContextRepository"
+  <bean id="syncopeAccessDeniedHandler" class="org.apache.syncope.core.spring.security.SyncopeAccessDeniedHandler"/>
+    
+  <security:http create-session="stateless"
+                 security-context-repository-ref="securityContextRepository"
                  entry-point-ref="basicAuthenticationEntryPoint"
-                 use-expressions="false" disable-url-rewriting="false">
+                 use-expressions="false" disable-url-rewriting="false"
+                 pattern="/**">
 
-    <security:http-basic entry-point-ref="basicAuthenticationEntryPoint"
-                         authentication-details-source-ref="syncopeAuthenticationDetailsSource"/>
     <security:anonymous username="${anonymousUser}"/>
-    <security:intercept-url pattern="/**"/>
+
+    <security:custom-filter ref="jwtAuthenticationFilter" before="BASIC_AUTH_FILTER"/>
+    <security:http-basic authentication-details-source-ref="authenticationDetailsSource"/>
     
     <security:custom-filter before="FILTER_SECURITY_INTERCEPTOR" ref="mustChangePasswordFilter"/>
     
@@ -86,14 +122,14 @@ under the License.
 
   <bean class="org.apache.syncope.core.spring.security.AuthDataAccessor"/>
 
-  <bean id="syncopeAuthenticationProvider"
-        class="org.apache.syncope.core.spring.security.SyncopeAuthenticationProvider">
-    <property name="adminPassword" value="${adminPassword}"/>
-    <property name="adminPasswordAlgorithm" value="${adminPasswordAlgorithm}"/>
-    <property name="anonymousKey" value="${anonymousKey}"/>
-  </bean>
+  <bean id="usernamePasswordAuthenticationProvider"
+        class="org.apache.syncope.core.spring.security.UsernamePasswordAuthenticationProvider"/>
 
-  <security:authentication-manager>
-    <security:authentication-provider ref="syncopeAuthenticationProvider"/>
+  <bean id="jwtAuthenticationProvider"
+        class="org.apache.syncope.core.spring.security.JWTAuthenticationProvider"/>
+
+  <security:authentication-manager alias="authenticationManager">
+    <security:authentication-provider ref="usernamePasswordAuthenticationProvider"/>
+    <security:authentication-provider ref="jwtAuthenticationProvider"/>
   </security:authentication-manager>
 </beans>

@@ -38,6 +38,7 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.syncope.client.lib.BasicAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -69,9 +70,8 @@ public class RESTITCase extends AbstractITCase {
         assertFalse(connectors.isEmpty());
 
         // service with bad password: 401 unauthorized
-        SyncopeClient badClient = clientFactory.create("bellini", "passwor");
         try {
-            badClient.getService(ConnectorService.class).list(null);
+            clientFactory.create("bellini", "passwor");
             fail();
         } catch (AccessControlException e) {
             assertNotNull(e);
@@ -90,7 +90,8 @@ public class RESTITCase extends AbstractITCase {
     @Test
     public void noContent() throws IOException {
         SyncopeClient noContentclient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
-        GroupService noContentService = noContentclient.prefer(GroupService.class, Preference.RETURN_NO_CONTENT);
+        GroupService noContentService = noContentclient.prefer(
+                noContentclient.getService(GroupService.class), Preference.RETURN_NO_CONTENT);
 
         GroupTO group = GroupITCase.getSampleTO("noContent");
 
@@ -144,7 +145,7 @@ public class RESTITCase extends AbstractITCase {
         EntityTag etag1 = adminClient.getLatestEntityTag(userService);
         assertFalse(etag.getValue().equals(etag1.getValue()));
 
-        UserService ifMatchService = adminClient.ifMatch(UserService.class, etag);
+        UserService ifMatchService = adminClient.ifMatch(adminClient.getService(UserService.class), etag);
         userPatch.setUsername(new StringReplacePatchItem.Builder().value(userTO.getUsername() + "YY").build());
         try {
             ifMatchService.update(userPatch);
@@ -165,8 +166,7 @@ public class RESTITCase extends AbstractITCase {
                 MediaType.WILDCARD_TYPE,
                 factory.getRestClientFactoryBean(),
                 factory.getExceptionMapper(),
-                ADMIN_UNAME,
-                ADMIN_PWD,
+                new BasicAuthenticationHandler(ADMIN_UNAME, ADMIN_PWD),
                 false);
 
         // perform operation

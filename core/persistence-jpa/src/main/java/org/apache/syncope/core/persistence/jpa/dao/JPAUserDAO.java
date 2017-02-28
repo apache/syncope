@@ -50,6 +50,7 @@ import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
+import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AccountRule;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -57,6 +58,7 @@ import org.apache.syncope.core.persistence.api.dao.PasswordRule;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
@@ -94,6 +96,9 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
 
     @Autowired
     private RoleDAO roleDAO;
+
+    @Autowired
+    private AccessTokenDAO accessTokenDAO;
 
     @Autowired
     private ImplementationLookup implementationLookup;
@@ -422,6 +427,11 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
         }
         for (Group group : findDynGroupMemberships(user)) {
             group.getUDynMembership().getMembers().remove(user);
+        }
+
+        AccessToken accessToken = accessTokenDAO.findByOwner(user.getUsername());
+        if (accessToken != null) {
+            accessTokenDAO.delete(accessToken);
         }
 
         entityManager().remove(user);

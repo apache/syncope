@@ -27,6 +27,7 @@ import static org.junit.Assert.fail;
 import java.security.AccessControlException;
 import java.util.List;
 import javax.ws.rs.core.Response;
+import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.VirSchemaTO;
@@ -99,7 +100,9 @@ public class VirSchemaITCase extends AbstractITCase {
             assertNotNull(e);
         }
 
-        SchemaService anonymous = clientFactory.create(ANONYMOUS_UNAME, ANONYMOUS_KEY).getService(SchemaService.class);
+        SchemaService anonymous = clientFactory.create(
+                new AnonymousAuthenticationHandler(ANONYMOUS_UNAME, ANONYMOUS_KEY)).
+                getService(SchemaService.class);
         assertFalse(anonymous.list(new SchemaQuery.Builder().type(SchemaType.VIRTUAL).build()).isEmpty());
     }
 

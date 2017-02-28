@@ -137,8 +137,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_LIST + "')")
     public List<ReportTO> list() {
-        return CollectionUtils.collect(reportDAO.findAll(),
-                new Transformer<Report, ReportTO>() {
+        return CollectionUtils.collect(reportDAO.findAll(), new Transformer<Report, ReportTO>() {
 
             @Override
             public ReportTO transform(final Report input) {

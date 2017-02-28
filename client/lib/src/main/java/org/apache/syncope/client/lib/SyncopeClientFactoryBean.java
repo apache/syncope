@@ -31,6 +31,7 @@ import javax.xml.bind.Marshaller;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.feature.Feature;
 import org.apache.cxf.ext.logging.LoggingFeature;
+import org.apache.cxf.jaxrs.client.JAXRSClientFactoryBean;
 import org.apache.cxf.jaxrs.provider.JAXBElementProvider;
 import org.apache.cxf.staxutils.DocumentDepthProperties;
 import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
@@ -79,7 +80,7 @@ public class SyncopeClientFactoryBean {
 
     private boolean useCompression;
 
-    private RestClientFactoryBean restClientFactoryBean;
+    private JAXRSClientFactoryBean restClientFactoryBean;
 
     protected JacksonJaxbJsonProvider defaultJsonProvider() {
         ObjectMapper objectMapper = new ObjectMapper();
@@ -111,8 +112,9 @@ public class SyncopeClientFactoryBean {
         return new RestClientExceptionMapper();
     }
 
-    protected RestClientFactoryBean defaultRestClientFactoryBean() {
-        RestClientFactoryBean defaultRestClientFactoryBean = new RestClientFactoryBean();
+    protected JAXRSClientFactoryBean defaultRestClientFactoryBean() {
+        JAXRSClientFactoryBean defaultRestClientFactoryBean = new JAXRSClientFactoryBean();
+        defaultRestClientFactoryBean.setHeaders(new HashMap<String, String>());
 
         if (StringUtils.isBlank(address)) {
             throw new IllegalArgumentException("Property 'address' is missing");
@@ -120,7 +122,7 @@ public class SyncopeClientFactoryBean {
         defaultRestClientFactoryBean.setAddress(address);
 
         if (StringUtils.isNotBlank(domain)) {
-            defaultRestClientFactoryBean.setHeaders(Collections.singletonMap(RESTHeaders.DOMAIN, domain));
+            defaultRestClientFactoryBean.getHeaders().put(RESTHeaders.DOMAIN, Collections.singletonList(domain));
         }
 
         defaultRestClientFactoryBean.setThreadSafe(true);
@@ -221,41 +223,62 @@ public class SyncopeClientFactoryBean {
         return useCompression;
     }
 
-    public RestClientFactoryBean getRestClientFactoryBean() {
+    public JAXRSClientFactoryBean getRestClientFactoryBean() {
         return restClientFactoryBean == null
                 ? defaultRestClientFactoryBean()
                 : restClientFactoryBean;
     }
 
-    public SyncopeClientFactoryBean setRestClientFactoryBean(final RestClientFactoryBean restClientFactoryBean) {
+    public SyncopeClientFactoryBean setRestClientFactoryBean(final JAXRSClientFactoryBean restClientFactoryBean) {
         this.restClientFactoryBean = restClientFactoryBean;
         return this;
     }
 
     /**
-     * Builds client instance with no authentication, for user self-registration and related queries (schema,
-     * resources, ...).
+     * Builds client instance with no authentication, for user self-registration and password reset.
      *
      * @return client instance with no authentication
      */
     public SyncopeClient create() {
-        return create(null, null);
+        return create(new NoAuthenticationHandler());
     }
 
     /**
      * Builds client instance with the given credentials.
+     * Such credentials will be used only to obtain a valid JWT in the {@link RESTHeaders#TOKEN} header;
      *
      * @param username username
      * @param password password
      * @return client instance with the given credentials
      */
     public SyncopeClient create(final String username, final String password) {
+        return create(new BasicAuthenticationHandler(username, password));
+    }
+
+    /**
+     * Builds client instance which will be passing the provided value in the {@link RESTHeaders#TOKEN}
+     * request header.
+     *
+     * @param jwt value received after login, in the {@link RESTHeaders#TOKEN} response header
+     * @return client instance which will be passing the provided value in the {{@link RESTHeaders#TOKEN}
+     * request header
+     */
+    public SyncopeClient create(final String jwt) {
+        return create(new JWTAuthenticationHandler(jwt));
+    }
+
+    /**
+     * Builds client instance with the given authentication handler.
+     *
+     * @param handler authentication handler
+     * @return client instance with the given authentication handler
+     */
+    public SyncopeClient create(final AuthenticationHandler handler) {
         return new SyncopeClient(
                 getContentType().getMediaType(),
                 getRestClientFactoryBean(),
                 getExceptionMapper(),
-                username,
-                password,
+                handler,
                 useCompression);
     }
 }

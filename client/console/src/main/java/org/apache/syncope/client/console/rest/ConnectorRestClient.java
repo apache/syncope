@@ -58,8 +58,8 @@ public class ConnectorRestClient extends BaseRestClient {
         connectorTO.getConf().clear();
         connectorTO.getConf().addAll(filteredConf);
 
-        final ConnectorService service = getService(ConnectorService.class);
-        final Response response = service.create(connectorTO);
+        ConnectorService service = getService(ConnectorService.class);
+        Response response = service.create(connectorTO);
 
         return getObject(service, response.getLocation(), ConnInstanceTO.class);
     }

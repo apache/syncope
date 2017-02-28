@@ -35,9 +35,11 @@ import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
@@ -48,6 +50,7 @@ import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
+import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.api.entity.Domain;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
@@ -57,14 +60,17 @@ import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.ConnectorFactory;
+import org.apache.syncope.core.provisioning.api.EntitlementsHolder;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -78,6 +84,9 @@ public class AuthDataAccessor {
     protected static final Logger LOG = LoggerFactory.getLogger(AuthDataAccessor.class);
 
     protected static final Encryptor ENCRYPTOR = Encryptor.getInstance();
+
+    protected static final Set<SyncopeGrantedAuthority> ANONYMOUS_AUTHORITIES =
+            Collections.singleton(new SyncopeGrantedAuthority(StandardEntitlement.ANONYMOUS));
 
     @Resource(name = "adminUser")
     protected String adminUser;
@@ -105,6 +114,9 @@ public class AuthDataAccessor {
 
     @Autowired
     protected AnySearchDAO searchDAO;
+
+    @Autowired
+    protected AccessTokenDAO accessTokenDAO;
 
     @Autowired
     protected ConnectorFactory connFactory;
@@ -170,7 +182,7 @@ public class AuthDataAccessor {
             }
 
             boolean userModified = false;
-            authenticated = authenticate(user, authentication.getCredentials().toString());
+            authenticated = AuthDataAccessor.this.authenticate(user, authentication.getCredentials().toString());
             if (authenticated) {
                 if (confDAO.find("log.lastlogindate", Boolean.toString(true)).getValues().get(0).getBooleanValue()) {
                     user.setLastLoginDate(new Date());
@@ -249,23 +261,20 @@ public class AuthDataAccessor {
         return SetUtils.emptyIfNull(result);
     }
 
-    @Transactional(readOnly = true)
-    public void audit(
-            final AuditElements.EventCategoryType type,
-            final String category,
-            final String subcategory,
-            final String event,
-            final AuditElements.Result result,
-            final Object before,
-            final Object output,
-            final Object... input) {
+    protected Set<SyncopeGrantedAuthority> getAdminAuthorities() {
+        return CollectionUtils.collect(EntitlementsHolder.getInstance().getValues(),
+                new Transformer<String, SyncopeGrantedAuthority>() {
 
-        auditManager.audit(type, category, subcategory, event, result, before, output, input);
+            @Override
+            public SyncopeGrantedAuthority transform(final String entitlement) {
+                return new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM);
+            }
+        }, new HashSet<SyncopeGrantedAuthority>());
     }
 
-    @Transactional
-    public Set<SyncopeGrantedAuthority> getAuthorities(final User user) {
+    protected Set<SyncopeGrantedAuthority> getUserAuthorities(final User user) {
         Set<SyncopeGrantedAuthority> authorities = new HashSet<>();
+
         if (user.isMustChangePassword()) {
             authorities.add(new SyncopeGrantedAuthority(StandardEntitlement.MUST_CHANGE_PASSWORD));
         } else {
@@ -322,4 +331,73 @@ public class AuthDataAccessor {
 
         return authorities;
     }
+
+    @Transactional
+    public Set<SyncopeGrantedAuthority> getAuthorities(final String username) {
+        Set<SyncopeGrantedAuthority> authorities;
+
+        if (anonymousUser.equals(username)) {
+            authorities = ANONYMOUS_AUTHORITIES;
+        } else if (adminUser.equals(username)) {
+            authorities = getAdminAuthorities();
+        } else {
+            User user = userDAO.findByUsername(username);
+            if (user == null) {
+                throw new UsernameNotFoundException("Could not find any user with id " + username);
+            }
+
+            authorities = getUserAuthorities(user);
+        }
+
+        return authorities;
+    }
+
+    @Transactional
+    public Set<SyncopeGrantedAuthority> authenticate(final JWTAuthentication authentication) {
+        AccessToken accessToken = accessTokenDAO.find(authentication.getClaims().getTokenId());
+        if (accessToken == null) {
+            throw new AuthenticationCredentialsNotFoundException(
+                    "Could not find JWT " + authentication.getClaims().getTokenId());
+        }
+
+        Set<SyncopeGrantedAuthority> authorities;
+        if (adminUser.equals(accessToken.getOwner())) {
+            authorities = getAdminAuthorities();
+        } else {
+            User user = userDAO.findByUsername(accessToken.getOwner());
+            if (user == null) {
+                throw new AuthenticationCredentialsNotFoundException(
+                        "Could not find user " + accessToken.getOwner()
+                        + " for JWT " + authentication.getClaims().getTokenId());
+            }
+
+            if (user.isSuspended() != null && user.isSuspended()) {
+                throw new DisabledException("User " + user.getUsername() + " is suspended");
+            }
+
+            CPlainAttr authStatuses = confDAO.find("authentication.statuses");
+            if (authStatuses != null && !authStatuses.getValuesAsStrings().contains(user.getStatus())) {
+                throw new DisabledException("User " + user.getUsername() + " not allowed to authenticate");
+            }
+
+            authorities = getUserAuthorities(user);
+        }
+
+        return authorities;
+    }
+
+    @Transactional(readOnly = true)
+    public void audit(
+            final AuditElements.EventCategoryType type,
+            final String category,
+            final String subcategory,
+            final String event,
+            final AuditElements.Result result,
+            final Object before,
+            final Object output,
+            final Object... input) {
+
+        auditManager.audit(type, category, subcategory, event, result, before, output, input);
+    }
+
 }

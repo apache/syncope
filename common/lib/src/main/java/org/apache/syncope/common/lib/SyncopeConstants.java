@@ -29,6 +29,8 @@ public final class SyncopeConstants {
 
     public static final String NS = "http://syncope.apache.org/2.0";
 
+    public static final String JWT_CLAIM_REMOTE_HOST = "remoteHost";
+
     public static final String MASTER_DOMAIN = "Master";
 
     public static final String ROOT_REALM = "/";

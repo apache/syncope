@@ -18,9 +18,7 @@
  */
 package org.apache.syncope.client.enduser;
 
-import java.text.DateFormat;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import javax.ws.rs.core.EntityTag;
@@ -29,6 +27,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
+import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.info.PlatformInfo;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
@@ -58,10 +57,6 @@ public class SyncopeEnduserSession extends WebSession {
 
     private SyncopeClient client;
 
-    private String username;
-
-    private String password;
-
     private final PlatformInfo platformInfo;
 
     private final List<PlainSchemaTO> datePlainSchemas;
@@ -81,9 +76,10 @@ public class SyncopeEnduserSession extends WebSession {
         // define cookie utility to manage application cookies
         cookieUtils = new CookieUtils();
 
-        anonymousClient = SyncopeEnduserApplication.get().getClientFactory().create(
-                SyncopeEnduserApplication.get().getAnonymousUser(),
-                SyncopeEnduserApplication.get().getAnonymousKey());
+        anonymousClient = SyncopeEnduserApplication.get().getClientFactory().
+                create(new AnonymousAuthenticationHandler(
+                        SyncopeEnduserApplication.get().getAnonymousUser(),
+                        SyncopeEnduserApplication.get().getAnonymousKey()));
         platformInfo = anonymousClient.getService(SyncopeService.class).platform();
 
         datePlainSchemas = anonymousClient.getService(SchemaService.class).
@@ -108,10 +104,8 @@ public class SyncopeEnduserSession extends WebSession {
             Pair<Map<String, Set<String>>, UserTO> self = client.self();
             selfTO = self.getValue();
 
-            this.username = username;
-            this.password = password;
-            // bind explicitly this session to have a stateful behavior during http requests, unless session will expire
-            // for every  request
+            // bind explicitly this session to have a stateful behavior during http requests, unless session will
+            // expire for every request
             this.bind();
             authenticated = true;
         } catch (Exception e) {
@@ -135,14 +129,6 @@ public class SyncopeEnduserSession extends WebSession {
         return serviceInstance;
     }
 
-    public String getUsername() {
-        return username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
     public PlatformInfo getPlatformInfo() {
         return platformInfo;
     }
@@ -156,13 +142,7 @@ public class SyncopeEnduserSession extends WebSession {
     }
 
     public boolean isAuthenticated() {
-        return getUsername() != null;
-    }
-
-    public DateFormat getDateFormat() {
-        final Locale locale = getLocale() == null ? Locale.ENGLISH : getLocale();
-
-        return DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, locale);
+        return client.getJWT() != null;
     }
 
     public CookieUtils getCookieUtils() {
@@ -175,6 +155,18 @@ public class SyncopeEnduserSession extends WebSession {
 
     public void setXsrfTokenGenerated(final boolean xsrfTokenGenerated) {
         this.xsrfTokenGenerated = xsrfTokenGenerated;
+    }
+
+    @Override
+    public void invalidate() {
+        client.logout();
+        super.invalidate();
+    }
+
+    @Override
+    public void invalidateNow() {
+        client.logout();
+        super.invalidateNow();
     }
 
 }

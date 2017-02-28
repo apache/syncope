@@ -72,7 +72,7 @@ Sometimes it is useful to obtain values as arbitrary combinations of other attri
 concatenation of `firstname` 's and `surname` 's values, separated by a blank space.
 
 Derived schemas are always read-only and require a http://commons.apache.org/proper/commons-jexl/[JEXL^]
-expression to be specified that reference plain schema types. +
+expression to be specified that references plain schema types. +
 For the sample above, it would be
 
  firstname + ' ' + surname

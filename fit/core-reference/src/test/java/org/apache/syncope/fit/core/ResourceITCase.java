@@ -35,6 +35,7 @@ import java.util.Set;
 import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
+import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
@@ -528,7 +529,8 @@ public class ResourceITCase extends AbstractITCase {
             assertNotNull(e);
         }
 
-        ResourceService anonymous = clientFactory.create(ANONYMOUS_UNAME, ANONYMOUS_KEY).
+        ResourceService anonymous = clientFactory.create(
+                new AnonymousAuthenticationHandler(ANONYMOUS_UNAME, ANONYMOUS_KEY)).
                 getService(ResourceService.class);
         assertFalse(anonymous.list().isEmpty());
     }

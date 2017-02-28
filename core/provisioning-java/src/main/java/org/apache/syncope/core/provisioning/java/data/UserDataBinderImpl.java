@@ -48,6 +48,7 @@ import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ResourceOperation;
+import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.SecurityQuestionDAO;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
@@ -61,6 +62,7 @@ import org.apache.syncope.core.spring.BeanUtils;
 import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
+import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
@@ -98,6 +100,9 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
     @Autowired
     private AnyTypeDAO anyTypeDAO;
+
+    @Autowired
+    private AccessTokenDAO accessTokenDAO;
 
     @Resource(name = "adminUser")
     private String adminUser;
@@ -336,6 +341,12 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
             if (oldUsername.equals(AuthContextUtils.getUsername())) {
                 AuthContextUtils.updateUsername(userPatch.getUsername().getValue());
+            }
+
+            AccessToken accessToken = accessTokenDAO.findByOwner(oldUsername);
+            if (accessToken != null) {
+                accessToken.setOwner(userPatch.getUsername().getValue());
+                accessTokenDAO.save(accessToken);
             }
 
             propByRes.addAll(ResourceOperation.UPDATE, currentResources);

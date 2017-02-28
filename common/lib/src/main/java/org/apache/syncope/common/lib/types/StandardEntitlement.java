@@ -240,6 +240,10 @@ public final class StandardEntitlement {
 
     public static final String SECURITY_QUESTION_DELETE = "SECURITY_QUESTION_DELETE";
 
+    public static final String ACCESS_TOKEN_LIST = "TASK_LIST";
+
+    public static final String ACCESS_TOKEN_DELETE = "TASK_DELETE";
+
     private static final Set<String> VALUES;
 
     static {

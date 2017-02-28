@@ -541,6 +541,11 @@ under the License.
       </dependency>
       <dependency>
         <groupId>org.apache.cxf</groupId>
+        <artifactId>cxf-rt-rs-security-jose</artifactId>
+        <version>${cxf.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.cxf</groupId>
         <artifactId>cxf-rt-rs-service-description</artifactId>
         <version>${cxf.version}</version>
       </dependency>
@@ -763,7 +768,11 @@ under the License.
         <exclusions>
           <exclusion>
             <groupId>org.springframework</groupId>
-            <artifactId>spring-aop</artifactId>
+            <artifactId>spring-beans</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
           </exclusion>
           <exclusion>
             <groupId>org.springframework</groupId>
@@ -775,6 +784,16 @@ under the License.
         <groupId>org.springframework.security</groupId>
         <artifactId>spring-security-web</artifactId>
         <version>${spring-security.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
         <groupId>org.springframework.security</groupId>

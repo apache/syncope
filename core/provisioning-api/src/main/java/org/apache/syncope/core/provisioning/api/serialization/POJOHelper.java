@@ -19,6 +19,7 @@
 package org.apache.syncope.core.provisioning.api.serialization;
 
 import com.fasterxml.jackson.core.Version;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.module.afterburner.AfterburnerModule;
@@ -64,6 +65,18 @@ public final class POJOHelper {
     }
 
     public static <T extends Object> T deserialize(final String serialized, final Class<T> reference) {
+        T result = null;
+
+        try {
+            result = MAPPER.readValue(serialized, reference);
+        } catch (Exception e) {
+            LOG.error("During deserialization", e);
+        }
+
+        return result;
+    }
+
+    public static <T extends Object> T deserialize(final String serialized, final TypeReference<T> reference) {
         T result = null;
 
         try {
