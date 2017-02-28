@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
@@ -241,8 +242,8 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> imple
         Mapping mapping = new Mapping(modelObject);
         mapping.setOutputMarkupId(true);
 
-        MappingItemTransformersTogglePanel mapItemTransformers =
-                new MappingItemTransformersTogglePanel(mapping, pageRef);
+        MappingItemTransformersTogglePanel mapItemTransformers
+                = new MappingItemTransformersTogglePanel(mapping, pageRef);
         addOuterObject(mapItemTransformers);
         JEXLTransformersTogglePanel jexlTransformers = new JEXLTransformersTogglePanel(mapping, pageRef);
         addOuterObject(jexlTransformers);
@@ -257,9 +258,29 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> imple
 
     @Override
     protected Serializable onApplyInternal(final ProvisionTO modelObject) {
+        final List<ProvisionTO> provisions;
         if (modelObject.getKey() == null) {
-            this.resourceTO.getProvisions().add(modelObject);
+            provisions
+                    = ListUtils.select(this.resourceTO.getProvisions(), new Predicate<ProvisionTO>() {
+
+                        @Override
+                        public boolean evaluate(final ProvisionTO object) {
+                            return !modelObject.getAnyType().equals(object.getAnyType());
+                        }
+                    });
+        } else {
+            provisions
+                    = ListUtils.select(this.resourceTO.getProvisions(), new Predicate<ProvisionTO>() {
+
+                        @Override
+                        public boolean evaluate(final ProvisionTO object) {
+                            return !modelObject.getKey().equals(object.getKey());
+                        }
+                    });
         }
+        provisions.add(modelObject);
+        this.resourceTO.getProvisions().clear();
+        this.resourceTO.getProvisions().addAll(provisions);
         return modelObject;
     }
 }
