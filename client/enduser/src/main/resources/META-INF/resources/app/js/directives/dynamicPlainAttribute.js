@@ -38,14 +38,23 @@ angular.module('self')
                     break;
                   case "Enum":
                     $scope.enumerationValues = [];
+                    $scope.enumerationKeys = [];
 
                     //SYNCOPE-911 empty value option on non required attributes 
                     if (schema.mandatoryCondition !== "true") {
                       $scope.enumerationValues.push("");
+                      $scope.enumerationKeys.push("");
                     }
                     var enumerationValuesSplitted = schema.enumerationValues.toString().split(";");
                     for (var i = 0; i < enumerationValuesSplitted.length; i++) {
                       $scope.enumerationValues.push(enumerationValuesSplitted[i]);
+                    }
+                    //SYNCOPE-1024 enumeration keys mgmt
+                    if ( schema.enumerationKeys ) {
+                      var enumerationKeysSplitted = schema.enumerationKeys.toString().split( ";" );
+                      for ( var i = 0; i < enumerationKeysSplitted.length; i++ ) {
+                        $scope.enumerationKeys.push( enumerationKeysSplitted[i] );
+                      }
                     }
                     $scope.user.plainAttrs[schema.key].values[index] = $scope.user.plainAttrs[schema.key].values[index]
                             || $scope.enumerationValues[0];

@@ -391,7 +391,6 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
         UserSelfService.update(wrappedUser, $scope.captchaInput.value).then(function (response) {
           console.debug("Updated user: ", response);
           AuthService.logout().then(function (response) {
-            console.info("LOGOUT SUCCESS: ", response);
             console.info("User " + $scope.user.username + " SUCCESSFULLY_UPDATED");
             $rootScope.currentUser = $scope.user.username;
             $rootScope.currentOp = "SUCCESSFULLY_UPDATED";

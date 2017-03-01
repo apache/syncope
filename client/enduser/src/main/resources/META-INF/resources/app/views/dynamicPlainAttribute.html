@@ -98,7 +98,7 @@ under the License.
             ng-model="user.plainAttrs[schema.key].values[index]"
             ng-required="{{schema.mandatoryCondition}}">
       <option ng-repeat="value in enumerationValues" value="{{value}}">
-        {{schema.enumerationKeys[$index]|| value}}
+        {{enumerationKeys[$index] || value}}
       </option>
     </select>
   </div>
