@@ -372,6 +372,11 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
                 }
 
                 @Override
+                protected void customActionCallback(final AjaxRequestTarget target) {
+                    Builder.this.customActionCallback(target);
+                }
+
+                @Override
                 protected void customActionOnFinishCallback(final AjaxRequestTarget target) {
                     Builder.this.customActionOnFinishCallback(target);
                 }
@@ -381,6 +386,9 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
                     Builder.this.customActionOnCancelCallback(target);
                 }
             };
+        }
+
+        protected void customActionCallback(final AjaxRequestTarget target) {
         }
 
         protected void customActionOnCancelCallback(final AjaxRequestTarget target) {

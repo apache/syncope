@@ -21,7 +21,6 @@ package org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.behavior.Draggable;
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.behavior.DraggableConfig;
-import de.agilecoders.wicket.extensions.markup.html.bootstrap.behavior.Resizable;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,6 +46,7 @@ import org.slf4j.LoggerFactory;
 import org.apache.syncope.client.console.panels.SubmitableModalPanel;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorModalCloseBehavior;
 import org.apache.wicket.ajax.AjaxEventBehavior;
+import org.apache.wicket.event.IEvent;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
 
@@ -79,6 +79,8 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
 
     private AjaxEventBehavior closeBehavior;
 
+    private WebMarkupContainer footer;
+
     public BaseModal(final String id) {
         super(id);
 
@@ -101,8 +103,7 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
         components = new ArrayList<>();
 
         // Note: not adding this would imply adding WebjarsJavaScriptResourceReference about JQuery resizable and mouse
-        add(new Resizable().withChildSelector(".modal-content"));
-
+        // add(new Resizable().withChildSelector(".modal-content"));
         // Note: not adding this would imply adding of WebjarsJavaScriptResourceReference about JQuery draggable
         add(new Draggable(new DraggableConfig().withHandle(".modal-header").withCursor("move")));
 
@@ -229,7 +230,7 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
         final WebMarkupContainer dialog = (WebMarkupContainer) this.get("dialog");
         dialog.setMarkupId(this.getId());
 
-        final WebMarkupContainer footer = (WebMarkupContainer) this.get("dialog:footer");
+        footer = (WebMarkupContainer) this.get("dialog:footer");
         footer.addOrReplace(new ListView<Component>("inputs", components) {
 
             private static final long serialVersionUID = 4949588177564901031L;
@@ -238,7 +239,7 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
             protected void populateItem(final ListItem<Component> item) {
                 item.add(item.getModelObject());
             }
-        }.setOutputMarkupId(true));
+        }.setOutputMarkupId(true)).setOutputMarkupId(true);
     }
 
     /**
@@ -269,6 +270,25 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
          */
         public AjaxRequestTarget getTarget() {
             return target;
+        }
+    }
+
+    public static class ChangeFooterVisibilityEvent extends ModalEvent {
+
+        private static final long serialVersionUID = -6157576856659866343L;
+
+        public ChangeFooterVisibilityEvent(final AjaxRequestTarget target) {
+            super(target);
+        }
+    }
+
+    @Override
+    public void onEvent(final IEvent<?> event) {
+        if (event.getPayload() instanceof ChangeFooterVisibilityEvent) {
+            if (BaseModal.this.footer != null) {
+                final AjaxRequestTarget target = ChangeFooterVisibilityEvent.class.cast(event.getPayload()).getTarget();
+                target.add(BaseModal.this.footer.setEnabled(!BaseModal.this.footer.isEnabled()));
+            }
         }
     }
 

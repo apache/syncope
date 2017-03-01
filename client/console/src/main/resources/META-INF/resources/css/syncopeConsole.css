@@ -318,8 +318,9 @@ a.help span a {
 }
 
 .modal-body {
-  max-height: 500px;
+  max-height: 550px;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .modal {
@@ -387,10 +388,14 @@ div.wizard-view div.wizard-view{
   height: 360px !important;
 }
 
+div.modal-body div.box-body div.wizard-buttons {
+  bottom: 30px;
+}
+
 .wizard-buttons {
   padding: 10px 0px 5px 0px;
   position: absolute;
-  bottom: 30px;
+  bottom: 4px;
   width: 100%;
 }
 
@@ -1069,4 +1074,33 @@ END - EVENTS
 
 fieldset.input-group {
   width: 100%;
+}
+
+div.modal-content > div.modal-header {
+  background-color: #f0f0f0;
+  height: 64px;
+}
+
+div.modal-content > div.modal-footer {
+  background-color: #f0f0f0;
+  height: 64px;
+}
+
+.modal-body .box-body div.background-footer {
+  display: none !important;
+}
+
+div.background-footer {
+  background-color: #f0f0f0;
+  display: block;
+  height: 64px;
+  margin-bottom: -15px;
+  margin-left: -30px;
+  margin-top: -25px;
+  width: 1300px;
+}
+
+.logviewer-btn {
+  padding: 0px 16px 20px 0px;
+  float: right;
 }
