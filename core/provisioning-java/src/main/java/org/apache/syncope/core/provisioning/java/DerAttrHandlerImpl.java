@@ -28,6 +28,7 @@ import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
+import org.apache.syncope.core.persistence.api.entity.GroupableRelatable;
 import org.apache.syncope.core.persistence.api.entity.Membership;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.slf4j.Logger;
@@ -90,12 +91,31 @@ public class DerAttrHandlerImpl implements DerAttrHandler {
                 anyUtilsFactory.getInstance(any).getAllowedSchemas(any, DerSchema.class).getForSelf());
     }
 
+    private Map<DerSchema, String> getValues(
+            final GroupableRelatable<?, ?, ?, ?, ?> any, final Membership<?> membership, final Set<DerSchema> schemas) {
+
+        Map<DerSchema, String> result = new HashMap<>(schemas.size());
+
+        for (DerSchema schema : schemas) {
+            JexlContext jexlContext = new MapContext();
+            JexlUtils.addPlainAttrsToContext(any.getPlainAttrs(membership), jexlContext);
+            JexlUtils.addFieldsToContext(any, jexlContext);
+
+            result.put(schema, JexlUtils.evaluate(schema.getExpression(), jexlContext));
+        }
+
+        return result;
+    }
+
     @Override
-    public Map<DerSchema, String> getValues(final Any<?> any, final Membership<?> membership) {
+    public Map<DerSchema, String> getValues(
+            final GroupableRelatable<?, ?, ?, ?, ?> any, final Membership<?> membership) {
+
         return getValues(
                 any,
+                membership,
                 anyUtilsFactory.getInstance(any).getAllowedSchemas(any, DerSchema.class).
-                getForMembership(membership.getRightEnd()));
+                        getForMembership(membership.getRightEnd()));
     }
 
 }
