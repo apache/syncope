@@ -211,6 +211,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
                     fragment.add(Component.class.cast(modalPanel));
                     container.addOrReplace(fragment);
                 }
+                customActionCallback(target);
             } else if (event.getPayload() instanceof AjaxWizard.NewItemCancelEvent) {
                 if (wizardInModal) {
                     modal.close(target);
@@ -356,6 +357,14 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
         });
     }
 
+    /**
+     * Custom action to perform on create/edit action callback.
+     *
+     * @param target Ajax request target.
+     */
+    protected void customActionCallback(final AjaxRequestTarget target) {
+    }
+    
     /**
      * Custom action to perform on close callback on finish event.
      *

@@ -260,10 +260,10 @@ public class TopologyITCase extends AbstractConsoleITCase {
         TESTER.assertComponent("body:toggle:outerObjectsRepeater:3:outer:form:content:provision:"
                 + "container:content:wizard:form:view:mapping:mappingContainer:mappings:0", WebMarkupContainer.class);
 
-        TESTER.executeAjaxEvent(
-                "body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:content:"
-                + "wizard:form:buttons:cancel", Constants.ON_CLICK);
-
+        formTester = TESTER.newFormTester(
+                "body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:content:wizard:form");
+        formTester.submit("buttons:cancel");
+        
         TESTER.clickLink("body:toggle:outerObjectsRepeater:3:outer:dialog:footer:buttons:0:button");
 
         TESTER.cleanupFeedbackMessages();

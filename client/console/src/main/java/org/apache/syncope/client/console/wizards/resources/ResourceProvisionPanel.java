@@ -190,15 +190,27 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
             }
 
             @Override
+            protected void customActionCallback(final AjaxRequestTarget target) {
+                // change modal foter visibility
+                send(ResourceProvisionPanel.this, Broadcast.BUBBLE, new BaseModal.ChangeFooterVisibilityEvent(target));
+            }
+
+            @Override
             protected void customActionOnCancelCallback(final AjaxRequestTarget target) {
                 ResourceProvisionPanel.this.aboutRealmProvison.setVisible(true);
                 target.add(ResourceProvisionPanel.this.aboutRealmProvison);
+
+                // change modal foter visibility
+                send(ResourceProvisionPanel.this, Broadcast.BUBBLE, new BaseModal.ChangeFooterVisibilityEvent(target));
             }
 
             @Override
             protected void customActionOnFinishCallback(final AjaxRequestTarget target) {
                 ResourceProvisionPanel.this.aboutRealmProvison.setVisible(true);
                 target.add(ResourceProvisionPanel.this.aboutRealmProvison);
+
+                // change modal foter visibility
+                send(ResourceProvisionPanel.this, Broadcast.BUBBLE, new BaseModal.ChangeFooterVisibilityEvent(target));
             }
         };
 
@@ -314,7 +326,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                         if (connObjectKeyCount != 1) {
                             throw new RuntimeException(provision.getAnyType() + ": "
                                     + new StringResourceModel("connObjectKeyValidation", ResourceProvisionPanel.this).
-                                            getString());
+                                    getString());
                         }
                     }
                 }
@@ -335,7 +347,10 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
     public void onEvent(final IEvent<?> event) {
         if (event.getPayload() instanceof AjaxWizard.NewItemActionEvent) {
             aboutRealmProvison.setVisible(false);
-            ((AjaxWizard.NewItemEvent) event.getPayload()).getTarget().add(aboutRealmProvison);
+            final AjaxRequestTarget target = ((AjaxWizard.NewItemEvent) event.getPayload()).getTarget();
+            target.add(aboutRealmProvison);
+            // change modal foter visibility
+            send(ResourceProvisionPanel.this, Broadcast.BUBBLE, new BaseModal.ChangeFooterVisibilityEvent(target));
         }
 
         super.onEvent(event);
