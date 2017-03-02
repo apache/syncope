@@ -138,6 +138,9 @@ public class SyncopeEnduserSession extends WebSession {
     }
 
     public UserTO getSelfTO() {
+        if (selfTO == null) {
+            throw new IllegalArgumentException("User not authenticated");
+        }
         return selfTO;
     }
 
