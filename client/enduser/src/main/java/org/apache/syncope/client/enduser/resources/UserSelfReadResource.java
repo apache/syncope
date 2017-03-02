@@ -105,7 +105,7 @@ public class UserSelfReadResource extends AbstractBaseResource {
             });
             response.setStatusCode(Response.Status.OK.getStatusCode());
         } catch (Exception e) {
-            LOG.error("Error retrieving selfTO user", e);
+            LOG.error("Error retrieving selfTO", e);
             response.setError(Response.Status.BAD_REQUEST.getStatusCode(), new StringBuilder()
                     .append("ErrorMessage{{ ")
                     .append(e.getMessage())
