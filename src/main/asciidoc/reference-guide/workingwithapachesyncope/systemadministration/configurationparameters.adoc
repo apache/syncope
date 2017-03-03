@@ -25,6 +25,8 @@ barely invoking the REST layer through http://curl.haxx.se/[curl^]:
 * `password.cipher.algorithm` - which cipher algorithm shall be used for encrypting password values; supported 
 algorithms include `SHA-1`, `SHA-256`, `SHA-512`, `AES`, `S-MD5`, `S-SHA-1`, `S-SHA-256`, `S-SHA-512` and `BCRYPT`;
 salting options are available in the `security.properties` file;
+* `jwt.lifetime.minutes` - validity of https://en.wikipedia.org/wiki/JSON_Web_Token[JSON Web Token^] values used for
+<<rest-authentication-and-authorization,authentication>> (in minutes);
 * `notificationjob.cronExpression` -
 http://www.quartz-scheduler.org/documentation/quartz-2.2.x/tutorials/crontrigger.html[cron^] expression describing how
 frequently the pending <<tasks-notification,notification tasks>> are processed: empty means disabled;
