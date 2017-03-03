@@ -114,8 +114,8 @@ The usage of security questions can be however disabled by setting the `password
 [[password-reset-no-security-answer]]
 [WARNING]
 ====
-Once provided via Enduser UI, the answers to security questions are *never* reported, neither via REST or Admin UI to
-administrators, nor to end-users via Enduser UI.
+Once provided via Enduser Application, the answers to security questions are *never* reported, neither via REST or Admin UI to
+administrators, nor to end-users via Enduser Application.
 
 This to avoid any information disclosure which can potentially lead attackers to reset other users' passwords.
 ====
