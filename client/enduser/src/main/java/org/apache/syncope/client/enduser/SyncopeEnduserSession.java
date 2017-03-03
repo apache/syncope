@@ -145,7 +145,7 @@ public class SyncopeEnduserSession extends WebSession {
     }
 
     public boolean isAuthenticated() {
-        return client.getJWT() != null;
+        return client != null && client.getJWT() != null;
     }
 
     public CookieUtils getCookieUtils() {
@@ -162,13 +162,17 @@ public class SyncopeEnduserSession extends WebSession {
 
     @Override
     public void invalidate() {
-        client.logout();
+        if (isAuthenticated()) {
+            client.logout();
+        }
         super.invalidate();
     }
 
     @Override
     public void invalidateNow() {
-        client.logout();
+        if (isAuthenticated()) {
+            client.logout();
+        }
         super.invalidateNow();
     }
 

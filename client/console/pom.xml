@@ -106,6 +106,11 @@ under the License.
     </dependency>
 
     <dependency>
+      <groupId>org.apache.cxf</groupId>
+      <artifactId>cxf-rt-rs-security-jose</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>org.apache.pdfbox</groupId>
       <artifactId>pdfbox</artifactId>
     </dependency>

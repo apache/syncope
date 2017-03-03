@@ -307,7 +307,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
         return new SchedTasksProvider<>(reference, TaskType.SCHEDULED, rows);
     }
 
-    public class SchedTasksProvider<T extends SchedTaskTO> extends TaskDataProvider<T> {
+    protected class SchedTasksProvider<T extends SchedTaskTO> extends TaskDataProvider<T> {
 
         private static final long serialVersionUID = 4725679400450513556L;
 

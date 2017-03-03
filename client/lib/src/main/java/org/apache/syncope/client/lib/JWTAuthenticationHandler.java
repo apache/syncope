@@ -25,8 +25,8 @@ public class JWTAuthenticationHandler implements AuthenticationHandler {
 
     private final String jwt;
 
-    public JWTAuthenticationHandler(final String jwtToken) {
-        this.jwt = jwtToken;
+    public JWTAuthenticationHandler(final String jwt) {
+        this.jwt = jwt;
     }
 
     public String getJwt() {

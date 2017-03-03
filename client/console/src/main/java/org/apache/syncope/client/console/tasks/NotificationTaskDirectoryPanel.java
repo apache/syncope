@@ -222,7 +222,7 @@ public abstract class NotificationTaskDirectoryPanel
         return Constants.PREF_PROPAGATION_TASKS_PAGINATOR_ROWS;
     }
 
-    public class NotificationTasksProvider extends TaskDataProvider<NotificationTaskTO> {
+    protected class NotificationTasksProvider extends TaskDataProvider<NotificationTaskTO> {
 
         private static final long serialVersionUID = 4725679400450513556L;
 
