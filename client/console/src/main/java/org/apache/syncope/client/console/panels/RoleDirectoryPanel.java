@@ -23,14 +23,18 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.commons.RoleDataProvider;
+import org.apache.syncope.client.console.commons.DirectoryDataProvider;
+import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.layout.FormLayoutInfoUtils;
 import org.apache.syncope.client.console.pages.BasePage;
+import org.apache.syncope.client.console.panels.RoleDirectoryPanel.RoleDataProvider;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.RoleRestClient;
@@ -57,6 +61,7 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
@@ -264,6 +269,37 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
         @Override
         protected WizardMgtPanel<RoleWrapper> newInstance(final String id, final boolean wizardInModal) {
             return new RoleDirectoryPanel(id, this);
+        }
+    }
+
+    protected class RoleDataProvider extends DirectoryDataProvider<RoleTO> {
+
+        private static final long serialVersionUID = 6267494272884913376L;
+
+        private final SortableDataProviderComparator<RoleTO> comparator;
+
+        private final RoleRestClient restClient = new RoleRestClient();
+
+        public RoleDataProvider(final int paginatorRows) {
+            super(paginatorRows);
+            this.comparator = new SortableDataProviderComparator<>(this);
+        }
+
+        @Override
+        public Iterator<RoleTO> iterator(final long first, final long count) {
+            List<RoleTO> result = restClient.list();
+            Collections.sort(result, comparator);
+            return result.subList((int) first, (int) first + (int) count).iterator();
+        }
+
+        @Override
+        public long size() {
+            return restClient.count();
+        }
+
+        @Override
+        public IModel<RoleTO> model(final RoleTO object) {
+            return new CompoundPropertyModel<>(object);
         }
     }
 }

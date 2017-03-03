@@ -24,6 +24,7 @@ import java.util.List;
 import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.init.ConsoleInitializer;
+import org.apache.syncope.client.console.panels.DashboardAccessTokensPanel;
 import org.apache.syncope.client.console.panels.DashboardControlPanel;
 import org.apache.syncope.client.console.panels.DashboardExtensionsPanel;
 import org.apache.syncope.client.console.panels.DashboardOverviewPanel;
@@ -61,6 +62,16 @@ public class Dashboard extends BasePage {
             }
         });
 
+        tabs.add(new AbstractTab(new ResourceModel("accessTokens")) {
+
+            private static final long serialVersionUID = -6815067322125799251L;
+
+            @Override
+            public Panel getPanel(final String panelId) {
+                return new DashboardAccessTokensPanel(panelId, getPageReference());
+            }
+        });
+
         tabs.add(new AbstractTab(new ResourceModel("control")) {
 
             private static final long serialVersionUID = -6815067322125799251L;
@@ -73,7 +84,7 @@ public class Dashboard extends BasePage {
 
         ClassPathScanImplementationLookup classPathScanImplementationLookup =
                 (ClassPathScanImplementationLookup) SyncopeConsoleApplication.get().
-                getServletContext().getAttribute(ConsoleInitializer.CLASSPATH_LOOKUP);
+                        getServletContext().getAttribute(ConsoleInitializer.CLASSPATH_LOOKUP);
         final List<Class<? extends BaseExtWidget>> extWidgetClasses =
                 classPathScanImplementationLookup.getExtWidgetClasses();
         if (!extWidgetClasses.isEmpty()) {

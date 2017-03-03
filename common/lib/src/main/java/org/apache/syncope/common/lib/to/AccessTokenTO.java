@@ -37,8 +37,6 @@ public class AccessTokenTO extends AbstractBaseBean implements EntityTO {
 
     private String owner;
 
-    private String authorities;
-
     @Override
     public String getKey() {
         return key;
@@ -75,14 +73,6 @@ public class AccessTokenTO extends AbstractBaseBean implements EntityTO {
 
     public void setOwner(final String owner) {
         this.owner = owner;
-    }
-
-    public String getAuthorities() {
-        return authorities;
-    }
-
-    public void setAuthorities(final String authorities) {
-        this.authorities = authorities;
     }
 
 }

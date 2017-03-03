@@ -29,7 +29,7 @@ import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.rest.api.service.RoleService;
 
 /**
- * Console client for invoking Rest Group's services.
+ * Console client for invoking Rest Role's services.
  */
 public class RoleRestClient extends BaseRestClient {
 
