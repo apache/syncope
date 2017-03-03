@@ -18,7 +18,7 @@ under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <wicket:panel>
-    <div class="box box-default box-solid">
+    <div class="box box-default box-solid" wicket:id="jobContainer">
       <div class="box-header with-border">
         <h3 class="box-title"><wicket:message key="jobs"/></h3>
         <div class="box-tools pull-right">
@@ -29,6 +29,7 @@ under the License.
         <div class="box-body" wicket:id="tabbedPanel"/>
       </div>
     </div>
+
     <div wicket:id="modal"/>
     <div wicket:id="detailModal"/>
     <div wicket:id="reportModal"/>

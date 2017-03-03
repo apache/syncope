@@ -33,6 +33,10 @@ import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.panels.ExecMessageModal;
 import org.apache.syncope.client.console.rest.BaseRestClient;
+import org.apache.syncope.client.console.rest.NotificationRestClient;
+import org.apache.syncope.client.console.rest.ReportRestClient;
+import org.apache.syncope.client.console.rest.TaskRestClient;
+import org.apache.syncope.client.console.wicket.ajax.IndicatorAjaxTimerBehavior;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
@@ -44,12 +48,7 @@ import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
-import org.apache.syncope.common.rest.api.service.NotificationService;
-import org.apache.syncope.common.rest.api.service.ReportService;
-import org.apache.syncope.common.rest.api.service.TaskService;
-import org.apache.wicket.Application;
 import org.apache.wicket.PageReference;
-import org.apache.wicket.ThreadContext;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.event.IEvent;
@@ -61,6 +60,7 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
@@ -69,26 +69,17 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
-import org.apache.wicket.protocol.ws.WebSocketSettings;
-import org.apache.wicket.protocol.ws.api.WebSocketPushBroadcaster;
-import org.apache.wicket.protocol.ws.api.event.WebSocketPushPayload;
-import org.apache.wicket.protocol.ws.api.message.ConnectedMessage;
-import org.apache.wicket.protocol.ws.api.message.IWebSocketPushMessage;
-import org.apache.wicket.protocol.ws.api.registry.IKey;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.wicket.util.time.Duration;
 
 public class JobWidget extends BaseWidget {
 
     private static final long serialVersionUID = 7667120094526529934L;
 
-    private static final Logger LOG = LoggerFactory.getLogger(JobWidget.class);
-
     private static final int ROWS = 5;
 
     private final BaseModal<Serializable> modal = new BaseModal<Serializable>("modal") {
 
-        private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = 389935548143327858L;
 
         @Override
         protected void onConfigure() {
@@ -99,7 +90,7 @@ public class JobWidget extends BaseWidget {
 
     private final BaseModal<Serializable> detailModal = new BaseModal<Serializable>("detailModal") {
 
-        private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = 389935548143327858L;
 
         @Override
         protected void onConfigure() {
@@ -110,7 +101,7 @@ public class JobWidget extends BaseWidget {
 
     private final BaseModal<ReportTO> reportModal = new BaseModal<ReportTO>("reportModal") {
 
-        private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = 389935548143327858L;
 
         @Override
         protected void onConfigure() {
@@ -119,37 +110,13 @@ public class JobWidget extends BaseWidget {
         }
     };
 
-    private static List<JobTO> getAvailable(final SyncopeConsoleSession session) {
-        List<JobTO> available = new ArrayList<>();
+    private final NotificationRestClient notificationRestClient = new NotificationRestClient();
 
-        if (session.owns(StandardEntitlement.NOTIFICATION_LIST)) {
-            JobTO notificationJob = session.getService(NotificationService.class).getJob();
-            if (notificationJob != null) {
-                available.add(notificationJob);
-            }
-        }
-        if (session.owns(StandardEntitlement.TASK_LIST)) {
-            available.addAll(session.getService(TaskService.class).listJobs());
-        }
-        if (session.owns(StandardEntitlement.REPORT_LIST)) {
-            available.addAll(session.getService(ReportService.class).listJobs());
-        }
+    private final TaskRestClient taskRestClient = new TaskRestClient();
 
-        return available;
-    }
+    private final ReportRestClient reportRestClient = new ReportRestClient();
 
-    private static List<ExecTO> getRecent(final SyncopeConsoleSession session) {
-        List<ExecTO> recent = new ArrayList<>();
-
-        if (session.owns(StandardEntitlement.TASK_LIST)) {
-            recent.addAll(session.getService(ReportService.class).listRecentExecutions(10));
-        }
-        if (session.owns(StandardEntitlement.REPORT_LIST)) {
-            recent.addAll(session.getService(TaskService.class).listRecentExecutions(10));
-        }
-
-        return recent;
-    }
+    private final WebMarkupContainer container;
 
     private final List<JobTO> available;
 
@@ -176,7 +143,7 @@ public class JobWidget extends BaseWidget {
         add(detailModal);
         detailModal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = 8804221891699487139L;
 
             @Override
             public void onClose(final AjaxRequestTarget target) {
@@ -187,7 +154,7 @@ public class JobWidget extends BaseWidget {
         add(reportModal);
         reportModal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = 8804221891699487139L;
 
             @Override
             public void onClose(final AjaxRequestTarget target) {
@@ -197,10 +164,72 @@ public class JobWidget extends BaseWidget {
 
         reportModal.size(Modal.Size.Large);
 
-        available = getAvailable(SyncopeConsoleSession.get());
-        recent = getRecent(SyncopeConsoleSession.get());
+        available = getUpdatedAvailable();
+        recent = getUpdatedRecent();
 
-        add(new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList(pageRef)));
+        container = new WebMarkupContainer("jobContainer");
+        container.add(new IndicatorAjaxTimerBehavior(Duration.seconds(10)) {
+
+            private static final long serialVersionUID = 7298597675929755960L;
+
+            @Override
+            protected void onTimer(final AjaxRequestTarget target) {
+                List<JobTO> updatedAvailable = getUpdatedAvailable();
+                if (!updatedAvailable.equals(available)) {
+                    available.clear();
+                    available.addAll(updatedAvailable);
+                    if (availableJobsPanel != null) {
+                        availableJobsPanel.modelChanged();
+                        target.add(availableJobsPanel);
+                    }
+                }
+
+                List<ExecTO> updatedRecent = getUpdatedRecent();
+                if (!updatedRecent.equals(recent)) {
+                    recent.clear();
+                    recent.addAll(updatedRecent);
+                    if (recentExecPanel != null) {
+                        recentExecPanel.modelChanged();
+                        target.add(recentExecPanel);
+                    }
+                }
+            }
+        });
+        add(container);
+
+        container.add(new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList(pageRef)));
+    }
+
+    private List<JobTO> getUpdatedAvailable() {
+        List<JobTO> updatedAvailable = new ArrayList<>();
+
+        if (SyncopeConsoleSession.get().owns(StandardEntitlement.NOTIFICATION_LIST)) {
+            JobTO notificationJob = notificationRestClient.getJob();
+            if (notificationJob != null) {
+                updatedAvailable.add(notificationJob);
+            }
+        }
+        if (SyncopeConsoleSession.get().owns(StandardEntitlement.TASK_LIST)) {
+            updatedAvailable.addAll(taskRestClient.listJobs());
+        }
+        if (SyncopeConsoleSession.get().owns(StandardEntitlement.REPORT_LIST)) {
+            updatedAvailable.addAll(reportRestClient.listJobs());
+        }
+
+        return updatedAvailable;
+    }
+
+    private List<ExecTO> getUpdatedRecent() {
+        List<ExecTO> updatedRecent = new ArrayList<>();
+
+        if (SyncopeConsoleSession.get().owns(StandardEntitlement.TASK_LIST)) {
+            updatedRecent.addAll(taskRestClient.listRecentExecutions(10));
+        }
+        if (SyncopeConsoleSession.get().owns(StandardEntitlement.REPORT_LIST)) {
+            updatedRecent.addAll(reportRestClient.listRecentExecutions(10));
+        }
+
+        return updatedRecent;
     }
 
     private List<ITab> buildTabList(final PageReference pageRef) {
@@ -235,32 +264,9 @@ public class JobWidget extends BaseWidget {
 
     @Override
     public void onEvent(final IEvent<?> event) {
-        if (event.getPayload() instanceof WebSocketPushPayload) {
-            WebSocketPushPayload wsEvent = (WebSocketPushPayload) event.getPayload();
-            if (wsEvent.getMessage() instanceof JobWidgetMessage) {
-                List<JobTO> updatedAvailable = ((JobWidgetMessage) wsEvent.getMessage()).getUpdatedAvailable();
-                if (!updatedAvailable.equals(available)) {
-                    available.clear();
-                    available.addAll(updatedAvailable);
-                    if (availableJobsPanel != null) {
-                        availableJobsPanel.modelChanged();
-                        wsEvent.getHandler().add(availableJobsPanel);
-                    }
-                }
-
-                List<ExecTO> updatedRecent = ((JobWidgetMessage) wsEvent.getMessage()).getUpdatedRecent();
-                if (!updatedRecent.equals(recent)) {
-                    recent.clear();
-                    recent.addAll(updatedRecent);
-                    if (recentExecPanel != null) {
-                        recentExecPanel.modelChanged();
-                        wsEvent.getHandler().add(recentExecPanel);
-                    }
-                }
-            }
-        } else if (event.getPayload() instanceof JobActionPanel.JobActionPayload) {
+        if (event.getPayload() instanceof JobActionPanel.JobActionPayload) {
             available.clear();
-            available.addAll(getAvailable(SyncopeConsoleSession.get()));
+            available.addAll(getUpdatedAvailable());
             availableJobsPanel.modelChanged();
             JobActionPanel.JobActionPayload.class.cast(event.getPayload()).getTarget().add(availableJobsPanel);
         }
@@ -495,62 +501,6 @@ public class JobWidget extends BaseWidget {
         @Override
         public IModel<ExecTO> model(final ExecTO object) {
             return new CompoundPropertyModel<>(object);
-        }
-    }
-
-    public static final class JobInfoUpdater implements Runnable {
-
-        private final Application application;
-
-        private final SyncopeConsoleSession session;
-
-        private final IKey key;
-
-        public JobInfoUpdater(final ConnectedMessage message) {
-            this.application = message.getApplication();
-            this.session = SyncopeConsoleSession.get();
-            this.key = message.getKey();
-        }
-
-        @Override
-        public void run() {
-            try {
-                ThreadContext.setApplication(application);
-                ThreadContext.setSession(session);
-
-                WebSocketSettings webSocketSettings = WebSocketSettings.Holder.get(application);
-                WebSocketPushBroadcaster broadcaster = new WebSocketPushBroadcaster(webSocketSettings.
-                        getConnectionRegistry());
-                broadcaster.broadcast(
-                        new ConnectedMessage(application, session.getId(), key),
-                        new JobWidgetMessage(getAvailable(session), getRecent(session)));
-            } catch (Throwable t) {
-                LOG.error("Unexpected error while checking for updated Job info", t);
-            } finally {
-                ThreadContext.detach();
-            }
-        }
-    }
-
-    private static class JobWidgetMessage implements IWebSocketPushMessage, Serializable {
-
-        private static final long serialVersionUID = -824793424112532838L;
-
-        private final List<JobTO> updatedAvailable;
-
-        private final List<ExecTO> updatedRecent;
-
-        JobWidgetMessage(final List<JobTO> updatedAvailable, final List<ExecTO> updatedRecent) {
-            this.updatedAvailable = updatedAvailable;
-            this.updatedRecent = updatedRecent;
-        }
-
-        public List<JobTO> getUpdatedAvailable() {
-            return updatedAvailable;
-        }
-
-        public List<ExecTO> getUpdatedRecent() {
-            return updatedRecent;
         }
     }
 }

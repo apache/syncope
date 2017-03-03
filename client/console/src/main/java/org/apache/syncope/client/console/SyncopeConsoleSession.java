@@ -28,8 +28,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MediaType;
 import org.apache.commons.collections4.CollectionUtils;
@@ -93,8 +91,6 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
 
     private Roles roles;
 
-    private boolean checkReconciliationJob = false;
-
     public static SyncopeConsoleSession get() {
         return (SyncopeConsoleSession) Session.get();
     }
@@ -118,15 +114,6 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
 
     public void execute(final Runnable command) {
         executorService.execute(command);
-    }
-
-    public ScheduledFuture<?> scheduleAtFixedRate(
-            final Runnable command,
-            final long initialDelay,
-            final long period,
-            final TimeUnit unit) {
-
-        return executorService.scheduleAtFixedRate(command, initialDelay, period, unit);
     }
 
     @Override
@@ -256,14 +243,6 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
     public FastDateFormat getDateFormat() {
         Locale locale = getLocale() == null ? Locale.ENGLISH : getLocale();
         return FastDateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, locale);
-    }
-
-    public boolean isCheckReconciliationJob() {
-        return checkReconciliationJob;
-    }
-
-    public void setCheckReconciliationJob(final boolean checkReconciliationJob) {
-        this.checkReconciliationJob = checkReconciliationJob;
     }
 
 }

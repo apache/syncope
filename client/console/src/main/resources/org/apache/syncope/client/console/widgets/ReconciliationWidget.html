@@ -18,7 +18,7 @@ under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <wicket:panel>
-    <div class="box box-default box-solid">
+    <div class="box box-default box-solid" wicket:id="reconciliationContainer">
       <div class="box-header with-border">
         <h3 class="box-title"><wicket:message key="reconciliationStatus"/></h3>
         <div class="box-tools pull-right">
@@ -35,20 +35,19 @@ under the License.
       </div>
       <div class="box-body">
         <div wicket:id="reportResult"/>
-
-        <wicket:fragment wicket:id="noExecFragment">
-          <wicket:message key="nothingToShow"/>
-        </wicket:fragment>
-
-        <wicket:fragment wicket:id="execFragment">
-          <div wicket:id="execResult"/>
-        </wicket:fragment>
-
       </div>
       <div wicket:id="overlay" class="overlay">
         <i class="fa fa-refresh fa-spin"></i>
       </div>
     </div>
+
+    <wicket:fragment wicket:id="noExecFragment">
+      <wicket:message key="nothingToShow"/>
+    </wicket:fragment>
+
+    <wicket:fragment wicket:id="execFragment">
+      <div wicket:id="execResult"/>
+    </wicket:fragment>
 
     <div wicket:id="detailsModal"/>
   </wicket:panel>

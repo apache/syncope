@@ -21,7 +21,6 @@ package org.apache.syncope.client.console.widgets;
 import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbedPanel;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -45,6 +44,7 @@ import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.rest.BaseRestClient;
 import org.apache.syncope.client.console.rest.ReportRestClient;
+import org.apache.syncope.client.console.wicket.ajax.IndicatorAjaxTimerBehavior;
 import org.apache.syncope.client.console.wicket.ajax.markup.html.IndicatorAjaxLink;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -62,15 +62,11 @@ import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
-import org.apache.syncope.common.rest.api.service.ReportService;
-import org.apache.wicket.Application;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
-import org.apache.wicket.ThreadContext;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
-import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
@@ -86,12 +82,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.protocol.ws.WebSocketSettings;
-import org.apache.wicket.protocol.ws.api.WebSocketPushBroadcaster;
-import org.apache.wicket.protocol.ws.api.event.WebSocketPushPayload;
-import org.apache.wicket.protocol.ws.api.message.ConnectedMessage;
-import org.apache.wicket.protocol.ws.api.message.IWebSocketPushMessage;
-import org.apache.wicket.protocol.ws.api.registry.IKey;
+import org.apache.wicket.util.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -111,7 +102,11 @@ public class ReconciliationWidget extends BaseWidget {
 
     private final ReportRestClient restClient = new ReportRestClient();
 
+    private final WebMarkupContainer container;
+
     private final WebMarkupContainer overlay;
+
+    private boolean checkReconciliationJob = false;
 
     public ReconciliationWidget(final String id, final PageReference pageRef) {
         super(id);
@@ -119,10 +114,46 @@ public class ReconciliationWidget extends BaseWidget {
         setOutputMarkupId(true);
         add(detailsModal);
 
+        container = new WebMarkupContainer("reconciliationContainer");
+        container.add(new IndicatorAjaxTimerBehavior(Duration.seconds(10)) {
+
+            private static final long serialVersionUID = 7298597675929755960L;
+
+            @Override
+            protected void onTimer(final AjaxRequestTarget target) {
+                if (isCheckReconciliationJob()) {
+                    try {
+                        JobTO reportJobTO = IterableUtils.find(restClient.listJobs(), new Predicate<JobTO>() {
+
+                            @Override
+                            public boolean evaluate(final JobTO jobTO) {
+                                return SyncopeConsoleApplication.get().
+                                        getReconciliationReportKey().equals(jobTO.getRefKey());
+                            }
+                        });
+                        if (reportJobTO != null && !reportJobTO.isRunning()) {
+                            LOG.debug("Report {} is not running",
+                                    SyncopeConsoleApplication.get().getReconciliationReportKey());
+
+                            overlay.setVisible(false);
+
+                            container.addOrReplace(buildExecFragment());
+
+                            target.add(ReconciliationWidget.this);
+                            setCheckReconciliationJob(false);
+                        }
+                    } catch (Throwable t) {
+                        LOG.error("Unexpected error while checking for updated reconciliation job info", t);
+                    }
+                }
+            }
+        });
+        add(container);
+
         overlay = new WebMarkupContainer("overlay");
         overlay.setOutputMarkupPlaceholderTag(true);
         overlay.setVisible(false);
-        add(overlay);
+        container.add(overlay);
 
         this.reconciliationReportKey = SyncopeConsoleApplication.get().getReconciliationReportKey();
 
@@ -140,7 +171,7 @@ public class ReconciliationWidget extends BaseWidget {
                 ? new Fragment("reportResult", "noExecFragment", this)
                 : buildExecFragment();
         reportResult.setOutputMarkupId(true);
-        add(reportResult);
+        container.add(reportResult);
 
         IndicatorAjaxLink<Void> refresh = new IndicatorAjaxLink<Void>("refresh") {
 
@@ -154,7 +185,7 @@ public class ReconciliationWidget extends BaseWidget {
                     overlay.setVisible(true);
                     target.add(ReconciliationWidget.this);
 
-                    SyncopeConsoleSession.get().setCheckReconciliationJob(true);
+                    setCheckReconciliationJob(true);
 
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                 } catch (Exception e) {
@@ -165,7 +196,15 @@ public class ReconciliationWidget extends BaseWidget {
             }
         };
         MetaDataRoleAuthorizationStrategy.authorize(refresh, Component.RENDER, StandardEntitlement.REPORT_EXECUTE);
-        add(refresh);
+        container.add(refresh);
+    }
+
+    private boolean isCheckReconciliationJob() {
+        return checkReconciliationJob;
+    }
+
+    private void setCheckReconciliationJob(final boolean checkReconciliationJob) {
+        this.checkReconciliationJob = checkReconciliationJob;
     }
 
     private Fragment buildExecFragment() {
@@ -285,24 +324,7 @@ public class ReconciliationWidget extends BaseWidget {
         return Pair.of(beans, report == null ? new ReconciliationReport(new Date()) : report);
     }
 
-    @Override
-    public void onEvent(final IEvent<?> event) {
-        if (event.getPayload() instanceof WebSocketPushPayload) {
-            WebSocketPushPayload wsEvent = (WebSocketPushPayload) event.getPayload();
-            if (wsEvent.getMessage() instanceof ReconciliationJobNotRunningMessage) {
-                overlay.setVisible(false);
-
-                addOrReplace(buildExecFragment());
-
-                wsEvent.getHandler().add(ReconciliationWidget.this);
-
-                SyncopeConsoleSession.get().setCheckReconciliationJob(false);
-            }
-        }
-    }
-
-    private class AnysReconciliationPanel extends DirectoryPanel<
-        Any, Any, AnysReconciliationProvider, BaseRestClient> {
+    private class AnysReconciliationPanel extends DirectoryPanel<Any, Any, AnysReconciliationProvider, BaseRestClient> {
 
         private static final long serialVersionUID = -8214546246301342868L;
 
@@ -408,29 +430,29 @@ public class ReconciliationWidget extends BaseWidget {
                         }, new ArrayList<Misaligned>());
                         Component content = missing == null
                                 ? misaligned == null || misaligned.isEmpty()
-                                        ? new Label(componentId, StringUtils.EMPTY)
-                                        : ActionLinksPanel.<Any>builder().add(new ActionLink<Any>() {
+                                ? new Label(componentId, StringUtils.EMPTY)
+                                : ActionLinksPanel.<Any>builder().add(new ActionLink<Any>() {
 
-                                            private static final long serialVersionUID = -3722207913631435501L;
+                                    private static final long serialVersionUID = -3722207913631435501L;
 
-                                            @Override
-                                            public void onClick(final AjaxRequestTarget target, final Any ignore) {
-                                                modal.header(Model.of(
-                                                        rowModel.getObject().getType()
-                                                        + " " + rowModel.getObject().getKey()
-                                                        + " " + rowModel.getObject().getName()));
-                                                modal.setContent(new ReconciliationDetailsModalPanel(
-                                                        modal,
-                                                        resource,
-                                                        misaligned,
-                                                        ReconciliationWidget.this.pageRef));
-                                                modal.show(true);
-                                                target.add(modal);
-                                            }
-                                        }, ActionLink.ActionType.VIEW).
+                                    @Override
+                                    public void onClick(final AjaxRequestTarget target, final Any ignore) {
+                                        modal.header(Model.of(
+                                                rowModel.getObject().getType()
+                                                + " " + rowModel.getObject().getKey()
+                                                + " " + rowModel.getObject().getName()));
+                                        modal.setContent(new ReconciliationDetailsModalPanel(
+                                                modal,
+                                                resource,
+                                                misaligned,
+                                                ReconciliationWidget.this.pageRef));
+                                        modal.show(true);
+                                        target.add(modal);
+                                    }
+                                }, ActionLink.ActionType.VIEW).
                                         build(componentId)
                                 : ActionLinksPanel.<Any>builder().add(null, ActionLink.ActionType.NOT_FOND).
-                                build(componentId);
+                                        build(componentId);
                         cellItem.add(content);
                         cellItem.add(new AttributeModifier("class", "text-center"));
                     }
@@ -471,62 +493,5 @@ public class ReconciliationWidget extends BaseWidget {
         public IModel<Any> model(final Any object) {
             return new CompoundPropertyModel<>(object);
         }
-    }
-
-    public static final class ReconciliationJobInfoUpdater implements Runnable {
-
-        private final String applicationName;
-
-        private final SyncopeConsoleSession session;
-
-        private final IKey key;
-
-        public ReconciliationJobInfoUpdater(final ConnectedMessage message) {
-            this.applicationName = message.getApplication().getName();
-            this.session = SyncopeConsoleSession.get();
-            this.key = message.getKey();
-        }
-
-        @Override
-        public void run() {
-            if (session.isCheckReconciliationJob()) {
-                try {
-                    final Application application = Application.get(applicationName);
-                    ThreadContext.setApplication(application);
-                    ThreadContext.setSession(session);
-
-                    JobTO reportJobTO = IterableUtils.find(session.getService(ReportService.class).listJobs(),
-                            new Predicate<JobTO>() {
-
-                        @Override
-                        public boolean evaluate(final JobTO jobTO) {
-                            return SyncopeConsoleApplication.class.cast(application).
-                                    getReconciliationReportKey().equals(jobTO.getRefKey());
-                        }
-                    });
-                    if (reportJobTO != null && !reportJobTO.isRunning()) {
-                        LOG.debug("Report {} is not running",
-                                SyncopeConsoleApplication.class.cast(application).getReconciliationReportKey());
-
-                        WebSocketSettings webSocketSettings = WebSocketSettings.Holder.get(application);
-                        WebSocketPushBroadcaster broadcaster = new WebSocketPushBroadcaster(webSocketSettings.
-                                getConnectionRegistry());
-                        broadcaster.broadcast(
-                                new ConnectedMessage(application, session.getId(), key),
-                                new ReconciliationJobNotRunningMessage());
-                    }
-                } catch (Throwable t) {
-                    LOG.error("Unexpected error while checking for updated reconciliation job info", t);
-                } finally {
-                    ThreadContext.detach();
-                }
-            }
-        }
-    }
-
-    private static class ReconciliationJobNotRunningMessage implements IWebSocketPushMessage, Serializable {
-
-        private static final long serialVersionUID = -824793424112532838L;
-
     }
 }

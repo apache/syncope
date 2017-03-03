@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.widgets;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -26,16 +27,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.pages.Approvals;
+import org.apache.syncope.client.console.rest.UserWorkflowRestClient;
+import org.apache.syncope.client.console.wicket.ajax.IndicatorAjaxTimerBehavior;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
-import org.apache.syncope.common.rest.api.service.UserWorkflowService;
-import org.apache.wicket.Application;
 import org.apache.wicket.PageReference;
-import org.apache.wicket.ThreadContext;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
-import org.apache.wicket.event.IEvent;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
@@ -46,58 +45,69 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.util.ListModel;
-import org.apache.wicket.protocol.ws.WebSocketSettings;
-import org.apache.wicket.protocol.ws.api.WebSocketPushBroadcaster;
-import org.apache.wicket.protocol.ws.api.event.WebSocketPushPayload;
-import org.apache.wicket.protocol.ws.api.message.ConnectedMessage;
-import org.apache.wicket.protocol.ws.api.message.IWebSocketPushMessage;
-import org.apache.wicket.protocol.ws.api.registry.IKey;
+import org.apache.wicket.util.time.Duration;
 
 public class ApprovalsWidget extends AlertWidget<WorkflowFormTO> {
 
     private static final long serialVersionUID = 7667120094526529934L;
 
+    private final UserWorkflowRestClient restClient = new UserWorkflowRestClient();
+
+    private final List<WorkflowFormTO> lastApprovals = new ArrayList<>();
+
     public ApprovalsWidget(final String id, final PageReference pageRef) {
         super(id);
         setOutputMarkupId(true);
-    }
 
-    @Override
-    public void onEvent(final IEvent<?> event) {
-        if (event.getPayload() instanceof WebSocketPushPayload) {
-            WebSocketPushPayload wsEvent = (WebSocketPushPayload) event.getPayload();
-            if (wsEvent.getMessage() instanceof ApprovalsWidgetMessage) {
-                List<WorkflowFormTO> updatedApprovals = ((ApprovalsWidgetMessage) wsEvent.getMessage()).
-                        getUpdatedApprovals();
-                if (!latestAlerts.getObject().equals(updatedApprovals)) {
-                    latestAlerts.getObject().clear();
-                    latestAlerts.getObject().addAll(updatedApprovals);
+        latestAlertsList.add(new IndicatorAjaxTimerBehavior(Duration.seconds(30)) {
 
-                    ApprovalsWidget.this.linkAlertsNumber.
-                            setDefaultModelObject(ApprovalsWidget.this.latestAlerts.getObject().size());
-                    wsEvent.getHandler().add(ApprovalsWidget.this.linkAlertsNumber);
+            private static final long serialVersionUID = 7298597675929755960L;
 
-                    ApprovalsWidget.this.headerAlertsNumber.
-                            setDefaultModelObject(ApprovalsWidget.this.latestAlerts.getObject().size());
-                    wsEvent.getHandler().add(ApprovalsWidget.this.headerAlertsNumber);
-
-                    ApprovalsWidget.this.latestFive.removeAll();
-                    wsEvent.getHandler().add(ApprovalsWidget.this.latestAlertsList);
+            @Override
+            protected void onTimer(final AjaxRequestTarget target) {
+                if (!latestAlerts.getObject().equals(lastApprovals)) {
+                    refreshLatestAlerts(target);
                 }
             }
-        }
+        });
+    }
+
+    public final void refreshLatestAlerts(final AjaxRequestTarget target) {
+        latestAlerts.getObject().clear();
+        latestAlerts.getObject().addAll(lastApprovals);
+
+        linkAlertsNumber.setDefaultModelObject(latestAlerts.getObject().size());
+        target.add(linkAlertsNumber);
+
+        headerAlertsNumber.setDefaultModelObject(latestAlerts.getObject().size());
+        target.add(headerAlertsNumber);
+
+        latestFive.removeAll();
+        target.add(latestAlertsList);
+
+        lastApprovals.clear();
+        lastApprovals.addAll(latestAlerts.getObject());
     }
 
     @Override
     protected IModel<List<WorkflowFormTO>> getLatestAlerts() {
-
         return new ListModel<WorkflowFormTO>() {
 
             private static final long serialVersionUID = -2583290457773357445L;
 
             @Override
             public List<WorkflowFormTO> getObject() {
-                return ApprovalInfoUpdater.getLatestAlerts();
+                List<WorkflowFormTO> updatedApprovals;
+                if (SyncopeConsoleSession.get().owns(StandardEntitlement.WORKFLOW_FORM_LIST)
+                        && SyncopeConsoleSession.get().owns(StandardEntitlement.WORKFLOW_FORM_READ)) {
+
+                    updatedApprovals = restClient.getForms();
+                    Collections.sort(updatedApprovals, new WorkflowFormComparator());
+                } else {
+                    updatedApprovals = Collections.<WorkflowFormTO>emptyList();
+                }
+
+                return updatedApprovals;
             }
         };
     }
@@ -109,7 +119,7 @@ public class ApprovalsWidget extends AlertWidget<WorkflowFormTO> {
 
     @Override
     protected AbstractLink getEventsLink(final String linkid) {
-        BookmarkablePageLink<Object> approvals = BookmarkablePageLinkBuilder.build(linkid, Approvals.class);
+        BookmarkablePageLink<Approvals> approvals = BookmarkablePageLinkBuilder.build(linkid, Approvals.class);
         MetaDataRoleAuthorizationStrategy.authorize(approvals, WebPage.ENABLE, StandardEntitlement.WORKFLOW_FORM_LIST);
         return approvals;
     }
@@ -166,74 +176,8 @@ public class ApprovalsWidget extends AlertWidget<WorkflowFormTO> {
 
     }
 
-    public static final class ApprovalInfoUpdater implements Runnable {
-
-        private final Application application;
-
-        private final SyncopeConsoleSession session;
-
-        private final IKey key;
-
-        public ApprovalInfoUpdater(final ConnectedMessage message) {
-            this.application = message.getApplication();
-            this.session = SyncopeConsoleSession.get();
-            this.key = message.getKey();
-        }
-
-        @Override
-        public void run() {
-            try {
-                ThreadContext.setApplication(application);
-                ThreadContext.setSession(session);
-
-                List<WorkflowFormTO> updatedApprovals = getLatestAlerts();
-
-                WebSocketSettings settings = WebSocketSettings.Holder.get(application);
-                WebSocketPushBroadcaster broadcaster = new WebSocketPushBroadcaster(settings.getConnectionRegistry());
-                broadcaster.broadcast(
-                        new ConnectedMessage(application, session.getId(), key),
-                        new ApprovalsWidgetMessage(updatedApprovals));
-            } catch (Throwable t) {
-                LOG.error("Unexpected error while checking for updated approval info", t);
-            } finally {
-                ThreadContext.detach();
-            }
-        }
-
-        protected static List<WorkflowFormTO> getLatestAlerts() {
-            final List<WorkflowFormTO> updatedApprovals;
-            if (SyncopeConsoleSession.get().owns(StandardEntitlement.WORKFLOW_FORM_LIST)
-                    && SyncopeConsoleSession.get().owns(StandardEntitlement.WORKFLOW_FORM_READ)) {
-                updatedApprovals = SyncopeConsoleSession.get().getService(UserWorkflowService.class).getForms();
-            } else {
-                updatedApprovals = Collections.<WorkflowFormTO>emptyList();
-            }
-            Collections.sort(updatedApprovals, new WorkflowFormComparator());
-            return updatedApprovals;
-        }
-    }
-
-    private static class ApprovalsWidgetMessage implements IWebSocketPushMessage, Serializable {
-
-        private static final long serialVersionUID = -824793424112532838L;
-
-        private final List<WorkflowFormTO> updatedApprovals;
-
-        ApprovalsWidgetMessage(final List<WorkflowFormTO> updatedApprovals) {
-            this.updatedApprovals = updatedApprovals;
-        }
-
-        public List<WorkflowFormTO> getUpdatedApprovals() {
-            return updatedApprovals;
-        }
-
-    }
-
     private static class WorkflowFormComparator implements Comparator<WorkflowFormTO>, Serializable {
 
-        /**
-         *
-         */
         private static final long serialVersionUID = 4650217602780789075L;
 
         @Override

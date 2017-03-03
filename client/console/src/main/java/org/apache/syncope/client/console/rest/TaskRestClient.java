@@ -29,6 +29,7 @@ import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
+import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.TaskType;
@@ -45,6 +46,10 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
 
     private static final long serialVersionUID = 6284485820911028843L;
 
+    public List<JobTO> listJobs() {
+        return getService(TaskService.class).listJobs();
+    }
+
     public int count(final TaskType kind) {
         return getService(TaskService.class).list(
                 new TaskQuery.Builder(kind).page(1).size(1).build()).getTotalCount();
@@ -53,13 +58,13 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
     public int count(final String resource, final TaskType kind) {
         return getService(TaskService.class).list(
                 new TaskQuery.Builder(kind).resource(resource).page(1).size(1).
-                build()).getTotalCount();
+                        build()).getTotalCount();
     }
 
     public int count(final AnyTypeKind anyTypeKind, final String entityKey, final TaskType kind) {
         return getService(TaskService.class).list(
                 new TaskQuery.Builder(kind).anyTypeKind(anyTypeKind).entityKey(entityKey).page(1).size(1).
-                build()).getTotalCount();
+                        build()).getTotalCount();
     }
 
     @Override
