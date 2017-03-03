@@ -111,6 +111,15 @@ The usage of security questions can be however disabled by setting the `password
 <<configuration-parameters, below>> for details.
 ====
 
+[[password-reset-no-security-answer]]
+[WARNING]
+====
+Once provided via Enduser UI, the answers to security questions are *never* reported, neither via REST or Admin UI to
+administrators, nor to end-users via Enduser UI.
+
+This to avoid any information disclosure which can potentially lead attackers to reset other users' passwords.
+====
+
 [NOTE]
 In addition to the password reset feature, administrators can set a flag on a given user so that he / she is forced to
 update their password value at next login.
