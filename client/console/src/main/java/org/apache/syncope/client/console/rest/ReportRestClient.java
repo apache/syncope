@@ -29,6 +29,7 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ExecTO;
+import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.to.ReportTemplateTO;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
@@ -49,6 +50,10 @@ public class ReportRestClient extends BaseRestClient
 
     public List<ReportTO> list() {
         return getService(ReportService.class).list();
+    }
+
+    public List<JobTO> listJobs() {
+        return getService(ReportService.class).listJobs();
     }
 
     public void create(final ReportTO reportTO) {

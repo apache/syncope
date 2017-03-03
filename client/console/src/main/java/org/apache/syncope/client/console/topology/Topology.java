@@ -465,7 +465,7 @@ public class Topology extends BasePage {
 
         jsPlace.add(new AbstractAjaxTimerBehavior(Duration.seconds(2)) {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = -4426283634345968585L;
 
             @Override
             protected void onTimer(final AjaxRequestTarget target) {

@@ -23,6 +23,7 @@ import java.util.List;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.MailTemplateTO;
 import org.apache.syncope.common.lib.to.NotificationTO;
 import org.apache.syncope.common.lib.types.MailTemplateFormat;
@@ -36,6 +37,10 @@ public class NotificationRestClient extends BaseRestClient
 
     public List<NotificationTO> list() {
         return getService(NotificationService.class).list();
+    }
+
+    public JobTO getJob() {
+        return getService(NotificationService.class).getJob();
     }
 
     public NotificationTO read(final String key) {

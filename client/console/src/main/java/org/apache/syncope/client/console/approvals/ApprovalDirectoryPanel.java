@@ -72,6 +72,7 @@ public class ApprovalDirectoryPanel
             @Override
             public void onClose(final AjaxRequestTarget target) {
                 updateResultTable(target);
+                ((BasePage) pageReference.getPage()).getApprovalsWidget().refreshLatestAlerts(target);
                 modal.show(false);
             }
         });

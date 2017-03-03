@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.pages;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
@@ -35,8 +34,6 @@ import org.apache.syncope.client.console.topology.Topology;
 import org.apache.syncope.client.console.wicket.markup.head.MetaHeaderItem;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.widgets.ApprovalsWidget;
-import org.apache.syncope.client.console.widgets.JobWidget;
-import org.apache.syncope.client.console.widgets.ReconciliationWidget;
 import org.apache.syncope.common.lib.info.SystemInfo;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.AttributeModifier;
@@ -60,8 +57,6 @@ import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
-import org.apache.wicket.protocol.ws.api.WebSocketBehavior;
-import org.apache.wicket.protocol.ws.api.message.ConnectedMessage;
 import org.apache.wicket.request.handler.resource.ResourceStreamRequestHandler;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.ContentDisposition;
@@ -80,34 +75,14 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
 
     protected NotificationPanel notificationPanel;
 
+    protected ApprovalsWidget approvalsWidget;
+
     public BasePage() {
         this(null);
     }
 
     public BasePage(final PageParameters parameters) {
         super(parameters);
-
-        // Native WebSocket
-        add(new WebSocketBehavior() {
-
-            private static final long serialVersionUID = 3109256773218160485L;
-
-            @Override
-            protected void onConnect(final ConnectedMessage message) {
-                super.onConnect(message);
-
-                SyncopeConsoleSession.get().scheduleAtFixedRate(
-                        new ApprovalsWidget.ApprovalInfoUpdater(message), 0, 30, TimeUnit.SECONDS);
-
-                if (BasePage.this instanceof Dashboard) {
-                    SyncopeConsoleSession.get().scheduleAtFixedRate(
-                            new JobWidget.JobInfoUpdater(message), 0, 10, TimeUnit.SECONDS);
-                    SyncopeConsoleSession.get().scheduleAtFixedRate(
-                            new ReconciliationWidget.ReconciliationJobInfoUpdater(message), 0, 10, TimeUnit.SECONDS);
-                }
-            }
-
-        });
 
         body = new WebMarkupContainer("body");
         Serializable leftMenuCollapse = SyncopeConsoleSession.get().getAttribute(SyncopeConsoleSession.MENU_COLLAPSE);
@@ -123,7 +98,8 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
         body.add(new Label("version", SyncopeConsoleApplication.get().getVersion()));
         body.add(new Label("username", SyncopeConsoleSession.get().getSelfTO().getUsername()));
 
-        body.add(new ApprovalsWidget("approvalsWidget", getPageReference()).setRenderBodyOnly(true));
+        approvalsWidget = new ApprovalsWidget("approvalsWidget", getPageReference());
+        body.add(approvalsWidget.setRenderBodyOnly(true));
 
         // right sidebar
         SystemInfo systemInfo = SyncopeConsoleSession.get().getSystemInfo();
@@ -401,6 +377,10 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
 
     public NotificationPanel getNotificationPanel() {
         return notificationPanel;
+    }
+
+    public ApprovalsWidget getApprovalsWidget() {
+        return approvalsWidget;
     }
 
     /**
