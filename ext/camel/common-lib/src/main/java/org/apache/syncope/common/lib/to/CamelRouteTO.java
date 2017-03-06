@@ -26,7 +26,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 
 @XmlRootElement(name = "camelRoute")
 @XmlType
-public class CamelRouteTO extends AbstractBaseBean {
+public class CamelRouteTO extends AbstractBaseBean implements EntityTO {
 
     private static final long serialVersionUID = 6431992877435181674L;
 
@@ -36,11 +36,13 @@ public class CamelRouteTO extends AbstractBaseBean {
 
     private String content;
 
+    @Override
     public String getKey() {
         return key;
     }
 
     @PathParam("key")
+    @Override
     public void setKey(final String key) {
         this.key = key;
     }
