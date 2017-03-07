@@ -49,7 +49,7 @@
   "NEWUSER": "New User",
   "SUCCESSFULLY_CREATED": "succesfully created",
   "SUCCESSFULLY_UPDATED": "succesfully updated",
-  "PASSWORD_UPDATED": ": password succesfully updated",
+  "PASSWORD_UPDATED": ": password succesfully reset",
   "GOBACKHOME": "Click on this link to go back to the home page",
   "CONFIRM_REMOVE": "This will remove the current value. Continue?",
   "own": "Own"

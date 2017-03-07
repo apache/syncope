@@ -63,8 +63,6 @@ public class SecurityQuestionResource extends AbstractBaseResource {
             //if the username is defined then retrieve its security questions, otherwise retrieve all security questions
             if (!username.isEmpty()) {
                 final SecurityQuestionTO securityQuestionTO = securityQuestionService.readByUser(username.toString());
-                response.setContentType(MediaType.APPLICATION_JSON);
-                response.setTextEncoding(SyncopeConstants.DEFAULT_ENCODING);
                 response.setWriteCallback(new AbstractResource.WriteCallback() {
 
                     @Override
@@ -84,6 +82,8 @@ public class SecurityQuestionResource extends AbstractBaseResource {
                 });
             }
 
+            response.setContentType(MediaType.APPLICATION_JSON);
+            response.setTextEncoding(SyncopeConstants.DEFAULT_ENCODING);
             response.setStatusCode(Response.Status.OK.getStatusCode());
         } catch (Exception e) {
             LOG.error("Error retrieving security questions", e);
