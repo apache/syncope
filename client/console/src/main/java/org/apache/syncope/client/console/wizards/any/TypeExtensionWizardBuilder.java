@@ -18,9 +18,11 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
@@ -65,31 +67,33 @@ public class TypeExtensionWizardBuilder extends AjaxWizardBuilder<TypeExtensionT
 
     @Override
     protected WizardModel buildModelSteps(final TypeExtensionTO modelObject, final WizardModel wizardModel) {
-        wizardModel.add(new Details(modelObject.getAnyType()));
+        wizardModel.add(new Details(modelObject));
         return wizardModel;
     }
-
+    
     @Override
-    protected void onCancelInternal(final TypeExtensionTO modelObject) {
-        this.groupTO.getTypeExtensions().remove(modelObject);
+    protected Serializable onApplyInternal(final TypeExtensionTO modelObject) {
+        final List<TypeExtensionTO> typeExtensions
+                = ListUtils.select(groupTO.getTypeExtensions(), new Predicate<TypeExtensionTO>() {
+
+                    @Override
+                    public boolean evaluate(final TypeExtensionTO object) {
+                        return !object.getAnyType().equals(modelObject.getAnyType());
+                    }
+                });
+        typeExtensions.add(modelObject);
+        groupTO.getTypeExtensions().clear();
+        groupTO.getTypeExtensions().addAll(typeExtensions);
+        return groupTO;
     }
 
     public class Details extends WizardStep {
 
         private static final long serialVersionUID = 6472869166547883903L;
 
-        public Details(final String anyType) {
+        public Details(final TypeExtensionTO typeExtensionTO) {
             super();
             setOutputMarkupId(true);
-
-            TypeExtensionTO typeExtensionTO;
-            if (groupTO.getTypeExtension(anyType) == null) {
-                typeExtensionTO = new TypeExtensionTO();
-                typeExtensionTO.setAnyType(anyType);
-                groupTO.getTypeExtensions().add(typeExtensionTO);
-            } else {
-                typeExtensionTO = groupTO.getTypeExtension(anyType);
-            }
 
             add(new Label("anyType.label", anyTypeLabel));
 

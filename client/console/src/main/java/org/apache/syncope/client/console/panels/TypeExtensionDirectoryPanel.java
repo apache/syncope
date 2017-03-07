@@ -198,4 +198,22 @@ public class TypeExtensionDirectoryPanel
         }
 
     }
+
+    @Override
+    protected void customActionCallback(final AjaxRequestTarget target) {
+        // change modal foter visibility
+        send(TypeExtensionDirectoryPanel.this, Broadcast.BUBBLE, new BaseModal.ChangeFooterVisibilityEvent(target));
+    }
+
+    @Override
+    protected void customActionOnCancelCallback(final AjaxRequestTarget target) {
+        // change modal foter visibility
+        send(TypeExtensionDirectoryPanel.this, Broadcast.BUBBLE, new BaseModal.ChangeFooterVisibilityEvent(target));
+    }
+
+    @Override
+    protected void customActionOnFinishCallback(final AjaxRequestTarget target) {
+        // change modal foter visibility
+        send(TypeExtensionDirectoryPanel.this, Broadcast.BUBBLE, new BaseModal.ChangeFooterVisibilityEvent(target));
+    }
 }
