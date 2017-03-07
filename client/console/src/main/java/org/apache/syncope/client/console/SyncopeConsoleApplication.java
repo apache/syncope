@@ -138,24 +138,24 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
             throw new WicketRuntimeException("Could not read " + CONSOLE_PROPERTIES, e);
         }
         version = props.getProperty("version");
-        Args.notNull(version, "<version> not set");
+        Args.notNull(version, "<version>");
         site = props.getProperty("site");
-        Args.notNull(site, "<site> not set");
+        Args.notNull(site, "<site>");
         anonymousUser = props.getProperty("anonymousUser");
-        Args.notNull(anonymousUser, "<anonymousUser> not set");
+        Args.notNull(anonymousUser, "<anonymousUser>");
         anonymousKey = props.getProperty("anonymousKey");
-        Args.notNull(anonymousKey, "<anonymousKey> not set");
+        Args.notNull(anonymousKey, "<anonymousKey>");
 
         String scheme = props.getProperty("scheme");
-        Args.notNull(scheme, "<scheme> not set");
+        Args.notNull(scheme, "<scheme>");
         String host = props.getProperty("host");
-        Args.notNull(host, "<host> not set");
+        Args.notNull(host, "<host>");
         String port = props.getProperty("port");
-        Args.notNull(port, "<port> not set");
+        Args.notNull(port, "<port>");
         String rootPath = props.getProperty("rootPath");
-        Args.notNull(rootPath, "<rootPath> not set");
+        Args.notNull(rootPath, "<rootPath>");
         String useGZIPCompression = props.getProperty("useGZIPCompression");
-        Args.notNull(rootPath, "<useGZIPCompression> not set");
+        Args.notNull(useGZIPCompression, "<useGZIPCompression>");
 
         clientFactory = new SyncopeClientFactoryBean().
                 setAddress(scheme + "://" + host + ":" + port + "/" + rootPath).
@@ -197,14 +197,14 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
         mountPage("/login", getSignInPageClass());
 
         activitiModelerDirectory = props.getProperty("activitiModelerDirectory");
-        Args.notNull(activitiModelerDirectory, "<activitiModelerDirectory> not set");
+        Args.notNull(activitiModelerDirectory, "<activitiModelerDirectory>");
 
         try {
             reconciliationReportKey = props.getProperty("reconciliationReportKey");
         } catch (NumberFormatException e) {
             LOG.error("While parsing reconciliationReportKey", e);
         }
-        Args.notNull(reconciliationReportKey, "<reconciliationReportKey> not set");
+        Args.notNull(reconciliationReportKey, "<reconciliationReportKey>");
 
         mountResource("/" + ACTIVITI_MODELER_CONTEXT, new ResourceReference(ACTIVITI_MODELER_CONTEXT) {
 
