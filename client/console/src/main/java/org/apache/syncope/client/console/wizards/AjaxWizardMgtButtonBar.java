@@ -39,6 +39,8 @@ public class AjaxWizardMgtButtonBar<T extends Serializable> extends WizardButton
 
     private final AjaxWizard.Mode mode;
 
+    private boolean completed = false;
+
     public AjaxWizardMgtButtonBar(final String id, final AjaxWizard<T> wizard, final AjaxWizard.Mode mode) {
         super(id, wizard);
         this.mode = mode;
@@ -115,8 +117,13 @@ public class AjaxWizardMgtButtonBar<T extends Serializable> extends WizardButton
                     case READONLY:
                         return false;
                     default:
-                        final IWizardStep activeStep = getWizardModel().getActiveStep();
-                        return (activeStep != null) && getWizardModel().isLastStep(activeStep) && super.isEnabled();
+                        if (!completed) {
+                            final IWizardStep activeStep = getWizardModel().getActiveStep();
+                            completed = (activeStep != null)
+                                    && getWizardModel().isLastStep(activeStep)
+                                    && super.isEnabled();
+                        }
+                        return completed;
                 }
             }
 
