@@ -62,7 +62,8 @@ public class ResourceStatusModal extends StatusModal<ResourceTO> {
             }
         };
 
-        AjaxDropDownChoicePanel<String> anyTypes = new AjaxDropDownChoicePanel<>("anyTypes", "anyTypes", typeModel);
+        AjaxDropDownChoicePanel<String> anyTypes
+                = new AjaxDropDownChoicePanel<>("anyTypes", "anyTypes", typeModel, false);
         anyTypes.setChoices(types);
         anyTypes.hideLabel();
         add(anyTypes);

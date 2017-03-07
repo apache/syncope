@@ -57,6 +57,14 @@ public class AjaxDropDownChoicePanel<T extends Serializable> extends FieldPanel<
                 protected void onUpdate(final AjaxRequestTarget target) {
                     // nothing to do
                 }
+            }).add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+
+                private static final long serialVersionUID = -1107858522700306810L;
+
+                @Override
+                protected void onUpdate(final AjaxRequestTarget target) {
+                    // nothing to do
+                }
             });
         }
 

@@ -26,6 +26,9 @@ import com.googlecode.wicket.jquery.ui.form.spinner.SpinnerBehavior;
 import java.io.Serializable;
 import java.util.List;
 import org.apache.commons.lang3.math.NumberUtils;
+import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -47,7 +50,8 @@ public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T>
             final String name,
             final Class<T> reference,
             final IModel<T> model,
-            final Options options) {
+            final Options options,
+            final boolean enableOnChange) {
 
         super(id, name, model);
 
@@ -62,6 +66,19 @@ public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T>
                 return behavior;
             }
         };
+
+        if (enableOnChange && !isReadOnly()) {
+            field.add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+
+                private static final long serialVersionUID = -1107858522700306810L;
+
+                @Override
+                protected void onUpdate(final AjaxRequestTarget target) {
+                    // nothing to do
+                }
+            });
+        }
+
         add(field.setLabel(new ResourceModel(name, name)).setOutputMarkupId(true));
 
         this.name = name;
@@ -156,7 +173,8 @@ public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T>
 
     @Override
     public AjaxSpinnerFieldPanel<T> clone() {
-        final AjaxSpinnerFieldPanel<T> panel = new AjaxSpinnerFieldPanel<>(getId(), name, reference, model, options);
+        final AjaxSpinnerFieldPanel<T> panel
+                = new AjaxSpinnerFieldPanel<>(getId(), name, reference, model, options, false);
 
         panel.setRequired(isRequired());
         panel.setReadOnly(isReadOnly());
@@ -173,6 +191,8 @@ public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T>
 
         private final Options options = new Options();
 
+        private boolean enableOnChange = false;
+
         public Builder<T> min(final T min) {
             options.set("min", min);
             return this;
@@ -188,13 +208,18 @@ public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T>
             return this;
         }
 
+        public Builder<T> enableOnChange() {
+            enableOnChange = true;
+            return this;
+        }
+
         public AjaxSpinnerFieldPanel<T> build(
                 final String id,
                 final String name,
                 final Class<T> reference,
                 final IModel<T> model) {
 
-            return new AjaxSpinnerFieldPanel<>(id, name, reference, model, options);
+            return new AjaxSpinnerFieldPanel<>(id, name, reference, model, options, enableOnChange);
         }
     }
 

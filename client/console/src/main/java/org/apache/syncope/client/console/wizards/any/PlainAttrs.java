@@ -211,7 +211,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
         FieldPanel panel;
         switch (type) {
             case Boolean:
-                panel = new AjaxCheckBoxPanel("panel", schemaTO.getKey(), new Model<Boolean>(), false);
+                panel = new AjaxCheckBoxPanel("panel", schemaTO.getKey(), new Model<Boolean>(), true);
                 panel.setRequired(required);
                 break;
 
@@ -233,7 +233,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                 break;
 
             case Enum:
-                panel = new AjaxDropDownChoicePanel<>("panel", schemaTO.getKey(), new Model<>(), false);
+                panel = new AjaxDropDownChoicePanel<>("panel", schemaTO.getKey(), new Model<>(), true);
                 ((AjaxDropDownChoicePanel<String>) panel).setChoices(SchemaUtils.getEnumeratedValues(schemaTO));
 
                 if (StringUtils.isNotBlank(schemaTO.getEnumerationKeys())) {
@@ -267,7 +267,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                 break;
 
             case Long:
-                panel = new AjaxSpinnerFieldPanel.Builder<Long>().
+                panel = new AjaxSpinnerFieldPanel.Builder<Long>().enableOnChange().
                         build("panel", schemaTO.getKey(), Long.class, new Model<Long>());
 
                 if (required) {
@@ -276,7 +276,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                 break;
 
             case Double:
-                panel = new AjaxSpinnerFieldPanel.Builder<Double>().step(0.1).
+                panel = new AjaxSpinnerFieldPanel.Builder<Double>().enableOnChange().step(0.1).
                         build("panel", schemaTO.getKey(), Double.class, new Model<Double>());
 
                 if (required) {
@@ -293,7 +293,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                 break;
 
             case Encrypted:
-                panel = new EncryptedFieldPanel("panel", schemaTO.getKey(), new Model<String>());
+                panel = new EncryptedFieldPanel("panel", schemaTO.getKey(), new Model<String>(), true);
 
                 if (required) {
                     panel.addRequiredLabel();
@@ -301,7 +301,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                 break;
 
             default:
-                panel = new AjaxTextFieldPanel("panel", schemaTO.getKey(), new Model<String>(), false);
+                panel = new AjaxTextFieldPanel("panel", schemaTO.getKey(), new Model<String>(), true);
 
                 if (jexlHelp) {
                     AjaxTextFieldPanel.class.cast(panel).enableJexlHelp();

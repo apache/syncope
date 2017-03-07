@@ -70,7 +70,7 @@ public class VirSchemaDetails extends AbstractSchemaDetailsPanel {
         schemaForm.add(readonly);
 
         final AjaxDropDownChoicePanel<String> resource = new AjaxDropDownChoicePanel<>(
-                "resource", getString("resource"), new PropertyModel<String>(schemaTO, "resource")).
+                "resource", getString("resource"), new PropertyModel<String>(schemaTO, "resource"), false).
                 setNullValid(false);
         resource.setChoices(CollectionUtils.collect(resourceRestClient.list(),
                 EntityTOUtils.<ResourceTO>keyTransformer(), new ArrayList<String>()));
@@ -82,7 +82,7 @@ public class VirSchemaDetails extends AbstractSchemaDetailsPanel {
         schemaForm.add(resource);
 
         anyType = new AjaxDropDownChoicePanel<>(
-                "anyType", getString("anyType"), new PropertyModel<String>(schemaTO, "anyType")).
+                "anyType", getString("anyType"), new PropertyModel<String>(schemaTO, "anyType"), false).
                 setNullValid(false);
         anyType.setChoices(new ArrayList<>(anyTypes.keySet()));
         anyType.setOutputMarkupId(true);
