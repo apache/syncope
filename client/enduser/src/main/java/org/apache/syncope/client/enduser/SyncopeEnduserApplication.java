@@ -105,35 +105,35 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
             throw new WicketRuntimeException("Could not read " + ENDUSER_PROPERTIES, e);
         }
         version = props.getProperty("version");
-        Args.notNull(version, "<version> not set");
+        Args.notNull(version, "<version>");
         site = props.getProperty("site");
-        Args.notNull(site, "<site> not set");
+        Args.notNull(site, "<site>");
         license = props.getProperty("license");
-        Args.notNull(license, "<license> not set");
+        Args.notNull(license, "<license>");
         domain = props.getProperty("domain", SyncopeConstants.MASTER_DOMAIN);
         adminUser = props.getProperty("adminUser");
-        Args.notNull(adminUser, "<adminUser> not set");
+        Args.notNull(adminUser, "<adminUser>");
         anonymousUser = props.getProperty("anonymousUser");
-        Args.notNull(anonymousUser, "<anonymousUser> not set");
+        Args.notNull(anonymousUser, "<anonymousUser>");
         anonymousKey = props.getProperty("anonymousKey");
-        Args.notNull(anonymousKey, "<anonymousKey> not set");
+        Args.notNull(anonymousKey, "<anonymousKey>");
 
         captchaEnabled = Boolean.parseBoolean(props.getProperty("captcha"));
-        Args.notNull(captchaEnabled, "<captcha> not set");
+        Args.notNull(captchaEnabled, "<captcha>");
 
         xsrfEnabled = Boolean.parseBoolean(props.getProperty("xsrf"));
-        Args.notNull(xsrfEnabled, "<xsrf> not set");
+        Args.notNull(xsrfEnabled, "<xsrf>");
 
         String scheme = props.getProperty("scheme");
-        Args.notNull(scheme, "<scheme> not set");
+        Args.notNull(scheme, "<scheme>");
         String host = props.getProperty("host");
-        Args.notNull(host, "<host> not set");
+        Args.notNull(host, "<host>");
         String port = props.getProperty("port");
-        Args.notNull(port, "<port> not set");
+        Args.notNull(port, "<port>");
         String rootPath = props.getProperty("rootPath");
-        Args.notNull(rootPath, "<rootPath> not set");
+        Args.notNull(rootPath, "<rootPath>");
         String useGZIPCompression = props.getProperty("useGZIPCompression");
-        Args.notNull(rootPath, "<useGZIPCompression> not set");
+        Args.notNull(useGZIPCompression, "<useGZIPCompression>");
 
         clientFactory = new SyncopeClientFactoryBean().
                 setAddress(scheme + "://" + host + ":" + port + "/" + rootPath).
