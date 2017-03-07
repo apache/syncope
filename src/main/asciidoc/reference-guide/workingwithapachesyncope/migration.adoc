@@ -70,18 +70,18 @@ follows:
 
 .On GNU / Linux - Mac OS X
 ....
-./syncopeadm.sh migrate --conf /path/to/context.xml /dest/path/to/MasterContent.xml
+./syncopeadm.sh migrate --conf /path/to/content.xml /dest/path/to/MasterContent.xml
 ....
 
 .On Windows
 ....
-syncopeadm.bat migrate --conf \path\to\context.xml \dest\path\to\MasterContent.xml
+syncopeadm.bat migrate --conf \path\to\content.xml \dest\path\to\MasterContent.xml
 ....
 
 The result of this invocation is the generated `MasterContent.xml` file and possibly an output message such as the following:
 
 ....
-You are running: migrate --conf /path/to/context.xml /dest/path/to/MasterContent.xml
+You are running: migrate --conf /path/to/content.xml /dest/path/to/MasterContent.xml
 
 Virtual items, require manual intervention:
 <?xml version='1.0' encoding='UTF-8'?><dataset>
