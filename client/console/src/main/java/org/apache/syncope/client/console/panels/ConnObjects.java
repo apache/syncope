@@ -60,7 +60,7 @@ public class ConnObjects extends Panel implements ModalPanel {
                     }
                 }, new ArrayList<String>());
 
-        anyTypes = new AjaxDropDownChoicePanel<>("anyTypes", "anyTypes", new Model<String>(), true);
+        anyTypes = new AjaxDropDownChoicePanel<>("anyTypes", "anyTypes", new Model<String>());
         anyTypes.setChoices(availableAnyTypes);
         anyTypes.hideLabel();
         anyTypes.setNullValid(false);

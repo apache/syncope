@@ -18,22 +18,47 @@
  */
 package org.apache.syncope.client.console.wicket.markup.html.form;
 
+import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 
 public class EncryptedFieldPanel extends FieldPanel<String> implements Cloneable {
 
+    private static final long serialVersionUID = 1882871043451691005L;
+
     public EncryptedFieldPanel(final String id, final String name, final IModel<String> model) {
+        this(id, name, model, false);
+    }
+
+    public EncryptedFieldPanel(
+            final String id, final String name, final IModel<String> model, final boolean enableOnChange) {
         super(id, name, model);
 
         field = new TextField<String>("encryptedField", model) {
+
+            private static final long serialVersionUID = 7545877620091912863L;
 
             @Override
             protected String[] getInputTypes() {
                 return new String[] { "password" };
             }
         };
+
+        if (enableOnChange && !isReadOnly()) {
+            field.add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
+
+                private static final long serialVersionUID = -1107858522700306810L;
+
+                @Override
+                protected void onUpdate(final AjaxRequestTarget target) {
+                    // nothing to do
+                }
+            });
+        }
+
         add(field.setLabel(new ResourceModel(name, name)).setRequired(false).setOutputMarkupId(true));
     }
 }
