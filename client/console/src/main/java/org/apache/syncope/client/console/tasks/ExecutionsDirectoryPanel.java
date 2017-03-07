@@ -88,7 +88,7 @@ public abstract class ExecutionsDirectoryPanel
         this.key = key;
         initResultTable();
     }
-        
+
     @Override
     protected void resultTableCustomChanges(final AjaxDataTablePanel.Builder<ExecTO, String> resultTableBuilder) {
         resultTableBuilder.setMultiLevelPanel(baseModal, multiLevelPanelRef);
@@ -100,13 +100,13 @@ public abstract class ExecutionsDirectoryPanel
     protected List<IColumn<ExecTO, String>> getColumns() {
         final List<IColumn<ExecTO, String>> columns = new ArrayList<>();
 
-        columns.add(new KeyPropertyColumn<ExecTO>(new ResourceModel("key"), "key", "key"));
+        columns.add(new KeyPropertyColumn<ExecTO>(new StringResourceModel("key", this), "key", "key"));
 
-        columns.add(new DatePropertyColumn<ExecTO>(new ResourceModel("start"), "start", "start"));
+        columns.add(new DatePropertyColumn<ExecTO>(new StringResourceModel("start", this), "start", "start"));
 
-        columns.add(new DatePropertyColumn<ExecTO>(new ResourceModel("end"), "end", "end"));
+        columns.add(new DatePropertyColumn<ExecTO>(new StringResourceModel("end", this), "end", "end"));
 
-        columns.add(new PropertyColumn<ExecTO, String>(new ResourceModel("status"), "status", "status"));
+        columns.add(new PropertyColumn<ExecTO, String>(new StringResourceModel("status", this), "status", "status"));
 
         columns.add(new ActionColumn<ExecTO, String>(new ResourceModel("actions")) {
 
