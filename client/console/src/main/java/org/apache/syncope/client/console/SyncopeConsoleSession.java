@@ -37,6 +37,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.DomainTO;
@@ -228,9 +229,18 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
     }
 
     public <T> T getService(final MediaType mediaType, final Class<T> serviceClass) {
-        T service = client.getService(serviceClass);
+        T service;
 
-        WebClient.client(service).type(mediaType).accept(mediaType);
+        synchronized (SyncopeConsoleApplication.get().getClientFactory()) {
+            SyncopeClientFactoryBean.ContentType preType = SyncopeConsoleApplication.get().getClientFactory().
+                    getContentType();
+
+            SyncopeConsoleApplication.get().getClientFactory().
+                    setContentType(SyncopeClientFactoryBean.ContentType.fromString(mediaType.toString()));
+            service = SyncopeConsoleApplication.get().getClientFactory().create(getJWT()).getService(serviceClass);
+
+            SyncopeConsoleApplication.get().getClientFactory().setContentType(preType);
+        }
 
         return service;
     }
