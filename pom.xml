@@ -378,7 +378,7 @@ under the License.
 
     <activiti.version>5.22.0</activiti.version>
 
-    <camel.version>2.17.5</camel.version>	
+    <camel.version>2.17.6</camel.version>	
 
     <slf4j.version>1.7.24</slf4j.version>
     <log4j.version>2.8.1</log4j.version>
