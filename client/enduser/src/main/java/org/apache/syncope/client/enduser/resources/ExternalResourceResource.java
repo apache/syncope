@@ -19,11 +19,11 @@
 package org.apache.syncope.client.enduser.resources;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.wicket.request.resource.AbstractResource;
@@ -41,7 +41,6 @@ public class ExternalResourceResource extends AbstractBaseResource {
 
     @Override
     protected AbstractResource.ResourceResponse newResourceResponse(final IResource.Attributes attributes) {
-
         LOG.debug("Search all available resources");
 
         AbstractResource.ResourceResponse response = new AbstractResource.ResourceResponse();
@@ -57,7 +56,7 @@ public class ExternalResourceResource extends AbstractBaseResource {
 
             final List<ResourceTO> resourceTOs = resourceService.list();
 
-            response.setTextEncoding(SyncopeConstants.DEFAULT_ENCODING);
+            response.setTextEncoding(StandardCharsets.UTF_8.name());
             response.setWriteCallback(new AbstractResource.WriteCallback() {
 
                 @Override

@@ -28,13 +28,13 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
@@ -147,7 +147,7 @@ public class ConfigurationITCase extends AbstractITCase {
 
         Object entity = response.getEntity();
         assertTrue(entity instanceof InputStream);
-        String configExport = IOUtils.toString((InputStream) entity, SyncopeConstants.DEFAULT_ENCODING);
+        String configExport = IOUtils.toString((InputStream) entity, StandardCharsets.UTF_8.name());
         assertFalse(configExport.isEmpty());
         assertTrue(configExport.length() > 1000);
     }

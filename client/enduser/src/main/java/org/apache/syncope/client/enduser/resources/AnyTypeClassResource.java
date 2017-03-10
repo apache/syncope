@@ -19,11 +19,11 @@
 package org.apache.syncope.client.enduser.resources;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
 import org.apache.wicket.request.resource.AbstractResource;
@@ -56,7 +56,7 @@ public class AnyTypeClassResource extends AbstractBaseResource {
 
             final List<AnyTypeClassTO> anyTypeClassTOs = anyTypeClassService.list();
 
-            response.setTextEncoding(SyncopeConstants.DEFAULT_ENCODING);
+            response.setTextEncoding(StandardCharsets.UTF_8.name());
             response.setWriteCallback(new AbstractResource.WriteCallback() {
 
                 @Override

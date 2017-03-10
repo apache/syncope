@@ -26,6 +26,7 @@ import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.fileinput.Fil
 import de.agilecoders.wicket.jquery.JQuery;
 import de.agilecoders.wicket.jquery.function.IFunction;
 import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -35,7 +36,6 @@ import org.apache.syncope.client.console.commons.HttpResourceStream;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.PreviewUtils;
 import org.apache.syncope.client.console.wicket.markup.html.form.preview.AbstractBinaryPreviewer;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormSubmitBehavior;
@@ -165,9 +165,7 @@ public class BinaryFieldPanel extends FieldPanel<String> {
                 final FileUpload uploadedFile = fileUpload.getFileUpload();
                 if (uploadedFile != null) {
                     final byte[] uploadedBytes = uploadedFile.getBytes();
-                    final String uploaded = new String(
-                            Base64.encodeBase64(uploadedBytes),
-                            SyncopeConstants.DEFAULT_CHARSET);
+                    final String uploaded = new String(Base64.encodeBase64(uploadedBytes), StandardCharsets.UTF_8);
                     field.setModelObject(uploaded);
                     target.add(field);
 

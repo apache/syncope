@@ -19,6 +19,7 @@
 package org.apache.syncope.core.provisioning.camel;
 
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -32,7 +33,6 @@ import org.apache.camel.spring.SpringCamelContext;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.io.IOUtils;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.CamelRouteDAO;
 import org.apache.syncope.core.persistence.api.entity.CamelRoute;
@@ -101,7 +101,7 @@ public class SyncopeCamelContext {
             for (String route : routes) {
                 InputStream input = null;
                 try {
-                    input = IOUtils.toInputStream(route, SyncopeConstants.DEFAULT_CHARSET);
+                    input = IOUtils.toInputStream(route, StandardCharsets.UTF_8);
                     LSInput lsinput = domImpl.createLSInput();
                     lsinput.setByteStream(input);
 

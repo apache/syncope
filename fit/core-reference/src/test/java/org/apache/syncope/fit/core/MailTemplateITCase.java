@@ -26,12 +26,12 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.MailTemplateTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.MailTemplateFormat;
@@ -84,7 +84,7 @@ public class MailTemplateITCase extends AbstractITCase {
         // 3. set TEXT
         String textTemplate = "Hi there, I am ${username}.";
         mailTemplateService.setFormat(
-                key, MailTemplateFormat.TEXT, IOUtils.toInputStream(textTemplate, SyncopeConstants.DEFAULT_CHARSET));
+                key, MailTemplateFormat.TEXT, IOUtils.toInputStream(textTemplate, StandardCharsets.UTF_8));
 
         response = mailTemplateService.getFormat(key, MailTemplateFormat.TEXT);
         assertEquals(200, response.getStatus());
@@ -92,12 +92,12 @@ public class MailTemplateITCase extends AbstractITCase {
         assertTrue(response.getEntity() instanceof InputStream);
         assertEquals(
                 textTemplate,
-                IOUtils.toString((InputStream) response.getEntity(), SyncopeConstants.DEFAULT_CHARSET));
+                IOUtils.toString((InputStream) response.getEntity(), StandardCharsets.UTF_8));
 
         // 3. set HTML
         String htmlTemplate = "<html><body>Hi there, I am ${username}.</body></html>";
         mailTemplateService.setFormat(
-                key, MailTemplateFormat.HTML, IOUtils.toInputStream(htmlTemplate, SyncopeConstants.DEFAULT_CHARSET));
+                key, MailTemplateFormat.HTML, IOUtils.toInputStream(htmlTemplate, StandardCharsets.UTF_8));
 
         response = mailTemplateService.getFormat(key, MailTemplateFormat.HTML);
         assertEquals(200, response.getStatus());
@@ -105,7 +105,7 @@ public class MailTemplateITCase extends AbstractITCase {
         assertTrue(response.getEntity() instanceof InputStream);
         assertEquals(
                 htmlTemplate,
-                IOUtils.toString((InputStream) response.getEntity(), SyncopeConstants.DEFAULT_CHARSET));
+                IOUtils.toString((InputStream) response.getEntity(), StandardCharsets.UTF_8));
 
         // 4. remove HTML
         mailTemplateService.removeFormat(key, MailTemplateFormat.HTML);
@@ -123,7 +123,7 @@ public class MailTemplateITCase extends AbstractITCase {
         assertTrue(response.getEntity() instanceof InputStream);
         assertEquals(
                 textTemplate,
-                IOUtils.toString((InputStream) response.getEntity(), SyncopeConstants.DEFAULT_CHARSET));
+                IOUtils.toString((InputStream) response.getEntity(), StandardCharsets.UTF_8));
 
         // 5. remove mail template
         mailTemplateService.delete(key);

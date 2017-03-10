@@ -26,6 +26,7 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.security.AccessControlException;
 import java.util.List;
 import javax.ws.rs.ForbiddenException;
@@ -42,7 +43,6 @@ import org.apache.syncope.client.lib.BasicAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.patch.GroupPatch;
 import org.apache.syncope.common.lib.patch.StringReplacePatchItem;
 import org.apache.syncope.common.lib.patch.UserPatch;
@@ -100,7 +100,7 @@ public class RESTITCase extends AbstractITCase {
         assertEquals(Preference.RETURN_NO_CONTENT.toString(), response.getHeaderString(RESTHeaders.PREFERENCE_APPLIED));
         assertEquals(
                 StringUtils.EMPTY,
-                IOUtils.toString((InputStream) response.getEntity(), SyncopeConstants.DEFAULT_CHARSET));
+                IOUtils.toString((InputStream) response.getEntity(), StandardCharsets.UTF_8));
 
         group = getObject(response.getLocation(), GroupService.class, GroupTO.class);
         assertNotNull(group);
@@ -114,14 +114,14 @@ public class RESTITCase extends AbstractITCase {
         assertEquals(Preference.RETURN_NO_CONTENT.toString(), response.getHeaderString(RESTHeaders.PREFERENCE_APPLIED));
         assertEquals(
                 StringUtils.EMPTY,
-                IOUtils.toString((InputStream) response.getEntity(), SyncopeConstants.DEFAULT_CHARSET));
+                IOUtils.toString((InputStream) response.getEntity(), StandardCharsets.UTF_8));
 
         response = noContentService.delete(group.getKey());
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
         assertEquals(Preference.RETURN_NO_CONTENT.toString(), response.getHeaderString(RESTHeaders.PREFERENCE_APPLIED));
         assertEquals(
                 StringUtils.EMPTY,
-                IOUtils.toString((InputStream) response.getEntity(), SyncopeConstants.DEFAULT_CHARSET));
+                IOUtils.toString((InputStream) response.getEntity(), StandardCharsets.UTF_8));
     }
 
     @Test

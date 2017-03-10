@@ -19,12 +19,12 @@
 package org.apache.syncope.client.enduser.resources;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.SecurityQuestionTO;
 import org.apache.syncope.common.rest.api.service.SecurityQuestionService;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
@@ -83,7 +83,7 @@ public class SecurityQuestionResource extends AbstractBaseResource {
             }
 
             response.setContentType(MediaType.APPLICATION_JSON);
-            response.setTextEncoding(SyncopeConstants.DEFAULT_ENCODING);
+            response.setTextEncoding(StandardCharsets.UTF_8.name());
             response.setStatusCode(Response.Status.OK.getStatusCode());
         } catch (Exception e) {
             LOG.error("Error retrieving security questions", e);

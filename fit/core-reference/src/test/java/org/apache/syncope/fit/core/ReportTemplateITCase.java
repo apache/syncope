@@ -26,12 +26,12 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ReportTemplateTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ReportTemplateFormat;
@@ -85,7 +85,7 @@ public class ReportTemplateITCase extends AbstractITCase {
         String csvTemplate =
                 "<xsl:stylesheet xmlns:xsl='http://www.w3.org/1999/XSL/Transform' version='1.0'></xsl:stylesheet>";
         reportTemplateService.setFormat(
-                key, ReportTemplateFormat.CSV, IOUtils.toInputStream(csvTemplate, SyncopeConstants.DEFAULT_CHARSET));
+                key, ReportTemplateFormat.CSV, IOUtils.toInputStream(csvTemplate, StandardCharsets.UTF_8));
 
         response = reportTemplateService.getFormat(key, ReportTemplateFormat.CSV);
         assertEquals(200, response.getStatus());
@@ -93,13 +93,13 @@ public class ReportTemplateITCase extends AbstractITCase {
         assertTrue(response.getEntity() instanceof InputStream);
         assertEquals(
                 csvTemplate,
-                IOUtils.toString((InputStream) response.getEntity(), SyncopeConstants.DEFAULT_CHARSET));
+                IOUtils.toString((InputStream) response.getEntity(), StandardCharsets.UTF_8));
 
         // 3. set HTML
         String htmlTemplate =
                 "<xsl:stylesheet xmlns:xsl='http://www.w3.org/1999/XSL/Transform' version='1.0'></xsl:stylesheet>";
         reportTemplateService.setFormat(
-                key, ReportTemplateFormat.HTML, IOUtils.toInputStream(htmlTemplate, SyncopeConstants.DEFAULT_CHARSET));
+                key, ReportTemplateFormat.HTML, IOUtils.toInputStream(htmlTemplate, StandardCharsets.UTF_8));
 
         response = reportTemplateService.getFormat(key, ReportTemplateFormat.HTML);
         assertEquals(200, response.getStatus());
@@ -107,7 +107,7 @@ public class ReportTemplateITCase extends AbstractITCase {
         assertTrue(response.getEntity() instanceof InputStream);
         assertEquals(
                 htmlTemplate,
-                IOUtils.toString((InputStream) response.getEntity(), SyncopeConstants.DEFAULT_CHARSET));
+                IOUtils.toString((InputStream) response.getEntity(), StandardCharsets.UTF_8));
 
         // 4. remove HTML
         reportTemplateService.removeFormat(key, ReportTemplateFormat.HTML);
@@ -125,7 +125,7 @@ public class ReportTemplateITCase extends AbstractITCase {
         assertTrue(response.getEntity() instanceof InputStream);
         assertEquals(
                 csvTemplate,
-                IOUtils.toString((InputStream) response.getEntity(), SyncopeConstants.DEFAULT_CHARSET));
+                IOUtils.toString((InputStream) response.getEntity(), StandardCharsets.UTF_8));
 
         // 5. remove report template
         reportTemplateService.delete(key);

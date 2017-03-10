@@ -20,6 +20,7 @@ package org.apache.syncope.core.logic.report;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
@@ -30,7 +31,6 @@ import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.io.IOUtils;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.common.lib.types.ReportExecStatus;
 import org.apache.syncope.core.provisioning.api.utils.ExceptionUtils2;
@@ -107,7 +107,7 @@ public class ReportJobDelegate {
             tFactory.setFeature(javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING, true);
             handler = tFactory.newTransformerHandler();
             Transformer serializer = handler.getTransformer();
-            serializer.setOutputProperty(OutputKeys.ENCODING, SyncopeConstants.DEFAULT_ENCODING);
+            serializer.setOutputProperty(OutputKeys.ENCODING, StandardCharsets.UTF_8.name());
             serializer.setOutputProperty(OutputKeys.INDENT, "yes");
 
             // a single ZipEntry in the ZipOutputStream

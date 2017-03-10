@@ -25,6 +25,7 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -43,7 +44,6 @@ import org.apache.syncope.client.cli.commands.policy.PolicyCommand;
 import org.apache.syncope.client.cli.commands.report.ReportCommand;
 import org.apache.syncope.client.cli.commands.role.RoleCommand;
 import org.apache.syncope.client.cli.commands.user.UserCommand;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -108,7 +108,7 @@ public class CLIITCase extends AbstractITCase {
             PROCESS_BUILDER.command(getCommand());
             process = PROCESS_BUILDER.start();
 
-            String result = IOUtils.toString(process.getInputStream(), SyncopeConstants.DEFAULT_CHARSET).
+            String result = IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8).
                     replaceAll("(?m)^\\s*$[\n\r]{1,}", "");
             assertTrue(result.startsWith("Usage: Main [options]"));
             assertTrue(result.contains(
@@ -138,7 +138,7 @@ public class CLIITCase extends AbstractITCase {
             process = PROCESS_BUILDER.start();
 
             long entitlements = IterableUtils.countMatches(
-                    IOUtils.readLines(process.getInputStream(), SyncopeConstants.DEFAULT_CHARSET),
+                    IOUtils.readLines(process.getInputStream(), StandardCharsets.UTF_8),
                     new Predicate<String>() {
 
                 @Override
@@ -166,7 +166,7 @@ public class CLIITCase extends AbstractITCase {
             process = PROCESS_BUILDER.start();
 
             long bundles = IterableUtils.countMatches(
-                    IOUtils.readLines(process.getInputStream(), SyncopeConstants.DEFAULT_CHARSET),
+                    IOUtils.readLines(process.getInputStream(), StandardCharsets.UTF_8),
                     new Predicate<String>() {
 
                 @Override
@@ -200,7 +200,7 @@ public class CLIITCase extends AbstractITCase {
                     UserCommand.UserOptions.READ_BY_KEY.getOptionName(),
                     String.valueOf(userKey1)));
             process1 = PROCESS_BUILDER.start();
-            String result = IOUtils.toString(process1.getInputStream(), SyncopeConstants.DEFAULT_CHARSET);
+            String result = IOUtils.toString(process1.getInputStream(), StandardCharsets.UTF_8);
             assertTrue(result.contains("username: " + userService.read(userKey1).getUsername()));
 
             PROCESS_BUILDER.command(getCommand(
@@ -210,7 +210,7 @@ public class CLIITCase extends AbstractITCase {
                     String.valueOf(userKey3), String.valueOf(userKey4), String.valueOf(userKey5)));
             process2 = PROCESS_BUILDER.start();
             long users = IterableUtils.countMatches(
-                    IOUtils.readLines(process2.getInputStream(), SyncopeConstants.DEFAULT_CHARSET),
+                    IOUtils.readLines(process2.getInputStream(), StandardCharsets.UTF_8),
                     new Predicate<String>() {
 
                 @Override
@@ -226,7 +226,7 @@ public class CLIITCase extends AbstractITCase {
                     String.valueOf(userKey1), String.valueOf(userKey2),
                     String.valueOf(userKey3), String.valueOf(userKey4), String.valueOf(userKey5)));
             process3 = PROCESS_BUILDER.start();
-            String result3 = IOUtils.toString(process3.getInputStream(), SyncopeConstants.DEFAULT_CHARSET);
+            String result3 = IOUtils.toString(process3.getInputStream(), StandardCharsets.UTF_8);
             assertTrue(
                     result3.contains("username: " + userService.read(userKey1).getUsername())
                     && result3.contains("username: " + userService.read(userKey2).getUsername())
@@ -258,7 +258,7 @@ public class CLIITCase extends AbstractITCase {
                     RoleCommand.RoleOptions.READ.getOptionName(),
                     roleId));
             process = PROCESS_BUILDER.start();
-            final String result = IOUtils.toString(process.getInputStream(), SyncopeConstants.DEFAULT_CHARSET);
+            final String result = IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8);
             assertTrue(result.contains(roleService.read(roleId).getEntitlements().iterator().next()));
         } catch (IOException e) {
             fail(e.getMessage());
@@ -278,7 +278,7 @@ public class CLIITCase extends AbstractITCase {
                     ReportCommand.ReportOptions.READ.getOptionName(),
                     "72"));
             process = PROCESS_BUILDER.start();
-            final String result = IOUtils.toString(process.getInputStream(), SyncopeConstants.DEFAULT_CHARSET);
+            final String result = IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8);
             assertTrue(result.contains("- Report 72 doesn't exist"));
         } catch (IOException e) {
             fail(e.getMessage());
@@ -298,7 +298,7 @@ public class CLIITCase extends AbstractITCase {
                     PolicyCommand.PolicyOptions.READ.getOptionName(),
                     "wrong"));
             process = PROCESS_BUILDER.start();
-            final String result = IOUtils.toString(process.getInputStream(), SyncopeConstants.DEFAULT_CHARSET);
+            final String result = IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8);
             assertTrue(result.contains("- Policy wrong doesn't exist"));
         } catch (IOException e) {
             fail(e.getMessage());
@@ -318,7 +318,7 @@ public class CLIITCase extends AbstractITCase {
                     LoggerCommand.LoggerOptions.LAST_STATEMENTS.getOptionName(),
                     "connid"));
             process = PROCESS_BUILDER.start();
-            final String result = IOUtils.toString(process.getInputStream(), SyncopeConstants.DEFAULT_CHARSET);
+            final String result = IOUtils.toString(process.getInputStream(), StandardCharsets.UTF_8);
             assertTrue(result.contains("\"level\" : \"DEBUG\","));
         } catch (IOException e) {
             fail(e.getMessage());

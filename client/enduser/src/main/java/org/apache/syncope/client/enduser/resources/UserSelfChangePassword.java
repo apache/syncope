@@ -19,11 +19,11 @@
 package org.apache.syncope.client.enduser.resources;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.request.resource.IResource;
@@ -59,7 +59,7 @@ public class UserSelfChangePassword extends AbstractBaseResource {
 
             final String responseMessage = new StringBuilder().append("Password changed correctly").toString();
 
-            response.setTextEncoding(SyncopeConstants.DEFAULT_ENCODING);
+            response.setTextEncoding(StandardCharsets.UTF_8.name());
 
             response.setWriteCallback(new WriteCallback() {
 

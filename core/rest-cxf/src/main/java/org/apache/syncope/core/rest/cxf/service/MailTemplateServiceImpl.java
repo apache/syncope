@@ -22,12 +22,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import org.apache.commons.io.IOUtils;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.MailTemplateTO;
 import org.apache.syncope.common.lib.types.MailTemplateFormat;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -84,7 +84,7 @@ public class MailTemplateServiceImpl extends AbstractServiceImpl implements Mail
     @Override
     public void setFormat(final String key, final MailTemplateFormat format, final InputStream templateIn) {
         try {
-            logic.setFormat(key, format, IOUtils.toString(templateIn, SyncopeConstants.DEFAULT_CHARSET));
+            logic.setFormat(key, format, IOUtils.toString(templateIn, StandardCharsets.UTF_8));
         } catch (final IOException e) {
             LOG.error("While setting format {} for mail template {}", format, key, e);
             throw new InternalServerErrorException("Could not read entity", e);

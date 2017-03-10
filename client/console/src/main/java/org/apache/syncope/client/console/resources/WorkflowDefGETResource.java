@@ -19,9 +19,9 @@
 package org.apache.syncope.client.console.resources;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import javax.ws.rs.core.MediaType;
 import org.apache.syncope.client.console.rest.WorkflowRestClient;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.util.io.IOUtils;
 
@@ -39,7 +39,7 @@ public class WorkflowDefGETResource extends AbstractResource {
         ResourceResponse response = new ResourceResponse();
         response.disableCaching();
         response.setContentType(MediaType.APPLICATION_JSON);
-        response.setTextEncoding(SyncopeConstants.DEFAULT_ENCODING);
+        response.setTextEncoding(StandardCharsets.UTF_8.name());
         response.setWriteCallback(new WriteCallback() {
 
             @Override
