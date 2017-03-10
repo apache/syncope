@@ -19,6 +19,7 @@
 package org.apache.syncope.client.enduser.resources;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
@@ -27,7 +28,6 @@ import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.model.SchemaResponse;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -60,7 +60,6 @@ public class SchemaResource extends AbstractBaseResource {
 
     @Override
     protected AbstractResource.ResourceResponse newResourceResponse(final IResource.Attributes attributes) {
-
         LOG.debug("Search all {} any type kind related schemas", AnyTypeKind.USER.name());
 
         AbstractResource.ResourceResponse response = new AbstractResource.ResourceResponse();
@@ -126,7 +125,7 @@ public class SchemaResource extends AbstractBaseResource {
                 }
             }
 
-            response.setTextEncoding(SyncopeConstants.DEFAULT_ENCODING);
+            response.setTextEncoding(StandardCharsets.UTF_8.name());
 
             response.setWriteCallback(new AbstractResource.WriteCallback() {
 

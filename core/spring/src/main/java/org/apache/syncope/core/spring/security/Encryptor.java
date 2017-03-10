@@ -20,6 +20,7 @@ package org.apache.syncope.core.spring.security;
 
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
@@ -33,7 +34,6 @@ import javax.crypto.spec.SecretKeySpec;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.jasypt.commons.CommonUtils;
 import org.jasypt.digest.StandardStringDigester;
@@ -163,7 +163,7 @@ public final class Encryptor {
 
         try {
             keySpec = new SecretKeySpec(ArrayUtils.subarray(
-                    actualKey.getBytes(SyncopeConstants.DEFAULT_CHARSET), 0, 16),
+                    actualKey.getBytes(StandardCharsets.UTF_8), 0, 16),
                     CipherAlgorithm.AES.getAlgorithm());
         } catch (Exception e) {
             LOG.error("Error during key specification", e);
@@ -178,7 +178,7 @@ public final class Encryptor {
 
         if (value != null) {
             if (cipherAlgorithm == null || cipherAlgorithm == CipherAlgorithm.AES) {
-                final byte[] cleartext = value.getBytes(SyncopeConstants.DEFAULT_CHARSET);
+                final byte[] cleartext = value.getBytes(StandardCharsets.UTF_8);
 
                 final Cipher cipher = Cipher.getInstance(CipherAlgorithm.AES.getAlgorithm());
                 cipher.init(Cipher.ENCRYPT_MODE, keySpec);
@@ -221,12 +221,12 @@ public final class Encryptor {
         String value = null;
 
         if (encodedValue != null && cipherAlgorithm == CipherAlgorithm.AES) {
-            final byte[] encoded = encodedValue.getBytes(SyncopeConstants.DEFAULT_CHARSET);
+            final byte[] encoded = encodedValue.getBytes(StandardCharsets.UTF_8);
 
             final Cipher cipher = Cipher.getInstance(CipherAlgorithm.AES.getAlgorithm());
             cipher.init(Cipher.DECRYPT_MODE, keySpec);
 
-            value = new String(cipher.doFinal(Base64.decode(encoded)), SyncopeConstants.DEFAULT_CHARSET);
+            value = new String(cipher.doFinal(Base64.decode(encoded)), StandardCharsets.UTF_8);
         }
 
         return value;

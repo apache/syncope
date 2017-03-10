@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.jpa.content;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.sql.Blob;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -51,7 +52,6 @@ import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.content.ContentExporter;
@@ -340,7 +340,7 @@ public class XMLContentExporter extends AbstractContentDealer implements Content
 
         TransformerHandler handler = transformerFactory.newTransformerHandler();
         Transformer serializer = handler.getTransformer();
-        serializer.setOutputProperty(OutputKeys.ENCODING, SyncopeConstants.DEFAULT_ENCODING);
+        serializer.setOutputProperty(OutputKeys.ENCODING, StandardCharsets.UTF_8.name());
         serializer.setOutputProperty(OutputKeys.INDENT, "yes");
         handler.setResult(streamResult);
         handler.startDocument();

@@ -19,6 +19,7 @@
 package org.apache.syncope.client.enduser.resources;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
@@ -59,7 +60,7 @@ public class GroupResource extends AbstractBaseResource {
             final List<GroupTO> groupTOs = groupService.search(new AnyQuery.Builder().realm(realm).
                     fiql(SyncopeClient.getGroupSearchConditionBuilder().isAssignable().query()).
                     build()).getResult();
-            response.setTextEncoding(SyncopeConstants.DEFAULT_ENCODING);
+            response.setTextEncoding(StandardCharsets.UTF_8.name());
             response.setWriteCallback(new AbstractResource.WriteCallback() {
 
                 @Override

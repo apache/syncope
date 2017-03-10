@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.common.lib;
 
-import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -52,10 +51,6 @@ public final class SyncopeConstants {
         "yyyy-MM-dd" };
 
     public static final String DEFAULT_DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ssZ";
-
-    public static final String DEFAULT_ENCODING = "UTF-8";
-
-    public static final Charset DEFAULT_CHARSET = Charset.forName(DEFAULT_ENCODING);
 
     public static final String ROOT_LOGGER = "ROOT";
 

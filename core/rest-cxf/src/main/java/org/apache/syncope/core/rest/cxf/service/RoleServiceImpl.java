@@ -22,13 +22,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import org.apache.commons.io.IOUtils;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.RoleService;
@@ -89,7 +89,7 @@ public class RoleServiceImpl extends AbstractServiceImpl implements RoleService 
     @Override
     public void setConsoleLayoutInfo(final String key, final InputStream consoleLayoutIn) {
         try {
-            logic.setConsoleLayoutInfo(key, IOUtils.toString(consoleLayoutIn, SyncopeConstants.DEFAULT_CHARSET));
+            logic.setConsoleLayoutInfo(key, IOUtils.toString(consoleLayoutIn, StandardCharsets.UTF_8.name()));
         } catch (final IOException e) {
             LOG.error("While setting console layout info for role {}", key, e);
             throw new InternalServerErrorException("Could not read entity", e);

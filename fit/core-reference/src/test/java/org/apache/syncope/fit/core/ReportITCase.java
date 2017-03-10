@@ -26,6 +26,7 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -33,7 +34,6 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.report.AuditReportletConf;
 import org.apache.syncope.common.lib.report.UserReportletConf;
 import org.apache.syncope.common.lib.to.BulkActionResult;
@@ -185,7 +185,7 @@ public class ReportITCase extends AbstractITCase {
 
         Object entity = response.getEntity();
         assertTrue(entity instanceof InputStream);
-        assertFalse(IOUtils.toString((InputStream) entity, SyncopeConstants.DEFAULT_ENCODING).isEmpty());
+        assertFalse(IOUtils.toString((InputStream) entity, StandardCharsets.UTF_8.name()).isEmpty());
     }
 
     @Test

@@ -26,9 +26,9 @@ import static org.junit.Assert.assertFalse;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.Assume;
@@ -41,7 +41,7 @@ public class WorkflowITCase extends AbstractITCase {
         assertTrue(response.getMediaType().toString().
                 startsWith(clientFactory.getContentType().getMediaType().toString()));
         assertTrue(response.getEntity() instanceof InputStream);
-        String definition = IOUtils.toString((InputStream) response.getEntity(), SyncopeConstants.DEFAULT_CHARSET);
+        String definition = IOUtils.toString((InputStream) response.getEntity(), StandardCharsets.UTF_8);
         assertNotNull(definition);
         assertFalse(definition.isEmpty());
     }
@@ -60,7 +60,7 @@ public class WorkflowITCase extends AbstractITCase {
 
     private void importDefinition(final AnyTypeKind type) throws IOException {
         Response response = workflowService.exportDefinition(type);
-        String definition = IOUtils.toString((InputStream) response.getEntity(), SyncopeConstants.DEFAULT_CHARSET);
+        String definition = IOUtils.toString((InputStream) response.getEntity(), StandardCharsets.UTF_8);
 
         workflowService.importDefinition(type, definition);
     }

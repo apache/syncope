@@ -19,6 +19,7 @@
 package org.apache.syncope.client.enduser.resources;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -32,7 +33,6 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
@@ -177,7 +177,7 @@ public class UserSelfCreateResource extends AbstractBaseResource {
                 // adapt request and create user
                 final Response res = userSelfService.create(userTO, true);
 
-                response.setTextEncoding(SyncopeConstants.DEFAULT_ENCODING);
+                response.setTextEncoding(StandardCharsets.UTF_8.name());
 
                 response.setWriteCallback(new WriteCallback() {
 

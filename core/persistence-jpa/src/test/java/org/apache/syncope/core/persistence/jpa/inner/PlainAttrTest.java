@@ -25,10 +25,10 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Random;
 import javax.validation.ValidationException;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
@@ -207,7 +207,7 @@ public class PlainAttrTest extends AbstractTest {
 
         byte[] bytes = new byte[20];
         new Random().nextBytes(bytes);
-        String photoB64Value = new String(Base64.encode(bytes), SyncopeConstants.DEFAULT_CHARSET);
+        String photoB64Value = new String(Base64.encode(bytes), StandardCharsets.UTF_8);
 
         UPlainAttr attr = entityFactory.newEntity(UPlainAttr.class);
         attr.setOwner(user);

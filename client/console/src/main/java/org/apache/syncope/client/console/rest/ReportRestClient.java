@@ -19,13 +19,13 @@
 package org.apache.syncope.client.console.rest;
 
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
 import javax.ws.rs.NotSupportedException;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ExecTO;
@@ -134,7 +134,7 @@ public class ReportRestClient extends BaseRestClient
         try {
             return IOUtils.toString(InputStream.class.cast(
                     getService(ReportTemplateService.class).getFormat(key, format).getEntity()),
-                    SyncopeConstants.DEFAULT_CHARSET);
+                    StandardCharsets.UTF_8);
         } catch (Exception e) {
             LOG.error("Error retrieving mail template {} as {}", key, format, e);
             return StringUtils.EMPTY;
@@ -144,7 +144,7 @@ public class ReportRestClient extends BaseRestClient
     @Override
     public void updateTemplateFormat(final String key, final String content, final ReportTemplateFormat format) {
         getService(ReportTemplateService.class).setFormat(
-                key, format, IOUtils.toInputStream(content, SyncopeConstants.DEFAULT_CHARSET));
+                key, format, IOUtils.toInputStream(content, StandardCharsets.UTF_8));
     }
 
     public BulkActionResult bulkAction(final BulkAction action) {

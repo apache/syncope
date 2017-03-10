@@ -19,13 +19,13 @@
 package org.apache.syncope.client.enduser.resources;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserApplication;
 import org.apache.syncope.client.enduser.model.Credentials;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.util.io.IOUtils;
@@ -61,8 +61,9 @@ public class LoginResource extends AbstractBaseResource {
             } else if (!SyncopeEnduserApplication.get().getAdminUser().equalsIgnoreCase(username)
                     && SyncopeEnduserSession.get().authenticate(username, password)) {
                 // user has been authenticated successfully
-                response.setTextEncoding(SyncopeConstants.DEFAULT_ENCODING);
+                response.setTextEncoding(StandardCharsets.UTF_8.name());
                 response.setWriteCallback(new WriteCallback() {
+
                     @Override
                     public void writeData(final Attributes attributes) throws IOException {
                         attributes.getResponse().write(username);
