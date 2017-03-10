@@ -19,19 +19,22 @@
 package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
-import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.rest.ConfRestClient;
+import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.SchemaType;
-import org.apache.syncope.common.rest.api.service.ConfigurationService;
-import org.apache.syncope.common.rest.api.service.SchemaService;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.wizard.WizardModel;
 
 public class ParametersCreateWizardPanel extends AjaxWizardBuilder<ParametersCreateWizardPanel.ParametersForm> {
 
     private static final long serialVersionUID = -2868592590785581481L;
+
+    private final ConfRestClient confRestClient = new ConfRestClient();
+
+    private final SchemaRestClient schemaRestClient = new SchemaRestClient();
 
     public ParametersCreateWizardPanel(final ParametersForm defaultItem, final PageReference pageRef) {
         super(defaultItem, pageRef);
@@ -55,14 +58,12 @@ public class ParametersCreateWizardPanel extends AjaxWizardBuilder<ParametersCre
         final PlainSchemaTO plainSchemaTO = modelObject.getPlainSchemaTO();
         plainSchemaTO.setKey(modelObject.getAttrTO().getSchema());
 
-        SyncopeConsoleSession.get().getService(SchemaService.class).
-                create(SchemaType.PLAIN, plainSchemaTO);
+        schemaRestClient.create(SchemaType.PLAIN, plainSchemaTO);
         try {
-            SyncopeConsoleSession.get().getService(ConfigurationService.class).set(modelObject.getAttrTO());
+            confRestClient.set(modelObject.getAttrTO());
         } catch (Exception e) {
             LOG.error("While setting {}, removing {}", modelObject.getAttrTO(), plainSchemaTO, e);
-            SyncopeConsoleSession.get().getService(SchemaService.class).
-                    delete(SchemaType.PLAIN, plainSchemaTO.getKey());
+            schemaRestClient.deletePlainSchema(plainSchemaTO.getKey());
 
             throw e;
         }

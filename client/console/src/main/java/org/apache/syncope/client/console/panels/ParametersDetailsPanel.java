@@ -21,8 +21,8 @@ package org.apache.syncope.client.console.panels;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.SchemaUtils;
+import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
@@ -34,7 +34,6 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.SchemaType;
-import org.apache.syncope.common.rest.api.service.SchemaService;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
@@ -47,6 +46,8 @@ import org.apache.wicket.model.PropertyModel;
 public class ParametersDetailsPanel extends Panel {
 
     private static final long serialVersionUID = 7708288006191496557L;
+
+    private final SchemaRestClient schemaRestClient = new SchemaRestClient();
 
     public ParametersDetailsPanel(final String id, final AttrTO attrTO) {
         super(id);
@@ -73,11 +74,9 @@ public class ParametersDetailsPanel extends Panel {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     private Panel getFieldPanel(final String id, final AttrTO attrTO) {
-
         final String valueHeaderName = getString("values");
 
-        final PlainSchemaTO schemaTO = SyncopeConsoleSession.get().getService(SchemaService.class).
-                read(SchemaType.PLAIN, attrTO.getSchema());
+        final PlainSchemaTO schemaTO = schemaRestClient.read(SchemaType.PLAIN, attrTO.getSchema());
 
         final FieldPanel panel;
         switch (schemaTO.getType()) {
@@ -93,7 +92,7 @@ public class ParametersDetailsPanel extends Panel {
                 }
                 break;
             case Boolean:
-                panel = new AjaxDropDownChoicePanel<>(id, valueHeaderName, new Model<String>(), false);
+                panel = new AjaxDropDownChoicePanel<>(id, valueHeaderName, new Model<>(), false);
                 ((AjaxDropDownChoicePanel<String>) panel).setChoices(Arrays.asList("true", "false"));
 
                 if (!attrTO.getValues().isEmpty()) {
@@ -121,7 +120,7 @@ public class ParametersDetailsPanel extends Panel {
                 ((AjaxDropDownChoicePanel<String>) panel).setNullValid(false);
                 break;
             case Enum:
-                panel = new AjaxDropDownChoicePanel<>(id, valueHeaderName, new Model<String>(), false);
+                panel = new AjaxDropDownChoicePanel<>(id, valueHeaderName, new Model<>(), false);
                 ((AjaxDropDownChoicePanel<String>) panel).setChoices(SchemaUtils.getEnumeratedValues(schemaTO));
 
                 if (!attrTO.getValues().isEmpty()) {

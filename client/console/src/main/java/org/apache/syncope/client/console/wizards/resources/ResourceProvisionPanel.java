@@ -47,7 +47,6 @@ import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.OrgUnitTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
-import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
@@ -64,6 +63,8 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
     private static final long serialVersionUID = -7982691107029848579L;
 
     private final ConnectorRestClient connectorRestClient = new ConnectorRestClient();
+
+    private final ResourceRestClient resourceRestClient = new ResourceRestClient();
 
     private final ResourceTO resourceTO;
 
@@ -239,8 +240,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                     @Override
                     public void onClick(final AjaxRequestTarget target, final ProvisionTO provisionTO) {
                         try {
-                            SyncopeConsoleSession.get().getService(ResourceService.class).
-                                    setLatestSyncToken(resourceTO.getKey(), provisionTO.getAnyType());
+                            resourceRestClient.setLatestSyncToken(resourceTO.getKey(), provisionTO.getAnyType());
                             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                         } catch (Exception e) {
                             LOG.error("While setting latest sync token for {}/{}",
@@ -258,8 +258,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                     @Override
                     public void onClick(final AjaxRequestTarget target, final ProvisionTO provisionTO) {
                         try {
-                            SyncopeConsoleSession.get().getService(ResourceService.class).
-                                    removeSyncToken(resourceTO.getKey(), provisionTO.getAnyType());
+                            resourceRestClient.removeSyncToken(resourceTO.getKey(), provisionTO.getAnyType());
                             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                         } catch (Exception e) {
                             LOG.error("While removing sync token for {}/{}",
@@ -326,7 +325,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                         if (connObjectKeyCount != 1) {
                             throw new RuntimeException(provision.getAnyType() + ": "
                                     + new StringResourceModel("connObjectKeyValidation", ResourceProvisionPanel.this).
-                                    getString());
+                                            getString());
                         }
                     }
                 }

@@ -32,6 +32,7 @@ import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
 import org.apache.syncope.common.rest.api.beans.ExecQuery;
@@ -48,6 +49,10 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
 
     public List<JobTO> listJobs() {
         return getService(TaskService.class).listJobs();
+    }
+
+    public void actionJob(final String refKey, final JobAction jobAction) {
+        getService(TaskService.class).actionJob(refKey, jobAction);
     }
 
     public int count(final TaskType kind) {

@@ -36,6 +36,7 @@ import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.SchemaTypePanel.SchemaProvider;
+import org.apache.syncope.client.console.rest.ConfRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
@@ -47,8 +48,6 @@ import org.apache.syncope.common.lib.to.AbstractSchemaTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
-import org.apache.syncope.common.rest.api.service.ConfigurationService;
-import org.apache.syncope.common.rest.api.service.SchemaService;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -62,7 +61,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.springframework.util.ReflectionUtils;
 
-public class SchemaTypePanel extends TypesDirectoryPanel<AbstractSchemaTO, SchemaProvider> {
+public class SchemaTypePanel extends TypesDirectoryPanel<AbstractSchemaTO, SchemaProvider, SchemaRestClient> {
 
     private static final long serialVersionUID = 3905038169553185171L;
 
@@ -80,12 +79,11 @@ public class SchemaTypePanel extends TypesDirectoryPanel<AbstractSchemaTO, Schem
         }
     };
 
-    private final SchemaRestClient schemaRestClient = new SchemaRestClient();
-
     private final SchemaType schemaType;
 
     public SchemaTypePanel(final String id, final SchemaType schemaType, final PageReference pageRef) {
         super(id, pageRef);
+        this.restClient = new SchemaRestClient();
         disableCheckBoxes();
 
         this.schemaType = schemaType;
@@ -109,11 +107,9 @@ public class SchemaTypePanel extends TypesDirectoryPanel<AbstractSchemaTO, Schem
                         public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                             try {
                                 if (getOriginalItem() == null || StringUtils.isBlank(getOriginalItem().getKey())) {
-                                    SyncopeConsoleSession.get().getService(
-                                            SchemaService.class).create(schemaType, modelObject);
+                                    restClient.create(schemaType, modelObject);
                                 } else {
-                                    SyncopeConsoleSession.get().getService(
-                                            SchemaService.class).update(schemaType, modelObject);
+                                    restClient.update(schemaType, modelObject);
                                 }
 
                                 SchemaTypePanel.this.updateResultTable(target);
@@ -212,15 +208,15 @@ public class SchemaTypePanel extends TypesDirectoryPanel<AbstractSchemaTO, Schem
                                 try {
                                     switch (schemaType) {
                                         case DERIVED:
-                                            schemaRestClient.deleteDerSchema(model.getObject().getKey());
+                                            restClient.deleteDerSchema(model.getObject().getKey());
                                             break;
 
                                         case VIRTUAL:
-                                            schemaRestClient.deleteVirSchema(model.getObject().getKey());
+                                            restClient.deleteVirSchema(model.getObject().getKey());
                                             break;
 
                                         default:
-                                            schemaRestClient.deletePlainSchema(model.getObject().getKey());
+                                            restClient.deletePlainSchema(model.getObject().getKey());
                                             break;
                                     }
 
@@ -268,6 +264,8 @@ public class SchemaTypePanel extends TypesDirectoryPanel<AbstractSchemaTO, Schem
 
         private final SchemaType schemaType;
 
+        private final ConfRestClient confRestClient = new ConfRestClient();
+
         private SchemaProvider(final int paginatorRows, final SchemaType schemaType) {
             super(paginatorRows);
 
@@ -278,15 +276,13 @@ public class SchemaTypePanel extends TypesDirectoryPanel<AbstractSchemaTO, Schem
 
         @Override
         public Iterator<AbstractSchemaTO> iterator(final long first, final long count) {
-            final List<AbstractSchemaTO> list = schemaRestClient.getSchemas(this.schemaType);
+            final List<AbstractSchemaTO> list = restClient.getSchemas(this.schemaType);
             Collections.sort(list, comparator);
 
             if (SchemaType.PLAIN == this.schemaType) {
                 final List<String> configurations = new ArrayList<>();
 
-                CollectionUtils.collect(
-                        SyncopeConsoleSession.get().getService(ConfigurationService.class).list(),
-                        new Transformer<AttrTO, String>() {
+                CollectionUtils.collect(confRestClient.list(), new Transformer<AttrTO, String>() {
 
                     @Override
                     public String transform(final AttrTO attrTO) {
@@ -308,9 +304,9 @@ public class SchemaTypePanel extends TypesDirectoryPanel<AbstractSchemaTO, Schem
 
         @Override
         public long size() {
-            int size = schemaRestClient.getSchemas(this.schemaType).size();
+            int size = restClient.getSchemas(this.schemaType).size();
             return SchemaType.PLAIN == this.schemaType
-                    ? size - SyncopeConsoleSession.get().getService(ConfigurationService.class).list().size()
+                    ? size - confRestClient.list().size()
                     : size;
         }
 

@@ -30,18 +30,17 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.collections4.functors.StringValueTransformer;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.search.SearchClause.Comparator;
 import org.apache.syncope.client.console.panels.search.SearchClause.Operator;
 import org.apache.syncope.client.console.panels.search.SearchClause.Type;
+import org.apache.syncope.client.console.rest.RelationshipTypeRestClient;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxEventBehavior;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.common.lib.to.RelationshipTypeTO;
-import org.apache.syncope.common.rest.api.service.RelationshipTypeService;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
@@ -219,8 +218,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
                     case RELATIONSHIP:
                         final List<String> relations = CollectionUtils.collect(
-                                SyncopeConsoleSession.get().getService(RelationshipTypeService.class).list(),
-                                new Transformer<RelationshipTypeTO, String>() {
+                                new RelationshipTypeRestClient().list(), new Transformer<RelationshipTypeTO, String>() {
 
                             @Override
                             public String transform(final RelationshipTypeTO input) {

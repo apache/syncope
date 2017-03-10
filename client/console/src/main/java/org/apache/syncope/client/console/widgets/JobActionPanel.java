@@ -26,6 +26,7 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.reports.ReportWizardBuilder;
 import org.apache.syncope.client.console.reports.ReportletDirectoryPanel;
+import org.apache.syncope.client.console.rest.NotificationRestClient;
 import org.apache.syncope.client.console.rest.ReportRestClient;
 import org.apache.syncope.client.console.rest.TaskRestClient;
 import org.apache.syncope.client.console.tasks.SchedTaskWizardBuilder;
@@ -39,9 +40,6 @@ import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.JobType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
-import org.apache.syncope.common.rest.api.service.NotificationService;
-import org.apache.syncope.common.rest.api.service.ReportService;
-import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -62,6 +60,12 @@ public class JobActionPanel extends WizardMgtPanel<Serializable> {
     private final BaseModal<Serializable> jobModal;
 
     private final BaseModal<ReportTO> reportModal;
+
+    private final NotificationRestClient notificationRestClient = new NotificationRestClient();
+
+    private final ReportRestClient reportRestClient = new ReportRestClient();
+
+    private final TaskRestClient taskRestClient = new TaskRestClient();
 
     public JobActionPanel(
             final String id,
@@ -191,18 +195,15 @@ public class JobActionPanel extends WizardMgtPanel<Serializable> {
                     try {
                         switch (jobTO.getType()) {
                             case NOTIFICATION:
-                                SyncopeConsoleSession.get().getService(NotificationService.class).
-                                        actionJob(JobAction.STOP);
+                                notificationRestClient.actionJob(JobAction.STOP);
                                 break;
 
                             case REPORT:
-                                SyncopeConsoleSession.get().getService(ReportService.class).
-                                        actionJob(jobTO.getRefKey(), JobAction.STOP);
+                                reportRestClient.actionJob(jobTO.getRefKey(), JobAction.STOP);
                                 break;
 
                             case TASK:
-                                SyncopeConsoleSession.get().getService(TaskService.class).
-                                        actionJob(jobTO.getRefKey(), JobAction.STOP);
+                                taskRestClient.actionJob(jobTO.getRefKey(), JobAction.STOP);
                                 break;
 
                             default:
@@ -228,18 +229,15 @@ public class JobActionPanel extends WizardMgtPanel<Serializable> {
                     try {
                         switch (jobTO.getType()) {
                             case NOTIFICATION:
-                                SyncopeConsoleSession.get().getService(NotificationService.class).
-                                        actionJob(JobAction.START);
+                                notificationRestClient.actionJob(JobAction.START);
                                 break;
 
                             case REPORT:
-                                SyncopeConsoleSession.get().getService(ReportService.class).
-                                        actionJob(jobTO.getRefKey(), JobAction.START);
+                                reportRestClient.actionJob(jobTO.getRefKey(), JobAction.START);
                                 break;
 
                             case TASK:
-                                SyncopeConsoleSession.get().getService(TaskService.class).
-                                        actionJob(jobTO.getRefKey(), JobAction.START);
+                                taskRestClient.actionJob(jobTO.getRefKey(), JobAction.START);
                                 break;
 
                             default:

@@ -16,27 +16,22 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.pages;
+package org.apache.syncope.client.console.rest;
 
-import org.apache.wicket.Page;
-import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.link.BookmarkablePageLink;
-import org.apache.wicket.model.Model;
-import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.syncope.common.lib.info.NumbersInfo;
+import org.apache.syncope.common.lib.info.SystemInfo;
+import org.apache.syncope.common.rest.api.service.SyncopeService;
 
-/**
- * Error WebPage.
- */
-public class ErrorPage extends BasePage {
+public class SyncopeRestClient extends BaseRestClient {
 
-    private static final long serialVersionUID = -390761262038796657L;
+    private static final long serialVersionUID = -9013241672773442286L;
 
-    public ErrorPage(final PageParameters parameters) {
-        super(parameters);
-
-        body.add(new Label("errorTitle", new Model<>(parameters.get("errorTitle").toString())));
-        body.add(new Label("errorMessage", new Model<>(parameters.get("errorMessage").toString())));
-
-        body.add(new BookmarkablePageLink<Page>("home", getApplication().getHomePage()));
+    public NumbersInfo numbers() {
+        return getService(SyncopeService.class).numbers();
     }
+
+    public SystemInfo system() {
+        return getService(SyncopeService.class).system();
+    }
+
 }

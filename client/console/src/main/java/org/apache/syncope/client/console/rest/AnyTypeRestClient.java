@@ -61,4 +61,8 @@ public class AnyTypeRestClient extends BaseRestClient {
     public void update(final AnyTypeTO anyTypeTO) {
         getService(AnyTypeService.class).update(anyTypeTO);
     }
+
+    public void delete(final String key) {
+        getService(AnyTypeService.class).delete(key);
+    }
 }

@@ -22,8 +22,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.NotificationPanel;
+import org.apache.syncope.client.console.rest.UserSelfRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPasswordFieldPanel;
-import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.markup.html.WebPage;
@@ -50,6 +50,8 @@ public class MustChangePassword extends WebPage {
     private final AjaxPasswordFieldPanel passwordField;
 
     private final AjaxPasswordFieldPanel confirmPasswordField;
+
+    private final UserSelfRestClient restClient = new UserSelfRestClient();
 
     public MustChangePassword(final PageParameters parameters) {
         super(parameters);
@@ -88,8 +90,7 @@ public class MustChangePassword extends WebPage {
             @Override
             protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                 try {
-                    SyncopeConsoleSession.get().getService(UserSelfService.class).
-                            changePassword(passwordField.getModelObject());
+                    restClient.changePassword(passwordField.getModelObject());
 
                     SyncopeConsoleSession.get().invalidate();
 
@@ -97,8 +98,8 @@ public class MustChangePassword extends WebPage {
                 } catch (Exception e) {
                     LOG.error("While changing password for {}",
                             SyncopeConsoleSession.get().getSelfTO().getUsername(), e);
-                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.
-                            getMessage());
+                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
+                            ? e.getClass().getName() : e.getMessage());
                     notificationPanel.refresh(target);
                 }
             }

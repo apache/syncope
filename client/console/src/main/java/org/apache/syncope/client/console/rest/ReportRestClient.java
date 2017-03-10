@@ -32,6 +32,7 @@ import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.to.ReportTemplateTO;
+import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
 import org.apache.syncope.common.lib.types.ReportTemplateFormat;
 import org.apache.syncope.common.rest.api.beans.ExecQuery;
@@ -54,6 +55,10 @@ public class ReportRestClient extends BaseRestClient
 
     public List<JobTO> listJobs() {
         return getService(ReportService.class).listJobs();
+    }
+
+    public void actionJob(final String refKey, final JobAction jobAction) {
+        getService(ReportService.class).actionJob(refKey, jobAction);
     }
 
     public void create(final ReportTO reportTO) {

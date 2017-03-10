@@ -23,14 +23,13 @@ import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
-import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
+import org.apache.syncope.client.console.rest.ConfRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.AttrTO;
-import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
-import org.apache.syncope.common.rest.api.service.ConfigurationService;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -77,38 +76,32 @@ public class AnyTypeClassDetailsPanel extends Panel {
         container.setOutputMarkupId(true);
         antTypeClassForm.add(container);
 
-        final AjaxPalettePanel<String> plainSchema =
-                new AjaxPalettePanel.Builder<String>()
-                .setAllowOrder(true)
-                .setAllowMoveAll(true)
-                .build("plainSchemas",
+        AjaxPalettePanel<String> plainSchema = new AjaxPalettePanel.Builder<String>().
+                setAllowOrder(true).
+                setAllowMoveAll(true).
+                build("plainSchemas",
                         new PropertyModel<List<String>>(this.anyTypeClassTO, "plainSchemas"),
                         new ListModel<>(availablePlainSchemas));
-
         plainSchema.hideLabel();
         plainSchema.setOutputMarkupId(true);
         container.add(plainSchema);
 
-        final AjaxPalettePanel<String> derSchema =
-                new AjaxPalettePanel.Builder<String>()
-                .setAllowOrder(true)
-                .setAllowMoveAll(true)
-                .build("derSchemas",
+        AjaxPalettePanel<String> derSchema = new AjaxPalettePanel.Builder<String>().
+                setAllowOrder(true).
+                setAllowMoveAll(true).
+                build("derSchemas",
                         new PropertyModel<List<String>>(this.anyTypeClassTO, "derSchemas"),
                         new ListModel<>(availableDerSchemas));
         derSchema.hideLabel();
-
         derSchema.setOutputMarkupId(true);
         container.add(derSchema);
 
-        final AjaxPalettePanel<String> virSchema =
-                new AjaxPalettePanel.Builder<String>()
-                .setAllowOrder(true)
-                .setAllowMoveAll(true)
-                .build("virSchemas",
+        AjaxPalettePanel<String> virSchema = new AjaxPalettePanel.Builder<String>().
+                setAllowOrder(true).
+                setAllowMoveAll(true).
+                build("virSchemas",
                         new PropertyModel<List<String>>(this.anyTypeClassTO, "virSchemas"),
                         new ListModel<>(availableVirSchemas));
-
         virSchema.hideLabel();
         virSchema.setOutputMarkupId(true);
         container.add(virSchema);
@@ -117,9 +110,7 @@ public class AnyTypeClassDetailsPanel extends Panel {
     private void buildAvailableSchemas(final String key) {
 
         List<String> configurationSchemas = new ArrayList<>();
-        CollectionUtils.collect(SyncopeConsoleSession.get().
-                getService(ConfigurationService.class).list(),
-                new Transformer<AttrTO, String>() {
+        CollectionUtils.collect(new ConfRestClient().list(), new Transformer<AttrTO, String>() {
 
             @Override
             public String transform(final AttrTO attrTO) {
@@ -127,7 +118,7 @@ public class AnyTypeClassDetailsPanel extends Panel {
             }
         }, configurationSchemas);
 
-        for (AnyTypeClassTO item : SyncopeConsoleSession.get().getService(AnyTypeClassService.class).list()) {
+        for (AnyTypeClassTO item : new AnyTypeClassRestClient().list()) {
             if (key == null || !item.getKey().equals(key)) {
                 availablePlainSchemas.removeAll(item.getPlainSchemas());
                 availableDerSchemas.removeAll(item.getDerSchemas());

@@ -19,9 +19,11 @@
 package org.apache.syncope.client.console.rest;
 
 import static org.apache.syncope.client.console.rest.BaseRestClient.getService;
+
 import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.common.lib.to.CamelMetrics;
 import org.apache.syncope.common.lib.to.CamelRouteTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.rest.api.service.CamelRouteService;
@@ -50,10 +52,14 @@ public class CamelRoutesRestClient extends BaseRestClient {
         return anyTypeKind == AnyTypeKind.USER
                 ? SyncopeConsoleSession.get().getPlatformInfo().getUserProvisioningManager().contains("Camel")
                 : anyTypeKind == AnyTypeKind.ANY_OBJECT
-                ? SyncopeConsoleSession.get().getPlatformInfo().
-                getAnyObjectProvisioningManager().contains("Camel")
-                : SyncopeConsoleSession.get().getPlatformInfo().
-                getGroupProvisioningManager().contains("Camel");
+                        ? SyncopeConsoleSession.get().getPlatformInfo().
+                                getAnyObjectProvisioningManager().contains("Camel")
+                        : SyncopeConsoleSession.get().getPlatformInfo().
+                                getGroupProvisioningManager().contains("Camel");
 
+    }
+
+    public CamelMetrics metrics() {
+        return getService(CamelRouteService.class).metrics();
     }
 }

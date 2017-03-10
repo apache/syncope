@@ -154,7 +154,7 @@ public class Realms extends BasePage {
             WizardModalPanel<?> modalPanel = newItemEvent.getModalPanel();
 
             if (event.getPayload() instanceof AjaxWizard.NewItemActionEvent && modalPanel != null) {
-                final IModel<Serializable> model = new CompoundPropertyModel<>(modalPanel.getItem());
+                final IModel<Serializable> model = new CompoundPropertyModel<Serializable>(modalPanel.getItem());
                 templateModal.setFormModel(model);
                 templateModal.header(newItemEvent.getResourceModel());
                 newItemEvent.getTarget().add(templateModal.setContent(modalPanel));

@@ -21,14 +21,13 @@ package org.apache.syncope.client.console;
 import java.security.AccessControlException;
 import javax.ws.rs.BadRequestException;
 import javax.xml.ws.WebServiceException;
-import org.apache.syncope.client.console.pages.ErrorPage;
+import org.apache.syncope.client.console.pages.Login;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.wicket.Page;
 import org.apache.wicket.authorization.UnauthorizedInstantiationException;
 import org.apache.wicket.core.request.handler.PageProvider;
 import org.apache.wicket.core.request.handler.RenderPageRequestHandler;
 import org.apache.wicket.markup.html.pages.ExceptionErrorPage;
-import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.protocol.http.PageExpiredException;
 import org.apache.wicket.request.IRequestHandler;
 import org.apache.wicket.request.cycle.AbstractRequestCycleListener;
@@ -41,36 +40,43 @@ public class SyncopeConsoleRequestCycleListener extends AbstractRequestCycleList
 
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeConsoleRequestCycleListener.class);
 
+    private boolean instanceOf(final Exception e, final Class<? extends Exception> clazz) {
+        return clazz.isAssignableFrom(e.getClass())
+                || (e.getCause() != null && clazz.isAssignableFrom(e.getCause().getClass()))
+                || (e.getCause() != null && e.getCause().getCause() != null
+                && clazz.isAssignableFrom(e.getCause().getCause().getClass()));
+    }
+
     @Override
     public IRequestHandler onException(final RequestCycle cycle, final Exception e) {
         LOG.error("Exception found", e);
 
         PageParameters errorParameters = new PageParameters();
-        errorParameters.add("errorTitle", new StringResourceModel("alert").getString());
 
-        final Page errorPage;
-        if (e instanceof UnauthorizedInstantiationException) {
-            errorParameters.add("errorMessage",
-                    new StringResourceModel("unauthorizedInstantiationException").getString());
+        Page errorPage;
+        if (instanceOf(e, UnauthorizedInstantiationException.class)) {
+            errorParameters.add("errorMessage", "unauthorizedInstantiationException");
+            errorPage = new Login(errorParameters);
+        } else if (instanceOf(e, AccessControlException.class)) {
+            errorParameters.add("errorMessage", "accessControlException");
+            errorPage = new Login(errorParameters);
+        } else if (instanceOf(e, PageExpiredException.class) || !SyncopeConsoleSession.get().isSignedIn()) {
+            errorParameters.add("errorMessage", "pageExpiredException");
+            errorPage = new Login(errorParameters);
+        } else if (instanceOf(e, BadRequestException.class)
+                || instanceOf(e, WebServiceException.class)
+                || instanceOf(e, SyncopeClientException.class)) {
 
-            errorPage = new ErrorPage(errorParameters);
-        } else if (e.getCause() instanceof AccessControlException) {
-            errorParameters.add("errorMessage", new StringResourceModel("accessControlException").getString());
-
-            errorPage = new ErrorPage(errorParameters);
-        } else if (e instanceof PageExpiredException || !(SyncopeConsoleSession.get()).isSignedIn()) {
-            errorParameters.add("errorMessage", new StringResourceModel("pageExpiredException").getString());
-
-            errorPage = new ErrorPage(errorParameters);
-        } else if (e.getCause() instanceof BadRequestException || e.getCause() instanceof WebServiceException
-                || e.getCause() instanceof SyncopeClientException) {
-
-            errorParameters.add("errorMessage", new StringResourceModel("restClientException").getString());
-
-            errorPage = new ErrorPage(errorParameters);
+            errorParameters.add("errorMessage", "restClientException");
+            errorPage = new Login(errorParameters);
         } else {
             // redirect to default Wicket error page
             errorPage = new ExceptionErrorPage(e, null);
+        }
+
+        if (errorPage instanceof Login) {
+            SyncopeConsoleSession.get().cleanup();
+            SyncopeConsoleSession.get().invalidateNow();
         }
 
         return new RenderPageRequestHandler(new PageProvider(errorPage));

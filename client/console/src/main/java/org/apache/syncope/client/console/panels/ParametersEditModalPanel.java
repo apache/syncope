@@ -22,9 +22,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
+import org.apache.syncope.client.console.rest.ConfRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.AttrTO;
-import org.apache.syncope.common.rest.api.service.ConfigurationService;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.form.Form;
@@ -37,10 +37,13 @@ public class ParametersEditModalPanel extends AbstractModalPanel<AttrTO> {
 
     private final BaseModal<AttrTO> parametersModal;
 
+    private final ConfRestClient confRestClient = new ConfRestClient();
+
     public ParametersEditModalPanel(
             final BaseModal<AttrTO> modal,
             final AttrTO attrTO,
             final PageReference pageRef) {
+
         super(modal, pageRef);
         this.attrTO = attrTO;
         this.parametersModal = modal;
@@ -55,7 +58,7 @@ public class ParametersEditModalPanel extends AbstractModalPanel<AttrTO> {
     @Override
     public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
         try {
-            SyncopeConsoleSession.get().getService(ConfigurationService.class).set(attrTO);
+            confRestClient.set(attrTO);
             parametersModal.close(target);
             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
         } catch (Exception e) {
