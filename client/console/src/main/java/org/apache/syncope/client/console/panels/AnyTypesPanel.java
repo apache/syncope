@@ -42,7 +42,6 @@ import org.apache.syncope.client.console.wizards.AbstractModalPanelBuilder;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
-import org.apache.syncope.common.rest.api.service.AnyTypeService;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -54,14 +53,13 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 
-public class AnyTypesPanel extends TypesDirectoryPanel<AnyTypeTO, AnyTypeProvider> {
+public class AnyTypesPanel extends TypesDirectoryPanel<AnyTypeTO, AnyTypeProvider, AnyTypeRestClient> {
 
     private static final long serialVersionUID = 3905038169553185171L;
 
-    private final AnyTypeRestClient anyTypeRestClient = new AnyTypeRestClient();
-
     public AnyTypesPanel(final String id, final PageReference pageRef) {
         super(id, pageRef);
+        this.restClient = new AnyTypeRestClient();
         disableCheckBoxes();
 
         this.addNewItemPanelBuilder(new AbstractModalPanelBuilder<AnyTypeTO>(new AnyTypeTO(), pageRef) {
@@ -79,10 +77,10 @@ public class AnyTypesPanel extends TypesDirectoryPanel<AnyTypeTO, AnyTypeProvide
                     public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                         try {
                             if (getOriginalItem() == null || StringUtils.isBlank(getOriginalItem().getKey())) {
-                                anyTypeRestClient.create(modelObject);
+                                restClient.create(modelObject);
                                 SyncopeConsoleSession.get().refreshAuth();
                             } else {
-                                anyTypeRestClient.update(modelObject);
+                                restClient.update(modelObject);
                             }
                             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                             AnyTypesPanel.this.updateResultTable(target);
@@ -180,8 +178,7 @@ public class AnyTypesPanel extends TypesDirectoryPanel<AnyTypeTO, AnyTypeProvide
                             @Override
                             public void onClick(final AjaxRequestTarget target, final AnyTypeTO ignore) {
                                 try {
-                                    SyncopeConsoleSession.get().
-                                            getService(AnyTypeService.class).delete(model.getObject().getKey());
+                                    restClient.delete(model.getObject().getKey());
                                     SyncopeConsoleSession.get().refreshAuth();
 
                                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
@@ -233,14 +230,14 @@ public class AnyTypesPanel extends TypesDirectoryPanel<AnyTypeTO, AnyTypeProvide
 
         @Override
         public Iterator<AnyTypeTO> iterator(final long first, final long count) {
-            final List<AnyTypeTO> list = anyTypeRestClient.list();
+            final List<AnyTypeTO> list = restClient.list();
             Collections.sort(list, comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return anyTypeRestClient.list().size();
+            return restClient.list().size();
         }
 
         @Override

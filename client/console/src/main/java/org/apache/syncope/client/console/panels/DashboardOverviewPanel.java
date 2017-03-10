@@ -19,7 +19,7 @@
 package org.apache.syncope.client.console.panels;
 
 import org.apache.commons.lang3.tuple.Triple;
-import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.rest.SyncopeRestClient;
 import org.apache.syncope.client.console.wicket.ajax.IndicatorAjaxTimerBehavior;
 import org.apache.syncope.client.console.widgets.AnyByRealmWidget;
 import org.apache.syncope.client.console.widgets.CompletenessWidget;
@@ -27,7 +27,6 @@ import org.apache.syncope.client.console.widgets.LoadWidget;
 import org.apache.syncope.client.console.widgets.NumberWidget;
 import org.apache.syncope.client.console.widgets.UsersByStatusWidget;
 import org.apache.syncope.common.lib.info.NumbersInfo;
-import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -53,10 +52,12 @@ public class DashboardOverviewPanel extends Panel {
 
     private final LoadWidget load;
 
+    private final SyncopeRestClient restClient = new SyncopeRestClient();
+
     public DashboardOverviewPanel(final String id) {
         super(id);
 
-        NumbersInfo numbers = SyncopeConsoleSession.get().getService(SyncopeService.class).numbers();
+        NumbersInfo numbers = restClient.numbers();
 
         WebMarkupContainer container = new WebMarkupContainer("container");
         container.setOutputMarkupId(true);
@@ -95,7 +96,7 @@ public class DashboardOverviewPanel extends Panel {
                 numbers.getAny2ByRealm());
         container.add(anyByRealm);
 
-        load = new LoadWidget("load", SyncopeConsoleSession.get().getService(SyncopeService.class).system());
+        load = new LoadWidget("load", restClient.system());
         container.add(load);
 
         container.add(new IndicatorAjaxTimerBehavior(Duration.seconds(60)) {
@@ -104,7 +105,7 @@ public class DashboardOverviewPanel extends Panel {
 
             @Override
             protected void onTimer(final AjaxRequestTarget target) {
-                NumbersInfo numbers = SyncopeConsoleSession.get().getService(SyncopeService.class).numbers();
+                NumbersInfo numbers = restClient.numbers();
 
                 if (totalUsers.refresh(numbers.getTotalUsers())) {
                     target.add(totalUsers);
@@ -141,7 +142,7 @@ public class DashboardOverviewPanel extends Panel {
                     target.add(anyByRealm);
                 }
 
-                load.refresh(SyncopeConsoleSession.get().getService(SyncopeService.class).system());
+                load.refresh(restClient.system());
                 target.add(load);
             }
         });

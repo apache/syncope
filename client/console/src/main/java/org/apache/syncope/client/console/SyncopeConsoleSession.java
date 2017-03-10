@@ -117,24 +117,6 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
         executorService.execute(command);
     }
 
-    @Override
-    public void invalidate() {
-        if (getJWT() != null) {
-            client.logout();
-        }
-        executorService.shutdown();
-        super.invalidate();
-    }
-
-    @Override
-    public void invalidateNow() {
-        if (getJWT() != null) {
-            client.logout();
-        }
-        executorService.shutdownNow();
-        super.invalidateNow();
-    }
-
     public PlatformInfo getPlatformInfo() {
         return platformInfo;
     }
@@ -156,7 +138,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
     }
 
     public String getJWT() {
-        return client.getJWT();
+        return client == null ? null : client.getJWT();
     }
 
     @Override
@@ -177,6 +159,36 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
         }
 
         return authenticated;
+    }
+
+    public void cleanup() {
+        client = null;
+        auth = null;
+        selfTO = null;
+    }
+
+    @Override
+    public void invalidate() {
+        if (getJWT() != null) {
+            if (client != null) {
+                client.logout();
+            }
+            cleanup();
+        }
+        executorService.shutdown();
+        super.invalidate();
+    }
+
+    @Override
+    public void invalidateNow() {
+        if (getJWT() != null) {
+            if (client != null) {
+                client.logout();
+            }
+            cleanup();
+        }
+        executorService.shutdownNow();
+        super.invalidateNow();
     }
 
     public UserTO getSelfTO() {

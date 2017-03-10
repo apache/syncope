@@ -24,7 +24,7 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.rest.api.service.ConfigurationService;
 
-public class ConfigurationRestClient extends BaseRestClient {
+public class ConfRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = 7692363064029538722L;
 

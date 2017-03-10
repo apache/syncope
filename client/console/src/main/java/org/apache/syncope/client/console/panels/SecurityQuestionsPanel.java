@@ -41,7 +41,6 @@ import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.common.lib.to.SecurityQuestionTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
-import org.apache.syncope.common.rest.api.service.SecurityQuestionService;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -60,7 +59,8 @@ public class SecurityQuestionsPanel extends DirectoryPanel<
     private static final long serialVersionUID = 3323019773236588850L;
 
     public SecurityQuestionsPanel(final String id, final PageReference pageRef) {
-        super(id, new Builder<SecurityQuestionTO, SecurityQuestionTO, SecurityQuestionRestClient>(null, pageRef) {
+        super(id, new Builder<SecurityQuestionTO, SecurityQuestionTO, SecurityQuestionRestClient>(
+                new SecurityQuestionRestClient(), pageRef) {
 
             private static final long serialVersionUID = 8769126634538601689L;
 
@@ -160,8 +160,7 @@ public class SecurityQuestionsPanel extends DirectoryPanel<
                             @Override
                             public void onClick(final AjaxRequestTarget target, final SecurityQuestionTO ignore) {
                                 try {
-                                    SyncopeConsoleSession.get().getService(
-                                            SecurityQuestionService.class).delete(model.getObject().getKey());
+                                    restClient.delete(model.getObject().getKey());
                                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                                     target.add(container);
                                 } catch (Exception e) {
@@ -211,15 +210,14 @@ public class SecurityQuestionsPanel extends DirectoryPanel<
 
         @Override
         public Iterator<SecurityQuestionTO> iterator(final long first, final long count) {
-            final List<SecurityQuestionTO> list = SyncopeConsoleSession.get().getService(SecurityQuestionService.class).
-                    list();
+            final List<SecurityQuestionTO> list = restClient.list();
             Collections.sort(list, comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return SyncopeConsoleSession.get().getService(SecurityQuestionService.class).list().size();
+            return restClient.list().size();
         }
 
         @Override

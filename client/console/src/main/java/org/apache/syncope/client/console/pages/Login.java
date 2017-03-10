@@ -31,6 +31,7 @@ import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.authentication.IAuthenticationStrategy;
 import org.apache.wicket.authroles.authentication.AuthenticatedWebSession;
 import org.apache.wicket.markup.html.WebPage;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
@@ -39,6 +40,7 @@ import org.apache.wicket.markup.html.form.StatelessForm;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 public class Login extends WebPage {
@@ -63,6 +65,15 @@ public class Login extends WebPage {
 
         notificationPanel = new NotificationPanel(Constants.FEEDBACK);
         add(notificationPanel);
+
+        Label exceptionMessage = new Label("exceptionMessage");
+        exceptionMessage.setOutputMarkupPlaceholderTag(true);
+        exceptionMessage.setVisible(false);
+        if (!parameters.get("errorMessage").isNull()) {
+            exceptionMessage.setVisible(true);
+            exceptionMessage.setDefaultModel(new StringResourceModel(parameters.get("errorMessage").toString()));
+        }
+        add(exceptionMessage);
 
         form = new StatelessForm<>("login");
 
@@ -101,7 +112,7 @@ public class Login extends WebPage {
                     continueToOriginalDestination();
                     setResponsePage(getApplication().getHomePage());
                 } else {
-                   SyncopeConsoleSession.get().error(getString("login-error"));
+                    SyncopeConsoleSession.get().error(getString("login-error"));
                     notificationPanel.refresh(target);
                 }
                 strategy.remove();

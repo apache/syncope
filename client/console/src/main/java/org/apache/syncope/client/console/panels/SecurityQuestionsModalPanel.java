@@ -22,9 +22,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
+import org.apache.syncope.client.console.rest.SecurityQuestionRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.SecurityQuestionTO;
-import org.apache.syncope.common.rest.api.service.SecurityQuestionService;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.form.Form;
@@ -35,10 +35,13 @@ public class SecurityQuestionsModalPanel extends AbstractModalPanel<SecurityQues
 
     private final SecurityQuestionTO securityQuestionTO;
 
+    private final SecurityQuestionRestClient restClient = new SecurityQuestionRestClient();
+
     public SecurityQuestionsModalPanel(
             final BaseModal<SecurityQuestionTO> modal,
             final SecurityQuestionTO securityQuestionTO,
             final PageReference pageRef) {
+
         super(modal, pageRef);
         this.securityQuestionTO = securityQuestionTO;
         add(new SecurityQuestionDetailsPanel("securityQuestionDetailsPanel", getItem()));
@@ -53,17 +56,17 @@ public class SecurityQuestionsModalPanel extends AbstractModalPanel<SecurityQues
     public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
         try {
             if (securityQuestionTO.getKey() == null) {
-                SyncopeConsoleSession.get().getService(SecurityQuestionService.class).create(securityQuestionTO);
+                restClient.create(securityQuestionTO);
             } else {
-                SyncopeConsoleSession.get().getService(SecurityQuestionService.class).update(securityQuestionTO);
+                restClient.update(securityQuestionTO);
             }
 
             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
             modal.close(target);
         } catch (Exception e) {
             LOG.error("While creating or updating {}", securityQuestionTO, e);
-            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.
-                    getMessage());
+            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
+                    ? e.getClass().getName() : e.getMessage());
         }
         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
     }

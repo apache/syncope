@@ -32,6 +32,7 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.pages.BasePage;
+import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -40,7 +41,6 @@ import org.apache.syncope.client.console.wizards.AbstractModalPanelBuilder;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
-import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -52,12 +52,14 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 
-public class AnyTypeClassesPanel extends TypesDirectoryPanel<AnyTypeClassTO, AnyTypeClassesPanel.AnyTypeClassProvider> {
+public class AnyTypeClassesPanel extends TypesDirectoryPanel<
+        AnyTypeClassTO, AnyTypeClassesPanel.AnyTypeClassProvider, AnyTypeClassRestClient> {
 
     private static final long serialVersionUID = -2356760296223908382L;
 
     public AnyTypeClassesPanel(final String id, final PageReference pageRef) {
         super(id, pageRef);
+        this.restClient = new AnyTypeClassRestClient();
         disableCheckBoxes();
 
         this.addNewItemPanelBuilder(new AbstractModalPanelBuilder<AnyTypeClassTO>(new AnyTypeClassTO(), pageRef) {
@@ -76,9 +78,9 @@ public class AnyTypeClassesPanel extends TypesDirectoryPanel<AnyTypeClassTO, Any
                     public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                         try {
                             if (getOriginalItem() == null || StringUtils.isBlank(getOriginalItem().getKey())) {
-                                SyncopeConsoleSession.get().getService(AnyTypeClassService.class).create(modelObject);
+                                restClient.create(modelObject);
                             } else {
-                                SyncopeConsoleSession.get().getService(AnyTypeClassService.class).update(modelObject);
+                                restClient.update(modelObject);
                             }
                             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                             AnyTypeClassesPanel.this.updateResultTable(target);
@@ -177,8 +179,7 @@ public class AnyTypeClassesPanel extends TypesDirectoryPanel<AnyTypeClassTO, Any
                             @Override
                             public void onClick(final AjaxRequestTarget target, final AnyTypeClassTO ignore) {
                                 try {
-                                    SyncopeConsoleSession.get().
-                                            getService(AnyTypeClassService.class).delete(model.getObject().getKey());
+                                    restClient.delete(model.getObject().getKey());
                                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                                     target.add(container);
                                 } catch (Exception e) {
@@ -228,14 +229,14 @@ public class AnyTypeClassesPanel extends TypesDirectoryPanel<AnyTypeClassTO, Any
 
         @Override
         public Iterator<AnyTypeClassTO> iterator(final long first, final long count) {
-            final List<AnyTypeClassTO> list = SyncopeConsoleSession.get().getService(AnyTypeClassService.class).list();
+            final List<AnyTypeClassTO> list = restClient.list();
             Collections.sort(list, comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return SyncopeConsoleSession.get().getService(AnyTypeClassService.class).list().size();
+            return restClient.list().size();
         }
 
         @Override

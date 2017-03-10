@@ -123,6 +123,19 @@ public class SchemaRestClient extends BaseRestClient {
         return getSchemaNames(SchemaType.VIRTUAL);
     }
 
+    public PlainSchemaTO read(final SchemaType schemaType, final String key) {
+        return getService(SchemaService.class).read(schemaType, key);
+
+    }
+
+    public void create(final SchemaType schemaType, final AbstractSchemaTO modelObject) {
+        getService(SchemaService.class).create(schemaType, modelObject);
+    }
+
+    public void update(final SchemaType schemaType, final AbstractSchemaTO modelObject) {
+        getService(SchemaService.class).update(schemaType, modelObject);
+    }
+
     public PlainSchemaTO deletePlainSchema(final String name) {
         PlainSchemaTO response = getService(SchemaService.class).read(SchemaType.PLAIN, name);
         getService(SchemaService.class).delete(SchemaType.PLAIN, name);

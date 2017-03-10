@@ -26,11 +26,10 @@ import java.util.Collections;
 import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
-import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.annotations.ExtWidget;
+import org.apache.syncope.client.console.rest.CamelRoutesRestClient;
 import org.apache.syncope.client.console.wicket.ajax.IndicatorAjaxTimerBehavior;
 import org.apache.syncope.common.lib.to.CamelMetrics;
-import org.apache.syncope.common.rest.api.service.CamelRouteService;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -46,6 +45,8 @@ public class CamelMetricsWidget extends BaseExtWidget {
 
     private final BarChartPanel chart;
 
+    private final CamelRoutesRestClient restClient = new CamelRoutesRestClient();
+
     public CamelMetricsWidget(final String id, final PageReference pageRef) {
         super(id, pageRef);
 
@@ -53,7 +54,7 @@ public class CamelMetricsWidget extends BaseExtWidget {
         container.setOutputMarkupId(true);
         add(container);
 
-        CamelMetrics metrics = SyncopeConsoleSession.get().getService(CamelRouteService.class).metrics();
+        CamelMetrics metrics = restClient.metrics();
         meanRates = new ArrayList<>(5);
         for (int i = 0; i < 5; i++) {
             meanRates.add(metrics.getResponseMeanRates().get(i));
@@ -68,7 +69,7 @@ public class CamelMetricsWidget extends BaseExtWidget {
 
             @Override
             protected void onTimer(final AjaxRequestTarget target) {
-                CamelMetrics metrics = SyncopeConsoleSession.get().getService(CamelRouteService.class).metrics();
+                CamelMetrics metrics = restClient.metrics();
                 List<CamelMetrics.MeanRate> updatedMeanRates = new ArrayList<>(5);
                 for (int i = 0; i < 5; i++) {
                     updatedMeanRates.add(metrics.getResponseMeanRates().get(i));

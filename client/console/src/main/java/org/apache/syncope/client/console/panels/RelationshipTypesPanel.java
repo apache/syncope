@@ -33,6 +33,7 @@ import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.RelationshipTypesPanel.RelationshipTypeProvider;
+import org.apache.syncope.client.console.rest.RelationshipTypeRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -41,7 +42,6 @@ import org.apache.syncope.client.console.wizards.AbstractModalPanelBuilder;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.to.RelationshipTypeTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
-import org.apache.syncope.common.rest.api.service.RelationshipTypeService;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -53,12 +53,14 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 
-public class RelationshipTypesPanel extends TypesDirectoryPanel<RelationshipTypeTO, RelationshipTypeProvider> {
+public class RelationshipTypesPanel extends TypesDirectoryPanel<
+        RelationshipTypeTO, RelationshipTypeProvider, RelationshipTypeRestClient> {
 
     private static final long serialVersionUID = -3731778000138547357L;
 
     public RelationshipTypesPanel(final String id, final PageReference pageRef) {
         super(id, pageRef);
+        this.restClient = new RelationshipTypeRestClient();
         disableCheckBoxes();
 
         this.addNewItemPanelBuilder(
@@ -69,6 +71,7 @@ public class RelationshipTypesPanel extends TypesDirectoryPanel<RelationshipType
             @Override
             public WizardModalPanel<RelationshipTypeTO> build(
                     final String id, final int index, final AjaxWizard.Mode mode) {
+
                 final RelationshipTypeTO modelObject = newModelObject();
                 return new RelationshipTypeModalPanel(modal, modelObject, pageRef) {
 
@@ -78,11 +81,9 @@ public class RelationshipTypesPanel extends TypesDirectoryPanel<RelationshipType
                     public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                         try {
                             if (getOriginalItem() == null || StringUtils.isBlank(getOriginalItem().getKey())) {
-                                SyncopeConsoleSession.get().
-                                        getService(RelationshipTypeService.class).create(modelObject);
+                                restClient.create(modelObject);
                             } else {
-                                SyncopeConsoleSession.get().
-                                        getService(RelationshipTypeService.class).update(modelObject);
+                                restClient.update(modelObject);
                             }
                             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                             RelationshipTypesPanel.this.updateResultTable(target);
@@ -181,8 +182,7 @@ public class RelationshipTypesPanel extends TypesDirectoryPanel<RelationshipType
                             @Override
                             public void onClick(final AjaxRequestTarget target, final RelationshipTypeTO ignore) {
                                 try {
-                                    SyncopeConsoleSession.get().getService(
-                                            RelationshipTypeService.class).delete(model.getObject().getKey());
+                                    restClient.delete(model.getObject().getKey());
                                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                                     target.add(container);
                                 } catch (Exception e) {
@@ -232,15 +232,14 @@ public class RelationshipTypesPanel extends TypesDirectoryPanel<RelationshipType
 
         @Override
         public Iterator<RelationshipTypeTO> iterator(final long first, final long count) {
-            final List<RelationshipTypeTO> list = SyncopeConsoleSession.get().getService(RelationshipTypeService.class).
-                    list();
+            final List<RelationshipTypeTO> list = restClient.list();
             Collections.sort(list, comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return SyncopeConsoleSession.get().getService(RelationshipTypeService.class).list().size();
+            return restClient.list().size();
         }
 
         @Override

@@ -28,7 +28,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.collections4.Predicate;
-import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.SerializableTransformer;
 import org.apache.syncope.client.console.panels.AnyDirectoryPanel;
@@ -42,6 +41,7 @@ import org.apache.syncope.client.console.panels.search.SearchClausePanel;
 import org.apache.syncope.client.console.panels.search.SearchUtils;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
+import org.apache.syncope.client.console.rest.RelationshipTypeRestClient;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -59,7 +59,6 @@ import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.to.RelationshipTypeTO;
 import org.apache.syncope.common.lib.types.AnyEntitlement;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.rest.api.service.RelationshipTypeService;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
@@ -220,12 +219,14 @@ public class Relationships extends WizardStep {
 
         private WizardMgtPanel<AnyWrapper<AnyObjectTO>> anyObjectDirectoryPanel;
 
+        private final RelationshipTypeRestClient relationshipTypeRestClient = new RelationshipTypeRestClient();
+
         public Specification() {
             super("specification");
             rel = new RelationshipTO();
 
             final ArrayList<String> availableRels = CollectionUtils.collect(
-                    SyncopeConsoleSession.get().getService(RelationshipTypeService.class).list(),
+                    relationshipTypeRestClient.list(),
                     EntityTOUtils.<RelationshipTypeTO>keyTransformer(), new ArrayList<String>());
 
             final AjaxDropDownChoicePanel<String> type = new AjaxDropDownChoicePanel<>(

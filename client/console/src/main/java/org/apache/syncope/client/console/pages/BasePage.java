@@ -29,7 +29,7 @@ import org.apache.syncope.client.console.commons.HttpResourceStream;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.init.ConsoleInitializer;
 import org.apache.syncope.client.console.panels.NotificationPanel;
-import org.apache.syncope.client.console.rest.ConfigurationRestClient;
+import org.apache.syncope.client.console.rest.ConfRestClient;
 import org.apache.syncope.client.console.topology.Topology;
 import org.apache.syncope.client.console.wicket.markup.head.MetaHeaderItem;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
@@ -115,7 +115,7 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
             @Override
             public void onClick() {
                 try {
-                    HttpResourceStream stream = new HttpResourceStream(new ConfigurationRestClient().dbExport());
+                    HttpResourceStream stream = new HttpResourceStream(new ConfRestClient().dbExport());
 
                     ResourceStreamRequestHandler rsrh = new ResourceStreamRequestHandler(stream);
                     rsrh.setFileName(stream.getFilename() == null

@@ -129,4 +129,12 @@ public class ResourceRestClient extends BaseRestClient {
 
         return getService(ResourceService.class).bulkDeassociation(patch);
     }
+
+    public void setLatestSyncToken(final String key, final String anyType) {
+        getService(ResourceService.class).setLatestSyncToken(key, anyType);
+    }
+
+    public void removeSyncToken(final String key, final String anyType) {
+        getService(ResourceService.class).removeSyncToken(key, anyType);
+    }
 }

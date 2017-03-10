@@ -31,7 +31,8 @@ import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.ParametersPanel.ParametersProvider;
-import org.apache.syncope.client.console.rest.BaseRestClient;
+import org.apache.syncope.client.console.rest.ConfRestClient;
+import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -40,10 +41,7 @@ import org.apache.syncope.client.console.wizards.AbstractModalPanelBuilder;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.common.lib.to.AttrTO;
-import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
-import org.apache.syncope.common.rest.api.service.ConfigurationService;
-import org.apache.syncope.common.rest.api.service.SchemaService;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -56,10 +54,11 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
-public class ParametersPanel extends DirectoryPanel<
-        AttrTO, AttrTO, ParametersProvider, BaseRestClient> {
+public class ParametersPanel extends DirectoryPanel<AttrTO, AttrTO, ParametersProvider, ConfRestClient> {
 
     private static final long serialVersionUID = 2765863608539154422L;
+
+    private final SchemaRestClient schemaRestClient = new SchemaRestClient();
 
     private final BaseModal<AttrTO> modalDetails = new BaseModal<AttrTO>("modalDetails") {
 
@@ -73,7 +72,7 @@ public class ParametersPanel extends DirectoryPanel<
     };
 
     public ParametersPanel(final String id, final PageReference pageRef) {
-        super(id, new Builder<AttrTO, AttrTO, BaseRestClient>(null, pageRef) {
+        super(id, new Builder<AttrTO, AttrTO, ConfRestClient>(new ConfRestClient(), pageRef) {
 
             private static final long serialVersionUID = 8769126634538601689L;
 
@@ -111,8 +110,7 @@ public class ParametersPanel extends DirectoryPanel<
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.CONFIGURATION_SET);
     }
 
-    public ParametersPanel(
-            final String id, final Builder<AttrTO, AttrTO, BaseRestClient> builder) {
+    public ParametersPanel(final String id, final Builder<AttrTO, AttrTO, ConfRestClient> builder) {
         super(id, builder);
     }
 
@@ -166,10 +164,8 @@ public class ParametersPanel extends DirectoryPanel<
                             @Override
                             public void onClick(final AjaxRequestTarget target, final AttrTO ignore) {
                                 try {
-                                    SyncopeConsoleSession.get().getService(ConfigurationService.class).
-                                            delete(model.getObject().getSchema());
-                                    SyncopeConsoleSession.get().getService(SchemaService.class).
-                                            delete(SchemaType.PLAIN, model.getObject().getSchema());
+                                    restClient.delete(model.getObject().getSchema());
+                                    schemaRestClient.deletePlainSchema(model.getObject().getSchema());
                                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                                     target.add(container);
                                 } catch (Exception e) {
@@ -220,14 +216,14 @@ public class ParametersPanel extends DirectoryPanel<
 
         @Override
         public Iterator<AttrTO> iterator(final long first, final long count) {
-            final List<AttrTO> list = SyncopeConsoleSession.get().getService(ConfigurationService.class).list();
+            final List<AttrTO> list = restClient.list();
             Collections.sort(list, comparator);
             return list.subList((int) first, (int) first + (int) count).iterator();
         }
 
         @Override
         public long size() {
-            return SyncopeConsoleSession.get().getService(ConfigurationService.class).list().size();
+            return restClient.list().size();
         }
 
         @Override

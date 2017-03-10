@@ -20,12 +20,13 @@ package org.apache.syncope.client.console.panels;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
-import org.apache.syncope.client.console.rest.BaseRestClient;
+import org.apache.syncope.client.console.rest.RestClient;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.wicket.PageReference;
 
-public abstract class TypesDirectoryPanel<T extends AbstractBaseBean, DP extends DirectoryDataProvider<T>>
-        extends DirectoryPanel<T, T, DP, BaseRestClient> {
+public abstract class TypesDirectoryPanel<
+        T extends AbstractBaseBean, DP extends DirectoryDataProvider<T>, E extends RestClient>
+        extends DirectoryPanel<T, T, DP, E> {
 
     private static final long serialVersionUID = 7890071604330629259L;
 
