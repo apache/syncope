@@ -26,10 +26,9 @@ public class LogoutResource extends AbstractBaseResource {
 
     @Override
     protected ResourceResponse newResourceResponse(final Attributes attributes) {
-
         LOG.debug("Logout from enduser application");
 
-        SyncopeEnduserSession.get().invalidate();
+        SyncopeEnduserSession.get().invalidateNow();
 
         ResourceResponse response = new ResourceResponse();
         response.setStatusCode(204);

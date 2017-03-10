@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.enduser;
 
+import java.security.AccessControlException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -115,6 +116,21 @@ public class SyncopeEnduserSession extends WebSession {
         return authenticated;
     }
 
+    @Override
+    public void invalidate() {
+        if (isAuthenticated()) {
+            try {
+                client.logout();
+            } catch (AccessControlException e) {
+                LOG.debug("Unexpected exception while logging out", e);
+            } finally {
+                client = null;
+                selfTO = null;
+            }
+        }
+        super.invalidate();
+    }
+
     public <T> T getService(final Class<T> serviceClass) {
         return (client == null || !isAuthenticated())
                 ? anonymousClient.getService(serviceClass)
@@ -159,21 +175,4 @@ public class SyncopeEnduserSession extends WebSession {
     public void setXsrfTokenGenerated(final boolean xsrfTokenGenerated) {
         this.xsrfTokenGenerated = xsrfTokenGenerated;
     }
-
-    @Override
-    public void invalidate() {
-        if (isAuthenticated()) {
-            client.logout();
-        }
-        super.invalidate();
-    }
-
-    @Override
-    public void invalidateNow() {
-        if (isAuthenticated()) {
-            client.logout();
-        }
-        super.invalidateNow();
-    }
-
 }
