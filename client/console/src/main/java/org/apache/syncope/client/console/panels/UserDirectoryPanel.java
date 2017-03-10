@@ -31,6 +31,7 @@ import org.apache.syncope.client.console.notifications.NotificationTasks;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.status.AnyStatusModal;
+import org.apache.syncope.client.console.status.ChangePasswordModal;
 import org.apache.syncope.client.console.tasks.AnyPropagationTasks;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AttrColumn;
@@ -274,7 +275,28 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                             utilityModal.show(true);
                             target.add(utilityModal);
                         }
-                    }, ActionType.NOTIFICATION_TASKS, StandardEntitlement.TASK_LIST);
+                    }, ActionType.NOTIFICATION_TASKS, StandardEntitlement.TASK_LIST).add(new ActionLink<UserTO>() {
+
+                        private static final long serialVersionUID = -4875218360625971340L;
+
+                        @Override
+                        public void onClick(final AjaxRequestTarget target, final UserTO ignore) {
+                            IModel<AnyWrapper<UserTO>> formModel = new CompoundPropertyModel<>(
+                                    new AnyWrapper<>(model.getObject()));
+                            displayAttributeModal.setFormModel(formModel);
+
+                            target.add(displayAttributeModal.setContent(new ChangePasswordModal(
+                                    displayAttributeModal,
+                                    pageRef,
+                                    new UserWrapper(model.getObject()))));
+
+                            displayAttributeModal.header(new Model<>(
+                                    getString("any.edit", new Model<>(new AnyWrapper<>(model.getObject())))));
+
+                            displayAttributeModal.show(true);
+                        }
+                    }, ActionType.PASSWORD_RESET,
+                            new StringBuilder().append(StandardEntitlement.USER_UPDATE).toString());
                 }
 
                 return panel.build(componentId, model.getObject());

@@ -19,9 +19,7 @@
 package org.apache.syncope.client.console.wizards.any;
 
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.List;
-import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.layout.GroupForm;
 import org.apache.syncope.client.console.layout.GroupFormLayoutInfo;
 import org.apache.syncope.client.console.rest.GroupRestClient;
@@ -32,7 +30,6 @@ import org.apache.syncope.common.lib.patch.GroupPatch;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.wicket.PageReference;
-import org.apache.wicket.model.util.ListModel;
 
 public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> implements GroupForm {
 
@@ -90,7 +87,6 @@ public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> implements Gro
     protected Details<GroupTO> addOptionalDetailsPanel(final AnyWrapper<GroupTO> modelObject) {
         return new GroupDetails(
                 GroupWrapper.class.cast(modelObject),
-                new ListModel<>(Collections.<StatusBean>emptyList()),
                 mode == AjaxWizard.Mode.TEMPLATE,
                 modelObject.getInnerObject().getKey() != null, pageRef);
     }

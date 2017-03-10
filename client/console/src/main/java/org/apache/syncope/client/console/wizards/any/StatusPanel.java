@@ -77,7 +77,7 @@ public class StatusPanel extends Panel {
                         return Pair.of(null, input);
                     }
 
-                }, new ArrayList<Pair<ConnObjectTO, ConnObjectWrapper>>()), pageRef);
+                }, new ArrayList<Pair<ConnObjectTO, ConnObjectWrapper>>()), pageRef, false);
     }
 
     public <T extends AnyTO> StatusPanel(
@@ -88,14 +88,15 @@ public class StatusPanel extends Panel {
             final PageReference pageRef) {
         super(id);
         statusUtils = new StatusUtils();
-        init(any, model, connObjects, pageRef);
+        init(any, model, connObjects, pageRef, true);
     }
 
     private void init(
             final AnyTO any,
             final IModel<List<StatusBean>> model,
             final List<Pair<ConnObjectTO, ConnObjectWrapper>> connObjects,
-            final PageReference pageRef) {
+            final PageReference pageRef,
+            final boolean enableConnObjectLink) {
 
         final List<StatusBean> statusBeans = new ArrayList<>(connObjects.size() + 1);
         initialStatusBeanMap = new LinkedHashMap<>(connObjects.size() + 1);
@@ -153,17 +154,17 @@ public class StatusPanel extends Panel {
         builder.setModel(model);
         builder.setItems(statusBeans);
         builder.includes("resourceName", "connObjectLink", "status");
-        builder.withChecks(ListViewPanel.CheckAvailability.DISABLED);
+        builder.withChecks(ListViewPanel.CheckAvailability.NONE);
         builder.setReuseItem(false);
 
-        builder.addAction(new ActionLink<StatusBean>() {
+        final ActionLink<StatusBean> connObjectLink = new ActionLink<StatusBean>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
             @Override
             protected boolean statusCondition(final StatusBean bean) {
-                final Pair<ConnObjectTO, ConnObjectTO> pair =
-                        getConnObjectTO(bean.getAnyKey(), bean.getResourceName(), connObjects);
+                final Pair<ConnObjectTO, ConnObjectTO> pair
+                        = getConnObjectTO(bean.getAnyKey(), bean.getResourceName(), connObjects);
 
                 return pair != null && pair.getRight() != null;
             }
@@ -172,7 +173,13 @@ public class StatusPanel extends Panel {
             public void onClick(final AjaxRequestTarget target, final StatusBean bean) {
                 mlp.next(bean.getResourceName(), new RemoteAnyPanel(bean, connObjects), target);
             }
-        }, ActionLink.ActionType.VIEW, StandardEntitlement.RESOURCE_GET_CONNOBJECT);
+        };
+
+        if (!enableConnObjectLink) {
+            connObjectLink.disable();
+        }
+
+        builder.addAction(connObjectLink, ActionLink.ActionType.VIEW, StandardEntitlement.RESOURCE_GET_CONNOBJECT);
 
         listViewPanel = ListViewPanel.class.cast(builder.build(MultilevelPanel.FIRST_LEVEL_ID));
         mlp.setFirstLevel(listViewPanel);

@@ -163,7 +163,7 @@ public class BulkActionITCase extends AbstractConsoleITCase {
         TESTER.cleanupFeedbackMessages();
 
         TESTER.assertLabel(TAB_PANEL + "outerObjectsRepeater:1:outer:form:content:status:"
-                + "secondLevelContainer:second:container:selectedObjects:body:rows:1:cells:3:cell", "SUCCESS");
+                + "secondLevelContainer:second:container:selectedObjects:body:rows:1:cells:4:cell", "SUCCESS");
 
         TESTER.
                 executeAjaxEvent(TAB_PANEL
@@ -214,7 +214,7 @@ public class BulkActionITCase extends AbstractConsoleITCase {
         TESTER.cleanupFeedbackMessages();
 
         TESTER.assertLabel(TAB_PANEL + "outerObjectsRepeater:1:outer:form:content:status:"
-                + "secondLevelContainer:second:container:selectedObjects:body:rows:1:cells:3:cell", "SUCCESS");
+                + "secondLevelContainer:second:container:selectedObjects:body:rows:1:cells:4:cell", "SUCCESS");
 
         TESTER.
                 executeAjaxEvent(TAB_PANEL

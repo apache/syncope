@@ -19,32 +19,24 @@
 package org.apache.syncope.client.console.wizards.any;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.console.commons.status.StatusBean;
-import org.apache.syncope.client.console.commons.status.StatusUtils;
 import org.apache.syncope.client.console.layout.UserForm;
 import org.apache.syncope.client.console.layout.UserFormLayoutInfo;
 import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.AnyOperations;
+import org.apache.syncope.common.lib.patch.PasswordPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.PageReference;
-import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.util.ListModel;
 
 public class UserWizardBuilder extends AnyWizardBuilder<UserTO> implements UserForm {
 
     private static final long serialVersionUID = 6716803168859873877L;
 
     private final UserRestClient userRestClient = new UserRestClient();
-
-    private final IModel<List<StatusBean>> statusModel;
 
     public UserWizardBuilder(
             final UserTO userTO,
@@ -53,7 +45,6 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> implements UserF
             final PageReference pageRef) {
 
         super(new UserWrapper(userTO), anyTypeClasses, formLayoutInfo, pageRef);
-        statusModel = new ListModel<>(new ArrayList<StatusBean>());
     }
 
     @Override
@@ -68,20 +59,10 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> implements UserF
         } else {
             UserPatch patch = AnyOperations.diff(inner, getOriginalItem().getInnerObject(), false);
 
-            Set<String> origResourceSet = getOriginalItem().getInnerObject().getResources();
-            Set<String> newResourceSet = new HashSet<>(inner.getResources());
-
-            newResourceSet.removeAll(origResourceSet);
-            for (StatusBean sb : statusModel.getObject()) {
-                newResourceSet.remove(sb.getResourceName());
-            }
-
-            for (String res : newResourceSet) {
-                statusModel.getObject().add(new StatusBean(inner, res));
-            }
-
-            if (!statusModel.getObject().isEmpty()) {
-                patch.setPassword(StatusUtils.buildPasswordPatch(inner.getPassword(), statusModel.getObject()));
+            if (StringUtils.isNotBlank(inner.getPassword())) {
+                PasswordPatch passwordPatch = new PasswordPatch.Builder().
+                        value(inner.getPassword()).onSyncope(true).resources(inner.getResources()).build();
+                patch.setPassword(passwordPatch);
             }
 
             // update just if it is changed
@@ -100,7 +81,7 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> implements UserF
     protected Details<UserTO> addOptionalDetailsPanel(final AnyWrapper<UserTO> modelObject) {
 
         return new UserDetails(
-                UserWrapper.class.cast(modelObject), statusModel, mode == AjaxWizard.Mode.TEMPLATE,
+                UserWrapper.class.cast(modelObject), mode == AjaxWizard.Mode.TEMPLATE,
                 modelObject.getInnerObject().getKey() != null,
                 UserFormLayoutInfo.class.cast(formLayoutInfo).isPasswordManagement(),
                 pageRef);
@@ -115,7 +96,6 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> implements UserF
     @Override
     public UserWizardBuilder setItem(final AnyWrapper<UserTO> item) {
         super.setItem(item == null ? null : new UserWrapper(item.getInnerObject()));
-        statusModel.getObject().clear();
         return this;
     }
 }

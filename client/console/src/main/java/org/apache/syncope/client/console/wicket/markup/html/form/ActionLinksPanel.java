@@ -77,6 +77,7 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
         super.add(new Fragment("panelSearch", "emptyFragment", this));
         super.add(new Fragment("panelDelete", "emptyFragment", this));
         super.add(new Fragment("panelExecute", "emptyFragment", this));
+        super.add(new Fragment("panelPasswordReset", "emptyFragment", this));
         super.add(new Fragment("panelDryRun", "emptyFragment", this));
         super.add(new Fragment("panelSelect", "emptyFragment", this));
         super.add(new Fragment("panelClose", "emptyFragment", this));
@@ -580,6 +581,26 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                 fragment = new Fragment("panelExecute", "fragmentExecute", this);
 
                 fragment.addOrReplace(new IndicatingAjaxLink<Void>("executeLink") {
+
+                    private static final long serialVersionUID = -7978723352517770644L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target) {
+                        link.onClick(target, model.getObject());
+                    }
+
+                    @Override
+                    public String getAjaxIndicatorMarkupId() {
+                        return disableIndicator || !link.isIndicatorEnabled()
+                                ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
+                    }
+                }.setVisible(link.isEnabled(model.getObject())));
+                break;
+
+            case PASSWORD_RESET:
+                fragment = new Fragment("panelPasswordReset", "fragmentPasswordReset", this);
+
+                fragment.addOrReplace(new IndicatingAjaxLink<Void>("passwordResetLink") {
 
                     private static final long serialVersionUID = -7978723352517770644L;
 
@@ -1214,6 +1235,10 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
 
             case EXECUTE:
                 super.addOrReplace(new Fragment("panelExecute", "emptyFragment", this));
+                break;
+
+            case PASSWORD_RESET:
+                super.addOrReplace(new Fragment("panelPasswordReset", "emptyFragment", this));
                 break;
 
             case DRYRUN:

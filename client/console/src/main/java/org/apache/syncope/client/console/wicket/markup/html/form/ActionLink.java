@@ -62,6 +62,7 @@ public abstract class ActionLink<T extends Serializable> implements Serializable
         SEARCH("search"),
         DELETE("delete"),
         EXECUTE("execute"),
+        PASSWORD_RESET("update"),
         DRYRUN("execute"),
         CLAIM("claim"),
         SELECT("read"),
