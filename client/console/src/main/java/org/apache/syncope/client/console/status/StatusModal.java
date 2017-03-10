@@ -45,6 +45,7 @@ public abstract class StatusModal<T extends Serializable> extends Panel implemen
         super(BaseModal.CONTENT_ID);
 
         final MultilevelPanel mlp = new MultilevelPanel("status");
+        mlp.setOutputMarkupId(true);
         this.directoryPanel = getStatusDirectoryPanel(
                 mlp, baseModal, pageReference, entity, itemKeyFieldName, statusOnly);
         add(mlp.setFirstLevel(this.directoryPanel));

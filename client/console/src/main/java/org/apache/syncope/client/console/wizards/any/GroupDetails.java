@@ -18,12 +18,9 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
-import java.util.List;
-import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.wicket.PageReference;
-import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 
 public class GroupDetails extends Details<GroupTO> {
@@ -32,12 +29,11 @@ public class GroupDetails extends Details<GroupTO> {
 
     public GroupDetails(
             final GroupWrapper wrapper,
-            final IModel<List<StatusBean>> statusModel,
             final boolean templateMode,
             final boolean includeStatusPanel,
             final PageReference pageRef) {
 
-        super(wrapper, statusModel, templateMode, includeStatusPanel, pageRef);
+        super(wrapper, templateMode, includeStatusPanel, pageRef);
 
         GroupTO groupTO = GroupWrapper.class.cast(wrapper).getInnerObject();
 

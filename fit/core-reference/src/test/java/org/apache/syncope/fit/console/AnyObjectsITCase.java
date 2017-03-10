@@ -88,10 +88,7 @@ public class AnyObjectsITCase extends AbstractConsoleITCase {
         assertNotNull(component);
 
         TESTER.clickLink(component.getPageRelativePath() + ":cells:4:cell:panelEdit:editLink");
-
-        TESTER.assertComponent(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form:view:status:"
-                + "resources:firstLevelContainer:first:container:content:group:beans:0:fields:0", ListItem.class);
-
+        
         FormTester formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);
         formTester.submit("buttons:next");

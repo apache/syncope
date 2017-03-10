@@ -19,9 +19,7 @@
 package org.apache.syncope.client.console.wizards.any;
 
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.List;
-import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.layout.AnyObjectForm;
 import org.apache.syncope.client.console.layout.AnyObjectFormLayoutInfo;
 import org.apache.syncope.client.console.rest.AnyObjectRestClient;
@@ -31,7 +29,6 @@ import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.wicket.PageReference;
-import org.apache.wicket.model.util.ListModel;
 
 public class AnyObjectWizardBuilder extends AnyWizardBuilder<AnyObjectTO> implements AnyObjectForm {
 
@@ -74,7 +71,6 @@ public class AnyObjectWizardBuilder extends AnyWizardBuilder<AnyObjectTO> implem
     protected Details<AnyObjectTO> addOptionalDetailsPanel(final AnyWrapper<AnyObjectTO> modelObject) {
         return new AnyObjectDetails(
                 modelObject,
-                new ListModel<>(Collections.<StatusBean>emptyList()),
                 mode == AjaxWizard.Mode.TEMPLATE,
                 modelObject.getInnerObject().getKey() != null, pageRef);
     }

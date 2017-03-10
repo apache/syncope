@@ -1104,3 +1104,7 @@ div.background-footer {
   padding: 0px 16px 20px 0px;
   float: right;
 }
+
+div#editUserChangePassword > label {
+  color: #e00000;
+}

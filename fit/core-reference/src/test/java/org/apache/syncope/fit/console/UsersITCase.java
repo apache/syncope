@@ -338,4 +338,53 @@ public class UsersITCase extends AbstractConsoleITCase {
                 + "form:view:plainSchemas:tabs:0:body:content:schemas:8:panel:"
                 + "multiValueContainer:innerForm:content:view:0:panel:field", cal.getTime());
     }
+
+    @Test
+    public void changePassword() {
+        TESTER.cleanupFeedbackMessages();
+
+        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:1:link");
+
+        Component component = findComponentByProp("username", CONTAINER
+                + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "vivaldi");
+        assertNotNull(component);
+
+        TESTER.clickLink(component.getPageRelativePath() + ":cells:6:cell:panelPasswordReset:passwordResetLink");
+        TESTER.assertLabel(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:resources:"
+                + "firstLevelContainer:first:container:content:group:beans:0:fields:0:field", "syncope");
+
+        FormTester formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:2:outer:form");
+        formTester.setValue("content:passwordPanel:passwordInnerForm:password:passwordField", "Password345");
+        formTester.setValue("content:passwordPanel:passwordInnerForm:confirmPassword:passwordField", "Password345");
+        formTester.select("content:status:resources:firstLevelContainer:first:container:content:group", 0);
+
+        TESTER.executeAjaxEvent(
+                TAB_PANEL + "outerObjectsRepeater:2:outer:dialog:footer:inputs:0:submit", Constants.ON_CLICK);
+
+        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.cleanupFeedbackMessages();
+
+        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:1:link");
+
+        component = findComponentByProp("username", CONTAINER
+                + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "vivaldi");
+        assertNotNull(component);
+
+        TESTER.clickLink(component.getPageRelativePath() + ":cells:6:cell:panelPasswordReset:passwordResetLink");
+        TESTER.assertLabel(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:resources:"
+                + "firstLevelContainer:first:container:content:group:beans:0:fields:0:field", "syncope");
+
+        formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:2:outer:form");
+        formTester.setValue("content:passwordPanel:passwordInnerForm:password:passwordField", "Password123");
+        formTester.setValue("content:passwordPanel:passwordInnerForm:confirmPassword:passwordField", "Password123");
+        formTester.select("content:status:resources:firstLevelContainer:first:container:content:group", 0);
+
+        TESTER.executeAjaxEvent(
+                TAB_PANEL + "outerObjectsRepeater:2:outer:dialog:footer:inputs:0:submit", Constants.ON_CLICK);
+
+        TESTER.assertInfoMessages("Operation executed successfully");
+        TESTER.cleanupFeedbackMessages();
+    }
 }

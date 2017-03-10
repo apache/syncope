@@ -18,9 +18,7 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
-import java.util.Collections;
 import java.util.List;
-import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.layout.AbstractAnyFormLayout;
 import org.apache.syncope.client.console.layout.AnyForm;
 import org.apache.syncope.client.console.layout.AnyObjectFormLayoutInfo;
@@ -33,7 +31,6 @@ import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.wizard.WizardModel;
-import org.apache.wicket.model.util.ListModel;
 
 public abstract class AnyWizardBuilder<A extends AnyTO> extends AjaxWizardBuilder<AnyWrapper<A>> {
 
@@ -163,7 +160,6 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AjaxWizardBuilde
         if (modelObject.getInnerObject().getKey() != null) {
             return new Details<>(
                     modelObject,
-                    new ListModel<>(Collections.<StatusBean>emptyList()),
                     mode == AjaxWizard.Mode.TEMPLATE,
                     true,
                     pageRef);

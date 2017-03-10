@@ -429,6 +429,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
         final AjaxDropDownChoicePanel<SearchClause.Type> type = new AjaxDropDownChoicePanel<>(
                 "type", "type", new PropertyModel<SearchClause.Type>(searchClause, "type"));
         type.setChoices(types).hideLabel().setRequired(required).setOutputMarkupId(true);
+        type.setNullValid(false);
         type.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
