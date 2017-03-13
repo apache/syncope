@@ -325,7 +325,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                         if (connObjectKeyCount != 1) {
                             throw new RuntimeException(provision.getAnyType() + ": "
                                     + new StringResourceModel("connObjectKeyValidation", ResourceProvisionPanel.this).
-                                            getString());
+                                    getString());
                         }
                     }
                 }
@@ -348,8 +348,6 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
             aboutRealmProvison.setVisible(false);
             final AjaxRequestTarget target = ((AjaxWizard.NewItemEvent) event.getPayload()).getTarget();
             target.add(aboutRealmProvison);
-            // change modal foter visibility
-            send(ResourceProvisionPanel.this, Broadcast.BUBBLE, new BaseModal.ChangeFooterVisibilityEvent(target));
         }
 
         super.onEvent(event);
