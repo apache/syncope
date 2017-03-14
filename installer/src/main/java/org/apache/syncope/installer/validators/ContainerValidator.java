@@ -20,6 +20,7 @@ package org.apache.syncope.installer.validators;
 
 import com.izforge.izpack.api.data.InstallData;
 import java.io.File;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.installer.enums.Containers;
 import org.apache.syncope.installer.utilities.HttpUtils;
 
@@ -50,19 +51,19 @@ public class ContainerValidator extends AbstractValidator {
 
                 boolean verified = true;
                 error = new StringBuilder("Required fields:\n");
-                if (isEmpty(tomcatHost)) {
+                if (StringUtils.isBlank(tomcatHost)) {
                     error.append("Tomcat host\n");
                     verified = false;
                 }
-                if (isEmpty(tomcatPort)) {
+                if (StringUtils.isBlank(tomcatPort)) {
                     error.append("Tomcat port\n");
                     verified = false;
                 }
-                if (isEmpty(tomcatUser)) {
+                if (StringUtils.isBlank(tomcatUser)) {
                     error.append("Tomcat user\n");
                     verified = false;
                 }
-                if (isEmpty(tomcatPassword)) {
+                if (StringUtils.isBlank(tomcatPassword)) {
                     error.append("Tomcat password\n");
                     verified = false;
                 }
@@ -82,23 +83,23 @@ public class ContainerValidator extends AbstractValidator {
             case JBOSS:
                 boolean virified = true;
                 error = new StringBuilder("Required fields:\n");
-                if (isEmpty(jbossHost)) {
+                if (StringUtils.isBlank(jbossHost)) {
                     error.append("JBoss Host\n");
                     virified = false;
                 }
-                if (isEmpty(jbossPort)) {
+                if (StringUtils.isBlank(jbossPort)) {
                     error.append("JBoss Port\n");
                     virified = false;
                 }
-                if (isEmpty(jbossJdbcModule)) {
+                if (StringUtils.isBlank(jbossJdbcModule)) {
                     error.append("JBoss JDBC module name\n");
                     virified = false;
                 }
-                if (isEmpty(jbossAdminUsername)) {
+                if (StringUtils.isBlank(jbossAdminUsername)) {
                     error.append("JBoss admin username\n");
                     virified = false;
                 }
-                if (isEmpty(jbossAdminPassword)) {
+                if (StringUtils.isBlank(jbossAdminPassword)) {
                     error.append("JBoss admin password\n");
                     virified = false;
                 }
@@ -117,7 +118,7 @@ public class ContainerValidator extends AbstractValidator {
                 }
             case GLASSFISH:
                 error = new StringBuilder("Required fields:\n");
-                if (isEmpty(glassfishDir)) {
+                if (StringUtils.isBlank(glassfishDir)) {
                     error.append("Glassfish directory\n");
                     return Status.ERROR;
                 }
