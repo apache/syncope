@@ -20,6 +20,7 @@ package org.apache.syncope.installer.validators;
 
 import com.izforge.izpack.api.data.InstallData;
 import java.io.File;
+import org.apache.commons.lang3.StringUtils;
 
 public class ArchetypeValidator extends AbstractValidator {
 
@@ -27,44 +28,44 @@ public class ArchetypeValidator extends AbstractValidator {
 
     @Override
     public Status validateData(final InstallData installData) {
-        final String mavenDir = installData.getVariable("mvn.directory");
-        final String mavenGroupId = installData.getVariable("mvn.groupid");
-        final String mavenArtifactId = installData.getVariable("mvn.artifactid");
-        final String mavenSecretKey = installData.getVariable("mvn.secretkey");
-        final String mavenAnonymousKey = installData.getVariable("mvn.anonymous.key");
-        final String mavenLogDirectory = installData.getVariable("mvn.log.directory");
-        final String mavenBundleDirectory = installData.getVariable("mvn.bundle.directory");
+        final String mavenDir = StringUtils.trim(installData.getVariable("mvn.directory"));
+        final String mavenGroupId = StringUtils.trim(installData.getVariable("mvn.groupid"));
+        final String mavenArtifactId = StringUtils.trim(installData.getVariable("mvn.artifactid"));
+        final String mavenSecretKey = StringUtils.trim(installData.getVariable("mvn.secretkey"));
+        final String mavenAnonymousKey = StringUtils.trim(installData.getVariable("mvn.anonymous.key"));
+        final String mavenLogDirectory = StringUtils.trim(installData.getVariable("mvn.log.directory"));
+        final String mavenBundleDirectory = StringUtils.trim(installData.getVariable("mvn.bundle.directory"));
 
         boolean verified = true;
         error = new StringBuilder("Required fields:\n");
-        if (isEmpty(mavenDir)) {
+        if (StringUtils.isBlank(mavenDir)) {
             error.append("Maven home directory\n");
             verified = false;
         } else if (!new File(mavenDir + "/bin/mvn").exists()) {
             error.append("Maven home directory not valid, check it please...\n");
             verified = false;
         }
-        if (isEmpty(mavenGroupId)) {
+        if (StringUtils.isBlank(mavenGroupId)) {
             error.append("GroupID\n");
             verified = false;
         }
-        if (isEmpty(mavenArtifactId)) {
+        if (StringUtils.isBlank(mavenArtifactId)) {
             error.append("ArtifactID\n");
             verified = false;
         }
-        if (isEmpty(mavenSecretKey)) {
+        if (StringUtils.isBlank(mavenSecretKey)) {
             error.append("SecretKey\n");
             verified = false;
         }
-        if (isEmpty(mavenAnonymousKey)) {
+        if (StringUtils.isBlank(mavenAnonymousKey)) {
             error.append("AnonymousKey\n");
             verified = false;
         }
-        if (isEmpty(mavenLogDirectory)) {
+        if (StringUtils.isBlank(mavenLogDirectory)) {
             error.append("Logs directory\n");
             verified = false;
         }
-        if (isEmpty(mavenBundleDirectory)) {
+        if (StringUtils.isBlank(mavenBundleDirectory)) {
             error.append("Bundles directory\n");
             verified = false;
         }

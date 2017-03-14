@@ -21,6 +21,7 @@ package org.apache.syncope.installer.validators;
 import com.izforge.izpack.api.data.InstallData;
 import java.sql.Driver;
 import java.util.Properties;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.installer.enums.DBs;
 import org.apache.syncope.installer.utilities.DriverLoader;
 
@@ -63,15 +64,15 @@ public class PersistenceValidator extends AbstractValidator {
 
         boolean verified = true;
         error = new StringBuilder("Required fields:\n");
-        if (isEmpty(persistenceUrl)) {
+        if (StringUtils.isBlank(persistenceUrl)) {
             error.append("Persistence URL\n");
             verified = false;
         }
-        if (isEmpty(persistenceDbuser)) {
+        if (StringUtils.isBlank(persistenceDbuser)) {
             error.append("Persistence user\n");
             verified = false;
         }
-        if (isEmpty(persistenceDbPassword)) {
+        if (StringUtils.isBlank(persistenceDbPassword)) {
             error.append("Persistence password\n");
             verified = false;
         }
