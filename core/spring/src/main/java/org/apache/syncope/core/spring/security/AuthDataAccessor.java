@@ -386,6 +386,11 @@ public class AuthDataAccessor {
         return authorities;
     }
 
+    @Transactional
+    public void removeExpired(final String tokenKey) {
+        accessTokenDAO.delete(tokenKey);
+    }
+
     @Transactional(readOnly = true)
     public void audit(
             final AuditElements.EventCategoryType type,

@@ -196,7 +196,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
     }
 
     public boolean owns(final String entitlement) {
-        return auth.containsKey(entitlement);
+        return auth != null && auth.containsKey(entitlement);
     }
 
     @Override
