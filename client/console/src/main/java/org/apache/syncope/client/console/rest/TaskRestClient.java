@@ -62,14 +62,13 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
 
     public int count(final String resource, final TaskType kind) {
         return getService(TaskService.class).list(
-                new TaskQuery.Builder(kind).resource(resource).page(1).size(1).
-                        build()).getTotalCount();
+                new TaskQuery.Builder(kind).resource(resource).page(1).size(1).build()).getTotalCount();
     }
 
     public int count(final AnyTypeKind anyTypeKind, final String entityKey, final TaskType kind) {
         return getService(TaskService.class).list(
-                new TaskQuery.Builder(kind).anyTypeKind(anyTypeKind).entityKey(entityKey).page(1).size(1).
-                        build()).getTotalCount();
+                new TaskQuery.Builder(kind).anyTypeKind(anyTypeKind).entityKey(entityKey).page(1).size(1).build()).
+                getTotalCount();
     }
 
     @Override
@@ -152,9 +151,12 @@ public class TaskRestClient extends BaseRestClient implements ExecutionRestClien
     }
 
     @Override
-    public List<ExecTO> listExecutions(final String taskKey, final int page, final int size) {
+    public List<ExecTO> listExecutions(
+            final String taskKey, final int page, final int size, final SortParam<String> sort) {
+
         return getService(TaskService.class).
-                listExecutions(new ExecQuery.Builder().key(taskKey).page(page).size(size).build()).getResult();
+                listExecutions(new ExecQuery.Builder().key(taskKey).page(page).size(size).
+                        orderBy(toOrderBy(sort)).build()).getResult();
     }
 
     private TaskType getTaskType(final Class<?> reference) {

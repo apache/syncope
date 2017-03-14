@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.rest;
 import java.util.Date;
 import java.util.List;
 import org.apache.syncope.common.lib.to.ExecTO;
+import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 
 public interface ExecutionRestClient extends RestClient {
 
@@ -28,9 +29,9 @@ public interface ExecutionRestClient extends RestClient {
 
     void deleteExecution(String executionKey);
 
-    List<ExecTO> listRecentExecutions(final int max);
+    List<ExecTO> listRecentExecutions(int max);
 
-    List<ExecTO> listExecutions(final String taskKey, final int page, final int size);
+    List<ExecTO> listExecutions(String taskKey, int page, int size, SortParam<String> sort);
 
-    int countExecutions(final String taskKey);
+    int countExecutions(String taskKey);
 }

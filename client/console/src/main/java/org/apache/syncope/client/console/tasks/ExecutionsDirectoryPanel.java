@@ -212,7 +212,7 @@ public abstract class ExecutionsDirectoryPanel
         @Override
         public Iterator<ExecTO> iterator(final long first, final long count) {
             final int page = ((int) first / paginatorRows);
-            List<ExecTO> list = restClient.listExecutions(taskKey, (page < 0 ? 0 : page) + 1, paginatorRows);
+            List<ExecTO> list = restClient.listExecutions(taskKey, (page < 0 ? 0 : page) + 1, paginatorRows, getSort());
             Collections.sort(list, comparator);
             return list.iterator();
         }
