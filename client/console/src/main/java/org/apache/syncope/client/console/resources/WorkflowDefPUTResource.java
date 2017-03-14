@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.resources;
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import org.apache.cxf.common.util.UrlUtils;
 import org.apache.syncope.client.console.rest.WorkflowRestClient;
 import org.apache.wicket.request.resource.AbstractResource;
@@ -39,6 +40,8 @@ public class WorkflowDefPUTResource extends AbstractResource {
 
     private static final Logger LOG = LoggerFactory.getLogger(WorkflowDefPUTResource.class);
 
+    private final WorkflowRestClient restClient = new WorkflowRestClient();
+
     @Override
     protected ResourceResponse newResourceResponse(final Attributes attributes) {
         String definition = null;
@@ -53,14 +56,23 @@ public class WorkflowDefPUTResource extends AbstractResource {
                 }
             }
         } catch (IOException e) {
-            LOG.error("Could not extract workflow definition from request", e);
+            LOG.error("Could not extract workflow definition", e);
+        }
+        if (definition == null) {
+            return new ResourceResponse().setStatusCode(Response.Status.BAD_REQUEST.getStatusCode()).
+                    setError(Response.Status.BAD_REQUEST.getStatusCode(),
+                            "Could not extract workflow definition");
         }
 
-        new WorkflowRestClient().updateDefinition(MediaType.APPLICATION_JSON_TYPE, definition);
-
-        ResourceResponse response = new ResourceResponse();
-        response.setStatusCode(204);
-        return response;
+        try {
+            restClient.updateDefinition(MediaType.APPLICATION_JSON_TYPE, definition);
+            return new ResourceResponse().setStatusCode(Response.Status.NO_CONTENT.getStatusCode());
+        } catch (Exception e) {
+            LOG.error("While updating workflow definition", e);
+            return new ResourceResponse().setStatusCode(Response.Status.BAD_REQUEST.getStatusCode()).
+                    setError(Response.Status.BAD_REQUEST.getStatusCode(),
+                            "While updating workflow definition: " + e.getMessage());
+        }
     }
 
 }
