@@ -23,13 +23,13 @@ import javax.ws.rs.BadRequestException;
 import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.console.pages.Login;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.wicket.Page;
 import org.apache.wicket.authorization.UnauthorizedInstantiationException;
 import org.apache.wicket.core.request.handler.PageProvider;
 import org.apache.wicket.core.request.handler.RenderPageRequestHandler;
 import org.apache.wicket.markup.html.pages.ExceptionErrorPage;
 import org.apache.wicket.protocol.http.PageExpiredException;
 import org.apache.wicket.request.IRequestHandler;
+import org.apache.wicket.request.component.IRequestablePage;
 import org.apache.wicket.request.cycle.AbstractRequestCycleListener;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
@@ -40,11 +40,15 @@ public class SyncopeConsoleRequestCycleListener extends AbstractRequestCycleList
 
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeConsoleRequestCycleListener.class);
 
-    private boolean instanceOf(final Exception e, final Class<? extends Exception> clazz) {
+    private Throwable instanceOf(final Exception e, final Class<? extends Exception> clazz) {
         return clazz.isAssignableFrom(e.getClass())
-                || (e.getCause() != null && clazz.isAssignableFrom(e.getCause().getClass()))
-                || (e.getCause() != null && e.getCause().getCause() != null
-                && clazz.isAssignableFrom(e.getCause().getCause().getClass()));
+                ? e
+                : e.getCause() != null && clazz.isAssignableFrom(e.getCause().getClass())
+                ? e.getCause()
+                : e.getCause() != null && e.getCause().getCause() != null
+                && clazz.isAssignableFrom(e.getCause().getCause().getClass())
+                ? e.getCause().getCause()
+                : null;
     }
 
     @Override
@@ -53,19 +57,23 @@ public class SyncopeConsoleRequestCycleListener extends AbstractRequestCycleList
 
         PageParameters errorParameters = new PageParameters();
 
-        Page errorPage;
-        if (instanceOf(e, UnauthorizedInstantiationException.class)) {
+        IRequestablePage errorPage = null;
+        if (instanceOf(e, UnauthorizedInstantiationException.class) != null) {
             errorParameters.add("errorMessage", "unauthorizedInstantiationException");
             errorPage = new Login(errorParameters);
-        } else if (instanceOf(e, AccessControlException.class)) {
-            errorParameters.add("errorMessage", "accessControlException");
+        } else if (instanceOf(e, AccessControlException.class) != null) {
+            if (instanceOf(e, AccessControlException.class).getMessage().contains("expired")) {
+                errorParameters.add("errorMessage", "pageExpiredException");
+            } else {
+                errorParameters.add("errorMessage", "accessControlException");
+            }
             errorPage = new Login(errorParameters);
-        } else if (instanceOf(e, PageExpiredException.class) || !SyncopeConsoleSession.get().isSignedIn()) {
+        } else if (instanceOf(e, PageExpiredException.class) != null || !SyncopeConsoleSession.get().isSignedIn()) {
             errorParameters.add("errorMessage", "pageExpiredException");
             errorPage = new Login(errorParameters);
-        } else if (instanceOf(e, BadRequestException.class)
-                || instanceOf(e, WebServiceException.class)
-                || instanceOf(e, SyncopeClientException.class)) {
+        } else if (instanceOf(e, BadRequestException.class) != null
+                || instanceOf(e, WebServiceException.class) != null
+                || instanceOf(e, SyncopeClientException.class) != null) {
 
             errorParameters.add("errorMessage", "restClientException");
             errorPage = new Login(errorParameters);
@@ -75,8 +83,13 @@ public class SyncopeConsoleRequestCycleListener extends AbstractRequestCycleList
         }
 
         if (errorPage instanceof Login) {
-            SyncopeConsoleSession.get().cleanup();
-            SyncopeConsoleSession.get().invalidateNow();
+            try {
+                SyncopeConsoleSession.get().cleanup();
+                SyncopeConsoleSession.get().invalidateNow();
+            } catch (Throwable t) {
+                // ignore
+                LOG.debug("Unexpected error while forcing logout after error", t);
+            }
         }
 
         return new RenderPageRequestHandler(new PageProvider(errorPage));
