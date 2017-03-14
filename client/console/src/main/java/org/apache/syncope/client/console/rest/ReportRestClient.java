@@ -39,6 +39,7 @@ import org.apache.syncope.common.rest.api.beans.ExecQuery;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
 import org.apache.syncope.common.rest.api.service.ReportService;
 import org.apache.syncope.common.rest.api.service.ReportTemplateService;
+import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
 
 public class ReportRestClient extends BaseRestClient
         implements ExecutionRestClient, TemplateRestClient<ReportTemplateTO, ReportTemplateFormat> {
@@ -98,9 +99,12 @@ public class ReportRestClient extends BaseRestClient
     }
 
     @Override
-    public List<ExecTO> listExecutions(final String taskKey, final int page, final int size) {
+    public List<ExecTO> listExecutions(
+            final String taskKey, final int page, final int size, final SortParam<String> sort) {
+
         return getService(ReportService.class).
-                listExecutions(new ExecQuery.Builder().key(taskKey).page(page).size(size).build()).getResult();
+                listExecutions(new ExecQuery.Builder().key(taskKey).page(page).size(size).
+                        orderBy(toOrderBy(sort)).build()).getResult();
     }
 
     @Override
