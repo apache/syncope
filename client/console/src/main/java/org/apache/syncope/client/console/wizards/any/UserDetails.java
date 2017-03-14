@@ -128,10 +128,7 @@ public class UserDetails extends Details<UserTO> {
                 final boolean templateMode) {
             super(id);
             setOutputMarkupId(true);
-            add(new Label("warning", new ResourceModel(
-                    "password.change.warning",
-                    "Password value will be sent to all associated resources")));
-
+            add(new Label("warning", new ResourceModel("password.change.warning")));
             add(new PasswordPanel("passwordPanel", wrapper, templateMode));
         }
 
