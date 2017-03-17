@@ -63,13 +63,15 @@ public class ConnectorDetailsPanel extends WizardStep {
                 "bundleName",
                 new PropertyModel<String>(connInstanceTO, "bundleName"), false);
         ((DropDownChoice<String>) bundleName.getField()).setNullValid(true);
-        bundleName.setChoices(CollectionUtils.collect(bundles, new Transformer<ConnBundleTO, String>() {
 
-            @Override
-            public String transform(final ConnBundleTO input) {
-                return input.getBundleName();
+        List<String> bundleNames = new ArrayList<String>();
+        for (ConnBundleTO bundle : bundles) {
+            if (!bundleNames.contains(bundle.getBundleName())) {
+                bundleNames.add(bundle.getBundleName());
             }
-        }, new ArrayList<String>()));
+        }
+
+        bundleName.setChoices(bundleNames);
         bundleName.addRequiredLabel();
         bundleName.setOutputMarkupId(true);
         bundleName.setEnabled(connInstanceTO.getKey() == null);
