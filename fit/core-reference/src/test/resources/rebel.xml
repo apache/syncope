@@ -65,6 +65,23 @@ under the License.
     <dir name="${basedir}/../../ext/camel/provisioning-camel/target/classes">
       <exclude name="provisioningCamelContext.xml"/>
     </dir>
+    <dir name="${basedir}/../../ext/saml2sp/common-lib/target/classes">
+    </dir>
+    <dir name="${basedir}/../../ext/saml2sp/logic/target/classes">
+    </dir>
+    <dir name="${basedir}/../../ext/saml2sp/persistence-api/target/classes">
+    </dir>
+    <dir name="${basedir}/../../ext/saml2sp/persistence-jpa/target/classes">
+      <exclude name="org/apache/syncope/core/persistence/jpa/entity/**"/>
+    </dir>
+    <dir name="${basedir}/../../ext/saml2sp/provisioning-api/target/classes">
+    </dir>
+    <dir name="${basedir}/../../ext/saml2sp/provisioning-java/target/classes">
+    </dir>
+    <dir name="${basedir}/../../ext/saml2sp/rest-api/target/classes">
+    </dir>
+    <dir name="${basedir}/../../ext/saml2sp/rest-cxf/target/classes">
+    </dir>
   </classpath>
 
   <web>

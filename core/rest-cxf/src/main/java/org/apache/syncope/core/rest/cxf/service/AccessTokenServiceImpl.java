@@ -37,7 +37,7 @@ public class AccessTokenServiceImpl extends AbstractServiceImpl implements Acces
     @Override
     public Response login() {
         return Response.noContent().
-                header(RESTHeaders.TOKEN, logic.login(messageContext.getHttpServletRequest().getRemoteHost())).
+                header(RESTHeaders.TOKEN, logic.login()).
                 build();
     }
 

@@ -79,6 +79,7 @@ under the License.
   <modules>
     <module>camel</module>
     <module>swagger-ui</module>
+    <module>saml2sp</module>
   </modules>
 
 </project>

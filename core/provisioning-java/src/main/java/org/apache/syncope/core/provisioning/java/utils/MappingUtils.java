@@ -28,6 +28,7 @@ import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.to.MappingItemTO;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
@@ -168,24 +169,27 @@ public final class MappingUtils {
         return name;
     }
 
-    public static List<MappingItemTransformer> getMappingItemTransformers(final MappingItem mappingItem) {
+    private static List<MappingItemTransformer> getMappingItemTransformers(
+            final String propagationJEXLTransformer,
+            final String pullJEXLTransformer,
+            final List<String> mappingItemTransformerClassNames) {
+
         List<MappingItemTransformer> result = new ArrayList<>();
 
         // First consider the JEXL transformation expressions
-        if (StringUtils.isNotBlank(mappingItem.getPropagationJEXLTransformer())
-                || StringUtils.isNotBlank(mappingItem.getPullJEXLTransformer())) {
-
+        if (StringUtils.isNotBlank(propagationJEXLTransformer) || StringUtils.isNotBlank(pullJEXLTransformer)) {
             JEXLMappingItemTransformer jexlTransformer =
                     (JEXLMappingItemTransformer) ApplicationContextProvider.getBeanFactory().
-                    createBean(JEXLMappingItemTransformerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+                            createBean(JEXLMappingItemTransformerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME,
+                                    false);
 
-            jexlTransformer.setPropagationJEXL(mappingItem.getPropagationJEXLTransformer());
-            jexlTransformer.setPullJEXL(mappingItem.getPullJEXLTransformer());
+            jexlTransformer.setPropagationJEXL(propagationJEXLTransformer);
+            jexlTransformer.setPullJEXL(pullJEXLTransformer);
             result.add(jexlTransformer);
         }
 
         // Then other custom tranaformers
-        for (String className : mappingItem.getMappingItemTransformerClassNames()) {
+        for (String className : mappingItemTransformerClassNames) {
             try {
                 Class<?> transformerClass = ClassUtils.getClass(className);
 
@@ -197,6 +201,20 @@ public final class MappingUtils {
         }
 
         return result;
+    }
+
+    public static List<MappingItemTransformer> getMappingItemTransformers(final MappingItemTO mappingItem) {
+        return getMappingItemTransformers(
+                mappingItem.getPropagationJEXLTransformer(),
+                mappingItem.getPullJEXLTransformer(),
+                mappingItem.getMappingItemTransformerClassNames());
+    }
+
+    public static List<MappingItemTransformer> getMappingItemTransformers(final MappingItem mappingItem) {
+        return getMappingItemTransformers(
+                mappingItem.getPropagationJEXLTransformer(),
+                mappingItem.getPullJEXLTransformer(),
+                mappingItem.getMappingItemTransformerClassNames());
     }
 
     /**
