@@ -32,28 +32,20 @@ public class SyncopeAuthenticationDetails implements Serializable {
 
     private static final long serialVersionUID = -5899959397393502897L;
 
-    private final String remoteHost;
-
     private final String domain;
 
     public SyncopeAuthenticationDetails(final HttpServletRequest request) {
         this.domain = request.getHeader(RESTHeaders.DOMAIN);
-        this.remoteHost = request.getRemoteHost();
     }
 
     public SyncopeAuthenticationDetails(final String domain) {
         this.domain = domain;
-        this.remoteHost = null;
     }
 
     public String getDomain() {
         return StringUtils.isBlank(domain)
                 ? SyncopeConstants.MASTER_DOMAIN
                 : domain;
-    }
-
-    public String getRemoteHost() {
-        return remoteHost;
     }
 
     @Override

@@ -381,6 +381,8 @@ under the License.
     <camel.version>2.18.3</camel.version>	
 
     <slf4j.version>1.7.25</slf4j.version>
+    <opensaml.version>3.2.0</opensaml.version>
+
     <log4j.version>2.8.1</log4j.version>
     <disruptor.version>3.3.6</disruptor.version>
 
@@ -564,6 +566,40 @@ under the License.
         <artifactId>cxf-rt-features-logging</artifactId>
         <version>${cxf.version}</version>
       </dependency>
+      <dependency>
+	<groupId>org.apache.cxf</groupId>
+	<artifactId>cxf-rt-rs-security-sso-saml</artifactId>
+	<version>${cxf.version}</version>
+	<exclusions>
+          <exclusion>
+            <groupId>org.opensaml</groupId>
+            <artifactId>opensaml-xacml-impl</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.opensaml</groupId>
+            <artifactId>opensaml-xacml-saml-impl</artifactId>
+          </exclusion>
+	  <exclusion>
+            <groupId>org.apache.wss4j</groupId>
+            <artifactId>wss4j-ws-security-dom</artifactId>
+	  </exclusion>
+	</exclusions>
+      </dependency>
+      <dependency>
+	<groupId>org.apache.wss4j</groupId>
+        <artifactId>wss4j-ws-security-dom</artifactId>
+	<version>2.1.9-SNAPSHOT</version>
+	<exclusions>
+	  <exclusion>
+	    <groupId>org.jasypt</groupId>
+	    <artifactId>jasypt</artifactId>
+	  </exclusion>
+          <exclusion>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-javamail_1.4_spec</artifactId>
+          </exclusion>
+	</exclusions>
+      </dependency>
       <!-- /CXF -->
 
       <!-- Swagger -->      
@@ -632,6 +668,40 @@ under the License.
       </dependency>
       <!-- /Camel -->
       
+      <!-- OpenSAML -->
+      <dependency>
+        <groupId>org.opensaml</groupId>
+        <artifactId>opensaml-saml-impl</artifactId>
+        <version>${opensaml.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.opensaml</groupId>
+            <artifactId>opensaml-soap-impl</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.opensaml</groupId>
+            <artifactId>opensaml-storage-api</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.opensaml</groupId>
+            <artifactId>opensaml-messaging-api</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.apache.velocity</groupId>
+            <artifactId>velocity</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <!-- /OpenSAML -->
+          
       <dependency>
         <groupId>org.apache.openjpa</groupId>
         <artifactId>openjpa-jdbc</artifactId>

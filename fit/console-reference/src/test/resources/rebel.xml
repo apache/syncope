@@ -28,6 +28,8 @@ under the License.
     </dir>
     <dir name="${basedir}/../../ext/camel/client-console/target/classes">
     </dir>
+    <dir name="${basedir}/../../ext/saml2sp/agent/target/classes">
+    </dir>
   </classpath>
 
   <web>

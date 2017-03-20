@@ -21,7 +21,6 @@ package org.apache.syncope.core.spring.security;
 import java.util.Date;
 import javax.annotation.Resource;
 import org.apache.cxf.rs.security.jose.jwt.JwtClaims;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -72,13 +71,6 @@ public class JWTAuthenticationProvider implements AuthenticationProvider {
 
         if (!jwtIssuer.equals(claims.getIssuer())) {
             throw new BadCredentialsException("Invalid JWT issuer");
-        }
-
-        if (!claims.containsProperty(SyncopeConstants.JWT_CLAIM_REMOTE_HOST)
-                || !claims.getClaim(SyncopeConstants.JWT_CLAIM_REMOTE_HOST).
-                        equals(jwtAuthentication.getDetails().getRemoteHost())) {
-
-            throw new BadCredentialsException("Unexpected property found in JWT");
         }
 
         jwtAuthentication.setAuthenticated(true);

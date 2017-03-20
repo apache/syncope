@@ -56,12 +56,13 @@ public class ExternalResourceValidator extends AbstractValidator<ExternalResourc
 
         boolean isValid = true;
 
-        int passwords = 0;
-        for (MappingItem item : mapping.getItems()) {
-            if (item.isPassword()) {
-                passwords++;
+        long passwords = IterableUtils.countMatches(mapping.getItems(), new Predicate<MappingItem>() {
+
+            @Override
+            public boolean evaluate(final MappingItem item) {
+                return item.isPassword();
             }
-        }
+        });
         if (passwords > 1) {
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.InvalidMapping, "One password mapping is allowed at most")).

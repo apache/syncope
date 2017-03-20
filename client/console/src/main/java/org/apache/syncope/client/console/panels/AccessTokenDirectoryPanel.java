@@ -41,7 +41,6 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AccessTokenTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
@@ -108,21 +107,6 @@ public class AccessTokenDirectoryPanel
 
         columns.add(new DatePropertyColumn<AccessTokenTO>(new ResourceModel("expiryTime"), "expiryTime", "expiryTime"));
 
-        columns.add(new AbstractColumn<AccessTokenTO, String>(new ResourceModel("remoteHost", "")) {
-
-            private static final long serialVersionUID = -1822504503325964706L;
-
-            @Override
-            public void populateItem(
-                    final Item<ICellPopulator<AccessTokenTO>> cellItem,
-                    final String componentId,
-                    final IModel<AccessTokenTO> model) {
-
-                JwsJwtCompactConsumer consumer = new JwsJwtCompactConsumer(model.getObject().getBody());
-                cellItem.add(new Label(componentId,
-                        consumer.getJwtClaims().getClaim(SyncopeConstants.JWT_CLAIM_REMOTE_HOST).toString()));
-            }
-        });
 
         columns.add(new ActionColumn<AccessTokenTO, String>(new ResourceModel("actions", "")) {
 
