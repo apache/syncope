@@ -345,6 +345,16 @@ under the License.
       <testResource>
         <directory>src/test/resources</directory>
         <filtering>true</filtering>
+	<excludes>
+	  <exclude>keystore</exclude>
+	</excludes>
+      </testResource>
+      <testResource>
+        <directory>src/test/resources</directory>
+        <filtering>false</filtering>
+	<includes>
+	  <include>keystore</include>
+	</includes>
       </testResource>
       <testResource>
         <directory>${basedir}/../../core/rest-cxf/src/main/resources</directory>
@@ -970,6 +980,17 @@ under the License.
         <dependency>
           <groupId>org.apache.syncope.ext.camel</groupId>
           <artifactId>syncope-ext-camel-provisioning</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+        
+        <dependency>
+          <groupId>org.apache.syncope.ext.saml2sp</groupId>
+          <artifactId>syncope-ext-saml2sp-rest-cxf</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+        <dependency>
+          <groupId>org.apache.syncope.ext.saml2sp</groupId>
+          <artifactId>syncope-ext-saml2sp-persistence-jpa</artifactId>
           <version>${project.version}</version>
         </dependency>
         

@@ -148,7 +148,23 @@ under the License.
       <appender-ref ref="mainFile"/>
       <appender-ref ref="main"/>
     </asyncLogger>
+    <asyncLogger name="org.apache.wss4j" additivity="false" level="ERROR">
+      <appender-ref ref="mainFile"/>
+      <appender-ref ref="main"/>
+    </asyncLogger>
+    <asyncLogger name="org.apache.xml" additivity="false" level="ERROR">
+      <appender-ref ref="mainFile"/>
+      <appender-ref ref="main"/>
+    </asyncLogger>
+    <asyncLogger name="org.opensaml" additivity="false" level="ERROR">
+      <appender-ref ref="mainFile"/>
+      <appender-ref ref="main"/>
+    </asyncLogger>
     <asyncLogger name="io.swagger" additivity="false" level="ERROR">
+      <appender-ref ref="mainFile"/>
+      <appender-ref ref="main"/>
+    </asyncLogger>
+    <asyncLogger name="org.reflections" additivity="false" level="ERROR">
       <appender-ref ref="mainFile"/>
       <appender-ref ref="main"/>
     </asyncLogger>
