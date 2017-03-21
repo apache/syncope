@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.status.AbstractStatusBeanProvider;
 import org.apache.syncope.client.console.commons.status.ConnObjectWrapper;
@@ -175,7 +176,8 @@ public class AnyStatusDirectoryPanel
 
                     @Override
                     protected boolean statusCondition(final StatusBean bean) {
-                        return bean.getConnObjectLink() != null;
+                        return bean.getConnObjectLink() != null
+                                && !bean.getResourceName().equalsIgnoreCase(Constants.SYNCOPE);
                     }
 
                     @Override
