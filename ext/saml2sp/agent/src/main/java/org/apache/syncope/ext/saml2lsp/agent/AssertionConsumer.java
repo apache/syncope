@@ -54,7 +54,7 @@ public class AssertionConsumer extends HttpServlet {
                 request.setAttribute("responseTO", responseTO);
                 request.getRequestDispatcher("loginSuccess.jsp").forward(request, response);
             } else {
-                response.sendRedirect(successURL);
+                response.sendRedirect(successURL + "?sloSupported=" + responseTO.isSloSupported());
             }
         } catch (Exception e) {
             LOG.error("While processing authentication response from IdP", e);
@@ -66,7 +66,7 @@ public class AssertionConsumer extends HttpServlet {
 
                 e.printStackTrace(response.getWriter());
             } else {
-                response.sendRedirect(errorURL + "?message=" + e.getMessage());
+                response.sendRedirect(errorURL + "?errorMessage=" + e.getMessage());
             }
         }
     }

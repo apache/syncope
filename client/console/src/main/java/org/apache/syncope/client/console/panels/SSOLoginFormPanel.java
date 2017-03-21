@@ -18,29 +18,13 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.common.lib.to.CamelRouteTO;
-import org.apache.wicket.PageReference;
+import org.apache.wicket.markup.html.panel.Panel;
 
-public class CamelRoutesModalPanel extends AbstractModalPanel<CamelRouteTO> {
+public abstract class SSOLoginFormPanel extends Panel {
 
-    private static final long serialVersionUID = 2053048734388383021L;
+    private static final long serialVersionUID = -2371733568360773586L;
 
-    private final CamelRouteTO camelRouteTO;
-
-    public CamelRoutesModalPanel(
-            final BaseModal<CamelRouteTO> modal,
-            final CamelRouteTO camelRouteTO,
-            final PageReference pageRef) {
-
-        super(modal, pageRef);
-        this.camelRouteTO = camelRouteTO;
-        add(new CamelRoutesDetailsPanel("camelRouteDetailsPanel", this.camelRouteTO));
+    public SSOLoginFormPanel(final String id) {
+        super(id);
     }
-
-    @Override
-    public CamelRouteTO getItem() {
-        return this.camelRouteTO;
-    }
-
 }

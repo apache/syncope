@@ -49,8 +49,11 @@ public class JPASAML2IdP extends AbstractGeneratedKeyEntity implements SAML2IdP 
 
     public static final String TABLE = "SAML2IdP";
 
-    @Column(nullable = false)
+    @Column(unique = true, nullable = false)
     private String entityID;
+
+    @Column(unique = true, nullable = false)
+    private String name;
 
     @Lob
     @Basic(fetch = FetchType.EAGER)
@@ -72,6 +75,16 @@ public class JPASAML2IdP extends AbstractGeneratedKeyEntity implements SAML2IdP 
     @Override
     public void setEntityID(final String entityID) {
         this.entityID = entityID;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public void setName(final String name) {
+        this.name = name;
     }
 
     @Override

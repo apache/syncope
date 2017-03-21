@@ -30,6 +30,8 @@ under the License.
     </dir>
     <dir name="${basedir}/../../ext/saml2sp/agent/target/classes">
     </dir>
+    <dir name="${basedir}/../../ext/saml2sp/client-console/target/classes">
+    </dir>
   </classpath>
 
   <web>
@@ -43,6 +45,10 @@ under the License.
     </link>
     <link target="/">
       <dir name="${basedir}/../../ext/camel/client-console/target/classes">
+      </dir>
+    </link>
+    <link target="/">
+      <dir name="${basedir}/../../ext/saml2sp/client-console/target/classes">
       </dir>
     </link>
   </web>

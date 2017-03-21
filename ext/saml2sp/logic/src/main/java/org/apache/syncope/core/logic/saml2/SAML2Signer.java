@@ -34,16 +34,11 @@ import org.opensaml.xmlsec.keyinfo.KeyInfoGenerator;
 import org.opensaml.xmlsec.keyinfo.impl.X509KeyInfoGeneratorFactory;
 import org.opensaml.xmlsec.signature.Signature;
 import org.opensaml.xmlsec.signature.support.SignatureConstants;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SAML2Signer implements InitializingBean {
-
-    static {
-        OpenSAMLUtil.initSamlEngine(false);
-    }
+public class SAML2Signer {
 
     @Autowired
     private SAML2SPLoader loader;
@@ -55,8 +50,7 @@ public class SAML2Signer implements InitializingBean {
 
     private String signatureAlgorithm;
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
+    public void init() {
         X509KeyInfoGeneratorFactory keyInfoGeneratorFactory = new X509KeyInfoGeneratorFactory();
         keyInfoGeneratorFactory.setEmitEntityCertificate(true);
         keyInfoGenerator = keyInfoGeneratorFactory.newInstance();

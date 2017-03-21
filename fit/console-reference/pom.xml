@@ -64,7 +64,7 @@ under the License.
     
     <dependency>
       <groupId>org.apache.syncope.ext.saml2sp</groupId>
-      <artifactId>syncope-ext-saml2sp-agent</artifactId>
+      <artifactId>syncope-ext-saml2sp-client-console</artifactId>
       <version>${project.version}</version>
     </dependency>
     

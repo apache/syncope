@@ -40,9 +40,13 @@ public class SAML2IdPTO extends AbstractBaseBean implements EntityTO {
 
     private String entityID;
 
+    private String name;
+
     private String metadata;
 
     private boolean useDeflateEncoding;
+
+    private boolean logoutSupported;
 
     private final List<MappingItemTO> mappingItems = new ArrayList<>();
 
@@ -65,6 +69,14 @@ public class SAML2IdPTO extends AbstractBaseBean implements EntityTO {
         this.entityID = entityID;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(final String name) {
+        this.name = name;
+    }
+
     public String getMetadata() {
         return metadata;
     }
@@ -79,6 +91,14 @@ public class SAML2IdPTO extends AbstractBaseBean implements EntityTO {
 
     public void setUseDeflateEncoding(final boolean useDeflateEncoding) {
         this.useDeflateEncoding = useDeflateEncoding;
+    }
+
+    public boolean isLogoutSupported() {
+        return logoutSupported;
+    }
+
+    public void setLogoutSupported(final boolean logoutSupported) {
+        this.logoutSupported = logoutSupported;
     }
 
     public MappingItemTO getConnObjectKeyItem() {
