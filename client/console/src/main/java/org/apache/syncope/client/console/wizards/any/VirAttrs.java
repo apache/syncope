@@ -74,24 +74,22 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
 
         add(new ListView<MembershipTO>("membershipsVirSchemas", membershipTOs) {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = 9101744072914090143L;
 
             @Override
             protected void populateItem(final ListItem<MembershipTO> item) {
                 final MembershipTO membershipTO = item.getModelObject();
-                item.add(new Accordion("membershipVirSchemas", Collections.<ITab>singletonList(new AbstractTab(
-                        new StringResourceModel(
-                                "attributes.membership.accordion",
-                                VirAttrs.this,
-                                Model.of(membershipTO))) {
+                item.add(new Accordion("membershipVirSchemas",
+                        Collections.<ITab>singletonList(new AbstractTab(new StringResourceModel(
+                                "attributes.membership.accordion", VirAttrs.this, Model.of(membershipTO))) {
 
-                    private static final long serialVersionUID = 1037272333056449378L;
+                            private static final long serialVersionUID = 1037272333056449378L;
 
-                    @Override
-                    public WebMarkupContainer getPanel(final String panelId) {
-                        return new VirAttrs.VirSchemas(panelId, new ListModel<>(getAttrsFromTO(membershipTO)));
-                    }
-                }), Model.of(-1)).setOutputMarkupId(true));
+                            @Override
+                            public WebMarkupContainer getPanel(final String panelId) {
+                                return new VirAttrs.VirSchemas(panelId, new ListModel<>(getAttrsFromTO(membershipTO)));
+                            }
+                        }), Model.of(-1)).setOutputMarkupId(true));
             }
         });
     }

@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.notifications;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -27,6 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.commons.TemplateContent;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
@@ -55,14 +55,17 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.syncope.client.console.panels.WizardModalPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.XMLEditorPanel;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.model.PropertyModel;
 
 public class MailTemplateDirectoryPanel
         extends DirectoryPanel<MailTemplateTO, MailTemplateTO, MailTemplateProvider, NotificationRestClient> {
 
     private static final long serialVersionUID = -3789392431954221446L;
 
-    protected final BaseModal<Serializable> utilityModal = new BaseModal<>("outer");
+    protected final BaseModal<String> utilityModal = new BaseModal<>("outer");
 
     public MailTemplateDirectoryPanel(final String id, final PageReference pageReference) {
         super(id, pageReference, true);
@@ -128,15 +131,13 @@ public class MailTemplateDirectoryPanel
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final MailTemplateTO ignore) {
-                        TemplateContentModal.TemplateContent<MailTemplateFormat> content =
-                                new TemplateContentModal.TemplateContent<>(
-                                        model.getObject().getKey(), MailTemplateFormat.HTML);
+                        TemplateContent<MailTemplateFormat> content =
+                                new TemplateContent<>(model.getObject().getKey(), MailTemplateFormat.HTML);
                         content.setContent(
                                 restClient.readTemplateFormat(model.getObject().getKey(), MailTemplateFormat.HTML));
 
                         utilityModal.header(new ResourceModel("mail.template.html", "HTML Content"));
-                        utilityModal.setContent(new TemplateContentModal<>(
-                                utilityModal, restClient, content, pageRef));
+                        utilityModal.setContent(new TemplateContentEditorPanel(content, pageRef));
                         utilityModal.show(true);
                         target.add(utilityModal);
                     }
@@ -148,16 +149,13 @@ public class MailTemplateDirectoryPanel
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final MailTemplateTO ignore) {
-                        TemplateContentModal.TemplateContent<MailTemplateFormat> content =
-                                new TemplateContentModal.TemplateContent<>(
-                                        model.getObject().getKey(), MailTemplateFormat.TEXT);
+                        TemplateContent<MailTemplateFormat> content =
+                                new TemplateContent<>(model.getObject().getKey(), MailTemplateFormat.TEXT);
                         content.setContent(
                                 restClient.readTemplateFormat(model.getObject().getKey(), MailTemplateFormat.TEXT));
 
-                        utilityModal.setFormModel(content);
                         utilityModal.header(new ResourceModel("mail.template.text", "TEXT Content"));
-                        utilityModal.setContent(new TemplateContentModal<>(
-                                utilityModal, restClient, content, pageRef));
+                        utilityModal.setContent(new TemplateContentEditorPanel(content, pageRef));
                         utilityModal.show(true);
                         target.add(utilityModal);
                     }
@@ -203,7 +201,7 @@ public class MailTemplateDirectoryPanel
         return Collections.<ActionLink.ActionType>emptyList();
     }
 
-    public class MailTemplateProvider extends DirectoryDataProvider<MailTemplateTO> {
+    protected final class MailTemplateProvider extends DirectoryDataProvider<MailTemplateTO> {
 
         private static final long serialVersionUID = -276043813563988590L;
 
@@ -238,6 +236,38 @@ public class MailTemplateDirectoryPanel
                     return mailTemplateTO;
                 }
             };
+        }
+    }
+
+    private class TemplateContentEditorPanel extends XMLEditorPanel {
+
+        private static final long serialVersionUID = -3528875878627216097L;
+
+        private final TemplateContent<MailTemplateFormat> content;
+
+        TemplateContentEditorPanel(
+                final TemplateContent<MailTemplateFormat> content,
+                final PageReference pageRef) {
+
+            super(utilityModal, new PropertyModel<String>(content, "content"), false, pageRef);
+            this.content = content;
+        }
+
+        @Override
+        public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+            try {
+                restClient.updateTemplateFormat(
+                        content.getKey(), content.getContent(), content.getFormat());
+                SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                modal.show(false);
+                modal.close(target);
+            } catch (Exception e) {
+                LOG.error("While updating template for {}", content.getKey(), e);
+                SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
+                        ? e.getClass().getName() : e.
+                        getMessage());
+            }
+            ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
         }
     }
 }

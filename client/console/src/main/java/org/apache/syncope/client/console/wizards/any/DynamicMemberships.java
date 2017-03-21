@@ -90,7 +90,7 @@ public class DynamicMemberships extends WizardStep {
         // ------------------------
         add(new ListView<AnyTypeTO>("aDynMembershipCond", types) {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = 9101744072914090143L;
 
             @Override
             protected void populateItem(final ListItem<AnyTypeTO> item) {

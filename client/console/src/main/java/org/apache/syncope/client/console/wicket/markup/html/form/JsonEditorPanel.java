@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.wicket.markup.html.form;
 
-import java.io.Serializable;
 import org.apache.syncope.client.console.panels.AbstractModalPanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.wicket.PageReference;
@@ -27,7 +26,7 @@ import org.apache.wicket.markup.head.OnLoadHeaderItem;
 import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.model.IModel;
 
-public class JsonEditorPanel extends AbstractModalPanel<Serializable> {
+public class JsonEditorPanel extends AbstractModalPanel<String> {
 
     private static final long serialVersionUID = -5110368813584745668L;
 
@@ -38,7 +37,7 @@ public class JsonEditorPanel extends AbstractModalPanel<Serializable> {
     }
 
     public JsonEditorPanel(
-            final BaseModal<Serializable> modal,
+            final BaseModal<String> modal,
             final IModel<String> content,
             final PageReference pageRef) {
         super(modal, pageRef);
@@ -59,10 +58,5 @@ public class JsonEditorPanel extends AbstractModalPanel<Serializable> {
                 + "  autoCloseBrackets: true,"
                 + "  autoRefresh: true"
                 + "}).on('change', updateTextArea);"));
-    }
-
-    @Override
-    public IModel<String> getItem() {
-        return content;
     }
 }

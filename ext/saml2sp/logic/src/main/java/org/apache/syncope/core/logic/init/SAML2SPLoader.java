@@ -30,13 +30,17 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.core.persistence.api.SyncopeLoader;
 import org.apache.syncope.core.provisioning.api.EntitlementsHolder;
 import org.apache.syncope.common.lib.types.SAML2SPEntitlement;
+import org.apache.syncope.core.logic.saml2.SAML2ReaderWriter;
+import org.apache.syncope.core.logic.saml2.SAML2Signer;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.ResourceWithFallbackLoader;
+import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.opensaml.core.criterion.EntityIdCriterion;
 import org.opensaml.security.credential.Credential;
 import org.opensaml.security.credential.impl.KeyStoreCredentialResolver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -52,6 +56,18 @@ public class SAML2SPLoader implements SyncopeLoader {
         }
         return argument;
     }
+
+    static {
+        OpenSAMLUtil.initSamlEngine(false);
+    }
+
+    @Autowired
+    private SAML2ReaderWriter saml2rw;
+
+    @Autowired
+    private SAML2Signer signer;
+
+    private boolean inited;
 
     private KeyStore keystore;
 
@@ -120,9 +136,19 @@ public class SAML2SPLoader implements SyncopeLoader {
 
             this.credential = resolver.resolveSingle(new CriteriaSet(new EntityIdCriterion(certAlias)));
             LOG.debug("SAML 2.0 Service Provider certificate loaded");
+
+            saml2rw.init();
+            signer.init();
+
+            inited = true;
         } catch (Exception e) {
-            throw new RuntimeException("Could not initialize the SAML 2.0 Service Provider certificate", e);
+            LOG.error("Could not initialize the SAML 2.0 Service Provider certificate", e);
+            inited = false;
         }
+    }
+
+    public boolean isInited() {
+        return inited;
     }
 
     public KeyStore getKeyStore() {

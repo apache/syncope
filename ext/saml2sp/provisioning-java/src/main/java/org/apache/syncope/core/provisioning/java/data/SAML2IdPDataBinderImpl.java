@@ -169,6 +169,7 @@ public class SAML2IdPDataBinderImpl implements SAML2IdPDataBinder {
     @Override
     public SAML2IdP update(final SAML2IdP idp, final SAML2IdPTO idpTO) {
         idp.setEntityID(idpTO.getEntityID());
+        idp.setName(idpTO.getName());
         idp.setMetadata(Base64.decode(idpTO.getMetadata()));
         idp.setUseDeflateEncoding(idpTO.isUseDeflateEncoding());
 
@@ -211,6 +212,7 @@ public class SAML2IdPDataBinderImpl implements SAML2IdPDataBinder {
 
         idpTO.setKey(idp.getKey());
         idpTO.setEntityID(idp.getEntityID());
+        idpTO.setName(idp.getName());
         idpTO.setUseDeflateEncoding(idp.isUseDeflateEncoding());
         idpTO.setMetadata(Base64.encode(idp.getMetadata()));
 

@@ -61,7 +61,7 @@ public class Logout extends SAML2PostBinding {
 
                 e.printStackTrace(response.getWriter());
             } else {
-                response.sendRedirect(errorURL + "?message=" + e.getMessage());
+                response.sendRedirect(errorURL + "?errorMessage=" + e.getMessage());
             }
         }
     }
@@ -98,7 +98,7 @@ public class Logout extends SAML2PostBinding {
 
                 e.printStackTrace(response.getWriter());
             } else {
-                response.sendRedirect(errorURL + "?message=" + e.getMessage());
+                response.sendRedirect(errorURL + "?errorMessage=" + e.getMessage());
             }
         }
     }

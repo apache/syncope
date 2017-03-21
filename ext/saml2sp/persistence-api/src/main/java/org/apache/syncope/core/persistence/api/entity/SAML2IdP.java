@@ -27,6 +27,10 @@ public interface SAML2IdP extends Entity {
 
     void setEntityID(String entityID);
 
+    String getName();
+
+    void setName(String name);
+
     byte[] getMetadata();
 
     void setMetadata(byte[] metadata);

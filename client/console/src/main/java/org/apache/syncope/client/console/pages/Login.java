@@ -20,11 +20,16 @@ package org.apache.syncope.client.console.pages;
 
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.form.select.BootstrapSelect;
 import java.security.AccessControlException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
+import org.apache.syncope.client.console.init.ConsoleInitializer;
 import org.apache.syncope.client.console.panels.NotificationPanel;
+import org.apache.syncope.client.console.panels.SSOLoginFormPanel;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -38,12 +43,18 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.PasswordTextField;
 import org.apache.wicket.markup.html.form.StatelessForm;
 import org.apache.wicket.markup.html.form.TextField;
+import org.apache.wicket.markup.html.list.ListItem;
+import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Login extends WebPage {
+
+    private static final Logger LOG = LoggerFactory.getLogger(Login.class);
 
     private static final long serialVersionUID = 5889157642852559004L;
 
@@ -71,7 +82,7 @@ public class Login extends WebPage {
         exceptionMessage.setVisible(false);
         if (!parameters.get("errorMessage").isNull()) {
             exceptionMessage.setVisible(true);
-            exceptionMessage.setDefaultModel(new StringResourceModel(parameters.get("errorMessage").toString()));
+            exceptionMessage.setDefaultModel(Model.of(parameters.get("errorMessage")));
         }
         add(exceptionMessage);
 
@@ -121,6 +132,30 @@ public class Login extends WebPage {
         submitButton.setDefaultFormProcessing(false);
         form.add(submitButton);
         form.setDefaultButton(submitButton);
+
+        ClassPathScanImplementationLookup classPathScanImplementationLookup =
+                (ClassPathScanImplementationLookup) SyncopeConsoleApplication.get().
+                        getServletContext().getAttribute(ConsoleInitializer.CLASSPATH_LOOKUP);
+        List<Panel> ssoLoginFormPanels = new ArrayList<>();
+        for (Class<? extends SSOLoginFormPanel> ssoLoginFormPanel : classPathScanImplementationLookup.
+                getSSOLoginFormPanels()) {
+
+            try {
+                ssoLoginFormPanels.add(ssoLoginFormPanel.getConstructor(String.class).newInstance("ssoLogin"));
+            } catch (Exception e) {
+                LOG.error("Could not initialize the provided SSO login form panel", e);
+            }
+        }
+        ListView<Panel> ssoLogins = new ListView<Panel>("ssoLogins", ssoLoginFormPanels) {
+
+            private static final long serialVersionUID = -9180479401817023838L;
+
+            @Override
+            protected void populateItem(final ListItem<Panel> item) {
+                item.add(item.getModelObject());
+            }
+        };
+        form.add(ssoLogins);
 
         add(form);
     }

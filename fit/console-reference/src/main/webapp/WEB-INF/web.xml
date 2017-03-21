@@ -29,7 +29,25 @@ under the License.
     <param-name>configuration</param-name>
     <param-value>deployment</param-value>
   </context-param>
-
+  
+  <context-param>
+    <param-name>saml2sp.login.success.url</param-name>
+    <param-value>../wicket/bookmarkable/org.apache.syncope.client.console.pages.SAML2SPLogin</param-value>
+  </context-param>
+  <context-param>
+    <param-name>saml2sp.login.error.url</param-name>
+    <param-value>../wicket/bookmarkable/org.apache.syncope.client.console.pages.Login</param-value>
+  </context-param>
+  
+  <context-param>
+    <param-name>saml2sp.logout.success.url</param-name>
+    <param-value>../wicket/bookmarkable/org.apache.syncope.client.console.pages.SAML2SPLogout</param-value>
+  </context-param>
+  <context-param>
+    <param-name>saml2sp.logout.error.url</param-name>
+    <param-value>../wicket/bookmarkable/org.apache.syncope.client.console.pages.Login</param-value>
+  </context-param>
+  
   <!-- SESSION TIMEOUT (MINUTES)-->
   <session-config>
     <session-timeout>30</session-timeout>
