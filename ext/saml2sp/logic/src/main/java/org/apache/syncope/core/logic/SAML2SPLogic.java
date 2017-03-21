@@ -52,7 +52,6 @@ import org.apache.syncope.common.lib.to.MappingItemTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
-import org.apache.syncope.core.logic.init.SAML2SPLoader;
 import org.apache.syncope.core.logic.saml2.SAML2ReaderWriter;
 import org.apache.syncope.core.logic.saml2.SAML2IdPCache;
 import org.apache.syncope.core.logic.saml2.SAML2IdPEntity;
@@ -75,7 +74,6 @@ import org.apache.syncope.core.provisioning.api.data.MappingItemTransformer;
 import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.apache.syncope.core.provisioning.java.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
-import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.joda.time.DateTime;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.schema.XSString;
@@ -127,7 +125,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SAML2SPLogic extends AbstractTransactionalLogic<AbstractBaseBean> {
+public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
 
     private static final Integer JWT_RELAY_STATE_DURATION = 5;
 
@@ -143,18 +141,11 @@ public class SAML2SPLogic extends AbstractTransactionalLogic<AbstractBaseBean> {
 
     private static final RandomBasedGenerator UUID_GENERATOR = Generators.randomBasedGenerator();
 
-    static {
-        OpenSAMLUtil.initSamlEngine(false);
-    }
-
     @Autowired
     private JwsSignatureVerifier jwsSignatureCerifier;
 
     @Autowired
     private AccessTokenDataBinder accessTokenDataBinder;
-
-    @Autowired
-    private SAML2SPLoader loader;
 
     @Autowired
     private SAML2IdPCache cache;
@@ -185,6 +176,8 @@ public class SAML2SPLogic extends AbstractTransactionalLogic<AbstractBaseBean> {
 
     @PreAuthorize("hasRole('" + StandardEntitlement.ANONYMOUS + "')")
     public void getMetadata(final String spEntityID, final OutputStream os) {
+        check();
+
         try {
             EntityDescriptor spEntityDescriptor = new EntityDescriptorBuilder().buildObject();
             spEntityDescriptor.setEntityID(spEntityID);
@@ -256,8 +249,8 @@ public class SAML2SPLogic extends AbstractTransactionalLogic<AbstractBaseBean> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.ANONYMOUS + "')")
-    public SAML2RequestTO createLoginRequest(
-            final String spEntityID, final String idpEntityID) {
+    public SAML2RequestTO createLoginRequest(final String spEntityID, final String idpEntityID) {
+        check();
 
         // 1. look for IdP
         SAML2IdPEntity idp = StringUtils.isBlank(idpEntityID) ? cache.getFirst() : cache.get(idpEntityID);
@@ -416,6 +409,8 @@ public class SAML2SPLogic extends AbstractTransactionalLogic<AbstractBaseBean> {
 
     @PreAuthorize("hasRole('" + StandardEntitlement.ANONYMOUS + "')")
     public SAML2LoginResponseTO validateLoginResponse(final InputStream response) {
+        check();
+
         // 1. extract raw SAML response and relay state
         Pair<String, String> extracted;
         try {
@@ -478,6 +473,8 @@ public class SAML2SPLogic extends AbstractTransactionalLogic<AbstractBaseBean> {
 
         // 6. prepare the result: find matching user (if any) and return the received attributes
         SAML2LoginResponseTO responseTO = new SAML2LoginResponseTO();
+        responseTO.setIdp(idp.getId());
+        responseTO.setSloSupported(idp.getSLOLocation(SAMLConstants.SAML2_POST_BINDING_URI) != null);
 
         NameID nameID = null;
         String keyValue = null;
@@ -553,6 +550,8 @@ public class SAML2SPLogic extends AbstractTransactionalLogic<AbstractBaseBean> {
 
     @PreAuthorize("isAuthenticated() and not(hasRole('" + StandardEntitlement.ANONYMOUS + "'))")
     public SAML2RequestTO createLogoutRequest(final String accessToken, final String spEntityID) {
+        check();
+
         // 1. fetch the current JWT used for Syncope authentication
         JwsJwtCompactConsumer consumer = new JwsJwtCompactConsumer(accessToken);
         if (!consumer.verifySignatureWith(jwsSignatureCerifier)) {
@@ -615,6 +614,8 @@ public class SAML2SPLogic extends AbstractTransactionalLogic<AbstractBaseBean> {
 
     @PreAuthorize("isAuthenticated() and not(hasRole('" + StandardEntitlement.ANONYMOUS + "'))")
     public void validateLogoutResponse(final String accessToken, final InputStream response) {
+        check();
+
         // 1. fetch the current JWT used for Syncope authentication
         JwsJwtCompactConsumer consumer = new JwsJwtCompactConsumer(accessToken);
         if (!consumer.verifySignatureWith(jwsSignatureCerifier)) {

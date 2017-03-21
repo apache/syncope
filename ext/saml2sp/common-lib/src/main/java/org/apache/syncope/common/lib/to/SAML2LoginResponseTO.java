@@ -48,6 +48,10 @@ public class SAML2LoginResponseTO extends AbstractBaseBean {
 
     private final Set<AttrTO> attrs = new HashSet<>();
 
+    private String idp;
+
+    private boolean sloSupported;
+
     public String getNameID() {
         return nameID;
     }
@@ -115,6 +119,22 @@ public class SAML2LoginResponseTO extends AbstractBaseBean {
     @JsonProperty("attrs")
     public Set<AttrTO> getAttrs() {
         return attrs;
+    }
+
+    public String getIdp() {
+        return idp;
+    }
+
+    public void setIdp(final String idp) {
+        this.idp = idp;
+    }
+
+    public boolean isSloSupported() {
+        return sloSupported;
+    }
+
+    public void setSloSupported(final boolean sloSupported) {
+        this.sloSupported = sloSupported;
     }
 
 }

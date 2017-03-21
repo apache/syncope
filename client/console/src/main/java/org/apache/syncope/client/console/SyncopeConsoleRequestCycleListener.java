@@ -40,6 +40,14 @@ public class SyncopeConsoleRequestCycleListener extends AbstractRequestCycleList
 
     private static final Logger LOG = LoggerFactory.getLogger(SyncopeConsoleRequestCycleListener.class);
 
+    private static final String PAGE_EXPIRED = "Session expired: please login again";
+
+    private static final String MISSING_AUTHORIZATION = "Missing authorization";
+
+    private static final String MISSING_AUTHORIZATION_CORE = "Missing authorization while contacting Syncope core";
+
+    private static final String REST = "Error while contacting Syncope core";
+
     private Throwable instanceOf(final Exception e, final Class<? extends Exception> clazz) {
         return clazz.isAssignableFrom(e.getClass())
                 ? e
@@ -59,23 +67,23 @@ public class SyncopeConsoleRequestCycleListener extends AbstractRequestCycleList
 
         IRequestablePage errorPage = null;
         if (instanceOf(e, UnauthorizedInstantiationException.class) != null) {
-            errorParameters.add("errorMessage", "unauthorizedInstantiationException");
+            errorParameters.add("errorMessage", MISSING_AUTHORIZATION);
             errorPage = new Login(errorParameters);
         } else if (instanceOf(e, AccessControlException.class) != null) {
             if (instanceOf(e, AccessControlException.class).getMessage().contains("expired")) {
-                errorParameters.add("errorMessage", "pageExpiredException");
+                errorParameters.add("errorMessage", PAGE_EXPIRED);
             } else {
-                errorParameters.add("errorMessage", "accessControlException");
+                errorParameters.add("errorMessage", MISSING_AUTHORIZATION_CORE);
             }
             errorPage = new Login(errorParameters);
         } else if (instanceOf(e, PageExpiredException.class) != null || !SyncopeConsoleSession.get().isSignedIn()) {
-            errorParameters.add("errorMessage", "pageExpiredException");
+            errorParameters.add("errorMessage", PAGE_EXPIRED);
             errorPage = new Login(errorParameters);
         } else if (instanceOf(e, BadRequestException.class) != null
                 || instanceOf(e, WebServiceException.class) != null
                 || instanceOf(e, SyncopeClientException.class) != null) {
 
-            errorParameters.add("errorMessage", "restClientException");
+            errorParameters.add("errorMessage", REST);
             errorPage = new Login(errorParameters);
         } else {
             // redirect to default Wicket error page

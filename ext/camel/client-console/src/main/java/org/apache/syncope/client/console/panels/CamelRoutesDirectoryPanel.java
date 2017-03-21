@@ -28,26 +28,26 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.pages.BasePage;
-import org.apache.syncope.client.console.pages.CamelRoutes;
 import org.apache.syncope.client.console.panels.CamelRoutesDirectoryPanel.CamelRoutesProvider;
 import org.apache.syncope.client.console.rest.CamelRoutesRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
-import org.apache.syncope.client.console.wizards.AbstractModalPanelBuilder;
-import org.apache.syncope.client.console.wizards.AjaxWizard;
+import org.apache.syncope.client.console.wicket.markup.html.form.XMLEditorPanel;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.common.lib.to.CamelRouteTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CamelEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
+import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 
 public class CamelRoutesDirectoryPanel extends DirectoryPanel<
@@ -55,11 +55,14 @@ public class CamelRoutesDirectoryPanel extends DirectoryPanel<
 
     private static final long serialVersionUID = 3727444742501082182L;
 
+    private static final String PREF_CAMEL_ROUTES_PAGINATOR_ROWS = "camel.routes.paginator.rows";
+
+    private final BaseModal<String> utilityModal = new BaseModal<>("outer");
+
     private final AnyTypeKind anyTypeKind;
 
     public CamelRoutesDirectoryPanel(final String id, final PageReference pageRef, final AnyTypeKind anyTypeKind) {
-        super(id, new Builder<CamelRouteTO, CamelRouteTO, CamelRoutesRestClient>(
-                new CamelRoutesRestClient(), pageRef) {
+        super(id, new Builder<CamelRouteTO, CamelRouteTO, CamelRoutesRestClient>(new CamelRoutesRestClient(), pageRef) {
 
             private static final long serialVersionUID = 8769126634538601689L;
 
@@ -68,47 +71,17 @@ public class CamelRoutesDirectoryPanel extends DirectoryPanel<
                 throw new UnsupportedOperationException();
             }
         }.disableCheckBoxes());
+        setOutputMarkupId(true);
 
         this.anyTypeKind = anyTypeKind;
         setFooterVisibility(true);
-        modal.addSubmitButton();
-        modal.size(Modal.Size.Large);
+
+        addOuterObject(utilityModal);
+        setWindowClosedReloadCallback(utilityModal);
+        utilityModal.size(Modal.Size.Large);
+        utilityModal.addSubmitButton();
+
         initResultTable();
-
-        this.addNewItemPanelBuilder(new AbstractModalPanelBuilder<CamelRouteTO>(new CamelRouteTO(), pageRef) {
-
-            private static final long serialVersionUID = -6388405037134399367L;
-
-            @Override
-            public WizardModalPanel<CamelRouteTO> build(final String id, final int index, final AjaxWizard.Mode mode) {
-                return new CamelRoutesModalPanel(modal, newModelObject(), pageRef) {
-
-                    private static final long serialVersionUID = -6227956682141146095L;
-
-                    @Override
-                    public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-                        try {
-                            restClient.update(getItem());
-                            info(getString(Constants.OPERATION_SUCCEEDED));
-                            modal.close(target);
-                        } catch (Exception e) {
-                            LOG.error("While creating or updating CamelRouteTO", e);
-                            error(getString(Constants.ERROR) + ": " + e.getMessage());
-                        }
-                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-                    }
-                };
-            }
-        }, false);
-    }
-
-    private CamelRoutesDirectoryPanel(
-            final String id,
-            final Builder<CamelRouteTO, CamelRouteTO, CamelRoutesRestClient> builder,
-            final AnyTypeKind anyTypeKind) {
-
-        super(id, builder);
-        this.anyTypeKind = anyTypeKind;
     }
 
     @Override
@@ -118,7 +91,7 @@ public class CamelRoutesDirectoryPanel extends DirectoryPanel<
 
     @Override
     protected String paginatorRowsKey() {
-        return CamelRoutes.PREF_CAMEL_ROUTES_PAGINATOR_ROWS;
+        return PREF_CAMEL_ROUTES_PAGINATOR_ROWS;
     }
 
     @Override
@@ -143,15 +116,36 @@ public class CamelRoutesDirectoryPanel extends DirectoryPanel<
                 ActionLinksPanel<CamelRouteTO> panel = ActionLinksPanel.<CamelRouteTO>builder().
                         add(new ActionLink<CamelRouteTO>() {
 
-                    private static final long serialVersionUID = -3722207913631435501L;
+                            private static final long serialVersionUID = -3722207913631435501L;
 
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final CamelRouteTO ignore) {
-                        CamelRouteTO actual = restClient.read(model.getObject().getKey());
-                        send(CamelRoutesDirectoryPanel.this, Broadcast.EXACT,
-                                new AjaxWizard.EditItemActionEvent<>(actual, target));
-                    }
-                }, ActionLink.ActionType.EDIT, CamelEntitlement.ROUTE_UPDATE).
+                            @Override
+                            public void onClick(final AjaxRequestTarget target, final CamelRouteTO ignore) {
+                                final CamelRouteTO route = restClient.read(model.getObject().getKey());
+
+                                utilityModal.header(Model.of(route.getKey()));
+                                utilityModal.setContent(new XMLEditorPanel(
+                                        utilityModal, new PropertyModel<String>(route, "content"), filtered, pageRef) {
+
+                                    private static final long serialVersionUID = 5488080606102212554L;
+
+                                    @Override
+                                    public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+                                        try {
+                                            restClient.update(route);
+                                            info(getString(Constants.OPERATION_SUCCEEDED));
+                                            modal.close(target);
+                                        } catch (Exception e) {
+                                            LOG.error("While creating or updating CamelRouteTO", e);
+                                            error(getString(Constants.ERROR) + ": " + e.getMessage());
+                                        }
+                                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                                    }
+
+                                });
+                                utilityModal.show(true);
+                                target.add(utilityModal);
+                            }
+                        }, ActionLink.ActionType.EDIT, CamelEntitlement.ROUTE_UPDATE).
                         build(componentId);
 
                 return panel;

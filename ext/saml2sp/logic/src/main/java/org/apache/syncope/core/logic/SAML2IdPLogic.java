@@ -55,11 +55,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 @Component
-public class SAML2IdPLogic extends AbstractTransactionalLogic<SAML2IdPTO> {
-
-    static {
-        OpenSAMLUtil.initSamlEngine(false);
-    }
+public class SAML2IdPLogic extends AbstractSAML2Logic<SAML2IdPTO> {
 
     @Autowired
     private SAML2IdPCache cache;
@@ -73,14 +69,20 @@ public class SAML2IdPLogic extends AbstractTransactionalLogic<SAML2IdPTO> {
     @Autowired
     private SAML2ReaderWriter saml2rw;
 
-    @PreAuthorize("hasRole('" + SAML2SPEntitlement.IDP_LIST + "')")
+    private SAML2IdPTO complete(final SAML2IdPTO input) {
+        SAML2IdPEntity idp = cache.get(input.getEntityID());
+        input.setLogoutSupported(idp.getSLOLocation(SAMLConstants.SAML2_POST_BINDING_URI) != null);
+        return input;
+    }
+
+    @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public List<SAML2IdPTO> list() {
         return CollectionUtils.collect(idpDAO.findAll(), new Transformer<SAML2IdP, SAML2IdPTO>() {
 
             @Override
             public SAML2IdPTO transform(final SAML2IdP input) {
-                return binder.getIdPTO(input);
+                return complete(binder.getIdPTO(input));
             }
         }, new ArrayList<SAML2IdPTO>());
     }
@@ -88,12 +90,14 @@ public class SAML2IdPLogic extends AbstractTransactionalLogic<SAML2IdPTO> {
     @PreAuthorize("hasRole('" + SAML2SPEntitlement.IDP_READ + "')")
     @Transactional(readOnly = true)
     public SAML2IdPTO read(final String key) {
+        check();
+
         SAML2IdP idp = idpDAO.find(key);
         if (idp == null) {
             throw new NotFoundException("SAML 2.0 IdP '" + key + "'");
         }
 
-        return binder.getIdPTO(idp);
+        return complete(binder.getIdPTO(idp));
     }
 
     private List<SAML2IdPTO> importIdPs(final InputStream input) throws Exception {
@@ -130,6 +134,7 @@ public class SAML2IdPLogic extends AbstractTransactionalLogic<SAML2IdPTO> {
         for (EntityDescriptor idpEntityDescriptor : idpEntityDescriptors) {
             SAML2IdPTO idpTO = new SAML2IdPTO();
             idpTO.setEntityID(idpEntityDescriptor.getEntityID());
+            idpTO.setName(idpEntityDescriptor.getEntityID());
             idpTO.setUseDeflateEncoding(false);
             try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
                 saml2rw.write(new OutputStreamWriter(baos), idpEntityDescriptor, false);
@@ -149,6 +154,8 @@ public class SAML2IdPLogic extends AbstractTransactionalLogic<SAML2IdPTO> {
 
     @PreAuthorize("hasRole('" + SAML2SPEntitlement.IDP_IMPORT + "')")
     public List<String> importFromMetadata(final InputStream input) {
+        check();
+
         List<String> imported = new ArrayList<>();
 
         try {
@@ -170,6 +177,8 @@ public class SAML2IdPLogic extends AbstractTransactionalLogic<SAML2IdPTO> {
 
     @PreAuthorize("hasRole('" + SAML2SPEntitlement.IDP_UPDATE + "')")
     public void update(final SAML2IdPTO saml2IdpTO) {
+        check();
+
         SAML2IdP saml2Idp = idpDAO.find(saml2IdpTO.getKey());
         if (saml2Idp == null) {
             throw new NotFoundException("SAML 2.0 IdP '" + saml2IdpTO.getKey() + "'");
@@ -186,6 +195,8 @@ public class SAML2IdPLogic extends AbstractTransactionalLogic<SAML2IdPTO> {
 
     @PreAuthorize("hasRole('" + SAML2SPEntitlement.IDP_DELETE + "')")
     public void delete(final String key) {
+        check();
+
         SAML2IdP idp = idpDAO.find(key);
         if (idp == null) {
             throw new NotFoundException("SAML 2.0 IdP '" + key + "'");
@@ -213,7 +224,7 @@ public class SAML2IdPLogic extends AbstractTransactionalLogic<SAML2IdPTO> {
 
         if (key != null) {
             try {
-                return binder.getIdPTO(idpDAO.find(key));
+                return complete(binder.getIdPTO(idpDAO.find(key)));
             } catch (Throwable ignore) {
                 LOG.debug("Unresolved reference", ignore);
                 throw new UnresolvedReferenceException(ignore);

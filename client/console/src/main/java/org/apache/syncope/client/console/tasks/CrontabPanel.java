@@ -100,28 +100,23 @@ public class CrontabPanel extends Panel {
         cronTemplateChooser.setChoiceRenderer(new SelectChoiceRenderer<SelectOption>());
         add(cronTemplateChooser);
 
-        seconds = new AjaxTextFieldPanel(
-                "seconds", "seconds", new Model<String>(getCronField(cronExpression, 0)));
+        seconds = new AjaxTextFieldPanel("seconds", "seconds", new Model<>(getCronField(cronExpression, 0)));
         add(seconds.hideLabel());
 
-        minutes = new AjaxTextFieldPanel(
-                "minutes", "minutes", new Model<String>(getCronField(cronExpression, 1)));
+        minutes = new AjaxTextFieldPanel("minutes", "minutes", new Model<>(getCronField(cronExpression, 1)));
         add(minutes.hideLabel());
 
-        hours = new AjaxTextFieldPanel(
-                "hours", "hours", new Model<String>(getCronField(cronExpression, 2)));
+        hours = new AjaxTextFieldPanel("hours", "hours", new Model<>(getCronField(cronExpression, 2)));
         add(hours.hideLabel());
 
         daysOfMonth = new AjaxTextFieldPanel(
-                "daysOfMonth", "daysOfMonth", new Model<String>(getCronField(cronExpression, 3)));
+                "daysOfMonth", "daysOfMonth", new Model<>(getCronField(cronExpression, 3)));
         add(daysOfMonth.hideLabel());
 
-        months = new AjaxTextFieldPanel(
-                "months", "months", new Model<String>(getCronField(cronExpression, 4)));
+        months = new AjaxTextFieldPanel("months", "months", new Model<>(getCronField(cronExpression, 4)));
         add(months.hideLabel());
 
-        daysOfWeek = new AjaxTextFieldPanel(
-                "daysOfWeek", "daysOfWeek", new Model<String>(getCronField(cronExpression, 5)));
+        daysOfWeek = new AjaxTextFieldPanel("daysOfWeek", "daysOfWeek", new Model<>(getCronField(cronExpression, 5)));
         add(daysOfWeek.hideLabel());
 
         final FormComponent<SelectOption> component = cronTemplateChooser.getField();

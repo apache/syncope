@@ -72,6 +72,8 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
         THREAD_POOL_FACTORY.setDaemon(true);
     }
 
+    private final SyncopeClient anonymousClient;
+
     private final PlatformInfo platformInfo;
 
     private final SystemInfo systemInfo;
@@ -99,7 +101,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
     public SyncopeConsoleSession(final Request request) {
         super(request);
 
-        SyncopeClient anonymousClient = SyncopeConsoleApplication.get().getClientFactory().
+        anonymousClient = SyncopeConsoleApplication.get().getClientFactory().
                 create(new AnonymousAuthenticationHandler(
                         SyncopeConsoleApplication.get().getAnonymousUser(),
                         SyncopeConsoleApplication.get().getAnonymousKey()));
@@ -111,6 +113,10 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
         domains.add(SyncopeConstants.MASTER_DOMAIN);
         CollectionUtils.collect(anonymousClient.getService(DomainService.class).list(),
                 EntityTOUtils.<DomainTO>keyTransformer(), domains);
+    }
+
+    public SyncopeClient getAnonymousClient() {
+        return anonymousClient;
     }
 
     public void execute(final Runnable command) {
@@ -141,6 +147,12 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
         return client == null ? null : client.getJWT();
     }
 
+    private void afterAuthentication() {
+        Pair<Map<String, Set<String>>, UserTO> self = client.self();
+        auth = self.getKey();
+        selfTO = self.getValue();
+    }
+
     @Override
     public boolean authenticate(final String username, final String password) {
         boolean authenticated = false;
@@ -149,14 +161,34 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
             client = SyncopeConsoleApplication.get().getClientFactory().
                     setDomain(getDomain()).create(username, password);
 
-            Pair<Map<String, Set<String>>, UserTO> self = client.self();
-            auth = self.getKey();
-            selfTO = self.getValue();
+            afterAuthentication();
 
             authenticated = true;
         } catch (Exception e) {
             LOG.error("Authentication failed", e);
         }
+
+        return authenticated;
+    }
+
+    public boolean authenticate(final String jwt) {
+        boolean authenticated = false;
+
+        try {
+            client = SyncopeConsoleApplication.get().getClientFactory().
+                    setDomain(getDomain()).create(jwt);
+
+            afterAuthentication();
+
+            authenticated = true;
+        } catch (Exception e) {
+            LOG.error("Authentication failed", e);
+        }
+
+        if (authenticated) {
+            bind();
+        }
+        signIn(authenticated);
 
         return authenticated;
     }

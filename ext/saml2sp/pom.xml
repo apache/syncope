@@ -47,6 +47,7 @@ under the License.
     <module>logic</module>
     <module>rest-cxf</module>
     <module>agent</module>
+    <module>client-console</module>
   </modules>
 
 </project>

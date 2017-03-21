@@ -20,11 +20,19 @@ package org.apache.syncope.client.console.panels;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.File;
+import java.io.IOException;
+import javax.ws.rs.core.MediaType;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleApplication;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.ActivitiModelerPopupPage;
+import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.WorkflowRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
+import org.apache.syncope.client.console.wicket.markup.html.form.XMLEditorPanel;
 import org.apache.syncope.client.console.wicket.markup.html.link.VeilPopupSettings;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -33,9 +41,13 @@ import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.util.io.IOUtils;
 
 public class WorkflowTogglePanel extends TogglePanel<String> {
 
@@ -88,9 +100,39 @@ public class WorkflowTogglePanel extends TogglePanel<String> {
 
             private static final long serialVersionUID = -1964967067512351526L;
 
+            private final WorkflowRestClient restClient = new WorkflowRestClient();
+
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                target.add(modal.setContent(new XMLWorkflowEditorModalPanel(modal, new WorkflowRestClient(), pageRef)));
+                final IModel<String> wfDefinition = new Model<>();
+                try {
+                    wfDefinition.setObject(IOUtils.toString(restClient.getDefinition(MediaType.APPLICATION_XML_TYPE)));
+                } catch (IOException e) {
+                    LOG.error("Could not get workflow definition", e);
+                }
+
+                target.add(modal.setContent(new XMLEditorPanel(modal, wfDefinition, false, pageRef) {
+
+                    private static final long serialVersionUID = 5488080606102212554L;
+
+                    @Override
+                    public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+                        if (StringUtils.isNotBlank(wfDefinition.getObject())) {
+                            try {
+                                restClient.updateDefinition(MediaType.APPLICATION_XML_TYPE, wfDefinition.getObject());
+                                SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+
+                                modal.show(false);
+                                modal.close(target);
+                            } catch (SyncopeClientException e) {
+                                SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().
+                                        getName() : e.
+                                                getMessage());
+                            }
+                            ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                        }
+                    }
+                }));
 
                 modal.header(new ResourceModel("xmlEditorTitle"));
                 modal.show(true);

@@ -28,8 +28,6 @@ public final class SAML2SPEntitlement {
 
     public static final String IDP_READ = "IDP_READ";
 
-    public static final String IDP_LIST = "IDP_LIST";
-
     public static final String IDP_IMPORT = "IDP_IMPORT";
 
     public static final String IDP_UPDATE = "IDP_UPDATE";

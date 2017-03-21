@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import org.apache.syncope.client.console.layout.ConsoleLayoutInfoModal;
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -32,6 +31,7 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
+import org.apache.syncope.client.console.layout.ConsoleLayoutInfo;
 import org.apache.syncope.client.console.layout.FormLayoutInfoUtils;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.RoleDirectoryPanel.RoleDataProvider;
@@ -43,6 +43,7 @@ import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.Bas
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.JsonEditorPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.console.wizards.role.RoleWrapper;
@@ -60,9 +61,11 @@ import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.markup.html.WebPage;
+import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
@@ -70,7 +73,7 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
 
     private static final long serialVersionUID = -1100228004207271270L;
 
-    protected final BaseModal<Serializable> utilityModal = new BaseModal<>("outer");
+    protected final BaseModal<String> utilityModal = new BaseModal<>("outer");
 
     protected final BaseModal<Serializable> membersModal = new BaseModal<>("outer");
 
@@ -198,12 +201,31 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
 
                     @Override
                     public void onClick(final AjaxRequestTarget target, final RoleTO ignore) {
-                        ConsoleLayoutInfoModal.ConsoleLayoutInfo info = new ConsoleLayoutInfoModal.ConsoleLayoutInfo(
-                                model.getObject().getKey());
+                        final ConsoleLayoutInfo info = new ConsoleLayoutInfo(model.getObject().getKey());
                         info.setContent(restClient.readConsoleLayoutInfo(model.getObject().getKey()));
 
                         utilityModal.header(new ResourceModel("console.layout.info", "JSON Content"));
-                        utilityModal.setContent(new ConsoleLayoutInfoModal(utilityModal, info, pageRef));
+                        utilityModal.setContent(new JsonEditorPanel(
+                                utilityModal, new PropertyModel<String>(info, "content"), false, pageRef) {
+
+                            private static final long serialVersionUID = -8927036362466990179L;
+
+                            @Override
+                            public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+                                try {
+                                    restClient.setConsoleLayoutInfo(info.getKey(), info.getContent());
+                                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                                    modal.show(false);
+                                    modal.close(target);
+                                } catch (Exception e) {
+                                    LOG.error("While updating onsole layout info for role {}", info.getKey(), e);
+                                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
+                                            ? e.getClass().getName() : e.
+                                            getMessage());
+                                }
+                                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                            }
+                        });
                         utilityModal.show(true);
                         target.add(utilityModal);
                     }

@@ -41,6 +41,8 @@ import org.apache.wicket.Component;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.IAjaxIndicatorAware;
+import org.apache.wicket.ajax.attributes.AjaxCallListener;
+import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.behavior.AttributeAppender;
@@ -238,7 +240,32 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
             }
         });
         body.add(new Label("domain", SyncopeConsoleSession.get().getDomain()));
-        body.add(new BookmarkablePageLink<Page>("logout", Logout.class));
+
+        @SuppressWarnings("unchecked")
+        final Class<? extends WebPage> beforeLogout = (Class<? extends WebPage>) SyncopeConsoleSession.get().
+                getAttribute(Constants.BEFORE_LOGOUT_PAGE);
+        if (beforeLogout == null) {
+            body.add(new BookmarkablePageLink<Page>("logout", Logout.class));
+        } else {
+            body.add(new AjaxLink<Page>("logout") {
+
+                private static final long serialVersionUID = -7978723352517770644L;
+
+                @Override
+                protected void updateAjaxAttributes(final AjaxRequestAttributes attributes) {
+                    super.updateAjaxAttributes(attributes);
+
+                    AjaxCallListener ajaxCallListener = new AjaxCallListener();
+                    ajaxCallListener.onPrecondition("return confirm('" + getString("confirmGlobalLogout") + "');");
+                    attributes.getAjaxCallListeners().add(ajaxCallListener);
+                }
+
+                @Override
+                public void onClick(final AjaxRequestTarget target) {
+                    setResponsePage(beforeLogout);
+                }
+            });
+        }
 
         // set 'active' menu item for everything but extensions
         // 1. check if current class is set to top-level menu

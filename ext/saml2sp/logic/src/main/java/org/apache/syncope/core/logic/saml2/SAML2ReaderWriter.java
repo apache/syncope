@@ -47,21 +47,16 @@ import org.opensaml.core.xml.XMLObject;
 import org.opensaml.saml.saml2.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 
 @Component
-public class SAML2ReaderWriter implements InitializingBean {
+public class SAML2ReaderWriter {
 
     private static final Logger LOG = LoggerFactory.getLogger(SAML2ReaderWriter.class);
 
     private static final TransformerFactory TRANSFORMER_FACTORY = TransformerFactory.newInstance();
-
-    static {
-        OpenSAMLUtil.initSamlEngine(false);
-    }
 
     @Autowired
     private SAML2SPLoader loader;
@@ -70,8 +65,7 @@ public class SAML2ReaderWriter implements InitializingBean {
 
     private SAML2IdPCallbackHandler callbackHandler;
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
+    public void init() {
         protocolValidator = new SAMLProtocolResponseValidator();
         protocolValidator.setKeyInfoMustBeAvailable(true);
 

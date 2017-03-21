@@ -30,6 +30,7 @@ import org.apache.syncope.client.console.annotations.BinaryPreview;
 import org.apache.syncope.client.console.annotations.ExtPage;
 import org.apache.syncope.client.console.annotations.ExtWidget;
 import org.apache.syncope.client.console.pages.BasePage;
+import org.apache.syncope.client.console.panels.SSOLoginFormPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.preview.AbstractBinaryPreviewer;
 import org.apache.syncope.client.console.widgets.BaseExtWidget;
 import org.slf4j.Logger;
@@ -53,6 +54,8 @@ public class ClassPathScanImplementationLookup {
 
     private List<Class<? extends BaseExtWidget>> extWidgets;
 
+    private List<Class<? extends SSOLoginFormPanel>> ssoLoginFormPanels;
+
     /**
      * This method can be overridden by subclasses to customize classpath scan.
      *
@@ -68,12 +71,14 @@ public class ClassPathScanImplementationLookup {
         previewers = new ArrayList<>();
         extPages = new ArrayList<>();
         extWidgets = new ArrayList<>();
+        ssoLoginFormPanels = new ArrayList<>();
 
         ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false);
         scanner.addIncludeFilter(new AssignableTypeFilter(BasePage.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(AbstractBinaryPreviewer.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(BaseExtPage.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(BaseExtWidget.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(SSOLoginFormPanel.class));
 
         for (BeanDefinition bd : scanner.findCandidateComponents(getBasePackage())) {
             try {
@@ -100,6 +105,8 @@ public class ClassPathScanImplementationLookup {
                         pages.add((Class<? extends BasePage>) clazz);
                     } else if (AbstractBinaryPreviewer.class.isAssignableFrom(clazz)) {
                         previewers.add((Class<? extends AbstractBinaryPreviewer>) clazz);
+                    } else if (SSOLoginFormPanel.class.isAssignableFrom(clazz)) {
+                        ssoLoginFormPanels.add((Class<? extends SSOLoginFormPanel>) clazz);
                     }
                 }
             } catch (Throwable t) {
@@ -137,9 +144,12 @@ public class ClassPathScanImplementationLookup {
         });
         extWidgets = Collections.unmodifiableList(extWidgets);
 
+        ssoLoginFormPanels = Collections.unmodifiableList(ssoLoginFormPanels);
+
         LOG.debug("Binary previewers found: {}", previewers);
         LOG.debug("Extension pages found: {}", extPages);
         LOG.debug("Extension widgets found: {}", extWidgets);
+        LOG.debug("SSO Login pages found: {}", ssoLoginFormPanels);
     }
 
     public Class<? extends AbstractBinaryPreviewer> getPreviewerClass(final String mimeType) {
@@ -171,4 +181,9 @@ public class ClassPathScanImplementationLookup {
     public List<Class<? extends BaseExtWidget>> getExtWidgetClasses() {
         return extWidgets;
     }
+
+    public List<Class<? extends SSOLoginFormPanel>> getSSOLoginFormPanels() {
+        return ssoLoginFormPanels;
+    }
+
 }
