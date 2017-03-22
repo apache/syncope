@@ -27,8 +27,8 @@ under the License.
     <version>2.1.0-SNAPSHOT</version>
   </parent>
 
-  <name>Apache Syncope Extensions: Camel REST CXF</name>
-  <description>Apache Syncope Extensions: Camel REST CXF</description>
+  <name>Apache Syncope Ext: Camel REST CXF</name>
+  <description>Apache Syncope Ext: Camel REST CXF</description>
   <groupId>org.apache.syncope.ext.camel</groupId>
   <artifactId>syncope-ext-camel-rest-cxf</artifactId>
   <packaging>jar</packaging>

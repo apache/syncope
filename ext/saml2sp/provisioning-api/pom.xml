@@ -27,8 +27,8 @@ under the License.
     <version>2.1.0-SNAPSHOT</version>
   </parent>
 
-  <name>Apache Syncope Extensions: SAML 2.0 SP Provisioning API</name>
-  <description>Apache Syncope Extensions: SAML 2.0 SP Provisioning API</description>
+  <name>Apache Syncope Ext: SAML2 SP Provisioning API</name>
+  <description>Apache Syncope Ext: SAML2 SP Provisioning API</description>
   <groupId>org.apache.syncope.ext.saml2sp</groupId>
   <artifactId>syncope-ext-saml2sp-provisioning-api</artifactId>
   <packaging>jar</packaging>

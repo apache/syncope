@@ -27,8 +27,8 @@ under the License.
     <version>2.1.0-SNAPSHOT</version>
   </parent>
 
-  <name>Apache Syncope Extensions: Swagger UI</name>
-  <description>Apache Syncope Extensions: Swagger UI</description>
+  <name>Apache Syncope Ext: Swagger UI</name>
+  <description>Apache Syncope Ext: Swagger UI</description>
   <groupId>org.apache.syncope.ext</groupId>
   <artifactId>syncope-ext-swagger-ui</artifactId>
   <packaging>jar</packaging>

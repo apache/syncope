@@ -323,9 +323,9 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                         });
 
                         if (connObjectKeyCount != 1) {
-                            throw new RuntimeException(provision.getAnyType() + ": "
+                            throw new IllegalArgumentException(provision.getAnyType() + ": "
                                     + new StringResourceModel("connObjectKeyValidation", ResourceProvisionPanel.this).
-                                    getString());
+                                            getString());
                         }
                     }
                 }

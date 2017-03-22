@@ -26,7 +26,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.client.console.commons.ConnIdSpecialAttributeName;
+import org.apache.syncope.client.console.commons.ConnIdSpecialName;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
@@ -155,7 +155,7 @@ public class ConnObjectPanel extends Panel {
             field = new AjaxTextFieldPanel(id, schemaName, new Model<String>());
         } else if (CollectionUtils.isEmpty(attrTO.getValues())) {
             field = new AjaxTextFieldPanel(id, schemaName, new Model<String>());
-        } else if (ConnIdSpecialAttributeName.PASSWORD.equals(schemaName)) {
+        } else if (ConnIdSpecialName.PASSWORD.equals(schemaName)) {
             field = new AjaxTextFieldPanel(id, schemaName, new Model<>("********"));
         } else if (attrTO.getValues().size() == 1) {
             field = new AjaxTextFieldPanel(id, schemaName, new Model<>(attrTO.getValues().get(0)));

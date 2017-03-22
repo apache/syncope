@@ -26,6 +26,7 @@ import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.commons.ConnIdSpecialName;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.ProvisionAuxClassesPanel;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
@@ -37,6 +38,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
+import org.apache.syncope.common.lib.to.MappingTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -53,7 +55,7 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
-public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> implements Serializable {
+public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> {
 
     private static final long serialVersionUID = 3739399543837732640L;
 
@@ -98,10 +100,6 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> imple
 
         private static final long serialVersionUID = -1657800545799468278L;
 
-        private static final String ACCOUNT = "__ACCOUNT__";
-
-        private static final String GROUP = "__GROUP__";
-
         ObjectType(final ProvisionTO item) {
             super(new ResourceModel("type.title", StringUtils.EMPTY),
                     new ResourceModel("type.summary", StringUtils.EMPTY), new Model<>(item));
@@ -128,10 +126,10 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> imple
                 @Override
                 protected void onUpdate(final AjaxRequestTarget target) {
                     if (AnyTypeKind.USER.name().equals(type.getModelObject())) {
-                        clazz.setModelObject(ACCOUNT);
+                        clazz.setModelObject(ConnIdSpecialName.ACCOUNT);
                         target.add(container);
                     } else if (AnyTypeKind.GROUP.name().equals(type.getModelObject())) {
-                        clazz.setModelObject(GROUP);
+                        clazz.setModelObject(ConnIdSpecialName.GROUP);
                         target.add(container);
                     }
                 }
@@ -161,8 +159,8 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> imple
         private static final long serialVersionUID = 3454904947720856253L;
 
         Mapping(final ProvisionTO item) {
-            setTitleModel(new ResourceModel("mapping.title"));
-            setSummaryModel(new StringResourceModel("mapping.summary", this, new Model<>(item)));
+            setTitleModel(Model.of("Mapping"));
+            setSummaryModel(Model.of(StringUtils.EMPTY));
         }
     }
 
@@ -242,11 +240,14 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> imple
         Mapping mapping = new Mapping(modelObject);
         mapping.setOutputMarkupId(true);
 
-        MappingItemTransformersTogglePanel mapItemTransformers
-                = new MappingItemTransformersTogglePanel(mapping, pageRef);
+        MappingItemTransformersTogglePanel mapItemTransformers =
+                new MappingItemTransformersTogglePanel(mapping, pageRef);
         addOuterObject(mapItemTransformers);
         JEXLTransformersTogglePanel jexlTransformers = new JEXLTransformersTogglePanel(mapping, pageRef);
         addOuterObject(jexlTransformers);
+        if (modelObject.getMapping() == null) {
+            modelObject.setMapping(new MappingTO());
+        }
         mapping.add(new ResourceMappingPanel(
                 "mapping", resourceTO, modelObject, mapItemTransformers, jexlTransformers));
 
@@ -260,23 +261,21 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> imple
     protected Serializable onApplyInternal(final ProvisionTO modelObject) {
         final List<ProvisionTO> provisions;
         if (modelObject.getKey() == null) {
-            provisions
-                    = ListUtils.select(this.resourceTO.getProvisions(), new Predicate<ProvisionTO>() {
+            provisions = ListUtils.select(this.resourceTO.getProvisions(), new Predicate<ProvisionTO>() {
 
-                        @Override
-                        public boolean evaluate(final ProvisionTO object) {
-                            return !modelObject.getAnyType().equals(object.getAnyType());
-                        }
-                    });
+                @Override
+                public boolean evaluate(final ProvisionTO object) {
+                    return !modelObject.getAnyType().equals(object.getAnyType());
+                }
+            });
         } else {
-            provisions
-                    = ListUtils.select(this.resourceTO.getProvisions(), new Predicate<ProvisionTO>() {
+            provisions = ListUtils.select(this.resourceTO.getProvisions(), new Predicate<ProvisionTO>() {
 
-                        @Override
-                        public boolean evaluate(final ProvisionTO object) {
-                            return !modelObject.getKey().equals(object.getKey());
-                        }
-                    });
+                @Override
+                public boolean evaluate(final ProvisionTO object) {
+                    return !modelObject.getKey().equals(object.getKey());
+                }
+            });
         }
         provisions.add(modelObject);
         this.resourceTO.getProvisions().clear();

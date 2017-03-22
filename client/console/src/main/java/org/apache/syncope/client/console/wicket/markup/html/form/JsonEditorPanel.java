@@ -32,17 +32,22 @@ public class JsonEditorPanel extends AbstractModalPanel<String> {
 
     private final IModel<String> content;
 
+    private final boolean readOnly;
+
     public JsonEditorPanel(final IModel<String> content) {
-        this(null, content, null);
+        this(null, content, false, null);
     }
 
     public JsonEditorPanel(
             final BaseModal<String> modal,
             final IModel<String> content,
+            final boolean readOnly,
             final PageReference pageRef) {
+
         super(modal, pageRef);
         this.content = content;
-        final TextArea<String> jsonEditorInfoDefArea = new TextArea<>("jsonEditorInfo", this.content);
+        this.readOnly = readOnly;
+        TextArea<String> jsonEditorInfoDefArea = new TextArea<>("jsonEditorInfo", this.content);
         jsonEditorInfoDefArea.setMarkupId("jsonEditorInfo").setOutputMarkupPlaceholderTag(true);
         add(jsonEditorInfoDefArea);
     }
@@ -52,6 +57,7 @@ public class JsonEditorPanel extends AbstractModalPanel<String> {
         super.renderHead(response);
         response.render(OnLoadHeaderItem.forScript(
                 "CodeMirror.fromTextArea(document.getElementById('jsonEditorInfo'), {"
+                + "  readOnly: " + readOnly + ", "
                 + "  lineNumbers: true, "
                 + "  lineWrapping: true, "
                 + "  matchBrackets: true,"

@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.pages;
 
 import java.io.Serializable;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
@@ -347,7 +348,9 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
 
                 BookmarkablePageLink<Page> link = new BookmarkablePageLink<>("extPage", item.getModelObject());
                 link.add(new Label("extPageLabel", ann.label()));
-                MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.ENABLE, ann.listEntitlement());
+                if (StringUtils.isNotBlank(ann.listEntitlement())) {
+                    MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.ENABLE, ann.listEntitlement());
+                }
                 containingLI.add(link);
 
                 Label extPageIcon = new Label("extPageIcon");

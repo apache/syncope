@@ -27,8 +27,8 @@ under the License.
     <version>2.1.0-SNAPSHOT</version>
   </parent>
 
-  <name>Apache Syncope Extensions: Camel Provisioning API</name>
-  <description>Apache Syncope Extensions: Camel Provisioning API</description>
+  <name>Apache Syncope Ext: Camel Provisioning API</name>
+  <description>Apache Syncope Ext: Camel Provisioning API</description>
   <groupId>org.apache.syncope.ext.camel</groupId>
   <artifactId>syncope-ext-camel-provisioning-api</artifactId>
   <packaging>jar</packaging>

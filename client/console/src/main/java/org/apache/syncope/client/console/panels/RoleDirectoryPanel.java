@@ -142,7 +142,7 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
 
                         ModalPanel panel = new AnyPanel(BaseModal.CONTENT_ID, anyTypeTO, null, null, false, pageRef) {
 
-                            private static final long serialVersionUID = 1L;
+                            private static final long serialVersionUID = -7514498203393023415L;
 
                             @Override
                             protected Panel getDirectoryPanel(final String id) {

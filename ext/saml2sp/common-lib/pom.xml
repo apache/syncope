@@ -27,8 +27,8 @@ under the License.
     <version>2.1.0-SNAPSHOT</version>
   </parent>
 
-  <name>Apache Syncope Extensions: SAML 2.0 SP Common Lib</name>
-  <description>Apache Syncope Extensions: SAML 2.0 SP Common Lib</description>
+  <name>Apache Syncope Ext: SAML2 SP Common Lib</name>
+  <description>Apache Syncope Ext: SAML2 SP Common Lib</description>
   <groupId>org.apache.syncope.ext.saml2sp</groupId>
   <artifactId>syncope-ext-saml2sp-common-lib</artifactId>
   <packaging>jar</packaging>

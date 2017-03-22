@@ -32,7 +32,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.commons.AnyTypeComparator;
-import org.apache.syncope.client.console.commons.ConnIdSpecialAttributeName;
+import org.apache.syncope.client.console.commons.ConnIdSpecialName;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.ITabComponent;
 import org.apache.syncope.client.console.commons.status.StatusUtils;
@@ -215,11 +215,10 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
                     ConnObjectTO afterObj = bean.getAfterObj();
                     String remoteId = afterObj == null
                             || MapUtils.isEmpty(afterObj.getAttrMap())
-                            || !afterObj.getAttrMap().containsKey(ConnIdSpecialAttributeName.NAME)
-                            || CollectionUtils.isEmpty(
-                                    afterObj.getAttrMap().get(ConnIdSpecialAttributeName.NAME).getValues())
+                            || !afterObj.getAttrMap().containsKey(ConnIdSpecialName.NAME)
+                            || CollectionUtils.isEmpty(afterObj.getAttrMap().get(ConnIdSpecialName.NAME).getValues())
                             ? StringUtils.EMPTY
-                            : afterObj.getAttrMap().get(ConnIdSpecialAttributeName.NAME).getValues().
+                            : afterObj.getAttrMap().get(ConnIdSpecialName.NAME).getValues().
                             iterator().next();
 
                     return new Label("field", remoteId);
