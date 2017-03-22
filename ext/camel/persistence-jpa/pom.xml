@@ -27,8 +27,8 @@ under the License.
     <version>2.0.3-SNAPSHOT</version>
   </parent>
 
-  <name>Apache Syncope Extensions: Camel Persistence JPA</name>
-  <description>Apache Syncope Extensions: Camel Persistence JPA</description>
+  <name>Apache Syncope Ext: Camel Persistence JPA</name>
+  <description>Apache Syncope Ext: Camel Persistence JPA</description>
   <groupId>org.apache.syncope.ext.camel</groupId>
   <artifactId>syncope-ext-camel-persistence-jpa</artifactId>
   <packaging>jar</packaging>

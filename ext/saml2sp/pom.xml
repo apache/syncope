@@ -27,8 +27,8 @@ under the License.
     <version>2.0.3-SNAPSHOT</version>
   </parent>
 
-  <name>Apache Syncope Extensions: SAML 2.0 SP</name>
-  <description>Apache Syncope Extensions: SAML 2.0 SP</description>
+  <name>Apache Syncope Ext: SAML2 SP</name>
+  <description>Apache Syncope Ext: SAML2 SP</description>
   <groupId>org.apache.syncope.ext</groupId>
   <artifactId>syncope-ext-saml2sp</artifactId>
   <packaging>pom</packaging>
@@ -48,6 +48,7 @@ under the License.
     <module>rest-cxf</module>
     <module>agent</module>
     <module>client-console</module>
+    <module>client-enduser</module>
   </modules>
 
 </project>

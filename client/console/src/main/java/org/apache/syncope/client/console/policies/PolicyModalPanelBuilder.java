@@ -100,48 +100,47 @@ public class PolicyModalPanelBuilder<T extends AbstractPolicyTO> extends Abstrac
 
             this.policyTO = policyTO;
 
-            final List<Component> components = new ArrayList<>();
+            final List<Component> fields = new ArrayList<>();
 
-            FieldPanel<String> description = 
-                new AjaxTextFieldPanel("field", "description", 
-                                       new PropertyModel<String>(policyTO, "description"), false);
+            FieldPanel<String> description = new AjaxTextFieldPanel("field", "description",
+                    new PropertyModel<String>(policyTO, "description"), false);
             description.setRequired(true);
-            components.add(description);
+            fields.add(description);
 
             if (policyTO instanceof AccountPolicyTO) {
-                components.add(new AjaxSpinnerFieldPanel.Builder<Integer>().build(
+                fields.add(new AjaxSpinnerFieldPanel.Builder<Integer>().build(
                         "field",
                         "maxAuthenticationAttempts",
                         Integer.class,
                         new PropertyModel<Integer>(policyTO, "maxAuthenticationAttempts")));
 
-                components.add(new AjaxCheckBoxPanel(
+                fields.add(new AjaxCheckBoxPanel(
                         "field",
                         "propagateSuspension",
                         new PropertyModel<Boolean>(policyTO, "propagateSuspension"),
                         false));
 
-                components.add(new AjaxPalettePanel.Builder<String>().setName("passthroughResources").build(
+                fields.add(new AjaxPalettePanel.Builder<String>().setName("passthroughResources").build(
                         "field",
                         new PropertyModel<List<String>>(policyTO, "passthroughResources"),
                         new ListModel<String>(resources.getObject())));
             }
 
             if (policyTO instanceof PasswordPolicyTO) {
-                components.add(new AjaxSpinnerFieldPanel.Builder<Integer>().build(
+                fields.add(new AjaxSpinnerFieldPanel.Builder<Integer>().build(
                         "field",
                         "historyLength",
                         Integer.class,
                         new PropertyModel<Integer>(policyTO, "historyLength")));
 
-                components.add(new AjaxCheckBoxPanel(
+                fields.add(new AjaxCheckBoxPanel(
                         "field",
                         "allowNullPassword",
                         new PropertyModel<Boolean>(policyTO, "allowNullPassword"),
                         false));
             }
 
-            add(new ListView<Component>("fields", components) {
+            add(new ListView<Component>("fields", fields) {
 
                 private static final long serialVersionUID = -9180479401817023838L;
 

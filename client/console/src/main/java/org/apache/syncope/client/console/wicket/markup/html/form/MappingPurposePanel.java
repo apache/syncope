@@ -103,31 +103,31 @@ public class MappingPurposePanel extends Panel {
     private void setOpacity(final MappingPurpose mappingPurpose) {
         switch (mappingPurpose) {
             case PROPAGATION:
-                propagation.add(new AttributeModifier("style", new Model<String>("opacity: 1;")));
-                pull.add(new AttributeModifier("style", new Model<String>("opacity: 0.3;")));
-                both.add(new AttributeModifier("style", new Model<String>("opacity: 0.3;")));
-                none.add(new AttributeModifier("style", new Model<String>("opacity: 0.3;")));
+                propagation.add(new AttributeModifier("style", new Model<>("opacity: 1;")));
+                pull.add(new AttributeModifier("style", new Model<>("opacity: 0.3;")));
+                both.add(new AttributeModifier("style", new Model<>("opacity: 0.3;")));
+                none.add(new AttributeModifier("style", new Model<>("opacity: 0.3;")));
                 break;
 
             case PULL:
-                pull.add(new AttributeModifier("style", new Model<String>("opacity: 1;")));
-                propagation.add(new AttributeModifier("style", new Model<String>("opacity: 0.3;")));
-                both.add(new AttributeModifier("style", new Model<String>("opacity: 0.3;")));
-                none.add(new AttributeModifier("style", new Model<String>("opacity: 0.3;")));
+                pull.add(new AttributeModifier("style", new Model<>("opacity: 1;")));
+                propagation.add(new AttributeModifier("style", new Model<>("opacity: 0.3;")));
+                both.add(new AttributeModifier("style", new Model<>("opacity: 0.3;")));
+                none.add(new AttributeModifier("style", new Model<>("opacity: 0.3;")));
                 break;
 
             case BOTH:
-                both.add(new AttributeModifier("style", new Model<String>("opacity: 1;")));
-                propagation.add(new AttributeModifier("style", new Model<String>("opacity: 0.3;")));
-                pull.add(new AttributeModifier("style", new Model<String>("opacity: 0.3;")));
-                none.add(new AttributeModifier("style", new Model<String>("opacity: 0.3;")));
+                both.add(new AttributeModifier("style", new Model<>("opacity: 1;")));
+                propagation.add(new AttributeModifier("style", new Model<>("opacity: 0.3;")));
+                pull.add(new AttributeModifier("style", new Model<>("opacity: 0.3;")));
+                none.add(new AttributeModifier("style", new Model<>("opacity: 0.3;")));
                 break;
 
             case NONE:
-                none.add(new AttributeModifier("style", new Model<String>("opacity: 1;")));
-                pull.add(new AttributeModifier("style", new Model<String>("opacity: 0.3;")));
-                propagation.add(new AttributeModifier("style", new Model<String>("opacity: 0.3;")));
-                both.add(new AttributeModifier("style", new Model<String>("opacity: 0.3;")));
+                none.add(new AttributeModifier("style", new Model<>("opacity: 1;")));
+                pull.add(new AttributeModifier("style", new Model<>("opacity: 0.3;")));
+                propagation.add(new AttributeModifier("style", new Model<>("opacity: 0.3;")));
+                both.add(new AttributeModifier("style", new Model<>("opacity: 0.3;")));
                 break;
 
             default:
