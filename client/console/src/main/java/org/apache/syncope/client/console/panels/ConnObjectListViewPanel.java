@@ -25,7 +25,7 @@ import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.client.console.commons.ConnIdSpecialAttributeName;
+import org.apache.syncope.client.console.commons.ConnIdSpecialName;
 import org.apache.syncope.client.console.panels.ListViewPanel.ListViewReload;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.CollectionPanel;
@@ -94,10 +94,9 @@ public abstract class ConnObjectListViewPanel extends Panel {
             }
         }, ActionLink.ActionType.VIEW, StandardEntitlement.RESOURCE_GET_CONNOBJECT).
                 setItems(listOfItems).
-                includes(
-                        ConnIdSpecialAttributeName.UID,
-                        ConnIdSpecialAttributeName.NAME,
-                        ConnIdSpecialAttributeName.ENABLE).
+                includes(ConnIdSpecialName.UID,
+                        ConnIdSpecialName.NAME,
+                        ConnIdSpecialName.ENABLE).
                 withChecks(ListViewPanel.CheckAvailability.NONE).
                 setReuseItem(false);
 
@@ -132,12 +131,11 @@ public abstract class ConnObjectListViewPanel extends Panel {
             final String anyType,
             final String cookie) {
 
-        final Pair<String, List<ConnObjectTO>> items = new ResourceRestClient().listConnObjects(
-                resource,
+        final Pair<String, List<ConnObjectTO>> items = new ResourceRestClient().listConnObjects(resource,
                 anyType,
                 SIZE,
                 cookie,
-                new SortParam<String>(ConnIdSpecialAttributeName.UID, true));
+                new SortParam<String>(ConnIdSpecialName.UID, true));
 
         nextPageCookie = items.getLeft();
         return items.getRight();

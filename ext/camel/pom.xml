@@ -27,8 +27,8 @@ under the License.
     <version>2.0.3-SNAPSHOT</version>
   </parent>
 
-  <name>Apache Syncope Extensions: Camel</name>
-  <description>Apache Syncope Extensions: Camel</description>
+  <name>Apache Syncope Ext: Camel</name>
+  <description>Apache Syncope Ext: Camel</description>
   <groupId>org.apache.syncope.ext</groupId>
   <artifactId>syncope-ext-camel</artifactId>
   <packaging>pom</packaging>

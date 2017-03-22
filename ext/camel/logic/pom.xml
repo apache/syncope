@@ -27,8 +27,8 @@ under the License.
     <version>2.0.3-SNAPSHOT</version>
   </parent>
 
-  <name>Apache Syncope Extensions: Camel Logic</name>
-  <description>Apache Syncope Extensions: Camel Logic</description>
+  <name>Apache Syncope Ext: Camel Logic</name>
+  <description>Apache Syncope Ext: Camel Logic</description>
   <groupId>org.apache.syncope.ext.camel</groupId>
   <artifactId>syncope-ext-camel-logic</artifactId>
   <packaging>jar</packaging>

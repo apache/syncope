@@ -25,7 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.console.commons.ConnIdSpecialAttributeName;
+import org.apache.syncope.client.console.commons.ConnIdSpecialName;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.LabelPanel;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
@@ -115,7 +115,7 @@ public class StatusUtils implements Serializable {
     private Boolean isEnabled(final ConnObjectTO objectTO) {
         final Map<String, AttrTO> attributeTOs = objectTO.getAttrMap();
 
-        final AttrTO status = attributeTOs.get(ConnIdSpecialAttributeName.ENABLE);
+        final AttrTO status = attributeTOs.get(ConnIdSpecialName.ENABLE);
 
         return status != null && status.getValues() != null && !status.getValues().isEmpty()
                 ? Boolean.valueOf(status.getValues().get(0))
@@ -127,7 +127,7 @@ public class StatusUtils implements Serializable {
                 ? Collections.<String, AttrTO>emptyMap()
                 : objectTO.getAttrMap();
 
-        final AttrTO name = attributeTOs.get(ConnIdSpecialAttributeName.NAME);
+        final AttrTO name = attributeTOs.get(ConnIdSpecialName.NAME);
 
         return name != null && name.getValues() != null && !name.getValues().isEmpty()
                 ? name.getValues().get(0)
