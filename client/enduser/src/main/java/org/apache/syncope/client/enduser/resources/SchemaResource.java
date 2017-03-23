@@ -27,6 +27,7 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
+import org.apache.syncope.client.enduser.annotations.Resource;
 import org.apache.syncope.client.enduser.model.SchemaResponse;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
@@ -42,21 +43,10 @@ import org.apache.syncope.common.rest.api.service.SchemaService;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.request.resource.IResource;
 
-public class SchemaResource extends AbstractBaseResource {
+@Resource(key = "schemas", path = "/api/schemas")
+public class SchemaResource extends BaseResource {
 
     private static final long serialVersionUID = 6453101466981543020L;
-
-    private final AnyTypeService anyTypeService;
-
-    private final SchemaService schemaService;
-
-    private final GroupService groupService;
-
-    public SchemaResource() {
-        anyTypeService = SyncopeEnduserSession.get().getService(AnyTypeService.class);
-        schemaService = SyncopeEnduserSession.get().getService(SchemaService.class);
-        groupService = SyncopeEnduserSession.get().getService(GroupService.class);
-    }
 
     @Override
     protected AbstractResource.ResourceResponse newResourceResponse(final IResource.Attributes attributes) {
@@ -77,7 +67,7 @@ public class SchemaResource extends AbstractBaseResource {
 
             final String groupParam = attributes.getParameters().get("group").toString();
             if (groupParam != null) {
-                PagedResult<GroupTO> groups = groupService.search(
+                PagedResult<GroupTO> groups = SyncopeEnduserSession.get().getService(GroupService.class).search(
                         new AnyQuery.Builder().realm("/").page(1).size(1000).build());
                 GroupTO group = IterableUtils.find(groups.getResult(), new Predicate<GroupTO>() {
 
@@ -95,11 +85,13 @@ public class SchemaResource extends AbstractBaseResource {
                 if (anyTypeClass != null) {
                     classes = Collections.singletonList(anyTypeClass);
                 } else {
-                    AnyTypeTO anyTypeUserTO = anyTypeService.read(AnyTypeKind.USER.name());
+                    AnyTypeTO anyTypeUserTO = SyncopeEnduserSession.get().getService(AnyTypeService.class).
+                            read(AnyTypeKind.USER.name());
                     classes = anyTypeUserTO.getClasses();
                 }
             }
 
+            SchemaService schemaService = SyncopeEnduserSession.get().getService(SchemaService.class);
             final List<AbstractSchemaTO> plainSchemas = classes.isEmpty()
                     ? Collections.<AbstractSchemaTO>emptyList()
                     : schemaService.list(

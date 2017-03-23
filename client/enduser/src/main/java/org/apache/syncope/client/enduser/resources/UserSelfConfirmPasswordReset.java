@@ -24,19 +24,15 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
+import org.apache.syncope.client.enduser.annotations.Resource;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.request.resource.IResource;
 
-public class UserSelfConfirmPasswordReset extends AbstractBaseResource {
+@Resource(key = "userSelfConfirmPasswordReset", path = "/api/self/confirmPasswordReset")
+public class UserSelfConfirmPasswordReset extends BaseResource {
 
     private static final long serialVersionUID = -2721621682300247583L;
-
-    private final UserSelfService userSelfService;
-
-    public UserSelfConfirmPasswordReset() {
-        userSelfService = SyncopeEnduserSession.get().getService(UserSelfService.class);
-    }
 
     @Override
     protected ResourceResponse newResourceResponse(final IResource.Attributes attributes) {
@@ -61,7 +57,8 @@ public class UserSelfConfirmPasswordReset extends AbstractBaseResource {
             if (parameters.get("newPassword") == null || parameters.get("newPassword").length == 0) {
                 throw new Exception("A new correct password should be provided");
             }
-            userSelfService.confirmPasswordReset(token, parameters.get("newPassword")[0]);
+            SyncopeEnduserSession.get().getService(UserSelfService.class).
+                    confirmPasswordReset(token, parameters.get("newPassword")[0]);
 
             final String responseMessage = new StringBuilder().append("Password changed correctly").toString();
 

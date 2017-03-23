@@ -19,8 +19,10 @@
 package org.apache.syncope.client.enduser.resources;
 
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
+import org.apache.syncope.client.enduser.annotations.Resource;
 
-public class LogoutResource extends AbstractBaseResource {
+@Resource(key = "logout", path = "/api/logout")
+public class LogoutResource extends BaseResource {
 
     private static final long serialVersionUID = -648841355644985051L;
 

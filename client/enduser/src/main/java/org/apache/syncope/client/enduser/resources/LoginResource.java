@@ -26,11 +26,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserApplication;
 import org.apache.syncope.client.enduser.model.Credentials;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
+import org.apache.syncope.client.enduser.annotations.Resource;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.util.io.IOUtils;
 
-public class LoginResource extends AbstractBaseResource {
+@Resource(key = "login", path = "/api/login")
+public class LoginResource extends BaseResource {
 
     private static final long serialVersionUID = -7720997467070461915L;
 

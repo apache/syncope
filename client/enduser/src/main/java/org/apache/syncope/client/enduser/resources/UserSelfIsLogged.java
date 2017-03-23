@@ -22,9 +22,11 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
+import org.apache.syncope.client.enduser.annotations.Resource;
 import org.apache.wicket.request.resource.IResource;
 
-public class UserSelfIsLogged extends AbstractBaseResource {
+@Resource(key = "userSelfIsLogged", path = "/api/self/islogged")
+public class UserSelfIsLogged extends BaseResource {
 
     private static final long serialVersionUID = -8716361267586908871L;
 

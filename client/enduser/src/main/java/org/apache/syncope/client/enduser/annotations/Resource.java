@@ -16,19 +16,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.enduser.pages;
+package org.apache.syncope.client.enduser.annotations;
 
-import org.apache.wicket.NonResettingRestartException;
-import org.apache.wicket.markup.html.WebPage;
-import org.apache.wicket.request.mapper.parameter.PageParameters;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public class HomePage extends WebPage {
+@Target({ ElementType.TYPE })
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+public @interface Resource {
 
-    private static final long serialVersionUID = -3422492668689122688L;
+    /**
+     * @return string for {@link org.apache.wicket.request.resource.ResourceReference#ResourceReference}
+     */
+    String key();
 
-    public HomePage(final PageParameters parameters) {
-        super(parameters);
-        throw new NonResettingRestartException("/app/");
-    }
+    /**
+     * @return path for{@link org.apache.wicket.protocol.http.WebApplication#mountResource}
+     */
+    String path();
 
 }

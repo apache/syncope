@@ -26,19 +26,15 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
+import org.apache.syncope.client.enduser.annotations.Resource;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.request.resource.IResource;
 
-public class UserSelfPasswordReset extends AbstractBaseResource {
+@Resource(key = "userSelfPasswordReset", path = "/api/self/requestPasswordReset")
+public class UserSelfPasswordReset extends BaseResource {
 
     private static final long serialVersionUID = -2721621682300247583L;
-
-    private final UserSelfService userSelfService;
-
-    public UserSelfPasswordReset() {
-        userSelfService = SyncopeEnduserSession.get().getService(UserSelfService.class);
-    }
 
     @Override
     protected ResourceResponse newResourceResponse(final IResource.Attributes attributes) {
@@ -71,9 +67,11 @@ public class UserSelfPasswordReset extends AbstractBaseResource {
                 if (ArrayUtils.isEmpty(securityAnswerParam)) {
                     throw new Exception("A correct security answer should be provided");
                 }
-                userSelfService.requestPasswordReset(usernameParam[0], securityAnswerParam[0]);
+                SyncopeEnduserSession.get().getService(UserSelfService.class).
+                        requestPasswordReset(usernameParam[0], securityAnswerParam[0]);
             } else {
-                userSelfService.requestPasswordReset(usernameParam[0], null);
+                SyncopeEnduserSession.get().getService(UserSelfService.class).
+                        requestPasswordReset(usernameParam[0], null);
             }
             final String responseMessage = new StringBuilder().
                     append("Password reset request sent for user ").append(usernameParam[0]).toString();
@@ -88,7 +86,6 @@ public class UserSelfPasswordReset extends AbstractBaseResource {
             });
 
             response.setStatusCode(Response.Status.OK.getStatusCode());
-
         } catch (final Exception e) {
             LOG.error("Error while updating user", e);
             response.setError(Response.Status.BAD_REQUEST.getStatusCode(),

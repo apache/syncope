@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.enduser;
 
-import org.apache.syncope.client.enduser.resources.UserSelfIsLogged;
 import java.io.File;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -26,23 +25,10 @@ import org.apache.syncope.client.enduser.pages.HomePage;
 import java.util.Properties;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.syncope.client.enduser.resources.CaptchaResource;
-import org.apache.syncope.client.enduser.resources.InfoResource;
-import org.apache.syncope.client.enduser.resources.LoginResource;
-import org.apache.syncope.client.enduser.resources.LogoutResource;
-import org.apache.syncope.client.enduser.resources.SchemaResource;
-import org.apache.syncope.client.enduser.resources.SecurityQuestionResource;
-import org.apache.syncope.client.enduser.resources.AnyTypeClassResource;
-import org.apache.syncope.client.enduser.resources.AnyTypeResource;
-import org.apache.syncope.client.enduser.resources.GroupResource;
-import org.apache.syncope.client.enduser.resources.ExternalResourceResource;
-import org.apache.syncope.client.enduser.resources.RealmResource;
-import org.apache.syncope.client.enduser.resources.UserSelfChangePassword;
-import org.apache.syncope.client.enduser.resources.UserSelfConfirmPasswordReset;
-import org.apache.syncope.client.enduser.resources.UserSelfCreateResource;
-import org.apache.syncope.client.enduser.resources.UserSelfPasswordReset;
-import org.apache.syncope.client.enduser.resources.UserSelfReadResource;
-import org.apache.syncope.client.enduser.resources.UserSelfUpdateResource;
+import org.apache.syncope.client.enduser.annotations.Resource;
+import org.apache.syncope.client.enduser.init.ClassPathScanImplementationLookup;
+import org.apache.syncope.client.enduser.init.EnduserInitializer;
+import org.apache.syncope.client.enduser.resources.BaseResource;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.wicket.Page;
@@ -54,10 +40,14 @@ import org.apache.wicket.request.Response;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.request.resource.ResourceReference;
 import org.apache.wicket.util.lang.Args;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SyncopeEnduserApplication extends WebApplication implements Serializable {
 
     private static final long serialVersionUID = -6445919351044845120L;
+
+    private static final Logger LOG = LoggerFactory.getLogger(SyncopeEnduserApplication.class);
 
     private static final String ENDUSER_PROPERTIES = "enduser.properties";
 
@@ -140,202 +130,32 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
                 setContentType(SyncopeClientFactoryBean.ContentType.JSON).
                 setUseCompression(BooleanUtils.toBoolean(useGZIPCompression));
 
-        // resource to provide login functionality managed by wicket
-        mountResource("/api/login", new ResourceReference("login") {
+        // mount resources
+        ClassPathScanImplementationLookup classPathScanImplementationLookup =
+                (ClassPathScanImplementationLookup) getServletContext().
+                        getAttribute(EnduserInitializer.CLASSPATH_LOOKUP);
+        for (final Class<? extends BaseResource> resource : classPathScanImplementationLookup.getResources()) {
+            Resource annotation = resource.getAnnotation(Resource.class);
+            if (annotation == null) {
+                LOG.debug("No @Resource annotation found on {}, ignoring", resource.getName());
+            } else {
+                try {
+                    final BaseResource instance = resource.newInstance();
 
-            private static final long serialVersionUID = -128426276529456602L;
+                    mountResource(annotation.path(), new ResourceReference(annotation.key()) {
 
-            @Override
-            public IResource getResource() {
-                return new LoginResource();
+                        private static final long serialVersionUID = -128426276529456602L;
+
+                        @Override
+                        public IResource getResource() {
+                            return instance;
+                        }
+                    });
+                } catch (Exception e) {
+                    LOG.error("Could not instantiate {}", resource.getName(), e);
+                }
             }
-        });
-
-        // resource to provide logout functionality managed by wicket
-        mountResource("/api/logout", new ResourceReference("logout") {
-
-            private static final long serialVersionUID = -128426276529456602L;
-
-            @Override
-            public IResource getResource() {
-                return new LogoutResource();
-            }
-        });
-
-        mountResource("/api/self/islogged", new ResourceReference("userSelfIsLogged") {
-
-            private static final long serialVersionUID = -128426276529456602L;
-
-            @Override
-            public IResource getResource() {
-                return new UserSelfIsLogged();
-            }
-        });
-
-        // resource to retrieve info about logged user
-        mountResource("/api/self/read", new ResourceReference("userSelfRead") {
-
-            private static final long serialVersionUID = -128426276529456602L;
-
-            @Override
-            public IResource getResource() {
-                return new UserSelfReadResource();
-            }
-        });
-
-        // resource to provide user self create functionality managed by wicket
-        mountResource("/api/self/create", new ResourceReference("userSelfCreate") {
-
-            private static final long serialVersionUID = -128426276529456602L;
-
-            @Override
-            public IResource getResource() {
-                return new UserSelfCreateResource();
-            }
-        });
-
-        // resource to provide user self update functionality managed by wicket
-        mountResource("/api/self/update", new ResourceReference("userSelfUpdate") {
-
-            private static final long serialVersionUID = -128426276529456602L;
-
-            @Override
-            public IResource getResource() {
-                return new UserSelfUpdateResource();
-            }
-        });
-
-        mountResource("/api/self/requestPasswordReset", new ResourceReference("userSelfPasswordReset") {
-
-            private static final long serialVersionUID = -128426276529456602L;
-
-            @Override
-            public IResource getResource() {
-                return new UserSelfPasswordReset();
-            }
-        });
-
-        mountResource("/api/self/confirmPasswordReset", new ResourceReference("userSelfConfirmPasswordReset") {
-
-            private static final long serialVersionUID = -128426276529456602L;
-
-            @Override
-            public IResource getResource() {
-                return new UserSelfConfirmPasswordReset();
-            }
-        });
-
-        mountResource("/api/self/changePassword", new ResourceReference("userSelfChangePassword") {
-
-            private static final long serialVersionUID = -128426276529456602L;
-
-            @Override
-            public IResource getResource() {
-                return new UserSelfChangePassword();
-            }
-        });
-
-        mountResource("/api/schemas", new ResourceReference("schemas") {
-
-            private static final long serialVersionUID = -128426276529456602L;
-
-            @Override
-            public IResource getResource() {
-                return new SchemaResource();
-            }
-        });
-
-        mountResource("/api/resources", new ResourceReference("resources") {
-
-            private static final long serialVersionUID = -128426276529456602L;
-
-            @Override
-            public IResource getResource() {
-                return new ExternalResourceResource();
-            }
-        });
-
-        mountResource("/api/securityQuestions", new ResourceReference("securityQuestions") {
-
-            private static final long serialVersionUID = -128426276529456602L;
-
-            @Override
-            public IResource getResource() {
-                return new SecurityQuestionResource();
-            }
-        });
-
-        mountResource("/api/securityQuestions/byUser/${username}", new ResourceReference("securityQuestions") {
-
-            private static final long serialVersionUID = -128426276529456602L;
-
-            @Override
-            public IResource getResource() {
-                return new SecurityQuestionResource();
-            }
-        });
-
-        mountResource("/api/info", new ResourceReference("info") {
-
-            private static final long serialVersionUID = -128426276529456602L;
-
-            @Override
-            public IResource getResource() {
-                return new InfoResource();
-            }
-        });
-
-        // resource to get a fresh captcha image
-        mountResource("/api/captcha", new ResourceReference("captcha") {
-
-            private static final long serialVersionUID = -128426276529456602L;
-
-            @Override
-            public IResource getResource() {
-                return new CaptchaResource();
-            }
-        });
-
-        mountResource("/api/realms", new ResourceReference("realms") {
-
-            private static final long serialVersionUID = -128426276529456602L;
-
-            @Override
-            public IResource getResource() {
-                return new RealmResource();
-            }
-        });
-
-        mountResource("/api/groups", new ResourceReference("groups") {
-
-            private static final long serialVersionUID = -128426276529456602L;
-
-            @Override
-            public IResource getResource() {
-                return new GroupResource();
-            }
-        });
-
-        mountResource("/api/auxiliaryClasses", new ResourceReference("auxClasses") {
-
-            private static final long serialVersionUID = -128426276529456602L;
-
-            @Override
-            public IResource getResource() {
-                return new AnyTypeClassResource();
-            }
-        });
-
-        mountResource("/api/anyTypes", new ResourceReference("anyType") {
-
-            private static final long serialVersionUID = -128426276529456602L;
-
-            @Override
-            public IResource getResource() {
-                return new AnyTypeResource();
-            }
-        });
-
+        }
     }
 
     @Override

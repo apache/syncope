@@ -24,19 +24,15 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
+import org.apache.syncope.client.enduser.annotations.Resource;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.rest.api.service.RealmService;
 import org.apache.wicket.request.resource.AbstractResource;
 
-public class RealmResource extends AbstractBaseResource {
+@Resource(key = "realms", path = "/api/realms")
+public class RealmResource extends BaseResource {
 
     private static final long serialVersionUID = 7475706378304995200L;
-
-    private final RealmService realmService;
-
-    public RealmResource() {
-        realmService = SyncopeEnduserSession.get().getService(RealmService.class);
-    }
 
     @Override
     protected ResourceResponse newResourceResponse(final Attributes attributes) {
@@ -52,7 +48,7 @@ public class RealmResource extends AbstractBaseResource {
                 return response;
             }
 
-            final List<RealmTO> realmTOs = realmService.list();
+            final List<RealmTO> realmTOs = SyncopeEnduserSession.get().getService(RealmService.class).list();
 
             response.setTextEncoding(StandardCharsets.UTF_8.name());
 
