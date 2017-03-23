@@ -25,22 +25,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
+import org.apache.syncope.client.enduser.annotations.Resource;
 import org.apache.syncope.common.lib.to.SecurityQuestionTO;
 import org.apache.syncope.common.rest.api.service.SecurityQuestionService;
-import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.request.resource.IResource;
-import org.apache.wicket.util.string.StringValue;
 
-public class SecurityQuestionResource extends AbstractBaseResource {
+@Resource(key = "securityQuestions", path = "/api/securityQuestions")
+public class SecurityQuestionsResource extends BaseResource {
 
     private static final long serialVersionUID = 6453101466981543020L;
-
-    private final SecurityQuestionService securityQuestionService;
-
-    public SecurityQuestionResource() {
-        securityQuestionService = SyncopeEnduserSession.get().getService(SecurityQuestionService.class);
-    }
 
     @Override
     protected AbstractResource.ResourceResponse newResourceResponse(final IResource.Attributes attributes) {
@@ -49,7 +43,6 @@ public class SecurityQuestionResource extends AbstractBaseResource {
         AbstractResource.ResourceResponse response = new AbstractResource.ResourceResponse();
 
         try {
-
             HttpServletRequest request = (HttpServletRequest) attributes.getRequest().getContainerRequest();
 
             if (!xsrfCheck(request)) {
@@ -58,29 +51,15 @@ public class SecurityQuestionResource extends AbstractBaseResource {
                 return response;
             }
 
-            PageParameters parameters = attributes.getParameters();
-            StringValue username = parameters.get("username");
-            //if the username is defined then retrieve its security questions, otherwise retrieve all security questions
-            if (!username.isEmpty()) {
-                final SecurityQuestionTO securityQuestionTO = securityQuestionService.readByUser(username.toString());
-                response.setWriteCallback(new AbstractResource.WriteCallback() {
+            final List<SecurityQuestionTO> securityQuestionTOs = SyncopeEnduserSession.get().
+                    getService(SecurityQuestionService.class).list();
+            response.setWriteCallback(new AbstractResource.WriteCallback() {
 
-                    @Override
-                    public void writeData(final IResource.Attributes attributes) throws IOException {
-                        attributes.getResponse().write(MAPPER.writeValueAsString(securityQuestionTO));
-                    }
-                });
-            } else {
-                final List<SecurityQuestionTO> securityQuestionTOs = securityQuestionService.list();
-
-                response.setWriteCallback(new AbstractResource.WriteCallback() {
-
-                    @Override
-                    public void writeData(final IResource.Attributes attributes) throws IOException {
-                        attributes.getResponse().write(MAPPER.writeValueAsString(securityQuestionTOs));
-                    }
-                });
-            }
+                @Override
+                public void writeData(final IResource.Attributes attributes) throws IOException {
+                    attributes.getResponse().write(MAPPER.writeValueAsString(securityQuestionTOs));
+                }
+            });
 
             response.setContentType(MediaType.APPLICATION_JSON);
             response.setTextEncoding(StandardCharsets.UTF_8.name());

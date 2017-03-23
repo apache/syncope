@@ -43,6 +43,11 @@ under the License.
       <artifactId>javax.servlet-api</artifactId>
       <scope>provided</scope>
     </dependency>
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+    </dependency>
     
     <dependency>
       <groupId>org.apache.wicket</groupId>

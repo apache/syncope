@@ -29,6 +29,7 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
+import org.apache.syncope.client.enduser.annotations.Resource;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
@@ -36,7 +37,8 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.request.resource.IResource;
 
-public class UserSelfReadResource extends AbstractBaseResource {
+@Resource(key = "userSelfRead", path = "/api/self/read")
+public class UserSelfReadResource extends BaseResource {
 
     private static final long serialVersionUID = -9184809392631523912L;
 

@@ -20,56 +20,64 @@ package org.apache.syncope.client.enduser.resources;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.annotations.Resource;
-import org.apache.syncope.common.lib.to.AnyTypeClassTO;
-import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
+import org.apache.syncope.common.lib.to.SecurityQuestionTO;
+import org.apache.syncope.common.rest.api.service.SecurityQuestionService;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.request.resource.AbstractResource;
+import org.apache.wicket.request.resource.IResource;
+import org.apache.wicket.util.string.StringValue;
 
-@Resource(key = "auxClasses", path = "/api/auxiliaryClasses")
-public class AnyTypeClassResource extends BaseResource {
+@Resource(key = "securityQuestionByUsername", path = "/api/securityQuestions/byUser/${username}")
+public class SecurityQuestionByUsernameResource extends BaseResource {
 
-    private static final long serialVersionUID = 7475706378304995200L;
+    private static final long serialVersionUID = 6453101466981543020L;
 
     @Override
-    protected ResourceResponse newResourceResponse(final Attributes attributes) {
+    protected AbstractResource.ResourceResponse newResourceResponse(final IResource.Attributes attributes) {
+        LOG.debug("List available security questions");
 
-        LOG.debug("Get all available auxiliary classes");
-
-        ResourceResponse response = new ResourceResponse();
+        AbstractResource.ResourceResponse response = new AbstractResource.ResourceResponse();
 
         try {
-
             HttpServletRequest request = (HttpServletRequest) attributes.getRequest().getContainerRequest();
+
             if (!xsrfCheck(request)) {
                 LOG.error("XSRF TOKEN does not match");
                 response.setError(Response.Status.BAD_REQUEST.getStatusCode(), "XSRF TOKEN does not match");
                 return response;
             }
 
-            final List<AnyTypeClassTO> anyTypeClassTOs =
-                    SyncopeEnduserSession.get().getService(AnyTypeClassService.class).list();
+            PageParameters parameters = attributes.getParameters();
+            StringValue username = parameters.get("username");
+            if (!username.isEmpty()) {
+                final SecurityQuestionTO securityQuestionTO = SyncopeEnduserSession.get().
+                        getService(SecurityQuestionService.class).readByUser(username.toString());
+                response.setWriteCallback(new AbstractResource.WriteCallback() {
 
+                    @Override
+                    public void writeData(final IResource.Attributes attributes) throws IOException {
+                        attributes.getResponse().write(MAPPER.writeValueAsString(securityQuestionTO));
+                    }
+                });
+            }
+
+            response.setContentType(MediaType.APPLICATION_JSON);
             response.setTextEncoding(StandardCharsets.UTF_8.name());
-            response.setWriteCallback(new AbstractResource.WriteCallback() {
-
-                @Override
-                public void writeData(final Attributes attributes) throws IOException {
-                    attributes.getResponse().write(MAPPER.writeValueAsString(anyTypeClassTOs));
-                }
-            });
             response.setStatusCode(Response.Status.OK.getStatusCode());
         } catch (Exception e) {
-            LOG.error("Error retrieving available auxiliary classes", e);
+            LOG.error("Error retrieving security questions", e);
             response.setError(Response.Status.BAD_REQUEST.getStatusCode(), new StringBuilder()
                     .append("ErrorMessage{{ ")
                     .append(e.getMessage())
                     .append(" }}")
                     .toString());
         }
+
         return response;
     }
 

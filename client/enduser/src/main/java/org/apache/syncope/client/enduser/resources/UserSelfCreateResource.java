@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.client.enduser.resources;
 
+import static org.apache.syncope.client.enduser.resources.BaseResource.LOG;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -33,20 +35,30 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
+import org.apache.syncope.client.enduser.annotations.Resource;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 
-public class UserSelfCreateResource extends AbstractBaseResource {
+@Resource(key = "userSelfCreate", path = "/api/self/create")
+public class UserSelfCreateResource extends BaseResource {
 
     private static final long serialVersionUID = -2721621682300247583L;
 
-    private final UserSelfService userSelfService;
+    private boolean isSelfRegistrationAllowed() {
+        Boolean result = null;
+        try {
+            result = SyncopeEnduserSession.get().getPlatformInfo().isSelfRegAllowed();
+        } catch (SyncopeClientException e) {
+            LOG.error("While seeking if self registration is allowed", e);
+        }
 
-    public UserSelfCreateResource() {
-        userSelfService = SyncopeEnduserSession.get().getService(UserSelfService.class);
+        return result == null
+                ? false
+                : result;
     }
 
     @Override
@@ -175,7 +187,7 @@ public class UserSelfCreateResource extends AbstractBaseResource {
                 LOG.trace("Received user self registration request is: [{}]", userTO);
 
                 // adapt request and create user
-                final Response res = userSelfService.create(userTO, true);
+                final Response res = SyncopeEnduserSession.get().getService(UserSelfService.class).create(userTO, true);
 
                 response.setTextEncoding(StandardCharsets.UTF_8.name());
 

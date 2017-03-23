@@ -23,19 +23,15 @@ import java.nio.charset.StandardCharsets;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
+import org.apache.syncope.client.enduser.annotations.Resource;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.rest.api.service.AnyTypeService;
 import org.apache.wicket.request.resource.AbstractResource;
 
-public class AnyTypeResource extends AbstractBaseResource {
+@Resource(key = "anyType", path = "/api/anyTypes")
+public class AnyTypeResource extends BaseResource {
 
     private static final long serialVersionUID = 7475706378304995200L;
-
-    private final AnyTypeService anyTypeService;
-
-    public AnyTypeResource() {
-        anyTypeService = SyncopeEnduserSession.get().getService(AnyTypeService.class);
-    }
 
     @Override
     protected ResourceResponse newResourceResponse(final Attributes attributes) {
@@ -53,7 +49,7 @@ public class AnyTypeResource extends AbstractBaseResource {
             }
 
             String kind = attributes.getParameters().get(0).toString();
-            final AnyTypeTO anyTypeTO = anyTypeService.read(kind);
+            final AnyTypeTO anyTypeTO = SyncopeEnduserSession.get().getService(AnyTypeService.class).read(kind);
 
             response.setTextEncoding(StandardCharsets.UTF_8.name());
 

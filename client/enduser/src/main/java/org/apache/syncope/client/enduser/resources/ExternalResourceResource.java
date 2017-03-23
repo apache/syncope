@@ -24,20 +24,16 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
+import org.apache.syncope.client.enduser.annotations.Resource;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.request.resource.IResource;
 
-public class ExternalResourceResource extends AbstractBaseResource {
+@Resource(key = "resources", path = "/api/resources")
+public class ExternalResourceResource extends BaseResource {
 
     private static final long serialVersionUID = 7475706378304995200L;
-
-    private final ResourceService resourceService;
-
-    public ExternalResourceResource() {
-        resourceService = SyncopeEnduserSession.get().getService(ResourceService.class);
-    }
 
     @Override
     protected AbstractResource.ResourceResponse newResourceResponse(final IResource.Attributes attributes) {
@@ -54,7 +50,7 @@ public class ExternalResourceResource extends AbstractBaseResource {
                 return response;
             }
 
-            final List<ResourceTO> resourceTOs = resourceService.list();
+            final List<ResourceTO> resourceTOs = SyncopeEnduserSession.get().getService(ResourceService.class).list();
 
             response.setTextEncoding(StandardCharsets.UTF_8.name());
             response.setWriteCallback(new AbstractResource.WriteCallback() {

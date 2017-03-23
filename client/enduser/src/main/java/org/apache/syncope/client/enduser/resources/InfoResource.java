@@ -25,11 +25,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.adapters.PlatformInfoAdapter;
+import org.apache.syncope.client.enduser.annotations.Resource;
 import org.apache.syncope.client.enduser.util.SaltGenerator;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.util.cookies.CookieUtils;
 
-public class InfoResource extends AbstractBaseResource {
+@Resource(key = "info", path = "/api/info")
+public class InfoResource extends BaseResource {
 
     private static final long serialVersionUID = 6453101466981543020L;
 

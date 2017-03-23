@@ -24,19 +24,15 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
+import org.apache.syncope.client.enduser.annotations.Resource;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.request.resource.IResource;
 
-public class UserSelfChangePassword extends AbstractBaseResource {
+@Resource(key = "userSelfChangePassword", path = "/api/self/changePassword")
+public class UserSelfChangePassword extends BaseResource {
 
     private static final long serialVersionUID = -2721621682300247583L;
-
-    private final UserSelfService userSelfService;
-
-    public UserSelfChangePassword() {
-        userSelfService = SyncopeEnduserSession.get().getService(UserSelfService.class);
-    }
 
     @Override
     protected ResourceResponse newResourceResponse(final IResource.Attributes attributes) {
@@ -55,7 +51,8 @@ public class UserSelfChangePassword extends AbstractBaseResource {
             if (parameters.get("newPassword") == null || parameters.get("newPassword").length == 0) {
                 throw new Exception("A new correct password should be provided");
             }
-            userSelfService.changePassword(parameters.get("newPassword")[0]);
+            SyncopeEnduserSession.get().getService(UserSelfService.class).
+                    changePassword(parameters.get("newPassword")[0]);
 
             final String responseMessage = new StringBuilder().append("Password changed correctly").toString();
 
@@ -70,7 +67,6 @@ public class UserSelfChangePassword extends AbstractBaseResource {
             });
 
             response.setStatusCode(Response.Status.OK.getStatusCode());
-
         } catch (final Exception e) {
             LOG.error("Error while updating user", e);
             response.setError(Response.Status.BAD_REQUEST.getStatusCode(), new StringBuilder()

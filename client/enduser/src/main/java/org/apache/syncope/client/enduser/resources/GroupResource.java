@@ -19,11 +19,13 @@
 package org.apache.syncope.client.enduser.resources;
 
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
+import org.apache.syncope.client.enduser.annotations.Resource;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -31,15 +33,10 @@ import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.GroupService;
 import org.apache.wicket.request.resource.AbstractResource;
 
-public class GroupResource extends AbstractBaseResource {
+@Resource(key = "groups", path = "/api/groups")
+public class GroupResource extends BaseResource {
 
     private static final long serialVersionUID = 7475706378304995200L;
-
-    private final GroupService groupService;
-
-    public GroupResource() {
-        groupService = SyncopeEnduserSession.get().getService(GroupService.class);
-    }
 
     @Override
     protected ResourceResponse newResourceResponse(final Attributes attributes) {
@@ -55,9 +52,10 @@ public class GroupResource extends AbstractBaseResource {
                 return response;
             }
 
-            String realm = java.net.URLDecoder.decode(attributes.getParameters().get("realm").
+            String realm = URLDecoder.decode(attributes.getParameters().get("realm").
                     toString(SyncopeConstants.ROOT_REALM), "UTF-8");
-            final List<GroupTO> groupTOs = groupService.search(new AnyQuery.Builder().realm(realm).
+            final List<GroupTO> groupTOs = SyncopeEnduserSession.get().
+                    getService(GroupService.class).search(new AnyQuery.Builder().realm(realm).
                     fiql(SyncopeClient.getGroupSearchConditionBuilder().isAssignable().query()).
                     build()).getResult();
             response.setTextEncoding(StandardCharsets.UTF_8.name());

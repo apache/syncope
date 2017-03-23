@@ -33,6 +33,7 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
+import org.apache.syncope.client.enduser.annotations.Resource;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
@@ -41,7 +42,8 @@ import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.request.resource.IResource;
 
-public class UserSelfUpdateResource extends AbstractBaseResource {
+@Resource(key = "userSelfUpdate", path = "/api/self/update")
+public class UserSelfUpdateResource extends BaseResource {
 
     private static final long serialVersionUID = -2721621682300247583L;
 
@@ -182,7 +184,6 @@ public class UserSelfUpdateResource extends AbstractBaseResource {
             });
 
             response.setStatusCode(res.getStatus());
-
         } catch (final Exception e) {
             LOG.error("Error while updating user", e);
             response.setError(Response.Status.BAD_REQUEST.getStatusCode(),
