@@ -21,6 +21,7 @@ package org.apache.syncope.client.enduser.resources;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserApplication;
@@ -38,8 +39,8 @@ public class LoginResource extends BaseResource {
 
     @Override
     protected ResourceResponse newResourceResponse(final IResource.Attributes attributes) {
-        AbstractResource.ResourceResponse response = new AbstractResource.ResourceResponse();
-
+        ResourceResponse response = new AbstractResource.ResourceResponse();
+        response.setContentType(MediaType.TEXT_PLAIN);
         try {
             HttpServletRequest request = (HttpServletRequest) attributes.getRequest().getContainerRequest();
 

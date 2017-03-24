@@ -20,6 +20,7 @@ package org.apache.syncope.client.enduser.resources;
 
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.annotations.Resource;
@@ -32,10 +33,10 @@ public class UserSelfIsLogged extends BaseResource {
 
     @Override
     protected ResourceResponse newResourceResponse(final Attributes attributes) {
-        ResourceResponse response = new ResourceResponse();
-
         LOG.debug("Checking if user is authenticated");
 
+        ResourceResponse response = new ResourceResponse();
+        response.setContentType(MediaType.TEXT_PLAIN);
         try {
             HttpServletRequest request = (HttpServletRequest) attributes.getRequest().getContainerRequest();
             if (!xsrfCheck(request)) {
@@ -53,7 +54,6 @@ public class UserSelfIsLogged extends BaseResource {
                 }
             });
             response.setStatusCode(Response.Status.OK.getStatusCode());
-
         } catch (Exception e) {
             LOG.error("Could not read credentials from request", e);
             response.setError(Response.Status.BAD_REQUEST.getStatusCode(), new StringBuilder()

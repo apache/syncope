@@ -16,25 +16,27 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.enduser.resources;
+package org.apache.syncope.client.enduser.pages;
 
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
-import org.apache.syncope.client.enduser.annotations.Resource;
+import org.apache.syncope.client.enduser.commons.Constants;
+import org.apache.wicket.markup.html.WebPage;
 
-@Resource(key = "logout", path = "/api/logout")
-public class LogoutResource extends BaseResource {
+public class Logout extends WebPage {
 
-    private static final long serialVersionUID = -648841355644985051L;
+    private static final long serialVersionUID = -4514869014471715933L;
 
-    @Override
-    protected ResourceResponse newResourceResponse(final Attributes attributes) {
-        LOG.debug("Logout from enduser application");
+    public Logout() {
+        super();
 
-        SyncopeEnduserSession.get().invalidateNow();
-
-        ResourceResponse response = new ResourceResponse();
-        response.setStatusCode(204);
-        return response;
+        @SuppressWarnings("unchecked")
+        Class<? extends WebPage> beforeLogout = (Class<? extends WebPage>) SyncopeEnduserSession.get().
+                getAttribute(Constants.BEFORE_LOGOUT);
+        if (beforeLogout == null) {
+            SyncopeEnduserSession.get().invalidateNow();
+            setResponsePage(getApplication().getHomePage());
+        } else {
+            setResponsePage(beforeLogout);
+        }
     }
-
 }

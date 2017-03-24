@@ -20,6 +20,7 @@ package org.apache.syncope.client.enduser.resources;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
@@ -38,6 +39,7 @@ public class InfoResource extends BaseResource {
     @Override
     protected ResourceResponse newResourceResponse(final IResource.Attributes attributes) {
         ResourceResponse response = new ResourceResponse();
+        response.setContentType(MediaType.APPLICATION_JSON);
 
         try {
             final CookieUtils sessionCookieUtils = SyncopeEnduserSession.get().getCookieUtils();

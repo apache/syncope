@@ -41,8 +41,8 @@ public class SecurityQuestionByUsernameResource extends BaseResource {
     protected AbstractResource.ResourceResponse newResourceResponse(final IResource.Attributes attributes) {
         LOG.debug("List available security questions");
 
-        AbstractResource.ResourceResponse response = new AbstractResource.ResourceResponse();
-
+        ResourceResponse response = new AbstractResource.ResourceResponse();
+        response.setContentType(MediaType.APPLICATION_JSON);
         try {
             HttpServletRequest request = (HttpServletRequest) attributes.getRequest().getContainerRequest();
 

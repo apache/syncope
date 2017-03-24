@@ -19,31 +19,23 @@
 
 'use strict';
 
-angular.module('login')
-        .factory('AuthService', ['$rootScope', '$resource', '$q', '$http',
-          function ($rootScope, $resource, $q, $http) {
+angular.module('self')
+        .factory('SAML2IdPService', ['$resource', '$q', '$http',
+          function ($resource, $q, $http) {
 
-            var authService = {};
-            authService.login = function (credentials) {
-              return $http
-                      .post('/syncope-enduser/api/login', credentials)
+            var saml2IdPService = {};
+
+            saml2IdPService.getAvailableSAML2IdPs = function () {
+              return $http.get("/syncope-enduser/api/saml2IdPs")
                       .then(function (response) {
                         return response.data;
                       }, function (response) {
-                        console.error("Something went wrong during login, exit with status: ", response.statusText);
+                        console.error("Something went wrong during realms retrieval, exit with status: ", response);
                         return $q.reject(response.data || response.statusText);
                       });
             };
 
-            authService.islogged = function () {
-              return $http
-                      .get('/syncope-enduser/api/self/islogged')
-                      .then(function (response) {
-                        return response.data;
-                      }, function (response) {
-                        console.error("error retrieving user login status");
-                      });
-            };
-
-            return authService;
+            return saml2IdPService;
           }]);
+
+

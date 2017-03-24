@@ -18,29 +18,19 @@
  */
 package org.apache.syncope.client.enduser.pages;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import org.apache.wicket.NonResettingRestartException;
+import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
-public class HomePage extends WebPage {
+public class SAML2SPLogout extends WebPage {
 
-    private static final long serialVersionUID = -3422492668689122688L;
+    private static final long serialVersionUID = 8581614051773949262L;
 
-    public HomePage(final PageParameters parameters) {
+    public SAML2SPLogout(final PageParameters parameters) {
         super(parameters);
 
-        StringBuilder redirectUrl = new StringBuilder("/app/");
-        if (!parameters.get("errorMessage").isNull()) {
-            redirectUrl.append("#!self?errorMessage=");
-            try {
-                redirectUrl.append(
-                        URLEncoder.encode(parameters.get("errorMessage").toString(), StandardCharsets.UTF_8.name()));
-            } catch (Exception e) {
-                redirectUrl.append("Generic error");
-            }
-        }
-        throw new NonResettingRestartException(redirectUrl.toString());
+        SyncopeEnduserSession.get().invalidateNow();
+
+        setResponsePage(getApplication().getHomePage());
     }
 }

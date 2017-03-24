@@ -94,6 +94,15 @@ public class SyncopeEnduserSession extends WebSession {
         });
     }
 
+    private void afterAuthentication() {
+        Pair<Map<String, Set<String>>, UserTO> self = client.self();
+        selfTO = self.getValue();
+
+        // bind explicitly this session to have a stateful behavior during http requests, unless session will
+        // expire for every request
+        this.bind();
+    }
+
     public boolean authenticate(final String username, final String password) {
         boolean authenticated = false;
 
@@ -102,12 +111,25 @@ public class SyncopeEnduserSession extends WebSession {
                     setDomain(SyncopeEnduserApplication.get().getDomain()).
                     create(username, password);
 
-            Pair<Map<String, Set<String>>, UserTO> self = client.self();
-            selfTO = self.getValue();
+            afterAuthentication();
 
-            // bind explicitly this session to have a stateful behavior during http requests, unless session will
-            // expire for every request
-            this.bind();
+            authenticated = true;
+        } catch (Exception e) {
+            LOG.error("Authentication failed", e);
+        }
+
+        return authenticated;
+    }
+
+    public boolean authenticate(final String jwt) {
+        boolean authenticated = false;
+
+        try {
+            client = SyncopeEnduserApplication.get().getClientFactory().
+                    setDomain(SyncopeEnduserApplication.get().getDomain()).create(jwt);
+
+            afterAuthentication();
+
             authenticated = true;
         } catch (Exception e) {
             LOG.error("Authentication failed", e);

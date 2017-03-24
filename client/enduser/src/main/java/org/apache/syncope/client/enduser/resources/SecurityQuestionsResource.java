@@ -41,7 +41,7 @@ public class SecurityQuestionsResource extends BaseResource {
         LOG.debug("List available security questions");
 
         AbstractResource.ResourceResponse response = new AbstractResource.ResourceResponse();
-
+        response.setContentType(MediaType.APPLICATION_JSON);
         try {
             HttpServletRequest request = (HttpServletRequest) attributes.getRequest().getContainerRequest();
 
@@ -61,7 +61,6 @@ public class SecurityQuestionsResource extends BaseResource {
                 }
             });
 
-            response.setContentType(MediaType.APPLICATION_JSON);
             response.setTextEncoding(StandardCharsets.UTF_8.name());
             response.setStatusCode(Response.Status.OK.getStatusCode());
         } catch (Exception e) {

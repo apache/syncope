@@ -69,10 +69,20 @@ public class SAML2IdPLogic extends AbstractSAML2Logic<SAML2IdPTO> {
     @Autowired
     private SAML2ReaderWriter saml2rw;
 
-    private SAML2IdPTO complete(final SAML2IdPTO input) {
-        SAML2IdPEntity idp = cache.get(input.getEntityID());
-        input.setLogoutSupported(idp.getSLOLocation(SAMLConstants.SAML2_POST_BINDING_URI) != null);
-        return input;
+    private SAML2IdPTO complete(final SAML2IdP idp, final SAML2IdPTO idpTO) {
+        SAML2IdPEntity idpEntity = cache.get(idpTO.getEntityID());
+        if (idpEntity == null) {
+            try {
+                idpEntity = cache.put(idp);
+            } catch (Exception e) {
+                LOG.error("Could not build SAML 2.0 IdP with key ", idp.getEntityID(), e);
+            }
+        }
+
+        idpTO.setLogoutSupported(idpEntity == null
+                ? false
+                : idpEntity.getSLOLocation(SAMLConstants.SAML2_POST_BINDING_URI) != null);
+        return idpTO;
     }
 
     @PreAuthorize("isAuthenticated()")
@@ -82,7 +92,7 @@ public class SAML2IdPLogic extends AbstractSAML2Logic<SAML2IdPTO> {
 
             @Override
             public SAML2IdPTO transform(final SAML2IdP input) {
-                return complete(binder.getIdPTO(input));
+                return complete(input, binder.getIdPTO(input));
             }
         }, new ArrayList<SAML2IdPTO>());
     }
@@ -97,7 +107,7 @@ public class SAML2IdPLogic extends AbstractSAML2Logic<SAML2IdPTO> {
             throw new NotFoundException("SAML 2.0 IdP '" + key + "'");
         }
 
-        return complete(binder.getIdPTO(idp));
+        return complete(idp, binder.getIdPTO(idp));
     }
 
     private List<SAML2IdPTO> importIdPs(final InputStream input) throws Exception {
@@ -224,7 +234,8 @@ public class SAML2IdPLogic extends AbstractSAML2Logic<SAML2IdPTO> {
 
         if (key != null) {
             try {
-                return complete(binder.getIdPTO(idpDAO.find(key)));
+                SAML2IdP idp = idpDAO.find(key);
+                return complete(idp, binder.getIdPTO(idp));
             } catch (Throwable ignore) {
                 LOG.debug("Unresolved reference", ignore);
                 throw new UnresolvedReferenceException(ignore);
