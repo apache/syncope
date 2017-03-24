@@ -176,16 +176,24 @@ under the License.
                              classpathref="maven.plugin.classpath"/>
 
                     <if>
+                      <not>
+                        <available file="../core/target/test-classes/backup/MasterContent.xml"/>
+                      </not>
+                      <then>
+                        <mkdir dir="../core/target/test-classes/backup"/>
+                        <copy file="../core/target/test-classes/domains/MasterContent.xml" 
+                              todir="../core/target/test-classes/backup"/>
+                      </then>
+                    </if>
+                    <if>
                       <available file="../core/target/syncope/WEB-INF/lib/activiti-engine-${activiti.version}.jar"/>
                       <then>
-                        <xslt basedir="../core/target/test-classes/domains" 
+                        <xslt basedir="../core/target/test-classes/backup" 
                               includes="MasterContent.xml"
-                              destdir="../core/target"
+                              destdir="../core/target/test-classes/domains"
                               extension=".xml"
                               force="true"
                               style="../core/src/test/resources/addActivitiToContent.xsl"/>
-                        <move file="../core/target/MasterContent.xml"
-                               tofile="../core/target/test-classes/domains/MasterContent.xml"/>
                       </then>
                     </if>
                   </target>
