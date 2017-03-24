@@ -202,7 +202,26 @@ ORYX.Editor.createByUrl = function(modelUrl){"/>
           <artifactId>syncope-ext-camel-client-console</artifactId>
           <version>${syncope.version}</version>
         </dependency> 
+
+	<dependency>
+	  <groupId>org.apache.syncope.ext.saml2sp</groupId>
+	  <artifactId>syncope-ext-saml2sp-client-console</artifactId>
+	  <version>${syncope.version}</version>
+	</dependency>
       </dependencies>
+
+      <build>
+        <resources>
+          <resource>
+            <directory>src/main/resources</directory>
+            <filtering>true</filtering>
+          </resource>
+          <resource>
+            <directory>src/main/resources/all</directory>
+            <filtering>true</filtering>
+          </resource>
+        </resources>
+      </build>
     </profile>
   </profiles>
 </project>
