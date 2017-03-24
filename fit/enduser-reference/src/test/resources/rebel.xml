@@ -26,6 +26,10 @@ under the License.
     </dir>
     <dir name="${basedir}/../../client/enduser/target/classes">
     </dir>
+    <dir name="${basedir}/../../ext/saml2sp/agent/target/classes">
+    </dir>
+    <dir name="${basedir}/../../ext/saml2sp/client-enduser/target/classes">
+    </dir>
   </classpath>
 
   <web>
@@ -35,6 +39,10 @@ under the License.
     </link>
     <link target="/">
       <dir name="${basedir}/../../client/enduser/target/classes/META-INF/resources">
+      </dir>
+    </link>
+    <link target="/">
+      <dir name="${basedir}/../../ext/saml2sp/client-enduser/target/classes">
       </dir>
     </link>
   </web>

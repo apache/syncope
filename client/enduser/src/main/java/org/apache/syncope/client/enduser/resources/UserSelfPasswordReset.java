@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
@@ -38,8 +39,8 @@ public class UserSelfPasswordReset extends BaseResource {
 
     @Override
     protected ResourceResponse newResourceResponse(final IResource.Attributes attributes) {
-        AbstractResource.ResourceResponse response = new AbstractResource.ResourceResponse();
-
+        ResourceResponse response = new AbstractResource.ResourceResponse();
+        response.setContentType(MediaType.APPLICATION_JSON);
         try {
             HttpServletRequest request = (HttpServletRequest) attributes.getRequest().getContainerRequest();
             if (!xsrfCheck(request)) {

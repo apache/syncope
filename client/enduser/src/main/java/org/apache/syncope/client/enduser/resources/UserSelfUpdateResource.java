@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
@@ -49,8 +50,8 @@ public class UserSelfUpdateResource extends BaseResource {
 
     @Override
     protected ResourceResponse newResourceResponse(final IResource.Attributes attributes) {
-        AbstractResource.ResourceResponse response = new AbstractResource.ResourceResponse();
-
+        ResourceResponse response = new AbstractResource.ResourceResponse();
+        response.setContentType(MediaType.TEXT_PLAIN);
         try {
             HttpServletRequest request = (HttpServletRequest) attributes.getRequest().getContainerRequest();
             if (!xsrfCheck(request)) {

@@ -18,58 +18,54 @@
  */
 package org.apache.syncope.client.enduser.resources;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.annotations.Resource;
-import org.apache.syncope.common.lib.to.AnyTypeTO;
-import org.apache.syncope.common.rest.api.service.AnyTypeService;
+import org.apache.syncope.common.lib.to.SAML2IdPTO;
+import org.apache.syncope.common.rest.api.service.SAML2IdPService;
 import org.apache.wicket.request.resource.AbstractResource;
 
-@Resource(key = "anyType", path = "/api/anyTypes")
-public class AnyTypeResource extends BaseResource {
+@Resource(key = "saml2IdPs", path = "/api/saml2IdPs")
+public class SAML2IdPsResource extends BaseResource {
 
-    private static final long serialVersionUID = 7475706378304995200L;
+    private static final long serialVersionUID = -1538214102767503491L;
 
     @Override
     protected ResourceResponse newResourceResponse(final Attributes attributes) {
-        LOG.debug("Get all available auxiliary classes");
-
         ResourceResponse response = new ResourceResponse();
         response.setContentType(MediaType.APPLICATION_JSON);
+        response.setTextEncoding(StandardCharsets.UTF_8.name());
         try {
+            final ArrayNode result = MAPPER.createArrayNode();
 
-            HttpServletRequest request = (HttpServletRequest) attributes.getRequest().getContainerRequest();
-            if (!xsrfCheck(request)) {
-                LOG.error("XSRF TOKEN does not match");
-                response.setError(Response.Status.BAD_REQUEST.getStatusCode(), "XSRF TOKEN does not match");
-                return response;
+            for (SAML2IdPTO idp : SyncopeEnduserSession.get().getService(SAML2IdPService.class).list()) {
+                ObjectNode idpNode = MAPPER.createObjectNode();
+                idpNode.put("name", idp.getName());
+                idpNode.put("entityID", idp.getEntityID());
+                idpNode.put("logout", idp.isLogoutSupported());
+                result.add(idpNode);
             }
-
-            String kind = attributes.getParameters().get(0).toString();
-            final AnyTypeTO anyTypeTO = SyncopeEnduserSession.get().getService(AnyTypeService.class).read(kind);
-
-            response.setTextEncoding(StandardCharsets.UTF_8.name());
 
             response.setWriteCallback(new AbstractResource.WriteCallback() {
 
                 @Override
                 public void writeData(final Attributes attributes) throws IOException {
-                    attributes.getResponse().write(MAPPER.writeValueAsString(anyTypeTO));
+                    attributes.getResponse().write(MAPPER.writeValueAsString(result));
                 }
             });
             response.setStatusCode(Response.Status.OK.getStatusCode());
         } catch (Exception e) {
-            LOG.error("Error retrieving available any type details", e);
-            response.setError(Response.Status.BAD_REQUEST.getStatusCode(), new StringBuilder()
-                    .append("ErrorMessage{{ ")
-                    .append(e.getMessage())
-                    .append(" }}")
-                    .toString());
+            LOG.error("Error retrieving available SAML 2.0 Identity Providers", e);
+            response.setError(
+                    Response.Status.BAD_REQUEST.getStatusCode(),
+                    "ErrorMessage{{ " + e.getMessage() + "}}");
         }
+
         return response;
     }
 

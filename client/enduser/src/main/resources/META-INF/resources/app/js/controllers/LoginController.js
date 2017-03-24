@@ -18,8 +18,8 @@
  */
 
 'use strict';
-angular.module("login").controller("LoginController", ['$scope', '$http', '$location', 'AuthService',
-  function ($scope, $http, $location, AuthService) {
+angular.module("login").controller("LoginController", ['$scope', '$rootScope', '$http', '$location', 'AuthService',
+  function ($scope, $rootScope, $http, $location, AuthService) {
 
     $scope.credentials = {
       username: '',
@@ -32,6 +32,8 @@ angular.module("login").controller("LoginController", ['$scope', '$http', '$loca
         console.info("Login success for: ", user);
         // reset error message
         $scope.credentials.errorMessage = '';
+        // reset SAML 2.0 entityID
+        $rootScope.saml2idps.selected.entityID = null;
         // got to update page
         $location.path("/self/update");
       }, function (response) {
@@ -46,14 +48,11 @@ angular.module("login").controller("LoginController", ['$scope', '$http', '$loca
         $scope.showError($scope.credentials.errorMessage, $scope.notification);
       });
     };
-    
+
     $scope.logout = function () {
-      AuthService.logout().then(function (response) {
-        console.info("Logout successfully");
-      }, function (response) {
-        console.info("Logout failed: ", response);
-      });
+      window.location.href = '../wicket/bookmarkable/org.apache.syncope.client.enduser.pages.Logout';
     };
+
     $scope.islogged = function () {
       AuthService.islogged().then(function (response) {
         console.debug("user login status detected", response);
@@ -83,4 +82,13 @@ angular.module("login").controller("LoginController", ['$scope', '$http', '$loca
         console.debug("schemaAPI response: ", data);
       });
     };
+    $scope.$watch(function () {
+      return $location.search().errorMessage;
+    }, function (errorMessage) {
+      if (errorMessage) {
+        var message = (' ' + errorMessage).slice(1);
+        $scope.showError(message, $scope.notification);
+        delete $location.$$search.errorMessage;
+      }
+    });
   }]);

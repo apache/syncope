@@ -19,6 +19,8 @@
 package org.apache.syncope.ext.saml2lsp.agent;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -61,7 +63,8 @@ public class Logout extends SAML2PostBinding {
 
                 e.printStackTrace(response.getWriter());
             } else {
-                response.sendRedirect(errorURL + "?errorMessage=" + e.getMessage());
+                response.sendRedirect(errorURL + "?errorMessage="
+                        + URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8.name()));
             }
         }
     }
@@ -98,7 +101,8 @@ public class Logout extends SAML2PostBinding {
 
                 e.printStackTrace(response.getWriter());
             } else {
-                response.sendRedirect(errorURL + "?errorMessage=" + e.getMessage());
+                response.sendRedirect(errorURL + "?errorMessage="
+                        + URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8.name()));
             }
         }
     }

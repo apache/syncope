@@ -26,7 +26,7 @@ under the License.
   </head>
   <body>
     <div ng-cloak class="container">
-      <div id="login-container" ng-controller="LoginController"  ng-init="init" style="box-sizing: border-box; ">
+      <div id="login-container" ng-controller="LoginController" style="box-sizing: border-box;">
         <div id="login" class="card card-container">
           <div>
             <img class="login-logo" src="img/logo-green.png" />
@@ -43,10 +43,19 @@ under the License.
                          ng-required ng-model="credentials.password">
                 </div>
                 <div class="form-group" ng-controller="UserController">
-                  <select  ng-change="switchLanguage()" id="language" style="width: 100%" class="btn dropdown-toggle btn-default" 
+                  <select  ng-change="switchLanguage()"
+                           id="language" style="width: 100%; text-align: left;" class="btn dropdown-toggle btn-default" 
                            ng-options="language.name for language in languages.availableLanguages track by language.id" 
                            ng-model="languages.selectedLanguage"></select>
                 </div>                
+                <div class="form-group">
+                  <select id="saml2sp" style="width: 100%; text-align: left;" class="btn dropdown-toggle btn-default"
+                          ng-if="$root.saml2spExtAvailable()"
+                          ng-options="idp.name for idp in saml2idps.available track by idp.entityID"
+                          ng-model="saml2idps.selected" ng-change="saml2login()">
+                    <option value="" disabled="disabled" selected="selected" hidden="hidden">SAML 2.0</option>
+                  </select>
+                </div>
                 <div class="form-group">
                   <button type="submit" id="login-btn" class="btn btn-default btn-signin login-btn" 
                           ng-click="login(credentials)">Login</button>

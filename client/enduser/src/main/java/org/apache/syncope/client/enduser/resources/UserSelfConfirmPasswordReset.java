@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.annotations.Resource;
@@ -36,8 +37,8 @@ public class UserSelfConfirmPasswordReset extends BaseResource {
 
     @Override
     protected ResourceResponse newResourceResponse(final IResource.Attributes attributes) {
-        AbstractResource.ResourceResponse response = new AbstractResource.ResourceResponse();
-
+        ResourceResponse response = new AbstractResource.ResourceResponse();
+        response.setContentType(MediaType.APPLICATION_JSON);
         try {
             HttpServletRequest request = (HttpServletRequest) attributes.getRequest().getContainerRequest();
             if (!xsrfCheck(request)) {
@@ -72,7 +73,6 @@ public class UserSelfConfirmPasswordReset extends BaseResource {
             });
 
             response.setStatusCode(Response.Status.OK.getStatusCode());
-
         } catch (final Exception e) {
             LOG.error("Error while updating user", e);
             response.setError(Response.Status.BAD_REQUEST.getStatusCode(), new StringBuilder()
