@@ -140,6 +140,16 @@ under the License.
       <testResource>
         <directory>src/test/resources</directory>
         <filtering>true</filtering>
+        <excludes>
+          <exclude>keystore</exclude>
+        </excludes>
+      </testResource>
+      <testResource>
+        <directory>src/test/resources</directory>
+        <filtering>false</filtering>
+        <includes>
+          <include>keystore</include>
+        </includes>
       </testResource>
     </testResources>
   </build>
@@ -171,6 +181,17 @@ under the License.
           <version>${syncope.version}</version>
         </dependency>
         
+        <dependency>
+          <groupId>org.apache.syncope.ext.saml2sp</groupId>
+          <artifactId>syncope-ext-saml2sp-rest-cxf</artifactId>
+          <version>${syncope.version}</version>
+        </dependency>
+        <dependency>
+          <groupId>org.apache.syncope.ext.saml2sp</groupId>
+          <artifactId>syncope-ext-saml2sp-persistence-jpa</artifactId>
+          <version>${syncope.version}</version>
+        </dependency>
+
         <dependency>
           <groupId>org.apache.syncope.ext</groupId>
           <artifactId>syncope-ext-swagger-ui</artifactId>
