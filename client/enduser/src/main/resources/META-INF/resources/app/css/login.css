@@ -18,13 +18,7 @@
  */
 
 body, html {
-  /*margin: 45px 0;*/
-  /*height: 100%;*/
   background-repeat: no-repeat;
-  /*background-image: linear-gradient(rgb(104, 145, 162), #00a65a);*/
-  /*background-color: #00A65A;
-  height: 100%;
-  background-image: linear-gradient(#6891A2, #00A65A);*/
 }
 
 body{
@@ -39,8 +33,6 @@ body{
   }
 }
 
-
-
 .login-btn {
   background: -moz-linear-gradient(top, #a9db80 0%, #96c56f 100%); /* FF3.6+ */
   background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#a9db80), color-stop(100%,#96c56f)); /* Chrome,Safari4+ */
@@ -54,21 +46,6 @@ body{
   background: #658D5D;
 }
 
-/*
-#login {
-  position: relative;
-  padding: 25px 25px 50px 25px;
-  margin-bottom: 1em;
-}
-#login #login-form {
-  margin-top: 2em;
-  margin-bottom: 2em;
-  text-align: left;
-}
-#login-form{
-  padding: 0 195px;
-  margin: 7%;
-}*/
 #languageContainer {
   padding: 0 25px;
 }

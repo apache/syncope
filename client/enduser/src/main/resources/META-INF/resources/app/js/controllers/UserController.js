@@ -75,15 +75,15 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
           initSchemaValues(schemas);
         }, function (response) {
           // parse error response and log
-          if ( response !== undefined ) {
-            var errorMessages = response.toString().split( "ErrorMessage{{" );
-            if ( errorMessages.length > 1 ) {
-              console.error( "Error retrieving user schemas: ", response.toString().split( "ErrorMessage{{" )[1].split( "}}" )[0] );
+          if (response !== undefined) {
+            var errorMessages = response.toString().split("ErrorMessage{{");
+            if (errorMessages.length > 1) {
+              console.error("Error retrieving user schemas: ", response.toString().split("ErrorMessage{{")[1].split("}}")[0]);
             } else {
-              console.error( "Error retrieving user schemas: ", errorMessages );
+              console.error("Error retrieving user schemas: ", errorMessages);
             }
           }
-        } );
+        });
       };
 
       var initSchemaValues = function (schemas) {
@@ -373,7 +373,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
       var wrappedUser = UserUtil.getWrappedUser(user);
       if ($scope.createMode) {
         UserSelfService.create(wrappedUser, $scope.captchaInput.value).then(function (response) {
-          console.info("User " + $scope.user.username + " SUCCESSFULLY_CREATED");
+          console.debug("User " + $scope.user.username + " SUCCESSFULLY_CREATED");
           $rootScope.currentUser = $scope.user.username;
           $rootScope.currentOp = "SUCCESSFULLY_CREATED";
           $state.go('success');
@@ -389,15 +389,12 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
         });
       } else {
         UserSelfService.update(wrappedUser, $scope.captchaInput.value).then(function (response) {
-          console.debug("Updated user: ", response);
-          AuthService.logout().then(function (response) {
-            console.info("User " + $scope.user.username + " SUCCESSFULLY_UPDATED");
-            $rootScope.currentUser = $scope.user.username;
-            $rootScope.currentOp = "SUCCESSFULLY_UPDATED";
-            $state.go('success');
-          }, function () {
-            console.error("LOGOUT FAILED");
-          });
+          console.debug("User " + $scope.user.username + " SUCCESSFULLY_UPDATED");
+          $rootScope.currentUser = $scope.user.username;
+          $rootScope.currentOp = "SUCCESSFULLY_UPDATED";
+          $state.go('success');
+
+          $scope.logout();
         }, function (response) {
           console.info("Error during user update: ", response);
           var errorMessage;
@@ -459,7 +456,6 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
     };
 
     $scope.confirmPasswordReset = function (user, event) {
-
       //getting the enclosing form in order to access to its controller                
       var currentForm = GenericUtil.getEnclosingFormController(event.target, $scope);
       if (currentForm != null) {
@@ -488,7 +484,6 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
     };
 
     $scope.changePassword = function (user, event) {
-
       //getting the enclosing form in order to access to its controller                
       var currentForm = GenericUtil.getEnclosingFormController(event.target, $scope);
       if (currentForm != null) {
@@ -518,18 +513,10 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
       kendo.culture($rootScope.languages.selectedLanguage.code);
     };
 
-    $scope.logout = function (message) {
-      AuthService.logout().then(function (response) {
-        console.info("Logout successfully");
-        $translate.use($scope.languages.selectedLanguage.code);
-        $rootScope.endReached = false;
-        $location.path('/self');
-        if (message) {
-          $scope.showSuccess(message, $scope.notification);
-        }
-      }, function (response) {
-        console.error("Logout failed: ", response);
-      });
+    $scope.logout = function () {
+      $translate.use($scope.languages.selectedLanguage.code);
+      $rootScope.endReached = false;
+      window.location.href = '../wicket/bookmarkable/org.apache.syncope.client.enduser.pages.Logout';
     };
 
     $scope.redirect = function () {

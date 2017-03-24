@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
@@ -63,9 +64,8 @@ public class UserSelfCreateResource extends BaseResource {
 
     @Override
     protected ResourceResponse newResourceResponse(final Attributes attributes) {
-        final StringBuilder responseMessage = new StringBuilder();
         ResourceResponse response = new ResourceResponse();
-
+        response.setContentType(MediaType.APPLICATION_JSON);
         try {
             HttpServletRequest request = (HttpServletRequest) attributes.getRequest().getContainerRequest();
 
@@ -197,8 +197,8 @@ public class UserSelfCreateResource extends BaseResource {
                     public void writeData(final Attributes attributes) throws IOException {
                         attributes.getResponse().write(res.getStatusInfo().getFamily().equals(
                                 Response.Status.Family.SUCCESSFUL)
-                                        ? responseMessage.append("User: ").append(userTO.getUsername()).append(
-                                                " successfully created")
+                                        ? new StringBuilder().append("User: ").append(userTO.getUsername()).
+                                                append(" successfully created")
                                         : new StringBuilder().append("ErrorMessage{{ ").
                                                 append(res.getStatusInfo().getReasonPhrase()).append(" }}"));
                     }

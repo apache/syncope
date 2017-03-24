@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.annotations.Resource;
@@ -39,7 +40,7 @@ public class RealmResource extends BaseResource {
         LOG.debug("Search all available realms");
 
         ResourceResponse response = new ResourceResponse();
-
+        response.setContentType(MediaType.APPLICATION_JSON);
         try {
             HttpServletRequest request = (HttpServletRequest) attributes.getRequest().getContainerRequest();
             if (!xsrfCheck(request)) {

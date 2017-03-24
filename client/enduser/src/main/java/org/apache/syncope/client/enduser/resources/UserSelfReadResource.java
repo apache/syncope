@@ -46,9 +46,9 @@ public class UserSelfReadResource extends BaseResource {
     protected ResourceResponse newResourceResponse(final IResource.Attributes attributes) {
         LOG.debug("Requested user self information");
 
-        AbstractResource.ResourceResponse response = new AbstractResource.ResourceResponse();
+        ResourceResponse response = new AbstractResource.ResourceResponse();
+        response.setContentType(MediaType.APPLICATION_JSON);
         try {
-
             HttpServletRequest request = (HttpServletRequest) attributes.getRequest().getContainerRequest();
             if (!xsrfCheck(request)) {
                 LOG.error("XSRF TOKEN does not match");

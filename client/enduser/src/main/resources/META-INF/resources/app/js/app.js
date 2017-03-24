@@ -48,11 +48,11 @@ var app = angular.module('SyncopeEnduserApp', [
 app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$translateProvider', '$translatePartialLoaderProvider',
   function ($stateProvider, $urlRouterProvider, $httpProvider, $translateProvider, $translatePartialLoaderProvider) {
     /*
-       |--------------------------------------------------------------------------
-       | Syncope Enduser AngularJS providers configuration
-       |--------------------------------------------------------------------------
+     |--------------------------------------------------------------------------
+     | Syncope Enduser AngularJS providers configuration
+     |--------------------------------------------------------------------------
      */
-    
+
     /*
      * i18n provider
      */
@@ -70,7 +70,7 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$translate
               templateUrl: 'views/self.html'
             })
             .state('self', {
-              url: '/self',
+              url: '/self?errorMessage',
               templateUrl: 'views/self.html'
             })
             .state('user-self-update', {
@@ -250,7 +250,7 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$translate
         },
         'responseError': function (response) {
           $rootScope.spinner.off();
-          if (response.config.url.indexOf("acceptError=true") === -1) {
+          if (response.config && response.config.url.indexOf("acceptError=true") === -1) {
             var status = response.status;
             if (status === 401) {
               console.error("ERROR ", status);
@@ -270,12 +270,12 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$translate
 app.run(['$rootScope', '$location', '$state', 'AuthService',
   function ($rootScope, $location, $state, AuthService) {
     /*
-       |--------------------------------------------------------------------------
-       | Main of Syncope Enduser application
-       |
-       | keep user logged in after page refresh
-       | If the route change failed due to authentication error, redirect them out
-       |--------------------------------------------------------------------------
+     |--------------------------------------------------------------------------
+     | Main of Syncope Enduser application
+     |
+     | keep user logged in after page refresh
+     | If the route change failed due to authentication error, redirect them out
+     |--------------------------------------------------------------------------
      */
     $rootScope.$on('$routeChangeError', function (event, current, previous, rejection) {
       if (rejection === 'Not Authenticated') {
@@ -331,12 +331,12 @@ app.run(['$rootScope', '$location', '$state', 'AuthService',
       }
     };
   }]);
-app.controller('ApplicationController', ['$scope', '$rootScope', 'InfoService', function ($scope, $rootScope,
-          InfoService) {
+app.controller('ApplicationController', ['$scope', '$rootScope', '$location', 'InfoService', 'SAML2IdPService',
+  function ($scope, $rootScope, $location, InfoService, SAML2IdPService) {
     $scope.initApplication = function () {
       /* 
        * disable by default wizard buttons in self-registration
-       */ 
+       */
       $rootScope.endReached = false;
       /*
        |--------------------------------------------------------------------------
@@ -345,9 +345,9 @@ app.controller('ApplicationController', ['$scope', '$rootScope', 'InfoService', 
        */
       $rootScope.languages = {
         availableLanguages: [
-          { id: '1', name: 'Italiano', code: 'it', format: 'dd/MM/yyyy HH:mm' },
-          { id: '2', name: 'English', code: 'en', format: 'MM/dd/yyyy HH:mm' },
-          { id: '3', name: 'Deutsch', code: 'de', format: 'dd/MM/yyyy HH:mm' }
+          {id: '1', name: 'Italiano', code: 'it', format: 'dd/MM/yyyy HH:mm'},
+          {id: '2', name: 'English', code: 'en', format: 'MM/dd/yyyy HH:mm'},
+          {id: '3', name: 'Deutsch', code: 'de', format: 'dd/MM/yyyy HH:mm'}
         ]
       };
       $rootScope.languages.selectedLanguage = $rootScope.languages.availableLanguages[1];
@@ -363,6 +363,11 @@ app.controller('ApplicationController', ['$scope', '$rootScope', 'InfoService', 
       $rootScope.pwdResetRequiringSecurityQuestions = false;
       $rootScope.captchaEnabled = false;
       $rootScope.validationEnabled = true;
+      $rootScope.saml2idps = {
+        available: [],
+        selected: {}
+      };
+
       InfoService.getInfo().then(
               function (response) {
                 $rootScope.pwdResetAllowed = response.pwdResetAllowed;
@@ -374,15 +379,28 @@ app.controller('ApplicationController', ['$scope', '$rootScope', 'InfoService', 
               function (response) {
                 console.error("Something went wrong while accessing info resource", response);
               });
+      SAML2IdPService.getAvailableSAML2IdPs().then(
+              function (response) {
+                $rootScope.saml2idps.available = response;
+              },
+              function (response) {
+                console.debug("No SAML 2.0 SP extension available", response);
+              });
       /* 
        * configuration getters
-       */ 
+       */
       $rootScope.isSelfRegAllowed = function () {
         return $rootScope.selfRegAllowed === true;
       };
       $rootScope.isPwdResetAllowed = function () {
         return $rootScope.pwdResetAllowed === true;
       };
+      $rootScope.saml2spExtAvailable = function () {
+        return $rootScope.saml2idps.available.length > 0;
+      }
+      $rootScope.saml2login = function () {
+        window.location.href = '../saml2sp/login?idp=' + $rootScope.saml2idps.selected.entityID;
+      }
       $rootScope.getVersion = function () {
         return $rootScope.version;
       };
@@ -390,12 +408,12 @@ app.controller('ApplicationController', ['$scope', '$rootScope', 'InfoService', 
        * USER Attributes sorting strategies
        */
       $rootScope.attributesSorting = {
-        ASC: function ( a, b ) {
+        ASC: function (a, b) {
           var schemaNameA = a.key;
           var schemaNameB = b.key;
           return schemaNameA < schemaNameB ? -1 : schemaNameA > schemaNameB ? 1 : 0;
         },
-        DESC: function ( a, b ) {
+        DESC: function (a, b) {
           var schemaNameA = a.key;
           var schemaNameB = b.key;
           return schemaNameA < schemaNameB ? 1 : schemaNameA > schemaNameB ? -1 : 0;
@@ -405,7 +423,7 @@ app.controller('ApplicationController', ['$scope', '$rootScope', 'InfoService', 
        |--------------------------------------------------------------------------
        | Notification mgmt
        |--------------------------------------------------------------------------
-       */    
+       */
       $scope.notification = $('#notifications').kendoNotification().data("kendoNotification");
       $scope.notification.setOptions({stacking: "down"});
       $scope.notification.options.position["top"] = 20;
@@ -490,7 +508,7 @@ app.controller('ApplicationController', ['$scope', '$rootScope', 'InfoService', 
        |--------------------------------------------------------------------------
        | Wizard configuration
        |--------------------------------------------------------------------------
-       */ 
+       */
       $scope.wizard = {
         "credentials": {url: "/credentials"},
         "groups": {url: "/groups"},

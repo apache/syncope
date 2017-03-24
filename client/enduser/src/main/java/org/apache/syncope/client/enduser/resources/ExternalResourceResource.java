@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.annotations.Resource;
@@ -39,10 +40,9 @@ public class ExternalResourceResource extends BaseResource {
     protected AbstractResource.ResourceResponse newResourceResponse(final IResource.Attributes attributes) {
         LOG.debug("Search all available resources");
 
-        AbstractResource.ResourceResponse response = new AbstractResource.ResourceResponse();
-
+        ResourceResponse response = new AbstractResource.ResourceResponse();
+        response.setContentType(MediaType.APPLICATION_JSON);
         try {
-
             HttpServletRequest request = (HttpServletRequest) attributes.getRequest().getContainerRequest();
             if (!xsrfCheck(request)) {
                 LOG.error("XSRF TOKEN does not match");
