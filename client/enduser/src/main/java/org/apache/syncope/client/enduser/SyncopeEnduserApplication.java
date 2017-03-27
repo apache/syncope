@@ -28,7 +28,6 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.syncope.client.enduser.annotations.Resource;
 import org.apache.syncope.client.enduser.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.enduser.init.EnduserInitializer;
-import org.apache.syncope.client.enduser.resources.BaseResource;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.wicket.Page;
@@ -37,6 +36,7 @@ import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.request.Request;
 import org.apache.wicket.request.Response;
+import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.request.resource.ResourceReference;
 import org.apache.wicket.util.lang.Args;
@@ -134,13 +134,13 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
         ClassPathScanImplementationLookup classPathScanImplementationLookup =
                 (ClassPathScanImplementationLookup) getServletContext().
                         getAttribute(EnduserInitializer.CLASSPATH_LOOKUP);
-        for (final Class<? extends BaseResource> resource : classPathScanImplementationLookup.getResources()) {
+        for (final Class<? extends AbstractResource> resource : classPathScanImplementationLookup.getResources()) {
             Resource annotation = resource.getAnnotation(Resource.class);
             if (annotation == null) {
                 LOG.debug("No @Resource annotation found on {}, ignoring", resource.getName());
             } else {
                 try {
-                    final BaseResource instance = resource.newInstance();
+                    final AbstractResource instance = resource.newInstance();
 
                     mountResource(annotation.path(), new ResourceReference(annotation.key()) {
 
