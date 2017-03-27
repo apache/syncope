@@ -560,6 +560,9 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
 
         // 2. look for IdP
         String idpEntityID = (String) consumer.getJwtClaims().getClaim(JWT_CLAIM_IDP_ENTITYID);
+        if (idpEntityID == null) {
+            throw new NotFoundException("No SAML 2.0 IdP information found in the access token");
+        }
         SAML2IdPEntity idp = cache.get(idpEntityID);
         if (idp == null) {
             throw new NotFoundException("SAML 2.0 IdP '" + idpEntityID + "'");
