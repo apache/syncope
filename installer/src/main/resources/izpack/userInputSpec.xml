@@ -110,9 +110,6 @@ under the License.
     <field type="check" variable="options.swagger">
       <spec id="options.swagger.id" true="true" false="false" set="false"/>
     </field>
-    <field type="check" variable="options.camel">
-      <spec id="options.camel.id" true="true" false="false" set="false"/>
-    </field>
     <field type="check" variable="options.activiti.workflow.adapter">
       <spec id="options.activiti.workflow.adapter.id" true="true" false="false" set="true"/>
     </field>

@@ -55,7 +55,6 @@ public class ArchetypeProcess extends BaseProcess {
         final boolean mavenProxyAutoconf = Boolean.valueOf(args[17]);
         final boolean swagger = Boolean.valueOf(args[18]);
         final boolean activiti = Boolean.valueOf(args[19]);
-        final boolean camel = Boolean.valueOf(args[20]);
 
         setSyncopeInstallDir(installPath, artifactId);
 
@@ -115,21 +114,6 @@ public class ArchetypeProcess extends BaseProcess {
             contentPomFile = contentPomFile.replace(CorePom.SWAGGER_PLACEHOLDER, CorePom.SWAGGER_CONTENT_TO_ADD);
 
             fileSystemUtils.writeToFile(pomFile, contentPomFile);
-        }
-
-        if (camel) {
-            final File pomFile = new File(
-                    syncopeInstallDir
-                    + File.separator
-                    + "core"
-                    + File.separator
-                    + PROPERTIES.getProperty("pomFile"));
-            String contentPomFile = fileSystemUtils.readFile(pomFile);
-            contentPomFile = contentPomFile.replace(CorePom.CAMEL_PLACEHOLDER, CorePom.CAMEL_CONTENT_TO_ADD);
-
-            fileSystemUtils.writeToFile(pomFile, contentPomFile);
-            fileSystemUtils.copyFileFromResources("/provisioning.properties",
-                    syncopeInstallDir + PROPERTIES.getProperty("provisioningPropertiesFile"), handler);
         }
 
         fileSystemUtils.createDirectory(confDirectory);
