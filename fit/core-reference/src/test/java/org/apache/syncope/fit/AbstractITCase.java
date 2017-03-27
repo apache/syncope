@@ -71,6 +71,8 @@ import org.apache.syncope.common.rest.api.service.RealmService;
 import org.apache.syncope.common.rest.api.service.RelationshipTypeService;
 import org.apache.syncope.common.rest.api.service.ReportTemplateService;
 import org.apache.syncope.common.rest.api.service.RoleService;
+import org.apache.syncope.common.rest.api.service.SAML2IdPService;
+import org.apache.syncope.common.rest.api.service.SAML2SPService;
 import org.apache.syncope.common.rest.api.service.SchemaService;
 import org.apache.syncope.common.rest.api.service.SecurityQuestionService;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
@@ -209,6 +211,10 @@ public abstract class AbstractITCase {
 
     protected static CamelRouteService camelRouteService;
 
+    protected static SAML2SPService saml2SpService;
+
+    protected static SAML2IdPService saml2IdPService;
+
     @BeforeClass
     public static void securitySetup() {
         InputStream propStream = null;
@@ -267,6 +273,8 @@ public abstract class AbstractITCase {
         schemaService = adminClient.getService(SchemaService.class);
         securityQuestionService = adminClient.getService(SecurityQuestionService.class);
         camelRouteService = adminClient.getService(CamelRouteService.class);
+        saml2SpService = adminClient.getService(SAML2SPService.class);
+        saml2IdPService = adminClient.getService(SAML2IdPService.class);
     }
 
     protected static String getUUIDString() {
