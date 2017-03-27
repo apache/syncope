@@ -191,7 +191,6 @@ try {
     <userTask id="recertificationRequest" name="Recertification Request"
               activiti:candidateGroups="managingDirector" activiti:formKey="recertify">
       <extensionElements>
-        <activiti:formProperty id="fullname" name="Identity" type="string" expression="${user.getPlainAttr('fullname').getUniqueValue().getStringValue()}" writable="false"/>
         <activiti:formProperty id="username" name="Username" type="string" expression="${user.username}" writable="false"/>
         <activiti:formProperty id="approve" name="Recertify?" type="boolean" required="true"/>
         <activiti:formProperty id="rejectReason" name="Reason for not recertifying" type="string" variable="rejectReason"/>
