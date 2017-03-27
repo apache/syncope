@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.client.enduser.annotations.Resource;
-import org.apache.syncope.client.enduser.resources.BaseResource;
+import org.apache.wicket.request.resource.AbstractResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -37,7 +37,7 @@ public class ClassPathScanImplementationLookup {
 
     private static final String DEFAULT_BASE_PACKAGE = "org.apache.syncope.client.enduser";
 
-    private List<Class<? extends BaseResource>> resources;
+    private List<Class<? extends AbstractResource>> resources;
 
     /**
      * This method can be overridden by subclasses to customize classpath scan.
@@ -53,7 +53,7 @@ public class ClassPathScanImplementationLookup {
         resources = new ArrayList<>();
 
         ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false);
-        scanner.addIncludeFilter(new AssignableTypeFilter(BaseResource.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(AbstractResource.class));
 
         for (BeanDefinition bd : scanner.findCandidateComponents(getBasePackage())) {
             try {
@@ -61,9 +61,9 @@ public class ClassPathScanImplementationLookup {
                 boolean isAbsractClazz = Modifier.isAbstract(clazz.getModifiers());
 
                 if (!isAbsractClazz) {
-                    if (BaseResource.class.isAssignableFrom(clazz)) {
+                    if (AbstractResource.class.isAssignableFrom(clazz)) {
                         if (clazz.isAnnotationPresent(Resource.class)) {
-                            resources.add((Class<? extends BaseResource>) clazz);
+                            resources.add((Class<? extends AbstractResource>) clazz);
                         } else {
                             LOG.error("Could not find annotation {} in {}, ignoring",
                                     Resource.class.getName(), clazz.getName());
@@ -77,7 +77,7 @@ public class ClassPathScanImplementationLookup {
         resources = Collections.unmodifiableList(resources);
     }
 
-    public List<Class<? extends BaseResource>> getResources() {
+    public List<Class<? extends AbstractResource>> getResources() {
         return resources;
     }
 
