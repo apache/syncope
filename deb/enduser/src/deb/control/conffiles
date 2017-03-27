@@ -1,2 +1,3 @@
 /etc/tomcat8/Catalina/localhost/syncope-enduser.xml
 /etc/apache-syncope/enduser.properties
+/etc/apache-syncope/saml2sp-agent.properties

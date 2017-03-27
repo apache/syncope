@@ -75,6 +75,16 @@ under the License.
       <artifactId>syncope-ext-camel-provisioning</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.ext.saml2sp</groupId>
+      <artifactId>syncope-ext-saml2sp-rest-cxf</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.ext.saml2sp</groupId>
+      <artifactId>syncope-ext-saml2sp-persistence-jpa</artifactId>
+      <version>${project.version}</version>
+    </dependency>
         
     <dependency>
       <groupId>org.apache.syncope.ext</groupId>
@@ -180,7 +190,23 @@ under the License.
         <targetPath>${project.build.directory}/etc</targetPath>
         <filtering>true</filtering>
       </resource>
-                  
+      <resource>
+	<directory>${project.basedir}/../../ext/saml2sp/logic/src/main/resources</directory>
+        <includes>
+          <include>saml2sp-logic.properties</include>
+        </includes>
+        <targetPath>${project.build.directory}/etc</targetPath>
+        <filtering>true</filtering>
+      </resource>
+      <resource>
+        <directory>${basedir}/../../fit/core-reference/src/test/resources</directory>
+        <includes>
+          <include>keystore</include>
+        </includes>
+        <targetPath>${project.build.directory}/etc</targetPath>
+        <filtering>false</filtering>
+      </resource>
+
       <resource>
         <directory>${project.build.directory}/etc</directory>
         <targetPath>${project.build.directory}/classes</targetPath>

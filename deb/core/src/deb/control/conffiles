@@ -8,6 +8,7 @@
 /etc/apache-syncope/persistence.properties
 /etc/apache-syncope/provisioning.properties
 /etc/apache-syncope/groupRoutes.xml
+/etc/apache-syncope/saml2sp-logic.properties
 /etc/apache-syncope/security.properties
 /etc/apache-syncope/userRoutes.xml
 /etc/apache-syncope/userWorkflow.bpmn20.xml
