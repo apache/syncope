@@ -227,11 +227,6 @@ This is licensed under the MIT license:
 
 ==
 
-For AngularJS UI Router (http://angular-ui.github.io/ui-router/site):
-This is licensed under the MIT license, see above.
-
-==
-
 For AngularJS UI Select (https://github.com/angular-ui/ui-select/):
 This is licensed under the MIT license, see above.
 
@@ -738,6 +733,11 @@ This is licensed under the MIT license, see above.
 
 ==
 
+For Spring Framework (http://projects.spring.io/spring-framework/):
+This is licensed under the AL 2.0, see above.
+
+==
+
 For FileSaver.js (http://carlos-algms.github.io/work/html5-saveas-filesaver.js/):
 This is licensed under the MIT license, see above.
 
@@ -749,6 +749,11 @@ This is licensed under the MIT license, see above.
 ==
 
 For Angular Translate (https://angular-translate.github.io/):
+This is licensed under the MIT license, see above.
+
+==
+
+For AngularJS UI Router (http://angular-ui.github.io/ui-router/site):
 This is licensed under the MIT license, see above.
 
 ==

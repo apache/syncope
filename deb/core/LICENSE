@@ -708,6 +708,16 @@ This is licensed under the AL 2.0, see above.
 
 ==
 
+For Ehcache (http://ehcache.org/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Shibboleth (https://shibboleth.net/):
+This is licensed under the AL 2.0, see above.
+
+==
+
 For SERP (http://serp.sourceforge.net/):
 This is licensed under the BSD license, see above.
 
@@ -932,12 +942,22 @@ any resulting litigation.
 
 ==
 
+For Legion of the Bouncy Castle (http://www.bouncycastle.org/java.html):
+This is licensed under the MIT license, see above.
+
+==
+
 For StAX2 API (http://wiki.fasterxml.com/WoodstoxStax2):
 This is licensed under the BSD license, see above.
 
 ==
 
 For Woodstox (http://wiki.fasterxml.com/WoodstoxHome):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Cryptacular (https://github.com/vt-middleware/cryptacular):
 This is licensed under the AL 2.0, see above.
 
 ==
@@ -953,6 +973,11 @@ This is licensed under the AL 2.0, see above.
 ==
 
 For MyBatis (http://www.mybatis.org/):
+This is licensed under the AL 2.0, see above.
+
+==
+
+For Open SAML-Java (https://shibboleth.net/products/opensaml-java.html):
 This is licensed under the AL 2.0, see above.
 
 ==
