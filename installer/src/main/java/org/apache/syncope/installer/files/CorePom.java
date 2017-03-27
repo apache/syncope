@@ -29,25 +29,6 @@ public final class CorePom {
             + "    </dependency>\n"
             + "  </dependencies>\n";
 
-    public static final String CAMEL_PLACEHOLDER = "</dependencies>";
-
-    public static final String CAMEL_CONTENT_TO_ADD = "  <dependency>\n"
-            + "      <groupId>org.apache.syncope.ext.camel</groupId>\n"
-            + "      <artifactId>syncope-ext-camel-rest-cxf</artifactId>\n"
-            + "      <version>${syncope.version}</version>\n"
-            + "    </dependency>\n"
-            + "    <dependency>\n"
-            + "      <groupId>org.apache.syncope.ext.camel</groupId>\n"
-            + "      <artifactId>syncope-ext-camel-persistence-jpa</artifactId>\n"
-            + "      <version>${syncope.version}</version>\n"
-            + "    </dependency>\n"
-            + "    <dependency>\n"
-            + "      <groupId>org.apache.syncope.ext.camel</groupId>\n"
-            + "      <artifactId>syncope-ext-camel-provisioning</artifactId>\n"
-            + "      <version>${syncope.version}</version>\n"
-            + "    </dependency>\n"
-            + "  </dependencies>\n";
-
     public static final String ACTIVITI_PLACEHOLDER = "    <dependency>\n"
             + "      <groupId>org.apache.syncope.core</groupId>\n"
             + "      <artifactId>syncope-core-workflow-activiti</artifactId>\n"
