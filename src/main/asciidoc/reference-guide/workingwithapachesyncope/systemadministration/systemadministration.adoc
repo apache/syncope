@@ -70,4 +70,6 @@ include::connectorbundles.adoc[]
 
 include::emailconfiguration.adoc[]
 
+include::keystore.adoc[]
+
 include::configurationparameters.adoc[]

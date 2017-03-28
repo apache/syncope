@@ -23,8 +23,8 @@ every single deployment with unneeded libraries and configurations.
 
 With reference to <<architecture,architecture>>, an extension might add a <<rest>> endpoint, manage the
 <<persistence,persistence>> of additional entities, extend the <<security,security>> mechanisms, tweak the
-<<provisioning-layer,provisioning layer>>, add features to the <<admin-console-component,admin console>>, or even bring
-all such things together.
+<<provisioning-layer,provisioning layer>>, add features to the <<admin-console-component>> or
+the <<enduser-component>>, or even bring all such things together.
 
 Extensions are available from different sources:
 
@@ -59,12 +59,6 @@ endif::[]
 .
 ====
 
-[TIP]
-====
-This extension adds features to all components and layers that are available, and can be taken as reference when creating
-<<customization-extensions,new extensions>>.
-====
-
 ==== Swagger
 
 This extension enables http://swagger.io/swagger-ui/[Swagger UI^] as web interface for dealing with Apache Syncope
@@ -89,4 +83,35 @@ ifeval::["{snapshotOrRelease}" == "snapshot"]
 https://github.com/apache/syncope/tree/master/ext/swagger-ui[source tree^]
 endif::[]
 .
+====
+
+==== SAML 2.0 Service Provider
+
+This extension can be leveraged to provide
+https://en.wikipedia.org/wiki/Security_Assertion_Markup_Language[SAML 2.0^]-based
+https://en.wikipedia.org/wiki/Single_sign-on[Single Sign-On^] access to the <<admin-console-component>>,
+the <<enduser-component>> or any other Java EE application dealing with the <<core>>.
+
+Once installed, one or more https://en.wikipedia.org/wiki/Identity_provider[Identity Providers^] can be imported from
+their https://en.wikipedia.org/wiki/SAML_2.0#SAML_2.0_Metadata[metadata^].
+For each Identity Provider, it is to configure which one of the attributes - returned as part of the assertion
+containing the attribute statements - is going to be used by Syncope to match the internal users.
+
+[NOTE]
+.Extension Sources
+====
+The source code of this extension is available from the Apache Syncope
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/tree/syncope-{docVersion}/ext/saml2sp[source tree^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/tree/master/ext/saml2sp[source tree^]
+endif::[]
+.
+====
+
+[TIP]
+====
+This extension adds features to all components and layers that are available, and can be taken as reference when creating
+<<customization-extensions,new extensions>>.
 ====
