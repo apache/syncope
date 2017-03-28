@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.panels;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -68,7 +67,7 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
 
     private static final String PREF_SAML2_IDPS_PAGINATOR_ROWS = "saml2.idps.paginator.rows";
 
-    private final BaseModal<Serializable> metadataModal = new BaseModal<>("outer");
+    private final BaseModal<String> metadataModal = new BaseModal<>("outer");
 
     public SAML2IdPsDirectoryPanel(final String id, final PageReference pageRef) {
         super(id, new Builder<SAML2IdPTO, SAML2IdPTO, SAML2IdPsRestClient>(new SAML2IdPsRestClient(), pageRef) {

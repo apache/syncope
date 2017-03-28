@@ -47,13 +47,13 @@ $ ./bin/startup.sh
 +
 * Windows
 +
-[source,cmd]
+[source,dos]
 ----
 > bin/startup.bat
 ----
 
 [TIP]
-Please refer to the http://tomcat.apache.org/tomcat-8.0-doc/[Apache Tomcat documentation^] for more advanced setup and 
+Please refer to the http://tomcat.apache.org/tomcat-8.5-doc/[Apache Tomcat documentation^] for more advanced setup and 
 instructions.
 
 [[standalone-components]]
