@@ -163,7 +163,7 @@ public class ReportRestClient extends BaseRestClient
                 break;
             case EXECUTE:
                 for (String target : action.getTargets()) {
-                    startExecution(target, new Date());
+                    startExecution(target, null);
                     result.getResults().put(target, BulkActionResult.Status.SUCCESS);
                 }
                 break;
