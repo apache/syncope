@@ -21,7 +21,6 @@ package org.apache.syncope.client.console.tasks;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
@@ -149,7 +148,7 @@ public abstract class NotificationTaskDirectoryPanel
                             @Override
                             public void onClick(final AjaxRequestTarget target, final NotificationTaskTO modelObject) {
                                 try {
-                                    restClient.startExecution(taskTO.getKey(), new Date());
+                                    restClient.startExecution(taskTO.getKey(), null);
                                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                                     target.add(container);
                                 } catch (SyncopeClientException e) {
