@@ -317,6 +317,30 @@ Add the following dependency to `core/pom.xml`:
 </dependency>
 ----
 
+[discrete]
+===== Enable the <<saml-2-0-service-provider>> extension
+
+Add the following dependencies to `core/pom.xml`:
+
+[source,xml,subs="verbatim,attributes"]
+----
+<dependency>
+  <groupId>org.apache.syncope.ext.saml2sp</groupId>
+  <artifactId>syncope-ext-saml2sp-rest-cxf</artifactId>
+  <version>${syncope.version}</version>
+</dependency>
+<dependency>
+  <groupId>org.apache.syncope.ext.saml2sp</groupId>
+  <artifactId>syncope-ext-saml2sp-persistence-jpa</artifactId>
+  <version>${syncope.version}</version>
+</dependency>
+----
+
+Copy `core/src/main/resources/all/saml2sp-logic.properties` to `core/src/main/resources/saml2sp-logic.properties`.
+
+Setup a <<keystore,keystore>> and place it under the <<properties-files-location,configuration directory>>, then review
+the content of `core/src/main/resources/saml2sp-logic.properties` accordingly.
+
 [[customization-console]]
 ==== Console
 
@@ -339,6 +363,22 @@ Add the following dependency to `console/pom.xml`:
 </dependency> 
 ----
 
+[discrete]
+===== Enable the <<saml-2-0-service-provider>> extension
+
+Add the following dependencies to `console/pom.xml`:
+
+[source,xml,subs="verbatim,attributes"]
+----
+<dependency>
+  <groupId>org.apache.syncope.ext.saml2sp</groupId>
+  <artifactId>syncope-ext-saml2sp-client-console</artifactId>
+  <version>${syncope.version}</version>
+</dependency>
+----
+
+Copy `console/src/main/resources/all/saml2sp-agent.properties` to `console/src/main/resources/saml2sp-agent.properties`.
+
 [[customization-enduser]]
 ==== Enduser
 
@@ -347,6 +387,22 @@ generated under the local project's `enduser/src/main/webapp/app/` directory and
 
 The files in use by the Apache Wicket-based backend are still subject to the general
 <<override-behavior,override behavior>>, instead.
+
+[discrete]
+===== Enable the <<saml-2-0-service-provider>> extension
+
+Add the following dependencies to `enduser/pom.xml`:
+
+[source,xml,subs="verbatim,attributes"]
+----
+<dependency>
+  <groupId>org.apache.syncope.ext.saml2sp</groupId>
+  <artifactId>syncope-ext-saml2sp-client-enduser</artifactId>
+  <version>${syncope.version}</version>
+</dependency>
+----
+
+Copy `enduser/src/main/resources/all/saml2sp-agent.properties` to `enduser/src/main/resources/saml2sp-agent.properties`.
 
 [[customization-enduser-translations]]
 ===== Translations
@@ -409,5 +465,5 @@ and modify the JSON files under the new directory
 <<extensions>> can be part of a local project, to encapsulate special features which are specific to a given deployment.
 
 For example, the http://www.chorevolution.eu/[CHOReVOLUTION^] IdM - based on Apache Syncope - provides
-https://tuleap.ow2.org/plugins/git/chorevolution/syncope?p=syncope.git&a=tree&f=ext/choreography[an extension^]
+https://gitlab.ow2.org/chorevolution/syncope/tree/master/ext/choreography[an extension^]
 for managing via the <<core>> and visualizing via the <<admin-console-component>> the running choreography instances.
