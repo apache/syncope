@@ -50,7 +50,10 @@ under the License.
 
     <section name="Buildbot">
       <p>
-        <source><a href="https://ci.apache.org/builders/syncope-master-docs">https://ci.apache.org/builders/syncope-master-docs</a></source>
+        <source><a href="https://ci.apache.org/builders/syncope-2_0_X-docs">https://ci.apache.org/builders/syncope-master-docs</a></source>
+      </p>
+      <p>
+        <source><a href="https://ci.apache.org/builders/syncope-2_0_X-docs">https://ci.apache.org/builders/syncope-master-docs</a></source>
       </p>
     </section>
   </body>
