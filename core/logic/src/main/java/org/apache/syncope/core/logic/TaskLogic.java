@@ -197,6 +197,11 @@ public class TaskLogic extends AbstractExecutableLogic<AbstractTaskTO> {
         if (task == null) {
             throw new NotFoundException("Task " + key);
         }
+        if (startAt != null && startAt.before(new Date())) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Scheduling);
+            sce.getElements().add("Cannot schedule in the past");
+            throw sce;
+        }
 
         ExecTO result = null;
         switch (taskUtilsFactory.getInstance(task).getType()) {
