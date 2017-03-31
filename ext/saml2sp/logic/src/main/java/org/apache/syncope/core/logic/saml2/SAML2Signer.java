@@ -21,8 +21,8 @@ package org.apache.syncope.core.logic.saml2;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import javax.xml.transform.TransformerException;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.cxf.rs.security.saml.DeflateEncoderDecoder;
 import org.apache.syncope.core.logic.init.SAML2SPLoader;
 import org.apache.wss4j.common.ext.WSSecurityException;
@@ -92,7 +92,7 @@ public class SAML2Signer {
             deflatedBytes = requestMessage.getBytes(StandardCharsets.UTF_8);
         }
 
-        return Base64.encodeBase64String(deflatedBytes);
+        return Base64.getEncoder().encodeToString(deflatedBytes);
     }
 
 }

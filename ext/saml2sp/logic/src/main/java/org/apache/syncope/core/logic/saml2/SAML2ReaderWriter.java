@@ -27,6 +27,7 @@ import java.io.Writer;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
+import java.util.Base64;
 import java.util.zip.DataFormatException;
 import javax.xml.XMLConstants;
 import javax.xml.stream.XMLStreamException;
@@ -36,7 +37,6 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.cxf.rs.security.saml.DeflateEncoderDecoder;
 import org.apache.cxf.rs.security.saml.sso.SAMLProtocolResponseValidator;
 import org.apache.cxf.staxutils.StaxUtils;
@@ -101,7 +101,7 @@ public class SAML2ReaderWriter {
         }
 
         InputStream tokenStream;
-        byte[] deflatedToken = Base64.decodeBase64(decodedResponse);
+        byte[] deflatedToken = Base64.getDecoder().decode(decodedResponse);
         tokenStream = !postBinding && useDeflateEncoding
                 ? new DeflateEncoderDecoder().inflateToken(deflatedToken)
                 : new ByteArrayInputStream(deflatedToken);

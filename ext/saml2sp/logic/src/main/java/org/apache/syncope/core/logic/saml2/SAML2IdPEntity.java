@@ -27,10 +27,10 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.syncope.common.lib.to.MappingItemTO;
 import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.metadata.Endpoint;
@@ -97,7 +97,8 @@ public class SAML2IdPEntity {
         for (KeyDescriptor key : idpdescriptor.getKeyDescriptors()) {
             for (X509Data x509Data : key.getKeyInfo().getX509Datas()) {
                 for (org.opensaml.xmlsec.signature.X509Certificate cert : x509Data.getX509Certificates()) {
-                    try (ByteArrayInputStream bais = new ByteArrayInputStream(Base64.decodeBase64(cert.getValue()))) {
+                    try (ByteArrayInputStream bais = new ByteArrayInputStream(
+                            Base64.getDecoder().decode(cert.getValue()))) {
                         chain.add(X509Certificate.class.cast(cf.generateCertificate(bais)));
                     }
                 }

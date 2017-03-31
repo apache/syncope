@@ -24,8 +24,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.ArrayUtils;
@@ -148,7 +148,7 @@ public class SAML2IdPLogic extends AbstractSAML2Logic<SAML2IdPTO> {
             idpTO.setUseDeflateEncoding(false);
             try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
                 saml2rw.write(new OutputStreamWriter(baos), idpEntityDescriptor, false);
-                idpTO.setMetadata(Base64.encodeBase64String(baos.toByteArray()));
+                idpTO.setMetadata(Base64.getEncoder().encodeToString(baos.toByteArray()));
             }
             MappingItemTO connObjectKeyItem = new MappingItemTO();
             connObjectKeyItem.setIntAttrName("username");
