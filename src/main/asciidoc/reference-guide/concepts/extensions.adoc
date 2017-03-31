@@ -54,7 +54,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/tree/syncope-{docVersion}/ext/camel[source tree^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/tree/tree/2_0_X/ext/camel[source tree^]
+https://github.com/apache/syncope/tree/2_0_X/ext/camel[source tree^]
 endif::[]
 .
 ====
@@ -80,7 +80,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/tree/syncope-{docVersion}/ext/swagger-ui[source tree^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/tree/tree/2_0_X/ext/swagger-ui[source tree^]
+https://github.com/apache/syncope/tree/2_0_X/ext/swagger-ui[source tree^]
 endif::[]
 .
 ====
@@ -105,7 +105,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/tree/syncope-{docVersion}/ext/saml2sp[source tree^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/tree/tree/2_0_X/ext/saml2sp[source tree^]
+https://github.com/apache/syncope/tree/2_0_X/ext/saml2sp[source tree^]
 endif::[]
 .
 ====
