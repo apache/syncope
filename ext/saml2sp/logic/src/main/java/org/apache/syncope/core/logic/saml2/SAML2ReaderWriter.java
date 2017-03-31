@@ -28,6 +28,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
 import java.util.zip.DataFormatException;
+import javax.xml.XMLConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -56,7 +57,16 @@ public class SAML2ReaderWriter {
 
     private static final Logger LOG = LoggerFactory.getLogger(SAML2ReaderWriter.class);
 
-    private static final TransformerFactory TRANSFORMER_FACTORY = TransformerFactory.newInstance();
+    private static final TransformerFactory TRANSFORMER_FACTORY;
+
+    static {
+        TRANSFORMER_FACTORY = TransformerFactory.newInstance();
+        try {
+            TRANSFORMER_FACTORY.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+        } catch (TransformerConfigurationException e) {
+            LOG.error("Could not enable secure XML processing", e);
+        }
+    }
 
     @Autowired
     private SAML2SPLoader loader;
