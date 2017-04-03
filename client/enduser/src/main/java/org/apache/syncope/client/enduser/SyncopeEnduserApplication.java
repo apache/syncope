@@ -28,6 +28,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.syncope.client.enduser.annotations.Resource;
 import org.apache.syncope.client.enduser.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.enduser.init.EnduserInitializer;
+import org.apache.syncope.client.enduser.resources.CaptchaResource;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.wicket.Page;
@@ -155,6 +156,18 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
                     LOG.error("Could not instantiate {}", resource.getName(), e);
                 }
             }
+        }
+        //mount captcha resource only if captcha is enabled
+        if (captchaEnabled) {
+            mountResource("/api/captcha", new ResourceReference("captcha") {
+
+                private static final long serialVersionUID = -128426276529456602L;
+
+                @Override
+                public IResource getResource() {
+                    return new CaptchaResource();
+                }
+            });
         }
     }
 
