@@ -21,13 +21,11 @@ package org.apache.syncope.client.enduser.resources;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
-import org.apache.syncope.client.enduser.annotations.Resource;
 import org.apache.wicket.extensions.markup.html.captcha.CaptchaImageResource;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Resource(key = "captcha", path = "/api/captcha")
 public class CaptchaResource extends CaptchaImageResource {
 
     private static final long serialVersionUID = 8293404296348102926L;
