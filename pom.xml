@@ -440,7 +440,7 @@ under the License.
     <select2.version>3.4.8</select2.version>
     <fileSaver.version>0.0.2</fileSaver.version>
     
-    <izpack.version>5.0.10</izpack.version>
+    <izpack.version>5.1.0</izpack.version>
     <httpclient.version>4.3.6</httpclient.version>
     <maven-invoker.version>3.0.0</maven-invoker.version>
     <tycho-version>1.0.0</tycho-version>
@@ -1702,7 +1702,7 @@ under the License.
         <plugin>
           <groupId>com.github.eirslett</groupId>
           <artifactId>frontend-maven-plugin</artifactId>
-          <version>1.3</version>
+          <version>1.4</version>
         </plugin>
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
