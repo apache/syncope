@@ -98,7 +98,7 @@ public class SAML2IdPEntity {
             for (X509Data x509Data : key.getKeyInfo().getX509Datas()) {
                 for (org.opensaml.xmlsec.signature.X509Certificate cert : x509Data.getX509Certificates()) {
                     try (ByteArrayInputStream bais = new ByteArrayInputStream(
-                            Base64.getDecoder().decode(cert.getValue()))) {
+                            Base64.getMimeDecoder().decode(cert.getValue()))) {
                         chain.add(X509Certificate.class.cast(cf.generateCertificate(bais)));
                     }
                 }
