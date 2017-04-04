@@ -47,7 +47,7 @@ public abstract class BaseResource extends AbstractResource {
 
     protected final boolean captchaCheck(final String enteredCaptcha, final Object currentCaptcha) {
         return SyncopeEnduserApplication.get().isCaptchaEnabled()
-                ? StringUtils.isBlank(currentCaptcha.toString()) || enteredCaptcha == null
+                ? currentCaptcha == null || enteredCaptcha == null || StringUtils.isBlank(currentCaptcha.toString())
                 ? false
                 : enteredCaptcha.equals(currentCaptcha.toString())
                 : true;

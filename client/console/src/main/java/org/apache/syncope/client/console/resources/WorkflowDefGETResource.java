@@ -26,7 +26,7 @@ import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.util.io.IOUtils;
 
 /**
- * Mirror REST resource for obtaining user workflow definition in JSON (used by Activiti Modeler).
+ * Mirror REST resource for obtaining user workflow definition in JSON (used by Activiti / Flowable Modeler).
  *
  * @see org.apache.syncope.common.rest.api.service.WorkflowService#exportDefinition
  */

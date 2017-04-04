@@ -377,6 +377,7 @@ under the License.
     <groovy.version>2.4.10</groovy.version>
 
     <activiti.version>5.22.0</activiti.version>
+    <flowable.version>5.23.0</flowable.version>
 
     <camel.version>2.17.6</camel.version>	
 
@@ -403,6 +404,7 @@ under the License.
     <connid.location>file:${bundles.directory}/</connid.location>
     <log.directory>${project.build.directory}/log</log.directory>
     <activiti-modeler.directory>${project.build.directory}/activiti-modeler</activiti-modeler.directory>
+    <flowable-modeler.directory>${project.build.directory}/flowable-modeler</flowable-modeler.directory>
 
     <swagger-core.version>1.5.12</swagger-core.version>    
     <swagger-ui.version>2.2.10</swagger-ui.version>
@@ -572,10 +574,10 @@ under the License.
         <version>${cxf.version}</version>
       </dependency>
       <dependency>
-	<groupId>org.apache.cxf</groupId>
-	<artifactId>cxf-rt-rs-security-sso-saml</artifactId>
-	<version>${cxf.version}</version>
-	<exclusions>
+        <groupId>org.apache.cxf</groupId>
+        <artifactId>cxf-rt-rs-security-sso-saml</artifactId>
+        <version>${cxf.version}</version>
+        <exclusions>
           <exclusion>
             <groupId>org.opensaml</groupId>
             <artifactId>opensaml-xacml-impl</artifactId>
@@ -584,26 +586,26 @@ under the License.
             <groupId>org.opensaml</groupId>
             <artifactId>opensaml-xacml-saml-impl</artifactId>
           </exclusion>
-	  <exclusion>
+          <exclusion>
             <groupId>org.apache.wss4j</groupId>
             <artifactId>wss4j-ws-security-dom</artifactId>
-	  </exclusion>
-	</exclusions>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
-	<groupId>org.apache.wss4j</groupId>
+        <groupId>org.apache.wss4j</groupId>
         <artifactId>wss4j-ws-security-dom</artifactId>
-	<version>2.1.9</version>
-	<exclusions>
-	  <exclusion>
-	    <groupId>org.jasypt</groupId>
-	    <artifactId>jasypt</artifactId>
-	  </exclusion>
+        <version>2.1.9</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.jasypt</groupId>
+            <artifactId>jasypt</artifactId>
+          </exclusion>
           <exclusion>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-javamail_1.4_spec</artifactId>
           </exclusion>
-	</exclusions>
+        </exclusions>
       </dependency>
       <!-- /CXF -->
 
@@ -1046,6 +1048,54 @@ under the License.
         <type>war</type>
       </dependency>
       <!-- /Activiti -->
+
+      <!-- Flowable -->
+      <dependency>
+        <groupId>org.flowable</groupId>
+        <artifactId>flowable-engine</artifactId>
+        <version>${flowable.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>javax.activation</groupId>
+            <artifactId>activation</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-email</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.flowable</groupId>
+        <artifactId>flowable-spring</artifactId>
+        <version>${flowable.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>commons-dbcp</groupId>
+            <artifactId>commons-dbcp</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.flowable</groupId>
+        <artifactId>flowable-json-converter</artifactId>
+        <version>${flowable.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.flowable</groupId>
+        <artifactId>flowable-webapp-explorer2</artifactId>
+        <version>${flowable.version}</version>
+        <type>war</type>
+      </dependency>
+      <!-- /Flowable -->
 
       <!-- Wicket -->
       <dependency>

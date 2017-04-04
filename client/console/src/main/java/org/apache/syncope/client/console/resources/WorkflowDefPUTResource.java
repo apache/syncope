@@ -30,7 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Mirror REST resource for putting user workflow definition in JSON (used by Activiti Modeler).
+ * Mirror REST resource for putting user workflow definition in JSON (used by Activiti / Flowable Modeler).
  *
  * @see org.apache.syncope.common.rest.api.service.WorkflowService#importDefinition
  */

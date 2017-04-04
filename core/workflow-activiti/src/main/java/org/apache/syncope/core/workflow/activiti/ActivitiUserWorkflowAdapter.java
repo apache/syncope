@@ -132,6 +132,11 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     protected DomainProcessEngine engine;
 
     @Override
+    public boolean supportsDefinitionEdit() {
+        return true;
+    }
+
+    @Override
     public String getPrefix() {
         return "ACT_";
     }

@@ -39,6 +39,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.init.ConsoleInitializer;
 import org.apache.syncope.client.console.pages.BasePage;
@@ -82,8 +83,6 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
                 Locale.ENGLISH, Locale.ITALIAN, new Locale("pt", "BR"), new Locale("ru")
             }));
 
-    private static final String ACTIVITI_MODELER_CONTEXT = "activiti-modeler";
-
     public static SyncopeConsoleApplication get() {
         return (SyncopeConsoleApplication) WebApplication.get();
     }
@@ -97,6 +96,8 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
     private String anonymousKey;
 
     private String activitiModelerDirectory;
+
+    private String flowableModelerDirectory;
 
     private String reconciliationReportKey;
 
@@ -210,7 +211,8 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
         mountPage("/login", getSignInPageClass());
 
         activitiModelerDirectory = props.getProperty("activitiModelerDirectory");
-        Args.notNull(activitiModelerDirectory, "<activitiModelerDirectory>");
+
+        flowableModelerDirectory = props.getProperty("flowableModelerDirectory");
 
         try {
             reconciliationReportKey = props.getProperty("reconciliationReportKey");
@@ -219,16 +221,32 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
         }
         Args.notNull(reconciliationReportKey, "<reconciliationReportKey>");
 
-        mountResource("/" + ACTIVITI_MODELER_CONTEXT, new ResourceReference(ACTIVITI_MODELER_CONTEXT) {
+        if (activitiModelerDirectory != null) {
+            mountResource("/" + Constants.ACTIVITI_MODELER_CONTEXT,
+                    new ResourceReference(Constants.ACTIVITI_MODELER_CONTEXT) {
 
-            private static final long serialVersionUID = -128426276529456602L;
+                private static final long serialVersionUID = -128426276529456602L;
 
-            @Override
-            public IResource getResource() {
-                return new FilesystemResource(ACTIVITI_MODELER_CONTEXT, activitiModelerDirectory);
-            }
+                @Override
+                public IResource getResource() {
+                    return new FilesystemResource(Constants.ACTIVITI_MODELER_CONTEXT, activitiModelerDirectory);
+                }
 
-        });
+            });
+        }
+        if (flowableModelerDirectory != null) {
+            mountResource("/" + Constants.FLOWABLE_MODELER_CONTEXT,
+                    new ResourceReference(Constants.FLOWABLE_MODELER_CONTEXT) {
+
+                private static final long serialVersionUID = -128426276529456602L;
+
+                @Override
+                public IResource getResource() {
+                    return new FilesystemResource(Constants.FLOWABLE_MODELER_CONTEXT, flowableModelerDirectory);
+                }
+
+            });
+        }
         mountResource("/workflowDefGET", new ResourceReference("workflowDefGET") {
 
             private static final long serialVersionUID = -128426276529456602L;
@@ -294,6 +312,10 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
 
     public String getActivitiModelerDirectory() {
         return activitiModelerDirectory;
+    }
+
+    public String getFlowableModelerDirectory() {
+        return flowableModelerDirectory;
     }
 
     public String getReconciliationReportKey() {

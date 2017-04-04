@@ -169,8 +169,7 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
 
         liContainer = new WebMarkupContainer(getLIContainerId("workflow"));
         liContainer.setOutputMarkupPlaceholderTag(true);
-        liContainer.setVisible(
-                SyncopeConsoleSession.get().getPlatformInfo().getUserWorkflowAdapter().contains("Activiti"));
+        liContainer.setVisible(SyncopeConsoleSession.get().getPlatformInfo().isUserWorkflowAdapterSupportEdit());
         confULContainer.add(liContainer);
         link = BookmarkablePageLinkBuilder.build("workflow", Workflow.class);
         MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.ENABLE, StandardEntitlement.WORKFLOW_DEF_READ);

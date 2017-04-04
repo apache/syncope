@@ -29,6 +29,12 @@ public final class Constants {
 
     public static final String SYNCOPE = "syncope";
 
+    public static final String ACTIVITI_MODELER_CONTEXT = "activiti-modeler";
+
+    public static final String FLOWABLE_MODELER_CONTEXT = "flowable-modeler";
+
+    public static final String MODELER_CONTEXT = "modelerContext";
+
     public static final String ON_CLICK = "click";
 
     public static final String ON_CHANGE = "change";

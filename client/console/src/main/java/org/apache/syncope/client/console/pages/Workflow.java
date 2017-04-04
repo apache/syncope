@@ -39,12 +39,12 @@ public class Workflow extends BasePage {
     public Workflow(final PageParameters parameters) {
         super(parameters);
 
-        final boolean isActivitiEnabledForUsers =
-                SyncopeConsoleSession.get().getPlatformInfo().getUserWorkflowAdapter().contains("Activiti");
+        final boolean userWFASupportsEdit =
+                SyncopeConsoleSession.get().getPlatformInfo().isUserWorkflowAdapterSupportEdit();
 
-        WebMarkupContainer noActivitiEnabledForUsers = new WebMarkupContainer("noActivitiEnabledForUsers");
-        noActivitiEnabledForUsers.setOutputMarkupPlaceholderTag(true);
-        body.add(noActivitiEnabledForUsers);
+        WebMarkupContainer disabled = new WebMarkupContainer("disabled");
+        disabled.setOutputMarkupPlaceholderTag(true);
+        body.add(disabled);
 
         WebMarkupContainer workflowDef = new WebMarkupContainer("workflowDefContainer");
         workflowDef.setOutputMarkupPlaceholderTag(true);
@@ -61,7 +61,7 @@ public class Workflow extends BasePage {
 
                     @Override
                     protected byte[] getImageData(final IResource.Attributes attributes) {
-                        return isActivitiEnabledForUsers
+                        return userWFASupportsEdit
                                 ? wfRestClient.getDiagram()
                                 : new byte[0];
                     }
@@ -76,8 +76,8 @@ public class Workflow extends BasePage {
         togglePanel.setOutputMarkupId(true);
         workflowDef.add(togglePanel);
 
-        if (isActivitiEnabledForUsers) {
-            noActivitiEnabledForUsers.setVisible(false);
+        if (userWFASupportsEdit) {
+            disabled.setVisible(false);
         } else {
             workflowDef.setVisible(false);
         }

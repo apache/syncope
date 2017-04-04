@@ -26,7 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.pages.ActivitiModelerPopupPage;
+import org.apache.syncope.client.console.pages.ModelerPopupPage;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.WorkflowRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
@@ -47,6 +47,7 @@ import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.util.io.IOUtils;
 
 public class WorkflowTogglePanel extends TogglePanel<String> {
@@ -67,20 +68,34 @@ public class WorkflowTogglePanel extends TogglePanel<String> {
         container.setOutputMarkupPlaceholderTag(true);
         addInnerObject(container);
 
-        BookmarkablePageLink<Void> activitiModeler = new BookmarkablePageLink<>("activitiModeler",
-                ActivitiModelerPopupPage.class);
-        activitiModeler.setPopupSettings(new VeilPopupSettings().setHeight(600).setWidth(800));
-        MetaDataRoleAuthorizationStrategy.authorize(activitiModeler, ENABLE, StandardEntitlement.WORKFLOW_DEF_READ);
-        container.add(activitiModeler);
-        // Check if Activiti Modeler directory is found
-        boolean activitiModelerEnabled = false;
+        // Check if Activiti or Flowable Modeler directory is found
+        String modelerContext = null;
         try {
-            File baseDir = new File(SyncopeConsoleApplication.get().getActivitiModelerDirectory());
-            activitiModelerEnabled = baseDir.exists() && baseDir.canRead() && baseDir.isDirectory();
+            if (SyncopeConsoleApplication.get().getActivitiModelerDirectory() != null) {
+                File baseDir = new File(SyncopeConsoleApplication.get().getActivitiModelerDirectory());
+                if (baseDir.exists() && baseDir.canRead() && baseDir.isDirectory()) {
+                    modelerContext = Constants.ACTIVITI_MODELER_CONTEXT;
+                }
+            }
+
+            if (SyncopeConsoleApplication.get().getFlowableModelerDirectory() != null) {
+                File baseDir = new File(SyncopeConsoleApplication.get().getFlowableModelerDirectory());
+                if (baseDir.exists() && baseDir.canRead() && baseDir.isDirectory()) {
+                    modelerContext = Constants.FLOWABLE_MODELER_CONTEXT;
+                }
+            }
         } catch (Exception e) {
-            LOG.error("Could not check for Activiti Modeler directory", e);
+            LOG.error("Could not check for Modeler directory", e);
         }
-        activitiModeler.setEnabled(activitiModelerEnabled);
+
+        PageParameters parameters = new PageParameters();
+        parameters.add(Constants.MODELER_CONTEXT, modelerContext);
+        BookmarkablePageLink<Void> workflowModeler =
+                new BookmarkablePageLink<>("workflowModeler", ModelerPopupPage.class, parameters);
+        workflowModeler.setPopupSettings(new VeilPopupSettings().setHeight(600).setWidth(800));
+        MetaDataRoleAuthorizationStrategy.authorize(workflowModeler, ENABLE, StandardEntitlement.WORKFLOW_DEF_READ);
+        container.add(workflowModeler);
+        workflowModeler.setEnabled(modelerContext != null);
 
         AjaxSubmitLink xmlEditorSubmit = modal.addSubmitButton();
         MetaDataRoleAuthorizationStrategy.authorize(xmlEditorSubmit, RENDER, StandardEntitlement.WORKFLOW_DEF_UPDATE);

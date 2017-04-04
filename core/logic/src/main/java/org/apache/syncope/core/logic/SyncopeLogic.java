@@ -167,8 +167,11 @@ public class SyncopeLogic extends AbstractLogic<AbstractBaseBean> {
                 }
 
                 PLATFORM_INFO.setAnyObjectWorkflowAdapter(AopUtils.getTargetClass(awfAdapter).getName());
+                PLATFORM_INFO.setAnyObjectWorkflowAdapterSupportEdit(awfAdapter.supportsDefinitionEdit());
                 PLATFORM_INFO.setUserWorkflowAdapter(AopUtils.getTargetClass(uwfAdapter).getName());
+                PLATFORM_INFO.setUserWorkflowAdapterSupportEdit(uwfAdapter.supportsDefinitionEdit());
                 PLATFORM_INFO.setGroupWorkflowAdapter(AopUtils.getTargetClass(gwfAdapter).getName());
+                PLATFORM_INFO.setGroupWorkflowAdapterSupportEdit(gwfAdapter.supportsDefinitionEdit());
 
                 PLATFORM_INFO.setAnyObjectProvisioningManager(aProvisioningManager.getClass().getName());
                 PLATFORM_INFO.setUserProvisioningManager(uProvisioningManager.getClass().getName());

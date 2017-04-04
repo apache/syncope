@@ -16,12 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.pages;
+package org.apache.syncope.core.workflow.flowable.task;
 
-import org.apache.wicket.markup.html.WebPage;
+import org.springframework.stereotype.Component;
 
-public class ActivitiModelerPopupPage extends WebPage {
+@Component
+public class Reactivate extends AbstractFlowableServiceTask {
 
-    private static final long serialVersionUID = -7031206743629422898L;
-
+    @Override
+    protected void doExecute(final String executionId) {
+    }
 }

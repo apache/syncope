@@ -47,6 +47,11 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     private ConfDAO confDAO;
 
     @Override
+    public boolean supportsDefinitionEdit() {
+        return false;
+    }
+
+    @Override
     public WorkflowResult<Pair<String, Boolean>> create(final UserTO userTO, final boolean storePassword) {
         return create(userTO, false, true);
     }

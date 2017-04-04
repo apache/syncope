@@ -37,6 +37,11 @@ import org.apache.syncope.core.workflow.api.WorkflowException;
 public class DefaultAnyObjectWorkflowAdapter extends AbstractAnyObjectWorkflowAdapter {
 
     @Override
+    public boolean supportsDefinitionEdit() {
+        return false;
+    }
+
+    @Override
     public WorkflowResult<String> create(final AnyObjectTO anyObjectTO) {
         AnyObject anyObject = entityFactory.newEntity(AnyObject.class);
         dataBinder.create(anyObject, anyObjectTO);

@@ -45,9 +45,15 @@ public class PlatformInfo extends AbstractBaseBean {
 
     private String anyObjectWorkflowAdapter;
 
+    private boolean anyObjectWorkflowAdapterSupportEdit;
+
     private String userWorkflowAdapter;
 
+    private boolean userWorkflowAdapterSupportEdit;
+
     private String groupWorkflowAdapter;
+
+    private boolean groupWorkflowAdapterSupportEdit;
 
     private String anyObjectProvisioningManager;
 
@@ -120,12 +126,24 @@ public class PlatformInfo extends AbstractBaseBean {
         return userWorkflowAdapter;
     }
 
+    public boolean isUserWorkflowAdapterSupportEdit() {
+        return userWorkflowAdapterSupportEdit;
+    }
+
     public String getGroupWorkflowAdapter() {
         return groupWorkflowAdapter;
     }
 
+    public boolean isGroupWorkflowAdapterSupportEdit() {
+        return groupWorkflowAdapterSupportEdit;
+    }
+
     public String getAnyObjectProvisioningManager() {
         return anyObjectProvisioningManager;
+    }
+
+    public boolean isAnyObjectWorkflowAdapterSupportEdit() {
+        return anyObjectWorkflowAdapterSupportEdit;
     }
 
     public String getUserProvisioningManager() {
@@ -273,12 +291,24 @@ public class PlatformInfo extends AbstractBaseBean {
         this.anyObjectWorkflowAdapter = anyObjectWorkflowAdapter;
     }
 
+    public void setAnyObjectWorkflowAdapterSupportEdit(final boolean anyObjectWorkflowAdapterSupportEdit) {
+        this.anyObjectWorkflowAdapterSupportEdit = anyObjectWorkflowAdapterSupportEdit;
+    }
+
     public void setUserWorkflowAdapter(final String userWorkflowAdapter) {
         this.userWorkflowAdapter = userWorkflowAdapter;
     }
 
+    public void setUserWorkflowAdapterSupportEdit(final boolean userWorkflowAdapterSupportEdit) {
+        this.userWorkflowAdapterSupportEdit = userWorkflowAdapterSupportEdit;
+    }
+
     public void setGroupWorkflowAdapter(final String groupWorkflowAdapter) {
         this.groupWorkflowAdapter = groupWorkflowAdapter;
+    }
+
+    public void setGroupWorkflowAdapterSupportEdit(final boolean groupWorkflowAdapterSupportEdit) {
+        this.groupWorkflowAdapterSupportEdit = groupWorkflowAdapterSupportEdit;
     }
 
     public void setAnyObjectProvisioningManager(final String anyObjectProvisioningManager) {
