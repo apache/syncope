@@ -30,6 +30,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.provisioning.api.EntitlementsHolder;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -38,6 +40,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 
 public final class AuthContextUtils {
+
+    private static final Logger LOG = LoggerFactory.getLogger(AuthContextUtils.class);
 
     public interface Executable<T> {
 
@@ -112,6 +116,9 @@ public final class AuthContextUtils {
         setFakeAuth(domainKey);
         try {
             return executable.exec();
+        } catch (Throwable t) {
+            LOG.debug("Error during execution with domain {} context", domainKey, t);
+            throw t;
         } finally {
             SecurityContextHolder.clearContext();
             SecurityContextHolder.setContext(ctx);

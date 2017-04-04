@@ -24,6 +24,7 @@ import de.agilecoders.wicket.core.settings.IBootstrapSettings;
 import de.agilecoders.wicket.core.settings.SingleThemeProvider;
 import java.io.File;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -32,7 +33,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
-import javax.ws.rs.core.MediaType;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.ClassUtils;
@@ -47,8 +49,13 @@ import org.apache.syncope.client.console.resources.FilesystemResource;
 import org.apache.syncope.client.console.resources.WorkflowDefGETResource;
 import org.apache.syncope.client.console.resources.WorkflowDefPUTResource;
 import org.apache.syncope.client.console.themes.AdminLTE;
+import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
+import org.apache.syncope.common.lib.EntityTOUtils;
+import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.to.DomainTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.common.rest.api.service.DomainService;
 import org.apache.wicket.Page;
 import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.authroles.authentication.AbstractAuthenticatedWebSession;
@@ -93,7 +100,17 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
 
     private String reconciliationReportKey;
 
-    private SyncopeClientFactoryBean clientFactory;
+    private String scheme;
+
+    private String host;
+
+    private String port;
+
+    private String rootPath;
+
+    private String useGZIPCompression;
+
+    private List<String> domains;
 
     private Map<String, Class<? extends BasePage>> pageClasses;
 
@@ -146,20 +163,16 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
         anonymousKey = props.getProperty("anonymousKey");
         Args.notNull(anonymousKey, "<anonymousKey>");
 
-        String scheme = props.getProperty("scheme");
+        scheme = props.getProperty("scheme");
         Args.notNull(scheme, "<scheme>");
-        String host = props.getProperty("host");
+        host = props.getProperty("host");
         Args.notNull(host, "<host>");
-        String port = props.getProperty("port");
+        port = props.getProperty("port");
         Args.notNull(port, "<port>");
-        String rootPath = props.getProperty("rootPath");
+        rootPath = props.getProperty("rootPath");
         Args.notNull(rootPath, "<rootPath>");
-        String useGZIPCompression = props.getProperty("useGZIPCompression");
+        useGZIPCompression = props.getProperty("useGZIPCompression");
         Args.notNull(useGZIPCompression, "<useGZIPCompression>");
-
-        clientFactory = new SyncopeClientFactoryBean().
-                setAddress(scheme + "://" + host + ":" + port + "/" + rootPath).
-                setUseCompression(BooleanUtils.toBoolean(useGZIPCompression));
 
         // process page properties
         pageClasses = new HashMap<>();
@@ -287,12 +300,24 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
         return reconciliationReportKey;
     }
 
-    public SyncopeClientFactoryBean getClientFactory() {
-        return clientFactory;
+    public SyncopeClientFactoryBean newClientFactory() {
+        return new SyncopeClientFactoryBean().
+                setAddress(scheme + "://" + host + ":" + port + "/" + rootPath).
+                setUseCompression(BooleanUtils.toBoolean(useGZIPCompression));
     }
 
-    public MediaType getMediaType() {
-        return clientFactory.getContentType().getMediaType();
+    public List<String> getDomains() {
+        synchronized (LOG) {
+            if (domains == null) {
+                domains = new ArrayList<>();
+                domains.add(SyncopeConstants.MASTER_DOMAIN);
+                CollectionUtils.collect(newClientFactory().create(
+                        new AnonymousAuthenticationHandler(anonymousUser, anonymousKey)).
+                        getService(DomainService.class).list(),
+                        EntityTOUtils.<DomainTO>keyTransformer(), domains);
+                domains = ListUtils.unmodifiableList(domains);
+            }
+        }
+        return domains;
     }
-
 }

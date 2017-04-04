@@ -19,10 +19,8 @@
 package org.apache.syncope.client.console;
 
 import java.text.DateFormat;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -30,7 +28,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MediaType;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.commons.lang3.tuple.Pair;
@@ -39,12 +36,9 @@ import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.EntityTOUtils;
-import org.apache.syncope.common.lib.to.DomainTO;
 import org.apache.syncope.common.lib.info.PlatformInfo;
 import org.apache.syncope.common.lib.info.SystemInfo;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.rest.api.service.DomainService;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.wicket.Session;
 import org.apache.wicket.authroles.authentication.AuthenticatedWebSession;
@@ -72,13 +66,13 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
         THREAD_POOL_FACTORY.setDaemon(true);
     }
 
+    private final SyncopeClientFactoryBean clientFactory;
+
     private final SyncopeClient anonymousClient;
 
     private final PlatformInfo platformInfo;
 
     private final SystemInfo systemInfo;
-
-    private final List<String> domains;
 
     private String domain;
 
@@ -101,18 +95,18 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
     public SyncopeConsoleSession(final Request request) {
         super(request);
 
-        anonymousClient = SyncopeConsoleApplication.get().getClientFactory().
+        clientFactory = SyncopeConsoleApplication.get().newClientFactory();
+        anonymousClient = clientFactory.
                 create(new AnonymousAuthenticationHandler(
                         SyncopeConsoleApplication.get().getAnonymousUser(),
                         SyncopeConsoleApplication.get().getAnonymousKey()));
 
         platformInfo = anonymousClient.getService(SyncopeService.class).platform();
         systemInfo = anonymousClient.getService(SyncopeService.class).system();
+    }
 
-        domains = new ArrayList<>();
-        domains.add(SyncopeConstants.MASTER_DOMAIN);
-        CollectionUtils.collect(anonymousClient.getService(DomainService.class).list(),
-                EntityTOUtils.<DomainTO>keyTransformer(), domains);
+    public MediaType getMediaType() {
+        return clientFactory.getContentType().getMediaType();
     }
 
     public SyncopeClient getAnonymousClient() {
@@ -129,10 +123,6 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
 
     public SystemInfo getSystemInfo() {
         return systemInfo;
-    }
-
-    public List<String> getDomains() {
-        return domains;
     }
 
     public void setDomain(final String domain) {
@@ -158,7 +148,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
         boolean authenticated = false;
 
         try {
-            client = SyncopeConsoleApplication.get().getClientFactory().
+            client = clientFactory.
                     setDomain(getDomain()).create(username, password);
 
             afterAuthentication();
@@ -175,7 +165,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
         boolean authenticated = false;
 
         try {
-            client = SyncopeConsoleApplication.get().getClientFactory().
+            client = clientFactory.
                     setDomain(getDomain()).create(jwt);
 
             afterAuthentication();
@@ -275,15 +265,15 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
     public <T> T getService(final MediaType mediaType, final Class<T> serviceClass) {
         T service;
 
-        synchronized (SyncopeConsoleApplication.get().getClientFactory()) {
-            SyncopeClientFactoryBean.ContentType preType = SyncopeConsoleApplication.get().getClientFactory().
+        synchronized (clientFactory) {
+            SyncopeClientFactoryBean.ContentType preType = clientFactory.
                     getContentType();
 
-            SyncopeConsoleApplication.get().getClientFactory().
+            clientFactory.
                     setContentType(SyncopeClientFactoryBean.ContentType.fromString(mediaType.toString()));
-            service = SyncopeConsoleApplication.get().getClientFactory().create(getJWT()).getService(serviceClass);
+            service = clientFactory.create(getJWT()).getService(serviceClass);
 
-            SyncopeConsoleApplication.get().getClientFactory().setContentType(preType);
+            clientFactory.setContentType(preType);
         }
 
         return service;
