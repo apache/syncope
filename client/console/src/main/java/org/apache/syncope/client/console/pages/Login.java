@@ -100,7 +100,7 @@ public class Login extends WebPage {
         form.add(languageSelect);
 
         domainSelect = new DomainDropDown("domain");
-        if (SyncopeConsoleSession.get().getDomains().size() == 1) {
+        if (SyncopeConsoleApplication.get().getDomains().size() == 1) {
             domainSelect.setOutputMarkupPlaceholderTag(true);
         }
         form.add(domainSelect);
@@ -219,7 +219,7 @@ public class Login extends WebPage {
         private static final long serialVersionUID = -7401167913360133325L;
 
         DomainDropDown(final String id) {
-            super(id, SyncopeConsoleSession.get().getDomains());
+            super(id, SyncopeConsoleApplication.get().getDomains());
 
             setModel(new IModel<String>() {
 

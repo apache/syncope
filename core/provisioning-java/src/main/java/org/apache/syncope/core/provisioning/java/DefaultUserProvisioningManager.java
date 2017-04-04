@@ -56,7 +56,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 public class DefaultUserProvisioningManager implements UserProvisioningManager {
 
-    private static final Logger LOG = LoggerFactory.getLogger(UserProvisioningManager.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(UserProvisioningManager.class);
 
     @Autowired
     protected UserWorkflowAdapter uwfAdapter;
