@@ -89,7 +89,9 @@ public class WorkflowTogglePanel extends TogglePanel<String> {
         }
 
         PageParameters parameters = new PageParameters();
-        parameters.add(Constants.MODELER_CONTEXT, modelerContext);
+        if (modelerContext != null) {
+            parameters.add(Constants.MODELER_CONTEXT, modelerContext);
+        }
         BookmarkablePageLink<Void> workflowModeler =
                 new BookmarkablePageLink<>("workflowModeler", ModelerPopupPage.class, parameters);
         workflowModeler.setPopupSettings(new VeilPopupSettings().setHeight(600).setWidth(800));
