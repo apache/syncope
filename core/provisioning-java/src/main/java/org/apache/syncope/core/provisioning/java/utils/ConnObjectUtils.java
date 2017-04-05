@@ -219,6 +219,8 @@ public class ConnObjectUtils {
                     }
                     updatedGroup.setUserOwner(originalGroup.getUserOwner());
                     updatedGroup.setGroupOwner(originalGroup.getGroupOwner());
+                    updatedGroup.setUDynMembershipCond(originalGroup.getUDynMembershipCond());
+                    updatedGroup.getADynMembershipConds().putAll(originalGroup.getADynMembershipConds());
                     updatedGroup.getTypeExtensions().addAll(originalGroup.getTypeExtensions());
 
                     anyPatch = (T) AnyOperations.diff(updatedGroup, originalGroup, true);
