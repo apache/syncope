@@ -116,7 +116,10 @@ public class ConnObjectUtils {
      */
     @Transactional(readOnly = true)
     public <T extends AnyTO> T getAnyTO(
-            final ConnectorObject obj, final PullTask pullTask, final Provision provision, final AnyUtils anyUtils) {
+            final ConnectorObject obj,
+            final PullTask pullTask,
+            final Provision provision,
+            final AnyUtils anyUtils) {
 
         T anyTO = getAnyTOFromConnObject(obj, pullTask, provision, anyUtils);
 
@@ -170,40 +173,80 @@ public class ConnObjectUtils {
      */
     @SuppressWarnings("unchecked")
     @Transactional(readOnly = true)
-    public <T extends AnyPatch> T getAnyPatch(final String key, final ConnectorObject obj,
-            final AnyTO original, final PullTask pullTask, final Provision provision, final AnyUtils anyUtils) {
+    public <T extends AnyPatch> T getAnyPatch(
+            final String key,
+            final ConnectorObject obj,
+            final AnyTO original,
+            final PullTask pullTask,
+            final Provision provision,
+            final AnyUtils anyUtils) {
 
         AnyTO updated = getAnyTOFromConnObject(obj, pullTask, provision, anyUtils);
         updated.setKey(key);
 
+        T anyPatch = null;
         if (null != anyUtils.getAnyTypeKind()) {
             switch (anyUtils.getAnyTypeKind()) {
                 case USER:
+                    UserTO originalUser = (UserTO) original;
+                    UserTO updatedUser = (UserTO) updated;
+
+                    if (StringUtils.isBlank(updatedUser.getUsername())) {
+                        updatedUser.setUsername(originalUser.getUsername());
+                    }
+
                     // update password if and only if password is really changed
                     User user = userDAO.authFind(key);
-                    if (StringUtils.isBlank(((UserTO) updated).getPassword())
-                            || ENCRYPTOR.verify(((UserTO) updated).getPassword(),
+                    if (StringUtils.isBlank(updatedUser.getPassword())
+                            || ENCRYPTOR.verify(updatedUser.getPassword(),
                                     user.getCipherAlgorithm(), user.getPassword())) {
 
-                        ((UserTO) updated).setPassword(null);
+                        updatedUser.setPassword(null);
                     }
-                    return (T) AnyOperations.diff(((UserTO) updated), ((UserTO) original), true);
+
+                    updatedUser.setSecurityQuestion(updatedUser.getSecurityQuestion());
+                    updatedUser.setMustChangePassword(originalUser.isMustChangePassword());
+
+                    anyPatch = (T) AnyOperations.diff(updatedUser, originalUser, true);
+                    break;
 
                 case GROUP:
-                    return (T) AnyOperations.diff(((GroupTO) updated), ((GroupTO) original), true);
+                    GroupTO originalGroup = (GroupTO) original;
+                    GroupTO updatedGroup = (GroupTO) updated;
+
+                    if (StringUtils.isBlank(updatedGroup.getName())) {
+                        updatedGroup.setName(originalGroup.getName());
+                    }
+                    updatedGroup.setUserOwner(originalGroup.getUserOwner());
+                    updatedGroup.setGroupOwner(originalGroup.getGroupOwner());
+                    updatedGroup.getTypeExtensions().addAll(originalGroup.getTypeExtensions());
+
+                    anyPatch = (T) AnyOperations.diff(updatedGroup, originalGroup, true);
+                    break;
 
                 case ANY_OBJECT:
-                    return (T) AnyOperations.diff(((AnyObjectTO) updated), ((AnyObjectTO) original), true);
+                    AnyObjectTO originalAnyObject = (AnyObjectTO) original;
+                    AnyObjectTO updatedAnyObject = (AnyObjectTO) updated;
+
+                    if (StringUtils.isBlank(updatedAnyObject.getName())) {
+                        updatedAnyObject.setName(originalAnyObject.getName());
+                    }
+
+                    anyPatch = (T) AnyOperations.diff(updatedAnyObject, originalAnyObject, true);
+                    break;
 
                 default:
             }
         }
 
-        return null;
+        return anyPatch;
     }
 
-    private <T extends AnyTO> T getAnyTOFromConnObject(final ConnectorObject obj,
-            final PullTask pullTask, final Provision provision, final AnyUtils anyUtils) {
+    private <T extends AnyTO> T getAnyTOFromConnObject(
+            final ConnectorObject obj,
+            final PullTask pullTask,
+            final Provision provision,
+            final AnyUtils anyUtils) {
 
         T anyTO = anyUtils.newAnyTO();
         anyTO.setType(provision.getAnyType().getKey());

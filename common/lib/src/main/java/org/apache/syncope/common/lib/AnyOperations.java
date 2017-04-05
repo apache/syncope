@@ -400,15 +400,17 @@ public final class AnyOperations {
         // 2. ownership
         result.setUserOwner(
                 replacePatchItem(updated.getUserOwner(), original.getUserOwner(), new StringReplacePatchItem()));
-        result.setGroupOwner(replacePatchItem(updated.getGroupOwner(), original.getGroupOwner(),
-                new StringReplacePatchItem()));
+        result.setGroupOwner(
+                replacePatchItem(updated.getGroupOwner(), original.getGroupOwner(), new StringReplacePatchItem()));
 
-        // 3. dynamic membership
-        result.setUDynMembershipCond(updated.getUDynMembershipCond());
-        result.getADynMembershipConds().putAll(updated.getADynMembershipConds());
+        if (!incremental) {
+            // 3. dynamic membership
+            result.setUDynMembershipCond(updated.getUDynMembershipCond());
+            result.getADynMembershipConds().putAll(updated.getADynMembershipConds());
 
-        // 4. type extensions
-        result.getTypeExtensions().addAll(updated.getTypeExtensions());
+            // 4. type extensions
+            result.getTypeExtensions().addAll(updated.getTypeExtensions());
+        }
 
         return result;
     }
