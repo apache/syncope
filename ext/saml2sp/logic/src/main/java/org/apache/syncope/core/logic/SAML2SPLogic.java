@@ -270,6 +270,10 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
                     : "SAML 2.0 IdP '" + idpEntityID + "'");
         }
 
+        if (idp.getSSOLocation(SAMLConstants.SAML2_POST_BINDING_URI) == null) {
+            throw new IllegalArgumentException("No SingleSignOnService available for " + idp.getId());
+        }
+
         // 2. create AuthnRequest
         Issuer issuer = new IssuerBuilder().buildObject();
         issuer.setValue(spEntityID);
