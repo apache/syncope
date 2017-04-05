@@ -403,14 +403,12 @@ public final class AnyOperations {
         result.setGroupOwner(
                 replacePatchItem(updated.getGroupOwner(), original.getGroupOwner(), new StringReplacePatchItem()));
 
-        if (!incremental) {
-            // 3. dynamic membership
-            result.setUDynMembershipCond(updated.getUDynMembershipCond());
-            result.getADynMembershipConds().putAll(updated.getADynMembershipConds());
+        // 3. dynamic membership
+        result.setUDynMembershipCond(updated.getUDynMembershipCond());
+        result.getADynMembershipConds().putAll(updated.getADynMembershipConds());
 
-            // 4. type extensions
-            result.getTypeExtensions().addAll(updated.getTypeExtensions());
-        }
+        // 4. type extensions
+        result.getTypeExtensions().addAll(updated.getTypeExtensions());
 
         return result;
     }
