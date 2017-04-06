@@ -21,10 +21,10 @@
 
 'use strict';
 
-angular.module("self").controller("UserController", ['$scope', '$rootScope', '$location', '$compile', "$state",
-  'AuthService', 'UserSelfService', 'SchemaService', 'RealmService', 'ResourceService', 'SecurityQuestionService',
+angular.module("self").controller("UserController", ['$scope', '$rootScope', '$location', "$state",
+  'UserSelfService', 'SchemaService', 'RealmService', 'ResourceService', 'SecurityQuestionService',
   'GroupService', 'AnyService', 'UserUtil', 'GenericUtil', 'ValidationExecutor', '$translate',
-  function ($scope, $rootScope, $location, $compile, $state, AuthService, UserSelfService, SchemaService, RealmService,
+  function ($scope, $rootScope, $location, $state, UserSelfService, SchemaService, RealmService,
           ResourceService, SecurityQuestionService, GroupService, AnyService, UserUtil, GenericUtil, ValidationExecutor, $translate) {
 
     $scope.user = {};
@@ -41,6 +41,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
     $scope.captchaInput = {
       value: ""
     };
+    $scope.customForm = {};
 
     $scope.initUser = function () {
       $scope.dynamicForm = {
@@ -64,14 +65,24 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
         // initialization is done here synchronously to have all schema fields populated correctly
         var schemaService;
         if (group) {
-          schemaService = SchemaService.getTypeExtSchemas(group, $rootScope.attributesSorting.ASC);
+          /* 
+           * if you want to sort with custom JS function defined in put also a sorting function as last parameter
+           * e.g. $rootScope.attributesSorting.ASC
+           */
+          schemaService = SchemaService.getTypeExtSchemas(group, $rootScope.customForm);
         } else {
-          schemaService = SchemaService.getUserSchemas(anyTypeClass, $rootScope.attributesSorting.ASC);
+          /* 
+           * if you want to sort with custom JS function defined in put also a sorting function as last parameter
+           * e.g. $rootScope.attributesSorting.ASC
+           */
+          schemaService = SchemaService.getUserSchemas(anyTypeClass, $rootScope.customForm);
         }
         schemaService.then(function (schemas) {
           if (group && (schemas.plainSchemas.length > 0 || schemas.derSchemas.length > 0 || schemas.virSchemas.length > 0))
             $scope.dynamicForm.groupSchemas.push(group);
-          //initializing user schemas values
+          /* 
+           * initializing user schemas values, i.e. USER attributes
+           */
           initSchemaValues(schemas);
         }, function (response) {
           // parse error response and log
@@ -90,19 +101,37 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
         // initialize plain attributes
         for (var i = 0; i < schemas.plainSchemas.length; i++) {
           var plainSchemaKey = schemas.plainSchemas[i].key;
+          var initialAttributeValues = $rootScope.customForm != null
+                  && $rootScope.customForm["PLAIN"] != null
+                  && $rootScope.customForm["PLAIN"]["attributes"] != null
+                  && $rootScope.customForm["PLAIN"]["attributes"][plainSchemaKey] != null
+                  && $rootScope.customForm["PLAIN"]["attributes"][plainSchemaKey].defaultValues
+                  ? $rootScope.customForm["PLAIN"]["attributes"][plainSchemaKey].defaultValues
+                  : [];
           if (!$scope.user.plainAttrs[plainSchemaKey]) {
             $scope.user.plainAttrs[plainSchemaKey] = {
               schema: plainSchemaKey,
-              values: []
+              values: initialAttributeValues
             };
-            // initialize multivalue schema and support table: create mode, only first value
             if (schemas.plainSchemas[i].multivalue) {
-              $scope.dynamicForm.attributeTable[schemas.plainSchemas[i].key] = {
-                fields: [schemas.plainSchemas[i].key + "_" + 0]
-              };
+              // initialize multivalue schema and support table: create mode, default multivalues
+              if (initialAttributeValues.length > 0) {
+                // attribute create mode, init empty fields  
+                $scope.dynamicForm.attributeTable[plainSchemaKey] = {
+                  fields: []
+                };
+                for (var j = 0; j < initialAttributeValues.length; j++) {
+                  $scope.dynamicForm.attributeTable[plainSchemaKey].fields.push(plainSchemaKey + "_" + j);
+                }
+              } else {
+                // initialize multivalue schema and support table: create mode, only first value
+                $scope.dynamicForm.attributeTable[schemas.plainSchemas[i].key] = {
+                  fields: [schemas.plainSchemas[i].key + "_" + 0]
+                };
+              }
             }
           } else if (schemas.plainSchemas[i].multivalue) {
-            // initialize multivalue schema and support table: update mode, all provided values
+            // initialize multivalue attribute and support table: update mode, all provided values
             $scope.dynamicForm.attributeTable[schemas.plainSchemas[i].key] = {
               fields: [schemas.plainSchemas[i].key + "_" + 0]
             };
@@ -133,12 +162,12 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
               schema: virSchemaKey,
               values: []
             };
-            // initialize multivalue schema and support table: create mode, only first value
+            // initialize multivalue attribute and support table: create mode, only first value
             $scope.dynamicForm.virtualAttributeTable[schemas.virSchemas[i].key] = {
               fields: [schemas.virSchemas[i].key + "_" + 0]
             };
           } else {
-            // initialize multivalue schema and support table: update mode, all provided values
+            // initialize multivalue attribute and support table: update mode, all provided values
             $scope.dynamicForm.virtualAttributeTable[schemas.virSchemas[i].key] = {
               fields: [schemas.virSchemas[i].key + "_" + 0]
             };
@@ -271,6 +300,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
           if ($scope.user.mustChangePassword) {
             $location.path('/mustchangepassword');
           } else {
+//            initConfiguration();
             initProperties();
           }
         }, function (e) {

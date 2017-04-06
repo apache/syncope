@@ -20,22 +20,22 @@
 'use strict';
 
 angular.module('self')
-        .factory('SAML2IdPService', ['$resource', '$q', '$http',
-          function ($resource, $q, $http) {
+        .factory('ConfigurationService', ['$q', '$http',
+          function ($q, $http) {
 
-            var saml2IdPService = {};
+            var configuration = {};
 
-            saml2IdPService.getAvailableSAML2IdPs = function () {
-              return $http.get("/syncope-enduser/api/saml2IdPs")
+            configuration.get = function (filename) {
+              return  $http.get("/syncope-enduser/app/configuration/" + filename, {cache: false})
                       .then(function (response) {
                         return response.data;
                       }, function (response) {
-                        console.error("Something went wrong during saml2Idp extesion retrieval, exit with status: ", response);
-                        return $q.reject(response.data || response.statusText);
+                        console.error("Unable to retrieve " + filename);
+                        return $q.reject(response.data);
                       });
             };
 
-            return saml2IdPService;
+            return configuration;
           }]);
 
 

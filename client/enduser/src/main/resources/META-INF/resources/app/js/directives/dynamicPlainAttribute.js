@@ -19,7 +19,7 @@
 
 'use strict';
 angular.module('self')
-        .directive('dynamicPlainAttribute', function ($filter) {
+        .directive('dynamicPlainAttribute', function () {
           return {
             restrict: 'E',
             templateUrl: 'views/dynamicPlainAttribute.html',
@@ -50,10 +50,10 @@ angular.module('self')
                       $scope.enumerationValues.push(enumerationValuesSplitted[i]);
                     }
                     //SYNCOPE-1024 enumeration keys mgmt
-                    if ( schema.enumerationKeys ) {
-                      var enumerationKeysSplitted = schema.enumerationKeys.toString().split( ";" );
-                      for ( var i = 0; i < enumerationKeysSplitted.length; i++ ) {
-                        $scope.enumerationKeys.push( enumerationKeysSplitted[i] );
+                    if (schema.enumerationKeys) {
+                      var enumerationKeysSplitted = schema.enumerationKeys.toString().split(";");
+                      for (var i = 0; i < enumerationKeysSplitted.length; i++) {
+                        $scope.enumerationKeys.push(enumerationKeysSplitted[i]);
                       }
                     }
                     $scope.user.plainAttrs[schema.key].values[index] = $scope.user.plainAttrs[schema.key].values[index]
@@ -119,10 +119,18 @@ angular.module('self')
 
                   case "Boolean":
                     $scope.user.plainAttrs[schema.key].values[index] =
-                            $scope.user.plainAttrs[schema.key].values[index] === "true" ? true : false;
+                            $scope.user.plainAttrs[schema.key].values[index] === "true" ? "true" : "false";
                     break;
 
                 }
+              };
+
+              $scope.customReadonly = function (schemaKey) {
+                return  $rootScope.customForm != null
+                        && $rootScope.customForm["PLAIN"] != null
+                        && $rootScope.customForm["PLAIN"]["attributes"] != null
+                        && $rootScope.customForm["PLAIN"]["attributes"][schemaKey] != null
+                        && $rootScope.customForm["PLAIN"]["attributes"][schemaKey].readonly;
               };
 
               $scope.$watch(function () {

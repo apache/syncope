@@ -19,5 +19,5 @@ under the License.
 <p>
   <input class="form-control" type="text"
          ng-model="user.virAttrs[schema.key].values[index]"
-         ng-disabled="schema.readonly"/>
+         ng-disabled="schema.readonly || customReadonly(schema.key)"/>
 </p>

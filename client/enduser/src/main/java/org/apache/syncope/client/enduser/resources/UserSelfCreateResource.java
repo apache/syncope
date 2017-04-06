@@ -65,7 +65,7 @@ public class UserSelfCreateResource extends BaseResource {
     @Override
     protected ResourceResponse newResourceResponse(final Attributes attributes) {
         ResourceResponse response = new ResourceResponse();
-        response.setContentType(MediaType.APPLICATION_JSON);
+        response.setContentType(MediaType.TEXT_PLAIN);
         try {
             HttpServletRequest request = (HttpServletRequest) attributes.getRequest().getContainerRequest();
 

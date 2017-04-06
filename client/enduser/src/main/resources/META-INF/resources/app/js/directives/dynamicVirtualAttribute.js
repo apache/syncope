@@ -28,16 +28,41 @@ angular.module('self')
               index: "=",
               user: "="
             },
-            controller: function ($scope) {
+            controller: function ($scope, $rootScope) {
+              var customValues = $rootScope.customForm != null
+                      && $rootScope.customForm["VIRTUAL"] != null
+                      && $rootScope.customForm["VIRTUAL"]["attributes"] != null
+                      && $rootScope.customForm["VIRTUAL"]["attributes"][$scope.schema.key] != null
+                      && $rootScope.customForm["VIRTUAL"]["attributes"][$scope.schema.key].defaultValues
+                      ? $rootScope.customForm["VIRTUAL"]["attributes"][$scope.schema.key].defaultValues
+                      : [];
+
               $scope.$watch(function () {
                 return $scope.user.virAttrs[$scope.schema.key].values[$scope.index];
               }, function (newValue, oldValue) {
-                $scope.user.virAttrs[$scope.schema.key].values = $scope.user.virAttrs[$scope.schema.key].values
-                        .filter(function (n) {
-                          return (n !== undefined && n !== "");
-                        });
+                if ($scope.user.virAttrs[$scope.schema.key].values
+                        && $scope.user.virAttrs[$scope.schema.key].values.length > 0) {
+                  $scope.user.virAttrs[$scope.schema.key].values = $scope.user.virAttrs[$scope.schema.key].values
+                          .filter(function (n) {
+                            return (n !== undefined && n !== "");
+                          });
+                } else {
+                  $scope.user.virAttrs[$scope.schema.key].values = customValues
+                          .filter(function (n) {
+                            return (n !== undefined && n !== "");
+                          });
+                }
               });
+
+              $scope.customReadonly = function (schemaKey) {
+                return  $rootScope.customForm != null
+                        && $rootScope.customForm["VIRTUAL"] != null
+                        && $rootScope.customForm["VIRTUAL"]["attributes"] != null
+                        && $rootScope.customForm["VIRTUAL"]["attributes"][schemaKey] != null
+                        && $rootScope.customForm["VIRTUAL"]["attributes"][schemaKey].readonly;
+              };
             }
             //replace: true
           };
+
         });
