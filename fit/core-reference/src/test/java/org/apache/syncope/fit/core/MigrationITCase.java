@@ -481,11 +481,37 @@ public class MigrationITCase extends AbstractTaskITCase {
         // 3. execute pull task
         execProvisioningTask(taskService, pullTaskKey, 50, false);
 
-        Thread.sleep(3000L);
-
         // 4. verify
-        UserTO user = userService.read("rossini12");
+        UserTO user = null;
+
+        int i = 0;
+        boolean membershipFound = false;
+        do {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+
+            try {
+                user = userService.read("rossini12");
+                assertNotNull(user);
+
+                membershipFound = IterableUtils.matchesAny(user.getMemberships(), new Predicate<MembershipTO>() {
+
+                    @Override
+                    public boolean evaluate(final MembershipTO object) {
+                        return "1 root12".equals(object.getGroupName());
+                    }
+                });
+            } catch (Exception e) {
+                // ignore
+            }
+
+            i++;
+        } while (!membershipFound && i < 50);
         assertNotNull(user);
+        assertTrue(membershipFound);
+
         assertEquals("/" + MIGRATION_REALM, user.getRealm());
         GroupTO group = groupService.read("12 aRoleForPropagation12");
         assertNotNull(group);
@@ -498,22 +524,13 @@ public class MigrationITCase extends AbstractTaskITCase {
         // 4b. user resources
         assertTrue(user.getResources().contains(RESOURCE_NAME_TESTDB2));
 
-        // 4c. user memberships
-        assertTrue(IterableUtils.matchesAny(user.getMemberships(), new Predicate<MembershipTO>() {
-
-            @Override
-            public boolean evaluate(final MembershipTO object) {
-                return "1 root12".equals(object.getGroupName());
-            }
-        }));
-
-        // 4d. user password
+        // 4c. user password
         assertNotNull(clientFactory.create("bellini12", ADMIN_PWD).self());
 
-        // 4e. group plain attrs
+        // 4d. group plain attrs
         assertEquals("r12", group.getPlainAttrMap().get("title").getValues().get(0));
 
-        // 4f. group resources
+        // 4e. group resources
         assertTrue(group.getResources().contains(RESOURCE_NAME_CSV));
     }
 }

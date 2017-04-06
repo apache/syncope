@@ -194,8 +194,8 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
             securityChecks(effectiveRealms, before.getLeft().getRealm(), null);
         }
 
-        Pair<String, List<PropagationStatus>> created = provisioningManager.create(before.getLeft(), storePassword,
-                nullPriorityAsync);
+        Pair<String, List<PropagationStatus>> created =
+                provisioningManager.create(before.getLeft(), storePassword, nullPriorityAsync);
 
         return after(binder.returnUserTO(binder.getUserTO(created.getKey())), created.getRight(), before.getRight());
     }
