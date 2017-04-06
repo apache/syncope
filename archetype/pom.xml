@@ -170,7 +170,17 @@ under the License.
       <resource>
         <directory>../fit/core-reference/src/main/resources/all</directory>
         <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/main/resources/all</targetPath>
+        <excludes>
+          <exclude>provisioning.properties</exclude>
+        </excludes>
       </resource>
+      <resource>
+        <directory>../ext/camel/provisioning-camel/src/main/resources</directory>
+        <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/main/resources/all</targetPath>
+        <includes>
+          <include>provisioning.properties</include>
+        </includes>
+      </resource>      
       <resource>
         <directory>../fit/core-reference/src/test/resources/scriptedsql</directory>
         <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/test/resources/scriptedsql</targetPath>
