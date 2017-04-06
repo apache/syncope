@@ -16,15 +16,14 @@ KIND, either express or implied.  See the License for the
 specific language governing permissions and limitations
 under the License.
 -->
-
 <div ng-switch="schema.type" class="schema-type">
   <input ng-switch-when="String" class="form-control" type="text"
          ng-model="user.plainAttrs[schema.key].values[index]"
          ng-required="{{schema.mandatoryCondition}}" validate="true"
-         ng-disabled="schema.readonly" ng-init="initAttribute(schema, index)" name="{{schema.key}}"/>
+         ng-disabled="schema.readonly || customReadonly(schema.key)" ng-init="initAttribute(schema, index)" name="{{schema.key}}"/>
 
   <div ng-switch-when="Encrypted" class="input-group input-group-sm">
-    <span class="input-group-btn">  
+    <span class="input-group-btn" ng-disabled="schema.readonly || customReadonly(schema.key)">  
       <button type="button" class="btn btn-default btn-flat"
               confirm="{{'CONFIRM_REMOVE'| translate}}"
               onclick="var pwd = $(this).parent().next('input');
@@ -48,7 +47,7 @@ under the License.
     <input class="form-control" type="password" readonly="true"
            ng-model="user.plainAttrs[schema.key].values[index]"
            ng-required="{{schema.mandatoryCondition}}" validate="true"
-           ng-disabled="schema.readonly" ng-init="initAttribute(schema, index)" name="{{schema.key}}"/>
+           ng-disabled="schema.readonly || customReadonly(schema.key)" ng-init="initAttribute(schema, index)" name="{{schema.key}}"/>
     <span class="input-group-btn">  
       <button type="button" class="btn btn-default btn-flat"
               onmousedown="var pwd = $(this).parent().prev('input');
@@ -62,25 +61,29 @@ under the License.
                     $(this).children().attr('class', 'fa fa-eye');
                   }"
               >
-        <i class="fa fa-eye"></i>
-      </button>
-    </span>
-  </div>
+  <i class="fa fa-eye"></i>
+</button>
+</span>
+</div>
 
-  <div ng-switch-when="Boolean">
-    <input type="checkbox" ng-model="user.plainAttrs[schema.key].values[index]" ng-required="{{schema.mandatoryCondition}}" 
+<div ng-switch-when="Boolean">
+  <input type="checkbox" ng-model="user.plainAttrs[schema.key].values[index]" 
+           ng-true-value="'true'" 
+           ng-false-value="'false'" 
+           ng-required="{{schema.mandatoryCondition}}"
+           ng-disabled="schema.readonly || customReadonly(schema.key)"
            ng-init="initAttribute(schema, index)" />
-  </div>
+    </div>
 
-  <input ng-switch-when="Long" class="form-control" type="number" ng-model="user.plainAttrs[schema.key].values[index]" 
-         ng-required="{{schema.mandatoryCondition}}" validate="true"
-         ng-init="initAttribute(schema, index)" name="{{schema.key}}"/>
+    <input ng-switch-when="Long" class="form-control" type="number" ng-model="user.plainAttrs[schema.key].values[index]" 
+           ng-required="{{schema.mandatoryCondition}}" validate="true"
+           ng-init="initAttribute(schema, index)" name="{{schema.key}}"/>
 
-  <input ng-switch-when="Double" class="form-control" type="number" ng-model="user.plainAttrs[schema.key].values[index]"
-         ng-required="{{schema.mandatoryCondition}}" validate="true"
-         ng-init="initAttribute(schema, index)" name="{{schema.key}}"/>
-  
-  <div ng-switch-when="Date" id="date">
+    <input ng-switch-when="Double" class="form-control" type="number" ng-model="user.plainAttrs[schema.key].values[index]"
+           ng-required="{{schema.mandatoryCondition}}" validate="true"
+           ng-init="initAttribute(schema, index)" name="{{schema.key}}"/>
+
+    <div ng-switch-when="Date" id="date">
       <input type="text" class="dateTimePicker"
              id="dateTimePicker"
              kendo-date-time-picker
@@ -88,33 +91,37 @@ under the License.
              ng-required="{{schema.mandatoryCondition}}" close-text="Close"
              ng-init="initAttribute(schema, index)"
              ng-change="bindDateToModel(selectedDate, extendedDate)"
+             ng-disabled="schema.readonly || customReadonly(schema.key)"
              k-ng-model="selectedDate"
              data-k-format=languageFormat 
              />
-  </div>
+    </div>
 
-  <div ng-switch-when="Enum" ng-init="initAttribute(schema, index)">
-    <select class="form-control"
-            ng-model="user.plainAttrs[schema.key].values[index]"
-            ng-required="{{schema.mandatoryCondition}}">
-      <option ng-repeat="value in enumerationValues" value="{{value}}">
-        {{enumerationKeys[$index] || value}}
-      </option>
-    </select>
-  </div>
+    <div ng-switch-when="Enum" ng-init="initAttribute(schema, index)">
+      <select class="form-control"
+              ng-model="user.plainAttrs[schema.key].values[index]"
+              ng-required="{{schema.mandatoryCondition}}"
+              ng-disabled="schema.readonly || customReadonly(schema.key)">
+        <option ng-repeat="value in enumerationValues" value="{{value}}">
+          {{enumerationKeys[$index]|| value}}
+        </option>
+      </select>
+    </div>
 
-  <div ng-switch-when="Binary" ng-init="initAttribute(schema, index)">
-    <input file-input type="file" id="fileInput" name="fileInput"/>
-    <button type="button" title="Download file" class="fileButton btn btn-default btn-sm" ng-click="download()">
-      <i class="glyphicon glyphicon-download" ></i>
-    </button>
-  </div>
+    <div ng-switch-when="Binary"
+         ng-disabled="schema.readonly || customReadonly(schema.key)"
+         ng-init="initAttribute(schema, index)">
+      <input file-input type="file" id="fileInput" name="fileInput"/>
+      <button type="button" title="Download file" class="fileButton btn btn-default btn-sm" ng-click="download()">
+        <i class="glyphicon glyphicon-download" ></i>
+      </button>
+    </div>
 
-  <input ng-switch-default class="form-control" type="text"
-         ng-model="user.plainAttrs[schema.key].values[index]"
-         ng-required="{{schema.mandatoryCondition}}" 
-         ng-disabled="schema.readonly" ng-init="initAttribute(schema, index)"/>
-</div>
+    <input ng-switch-default class="form-control" type="text"
+           ng-model="user.plainAttrs[schema.key].values[index]"
+           ng-required="{{schema.mandatoryCondition}}" 
+           ng-disabled="schema.readonly || customReadonly(schema.key)" ng-init="initAttribute(schema, index)"/>
+  </div>
 
 
 

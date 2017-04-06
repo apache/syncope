@@ -35,6 +35,7 @@ import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.annotations.Resource;
+import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
@@ -164,9 +165,10 @@ public class UserSelfUpdateResource extends BaseResource {
             }
             userTO.getVirAttrs().removeAll(membAttrs);
 
-            // update user
+            // update user by patch
             Response res = SyncopeEnduserSession.get().
-                    getService(userTO.getETagValue(), UserSelfService.class).update(userTO);
+                    getService(userTO.getETagValue(), UserSelfService.class).update(AnyOperations.diff(userTO,
+                    SyncopeEnduserSession.get().getSelfTO(), true));
 
             final String responseMessage = res.getStatusInfo().getFamily().equals(Response.Status.Family.SUCCESSFUL)
                     ? new StringBuilder().
