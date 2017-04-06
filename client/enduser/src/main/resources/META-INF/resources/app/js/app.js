@@ -380,6 +380,7 @@ app.controller('ApplicationController', ['$scope', '$rootScope', '$location', 'I
               function (response) {
                 console.error("Something went wrong while accessing info resource", response);
               });
+      /* <Extensions> */
       SAML2IdPService.getAvailableSAML2IdPs().then(
               function (response) {
                 $rootScope.saml2idps.available = response;
@@ -387,6 +388,7 @@ app.controller('ApplicationController', ['$scope', '$rootScope', '$location', 'I
               function (response) {
                 console.debug("No SAML 2.0 SP extension available", response);
               });
+      /* </Extensions> */
       /* 
        * configuration getters
        */
