@@ -97,7 +97,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             LOG.error("Could not propagate anyObject " + key, e);
         }
 
-        getProvisioningManager().delete(key, true);
+        getProvisioningManager().delete(key, Collections.singleton(profile.getTask().getResource().getKey()), true);
     }
 
     @Override

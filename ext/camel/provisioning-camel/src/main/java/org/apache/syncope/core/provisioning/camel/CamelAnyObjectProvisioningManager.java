@@ -31,6 +31,8 @@ import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.core.provisioning.api.AnyObjectProvisioningManager;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 public class CamelAnyObjectProvisioningManager
         extends AbstractCamelProvisioningManager implements AnyObjectProvisioningManager {
@@ -40,6 +42,7 @@ public class CamelAnyObjectProvisioningManager
         return create(any, Collections.<String>emptySet(), nullPriorityAsync);
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     @SuppressWarnings("unchecked")
     public Pair<String, List<PropagationStatus>> create(
@@ -69,6 +72,7 @@ public class CamelAnyObjectProvisioningManager
         return update(anyPatch, Collections.<String>emptySet(), nullPriorityAsync);
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     @SuppressWarnings("unchecked")
     public Pair<String, List<PropagationStatus>> update(
@@ -96,6 +100,7 @@ public class CamelAnyObjectProvisioningManager
         return delete(anyObjectObjectKey, Collections.<String>emptySet(), nullPriorityAsync);
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     @SuppressWarnings("unchecked")
     public List<PropagationStatus> delete(

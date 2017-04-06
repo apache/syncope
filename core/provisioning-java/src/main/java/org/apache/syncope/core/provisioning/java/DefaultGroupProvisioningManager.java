@@ -46,6 +46,8 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecu
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 public class DefaultGroupProvisioningManager implements GroupProvisioningManager {
 
@@ -68,14 +70,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
     protected VirAttrHandler virtAttrHandler;
 
     @Override
-    public Pair<String, List<PropagationStatus>> create(final GroupTO group, final boolean nullPriorityAsync) {
-        return create(group, Collections.<String>emptySet(), nullPriorityAsync);
-    }
-
-    @Override
-    public Pair<String, List<PropagationStatus>> create(
-            final GroupTO groupTO, final Set<String> excludedResources, final boolean nullPriorityAsync) {
-
+    public Pair<String, List<PropagationStatus>> create(final GroupTO groupTO, final boolean nullPriorityAsync) {
         WorkflowResult<String> created = gwfAdapter.create(groupTO);
 
         List<PropagationTask> tasks = propagationManager.getCreateTasks(
@@ -83,12 +78,13 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                 created.getResult(),
                 created.getPropByRes(),
                 groupTO.getVirAttrs(),
-                excludedResources);
+                Collections.<String>emptySet());
         PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
 
         return new ImmutablePair<>(created.getResult(), propagationReporter.getStatuses());
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     public Pair<String, List<PropagationStatus>> create(
             final GroupTO groupTO,
@@ -120,6 +116,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
         return update(groupPatch, Collections.<String>emptySet(), nullPriorityAsync);
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     public Pair<String, List<PropagationStatus>> update(
             final GroupPatch groupPatch, final Set<String> excludedResources, final boolean nullPriorityAsync) {
@@ -144,6 +141,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
         return delete(key, Collections.<String>emptySet(), nullPriorityAsync);
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     public List<PropagationStatus> delete(
             final String key, final Set<String> excludedResources, final boolean nullPriorityAsync) {

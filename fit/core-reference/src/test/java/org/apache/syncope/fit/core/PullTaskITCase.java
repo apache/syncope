@@ -358,8 +358,9 @@ public class PullTaskITCase extends AbstractTaskITCase {
         }
         PagedResult<UserTO> matchingUsers = userService.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("pullFromLDAP").query()).
-                build());
+                        fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("pullFromLDAP").
+                                query()).
+                        build());
         if (matchingUsers.getSize() > 0) {
             for (UserTO user : matchingUsers.getResult()) {
                 DeassociationPatch deassociationPatch = new DeassociationPatch();
@@ -398,8 +399,9 @@ public class PullTaskITCase extends AbstractTaskITCase {
         // 3. verify that pulled user is found
         PagedResult<UserTO> matchingUsers = userService.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("pullFromLDAP").query()).
-                build());
+                        fiql(SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("pullFromLDAP").
+                                query()).
+                        build());
         assertNotNull(matchingUsers);
         assertEquals(1, matchingUsers.getResult().size());
         // SYNCOPE-898
@@ -497,8 +499,8 @@ public class PullTaskITCase extends AbstractTaskITCase {
             // 3. unlink any existing printer and delete from Syncope (printer is now only on external resource)
             PagedResult<AnyObjectTO> matchingPrinters = anyObjectService.search(
                     new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                    fiql(SyncopeClient.getAnyObjectSearchConditionBuilder("PRINTER").
-                            is("location").equalTo("pull*").query()).build());
+                            fiql(SyncopeClient.getAnyObjectSearchConditionBuilder("PRINTER").
+                                    is("location").equalTo("pull*").query()).build());
             assertTrue(matchingPrinters.getSize() > 0);
             for (AnyObjectTO printer : matchingPrinters.getResult()) {
                 DeassociationPatch deassociationPatch = new DeassociationPatch();
@@ -1056,6 +1058,8 @@ public class PullTaskITCase extends AbstractTaskITCase {
             // 7. Test the pulled user
             self = clientFactory.create(user.getUsername(), oldCleanPassword).self();
             assertNotNull(self);
+        } catch (Exception e) {
+            fail(e.getMessage());
         } finally {
             // Delete PullTask + user + reset the connector
             if (pullTask != null) {
@@ -1070,6 +1074,108 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
             if (user != null) {
                 deleteUser(user.getKey());
+            }
+        }
+    }
+
+    @Test
+    public void issueSYNCOPE1062() {
+        GroupTO propagationGroup = null;
+        PullTaskTO pullTask = null;
+        UserTO user = null;
+        GroupTO group = null;
+        try {
+            // 1. create group with resource for propagation
+            propagationGroup = GroupITCase.getBasicSampleTO("SYNCOPE1062");
+            propagationGroup.getResources().add(RESOURCE_NAME_DBPULL);
+            propagationGroup = createGroup(propagationGroup).getEntity();
+
+            // 2. create pull task for another resource, with user template assigning the group above
+            pullTask = new PullTaskTO();
+            pullTask.setDestinationRealm(SyncopeConstants.ROOT_REALM);
+            pullTask.setName("SYNCOPE1062");
+            pullTask.setActive(true);
+            pullTask.setPerformCreate(true);
+            pullTask.setPerformUpdate(true);
+            pullTask.setPullMode(PullMode.FULL_RECONCILIATION);
+            pullTask.setResource(RESOURCE_NAME_LDAP);
+
+            UserTO template = new UserTO();
+            template.getAuxClasses().add("minimal group");
+            template.getMemberships().add(new MembershipTO.Builder().group(propagationGroup.getKey()).build());
+            template.getPlainAttrs().add(attrTO("firstname", "'fixed'"));
+            pullTask.getTemplates().put(AnyTypeKind.USER.name(), template);
+
+            Response taskResponse = taskService.create(pullTask);
+            pullTask = getObject(taskResponse.getLocation(), TaskService.class, PullTaskTO.class);
+            assertNotNull(pullTask);
+            assertFalse(pullTask.getTemplates().isEmpty());
+
+            // 3. exec the pull task
+            ExecTO execution = execProvisioningTask(taskService, pullTask.getKey(), 50, false);
+            assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
+
+            // the user is successfully pulled...
+            user = userService.read("pullFromLDAP");
+            assertNotNull(user);
+            assertEquals("pullFromLDAP@syncope.apache.org", user.getPlainAttrMap().get("email").getValues().get(0));
+
+            group = groupService.read("testLDAPGroup");
+            assertNotNull(group);
+
+            ConnObjectTO connObject =
+                    resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), user.getKey());
+            assertNotNull(connObject);
+            assertEquals("pullFromLDAP@syncope.apache.org", connObject.getAttrMap().get("mail").getValues().get(0));
+            AttrTO userDn = connObject.getAttrMap().get(Name.NAME);
+            assertNotNull(userDn);
+            assertEquals(1, userDn.getValues().size());
+            assertNotNull(
+                    getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, userDn.getValues().get(0)));
+
+            // ...and propagated
+            JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
+            String email = jdbcTemplate.queryForObject(
+                    "SELECT EMAIL FROM TESTPULL WHERE USERNAME=?", String.class, user.getUsername());
+            assertEquals(user.getPlainAttrMap().get("email").getValues().get(0), email);
+
+            // 4. update the user on the external resource
+            updateLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD,
+                    userDn.getValues().get(0), Pair.of("mail", "pullFromLDAP2@syncope.apache.org"));
+
+            connObject = resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), user.getKey());
+            assertNotNull(connObject);
+            assertEquals("pullFromLDAP2@syncope.apache.org", connObject.getAttrMap().get("mail").getValues().get(0));
+
+            // 5. exec the pull task again
+            execution = execProvisioningTask(taskService, pullTask.getKey(), 50, false);
+            assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
+
+            // the internal is updated...
+            user = userService.read("pullFromLDAP");
+            assertNotNull(user);
+            assertEquals("pullFromLDAP2@syncope.apache.org", user.getPlainAttrMap().get("email").getValues().get(0));
+
+            // ...and propagated
+            email = jdbcTemplate.queryForObject(
+                    "SELECT EMAIL FROM TESTPULL WHERE USERNAME=?", String.class, user.getUsername());
+            assertEquals(user.getPlainAttrMap().get("email").getValues().get(0), email);
+        } catch (Exception e) {
+            fail(e.getMessage());
+        } finally {
+            if (pullTask != null) {
+                taskService.delete(pullTask.getKey());
+            }
+
+            if (propagationGroup != null) {
+                groupService.delete(propagationGroup.getKey());
+            }
+
+            if (group != null) {
+                groupService.delete(group.getKey());
+            }
+            if (user != null) {
+                userService.delete(user.getKey());
             }
         }
     }

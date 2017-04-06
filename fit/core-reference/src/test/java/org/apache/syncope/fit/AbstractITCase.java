@@ -28,11 +28,16 @@ import java.util.Properties;
 import java.util.UUID;
 import javax.naming.Context;
 import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.BasicAttribute;
+import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
+import javax.naming.directory.ModificationItem;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
@@ -449,6 +454,30 @@ public abstract class AbstractITCase {
             return ctx.lookup(objectDn);
         } catch (Exception e) {
             return null;
+        } finally {
+            if (ctx != null) {
+                try {
+                    ctx.close();
+                } catch (NamingException e) {
+                    // ignore
+                }
+            }
+        }
+    }
+
+    protected void updateLdapRemoteObject(
+            final String bindDn, final String bindPwd, final String objectDn, final Pair<String, String> attribute) {
+
+        InitialDirContext ctx = null;
+        try {
+            ctx = getLdapResourceDirContext(bindDn, bindPwd);
+
+            Attribute ldapAttribute = new BasicAttribute(attribute.getKey(), attribute.getValue());
+            ModificationItem[] item = new ModificationItem[1];
+            item[0] = new ModificationItem(DirContext.REPLACE_ATTRIBUTE, ldapAttribute);
+            ctx.modifyAttributes(objectDn, item);
+        } catch (Exception e) {
+            // ignore
         } finally {
             if (ctx != null) {
                 try {

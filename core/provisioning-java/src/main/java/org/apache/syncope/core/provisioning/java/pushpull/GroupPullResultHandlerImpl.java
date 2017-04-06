@@ -114,7 +114,8 @@ public class GroupPullResultHandlerImpl extends AbstractPullResultHandler implem
 
         GroupPatch groupPatch = GroupPatch.class.cast(anyPatch);
 
-        Map.Entry<String, List<PropagationStatus>> updated = groupProvisioningManager.update(groupPatch, true);
+        Map.Entry<String, List<PropagationStatus>> updated = groupProvisioningManager.update(
+                groupPatch, Collections.singleton(profile.getTask().getResource().getKey()), true);
 
         String groupOwner = null;
         for (AttrPatch attrPatch : groupPatch.getPlainAttrs()) {

@@ -39,6 +39,8 @@ import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 public class CamelUserProvisioningManager extends AbstractCamelProvisioningManager implements UserProvisioningManager {
 
@@ -56,13 +58,7 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
         return create(userTO, storePassword, false, null, Collections.<String>emptySet(), nullPriorityAsync);
     }
 
-    @Override
-    public Pair<String, List<PropagationStatus>> create(
-            final UserTO userTO, final Set<String> excludedResources, final boolean nullPriorityAsync) {
-
-        return create(userTO, false, false, null, excludedResources, nullPriorityAsync);
-    }
-
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     @SuppressWarnings("unchecked")
     public Pair<String, List<PropagationStatus>> create(
@@ -124,6 +120,7 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
         return delete(key, Collections.<String>emptySet(), nullPriorityAsync);
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     @SuppressWarnings("unchecked")
     public List<PropagationStatus> delete(
@@ -317,6 +314,7 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
         return exchange.getIn().getBody(List.class);
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     @SuppressWarnings("unchecked")
     public Pair<String, List<PropagationStatus>> update(

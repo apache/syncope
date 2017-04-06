@@ -1028,7 +1028,7 @@ under the License.
                mandatoryCondition="false" password="0" purpose="BOTH"/>
   <MappingItem id="a234bde8-b431-408c-8ec9-c986c5b7f98d" connObjectKey="0" mapping_id="cda910bd-fc28-4f63-890e-66edc62d428b"
                extAttrName="SURNAME" intAttrName="fullname" 
-               mandatoryCondition="false" password="0" purpose="BOTH"/>
+               mandatoryCondition="false" password="0" purpose="PULL"/>
   <MappingItem id="51a856de-ae25-41cd-967a-86920c834b70" connObjectKey="1" mapping_id="cda910bd-fc28-4f63-890e-66edc62d428b"
                extAttrName="ID" intAttrName="firstname" 
                mandatoryCondition="false" password="0" purpose="BOTH"/>
@@ -1040,7 +1040,7 @@ under the License.
                mandatoryCondition="false" password="0" purpose="BOTH"/>
   <MappingItem id="e7215305-93c9-460b-b862-46f7b60de72d" connObjectKey="0" mapping_id="cda910bd-fc28-4f63-890e-66edc62d428b"
                extAttrName="EMAIL" intAttrName="userId" 
-               mandatoryCondition="false" password="0" purpose="BOTH"/>
+               mandatoryCondition="false" password="0" purpose="PULL"/>
               
   <Provision id="6d7cb60a-c4ad-4a70-94ae-e5b88eb24930" resource_id="resource-db-virattr" anyType_id="USER" objectClass="__ACCOUNT__"/>
   <Mapping id="45280585-308f-4571-9788-c7a4734b3614" provision_id="6d7cb60a-c4ad-4a70-94ae-e5b88eb24930"/>
