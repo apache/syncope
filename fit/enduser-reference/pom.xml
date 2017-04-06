@@ -502,10 +502,6 @@ under the License.
     <profile>
       <id>jrebel</id>
       
-      <properties>
-        <tomcat.version>8.0.43</tomcat.version>              
-      </properties>      
-
       <build>
         <defaultGoal>clean verify cargo:run</defaultGoal>
 
@@ -551,7 +547,7 @@ under the License.
               <configuration>
                 <properties>
                   <cargo.jvmargs>-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n
-                    -noverify -javaagent:${env.REBEL_HOME}/jrebel.jar -Drebel.spring_plugin=true
+                    -noverify -javaagent:${env.REBEL_HOME}/legacy/jrebel.jar -Drebel.spring_plugin=true
                     -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:MaxPermSize=512m -Xmx1024m -Xms512m</cargo.jvmargs>
                 </properties>
               </configuration>
