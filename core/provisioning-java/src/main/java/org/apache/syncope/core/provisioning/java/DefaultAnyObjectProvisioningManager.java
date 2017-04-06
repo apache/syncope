@@ -41,6 +41,8 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecu
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.workflow.api.AnyObjectWorkflowAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisioningManager {
 
@@ -66,6 +68,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
         return create(anyObjectTO, Collections.<String>emptySet(), nullPriorityAsync);
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     public Pair<String, List<PropagationStatus>> create(
             final AnyObjectTO anyObjectTO, final Set<String> excludedResources, final boolean nullPriorityAsync) {
@@ -90,6 +93,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
         return update(anyObjectPatch, Collections.<String>emptySet(), nullPriorityAsync);
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     public Pair<String, List<PropagationStatus>> update(
             final AnyObjectPatch anyObjectPatch, final Set<String> excludedResources, final boolean nullPriorityAsync) {
@@ -114,6 +118,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
         return delete(key, Collections.<String>emptySet(), nullPriorityAsync);
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     public List<PropagationStatus> delete(
             final String key, final Set<String> excludedResources, final boolean nullPriorityAsync) {

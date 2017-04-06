@@ -53,6 +53,8 @@ import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 public class DefaultUserProvisioningManager implements UserProvisioningManager {
 
@@ -85,13 +87,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
         return create(userTO, storePassword, false, null, Collections.<String>emptySet(), nullPriorityAsync);
     }
 
-    @Override
-    public Pair<String, List<PropagationStatus>> create(
-            final UserTO userTO, final Set<String> excludedResources, final boolean nullPriorityAsync) {
-
-        return create(userTO, false, false, null, excludedResources, nullPriorityAsync);
-    }
-
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     public Pair<String, List<PropagationStatus>> create(
             final UserTO userTO,
@@ -105,15 +101,15 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
                 uwfAdapter.create(userTO, disablePwdPolicyCheck, enabled, storePassword);
 
         List<PropagationTask> tasks = propagationManager.getUserCreateTasks(
-                created.getResult().getKey(),
+                created.getResult().getLeft(),
                 userTO.getPassword(),
-                created.getResult().getValue(),
+                created.getResult().getRight(),
                 created.getPropByRes(),
                 userTO.getVirAttrs(),
                 excludedResources);
         PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
 
-        return new ImmutablePair<>(created.getResult().getKey(), propagationReporter.getStatuses());
+        return new ImmutablePair<>(created.getResult().getLeft(), propagationReporter.getStatuses());
     }
 
     @Override
@@ -123,7 +119,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
         List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(updated);
         PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
 
-        return new ImmutablePair<>(updated.getResult().getKey().getKey(), propagationReporter.getStatuses());
+        return new ImmutablePair<>(updated.getResult().getLeft().getKey(), propagationReporter.getStatuses());
     }
 
     @Override
@@ -133,6 +129,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
         return update(userPatch, new ProvisioningReport(), null, excludedResources, nullPriorityAsync);
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     public Pair<String, List<PropagationStatus>> update(
             final UserPatch userPatch,
@@ -178,10 +175,10 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
         }
 
         List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(
-                updated, updated.getResult().getKey().getPassword() != null, excludedResources);
+                updated, updated.getResult().getLeft().getPassword() != null, excludedResources);
         PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
 
-        return new ImmutablePair<>(updated.getResult().getKey().getKey(), propagationReporter.getStatuses());
+        return new ImmutablePair<>(updated.getResult().getLeft().getKey(), propagationReporter.getStatuses());
     }
 
     @Override
@@ -189,6 +186,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
         return delete(key, Collections.<String>emptySet(), nullPriorityAsync);
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     public List<PropagationStatus> delete(
             final String key, final Set<String> excludedResources, final boolean nullPriorityAsync) {
@@ -220,12 +218,12 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
     @Override
     public String unlink(final UserPatch userPatch) {
         WorkflowResult<Pair<UserPatch, Boolean>> updated = uwfAdapter.update(userPatch);
-        return updated.getResult().getKey().getKey();
+        return updated.getResult().getLeft().getKey();
     }
 
     @Override
     public String link(final UserPatch userPatch) {
-        return uwfAdapter.update(userPatch).getResult().getKey().getKey();
+        return uwfAdapter.update(userPatch).getResult().getLeft().getKey();
     }
 
     @Override
@@ -284,14 +282,14 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
         Pair<WorkflowResult<String>, Boolean> updated = uwfAdapter.internalSuspend(key);
 
         // propagate suspension if and only if it is required by policy
-        if (updated != null && updated.getValue()) {
+        if (updated != null && updated.getRight()) {
             UserPatch userPatch = new UserPatch();
-            userPatch.setKey(updated.getKey().getResult());
+            userPatch.setKey(updated.getLeft().getResult());
 
             List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(
                     new WorkflowResult<Pair<UserPatch, Boolean>>(
                             new ImmutablePair<>(userPatch, Boolean.FALSE),
-                            updated.getKey().getPropByRes(), updated.getKey().getPerformedTasks()));
+                            updated.getLeft().getPropByRes(), updated.getLeft().getPerformedTasks()));
             taskExecutor.execute(tasks);
         }
     }

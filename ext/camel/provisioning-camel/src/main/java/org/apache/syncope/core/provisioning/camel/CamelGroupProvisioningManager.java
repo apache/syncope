@@ -31,24 +31,19 @@ import org.apache.syncope.common.lib.patch.GroupPatch;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.core.provisioning.api.GroupProvisioningManager;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 public class CamelGroupProvisioningManager
         extends AbstractCamelProvisioningManager implements GroupProvisioningManager {
 
     @Override
-    public Pair<String, List<PropagationStatus>> create(final GroupTO any, final boolean nullPriorityAsync) {
-        return create(any, Collections.<String>emptySet(), nullPriorityAsync);
-    }
-
-    @Override
     @SuppressWarnings("unchecked")
-    public Pair<String, List<PropagationStatus>> create(
-            final GroupTO groupTO, final Set<String> excludedResources, final boolean nullPriorityAsync) {
-
+    public Pair<String, List<PropagationStatus>> create(final GroupTO groupTO, final boolean nullPriorityAsync) {
         PollingConsumer pollingConsumer = getConsumer("direct:createGroupPort");
 
         Map<String, Object> props = new HashMap<>();
-        props.put("excludedResources", excludedResources);
+        props.put("excludedResources", Collections.<String>emptySet());
         props.put("nullPriorityAsync", nullPriorityAsync);
 
         sendMessage("direct:createGroup", groupTO, props);
@@ -62,6 +57,7 @@ public class CamelGroupProvisioningManager
         return exchange.getIn().getBody(Pair.class);
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     @SuppressWarnings("unchecked")
     public Pair<String, List<PropagationStatus>> create(
@@ -93,6 +89,7 @@ public class CamelGroupProvisioningManager
         return update(anyPatch, Collections.<String>emptySet(), nullPriorityAsync);
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     @SuppressWarnings("unchecked")
     public Pair<String, List<PropagationStatus>> update(
@@ -120,6 +117,7 @@ public class CamelGroupProvisioningManager
         return delete(key, Collections.<String>emptySet(), nullPriorityAsync);
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     @SuppressWarnings("unchecked")
     public List<PropagationStatus> delete(

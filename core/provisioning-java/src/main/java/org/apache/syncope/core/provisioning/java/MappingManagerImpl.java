@@ -263,7 +263,7 @@ public class MappingManagerImpl implements MappingManager {
             }
 
             if (mapItem.isConnObjectKey()) {
-                result = new ImmutablePair<>(objValues.iterator().next().toString(), null);
+                result = new ImmutablePair<>(objValues.isEmpty() ? null : objValues.iterator().next().toString(), null);
             } else if (mapItem.isPassword() && any instanceof User) {
                 String passwordAttrValue = password;
                 if (StringUtils.isBlank(passwordAttrValue)) {
@@ -295,8 +295,8 @@ public class MappingManagerImpl implements MappingManager {
             } else {
                 result = new ImmutablePair<>(
                         null, objValues.isEmpty()
-                                ? AttributeBuilder.build(mapItem.getExtAttrName())
-                                : AttributeBuilder.build(mapItem.getExtAttrName(), objValues.iterator().next()));
+                        ? AttributeBuilder.build(mapItem.getExtAttrName())
+                        : AttributeBuilder.build(mapItem.getExtAttrName(), objValues.iterator().next()));
             }
         }
 

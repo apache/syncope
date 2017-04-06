@@ -101,8 +101,8 @@ public class AnyObjectPullResultHandlerImpl extends AbstractPullResultHandler im
 
         AnyObjectPatch anyObjectPatch = AnyObjectPatch.class.cast(anyPatch);
 
-        Map.Entry<String, List<PropagationStatus>> updated =
-                anyObjectProvisioningManager.update(anyObjectPatch, true);
+        Map.Entry<String, List<PropagationStatus>> updated = anyObjectProvisioningManager.update(
+                anyObjectPatch, Collections.singleton(profile.getTask().getResource().getKey()), true);
 
         AnyObjectTO after = anyObjectDataBinder.getAnyObjectTO(updated.getKey());
         result.setName(getName(after));
