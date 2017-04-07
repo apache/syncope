@@ -70,51 +70,39 @@ public class UserSelfUpdateResource extends BaseResource {
 
             UserTO userTO = MAPPER.readValue(request.getReader().readLine(), UserTO.class);
 
-            Map<String, AttrTO> userPlainAttrMap = userTO.getPlainAttrMap();
-
-            // millis -> Date conversion
-            for (PlainSchemaTO plainSchema : SyncopeEnduserSession.get().getDatePlainSchemas()) {
-                if (userPlainAttrMap.containsKey(plainSchema.getKey())) {
-                    FastDateFormat fmt = FastDateFormat.getInstance(plainSchema.getConversionPattern());
-
-                    AttrTO dateAttr = userPlainAttrMap.get(plainSchema.getKey());
-                    List<String> formattedValues = new ArrayList<>(dateAttr.getValues().size());
-                    for (String value : dateAttr.getValues()) {
-                        try {
-                            formattedValues.add(fmt.format(Long.valueOf(value)));
-                        } catch (NumberFormatException e) {
-                            throw new IllegalArgumentException("Invalid format value for " + value);
-                        }
-                    }
-                    dateAttr.getValues().clear();
-                    dateAttr.getValues().addAll(formattedValues);
-                }
-            }
-
-            // membership attributes management
+            // 1. membership attributes management
             Set<AttrTO> membAttrs = new HashSet<>();
             for (AttrTO attr : userTO.getPlainAttrs()) {
                 if (attr.getSchema().contains("#")) {
-                    final String[] simpleAttrs = attr.getSchema().split("#");
+                    final String[] compositeSchemaKey = attr.getSchema().split("#");
                     MembershipTO membership = IterableUtils.find(userTO.getMemberships(),
                             new Predicate<MembershipTO>() {
 
                         @Override
                         public boolean evaluate(final MembershipTO item) {
-                            return simpleAttrs[0].equals(item.getGroupName());
+                            return compositeSchemaKey[0].equals(item.getGroupName());
                         }
                     });
                     if (membership == null) {
-                        membership = new MembershipTO.Builder().group(null, simpleAttrs[0]).build();
+                        membership = new MembershipTO.Builder().group(null, compositeSchemaKey[0]).build();
                         userTO.getMemberships().add(membership);
                     }
                     AttrTO clone = SerializationUtils.clone(attr);
-                    clone.setSchema(simpleAttrs[1]);
+                    clone.setSchema(compositeSchemaKey[1]);
                     membership.getPlainAttrs().add(clone);
                     membAttrs.add(attr);
                 }
             }
             userTO.getPlainAttrs().removeAll(membAttrs);
+
+            // 2. millis -> Date conversion for PLAIN attributes of USER and its MEMBERSHIPS
+            Map<String, AttrTO> userPlainAttrMap = userTO.getPlainAttrMap();
+            for (PlainSchemaTO plainSchema : SyncopeEnduserSession.get().getDatePlainSchemas()) {
+                millisToDate(userPlainAttrMap, plainSchema);
+                for (MembershipTO membership : userTO.getMemberships()) {
+                    millisToDate(membership.getPlainAttrMap(), plainSchema);
+                }
+            }
 
             membAttrs.clear();
             for (AttrTO attr : userTO.getDerAttrs()) {
@@ -197,5 +185,25 @@ public class UserSelfUpdateResource extends BaseResource {
                             toString());
         }
         return response;
+    }
+
+    private void millisToDate(final Map<String, AttrTO> plainAttrMap, final PlainSchemaTO plainSchema)
+            throws IllegalArgumentException {
+        LOG.info("CONVERTING >>>>>>>>>> {}", plainSchema.getKey());
+        if (plainAttrMap.containsKey(plainSchema.getKey())) {
+            FastDateFormat fmt = FastDateFormat.getInstance(plainSchema.getConversionPattern());
+
+            AttrTO dateAttr = plainAttrMap.get(plainSchema.getKey());
+            List<String> formattedValues = new ArrayList<>(dateAttr.getValues().size());
+            for (String value : dateAttr.getValues()) {
+                try {
+                    formattedValues.add(fmt.format(Long.valueOf(value)));
+                } catch (NumberFormatException e) {
+                    throw new IllegalArgumentException("Invalid format value for " + value);
+                }
+            }
+            dateAttr.getValues().clear();
+            dateAttr.getValues().addAll(formattedValues);
+        }
     }
 }
