@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.console.pages;
 
-import static org.apache.wicket.Component.ENABLE;
-
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.collections4.list.SetUniqueList;

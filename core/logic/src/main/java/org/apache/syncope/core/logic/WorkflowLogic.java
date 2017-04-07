@@ -20,13 +20,16 @@ package org.apache.syncope.core.logic;
 
 import java.io.OutputStream;
 import java.lang.reflect.Method;
-import javax.ws.rs.core.MediaType;
-import org.apache.syncope.common.lib.AbstractBaseBean;
+import java.util.List;
+import org.apache.syncope.common.lib.to.WorkflowDefinitionTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
-import org.apache.syncope.core.workflow.api.AnyObjectWorkflowAdapter;
-import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
-import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
-import org.apache.syncope.core.workflow.api.WorkflowAdapter;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.workflow.api.AnyObjectWorkflowDefinitionAdapter;
+import org.apache.syncope.core.workflow.api.GroupWorkflowDefinitionAdapter;
+import org.apache.syncope.core.workflow.api.UserWorkflowDefinitionAdapter;
+import org.apache.syncope.core.workflow.api.WorkflowDefinitionAdapter;
 import org.apache.syncope.core.workflow.api.WorkflowDefinitionFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -34,94 +37,77 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-public class WorkflowLogic extends AbstractTransactionalLogic<AbstractBaseBean> {
+public class WorkflowLogic extends AbstractTransactionalLogic<WorkflowDefinitionTO> {
 
     @Autowired
-    private AnyObjectWorkflowAdapter awfAdapter;
+    private AnyTypeDAO anyTypeDAO;
 
     @Autowired
-    private UserWorkflowAdapter uwfAdapter;
+    private AnyObjectWorkflowDefinitionAdapter awfAdapter;
 
     @Autowired
-    private GroupWorkflowAdapter gwfAdapter;
+    private UserWorkflowDefinitionAdapter uwfAdapter;
 
-    private void exportDefinition(
-            final WorkflowAdapter adapter, final WorkflowDefinitionFormat format, final OutputStream os) {
+    @Autowired
+    private GroupWorkflowDefinitionAdapter gwfAdapter;
 
-        adapter.exportDefinition(format, os);
+    private WorkflowDefinitionAdapter getAdapter(final String anyTypeKey) {
+        AnyType anyType = anyTypeDAO.find(anyTypeKey);
+        if (anyType == null) {
+            LOG.error("Could not find anyType '" + anyTypeKey + "'");
+            throw new NotFoundException(anyTypeKey);
+        }
+
+        switch (anyType.getKind()) {
+            case ANY_OBJECT:
+                return awfAdapter;
+
+            case GROUP:
+                return gwfAdapter;
+
+            case USER:
+            default:
+                return uwfAdapter;
+        }
     }
 
-    private WorkflowDefinitionFormat getFormat(final MediaType format) {
-        return format.equals(MediaType.APPLICATION_JSON_TYPE)
-                ? WorkflowDefinitionFormat.JSON
-                : WorkflowDefinitionFormat.XML;
-    }
-
-    @PreAuthorize("hasRole('" + StandardEntitlement.WORKFLOW_DEF_READ + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.WORKFLOW_DEF_LIST + "')")
     @Transactional(readOnly = true)
-    public void exportAnyObjectDefinition(final MediaType format, final OutputStream os) {
-        exportDefinition(awfAdapter, getFormat(format), os);
+    public List<WorkflowDefinitionTO> list(final String anyType) {
+        return getAdapter(anyType).getDefinitions();
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.WORKFLOW_DEF_READ + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.WORKFLOW_DEF_GET + "')")
     @Transactional(readOnly = true)
-    public void exportUserDefinition(final MediaType format, final OutputStream os) {
-        exportDefinition(uwfAdapter, getFormat(format), os);
+    public void exportDefinition(
+            final String anyType, final String key, final WorkflowDefinitionFormat format, final OutputStream os) {
+
+        getAdapter(anyType).exportDefinition(key, format, os);
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.WORKFLOW_DEF_READ + "')")
+    @PreAuthorize("hasRole('" + StandardEntitlement.WORKFLOW_DEF_GET + "')")
     @Transactional(readOnly = true)
-    public void exportGroupDefinition(final MediaType format, final OutputStream os) {
-        exportDefinition(gwfAdapter, getFormat(format), os);
+    public void exportDiagram(final String anyType, final String key, final OutputStream os) {
+        getAdapter(anyType).exportDiagram(key, os);
     }
 
-    private void exportDiagram(final WorkflowAdapter adapter, final OutputStream os) {
-        adapter.exportDiagram(os);
+    @PreAuthorize("hasRole('" + StandardEntitlement.WORKFLOW_DEF_GET + "')")
+    public void importDefinition(
+            final String anyType, final String key, final WorkflowDefinitionFormat format, final String definition) {
+
+        getAdapter(anyType).importDefinition(key, format, definition);
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.WORKFLOW_DEF_READ + "')")
-    @Transactional(readOnly = true)
-    public void exportAnyObjectDiagram(final OutputStream os) {
-        exportDiagram(awfAdapter, os);
-    }
-
-    @PreAuthorize("hasRole('" + StandardEntitlement.WORKFLOW_DEF_READ + "')")
-    @Transactional(readOnly = true)
-    public void exportUserDiagram(final OutputStream os) {
-        exportDiagram(uwfAdapter, os);
-    }
-
-    @PreAuthorize("hasRole('" + StandardEntitlement.WORKFLOW_DEF_READ + "')")
-    @Transactional(readOnly = true)
-    public void exportGroupDiagram(final OutputStream os) {
-        exportDiagram(gwfAdapter, os);
-    }
-
-    private void importDefinition(
-            final WorkflowAdapter adapter, final WorkflowDefinitionFormat format, final String definition) {
-
-        adapter.importDefinition(format, definition);
-    }
-
-    @PreAuthorize("hasRole('" + StandardEntitlement.WORKFLOW_DEF_UPDATE + "')")
-    public void importAnyObjectDefinition(final MediaType format, final String definition) {
-        importDefinition(awfAdapter, getFormat(format), definition);
-    }
-
-    @PreAuthorize("hasRole('" + StandardEntitlement.WORKFLOW_DEF_UPDATE + "')")
-    public void importUserDefinition(final MediaType format, final String definition) {
-        importDefinition(uwfAdapter, getFormat(format), definition);
-    }
-
-    @PreAuthorize("hasRole('" + StandardEntitlement.WORKFLOW_DEF_UPDATE + "')")
-    public void importGroupDefinition(final MediaType format, final String definition) {
-        importDefinition(gwfAdapter, getFormat(format), definition);
+    @PreAuthorize("hasRole('" + StandardEntitlement.WORKFLOW_DEF_DELETE + "')")
+    public void delete(final String anyType, final String key) {
+        getAdapter(anyType).deleteDefinition(key);
     }
 
     @Override
-    protected AbstractBaseBean resolveReference(final Method method, final Object... args)
+    protected WorkflowDefinitionTO resolveReference(final Method method, final Object... args)
             throws UnresolvedReferenceException {
 
         throw new UnresolvedReferenceException();
     }
+
 }

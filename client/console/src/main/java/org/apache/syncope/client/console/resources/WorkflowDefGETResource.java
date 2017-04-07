@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import javax.ws.rs.core.MediaType;
 import org.apache.syncope.client.console.rest.WorkflowRestClient;
-import org.apache.wicket.request.resource.AbstractResource;
+import org.apache.syncope.common.lib.to.WorkflowDefinitionTO;
 import org.apache.wicket.util.io.IOUtils;
 
 /**
@@ -30,12 +30,14 @@ import org.apache.wicket.util.io.IOUtils;
  *
  * @see org.apache.syncope.common.rest.api.service.WorkflowService#exportDefinition
  */
-public class WorkflowDefGETResource extends AbstractResource {
+public class WorkflowDefGETResource extends AbstractWorkflowResource {
 
     private static final long serialVersionUID = 4637304868056148970L;
 
     @Override
     protected ResourceResponse newResourceResponse(final Attributes attributes) {
+        final WorkflowDefinitionTO toGet = getWorkflowDefinition(attributes);
+
         ResourceResponse response = new ResourceResponse();
         response.disableCaching();
         response.setContentType(MediaType.APPLICATION_JSON);
@@ -45,7 +47,7 @@ public class WorkflowDefGETResource extends AbstractResource {
             @Override
             public void writeData(final Attributes attributes) throws IOException {
                 IOUtils.copy(
-                        new WorkflowRestClient().getDefinition(MediaType.APPLICATION_JSON_TYPE),
+                        new WorkflowRestClient().getDefinition(MediaType.APPLICATION_JSON_TYPE, toGet.getKey()),
                         attributes.getResponse().getOutputStream());
             }
         });

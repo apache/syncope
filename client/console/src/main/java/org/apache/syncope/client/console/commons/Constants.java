@@ -29,6 +29,14 @@ public final class Constants {
 
     public static final String SYNCOPE = "syncope";
 
+    public static final String ACTIVITI_MODELER_CONTEXT = "activiti-modeler";
+
+    public static final String FLOWABLE_MODELER_CONTEXT = "flowable-modeler";
+
+    public static final String MODELER_CONTEXT = "modelerContext";
+
+    public static final String MODEL_ID_PARAM = "modelId";
+
     public static final String ON_CLICK = "click";
 
     public static final String ON_CHANGE = "change";
@@ -138,6 +146,8 @@ public final class Constants {
     public static final String PREF_TODO_PAGINATOR_ROWS = "todo.paginator.rows";
 
     public static final String PREF_REPORT_PAGINATOR_ROWS = "report.paginator.rows";
+
+    public static final String PREF_WORKFLOW_PAGINATOR_ROWS = "workflow.paginator.rows";
 
     public static final String PAGEPARAM_CREATE = "CREATE";
 

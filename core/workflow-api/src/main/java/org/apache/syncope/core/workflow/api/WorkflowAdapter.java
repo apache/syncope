@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.workflow.api;
 
-import java.io.OutputStream;
 import java.util.List;
 import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
@@ -30,29 +29,6 @@ public interface WorkflowAdapter {
      * @return any string that might be interpreted as 'prefix' (say table prefix in SQL environments)
      */
     String getPrefix();
-
-    /**
-     * Export workflow definition.
-     *
-     * @param format export format
-     * @param os export stream
-     */
-    void exportDefinition(WorkflowDefinitionFormat format, OutputStream os);
-
-    /**
-     * Export workflow graphical representation (if available).
-     *
-     * @param os export stream
-     */
-    void exportDiagram(OutputStream os);
-
-    /**
-     * Update workflow definition.
-     *
-     * @param format import format
-     * @param definition definition
-     */
-    void importDefinition(WorkflowDefinitionFormat format, String definition);
 
     /**
      * Get all defined forms for current workflow process instances.

@@ -160,9 +160,13 @@ public final class StandardEntitlement {
 
     public static final String POLICY_DELETE = "POLICY_DELETE";
 
-    public static final String WORKFLOW_DEF_READ = "WORKFLOW_DEF_READ";
+    public static final String WORKFLOW_DEF_LIST = "WORKFLOW_DEF_LIST";
 
-    public static final String WORKFLOW_DEF_UPDATE = "WORKFLOW_DEF_UPDATE";
+    public static final String WORKFLOW_DEF_GET = "WORKFLOW_DEF_GET";
+
+    public static final String WORKFLOW_DEF_SET = "WORKFLOW_DEF_SET";
+
+    public static final String WORKFLOW_DEF_DELETE = "WORKFLOW_DEF_DELETE";
 
     public static final String WORKFLOW_TASK_LIST = "WORKFLOW_TASK_LIST";
 

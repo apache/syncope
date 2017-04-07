@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Resource;
-import javax.ws.rs.NotFoundException;
 import org.activiti.bpmn.converter.BpmnXMLConverter;
 import org.activiti.bpmn.model.BpmnModel;
 import org.activiti.editor.constants.ModelDataJsonConstants;
@@ -46,11 +45,13 @@ import org.activiti.engine.history.HistoricDetail;
 import org.activiti.engine.history.HistoricTaskInstance;
 import org.activiti.engine.impl.persistence.entity.HistoricFormPropertyEntity;
 import org.activiti.engine.query.Query;
+import org.activiti.engine.repository.Deployment;
 import org.activiti.engine.repository.Model;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -59,6 +60,7 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.patch.PasswordPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.to.WorkflowDefinitionTO;
 import org.apache.syncope.common.lib.to.WorkflowFormPropertyTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
@@ -68,6 +70,7 @@ import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.BeanUtils;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
@@ -83,13 +86,11 @@ import org.springframework.transaction.annotation.Transactional;
  */
 public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
+    protected static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
     protected static final String[] PROPERTY_IGNORE_PROPS = { "type" };
 
     public static final String WF_PROCESS_ID = "userWorkflow";
-
-    public static final String WF_PROCESS_RESOURCE = "userWorkflow.bpmn20.xml";
-
-    public static final String WF_DGRM_RESOURCE = "userWorkflow.userWorkflow.png";
 
     public static final String USER = "user";
 
@@ -459,112 +460,6 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         return new WorkflowResult<>(updated.getKey(), null, performedTasks);
     }
 
-    protected ProcessDefinition getProcessDefinition() {
-        try {
-            return engine.getRepositoryService().createProcessDefinitionQuery().processDefinitionKey(
-                    ActivitiUserWorkflowAdapter.WF_PROCESS_ID).latestVersion().singleResult();
-        } catch (ActivitiException e) {
-            throw new WorkflowException("While accessing process " + ActivitiUserWorkflowAdapter.WF_PROCESS_ID, e);
-        }
-
-    }
-
-    protected Model getModel(final ProcessDefinition procDef) {
-        try {
-            Model model = engine.getRepositoryService().createModelQuery().
-                    deploymentId(procDef.getDeploymentId()).singleResult();
-            if (model == null) {
-                throw new NotFoundException("Could not find Model for deployment " + procDef.getDeploymentId());
-            }
-            return model;
-        } catch (Exception e) {
-            throw new WorkflowException("While accessing process " + ActivitiUserWorkflowAdapter.WF_PROCESS_ID, e);
-        }
-    }
-
-    protected void exportProcessResource(final String resourceName, final OutputStream os) {
-        ProcessDefinition procDef = getProcessDefinition();
-
-        InputStream procDefIS = engine.getRepositoryService().getResourceAsStream(procDef.getDeploymentId(),
-                resourceName);
-        try {
-            IOUtils.copy(procDefIS, os);
-        } catch (IOException e) {
-            LOG.error("While exporting workflow definition {}", procDef.getKey(), e);
-        } finally {
-            IOUtils.closeQuietly(procDefIS);
-        }
-    }
-
-    protected void exportProcessModel(final OutputStream os) {
-        Model model = getModel(getProcessDefinition());
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            ObjectNode modelNode = (ObjectNode) objectMapper.readTree(model.getMetaInfo());
-            modelNode.put(ModelDataJsonConstants.MODEL_ID, model.getId());
-            modelNode.replace(MODEL_DATA_JSON_MODEL,
-                    objectMapper.readTree(engine.getRepositoryService().getModelEditorSource(model.getId())));
-
-            os.write(modelNode.toString().getBytes());
-        } catch (IOException e) {
-            LOG.error("While exporting workflow definition {}", model.getId(), e);
-        }
-    }
-
-    @Override
-    public void exportDefinition(final WorkflowDefinitionFormat format, final OutputStream os) {
-        switch (format) {
-            case JSON:
-                exportProcessModel(os);
-                break;
-
-            case XML:
-            default:
-                exportProcessResource(WF_PROCESS_RESOURCE, os);
-        }
-    }
-
-    @Override
-    public void exportDiagram(final OutputStream os) {
-        exportProcessResource(WF_DGRM_RESOURCE, os);
-    }
-
-    @Override
-    public void importDefinition(final WorkflowDefinitionFormat format, final String definition) {
-        Model model = getModel(getProcessDefinition());
-        switch (format) {
-            case JSON:
-                JsonNode definitionNode;
-                try {
-                    definitionNode = new ObjectMapper().readTree(definition);
-                    if (definitionNode.has(MODEL_DATA_JSON_MODEL)) {
-                        definitionNode = definitionNode.get(MODEL_DATA_JSON_MODEL);
-                    }
-                    if (!definitionNode.has(BpmnJsonConverter.EDITOR_CHILD_SHAPES)) {
-                        throw new IllegalArgumentException(
-                                "Could not find JSON node " + BpmnJsonConverter.EDITOR_CHILD_SHAPES);
-                    }
-
-                    BpmnModel bpmnModel = new BpmnJsonConverter().convertToBpmnModel(definitionNode);
-                    ActivitiImportUtils.fromXML(engine, new BpmnXMLConverter().convertToXML(bpmnModel));
-                } catch (Exception e) {
-                    throw new WorkflowException("While updating process "
-                            + ActivitiUserWorkflowAdapter.WF_PROCESS_RESOURCE, e);
-                }
-
-                ActivitiImportUtils.fromJSON(
-                        engine, definitionNode.toString().getBytes(), getProcessDefinition(), model);
-                break;
-
-            case XML:
-            default:
-                ActivitiImportUtils.fromXML(engine, definition.getBytes());
-
-                ActivitiImportUtils.fromJSON(engine, getProcessDefinition(), model);
-        }
-    }
-
     protected WorkflowFormPropertyType fromActivitiFormType(final FormType activitiFormType) {
         WorkflowFormPropertyType result = WorkflowFormPropertyType.String;
 
@@ -878,5 +773,174 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         }
 
         return new WorkflowResult<>(userPatch, propByRes, postTasks);
+    }
+
+    protected Model getModel(final ProcessDefinition procDef) {
+        try {
+            Model model = engine.getRepositoryService().createModelQuery().
+                    deploymentId(procDef.getDeploymentId()).singleResult();
+            if (model == null) {
+                throw new NotFoundException("Could not find Model for deployment " + procDef.getDeploymentId());
+            }
+            return model;
+        } catch (Exception e) {
+            throw new WorkflowException("While accessing process " + procDef.getKey(), e);
+        }
+    }
+
+    @Override
+    public List<WorkflowDefinitionTO> getDefinitions() {
+        try {
+            return CollectionUtils.collect(
+                    engine.getRepositoryService().createProcessDefinitionQuery().latestVersion().list(),
+                    new Transformer<ProcessDefinition, WorkflowDefinitionTO>() {
+
+                @Override
+                public WorkflowDefinitionTO transform(final ProcessDefinition procDef) {
+                    WorkflowDefinitionTO defTO = new WorkflowDefinitionTO();
+                    defTO.setKey(procDef.getKey());
+                    defTO.setName(procDef.getName());
+
+                    try {
+                        defTO.setModelId(getModel(procDef).getId());
+                    } catch (NotFoundException e) {
+                        LOG.warn("No model found for definition {}, ignoring", procDef.getDeploymentId(), e);
+                    }
+
+                    defTO.setMain(WF_PROCESS_ID.equals(procDef.getKey()));
+
+                    return defTO;
+                }
+            }, new ArrayList<WorkflowDefinitionTO>());
+        } catch (ActivitiException e) {
+            throw new WorkflowException("While listing available process definitions", e);
+        }
+    }
+
+    protected ProcessDefinition getProcessDefinitionByKey(final String key) {
+        try {
+            return engine.getRepositoryService().createProcessDefinitionQuery().
+                    processDefinitionKey(key).latestVersion().singleResult();
+        } catch (ActivitiException e) {
+            throw new WorkflowException("While accessing process " + key, e);
+        }
+
+    }
+
+    protected ProcessDefinition getProcessDefinitionByDeploymentId(final String deploymentId) {
+        try {
+            return engine.getRepositoryService().createProcessDefinitionQuery().
+                    deploymentId(deploymentId).latestVersion().singleResult();
+        } catch (ActivitiException e) {
+            throw new WorkflowException("While accessing deployment " + deploymentId, e);
+        }
+
+    }
+
+    protected void exportProcessModel(final String key, final OutputStream os) {
+        Model model = getModel(getProcessDefinitionByKey(key));
+
+        try {
+            ObjectNode modelNode = (ObjectNode) OBJECT_MAPPER.readTree(model.getMetaInfo());
+            modelNode.put(ModelDataJsonConstants.MODEL_ID, model.getId());
+            modelNode.replace(MODEL_DATA_JSON_MODEL,
+                    OBJECT_MAPPER.readTree(engine.getRepositoryService().getModelEditorSource(model.getId())));
+
+            os.write(modelNode.toString().getBytes());
+        } catch (IOException e) {
+            LOG.error("While exporting workflow definition {}", model.getId(), e);
+        }
+    }
+
+    protected void exportProcessResource(final String deploymentId, final String resourceName, final OutputStream os) {
+        InputStream procDefIS = engine.getRepositoryService().
+                getResourceAsStream(deploymentId, resourceName);
+        try {
+            IOUtils.copy(procDefIS, os);
+        } catch (IOException e) {
+            LOG.error("While exporting {}", resourceName, e);
+        } finally {
+            IOUtils.closeQuietly(procDefIS);
+        }
+    }
+
+    @Override
+    public void exportDefinition(final String key, final WorkflowDefinitionFormat format, final OutputStream os) {
+        switch (format) {
+            case JSON:
+                exportProcessModel(key, os);
+                break;
+
+            case XML:
+            default:
+                ProcessDefinition procDef = getProcessDefinitionByKey(key);
+                exportProcessResource(procDef.getDeploymentId(), procDef.getResourceName(), os);
+        }
+    }
+
+    @Override
+    public void exportDiagram(final String key, final OutputStream os) {
+        ProcessDefinition procDef = getProcessDefinitionByKey(key);
+        if (procDef == null) {
+            throw new NotFoundException("Workflow process definition for " + key);
+        }
+        exportProcessResource(procDef.getDeploymentId(), procDef.getDiagramResourceName(), os);
+    }
+
+    @Override
+    public void importDefinition(final String key, final WorkflowDefinitionFormat format, final String definition) {
+        ProcessDefinition procDef = getProcessDefinitionByKey(key);
+        String resourceName = procDef == null ? key + ".bpmn20.xml" : procDef.getResourceName();
+        Deployment deployment;
+        switch (format) {
+            case JSON:
+                JsonNode definitionNode;
+                try {
+                    definitionNode = OBJECT_MAPPER.readTree(definition);
+                    if (definitionNode.has(MODEL_DATA_JSON_MODEL)) {
+                        definitionNode = definitionNode.get(MODEL_DATA_JSON_MODEL);
+                    }
+                    if (!definitionNode.has(BpmnJsonConverter.EDITOR_CHILD_SHAPES)) {
+                        throw new IllegalArgumentException(
+                                "Could not find JSON node " + BpmnJsonConverter.EDITOR_CHILD_SHAPES);
+                    }
+
+                    BpmnModel bpmnModel = new BpmnJsonConverter().convertToBpmnModel(definitionNode);
+                    deployment = ActivitiDeployUtils.deployDefinition(
+                            engine,
+                            resourceName,
+                            new BpmnXMLConverter().convertToXML(bpmnModel));
+                } catch (Exception e) {
+                    throw new WorkflowException("While creating or updating process " + key, e);
+                }
+                break;
+
+            case XML:
+            default:
+                deployment = ActivitiDeployUtils.deployDefinition(
+                        engine,
+                        resourceName,
+                        definition.getBytes());
+        }
+
+        procDef = getProcessDefinitionByDeploymentId(deployment.getId());
+        if (!key.equals(procDef.getKey())) {
+            throw new WorkflowException("Mismatching key: expected " + key + ", found " + procDef.getKey());
+        }
+        ActivitiDeployUtils.deployModel(engine, procDef);
+    }
+
+    @Override
+    public void deleteDefinition(final String key) {
+        ProcessDefinition procDef = getProcessDefinitionByKey(key);
+        if (WF_PROCESS_ID.equals(procDef.getKey())) {
+            throw new WorkflowException("Cannot delete the main process " + WF_PROCESS_ID);
+        }
+
+        try {
+            engine.getRepositoryService().deleteDeployment(procDef.getDeploymentId());
+        } catch (Exception e) {
+            throw new WorkflowException("While deleting " + key, e);
+        }
     }
 }

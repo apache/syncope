@@ -16,19 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-var KISBPM = KISBPM || {};
+package org.apache.syncope.core.workflow.api;
 
-KISBPM.URL = {
-  getModel: function (modelId) {
-    return window.location.toString().substr(0, window.location.toString().indexOf('/activiti-modeler')) 
-            + "/workflowDefGET?modelId=" + modelId;
-  },
-  getStencilSet: function () {
-    return window.location.toString().substr(0, window.location.toString().indexOf('/activiti-modeler')) 
-            + "/activiti-modeler/stencilset.json";
-  },
-  putModel: function (modelId) {
-    return window.location.toString().substr(0, window.location.toString().indexOf('/activiti-modeler')) 
-            + "/workflowDefPUT?modelId" + modelId;
-  }
-};
+public interface AnyObjectWorkflowDefinitionAdapter extends WorkflowDefinitionAdapter {
+}

@@ -21,20 +21,21 @@ package org.apache.syncope.client.cli.commands.self;
 import javax.ws.rs.core.Response;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.cli.SyncopeServices;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.WorkflowService;
 
 public class WorkflowSyncopeOperations {
 
+    private static final String DEFAULT = "userWorkflow";
+
     private final WorkflowService workflowService = SyncopeServices.get(WorkflowService.class);
 
-    public Response exportDiagram(final String anyTypeKindString) {
+    public Response exportDiagram(final String anyType) {
         WebClient.client(workflowService).accept(RESTHeaders.MEDIATYPE_IMAGE_PNG);
-        return workflowService.exportDiagram(AnyTypeKind.valueOf(anyTypeKindString));
+        return workflowService.exportDiagram(anyType, DEFAULT);
     }
 
-    public Response exportDefinition(final String anyTypeKindString) {
-        return workflowService.exportDefinition(AnyTypeKind.valueOf(anyTypeKindString));
+    public Response exportDefinition(final String anyType) {
+        return workflowService.get(anyType, DEFAULT);
     }
 }
