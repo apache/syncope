@@ -27,6 +27,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.PasswordPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.to.WorkflowDefinitionTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
@@ -178,21 +179,6 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    public void exportDefinition(final WorkflowDefinitionFormat format, final OutputStream os) {
-        throw new WorkflowException(new UnsupportedOperationException("Not supported."));
-    }
-
-    @Override
-    public void exportDiagram(final OutputStream os) {
-        throw new WorkflowException(new UnsupportedOperationException("Not supported."));
-    }
-
-    @Override
-    public void importDefinition(final WorkflowDefinitionFormat format, final String definition) {
-        throw new WorkflowException(new UnsupportedOperationException("Not supported."));
-    }
-
-    @Override
     public List<WorkflowFormTO> getForms() {
         return Collections.emptyList();
     }
@@ -217,4 +203,28 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         throw new UnsupportedOperationException("Not supported.");
     }
 
+    @Override
+    public List<WorkflowDefinitionTO> getDefinitions() {
+        throw new WorkflowException(new UnsupportedOperationException("Not supported."));
+    }
+
+    @Override
+    public void exportDefinition(final String key, final WorkflowDefinitionFormat format, final OutputStream os) {
+        throw new WorkflowException(new UnsupportedOperationException("Not supported."));
+    }
+
+    @Override
+    public void exportDiagram(final String key, final OutputStream os) {
+        throw new WorkflowException(new UnsupportedOperationException("Not supported."));
+    }
+
+    @Override
+    public void importDefinition(final String key, final WorkflowDefinitionFormat format, final String definition) {
+        throw new WorkflowException(new UnsupportedOperationException("Not supported."));
+    }
+
+    @Override
+    public void deleteDefinition(final String key) {
+        throw new WorkflowException(new UnsupportedOperationException("Not supported."));
+    }
 }

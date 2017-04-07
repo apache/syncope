@@ -19,11 +19,13 @@
 package org.apache.syncope.client.console.rest;
 
 import java.io.InputStream;
+import java.util.List;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.common.lib.to.WorkflowDefinitionTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.WorkflowService;
@@ -36,16 +38,20 @@ public class WorkflowRestClient extends BaseRestClient {
         return SyncopeConsoleSession.get().getService(mediaType, WorkflowService.class);
     }
 
-    public InputStream getDefinition(final MediaType mediaType) {
-        Response response = getService(mediaType).exportDefinition(AnyTypeKind.USER);
+    public List<WorkflowDefinitionTO> getDefinitions() {
+        return getService(WorkflowService.class).list(AnyTypeKind.USER.name());
+    }
+
+    public InputStream getDefinition(final MediaType mediaType, final String key) {
+        Response response = getService(mediaType).get(AnyTypeKind.USER.name(), key);
 
         return (InputStream) response.getEntity();
     }
 
-    public byte[] getDiagram() {
+    public byte[] getDiagram(final String key) {
         WorkflowService service = getService(WorkflowService.class);
         WebClient.client(service).accept(RESTHeaders.MEDIATYPE_IMAGE_PNG);
-        Response response = service.exportDiagram(AnyTypeKind.USER);
+        Response response = service.exportDiagram(AnyTypeKind.USER.name(), key);
 
         byte[] diagram;
         try {
@@ -57,7 +63,11 @@ public class WorkflowRestClient extends BaseRestClient {
         return diagram;
     }
 
-    public void updateDefinition(final MediaType mediaType, final String definition) {
-        getService(mediaType).importDefinition(AnyTypeKind.USER, definition);
+    public void setDefinition(final MediaType mediaType, final String key, final String definition) {
+        getService(mediaType).set(AnyTypeKind.USER.name(), key, definition);
+    }
+
+    public void deleteDefinition(final String key) {
+        getService(WorkflowService.class).delete(AnyTypeKind.USER.name(), key);
     }
 }

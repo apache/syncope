@@ -23,6 +23,7 @@ import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.util.string.StringValue;
 
 public class ModelerPopupPage extends WebPage {
 
@@ -31,10 +32,13 @@ public class ModelerPopupPage extends WebPage {
     public ModelerPopupPage(final PageParameters parameters) {
         super(parameters);
 
+        StringValue modelId = parameters.get(Constants.MODEL_ID_PARAM);
+
         WebMarkupContainer refresh = new WebMarkupContainer("refresh");
         // properly parameterize ?modelId=5 with SYNCOPE-1020
         refresh.add(new AttributeModifier(
-                "content", "0; url=../../" + parameters.get(Constants.MODELER_CONTEXT) + "/modeler.html?modelId=5"));
+                "content", "0; url=../../" + parameters.get(Constants.MODELER_CONTEXT)
+                + "/modeler.html?modelId=" + modelId.toString()));
         add(refresh);
     }
 

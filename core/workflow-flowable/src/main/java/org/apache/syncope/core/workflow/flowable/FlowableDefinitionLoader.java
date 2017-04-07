@@ -18,17 +18,13 @@
  */
 package org.apache.syncope.core.workflow.flowable;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Resource;
-import org.activiti.editor.constants.ModelDataJsonConstants;
 import org.activiti.engine.ProcessEngine;
-import org.activiti.engine.repository.Model;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.spring.SpringProcessEngineConfiguration;
 import org.apache.commons.io.IOUtils;
@@ -65,7 +61,7 @@ public class FlowableDefinitionLoader implements SyncopeLoader {
             wfIn = userWorkflowDef.getResource().getInputStream();
             wfDef = IOUtils.toByteArray(wfIn);
         } catch (IOException e) {
-            LOG.error("While loading " + FlowableUserWorkflowAdapter.WF_PROCESS_RESOURCE, e);
+            LOG.error("While loading " + userWorkflowDef.getResource().getFilename(), e);
         } finally {
             IOUtils.closeQuietly(wfIn);
         }
@@ -74,28 +70,20 @@ public class FlowableDefinitionLoader implements SyncopeLoader {
             List<ProcessDefinition> processes = entry.getValue().getRepositoryService().
                     createProcessDefinitionQuery().processDefinitionKey(FlowableUserWorkflowAdapter.WF_PROCESS_ID).
                     list();
-            LOG.debug(FlowableUserWorkflowAdapter.WF_PROCESS_ID + " Flowable processes in repository: {}", processes);
+            LOG.debug(FlowableUserWorkflowAdapter.WF_PROCESS_ID + " Activiti processes in repository: {}", processes);
 
             // Only loads process definition from file if not found in repository
             if (processes.isEmpty()) {
                 entry.getValue().getRepositoryService().createDeployment().addInputStream(
-                        FlowableUserWorkflowAdapter.WF_PROCESS_RESOURCE, new ByteArrayInputStream(wfDef)).deploy();
+                        userWorkflowDef.getResource().getFilename(), new ByteArrayInputStream(wfDef)).deploy();
 
                 ProcessDefinition procDef = entry.getValue().getRepositoryService().createProcessDefinitionQuery().
                         processDefinitionKey(FlowableUserWorkflowAdapter.WF_PROCESS_ID).latestVersion().
                         singleResult();
 
-                Model model = entry.getValue().getRepositoryService().newModel();
-                ObjectNode modelObjectNode = new ObjectMapper().createObjectNode();
-                modelObjectNode.put(ModelDataJsonConstants.MODEL_NAME, procDef.getName());
-                modelObjectNode.put(ModelDataJsonConstants.MODEL_REVISION, 1);
-                modelObjectNode.put(ModelDataJsonConstants.MODEL_DESCRIPTION, procDef.getDescription());
-                model.setMetaInfo(modelObjectNode.toString());
-                model.setName(procDef.getName());
-                model.setDeploymentId(procDef.getDeploymentId());
-                FlowableImportUtils.fromJSON(entry.getValue(), procDef, model);
+                FlowableDeployUtils.deployModel(entry.getValue(), procDef);
 
-                LOG.debug("Flowable Workflow definition loaded for domain {}", entry.getKey());
+                LOG.debug("Activiti Workflow definition loaded for domain {}", entry.getKey());
             }
 
             // jump to the next ID block

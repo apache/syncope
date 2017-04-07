@@ -23,24 +23,17 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.cxf.common.util.UrlUtils;
-import org.apache.syncope.client.console.rest.WorkflowRestClient;
-import org.apache.wicket.request.resource.AbstractResource;
+import org.apache.syncope.common.lib.to.WorkflowDefinitionTO;
 import org.apache.wicket.util.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Mirror REST resource for putting user workflow definition in JSON (used by Activiti / Flowable Modeler).
  *
  * @see org.apache.syncope.common.rest.api.service.WorkflowService#importDefinition
  */
-public class WorkflowDefPUTResource extends AbstractResource {
+public class WorkflowDefPUTResource extends AbstractWorkflowResource {
 
     private static final long serialVersionUID = 2964542005207297944L;
-
-    private static final Logger LOG = LoggerFactory.getLogger(WorkflowDefPUTResource.class);
-
-    private final WorkflowRestClient restClient = new WorkflowRestClient();
 
     @Override
     protected ResourceResponse newResourceResponse(final Attributes attributes) {
@@ -58,14 +51,17 @@ public class WorkflowDefPUTResource extends AbstractResource {
         } catch (IOException e) {
             LOG.error("Could not extract workflow definition", e);
         }
-        if (definition == null) {
+
+        WorkflowDefinitionTO toSet = getWorkflowDefinition(attributes);
+
+        if (definition == null || toSet == null) {
             return new ResourceResponse().setStatusCode(Response.Status.BAD_REQUEST.getStatusCode()).
                     setError(Response.Status.BAD_REQUEST.getStatusCode(),
-                            "Could not extract workflow definition");
+                            "Could not extract workflow model id and / or definition");
         }
 
         try {
-            restClient.updateDefinition(MediaType.APPLICATION_JSON_TYPE, definition);
+            restClient.setDefinition(MediaType.APPLICATION_JSON_TYPE, toSet.getKey(), definition);
             return new ResourceResponse().setStatusCode(Response.Status.NO_CONTENT.getStatusCode());
         } catch (Exception e) {
             LOG.error("While updating workflow definition", e);

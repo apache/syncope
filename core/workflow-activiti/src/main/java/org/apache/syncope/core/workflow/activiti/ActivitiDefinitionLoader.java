@@ -18,17 +18,13 @@
  */
 package org.apache.syncope.core.workflow.activiti;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Resource;
-import org.activiti.editor.constants.ModelDataJsonConstants;
 import org.activiti.engine.ProcessEngine;
-import org.activiti.engine.repository.Model;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.spring.SpringProcessEngineConfiguration;
 import org.apache.commons.io.IOUtils;
@@ -65,7 +61,7 @@ public class ActivitiDefinitionLoader implements SyncopeLoader {
             wfIn = userWorkflowDef.getResource().getInputStream();
             wfDef = IOUtils.toByteArray(wfIn);
         } catch (IOException e) {
-            LOG.error("While loading " + ActivitiUserWorkflowAdapter.WF_PROCESS_RESOURCE, e);
+            LOG.error("While loading " + userWorkflowDef.getResource().getFilename(), e);
         } finally {
             IOUtils.closeQuietly(wfIn);
         }
@@ -79,21 +75,13 @@ public class ActivitiDefinitionLoader implements SyncopeLoader {
             // Only loads process definition from file if not found in repository
             if (processes.isEmpty()) {
                 entry.getValue().getRepositoryService().createDeployment().addInputStream(
-                        ActivitiUserWorkflowAdapter.WF_PROCESS_RESOURCE, new ByteArrayInputStream(wfDef)).deploy();
+                        userWorkflowDef.getResource().getFilename(), new ByteArrayInputStream(wfDef)).deploy();
 
                 ProcessDefinition procDef = entry.getValue().getRepositoryService().createProcessDefinitionQuery().
                         processDefinitionKey(ActivitiUserWorkflowAdapter.WF_PROCESS_ID).latestVersion().
                         singleResult();
 
-                Model model = entry.getValue().getRepositoryService().newModel();
-                ObjectNode modelObjectNode = new ObjectMapper().createObjectNode();
-                modelObjectNode.put(ModelDataJsonConstants.MODEL_NAME, procDef.getName());
-                modelObjectNode.put(ModelDataJsonConstants.MODEL_REVISION, 1);
-                modelObjectNode.put(ModelDataJsonConstants.MODEL_DESCRIPTION, procDef.getDescription());
-                model.setMetaInfo(modelObjectNode.toString());
-                model.setName(procDef.getName());
-                model.setDeploymentId(procDef.getDeploymentId());
-                ActivitiImportUtils.fromJSON(entry.getValue(), procDef, model);
+                ActivitiDeployUtils.deployModel(entry.getValue(), procDef);
 
                 LOG.debug("Activiti Workflow definition loaded for domain {}", entry.getKey());
             }

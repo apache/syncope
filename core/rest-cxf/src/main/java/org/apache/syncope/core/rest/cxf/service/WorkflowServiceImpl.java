@@ -20,13 +20,15 @@ package org.apache.syncope.core.rest.cxf.service;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.List;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.to.WorkflowDefinitionTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.WorkflowService;
 import org.apache.syncope.core.logic.WorkflowLogic;
+import org.apache.syncope.core.workflow.api.WorkflowDefinitionFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -37,44 +39,38 @@ public class WorkflowServiceImpl extends AbstractServiceImpl implements Workflow
     private WorkflowLogic logic;
 
     @Override
-    public Response exportDefinition(final AnyTypeKind kind) {
-        final MediaType accept =
+    public List<WorkflowDefinitionTO> list(final String anyType) {
+        return logic.list(anyType);
+    }
+
+    @Override
+    public Response get(final String anyType, final String key) {
+        final WorkflowDefinitionFormat format =
                 messageContext.getHttpHeaders().getAcceptableMediaTypes().contains(MediaType.APPLICATION_JSON_TYPE)
-                        ? MediaType.APPLICATION_JSON_TYPE
-                        : MediaType.APPLICATION_XML_TYPE;
+                ? WorkflowDefinitionFormat.JSON
+                : WorkflowDefinitionFormat.XML;
 
         StreamingOutput sout = new StreamingOutput() {
 
             @Override
             public void write(final OutputStream os) throws IOException {
-                if (kind == AnyTypeKind.USER) {
-                    logic.exportUserDefinition(accept, os);
-                } else if (kind == AnyTypeKind.ANY_OBJECT) {
-                    logic.exportAnyObjectDefinition(accept, os);
-                } else {
-                    logic.exportGroupDefinition(accept, os);
-                }
+                logic.exportDefinition(anyType, key, format, os);
             }
         };
 
         return Response.ok(sout).
-                type(accept).
+                type(format == WorkflowDefinitionFormat.JSON
+                        ? MediaType.APPLICATION_JSON_TYPE : MediaType.APPLICATION_XHTML_XML_TYPE).
                 build();
     }
 
     @Override
-    public Response exportDiagram(final AnyTypeKind kind) {
+    public Response exportDiagram(final String anyType, final String key) {
         StreamingOutput sout = new StreamingOutput() {
 
             @Override
             public void write(final OutputStream os) throws IOException {
-                if (kind == AnyTypeKind.USER) {
-                    logic.exportUserDiagram(os);
-                } else if (kind == AnyTypeKind.ANY_OBJECT) {
-                    logic.exportAnyObjectDiagram(os);
-                } else {
-                    logic.exportGroupDiagram(os);
-                }
+                logic.exportDiagram(anyType, key, os);
             }
         };
 
@@ -84,19 +80,18 @@ public class WorkflowServiceImpl extends AbstractServiceImpl implements Workflow
     }
 
     @Override
-    public void importDefinition(final AnyTypeKind kind, final String definition) {
-        final MediaType contentType =
+    public void set(final String anyType, final String key, final String definition) {
+        WorkflowDefinitionFormat format =
                 messageContext.getHttpHeaders().getMediaType().equals(MediaType.APPLICATION_JSON_TYPE)
-                        ? MediaType.APPLICATION_JSON_TYPE
-                        : MediaType.APPLICATION_XML_TYPE;
+                ? WorkflowDefinitionFormat.JSON
+                : WorkflowDefinitionFormat.XML;
 
-        if (kind == AnyTypeKind.USER) {
-            logic.importUserDefinition(contentType, definition);
-        } else if (kind == AnyTypeKind.ANY_OBJECT) {
-            logic.importAnyObjectDefinition(contentType, definition);
-        } else {
-            logic.importGroupDefinition(contentType, definition);
-        }
+        logic.importDefinition(anyType, key, format, definition);
+    }
+
+    @Override
+    public void delete(final String anyType, final String key) {
+        logic.delete(anyType, key);
     }
 
 }

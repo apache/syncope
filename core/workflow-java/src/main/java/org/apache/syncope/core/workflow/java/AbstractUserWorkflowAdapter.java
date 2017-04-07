@@ -27,6 +27,7 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
+import org.apache.syncope.core.workflow.api.UserWorkflowDefinitionAdapter;
 import org.identityconnectors.common.Base64;
 import org.identityconnectors.common.security.EncryptorFactory;
 import org.slf4j.Logger;
@@ -36,7 +37,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = { Throwable.class })
-public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter {
+public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter, UserWorkflowDefinitionAdapter {
 
     protected static final Logger LOG = LoggerFactory.getLogger(UserWorkflowAdapter.class);
 

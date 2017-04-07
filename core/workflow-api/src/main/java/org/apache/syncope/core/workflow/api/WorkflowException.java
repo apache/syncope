@@ -25,10 +25,11 @@ package org.apache.syncope.core.workflow.api;
  */
 public class WorkflowException extends RuntimeException {
 
-    /**
-     * Generated serialVersionUID.
-     */
     private static final long serialVersionUID = -6261173250078013869L;
+
+    public WorkflowException(final String message) {
+        super(message);
+    }
 
     /**
      * Return a new instance wrapping the original workflow exception.

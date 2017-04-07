@@ -28,16 +28,41 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import javax.ws.rs.core.Response;
+import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.commons.io.IOUtils;
+import org.apache.syncope.common.lib.to.WorkflowDefinitionTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.Assume;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class WorkflowITCase extends AbstractITCase {
 
-    private void exportDefinition(final AnyTypeKind type) throws IOException {
-        Response response = workflowService.exportDefinition(type);
+    private static String defaultUserKey = null;
+
+    @BeforeClass
+    public static void findDefault() {
+        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
+        WorkflowDefinitionTO found = IterableUtils.find(
+                workflowService.list(AnyTypeKind.USER.name()), new Predicate<WorkflowDefinitionTO>() {
+
+            @Override
+            public boolean evaluate(final WorkflowDefinitionTO object) {
+                return object.isMain();
+            }
+        });
+        if (found != null) {
+            defaultUserKey = found.getKey();
+        }
+        assertNotNull(defaultUserKey);
+    }
+
+    @Test
+    public void exportUserDefinition() throws IOException {
+        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
+        Response response = workflowService.get(AnyTypeKind.USER.name(), defaultUserKey);
         assertTrue(response.getMediaType().toString().
                 startsWith(clientFactory.getContentType().getMediaType().toString()));
         assertTrue(response.getEntity() instanceof InputStream);
@@ -47,33 +72,11 @@ public class WorkflowITCase extends AbstractITCase {
     }
 
     @Test
-    public void exportUserDefinition() throws IOException {
-        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
-        exportDefinition(AnyTypeKind.USER);
-    }
-
-    @Test
-    public void getGroupDefinition() throws IOException {
-        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForGroups(syncopeService));
-        exportDefinition(AnyTypeKind.GROUP);
-    }
-
-    private void importDefinition(final AnyTypeKind type) throws IOException {
-        Response response = workflowService.exportDefinition(type);
-        String definition = IOUtils.toString((InputStream) response.getEntity(), StandardCharsets.UTF_8);
-
-        workflowService.importDefinition(type, definition);
-    }
-
-    @Test
     public void updateUserDefinition() throws IOException {
         Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
-        importDefinition(AnyTypeKind.USER);
-    }
+        Response response = workflowService.get(AnyTypeKind.USER.name(), defaultUserKey);
+        String definition = IOUtils.toString((InputStream) response.getEntity(), StandardCharsets.UTF_8);
 
-    @Test
-    public void updateGroupDefinition() throws IOException {
-        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForGroups(syncopeService));
-        importDefinition(AnyTypeKind.GROUP);
+        workflowService.set(AnyTypeKind.USER.name(), defaultUserKey, definition);
     }
 }

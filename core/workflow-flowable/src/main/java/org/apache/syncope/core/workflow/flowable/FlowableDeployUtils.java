@@ -16,8 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.workflow.activiti;
+package org.apache.syncope.core.workflow.flowable;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -26,41 +28,32 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import org.activiti.bpmn.converter.BpmnXMLConverter;
 import org.activiti.bpmn.model.BpmnModel;
+import org.activiti.editor.constants.ModelDataJsonConstants;
 import org.activiti.editor.language.json.converter.BpmnJsonConverter;
 import org.activiti.engine.ActivitiException;
 import org.activiti.engine.ProcessEngine;
+import org.activiti.engine.repository.Deployment;
 import org.activiti.engine.repository.Model;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.apache.commons.io.IOUtils;
 import org.apache.syncope.core.workflow.api.WorkflowException;
 
-public final class ActivitiImportUtils {
+public final class FlowableDeployUtils {
 
-    public static void fromXML(final ProcessEngine engine, final byte[] definition) {
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
+    public static Deployment deployDefinition(
+            final ProcessEngine engine, final String resourceName, final byte[] definition) {
+
         try {
-            engine.getRepositoryService().createDeployment().
-                    addInputStream(ActivitiUserWorkflowAdapter.WF_PROCESS_RESOURCE,
-                            new ByteArrayInputStream(definition)).deploy();
+            return engine.getRepositoryService().createDeployment().
+                    addInputStream(resourceName, new ByteArrayInputStream(definition)).deploy();
         } catch (ActivitiException e) {
-            throw new WorkflowException("While updating process " + ActivitiUserWorkflowAdapter.WF_PROCESS_RESOURCE, e);
+            throw new WorkflowException("While importing " + resourceName, e);
         }
     }
 
-    public static void fromJSON(
-            final ProcessEngine engine, final byte[] definition, final ProcessDefinition procDef, final Model model) {
-
-        try {
-            model.setVersion(procDef.getVersion());
-            model.setDeploymentId(procDef.getDeploymentId());
-            engine.getRepositoryService().saveModel(model);
-
-            engine.getRepositoryService().addModelEditorSource(model.getId(), definition);
-        } catch (Exception e) {
-            throw new WorkflowException("While updating process " + ActivitiUserWorkflowAdapter.WF_PROCESS_RESOURCE, e);
-        }
-    }
-
-    public static void fromJSON(final ProcessEngine engine, final ProcessDefinition procDef, final Model model) {
+    public static void deployModel(final ProcessEngine engine, final ProcessDefinition procDef) {
         InputStream bpmnStream = null;
         InputStreamReader isr = null;
         XMLStreamReader xtr = null;
@@ -71,9 +64,20 @@ public final class ActivitiImportUtils {
             xtr = XMLInputFactory.newInstance().createXMLStreamReader(isr);
             BpmnModel bpmnModel = new BpmnXMLConverter().convertToBpmnModel(xtr);
 
-            fromJSON(engine, new BpmnJsonConverter().convertToJson(bpmnModel).toString().getBytes(), procDef, model);
+            Model model = engine.getRepositoryService().newModel();
+            ObjectNode modelObjectNode = OBJECT_MAPPER.createObjectNode();
+            modelObjectNode.put(ModelDataJsonConstants.MODEL_NAME, procDef.getName());
+            model.setMetaInfo(modelObjectNode.toString());
+            model.setName(procDef.getName());
+            model.setDeploymentId(procDef.getDeploymentId());
+            model.setVersion(procDef.getVersion());
+
+            engine.getRepositoryService().saveModel(model);
+            engine.getRepositoryService().addModelEditorSource(
+                    model.getId(),
+                    new BpmnJsonConverter().convertToJson(bpmnModel).toString().getBytes());
         } catch (Exception e) {
-            throw new WorkflowException("While updating process " + ActivitiUserWorkflowAdapter.WF_PROCESS_RESOURCE, e);
+            throw new WorkflowException("While importing " + procDef.getResourceName(), e);
         } finally {
             if (xtr != null) {
                 try {
@@ -87,7 +91,7 @@ public final class ActivitiImportUtils {
         }
     }
 
-    private ActivitiImportUtils() {
+    private FlowableDeployUtils() {
         // private constructor for static utility class
     }
 }

@@ -17,34 +17,16 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
-  <wicket:head>
-    <script type="text/javascript">
-      $(document).ready(function () {
-        $("div.inactive-topology-menu").toggle("slow");
-        $("div.inactive-topology-menu").attr("class", "topology-menu active-topology-menu");
-      });
-    </script>
-
-    <style type="text/css">
-      div.topology-menu {
-        top: 65px !important;
-      }
-
-      div.topology-menu div.header {
-        display: none !important;
-      }
-    </style>
-  </wicket:head>
   <wicket:extend>
-    <div wicket:id="container">
-      <ul class="menu">
-        <wicket:enclosure child="workflowModeler">
-          <li><a href="#" wicket:id="workflowModeler"><i class="fa fa-file-image-o"></i>Workflow Modeler</a></li>
-        </wicket:enclosure>
-        <wicket:enclosure child="xmlEditor">
-          <li><a href="#" wicket:id="xmlEditor"><i class="fa fa-file-text-o"></i>XML editor</a></li>
-        </wicket:enclosure>
-      </ul>
+    <div id="startAtContainer">
+      <form wicket:id="form">
+        <div class="input-group">
+          <input wicket:id="key"/>
+          <div class="input-group-addon">
+            <a wicket:id="submit"><i class="fa fa-file-o" alt="new" title="new"></i></a>
+          </div>
+        </div>
+      </form>
     </div>
   </wicket:extend>
 </html>

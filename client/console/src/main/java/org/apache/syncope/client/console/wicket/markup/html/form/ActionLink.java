@@ -19,7 +19,9 @@
 package org.apache.syncope.client.console.wicket.markup.html.form;
 
 import java.io.Serializable;
+import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 public abstract class ActionLink<T extends Serializable> implements Serializable {
 
@@ -91,7 +93,8 @@ public abstract class ActionLink<T extends Serializable> implements Serializable
         PROPAGATION_TASKS("read"),
         NOTIFICATION_TASKS("read"),
         ZOOM_IN("zoomin"),
-        ZOOM_OUT("zoomout");
+        ZOOM_OUT("zoomout"),
+        WORKFLOW_MODELER("workflowModeler");
 
         private final String actionId;
 
@@ -124,6 +127,14 @@ public abstract class ActionLink<T extends Serializable> implements Serializable
 
     protected boolean statusCondition(final T modelObject) {
         return true;
+    }
+
+    public Class<? extends Page> getPageClass() {
+        return null;
+    }
+
+    public PageParameters getPageParameters() {
+        return null;
     }
 
     public final ActionLink<T> disable() {

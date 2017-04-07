@@ -25,12 +25,14 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
 import org.apache.syncope.core.workflow.api.AnyObjectWorkflowAdapter;
+import org.apache.syncope.core.workflow.api.AnyObjectWorkflowDefinitionAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = { Throwable.class })
-public abstract class AbstractAnyObjectWorkflowAdapter implements AnyObjectWorkflowAdapter {
+public abstract class AbstractAnyObjectWorkflowAdapter
+        implements AnyObjectWorkflowAdapter, AnyObjectWorkflowDefinitionAdapter {
 
     @Autowired
     protected AnyObjectDataBinder dataBinder;

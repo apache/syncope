@@ -24,9 +24,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Triple;
+import org.apache.syncope.client.console.wicket.markup.html.link.VeilPopupSettings;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
+import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
@@ -103,6 +105,7 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
         super.add(new Fragment("panelNotificationTasks", "emptyFragment", this));
         super.add(new Fragment("panelZoomIn", "emptyFragment", this));
         super.add(new Fragment("panelZoomOut", "emptyFragment", this));
+        super.add(new Fragment("panelWorkflowModeler", "emptyFragment", this));
     }
 
     public ActionLinksPanel<T> add(
@@ -945,19 +948,19 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                 fragment.addOrReplace(
                         new IndicatingOnConfirmAjaxLink<Void>("unassignLink", "confirmUnassign", enabled) {
 
-                    private static final long serialVersionUID = -6957616042924610294L;
+                            private static final long serialVersionUID = -6957616042924610294L;
 
-                    @Override
-                    public void onClick(final AjaxRequestTarget target) {
-                        link.onClick(target, model.getObject());
-                    }
+                            @Override
+                            public void onClick(final AjaxRequestTarget target) {
+                                link.onClick(target, model.getObject());
+                            }
 
-                    @Override
-                    public String getAjaxIndicatorMarkupId() {
-                        return disableIndicator || !link.isIndicatorEnabled()
-                                ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
-                    }
-                }.setVisible(link.isEnabled(model.getObject())));
+                            @Override
+                            public String getAjaxIndicatorMarkupId() {
+                                return disableIndicator || !link.isIndicatorEnabled()
+                                        ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
+                            }
+                        }.setVisible(link.isEnabled(model.getObject())));
                 break;
 
             case ASSIGN:
@@ -1138,6 +1141,15 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
                                 ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
                     }
                 }.setVisible(link.isEnabled(model.getObject())));
+                break;
+
+            case WORKFLOW_MODELER:
+                fragment = new Fragment("panelWorkflowModeler", "fragmentWorkflowModeler", this);
+
+                fragment.addOrReplace(new BookmarkablePageLink<>(
+                        "workflowModelerLink", link.getPageClass(), link.getPageParameters()).
+                        setPopupSettings(new VeilPopupSettings().setHeight(600).setWidth(800)).
+                        setVisible(link.isEnabled(model.getObject())));
                 break;
 
             default:
@@ -1334,6 +1346,10 @@ public final class ActionLinksPanel<T extends Serializable> extends Panel {
 
             case ZOOM_OUT:
                 super.addOrReplace(new Fragment("panelZoomOut", "emptyFragment", this));
+                break;
+
+            case WORKFLOW_MODELER:
+                super.addOrReplace(new Fragment("panelWorkflowModelert", "emptyFragment", this));
                 break;
 
             default:
