@@ -20,9 +20,7 @@ package org.apache.syncope.client.enduser.resources;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
@@ -31,7 +29,6 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.SerializationUtils;
-import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.annotations.Resource;
@@ -45,7 +42,7 @@ import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.request.resource.IResource;
 
 @Resource(key = "userSelfUpdate", path = "/api/self/update")
-public class UserSelfUpdateResource extends BaseResource {
+public class UserSelfUpdateResource extends BaseUserSelfResource {
 
     private static final long serialVersionUID = -2721621682300247583L;
 
@@ -187,23 +184,4 @@ public class UserSelfUpdateResource extends BaseResource {
         return response;
     }
 
-    private void millisToDate(final Map<String, AttrTO> plainAttrMap, final PlainSchemaTO plainSchema)
-            throws IllegalArgumentException {
-        LOG.info("CONVERTING >>>>>>>>>> {}", plainSchema.getKey());
-        if (plainAttrMap.containsKey(plainSchema.getKey())) {
-            FastDateFormat fmt = FastDateFormat.getInstance(plainSchema.getConversionPattern());
-
-            AttrTO dateAttr = plainAttrMap.get(plainSchema.getKey());
-            List<String> formattedValues = new ArrayList<>(dateAttr.getValues().size());
-            for (String value : dateAttr.getValues()) {
-                try {
-                    formattedValues.add(fmt.format(Long.valueOf(value)));
-                } catch (NumberFormatException e) {
-                    throw new IllegalArgumentException("Invalid format value for " + value);
-                }
-            }
-            dateAttr.getValues().clear();
-            dateAttr.getValues().addAll(formattedValues);
-        }
-    }
 }

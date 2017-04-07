@@ -20,15 +20,11 @@ package org.apache.syncope.client.enduser.resources;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.SerializationUtils;
-import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.annotations.Resource;
 import org.apache.syncope.common.lib.to.AttrTO;
@@ -39,7 +35,7 @@ import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.request.resource.IResource;
 
 @Resource(key = "userSelfRead", path = "/api/self/read")
-public class UserSelfReadResource extends BaseResource {
+public class UserSelfReadResource extends BaseUserSelfResource {
 
     private static final long serialVersionUID = -9184809392631523912L;
 
@@ -111,18 +107,4 @@ public class UserSelfReadResource extends BaseResource {
         return response;
     }
 
-    private void dateToMillis(final Map<String, AttrTO> plainAttrMap, final PlainSchemaTO plainSchema)
-            throws ParseException {
-        if (plainAttrMap.containsKey(plainSchema.getKey())) {
-            FastDateFormat fmt = FastDateFormat.getInstance(plainSchema.getConversionPattern());
-
-            AttrTO dateAttr = plainAttrMap.get(plainSchema.getKey());
-            List<String> milliValues = new ArrayList<>(dateAttr.getValues().size());
-            for (String value : dateAttr.getValues()) {
-                milliValues.add(String.valueOf(fmt.parse(value).getTime()));
-            }
-            dateAttr.getValues().clear();
-            dateAttr.getValues().addAll(milliValues);
-        }
-    }
 }
