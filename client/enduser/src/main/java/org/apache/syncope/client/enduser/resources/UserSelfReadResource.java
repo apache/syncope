@@ -20,6 +20,7 @@ package org.apache.syncope.client.enduser.resources;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -59,22 +60,15 @@ public class UserSelfReadResource extends BaseResource {
             UserTO userTO = SerializationUtils.clone(SyncopeEnduserSession.get().getSelfTO());
             Map<String, AttrTO> userPlainAttrMap = userTO.getPlainAttrMap();
 
-            // Date -> millis conversion
+            // 1. Date -> millis conversion for PLAIN attributes of USER and its MEMBERSHIPS
             for (PlainSchemaTO plainSchema : SyncopeEnduserSession.get().getDatePlainSchemas()) {
-                if (userPlainAttrMap.containsKey(plainSchema.getKey())) {
-                    FastDateFormat fmt = FastDateFormat.getInstance(plainSchema.getConversionPattern());
-
-                    AttrTO dateAttr = userPlainAttrMap.get(plainSchema.getKey());
-                    List<String> milliValues = new ArrayList<>(dateAttr.getValues().size());
-                    for (String value : dateAttr.getValues()) {
-                        milliValues.add(String.valueOf(fmt.parse(value).getTime()));
-                    }
-                    dateAttr.getValues().clear();
-                    dateAttr.getValues().addAll(milliValues);
+                dateToMillis(userPlainAttrMap, plainSchema);
+                for (MembershipTO membership : userTO.getMemberships()) {
+                    dateToMillis(membership.getPlainAttrMap(), plainSchema);
                 }
             }
 
-            // membership attributes management
+            // 2. membership attributes management
             for (MembershipTO membership : userTO.getMemberships()) {
                 String groupName = membership.getGroupName();
                 for (AttrTO attr : membership.getPlainAttrs()) {
@@ -115,5 +109,20 @@ public class UserSelfReadResource extends BaseResource {
                     .toString());
         }
         return response;
+    }
+
+    private void dateToMillis(final Map<String, AttrTO> plainAttrMap, final PlainSchemaTO plainSchema)
+            throws ParseException {
+        if (plainAttrMap.containsKey(plainSchema.getKey())) {
+            FastDateFormat fmt = FastDateFormat.getInstance(plainSchema.getConversionPattern());
+
+            AttrTO dateAttr = plainAttrMap.get(plainSchema.getKey());
+            List<String> milliValues = new ArrayList<>(dateAttr.getValues().size());
+            for (String value : dateAttr.getValues()) {
+                milliValues.add(String.valueOf(fmt.parse(value).getTime()));
+            }
+            dateAttr.getValues().clear();
+            dateAttr.getValues().addAll(milliValues);
+        }
     }
 }
