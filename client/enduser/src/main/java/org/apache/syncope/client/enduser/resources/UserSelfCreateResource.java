@@ -22,9 +22,7 @@ import static org.apache.syncope.client.enduser.resources.BaseResource.LOG;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
@@ -33,7 +31,6 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.SerializationUtils;
-import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.annotations.Resource;
@@ -45,7 +42,7 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 
 @Resource(key = "userSelfCreate", path = "/api/self/create")
-public class UserSelfCreateResource extends BaseResource {
+public class UserSelfCreateResource extends BaseUserSelfResource {
 
     private static final long serialVersionUID = -2721621682300247583L;
 
@@ -86,28 +83,8 @@ public class UserSelfCreateResource extends BaseResource {
             }
 
             if (isSelfRegistrationAllowed() && userTO != null) {
-                Map<String, AttrTO> userPlainAttrMap = userTO.getPlainAttrMap();
 
-                // millis -> Date conversion
-                for (PlainSchemaTO plainSchema : SyncopeEnduserSession.get().getDatePlainSchemas()) {
-                    if (userPlainAttrMap.containsKey(plainSchema.getKey())) {
-                        FastDateFormat fmt = FastDateFormat.getInstance(plainSchema.getConversionPattern());
-
-                        AttrTO dateAttr = userPlainAttrMap.get(plainSchema.getKey());
-                        List<String> formattedValues = new ArrayList<>(dateAttr.getValues().size());
-                        for (String value : dateAttr.getValues()) {
-                            try {
-                                formattedValues.add(fmt.format(Long.valueOf(value)));
-                            } catch (NumberFormatException e) {
-                                throw new IllegalArgumentException("Invalid format value for " + value);
-                            }
-                        }
-                        dateAttr.getValues().clear();
-                        dateAttr.getValues().addAll(formattedValues);
-                    }
-                }
-
-                // membership attributes management
+                // 1. membership attributes management
                 Set<AttrTO> membAttrs = new HashSet<>();
                 for (AttrTO attr : userTO.getPlainAttrs()) {
                     if (attr.getSchema().contains("#")) {
@@ -132,6 +109,15 @@ public class UserSelfCreateResource extends BaseResource {
                     }
                 }
                 userTO.getPlainAttrs().removeAll(membAttrs);
+
+                // 2. millis -> Date conversion for PLAIN attributes of USER and its MEMBERSHIPS
+                Map<String, AttrTO> userPlainAttrMap = userTO.getPlainAttrMap();
+                for (PlainSchemaTO plainSchema : SyncopeEnduserSession.get().getDatePlainSchemas()) {
+                    millisToDate(userPlainAttrMap, plainSchema);
+                    for (MembershipTO membership : userTO.getMemberships()) {
+                        millisToDate(membership.getPlainAttrMap(), plainSchema);
+                    }
+                }
 
                 membAttrs.clear();
                 for (AttrTO attr : userTO.getDerAttrs()) {
