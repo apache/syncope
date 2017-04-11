@@ -342,10 +342,6 @@ under the License.
     </contributor>
   </contributors>
 
-  <prerequisites>
-    <maven>[3.0.3,)</maven>
-  </prerequisites>
-
   <properties>
     <syncope.version>${project.version}</syncope.version>
 
@@ -382,7 +378,7 @@ under the License.
     <camel.version>2.17.6</camel.version>	
 
     <slf4j.version>1.7.25</slf4j.version>
-    <opensaml.version>3.2.0</opensaml.version>
+    <opensaml.version>3.3.0</opensaml.version>
 
     <log4j.version>2.8.2</log4j.version>
     <disruptor.version>3.3.6</disruptor.version>
@@ -1767,7 +1763,28 @@ under the License.
       </plugins>
     </pluginManagement>
 
-    <plugins>     
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <version>1.4.1</version>
+        <executions>
+          <execution>
+            <id>enforce-maven</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireMavenVersion>
+                  <version>3.0</version>
+                </requireMavenVersion>
+              </rules>    
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
       <plugin>
         <groupId>org.gaul</groupId>
         <artifactId>modernizer-maven-plugin</artifactId>
@@ -1971,6 +1988,73 @@ under the License.
     
   </build>
 
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-project-info-reports-plugin</artifactId>
+        <version>2.9</version>
+        <configuration>
+          <dependencyDetailsEnabled>false</dependencyDetailsEnabled>
+          <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
+        </configuration>
+        <reportSets>
+          <reportSet>
+            <reports>
+              <report>index</report>
+              <report>project-team</report>
+              <report>issue-tracking</report>
+              <report>license</report>
+            </reports>
+          </reportSet>
+        </reportSets>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>2.10.4</version>
+        <configuration>
+          <destDir>apidocs/2.0</destDir>
+          <isOffline>false</isOffline>
+          <detectLinks>true</detectLinks>
+          <detectJavaApiLink>true</detectJavaApiLink>
+          <links>
+            <link>http://docs.oracle.com/javaee/7/api/</link>
+            <link>http://www.slf4j.org/api/</link>
+            <link>http://connid.tirasa.net/apidocs/1.4/</link>
+            <link>http://cxf.apache.org/javadoc/latest-3.1.x/</link>
+            <link>http://fasterxml.github.io/jackson-core/javadoc/2.8/</link>
+            <link>http://fasterxml.github.io/jackson-databind/javadoc/2.8/</link>
+            <link>http://fasterxml.github.io/jackson-annotations/javadoc/2.8/</link>
+            <link>http://fasterxml.github.io/jackson-dataformat-xml/javadoc/2.8/</link>
+            <link>http://fasterxml.github.io/jackson-dataformat-yaml/javadoc/2.8/</link>
+            <link>http://fasterxml.github.io/jackson-datatype-joda/javadoc/2.8/</link>
+            <link>http://www.javadoc.io/doc/org.apache.camel/camel-core/2.17.6/</link>
+            <link>http://www.javadoc.io/doc/org.apache.camel/camel-spring/2.17.6/</link>
+            <link>https://ci.apache.org/projects/wicket/apidocs/7.x/</link>
+            <link>https://commons.apache.org/proper/commons-lang/javadocs/api-release/</link>
+            <link>https://commons.apache.org/proper/commons-io/javadocs/api-2.5/</link>
+            <link>https://commons.apache.org/proper/commons-jexl/apidocs/</link>
+            <link>https://commons.apache.org/proper/commons-collections/javadocs/api-release/</link>
+            <link>http://docs.spring.io/spring/docs/4.3.x/javadoc-api/</link>
+            <link>http://docs.spring.io/spring-security/site/docs/4.2.x/apidocs/</link>
+            <link>http://activiti.org/javadocs/</link>
+            <link>http://www.flowable.org/docs/javadocs/</link>
+            <link>https://build.shibboleth.net/nexus/service/local/repositories/releases/archive/org/opensaml/opensaml-saml-api/3.3.0/opensaml-saml-api-3.3.0-javadoc.jar/!/index.html</link>
+            <link>https://build.shibboleth.net/nexus/service/local/repositories/releases/archive/org/opensaml/opensaml-core/3.3.0/opensaml-core-3.3.0-javadoc.jar/!/index.html</link>
+          </links>
+        </configuration>
+        <reportSets>
+          <reportSet>
+            <reports>
+              <report>aggregate</report>
+            </reports>
+          </reportSet>
+        </reportSets>
+      </plugin>
+    </plugins>
+  </reporting>
+
   <profiles>
 
     <profile>
@@ -2150,59 +2234,6 @@ under the License.
             <configuration>
               <locales>en</locales>
               <generateProjectInfo>false</generateProjectInfo>
-              <reportPlugins>
-                <plugin>
-                  <groupId>org.apache.maven.plugins</groupId>
-                  <artifactId>maven-project-info-reports-plugin</artifactId>
-                  <version>2.9</version>
-                  <configuration>
-                    <dependencyDetailsEnabled>false</dependencyDetailsEnabled>
-                    <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
-                  </configuration>
-                  <reports>
-                    <report>index</report>
-                    <report>project-team</report>
-                    <report>issue-tracking</report>
-                    <report>license</report>
-                  </reports>
-                </plugin>
-                <plugin>
-                  <groupId>org.apache.maven.plugins</groupId>
-                  <artifactId>maven-javadoc-plugin</artifactId>
-                  <version>2.10.4</version>
-                  <configuration>
-                    <destDir>apidocs/2.0</destDir>
-                    <isOffline>false</isOffline>
-                    <detectLinks>true</detectLinks>
-                    <detectJavaApiLink>true</detectJavaApiLink>
-                    <links>
-                      <link>http://docs.oracle.com/javaee/7/api/</link>
-                      <link>http://www.slf4j.org/api/</link>
-                      <link>http://connid.tirasa.net/apidocs/1.4/</link>
-                      <link>http://cxf.apache.org/javadoc/latest-3.1.x/</link>
-                      <link>http://fasterxml.github.io/jackson-core/javadoc/2.8/</link>
-                      <link>http://fasterxml.github.io/jackson-databind/javadoc/2.8/</link>
-                      <link>http://fasterxml.github.io/jackson-annotations/javadoc/2.8/</link>
-                      <link>http://fasterxml.github.io/jackson-dataformat-xml/javadoc/2.8/</link>
-                      <link>http://fasterxml.github.io/jackson-dataformat-yaml/javadoc/2.8/</link>
-                      <link>http://fasterxml.github.io/jackson-datatype-joda/javadoc/2.8/</link>
-                      <link>http://www.javadoc.io/doc/org.apache.camel/camel-core/2.17.5</link>
-                      <link>http://www.javadoc.io/doc/org.apache.camel/camel-spring/2.17.5</link>
-                      <link>https://ci.apache.org/projects/wicket/apidocs/7.x/</link>
-                      <link>https://commons.apache.org/proper/commons-lang/javadocs/api-release/</link>
-                      <link>https://commons.apache.org/proper/commons-io/javadocs/api-2.5/</link>
-                      <link>https://commons.apache.org/proper/commons-jexl/apidocs/</link>
-                      <link>https://commons.apache.org/proper/commons-collections/javadocs/</link>
-                      <link>http://docs.spring.io/spring/docs/4.3.x/javadoc-api/</link>
-                      <link>http://docs.spring.io/spring-security/site/docs/4.2.x/apidocs/</link>
-                      <link>http://activiti.org/javadocs/</link>
-                    </links>
-                  </configuration>
-                  <reports>
-                    <report>aggregate</report>
-                  </reports>
-                </plugin>
-              </reportPlugins>
             </configuration>
           </plugin>
           
