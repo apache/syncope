@@ -77,8 +77,8 @@ https://camunda.org/[Camunda^] or http://jbpm.jboss.org/[jBPM^].
 
 ==== Activiti User Workflow Adapter
 
-An advanced adapter is provided for Users, based on http://www.activiti.org/[Activiti BPM^], the reference open source 
-http://www.bpmn.org/[BPMN 2.0^] implementation.
+An advanced adapter is provided for Users, based on http://www.activiti.org/[Activiti BPM^], one of reference open
+source http://www.bpmn.org/[BPMN 2.0^] implementations.
 
 The
 ifeval::["{snapshotOrRelease}" == "release"]
@@ -229,3 +229,11 @@ The delegated administrator for approving recertifications can be configured by 
           activiti:candidateUser="${user.lastRecertificator}">
 ----
 ====
+
+==== Flowable User Workflow Adapter
+
+Starting with Apache Syncope 2.0.3, another advanced adapter is provided for Users, based on
+http://www.flowable.org/[Flowable^], one of reference open source http://www.bpmn.org/[BPMN 2.0^] implementations.
+
+Since Flowable was http://www.flowable.org/blog/2016/10/12/flowable-and-activiti.html[forked from Activiti BPM^],
+everything stated <<activiti-user-workflow-adapter,above>> about Activiti BPM can be applied.
