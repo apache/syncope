@@ -116,8 +116,9 @@ point for defining and enforcing the consistency and transformations between int
 all-Java implementation can be extended for this purpose. In addition, an http://camel.apache.org/[Apache Camel^]-based 
 implementation is also available as an extension, which brings all the power of runtime changes and adaptation.
  * *_Workflow_*  is one of the pluggable aspects of Apache Syncope: this lets every deployment choose the preferred engine
-from a provided list - including the one based on http://www.activiti.org/[Activiti BPM^], the reference open source 
-http://www.bpmn.org/[BPMN 2.0^] implementation - or define new, custom ones. 
+from a provided list - including one based on http://www.activiti.org/[Activiti BPM^] and another based on
+http://www.flowable.org/[Flowable^], the reference open source http://www.bpmn.org/[BPMN 2.0^] implementations - or
+define new, custom ones. 
  * *_Persistence_* manages all data (users, groups, attributes, resources, ...) at a high level 
 using a standard https://en.wikipedia.org/wiki/Java_Persistence_API[JPA 2.0^] approach. The data is persisted to an underlying 
 database, referred to as *_Internal Storage_*. Consistency is ensured via the comprehensive

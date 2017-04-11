@@ -407,7 +407,7 @@ mvn -P all clean install
 then, from the `enduser` subdirectory, execute:
 
 [source,bash]
-mvn -P embedded
+mvn -P embedded,all
 
 ===== Paths and Components
 
