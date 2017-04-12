@@ -364,7 +364,8 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 ResourceTO modelObject = resourceRestClient.read(node.getKey());
                 target.add(propTaskModal.setContent(
                         new ResourceStatusModal(propTaskModal, pageRef, modelObject)));
-                propTaskModal.header(new ResourceModel("resource.provisioning.status", "Provisioning Status"));
+                propTaskModal.header(new Model<>(MessageFormat.format(getString("resource.provisioning.status"),
+                        node.getKey())));
                 propTaskModal.show(true);
             }
         };
@@ -418,7 +419,8 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             public void onClick(final AjaxRequestTarget target) {
                 target.add(propTaskModal.setContent(
                         new PropagationTasks(propTaskModal, node.getKey(), pageRef)));
-                propTaskModal.header(new ResourceModel("task.propagation.list"));
+                propTaskModal.header(
+                        new Model<>(MessageFormat.format(getString("task.propagation.list"), node.getKey())));
                 propTaskModal.show(true);
             }
         };
@@ -432,7 +434,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 target.add(schedTaskModal.setContent(new PullTasks(schedTaskModal, pageRef, node.getKey())));
-                schedTaskModal.header(new ResourceModel("task.pull.list"));
+                schedTaskModal.header(new Model<>(MessageFormat.format(getString("task.pull.list"), node.getKey())));
                 schedTaskModal.show(true);
             }
         };
@@ -446,7 +448,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 target.add(schedTaskModal.setContent(new PushTasks(schedTaskModal, pageRef, node.getKey())));
-                schedTaskModal.header(new ResourceModel("task.push.list"));
+                schedTaskModal.header(new Model<>(MessageFormat.format(getString("task.push.list"), node.getKey())));
                 schedTaskModal.show(true);
             }
         };
