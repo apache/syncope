@@ -16,30 +16,41 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.logic.saml2;
+package org.apache.syncope.common.lib.types;
 
-import java.io.IOException;
-import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.UnsupportedCallbackException;
-import org.apache.wss4j.common.ext.WSPasswordCallback;
+import javax.xml.bind.annotation.XmlEnum;
 
-public class SAML2IdPCallbackHandler implements CallbackHandler {
+@XmlEnum
+public enum SAML2BindingType {
+    POST("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST", 0),
+    REDIRECT("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect", 1);
 
-    private final String keyPass;
+    private final String uri;
 
-    public SAML2IdPCallbackHandler(final String keyPass) {
-        this.keyPass = keyPass;
+    private final int index;
+
+    SAML2BindingType(final String uri, final int index) {
+        this.uri = uri;
+        this.index = index;
     }
 
-    @Override
-    public void handle(final Callback[] callbacks) throws IOException, UnsupportedCallbackException {
-        for (Callback callback : callbacks) {
-            if (callback instanceof WSPasswordCallback) {
-                WSPasswordCallback wspc = (WSPasswordCallback) callback;
-                wspc.setPassword(keyPass);
+    public String getUri() {
+        return uri;
+    }
+
+    public int getIndex() {
+        return index;
+    }
+
+    public static SAML2BindingType fromUri(final String uri) {
+        SAML2BindingType bindingType = null;
+
+        for (SAML2BindingType value : values()) {
+            if (value.getUri().equals(uri)) {
+                bindingType = value;
             }
         }
-    }
 
+        return bindingType;
+    }
 }

@@ -23,21 +23,16 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.to.SAML2LoginResponseTO;
 import org.apache.syncope.common.rest.api.service.SAML2SPService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @WebServlet(name = "assertionConsumer", urlPatterns = { "/saml2sp/assertion-consumer" })
-public class AssertionConsumer extends HttpServlet {
+public class AssertionConsumer extends AbstractSAML2SPServlet {
 
     private static final long serialVersionUID = 968480296813639041L;
-
-    private static final Logger LOG = LoggerFactory.getLogger(AssertionConsumer.class);
 
     @Override
     protected void doPost(final HttpServletRequest request, final HttpServletResponse response)
@@ -47,7 +42,7 @@ public class AssertionConsumer extends HttpServlet {
                 getAttribute(Constants.SYNCOPE_ANONYMOUS_CLIENT);
         try {
             SAML2LoginResponseTO responseTO = anonymous.getService(SAML2SPService.class).
-                    validateLoginResponse(request.getInputStream());
+                    validateLoginResponse(extract(request.getInputStream()));
 
             request.getSession(true).setAttribute(Constants.SAML2SPJWT, responseTO.getAccessToken());
 

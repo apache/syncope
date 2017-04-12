@@ -140,6 +140,8 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
         columns.add(new PropertyColumn<SAML2IdPTO, String>(new ResourceModel("entityID"), "entityID", "entityID"));
         columns.add(new BooleanPropertyColumn<SAML2IdPTO>(
                 new ResourceModel("useDeflateEncoding"), "useDeflateEncoding", "useDeflateEncoding"));
+        columns.add(new PropertyColumn<SAML2IdPTO, String>(
+                new ResourceModel("bindingType"), "bindingType", "bindingType"));
         columns.add(new BooleanPropertyColumn<SAML2IdPTO>(
                 new ResourceModel("logoutSupported"), "logoutSupported", "logoutSupported"));
 

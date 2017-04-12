@@ -23,46 +23,24 @@ import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.types.SAML2BindingType;
 
-@XmlRootElement(name = "saml2request")
+@XmlRootElement(name = "saml2ReceivedResponse")
 @XmlType
-public class SAML2RequestTO extends AbstractBaseBean {
+public class SAML2ReceivedResponseTO extends AbstractBaseBean {
 
-    private static final long serialVersionUID = -2454209295007372086L;
+    private static final long serialVersionUID = 6102419133516694822L;
 
-    private String idpServiceAddress;
-
-    private SAML2BindingType bindingType;
-
-    private String content;
+    private String samlResponse;
 
     private String relayState;
 
-    private String signAlg;
+    private SAML2BindingType bindingType;
 
-    private String signature;
-
-    public String getIdpServiceAddress() {
-        return idpServiceAddress;
+    public String getSamlResponse() {
+        return samlResponse;
     }
 
-    public void setIdpServiceAddress(final String idpServiceAddress) {
-        this.idpServiceAddress = idpServiceAddress;
-    }
-
-    public SAML2BindingType getBindingType() {
-        return bindingType;
-    }
-
-    public void setBindingType(final SAML2BindingType bindingType) {
-        this.bindingType = bindingType;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(final String content) {
-        this.content = content;
+    public void setSamlResponse(final String samlResponse) {
+        this.samlResponse = samlResponse;
     }
 
     public String getRelayState() {
@@ -73,20 +51,12 @@ public class SAML2RequestTO extends AbstractBaseBean {
         this.relayState = relayState;
     }
 
-    public String getSignAlg() {
-        return signAlg;
+    public SAML2BindingType getBindingType() {
+        return bindingType;
     }
 
-    public void setSignAlg(final String signAlg) {
-        this.signAlg = signAlg;
-    }
-
-    public String getSignature() {
-        return signature;
-    }
-
-    public void setSignature(final String signature) {
-        this.signature = signature;
+    public void setBindingType(final SAML2BindingType bindingType) {
+        this.bindingType = bindingType;
     }
 
 }

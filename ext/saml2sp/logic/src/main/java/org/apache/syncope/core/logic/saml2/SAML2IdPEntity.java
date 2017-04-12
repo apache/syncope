@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.syncope.common.lib.to.MappingItemTO;
+import org.apache.syncope.common.lib.types.SAML2BindingType;
 import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.metadata.Endpoint;
 import org.opensaml.saml.saml2.metadata.EntityDescriptor;
@@ -52,6 +53,8 @@ public class SAML2IdPEntity {
 
     private boolean useDeflateEncoding;
 
+    private SAML2BindingType bindingType;
+
     private MappingItemTO connObjectKeyItem;
 
     private final Map<String, Endpoint> ssoBindings = new HashMap<>();
@@ -66,12 +69,14 @@ public class SAML2IdPEntity {
             final EntityDescriptor entityDescriptor,
             final MappingItemTO connObjectKeyItem,
             final boolean useDeflateEncoding,
+            final SAML2BindingType bindingType,
             final String keyPass)
             throws CertificateException, IOException, KeyStoreException, NoSuchAlgorithmException {
 
         this.id = entityDescriptor.getEntityID();
         this.connObjectKeyItem = connObjectKeyItem;
         this.useDeflateEncoding = useDeflateEncoding;
+        this.bindingType = bindingType;
 
         IDPSSODescriptor idpdescriptor = entityDescriptor.getIDPSSODescriptor(SAMLConstants.SAML20P_NS);
 
@@ -121,11 +126,19 @@ public class SAML2IdPEntity {
     }
 
     public boolean isUseDeflateEncoding() {
-        return useDeflateEncoding;
+        return bindingType == SAML2BindingType.REDIRECT ? true : useDeflateEncoding;
     }
 
     public void setUseDeflateEncoding(final boolean useDeflateEncoding) {
         this.useDeflateEncoding = useDeflateEncoding;
+    }
+
+    public SAML2BindingType getBindingType() {
+        return bindingType;
+    }
+
+    public void setBindingType(final SAML2BindingType bindingType) {
+        this.bindingType = bindingType;
     }
 
     public MappingItemTO getConnObjectKeyItem() {
@@ -136,12 +149,12 @@ public class SAML2IdPEntity {
         this.connObjectKeyItem = connObjectKeyItem;
     }
 
-    public Endpoint getSSOLocation(final String binding) {
-        return ssoBindings.get(binding);
+    public Endpoint getSSOLocation(final SAML2BindingType bindingType) {
+        return ssoBindings.get(bindingType.getUri());
     }
 
-    public Endpoint getSLOLocation(final String binding) {
-        return sloBindings.get(binding);
+    public Endpoint getSLOLocation(final SAML2BindingType bindingType) {
+        return sloBindings.get(bindingType.getUri());
     }
 
     public boolean supportsNameIDFormat(final String nameIDFormat) {

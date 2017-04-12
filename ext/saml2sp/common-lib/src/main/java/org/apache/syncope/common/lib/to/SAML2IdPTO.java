@@ -29,6 +29,7 @@ import javax.xml.bind.annotation.XmlType;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.AbstractBaseBean;
+import org.apache.syncope.common.lib.types.SAML2BindingType;
 
 @XmlRootElement(name = "saml2idp")
 @XmlType
@@ -45,6 +46,8 @@ public class SAML2IdPTO extends AbstractBaseBean implements EntityTO {
     private String metadata;
 
     private boolean useDeflateEncoding;
+
+    private SAML2BindingType bindingType;
 
     private boolean logoutSupported;
 
@@ -91,6 +94,14 @@ public class SAML2IdPTO extends AbstractBaseBean implements EntityTO {
 
     public void setUseDeflateEncoding(final boolean useDeflateEncoding) {
         this.useDeflateEncoding = useDeflateEncoding;
+    }
+
+    public SAML2BindingType getBindingType() {
+        return bindingType;
+    }
+
+    public void setBindingType(final SAML2BindingType bindingType) {
+        this.bindingType = bindingType;
     }
 
     public boolean isLogoutSupported() {

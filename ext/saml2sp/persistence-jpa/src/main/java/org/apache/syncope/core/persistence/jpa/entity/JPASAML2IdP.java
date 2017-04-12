@@ -34,6 +34,7 @@ import javax.validation.constraints.Min;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.syncope.common.lib.types.SAML2BindingType;
 import org.apache.syncope.core.persistence.api.entity.SAML2IdP;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAMappingItem;
@@ -66,6 +67,9 @@ public class JPASAML2IdP extends AbstractGeneratedKeyEntity implements SAML2IdP 
     @Max(1)
     @Column(nullable = false)
     private Integer useDeflateEncoding;
+
+    @Column(nullable = false)
+    private SAML2BindingType bindingType;
 
     @Override
     public String getEntityID() {
@@ -105,6 +109,16 @@ public class JPASAML2IdP extends AbstractGeneratedKeyEntity implements SAML2IdP 
     @Override
     public void setUseDeflateEncoding(final boolean useDeflateEncoding) {
         this.useDeflateEncoding = getBooleanAsInteger(useDeflateEncoding);
+    }
+
+    @Override
+    public SAML2BindingType getBindingType() {
+        return bindingType;
+    }
+
+    @Override
+    public void setBindingType(final SAML2BindingType bindingType) {
+        this.bindingType = bindingType;
     }
 
     @Override
