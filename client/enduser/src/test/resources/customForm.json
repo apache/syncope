@@ -1,0 +1,47 @@
+{
+  "PLAIN": 
+          {
+            "show": true,
+            "attributes": {
+              "firstname": {
+                "readonly": true,
+                "defaultValues": ["defaultFirstname"]
+              },
+              "surname": {
+                "readonly": false,
+                "defaultValues": []
+              },
+              "fullname": {
+                "readonly": false
+              },
+              "loginDate": {
+                "readonly": false
+              },
+              "additional#loginDate": {
+                "readonly": false
+              },
+              "additional#ctype": {
+                "readonly": false,
+                "defaultValues": ["ctypeDefault"]
+              },
+              "additional#cool": {
+                "readonly": false,
+                "defaultValues": ["true"]
+              }
+            }
+          },
+  "DERIVED":
+          {
+            "show": false
+          },
+  "VIRTUAL": 
+          {
+            "show": true,
+            "attributes": {
+              "virtualdata": {
+                "readonly": true,
+                "defaultValues": ["defaultVirtualData"]
+              }
+            }
+          }
+}

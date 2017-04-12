@@ -18,19 +18,29 @@
  */
 package org.apache.syncope.client.enduser.resources;
 
+import static org.apache.syncope.client.enduser.resources.BaseResource.MAPPER;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.SerializationUtils;
+import org.apache.syncope.client.enduser.SyncopeEnduserApplication;
+import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.annotations.Resource;
+import org.apache.syncope.client.enduser.model.CustomAttribute;
+import org.apache.syncope.client.enduser.model.CustomAttributesInfo;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.request.resource.IResource;
 
@@ -68,22 +78,35 @@ public class UserSelfReadResource extends BaseUserSelfResource {
             for (MembershipTO membership : userTO.getMemberships()) {
                 String groupName = membership.getGroupName();
                 for (AttrTO attr : membership.getPlainAttrs()) {
-                    attr.setSchema(groupName.concat("#").concat(attr.getSchema()));
+                    attr.setSchema(groupName.concat(SyncopeEnduserConstants.MEMBERSHIP_ATTR_SEPARATOR).concat(attr.
+                            getSchema()));
                     userTO.getPlainAttrs().add(attr);
                 }
                 membership.getPlainAttrs().clear();
                 for (AttrTO attr : membership.getDerAttrs()) {
-                    attr.setSchema(groupName.concat("#").concat(attr.getSchema()));
+                    attr.setSchema(groupName.concat(SyncopeEnduserConstants.MEMBERSHIP_ATTR_SEPARATOR).concat(attr.
+                            getSchema()));
                     userTO.getDerAttrs().add(attr);
                 }
                 membership.getDerAttrs().clear();
                 for (AttrTO attr : membership.getVirAttrs()) {
-                    attr.setSchema(groupName.concat("#").concat(attr.getSchema()));
+                    attr.setSchema(groupName.concat(SyncopeEnduserConstants.MEMBERSHIP_ATTR_SEPARATOR).concat(attr.
+                            getSchema()));
                     userTO.getVirAttrs().add(attr);
                 }
                 membership.getVirAttrs().clear();
             }
+            // USER from customization, if empty or null ignore it, use it to filter attributes otherwise
+            Map<String, CustomAttributesInfo> customForm = SyncopeEnduserApplication.get().getCustomForm();
 
+            if (customForm != null && !customForm.isEmpty()) {
+                // filter PLAIN attributes
+                customizeAttrs(userTO.getPlainAttrs(), customForm.get(SchemaType.PLAIN.name()).getAttributes());
+                // filter DERIVED attributes
+                customizeAttrs(userTO.getDerAttrs(), customForm.get(SchemaType.DERIVED.name()).getAttributes());
+                // filter VIRTUAL attributes
+                customizeAttrs(userTO.getVirAttrs(), customForm.get(SchemaType.VIRTUAL.name()).getAttributes());
+            }
             final String selfTOJson = MAPPER.writeValueAsString(userTO);
             response.setContentType(MediaType.APPLICATION_JSON);
             response.setTextEncoding(StandardCharsets.UTF_8.name());
@@ -107,4 +130,15 @@ public class UserSelfReadResource extends BaseUserSelfResource {
         return response;
     }
 
+    private void customizeAttrs(final Set<AttrTO> attrs,
+            final Map<String, CustomAttribute> customForm) {
+
+        CollectionUtils.filter(attrs, new Predicate<AttrTO>() {
+
+            @Override
+            public boolean evaluate(final AttrTO attr) {
+                return customForm.containsKey(attr.getSchema());
+            }
+        });
+    }
 }

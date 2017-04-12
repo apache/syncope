@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.enduser.resources;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -32,6 +30,7 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.annotations.Resource;
+import org.apache.syncope.client.enduser.util.UserRequestValidator;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
@@ -67,111 +66,110 @@ public class UserSelfUpdateResource extends BaseUserSelfResource {
 
             UserTO userTO = MAPPER.readValue(request.getReader().readLine(), UserTO.class);
 
-            // 1. membership attributes management
-            Set<AttrTO> membAttrs = new HashSet<>();
-            for (AttrTO attr : userTO.getPlainAttrs()) {
-                if (attr.getSchema().contains("#")) {
-                    final String[] compositeSchemaKey = attr.getSchema().split("#");
-                    MembershipTO membership = IterableUtils.find(userTO.getMemberships(),
-                            new Predicate<MembershipTO>() {
+            // check if request is compliant with customization form rules
+            if (UserRequestValidator.compliant(userTO, SyncopeEnduserSession.get().getCustomForm(), false)) {
+                // 1. membership attributes management
+                Set<AttrTO> membAttrs = new HashSet<>();
+                for (AttrTO attr : userTO.getPlainAttrs()) {
+                    if (attr.getSchema().contains(SyncopeEnduserConstants.MEMBERSHIP_ATTR_SEPARATOR)) {
+                        final String[] compositeSchemaKey = attr.getSchema().split(
+                                SyncopeEnduserConstants.MEMBERSHIP_ATTR_SEPARATOR);
+                        MembershipTO membership = IterableUtils.find(userTO.getMemberships(),
+                                new Predicate<MembershipTO>() {
 
-                        @Override
-                        public boolean evaluate(final MembershipTO item) {
-                            return compositeSchemaKey[0].equals(item.getGroupName());
+                            @Override
+                            public boolean evaluate(final MembershipTO item) {
+                                return compositeSchemaKey[0].equals(item.getGroupName());
+                            }
+                        });
+                        if (membership == null) {
+                            membership = new MembershipTO.Builder().group(null, compositeSchemaKey[0]).build();
+                            userTO.getMemberships().add(membership);
                         }
-                    });
-                    if (membership == null) {
-                        membership = new MembershipTO.Builder().group(null, compositeSchemaKey[0]).build();
-                        userTO.getMemberships().add(membership);
+                        AttrTO clone = SerializationUtils.clone(attr);
+                        clone.setSchema(compositeSchemaKey[1]);
+                        membership.getPlainAttrs().add(clone);
+                        membAttrs.add(attr);
                     }
-                    AttrTO clone = SerializationUtils.clone(attr);
-                    clone.setSchema(compositeSchemaKey[1]);
-                    membership.getPlainAttrs().add(clone);
-                    membAttrs.add(attr);
                 }
-            }
-            userTO.getPlainAttrs().removeAll(membAttrs);
+                userTO.getPlainAttrs().removeAll(membAttrs);
 
-            // 2. millis -> Date conversion for PLAIN attributes of USER and its MEMBERSHIPS
-            Map<String, AttrTO> userPlainAttrMap = userTO.getPlainAttrMap();
-            for (PlainSchemaTO plainSchema : SyncopeEnduserSession.get().getDatePlainSchemas()) {
-                millisToDate(userPlainAttrMap, plainSchema);
-                for (MembershipTO membership : userTO.getMemberships()) {
-                    millisToDate(membership.getPlainAttrMap(), plainSchema);
+                // 2. millis -> Date conversion for PLAIN attributes of USER and its MEMBERSHIPS
+                Map<String, AttrTO> userPlainAttrMap = userTO.getPlainAttrMap();
+                for (PlainSchemaTO plainSchema : SyncopeEnduserSession.get().getDatePlainSchemas()) {
+                    millisToDate(userPlainAttrMap, plainSchema);
+                    for (MembershipTO membership : userTO.getMemberships()) {
+                        millisToDate(membership.getPlainAttrMap(), plainSchema);
+                    }
                 }
-            }
 
-            membAttrs.clear();
-            for (AttrTO attr : userTO.getDerAttrs()) {
-                if (attr.getSchema().contains("#")) {
-                    final String[] simpleAttrs = attr.getSchema().split("#");
-                    MembershipTO membership = IterableUtils.find(userTO.getMemberships(),
-                            new Predicate<MembershipTO>() {
+                membAttrs.clear();
+                for (AttrTO attr : userTO.getDerAttrs()) {
+                    if (attr.getSchema().contains(SyncopeEnduserConstants.MEMBERSHIP_ATTR_SEPARATOR)) {
+                        final String[] simpleAttrs = attr.getSchema().split(
+                                SyncopeEnduserConstants.MEMBERSHIP_ATTR_SEPARATOR);
+                        MembershipTO membership = IterableUtils.find(userTO.getMemberships(),
+                                new Predicate<MembershipTO>() {
 
-                        @Override
-                        public boolean evaluate(final MembershipTO item) {
-                            return simpleAttrs[0].equals(item.getGroupName());
+                            @Override
+                            public boolean evaluate(final MembershipTO item) {
+                                return simpleAttrs[0].equals(item.getGroupName());
+                            }
+                        });
+                        if (membership == null) {
+                            membership = new MembershipTO.Builder().group(null, simpleAttrs[0]).build();
+                            userTO.getMemberships().add(membership);
                         }
-                    });
-                    if (membership == null) {
-                        membership = new MembershipTO.Builder().group(null, simpleAttrs[0]).build();
-                        userTO.getMemberships().add(membership);
+                        AttrTO clone = SerializationUtils.clone(attr);
+                        clone.setSchema(simpleAttrs[1]);
+                        membership.getDerAttrs().add(clone);
+                        membAttrs.add(attr);
                     }
-                    AttrTO clone = SerializationUtils.clone(attr);
-                    clone.setSchema(simpleAttrs[1]);
-                    membership.getDerAttrs().add(clone);
-                    membAttrs.add(attr);
                 }
-            }
-            userTO.getDerAttrs().removeAll(membAttrs);
+                userTO.getDerAttrs().removeAll(membAttrs);
 
-            membAttrs.clear();
-            for (AttrTO attr : userTO.getVirAttrs()) {
-                if (attr.getSchema().contains("#")) {
-                    final String[] simpleAttrs = attr.getSchema().split("#");
-                    MembershipTO membership = IterableUtils.find(userTO.getMemberships(),
-                            new Predicate<MembershipTO>() {
+                membAttrs.clear();
+                for (AttrTO attr : userTO.getVirAttrs()) {
+                    if (attr.getSchema().contains(SyncopeEnduserConstants.MEMBERSHIP_ATTR_SEPARATOR)) {
+                        final String[] simpleAttrs = attr.getSchema().split(
+                                SyncopeEnduserConstants.MEMBERSHIP_ATTR_SEPARATOR);
+                        MembershipTO membership = IterableUtils.find(userTO.getMemberships(),
+                                new Predicate<MembershipTO>() {
 
-                        @Override
-                        public boolean evaluate(final MembershipTO item) {
-                            return simpleAttrs[0].equals(item.getGroupName());
+                            @Override
+                            public boolean evaluate(final MembershipTO item) {
+                                return simpleAttrs[0].equals(item.getGroupName());
+                            }
+                        });
+                        if (membership == null) {
+                            membership = new MembershipTO.Builder().group(null, simpleAttrs[0]).build();
+                            userTO.getMemberships().add(membership);
+
                         }
-                    });
-                    if (membership == null) {
-                        membership = new MembershipTO.Builder().group(null, simpleAttrs[0]).build();
-                        userTO.getMemberships().add(membership);
-
+                        AttrTO clone = SerializationUtils.clone(attr);
+                        clone.setSchema(simpleAttrs[1]);
+                        membership.getVirAttrs().add(clone);
+                        membAttrs.add(attr);
                     }
-                    AttrTO clone = SerializationUtils.clone(attr);
-                    clone.setSchema(simpleAttrs[1]);
-                    membership.getVirAttrs().add(clone);
-                    membAttrs.add(attr);
                 }
+                userTO.getVirAttrs().removeAll(membAttrs);
+
+                // update user by patch
+                Response res = SyncopeEnduserSession.get().
+                        getService(userTO.getETagValue(), UserSelfService.class).update(AnyOperations.diff(userTO,
+                        SyncopeEnduserSession.get().getSelfTO(), true));
+
+                buildResponse(response, res.getStatus(), res.getStatusInfo().getFamily().equals(
+                        Response.Status.Family.SUCCESSFUL)
+                                ? "User [" + userTO.getUsername() + "] successfully updated"
+                                : "ErrorMessage{{ " + res.getStatusInfo().getReasonPhrase() + " }}");
+            } else {
+                LOG.warn(
+                        "Incoming update request [{}] is not compliant with form customization rules."
+                        + " Update NOT allowed", userTO.getUsername());
+                buildResponse(response, Response.Status.OK.getStatusCode(),
+                        "User: " + userTO.getUsername() + " successfully created");
             }
-            userTO.getVirAttrs().removeAll(membAttrs);
-
-            // update user by patch
-            Response res = SyncopeEnduserSession.get().
-                    getService(userTO.getETagValue(), UserSelfService.class).update(AnyOperations.diff(userTO,
-                    SyncopeEnduserSession.get().getSelfTO(), true));
-
-            final String responseMessage = res.getStatusInfo().getFamily().equals(Response.Status.Family.SUCCESSFUL)
-                    ? new StringBuilder().
-                            append("User").append(userTO.getUsername()).append(" successfully updated").toString()
-                    : new StringBuilder().
-                            append("ErrorMessage{{ ").append(res.getStatusInfo().getReasonPhrase()).append(" }}").
-                            toString();
-
-            response.setTextEncoding(StandardCharsets.UTF_8.name());
-            response.setWriteCallback(new WriteCallback() {
-
-                @Override
-                public void writeData(final Attributes attributes) throws IOException {
-                    attributes.getResponse().write(responseMessage);
-                }
-            });
-
-            response.setStatusCode(res.getStatus());
         } catch (final Exception e) {
             LOG.error("Error while updating user", e);
             response.setError(Response.Status.BAD_REQUEST.getStatusCode(),

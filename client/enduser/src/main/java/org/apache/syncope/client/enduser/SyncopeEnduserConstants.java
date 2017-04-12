@@ -26,6 +26,8 @@ public final class SyncopeEnduserConstants {
 
     public static final String XSRF_HEADER_NAME = "X-XSRF-TOKEN";
 
+    public static final String MEMBERSHIP_ATTR_SEPARATOR = "#";
+
     private SyncopeEnduserConstants() {
         // private constructor for utility class
     }

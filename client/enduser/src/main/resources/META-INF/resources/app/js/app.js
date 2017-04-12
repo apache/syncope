@@ -332,8 +332,7 @@ app.run(['$rootScope', '$location', '$state', 'AuthService',
     };
   }]);
 app.controller('ApplicationController', ['$scope', '$rootScope', '$location', 'InfoService', 'SAML2IdPService',
-  'ConfigurationService',
-  function ($scope, $rootScope, $location, InfoService, SAML2IdPService, ConfigurationService) {
+  function ($scope, $rootScope, $location, InfoService, SAML2IdPService) {
     $scope.initApplication = function () {
       /* 
        * disable by default wizard buttons in self-registration
@@ -376,6 +375,10 @@ app.controller('ApplicationController', ['$scope', '$rootScope', '$location', 'I
                 $rootScope.version = response.version;
                 $rootScope.pwdResetRequiringSecurityQuestions = response.pwdResetRequiringSecurityQuestions;
                 $rootScope.captchaEnabled = response.captchaEnabled;
+                /* 
+                 * USER form customization JSON
+                 */
+                $rootScope.customForm = response.customForm;
               },
               function (response) {
                 console.error("Something went wrong while accessing info resource", response);
@@ -407,14 +410,6 @@ app.controller('ApplicationController', ['$scope', '$rootScope', '$location', 'I
       $rootScope.getVersion = function () {
         return $rootScope.version;
       };
-      /* 
-       * USER Attributes form customization
-       */
-      ConfigurationService.get("customForm.json").then(function (response) {
-        $rootScope.customForm = response;
-      }, function (e) {
-        console.warn("Unable to retrieve form customization file provided, applying default configuration.");
-      });
       /* 
        * USER Attributes sorting strategies
        */

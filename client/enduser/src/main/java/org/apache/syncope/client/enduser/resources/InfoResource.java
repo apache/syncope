@@ -18,15 +18,21 @@
  */
 package org.apache.syncope.client.enduser.resources;
 
+import static org.apache.syncope.client.enduser.resources.BaseResource.MAPPER;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.enduser.SyncopeEnduserApplication;
 import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.adapters.PlatformInfoAdapter;
 import org.apache.syncope.client.enduser.annotations.Resource;
+import org.apache.syncope.client.enduser.model.CustomAttributesInfo;
 import org.apache.syncope.client.enduser.util.SaltGenerator;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.util.cookies.CookieUtils;
@@ -57,10 +63,14 @@ public class InfoResource extends BaseResource {
 
                 @Override
                 public void writeData(final IResource.Attributes attributes) throws IOException {
+                    Map<String, CustomAttributesInfo> customForm = SyncopeEnduserApplication.get().getCustomForm();
                     attributes.getResponse().write(
                             MAPPER.writeValueAsString(
                                     PlatformInfoAdapter.toPlatformInfoRequest(
-                                            SyncopeEnduserSession.get().getPlatformInfo())));
+                                            SyncopeEnduserSession.get().getPlatformInfo(),
+                                            customForm == null
+                                                    ? new HashMap<String, CustomAttributesInfo>()
+                                                    : customForm)));
                 }
             });
             response.setStatusCode(Response.Status.OK.getStatusCode());
