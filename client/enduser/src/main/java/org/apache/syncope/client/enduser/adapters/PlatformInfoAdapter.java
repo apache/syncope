@@ -18,19 +18,23 @@
  */
 package org.apache.syncope.client.enduser.adapters;
 
+import java.util.Map;
 import org.apache.syncope.client.enduser.SyncopeEnduserApplication;
+import org.apache.syncope.client.enduser.model.CustomAttributesInfo;
 import org.apache.syncope.client.enduser.model.PlatformInfoRequest;
 import org.apache.syncope.common.lib.info.PlatformInfo;
 
 public final class PlatformInfoAdapter {
 
-    public static PlatformInfoRequest toPlatformInfoRequest(final PlatformInfo platformInfo) {
+    public static PlatformInfoRequest toPlatformInfoRequest(final PlatformInfo platformInfo,
+            final Map<String, CustomAttributesInfo> customForm) {
         PlatformInfoRequest request = new PlatformInfoRequest();
         request.setPwdResetAllowed(platformInfo.isPwdResetAllowed());
         request.setSelfRegAllowed(platformInfo.isSelfRegAllowed());
         request.setPwdResetRequiringSecurityQuestions(platformInfo.isPwdResetRequiringSecurityQuestions());
         request.setVersion(platformInfo.getVersion());
         request.setCaptchaEnabled(SyncopeEnduserApplication.get().isCaptchaEnabled());
+        request.setCustomForm(customForm);
 
         return request;
     }

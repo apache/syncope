@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.client.enduser.resources;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,6 +64,18 @@ public abstract class BaseUserSelfResource extends BaseResource {
             dateAttr.getValues().clear();
             dateAttr.getValues().addAll(formattedValues);
         }
+    }
+    
+    protected void buildResponse(final ResourceResponse response, final int statusCode, final String message) {
+        response.setTextEncoding(StandardCharsets.UTF_8.name());
+        response.setStatusCode(statusCode);
+        response.setWriteCallback(new WriteCallback() {
+
+            @Override
+            public void writeData(final Attributes attributes) throws IOException {
+                attributes.getResponse().write(message);
+            }
+        });
     }
 
 }

@@ -93,6 +93,7 @@ under the License.
         <includes>
           <include>enduser.properties</include>
           <include>enduserContext.xml</include>
+          <include>customForm.json</include>
         </includes>
         <targetPath>${project.build.directory}/etc</targetPath>
         <filtering>true</filtering>

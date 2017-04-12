@@ -18,16 +18,28 @@
  */
 package org.apache.syncope.client.enduser;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
+import java.io.FileFilter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.syncope.client.enduser.pages.HomePage;
 import java.util.Properties;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.monitor.FileAlterationListener;
+import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
+import org.apache.commons.io.monitor.FileAlterationMonitor;
+import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.annotations.Resource;
 import org.apache.syncope.client.enduser.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.enduser.init.EnduserInitializer;
+import org.apache.syncope.client.enduser.model.CustomAttributesInfo;
 import org.apache.syncope.client.enduser.resources.CaptchaResource;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -52,6 +64,8 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
 
     private static final String ENDUSER_PROPERTIES = "enduser.properties";
 
+    private static final String CUSTOM_FORM_FILE = "customForm.json";
+
     public static SyncopeEnduserApplication get() {
         return (SyncopeEnduserApplication) WebApplication.get();
     }
@@ -75,6 +89,10 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
     private boolean xsrfEnabled;
 
     private SyncopeClientFactoryBean clientFactory;
+
+    private Map<String, CustomAttributesInfo> customForm;
+
+    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     @Override
     protected void init() {
@@ -130,6 +148,80 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
                 setAddress(scheme + "://" + host + ":" + port + "/" + rootPath).
                 setContentType(SyncopeClientFactoryBean.ContentType.JSON).
                 setUseCompression(BooleanUtils.toBoolean(useGZIPCompression));
+
+        // read customForm.json
+        try (InputStream is = getClass().getResourceAsStream("/" + CUSTOM_FORM_FILE)) {
+            customForm = MAPPER.readValue(is,
+                    new TypeReference<HashMap<String, CustomAttributesInfo>>() {
+            });
+            File enduserDir = new File(props.getProperty("enduser.directory"));
+            boolean existsEnduserDir = enduserDir.exists() && enduserDir.canRead() && enduserDir.isDirectory();
+            if (existsEnduserDir) {
+                File customFormFile = FileUtils.getFile(enduserDir, CUSTOM_FORM_FILE);
+                if (customFormFile.exists() && customFormFile.canRead() && customFormFile.isFile()) {
+                    customForm = MAPPER.readValue(FileUtils.openInputStream(customFormFile),
+                            new TypeReference<HashMap<String, CustomAttributesInfo>>() {
+                    });
+                }
+            }
+            FileAlterationObserver observer = existsEnduserDir
+                    ? new FileAlterationObserver(enduserDir, new FileFilter() {
+
+                        @Override
+                        public boolean accept(final File pathname) {
+                            return StringUtils.contains(pathname.getPath(), CUSTOM_FORM_FILE);
+                        }
+                    })
+                    : new FileAlterationObserver(getClass().getResource("/" + CUSTOM_FORM_FILE).getFile(),
+                            new FileFilter() {
+
+                        @Override
+                        public boolean accept(final File pathname) {
+                            return StringUtils.contains(pathname.getPath(), CUSTOM_FORM_FILE);
+                        }
+                    });
+
+            FileAlterationMonitor monitor = new FileAlterationMonitor(5000);
+
+            FileAlterationListener listener = new FileAlterationListenerAdaptor() {
+
+                @Override
+                public void onFileChange(final File file) {
+                    try {
+                        LOG.trace("{} has changed. Reloading form customization configuration.", CUSTOM_FORM_FILE);
+                        customForm = MAPPER.readValue(FileUtils.openInputStream(file),
+                                new TypeReference<HashMap<String, CustomAttributesInfo>>() {
+                        });
+                    } catch (IOException e) {
+                        e.printStackTrace(System.err);
+                    }
+                }
+
+                @Override
+                public void onFileCreate(final File file) {
+                    try {
+                        LOG.trace("{} has been created. Loading form customization configuration.", CUSTOM_FORM_FILE);
+                        customForm = MAPPER.readValue(FileUtils.openInputStream(file),
+                                new TypeReference<HashMap<String, CustomAttributesInfo>>() {
+                        });
+                    } catch (IOException e) {
+                        e.printStackTrace(System.err);
+                    }
+                }
+
+                @Override
+                public void onFileDelete(final File file) {
+                    LOG.trace("{} has been deleted. Resetting form customization configuration.", CUSTOM_FORM_FILE);
+                    customForm = null;
+                }
+            };
+
+            observer.addListener(listener);
+            monitor.addObserver(observer);
+            monitor.start();
+        } catch (Exception e) {
+            throw new WicketRuntimeException("Could not read " + CUSTOM_FORM_FILE, e);
+        }
 
         // mount resources
         ClassPathScanImplementationLookup classPathScanImplementationLookup =
@@ -219,6 +311,15 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
 
     public boolean isXsrfEnabled() {
         return xsrfEnabled;
+    }
+
+    public Map<String, CustomAttributesInfo> getCustomForm() {
+        return customForm;
+    }
+
+    public void setCustomForm(final Map<String, CustomAttributesInfo> customForm) {
+        this.customForm.clear();
+        this.customForm.putAll(customForm);
     }
 
 }

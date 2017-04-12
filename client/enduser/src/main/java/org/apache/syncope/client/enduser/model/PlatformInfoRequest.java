@@ -19,6 +19,7 @@
 package org.apache.syncope.client.enduser.model;
 
 import java.io.Serializable;
+import java.util.Map;
 
 public class PlatformInfoRequest implements Serializable {
 
@@ -33,6 +34,8 @@ public class PlatformInfoRequest implements Serializable {
     private boolean pwdResetRequiringSecurityQuestions;
 
     private boolean captchaEnabled;
+
+    private Map<String, CustomAttributesInfo> customForm;
 
     public PlatformInfoRequest() {
     }
@@ -75,6 +78,14 @@ public class PlatformInfoRequest implements Serializable {
 
     public void setCaptchaEnabled(final boolean captchaEnabled) {
         this.captchaEnabled = captchaEnabled;
+    }
+
+    public Map<String, CustomAttributesInfo> getCustomForm() {
+        return customForm;
+    }
+
+    public void setCustomForm(final Map<String, CustomAttributesInfo> customForm) {
+        this.customForm = customForm;
     }
 
 }

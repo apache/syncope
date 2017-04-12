@@ -20,13 +20,11 @@ package org.apache.syncope.client.enduser.resources;
 
 import static org.apache.syncope.client.enduser.resources.BaseResource.MAPPER;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
@@ -36,8 +34,11 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.enduser.SyncopeEnduserApplication;
+import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.annotations.Resource;
+import org.apache.syncope.client.enduser.model.CustomAttribute;
 import org.apache.syncope.client.enduser.model.CustomAttributesInfo;
 import org.apache.syncope.client.enduser.model.SchemaResponse;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
@@ -103,9 +104,8 @@ public class SchemaResource extends BaseResource {
                 }
             }
 
-            Map<String, CustomAttributesInfo> customForm = MAPPER.readValue(request.getReader().readLine(),
-                    new TypeReference<HashMap<String, CustomAttributesInfo>>() {
-            });
+            // USER from customization, if empty or null ignore it, use it to filter attributes otherwise
+            Map<String, CustomAttributesInfo> customForm = SyncopeEnduserApplication.get().getCustomForm();
 
             SchemaService schemaService = SyncopeEnduserSession.get().getService(SchemaService.class);
             final List<AbstractSchemaTO> plainSchemas = classes.isEmpty()
@@ -176,7 +176,7 @@ public class SchemaResource extends BaseResource {
     }
 
     private List<AbstractSchemaTO> customizeSchemas(final List<AbstractSchemaTO> schemaTOs, final String groupParam,
-            final Map<String, ?> customForm) {
+            final Map<String, CustomAttribute> customForm) {
 
         if (customForm.isEmpty()) {
             return schemaTOs;
@@ -211,7 +211,7 @@ public class SchemaResource extends BaseResource {
     }
 
     private String compositeSchemaKey(final String prefix, final String schemaKey) {
-        return prefix + "#" + schemaKey;
+        return prefix + SyncopeEnduserConstants.MEMBERSHIP_ATTR_SEPARATOR + schemaKey;
     }
 
 }

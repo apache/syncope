@@ -257,6 +257,7 @@ under the License.
         <targetPath>${project.build.outputDirectory}/archetype-resources/enduser/src/main/resources</targetPath>
         <includes>
           <include>enduser.properties</include>
+          <include>customForm.json</include>
         </includes>
       </resource>
       <resource>
@@ -283,6 +284,7 @@ under the License.
         <includes>
           <include>enduser.properties</include>
           <include>saml2sp-agent.properties</include>
+          <include>customForm.json</include>
         </includes>
       </resource>
       <resource>

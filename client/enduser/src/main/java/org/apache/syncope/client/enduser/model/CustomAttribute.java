@@ -19,43 +19,43 @@
 package org.apache.syncope.client.enduser.model;
 
 import java.io.Serializable;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
-public class CustomAttributesInfo implements Serializable {
+public class CustomAttribute implements Serializable {
 
-    private static final long serialVersionUID = 878444785696091916L;
+    private static final long serialVersionUID = 4910266842123376686L;
 
-    private Boolean show = Boolean.TRUE;
+    private Boolean readonly;
 
-    private Map<String, CustomAttribute> attributes = new LinkedHashMap<>();
+    private List<String> defaultValues = new ArrayList<>();
 
-    public CustomAttributesInfo() {
+    public CustomAttribute() {
     }
 
-    public Boolean getShow() {
-        return show;
+    public Boolean getReadonly() {
+        return readonly;
     }
 
-    public void setShow(final Boolean show) {
-        this.show = show;
+    public void setReadonly(final Boolean readonly) {
+        this.readonly = readonly;
     }
 
-    public Map<String, CustomAttribute> getAttributes() {
-        return attributes;
+    public List<String> getDefaultValues() {
+        return defaultValues;
     }
 
-    public void setAttributes(final Map<String, CustomAttribute> attributes) {
-        this.attributes = attributes;
+    public void setDefaultValues(final List<String> defaultValues) {
+        this.defaultValues = defaultValues;
     }
 
-    public CustomAttributesInfo show(final Boolean value) {
-        this.show = value;
+    public CustomAttribute readonly(final Boolean value) {
+        this.readonly = value;
         return this;
     }
 
-    public CustomAttributesInfo attributes(final Map<String, CustomAttribute> value) {
-        this.attributes = value;
+    public CustomAttribute defaultValues(final List<String> value) {
+        this.defaultValues = value;
         return this;
     }
 
