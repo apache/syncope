@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.wizards;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
@@ -27,12 +28,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.panels.SAML2IdPsDirectoryPanel;
 import org.apache.syncope.client.console.rest.SAML2IdPsRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.client.console.wizards.resources.JEXLTransformersTogglePanel;
 import org.apache.syncope.client.console.wizards.resources.MappingItemTransformersTogglePanel;
 import org.apache.syncope.common.lib.to.MappingItemTO;
 import org.apache.syncope.common.lib.to.SAML2IdPTO;
+import org.apache.syncope.common.lib.types.SAML2BindingType;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.wizard.WizardModel;
@@ -94,6 +97,12 @@ public class SAML2IdPWizardBuilder extends AjaxWizardBuilder<SAML2IdPTO> {
             AjaxCheckBoxPanel useDeflateEncoding = new AjaxCheckBoxPanel(
                     "field", "useDeflateEncoding", new PropertyModel<Boolean>(idpTO, "useDeflateEncoding"), false);
             fields.add(useDeflateEncoding);
+
+            AjaxDropDownChoicePanel<SAML2BindingType> bindingType =
+                    new AjaxDropDownChoicePanel<>("field", "bindingType",
+                            new PropertyModel<SAML2BindingType>(idpTO, "bindingType"), false);
+            bindingType.setChoices(Arrays.asList(SAML2BindingType.values()));
+            fields.add(bindingType);
 
             add(new ListView<Component>("fields", fields) {
 

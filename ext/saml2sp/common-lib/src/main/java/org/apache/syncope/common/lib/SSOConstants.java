@@ -16,40 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.entity;
+package org.apache.syncope.common.lib;
 
-import java.util.List;
-import org.apache.syncope.common.lib.types.SAML2BindingType;
-import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
+public final class SSOConstants {
 
-public interface SAML2IdP extends Entity {
+    public static final String SAML_REQUEST = "SAMLRequest";
 
-    String getEntityID();
+    public static final String SAML_RESPONSE = "SAMLResponse";
 
-    void setEntityID(String entityID);
+    public static final String RELAY_STATE = "RelayState";
 
-    String getName();
+    public static final String SIG_ALG = "SigAlg";
 
-    void setName(String name);
+    public static final String SIGNATURE = "Signature";
 
-    byte[] getMetadata();
-
-    void setMetadata(byte[] metadata);
-
-    boolean isUseDeflateEncoding();
-
-    void setUseDeflateEncoding(boolean useDeflateEncoding);
-
-    SAML2BindingType getBindingType();
-
-    void setBindingType(SAML2BindingType bindingType);
-
-    MappingItem getConnObjectKeyItem();
-
-    void setConnObjectKeyItem(MappingItem item);
-
-    boolean add(MappingItem item);
-
-    List<? extends MappingItem> getMappingItems();
-
+    private SSOConstants() {
+        // private constructor for static utility class
+    }
 }

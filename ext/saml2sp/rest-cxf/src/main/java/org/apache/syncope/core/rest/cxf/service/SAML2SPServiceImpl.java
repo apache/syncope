@@ -19,7 +19,6 @@
 package org.apache.syncope.core.rest.cxf.service;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -27,6 +26,7 @@ import javax.ws.rs.core.StreamingOutput;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.SAML2RequestTO;
 import org.apache.syncope.common.lib.to.SAML2LoginResponseTO;
+import org.apache.syncope.common.lib.to.SAML2ReceivedResponseTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.SAML2SPService;
 import org.apache.syncope.core.logic.SAML2SPLogic;
@@ -40,12 +40,12 @@ public class SAML2SPServiceImpl extends AbstractServiceImpl implements SAML2SPSe
     private SAML2SPLogic logic;
 
     @Override
-    public Response getMetadata(final String spEntityID) {
+    public Response getMetadata(final String spEntityID, final String urlContext) {
         StreamingOutput sout = new StreamingOutput() {
 
             @Override
             public void write(final OutputStream os) throws IOException {
-                logic.getMetadata(StringUtils.appendIfMissing(spEntityID, "/"), os);
+                logic.getMetadata(StringUtils.appendIfMissing(spEntityID, "/"), urlContext, os);
             }
         };
         return Response.ok(sout).
@@ -61,8 +61,8 @@ public class SAML2SPServiceImpl extends AbstractServiceImpl implements SAML2SPSe
     }
 
     @Override
-    public SAML2LoginResponseTO validateLoginResponse(final InputStream response) {
-        return logic.validateLoginResponse(response);
+    public SAML2LoginResponseTO validateLoginResponse(final SAML2ReceivedResponseTO reponse) {
+        return logic.validateLoginResponse(reponse);
     }
 
     @Override
@@ -73,10 +73,8 @@ public class SAML2SPServiceImpl extends AbstractServiceImpl implements SAML2SPSe
     }
 
     @Override
-    public void validateLogoutResponse(final InputStream response) {
-        logic.validateLogoutResponse(
-                messageContext.getHttpHeaders().getHeaderString(RESTHeaders.TOKEN),
-                response);
+    public void validateLogoutResponse(final SAML2ReceivedResponseTO response) {
+        logic.validateLogoutResponse(messageContext.getHttpHeaders().getHeaderString(RESTHeaders.TOKEN), response);
     }
 
 }

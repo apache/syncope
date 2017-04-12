@@ -33,6 +33,7 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.MappingItemTO;
 import org.apache.syncope.common.lib.to.SAML2IdPTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.SAML2BindingType;
 import org.apache.syncope.common.lib.types.SAML2SPEntitlement;
 import org.apache.syncope.core.logic.saml2.SAML2ReaderWriter;
 import org.apache.syncope.core.logic.saml2.SAML2IdPCache;
@@ -81,7 +82,8 @@ public class SAML2IdPLogic extends AbstractSAML2Logic<SAML2IdPTO> {
 
         idpTO.setLogoutSupported(idpEntity == null
                 ? false
-                : idpEntity.getSLOLocation(SAMLConstants.SAML2_POST_BINDING_URI) != null);
+                : idpEntity.getSLOLocation(SAML2BindingType.POST) != null
+                || idpEntity.getSLOLocation(SAML2BindingType.REDIRECT) != null);
         return idpTO;
     }
 
@@ -146,17 +148,27 @@ public class SAML2IdPLogic extends AbstractSAML2Logic<SAML2IdPTO> {
             idpTO.setEntityID(idpEntityDescriptor.getEntityID());
             idpTO.setName(idpEntityDescriptor.getEntityID());
             idpTO.setUseDeflateEncoding(false);
+
             try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
                 saml2rw.write(new OutputStreamWriter(baos), idpEntityDescriptor, false);
                 idpTO.setMetadata(Base64.getEncoder().encodeToString(baos.toByteArray()));
             }
+
             MappingItemTO connObjectKeyItem = new MappingItemTO();
             connObjectKeyItem.setIntAttrName("username");
             connObjectKeyItem.setExtAttrName("NameID");
             idpTO.setConnObjectKeyItem(connObjectKeyItem);
-            result.add(idpTO);
 
-            cache.put(idpEntityDescriptor, connObjectKeyItem, false);
+            SAML2IdPEntity idp = cache.put(idpEntityDescriptor, connObjectKeyItem, false, SAML2BindingType.POST);
+            if (idp.getSSOLocation(SAML2BindingType.POST) != null) {
+                idpTO.setBindingType(SAML2BindingType.POST);
+            } else if (idp.getSSOLocation(SAML2BindingType.REDIRECT) != null) {
+                idpTO.setBindingType(SAML2BindingType.REDIRECT);
+            } else {
+                throw new IllegalArgumentException("Not POST nor REDIRECT artifacts supported by " + idp.getId());
+            }
+
+            result.add(idpTO);
         }
 
         return result;
@@ -177,9 +189,9 @@ public class SAML2IdPLogic extends AbstractSAML2Logic<SAML2IdPTO> {
             throw e;
         } catch (Exception e) {
             LOG.error("Unexpected error while importing IdP metadata", e);
-            SyncopeClientException ex = SyncopeClientException.build(ClientExceptionType.InvalidEntity);
-            ex.getElements().add(e.getMessage());
-            throw ex;
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidEntity);
+            sce.getElements().add(e.getMessage());
+            throw sce;
         }
 
         return imported;
@@ -194,13 +206,28 @@ public class SAML2IdPLogic extends AbstractSAML2Logic<SAML2IdPTO> {
             throw new NotFoundException("SAML 2.0 IdP '" + saml2IdpTO.getKey() + "'");
         }
 
+        SAML2IdPEntity idpEntity = cache.get(saml2Idp.getEntityID());
+        if (idpEntity == null) {
+            try {
+                idpEntity = cache.put(saml2Idp);
+            } catch (Exception e) {
+                LOG.error("Unexpected error while updating {}", saml2Idp.getEntityID(), e);
+                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidEntity);
+                sce.getElements().add(e.getMessage());
+                throw sce;
+            }
+        }
+        if (idpEntity.getSSOLocation(saml2IdpTO.getBindingType()) == null) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidEntity);
+            sce.getElements().add(saml2IdpTO.getBindingType() + " not supported by " + saml2Idp.getEntityID());
+            throw sce;
+        }
+
         saml2Idp = idpDAO.save(binder.update(saml2Idp, saml2IdpTO));
 
-        SAML2IdPEntity idpEntity = cache.get(saml2Idp.getEntityID());
-        if (idpEntity != null) {
-            idpEntity.setUseDeflateEncoding(saml2Idp.isUseDeflateEncoding());
-            idpEntity.setConnObjectKeyItem(binder.getIdPTO(saml2Idp).getConnObjectKeyItem());
-        }
+        idpEntity.setUseDeflateEncoding(saml2Idp.isUseDeflateEncoding());
+        idpEntity.setBindingType(saml2Idp.getBindingType());
+        idpEntity.setConnObjectKeyItem(binder.getIdPTO(saml2Idp).getConnObjectKeyItem());
     }
 
     @PreAuthorize("hasRole('" + SAML2SPEntitlement.IDP_DELETE + "')")

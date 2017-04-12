@@ -31,7 +31,7 @@ import org.apache.syncope.common.lib.to.SAML2RequestTO;
 import org.apache.syncope.common.rest.api.service.SAML2SPService;
 
 @WebServlet(name = "login", urlPatterns = { "/saml2sp/login" })
-public class Login extends SAML2PostBinding {
+public class Login extends AbstractSAML2SPServlet {
 
     private static final long serialVersionUID = 968480296813639041L;
 

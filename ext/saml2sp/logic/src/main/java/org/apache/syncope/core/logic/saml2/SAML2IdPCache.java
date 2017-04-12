@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.Map;
 import net.shibboleth.utilities.java.support.xml.XMLParserException;
 import org.apache.syncope.common.lib.to.MappingItemTO;
+import org.apache.syncope.common.lib.types.SAML2BindingType;
 import org.apache.syncope.core.logic.init.SAML2SPLoader;
 import org.apache.syncope.core.persistence.api.entity.SAML2IdP;
 import org.apache.syncope.core.provisioning.api.data.SAML2IdPDataBinder;
@@ -66,11 +67,14 @@ public class SAML2IdPCache {
     public SAML2IdPEntity put(
             final EntityDescriptor entityDescriptor,
             final MappingItemTO connObjectKeyItem,
-            final boolean useDeflateEncoding)
+            final boolean useDeflateEncoding,
+            final SAML2BindingType bindingType)
             throws CertificateException, IOException, KeyStoreException, NoSuchAlgorithmException {
 
-        return cache.put(entityDescriptor.getEntityID(),
-                new SAML2IdPEntity(entityDescriptor, connObjectKeyItem, useDeflateEncoding, loader.getKeyPass()));
+        SAML2IdPEntity idp = new SAML2IdPEntity(
+                entityDescriptor, connObjectKeyItem, useDeflateEncoding, bindingType, loader.getKeyPass());
+        cache.put(entityDescriptor.getEntityID(), idp);
+        return idp;
     }
 
     @Transactional(readOnly = true)
@@ -81,7 +85,11 @@ public class SAML2IdPCache {
         Element element = OpenSAMLUtil.getParserPool().parse(
                 new InputStreamReader(new ByteArrayInputStream(idp.getMetadata()))).getDocumentElement();
         EntityDescriptor entityDescriptor = (EntityDescriptor) OpenSAMLUtil.fromDom(element);
-        return put(entityDescriptor, binder.getIdPTO(idp).getConnObjectKeyItem(), idp.isUseDeflateEncoding());
+        return put(
+                entityDescriptor,
+                binder.getIdPTO(idp).getConnObjectKeyItem(),
+                idp.isUseDeflateEncoding(),
+                idp.getBindingType());
     }
 
     public SAML2IdPEntity remove(final String entityID) {

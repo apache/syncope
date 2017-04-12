@@ -47,7 +47,7 @@ public class Metadata extends HttpServlet {
         SAML2SPService service = anonymous.getService(SAML2SPService.class);
         WebClient.client(service).accept(MediaType.APPLICATION_XML_TYPE).type(MediaType.APPLICATION_XML_TYPE);
         Response metadataResponse = service.getMetadata(
-                StringUtils.substringBefore(request.getRequestURL().toString(), "/saml2sp"));
+                StringUtils.substringBefore(request.getRequestURL().toString(), "/saml2sp"), "saml2sp");
 
         response.setContentType(metadataResponse.getMediaType().toString());
         IOUtils.copy((InputStream) metadataResponse.getEntity(), response.getOutputStream());

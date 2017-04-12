@@ -39,7 +39,7 @@ public class SAML2SPDetector {
                             setContentType(SyncopeClientFactoryBean.ContentType.XML).
                             create(new AnonymousAuthenticationHandler(
                                     AbstractITCase.ANONYMOUS_UNAME, AbstractITCase.ANONYMOUS_KEY)).
-                            getService(SAML2SPService.class).getMetadata("http://localhost:9080/syncope");
+                            getService(SAML2SPService.class).getMetadata("http://localhost:9080/syncope", "saml2sp");
                     ENABLED = true;
                 } catch (Exception e) {
                     // ignore

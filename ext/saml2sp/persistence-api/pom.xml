@@ -43,6 +43,11 @@ under the License.
       <artifactId>syncope-core-persistence-api</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.ext.saml2sp</groupId>
+      <artifactId>syncope-ext-saml2sp-common-lib</artifactId>
+      <version>${project.version}</version>
+    </dependency>
   </dependencies>
 
   <build>

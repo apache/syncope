@@ -172,6 +172,7 @@ public class SAML2IdPDataBinderImpl implements SAML2IdPDataBinder {
         idp.setName(idpTO.getName());
         idp.setMetadata(Base64.decode(idpTO.getMetadata()));
         idp.setUseDeflateEncoding(idpTO.isUseDeflateEncoding());
+        idp.setBindingType(idpTO.getBindingType());
 
         idp.getMappingItems().clear();
         AnyTypeClassTO allowedSchemas = new AnyTypeClassTO();
@@ -214,6 +215,7 @@ public class SAML2IdPDataBinderImpl implements SAML2IdPDataBinder {
         idpTO.setEntityID(idp.getEntityID());
         idpTO.setName(idp.getName());
         idpTO.setUseDeflateEncoding(idp.isUseDeflateEncoding());
+        idpTO.setBindingType(idp.getBindingType());
         idpTO.setMetadata(Base64.encode(idp.getMetadata()));
 
         populateMappingTO(idp, idpTO);

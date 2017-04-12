@@ -100,7 +100,7 @@ public class SAML2ITCase extends AbstractITCase {
         try {
             SAML2SPService service = anonymous.getService(SAML2SPService.class);
             WebClient.client(service).accept(MediaType.APPLICATION_XML_TYPE);
-            Response response = service.getMetadata(ADDRESS);
+            Response response = service.getMetadata(ADDRESS, "saml2sp");
             assertNotNull(response);
 
             Document responseDoc = StaxUtils.read(

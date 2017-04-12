@@ -31,7 +31,6 @@ import org.apache.syncope.core.persistence.api.SyncopeLoader;
 import org.apache.syncope.core.provisioning.api.EntitlementsHolder;
 import org.apache.syncope.common.lib.types.SAML2SPEntitlement;
 import org.apache.syncope.core.logic.saml2.SAML2ReaderWriter;
-import org.apache.syncope.core.logic.saml2.SAML2Signer;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.ResourceWithFallbackLoader;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
@@ -63,9 +62,6 @@ public class SAML2SPLoader implements SyncopeLoader {
 
     @Autowired
     private SAML2ReaderWriter saml2rw;
-
-    @Autowired
-    private SAML2Signer signer;
 
     private boolean inited;
 
@@ -138,7 +134,6 @@ public class SAML2SPLoader implements SyncopeLoader {
             LOG.debug("SAML 2.0 Service Provider certificate loaded");
 
             saml2rw.init();
-            signer.init();
 
             inited = true;
         } catch (Exception e) {

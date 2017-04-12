@@ -19,15 +19,20 @@
 package org.apache.syncope.core.logic.saml2;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
-import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
 import java.security.KeyStore;
 import java.util.Base64;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.SignatureException;
 import java.util.zip.DataFormatException;
 import javax.xml.XMLConstants;
 import javax.xml.stream.XMLStreamException;
@@ -40,12 +45,20 @@ import javax.xml.transform.stream.StreamResult;
 import org.apache.cxf.rs.security.saml.DeflateEncoderDecoder;
 import org.apache.cxf.rs.security.saml.sso.SAMLProtocolResponseValidator;
 import org.apache.cxf.staxutils.StaxUtils;
+import org.apache.syncope.common.lib.SSOConstants;
+import org.apache.syncope.common.lib.types.SAML2BindingType;
 import org.apache.syncope.core.logic.init.SAML2SPLoader;
 import org.apache.wss4j.common.crypto.Merlin;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.opensaml.core.xml.XMLObject;
+import org.opensaml.saml.common.SignableSAMLObject;
+import org.opensaml.saml.saml2.core.RequestAbstractType;
 import org.opensaml.saml.saml2.core.Response;
+import org.opensaml.security.SecurityException;
+import org.opensaml.xmlsec.keyinfo.KeyInfoGenerator;
+import org.opensaml.xmlsec.keyinfo.impl.X509KeyInfoGeneratorFactory;
+import org.opensaml.xmlsec.signature.support.SignatureConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,15 +84,37 @@ public class SAML2ReaderWriter {
     @Autowired
     private SAML2SPLoader loader;
 
+    private KeyInfoGenerator keyInfoGenerator;
+
+    private String sigAlgo;
+
+    private String jceSigAlgo;
+
     private SAMLProtocolResponseValidator protocolValidator;
 
-    private SAML2IdPCallbackHandler callbackHandler;
+    private SAMLSPCallbackHandler callbackHandler;
 
     public void init() {
+        X509KeyInfoGeneratorFactory keyInfoGeneratorFactory = new X509KeyInfoGeneratorFactory();
+        keyInfoGeneratorFactory.setEmitEntityCertificate(true);
+        keyInfoGenerator = keyInfoGeneratorFactory.newInstance();
+
+        sigAlgo = SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA1;
+        jceSigAlgo = "SHA1withRSA";
+        String pubKeyAlgo = loader.getCredential().getPublicKey().getAlgorithm();
+        if (pubKeyAlgo.equalsIgnoreCase("DSA")) {
+            sigAlgo = SignatureConstants.ALGO_ID_SIGNATURE_DSA_SHA1;
+            jceSigAlgo = "SHA1withDSA";
+        }
+
         protocolValidator = new SAMLProtocolResponseValidator();
         protocolValidator.setKeyInfoMustBeAvailable(true);
 
-        callbackHandler = new SAML2IdPCallbackHandler(loader.getKeyPass());
+        callbackHandler = new SAMLSPCallbackHandler(loader.getKeyPass());
+    }
+
+    public String getSigAlgo() {
+        return sigAlgo;
     }
 
     public void write(final Writer writer, final XMLObject object, final boolean signObject)
@@ -91,18 +126,12 @@ public class SAML2ReaderWriter {
         transformer.transform(source, streamResult);
     }
 
-    public XMLObject read(final boolean postBinding, final boolean useDeflateEncoding, final String response)
+    public XMLObject read(final SAML2BindingType bindingType, final boolean useDeflateEncoding, final String response)
             throws DataFormatException, UnsupportedEncodingException, XMLStreamException, WSSecurityException {
 
-        String decodedResponse = response;
-        // URL Decoding only applies for the redirect binding
-        if (!postBinding) {
-            decodedResponse = URLDecoder.decode(response, StandardCharsets.UTF_8.name());
-        }
-
         InputStream tokenStream;
-        byte[] deflatedToken = Base64.getDecoder().decode(decodedResponse);
-        tokenStream = !postBinding && useDeflateEncoding
+        byte[] deflatedToken = Base64.getDecoder().decode(response);
+        tokenStream = bindingType != SAML2BindingType.POST && useDeflateEncoding
                 ? new DeflateEncoderDecoder().inflateToken(deflatedToken)
                 : new ByteArrayInputStream(deflatedToken);
 
@@ -125,6 +154,58 @@ public class SAML2ReaderWriter {
         return responseObject;
     }
 
+    public void sign(final RequestAbstractType request) throws SecurityException {
+        org.opensaml.xmlsec.signature.Signature signature = OpenSAMLUtil.buildSignature();
+        signature.setCanonicalizationAlgorithm(SignatureConstants.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
+        signature.setSignatureAlgorithm(sigAlgo);
+        signature.setSigningCredential(loader.getCredential());
+        signature.setKeyInfo(keyInfoGenerator.generate(loader.getCredential()));
+
+        SignableSAMLObject signableObject = (SignableSAMLObject) request;
+        signableObject.setSignature(signature);
+        signableObject.releaseDOM();
+        signableObject.releaseChildrenDOM(true);
+    }
+
+    public String sign(final String request, final String relayState)
+            throws NoSuchAlgorithmException, WSSecurityException, InvalidKeyException, UnsupportedEncodingException,
+            SignatureException {
+
+        Merlin crypto = new Merlin();
+        crypto.setKeyStore(loader.getKeyStore());
+        PrivateKey privateKey = crypto.getPrivateKey(loader.getCredential().getPublicKey(), callbackHandler);
+
+        java.security.Signature signature = java.security.Signature.getInstance(jceSigAlgo);
+        signature.initSign(privateKey);
+
+        String requestToSign =
+                SSOConstants.SAML_REQUEST + "=" + request + "&"
+                + SSOConstants.RELAY_STATE + "=" + relayState + "&"
+                + SSOConstants.SIG_ALG + "=" + URLEncoder.encode(sigAlgo, StandardCharsets.UTF_8.name());
+        signature.update(requestToSign.getBytes(StandardCharsets.UTF_8));
+        return Base64.getEncoder().encodeToString(signature.sign());
+    }
+
+    public String encode(final RequestAbstractType request, final boolean useDeflateEncoding)
+            throws WSSecurityException, TransformerException, IOException {
+
+        StringWriter writer = new StringWriter();
+        write(writer, request, true);
+        writer.close();
+
+        String requestMessage = writer.toString();
+        byte[] deflatedBytes;
+        // not correct according to the spec but required by some IdPs.
+        if (useDeflateEncoding) {
+            deflatedBytes = new DeflateEncoderDecoder().
+                    deflateToken(requestMessage.getBytes(StandardCharsets.UTF_8));
+        } else {
+            deflatedBytes = requestMessage.getBytes(StandardCharsets.UTF_8);
+        }
+
+        return Base64.getEncoder().encodeToString(deflatedBytes);
+    }
+
     public void validate(final Response samlResponse, final KeyStore idpTrustStore) throws WSSecurityException {
         // validate the SAML response and, if needed, decrypt the provided assertion(s)
         Merlin crypto = new Merlin();
@@ -145,5 +226,4 @@ public class SAML2ReaderWriter {
             }
         }
     }
-
 }
