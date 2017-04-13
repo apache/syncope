@@ -299,7 +299,6 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
           if ($scope.user.mustChangePassword) {
             $location.path('/mustchangepassword');
           } else {
-//            initConfiguration();
             initProperties();
           }
         }, function (e) {
