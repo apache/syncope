@@ -20,7 +20,9 @@ under the License.
   <input ng-switch-when="String" class="form-control" type="text"
          ng-model="user.plainAttrs[schema.key].values[index]"
          ng-required="{{schema.mandatoryCondition}}" validate="true"
-         ng-disabled="schema.readonly || customReadonly(schema.key)" ng-init="initAttribute(schema, index)" name="{{schema.key}}"/>
+         ng-disabled="schema.readonly || customReadonly(schema.key)"
+         ng-init="initAttribute(schema, index)"
+         name="{{schema.key}}"/>
 
   <div ng-switch-when="Encrypted" class="input-group input-group-sm">
     <span class="input-group-btn" ng-disabled="schema.readonly || customReadonly(schema.key)">  
@@ -73,27 +75,46 @@ under the License.
            ng-required="{{schema.mandatoryCondition}}"
            ng-disabled="schema.readonly || customReadonly(schema.key)"
            ng-init="initAttribute(schema, index)" />
-    </div>
+</div>
 
-    <input ng-switch-when="Long" class="form-control" type="number" ng-model="user.plainAttrs[schema.key].values[index]" 
+<input ng-switch-when="Long" class="form-control"
+           type="number"
+           ng-model="user.plainAttrs[schema.key].values[index]" 
+           ng-required="{{schema.mandatoryCondition}}"
+           ng-disabled="schema.readonly || customReadonly(schema.key)"
+           validate="true"
+           ng-init="initAttribute(schema, index)"
+           name="{{schema.key}}"/>
+
+<input ng-switch-when="Double" class="form-control" type="number" ng-model="user.plainAttrs[schema.key].values[index]"
            ng-required="{{schema.mandatoryCondition}}" validate="true"
+           ng-disabled="schema.readonly || customReadonly(schema.key)"
            ng-init="initAttribute(schema, index)" name="{{schema.key}}"/>
 
-    <input ng-switch-when="Double" class="form-control" type="number" ng-model="user.plainAttrs[schema.key].values[index]"
-           ng-required="{{schema.mandatoryCondition}}" validate="true"
-           ng-init="initAttribute(schema, index)" name="{{schema.key}}"/>
-
-    <div ng-switch-when="Date" id="date">
-      <input type="text" class="dateTimePicker"
-             id="dateTimePicker"
-             kendo-date-time-picker
-             ng-model="extendedDate"
-             ng-required="{{schema.mandatoryCondition}}" close-text="Close"
-             ng-init="initAttribute(schema, index)"
-             ng-change="bindDateToModel(selectedDate, extendedDate)"
-             ng-disabled="schema.readonly || customReadonly(schema.key)"
-             k-ng-model="selectedDate"
-             data-k-format=languageFormat 
+<div ng-switch-when="Date" id="date">
+<input type="text" class="dateTimePicker"
+       id="dateTimePicker"
+       kendo-date-time-picker
+       ng-show="!isDateOnly"
+       ng-model="extendedDate"
+       ng-required="{{schema.mandatoryCondition}}" close-text="Close"
+       ng-init="initAttribute(schema, index)"
+       ng-change="bindDateToModel(selectedDate, extendedDate)"
+ng-disabled="schema.readonly || customReadonly(schema.key)"
+k-ng-model="selectedDate"
+data-k-format="languageFormat"
+/>
+<input type="text" class="datePicker"
+       id="datePicker"
+       kendo-date-picker
+       ng-show="isDateOnly"
+       ng-model="extendedDate"
+       ng-required="{{schema.mandatoryCondition}}" close-text="Close"
+       ng-init="initAttribute(schema, index)"
+       ng-change="bindDateToModel(selectedDate, extendedDate)"
+       ng-disabled="schema.readonly || customReadonly(schema.key)"
+       k-ng-model="selectedDate"
+       data-k-format="languageFormat"
              />
     </div>
 
@@ -120,7 +141,8 @@ under the License.
     <input ng-switch-default class="form-control" type="text"
            ng-model="user.plainAttrs[schema.key].values[index]"
            ng-required="{{schema.mandatoryCondition}}" 
-           ng-disabled="schema.readonly || customReadonly(schema.key)" ng-init="initAttribute(schema, index)"/>
+           ng-disabled="schema.readonly || customReadonly(schema.key)"
+           ng-init="initAttribute(schema, index)"/>
   </div>
 
 

@@ -18,9 +18,11 @@
  */
 package org.apache.syncope.client.console.panels;
 
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.SchemaUtils;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
@@ -81,14 +83,14 @@ public class ParametersDetailsPanel extends Panel {
         final FieldPanel panel;
         switch (schemaTO.getType()) {
             case Date:
-                final String dataPattern = schemaTO.getConversionPattern() == null
+                final String datePattern = schemaTO.getConversionPattern() == null
                         ? SyncopeConstants.DEFAULT_DATE_PATTERN
                         : schemaTO.getConversionPattern();
 
-                if (dataPattern.contains("H")) {
-                    panel = new AjaxDateTimeFieldPanel("panel", schemaTO.getKey(), new Model<Date>(), dataPattern);
+                if (StringUtils.containsIgnoreCase(datePattern, "H")) {
+                    panel = new AjaxDateTimeFieldPanel("panel", schemaTO.getKey(), new Model<Date>(), datePattern);
                 } else {
-                    panel = new AjaxDateFieldPanel("panel", schemaTO.getKey(), new Model<Date>(), dataPattern);
+                    panel = new AjaxDateFieldPanel("panel", schemaTO.getKey(), new Model<Date>(), datePattern);
                 }
                 break;
             case Boolean:
