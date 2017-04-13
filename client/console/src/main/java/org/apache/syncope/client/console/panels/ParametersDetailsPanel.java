@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
