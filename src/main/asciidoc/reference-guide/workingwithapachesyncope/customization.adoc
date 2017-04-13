@@ -460,29 +460,34 @@ as
 and modify the JSON files under the new directory
 ====
 
+[[customization-enduser-form]]
 ===== Form customization
 
-User self create/edit form could be customized in order to:
+The <<enduser-application>> allows to customize the form in order to:
 
-* Hide/show some attributes
-* Deny/allow attribute write
+* hide / show attributes
+* set attributes read-only for users
+* provide default value(s)
 
-Under the `enduser/src/main/resources` directory you can find `customForm.json` file.
-This specifies the rules about form customization, in particular it allows to customize `PLAIN`, `DERIVED` and `VIRTUAL`
-attributes forms.
+Under the `enduser/src/main/resources` directory, the `customForm.json` file is available, allowing to configure form
+customization.
+
+[NOTE]
+.Hot deploy
+====
+The `customForm.json` could be edited and reloaded without the need of re-starting the Java EE container.
+====
 
 [TIP]
-====
-The file provided with the archetype contains an empty json: `{}`.
-If such file is deleted or contains empty or not parseable json, customization will be simply ignored and all attributes
-will be shown.
-====
+The `customForm.json` default content is just an empty object `{}`: if such file is missing, empty or not valid,
+form customization will be simply disabled and all attributes will be shown.
 
-Here is an example:
-
-```
+.Sample form customization
+====
+[source,json]
+----
 {
-  "PLAIN": 
+  "PLAIN":
           {
             "show": true,
             "attributes": {
@@ -521,7 +526,7 @@ Here is an example:
           {
             "show": false
           },
-  "VIRTUAL": 
+  "VIRTUAL":
           {
             "show": true,
             "attributes": {
@@ -532,28 +537,50 @@ Here is an example:
             }
           }
 }
-```
-As you can see the file has two main levels:
+----
+====
 
-* Schema type: `PLAIN`, `DERIVED`, `VIRTUAL`.
-* Attributes: list of attributes (by schema type) to be shown in the form.
+The `customForm.json` file has two main levels:
 
+. Schema type, e.g. `PLAIN`, `DERIVED`, `VIRTUAL`;
+. Attributes: list of attributes (by schema type) to be shown on the form.
+
+[discrete]
 ====== Schema type
 
-The schema type level allows to define customization of the three sub-forms available in the wizard.
-An user can specify one or each of the three sections in order to customize only what is really needed.
-Though enable/disable of schema forms can be configured also from the `app.js` file of the enduser, form customization
-json provides an attribute `show` to hide/show attributes input fields.
-If `show` is set to `false` info contained into `attributes` will be ignored and nothing is displayed in the form section.
+The schema type level allows to define customization of the three sub-forms available in the Enduser Application's form.
 
+Only one, two or all three sections can be specified, in order to customize only what is really needed.
+
+Moreover, a global boolean field `show` is available, to indicate that the whole sub-form should be shown or hidden.
+When not specified, `show` is treated as `true`.
+
+[discrete]
 ====== Attributes
 
-Attributes level contains a map of attributes to show.
+The attributes level contains a map of attributes to show.
+
+Each attribute has:
+
+* a name, e.g. the name of the <<schema,Schema>> from which the attribute is generated
+* a body, that specifies if the attribute should be readonly, and possibly its default values
+
+.Form attribute specification
+====
+[source,json]
+----
+              "firstname": {
+                "readonly": true,
+                "defaultValues": ["defaultFirstname1", "defaultFirstname2"]
+              },
+----
+Here, `firstname` is readonly and has two default values `defaultFirstname1` and `defaultFirstname2`.
+====
 
 [TIP]
 ====
-Attributes map is meant to be populated, i.e. empty `attributes` field means "do not filter at all and show all attributes".
-For example:
+An empty `attributes` field translates to skip filtering and show all attributes; for example:
+
 ```
 {
   "PLAIN": 
@@ -563,56 +590,24 @@ For example:
           }
 }
 ```
-shows all attributes.
-If you want to hide all attributes please use `show` field: `show: false`.
+shows all `PLAIN` attributes.
+
+If all attributes are to be hidden, please set `"show": false`, instead.
 ====
 
-As you can see from the sample json each attribute has:
-
-* A name: the name of schema from which the attribute has been generated.
-* A body: specifies if attribute should be readonly and its default values.
-
-Here is an example of attribute specification:
-
-```
-"firstname": {
-                "readonly": true,
-                "defaultValues": ["defaultFirstname","defaultFirstname2"]
-              }
-```
-In the example `firstname` is readonly and has two default values defined by a (comma separated) array of strings. 
-Default values section can be omitted if there are not default values to assign to that attribute.
-
-[CAUTION]
+[NOTE]
 ====
-There are some clarifications to be made about form customization:
-
-* Default value of `show` (about schema sections) is `true`, i.e. if not specified the section is visible.
-* `readonly` field must not be confused with schema `readonly` information. In form customization `readonly` 
-means a front-end readonly, i.e. the attribute is not modifiable from the enduser, but it can be fully accessible 
-from the administration console. 
-It does not provide info about the schema, but about the specific attribute of the USER.
-* If `readonly` is not specified it is considered `false` by default.
-* `defaultValues` is an array of strings; this means that also date values should be specified as strings, in particular
-in dates must be provided into timestamp format in milliseconds (this behavior will be improved further).
-* `defaultValues` (obviously) do not averride populated fields, an attribute is filled with default values 
-only if it is empty (in create and update).
+The `readonly` field should not be confused with the read-only flag available for <<plain,Plain>> and
+<<virtual,Virtual>> schema. +
+Within Enduser form customization, `readonly` prevenst the user's browser to modify the value of a given attribute.
 ====
-
-====== Hot deploy
-
-Form customization supports "hot deploy" feature. This means that `customForm.json` could be edited and reloaded 
-without stopping and re-starting the application server.
-Obviously to see "hot" modifications to the form you must refresh the page of the browser.
 
 [TIP]
 ====
-When running Syncope into embedded mode you should edit `fit/enduser-reference/target/test-classes/customForm.json`
-file.
-
-While running, instead, Syncope in a real environment you should edit the file under `conf.directory`. Please refer to <<deployment-directories>> section. 
+`defaultValues` is a string array: this means, in particular, that date values should be specified as strings
+(timestamps). +
+Moreover, `defaultValues` do not overwrite any existing value.
 ====
-
 
 [[customization-extensions]]
 ==== Extensions
