@@ -22,24 +22,17 @@ import javax.xml.bind.annotation.XmlEnum;
 
 @XmlEnum
 public enum SAML2BindingType {
-    POST("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST", 0),
-    REDIRECT("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect", 1);
+    POST("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"),
+    REDIRECT("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect");
 
     private final String uri;
 
-    private final int index;
-
-    SAML2BindingType(final String uri, final int index) {
+    SAML2BindingType(final String uri) {
         this.uri = uri;
-        this.index = index;
     }
 
     public String getUri() {
         return uri;
-    }
-
-    public int getIndex() {
-        return index;
     }
 
     public static SAML2BindingType fromUri(final String uri) {

@@ -31,7 +31,6 @@ import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.SSOConstants;
 import org.apache.syncope.common.lib.to.SAML2ReceivedResponseTO;
 import org.apache.syncope.common.lib.to.SAML2RequestTO;
-import org.apache.syncope.common.lib.types.SAML2BindingType;
 import org.apache.syncope.common.rest.api.service.SAML2SPService;
 
 @WebServlet(name = "logout", urlPatterns = { "/saml2sp/logout" })
@@ -116,7 +115,6 @@ public class Logout extends AbstractSAML2SPServlet {
             SAML2ReceivedResponseTO receivedResponse = new SAML2ReceivedResponseTO();
             receivedResponse.setSamlResponse(samlResponse);
             receivedResponse.setRelayState(relayState);
-            receivedResponse.setBindingType(SAML2BindingType.REDIRECT);
 
             doLogout(receivedResponse, request, response);
         }
@@ -128,7 +126,6 @@ public class Logout extends AbstractSAML2SPServlet {
 
         // process POST binding logout response
         SAML2ReceivedResponseTO receivedResponse = extract(request.getInputStream());
-        receivedResponse.setBindingType(SAML2BindingType.POST);
         doLogout(receivedResponse, request, response);
     }
 

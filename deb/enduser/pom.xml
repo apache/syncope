@@ -92,7 +92,6 @@ under the License.
         <directory>${project.basedir}/../../client/enduser/src/main/resources</directory>
         <includes>
           <include>enduser.properties</include>
-          <include>enduserContext.xml</include>
           <include>customForm.json</include>
         </includes>
         <targetPath>${project.build.directory}/etc</targetPath>

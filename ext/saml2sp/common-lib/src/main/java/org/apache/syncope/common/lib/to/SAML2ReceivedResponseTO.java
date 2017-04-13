@@ -21,7 +21,6 @@ package org.apache.syncope.common.lib.to;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.AbstractBaseBean;
-import org.apache.syncope.common.lib.types.SAML2BindingType;
 
 @XmlRootElement(name = "saml2ReceivedResponse")
 @XmlType
@@ -32,8 +31,6 @@ public class SAML2ReceivedResponseTO extends AbstractBaseBean {
     private String samlResponse;
 
     private String relayState;
-
-    private SAML2BindingType bindingType;
 
     public String getSamlResponse() {
         return samlResponse;
@@ -49,14 +46,6 @@ public class SAML2ReceivedResponseTO extends AbstractBaseBean {
 
     public void setRelayState(final String relayState) {
         this.relayState = relayState;
-    }
-
-    public SAML2BindingType getBindingType() {
-        return bindingType;
-    }
-
-    public void setBindingType(final SAML2BindingType bindingType) {
-        this.bindingType = bindingType;
     }
 
 }
