@@ -28,6 +28,7 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriBuilder;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.cxf.jaxrs.utils.JAXRSUtils;
 import org.apache.syncope.common.lib.SSOConstants;
@@ -79,9 +80,11 @@ public abstract class AbstractSAML2SPServlet extends HttpServlet {
         String strForm = IOUtils.toString(response);
         MultivaluedMap<String, String> params = JAXRSUtils.getStructuredParams(strForm, "&", false, false);
 
-        String samlResponse = URLDecoder.decode(
-                params.getFirst(SSOConstants.SAML_RESPONSE), StandardCharsets.UTF_8.name());
-        LOG.debug("Received SAML Response: {}", samlResponse);
+        String samlResponse = params.getFirst(SSOConstants.SAML_RESPONSE);
+        if (StringUtils.isNotBlank(samlResponse)) {
+            samlResponse = URLDecoder.decode(samlResponse, StandardCharsets.UTF_8.name());
+            LOG.debug("Received SAML Response: {}", samlResponse);
+        }
 
         String relayState = params.getFirst(SSOConstants.RELAY_STATE);
         LOG.debug("Received Relay State: {}", relayState);
