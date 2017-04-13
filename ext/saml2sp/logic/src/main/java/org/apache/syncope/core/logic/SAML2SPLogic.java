@@ -196,7 +196,7 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
 
             for (SAML2BindingType bindingType : SAML2BindingType.values()) {
                 AssertionConsumerService assertionConsumerService = new AssertionConsumerServiceBuilder().buildObject();
-                assertionConsumerService.setIndex(bindingType.getIndex());
+                assertionConsumerService.setIndex(bindingType.ordinal());
                 assertionConsumerService.setBinding(bindingType.getUri());
                 assertionConsumerService.setLocation(spEntityID + urlContext + "/assertion-consumer");
                 spSSODescriptor.getAssertionConsumerServices().add(assertionConsumerService);
@@ -420,8 +420,7 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
         // 2. parse the provided SAML response
         Response samlResponse;
         try {
-            XMLObject responseObject = saml2rw.read(
-                    SAML2BindingType.POST, useDeflateEncoding, response.getSamlResponse());
+            XMLObject responseObject = saml2rw.read(useDeflateEncoding, response.getSamlResponse());
             if (!(responseObject instanceof Response)) {
                 throw new IllegalArgumentException("Expected " + Response.class.getName()
                         + ", got " + responseObject.getClass().getName());
@@ -587,7 +586,8 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
         try {
             // 3. generate relay state as JWT
             Map<String, Object> claims = new HashMap<>();
-            claims.put(JWT_CLAIM_IDP_DEFLATE, idp.isUseDeflateEncoding());
+            claims.put(JWT_CLAIM_IDP_DEFLATE,
+                    idp.getBindingType() == SAML2BindingType.REDIRECT ? true : idp.isUseDeflateEncoding());
             Triple<String, String, Date> relayState =
                     accessTokenDataBinder.generateJWT(logoutRequest.getID(), JWT_RELAY_STATE_DURATION, claims);
             requestTO.setRelayState(relayState.getMiddle());
@@ -641,8 +641,7 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
         // 3. parse the provided SAML response
         LogoutResponse logoutResponse;
         try {
-            XMLObject responseObject = saml2rw.read(
-                    response.getBindingType(), useDeflateEncoding, response.getSamlResponse());
+            XMLObject responseObject = saml2rw.read(useDeflateEncoding, response.getSamlResponse());
             if (!(responseObject instanceof LogoutResponse)) {
                 throw new IllegalArgumentException("Expected " + LogoutResponse.class.getName()
                         + ", got " + responseObject.getClass().getName());

@@ -126,7 +126,7 @@ public class SAML2IdPEntity {
     }
 
     public boolean isUseDeflateEncoding() {
-        return bindingType == SAML2BindingType.REDIRECT ? true : useDeflateEncoding;
+        return useDeflateEncoding;
     }
 
     public void setUseDeflateEncoding(final boolean useDeflateEncoding) {

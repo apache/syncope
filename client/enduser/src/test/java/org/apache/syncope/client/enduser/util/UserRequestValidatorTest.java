@@ -18,6 +18,9 @@
  */
 package org.apache.syncope.client.enduser.util;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
@@ -27,21 +30,23 @@ import java.util.Map;
 import org.apache.syncope.client.enduser.model.CustomAttributesInfo;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.core.io.ClassPathResource;
 
 public class UserRequestValidatorTest {
 
+    private AttrTO attrTO(String schemaKey, String... values) {
+        return new AttrTO.Builder().schema(schemaKey).values(values).build();
+    }
+
     @Test
     public void testCompliant() throws IOException {
-
         UserTO userTO = new UserTO();
         // plain
-        AttrTO firstname = buildAttrTO("firstname", "defaultFirstname");
-        AttrTO surname = buildAttrTO("surname", "surnameValue");
-        AttrTO additionalCtype = buildAttrTO("additional#ctype", "ctypeValue");
-        AttrTO notAllowed = buildAttrTO("not_allowed", "notAllowedValue");
+        AttrTO firstname = attrTO("firstname", "defaultFirstname");
+        AttrTO surname = attrTO("surname", "surnameValue");
+        AttrTO additionalCtype = attrTO("additional#ctype", "ctypeValue");
+        AttrTO notAllowed = attrTO("not_allowed", "notAllowedValue");
         userTO.getPlainAttrs().addAll(Arrays.asList(firstname, surname, notAllowed, additionalCtype));
 
         Map<String, CustomAttributesInfo> customForm = new ObjectMapper().readValue(new ClassPathResource(
@@ -49,37 +54,33 @@ public class UserRequestValidatorTest {
         });
 
         // not allowed because of presence of notAllowed attribute
-        Assert.assertFalse(UserRequestValidator.compliant(userTO, customForm, true));
+        assertFalse(UserRequestValidator.compliant(userTO, customForm, true));
 
         // remove notAllowed attribute and make it compliant
         userTO.getPlainAttrs().remove(notAllowed);
-        Assert.assertTrue(UserRequestValidator.compliant(userTO, customForm, true));
+        assertTrue(UserRequestValidator.compliant(userTO, customForm, true));
 
         // firstname must have only one defaultValue
         userTO.getPlainAttrMap().get("firstname").getValues().add("notAllowedFirstnameValue");
-        Assert.assertFalse(UserRequestValidator.compliant(userTO, customForm, true));
-        Assert.assertTrue(UserRequestValidator.compliant(userTO, customForm, false));
+        assertFalse(UserRequestValidator.compliant(userTO, customForm, true));
+        assertTrue(UserRequestValidator.compliant(userTO, customForm, false));
         // clean
         userTO.getPlainAttrMap().get("firstname").getValues().remove("notAllowedFirstnameValue");
 
         // derived must not be present
-        AttrTO derivedNotAllowed = buildAttrTO("derivedNotAllowed");
+        AttrTO derivedNotAllowed = attrTO("derivedNotAllowed");
         userTO.getDerAttrs().add(derivedNotAllowed);
-        Assert.assertFalse(UserRequestValidator.compliant(userTO, customForm, true));
+        assertFalse(UserRequestValidator.compliant(userTO, customForm, true));
         // clean 
         userTO.getDerAttrs().clear();
 
         // virtual
-        AttrTO virtualdata = buildAttrTO("virtualdata", "defaultVirtualData");
+        AttrTO virtualdata = attrTO("virtualdata", "defaultVirtualData");
         userTO.getVirAttrs().add(virtualdata);
-        Assert.assertTrue(UserRequestValidator.compliant(userTO, customForm, true));
+        assertTrue(UserRequestValidator.compliant(userTO, customForm, true));
 
         // with empty form is compliant by definition
-        Assert.assertTrue(UserRequestValidator.compliant(userTO, new HashMap<String, CustomAttributesInfo>(), true));
-    }
-
-    private AttrTO buildAttrTO(String schemaKey, String... values) {
-        return new AttrTO.Builder().schema(schemaKey).values(values).build();
+        assertTrue(UserRequestValidator.compliant(userTO, new HashMap<String, CustomAttributesInfo>(), true));
     }
 
 }

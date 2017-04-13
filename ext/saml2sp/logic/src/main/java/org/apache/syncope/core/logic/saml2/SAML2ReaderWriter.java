@@ -46,7 +46,6 @@ import org.apache.cxf.rs.security.saml.DeflateEncoderDecoder;
 import org.apache.cxf.rs.security.saml.sso.SAMLProtocolResponseValidator;
 import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.syncope.common.lib.SSOConstants;
-import org.apache.syncope.common.lib.types.SAML2BindingType;
 import org.apache.syncope.core.logic.init.SAML2SPLoader;
 import org.apache.wss4j.common.crypto.Merlin;
 import org.apache.wss4j.common.ext.WSSecurityException;
@@ -126,12 +125,12 @@ public class SAML2ReaderWriter {
         transformer.transform(source, streamResult);
     }
 
-    public XMLObject read(final SAML2BindingType bindingType, final boolean useDeflateEncoding, final String response)
+    public XMLObject read(final boolean useDeflateEncoding, final String response)
             throws DataFormatException, UnsupportedEncodingException, XMLStreamException, WSSecurityException {
 
         InputStream tokenStream;
         byte[] deflatedToken = Base64.decodeBase64(response);
-        tokenStream = bindingType != SAML2BindingType.POST && useDeflateEncoding
+        tokenStream = useDeflateEncoding
                 ? new DeflateEncoderDecoder().inflateToken(deflatedToken)
                 : new ByteArrayInputStream(deflatedToken);
 
