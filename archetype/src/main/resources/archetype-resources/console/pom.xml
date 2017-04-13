@@ -249,9 +249,6 @@ ORYX.CONFIG.ROOT_PATH = BASE_PATH + &quot;/activiti-modeler/editor-app/editor/&q
                     <replace file="${activiti-modeler.directory}/editor-app/editor/oryx.debug.js"
                              token="ORYX.Editor.createByUrl(modelUrl);"
                              value="modelUrl = BASE_PATH + &quot;/workflowDefGET?modelId=&quot; + modelId; ORYX.Editor.createByUrl(modelUrl);" />
-                    <replace file="${activiti-modeler.directory}/editor-app/editor/oryx.debug.js"
-                             token="ORYX.Editor.createByUrl = function(modelUrl){"
-                             value="modelUrl = BASE_PATH + &quot;/workflowDefGET?modelId=&quot; + modelId; ORYX.Editor.createByUrl = function(modelUrl){" />               
                     <replace file="${activiti-modeler.directory}/editor-app/configuration/toolbar-default-actions.js"
                              token="window.location.href = &quot;./&quot;;"
                              value="window.close();"/>

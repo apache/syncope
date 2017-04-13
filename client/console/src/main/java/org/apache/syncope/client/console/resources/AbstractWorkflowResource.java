@@ -40,7 +40,7 @@ abstract class AbstractWorkflowResource extends AbstractResource {
         final StringValue modelId =
                 attributes.getRequest().getQueryParameters().getParameterValue(Constants.MODEL_ID_PARAM);
 
-        WorkflowDefinitionTO workflowDefinition = modelId == null ? null
+        WorkflowDefinitionTO workflowDefinition = modelId == null || modelId.isNull() ? null
                 : IterableUtils.find(restClient.getDefinitions(), new Predicate<WorkflowDefinitionTO>() {
 
                     @Override
