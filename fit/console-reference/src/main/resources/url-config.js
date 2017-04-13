@@ -29,6 +29,6 @@ KISBPM.URL = {
   },
   putModel: function (modelId) {
     return window.location.toString().substr(0, window.location.toString().indexOf('/activiti-modeler')) 
-            + "/workflowDefPUT?modelId" + modelId;
+            + "/workflowDefPUT?modelId=" + modelId;
   }
 };
