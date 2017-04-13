@@ -399,7 +399,6 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
 
     $scope.saveUser = function (user) {
       var wrappedUser = UserUtil.getWrappedUser(user);
-      wrappedUser.plainAttrs.push({"schema":"cazzzz","values":["cazzzz"]});
       if ($scope.createMode) {
         UserSelfService.create(wrappedUser, $scope.captchaInput.value).then(function (response) {
           console.debug("User " + $scope.user.username + " SUCCESSFULLY_CREATED");
