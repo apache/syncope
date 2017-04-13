@@ -100,19 +100,20 @@ angular.module('self')
                     $scope.isDate = function (x) {
                       return x instanceof Date;
                     };
-
-                    var dateInMs = $scope.user.plainAttrs[schema.key].values[index];
-                    var temporaryDate = new Date(dateInMs * 1);
-                    $scope.selectedDate = temporaryDate;
                     $scope.languageid = $rootScope.languages.selectedLanguage.id;
-                    $scope.languageFormat = $rootScope.languages.selectedLanguage.format;
+                    $scope.isDateOnly = schema.conversionPattern.indexOf("H") === -1
+                            && schema.conversionPattern.indexOf("h") === -1;
+                    $scope.languageFormat = $scope.isDateOnly
+                            ? $rootScope.languages.selectedLanguage.format.replace(" HH:mm", "")
+                            : $rootScope.languages.selectedLanguage.format;
                     $scope.languageCulture = $rootScope.languages.selectedLanguage.culture;
+                    // read date in milliseconds
+                    $scope.selectedDate = new Date($scope.user.plainAttrs[schema.key].values[index] * 1);
 
                     $scope.bindDateToModel = function (selectedDate, extendedDate) {
                       if (selectedDate) {
-                        var tmpdate = new Date(extendedDate);
-                        var milliseconds = tmpdate.getTime();
-                        $scope.user.plainAttrs[schema.key].values[index] = milliseconds;
+                        // save date in milliseconds
+                        $scope.user.plainAttrs[schema.key].values[index] = new Date(extendedDate).getTime();
                       }
                     };
                     break;
