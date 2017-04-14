@@ -119,10 +119,6 @@ app.config(['$stateProvider', '$urlRouterProvider', '$httpProvider', '$translate
               url: '/finish',
               templateUrl: 'views/user-form-finish.html'
             })
-            .state('success', {
-              url: '/success',
-              templateUrl: 'views/success.html'
-            })
             .state('update', {
               url: '/self/update',
               templateUrl: 'views/editUser.html',

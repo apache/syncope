@@ -34,13 +34,19 @@ public class HomePage extends WebPage {
         StringBuilder redirectUrl = new StringBuilder("/app/");
         if (!parameters.get("errorMessage").isNull()) {
             redirectUrl.append("#!self?errorMessage=");
-            try {
-                redirectUrl.append(
-                        URLEncoder.encode(parameters.get("errorMessage").toString(), StandardCharsets.UTF_8.name()));
-            } catch (Exception e) {
-                redirectUrl.append("Generic error");
-            }
+            appendMessage(redirectUrl, parameters.get("errorMessage").toString());
+        } else if (!parameters.get("successMessage").isNull()) {
+            redirectUrl.append("#!self?successMessage=");
+            appendMessage(redirectUrl, parameters.get("successMessage").toString());
         }
         throw new NonResettingRestartException(redirectUrl.toString());
+    }
+
+    private void appendMessage(final StringBuilder redirectUrl, final String message) {
+        try {
+            redirectUrl.append(URLEncoder.encode(message, StandardCharsets.UTF_8.name()));
+        } catch (Exception e) {
+            redirectUrl.append("Generic error");
+        }
     }
 }
