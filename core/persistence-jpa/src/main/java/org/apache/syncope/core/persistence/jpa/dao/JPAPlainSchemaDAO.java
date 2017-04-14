@@ -32,6 +32,7 @@ import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyUtilsFactory;
 import org.apache.syncope.core.persistence.jpa.entity.JPAPlainSchema;
+import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -41,8 +42,16 @@ public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema> implements Plain
     @Autowired
     private PlainAttrDAO plainAttrDAO;
 
-    @Autowired
     private ExternalResourceDAO resourceDAO;
+
+    private ExternalResourceDAO resourceDAO() {
+        synchronized (this) {
+            if (resourceDAO == null) {
+                resourceDAO = ApplicationContextProvider.getApplicationContext().getBean(ExternalResourceDAO.class);
+            }
+        }
+        return resourceDAO;
+    }
 
     @Override
     public PlainSchema find(final String key) {
@@ -101,7 +110,7 @@ public class JPAPlainSchemaDAO extends AbstractDAO<PlainSchema> implements Plain
                 plainAttrDAO.delete(attr.getKey(), anyUtils.plainAttrClass());
             }
 
-            resourceDAO.deleteMapping(key);
+            resourceDAO().deleteMapping(key);
         }
 
         if (schema.getAnyTypeClass() != null) {

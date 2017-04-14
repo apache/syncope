@@ -89,12 +89,6 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
             Pattern.compile("^" + SyncopeConstants.NAME_PATTERN, Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
 
     @Autowired
-    private RealmDAO realmDAO;
-
-    @Autowired
-    private GroupDAO groupDAO;
-
-    @Autowired
     private RoleDAO roleDAO;
 
     @Autowired
@@ -108,6 +102,28 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
 
     @Resource(name = "anonymousUser")
     private String anonymousUser;
+
+    private RealmDAO realmDAO;
+
+    private GroupDAO groupDAO;
+
+    private RealmDAO realmDAO() {
+        synchronized (this) {
+            if (realmDAO == null) {
+                realmDAO = ApplicationContextProvider.getApplicationContext().getBean(RealmDAO.class);
+            }
+        }
+        return realmDAO;
+    }
+
+    private GroupDAO groupDAO() {
+        synchronized (this) {
+            if (groupDAO == null) {
+                groupDAO = ApplicationContextProvider.getApplicationContext().getBean(GroupDAO.class);
+            }
+        }
+        return groupDAO;
+    }
 
     @Override
     protected AnyUtils init() {
@@ -244,7 +260,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
         }
 
         // add realm policies
-        for (Realm realm : realmDAO.findAncestors(user.getRealm())) {
+        for (Realm realm : realmDAO().findAncestors(user.getRealm())) {
             policy = realm.getPasswordPolicy();
             if (policy != null) {
                 policies.add(policy);
@@ -266,7 +282,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
         }
 
         // add realm policies
-        for (Realm realm : realmDAO.findAncestors(user.getRealm())) {
+        for (Realm realm : realmDAO().findAncestors(user.getRealm())) {
             AccountPolicy policy = realm.getAccountPolicy();
             if (policy != null) {
                 policies.add(policy);
@@ -415,7 +431,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
         }
 
         roleDAO.refreshDynMemberships(merged);
-        groupDAO.refreshDynMemberships(merged);
+        groupDAO().refreshDynMemberships(merged);
 
         return merged;
     }
@@ -483,7 +499,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
                     ? (String) ((Object[]) key)[0]
                     : ((String) key);
 
-            Group group = groupDAO.find(actualKey);
+            Group group = groupDAO().find(actualKey);
             if (group == null) {
                 LOG.error("Could not find group with id {}, even though returned by the native query", actualKey);
             } else if (!result.contains(group)) {

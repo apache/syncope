@@ -40,57 +40,54 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidPlainAttrValueException;
-import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
+import org.apache.syncope.core.persistence.api.dao.AllowedSchemas;
+import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
+import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrValueDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
-import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
-import org.apache.syncope.core.persistence.api.entity.DerSchema;
-import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.apache.syncope.core.persistence.api.entity.PlainAttr;
-import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.PlainSchema;
-import org.apache.syncope.core.persistence.api.entity.group.Group;
-import org.apache.syncope.core.provisioning.api.PropagationByResource;
-import org.apache.syncope.core.persistence.api.dao.AllowedSchemas;
-import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
-import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
-import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
-import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
-import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
-import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
-import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
+import org.apache.syncope.core.persistence.api.entity.DerSchema;
+import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.GroupablePlainAttr;
+import org.apache.syncope.core.persistence.api.entity.GroupableRelatable;
 import org.apache.syncope.core.persistence.api.entity.Membership;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
+import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
+import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Relationship;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
+import org.apache.syncope.core.provisioning.api.IntAttrName;
 import org.apache.syncope.core.provisioning.api.MappingManager;
+import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
+import org.apache.syncope.core.provisioning.api.data.SchemaDataBinder;
+import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
+import org.apache.syncope.core.provisioning.java.IntAttrNameParser;
+import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
+import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.apache.syncope.core.persistence.api.entity.GroupableRelatable;
-import org.apache.syncope.core.provisioning.java.IntAttrNameParser;
-import org.apache.syncope.core.provisioning.api.IntAttrName;
-import org.apache.syncope.core.provisioning.api.data.SchemaDataBinder;
-import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 
 abstract class AbstractAnyDataBinder {
 
@@ -116,12 +113,6 @@ abstract class AbstractAnyDataBinder {
 
     @Autowired
     protected PlainSchemaDAO plainSchemaDAO;
-
-    @Autowired
-    protected DerSchemaDAO derSchemaDAO;
-
-    @Autowired
-    protected VirSchemaDAO virSchemaDAO;
 
     @Autowired
     protected PlainAttrDAO plainAttrDAO;
@@ -152,9 +143,6 @@ abstract class AbstractAnyDataBinder {
 
     @Autowired
     protected VirAttrHandler virAttrHandler;
-
-    @Autowired
-    protected ConnObjectUtils connObjectUtils;
 
     @Autowired
     protected MappingManager mappingManager;

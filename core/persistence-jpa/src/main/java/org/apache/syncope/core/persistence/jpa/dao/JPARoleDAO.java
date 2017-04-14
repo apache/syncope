@@ -30,15 +30,23 @@ import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.JPARole;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class JPARoleDAO extends AbstractDAO<Role> implements RoleDAO {
 
-    @Autowired
     private AnySearchDAO searchDAO;
+
+    private AnySearchDAO searchDAO() {
+        synchronized (this) {
+            if (searchDAO == null) {
+                searchDAO = ApplicationContextProvider.getApplicationContext().getBean(AnySearchDAO.class);
+            }
+        }
+        return searchDAO;
+    }
 
     @Override
     public int count() {
@@ -71,7 +79,7 @@ public class JPARoleDAO extends AbstractDAO<Role> implements RoleDAO {
     public Role save(final Role role) {
         // refresh dynaminc memberships
         if (role.getDynMembership() != null) {
-            List<User> matchingUsers = searchDAO.search(
+            List<User> matchingUsers = searchDAO().search(
                     SearchCondConverter.convert(role.getDynMembership().getFIQLCond()), AnyTypeKind.USER);
 
             role.getDynMembership().getMembers().clear();
@@ -111,7 +119,7 @@ public class JPARoleDAO extends AbstractDAO<Role> implements RoleDAO {
     public void refreshDynMemberships(final User user) {
         for (Role role : findAll()) {
             if (role.getDynMembership() != null) {
-                if (searchDAO.matches(user, SearchCondConverter.convert(role.getDynMembership().getFIQLCond()))) {
+                if (searchDAO().matches(user, SearchCondConverter.convert(role.getDynMembership().getFIQLCond()))) {
                     role.getDynMembership().add(user);
                 } else {
                     role.getDynMembership().getMembers().remove(user);

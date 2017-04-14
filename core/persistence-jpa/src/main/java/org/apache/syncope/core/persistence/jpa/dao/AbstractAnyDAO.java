@@ -63,26 +63,50 @@ import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractPlainAttrValue;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> implements AnyDAO<A> {
 
-    @Autowired
-    protected PlainSchemaDAO plainSchemaDAO;
+    private PlainSchemaDAO plainSchemaDAO;
 
-    @Autowired
-    protected DerSchemaDAO derSchemaDAO;
+    private DerSchemaDAO derSchemaDAO;
 
-    @Autowired
-    protected AnySearchDAO searchDAO;
+    private AnySearchDAO searchDAO;
 
-    protected AnyUtils anyUtils;
+    private AnyUtils anyUtils;
+
+    private PlainSchemaDAO plainSchemaDAO() {
+        synchronized (this) {
+            if (plainSchemaDAO == null) {
+                plainSchemaDAO = ApplicationContextProvider.getApplicationContext().getBean(PlainSchemaDAO.class);
+            }
+        }
+        return plainSchemaDAO;
+    }
+
+    private DerSchemaDAO derSchemaDAO() {
+        synchronized (this) {
+            if (derSchemaDAO == null) {
+                derSchemaDAO = ApplicationContextProvider.getApplicationContext().getBean(DerSchemaDAO.class);
+            }
+        }
+        return derSchemaDAO;
+    }
+
+    protected AnySearchDAO searchDAO() {
+        synchronized (this) {
+            if (searchDAO == null) {
+                searchDAO = ApplicationContextProvider.getApplicationContext().getBean(AnySearchDAO.class);
+            }
+        }
+        return searchDAO;
+    }
 
     protected abstract AnyUtils init();
 
-    protected AnyUtils getAnyUtils() {
+    protected AnyUtils anyUtils() {
         synchronized (this) {
             if (anyUtils == null) {
                 anyUtils = init();
@@ -115,13 +139,13 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
     @Override
     @SuppressWarnings("unchecked")
     public A find(final String key) {
-        return (A) entityManager().find(getAnyUtils().anyClass(), key);
+        return (A) entityManager().find(anyUtils().anyClass(), key);
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public A findByWorkflowId(final String workflowId) {
-        Query query = entityManager().createQuery("SELECT e FROM " + getAnyUtils().anyClass().getSimpleName()
+        Query query = entityManager().createQuery("SELECT e FROM " + anyUtils().anyClass().getSimpleName()
                 + " e WHERE e.workflowId = :workflowId", User.class);
         query.setParameter("workflowId", workflowId);
 
@@ -148,15 +172,15 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
     @Override
     @SuppressWarnings("unchecked")
     public List<A> findByAttrValue(final String schemaKey, final PlainAttrValue attrValue) {
-        PlainSchema schema = plainSchemaDAO.find(schemaKey);
+        PlainSchema schema = plainSchemaDAO().find(schemaKey);
         if (schema == null) {
             LOG.error("Invalid schema name '{}'", schemaKey);
             return Collections.<A>emptyList();
         }
 
         String entityName = schema.isUniqueConstraint()
-                ? getAnyUtils().plainAttrUniqueValueClass().getName()
-                : getAnyUtils().plainAttrValueClass().getName();
+                ? anyUtils().plainAttrUniqueValueClass().getName()
+                : anyUtils().plainAttrValueClass().getName();
         Query query = findByAttrValueQuery(entityName);
         query.setParameter("schemaKey", schemaKey);
         query.setParameter("stringValue", attrValue.getStringValue());
@@ -184,7 +208,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
 
     @Override
     public A findByAttrUniqueValue(final String schemaKey, final PlainAttrValue attrUniqueValue) {
-        PlainSchema schema = plainSchemaDAO.find(schemaKey);
+        PlainSchema schema = plainSchemaDAO().find(schemaKey);
         if (schema == null) {
             LOG.error("Invalid schema name '{}'", schemaKey);
             return null;
@@ -296,7 +320,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
             if (!used.contains(identifiers.get(i))) {
 
                 // verify schema existence and get schema type
-                PlainSchema schema = plainSchemaDAO.find(identifiers.get(i));
+                PlainSchema schema = plainSchemaDAO().find(identifiers.get(i));
                 if (schema == null) {
                     LOG.error("Invalid schema id '{}'", identifiers.get(i));
                     throw new IllegalArgumentException("Invalid schema id " + identifiers.get(i));
@@ -351,7 +375,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
 
     @Override
     public List<A> findByDerAttrValue(final String schemaKey, final String value) {
-        DerSchema schema = derSchemaDAO.find(schemaKey);
+        DerSchema schema = derSchemaDAO().find(schemaKey);
         if (schema == null) {
             LOG.error("Invalid schema name '{}'", schemaKey);
             return Collections.<A>emptyList();
@@ -368,8 +392,8 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
             }
 
             querystring.append("SELECT a.owner_id ").
-                    append("FROM ").append(getAnyUtils().plainAttrClass().getSimpleName().substring(3)).append(" a, ").
-                    append(getAnyUtils().plainAttrValueClass().getSimpleName().substring(3)).append(" v, ").
+                    append("FROM ").append(anyUtils().plainAttrClass().getSimpleName().substring(3)).append(" a, ").
+                    append(anyUtils().plainAttrValueClass().getSimpleName().substring(3)).append(" v, ").
                     append(PlainSchema.class.getSimpleName()).append(" s ").
                     append("WHERE ").append(clause);
 
@@ -394,8 +418,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
     @SuppressWarnings("unchecked")
     @Override
     public List<A> findByResource(final ExternalResource resource) {
-        Query query = entityManager().createQuery(
-                "SELECT e FROM " + getAnyUtils().anyClass().getSimpleName() + " e "
+        Query query = entityManager().createQuery("SELECT e FROM " + anyUtils().anyClass().getSimpleName() + " e "
                 + "WHERE :resource MEMBER OF e.resources");
         query.setParameter("resource", resource);
 
@@ -417,8 +440,8 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
     public List<A> findAll(final Set<String> adminRealms,
             final int page, final int itemsPerPage, final List<OrderByClause> orderBy) {
 
-        return searchDAO.search(adminRealms, getAllMatchingCond(), page, itemsPerPage, orderBy,
-                getAnyUtils().getAnyTypeKind());
+        return searchDAO().search(adminRealms, getAllMatchingCond(), page, itemsPerPage, orderBy,
+                anyUtils().getAnyTypeKind());
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
@@ -481,7 +504,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
 
     @Override
     public final int count(final Set<String> adminRealms) {
-        return searchDAO.count(adminRealms, getAllMatchingCond(), getAnyUtils().getAnyTypeKind());
+        return searchDAO().count(adminRealms, getAllMatchingCond(), anyUtils().getAnyTypeKind());
     }
 
     @Override

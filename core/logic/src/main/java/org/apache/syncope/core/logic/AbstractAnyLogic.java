@@ -51,8 +51,7 @@ import org.apache.syncope.core.provisioning.api.LogicActions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 
-public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch>
-        extends AbstractResourceAssociator<TO> {
+public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch> extends AbstractResourceAssociator<TO> {
 
     @Autowired
     private RealmDAO realmDAO;
