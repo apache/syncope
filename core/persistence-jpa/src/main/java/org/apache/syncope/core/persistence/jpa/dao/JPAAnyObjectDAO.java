@@ -58,7 +58,7 @@ import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAARelationship
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAURelationship;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -66,11 +66,27 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObjectDAO {
 
-    @Autowired
     private UserDAO userDAO;
 
-    @Autowired
     private GroupDAO groupDAO;
+
+    private UserDAO userDAO() {
+        synchronized (this) {
+            if (userDAO == null) {
+                userDAO = ApplicationContextProvider.getApplicationContext().getBean(UserDAO.class);
+            }
+        }
+        return userDAO;
+    }
+
+    private GroupDAO groupDAO() {
+        synchronized (this) {
+            if (groupDAO == null) {
+                groupDAO = ApplicationContextProvider.getApplicationContext().getBean(GroupDAO.class);
+            }
+        }
+        return groupDAO;
+    }
 
     @Override
     public Map<AnyType, Integer> countByType() {
@@ -182,7 +198,7 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
     public AnyObject save(final AnyObject anyObject) {
         AnyObject merged = super.save(anyObject);
 
-        groupDAO.refreshDynMemberships(merged);
+        groupDAO().refreshDynMemberships(merged);
 
         return merged;
     }
@@ -201,7 +217,7 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
         }
         for (URelationship relationship : findURelationships(any)) {
             relationship.getLeftEnd().getRelationships().remove(relationship);
-            userDAO.save(relationship.getLeftEnd());
+            userDAO().save(relationship.getLeftEnd());
 
             entityManager().remove(relationship);
         }
@@ -227,7 +243,7 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
                     ? (String) ((Object[]) key)[0]
                     : ((String) key);
 
-            Group group = groupDAO.find(actualKey);
+            Group group = groupDAO().find(actualKey);
             if (group == null) {
                 LOG.error("Could not find group with id {}, even though returned by the native query", actualKey);
             } else if (!result.contains(group)) {

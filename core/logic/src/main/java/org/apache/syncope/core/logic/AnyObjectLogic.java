@@ -31,23 +31,22 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.patch.StringPatchItem;
-import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
+import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.AnyEntitlement;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PatchOperation;
-import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
+import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
-import org.apache.syncope.core.provisioning.api.AnyObjectProvisioningManager;
-import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
-import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
+import org.apache.syncope.core.provisioning.api.AnyObjectProvisioningManager;
 import org.apache.syncope.core.provisioning.api.LogicActions;
+import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,9 +57,6 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Component
 public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch> {
-
-    @Autowired
-    protected AnyObjectDAO anyObjectDAO;
 
     @Autowired
     protected AnySearchDAO searchDAO;

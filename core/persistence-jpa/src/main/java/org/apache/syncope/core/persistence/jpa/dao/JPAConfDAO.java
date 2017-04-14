@@ -29,7 +29,7 @@ import org.apache.syncope.core.persistence.jpa.entity.conf.JPACPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.conf.JPACPlainAttrUniqueValue;
 import org.apache.syncope.core.persistence.jpa.entity.conf.JPACPlainAttrValue;
 import org.apache.syncope.core.persistence.jpa.entity.conf.JPAConf;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,8 +38,16 @@ public class JPAConfDAO extends AbstractDAO<Conf> implements ConfDAO {
 
     private static final String KEY = "cd64d66f-6fff-4008-b966-a06b1cc1436d";
 
-    @Autowired
     private PlainSchemaDAO schemaDAO;
+
+    private PlainSchemaDAO schemaDAO() {
+        synchronized (this) {
+            if (schemaDAO == null) {
+                schemaDAO = ApplicationContextProvider.getApplicationContext().getBean(PlainSchemaDAO.class);
+            }
+        }
+        return schemaDAO;
+    }
 
     @Override
     public Conf get() {
@@ -65,10 +73,10 @@ public class JPAConfDAO extends AbstractDAO<Conf> implements ConfDAO {
     public CPlainAttr find(final String key, final String defaultValue) {
         CPlainAttr result = find(key);
         if (result == null) {
-            PlainSchema schema = schemaDAO.find(key);
+            PlainSchema schema = schemaDAO().find(key);
             if (schema != null) {
                 JPACPlainAttr newAttr = new JPACPlainAttr();
-                newAttr.setSchema(schemaDAO.find(key));
+                newAttr.setSchema(schema);
 
                 PlainAttrValue attrValue;
                 if (newAttr.getSchema().isUniqueConstraint()) {

@@ -43,7 +43,7 @@ under the License.
   <!-- Use JNDI datasource as default but, when not available, revert to
   local datasource, with different properties for execution and testing. 
   In any case, get all JDBC connections with a determined isolation level. -->
-  <bean id="TwoDataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+  <bean id="TwoDataSource" class="org.springframework.jndi.JndiObjectFactoryBean" primary="true">
     <property name="jndiName" value="java:comp/env/jdbc/syncopeTwoDataSource"/>
     <property name="defaultObject" ref="localTwoDataSource"/>
   </bean>
