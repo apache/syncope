@@ -24,7 +24,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope</groupId>
     <artifactId>syncope</artifactId>
-    <version>2.0.3-SNAPSHOT</version>
+    <version>2.0.3</version>
   </parent>
 
   <name>Apache Syncope Standalone Distribution</name>
@@ -142,8 +142,7 @@ under the License.
                 <copy todir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope/WEB-INF/classes" overwrite="true">
                   <fileset dir="${project.build.outputDirectory}/core" />
                 </copy>
-                <copy file="../fit/core-reference/target/test-classes/keystore"
-                      todir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope/WEB-INF/classes" overwrite="true"/>
+                <copy file="../fit/core-reference/target/test-classes/keystore" todir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope/WEB-INF/classes" overwrite="true" />
 
                 <!-- Syncope console -->
                 <copy todir="${work.dir}/apache-tomcat-${tomcat.version}/webapps/syncope-console">
