@@ -21,22 +21,23 @@ package org.apache.syncope.client.enduser.pages;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.commons.Constants;
 import org.apache.wicket.markup.html.WebPage;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 public class Logout extends WebPage {
 
     private static final long serialVersionUID = -4514869014471715933L;
 
-    public Logout() {
-        super();
+    public Logout(final PageParameters parameters) {
+        super(parameters);
 
         @SuppressWarnings("unchecked")
         Class<? extends WebPage> beforeLogout = (Class<? extends WebPage>) SyncopeEnduserSession.get().
                 getAttribute(Constants.BEFORE_LOGOUT);
         if (beforeLogout == null) {
             SyncopeEnduserSession.get().invalidateNow();
-            setResponsePage(getApplication().getHomePage());
+            setResponsePage(getApplication().getHomePage(), getPageParameters());
         } else {
-            setResponsePage(beforeLogout);
+            setResponsePage(beforeLogout, getPageParameters());
         }
     }
 }

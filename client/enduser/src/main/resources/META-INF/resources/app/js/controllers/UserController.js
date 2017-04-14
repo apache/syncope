@@ -23,9 +23,10 @@
 
 angular.module("self").controller("UserController", ['$scope', '$rootScope', '$location', "$state",
   'UserSelfService', 'SchemaService', 'RealmService', 'ResourceService', 'SecurityQuestionService',
-  'GroupService', 'AnyService', 'UserUtil', 'GenericUtil', 'ValidationExecutor', '$translate',
+  'GroupService', 'AnyService', 'UserUtil', 'GenericUtil', 'ValidationExecutor', '$translate', '$filter',
   function ($scope, $rootScope, $location, $state, UserSelfService, SchemaService, RealmService,
-          ResourceService, SecurityQuestionService, GroupService, AnyService, UserUtil, GenericUtil, ValidationExecutor, $translate) {
+          ResourceService, SecurityQuestionService, GroupService, AnyService, UserUtil, GenericUtil, ValidationExecutor,
+          $translate, $filter) {
 
     $scope.user = {};
     $scope.confirmPassword = {
@@ -228,7 +229,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
             return x < y ? -1 : x > y ? 1 : 0;
           });
         }, function (e) {
-          $scope.showError("An error occur during retrieving groups " + e, $scope.notification);
+          $scope.showError("An error occur while retrieving groups " + e, $scope.notification);
         });
       };
 
@@ -248,10 +249,10 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
               }
             }
           }, function (e) {
-            $scope.showError("An error occur during retrieving auxiliary classes " + e, $scope.notification);
+            $scope.showError("An error occur while retrieving auxiliary classes " + e, $scope.notification);
           });
         }, function (e) {
-          $scope.showError("An error occur during retrieving auxiliary classes " + e, $scope.notification);
+          $scope.showError("An error occur while retrieving auxiliary classes " + e, $scope.notification);
         });
       };
 
@@ -302,7 +303,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
             initProperties();
           }
         }, function (e) {
-          console.error("Error during user read ", e);
+          console.error("Error while user read ", e);
         });
       };
 
@@ -401,10 +402,14 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
       var wrappedUser = UserUtil.getWrappedUser(user);
       if ($scope.createMode) {
         UserSelfService.create(wrappedUser, $scope.captchaInput.value).then(function (response) {
-          console.debug("User " + $scope.user.username + " SUCCESSFULLY_CREATED");
+          console.debug("User " + $scope.user.username + " successfully CREATED");
           $rootScope.currentUser = $scope.user.username;
           $rootScope.currentOp = "SUCCESSFULLY_CREATED";
-          $state.go('success');
+          $scope.success({successMessage: $filter('translate')(["USER"]).USER
+                    + " "
+                    + $scope.user.username
+                    + " "
+                    + $filter('translate')(["SUCCESSFULLY_CREATED"]).SUCCESSFULLY_CREATED});
         }, function (response) {
           console.error("Error during user creation: ", response);
           var errorMessage;
@@ -417,12 +422,14 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
         });
       } else {
         UserSelfService.update(wrappedUser, $scope.captchaInput.value).then(function (response) {
-          console.debug("User " + $scope.user.username + " SUCCESSFULLY_UPDATED");
+          console.debug("User " + $scope.user.username + " successfully UPDATED");
           $rootScope.currentUser = $scope.user.username;
           $rootScope.currentOp = "SUCCESSFULLY_UPDATED";
-          $state.go('success');
-
-          $scope.logout();
+          $scope.logout({successMessage: $filter('translate')(["USER"]).USER
+                    + " "
+                    + $scope.user.username
+                    + " "
+                    + $filter('translate')(["SUCCESSFULLY_UPDATED"]).SUCCESSFULLY_UPDATED});
         }, function (response) {
           console.info("Error during user update: ", response);
           var errorMessage;
@@ -541,10 +548,21 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
       kendo.culture($rootScope.languages.selectedLanguage.code);
     };
 
-    $scope.logout = function () {
+    $scope.logout = function (params) {
       $translate.use($scope.languages.selectedLanguage.code);
       $rootScope.endReached = false;
-      window.location.href = '../wicket/bookmarkable/org.apache.syncope.client.enduser.pages.Logout';
+      var destination = params && params.successMessage
+              ? '../wicket/bookmarkable/org.apache.syncope.client.enduser.pages.Logout?successMessage=' + params.successMessage
+              : '../wicket/bookmarkable/org.apache.syncope.client.enduser.pages.Logout';
+      window.location.href = destination;
+    };
+
+    $scope.success = function (params) {
+      $rootScope.endReached = false;
+      var destination = params && params.successMessage
+              ? '../wicket/bookmarkable/org.apache.syncope.client.enduser.pages.HomePage?successMessage=' + params.successMessage
+              : '../wicket/bookmarkable/org.apache.syncope.client.enduser.pages.HomePage';
+      window.location.href = destination;
     };
 
     $scope.redirect = function () {

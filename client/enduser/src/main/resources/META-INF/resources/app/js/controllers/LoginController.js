@@ -67,21 +67,15 @@ angular.module("login").controller("LoginController", ['$scope', '$rootScope', '
     $scope.passwordReset = function () {
       $location.path("/passwordreset");
     };
-    $scope.errorAPI = function () {
-      $http.get("/syncope-enduser/api/error").success(function (data) {
-        console.debug("errorAPI response: ", data);
-      });
-    };
-    $scope.sampleAPI = function () {
-      $http.get("/syncope-enduser/api/user-self").success(function (data) {
-        console.debug("sampleAPI response: ", data);
-      });
-    };
-    $scope.schemaAPI = function () {
-      $http.get("/syncope-enduser/api/schema").success(function (data) {
-        console.debug("schemaAPI response: ", data);
-      });
-    };
+    $scope.$watch(function () {
+      return $location.search().successMessage;
+    }, function (successMessage) {
+      if (successMessage) {
+        var message = (' ' + successMessage).slice(1);
+        $scope.showSuccess(message, $scope.notification);
+        delete $location.$$search.successMessage;
+      }
+    });
     $scope.$watch(function () {
       return $location.search().errorMessage;
     }, function (errorMessage) {
