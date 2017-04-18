@@ -995,7 +995,17 @@ under the License.
           </exclusion>
         </exclusions>
       </dependency>
-            
+      <dependency>
+        <groupId>org.apache.xmlgraphics</groupId>
+        <artifactId>batik-i18n</artifactId>
+        <version>1.9</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.xmlgraphics</groupId>
+        <artifactId>batik-constants</artifactId>
+        <version>1.9</version>
+      </dependency>
+
       <!-- Activiti -->
       <dependency>
         <groupId>org.activiti</groupId>
