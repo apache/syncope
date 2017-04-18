@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.core.rest.cxf;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URL;
 import java.rmi.ServerException;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,7 +39,7 @@ import org.apache.cocoon.sax.component.XMLGenerator;
 import org.apache.cocoon.sax.component.XMLSerializer;
 import org.apache.cocoon.sax.component.XSLTTransformer;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.core.spring.ApplicationContextProvider;
 
 public class WADLServlet extends HttpServlet {
 
@@ -73,10 +73,11 @@ public class WADLServlet extends HttpServlet {
 
         Matcher schemaMatcher = SCHEMA_PATTERN.matcher(request.getServletPath());
 
+        WadlGenerator wadlGenerator = ApplicationContextProvider.getApplicationContext().getBean(WadlGenerator.class);
+        String wadl = wadlGenerator.getWadl();
+
         Pipeline<SAXPipelineComponent> pipeline = new CachingPipeline<>();
-        String wadlURL = StringUtils.substringBeforeLast(request.getRequestURL().toString(), "/")
-                + "/rest/?_wadl";
-        pipeline.addComponent(new XMLGenerator(new URL(wadlURL)));
+        pipeline.addComponent(new XMLGenerator(wadl));
         if ("/index.html".equals(request.getServletPath())) {
             XSLTTransformer xslt = new XSLTTransformer(getClass().getResource("/wadl2html/index.xsl"));
 
@@ -102,7 +103,7 @@ public class WADLServlet extends HttpServlet {
         } else if ("/syncope.wadl".equals(request.getServletPath())) {
             response.setContentType(MediaType.APPLICATION_XML);
 
-            InputStream in = new URL(wadlURL).openStream();
+            InputStream in = new ByteArrayInputStream(wadl.getBytes());
             OutputStream out = response.getOutputStream();
             try {
                 IOUtils.copy(in, out);
