@@ -22,14 +22,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeListener;
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.prefs.Preferences;
 import javax.swing.Action;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -40,8 +41,11 @@ import javax.swing.text.JTextComponent;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.MailTemplateTO;
 import org.apache.syncope.common.lib.to.ReportTemplateTO;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.MailTemplateFormat;
 import org.apache.syncope.common.lib.types.ReportTemplateFormat;
 import org.apache.syncope.ide.netbeans.PluginConstants;
@@ -60,6 +64,7 @@ import org.openide.filesystems.FileUtil;
 import org.openide.loaders.DataObject;
 import org.openide.util.Cancellable;
 import org.openide.util.Exceptions;
+import org.openide.util.NbPreferences;
 import org.openide.util.RequestProcessor;
 import org.openide.windows.TopComponent;
 
@@ -85,6 +90,8 @@ import org.openide.windows.TopComponent;
 public final class ResourceExplorerTopComponent extends TopComponent {
 
     private static final long serialVersionUID = -1643737786852621861L;
+
+    public static final Logger LOG = Logger.getLogger("ResourceExplorerTopComponent");
 
     private final DefaultTreeModel treeModel;
 
@@ -196,15 +203,21 @@ public final class ResourceExplorerTopComponent extends TopComponent {
 
     @Override
     public void componentOpened() {
-        File file = new File("UserData.txt");
-        if (!file.exists()) {
+        // look for connection preferences
+        Preferences prefs = NbPreferences.forModule(ResourceExplorerTopComponent.class);
+        if (StringUtils.isBlank(prefs.get("scheme", null))
+                || StringUtils.isBlank(prefs.get("host", null))
+                || StringUtils.isBlank(prefs.get("port", null))
+                || StringUtils.isBlank(prefs.get("username", null))
+                || StringUtils.isBlank(prefs.get("password", null))) {
             new ServerDetailsView(null, true).setVisible(true);
         }
         try {
             mailTemplateManagerService = ResourceConnector.getMailTemplateManagerService();
             reportTemplateManagerService = ResourceConnector.getReportTemplateManagerService();
         } catch (IOException e) {
-            JOptionPane.showMessageDialog(null, "Error Occured.", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, e.getMessage(), "Error while retrieving templates",
+                    JOptionPane.ERROR_MESSAGE);
             new ServerDetailsView(null, true).setVisible(true);
         }
 
@@ -316,21 +329,23 @@ public final class ResourceExplorerTopComponent extends TopComponent {
 
             @Override
             public void actionPerformed(final ActionEvent evt) {
-                File file = new File("UserData.txt");
-                try {
-                    BufferedReader bf = new BufferedReader(new FileReader(file));
-                    String host = bf.readLine();
-                    String userName = bf.readLine();
-                    String password = bf.readLine();
-                    ServerDetailsView serverDetails = new ServerDetailsView(null, true);
-                    serverDetails.setDetails(host, userName, password);
-                    serverDetails.setVisible(true);
-                } catch (IOException e) {
-                    Exceptions.printStackTrace(e);
-                }
+                ServerDetailsView serverDetails = new ServerDetailsView(null, true);
+                // set previous preferences
+                Preferences prefs = NbPreferences.forModule(ResourceExplorerTopComponent.class);
+                serverDetails.setDetails(prefs.get("scheme", "http"),
+                        prefs.get("host", "localhost"),
+                        prefs.get("port", "8080"),
+                        prefs.get("username", StringUtils.EMPTY),
+                        prefs.get("password", StringUtils.EMPTY));
+                // reset connection preferences
+                prefs.remove("scheme");
+                prefs.remove("host");
+                prefs.remove("port");
+                prefs.remove("username");
+                prefs.remove("password");
+                serverDetails.setVisible(true);
             }
         });
-
         menu.show(evt.getComponent(), evt.getX(), evt.getY());
     }
 
@@ -431,75 +446,117 @@ public final class ResourceExplorerTopComponent extends TopComponent {
         String formatStr = (String) JOptionPane.showInputDialog(null, "Select File Format",
                 "File format", JOptionPane.QUESTION_MESSAGE, null,
                 PluginConstants.MAIL_TEMPLATE_FORMATS, MailTemplateFormat.TEXT.name());
-        MailTemplateFormat format = MailTemplateFormat.valueOf(formatStr);
 
-        String type = null;
-        InputStream is = null;
-        switch (format) {
-            case HTML:
-                type = "html";
-                is = (InputStream) mailTemplateManagerService.getFormat(name, MailTemplateFormat.HTML);
-                break;
-            case TEXT:
-                type = "txt";
-                is = (InputStream) mailTemplateManagerService.getFormat(name, MailTemplateFormat.TEXT);
-                break;
-            default:
-                break;
-        }
-        String content = IOUtils.toString(is, encodingPattern);
+        if (StringUtils.isNotBlank(formatStr)) {
 
-        File directory = new File("Template/Mail");
-        if (!directory.exists()) {
-            directory.mkdirs();
+            MailTemplateFormat format = MailTemplateFormat.valueOf(formatStr);
+            String type = null;
+            InputStream is = null;
+
+            try {
+                switch (format) {
+                    case HTML:
+                        type = "html";
+                        is = (InputStream) mailTemplateManagerService.getFormat(name, MailTemplateFormat.HTML);
+                        break;
+                    case TEXT:
+                        type = "txt";
+                        is = (InputStream) mailTemplateManagerService.getFormat(name, MailTemplateFormat.TEXT);
+                        break;
+                    default:
+                        LOG.log(Level.SEVERE, String.format("Format [%s] not supported", format));
+                        break;
+                }
+            } catch (SyncopeClientException e) {
+                LOG.log(Level.SEVERE,
+                        String.format("Unable to get [%s] mail template in [%s] format", name, format), e);
+                if (ClientExceptionType.NotFound.equals(e.getType())) {
+                    LOG.log(Level.SEVERE, String.format(
+                            "Report template in [%s] format not found, create an empty one", format));
+                } else {
+                    JOptionPane.showMessageDialog(
+                            null, String.format("Unable to get [%s] report template in [%s] format", name, format),
+                            "Connection Error", JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (Exception e) {
+                LOG.log(Level.SEVERE,
+                        String.format("Unable to get [%s] mail template in [%s] format", name, format), e);
+                JOptionPane.showMessageDialog(
+                        null, String.format("Unable to get [%s] mail template in [%s] format", name, format), "Error",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+            String content = is == null ? StringUtils.EMPTY : IOUtils.toString(is, encodingPattern);
+
+            File directory = new File("Template/Mail");
+            if (!directory.exists()) {
+                directory.mkdirs();
+            }
+            File file = new File("Template/Mail/" + name + "." + type);
+            FileWriter fw = new FileWriter(file);
+            fw.write(content);
+            fw.flush();
+            FileObject fob = FileUtil.toFileObject(file.getAbsoluteFile());
+            fob.setAttribute("description", "TEXT");
+            DataObject data = DataObject.find(fob);
+            data.getLookup().lookup(OpenCookie.class).open();
         }
-        File file = new File("Template/Mail/" + name + "." + type);
-        FileWriter fw = new FileWriter(file);
-        fw.write(content);
-        fw.flush();
-        FileObject fob = FileUtil.toFileObject(file.getAbsoluteFile());
-        fob.setAttribute("description", "TEXT");
-        DataObject data = DataObject.find(fob);
-        data.getLookup().lookup(OpenCookie.class).open();
     }
 
     private void openReportEditor(final String name) throws IOException {
         String formatStr = (String) JOptionPane.showInputDialog(null, "Select File Format",
                 "File format", JOptionPane.QUESTION_MESSAGE, null,
                 PluginConstants.REPORT_TEMPLATE_FORMATS, ReportTemplateFormat.FO.name());
-        ReportTemplateFormat format = ReportTemplateFormat.valueOf(formatStr);
+        if (StringUtils.isNotBlank(formatStr)) {
+            ReportTemplateFormat format = ReportTemplateFormat.valueOf(formatStr);
 
-        String type = null;
-        InputStream is = null;
-        switch (format) {
-            case HTML:
-                type = "html";
-                is = (InputStream) reportTemplateManagerService.getFormat(name, ReportTemplateFormat.HTML);
-                break;
-            case CSV:
-                type = "csv";
-                is = (InputStream) reportTemplateManagerService.getFormat(name, ReportTemplateFormat.CSV);
-                break;
-            case FO:
-                type = "fo";
-                is = (InputStream) reportTemplateManagerService.getFormat(name, ReportTemplateFormat.FO);
-                break;
-            default:
-                break;
-        }
-        String content = IOUtils.toString(is, encodingPattern);
+            InputStream is = null;
+            try {
+                switch (format) {
+                    case HTML:
+                        is = (InputStream) reportTemplateManagerService.getFormat(name, ReportTemplateFormat.HTML);
+                        break;
+                    case CSV:
+                        is = (InputStream) reportTemplateManagerService.getFormat(name, ReportTemplateFormat.CSV);
+                        break;
+                    case FO:
+                        is = (InputStream) reportTemplateManagerService.getFormat(name, ReportTemplateFormat.FO);
+                        break;
+                    default:
+                        LOG.log(Level.SEVERE, String.format("Format [%s] not supported", format));
+                        break;
+                }
+            } catch (SyncopeClientException e) {
+                LOG.log(Level.SEVERE, String.format("Unable to get [%s] report template in [%s] format", name, format),
+                        e);
+                if (ClientExceptionType.NotFound.equals(e.getType())) {
+                    LOG.log(Level.SEVERE, String.format(
+                            "Report template [%s] not found, create an empty one", name));
+                } else {
+                    JOptionPane.showMessageDialog(
+                            null, String.format("Unable to get [%s] report template in [%s] format", name, format),
+                            "Connection Error", JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (Exception e) {
+                LOG.log(Level.SEVERE, String.format("Unable to get [%s] report template in [%s] format", name, format),
+                        e);
+                JOptionPane.showMessageDialog(
+                        null, String.format("Unable to get [%s] report template in [%s] format", name, format),
+                        "Generic Error", JOptionPane.ERROR_MESSAGE);
+            }
+            String content = is == null ? StringUtils.EMPTY : IOUtils.toString(is, encodingPattern);
 
-        File directory = new File("Template/Report");
-        if (!directory.exists()) {
-            directory.mkdirs();
+            File directory = new File("Template/Report");
+            if (!directory.exists()) {
+                directory.mkdirs();
+            }
+            File file = new File("Template/Report/" + name + "." + format.name().toLowerCase());
+            FileWriter fw = new FileWriter(file);
+            fw.write(content);
+            fw.flush();
+            FileObject fob = FileUtil.toFileObject(file.getAbsoluteFile());
+            DataObject data = DataObject.find(fob);
+            data.getLookup().lookup(OpenCookie.class).open();
         }
-        File file = new File("Template/Report/" + name + "." + type);
-        FileWriter fw = new FileWriter(file);
-        fw.write(content);
-        fw.flush();
-        FileObject fob = FileUtil.toFileObject(file.getAbsoluteFile());
-        DataObject data = DataObject.find(fob);
-        data.getLookup().lookup(OpenCookie.class).open();
     }
 
     private void saveContent() {

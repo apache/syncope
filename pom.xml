@@ -1907,17 +1907,6 @@ under the License.
           <version>4.1</version>
         </plugin>
 
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>nbm-maven-plugin</artifactId>
-          <version>4.1</version>
-        </plugin>
-
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>nbm-maven-plugin</artifactId>
-          <version>4.1</version>
-        </plugin>
       </plugins>
     </pluginManagement>
 
