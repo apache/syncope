@@ -442,7 +442,7 @@ under the License.
     <ianal-maven-plugin-version>1.0-alpha-1</ianal-maven-plugin-version>
     <maven-jar-plugin-version>3.0.0</maven-jar-plugin-version>
 
-    <tycho-version>1.0.0</tycho-version>
+    <tycho.version>1.0.0</tycho.version>
     <netbeans.version>RELEASE82</netbeans.version>
 
     <testds.port>1389</testds.port>
@@ -567,10 +567,10 @@ under the License.
         <version>${cxf.version}</version>
       </dependency>
       <dependency>
-	<groupId>org.apache.cxf</groupId>
-	<artifactId>cxf-rt-rs-security-sso-saml</artifactId>
-	<version>${cxf.version}</version>
-	<exclusions>
+        <groupId>org.apache.cxf</groupId>
+        <artifactId>cxf-rt-rs-security-sso-saml</artifactId>
+        <version>${cxf.version}</version>
+        <exclusions>
           <exclusion>
             <groupId>org.opensaml</groupId>
             <artifactId>opensaml-xacml-impl</artifactId>
@@ -579,26 +579,26 @@ under the License.
             <groupId>org.opensaml</groupId>
             <artifactId>opensaml-xacml-saml-impl</artifactId>
           </exclusion>
-	  <exclusion>
+          <exclusion>
             <groupId>org.apache.wss4j</groupId>
             <artifactId>wss4j-ws-security-dom</artifactId>
-	  </exclusion>
-	</exclusions>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
-	<groupId>org.apache.wss4j</groupId>
+        <groupId>org.apache.wss4j</groupId>
         <artifactId>wss4j-ws-security-dom</artifactId>
-	<version>2.1.9</version>
-	<exclusions>
-	  <exclusion>
-	    <groupId>org.jasypt</groupId>
-	    <artifactId>jasypt</artifactId>
-	  </exclusion>
+        <version>2.1.9</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.jasypt</groupId>
+            <artifactId>jasypt</artifactId>
+          </exclusion>
           <exclusion>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-javamail_1.4_spec</artifactId>
           </exclusion>
-	</exclusions>
+        </exclusions>
       </dependency>
       <!-- /CXF -->
 
@@ -1456,16 +1456,6 @@ under the License.
         <groupId>org.netbeans.api</groupId>
         <artifactId>org-netbeans-modules-settings</artifactId>
         <version>${netbeans.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.syncope.common</groupId>
-        <artifactId>syncope-common-lib</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.syncope.client</groupId>
-        <artifactId>syncope-client-lib</artifactId>
-        <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>org.netbeans.api</groupId>
