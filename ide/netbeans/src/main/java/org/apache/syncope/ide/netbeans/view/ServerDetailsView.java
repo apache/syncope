@@ -170,6 +170,8 @@ public class ServerDetailsView extends JDialog {
             prefs.put("port", portTxt.getText());
             prefs.put("username", userNameTxt.getText());
             prefs.put("password", new String(passwordTxt.getPassword()));
+            // send event on conn params changed
+            prefs.putBoolean("reloadConnection", true);
             // dismiss panel
             this.dispose();
         } else {

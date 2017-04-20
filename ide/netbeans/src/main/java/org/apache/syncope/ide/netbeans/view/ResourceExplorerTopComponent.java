@@ -18,20 +18,29 @@
  */
 package org.apache.syncope.ide.netbeans.view;
 
+import static org.apache.syncope.common.lib.types.MailTemplateFormat.TEXT;
+import static org.apache.syncope.common.lib.types.ReportTemplateFormat.CSV;
+import static org.apache.syncope.common.lib.types.ReportTemplateFormat.FO;
+import static org.apache.syncope.common.lib.types.ReportTemplateFormat.HTML;
+
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.ConnectException;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.Preferences;
 import javax.swing.Action;
+import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
@@ -97,6 +106,8 @@ public final class ResourceExplorerTopComponent extends TopComponent {
 
     private final DefaultMutableTreeNode root;
 
+    private DefaultMutableTreeNode visibleRoot;
+
     private final DefaultMutableTreeNode mailTemplates;
 
     private final DefaultMutableTreeNode reportXslts;
@@ -110,12 +121,12 @@ public final class ResourceExplorerTopComponent extends TopComponent {
     public ResourceExplorerTopComponent() {
 
         initComponents();
-        setName(PluginConstants.DISPLAY_NAME);
+        setName(PluginConstants.ROOT_NAME);
         setToolTipText(PluginConstants.TOOL_TIP_TEXT);
 
         treeModel = (DefaultTreeModel) resourceExplorerTree.getModel();
         root = (DefaultMutableTreeNode) treeModel.getRoot();
-        DefaultMutableTreeNode visibleRoot = new DefaultMutableTreeNode(PluginConstants.DISPLAY_NAME);
+        visibleRoot = new DefaultMutableTreeNode(PluginConstants.ROOT_NAME);
         mailTemplates = new DefaultMutableTreeNode(PluginConstants.MAIL_TEMPLATE);
         reportXslts = new DefaultMutableTreeNode(PluginConstants.REPORT_XSLTS);
         root.add(visibleRoot);
@@ -159,6 +170,17 @@ public final class ResourceExplorerTopComponent extends TopComponent {
     }// </editor-fold>//GEN-END:initComponents
     //CHECKSTYLE:ON
 
+    @Override
+    public Image getIcon() {
+        return new ImageIcon(getClass().getResource("/org/apache/syncope/ide/netbeans/view/favicon.png")).getImage();
+    }
+
+    private void initTemplatesTree() {
+        visibleRoot.add(mailTemplates);
+        visibleRoot.add(reportXslts);
+        treeModel.reload();
+    }
+    
     private void resourceExplorerTreeMouseClicked(final java.awt.event.MouseEvent evt) {
         if (evt.getButton() == MouseEvent.BUTTON1 && evt.getClickCount() == 2) {
             DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) resourceExplorerTree.
@@ -190,7 +212,7 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                 folderRightClickAction(evt, mailTemplates);
             } else if (selectedNodeName.equals(PluginConstants.REPORT_XSLTS)) {
                 folderRightClickAction(evt, reportXslts);
-            } else if (selectedNodeName.equals(PluginConstants.DISPLAY_NAME)) {
+            } else if (selectedNodeName.equals(PluginConstants.ROOT_NAME)) {
                 rootRightClickAction(evt);
             }
         }
@@ -203,7 +225,7 @@ public final class ResourceExplorerTopComponent extends TopComponent {
 
     @Override
     public void componentOpened() {
-        // look for connection preferences
+        //connection params mgmt
         Preferences prefs = NbPreferences.forModule(ResourceExplorerTopComponent.class);
         if (StringUtils.isBlank(prefs.get("scheme", null))
                 || StringUtils.isBlank(prefs.get("host", null))
@@ -215,69 +237,21 @@ public final class ResourceExplorerTopComponent extends TopComponent {
         try {
             mailTemplateManagerService = ResourceConnector.getMailTemplateManagerService();
             reportTemplateManagerService = ResourceConnector.getReportTemplateManagerService();
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(null, e.getMessage(), "Error while retrieving templates",
-                    JOptionPane.ERROR_MESSAGE);
+            initTemplatesTree();
+            loadTemplates();
+        } catch (ConnectException e) {
+            JOptionPane.showMessageDialog(null, e.getMessage(), "Connection Error", JOptionPane.ERROR_MESSAGE);
             new ServerDetailsView(null, true).setVisible(true);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e.getMessage(), "Generic Error", JOptionPane.ERROR_MESSAGE);
+            closeComponent();
         }
 
-        Runnable tsk = new Runnable() {
-
-            @Override
-            public void run() {
-                final ProgressHandle progr = ProgressHandleFactory.createHandle("Loading Templates", new Cancellable() {
-
-                    @Override
-                    public boolean cancel() {
-                        return true;
-                    }
-                }, new Action() {
-
-                    @Override
-                    public Object getValue(final String key) {
-                        return null;
-                    }
-
-                    @Override
-                    public void putValue(final String key, final Object value) {
-                    }
-
-                    @Override
-                    public void setEnabled(final boolean b) {
-                    }
-
-                    @Override
-                    public boolean isEnabled() {
-                        return false;
-                    }
-
-                    @Override
-                    public void addPropertyChangeListener(final PropertyChangeListener listener) {
-                    }
-
-                    @Override
-                    public void removePropertyChangeListener(final PropertyChangeListener listener) {
-                    }
-
-                    @Override
-                    public void actionPerformed(final ActionEvent e) {
-                    }
-                });
-
-                progr.start();
-                progr.progress("Loading Templates.");
-                addMailTemplates();
-                addReportXslts();
-                progr.finish();
-            }
-
-        };
-        RequestProcessor.getDefault().post(tsk);
     }
 
     @Override
     public void componentClosed() {
-        // TODO add custom code on component closing
+        resetTree();
     }
 
     void writeProperties(final java.util.Properties p) {
@@ -295,8 +269,7 @@ public final class ResourceExplorerTopComponent extends TopComponent {
     private void addMailTemplates() {
         List<MailTemplateTO> mailTemplateList = mailTemplateManagerService.list();
         for (MailTemplateTO mailTemplate : mailTemplateList) {
-            this.mailTemplates.add(new DefaultMutableTreeNode(
-                    mailTemplate.getKey()));
+            this.mailTemplates.add(new DefaultMutableTreeNode(mailTemplate.getKey()));
         }
         treeModel.reload();
     }
@@ -304,8 +277,7 @@ public final class ResourceExplorerTopComponent extends TopComponent {
     private void addReportXslts() {
         List<ReportTemplateTO> reportTemplates = reportTemplateManagerService.list();
         for (ReportTemplateTO reportTemplate : reportTemplates) {
-            reportXslts.add(new DefaultMutableTreeNode(
-                    reportTemplate.getKey()));
+            reportXslts.add(new DefaultMutableTreeNode(reportTemplate.getKey()));
         }
         treeModel.reload();
     }
@@ -499,6 +471,17 @@ public final class ResourceExplorerTopComponent extends TopComponent {
             fob.setAttribute("description", "TEXT");
             DataObject data = DataObject.find(fob);
             data.getLookup().lookup(OpenCookie.class).open();
+            data.addPropertyChangeListener(new PropertyChangeListener() {
+
+                @Override
+                public void propertyChange(final PropertyChangeEvent evt) {
+                    if (DataObject.PROP_MODIFIED.equals(evt.getPropertyName())) {
+                        //save item remotely
+                        LOG.info("Saving Mail template");
+                        saveContent();
+                    }
+                }
+            });
         }
     }
 
@@ -556,15 +539,26 @@ public final class ResourceExplorerTopComponent extends TopComponent {
             FileObject fob = FileUtil.toFileObject(file.getAbsoluteFile());
             DataObject data = DataObject.find(fob);
             data.getLookup().lookup(OpenCookie.class).open();
+            data.addPropertyChangeListener(new PropertyChangeListener() {
+
+                @Override
+                public void propertyChange(final PropertyChangeEvent evt) {
+                    if (DataObject.PROP_MODIFIED.equals(evt.getPropertyName())) {
+                        //save item remotely
+                        LOG.info("Saving Report template");
+                        saveContent();
+                    }
+                }
+            });
         }
     }
 
     private void saveContent() {
         try {
-            JTextComponent ed = EditorRegistry.lastFocusedComponent();
-            Document document = ed.getDocument();
-            String content = document.getText(0, document.getLength());
-            String path = (String) document.getProperty(Document.TitleProperty);
+            JTextComponent lastFocusedDoc = EditorRegistry.lastFocusedComponent();
+            Document doc = lastFocusedDoc.getDocument();
+            String content = doc.getText(0, doc.getLength());
+            String path = (String) doc.getProperty(Document.TitleProperty);
             String[] temp = path.split(File.separator);
             String name = temp[temp.length - 1];
             String templateType = temp[temp.length - 2];
@@ -598,6 +592,76 @@ public final class ResourceExplorerTopComponent extends TopComponent {
         } catch (BadLocationException e) {
             Exceptions.printStackTrace(e);
         }
+    }
+
+    private void loadTemplates() {
+        LOG.info("Loading Apache Syncope templates...");
+        Runnable tsk = new Runnable() {
+
+            @Override
+            public void run() {
+                final ProgressHandle progr = ProgressHandleFactory.createHandle("Loading Templates", new Cancellable() {
+
+                    @Override
+                    public boolean cancel() {
+                        return true;
+                    }
+                }, new Action() {
+
+                    @Override
+                    public Object getValue(final String key) {
+                        return null;
+                    }
+
+                    @Override
+                    public void putValue(final String key, final Object value) {
+                    }
+
+                    @Override
+                    public void setEnabled(final boolean b) {
+                    }
+
+                    @Override
+                    public boolean isEnabled() {
+                        return false;
+                    }
+
+                    @Override
+                    public void addPropertyChangeListener(final PropertyChangeListener listener) {
+                    }
+
+                    @Override
+                    public void removePropertyChangeListener(final PropertyChangeListener listener) {
+                    }
+
+                    @Override
+                    public void actionPerformed(final ActionEvent e) {
+                    }
+                });
+
+                progr.start();
+                progr.progress("Loading Templates.");
+                addMailTemplates();
+                addReportXslts();
+                progr.finish();
+            }
+
+        };
+        RequestProcessor.getDefault().post(tsk);
+    }
+
+    private void closeComponent() {
+        boolean isClosed = this.close();
+        if (!isClosed) {
+            LOG.log(Level.SEVERE, "Unable to close {0}", getClass().getSimpleName());
+        }
+    }
+
+    private void resetTree() {
+        visibleRoot.removeAllChildren();
+        mailTemplates.removeAllChildren();
+        reportXslts.removeAllChildren();
+        treeModel.reload();
     }
 
 }

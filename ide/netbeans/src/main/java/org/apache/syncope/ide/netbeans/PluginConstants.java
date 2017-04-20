@@ -23,7 +23,7 @@ import org.apache.syncope.common.lib.types.ReportTemplateFormat;
 
 public final class PluginConstants {
 
-    public static final String MAIL_TEMPLATE = "Mail Template";
+    public static final String MAIL_TEMPLATE = "Mail Templates";
 
     public static final String REPORT_XSLTS = "Report XSLTs";
 
@@ -33,9 +33,10 @@ public final class PluginConstants {
     public static final String[] REPORT_TEMPLATE_FORMATS = {
         ReportTemplateFormat.HTML.name(), ReportTemplateFormat.CSV.name(), ReportTemplateFormat.FO.name() };
 
-    public static final String DISPLAY_NAME = "Apache Syncope";
+    public static final String ROOT_NAME = "Apache Syncope";
 
-    public static final String TOOL_TIP_TEXT = "This is a Apache Syncope window";
+    public static final String TOOL_TIP_TEXT = "Templates page, you can create, edit and delete tempates, "
+            + "on save they will be sent to Apache Syncope remote host";
 
     private PluginConstants() {
     }

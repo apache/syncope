@@ -23,8 +23,8 @@ under the License.
     <version>2.0.4-SNAPSHOT</version>
   </parent>
 
-  <name>Apache Syncope IDE Netbeans</name>
-  <description>Apache Syncope IDE Netbeans</description>
+  <name>Apache Syncope Netbeans IDE plugin</name>
+  <description>Apache Syncope Netbeans IDE plugin</description>
   <groupId>org.apache.syncope.ide</groupId>
   <artifactId>syncope-ide-netbeans</artifactId>
 
@@ -130,6 +130,9 @@ under the License.
         <extensions>true</extensions>
         <configuration>
           <useOSGiDependencies>false</useOSGiDependencies>
+          <licenseName>Apache License 2.0</licenseName>
+          <licenseFile>${basedir}/LICENSE</licenseFile>
+          <homePageUrl>http://syncope.apache.org/</homePageUrl>
         </configuration>
       </plugin>
       
@@ -170,6 +173,14 @@ under the License.
     </plugins>
     
     <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>false</filtering>
+        <includes>
+          <include>org/apache/syncope/**/*.png</include>
+        </includes>
+      </resource>
+      
       <resource>
         <directory>${basedir}</directory>
         <targetPath>META-INF</targetPath>
