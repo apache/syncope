@@ -136,14 +136,25 @@ as additional dependencies in `core/pom.xml`, `console/pom.xml` and `enduser/pom
 Replace
 
 ....
-      classpath*:/*Context.xml
+classpath*:/coreContext.xml
+classpath*:/securityContext.xml
+classpath*:/logicContext.xml
+classpath*:/restCXFContext.xml
+classpath*:/persistenceContext.xml
+classpath*:/provisioning*Context.xml
+classpath*:/workflow*Context.xml
 ....
 
 with
 
 ....
-      /WEB-INF/classes/restCXFContext.xml
-      classpath*:/*Context.xml
+classpath*:/coreContext.xml
+classpath*:/securityContext.xml
+classpath*:/logicContext.xml
+classpath*:restCXFContext.xml
+classpath*:/persistenceContext.xml
+classpath*:/provisioning*Context.xml
+classpath*:/workflow*Context.xml
 ....
 
 in `core/src/main/webapp/WEB-INF/web.xml`.

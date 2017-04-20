@@ -243,19 +243,25 @@ endif::[]
 , you will also need to replace the following text in `core/src/main/webapp/WEB-INF/web.xml`,
 
 ....
-classpath*:/*Context.xml
+classpath*:/coreContext.xml
+classpath*:/securityContext.xml
+classpath*:/logicContext.xml
+classpath*:/restCXFContext.xml
+classpath*:/persistenceContext.xml
+classpath*:/provisioning*Context.xml
+classpath*:/workflow*Context.xml
 ....
 
 with
 
 ....
-classpath:/coreContext.xml
+classpath*:/coreContext.xml
 classpath:/securityContext.xml
 classpath*:/logicContext.xml
 classpath*:/restCXFContext.xml
 classpath*:/persistenceContext.xml
-classpath*:/provisioningContext.xml
-classpath*:/workflowContext.xml
+classpath*:/provisioning*Context.xml
+classpath*:/workflow*Context.xml
 ....
 
 to be sure that `core/src/main/resources/securityContext.xml` is picked up. +

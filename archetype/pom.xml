@@ -137,6 +137,7 @@ under the License.
         <directory>../core/persistence-jpa/src/main/resources</directory>
         <excludes>
           <exclude>*Context.xml</exclude>
+          <exclude>domains.xml</exclude>
           <exclude>META-INF/spring-persistence.xml</exclude>
         </excludes>
         <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/main/resources</targetPath>
