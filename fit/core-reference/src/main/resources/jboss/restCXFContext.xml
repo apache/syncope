@@ -99,6 +99,7 @@ under the License.
       <list>
         <value>/WEB-INF/lib/syncope-common-rest-api-${syncope.version}-javadoc.jar</value>
         <value>/WEB-INF/lib/syncope-ext-camel-rest-api-${syncope.version}-javadoc.jar</value>
+        <value>/WEB-INF/lib/syncope-ext-saml2sp-rest-api-${syncope.version}-javadoc.jar</value>
       </list>
     </property>
   </bean>
@@ -110,6 +111,7 @@ under the License.
       <list>
         <value>/WEB-INF/lib/syncope-common-rest-api-${syncope.version}-javadoc.jar</value>
         <value>/WEB-INF/lib/syncope-ext-camel-rest-api-${syncope.version}-javadoc.jar</value>
+        <value>/WEB-INF/lib/syncope-ext-saml2sp-rest-api-${syncope.version}-javadoc.jar</value>
       </list>
     </property>
   </bean>

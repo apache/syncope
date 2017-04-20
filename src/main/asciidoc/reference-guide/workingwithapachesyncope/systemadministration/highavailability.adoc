@@ -18,11 +18,53 @@
 //
 ==== High-Availability
 
-When deploying multiple Apache Syncope instances with a single database or database cluster, it is of
+When deploying multiple Syncope <<core>> instances with a single database or database cluster, it is of
 fundamental importance that the contained OpenJPA instances are correctly configured for
 http://openjpa.apache.org/builds/2.4.2/apache-openjpa/docs/ref_guide_event.html[remote event notification^]. +
 Such configuration, in fact, allows the OpenJPA data cache to remain synchronized when deployed in multiple JVMs, thus
-enforcing data consistency across all Apache Syncope instances.
+enforcing data consistency across all Syncope Core instances.
+
+Replace
+
+....
+classpath*:/coreContext.xml
+classpath*:/securityContext.xml
+classpath*:/logicContext.xml
+classpath*:/restCXFContext.xml
+classpath*:/persistenceContext.xml
+classpath*:/provisioning*Context.xml
+classpath*:/workflow*Context.xml
+....
+
+with
+
+....
+classpath*:/coreContext.xml
+classpath*:/securityContext.xml
+classpath*:/logicContext.xml
+classpath*:/restCXFContext.xml
+classpath*:persistenceContext.xml
+classpath*:/provisioning*Context.xml
+classpath*:/workflow*Context.xml
+....
+
+in `core/src/main/webapp/WEB-INF/web.xml`.
+
+Download
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-jpa/src/main/resources/persistenceContext.xml[persistenceContext.xml^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/tree/2_0_X/core/persistence-jpa/src/main/resources/persistenceContext.xml[persistenceContext.xml^]
+endif::[]
+and
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-jpa/src/main/resources/domains.xml[domains.xml^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/tree/2_0_X/core/persistence-jpa/src/main/resources/domains.xml[domains.xml^]
+endif::[]
+then save both under `core/src/main/resources/`.
 
 The default configuration in `domains.xml` is
 
@@ -36,14 +78,15 @@ see the OpenJPA documentation for reference.
 
 [WARNING]
 ====
-The OpenJPA documentation refers to direct configuration under `META-INF/persistence.xml`; for example:
+The OpenJPA documentation's XML snippets refer to a different configuration style; for example, when used in
+`domains.xml`, this:
 
 [source,xml]
 ....
 <property name="openjpa.RemoteCommitProvider" value="tcp(Addresses=10.0.1.10;10.0.1.11)"/>
 ....
 
-while for use in `domains.xml`, this becomes:
+becomes:
 
 [source,xml]
 ....
