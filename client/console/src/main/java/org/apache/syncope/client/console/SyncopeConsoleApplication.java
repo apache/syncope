@@ -64,6 +64,7 @@ import org.apache.wicket.authroles.authentication.AuthenticatedWebApplication;
 import org.apache.wicket.authroles.authentication.AuthenticatedWebSession;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.markup.html.WebPage;
+import org.apache.wicket.protocol.http.CsrfPreventionRequestCycleListener;
 import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.request.resource.ResourceReference;
@@ -175,6 +176,8 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
         useGZIPCompression = props.getProperty("useGZIPCompression");
         Args.notNull(useGZIPCompression, "<useGZIPCompression>");
 
+        String csrf = props.getProperty("csrf");
+
         // process page properties
         pageClasses = new HashMap<>();
         populatePageClasses(props);
@@ -206,6 +209,9 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
         getMarkupSettings().setStripWicketTags(true);
         getMarkupSettings().setCompressWhitespace(true);
 
+        if (BooleanUtils.toBoolean(csrf)) {
+            getRequestCycleListeners().add(new CsrfPreventionRequestCycleListener());
+        }
         getRequestCycleListeners().add(new SyncopeConsoleRequestCycleListener());
 
         mountPage("/login", getSignInPageClass());

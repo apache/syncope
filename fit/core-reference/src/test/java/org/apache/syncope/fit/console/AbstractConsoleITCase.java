@@ -21,6 +21,8 @@ package org.apache.syncope.fit.console;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import org.apache.syncope.client.console.pages.Login;
+import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
+import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.behavior.AbstractAjaxBehavior;
@@ -46,15 +48,23 @@ public abstract class AbstractConsoleITCase {
 
     protected static final String ADMIN_PWD = "password";
 
+    protected static final String ADDRESS = "http://localhost:9080/syncope/rest";
+
     protected static final String KEY = "key";
 
     protected static final String SCHEMA = "schema";
 
     protected static WicketTester TESTER;
 
+    protected static SyncopeService SYNCOPE_SERVICE;
+
     @BeforeClass
     public static void setUp() {
         TESTER = ConsoleSetup.TESTER;
+
+        SYNCOPE_SERVICE = new SyncopeClientFactoryBean().
+                setAddress(ADDRESS).create(ADMIN_UNAME, ADMIN_PWD).
+                getService(SyncopeService.class);
     }
 
     protected void doLogin(final String user, final String passwd) {
