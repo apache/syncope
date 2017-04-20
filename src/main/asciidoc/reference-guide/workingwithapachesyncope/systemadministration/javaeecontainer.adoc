@@ -151,7 +151,7 @@ with
 classpath*:/coreContext.xml
 classpath*:/securityContext.xml
 classpath*:/logicContext.xml
-classpath*:restCXFContext.xml
+classpath:/restCXFContext.xml
 classpath*:/persistenceContext.xml
 classpath*:/provisioning*Context.xml
 classpath*:/workflow*Context.xml
