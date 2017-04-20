@@ -36,6 +36,17 @@ under the License.
 
   <dependencies>
     <dependency>
+      <groupId>org.apache.syncope.common</groupId>
+      <artifactId>syncope-common-lib</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.syncope.client</groupId>
+      <artifactId>syncope-client-lib</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
       <groupId>org.netbeans.api</groupId>
       <artifactId>org-netbeans-api-annotations-common</artifactId>
     </dependency>
@@ -62,14 +73,6 @@ under the License.
     <dependency>
       <groupId>org.netbeans.api</groupId>
       <artifactId>org-netbeans-modules-settings</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.syncope.common</groupId>
-      <artifactId>syncope-common-lib</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.syncope.client</groupId>
-      <artifactId>syncope-client-lib</artifactId>
     </dependency>
     <dependency>
       <groupId>org.netbeans.api</groupId>
