@@ -30,6 +30,7 @@ import org.apache.syncope.client.console.pages.SecurityQuestions;
 import org.apache.syncope.client.console.pages.Types;
 import org.apache.syncope.client.console.pages.Workflow;
 import org.apache.syncope.client.console.topology.Topology;
+import org.apache.syncope.fit.ActivitiDetector;
 import org.junit.Test;
 
 // Please, keep the class name as is in order to respect the execution order. It seems that from wicket 7.5.0 the 
@@ -69,8 +70,10 @@ public class AjaxBrowseITCase extends AbstractConsoleITCase {
         TESTER.clickLink("body:reportsLI:reports");
         TESTER.assertRenderedPage(Reports.class);
 
-        TESTER.clickLink("body:configurationLI:configurationUL:workflowLI:workflow");
-        TESTER.assertRenderedPage(Workflow.class);
+        if (ActivitiDetector.isActivitiEnabledForUsers(SYNCOPE_SERVICE)) {
+            TESTER.clickLink("body:configurationLI:configurationUL:workflowLI:workflow");
+            TESTER.assertRenderedPage(Workflow.class);
+        }
 
         TESTER.clickLink("body:configurationLI:configurationUL:logsLI:logs");
         TESTER.assertRenderedPage(Logs.class);
