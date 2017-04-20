@@ -18,13 +18,13 @@
  */
 package org.apache.syncope.ide.netbeans;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
+import java.util.prefs.Preferences;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.ide.netbeans.service.MailTemplateManagerService;
 import org.apache.syncope.ide.netbeans.service.ReportTemplateManagerService;
+import org.apache.syncope.ide.netbeans.view.ResourceExplorerTopComponent;
+import org.openide.util.NbPreferences;
 
 public final class ResourceConnector {
 
@@ -42,10 +42,11 @@ public final class ResourceConnector {
     public static MailTemplateManagerService getMailTemplateManagerService() throws IOException {
         synchronized (MAIL_TEMPLATE_MONITOR) {
             if (MAIL_TEMPLATE_MANAGER_SERVICE == null) {
-                UserProperties userProperties = getUserProperties();
+                ConnectionParams connParams = getConnectionParams();
                 MAIL_TEMPLATE_MANAGER_SERVICE = new MailTemplateManagerService(
-                        userProperties.getUrl(), userProperties.getUserName(),
-                        userProperties.getPassword());
+                        connParams.getUrl(),
+                        connParams.getUsername(),
+                        connParams.getPassword());
             }
         }
         return MAIL_TEMPLATE_MANAGER_SERVICE;
@@ -54,24 +55,26 @@ public final class ResourceConnector {
     public static ReportTemplateManagerService getReportTemplateManagerService() throws IOException {
         synchronized (REPORT_TEMPLATE_MONITOR) {
             if (REPORT_TEMPLATE_MANAGER_SERVICE == null) {
-                UserProperties userProperties = getUserProperties();
+                ConnectionParams connParams = getConnectionParams();
                 REPORT_TEMPLATE_MANAGER_SERVICE = new ReportTemplateManagerService(
-                        userProperties.getUrl(), userProperties.getUserName(),
-                        userProperties.getPassword());
+                        connParams.getUrl(),
+                        connParams.getUsername(),
+                        connParams.getPassword());
             }
         }
         return REPORT_TEMPLATE_MANAGER_SERVICE;
     }
 
-    private static UserProperties getUserProperties() throws FileNotFoundException, IOException {
-        File file = new File("UserData.txt");
-        BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
-        String url = bufferedReader.readLine();
-        String userName = bufferedReader.readLine();
-        String password = bufferedReader.readLine();
-
-        UserProperties userProperties = new UserProperties(url, userName, password);
-        return userProperties;
+    public static ConnectionParams getConnectionParams() {
+        Preferences prefs = NbPreferences.forModule(ResourceExplorerTopComponent.class);
+        ConnectionParams connectionParams = ConnectionParams.builder()
+                .scheme(prefs.get("scheme", "http"))
+                .host(prefs.get("host", "localhost"))
+                .port(prefs.get("port", "8080"))
+                .username(prefs.get("username", StringUtils.EMPTY))
+                .password(prefs.get("password", StringUtils.EMPTY))
+                .build();
+        return connectionParams;
     }
 
 }

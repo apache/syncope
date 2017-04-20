@@ -18,15 +18,21 @@
  */
 package org.apache.syncope.ide.netbeans.view;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Logger;
+import java.util.prefs.Preferences;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
+import javax.swing.JTextField;
+import org.apache.commons.lang3.StringUtils;
+import org.openide.util.NbPreferences;
 
 public class ServerDetailsView extends JDialog {
 
     private static final long serialVersionUID = -8693554903195406915L;
+
+    public static final Logger LOG = Logger.getLogger("ServerDetailsView");
 
     /**
      * Creates new form LoginView
@@ -50,74 +56,98 @@ public class ServerDetailsView extends JDialog {
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
-        urlTxt = new javax.swing.JTextField();
+        schemeTxt = new javax.swing.JTextField();
         userNameTxt = new javax.swing.JTextField();
         passwordTxt = new javax.swing.JPasswordField();
         okButton = new javax.swing.JButton();
         jLabel4 = new javax.swing.JLabel();
+        hostTxt = new javax.swing.JTextField();
+        jLabel5 = new javax.swing.JLabel();
+        portTxt = new javax.swing.JTextField();
+        jLabel6 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(ServerDetailsView.class, "ServerDetailsView.jLabel1.text")); // NOI18N
+        jLabel1.setLabelFor(schemeTxt);
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, "Scheme");
+        jLabel1.setToolTipText("");
 
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(ServerDetailsView.class, "ServerDetailsView.jLabel2.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel2, "Username");
 
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel3, org.openide.util.NbBundle.getMessage(ServerDetailsView.class, "ServerDetailsView.jLabel3.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel3, "Password");
+        jLabel3.setToolTipText("");
 
-        urlTxt.setText(org.openide.util.NbBundle.getMessage(ServerDetailsView.class, "ServerDetailsView.urlTxt.text")); // NOI18N
+        schemeTxt.setToolTipText("");
 
-        userNameTxt.setText(org.openide.util.NbBundle.getMessage(ServerDetailsView.class, "ServerDetailsView.userNameTxt.text")); // NOI18N
-
-        passwordTxt.setText(org.openide.util.NbBundle.getMessage(ServerDetailsView.class, "ServerDetailsView.passwordTxt.text")); // NOI18N
-
-        org.openide.awt.Mnemonics.setLocalizedText(okButton, org.openide.util.NbBundle.getMessage(ServerDetailsView.class, "ServerDetailsView.okButton.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(okButton, "submit");
         okButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 okButtonActionPerformed(evt);
             }
         });
 
-        org.openide.awt.Mnemonics.setLocalizedText(jLabel4, org.openide.util.NbBundle.getMessage(ServerDetailsView.class, "ServerDetailsView.jLabel4.text")); // NOI18N
+        jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel4, "Apache Syncope connection");
+        jLabel4.setToolTipText("");
+
+        hostTxt.setToolTipText("");
+
+        jLabel5.setLabelFor(portTxt);
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel5, "Port");
+        jLabel5.setToolTipText("");
+
+        jLabel6.setLabelFor(hostTxt);
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel6, "Host");
+        jLabel6.setToolTipText("");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
+                .addGap(41, 41, 41)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(41, 41, 41)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(okButton, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel1)
-                                    .addComponent(jLabel2)
-                                    .addComponent(jLabel3))
-                                .addGap(39, 39, 39)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(userNameTxt)
-                                    .addComponent(urlTxt)
-                                    .addComponent(passwordTxt, javax.swing.GroupLayout.PREFERRED_SIZE, 155, javax.swing.GroupLayout.PREFERRED_SIZE)))))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(101, 101, 101)
-                        .addComponent(jLabel4)))
-                .addContainerGap(41, Short.MAX_VALUE))
+                    .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 256, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                        .addComponent(okButton, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(layout.createSequentialGroup()
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(jLabel1)
+                                .addComponent(jLabel2)
+                                .addComponent(jLabel3)
+                                .addComponent(jLabel5)
+                                .addComponent(jLabel6))
+                            .addGap(39, 39, 39)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(portTxt)
+                                .addComponent(hostTxt)
+                                .addComponent(userNameTxt)
+                                .addComponent(schemeTxt)
+                                .addComponent(passwordTxt, javax.swing.GroupLayout.DEFAULT_SIZE, 155, Short.MAX_VALUE)))))
+                .addContainerGap(40, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, 32, Short.MAX_VALUE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
-                    .addComponent(urlTxt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
+                    .addComponent(schemeTxt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel2)
-                    .addComponent(userNameTxt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
+                    .addComponent(hostTxt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel6))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(portTxt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel5))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(userNameTxt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel2))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
                     .addComponent(passwordTxt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -131,23 +161,33 @@ public class ServerDetailsView extends JDialog {
     //CHECKSTYLE:ON
 
     private void okButtonActionPerformed(final java.awt.event.ActionEvent evt) {
-        String url = urlTxt.getText();
-        String userName = userNameTxt.getText();
-        String password = new String(passwordTxt.getPassword());
-        File file = new File("UserData.txt");
-        try {
-            FileWriter fileWriter = new FileWriter(file);
-            fileWriter.write(url + "\n" + userName + "\n" + password);
-            fileWriter.flush();
+        // validation
+        List<String> validation = validate(schemeTxt, hostTxt, portTxt, userNameTxt);
+        if (validation.isEmpty()) {
+            Preferences prefs = NbPreferences.forModule(ResourceExplorerTopComponent.class);
+            prefs.put("scheme", schemeTxt.getText());
+            prefs.put("host", hostTxt.getText());
+            prefs.put("port", portTxt.getText());
+            prefs.put("username", userNameTxt.getText());
+            prefs.put("password", new String(passwordTxt.getPassword()));
+            // dismiss panel
             this.dispose();
-        } catch (IOException ex) {
-            JOptionPane.showMessageDialog(this, "Error while saving Data.", "Error", JOptionPane.ERROR_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(
+                    null, "Please insert valid " + validation, "Validation  Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    public void setDetails(final String host, final String userName, final String password) {
-        urlTxt.setText(host);
-        userNameTxt.setText(userName);
+    public void setDetails(
+            final String scheme,
+            final String host,
+            final String port,
+            final String username,
+            final String password) {
+        schemeTxt.setText(scheme);
+        hostTxt.setText(host);
+        portTxt.setText(port);
+        userNameTxt.setText(username);
         passwordTxt.setText(password);
     }
 
@@ -171,13 +211,42 @@ public class ServerDetailsView extends JDialog {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTextField hostTxt;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JButton okButton;
     private javax.swing.JPasswordField passwordTxt;
-    private javax.swing.JTextField urlTxt;
+    private javax.swing.JTextField portTxt;
+    private javax.swing.JTextField schemeTxt;
     private javax.swing.JTextField userNameTxt;
     // End of variables declaration//GEN-END:variables
+
+    private List<String> validate(
+            final JTextField schemeTxt,
+            final JTextField hostTxt,
+            final JTextField portTxt,
+            final JTextField userNameTxt) {
+
+        List<String> res = new ArrayList<>();
+
+        if (StringUtils.isBlank(schemeTxt.getText())
+                || (!StringUtils.equals(schemeTxt.getText(), "http")
+                && !StringUtils.equals(schemeTxt.getText(), "https"))) {
+            res.add("scheme");
+        }
+        if (StringUtils.isBlank(hostTxt.getText())) {
+            res.add("host");
+        }
+        if (StringUtils.isBlank(portTxt.getText()) || !StringUtils.isNumeric(portTxt.getText())) {
+            res.add("port");
+        }
+        if (StringUtils.isBlank(userNameTxt.getText())) {
+            res.add("username");
+        }
+        return res;
+    }
 }
