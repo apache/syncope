@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.resources;
 
+import javax.ws.rs.NotFoundException;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.client.console.commons.Constants;
@@ -48,6 +49,9 @@ abstract class AbstractWorkflowResource extends AbstractResource {
                         return modelId.toString().equals(object.getModelId());
                     }
                 });
+        if (workflowDefinition == null) {
+            throw new NotFoundException("Workflow definition with modelId " + modelId);
+        }
 
         return workflowDefinition;
     }
