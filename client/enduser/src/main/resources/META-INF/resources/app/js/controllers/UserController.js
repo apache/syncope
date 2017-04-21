@@ -69,13 +69,13 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
            * if you want to sort with custom JS function defined in put also a sorting function as last parameter
            * e.g. $rootScope.attributesSorting.ASC
            */
-          schemaService = SchemaService.getTypeExtSchemas(group, $rootScope.customForm);
+          schemaService = SchemaService.getTypeExtSchemas(group);
         } else {
           /* 
            * if you want to sort with custom JS function defined in put also a sorting function as last parameter
            * e.g. $rootScope.attributesSorting.ASC
            */
-          schemaService = SchemaService.getUserSchemas(anyTypeClass, $rootScope.customForm);
+          schemaService = SchemaService.getUserSchemas(anyTypeClass);
         }
         schemaService.then(function (schemas) {
           if (group && (schemas.plainSchemas.length > 0 || schemas.derSchemas.length > 0 || schemas.virSchemas.length > 0))
