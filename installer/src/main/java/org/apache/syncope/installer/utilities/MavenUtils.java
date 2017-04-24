@@ -21,9 +21,9 @@ package org.apache.syncope.installer.utilities;
 import com.izforge.izpack.panels.process.AbstractUIProcessHandler;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -203,7 +203,7 @@ public class MavenUtils {
 
             proxies.appendChild(proxy);
 
-            FileSystemUtils.writeXML(settings, new FileOutputStream(tempSettingsXML));
+            FileSystemUtils.writeXML(settings, Files.newOutputStream(tempSettingsXML.toPath()));
 
         }
         return tempSettingsXML;

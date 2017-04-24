@@ -21,10 +21,12 @@ package org.apache.syncope.client.cli.commands.migrate;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import java.io.FileInputStream;
 import java.io.FileWriter;
+import java.io.InputStream;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -137,7 +139,8 @@ public class MigrateConf {
         reporter.writeStartDocument("UTF-8", "1.0");
         reporter.writeStartElement("dataset");
 
-        XMLStreamReader reader = INPUT_FACTORY.createXMLStreamReader(new FileInputStream(src));
+        InputStream inputStream = Files.newInputStream(Paths.get(src));
+        XMLStreamReader reader = INPUT_FACTORY.createXMLStreamReader(inputStream);
         reader.nextTag(); // root
         reader.nextTag(); // dataset
 

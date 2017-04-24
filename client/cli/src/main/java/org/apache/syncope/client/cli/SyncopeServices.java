@@ -18,9 +18,10 @@
  */
 package org.apache.syncope.client.cli;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Properties;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.syncope.client.cli.commands.install.InstallConfigFileTemplate;
@@ -39,7 +40,7 @@ public final class SyncopeServices {
 
     public static <T> T get(final Class<T> clazz) {
         final Properties properties = new Properties();
-        try (InputStream is = new FileInputStream(InstallConfigFileTemplate.configurationFilePath())) {
+        try (InputStream is = Files.newInputStream(Paths.get(InstallConfigFileTemplate.configurationFilePath()))) {
             properties.load(is);
         } catch (final IOException e) {
             LOG.error("Error opening properties file", e);
@@ -63,7 +64,7 @@ public final class SyncopeServices {
 
     public static void testUsernameAndPassword(final String username, final String password) {
         final Properties properties = new Properties();
-        try (InputStream is = new FileInputStream(InstallConfigFileTemplate.configurationFilePath())) {
+        try (InputStream is = Files.newInputStream(Paths.get(InstallConfigFileTemplate.configurationFilePath()))) {
             properties.load(is);
         } catch (final IOException e) {
             LOG.error("Error opening properties file", e);
