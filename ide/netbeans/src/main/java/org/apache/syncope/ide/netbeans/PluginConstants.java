@@ -23,7 +23,7 @@ import org.apache.syncope.common.lib.types.ReportTemplateFormat;
 
 public final class PluginConstants {
 
-    public static final String MAIL_TEMPLATE = "Mail Template";
+    public static final String MAIL_TEMPLATES = "Mail Templates";
 
     public static final String REPORT_XSLTS = "Report XSLTs";
 

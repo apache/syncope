@@ -701,3 +701,69 @@ By double-clicking on each folder, the list of available templates is shown:
 image::eclipse15.png[eclipse15]
 
 Each template is now ready for authoring or removal; new templates can also be created.
+
+=== Netbeans IDE Plugin
+
+The Netbeans IDE plugin allows remote management of notification e-mail and report templates.
+
+[[netbeansplugin-installation]]
+==== Installation
+
+After http://syncope.apache.org/downloads.html[download^], start the most recent Netbeans IDE distribution then go to 
+`Tools > Plugins`:
+
+image::netbeans01.png[netbeans01]
+
+Click on `Downloaded > Add plugins`:
+
+image::netbeans02.png[netbeans02]
+
+image::netbeans03.png[netbeans03]
+
+image::netbeans04.png[netbeans04]
+
+Select `Apache Syncope` and click on `Install`:
+
+image::netbeans05.png[netbeans05]
+
+image::netbeans06.png[netbeans06]
+
+==== Setup
+
+Once installed go to `Window` > `Apache Syncope` and click on the link:
+
+image::netbeans07.png[netbeans07]
+
+If connection hasn't already been setup you will be prompted to insert connection settings:
+
+image::netbeans12.png[netbeans12]
+
+If plugin successfully connects to Apache Syncope a window showing Mail and Report templates will appear on the left and
+by double-clicking on each folder, the list of available templates is shown:
+
+image::netbeans08.png[netbeans08]
+
+To refresh templates list or to change connection parameters right-click on `Apache Syncope` root node:
+
+image::netbeans09.png[netbeans09]
+
+To create a new template right-click on the `Mail Templates` or `Report XSLTs` folder and then click on `New`:
+
+image::netbeans10.png[netbeans10]
+
+To delete an existing template right-click on the secific template file and then click on `Delete`:
+
+image::netbeans11.png[netbeans11]
+
+To edit a template jus double-click on the template and an editor will appear. While saving (CTRL+S or save button) the 
+template will automatically be saved on Apache Syncope.
+Before creating/editing a template a window will be shown with the available formats:
+
+image::netbeans13.png[netbeans13]
+
+[NOTE]
+====
+While creating a new template, though you have to choose a single format, an empty instance will be created for each 
+format available. For example for mail templates will be created three files (HTML and TEXT).
+====
+

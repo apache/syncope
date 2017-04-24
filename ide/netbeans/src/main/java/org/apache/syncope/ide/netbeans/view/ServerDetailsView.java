@@ -160,7 +160,7 @@ public class ServerDetailsView extends JDialog {
     }// </editor-fold>//GEN-END:initComponents
     //CHECKSTYLE:ON
 
-    private void okButtonActionPerformed(final java.awt.event.ActionEvent evt) {
+    protected void okButtonActionPerformed(final java.awt.event.ActionEvent evt) {
         // validation
         List<String> validation = validate(schemeTxt, hostTxt, portTxt, userNameTxt);
         if (validation.isEmpty()) {
