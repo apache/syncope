@@ -33,7 +33,7 @@ public final class PluginConstants {
     public static final String[] REPORT_TEMPLATE_FORMATS = {
         ReportTemplateFormat.HTML.name(), ReportTemplateFormat.CSV.name(), ReportTemplateFormat.FO.name() };
 
-    public static final String DISPLAY_NAME = "Apache Syncope";
+    public static final String ROOT_NAME = "Apache Syncope";
 
     public static final String TOOL_TIP_TEXT = "This is a Apache Syncope window";
 
