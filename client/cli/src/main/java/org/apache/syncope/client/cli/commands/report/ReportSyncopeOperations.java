@@ -18,9 +18,11 @@
  */
 package org.apache.syncope.client.cli.commands.report;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.SequenceInputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -58,7 +60,7 @@ public class ReportSyncopeOperations {
                 getEntity();
 
         String fileName = "export_" + executionKey;
-        FileOutputStream fos = null;
+        OutputStream os = null;
         switch (format) {
             case XML:
                 fileName += ".xml";
@@ -67,33 +69,33 @@ public class ReportSyncopeOperations {
 
             case CSV:
                 fileName += ".csv";
-                fos = new FileOutputStream(fileName);
-                IOUtils.copyAndCloseInput(report, fos);
+                os = Files.newOutputStream(Paths.get(fileName));
+                IOUtils.copyAndCloseInput(report, os);
                 break;
 
             case PDF:
                 fileName += ".pdf";
-                fos = new FileOutputStream(fileName);
-                IOUtils.copyAndCloseInput(report, fos);
+                os = Files.newOutputStream(Paths.get(fileName));
+                IOUtils.copyAndCloseInput(report, os);
                 break;
 
             case HTML:
                 fileName += ".html";
-                fos = new FileOutputStream(fileName);
-                IOUtils.copyAndCloseInput(report, fos);
+                os = Files.newOutputStream(Paths.get(fileName));
+                IOUtils.copyAndCloseInput(report, os);
                 break;
 
             case RTF:
                 fileName += ".rtf";
-                fos = new FileOutputStream(fileName);
-                IOUtils.copyAndCloseInput(report, fos);
+                os = Files.newOutputStream(Paths.get(fileName));
+                IOUtils.copyAndCloseInput(report, os);
                 break;
 
             default:
                 return format + " not supported";
         }
-        if (fos != null) {
-            fos.close();
+        if (os != null) {
+            os.close();
         }
 
         return fileName;

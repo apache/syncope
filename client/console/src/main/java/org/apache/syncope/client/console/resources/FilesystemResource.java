@@ -19,9 +19,10 @@
 package org.apache.syncope.client.console.resources;
 
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.InputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.util.io.IOUtils;
 import org.slf4j.Logger;
@@ -61,9 +62,9 @@ public class FilesystemResource extends AbstractResource {
 
                 @Override
                 public void writeData(final Attributes attributes) throws IOException {
-                    FileInputStream resourceIS = null;
+                    InputStream resourceIS = null;
                     try {
-                        resourceIS = new FileInputStream(new File(baseDir, subPath));
+                        resourceIS = Files.newInputStream(new File(baseDir, subPath).toPath());
                         IOUtils.copy(resourceIS, attributes.getResponse().getOutputStream());
                     } catch (IOException e) {
                         LOG.error("Could not read from {}", baseDir.getAbsolutePath() + subPath, e);

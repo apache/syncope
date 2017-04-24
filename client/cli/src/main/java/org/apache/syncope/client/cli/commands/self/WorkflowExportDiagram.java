@@ -18,9 +18,11 @@
  */
 package org.apache.syncope.client.cli.commands.self;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import javax.ws.rs.core.Response;
 import javax.xml.ws.WebServiceException;
 import org.apache.cxf.helpers.IOUtils;
@@ -44,9 +46,9 @@ public class WorkflowExportDiagram extends AbstractWorkflowCommand {
             try {
                 final Response response = workflowSyncopeOperations.exportDiagram(input.firstParameter());
                 final byte[] diagram = IOUtils.readBytesFromStream((InputStream) response.getEntity());
-                try (final FileOutputStream fos = new FileOutputStream("/tmp/diagram.png")) {
-                    fos.write(diagram);
-                    fos.close();
+                try (final OutputStream os = Files.newOutputStream(Paths.get("/tmp/diagram.png"))) {
+                    os.write(diagram);
+                    os.close();
                 }
                 workflowResultManager.genericMessage("Diagram created: /tmp/diagram.png");
             } catch (final SyncopeClientException | WebServiceException ex) {
