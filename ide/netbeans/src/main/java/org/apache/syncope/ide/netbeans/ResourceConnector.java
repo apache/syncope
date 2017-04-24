@@ -41,40 +41,35 @@ public final class ResourceConnector {
 
     public static MailTemplateManagerService getMailTemplateManagerService() throws IOException {
         synchronized (MAIL_TEMPLATE_MONITOR) {
-            if (MAIL_TEMPLATE_MANAGER_SERVICE == null) {
-                ConnectionParams connParams = getConnectionParams();
-                MAIL_TEMPLATE_MANAGER_SERVICE = new MailTemplateManagerService(
-                        connParams.getUrl(),
-                        connParams.getUsername(),
-                        connParams.getPassword());
-            }
+            ConnectionParams connParams = getConnectionParams();
+            MAIL_TEMPLATE_MANAGER_SERVICE = new MailTemplateManagerService(
+                    connParams.getUrl(),
+                    connParams.getUsername(),
+                    connParams.getPassword());
         }
         return MAIL_TEMPLATE_MANAGER_SERVICE;
     }
 
     public static ReportTemplateManagerService getReportTemplateManagerService() throws IOException {
         synchronized (REPORT_TEMPLATE_MONITOR) {
-            if (REPORT_TEMPLATE_MANAGER_SERVICE == null) {
-                ConnectionParams connParams = getConnectionParams();
-                REPORT_TEMPLATE_MANAGER_SERVICE = new ReportTemplateManagerService(
-                        connParams.getUrl(),
-                        connParams.getUsername(),
-                        connParams.getPassword());
-            }
+            ConnectionParams connParams = getConnectionParams();
+            REPORT_TEMPLATE_MANAGER_SERVICE = new ReportTemplateManagerService(
+                    connParams.getUrl(),
+                    connParams.getUsername(),
+                    connParams.getPassword());
         }
         return REPORT_TEMPLATE_MANAGER_SERVICE;
     }
 
     public static ConnectionParams getConnectionParams() {
         Preferences prefs = NbPreferences.forModule(ResourceExplorerTopComponent.class);
-        ConnectionParams connectionParams = ConnectionParams.builder()
+        return ConnectionParams.builder()
                 .scheme(prefs.get("scheme", "http"))
                 .host(prefs.get("host", "localhost"))
                 .port(prefs.get("port", "8080"))
                 .username(prefs.get("username", StringUtils.EMPTY))
                 .password(prefs.get("password", StringUtils.EMPTY))
                 .build();
-        return connectionParams;
     }
 
 }

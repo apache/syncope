@@ -119,4 +119,15 @@ public final class ConnectionParams {
         return this;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder toStringBuilder;
+        toStringBuilder = new StringBuilder("ConnectionParams{");
+        toStringBuilder.append("url=").append(this.url);
+        toStringBuilder.append(",username=").append(this.username);
+        toStringBuilder.append(",password=").append(this.password);
+        toStringBuilder.append('}');
+        return toStringBuilder.toString();
+    }
+
 }

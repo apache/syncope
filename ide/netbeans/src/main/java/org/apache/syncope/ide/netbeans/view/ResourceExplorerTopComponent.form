@@ -57,7 +57,6 @@ under the License.
               <TreeModel code=""/>
             </Property>
             <Property name="rootVisible" type="boolean" value="false"/>
-            <Property name="scrollsOnExpand" type="boolean" value="true"/>
           </Properties>
           <Events>
             <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="resourceExplorerTreeMouseClicked"/>

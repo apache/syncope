@@ -160,7 +160,7 @@ public class ServerDetailsView extends JDialog {
     }// </editor-fold>//GEN-END:initComponents
     //CHECKSTYLE:ON
 
-    private void okButtonActionPerformed(final java.awt.event.ActionEvent evt) {
+    protected void okButtonActionPerformed(final java.awt.event.ActionEvent evt) {
         // validation
         List<String> validation = validate(schemeTxt, hostTxt, portTxt, userNameTxt);
         if (validation.isEmpty()) {
@@ -170,8 +170,6 @@ public class ServerDetailsView extends JDialog {
             prefs.put("port", portTxt.getText());
             prefs.put("username", userNameTxt.getText());
             prefs.put("password", new String(passwordTxt.getPassword()));
-            // send event on conn params changed
-            prefs.putBoolean("reloadConnection", true);
             // dismiss panel
             this.dispose();
         } else {
