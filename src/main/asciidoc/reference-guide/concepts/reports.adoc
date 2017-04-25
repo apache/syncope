@@ -45,7 +45,8 @@ will be then made available as PDF and RTF
 
 [NOTE]
 ====
-Report templates can be easily managed either via the <<console-reports,admin console>> or the <<eclipse-ide-plugin>>.
+Report templates can be easily managed either via the <<console-reports,admin console>>, the <<eclipse-ide-plugin>> or
+the <<netbeans-ide-plugin>>.
 ====
 
 ==== Reportlets

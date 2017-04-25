@@ -106,8 +106,8 @@ to be used respectively for plaintext and HTML e-mails, and is available for sel
 
 [NOTE]
 ====
-Notification templates can be easily managed either via the <<console-configuration-notifications,admin console>> or
-the <<eclipse-ide-plugin>>.
+Notification templates can be easily managed either via the <<console-configuration-notifications,admin console>>,
+the <<eclipse-ide-plugin>> or the <<netbeans-ide-plugin>>.
 ====
 
 The full power of JEXL expressions - see http://commons.apache.org/proper/commons-jexl/reference/syntax.html[reference^]
