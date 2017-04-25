@@ -45,6 +45,7 @@ under the License.
           <a href="docs/getting-started.html#debian-packages" class="btn">Debian Packages</a>
           <a href="docs/getting-started.html#gui-installer" class="btn">GUI Installer</a>
           <a href="docs/getting-started.html#eclipse-ide-plugin" class="btn">Eclipse IDE Plugin</a>
+          <a href="docs/getting-started.html#netbeans-ide-plugin" class="btn">Netbeans IDE Plugin</a>
         </div>
       </div>
 
@@ -133,12 +134,22 @@ under the License.
             </tr>
             <tr>
               <td>
-                <a href="http://www.apache.org/dyn/closer.lua/syncope/2.0.3/org.apache.syncope.ide.eclipse.site-2.0.3.zip">syncope-client-cli-2.0.3.zip</a>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/2.0.3/org.apache.syncope.ide.eclipse.site-2.0.3.zip">org.apache.syncope.ide.eclipse.site-2.0.3.zip</a>
               </td>
               <td>
                 <a href="https://www.apache.org/dist/syncope/2.0.3/org.apache.syncope.ide.eclipse.site-2.0.3.zip.asc">asc</a> 
                 <a href="https://www.apache.org/dist/syncope/2.0.3/org.apache.syncope.ide.eclipse.site-2.0.3.zip.md5">md5</a> 
                 <a href="https://www.apache.org/dist/syncope/2.0.3/org.apache.syncope.ide.eclipse.site-2.0.3.zip.sha1">sha1</a>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <a href="http://www.apache.org/dyn/closer.lua/syncope/2.0.3/syncope-ide-netbeans-2.0.3.nbm">syncope-ide-netbeans-2.0.3.nbm</a>
+              </td>
+              <td>
+                <a href="https://www.apache.org/dist/syncope/2.0.3/syncope-ide-netbeans-2.0.3.nbm.asc">asc</a> 
+                <a href="https://www.apache.org/dist/syncope/2.0.3/syncope-ide-netbeans-2.0.3.nbm.zip.md5">md5</a> 
+                <a href="https://www.apache.org/dist/syncope/2.0.3/syncope-ide-netbeans-2.0.3.nbm.zip.sha1">sha1</a>
               </td>
             </tr>
           </tbody>
