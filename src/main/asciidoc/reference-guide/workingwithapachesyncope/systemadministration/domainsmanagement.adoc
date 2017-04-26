@@ -33,3 +33,19 @@ Adding a new domain requires re-deploying the <<core>> application and restartin
 
 Once a new domain is added, the admin credentials for such domain can be set via the admin console, CLI or
 barely invoking the REST layer through http://curl.haxx.se/[curl^].
+
+[[sample-domain-create]]
+.Create new domain and set admin credentials
+====
+The JSON payload below, when sent via `POST` to the `/domains` endpoint, will create a new `newDomain` domain, and set
+the admin password to `newPassword`, to be stored via `SHA` cipher.
+
+[source,json]
+----
+{
+  "key": "newDomain",
+  "adminPwd": "newPassword",
+  "adminCipherAlgorithm": "SHA"
+}
+----
+====
