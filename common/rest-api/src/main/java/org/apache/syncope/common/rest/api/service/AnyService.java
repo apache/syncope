@@ -47,6 +47,9 @@ public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSS
     /**
      * Reads the list of attributes owned by the given any object for the given schema type.
      *
+     * Note that for the UserService, GroupService and AnyObjectService subclasses, if the key parameter
+     * looks like a UUID then it is interpreted as as key, otherwise as a (user)name.
+     *
      * @param key any object key
      * @param schemaType schema type
      * @return list of attributes, owned by the given any object, for the given schema type
@@ -58,6 +61,9 @@ public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSS
 
     /**
      * Reads the attribute, owned by the given any object, for the given schema type and schema.
+     *
+     * Note that for the UserService, GroupService and AnyObjectService subclasses, if the key parameter
+     * looks like a UUID then it is interpreted as as key, otherwise as a (user)name.
      *
      * @param key any object key
      * @param schemaType schema type
@@ -74,6 +80,9 @@ public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSS
 
     /**
      * Reads the any object matching the provided key.
+     *
+     * Note that for the UserService, GroupService and AnyObjectService subclasses, if the key parameter
+     * looks like a UUID then it is interpreted as as key, otherwise as a (user)name.
      *
      * @param key key of any object to be read
      * @return any object with matching key
