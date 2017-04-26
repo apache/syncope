@@ -408,7 +408,7 @@ public final class ResourceExplorerTopComponent extends TopComponent {
 
             @Override
             public void actionPerformed(final ActionEvent e) {
-                int result = JOptionPane.showConfirmDialog(null, "Do you want to delete ?");
+                int result = JOptionPane.showConfirmDialog(null, "Are you sure to delete the item?");
                 if (result == JOptionPane.OK_OPTION) {
                     DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node.getParent();
                     boolean deleted;
@@ -495,7 +495,7 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                 public void propertyChange(final PropertyChangeEvent evt) {
                     if (DataObject.PROP_MODIFIED.equals(evt.getPropertyName())) {
                         //save item remotely
-                        LOG.info("Saving Mail template");
+                        LOG.info(String.format("Saving Mail template [%s]", name));
                         saveContent();
                     }
                 }
@@ -565,7 +565,7 @@ public final class ResourceExplorerTopComponent extends TopComponent {
                 public void propertyChange(final PropertyChangeEvent evt) {
                     if (DataObject.PROP_MODIFIED.equals(evt.getPropertyName())) {
                         //save item remotely
-                        LOG.info("Saving Report template");
+                        LOG.info(String.format("Saving Report template [%s]", name));
                         saveContent();
                     }
                 }
@@ -585,12 +585,6 @@ public final class ResourceExplorerTopComponent extends TopComponent {
             temp = name.split("\\.");
             String format = temp[1];
             String key = temp[0];
-
-            LOG.info(">>>>>>>>>>>>>>> path  " + path);
-            LOG.info(">>>>>>>>>>>>>>> name " + name);
-            LOG.info(">>>>>>>>>>>>>>> templateType " + templateType);
-            LOG.info(">>>>>>>>>>>>>>> format " + format);
-            LOG.info(">>>>>>>>>>>>>>> key " + key);
 
             if (templateType.equals("Mail")) {
                 if (format.equals("txt")) {
