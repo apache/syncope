@@ -30,7 +30,7 @@ before_install:
 install: travis_wait mvn --show-version --quiet -P all,skipTests
 script:
   #invoker.streamLogs: we cannot access to log files through Travis web ui, so display everything in the console
-  - travis_wait mvn --show-version --quiet clean install -Dinvoker.streamLogs=true
+  - mvn --show-version --quiet clean install -Dinvoker.streamLogs=true
 after_failure:
   - cat fit/core-reference/target/log/*
   - cat fit/core/reference/target/failsafe-reports/org.apache.syncope.fit.*-output.txt
