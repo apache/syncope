@@ -22,6 +22,8 @@ import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -424,7 +426,7 @@ public final class ResourceExplorerTopComponent extends TopComponent {
 
             @Override
             public void actionPerformed(final ActionEvent e) {
-                int result = JOptionPane.showConfirmDialog(null, "Do you want to delete ?");
+                int result = JOptionPane.showConfirmDialog(null, "Are you sure to delete the item?");
                 if (result == JOptionPane.OK_OPTION) {
                     DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node.getParent();
                     boolean deleted;
@@ -505,6 +507,17 @@ public final class ResourceExplorerTopComponent extends TopComponent {
             fob.setAttribute("description", "TEXT");
             DataObject data = DataObject.find(fob);
             data.getLookup().lookup(OpenCookie.class).open();
+            data.addPropertyChangeListener(new PropertyChangeListener() {
+
+                @Override
+                public void propertyChange(final PropertyChangeEvent evt) {
+                    if (DataObject.PROP_MODIFIED.equals(evt.getPropertyName())) {
+                        //save item remotely
+                        LOG.info(String.format("Saving Mail template [%s]", name));
+                        saveContent();
+                    }
+                }
+            });
         }
     }
 
@@ -564,6 +577,17 @@ public final class ResourceExplorerTopComponent extends TopComponent {
             FileObject fob = FileUtil.toFileObject(file.getAbsoluteFile());
             DataObject data = DataObject.find(fob);
             data.getLookup().lookup(OpenCookie.class).open();
+            data.addPropertyChangeListener(new PropertyChangeListener() {
+
+                @Override
+                public void propertyChange(final PropertyChangeEvent evt) {
+                    if (DataObject.PROP_MODIFIED.equals(evt.getPropertyName())) {
+                        //save item remotely
+                        LOG.info(String.format("Saving Report template [%s]", name));
+                        saveContent();
+                    }
+                }
+            });
         }
     }
 
@@ -579,12 +603,6 @@ public final class ResourceExplorerTopComponent extends TopComponent {
             temp = name.split("\\.");
             String format = temp[1];
             String key = temp[0];
-
-            LOG.info(">>>>>>>>>>>>>>> path  " + path);
-            LOG.info(">>>>>>>>>>>>>>> name " + name);
-            LOG.info(">>>>>>>>>>>>>>> templateType " + templateType);
-            LOG.info(">>>>>>>>>>>>>>> format " + format);
-            LOG.info(">>>>>>>>>>>>>>> key " + key);
 
             if (templateType.equals("Mail")) {
                 if (format.equals("txt")) {
