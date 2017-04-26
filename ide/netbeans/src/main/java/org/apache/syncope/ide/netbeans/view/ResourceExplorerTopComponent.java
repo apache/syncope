@@ -476,11 +476,12 @@ public final class ResourceExplorerTopComponent extends TopComponent {
             }
             String content = is == null ? StringUtils.EMPTY : IOUtils.toString(is, encodingPattern);
 
-            File directory = new File("Template/Mail");
-            if (!directory.exists()) {
-                directory.mkdirs();
+            String mailTemplatesDirName = System.getProperty("java.io.tmpdir") + "/Templates/Mail/";
+            File mailTemplatesDir = new File(mailTemplatesDirName);
+            if (!mailTemplatesDir.exists()) {
+                mailTemplatesDir.mkdirs();
             }
-            File file = new File("Template/Mail/" + name + "." + type);
+            File file = new File(mailTemplatesDirName + name + "." + type);
             FileWriter fw = new FileWriter(file);
             fw.write(content);
             fw.flush();
@@ -545,11 +546,13 @@ public final class ResourceExplorerTopComponent extends TopComponent {
             }
             String content = is == null ? StringUtils.EMPTY : IOUtils.toString(is, encodingPattern);
 
-            File directory = new File("Template/Report");
-            if (!directory.exists()) {
-                directory.mkdirs();
+            String reportTemplatesDirName = System.getProperty("java.io.tmpdir") + "/Templates/Report/";
+            File reportTemplatesDir = new File(reportTemplatesDirName);
+            if (!reportTemplatesDir.exists()) {
+                reportTemplatesDir.mkdirs();
             }
-            File file = new File("Template/Report/" + name + "." + format.name().toLowerCase());
+            File file = new File(reportTemplatesDirName + name + "." + format.
+                    name().toLowerCase());
             FileWriter fw = new FileWriter(file);
             fw.write(content);
             fw.flush();
@@ -582,6 +585,12 @@ public final class ResourceExplorerTopComponent extends TopComponent {
             temp = name.split("\\.");
             String format = temp[1];
             String key = temp[0];
+
+            LOG.info(">>>>>>>>>>>>>>> path  " + path);
+            LOG.info(">>>>>>>>>>>>>>> name " + name);
+            LOG.info(">>>>>>>>>>>>>>> templateType " + templateType);
+            LOG.info(">>>>>>>>>>>>>>> format " + format);
+            LOG.info(">>>>>>>>>>>>>>> key " + key);
 
             if (templateType.equals("Mail")) {
                 if (format.equals("txt")) {
