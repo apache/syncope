@@ -218,7 +218,7 @@ public abstract class NotificationTaskDirectoryPanel
 
     @Override
     protected String paginatorRowsKey() {
-        return Constants.PREF_PROPAGATION_TASKS_PAGINATOR_ROWS;
+        return Constants.PREF_NOTIFICATION_TASKS_PAGINATOR_ROWS;
     }
 
     protected class NotificationTasksProvider extends TaskDataProvider<NotificationTaskTO> {
@@ -237,7 +237,7 @@ public abstract class NotificationTaskDirectoryPanel
                 final String entityKey,
                 final int paginatorRows) {
 
-            super(paginatorRows, TaskType.PROPAGATION, restClient);
+            super(paginatorRows, TaskType.NOTIFICATION , restClient);
             this.notification = notification;
             this.anyTypeKind = anyTypeKind;
             this.entityKey = entityKey;
