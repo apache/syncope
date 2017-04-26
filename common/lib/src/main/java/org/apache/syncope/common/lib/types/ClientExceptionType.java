@@ -98,7 +98,8 @@ public enum ClientExceptionType {
     }
 
     public String getInfoHeaderValue(final String value) {
-        return name() + ":" + value;
+        // HTTP header values cannot contain CR / LF
+        return (name() + ":" + value).replaceAll("(\\r|\\n)", " ");
     }
 
     public Response.Status getResponseStatus() {
