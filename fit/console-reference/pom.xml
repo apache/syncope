@@ -155,19 +155,10 @@ under the License.
                 <copy todir="${activiti-modeler.directory}/editor-app">
                   <fileset dir="${project.build.directory}/activiti-webapp-explorer2/editor-app" />                  
                 </copy>
-                <replaceregexp file="${activiti-modeler.directory}/editor-app/editor/oryx.debug.js"
-                               match="ORYX.CONFIG.ROOT_PATH =.*&quot;editor/&quot;; //TODO: Remove last slash!!"
-                               replace="BASE_PATH = window.location.toString().substr(0, window.location.toString().indexOf('/wicket')); ORYX.CONFIG.ROOT_PATH = BASE_PATH + &quot;/activiti-modeler/editor-app/editor/&quot;;"
-                               byline="true" />
-                <replace file="${activiti-modeler.directory}/editor-app/editor/oryx.debug.js"
-                         token="new Ajax.Request(ACTIVITI.CONFIG.contextRoot + '/editor/stencilset?version=' + Date.now(), {"
-                         value="new Ajax.Request(window.location.toString().substr(0, window.location.toString().indexOf('/activiti-modeler')) + &quot;/activiti-modeler/stencilset.json&quot;, {" />
-                <replace file="${activiti-modeler.directory}/editor-app/editor/oryx.debug.js"
-                         token="ORYX.Editor.createByUrl = function(modelUrl){"
-                         value="modelUrl = BASE_PATH + &quot;/workflowDefGET?modelId=&quot; + modelId; ORYX.Editor.createByUrl = function(modelUrl){" />                
-                <replace file="${activiti-modeler.directory}/editor-app/configuration/toolbar-default-actions.js"
-                         token="window.location.href = &quot;./&quot;;"
-                         value="window.close();" />
+                <replaceregexp file="${activiti-modeler.directory}/editor-app/editor/oryx.debug.js" match="ORYX.CONFIG.ROOT_PATH =.*&quot;editor/&quot;; //TODO: Remove last slash!!" replace="BASE_PATH = window.location.toString().substr(0, window.location.toString().indexOf('/wicket')); ORYX.CONFIG.ROOT_PATH = BASE_PATH + &quot;/activiti-modeler/editor-app/editor/&quot;;" byline="true" />
+                <replace file="${activiti-modeler.directory}/editor-app/editor/oryx.debug.js" token="new Ajax.Request(ACTIVITI.CONFIG.contextRoot + '/editor/stencilset?version=' + Date.now(), {" value="new Ajax.Request(window.location.toString().substr(0, window.location.toString().indexOf('/activiti-modeler')) + &quot;/activiti-modeler/stencilset.json&quot;, {" />
+                <replace file="${activiti-modeler.directory}/editor-app/editor/oryx.debug.js" token="ORYX.Editor.createByUrl = function(modelUrl){" value="modelUrl = BASE_PATH + &quot;/workflowDefGET?modelId=&quot; + this.modelId; ORYX.Editor.createByUrl = function(modelUrl){" />                
+                <replace file="${activiti-modeler.directory}/editor-app/configuration/toolbar-default-actions.js" token="window.location.href = &quot;./&quot;;" value="window.close();" />
                                                
                 <copy file="${basedir}/src/main/resources/url-config.js" todir="${activiti-modeler.directory}/editor-app/configuration" overwrite="true" />
                 <copy file="${basedir}/src/main/resources/save-model.html" todir="${activiti-modeler.directory}/editor-app/popups" overwrite="true" />

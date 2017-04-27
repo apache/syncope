@@ -30,6 +30,4 @@ public interface PlainAttrValueDAO extends DAO<PlainAttrValue> {
     <T extends PlainAttrValue> T save(T attributeValue);
 
     <T extends PlainAttrValue> void delete(String key, Class<T> reference);
-
-    <T extends PlainAttrValue> void delete(T attributeValue);
 }

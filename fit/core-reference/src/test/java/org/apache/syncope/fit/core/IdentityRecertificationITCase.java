@@ -18,17 +18,18 @@
  */
 package org.apache.syncope.fit.core;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.util.List;
 import org.apache.syncope.common.lib.to.WorkflowFormPropertyTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
 @FixMethodOrder(MethodSorters.JVM)
-public class RecertificationITCase extends AbstractTaskITCase {
+public class IdentityRecertificationITCase extends AbstractTaskITCase {
 
     @Test
     public void recertification() {
@@ -38,8 +39,8 @@ public class RecertificationITCase extends AbstractTaskITCase {
         assertFalse(forms.isEmpty());
         for (WorkflowFormTO form : forms) {
             userWorkflowService.claimForm(form.getTaskId());
-            WorkflowFormPropertyTO property = form.getPropertyMap().get("approve");
-            property.setValue("true");
+            WorkflowFormPropertyTO approve = form.getPropertyMap().get("approve");
+            approve.setValue("true");
             userWorkflowService.submitForm(form);
         }
 

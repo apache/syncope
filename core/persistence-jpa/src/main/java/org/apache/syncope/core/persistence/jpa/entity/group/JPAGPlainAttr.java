@@ -51,7 +51,7 @@ public class JPAGPlainAttr extends AbstractPlainAttr<Group> implements GPlainAtt
     @Valid
     private List<JPAGPlainAttrValue> values = new ArrayList<>();
 
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "attribute")
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "attribute")
     @Valid
     private JPAGPlainAttrUniqueValue uniqueValue;
 

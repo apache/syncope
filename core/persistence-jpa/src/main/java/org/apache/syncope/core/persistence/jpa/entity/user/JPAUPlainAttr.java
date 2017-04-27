@@ -67,7 +67,7 @@ public class JPAUPlainAttr extends AbstractPlainAttr<User> implements UPlainAttr
     /**
      * Value of this attribute (if schema is UNIQUE).
      */
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "attribute")
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "attribute")
     @Valid
     private JPAUPlainAttrUniqueValue uniqueValue;
 

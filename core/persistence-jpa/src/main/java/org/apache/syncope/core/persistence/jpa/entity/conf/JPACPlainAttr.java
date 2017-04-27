@@ -65,7 +65,7 @@ public class JPACPlainAttr extends AbstractPlainAttr<Conf> implements CPlainAttr
     /**
      * Value of this attribute (if schema is UNIQUE).
      */
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "attribute")
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "attribute")
     @Valid
     private JPACPlainAttrUniqueValue uniqueValue;
 
