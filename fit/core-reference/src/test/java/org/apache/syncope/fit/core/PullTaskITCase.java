@@ -1161,6 +1161,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
                     "SELECT EMAIL FROM TESTPULL WHERE USERNAME=?", String.class, user.getUsername());
             assertEquals(user.getPlainAttrMap().get("email").getValues().get(0), email);
         } catch (Exception e) {
+            LOG.error("Unexpected during issueSYNCOPE1062()", e);
             fail(e.getMessage());
         } finally {
             if (pullTask != null) {

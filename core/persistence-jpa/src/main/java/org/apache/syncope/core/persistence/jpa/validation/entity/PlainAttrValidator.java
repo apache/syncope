@@ -22,10 +22,10 @@ import javax.validation.ConstraintValidatorContext;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 
-public class PlainAttrValidator extends AbstractValidator<PlainAttrCheck, PlainAttr> {
+public class PlainAttrValidator extends AbstractValidator<PlainAttrCheck, PlainAttr<?>> {
 
     @Override
-    public boolean isValid(final PlainAttr object, final ConstraintValidatorContext context) {
+    public boolean isValid(final PlainAttr<?> object, final ConstraintValidatorContext context) {
         boolean isValid;
 
         if (object == null) {

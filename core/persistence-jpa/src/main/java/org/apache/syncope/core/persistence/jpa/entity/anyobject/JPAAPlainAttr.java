@@ -58,7 +58,7 @@ public class JPAAPlainAttr extends AbstractPlainAttr<AnyObject> implements APlai
     @Valid
     private List<JPAAPlainAttrValue> values = new ArrayList<>();
 
-    @OneToOne(cascade = CascadeType.ALL, mappedBy = "attribute")
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "attribute")
     @Valid
     private JPAAPlainAttrUniqueValue uniqueValue;
 

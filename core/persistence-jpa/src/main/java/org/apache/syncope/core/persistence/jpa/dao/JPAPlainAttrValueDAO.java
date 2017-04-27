@@ -89,16 +89,11 @@ public class JPAPlainAttrValueDAO extends AbstractDAO<PlainAttrValue> implements
 
     @Override
     public <T extends PlainAttrValue> void delete(final String key, final Class<T> reference) {
-        T attributeValue = find(key, reference);
-        if (attributeValue == null) {
+        T attrValue = find(key, reference);
+        if (attrValue == null) {
             return;
         }
 
-        delete(attributeValue);
-    }
-
-    @Override
-    public <T extends PlainAttrValue> void delete(final T attrValue) {
         if (attrValue.getAttr() != null) {
             if (attrValue instanceof PlainAttrUniqueValue) {
                 attrValue.getAttr().setUniqueValue(null);

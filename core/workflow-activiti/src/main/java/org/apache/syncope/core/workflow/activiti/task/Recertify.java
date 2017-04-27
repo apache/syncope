@@ -50,7 +50,7 @@ public class Recertify extends AbstractActivitiServiceTask {
         LOG.debug("Saving Recertification information for user {}", user.getUsername());
 
         user.setLastRecertificator(submitter);
-        user.setLastRecertification(new Date(System.currentTimeMillis()));
+        user.setLastRecertification(new Date());
 
         userDAO.save(user);
     }
