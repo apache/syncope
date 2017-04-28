@@ -215,6 +215,7 @@ public class WorkflowDirectoryPanel extends DirectoryPanel<
                                                 model.getObject().getKey(), wfDefinition.getObject());
                                         SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
 
+                                        target.add(container);
                                         utility.show(false);
                                         utility.close(target);
                                     } catch (SyncopeClientException e) {
