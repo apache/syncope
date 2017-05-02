@@ -391,7 +391,7 @@ under the License.
     <commons-collection.version>4.1</commons-collection.version>
     <commons-logging.version>1.1.3</commons-logging.version>
 
-    <h2.version>1.4.194</h2.version>
+    <h2.version>1.4.195</h2.version>
 
     <junit.version>4.12</junit.version>
 
@@ -412,7 +412,7 @@ under the License.
     
     <bootstrap.version>3.3.7</bootstrap.version>
     <bootstrap-select.version>1.12.0</bootstrap-select.version>
-    <bootstrap-fileinput.version>4.3.8</bootstrap-fileinput.version>
+    <bootstrap-fileinput.version>4.3.9</bootstrap-fileinput.version>
     <bootbox.version>4.4.0</bootbox.version>
     <font-awesome.version>4.7.0</font-awesome.version>
     <ionicons.version>2.0.1</ionicons.version>
@@ -1723,7 +1723,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-war-plugin</artifactId>
-          <version>3.0.0</version>
+          <version>3.1.0</version>
           <configuration>
             <webResources>
               <resource>
