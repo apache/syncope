@@ -66,13 +66,8 @@ public class UpdateProducer extends AbstractProducer {
             } else if (actual instanceof AnyPatch) {
                 WorkflowResult<String> updated = (WorkflowResult<String>) exchange.getIn().getBody();
 
-                AnyTypeKind anyTypeKind = AnyTypeKind.GROUP;
-                if (actual instanceof AnyObjectPatch) {
-                    anyTypeKind = AnyTypeKind.ANY_OBJECT;
-                }
-
                 List<PropagationTask> tasks = getPropagationManager().getUpdateTasks(
-                        anyTypeKind,
+                        actual instanceof AnyObjectPatch ? AnyTypeKind.ANY_OBJECT : AnyTypeKind.GROUP,
                         updated.getResult(),
                         false,
                         null,
