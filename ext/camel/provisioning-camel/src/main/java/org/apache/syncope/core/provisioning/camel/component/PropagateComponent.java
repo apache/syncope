@@ -58,6 +58,7 @@ public class PropagateComponent extends UriEndpointComponent {
         super(PropagateEndpoint.class);
     }
 
+    @Override
     protected Endpoint createEndpoint(final String uri, final String remaining,
             final Map<String, Object> parameters) throws Exception {
         PropagateType type = PropagateType.valueOf(remaining);

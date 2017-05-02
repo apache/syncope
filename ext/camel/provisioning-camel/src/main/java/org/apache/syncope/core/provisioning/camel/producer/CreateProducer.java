@@ -70,11 +70,6 @@ public class CreateProducer extends AbstractProducer {
             } else if (actual instanceof AnyTO) {
                 WorkflowResult<String> created = (WorkflowResult<String>) exchange.getIn().getBody();
 
-                AnyTypeKind anyTypeKind = AnyTypeKind.GROUP;
-                if (actual instanceof AnyObjectTO) {
-                    anyTypeKind = AnyTypeKind.ANY_OBJECT;
-                }
-
                 if (actual instanceof GroupTO && isPull()) {
                     Map<String, String> groupOwnerMap = exchange.getProperty("groupOwnerMap", Map.class);
                     AttrTO groupOwner = ((GroupTO) actual).getPlainAttrMap().get(StringUtils.EMPTY);
@@ -93,7 +88,7 @@ public class CreateProducer extends AbstractProducer {
                     exchange.getOut().setBody(new ImmutablePair<>(created.getResult(), null));
                 } else {
                     List<PropagationTask> tasks = getPropagationManager().getCreateTasks(
-                            anyTypeKind,
+                            actual instanceof AnyObjectTO ? AnyTypeKind.ANY_OBJECT : AnyTypeKind.GROUP,
                             created.getResult(),
                             created.getPropByRes(),
                             ((AnyTO) actual).getVirAttrs(),
