@@ -1108,3 +1108,40 @@ div.background-footer {
 div#editUserChangePassword > label {
   color: #e00000;
 }
+
+div > li {
+  list-style-type: none; 
+}
+
+th ul.menu, div#inline-actions ul.menu, div#tablehandling ul.menu, div.listview-actions ul.menu {
+  list-style-type: none;  
+  margin: 0;
+  padding: 0;
+}
+
+div#tablehandling ul.menu{
+  float: right;
+}
+
+th ul.menu li, div#inline-actions ul.menu li, div#tablehandling ul.menu li, div.listview-actions ul.menu li {
+  display: inline-block;
+}
+
+th ul.menu li a, div#inline-actions ul.menu li a, div.listview-actions ul.menu li a, div#tablehandling ul.menu li a {
+  margin-left: 5px;
+  display: inline-block !important;
+}
+
+ul.menu li a {
+  display: block;
+  cursor: pointer !important;
+}
+
+.toggle-menu ul.menu li a {
+  padding: 0px;
+  text-align: left;
+}
+
+div#tablehandling ul.menu li a {
+  padding: 0px !important;
+}

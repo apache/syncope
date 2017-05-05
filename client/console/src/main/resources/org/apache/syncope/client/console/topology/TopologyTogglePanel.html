@@ -17,8 +17,15 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
+  <wicket:head>
+    <style type="text/css">
+      div#topologyTogglePanel {
+        top: 130px !important;
+      }
+    </style>
+  </wicket:head>
   <wicket:extend>
-    <div wicket:id="container" >
+    <div wicket:id="container">
       <wicket:container wicket:id="actions" />
     </div>
 

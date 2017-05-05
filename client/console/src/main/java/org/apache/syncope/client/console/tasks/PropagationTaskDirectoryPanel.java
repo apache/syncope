@@ -30,13 +30,12 @@ import org.apache.syncope.client.console.commons.TaskDataProvider;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
-import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
-import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.lib.types.TaskType;
@@ -46,7 +45,6 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
 /**
@@ -74,7 +72,7 @@ public abstract class PropagationTaskDirectoryPanel
         final List<IColumn<PropagationTaskTO, String>> columns = new ArrayList<>();
 
         columns.add(new KeyPropertyColumn<PropagationTaskTO>(
-                new StringResourceModel("key", this), "key", "key"));
+                new StringResourceModel("key", this), "key"));
 
         columns.add(new PropertyColumn<PropagationTaskTO, String>(new StringResourceModel(
                 "operation", this), "operation", "operation"));
@@ -101,86 +99,65 @@ public abstract class PropagationTaskDirectoryPanel
 
         columns.add(new PropertyColumn<PropagationTaskTO, String>(
                 new StringResourceModel("latestExecStatus", this), "latestExecStatus", "latestExecStatus"));
-
-        columns.add(new ActionColumn<PropagationTaskTO, String>(new ResourceModel("actions")) {
-
-            private static final long serialVersionUID = 2054811145491901166L;
-
-            @Override
-            public ActionLinksPanel<PropagationTaskTO> getActions(
-                    final String componentId, final IModel<PropagationTaskTO> model) {
-
-                final PropagationTaskTO taskTO = model.getObject();
-
-                final ActionLinksPanel<PropagationTaskTO> panel = ActionLinksPanel.<PropagationTaskTO>builder().
-                        add(new ActionLink<PropagationTaskTO>() {
-
-                            private static final long serialVersionUID = -3722207913631435501L;
-
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final PropagationTaskTO modelObject) {
-                                viewTask(taskTO, target);
-                            }
-                        }, ActionLink.ActionType.VIEW, StandardEntitlement.TASK_READ).
-                        add(new ActionLink<PropagationTaskTO>() {
-
-                            private static final long serialVersionUID = -3722207913631435501L;
-
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final PropagationTaskTO modelObject) {
-                                try {
-                                    restClient.startExecution(taskTO.getKey(), null);
-                                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-                                    target.add(container);
-                                } catch (SyncopeClientException e) {
-                                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                                            ? e.getClass().getName() : e.getMessage());
-                                    LOG.error("While running {}", taskTO.getKey(), e);
-                                }
-                                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-                            }
-                        }, ActionLink.ActionType.EXECUTE, StandardEntitlement.TASK_EXECUTE).
-                        add(new ActionLink<PropagationTaskTO>() {
-
-                            private static final long serialVersionUID = -3722207913631435501L;
-
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final PropagationTaskTO modelObject) {
-                                try {
-                                    restClient.delete(taskTO.getKey(), PropagationTaskTO.class);
-                                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-                                    target.add(container);
-                                } catch (SyncopeClientException e) {
-                                    LOG.error("While deleting {}", taskTO.getKey(), e);
-                                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                                            ? e.getClass().getName() : e.getMessage());
-                                }
-                                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-                            }
-                        }, ActionLink.ActionType.DELETE, StandardEntitlement.TASK_DELETE).build(componentId);
-
-                return panel;
-            }
-
-            @Override
-            public ActionLinksPanel<PropagationTaskTO> getHeader(final String componentId) {
-                final ActionLinksPanel.Builder<PropagationTaskTO> panel = ActionLinksPanel.builder();
-
-                return panel.add(new ActionLink<PropagationTaskTO>() {
-
-                    private static final long serialVersionUID = -7978723352517770644L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final PropagationTaskTO ignore) {
-                        if (target != null) {
-                            target.add(container);
-                        }
-                    }
-                }, ActionLink.ActionType.RELOAD, StandardEntitlement.TASK_LIST).build(componentId);
-            }
-        });
-
         return columns;
+    }
+
+    @Override
+    public ActionsPanel<PropagationTaskTO> getActions(final IModel<PropagationTaskTO> model) {
+        final ActionsPanel<PropagationTaskTO> panel = super.getActions(model);
+        final PropagationTaskTO taskTO = model.getObject();
+
+        panel.add(new ActionLink<PropagationTaskTO>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final PropagationTaskTO modelObject) {
+                PropagationTaskDirectoryPanel.this.getTogglePanel().close(target);
+                viewTask(taskTO, target);
+            }
+        }, ActionLink.ActionType.VIEW, StandardEntitlement.TASK_READ);
+
+        panel.add(new ActionLink<PropagationTaskTO>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final PropagationTaskTO modelObject) {
+                try {
+                    restClient.startExecution(taskTO.getKey(), null);
+                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    target.add(container);
+                } catch (SyncopeClientException e) {
+                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
+                            ? e.getClass().getName() : e.getMessage());
+                    LOG.error("While running {}", taskTO.getKey(), e);
+                }
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+            }
+        }, ActionLink.ActionType.EXECUTE, StandardEntitlement.TASK_EXECUTE);
+
+        panel.add(new ActionLink<PropagationTaskTO>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final PropagationTaskTO modelObject) {
+                try {
+                    restClient.delete(taskTO.getKey(), PropagationTaskTO.class);
+                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    target.add(container);
+                    PropagationTaskDirectoryPanel.this.getTogglePanel().close(target);
+                } catch (SyncopeClientException e) {
+                    LOG.error("While deleting {}", taskTO.getKey(), e);
+                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
+                            ? e.getClass().getName() : e.getMessage());
+                }
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+            }
+        }, ActionLink.ActionType.DELETE, StandardEntitlement.TASK_DELETE, true);
+
+        return panel;
     }
 
     @Override

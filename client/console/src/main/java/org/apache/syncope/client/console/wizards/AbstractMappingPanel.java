@@ -39,7 +39,7 @@ import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MappingPurposePanel;
@@ -318,7 +318,7 @@ public abstract class AbstractMappingPanel extends Panel {
                 //--------------------------------
                 // Remove
                 // -------------------------------
-                final ActionLinksPanel.Builder<Serializable> actions = ActionLinksPanel.builder();
+                final ActionsPanel<Serializable> actions = new ActionsPanel<>("toRemove", null);
                 actions.add(new ActionLink<Serializable>() {
 
                     private static final long serialVersionUID = -3722207913631435501L;
@@ -338,8 +338,8 @@ public abstract class AbstractMappingPanel extends Panel {
                             target.add(AbstractMappingPanel.this);
                         }
                     }
-                }, ActionLink.ActionType.DELETE, StandardEntitlement.RESOURCE_UPDATE);
-                item.add(actions.build("toRemove"));
+                }, ActionLink.ActionType.DELETE, StandardEntitlement.RESOURCE_UPDATE, true).hideLabel();
+                item.add(actions);
                 // -------------------------------
 
                 intAttrName.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {

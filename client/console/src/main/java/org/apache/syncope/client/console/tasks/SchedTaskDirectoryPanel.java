@@ -34,14 +34,13 @@ import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.rest.TaskRestClient;
-import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
-import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.lib.types.TaskType;
@@ -61,7 +60,6 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
 /**
@@ -74,8 +72,8 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
 
     private static final long serialVersionUID = 4984337552918213290L;
 
-    private static final String GROUP_MEMBER_PROVISION_TASKJOB =
-            "org.apache.syncope.core.provisioning.java.job.GroupMemberProvisionTaskJobDelegate";
+    private static final String GROUP_MEMBER_PROVISION_TASKJOB
+            = "org.apache.syncope.core.provisioning.java.job.GroupMemberProvisionTaskJobDelegate";
 
     protected final Class<T> reference;
 
@@ -131,7 +129,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
         final List<IColumn<T, String>> columns = new ArrayList<>();
 
         columns.add(new KeyPropertyColumn<T>(
-                new StringResourceModel("key", this), "key", "key"));
+                new StringResourceModel("key", this), "key"));
 
         columns.add(new PropertyColumn<T, String>(
                 new StringResourceModel("name", this), "name", "name"));
@@ -179,113 +177,110 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
         final List<IColumn<T, String>> columns = new ArrayList<>();
 
         columns.addAll(getFieldColumns());
-
-        columns.add(new ActionColumn<T, String>(new ResourceModel("actions")) {
-
-            private static final long serialVersionUID = 2054811145491901166L;
-
-            @Override
-            public ActionLinksPanel<T> getActions(final String componentId, final IModel<T> model) {
-                final T taskTO = model.getObject();
-
-                ActionLinksPanel.Builder<T> panel = ActionLinksPanel.<T>builder().add(new ActionLink<T>() {
-
-                    private static final long serialVersionUID = -3722207913631435501L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final T ignore) {
-                        viewTask(taskTO, target);
-                    }
-                }, ActionLink.ActionType.VIEW, StandardEntitlement.TASK_READ).add(new ActionLink<T>() {
-
-                    private static final long serialVersionUID = -3722207913631435501L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final T ignore) {
-                        send(SchedTaskDirectoryPanel.this, Broadcast.EXACT,
-                                new AjaxWizard.EditItemActionEvent<>(
-                                        restClient.readSchedTask(reference, model.getObject().getKey()),
-                                        target).setResourceModel(
-                                        new StringResourceModel("inner.task.edit",
-                                                SchedTaskDirectoryPanel.this,
-                                                Model.of(Pair.of(
-                                                        ActionLink.ActionType.EDIT, model.getObject())))));
-                    }
-                }, ActionLink.ActionType.EDIT, StandardEntitlement.TASK_UPDATE,
-                        !GROUP_MEMBER_PROVISION_TASKJOB.equals(taskTO.getJobDelegateClassName())).
-                        add(new ActionLink<T>() {
-
-                            private static final long serialVersionUID = -3722207913631435501L;
-
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final T ignore) {
-                                final T clone = SerializationUtils.clone(model.getObject());
-                                clone.setKey(null);
-                                send(SchedTaskDirectoryPanel.this, Broadcast.EXACT,
-                                        new AjaxWizard.EditItemActionEvent<>(clone, target).setResourceModel(
-                                                new StringResourceModel("inner.task.clone",
-                                                        SchedTaskDirectoryPanel.this,
-                                                        Model.of(Pair.of(
-                                                                ActionLink.ActionType.CLONE, model.getObject())))));
-                            }
-                        }, ActionLink.ActionType.CLONE, StandardEntitlement.TASK_CREATE).add(new ActionLink<T>() {
-
-                    private static final long serialVersionUID = -3722207913631435501L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final T ignore) {
-                        startAt.setExecutionDetail(
-                                model.getObject().getKey(), model.getObject().getName(), target);
-                        startAt.toggle(target, true);
-                    }
-                }, ActionLink.ActionType.EXECUTE, StandardEntitlement.TASK_EXECUTE,
-                        !GROUP_MEMBER_PROVISION_TASKJOB.equals(taskTO.getJobDelegateClassName())).
-                        add(new ActionLink<T>() {
-
-                            private static final long serialVersionUID = -3722207913631435501L;
-
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final T ignore) {
-                                try {
-                                    restClient.delete(taskTO.getKey(), reference);
-                                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-                                    target.add(container);
-                                } catch (SyncopeClientException e) {
-                                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                                            ? e.getClass().getName() : e.getMessage());
-                                    LOG.error("While deleting propagation task {}", taskTO.getKey(), e);
-                                }
-                                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-                            }
-                        }, ActionLink.ActionType.DELETE, StandardEntitlement.TASK_DELETE);
-
-                addFurtherActions(panel, model);
-
-                return panel.build(componentId, model.getObject());
-            }
-
-            @Override
-            public ActionLinksPanel<T> getHeader(final String componentId) {
-                final ActionLinksPanel.Builder<T> panel = ActionLinksPanel.builder();
-
-                return panel.add(new ActionLink<T>() {
-
-                    private static final long serialVersionUID = -7978723352517770644L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final T ignore) {
-                        if (target != null) {
-                            target.add(container);
-                        }
-                    }
-                }, ActionLink.ActionType.RELOAD, StandardEntitlement.TASK_LIST).build(componentId);
-            }
-        });
-
         return columns;
     }
 
-    protected void addFurtherActions(final ActionLinksPanel.Builder<T> panel, final IModel<T> model) {
+    @Override
+    public ActionsPanel<T> getActions(final IModel<T> model) {
+        final ActionsPanel<T> panel = super.getActions(model);
+        final T taskTO = model.getObject();
+
+        panel.add(new ActionLink<T>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final T ignore) {
+                SchedTaskDirectoryPanel.this.getTogglePanel().close(target);
+                viewTask(taskTO, target);
+            }
+        }, ActionLink.ActionType.VIEW, StandardEntitlement.TASK_READ);
+
+        panel.add(new ActionLink<T>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final T ignore) {
+                SchedTaskDirectoryPanel.this.getTogglePanel().close(target);
+                send(SchedTaskDirectoryPanel.this, Broadcast.EXACT,
+                        new AjaxWizard.EditItemActionEvent<>(
+                                restClient.readSchedTask(reference, model.getObject().getKey()),
+                                target).setResourceModel(
+                                new StringResourceModel("inner.task.edit",
+                                        SchedTaskDirectoryPanel.this,
+                                        Model.of(Pair.of(
+                                                ActionLink.ActionType.EDIT, model.getObject())))));
+            }
+
+            @Override
+            protected boolean statusCondition(final T modelObject) {
+                return !GROUP_MEMBER_PROVISION_TASKJOB.equals(taskTO.getJobDelegateClassName());
+            }
+        }, ActionLink.ActionType.EDIT, StandardEntitlement.TASK_UPDATE);
+
+        panel.add(new ActionLink<T>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final T ignore) {
+                SchedTaskDirectoryPanel.this.getTogglePanel().close(target);
+                final T clone = SerializationUtils.clone(model.getObject());
+                clone.setKey(null);
+                send(SchedTaskDirectoryPanel.this, Broadcast.EXACT,
+                        new AjaxWizard.EditItemActionEvent<>(clone, target).setResourceModel(
+                                new StringResourceModel("inner.task.clone",
+                                        SchedTaskDirectoryPanel.this,
+                                        Model.of(Pair.of(
+                                                ActionLink.ActionType.CLONE, model.getObject())))));
+            }
+        }, ActionLink.ActionType.CLONE, StandardEntitlement.TASK_CREATE);
+
+        panel.add(new ActionLink<T>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final T ignore) {
+                SchedTaskDirectoryPanel.this.getTogglePanel().close(target);
+                startAt.setExecutionDetail(
+                        model.getObject().getKey(), model.getObject().getName(), target);
+                startAt.toggle(target, true);
+            }
+
+            @Override
+            protected boolean statusCondition(final T modelObject) {
+                return !GROUP_MEMBER_PROVISION_TASKJOB.equals(taskTO.getJobDelegateClassName());
+            }
+        }, ActionLink.ActionType.EXECUTE, StandardEntitlement.TASK_EXECUTE);
+
+        addFurtherActions(panel, model);
+
+        panel.add(new ActionLink<T>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final T ignore) {
+                try {
+                    restClient.delete(taskTO.getKey(), reference);
+                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    target.add(container);
+                    SchedTaskDirectoryPanel.this.getTogglePanel().close(target);
+                } catch (SyncopeClientException e) {
+                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
+                            ? e.getClass().getName() : e.getMessage());
+                    LOG.error("While deleting propagation task {}", taskTO.getKey(), e);
+                }
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+            }
+        }, ActionLink.ActionType.DELETE, StandardEntitlement.TASK_DELETE, true);
+
+        return panel;
+    }
+
+    protected void addFurtherActions(final ActionsPanel<T> panel, final IModel<T> model) {
     }
 
     @Override

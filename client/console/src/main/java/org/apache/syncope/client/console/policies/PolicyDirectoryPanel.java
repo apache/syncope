@@ -33,18 +33,16 @@ import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.rest.PolicyRestClient;
-import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.CollectionPropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
-import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
-import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -55,7 +53,6 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
 /**
@@ -112,6 +109,8 @@ public abstract class PolicyDirectoryPanel<T extends AbstractPolicyTO>
         setFooterVisibility(true);
         modal.addSubmitButton();
         modal.size(Modal.Size.Large);
+        
+        disableCheckBoxes();
     }
 
     @Override
@@ -119,107 +118,82 @@ public abstract class PolicyDirectoryPanel<T extends AbstractPolicyTO>
         final List<IColumn<T, String>> columns = new ArrayList<>();
 
         columns.add(new KeyPropertyColumn<T>(
-                new StringResourceModel("key", this), "key", "key"));
-
-        columns.add(new PropertyColumn<T, String>(new StringResourceModel(
-                "description", this), "description", "description"));
-
+                new StringResourceModel("key", this), "key"));
+        columns.add(new PropertyColumn<T, String>(
+                new StringResourceModel("description", this), "description", "description"));
         columns.add(new CollectionPropertyColumn<T>(
-                new StringResourceModel("usedByResources", this), "usedByResources", "usedByResources"));
-
+                new StringResourceModel("usedByResources", this), "usedByResources"));
         columns.add(new CollectionPropertyColumn<T>(
-                new StringResourceModel("usedByRealms", this), "usedByRealms", "usedByRealms"));
+                new StringResourceModel("usedByRealms", this), "usedByRealms"));
 
         addCustomColumnFields(columns);
 
-        columns.add(new ActionColumn<T, String>(new ResourceModel("actions")) {
-
-            private static final long serialVersionUID = 2054811145491901166L;
-
-            @Override
-            public ActionLinksPanel<T> getActions(final String componentId, final IModel<T> model) {
-
-                final ActionLinksPanel.Builder<T> panel = ActionLinksPanel.<T>builder().
-                        add(new ActionLink<T>() {
-
-                            private static final long serialVersionUID = -3722207913631435501L;
-
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final AbstractPolicyTO ignore) {
-                                final AbstractPolicyTO clone = SerializationUtils.clone(model.getObject());
-                                clone.setKey(null);
-                                send(PolicyDirectoryPanel.this, Broadcast.EXACT,
-                                        new AjaxWizard.EditItemActionEvent<>(clone, target));
-                            }
-                        }, ActionLink.ActionType.CLONE, StandardEntitlement.POLICY_CREATE).
-                        add(new ActionLink<T>() {
-
-                            private static final long serialVersionUID = -3722207913631435501L;
-
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final AbstractPolicyTO ignore) {
-                                send(PolicyDirectoryPanel.this, Broadcast.EXACT,
-                                        new AjaxWizard.EditItemActionEvent<>(
-                                                restClient.getPolicy(model.getObject().getKey()), target));
-                            }
-                        }, ActionLink.ActionType.EDIT, StandardEntitlement.POLICY_UPDATE).
-                        add(new ActionLink<T>() {
-
-                            private static final long serialVersionUID = -3722207913631435501L;
-
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final AbstractPolicyTO ignore) {
-                                final T policyTO = model.getObject();
-                                try {
-                                    restClient.delete(policyTO.getKey());
-                                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-                                    target.add(container);
-                                } catch (SyncopeClientException e) {
-                                    LOG.error("While deleting {}", policyTO.getKey(), e);
-                                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                                            ? e.getClass().getName() : e.getMessage());
-                                }
-                                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-                            }
-                        }, ActionLink.ActionType.DELETE, StandardEntitlement.POLICY_DELETE);
-
-                addCustomActions(panel, model);
-                return panel.build(componentId);
-            }
-
-            @Override
-            public ActionLinksPanel<ReportTO> getHeader(final String componentId) {
-                final ActionLinksPanel.Builder<ReportTO> panel = ActionLinksPanel.builder();
-
-                return panel.add(new ActionLink<ReportTO>() {
-
-                    private static final long serialVersionUID = -7978723352517770644L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final ReportTO ignore) {
-                        if (target != null) {
-                            target.add(container);
-                        }
-                    }
-                }, ActionLink.ActionType.RELOAD, StandardEntitlement.TASK_LIST).build(componentId);
-            }
-        });
-
         return columns;
+    }
+
+    @Override
+    public ActionsPanel<T> getActions(final IModel<T> model) {
+        final ActionsPanel<T> panel = super.getActions(model);
+
+        panel.add(new ActionLink<T>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final AbstractPolicyTO ignore) {
+                send(PolicyDirectoryPanel.this, Broadcast.EXACT,
+                        new AjaxWizard.EditItemActionEvent<>(
+                                restClient.getPolicy(model.getObject().getKey()), target));
+            }
+        }, ActionLink.ActionType.EDIT, StandardEntitlement.POLICY_UPDATE);
+
+        panel.add(new ActionLink<T>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final AbstractPolicyTO ignore) {
+                final AbstractPolicyTO clone = SerializationUtils.clone(model.getObject());
+                clone.setKey(null);
+                send(PolicyDirectoryPanel.this, Broadcast.EXACT,
+                        new AjaxWizard.EditItemActionEvent<>(clone, target));
+            }
+        }, ActionLink.ActionType.CLONE, StandardEntitlement.POLICY_CREATE);
+
+        addCustomActions(panel, model);
+
+        panel.add(new ActionLink<T>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final AbstractPolicyTO ignore) {
+                final T policyTO = model.getObject();
+                try {
+                    restClient.delete(policyTO.getKey());
+                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    target.add(container);
+                } catch (SyncopeClientException e) {
+                    LOG.error("While deleting {}", policyTO.getKey(), e);
+                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
+                            ? e.getClass().getName() : e.getMessage());
+                }
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+            }
+        }, ActionLink.ActionType.DELETE, StandardEntitlement.POLICY_DELETE, true);
+
+        return panel;
     }
 
     protected void addCustomColumnFields(final List<IColumn<T, String>> columns) {
     }
 
-    protected void addCustomActions(final ActionLinksPanel.Builder<T> panel, final IModel<T> model) {
+    protected void addCustomActions(final ActionsPanel<T> panel, final IModel<T> model) {
     }
 
     @Override
     protected Collection<ActionType> getBulkActions() {
-        final List<ActionType> bulkActions = new ArrayList<>();
-        bulkActions.add(ActionType.EXECUTE);
-        bulkActions.add(ActionType.DELETE);
-        return bulkActions;
+        return Collections.<ActionType>emptyList();
     }
 
     @Override

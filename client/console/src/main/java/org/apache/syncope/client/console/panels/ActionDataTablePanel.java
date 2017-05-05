@@ -28,7 +28,7 @@ import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
-import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -47,7 +47,7 @@ public class ActionDataTablePanel<T extends Serializable, S> extends DataTablePa
 
     private final Form<T> bulkActionForm;
 
-    private final ActionLinksPanel<Serializable> actionPanel;
+    private final ActionsPanel<Serializable> actionPanel;
 
     public ActionDataTablePanel(
             final String id,
@@ -87,7 +87,7 @@ public class ActionDataTablePanel<T extends Serializable, S> extends DataTablePa
         final WebMarkupContainer actionPanelContainer = new WebMarkupContainer("actionPanelContainer");
         bulkActionForm.add(actionPanelContainer);
 
-        actionPanel = ActionLinksPanel.builder().build("actions");
+        actionPanel = new ActionsPanel<>("actions", null);
         actionPanelContainer.add(actionPanel);
 
         if (dataTable.getRowCount() == 0) {
@@ -107,12 +107,7 @@ public class ActionDataTablePanel<T extends Serializable, S> extends DataTablePa
 
     public void addAction(
             final ActionLink<Serializable> action, final ActionType type, final String entitlements) {
-        actionPanel.add(action, type, entitlements, true);
-    }
-
-    public void addAction(
-            final ActionLink<Serializable> action, final ActionType type, final String pageId, final boolean enabled) {
-        actionPanel.add(action, type, pageId, enabled);
+        actionPanel.add(action, type, entitlements);
     }
 
     public void addCancelButton(final BaseModal<?> modal) {

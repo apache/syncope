@@ -32,10 +32,9 @@ import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.SecurityQuestionsPanel.SecurityQuestionsProvider;
 import org.apache.syncope.client.console.rest.SecurityQuestionRestClient;
-import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wizards.AbstractModalPanelBuilder;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
@@ -50,7 +49,6 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
 public class SecurityQuestionsPanel extends DirectoryPanel<
@@ -129,72 +127,47 @@ public class SecurityQuestionsPanel extends DirectoryPanel<
         List<IColumn<SecurityQuestionTO, String>> columns = new ArrayList<>();
 
         columns.add(new KeyPropertyColumn<SecurityQuestionTO>(
-                new StringResourceModel("key", this), "key", "key"));
-
+                new StringResourceModel("key", this), "key"));
         columns.add(new PropertyColumn<SecurityQuestionTO, String>(
                 new StringResourceModel("content", this), "content", "content"));
 
-        columns.add(new ActionColumn<SecurityQuestionTO, String>(new ResourceModel("actions")) {
-
-            private static final long serialVersionUID = -8089193528195091515L;
-
-            @Override
-            public ActionLinksPanel<SecurityQuestionTO> getActions(
-                    final String componentId, final IModel<SecurityQuestionTO> model) {
-
-                ActionLinksPanel<SecurityQuestionTO> panel = ActionLinksPanel.<SecurityQuestionTO>builder().
-                        add(new ActionLink<SecurityQuestionTO>() {
-
-                            private static final long serialVersionUID = -3722207913631435501L;
-
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final SecurityQuestionTO ignore) {
-                                send(SecurityQuestionsPanel.this, Broadcast.EXACT,
-                                        new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
-                            }
-                        }, ActionLink.ActionType.EDIT, StandardEntitlement.SECURITY_QUESTION_UPDATE).
-                        add(new ActionLink<SecurityQuestionTO>() {
-
-                            private static final long serialVersionUID = -3722207913631435501L;
-
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final SecurityQuestionTO ignore) {
-                                try {
-                                    restClient.delete(model.getObject().getKey());
-                                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-                                    target.add(container);
-                                } catch (Exception e) {
-                                    LOG.error("While deleting {}", model.getObject(), e);
-                                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                                            ? e.getClass().getName() : e.getMessage());
-                                }
-                                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-                            }
-                        }, ActionLink.ActionType.DELETE, StandardEntitlement.TASK_DELETE).
-                        build(componentId);
-
-                return panel;
-            }
-
-            @Override
-            public ActionLinksPanel<SecurityQuestionTO> getHeader(final String componentId) {
-                final ActionLinksPanel.Builder<SecurityQuestionTO> panel = ActionLinksPanel.builder();
-
-                return panel.add(new ActionLink<SecurityQuestionTO>() {
-
-                    private static final long serialVersionUID = -1140254463922516111L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final SecurityQuestionTO ignore) {
-                        if (target != null) {
-                            target.add(container);
-                        }
-                    }
-                }, ActionLink.ActionType.RELOAD).build(componentId);
-            }
-        });
-
         return columns;
+    }
+
+    @Override
+    public ActionsPanel<SecurityQuestionTO> getActions(final IModel<SecurityQuestionTO> model) {
+        final ActionsPanel<SecurityQuestionTO> panel = super.getActions(model);
+
+        panel.add(new ActionLink<SecurityQuestionTO>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final SecurityQuestionTO ignore) {
+                send(SecurityQuestionsPanel.this, Broadcast.EXACT,
+                        new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
+            }
+        }, ActionLink.ActionType.EDIT, StandardEntitlement.SECURITY_QUESTION_UPDATE);
+        panel.add(new ActionLink<SecurityQuestionTO>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final SecurityQuestionTO ignore) {
+                try {
+                    restClient.delete(model.getObject().getKey());
+                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    target.add(container);
+                } catch (Exception e) {
+                    LOG.error("While deleting {}", model.getObject(), e);
+                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
+                            ? e.getClass().getName() : e.getMessage());
+                }
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+            }
+        }, ActionLink.ActionType.DELETE, StandardEntitlement.TASK_DELETE, true);
+
+        return panel;
     }
 
     protected final class SecurityQuestionsProvider extends DirectoryDataProvider<SecurityQuestionTO> {

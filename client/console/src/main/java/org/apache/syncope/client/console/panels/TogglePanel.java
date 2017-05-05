@@ -118,8 +118,7 @@ public abstract class TogglePanel<T extends Serializable> extends WizardMgtPanel
         target.add(this.header);
     }
 
-    protected void close(final AjaxRequestTarget target) {
-        status = Status.INACTIVE;
+    public void close(final AjaxRequestTarget target) {
         toggle(target, false);
     }
 
@@ -136,13 +135,13 @@ public abstract class TogglePanel<T extends Serializable> extends WizardMgtPanel
                 target.add(TogglePanel.this.container);
                 target.appendJavaScript(
                         selector + ".toggle(\"slow\");"
-                        + selector + ".attr(\"class\", \"topology-menu active-topology-menu\");");
+                        + selector + ".attr(\"class\", \"toggle-menu active-toggle-menu\");");
                 status = Status.ACTIVE;
             }
         } else if (status == Status.ACTIVE) {
             target.appendJavaScript(
                     selector + ".toggle(\"slow\");"
-                    + selector + ".attr(\"class\", \"topology-menu inactive-topology-menu\");");
+                    + selector + ".attr(\"class\", \"toggle-menu inactive-toggle-menu\");");
             status = Status.INACTIVE;
         }
     }

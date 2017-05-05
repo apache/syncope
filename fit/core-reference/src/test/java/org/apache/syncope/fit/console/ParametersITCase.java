@@ -21,6 +21,7 @@ package org.apache.syncope.fit.console;
 import static org.junit.Assert.assertNotNull;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.Parameters;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -72,7 +73,10 @@ public class ParametersITCase extends AbstractConsoleITCase {
 
         Component result = findComponentByProp(SCHEMA, "body:content:parametersPanel", "notification.maxRetries");
         assertNotNull(result);
-        TESTER.clickLink(result.getPageRelativePath() + ":cells:4:cell:panelEdit:editLink");
+        
+        TESTER.executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink("body:content:parametersPanel:outerObjectsRepeater:1:outer:container:content:"
+                + "togglePanelContainer:container:actions:actions:actionRepeater:0:action:action");
 
         FormTester formTester = TESTER.newFormTester(
                 "body:content:parametersPanel:container:content:modalDetails:form");
@@ -108,7 +112,10 @@ public class ParametersITCase extends AbstractConsoleITCase {
 
         Component result = findComponentByProp(SCHEMA, "body:content:parametersPanel", "deleteParam");
         assertNotNull(result);
-        TESTER.clickLink(result.getPageRelativePath() + ":cells:4:cell:panelDelete:deleteLink");
+        
+        TESTER.executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink("body:content:parametersPanel:outerObjectsRepeater:1:outer:container:content:"
+                + "togglePanelContainer:container:actions:actions:actionRepeater:1:action:action");
 
         TESTER.assertInfoMessages("Operation executed successfully");
         TESTER.cleanupFeedbackMessages();

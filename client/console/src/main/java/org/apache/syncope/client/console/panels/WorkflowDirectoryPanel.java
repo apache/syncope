@@ -37,12 +37,11 @@ import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.pages.ModelerPopupPage;
 import org.apache.syncope.client.console.panels.WorkflowDirectoryPanel.WorkflowDefinitionDataProvider;
 import org.apache.syncope.client.console.rest.WorkflowRestClient;
-import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.ImageModalPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.XMLEditorPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
@@ -162,142 +161,130 @@ public class WorkflowDirectoryPanel extends DirectoryPanel<
     protected List<IColumn<WorkflowDefinitionTO, String>> getColumns() {
         List<IColumn<WorkflowDefinitionTO, String>> columns = new ArrayList<>();
 
-        columns.add(new KeyPropertyColumn<WorkflowDefinitionTO>(new ResourceModel("key"), "key", "key"));
+        columns.add(new KeyPropertyColumn<WorkflowDefinitionTO>(new ResourceModel("key"), "key"));
         columns.add(new PropertyColumn<WorkflowDefinitionTO, String>(new ResourceModel("name"), "name", "name"));
         columns.add(new BooleanPropertyColumn<WorkflowDefinitionTO>(new ResourceModel("main"), null, "main"));
 
-        columns.add(new ActionColumn<WorkflowDefinitionTO, String>(new ResourceModel("actions")) {
-
-            private static final long serialVersionUID = 906457126287899096L;
-
-            @Override
-            public ActionLinksPanel<?> getActions(final String componentId, final IModel<WorkflowDefinitionTO> model) {
-                final ActionLinksPanel.Builder<WorkflowDefinitionTO> panel = ActionLinksPanel.builder();
-
-                panel.add(new ActionLink<WorkflowDefinitionTO>() {
-
-                    private static final long serialVersionUID = 3109256773218160485L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final WorkflowDefinitionTO ignore) {
-                        modal.header(Model.of(model.getObject().getKey()));
-                        modal.setContent(new ImageModalPanel<>(
-                                modal, restClient.getDiagram(model.getObject().getKey()), pageRef));
-                        modal.show(target);
-                        target.add(modal);
-                    }
-                }, ActionLink.ActionType.VIEW, StandardEntitlement.WORKFLOW_DEF_GET);
-
-                panel.add(new ActionLink<WorkflowDefinitionTO>() {
-
-                    private static final long serialVersionUID = -184018732772021627L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final WorkflowDefinitionTO ignore) {
-                        final IModel<String> wfDefinition = new Model<>();
-                        try {
-                            wfDefinition.setObject(IOUtils.toString(restClient.getDefinition(
-                                    MediaType.APPLICATION_XML_TYPE, model.getObject().getKey())));
-                        } catch (IOException e) {
-                            LOG.error("Could not get workflow definition", e);
-                        }
-
-                        utility.header(Model.of(model.getObject().getKey()));
-                        utility.setContent(new XMLEditorPanel(utility, wfDefinition, false, pageRef) {
-
-                            private static final long serialVersionUID = -7688359318035249200L;
-
-                            @Override
-                            public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-                                if (StringUtils.isNotBlank(wfDefinition.getObject())) {
-                                    try {
-                                        restClient.setDefinition(MediaType.APPLICATION_XML_TYPE,
-                                                model.getObject().getKey(), wfDefinition.getObject());
-                                        SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-
-                                        target.add(container);
-                                        utility.show(false);
-                                        utility.close(target);
-                                    } catch (SyncopeClientException e) {
-                                        SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                                                ? e.getClass().getName() : e.getMessage());
-                                    }
-                                    ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-                                }
-                            }
-                        });
-                        utility.show(target);
-                        target.add(utility);
-                    }
-                }, ActionLink.ActionType.EDIT, StandardEntitlement.WORKFLOW_DEF_SET);
-
-                panel.add(new ActionLink<WorkflowDefinitionTO>() {
-
-                    private static final long serialVersionUID = -184018732772021627L;
-
-                    @Override
-                    public Class<? extends Page> getPageClass() {
-                        return ModelerPopupPage.class;
-                    }
-
-                    @Override
-                    public PageParameters getPageParameters() {
-                        PageParameters parameters = new PageParameters();
-                        if (modelerCtx != null) {
-                            parameters.add(Constants.MODELER_CONTEXT, modelerCtx);
-                        }
-                        parameters.add(Constants.MODEL_ID_PARAM, model.getObject().getModelId());
-
-                        return parameters;
-                    }
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final WorkflowDefinitionTO ignore) {
-                        // do nothing
-                    }
-                }, ActionLink.ActionType.WORKFLOW_MODELER, StandardEntitlement.WORKFLOW_DEF_SET, modelerCtx != null);
-
-                panel.add(new ActionLink<WorkflowDefinitionTO>() {
-
-                    private static final long serialVersionUID = -7978723352517770644L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final WorkflowDefinitionTO ignore) {
-                        try {
-                            restClient.deleteDefinition(model.getObject().getKey());
-                            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-                            target.add(container);
-                        } catch (SyncopeClientException e) {
-                            LOG.error("While deleting workflow definition {}", model.getObject().getName(), e);
-                            SyncopeConsoleSession.get().error(
-                                    StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
-                        }
-                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-                    }
-                }, ActionLink.ActionType.DELETE, StandardEntitlement.WORKFLOW_DEF_DELETE, !model.getObject().isMain());
-
-                return panel.build(componentId);
-            }
-
-            @Override
-            public ActionLinksPanel<WorkflowDefinitionTO> getHeader(final String componentId) {
-                final ActionLinksPanel.Builder<WorkflowDefinitionTO> panel = ActionLinksPanel.builder();
-
-                return panel.add(new ActionLink<WorkflowDefinitionTO>() {
-
-                    private static final long serialVersionUID = -184018732772021627L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final WorkflowDefinitionTO ignore) {
-                        if (target != null) {
-                            target.add(container);
-                        }
-                    }
-                }, ActionLink.ActionType.RELOAD, StandardEntitlement.WORKFLOW_DEF_LIST).build(componentId);
-            }
-        });
-
         return columns;
+    }
+
+    @Override
+    public ActionsPanel<WorkflowDefinitionTO> getActions(final IModel<WorkflowDefinitionTO> model) {
+        final ActionsPanel<WorkflowDefinitionTO> panel = super.getActions(model);
+
+        panel.add(new ActionLink<WorkflowDefinitionTO>() {
+
+            private static final long serialVersionUID = -184018732772021627L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final WorkflowDefinitionTO ignore) {
+                final IModel<String> wfDefinition = new Model<>();
+                try {
+                    wfDefinition.setObject(IOUtils.toString(restClient.getDefinition(
+                            MediaType.APPLICATION_XML_TYPE, model.getObject().getKey())));
+                } catch (IOException e) {
+                    LOG.error("Could not get workflow definition", e);
+                }
+
+                utility.header(Model.of(model.getObject().getKey()));
+                utility.setContent(new XMLEditorPanel(utility, wfDefinition, false, pageRef) {
+
+                    private static final long serialVersionUID = -7688359318035249200L;
+
+                    @Override
+                    public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+                        if (StringUtils.isNotBlank(wfDefinition.getObject())) {
+                            try {
+                                restClient.setDefinition(MediaType.APPLICATION_XML_TYPE,
+                                        model.getObject().getKey(), wfDefinition.getObject());
+                                SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+
+                                target.add(container);
+                                utility.show(false);
+                                utility.close(target);
+                            } catch (SyncopeClientException e) {
+                                SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
+                                        ? e.getClass().getName() : e.getMessage());
+                            }
+                            ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                        }
+                    }
+                });
+                utility.show(target);
+                target.add(utility);
+            }
+        }, ActionLink.ActionType.EDIT, StandardEntitlement.WORKFLOW_DEF_SET);
+
+        panel.add(new ActionLink<WorkflowDefinitionTO>() {
+
+            private static final long serialVersionUID = 3109256773218160485L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final WorkflowDefinitionTO ignore) {
+                modal.header(Model.of(model.getObject().getKey()));
+                modal.setContent(new ImageModalPanel<>(
+                        modal, restClient.getDiagram(model.getObject().getKey()), pageRef));
+                modal.show(target);
+                target.add(modal);
+            }
+        }, ActionLink.ActionType.VIEW, StandardEntitlement.WORKFLOW_DEF_GET);
+
+        panel.add(new ActionLink<WorkflowDefinitionTO>() {
+
+            private static final long serialVersionUID = -184018732772021627L;
+
+            @Override
+            public Class<? extends Page> getPageClass() {
+                return ModelerPopupPage.class;
+            }
+
+            @Override
+            public PageParameters getPageParameters() {
+                PageParameters parameters = new PageParameters();
+                if (modelerCtx != null) {
+                    parameters.add(Constants.MODELER_CONTEXT, modelerCtx);
+                }
+                parameters.add(Constants.MODEL_ID_PARAM, model.getObject().getModelId());
+
+                return parameters;
+            }
+
+            @Override
+            protected boolean statusCondition(final WorkflowDefinitionTO modelObject) {
+                return modelerCtx != null;
+            }
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final WorkflowDefinitionTO ignore) {
+                // do nothing
+            }
+        }, ActionLink.ActionType.WORKFLOW_MODELER, StandardEntitlement.WORKFLOW_DEF_SET);
+
+        panel.add(new ActionLink<WorkflowDefinitionTO>() {
+
+            private static final long serialVersionUID = -7978723352517770644L;
+
+            @Override
+            protected boolean statusCondition(final WorkflowDefinitionTO modelObject) {
+                return !modelObject.isMain();
+            }
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final WorkflowDefinitionTO ignore) {
+                try {
+                    restClient.deleteDefinition(model.getObject().getKey());
+                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    target.add(container);
+                } catch (SyncopeClientException e) {
+                    LOG.error("While deleting workflow definition {}", model.getObject().getName(), e);
+                    SyncopeConsoleSession.get().error(
+                            StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+                }
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+            }
+        }, ActionLink.ActionType.DELETE, StandardEntitlement.WORKFLOW_DEF_DELETE, true);
+
+        return panel;
     }
 
     @Override

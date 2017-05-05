@@ -35,7 +35,7 @@ public class AnyObjectDisplayAttributesModalPanel<T extends Serializable> extend
 
     private static final long serialVersionUID = 5194630813773543054L;
 
-    public static final String[] DEFAULT_SELECTION = { "key", "name" };
+    public static final String[] DEFAULT_SELECTION = { "name" };
 
     public AnyObjectDisplayAttributesModalPanel(
             final BaseModal<T> modal,

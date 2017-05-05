@@ -22,7 +22,7 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.lib.types.TaskType;
@@ -53,21 +53,17 @@ public abstract class PullTaskDirectoryPanel extends ProvisioningTaskDirectoryPa
     }
 
     @Override
-    protected void addFurtherActions(final ActionLinksPanel.Builder<PullTaskTO> panel, final IModel<PullTaskTO> model) {
+    protected void addFurtherActions(final ActionsPanel<PullTaskTO> panel, final IModel<PullTaskTO> model) {
         panel.add(new ActionLink<PullTaskTO>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
             @Override
             public void onClick(final AjaxRequestTarget target, final PullTaskTO ignore) {
+                PullTaskDirectoryPanel.this.getTogglePanel().close(target);
                 templates.setTargetObject(model.getObject());
                 templates.toggle(target, true);
             }
-
-            @Override
-            public boolean isIndicatorEnabled() {
-                return false;
-            }
-        }, ActionLink.ActionType.TEMPLATE, StandardEntitlement.TASK_UPDATE);
+        }, ActionLink.ActionType.TEMPLATE, StandardEntitlement.TASK_UPDATE).disableIndicator();
     }
 }

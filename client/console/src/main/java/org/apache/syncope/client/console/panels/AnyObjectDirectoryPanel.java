@@ -31,11 +31,11 @@ import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.AnyObjectRestClient;
 import org.apache.syncope.client.console.status.AnyStatusModal;
 import org.apache.syncope.client.console.tasks.AnyPropagationTasks;
-import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AttrColumn;
+import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
-import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.console.wizards.any.AnyWrapper;
@@ -71,20 +71,50 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
     }
 
     @Override
+    public ActionsPanel<Serializable> getHeader(final String componentId) {
+        final ActionsPanel<Serializable> panel = super.getHeader(componentId);
+
+        panel.add(new ActionLink<Serializable>() {
+
+            private static final long serialVersionUID = -7978723352517770644L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
+                target.add(displayAttributeModal.setContent(new AnyObjectDisplayAttributesModalPanel<>(
+                        displayAttributeModal, page.getPageReference(), pSchemaNames, dSchemaNames, type)));
+                displayAttributeModal.addSubmitButton();
+                displayAttributeModal.header(new ResourceModel("any.attr.display"));
+                displayAttributeModal.show(true);
+            }
+
+            @Override
+            protected boolean statusCondition(final Serializable modelObject) {
+                return wizardInModal;
+            }
+        }, ActionType.CHANGE_VIEW, AnyEntitlement.READ.getFor(type)).hideLabel();
+        return panel;
+    }
+
+    @Override
     protected List<IColumn<AnyObjectTO, String>> getColumns() {
         final List<IColumn<AnyObjectTO, String>> columns = new ArrayList<>();
+        final List<IColumn<AnyObjectTO, String>> prefcolumns = new ArrayList<>();
+
+        columns.add(new KeyPropertyColumn<AnyObjectTO>(
+                new ResourceModel(Constants.KEY_FIELD_NAME, Constants.KEY_FIELD_NAME), Constants.KEY_FIELD_NAME));
 
         for (String name : prefMan.getList(
                 getRequest(), String.format(Constants.PREF_ANY_OBJECT_DETAILS_VIEW, type))) {
-
-            addPropertyColumn(name, ReflectionUtils.findField(AnyObjectTO.class, name), columns);
+            if (!Constants.KEY_FIELD_NAME.equalsIgnoreCase(name)) {
+                addPropertyColumn(name, ReflectionUtils.findField(AnyObjectTO.class, name), prefcolumns);
+            }
         }
 
         for (String name : prefMan.getList(
                 getRequest(), String.format(Constants.PREF_ANY_OBJECT_PLAIN_ATTRS_VIEW, type))) {
 
             if (pSchemaNames.contains(name)) {
-                columns.add(new AttrColumn<AnyObjectTO>(name, SchemaType.PLAIN));
+                prefcolumns.add(new AttrColumn<AnyObjectTO>(name, SchemaType.PLAIN));
             }
         }
 
@@ -92,171 +122,132 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
                 getRequest(), String.format(Constants.PREF_ANY_OBJECT_DER_ATTRS_VIEW, type))) {
 
             if (dSchemaNames.contains(name)) {
-                columns.add(new AttrColumn<AnyObjectTO>(name, SchemaType.DERIVED));
+                prefcolumns.add(new AttrColumn<AnyObjectTO>(name, SchemaType.DERIVED));
             }
         }
 
         // Add defaults in case of no selection
-        if (columns.isEmpty()) {
+        if (prefcolumns.isEmpty()) {
             for (String name : AnyObjectDisplayAttributesModalPanel.DEFAULT_SELECTION) {
-                addPropertyColumn(name, ReflectionUtils.findField(AnyObjectTO.class, name), columns);
+                addPropertyColumn(name, ReflectionUtils.findField(AnyObjectTO.class, name), prefcolumns);
             }
 
-            prefMan.setList(getRequest(), getResponse(),
-                    String.format(Constants.PREF_ANY_OBJECT_DETAILS_VIEW, type),
+            prefMan.setList(getRequest(), getResponse(), Constants.PREF_ANY_OBJECT_DETAILS_VIEW,
                     Arrays.asList(AnyObjectDisplayAttributesModalPanel.DEFAULT_SELECTION));
         }
 
-        columns.add(new ActionColumn<AnyObjectTO, String>(new ResourceModel("actions")) {
-
-            private static final long serialVersionUID = -3503023501954863131L;
-
-            @Override
-            public ActionLinksPanel<AnyObjectTO> getActions(final String componentId, final IModel<AnyObjectTO> model) {
-                final ActionLinksPanel.Builder<AnyObjectTO> panel = ActionLinksPanel.builder();
-
-                panel.add(new ActionLink<AnyObjectTO>() {
-
-                    private static final long serialVersionUID = -7978723352517770644L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
-                        send(AnyObjectDirectoryPanel.this, Broadcast.EXACT,
-                                new AjaxWizard.EditItemActionEvent<>(
-                                        new AnyWrapper<>(new AnyObjectRestClient().read(model.getObject().getKey())),
-                                        target));
-                    }
-                }, ActionType.EDIT, AnyEntitlement.READ.getFor(type)).add(new ActionLink<AnyObjectTO>() {
-
-                    private static final long serialVersionUID = -7978723352517770645L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
-                        final AnyObjectTO clone = SerializationUtils.clone(model.getObject());
-                        clone.setKey(null);
-                        send(AnyObjectDirectoryPanel.this, Broadcast.EXACT,
-                                new AjaxWizard.NewItemActionEvent<>(new AnyWrapper<>(clone), target));
-                    }
-
-                    @Override
-                    protected boolean statusCondition(final AnyObjectTO modelObject) {
-                        return addAjaxLink.isVisibleInHierarchy();
-                    }
-                }, ActionType.CLONE, AnyEntitlement.CREATE.getFor(type)).add(new ActionLink<AnyObjectTO>() {
-
-                    private static final long serialVersionUID = -7978723352517770646L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
-                        try {
-                            restClient.delete(model.getObject().getETagValue(), model.getObject().getKey());
-                            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-                            target.add(container);
-                        } catch (SyncopeClientException e) {
-                            LOG.error("While deleting object {}", model.getObject().getKey(), e);
-                            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                                    ? e.getClass().getName() : e.getMessage());
-                        }
-                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-                    }
-                }, ActionType.DELETE, AnyEntitlement.DELETE.getFor(type));
-
-                if (wizardInModal) {
-                    panel.add(new ActionLink<AnyObjectTO>() {
-
-                        private static final long serialVersionUID = -7978723352517770645L;
-
-                        @Override
-                        public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
-                            final IModel<AnyWrapper<AnyObjectTO>> formModel = new CompoundPropertyModel<>(
-                                    new AnyWrapper<>(model.getObject()));
-                            altDefaultModal.setFormModel(formModel);
-
-                            target.add(altDefaultModal.setContent(new AnyStatusModal<>(
-                                    altDefaultModal,
-                                    pageRef,
-                                    formModel.getObject().getInnerObject(),
-                                    "resourceName",
-                                    false)));
-
-                            altDefaultModal.header(new Model<>(
-                                    getString("any.edit", new Model<>(new AnyWrapper<>(model.getObject())))));
-
-                            altDefaultModal.show(true);
-                        }
-                    }, ActionType.MANAGE_RESOURCES, AnyEntitlement.READ.getFor(type)).add(
-                            new ActionLink<AnyObjectTO>() {
-
-                        private static final long serialVersionUID = -7978723352517770644L;
-
-                        @Override
-                        public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
-                            target.add(utilityModal.setContent(new AnyPropagationTasks(
-                                    utilityModal, AnyTypeKind.ANY_OBJECT, model.getObject().getKey(), pageRef)));
-
-                            utilityModal.header(new StringResourceModel("any.propagation.tasks", model));
-                            utilityModal.show(true);
-                        }
-                    }, ActionType.PROPAGATION_TASKS, StandardEntitlement.TASK_LIST).add(new ActionLink<AnyObjectTO>() {
-
-                                private static final long serialVersionUID = -7978723352517770644L;
-
-                                @Override
-                                public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
-                                    target.add(utilityModal.setContent(
-                                            new NotificationTasks(AnyTypeKind.ANY_OBJECT, model.getObject().getKey(),
-                                                    pageRef)));
-                                    utilityModal.header(new StringResourceModel("any.notification.tasks", model));
-                                    utilityModal.show(true);
-                                    target.add(utilityModal);
-                                }
-                            }, ActionType.NOTIFICATION_TASKS, StandardEntitlement.TASK_LIST);
-                }
-
-                return panel.build(componentId, model.getObject());
-            }
-
-            @Override
-            public ActionLinksPanel<Serializable> getHeader(final String componentId) {
-                final ActionLinksPanel.Builder<Serializable> panel = ActionLinksPanel.builder();
-
-                panel.add(new ActionLink<Serializable>() {
-
-                    private static final long serialVersionUID = -7978723352517770644L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                        target.add(displayAttributeModal.setContent(new AnyObjectDisplayAttributesModalPanel<>(
-                                displayAttributeModal, page.getPageReference(), pSchemaNames, dSchemaNames, type)));
-                        displayAttributeModal.addSubmitButton();
-                        displayAttributeModal.header(new ResourceModel("any.attr.display"));
-                        displayAttributeModal.show(true);
-                    }
-
-                    @Override
-                    protected boolean statusCondition(final Serializable modelObject) {
-                        return wizardInModal;
-                    }
-                }, ActionType.CHANGE_VIEW, AnyEntitlement.READ.getFor(type)).add(
-                        new ActionLink<Serializable>() {
-
-                    private static final long serialVersionUID = -7978723352517770644L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                        if (target != null) {
-                            target.add(container);
-                        }
-                    }
-                }, ActionType.RELOAD, AnyEntitlement.SEARCH.getFor(type));
-
-                return panel.build(componentId);
-            }
-        }
-        );
-
+        columns.addAll(prefcolumns);
         return columns;
+    }
 
+    @Override
+    public ActionsPanel<AnyObjectTO> getActions(final IModel<AnyObjectTO> model) {
+        final ActionsPanel<AnyObjectTO> panel = super.getActions(model);
+
+        panel.add(new ActionLink<AnyObjectTO>() {
+
+            private static final long serialVersionUID = -7978723352517770644L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
+                send(AnyObjectDirectoryPanel.this, Broadcast.EXACT,
+                        new AjaxWizard.EditItemActionEvent<>(
+                                new AnyWrapper<>(new AnyObjectRestClient().read(model.getObject().getKey())),
+                                target));
+            }
+        }, ActionType.EDIT, AnyEntitlement.READ.getFor(type));
+        panel.add(new ActionLink<AnyObjectTO>() {
+
+            private static final long serialVersionUID = -7978723352517770645L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
+                final AnyObjectTO clone = SerializationUtils.clone(model.getObject());
+                clone.setKey(null);
+                send(AnyObjectDirectoryPanel.this, Broadcast.EXACT,
+                        new AjaxWizard.NewItemActionEvent<>(new AnyWrapper<>(clone), target));
+            }
+
+            @Override
+            protected boolean statusCondition(final AnyObjectTO modelObject) {
+                return addAjaxLink.isVisibleInHierarchy();
+            }
+        }, ActionType.CLONE, AnyEntitlement.CREATE.getFor(type));
+
+        if (wizardInModal) {
+            panel.add(new ActionLink<AnyObjectTO>() {
+
+                private static final long serialVersionUID = -7978723352517770645L;
+
+                @Override
+                public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
+                    final IModel<AnyWrapper<AnyObjectTO>> formModel = new CompoundPropertyModel<>(
+                            new AnyWrapper<>(model.getObject()));
+                    altDefaultModal.setFormModel(formModel);
+
+                    target.add(altDefaultModal.setContent(new AnyStatusModal<>(
+                            altDefaultModal,
+                            pageRef,
+                            formModel.getObject().getInnerObject(),
+                            "resourceName",
+                            false)));
+
+                    altDefaultModal.header(new Model<>(
+                            getString("any.edit", new Model<>(new AnyWrapper<>(model.getObject())))));
+
+                    altDefaultModal.show(true);
+                }
+            }, ActionType.MANAGE_RESOURCES, AnyEntitlement.READ.getFor(type));
+            panel.add(
+                    new ActionLink<AnyObjectTO>() {
+
+                private static final long serialVersionUID = -7978723352517770644L;
+
+                @Override
+                public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
+                    target.add(utilityModal.setContent(new AnyPropagationTasks(
+                            utilityModal, AnyTypeKind.ANY_OBJECT, model.getObject().getKey(), pageRef)));
+
+                    utilityModal.header(new StringResourceModel("any.propagation.tasks", model));
+                    utilityModal.show(true);
+                }
+            }, ActionType.PROPAGATION_TASKS, StandardEntitlement.TASK_LIST);
+            panel.add(new ActionLink<AnyObjectTO>() {
+
+                private static final long serialVersionUID = -7978723352517770644L;
+
+                @Override
+                public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
+                    target.add(utilityModal.setContent(
+                            new NotificationTasks(AnyTypeKind.ANY_OBJECT, model.getObject().getKey(),
+                                    pageRef)));
+                    utilityModal.header(new StringResourceModel("any.notification.tasks", model));
+                    utilityModal.show(true);
+                    target.add(utilityModal);
+                }
+            }, ActionType.NOTIFICATION_TASKS, StandardEntitlement.TASK_LIST);
+        }
+
+        panel.add(new ActionLink<AnyObjectTO>() {
+
+            private static final long serialVersionUID = -7978723352517770646L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final AnyObjectTO ignore) {
+                try {
+                    restClient.delete(model.getObject().getETagValue(), model.getObject().getKey());
+                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    target.add(container);
+                } catch (SyncopeClientException e) {
+                    LOG.error("While deleting object {}", model.getObject().getKey(), e);
+                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
+                            ? e.getClass().getName() : e.getMessage());
+                }
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+            }
+        }, ActionType.DELETE, AnyEntitlement.DELETE.getFor(type), true);
+
+        return panel;
     }
 
     public static class Builder extends AnyDirectoryPanel.Builder<AnyObjectTO, AnyObjectRestClient> {

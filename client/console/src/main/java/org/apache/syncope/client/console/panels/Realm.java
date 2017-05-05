@@ -42,7 +42,7 @@ import org.apache.syncope.client.console.layout.GroupFormLayoutInfo;
 import org.apache.syncope.client.console.layout.UserFormLayoutInfo;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.console.wizards.any.ConnObjectPanel;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
@@ -86,8 +86,8 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
 
         setPageRef(pageRef);
 
-        AjaxBootstrapTabbedPanel<ITab> tabbedPanel =
-                new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList(pageRef));
+        AjaxBootstrapTabbedPanel<ITab> tabbedPanel
+                = new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList(pageRef));
         tabbedPanel.setSelectedTab(selectedIndex);
         addInnerObject(tabbedPanel);
         this.wizardBuilder = new RealmWizardBuilder(pageRef);
@@ -112,54 +112,57 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
 
             @Override
             public Panel getPanel(final String panelId) {
-                ActionLinksPanel<RealmTO> actionLinksPanel = ActionLinksPanel.<RealmTO>builder().
-                        add(new ActionLink<RealmTO>(realmTO) {
+                final ActionsPanel<RealmTO> actionPanel = new ActionsPanel<>("actions", null);
 
-                            private static final long serialVersionUID = 2802988981431379827L;
+                actionPanel.add(new ActionLink<RealmTO>(realmTO) {
 
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final RealmTO modelObject) {
-                                onClickTemplate(target);
-                            }
-                        }, ActionLink.ActionType.TEMPLATE, StandardEntitlement.REALM_UPDATE).
-                        add(new ActionLink<RealmTO>(realmTO) {
+                    private static final long serialVersionUID = 2802988981431379827L;
 
-                            private static final long serialVersionUID = 2802988981431379827L;
+                    @Override
+                    public void onClick(final AjaxRequestTarget target, final RealmTO ignore) {
+                        onClickCreate(target);
+                    }
+                }, ActionLink.ActionType.CREATE, StandardEntitlement.REALM_CREATE).hideLabel();
 
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final RealmTO modelObject) {
-                                onClickCreate(target);
-                            }
-                        }, ActionLink.ActionType.CREATE, StandardEntitlement.REALM_CREATE).
-                        add(new ActionLink<RealmTO>(realmTO) {
+                actionPanel.add(new ActionLink<RealmTO>(realmTO) {
 
-                            private static final long serialVersionUID = 2802988981431379828L;
+                    private static final long serialVersionUID = 2802988981431379828L;
 
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final RealmTO modelObject) {
-                                onClickEdit(target, realmTO);
-                            }
-                        }, ActionLink.ActionType.EDIT, StandardEntitlement.REALM_UPDATE).
-                        add(new ActionLink<RealmTO>(realmTO) {
+                    @Override
+                    public void onClick(final AjaxRequestTarget target, final RealmTO ignore) {
+                        onClickEdit(target, realmTO);
+                    }
+                }, ActionLink.ActionType.EDIT, StandardEntitlement.REALM_UPDATE).hideLabel();
 
-                            private static final long serialVersionUID = 2802988981431379829L;
+                actionPanel.add(new ActionLink<RealmTO>(realmTO) {
 
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final RealmTO modelObject) {
-                                onClickDelete(target, realmTO);
-                            }
-                        }, ActionLink.ActionType.DELETE, StandardEntitlement.REALM_DELETE).
-                        build("actions");
+                    private static final long serialVersionUID = 2802988981431379827L;
 
-                RealmDetails panel = new RealmDetails(panelId, realmTO, actionLinksPanel, false);
+                    @Override
+                    public void onClick(final AjaxRequestTarget target, final RealmTO ignore) {
+                        onClickTemplate(target);
+                    }
+                }, ActionLink.ActionType.TEMPLATE, StandardEntitlement.REALM_UPDATE).hideLabel();
+
+                actionPanel.add(new ActionLink<RealmTO>(realmTO) {
+
+                    private static final long serialVersionUID = 2802988981431379829L;
+
+                    @Override
+                    public void onClick(final AjaxRequestTarget target, final RealmTO ignore) {
+                        onClickDelete(target, realmTO);
+                    }
+                }, ActionLink.ActionType.DELETE, StandardEntitlement.REALM_DELETE, true).hideLabel();
+
+                RealmDetails panel = new RealmDetails(panelId, realmTO, actionPanel, false);
                 panel.setContentEnabled(false);
-                actionLinksPanel.setEnabled(true);
+                actionPanel.setEnabled(true);
                 return panel;
             }
         });
 
-        final Triple<UserFormLayoutInfo, GroupFormLayoutInfo, Map<String, AnyObjectFormLayoutInfo>> formLayoutInfo =
-                FormLayoutInfoUtils.fetch(anyTypeTOs);
+        final Triple<UserFormLayoutInfo, GroupFormLayoutInfo, Map<String, AnyObjectFormLayoutInfo>> formLayoutInfo
+                = FormLayoutInfoUtils.fetch(anyTypeTOs);
 
         Collections.sort(anyTypeTOs, new AnyTypeComparator());
         for (final AnyTypeTO anyTypeTO : anyTypeTOs) {
@@ -204,8 +207,8 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
         propagations.add(syncope);
         propagations.addAll(((ProvisioningResult) result).getPropagationStatuses());
 
-        ListViewPanel.Builder<PropagationStatus> builder =
-                new ListViewPanel.Builder<PropagationStatus>(PropagationStatus.class, pageRef) {
+        ListViewPanel.Builder<PropagationStatus> builder = new ListViewPanel.Builder<PropagationStatus>(
+                PropagationStatus.class, pageRef) {
 
             private static final long serialVersionUID = -6809736686861678498L;
 

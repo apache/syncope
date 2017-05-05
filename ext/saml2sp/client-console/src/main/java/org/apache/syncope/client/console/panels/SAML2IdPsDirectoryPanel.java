@@ -33,12 +33,11 @@ import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.SAML2IdPsDirectoryPanel.SAML2IdPsProvider;
 import org.apache.syncope.client.console.rest.SAML2IdPsRestClient;
-import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.XMLEditorPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
@@ -135,7 +134,6 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
         List<IColumn<SAML2IdPTO, String>> columns = new ArrayList<>();
 
         columns.add(new KeyPropertyColumn<SAML2IdPTO>(new ResourceModel("key"), "key", "key"));
-
         columns.add(new PropertyColumn<SAML2IdPTO, String>(new ResourceModel("name"), "name", "name"));
         columns.add(new PropertyColumn<SAML2IdPTO, String>(new ResourceModel("entityID"), "entityID", "entityID"));
         columns.add(new BooleanPropertyColumn<SAML2IdPTO>(
@@ -145,85 +143,61 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
         columns.add(new BooleanPropertyColumn<SAML2IdPTO>(
                 new ResourceModel("logoutSupported"), "logoutSupported", "logoutSupported"));
 
-        columns.add(new ActionColumn<SAML2IdPTO, String>(new ResourceModel("actions", "")) {
-
-            private static final long serialVersionUID = 906457126287899096L;
-
-            @Override
-            public ActionLinksPanel<SAML2IdPTO> getActions(
-                    final String componentId, final IModel<SAML2IdPTO> model) {
-
-                ActionLinksPanel<SAML2IdPTO> panel = ActionLinksPanel.<SAML2IdPTO>builder().
-                        add(new ActionLink<SAML2IdPTO>() {
-
-                            private static final long serialVersionUID = -3722207913631435501L;
-
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final SAML2IdPTO ignore) {
-                                SAML2IdPTO object = restClient.read(model.getObject().getKey());
-                                send(SAML2IdPsDirectoryPanel.this, Broadcast.EXACT,
-                                        new AjaxWizard.EditItemActionEvent<>(object, target));
-                            }
-                        }, ActionLink.ActionType.EDIT, SAML2SPEntitlement.IDP_UPDATE).
-                        add(new ActionLink<SAML2IdPTO>() {
-
-                            private static final long serialVersionUID = -7978723352517770645L;
-
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final SAML2IdPTO ignore) {
-                                SAML2IdPTO object = restClient.read(model.getObject().getKey());
-                                metadataModal.header(Model.of(object.getName() + " - Metadata"));
-                                metadataModal.setContent(new XMLEditorPanel(
-                                        metadataModal,
-                                        Model.of(new String(Base64.decodeBase64(object.getMetadata()))),
-                                        true,
-                                        pageRef));
-                                metadataModal.show(true);
-                                target.add(metadataModal);
-                            }
-                        }, ActionLink.ActionType.HTML, SAML2SPEntitlement.IDP_READ).
-                        add(new ActionLink<SAML2IdPTO>() {
-
-                            private static final long serialVersionUID = -5467832321897812767L;
-
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final SAML2IdPTO ignore) {
-                                try {
-                                    restClient.delete(model.getObject().getKey());
-                                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-                                    target.add(container);
-                                } catch (SyncopeClientException e) {
-                                    LOG.error("While deleting object {}", model.getObject().getKey(), e);
-                                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                                            ? e.getClass().getName() : e.getMessage());
-                                }
-                                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-                            }
-                        }, ActionLink.ActionType.DELETE, SAML2SPEntitlement.IDP_DELETE).
-                        build(componentId);
-
-                return panel;
-            }
-
-            @Override
-            public ActionLinksPanel<SAML2IdPTO> getHeader(final String componentId) {
-                final ActionLinksPanel.Builder<SAML2IdPTO> panel = ActionLinksPanel.builder();
-
-                return panel.add(new ActionLink<SAML2IdPTO>() {
-
-                    private static final long serialVersionUID = -5467832321897812767L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final SAML2IdPTO ignore) {
-                        if (target != null) {
-                            target.add(container);
-                        }
-                    }
-                }, ActionLink.ActionType.RELOAD).build(componentId);
-            }
-        });
-
         return columns;
+    }
+
+    @Override
+    public ActionsPanel<SAML2IdPTO> getActions(final IModel<SAML2IdPTO> model) {
+        final ActionsPanel<SAML2IdPTO> panel = super.getActions(model);
+
+        panel.add(new ActionLink<SAML2IdPTO>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final SAML2IdPTO ignore) {
+                SAML2IdPTO object = restClient.read(model.getObject().getKey());
+                send(SAML2IdPsDirectoryPanel.this, Broadcast.EXACT,
+                        new AjaxWizard.EditItemActionEvent<>(object, target));
+            }
+        }, ActionLink.ActionType.EDIT, SAML2SPEntitlement.IDP_UPDATE);
+        panel.add(new ActionLink<SAML2IdPTO>() {
+
+            private static final long serialVersionUID = -7978723352517770645L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final SAML2IdPTO ignore) {
+                SAML2IdPTO object = restClient.read(model.getObject().getKey());
+                metadataModal.header(Model.of(object.getName() + " - Metadata"));
+                metadataModal.setContent(new XMLEditorPanel(
+                        metadataModal,
+                        Model.of(new String(Base64.decodeBase64(object.getMetadata()))),
+                        true,
+                        pageRef));
+                metadataModal.show(true);
+                target.add(metadataModal);
+            }
+        }, ActionLink.ActionType.HTML, SAML2SPEntitlement.IDP_READ);
+        panel.add(new ActionLink<SAML2IdPTO>() {
+
+            private static final long serialVersionUID = -5467832321897812767L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final SAML2IdPTO ignore) {
+                try {
+                    restClient.delete(model.getObject().getKey());
+                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    target.add(container);
+                } catch (SyncopeClientException e) {
+                    LOG.error("While deleting object {}", model.getObject().getKey(), e);
+                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
+                            ? e.getClass().getName() : e.getMessage());
+                }
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+            }
+        }, ActionLink.ActionType.DELETE, SAML2SPEntitlement.IDP_DELETE, true);
+
+        return panel;
     }
 
     protected final class SAML2IdPsProvider extends DirectoryDataProvider<SAML2IdPTO> {

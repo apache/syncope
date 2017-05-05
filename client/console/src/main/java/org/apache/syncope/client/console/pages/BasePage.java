@@ -312,9 +312,9 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
         }
 
         // Extensions
-        ClassPathScanImplementationLookup classPathScanImplementationLookup =
-                (ClassPathScanImplementationLookup) SyncopeConsoleApplication.get().
-                        getServletContext().getAttribute(ConsoleInitializer.CLASSPATH_LOOKUP);
+        ClassPathScanImplementationLookup classPathScanImplementationLookup
+                = (ClassPathScanImplementationLookup) SyncopeConsoleApplication.get().
+                getServletContext().getAttribute(ConsoleInitializer.CLASSPATH_LOOKUP);
         List<Class<? extends BaseExtPage>> extPageClasses = classPathScanImplementationLookup.getExtPageClasses();
 
         WebMarkupContainer extensionsLI = new WebMarkupContainer(getLIContainerId("extensions"));

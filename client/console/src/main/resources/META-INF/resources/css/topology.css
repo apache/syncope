@@ -177,3 +177,20 @@ div.node-action-link .dropdown-menu{
   margin: 0px;
   border-radius: 0.5em;
 }
+
+div#zoom ul.menu {
+  list-style-type: none;  
+  margin: 0;
+  padding: 0;
+  float: right;
+}
+
+div#zoom ul.menu li {
+  display: inline-block;
+}
+
+div#zoom ul.menu li a {
+  display: inline-block;
+  margin-left: 5px;
+}
+

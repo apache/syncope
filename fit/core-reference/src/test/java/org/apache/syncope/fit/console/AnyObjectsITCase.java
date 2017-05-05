@@ -22,7 +22,6 @@ import static org.junit.Assert.assertNotNull;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.util.tester.FormTester;
 import org.junit.Test;
 import org.apache.syncope.client.console.commons.Constants;
@@ -69,7 +68,9 @@ public class AnyObjectsITCase extends AbstractConsoleITCase {
                 "8559d14d-58c2-46eb-a2d4-a7d35161e8f8");
         assertNotNull(component);
 
-        TESTER.clickLink(component.getPageRelativePath() + ":cells:4:cell:panelClone:cloneLink");
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink(TAB_PANEL + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
+                + "actions:actions:actionRepeater:1:action:action");
 
         FormTester formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);
@@ -87,8 +88,10 @@ public class AnyObjectsITCase extends AbstractConsoleITCase {
                 "8559d14d-58c2-46eb-a2d4-a7d35161e8f8");
         assertNotNull(component);
 
-        TESTER.clickLink(component.getPageRelativePath() + ":cells:4:cell:panelEdit:editLink");
-        
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink(TAB_PANEL + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
+                + "actions:actions:actionRepeater:0:action:action");
+
         FormTester formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);
         formTester.submit("buttons:next");
@@ -117,7 +120,7 @@ public class AnyObjectsITCase extends AbstractConsoleITCase {
                 + "outerObjectsRepeater:0:outer:form:content:customResultBody:resources:"
                 + "firstLevelContainer:first:container:content:group:beans:0:fields:0:field", Label.class);
 
-        TESTER.clickLink(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:action:panelClose:closeLink");
+        TESTER.clickLink(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:action:actionRepeater:0:action:action");
 
         component = findComponentByProp("key", CONTAINER
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable",
@@ -135,7 +138,10 @@ public class AnyObjectsITCase extends AbstractConsoleITCase {
                 "8559d14d-58c2-46eb-a2d4-a7d35161e8f8");
         assertNotNull(component);
 
-        TESTER.assertComponent(component.getPageRelativePath() + ":cells:4:cell:panelDelete:deleteLink",
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.assertComponent(TAB_PANEL
+                + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
+                + "actions:actions:actionRepeater:5:action:action",
                 IndicatingOnConfirmAjaxLink.class);
     }
 }

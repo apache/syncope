@@ -34,13 +34,12 @@ import org.apache.syncope.client.console.notifications.NotificationDirectoryPane
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.rest.NotificationRestClient;
-import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.CollectionPropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.NotificationTO;
@@ -54,7 +53,6 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
 public class NotificationDirectoryPanel
@@ -87,8 +85,7 @@ public class NotificationDirectoryPanel
     @Override
     protected List<IColumn<NotificationTO, String>> getColumns() {
         List<IColumn<NotificationTO, String>> columns = new ArrayList<>();
-        columns.add(new KeyPropertyColumn<NotificationTO>(
-                new StringResourceModel("key", this), "key", "key"));
+        columns.add(new KeyPropertyColumn<NotificationTO>(new StringResourceModel("key", this), "key"));
         columns.add(new PropertyColumn<NotificationTO, String>(
                 new StringResourceModel("sender", this), "sender", "sender"));
         columns.add(new PropertyColumn<NotificationTO, String>(
@@ -96,69 +93,62 @@ public class NotificationDirectoryPanel
         columns.add(new PropertyColumn<NotificationTO, String>(
                 new StringResourceModel("template", this), "template", "template"));
         columns.add(new CollectionPropertyColumn<NotificationTO>(
-                new StringResourceModel("events", this), "events", "events"));
+                new StringResourceModel("events", this), "events"));
         columns.add(new BooleanPropertyColumn<NotificationTO>(
                 new StringResourceModel("active", this), "active", "active"));
+        return columns;
+    }
 
-        columns.add(new ActionColumn<NotificationTO, String>(new ResourceModel("actions", "")) {
+    @Override
+    public ActionsPanel<NotificationTO> getActions(final IModel<NotificationTO> model) {
+        final ActionsPanel<NotificationTO> panel = super.getActions(model);
 
-            private static final long serialVersionUID = -3503023501954863131L;
+        panel.add(new ActionLink<NotificationTO>() {
+
+            private static final long serialVersionUID = -7978723352517770645L;
 
             @Override
-            public ActionLinksPanel<NotificationTO> getActions(
-                    final String componentId, final IModel<NotificationTO> model) {
-
-                final ActionLinksPanel.Builder<NotificationTO> panel = ActionLinksPanel.builder();
-
-                panel.add(new ActionLink<NotificationTO>() {
-
-                    private static final long serialVersionUID = -7978723352517770645L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final NotificationTO ignore) {
-                        target.add(utilityModal.setContent(
-                                new NotificationTasks(model.getObject().getKey(), pageRef)));
-                        utilityModal.header(new StringResourceModel("notification.tasks", model));
-                        utilityModal.show(true);
-                        target.add(utilityModal);
-                    }
-                }, ActionLink.ActionType.NOTIFICATION_TASKS, StandardEntitlement.TASK_LIST);
-
-                panel.add(new ActionLink<NotificationTO>() {
-
-                    private static final long serialVersionUID = -7978723352517770645L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final NotificationTO ignore) {
-                        send(NotificationDirectoryPanel.this, Broadcast.EXACT,
-                                new AjaxWizard.EditItemActionEvent<>(
-                                        new NotificationWrapper(restClient.read(model.getObject().getKey())), target));
-                    }
-                }, ActionLink.ActionType.EDIT, StandardEntitlement.NOTIFICATION_UPDATE);
-
-                panel.add(new ActionLink<NotificationTO>() {
-
-                    private static final long serialVersionUID = -3722207913631435501L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final NotificationTO ignore) {
-                        try {
-                            restClient.delete(model.getObject().getKey());
-                            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-                            target.add(container);
-                        } catch (SyncopeClientException e) {
-                            LOG.error("While deleting object {}", model.getObject().getKey(), e);
-                            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().
-                                    getName() : e.getMessage());
-                        }
-                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-                    }
-                }, ActionLink.ActionType.DELETE, StandardEntitlement.NOTIFICATION_DELETE);
-
-                return panel.build(componentId);
+            public void onClick(final AjaxRequestTarget target, final NotificationTO ignore) {
+                send(NotificationDirectoryPanel.this, Broadcast.EXACT,
+                        new AjaxWizard.EditItemActionEvent<>(
+                                new NotificationWrapper(restClient.read(model.getObject().getKey())), target));
             }
-        });
-        return columns;
+        }, ActionLink.ActionType.EDIT, StandardEntitlement.NOTIFICATION_UPDATE);
+
+        panel.add(new ActionLink<NotificationTO>() {
+
+            private static final long serialVersionUID = -7978723352517770645L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final NotificationTO ignore) {
+                target.add(utilityModal.setContent(
+                        new NotificationTasks(model.getObject().getKey(), pageRef)));
+                utilityModal.header(new StringResourceModel("notification.tasks", model));
+                utilityModal.show(true);
+                target.add(utilityModal);
+            }
+        }, ActionLink.ActionType.NOTIFICATION_TASKS, StandardEntitlement.TASK_LIST);
+
+        panel.add(new ActionLink<NotificationTO>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final NotificationTO ignore) {
+                try {
+                    restClient.delete(model.getObject().getKey());
+                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    target.add(container);
+                } catch (SyncopeClientException e) {
+                    LOG.error("While deleting object {}", model.getObject().getKey(), e);
+                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().
+                            getName() : e.getMessage());
+                }
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+            }
+        }, ActionLink.ActionType.DELETE, StandardEntitlement.NOTIFICATION_DELETE, true);
+
+        return panel;
     }
 
     @Override

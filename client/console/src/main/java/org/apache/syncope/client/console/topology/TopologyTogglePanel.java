@@ -76,7 +76,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
     protected final BaseModal<Serializable> provisionModal;
 
     public TopologyTogglePanel(final String id, final PageReference pageRef) {
-        super(id, pageRef);
+        super(id, "topologyTogglePanel", pageRef);
 
         modal.size(Modal.Size.Large);
         setFooterVisibility(false);

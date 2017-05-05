@@ -25,9 +25,7 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.Types;
 import org.apache.syncope.client.console.panels.AjaxDataTablePanel;
-import org.apache.syncope.client.console.wicket.markup.html.form.IndicatingOnConfirmAjaxLink;
 import org.apache.wicket.Component;
-import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.util.tester.FormTester;
 import org.junit.Test;
@@ -42,15 +40,13 @@ public class SchemasITCase extends AbstractTypesITCase {
                 + ":tablePanel:groupForm:"
                 + "checkgroup:dataTable:body:rows:1:cells:1:cell", "aLong");
 
-        TESTER.assertComponent(
-                PLAIN_DATATABLE_PATH
-                + ":tablePanel:groupForm:checkgroup:dataTable:"
-                + "body:rows:1:cells:7:cell:panelEdit:editLink", IndicatingAjaxLink.class);
+        TESTER.executeAjaxEvent(
+                PLAIN_DATATABLE_PATH + ":tablePanel:groupForm:checkgroup:dataTable:body:rows:1",
+                Constants.ON_CLICK);
 
         TESTER.clickLink(
-                PLAIN_DATATABLE_PATH
-                + ":tablePanel:groupForm:checkgroup:dataTable:"
-                + "body:rows:1:cells:7:cell:panelEdit:editLink");
+                "body:content:tabbedPanel:panel:accordionPanel:tabs:0:body:content:outerObjectsRepeater:1:outer:"
+                + "container:content:togglePanelContainer:container:actions:actions:actionRepeater:0:action:action");
 
         TESTER.assertComponent(
                 "body:content:tabbedPanel:"
@@ -73,8 +69,8 @@ public class SchemasITCase extends AbstractTypesITCase {
         formTester.setValue("content:details:form:key:textField", "zBoolean");
         formTester.setValue("content:details:form:type:dropDownChoiceField", "3");
 
-        TESTER.clickLink("body:content:tabbedPanel:panel:"
-                + "accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit");
+        TESTER.clickLink("body:content:tabbedPanel:panel:accordionPanel:tabs:0:body:content:outerObjectsRepeater:0:"
+                + "outer:dialog:footer:inputs:0:submit");
 
         TESTER.assertInfoMessages("Operation executed successfully");
 
@@ -88,11 +84,13 @@ public class SchemasITCase extends AbstractTypesITCase {
 
         Component result = findComponentByProp(KEY, PLAIN_DATATABLE_PATH, "ctype");
 
-        TESTER.assertLabel(
-                result.getPageRelativePath() + ":cells:1:cell", "ctype");
+        TESTER.assertLabel(result.getPageRelativePath() + ":cells:1:cell", "ctype");
+        assertNotNull(result);
 
+        TESTER.executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.clickLink(
-                result.getPageRelativePath() + ":cells:7:cell:panelEdit:editLink");
+                "body:content:tabbedPanel:panel:accordionPanel:tabs:0:body:content:outerObjectsRepeater:1:outer:"
+                + "container:content:togglePanelContainer:container:actions:actions:actionRepeater:0:action:action");
 
         TESTER.assertComponent(
                 "body:content:tabbedPanel:"
@@ -142,17 +140,20 @@ public class SchemasITCase extends AbstractTypesITCase {
         TESTER.assertComponent(PLAIN_DATATABLE_PATH, AjaxDataTablePanel.class);
 
         Component result = findComponentByProp(KEY, PLAIN_DATATABLE_PATH, schemaName);
+        assertNotNull(result);
 
-        TESTER.assertComponent(
-                result.getPageRelativePath() + ":cells:7:cell:panelDelete:deleteLink",
-                IndicatingOnConfirmAjaxLink.class);
+        TESTER.executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
 
         TESTER.getRequest().addParameter("confirm", "true");
-        TESTER.clickLink(TESTER.getComponentFromLastRenderedPage(
-                result.getPageRelativePath() + ":cells:7:cell:panelDelete:deleteLink"));
+        TESTER.clickLink(
+                "body:content:tabbedPanel:panel:accordionPanel:tabs:0:body:content:outerObjectsRepeater:1:outer:"
+                + "container:content:togglePanelContainer:container:actions:actions:actionRepeater:1:action:action");
 
         TESTER.executeAjaxEvent(TESTER.getComponentFromLastRenderedPage(
-                result.getPageRelativePath() + ":cells:7:cell:panelDelete:deleteLink"), "onclick");
+                "body:content:tabbedPanel:panel:accordionPanel:tabs:0:body:content:outerObjectsRepeater:1:outer:"
+                + "container:content:togglePanelContainer:container:actions:actions:actionRepeater:1:action:action"),
+                Constants.ON_CLICK);
+
         TESTER.assertInfoMessages("Operation executed successfully");
         TESTER.cleanupFeedbackMessages();
 
@@ -182,27 +183,29 @@ public class SchemasITCase extends AbstractTypesITCase {
         formTester.setValue("content:details:form:anyType:dropDownChoiceField", "0");
         formTester.setValue("content:details:form:extAttrName:textField", "virattr");
 
-        TESTER.executeAjaxEvent("body:content:tabbedPanel:panel:"
-                + "accordionPanel:tabs:2:body:content:outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit",
-                Constants.ON_CLICK);
+        TESTER.executeAjaxEvent("body:content:tabbedPanel:panel:accordionPanel:tabs:2:body:content:"
+                + "outerObjectsRepeater:0:outer:dialog:footer:inputs:0:submit", Constants.ON_CLICK);
 
         TESTER.assertInfoMessages("Operation executed successfully");
         TESTER.cleanupFeedbackMessages();
         TESTER.assertRenderedPage(Types.class);
 
         Component result = findComponentByProp(KEY, VIRTUAL_DATATABLE_PATH, "mynewvir");
-        assertNotNull(result);
+        TESTER.executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
 
         TESTER.getRequest().addParameter("confirm", "true");
-        TESTER.clickLink(TESTER.getComponentFromLastRenderedPage(
-                result.getPageRelativePath() + ":cells:6:cell:panelDelete:deleteLink"));
+        TESTER.clickLink(
+                "body:content:tabbedPanel:panel:accordionPanel:tabs:2:body:content:outerObjectsRepeater:1:outer:"
+                + "container:content:togglePanelContainer:container:actions:actions:actionRepeater:1:action:action");
 
         TESTER.executeAjaxEvent(TESTER.getComponentFromLastRenderedPage(
-                result.getPageRelativePath() + ":cells:6:cell:panelDelete:deleteLink"), "onclick");
+                "body:content:tabbedPanel:panel:accordionPanel:tabs:2:body:content:outerObjectsRepeater:1:outer:"
+                + "container:content:togglePanelContainer:container:actions:actions:actionRepeater:1:action:action"),
+                Constants.ON_CLICK);
+
         TESTER.assertInfoMessages("Operation executed successfully");
         TESTER.cleanupFeedbackMessages();
 
-        result = findComponentByProp(KEY, VIRTUAL_DATATABLE_PATH, "mynewvir");
-        assertNull(result);
+        assertNull(findComponentByProp(KEY, VIRTUAL_DATATABLE_PATH, "mynewvir"));
     }
 }

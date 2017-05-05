@@ -125,7 +125,10 @@ public class NotificationsITCase extends AbstractConsoleITCase {
         Component result = findComponentByProp("Subject", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "createToUpdate");
 
-        TESTER.clickLink(result.getPageRelativePath() + ":cells:7:cell:panelEdit:editLink");
+        // edit notification
+        TESTER.executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink("body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
+                + "togglePanelContainer:container:actions:actions:actionRepeater:0:action:action");
 
         FormTester formTester = TESTER.newFormTester(
                 "body:content:tabbedPanel:panel:outerObjectsRepeater:0:outer:form");
@@ -143,18 +146,24 @@ public class NotificationsITCase extends AbstractConsoleITCase {
                 "body:content:tabbedPanel:panel:container:content:searchContainer:resultTable:tablePanel:groupForm:"
                 + "checkgroup:dataTable", "Password Reset request");
 
-        TESTER.clickLink(
-                result.getPageRelativePath() + ":cells:7:cell:panelNotificationTasks:notificationTasksLink");
+        // notification tasks link
+        TESTER.executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink("body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
+                + "togglePanelContainer:container:actions:actions:actionRepeater:1:action:action");
 
-        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:3:outer:form:"
+        TESTER.assertComponent("body:content:tabbedPanel:panel:outerObjectsRepeater:4:outer:form:"
                 + "content:tasks:firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:"
                 + "groupForm:checkgroup:dataTable", WebMarkupContainer.class);
 
-        result = findComponentByProp("subject", "body:content:tabbedPanel:panel:outerObjectsRepeater:3:outer:form:"
+        result = findComponentByProp("subject", "body:content:tabbedPanel:panel:outerObjectsRepeater:4:outer:form:"
                 + "content:tasks:firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:"
                 + "groupForm:checkgroup:dataTable", "Notification for SYNCOPE-81");
 
-        TESTER.clickLink(result.getPageRelativePath() + ":cells:9:cell:panelExecute:executeLink");
+        // execute task
+        TESTER.executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink("body:content:tabbedPanel:panel:outerObjectsRepeater:4:outer:form:content:tasks:"
+                + "firstLevelContainer:first:outerObjectsRepeater:1:outer:container:content:togglePanelContainer:"
+                + "container:actions:actions:actionRepeater:3:action:action");
 
         TESTER.assertInfoMessages("Operation executed successfully");
         TESTER.cleanupFeedbackMessages();
@@ -164,22 +173,28 @@ public class NotificationsITCase extends AbstractConsoleITCase {
         result = findComponentByProp("subject", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "Password Reset request");
 
-        TESTER.clickLink(
-                result.getPageRelativePath() + ":cells:7:cell:panelNotificationTasks:notificationTasksLink");
+        // notification tasks link
+        TESTER.executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink("body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
+                + "togglePanelContainer:container:actions:actions:actionRepeater:1:action:action");
 
-        result = findComponentByProp("subject", "body:content:tabbedPanel:panel:outerObjectsRepeater:3:outer:form:"
+        result = findComponentByProp("subject", "body:content:tabbedPanel:panel:outerObjectsRepeater:4:outer:form:"
                 + "content:tasks:firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:"
                 + "groupForm:checkgroup:dataTable", "Notification for SYNCOPE-81");
 
-        TESTER.clickLink(result.getPageRelativePath() + ":cells:9:cell:panelView:viewLink");
+        // view task
+        TESTER.executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink("body:content:tabbedPanel:panel:outerObjectsRepeater:4:outer:form:content:tasks:"
+                + "firstLevelContainer:first:outerObjectsRepeater:1:outer:container:content:togglePanelContainer:"
+                + "container:actions:actions:actionRepeater:0:action:action");
 
-        TESTER.assertLabel("body:content:tabbedPanel:panel:outerObjectsRepeater:3:outer:form:content:tasks:"
+        TESTER.assertLabel("body:content:tabbedPanel:panel:outerObjectsRepeater:4:outer:form:content:tasks:"
                 + "secondLevelContainer:title", "Executions");
 
-        TESTER.clickLink("body:content:tabbedPanel:panel:outerObjectsRepeater:3:outer:form:content:tasks:"
+        TESTER.clickLink("body:content:tabbedPanel:panel:outerObjectsRepeater:4:outer:form:content:tasks:"
                 + "secondLevelContainer:back");
 
-        assertNotNull(findComponentByProp("subject", "body:content:tabbedPanel:panel:outerObjectsRepeater:3:outer:form:"
+        assertNotNull(findComponentByProp("subject", "body:content:tabbedPanel:panel:outerObjectsRepeater:4:outer:form:"
                 + "content:tasks:firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:"
                 + "groupForm:checkgroup:dataTable", "Notification for SYNCOPE-81"));
     }
@@ -190,12 +205,18 @@ public class NotificationsITCase extends AbstractConsoleITCase {
         Component result = findComponentByProp("Subject", "body:content:tabbedPanel:panel:container:content:"
                 + "searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "createToDelete");
 
+        TESTER.executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.getRequest().addParameter("confirm", "true");
+
+        // delete task
         TESTER.clickLink(TESTER.getComponentFromLastRenderedPage(
-                result.getPageRelativePath() + ":cells:7:cell:panelDelete:deleteLink"));
+                "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
+                + "togglePanelContainer:container:actions:actions:actionRepeater:2:action:action"));
 
         TESTER.executeAjaxEvent(TESTER.getComponentFromLastRenderedPage(
-                result.getPageRelativePath() + ":cells:7:cell:panelDelete:deleteLink"), Constants.ON_CLICK);
+                "body:content:tabbedPanel:panel:outerObjectsRepeater:1:outer:container:content:"
+                + "togglePanelContainer:container:actions:actions:actionRepeater:2:action:action"),
+                Constants.ON_CLICK);
 
         TESTER.assertInfoMessages("Operation executed successfully");
         TESTER.cleanupFeedbackMessages();

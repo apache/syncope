@@ -18,11 +18,13 @@
  */
 package org.apache.syncope.fit.console;
 
+import static org.apache.syncope.fit.console.AbstractConsoleITCase.TESTER;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.SecurityQuestions;
 import org.apache.wicket.Component;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
@@ -46,8 +48,8 @@ public class SecurityQuestionsITCase extends AbstractConsoleITCase {
         TESTER.assertComponent(
                 "body:content:securityQuestionPanel:outerObjectsRepeater:0:outer", Modal.class);
 
-        FormTester formTester =
-                TESTER.newFormTester("body:content:securityQuestionPanel:outerObjectsRepeater:0:outer:form");
+        FormTester formTester = TESTER.newFormTester(
+                "body:content:securityQuestionPanel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:securityQuestionDetailsPanel:container:form:content:textField",
                 name);
 
@@ -67,11 +69,13 @@ public class SecurityQuestionsITCase extends AbstractConsoleITCase {
                 + "tablePanel:groupForm:checkgroup:dataTable:body:rows:1:cells:2:cell");
         assertTrue(label.getDefaultModelObjectAsString().startsWith("What&#039;s your "));
 
+        TESTER.executeAjaxEvent("body:content:securityQuestionPanel:container:content:searchContainer:resultTable:"
+                + "tablePanel:groupForm:checkgroup:dataTable:body:rows:1", Constants.ON_CLICK);
+
         TESTER.assertComponent(
-                "body:content:securityQuestionPanel:container:content:"
-                + "searchContainer:resultTable:tablePanel:"
-                + "groupForm:checkgroup:dataTable:body:rows:"
-                + "1:cells:3:cell:panelEdit:editLink", IndicatingAjaxLink.class);
+                "body:content:securityQuestionPanel:outerObjectsRepeater:1:outer:container:content:"
+                + "togglePanelContainer:container:actions:actions:actionRepeater:0:action:action",
+                IndicatingAjaxLink.class);
     }
 
     @Test
@@ -88,10 +92,12 @@ public class SecurityQuestionsITCase extends AbstractConsoleITCase {
 
         assertNotNull(result);
 
-        TESTER.clickLink(result.getPageRelativePath() + ":cells:3:cell:panelEdit:editLink");
+        TESTER.executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink("body:content:securityQuestionPanel:outerObjectsRepeater:1:outer:container:content:"
+                + "togglePanelContainer:container:actions:actions:actionRepeater:0:action:action");
 
-        FormTester formTester =
-                TESTER.newFormTester("body:content:securityQuestionPanel:outerObjectsRepeater:0:outer:form");
+        FormTester formTester = TESTER.newFormTester(
+                "body:content:securityQuestionPanel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:securityQuestionDetailsPanel:container:form:content:textField",
                 "What's your preferred car?");
 
@@ -112,12 +118,14 @@ public class SecurityQuestionsITCase extends AbstractConsoleITCase {
                 name);
         assertNotNull(result);
 
+        TESTER.executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.getRequest().addParameter("confirm", "true");
-        TESTER.clickLink(TESTER.getComponentFromLastRenderedPage(
-                result.getPageRelativePath() + ":cells:3:cell:panelDelete:deleteLink"));
+        TESTER.clickLink("body:content:securityQuestionPanel:outerObjectsRepeater:1:outer:container:content:"
+                + "togglePanelContainer:container:actions:actions:actionRepeater:1:action:action");
 
         TESTER.executeAjaxEvent(TESTER.getComponentFromLastRenderedPage(
-                result.getPageRelativePath() + ":cells:3:cell:panelDelete:deleteLink"), "onclick");
+                "body:content:securityQuestionPanel:outerObjectsRepeater:1:outer:container:content:"
+                + "togglePanelContainer:container:actions:actions:actionRepeater:1:action:action"), "onclick");
 
         TESTER.assertInfoMessages("Operation executed successfully");
         TESTER.cleanupFeedbackMessages();

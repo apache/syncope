@@ -63,22 +63,24 @@ public class RolesITCase extends AbstractConsoleITCase {
 
     @Test
     public void read() {
-        assertNull(findComponentByProp(KEY, "body:content:rolesPanel:container:content:searchContainer:"
-                + "resultTable:tablePanel:groupForm:checkgroup:dataTable", "OTHER"));
+        Component result = findComponentByProp(KEY, "body:content:rolesPanel:container:content:searchContainer:"
+                + "resultTable:tablePanel:groupForm:checkgroup:dataTable", "Other");
+        assertNotNull(result);
 
-        TESTER.clickLink("body:content:rolesPanel:container:content:searchContainer:resultTable:tablePanel:"
-                + "groupForm:checkgroup:dataTable:body:rows:1:cells:4:cell:panelMembers:membersLink");
+        TESTER.executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink("body:content:rolesPanel:outerObjectsRepeater:1:outer:container:content:togglePanelContainer:"
+                + "container:actions:actions:actionRepeater:2:action:action");
 
         TESTER.assertModelValue(
-                "body:content:rolesPanel:outerObjectsRepeater:4:outer:dialog:header:header-label",
+                "body:content:rolesPanel:outerObjectsRepeater:5:outer:dialog:header:header-label",
                 "Role 'Other' members");
 
-        assertNotNull(findComponentByProp("username", "body:content:rolesPanel:outerObjectsRepeater:4:outer:form:"
+        assertNotNull(findComponentByProp("username", "body:content:rolesPanel:outerObjectsRepeater:5:outer:form:"
                 + "content:searchResult:container:content:searchContainer:resultTable:tablePanel:groupForm:"
                 + "checkgroup:dataTable", "rossini"));
 
         TESTER.executeAjaxEvent(
-                "body:content:rolesPanel:outerObjectsRepeater:4:outer:dialog:footer:buttons:0:button",
+                "body:content:rolesPanel:outerObjectsRepeater:5:outer:dialog:footer:buttons:0:button",
                 Constants.ON_CLICK);
     }
 
@@ -93,11 +95,11 @@ public class RolesITCase extends AbstractConsoleITCase {
         Component result = findComponentByProp(KEY, "body:content:rolesPanel:container:content:searchContainer:"
                 + "resultTable:tablePanel:groupForm:checkgroup:dataTable", "updateRole");
 
-        TESTER.assertLabel(
-                result.getPageRelativePath() + ":cells:1:cell", "updateRole");
+        assertNotNull(result);
 
-        TESTER.clickLink(
-                result.getPageRelativePath() + ":cells:4:cell:panelEdit:editLink");
+        TESTER.executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink("body:content:rolesPanel:outerObjectsRepeater:1:outer:container:content:togglePanelContainer:"
+                + "container:actions:actions:actionRepeater:0:action:action");
 
         FormTester formTester = TESTER.newFormTester("body:content:rolesPanel:outerObjectsRepeater:0:outer:form");
         formTester.setValue("content:form:view:key:textField", "updateRole");
@@ -121,15 +123,18 @@ public class RolesITCase extends AbstractConsoleITCase {
         Component result = findComponentByProp(KEY, "body:content:rolesPanel:container:content:searchContainer:"
                 + "resultTable:tablePanel:groupForm:checkgroup:dataTable", "deleteRole");
 
-        TESTER.assertLabel(
-                result.getPageRelativePath() + ":cells:1:cell", "deleteRole");
+        assertNotNull(result);
+
+        TESTER.executeAjaxEvent(result.getPageRelativePath(), Constants.ON_CLICK);
 
         TESTER.getRequest().addParameter("confirm", "true");
         TESTER.clickLink(TESTER.getComponentFromLastRenderedPage(
-                result.getPageRelativePath() + ":cells:4:cell:panelDelete:deleteLink"));
+                "body:content:rolesPanel:outerObjectsRepeater:1:outer:container:content:togglePanelContainer:"
+                + "container:actions:actions:actionRepeater:4:action:action"));
 
         TESTER.executeAjaxEvent(TESTER.getComponentFromLastRenderedPage(
-                result.getPageRelativePath() + ":cells:3:cell:panelDelete:deleteLink"), "onclick");
+                "body:content:rolesPanel:outerObjectsRepeater:1:outer:container:content:togglePanelContainer:"
+                + "container:actions:actions:actionRepeater:4:action:action"), "onclick");
 
         TESTER.assertInfoMessages("Operation executed successfully");
         TESTER.cleanupFeedbackMessages();

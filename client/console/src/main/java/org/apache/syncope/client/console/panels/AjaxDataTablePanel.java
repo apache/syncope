@@ -34,6 +34,8 @@ import org.apache.syncope.client.console.rest.RestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.CheckGroupColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AjaxFallbackDataTable;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksTogglePanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -46,6 +48,7 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.CheckGroup;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Fragment;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 
 public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTablePanel<T, S> {
@@ -151,6 +154,14 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
             this.multiLevelPanel = multiLevelPanel;
             this.baseModal = baseModal;
         }
+
+        protected ActionsPanel<T> getActions(final IModel<T> model) {
+            return null;
+        }
+
+        protected ActionLinksTogglePanel<T> getTogglePanel() {
+            return null;
+        }
     }
 
     private AjaxDataTablePanel(final String id, final Builder<T, S> builder) {
@@ -200,8 +211,23 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
             builder.columns.add(0, new CheckGroupColumn<T, S>(group));
         }
 
-        dataTable = new AjaxFallbackDataTable<>(
-                "dataTable", builder.columns, builder.dataProvider, builder.rowsPerPage, builder.container);
+        dataTable = new AjaxFallbackDataTable<T, S>(
+                "dataTable", builder.columns, builder.dataProvider, builder.rowsPerPage, builder.container) {
+
+            private static final long serialVersionUID = -7370603907251344224L;
+
+            @Override
+            protected ActionsPanel<T> getActions(final IModel<T> model) {
+                return builder.getActions(model);
+            }
+
+            @Override
+            protected ActionLinksTogglePanel<T> getTogglePanel() {
+                return builder.getTogglePanel();
+            }
+
+        };
+
         dataTable.add(new AttributeModifier("class", "table table-bordered table-hover dataTable"));
 
         group.add(dataTable);
@@ -221,7 +247,7 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
                             builder.pageRef,
                             new ArrayList<>(group.getModelObject()),
                             // serialization problem with sublist only
-                            new ArrayList<>(builder.columns.subList(1, builder.columns.size() - 1)),
+                            new ArrayList<>(builder.columns.subList(1, builder.columns.size())),
                             builder.bulkActions,
                             builder.bulkActionExecutor,
                             builder.itemKeyField)));

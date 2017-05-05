@@ -31,7 +31,7 @@ import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.wicket.Component;
@@ -97,7 +97,7 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
             final List<T> list,
             final Class<T> reference,
             final List<String> includes,
-            final ActionLinksPanel.Builder<T> actions,
+            final ActionsPanel<T> actions,
             final CheckAvailability check,
             final boolean reuseItem,
             final boolean wizardInModal,
@@ -179,7 +179,7 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
                     }
                 };
                 beanItem.add(fields);
-                beanItem.add(actions.build("actions", bean));
+                beanItem.add(actions.clone("actions", new Model<>(bean)));
             }
         };
         beans.setOutputMarkupId(true);
@@ -227,7 +227,7 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
 
         private final List<String> includes = new ArrayList<>();
 
-        private final ActionLinksPanel.Builder<T> actions;
+        private final ActionsPanel<T> actions;
 
         private List<T> items;
 
@@ -241,7 +241,7 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
             super(pageRef);
             this.reference = reference;
             this.items = null;
-            this.actions = ActionLinksPanel.<T>builder();
+            this.actions = new ActionsPanel<T>("actions", null);
         }
 
         public Builder<T> setModel(final IModel<? extends Collection<T>> model) {
@@ -313,7 +313,24 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
          */
         public Builder<T> addAction(
                 final ActionLink<T> link, final ActionLink.ActionType type, final String entitlements) {
-            actions.add(link, type, entitlements);
+            return addAction(link, type, entitlements, false);
+        }
+
+        /**
+         * Add item action (the given order is ignored.
+         *
+         * @param link action link.
+         * @param type action type.
+         * @param entitlements entitlements.
+         * @param onConfirm specify TRUE to ask for confirmation.
+         * @return current builder object.
+         */
+        public Builder<T> addAction(
+                final ActionLink<T> link,
+                final ActionLink.ActionType type,
+                final String entitlements,
+                final boolean onConfirm) {
+            actions.add(link, type, entitlements, onConfirm).hideLabel();
             return this;
         }
 

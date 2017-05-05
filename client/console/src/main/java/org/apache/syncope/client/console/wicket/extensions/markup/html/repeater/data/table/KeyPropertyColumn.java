@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.wicket.extensions.markup.html.repeater
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.Component;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.markup.html.basic.Label;
@@ -35,8 +36,12 @@ public class KeyPropertyColumn<T> extends PropertyColumn<T, String> {
 
     private static final long serialVersionUID = 3527840552172947705L;
 
-    public KeyPropertyColumn(final IModel<String> displayModel, final String sortProperty,
-            final String propertyExpression) {
+    public KeyPropertyColumn(final IModel<String> displayModel, final String propertyExpression) {
+        super(displayModel, propertyExpression);
+    }
+
+    public KeyPropertyColumn(
+            final IModel<String> displayModel, final String sortProperty, final String propertyExpression) {
 
         super(displayModel, sortProperty, propertyExpression);
     }
@@ -55,6 +60,11 @@ public class KeyPropertyColumn<T> extends PropertyColumn<T, String> {
     @Override
     public String getCssClass() {
         return "keyColumn";
+    }
+
+    @Override
+    public Component getHeader(final String componentId) {
+        return super.getHeader(componentId).setEnabled(false).setVisible(false);
     }
 
 }

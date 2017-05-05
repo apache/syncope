@@ -25,7 +25,7 @@ import org.apache.syncope.client.console.rest.ReportRestClient;
 import org.apache.syncope.client.console.tasks.ExecutionsDirectoryPanel;
 import org.apache.syncope.client.console.wicket.ajax.form.AbstractAjaxDownloadBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
@@ -80,7 +80,7 @@ public class ReportExecutionDetails extends MultilevelPanel.SecondLevel {
         }
 
         @Override
-        protected void addFurtherAcions(final ActionLinksPanel.Builder<ExecTO> panel, final IModel<ExecTO> model) {
+        protected void addFurtherAcions(final ActionsPanel<ExecTO> panel, final IModel<ExecTO> model) {
             panel.add(new ActionLink<ExecTO>() {
 
                 private static final long serialVersionUID = -3722207913631435501L;

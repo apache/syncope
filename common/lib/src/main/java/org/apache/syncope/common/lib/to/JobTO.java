@@ -40,8 +40,6 @@ public class JobTO extends AbstractBaseBean {
 
     private boolean scheduled;
 
-    private String status;
-
     private Date start;
 
     public JobType getType() {

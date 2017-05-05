@@ -30,10 +30,9 @@ import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.CamelRoutesDirectoryPanel.CamelRoutesProvider;
 import org.apache.syncope.client.console.rest.CamelRoutesRestClient;
-import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.XMLEditorPanel;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.common.lib.to.CamelRouteTO;
@@ -101,75 +100,49 @@ public class CamelRoutesDirectoryPanel extends DirectoryPanel<
 
     @Override
     protected List<IColumn<CamelRouteTO, String>> getColumns() {
-        List<IColumn<CamelRouteTO, String>> columns = new ArrayList<>();
-
+        final List<IColumn<CamelRouteTO, String>> columns = new ArrayList<>();
         columns.add(new PropertyColumn<CamelRouteTO, String>(new ResourceModel("key"), "key", "key"));
+        return columns;
+    }
 
-        columns.add(new ActionColumn<CamelRouteTO, String>(new ResourceModel("actions", "")) {
+    @Override
+    public ActionsPanel<CamelRouteTO> getActions(final IModel<CamelRouteTO> model) {
+        final ActionsPanel<CamelRouteTO> panel = super.getActions(model);
 
-            private static final long serialVersionUID = 906457126287899096L;
+        panel.add(new ActionLink<CamelRouteTO>() {
 
-            @Override
-            public ActionLinksPanel<CamelRouteTO> getActions(
-                    final String componentId, final IModel<CamelRouteTO> model) {
-
-                ActionLinksPanel<CamelRouteTO> panel = ActionLinksPanel.<CamelRouteTO>builder().
-                        add(new ActionLink<CamelRouteTO>() {
-
-                            private static final long serialVersionUID = -3722207913631435501L;
-
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final CamelRouteTO ignore) {
-                                final CamelRouteTO route = restClient.read(model.getObject().getKey());
-
-                                utilityModal.header(Model.of(route.getKey()));
-                                utilityModal.setContent(new XMLEditorPanel(
-                                        utilityModal, new PropertyModel<String>(route, "content"), filtered, pageRef) {
-
-                                    private static final long serialVersionUID = 5488080606102212554L;
-
-                                    @Override
-                                    public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-                                        try {
-                                            restClient.update(route);
-                                            info(getString(Constants.OPERATION_SUCCEEDED));
-                                            modal.close(target);
-                                        } catch (Exception e) {
-                                            LOG.error("While creating or updating CamelRouteTO", e);
-                                            error(getString(Constants.ERROR) + ": " + e.getMessage());
-                                        }
-                                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-                                    }
-
-                                });
-                                utilityModal.show(true);
-                                target.add(utilityModal);
-                            }
-                        }, ActionLink.ActionType.EDIT, CamelEntitlement.ROUTE_UPDATE).
-                        build(componentId);
-
-                return panel;
-            }
+            private static final long serialVersionUID = -3722207913631435501L;
 
             @Override
-            public ActionLinksPanel<CamelRouteTO> getHeader(final String componentId) {
-                final ActionLinksPanel.Builder<CamelRouteTO> panel = ActionLinksPanel.builder();
+            public void onClick(final AjaxRequestTarget target, final CamelRouteTO ignore) {
+                final CamelRouteTO route = restClient.read(model.getObject().getKey());
 
-                return panel.add(new ActionLink<CamelRouteTO>() {
+                utilityModal.header(Model.of(route.getKey()));
+                utilityModal.setContent(new XMLEditorPanel(
+                        utilityModal, new PropertyModel<String>(route, "content"), filtered, pageRef) {
 
-                    private static final long serialVersionUID = -1140254463922516111L;
+                    private static final long serialVersionUID = 5488080606102212554L;
 
                     @Override
-                    public void onClick(final AjaxRequestTarget target, final CamelRouteTO ignore) {
-                        if (target != null) {
-                            target.add(container);
+                    public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+                        try {
+                            restClient.update(route);
+                            info(getString(Constants.OPERATION_SUCCEEDED));
+                            modal.close(target);
+                        } catch (Exception e) {
+                            LOG.error("While creating or updating CamelRouteTO", e);
+                            error(getString(Constants.ERROR) + ": " + e.getMessage());
                         }
+                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                     }
-                }, ActionLink.ActionType.RELOAD).build(componentId);
-            }
-        });
 
-        return columns;
+                });
+                utilityModal.show(true);
+                target.add(utilityModal);
+            }
+        }, ActionLink.ActionType.EDIT, CamelEntitlement.ROUTE_UPDATE);
+
+        return panel;
     }
 
     protected final class CamelRoutesProvider extends DirectoryDataProvider<CamelRouteTO> {

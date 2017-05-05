@@ -20,17 +20,22 @@ under the License.
   <wicket:extend>
     <div wicket:id="searchContainer">
       <div class="row">
-        <div class="col-sm-6">
-          <form wicket:id="paginator">
-            <div>
-              <div class="dataTables_length">
-                <label>
-                  <wicket:message key="displayRows"/>
-                  <select class="form-control input-sm" wicket:id="rowsChooser"/>
-                </label>
+        <div class="col-sm-12">
+          <div class="col-sm-6">
+            <form wicket:id="paginator">
+              <div>
+                <div class="dataTables_length">
+                  <label>
+                    <wicket:message key="displayRows"/>
+                    <select class="form-control input-sm" wicket:id="rowsChooser"/>
+                  </label>
+                </div>
               </div>
-            </div>
-          </form>
+            </form>
+          </div>
+          <div id="tablehandling" class="col-sm-6 pull-right">
+            <span wicket:id="tablehandling">[TABLE HANDLING]</span>
+          </div>
         </div>
       </div>
 

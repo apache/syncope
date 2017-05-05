@@ -44,7 +44,7 @@ public class Roles extends BasePage {
 
             private static final long serialVersionUID = -5960765294082359003L;
 
-        }.disableCheckBoxes().addNewItemPanelBuilder(
+        }.addNewItemPanelBuilder(
                 new RoleWizardBuilder(new RoleTO(), getPageReference()), true).build("rolesPanel");
 
         content.add(rolesPanel);

@@ -34,13 +34,12 @@ import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.rest.ReportRestClient;
-import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
-import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -55,7 +54,6 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColu
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
 /**
@@ -86,9 +84,8 @@ public abstract class ReportDirectoryPanel
     protected List<IColumn<ReportTO, String>> getColumns() {
         final List<IColumn<ReportTO, String>> columns = new ArrayList<>();
 
-        columns.add(new KeyPropertyColumn<ReportTO>(
-                new StringResourceModel("key", this), "key", "key"));
-
+        columns.add(new KeyPropertyColumn<ReportTO>(new StringResourceModel(
+                "key", this), "key"));
         columns.add(new PropertyColumn<ReportTO, String>(new StringResourceModel(
                 "name", this), "name", "name"));
 
@@ -110,117 +107,99 @@ public abstract class ReportDirectoryPanel
         columns.add(new BooleanPropertyColumn<ReportTO>(
                 new StringResourceModel("active", this), "active", "active"));
 
-        columns.add(new ActionColumn<ReportTO, String>(new ResourceModel("actions")) {
-
-            private static final long serialVersionUID = 2054811145491901166L;
-
-            @Override
-            public ActionLinksPanel<ReportTO> getActions(final String componentId, final IModel<ReportTO> model) {
-
-                final ActionLinksPanel<ReportTO> panel = ActionLinksPanel.<ReportTO>builder().
-                        add(new ActionLink<ReportTO>() {
-
-                            private static final long serialVersionUID = -3722207913631435501L;
-
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final ReportTO ignore) {
-                                target.add(modal.setContent(new ReportletDirectoryPanel(
-                                        modal, model.getObject().getKey(), pageRef)));
-
-                                modal.header(new StringResourceModel(
-                                        "reportlet.conf", ReportDirectoryPanel.this, Model.of(model.getObject())));
-
-                                MetaDataRoleAuthorizationStrategy.authorize(
-                                        modal.getForm(), ENABLE, StandardEntitlement.RESOURCE_UPDATE);
-
-                                modal.show(true);
-                            }
-                        }, ActionLink.ActionType.COMPOSE, StandardEntitlement.REPORT_UPDATE).
-                        add(new ActionLink<ReportTO>() {
-
-                            private static final long serialVersionUID = -3722207913631435501L;
-
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final ReportTO ignore) {
-                                final ReportTO clone = SerializationUtils.clone(model.getObject());
-                                clone.setKey(null);
-                                send(ReportDirectoryPanel.this, Broadcast.EXACT,
-                                        new AjaxWizard.EditItemActionEvent<>(clone, target));
-                            }
-                        }, ActionLink.ActionType.CLONE, StandardEntitlement.REPORT_CREATE).
-                        add(new ActionLink<ReportTO>() {
-
-                            private static final long serialVersionUID = -3722207913631435501L;
-
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final ReportTO ignore) {
-                                send(ReportDirectoryPanel.this, Broadcast.EXACT,
-                                        new AjaxWizard.EditItemActionEvent<>(
-                                                restClient.read(model.getObject().getKey()), target));
-                            }
-                        }, ActionLink.ActionType.EDIT, StandardEntitlement.REPORT_UPDATE).
-                        add(new ActionLink<ReportTO>() {
-
-                            private static final long serialVersionUID = -3722207913631435501L;
-
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final ReportTO ignore) {
-                                viewTask(model.getObject(), target);
-                            }
-                        }, ActionLink.ActionType.VIEW, StandardEntitlement.REPORT_READ).
-                        add(new ActionLink<ReportTO>() {
-
-                            private static final long serialVersionUID = -3722207913631435501L;
-
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final ReportTO ignore) {
-                                startAt.setExecutionDetail(
-                                        model.getObject().getKey(), model.getObject().getName(), target);
-                                startAt.toggle(target, true);
-                            }
-                        }, ActionLink.ActionType.EXECUTE, StandardEntitlement.REPORT_EXECUTE).
-                        add(new ActionLink<ReportTO>() {
-
-                            private static final long serialVersionUID = -3722207913631435501L;
-
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final ReportTO ignore) {
-                                final ReportTO reportTO = model.getObject();
-                                try {
-                                    restClient.delete(reportTO.getKey());
-                                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-                                    target.add(container);
-                                } catch (SyncopeClientException e) {
-                                    LOG.error("While deleting {}", reportTO.getKey(), e);
-                                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                                            ? e.getClass().getName() : e.getMessage());
-                                }
-                                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-                            }
-                        }, ActionLink.ActionType.DELETE, StandardEntitlement.REPORT_DELETE).build(componentId);
-
-                return panel;
-            }
-
-            @Override
-            public ActionLinksPanel<ReportTO> getHeader(final String componentId) {
-                final ActionLinksPanel.Builder<ReportTO> panel = ActionLinksPanel.builder();
-
-                return panel.add(new ActionLink<ReportTO>() {
-
-                    private static final long serialVersionUID = -7978723352517770644L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final ReportTO ignore) {
-                        if (target != null) {
-                            target.add(container);
-                        }
-                    }
-                }, ActionLink.ActionType.RELOAD, StandardEntitlement.TASK_LIST).build(componentId);
-            }
-        });
-
         return columns;
+    }
+
+    @Override
+    public ActionsPanel<ReportTO> getActions(final IModel<ReportTO> model) {
+        final ActionsPanel<ReportTO> panel = super.getActions(model);
+
+        panel.add(new ActionLink<ReportTO>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final ReportTO ignore) {
+                send(ReportDirectoryPanel.this, Broadcast.EXACT,
+                        new AjaxWizard.EditItemActionEvent<>(
+                                restClient.read(model.getObject().getKey()), target));
+            }
+        }, ActionLink.ActionType.EDIT, StandardEntitlement.REPORT_UPDATE);
+
+        panel.add(new ActionLink<ReportTO>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final ReportTO ignore) {
+                final ReportTO clone = SerializationUtils.clone(model.getObject());
+                clone.setKey(null);
+                send(ReportDirectoryPanel.this, Broadcast.EXACT,
+                        new AjaxWizard.EditItemActionEvent<>(clone, target));
+            }
+        }, ActionLink.ActionType.CLONE, StandardEntitlement.REPORT_CREATE);
+
+        panel.add(new ActionLink<ReportTO>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final ReportTO ignore) {
+                target.add(modal.setContent(new ReportletDirectoryPanel(
+                        modal, model.getObject().getKey(), pageRef)));
+
+                modal.header(new StringResourceModel(
+                        "reportlet.conf", ReportDirectoryPanel.this, Model.of(model.getObject())));
+
+                MetaDataRoleAuthorizationStrategy.authorize(
+                        modal.getForm(), ENABLE, StandardEntitlement.RESOURCE_UPDATE);
+
+                modal.show(true);
+            }
+        }, ActionLink.ActionType.COMPOSE, StandardEntitlement.REPORT_UPDATE);
+
+        panel.add(new ActionLink<ReportTO>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final ReportTO ignore) {
+                viewTask(model.getObject(), target);
+            }
+        }, ActionLink.ActionType.VIEW, StandardEntitlement.REPORT_READ);
+
+        panel.add(new ActionLink<ReportTO>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final ReportTO ignore) {
+                startAt.setExecutionDetail(
+                        model.getObject().getKey(), model.getObject().getName(), target);
+                startAt.toggle(target, true);
+            }
+        }, ActionLink.ActionType.EXECUTE, StandardEntitlement.REPORT_EXECUTE);
+
+        panel.add(new ActionLink<ReportTO>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final ReportTO ignore) {
+                final ReportTO reportTO = model.getObject();
+                try {
+                    restClient.delete(reportTO.getKey());
+                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    target.add(container);
+                } catch (SyncopeClientException e) {
+                    LOG.error("While deleting {}", reportTO.getKey(), e);
+                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
+                            ? e.getClass().getName() : e.getMessage());
+                }
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+            }
+        }, ActionLink.ActionType.DELETE, StandardEntitlement.REPORT_DELETE, true);
+        return panel;
     }
 
     @Override

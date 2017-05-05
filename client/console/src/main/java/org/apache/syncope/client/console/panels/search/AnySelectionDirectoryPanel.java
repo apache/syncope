@@ -21,15 +21,12 @@ package org.apache.syncope.client.console.panels.search;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import org.apache.syncope.client.console.panels.AnyObjectDisplayAttributesModalPanel;
 import org.apache.syncope.client.console.panels.AnyDirectoryPanel;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
-import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AttrColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
@@ -37,7 +34,7 @@ import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.TokenColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
-import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -104,79 +101,31 @@ public abstract class AnySelectionDirectoryPanel<A extends AnyTO, E extends Abst
             }
         }
 
-        // Add defaults in case of no selection
-        if (columns.isEmpty()) {
-            for (String name : getDisplayAttributes()) {
-                columns.add(new PropertyColumn<A, String>(new ResourceModel(name, name), name, name));
-            }
-
-            prefMan.setList(getRequest(), getResponse(), getPrefDetailsView(), Arrays.asList(getDisplayAttributes()));
-        }
-
-        columns.add(new ActionColumn<A, String>(new ResourceModel("actions")) {
-
-            private static final long serialVersionUID = -3503023501954863131L;
-
-            @Override
-            public ActionLinksPanel<A> getActions(final String componentId, final IModel<A> model) {
-                final ActionLinksPanel.Builder<A> panel = ActionLinksPanel.builder();
-
-                panel.add(new ActionLink<A>() {
-
-                    private static final long serialVersionUID = -7978723352517770644L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final A ignore) {
-                        send(AnySelectionDirectoryPanel.this,
-                                Broadcast.BUBBLE, new ItemSelection<>(target, model.getObject()));
-                    }
-                }, ActionType.SELECT, AnyEntitlement.READ.getFor(type));
-
-                return panel.build(componentId, model.getObject());
-            }
-
-            @Override
-            public ActionLinksPanel<A> getHeader(final String componentId) {
-                final ActionLinksPanel.Builder<A> panel = ActionLinksPanel.builder();
-
-                return panel.add(new ActionLink<A>() {
-
-                    private static final long serialVersionUID = -7978723352517770644L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final A ignore) {
-                        // still missing content
-                        target.add(altDefaultModal.setContent(new AnyObjectDisplayAttributesModalPanel<>(
-                                altDefaultModal, page.getPageReference(), pSchemaNames, dSchemaNames, type)));
-
-                        altDefaultModal.addSubmitButton();
-                        altDefaultModal.header(new ResourceModel("any.attr.display"));
-                        altDefaultModal.show(true);
-                    }
-                }, ActionType.CHANGE_VIEW, AnyEntitlement.READ.getFor(type)).add(new ActionLink<A>() {
-
-                    private static final long serialVersionUID = -7978723352517770644L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final A ignore) {
-                        if (target != null) {
-                            target.add(container);
-                        }
-                    }
-                }, ActionType.RELOAD, AnyEntitlement.SEARCH.getFor(type)).
-                        build(componentId);
-            }
-        });
-
         return columns;
+    }
+
+    @Override
+    public ActionsPanel<A> getActions(final IModel<A> model) {
+        final ActionsPanel<A> panel = super.getActions(model);
+
+        panel.add(new ActionLink<A>() {
+
+            private static final long serialVersionUID = -7978723352517770644L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final A ignore) {
+                send(AnySelectionDirectoryPanel.this,
+                        Broadcast.BUBBLE, new ItemSelection<>(target, model.getObject()));
+            }
+        }, ActionType.SELECT, AnyEntitlement.READ.getFor(type));
+
+        return panel;
     }
 
     @Override
     protected Collection<ActionType> getBulkActions() {
         return Collections.<ActionType>emptyList();
     }
-
-    protected abstract String[] getDisplayAttributes();
 
     protected abstract String getPrefDetailsView();
 

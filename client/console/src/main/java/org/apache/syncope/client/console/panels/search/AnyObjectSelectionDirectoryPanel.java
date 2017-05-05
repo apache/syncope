@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.panels.search;
 
 import java.util.List;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.panels.AnyObjectDisplayAttributesModalPanel;
 import org.apache.syncope.client.console.rest.AnyObjectRestClient;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.console.wizards.any.AnyWrapper;
@@ -40,11 +39,6 @@ public final class AnyObjectSelectionDirectoryPanel
     @Override
     protected String paginatorRowsKey() {
         return Constants.PREF_ANYOBJECT_PAGINATOR_ROWS;
-    }
-
-    @Override
-    protected String[] getDisplayAttributes() {
-        return AnyObjectDisplayAttributesModalPanel.DEFAULT_SELECTION;
     }
 
     @Override

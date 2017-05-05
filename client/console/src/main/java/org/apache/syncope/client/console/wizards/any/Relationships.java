@@ -46,7 +46,7 @@ import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormCompo
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
-import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.lib.SyncopeClient;
@@ -154,7 +154,10 @@ public class Relationships extends WizardStep {
             }
         });
 
-        viewFragment.add(ActionLinksPanel.<RelationshipTO>builder().add(new ActionLink<RelationshipTO>() {
+        final ActionsPanel<RelationshipTO> panel = new ActionsPanel<>("actions", null);
+        viewFragment.add(panel);
+
+        panel.add(new ActionLink<RelationshipTO>() {
 
             private static final long serialVersionUID = 3257738274365467945L;
 
@@ -165,7 +168,7 @@ public class Relationships extends WizardStep {
                 addFragment.add(new Specification().setRenderBodyOnly(true));
                 target.add(Relationships.this);
             }
-        }, ActionType.CREATE, AnyEntitlement.UPDATE.getFor(anyTO.getType())).build("actions"));
+        }, ActionType.CREATE, AnyEntitlement.UPDATE.getFor(anyTO.getType()));
 
         return viewFragment;
     }

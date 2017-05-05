@@ -30,13 +30,11 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.pages.BasePage;
-import org.apache.syncope.client.console.panels.ParametersPanel.ParametersProvider;
 import org.apache.syncope.client.console.rest.ConfRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
-import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wizards.AbstractModalPanelBuilder;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
@@ -54,7 +52,8 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
-public class ParametersPanel extends DirectoryPanel<AttrTO, AttrTO, ParametersProvider, ConfRestClient> {
+public class ParametersDirectoryPanel
+        extends DirectoryPanel<AttrTO, AttrTO, ParametersDirectoryPanel.ParametersProvider, ConfRestClient> {
 
     private static final long serialVersionUID = 2765863608539154422L;
 
@@ -71,7 +70,7 @@ public class ParametersPanel extends DirectoryPanel<AttrTO, AttrTO, ParametersPr
         }
     };
 
-    public ParametersPanel(final String id, final PageReference pageRef) {
+    public ParametersDirectoryPanel(final String id, final PageReference pageRef) {
         super(id, new Builder<AttrTO, AttrTO, ConfRestClient>(new ConfRestClient(), pageRef) {
 
             private static final long serialVersionUID = 8769126634538601689L;
@@ -81,6 +80,9 @@ public class ParametersPanel extends DirectoryPanel<AttrTO, AttrTO, ParametersPr
                 throw new UnsupportedOperationException();
             }
         });
+
+        itemKeyFieldName = "schema";
+        disableCheckBoxes();
 
         modalDetails.setWindowClosedCallback(new WindowClosedCallback() {
 
@@ -110,7 +112,7 @@ public class ParametersPanel extends DirectoryPanel<AttrTO, AttrTO, ParametersPr
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.CONFIGURATION_SET);
     }
 
-    public ParametersPanel(final String id, final Builder<AttrTO, AttrTO, ConfRestClient> builder) {
+    public ParametersDirectoryPanel(final String id, final Builder<AttrTO, AttrTO, ConfRestClient> builder) {
         super(id, builder);
     }
 
@@ -126,80 +128,56 @@ public class ParametersPanel extends DirectoryPanel<AttrTO, AttrTO, ParametersPr
 
     @Override
     protected Collection<ActionLink.ActionType> getBulkActions() {
-        return Collections.<ActionLink.ActionType>emptyList();
+        return Collections.<ActionLink.ActionType>singletonList(ActionLink.ActionType.DELETE);
     }
 
     @Override
     protected List<IColumn<AttrTO, String>> getColumns() {
         final List<IColumn<AttrTO, String>> columns = new ArrayList<>();
-
-        columns.add(new PropertyColumn<AttrTO, String>(new ResourceModel("schema"), "schema", "schema"));
+        columns.add(new PropertyColumn<AttrTO, String>(new ResourceModel("schema"), "schema"));
         columns.add(new PropertyColumn<AttrTO, String>(new ResourceModel("values"), "values"));
-
-        columns.add(new ActionColumn<AttrTO, String>(new ResourceModel("actions")) {
-
-            private static final long serialVersionUID = 906457126287899096L;
-
-            @Override
-            public ActionLinksPanel<AttrTO> getActions(final String componentId, final IModel<AttrTO> model) {
-                ActionLinksPanel<AttrTO> panel = ActionLinksPanel.<AttrTO>builder().
-                        add(new ActionLink<AttrTO>() {
-
-                            private static final long serialVersionUID = -3722207913631435501L;
-
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final AttrTO ignore) {
-                                target.add(modalDetails);
-                                modalDetails.addSubmitButton();
-                                modalDetails.header(new StringResourceModel("any.edit"));
-                                modalDetails.setContent(
-                                        new ParametersEditModalPanel(modalDetails, model.getObject(), pageRef));
-                                modalDetails.show(true);
-                            }
-                        }, ActionLink.ActionType.EDIT, StandardEntitlement.CONFIGURATION_SET).
-                        add(new ActionLink<AttrTO>() {
-
-                            private static final long serialVersionUID = -3722207913631435501L;
-
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final AttrTO ignore) {
-                                try {
-                                    restClient.delete(model.getObject().getSchema());
-                                    schemaRestClient.deletePlainSchema(model.getObject().getSchema());
-                                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-                                    target.add(container);
-                                } catch (Exception e) {
-                                    LOG.error("While deleting {}", model.getObject(), e);
-                                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                                            ? e.getClass().getName() : e.getMessage());
-                                }
-                                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-                            }
-                        }, ActionLink.ActionType.DELETE, StandardEntitlement.CONFIGURATION_DELETE).
-                        build(componentId);
-
-                return panel;
-            }
-
-            @Override
-            public ActionLinksPanel<AttrTO> getHeader(final String componentId) {
-                final ActionLinksPanel.Builder<AttrTO> panel = ActionLinksPanel.builder();
-
-                return panel.add(new ActionLink<AttrTO>() {
-
-                    private static final long serialVersionUID = -1140254463922516111L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final AttrTO ignore) {
-                        if (target != null) {
-                            target.add(container);
-                        }
-                    }
-                }, ActionLink.ActionType.RELOAD).build(componentId);
-            }
-        });
-
         return columns;
+    }
+
+    @Override
+    public ActionsPanel<AttrTO> getActions(final IModel<AttrTO> model) {
+        final ActionsPanel<AttrTO> panel = super.getActions(model);
+
+        panel.add(new ActionLink<AttrTO>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final AttrTO ignore) {
+                target.add(modalDetails);
+                modalDetails.addSubmitButton();
+                modalDetails.header(new StringResourceModel("any.edit"));
+                modalDetails.setContent(new ParametersEditModalPanel(modalDetails, model.getObject(), pageRef));
+                modalDetails.show(true);
+            }
+        }, ActionLink.ActionType.EDIT, StandardEntitlement.CONFIGURATION_SET);
+
+        panel.add(new ActionLink<AttrTO>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final AttrTO ignore) {
+                try {
+                    restClient.delete(model.getObject().getSchema());
+                    schemaRestClient.deletePlainSchema(model.getObject().getSchema());
+                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    target.add(container);
+                } catch (Exception e) {
+                    LOG.error("While deleting {}", model.getObject(), e);
+                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
+                            ? e.getClass().getName() : e.getMessage());
+                }
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+            }
+        }, ActionLink.ActionType.DELETE, StandardEntitlement.CONFIGURATION_DELETE);
+
+        return panel;
     }
 
     protected final class ParametersProvider extends DirectoryDataProvider<AttrTO> {

@@ -38,11 +38,10 @@ import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.policies.PolicyRuleDirectoryPanel.PolicyRuleWrapper;
 import org.apache.syncope.client.console.rest.PolicyRestClient;
-import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
-import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -64,7 +63,6 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
 /**
@@ -120,90 +118,86 @@ public class PolicyRuleDirectoryPanel<T extends AbstractPolicyTO> extends Direct
                 cellItem.add(new Label(componentId, rowModel.getObject().getConf().getClass().getName()));
             }
         });
-
-        columns.add(new ActionColumn<PolicyRuleWrapper, String>(new ResourceModel("actions")) {
-
-            private static final long serialVersionUID = 2054811145491901166L;
-
-            @Override
-            public ActionLinksPanel<PolicyRuleWrapper> getActions(final String componentId,
-                    final IModel<PolicyRuleWrapper> model) {
-
-                final ActionLinksPanel<PolicyRuleWrapper> panel = ActionLinksPanel.<PolicyRuleWrapper>builder().
-                        add(new ActionLink<PolicyRuleWrapper>() {
-
-                            private static final long serialVersionUID = -3722207913631435501L;
-
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final PolicyRuleWrapper ignore) {
-                                RuleConf clone = SerializationUtils.clone(model.getObject().getConf());
-
-                                send(PolicyRuleDirectoryPanel.this, Broadcast.EXACT,
-                                        new AjaxWizard.EditItemActionEvent<>(
-                                                new PolicyRuleWrapper().setConf(clone),
-                                                target));
-                            }
-                        }, ActionLink.ActionType.CLONE, StandardEntitlement.POLICY_UPDATE).
-                        add(new ActionLink<PolicyRuleWrapper>() {
-
-                            private static final long serialVersionUID = -3722207913631435501L;
-
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final PolicyRuleWrapper ignore) {
-                                send(PolicyRuleDirectoryPanel.this, Broadcast.EXACT,
-                                        new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
-                            }
-                        }, ActionLink.ActionType.EDIT, StandardEntitlement.POLICY_UPDATE).
-                        add(new ActionLink<PolicyRuleWrapper>() {
-
-                            private static final long serialVersionUID = -3722207913631435501L;
-
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final PolicyRuleWrapper ignore) {
-                                final RuleConf rule = model.getObject().getConf();
-                                try {
-                                    final T actual = restClient.getPolicy(policy);
-                                    CollectionUtils.filter(getRuleConf(actual), new Predicate<RuleConf>() {
-
-                                        @Override
-                                        public boolean evaluate(final RuleConf object) {
-                                            return !object.getName().equals(rule.getName());
-                                        }
-                                    });
-                                    restClient.updatePolicy(actual);
-                                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-                                    customActionOnFinishCallback(target);
-                                } catch (SyncopeClientException e) {
-                                    LOG.error("While deleting {}", rule.getName(), e);
-                                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                                            ? e.getClass().getName() : e.getMessage());
-                                }
-                                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-                            }
-                        }, ActionLink.ActionType.DELETE, StandardEntitlement.POLICY_UPDATE).build(componentId);
-
-                return panel;
-            }
-
-            @Override
-            public ActionLinksPanel<PolicyRuleWrapper> getHeader(final String componentId) {
-                final ActionLinksPanel.Builder<PolicyRuleWrapper> panel = ActionLinksPanel.builder();
-
-                return panel.add(new ActionLink<PolicyRuleWrapper>() {
-
-                    private static final long serialVersionUID = -7978723352517770644L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final PolicyRuleWrapper ignore) {
-                        if (target != null) {
-                            customActionOnFinishCallback(target);
-                        }
-                    }
-                }, ActionLink.ActionType.RELOAD, StandardEntitlement.TASK_LIST).build(componentId);
-            }
-        });
-
         return columns;
+    }
+
+    @Override
+    public ActionsPanel<PolicyRuleWrapper> getActions(final IModel<PolicyRuleWrapper> model) {
+        final ActionsPanel<PolicyRuleWrapper> panel = super.getActions(model);
+
+        panel.add(new ActionLink<PolicyRuleWrapper>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final PolicyRuleWrapper ignore) {
+                RuleConf clone = SerializationUtils.clone(model.getObject().getConf());
+
+                PolicyRuleDirectoryPanel.this.getTogglePanel().close(target);
+                send(PolicyRuleDirectoryPanel.this, Broadcast.EXACT,
+                        new AjaxWizard.EditItemActionEvent<>(
+                                new PolicyRuleWrapper().setConf(clone),
+                                target));
+            }
+        }, ActionLink.ActionType.CLONE, StandardEntitlement.POLICY_CREATE);
+        panel.add(new ActionLink<PolicyRuleWrapper>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final PolicyRuleWrapper ignore) {
+                PolicyRuleDirectoryPanel.this.getTogglePanel().close(target);
+                send(PolicyRuleDirectoryPanel.this, Broadcast.EXACT,
+                        new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
+            }
+        }, ActionLink.ActionType.EDIT, StandardEntitlement.POLICY_UPDATE);
+        panel.add(new ActionLink<PolicyRuleWrapper>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final PolicyRuleWrapper ignore) {
+                final RuleConf rule = model.getObject().getConf();
+                try {
+                    final T actual = restClient.getPolicy(policy);
+                    CollectionUtils.filter(getRuleConf(actual), new Predicate<RuleConf>() {
+
+                        @Override
+                        public boolean evaluate(final RuleConf object) {
+                            return !object.getName().equals(rule.getName());
+                        }
+                    });
+                    restClient.updatePolicy(actual);
+                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    customActionOnFinishCallback(target);
+                } catch (SyncopeClientException e) {
+                    LOG.error("While deleting {}", rule.getName(), e);
+                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
+                            ? e.getClass().getName() : e.getMessage());
+                }
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+            }
+        }, ActionLink.ActionType.DELETE, StandardEntitlement.POLICY_DELETE, true);
+
+        return panel;
+    }
+
+    @Override
+    public ActionsPanel<Serializable> getHeader(final String componentId) {
+        final ActionsPanel<Serializable> panel = new ActionsPanel<>(componentId, null);
+
+        panel.add(new ActionLink<Serializable>() {
+
+            private static final long serialVersionUID = -7978723352517770644L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
+                if (target != null) {
+                    customActionOnFinishCallback(target);
+                }
+            }
+        }, ActionLink.ActionType.RELOAD, StandardEntitlement.TASK_LIST).hideLabel();
+        return panel;
     }
 
     @Override
