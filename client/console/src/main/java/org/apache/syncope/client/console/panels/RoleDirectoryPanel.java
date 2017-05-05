@@ -38,11 +38,9 @@ import org.apache.syncope.client.console.panels.RoleDirectoryPanel.RoleDataProvi
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.RoleRestClient;
-import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
-import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.JsonEditorPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
@@ -82,6 +80,7 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
         MetaDataRoleAuthorizationStrategy.authorize(addAjaxLink, RENDER, StandardEntitlement.ROLE_CREATE);
         setReadOnly(!SyncopeConsoleSession.get().owns(StandardEntitlement.ROLE_UPDATE));
 
+        disableCheckBoxes();
         setShowResultPage(true);
 
         modal.size(Modal.Size.Large);
@@ -117,166 +116,149 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
         columns.add(new PropertyColumn<RoleTO, String>(
                 new ResourceModel("realms"), null, "realms"));
 
-        columns.add(new ActionColumn<RoleTO, String>(new ResourceModel("actions")) {
-
-            private static final long serialVersionUID = -3503023501954863131L;
-
-            @Override
-            public ActionLinksPanel<RoleTO> getActions(final String componentId, final IModel<RoleTO> model) {
-                final ActionLinksPanel.Builder<RoleTO> panel = ActionLinksPanel.builder();
-
-                panel.add(new ActionLink<RoleTO>() {
-
-                    private static final long serialVersionUID = -7978723352517770644L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final RoleTO ignore) {
-                        final String query = SyncopeClient.getUserSearchConditionBuilder().and(
-                                SyncopeClient.getUserSearchConditionBuilder().inRoles(model.getObject().getKey()),
-                                SyncopeClient.getUserSearchConditionBuilder().is("key").notNullValue()).query();
-
-                        final AnyTypeRestClient typeRestClient = new AnyTypeRestClient();
-                        final AnyTypeClassRestClient classRestClient = new AnyTypeClassRestClient();
-
-                        final AnyTypeTO anyTypeTO = typeRestClient.read(AnyTypeKind.USER.name());
-
-                        ModalPanel panel = new AnyPanel(BaseModal.CONTENT_ID, anyTypeTO, null, null, false, pageRef) {
-
-                            private static final long serialVersionUID = -7514498203393023415L;
-
-                            @Override
-                            protected Panel getDirectoryPanel(final String id) {
-                                final Panel panel = new UserDirectoryPanel.Builder(
-                                        classRestClient.list(anyTypeTO.getClasses()), anyTypeTO.getKey(), pageRef).
-                                        setRealm("/").
-                                        setFiltered(true).
-                                        setFiql(query).
-                                        disableCheckBoxes().
-                                        addNewItemPanelBuilder(FormLayoutInfoUtils.instantiate(
-                                                new UserTO(),
-                                                anyTypeTO.getClasses(),
-                                                FormLayoutInfoUtils.fetch(typeRestClient.list()).getLeft(),
-                                                pageRef), false).
-                                        setWizardInModal(false).build(id);
-
-                                MetaDataRoleAuthorizationStrategy.authorize(
-                                        panel,
-                                        WebPage.RENDER,
-                                        StandardEntitlement.USER_SEARCH);
-
-                                return panel;
-                            }
-                        };
-
-                        membersModal.header(new StringResourceModel("role.members", RoleDirectoryPanel.this, model));
-                        membersModal.setContent(panel);
-                        membersModal.show(true);
-                        target.add(membersModal);
-                    }
-                }, ActionLink.ActionType.MEMBERS, StandardEntitlement.USER_SEARCH).add(new ActionLink<RoleTO>() {
-
-                    private static final long serialVersionUID = -7978723352517770644L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final RoleTO ignore) {
-                        send(RoleDirectoryPanel.this, Broadcast.EXACT,
-                                new AjaxWizard.EditItemActionEvent<>(
-                                        new RoleWrapper(new RoleRestClient().read(model.getObject().getKey())),
-                                        target));
-                    }
-                }, ActionLink.ActionType.EDIT, StandardEntitlement.ROLE_READ).add(new ActionLink<RoleTO>() {
-
-                    private static final long serialVersionUID = -7978723352517770644L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final RoleTO ignore) {
-                        final RoleTO clone = SerializationUtils.clone(model.getObject());
-                        clone.setKey(null);
-                        send(RoleDirectoryPanel.this, Broadcast.EXACT,
-                                new AjaxWizard.NewItemActionEvent<>(new RoleWrapper(clone), target));
-                    }
-                }, ActionLink.ActionType.CLONE, StandardEntitlement.ROLE_CREATE).add(new ActionLink<RoleTO>() {
-
-                    private static final long serialVersionUID = -7978723352517770644L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final RoleTO ignore) {
-                        final ConsoleLayoutInfo info = new ConsoleLayoutInfo(model.getObject().getKey());
-                        info.setContent(restClient.readConsoleLayoutInfo(model.getObject().getKey()));
-
-                        utilityModal.header(new ResourceModel("console.layout.info", "JSON Content"));
-                        utilityModal.setContent(new JsonEditorPanel(
-                                utilityModal, new PropertyModel<String>(info, "content"), false, pageRef) {
-
-                            private static final long serialVersionUID = -8927036362466990179L;
-
-                            @Override
-                            public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-                                try {
-                                    restClient.setConsoleLayoutInfo(info.getKey(), info.getContent());
-                                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-                                    modal.show(false);
-                                    modal.close(target);
-                                } catch (Exception e) {
-                                    LOG.error("While updating onsole layout info for role {}", info.getKey(), e);
-                                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                                            ? e.getClass().getName() : e.
-                                            getMessage());
-                                }
-                                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-                            }
-                        });
-                        utilityModal.show(true);
-                        target.add(utilityModal);
-                    }
-                }, ActionLink.ActionType.LAYOUT_EDIT, StandardEntitlement.ROLE_UPDATE).add(new ActionLink<RoleTO>() {
-
-                    private static final long serialVersionUID = -7978723352517770644L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final RoleTO ignore) {
-                        try {
-                            restClient.delete(model.getObject().getKey());
-                            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-                            target.add(container);
-                        } catch (SyncopeClientException e) {
-                            LOG.error("While deleting object {}", model.getObject().getKey(), e);
-                            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().
-                                    getName() : e.getMessage());
-                        }
-                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-                    }
-                }, ActionLink.ActionType.DELETE, StandardEntitlement.ROLE_DELETE);
-
-                return panel.build(componentId);
-            }
-
-            @Override
-            public ActionLinksPanel<RoleTO> getHeader(final String componentId) {
-                final ActionLinksPanel.Builder<RoleTO> panel = ActionLinksPanel.builder();
-
-                return panel.add(new ActionLink<RoleTO>() {
-
-                    private static final long serialVersionUID = -7978723352517770644L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final RoleTO ignore) {
-                        if (target != null) {
-                            target.add(container);
-                        }
-                    }
-                }, ActionLink.ActionType.RELOAD, StandardEntitlement.ROLE_LIST).build(componentId);
-            }
-        });
-
         return columns;
     }
 
     @Override
+    public ActionsPanel<RoleTO> getActions(final IModel<RoleTO> model) {
+        final ActionsPanel<RoleTO> panel = super.getActions(model);
+
+        panel.add(new ActionLink<RoleTO>() {
+
+            private static final long serialVersionUID = -7978723352517770644L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final RoleTO ignore) {
+                send(RoleDirectoryPanel.this, Broadcast.EXACT,
+                        new AjaxWizard.EditItemActionEvent<>(
+                                new RoleWrapper(new RoleRestClient().read(model.getObject().getKey())),
+                                target));
+            }
+        }, ActionLink.ActionType.EDIT, StandardEntitlement.ROLE_READ);
+
+        panel.add(new ActionLink<RoleTO>() {
+
+            private static final long serialVersionUID = -7978723352517770644L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final RoleTO ignore) {
+                final RoleTO clone = SerializationUtils.clone(model.getObject());
+                clone.setKey(null);
+                send(RoleDirectoryPanel.this, Broadcast.EXACT,
+                        new AjaxWizard.NewItemActionEvent<>(new RoleWrapper(clone), target));
+            }
+        }, ActionLink.ActionType.CLONE, StandardEntitlement.ROLE_CREATE);
+
+        panel.add(new ActionLink<RoleTO>() {
+
+            private static final long serialVersionUID = -7978723352517770644L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final RoleTO ignore) {
+                final String query = SyncopeClient.getUserSearchConditionBuilder().and(
+                        SyncopeClient.getUserSearchConditionBuilder().inRoles(model.getObject().getKey()),
+                        SyncopeClient.getUserSearchConditionBuilder().is("key").notNullValue()).query();
+
+                final AnyTypeRestClient typeRestClient = new AnyTypeRestClient();
+                final AnyTypeClassRestClient classRestClient = new AnyTypeClassRestClient();
+
+                final AnyTypeTO anyTypeTO = typeRestClient.read(AnyTypeKind.USER.name());
+
+                ModalPanel panel = new AnyPanel(BaseModal.CONTENT_ID, anyTypeTO, null, null, false, pageRef) {
+
+                    private static final long serialVersionUID = -7514498203393023415L;
+
+                    @Override
+                    protected Panel getDirectoryPanel(final String id) {
+                        final Panel panel = new UserDirectoryPanel.Builder(
+                                classRestClient.list(anyTypeTO.getClasses()), anyTypeTO.getKey(), pageRef).
+                                setRealm("/").
+                                setFiltered(true).
+                                setFiql(query).
+                                disableCheckBoxes().
+                                addNewItemPanelBuilder(FormLayoutInfoUtils.instantiate(
+                                        new UserTO(),
+                                        anyTypeTO.getClasses(),
+                                        FormLayoutInfoUtils.fetch(typeRestClient.list()).getLeft(),
+                                        pageRef), false).
+                                setWizardInModal(false).build(id);
+
+                        MetaDataRoleAuthorizationStrategy.authorize(
+                                panel,
+                                WebPage.RENDER,
+                                StandardEntitlement.USER_SEARCH);
+
+                        return panel;
+                    }
+                };
+
+                membersModal.header(new StringResourceModel("role.members", RoleDirectoryPanel.this, model));
+                membersModal.setContent(panel);
+                membersModal.show(true);
+                target.add(membersModal);
+            }
+        }, ActionLink.ActionType.MEMBERS, StandardEntitlement.USER_SEARCH);
+
+        panel.add(new ActionLink<RoleTO>() {
+
+            private static final long serialVersionUID = -7978723352517770644L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final RoleTO ignore) {
+                final ConsoleLayoutInfo info = new ConsoleLayoutInfo(model.getObject().getKey());
+                info.setContent(restClient.readConsoleLayoutInfo(model.getObject().getKey()));
+
+                utilityModal.header(new ResourceModel("console.layout.info", "JSON Content"));
+                utilityModal.setContent(new JsonEditorPanel(
+                        utilityModal, new PropertyModel<String>(info, "content"), false, pageRef) {
+
+                    private static final long serialVersionUID = -8927036362466990179L;
+
+                    @Override
+                    public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+                        try {
+                            restClient.setConsoleLayoutInfo(info.getKey(), info.getContent());
+                            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                            modal.show(false);
+                            modal.close(target);
+                        } catch (Exception e) {
+                            LOG.error("While updating onsole layout info for role {}", info.getKey(), e);
+                            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
+                                    ? e.getClass().getName() : e.
+                                    getMessage());
+                        }
+                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                    }
+                });
+                utilityModal.show(true);
+                target.add(utilityModal);
+            }
+        }, ActionLink.ActionType.LAYOUT_EDIT, StandardEntitlement.ROLE_UPDATE);
+        panel.add(new ActionLink<RoleTO>() {
+
+            private static final long serialVersionUID = -7978723352517770644L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final RoleTO ignore) {
+                try {
+                    restClient.delete(model.getObject().getKey());
+                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    target.add(container);
+                } catch (SyncopeClientException e) {
+                    LOG.error("While deleting object {}", model.getObject().getKey(), e);
+                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().
+                            getName() : e.getMessage());
+                }
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+            }
+        }, ActionLink.ActionType.DELETE, StandardEntitlement.ROLE_DELETE, true);
+
+        return panel;
+    }
+
+    @Override
     protected Collection<ActionLink.ActionType> getBulkActions() {
-        final List<ActionType> bulkActions = new ArrayList<>();
-        bulkActions.add(ActionType.DELETE);
-        return bulkActions;
+        return Collections.<ActionLink.ActionType>singletonList(ActionLink.ActionType.DELETE);
     }
 
     public abstract static class Builder

@@ -18,8 +18,15 @@
  */
 package org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table;
 
+import java.io.Serializable;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.wicket.ajax.markup.html.navigation.paging.AjaxDataNavigationToolbar;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksTogglePanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
+import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.sort.AjaxFallbackOrderByBorder;
 import org.apache.wicket.extensions.ajax.markup.html.repeater.data.table.AjaxFallbackHeadersToolbar;
@@ -33,15 +40,19 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.OddEvenItem;
 import org.apache.wicket.model.IModel;
 
-public class AjaxFallbackDataTable<T, S> extends DataTable<T, S> {
+public class AjaxFallbackDataTable<T extends Serializable, S> extends DataTable<T, S> {
 
     private static final long serialVersionUID = 6861105496141602937L;
+
+    private ActionLinksTogglePanel<T> togglePanel;
 
     public AjaxFallbackDataTable(final String id, final List<? extends IColumn<T, S>> columns,
             final ISortableDataProvider<T, S> dataProvider, final int rowsPerPage, final WebMarkupContainer container) {
         super(id, columns, dataProvider, rowsPerPage);
         setOutputMarkupId(true);
         setVersioned(false);
+
+        togglePanel = getTogglePanel();
 
         addTopToolbar(new AjaxFallbackHeadersToolbar<S>(this, dataProvider) {
 
@@ -90,8 +101,44 @@ public class AjaxFallbackDataTable<T, S> extends DataTable<T, S> {
         addBottomToolbar(new NoRecordsToolbar(this));
     }
 
+    protected ActionsPanel<T> getActions(final IModel<T> model) {
+        return null;
+    }
+
+    protected ActionLinksTogglePanel<T> getTogglePanel() {
+        return null;
+    }
+
     @Override
     protected Item<T> newRowItem(final String id, final int index, final IModel<T> model) {
-        return new OddEvenItem<>(id, index, model);
+        final OddEvenItem<T> item = new OddEvenItem<>(id, index, model);
+
+        if (togglePanel != null) {
+            final ActionsPanel<T> actions = getActions(model);
+
+            if (actions != null && !actions.isEmpty()) {
+                item.add(new AttributeModifier("style", "cursor: pointer;"));
+                item.add(new AjaxEventBehavior(Constants.ON_CLICK) {
+
+                    private static final long serialVersionUID = 1L;
+
+                    @Override
+                    protected String findIndicatorId() {
+                        return StringUtils.EMPTY;
+                    }
+
+                    @Override
+                    protected void onEvent(final AjaxRequestTarget target) {
+                        if (target.getLastFocusedElementId() == null
+                                || (!target.getLastFocusedElementId().startsWith("check")
+                                && !target.getLastFocusedElementId().startsWith("groupselector"))) {
+                            togglePanel.toggleWithContent(target, getActions(model), model.getObject());
+                        }
+                    }
+                });
+            }
+        }
+
+        return item;
     }
 }

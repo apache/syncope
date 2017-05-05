@@ -34,11 +34,10 @@ import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.AccessTokenDirectoryPanel.AccessTokenDataProvider;
 import org.apache.syncope.client.console.rest.AccessTokenRestClient;
-import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AccessTokenTO;
@@ -55,6 +54,7 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.StringResourceModel;
 
 public class AccessTokenDirectoryPanel
         extends DirectoryPanel<AccessTokenTO, AccessTokenTO, AccessTokenDataProvider, AccessTokenRestClient> {
@@ -83,8 +83,10 @@ public class AccessTokenDirectoryPanel
     @Override
     protected List<IColumn<AccessTokenTO, String>> getColumns() {
         List<IColumn<AccessTokenTO, String>> columns = new ArrayList<>();
-
-        columns.add(new KeyPropertyColumn<AccessTokenTO>(new ResourceModel("key"), "key", "key"));
+        columns.add(new KeyPropertyColumn<AccessTokenTO>(
+                new StringResourceModel(Constants.KEY_FIELD_NAME, this),
+                Constants.KEY_FIELD_NAME,
+                Constants.KEY_FIELD_NAME));
 
         columns.add(new PropertyColumn<AccessTokenTO, String>(new ResourceModel("owner"), "owner", "owner"));
 
@@ -107,58 +109,33 @@ public class AccessTokenDirectoryPanel
 
         columns.add(new DatePropertyColumn<AccessTokenTO>(new ResourceModel("expiryTime"), "expiryTime", "expiryTime"));
 
-
-        columns.add(new ActionColumn<AccessTokenTO, String>(new ResourceModel("actions", "")) {
-
-            private static final long serialVersionUID = 6532399418012695495L;
-
-            @Override
-            public ActionLinksPanel<AccessTokenTO> getActions(
-                    final String componentId, final IModel<AccessTokenTO> model) {
-
-                final ActionLinksPanel.Builder<AccessTokenTO> panel = ActionLinksPanel.builder();
-
-                panel.add(new ActionLink<AccessTokenTO>() {
-
-                    private static final long serialVersionUID = -7978723352517770644L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final AccessTokenTO ignore) {
-                        try {
-                            restClient.delete(model.getObject().getKey());
-                            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-                            target.add(container);
-                        } catch (SyncopeClientException e) {
-                            LOG.error("While deleting object {}", model.getObject().getKey(), e);
-                            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().
-                                    getName() : e.getMessage());
-                        }
-                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-                    }
-                }, ActionLink.ActionType.DELETE, StandardEntitlement.ACCESS_TOKEN_DELETE);
-
-                return panel.build(componentId);
-            }
-
-            @Override
-            public ActionLinksPanel<AccessTokenTO> getHeader(final String componentId) {
-                final ActionLinksPanel.Builder<AccessTokenTO> panel = ActionLinksPanel.builder();
-
-                return panel.add(new ActionLink<AccessTokenTO>() {
-
-                    private static final long serialVersionUID = -8766205612892810375L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final AccessTokenTO ignore) {
-                        if (target != null) {
-                            target.add(container);
-                        }
-                    }
-                }, ActionLink.ActionType.RELOAD, StandardEntitlement.ACCESS_TOKEN_LIST).build(componentId);
-            }
-        });
-
         return columns;
+    }
+
+    @Override
+    public ActionsPanel<AccessTokenTO> getActions(final IModel<AccessTokenTO> model) {
+        final ActionsPanel<AccessTokenTO> panel = super.getActions(model);
+
+        panel.add(new ActionLink<AccessTokenTO>() {
+
+            private static final long serialVersionUID = -7978723352517770644L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final AccessTokenTO ignore) {
+                try {
+                    restClient.delete(model.getObject().getKey());
+                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    target.add(container);
+                } catch (SyncopeClientException e) {
+                    LOG.error("While deleting object {}", model.getObject().getKey(), e);
+                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().
+                            getName() : e.getMessage());
+                }
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+            }
+        }, ActionLink.ActionType.DELETE, StandardEntitlement.ACCESS_TOKEN_DELETE, true);
+
+        return panel;
     }
 
     @Override

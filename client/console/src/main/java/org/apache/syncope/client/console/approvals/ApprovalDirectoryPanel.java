@@ -32,10 +32,9 @@ import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.rest.UserWorkflowRestClient;
 import org.apache.syncope.client.console.approvals.ApprovalDirectoryPanel.ApprovalProvider;
 import org.apache.syncope.client.console.pages.BasePage;
-import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
@@ -99,77 +98,55 @@ public class ApprovalDirectoryPanel
         columns.add(new DatePropertyColumn<WorkflowFormTO>(
                 new ResourceModel("dueDate"), "dueDate", "dueDate"));
         columns.add(new PropertyColumn<WorkflowFormTO, String>(new ResourceModel("owner"), "owner", "owner"));
-        columns.add(new ActionColumn<WorkflowFormTO, String>(new ResourceModel("actions")) {
-
-            private static final long serialVersionUID = -3503023501954863133L;
-
-            @Override
-            public ActionLinksPanel<WorkflowFormTO> getActions(
-                    final String componentId, final IModel<WorkflowFormTO> model) {
-                final ActionLinksPanel.Builder<WorkflowFormTO> panel = ActionLinksPanel.builder();
-
-                panel.add(new ActionLink<WorkflowFormTO>() {
-
-                    private static final long serialVersionUID = -3722207913631435501L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final WorkflowFormTO ignore) {
-                        try {
-                            restClient.claimForm(model.getObject().getTaskId());
-                            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-                        } catch (SyncopeClientException scee) {
-                            SyncopeConsoleSession.get().error(getString(Constants.ERROR) + ": " + scee.getMessage());
-                        }
-                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-                        target.add(container);
-                    }
-                }, ActionLink.ActionType.CLAIM, StandardEntitlement.WORKFLOW_FORM_CLAIM);
-
-                panel.add(new ActionLink<WorkflowFormTO>() {
-
-                    private static final long serialVersionUID = -3722207913631435501L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final WorkflowFormTO ignore) {
-                        final IModel<WorkflowFormTO> formModel = new CompoundPropertyModel<>(model.getObject());
-                        modal.setFormModel(formModel);
-
-                        target.add(modal.setContent(new ApprovalModal(modal, pageRef, model.getObject())));
-                        modal.header(new Model<>(getString("approval.edit", new Model<>(model.getObject()))));
-
-                        modal.show(true);
-                    }
-
-                    @Override
-                    protected boolean statusCondition(final WorkflowFormTO modelObject) {
-                        return SyncopeConsoleSession.get().getSelfTO().getUsername().
-                                equals(model.getObject().getOwner());
-                    }
-
-                }, ActionLink.ActionType.EDIT, StandardEntitlement.WORKFLOW_FORM_READ);
-
-                return panel.build(componentId);
-            }
-
-            @Override
-            public ActionLinksPanel<WorkflowFormTO> getHeader(final String componentId) {
-                final ActionLinksPanel.Builder<WorkflowFormTO> panel = ActionLinksPanel.builder();
-
-                return panel.add(new ActionLink<WorkflowFormTO>() {
-
-                    private static final long serialVersionUID = -7978723352517770644L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final WorkflowFormTO ignore) {
-                        if (target != null) {
-                            target.add(container);
-                        }
-                    }
-                }, ActionLink.ActionType.RELOAD, StandardEntitlement.WORKFLOW_FORM_LIST).build(componentId);
-            }
-        });
 
         return columns;
+    }
+
+    @Override
+    public ActionsPanel<WorkflowFormTO> getActions(final IModel<WorkflowFormTO> model) {
+        final ActionsPanel<WorkflowFormTO> panel = super.getActions(model);
+
+        panel.add(new ActionLink<WorkflowFormTO>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final WorkflowFormTO ignore) {
+                try {
+                    restClient.claimForm(model.getObject().getTaskId());
+                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                } catch (SyncopeClientException scee) {
+                    SyncopeConsoleSession.get().error(getString(Constants.ERROR) + ": " + scee.getMessage());
+                }
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                target.add(container);
+            }
+        }, ActionLink.ActionType.CLAIM, StandardEntitlement.WORKFLOW_FORM_CLAIM);
+
+        panel.add(new ActionLink<WorkflowFormTO>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final WorkflowFormTO ignore) {
+                final IModel<WorkflowFormTO> formModel = new CompoundPropertyModel<>(model.getObject());
+                modal.setFormModel(formModel);
+
+                target.add(modal.setContent(new ApprovalModal(modal, pageRef, model.getObject())));
+                modal.header(new Model<>(getString("approval.edit", new Model<>(model.getObject()))));
+
+                modal.show(true);
+            }
+
+            @Override
+            protected boolean statusCondition(final WorkflowFormTO modelObject) {
+                return SyncopeConsoleSession.get().getSelfTO().getUsername().
+                        equals(model.getObject().getOwner());
+            }
+
+        }, ActionLink.ActionType.EDIT, StandardEntitlement.WORKFLOW_FORM_READ);
+
+        return panel;
     }
 
     @Override

@@ -33,10 +33,8 @@ import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.notifications.TemplateModal;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
-import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wizards.AbstractModalPanelBuilder;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -55,6 +53,7 @@ import org.apache.wicket.model.StringResourceModel;
 import org.apache.syncope.client.console.panels.WizardModalPanel;
 import org.apache.syncope.client.console.reports.ReportTemplateDirectoryPanel.ReportTemplateProvider;
 import org.apache.syncope.client.console.rest.ReportRestClient;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.XMLEditorPanel;
 import org.apache.syncope.common.lib.types.ReportTemplateFormat;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
@@ -113,96 +112,88 @@ public class ReportTemplateDirectoryPanel
     @Override
     protected List<IColumn<ReportTemplateTO, String>> getColumns() {
         List<IColumn<ReportTemplateTO, String>> columns = new ArrayList<>();
-        columns.add(new PropertyColumn<ReportTemplateTO, String>(
-                new StringResourceModel("key", this), "key", "key"));
+        columns.add(new PropertyColumn<ReportTemplateTO, String>(new StringResourceModel("key", this), "key", "key"));
+        return columns;
+    }
 
-        columns.add(new ActionColumn<ReportTemplateTO, String>(new ResourceModel("actions", "")) {
+    @Override
+    public ActionsPanel<ReportTemplateTO> getActions(final IModel<ReportTemplateTO> model) {
+        final ActionsPanel<ReportTemplateTO> panel = super.getActions(model);
 
-            private static final long serialVersionUID = -3503023501954863131L;
+        panel.add(new ActionLink<ReportTemplateTO>() {
+
+            private static final long serialVersionUID = -7978723352517770645L;
 
             @Override
-            public ActionLinksPanel<ReportTemplateTO> getActions(
-                    final String componentId, final IModel<ReportTemplateTO> model) {
+            public void onClick(final AjaxRequestTarget target, final ReportTemplateTO ignore) {
+                TemplateContent<ReportTemplateFormat> content = new TemplateContent<>(model.getObject().getKey(),
+                        ReportTemplateFormat.FO);
+                content.setContent(
+                        restClient.readTemplateFormat(model.getObject().getKey(), ReportTemplateFormat.FO));
 
-                final ActionLinksPanel.Builder<ReportTemplateTO> panel = ActionLinksPanel.builder();
-
-                panel.add(new ActionLink<ReportTemplateTO>() {
-
-                    private static final long serialVersionUID = -7978723352517770645L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final ReportTemplateTO ignore) {
-                        TemplateContent<ReportTemplateFormat> content =
-                                new TemplateContent<>(model.getObject().getKey(), ReportTemplateFormat.FO);
-                        content.setContent(
-                                restClient.readTemplateFormat(model.getObject().getKey(), ReportTemplateFormat.FO));
-
-                        utilityModal.header(new ResourceModel("report.template.fo", "FO Content"));
-                        utilityModal.setContent(new TemplateContentEditorPanel(content, pageRef));
-                        utilityModal.show(true);
-                        target.add(utilityModal);
-                    }
-                }, ActionLink.ActionType.FO_EDIT, StandardEntitlement.MAIL_TEMPLATE_UPDATE);
-
-                panel.add(new ActionLink<ReportTemplateTO>() {
-
-                    private static final long serialVersionUID = -7978723352517770645L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final ReportTemplateTO ignore) {
-                        TemplateContent<ReportTemplateFormat> content =
-                                new TemplateContent<>(model.getObject().getKey(), ReportTemplateFormat.HTML);
-                        content.setContent(
-                                restClient.readTemplateFormat(model.getObject().getKey(), ReportTemplateFormat.HTML));
-
-                        utilityModal.header(new ResourceModel("report.template.html", "HTML Content"));
-                        utilityModal.setContent(new TemplateContentEditorPanel(content, pageRef));
-                        utilityModal.show(true);
-                        target.add(utilityModal);
-                    }
-                }, ActionLink.ActionType.HTML, StandardEntitlement.MAIL_TEMPLATE_UPDATE);
-
-                panel.add(new ActionLink<ReportTemplateTO>() {
-
-                    private static final long serialVersionUID = -7978723352517770645L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final ReportTemplateTO ignore) {
-                        TemplateContent<ReportTemplateFormat> content =
-                                new TemplateContent<>(model.getObject().getKey(), ReportTemplateFormat.CSV);
-                        content.setContent(
-                                restClient.readTemplateFormat(model.getObject().getKey(), ReportTemplateFormat.CSV));
-
-                        utilityModal.header(new ResourceModel("report.template.text", "TEXT Content"));
-                        utilityModal.setContent(new TemplateContentEditorPanel(content, pageRef));
-                        utilityModal.show(true);
-                        target.add(utilityModal);
-                    }
-                }, ActionLink.ActionType.TEXT, StandardEntitlement.MAIL_TEMPLATE_UPDATE);
-
-                panel.add(new ActionLink<ReportTemplateTO>() {
-
-                    private static final long serialVersionUID = -3722207913631435501L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final ReportTemplateTO ignore) {
-                        try {
-                            restClient.deleteTemplate(model.getObject().getKey());
-                            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-                            target.add(container);
-                        } catch (SyncopeClientException e) {
-                            LOG.error("While deleting object {}", model.getObject().getKey(), e);
-                            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().
-                                    getName() : e.getMessage());
-                        }
-                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-                    }
-                }, ActionLink.ActionType.DELETE, StandardEntitlement.MAIL_TEMPLATE_DELETE);
-
-                return panel.build(componentId);
+                utilityModal.header(new ResourceModel("report.template.fo", "FO Content"));
+                utilityModal.setContent(new TemplateContentEditorPanel(content, pageRef));
+                utilityModal.show(true);
+                target.add(utilityModal);
             }
-        });
-        return columns;
+        }, ActionLink.ActionType.FO_EDIT, StandardEntitlement.MAIL_TEMPLATE_UPDATE);
+
+        panel.add(new ActionLink<ReportTemplateTO>() {
+
+            private static final long serialVersionUID = -7978723352517770645L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final ReportTemplateTO ignore) {
+                TemplateContent<ReportTemplateFormat> content = new TemplateContent<>(model.getObject().getKey(),
+                        ReportTemplateFormat.HTML);
+                content.setContent(
+                        restClient.readTemplateFormat(model.getObject().getKey(), ReportTemplateFormat.HTML));
+
+                utilityModal.header(new ResourceModel("report.template.html", "HTML Content"));
+                utilityModal.setContent(new TemplateContentEditorPanel(content, pageRef));
+                utilityModal.show(true);
+                target.add(utilityModal);
+            }
+        }, ActionLink.ActionType.HTML, StandardEntitlement.MAIL_TEMPLATE_UPDATE);
+
+        panel.add(new ActionLink<ReportTemplateTO>() {
+
+            private static final long serialVersionUID = -7978723352517770645L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final ReportTemplateTO ignore) {
+                TemplateContent<ReportTemplateFormat> content = new TemplateContent<>(model.getObject().getKey(),
+                        ReportTemplateFormat.CSV);
+                content.setContent(
+                        restClient.readTemplateFormat(model.getObject().getKey(), ReportTemplateFormat.CSV));
+
+                utilityModal.header(new ResourceModel("report.template.text", "TEXT Content"));
+                utilityModal.setContent(new TemplateContentEditorPanel(content, pageRef));
+                utilityModal.show(true);
+                target.add(utilityModal);
+            }
+        }, ActionLink.ActionType.TEXT, StandardEntitlement.MAIL_TEMPLATE_UPDATE);
+
+        panel.add(new ActionLink<ReportTemplateTO>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final ReportTemplateTO ignore) {
+                try {
+                    restClient.deleteTemplate(model.getObject().getKey());
+                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    target.add(container);
+                } catch (SyncopeClientException e) {
+                    LOG.error("While deleting object {}", model.getObject().getKey(), e);
+                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().
+                            getName() : e.getMessage());
+                }
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+            }
+        }, ActionLink.ActionType.DELETE, StandardEntitlement.MAIL_TEMPLATE_DELETE);
+
+        return panel;
     }
 
     @Override
@@ -218,6 +209,7 @@ public class ReportTemplateDirectoryPanel
     @Override
     protected Collection<ActionLink.ActionType> getBulkActions() {
         return Collections.<ActionLink.ActionType>emptyList();
+
     }
 
     protected final class ReportTemplateProvider extends DirectoryDataProvider<ReportTemplateTO> {

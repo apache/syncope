@@ -69,8 +69,9 @@ public class UsersITCase extends AbstractConsoleITCase {
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "verdi");
         assertNotNull(component);
 
-        TESTER.clickLink(component.getPageRelativePath()
-                + ":cells:6:cell:panelMustChangePassword:MustChangePasswordLink");
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink(TAB_PANEL + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
+                + "actions:actions:actionRepeater:2:action:action");
 
         TESTER.assertInfoMessages("Operation executed successfully");
     }
@@ -84,7 +85,9 @@ public class UsersITCase extends AbstractConsoleITCase {
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "rossini");
         assertNotNull(component);
 
-        TESTER.clickLink(component.getPageRelativePath() + ":cells:6:cell:panelClone:cloneLink");
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink(TAB_PANEL + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
+                + "actions:actions:actionRepeater:1:action:action");
 
         TESTER.assertComponent(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form:view:username:textField",
                 TextField.class);
@@ -104,11 +107,12 @@ public class UsersITCase extends AbstractConsoleITCase {
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "puccini");
         assertNotNull(component);
 
-        TESTER.clickLink(component.getPageRelativePath() + ":cells:6:cell:panelEdit:editLink");
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink(TAB_PANEL + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
+                + "actions:actions:actionRepeater:0:action:action");
 
-        TESTER.
-                assertComponent(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form:view:username:textField",
-                        TextField.class);
+        TESTER.assertComponent(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form:view:username:textField",
+                TextField.class);
 
         FormTester formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);
@@ -149,7 +153,7 @@ public class UsersITCase extends AbstractConsoleITCase {
                 + "outerObjectsRepeater:0:outer:form:content:customResultBody:resources:firstLevelContainer:first:"
                 + "container:content:group:beans:0:fields:1:field", Label.class);
 
-        TESTER.clickLink(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:action:panelClose:closeLink");
+        TESTER.clickLink(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:action:actionRepeater:0:action:action");
 
         component = findComponentByProp("username", CONTAINER
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "puccini");
@@ -173,7 +177,9 @@ public class UsersITCase extends AbstractConsoleITCase {
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "rossini");
         assertNotNull(component);
 
-        TESTER.clickLink(component.getPageRelativePath() + ":cells:6:cell:panelEdit:editLink");
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink(TAB_PANEL + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
+                + "actions:actions:actionRepeater:0:action:action");
 
         FormTester formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);
@@ -213,14 +219,16 @@ public class UsersITCase extends AbstractConsoleITCase {
                 + "outerObjectsRepeater:0:outer:form:content:customResultBody:resources:firstLevelContainer:first:"
                 + "container:content:group:beans:0:fields:1:field", Label.class);
 
-        TESTER.clickLink(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:action:panelClose:closeLink");
+        TESTER.clickLink(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:action:actionRepeater:0:action:action");
 
         component = findComponentByProp("username", CONTAINER
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "rossini");
         assertNotNull(component);
 
         // reset ....
-        TESTER.clickLink(component.getPageRelativePath() + ":cells:6:cell:panelEdit:editLink");
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink(TAB_PANEL + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
+                + "actions:actions:actionRepeater:0:action:action");
 
         formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);
@@ -249,8 +257,10 @@ public class UsersITCase extends AbstractConsoleITCase {
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "rossini");
         assertNotNull(component);
 
-        TESTER.assertComponent(component.getPageRelativePath() + ":cells:6:cell:panelDelete:deleteLink",
-                IndicatingOnConfirmAjaxLink.class);
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.assertComponent(TAB_PANEL
+                + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
+                + "actions:actions:actionRepeater:8:action:action", IndicatingOnConfirmAjaxLink.class);
     }
 
     @Test
@@ -262,7 +272,9 @@ public class UsersITCase extends AbstractConsoleITCase {
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "puccini");
         assertNotNull(component);
 
-        TESTER.clickLink(component.getPageRelativePath() + ":cells:6:cell:panelEdit:editLink");
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink(TAB_PANEL + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
+                + "actions:actions:actionRepeater:0:action:action");
 
         TESTER.assertComponent(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form:view:username:textField",
                 TextField.class);
@@ -296,13 +308,15 @@ public class UsersITCase extends AbstractConsoleITCase {
                 + "outerObjectsRepeater:0:outer:form:content:customResultBody:resources:firstLevelContainer:first:"
                 + "container:content:group:beans:0:fields:1:field", Label.class);
 
-        TESTER.clickLink(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:action:panelClose:closeLink");
+        TESTER.clickLink(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:action:actionRepeater:0:action:action");
 
         component = findComponentByProp("username", CONTAINER
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "puccini");
         assertNotNull(component);
 
-        TESTER.clickLink(component.getPageRelativePath() + ":cells:6:cell:panelEdit:editLink");
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink(TAB_PANEL + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
+                + "actions:actions:actionRepeater:0:action:action");
 
         TESTER.assertComponent(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form:view:username:textField",
                 TextField.class);
@@ -350,17 +364,20 @@ public class UsersITCase extends AbstractConsoleITCase {
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "vivaldi");
         assertNotNull(component);
 
-        TESTER.clickLink(component.getPageRelativePath() + ":cells:6:cell:panelPasswordReset:passwordResetLink");
-        TESTER.assertLabel(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:resources:"
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink(TAB_PANEL + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
+                + "actions:actions:actionRepeater:3:action:action");
+
+        TESTER.assertLabel(TAB_PANEL + "outerObjectsRepeater:3:outer:form:content:status:resources:"
                 + "firstLevelContainer:first:container:content:group:beans:0:fields:0:field", "syncope");
 
-        FormTester formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:2:outer:form");
+        FormTester formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:3:outer:form");
         formTester.setValue("content:passwordPanel:passwordInnerForm:password:passwordField", "Password345");
         formTester.setValue("content:passwordPanel:passwordInnerForm:confirmPassword:passwordField", "Password345");
         formTester.select("content:status:resources:firstLevelContainer:first:container:content:group", 0);
 
         TESTER.executeAjaxEvent(
-                TAB_PANEL + "outerObjectsRepeater:2:outer:dialog:footer:inputs:0:submit", Constants.ON_CLICK);
+                TAB_PANEL + "outerObjectsRepeater:3:outer:dialog:footer:inputs:0:submit", Constants.ON_CLICK);
 
         TESTER.assertInfoMessages("Operation executed successfully");
         TESTER.cleanupFeedbackMessages();
@@ -372,17 +389,20 @@ public class UsersITCase extends AbstractConsoleITCase {
                 + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "vivaldi");
         assertNotNull(component);
 
-        TESTER.clickLink(component.getPageRelativePath() + ":cells:6:cell:panelPasswordReset:passwordResetLink");
-        TESTER.assertLabel(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:resources:"
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink(TAB_PANEL + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
+                + "actions:actions:actionRepeater:3:action:action");
+
+        TESTER.assertLabel(TAB_PANEL + "outerObjectsRepeater:3:outer:form:content:status:resources:"
                 + "firstLevelContainer:first:container:content:group:beans:0:fields:0:field", "syncope");
 
-        formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:2:outer:form");
+        formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:3:outer:form");
         formTester.setValue("content:passwordPanel:passwordInnerForm:password:passwordField", "Password123");
         formTester.setValue("content:passwordPanel:passwordInnerForm:confirmPassword:passwordField", "Password123");
         formTester.select("content:status:resources:firstLevelContainer:first:container:content:group", 0);
 
         TESTER.executeAjaxEvent(
-                TAB_PANEL + "outerObjectsRepeater:2:outer:dialog:footer:inputs:0:submit", Constants.ON_CLICK);
+                TAB_PANEL + "outerObjectsRepeater:3:outer:dialog:footer:inputs:0:submit", Constants.ON_CLICK);
 
         TESTER.assertInfoMessages("Operation executed successfully");
         TESTER.cleanupFeedbackMessages();

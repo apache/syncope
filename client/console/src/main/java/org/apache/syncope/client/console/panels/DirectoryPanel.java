@@ -30,7 +30,10 @@ import org.apache.syncope.client.console.rest.RestClient;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksTogglePanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
@@ -40,6 +43,8 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,7 +76,7 @@ public abstract class DirectoryPanel<
 
     /**
      * Specify if results are about a filtered search or not. Using this attribute it is possible to use this panel to
-     * show results about user list and user search.
+     * show results about entity list and search.
      */
     protected final boolean filtered;
 
@@ -85,7 +90,7 @@ public abstract class DirectoryPanel<
     private AjaxDataTablePanel<T, String> resultTable;
 
     /**
-     * Data provider used to search for users.
+     * Data provider used to search for entities.
      */
     protected DP dataProvider;
 
@@ -94,11 +99,13 @@ public abstract class DirectoryPanel<
      */
     protected final BasePage page;
 
-    protected String itemKeyFieldName = "key";
+    protected String itemKeyFieldName = Constants.KEY_FIELD_NAME;
 
     protected final BaseModal<W> altDefaultModal = new BaseModal<>("outer");
 
     protected final BaseModal<W> displayAttributeModal = new BaseModal<>("outer");
+
+    private final ActionLinksTogglePanel<T> actionTogglePanel;
 
     /**
      * Create simple unfiltered search result panel.
@@ -132,6 +139,9 @@ public abstract class DirectoryPanel<
         super(id, wizardInModal);
         setOutputMarkupId(true);
 
+        actionTogglePanel = new ActionLinksTogglePanel<T>("outer", builder.getPageRef());
+        addOuterObject(actionTogglePanel);
+
         addOuterObject(altDefaultModal);
         addOuterObject(displayAttributeModal);
 
@@ -144,7 +154,7 @@ public abstract class DirectoryPanel<
 
         this.restClient = builder.restClient;
 
-        // Container for user search result
+        // Container for entity search result
         container = new WebMarkupContainer("searchContainer");
         container.setOutputMarkupId(true);
         addInnerObject(container);
@@ -217,6 +227,29 @@ public abstract class DirectoryPanel<
         });
         paginatorForm.add(rowsChooser);
         // ---------------------------
+
+        // ---------------------------
+        // Table handling
+        // ---------------------------
+        container.add(getHeader("tablehandling"));
+        // ---------------------------
+    }
+
+    protected ActionsPanel<Serializable> getHeader(final String componentId) {
+        final ActionsPanel<Serializable> panel = new ActionsPanel<>(componentId, null);
+
+        panel.add(new ActionLink<Serializable>() {
+
+            private static final long serialVersionUID = -7978723352517770644L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
+                if (target != null) {
+                    target.add(container);
+                }
+            }
+        }, ActionLink.ActionType.RELOAD, StandardEntitlement.USER_SEARCH).hideLabel();
+        return panel;
     }
 
     public void search(final AjaxRequestTarget target) {
@@ -241,8 +274,22 @@ public abstract class DirectoryPanel<
                 ? (create ? (int) resultTable.getPageCount() - 1 : (int) resultTable.getCurrentPage()) : 0;
 
         // take care of restClient handle: maybe not useful to keep into
-        AjaxDataTablePanel.Builder<T, String> resultTableBuilder = new AjaxDataTablePanel.Builder<>(
-                dataProvider, page.getPageReference()).
+        AjaxDataTablePanel.Builder<T, String> resultTableBuilder = new AjaxDataTablePanel.Builder<T, String>(
+                dataProvider, page.getPageReference()) {
+
+            private static final long serialVersionUID = 2205322679547329123L;
+
+            @Override
+            protected ActionsPanel<T> getActions(final IModel<T> model) {
+                return DirectoryPanel.this.getActions(model);
+            }
+
+            @Override
+            protected ActionLinksTogglePanel<T> getTogglePanel() {
+                return DirectoryPanel.this.getTogglePanel();
+            }
+
+        }.
                 setColumns(getColumns()).
                 setRowsPerPage(rows).
                 setBulkActions(getBulkActions(), restClient, itemKeyFieldName).
@@ -299,6 +346,14 @@ public abstract class DirectoryPanel<
         send(getParent(), Broadcast.BREADTH, data);
     }
 
+    protected ActionsPanel<T> getActions(final IModel<T> model) {
+        return model == null ? new ActionsPanel<>("actions", new Model<T>()) : new ActionsPanel<>("actions", model);
+    }
+
+    protected ActionLinksTogglePanel<T> getTogglePanel() {
+        return actionTogglePanel;
+    }
+
     public static class EventDataWrapper {
 
         private AjaxRequestTarget target;
@@ -341,7 +396,7 @@ public abstract class DirectoryPanel<
 
         /**
          * Specify if results are about a filtered search or not.
-         * By using this attribute it is possible to force this panel to show results about user list and user search.
+         * By using this attribute it is possible to force this panel to show results about entity list and search.
          */
         protected boolean filtered = false;
 

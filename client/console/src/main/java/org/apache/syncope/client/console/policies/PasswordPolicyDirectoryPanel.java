@@ -21,7 +21,7 @@ package org.apache.syncope.client.console.policies;
 import java.util.List;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.common.lib.policy.PasswordPolicyTO;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
@@ -61,8 +61,7 @@ public class PasswordPolicyDirectoryPanel extends PolicyDirectoryPanel<PasswordP
     }
 
     @Override
-    protected void addCustomActions(
-            final ActionLinksPanel.Builder<PasswordPolicyTO> panel, final IModel<PasswordPolicyTO> model) {
+    protected void addCustomActions(final ActionsPanel<PasswordPolicyTO> panel, final IModel<PasswordPolicyTO> model) {
         panel.add(new ActionLink<PasswordPolicyTO>() {
 
             private static final long serialVersionUID = -3722207913631435501L;

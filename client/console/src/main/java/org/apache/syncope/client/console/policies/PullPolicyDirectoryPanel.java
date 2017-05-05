@@ -19,7 +19,7 @@
 package org.apache.syncope.client.console.policies;
 
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.common.lib.policy.PullPolicySpec;
 import org.apache.syncope.common.lib.policy.PullPolicyTO;
 import org.apache.syncope.common.lib.types.PolicyType;
@@ -52,8 +52,7 @@ public class PullPolicyDirectoryPanel extends PolicyDirectoryPanel<PullPolicyTO>
     }
 
     @Override
-    protected void addCustomActions(
-            final ActionLinksPanel.Builder<PullPolicyTO> panel, final IModel<PullPolicyTO> model) {
+    protected void addCustomActions(final ActionsPanel<PullPolicyTO> panel, final IModel<PullPolicyTO> model) {
         panel.add(new ActionLink<PullPolicyTO>() {
 
             private static final long serialVersionUID = -3722207913631435501L;

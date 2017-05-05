@@ -34,10 +34,8 @@ import org.apache.syncope.client.console.notifications.MailTemplateDirectoryPane
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.rest.NotificationRestClient;
-import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.syncope.client.console.wizards.AbstractModalPanelBuilder;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -55,6 +53,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.syncope.client.console.panels.WizardModalPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.XMLEditorPanel;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.Form;
@@ -112,78 +111,70 @@ public class MailTemplateDirectoryPanel
     @Override
     protected List<IColumn<MailTemplateTO, String>> getColumns() {
         List<IColumn<MailTemplateTO, String>> columns = new ArrayList<>();
-        columns.add(new PropertyColumn<MailTemplateTO, String>(
-                new StringResourceModel("key", this), "key", "key"));
+        columns.add(new PropertyColumn<MailTemplateTO, String>(new StringResourceModel("key", this), "key", "key"));
+        return columns;
+    }
 
-        columns.add(new ActionColumn<MailTemplateTO, String>(new ResourceModel("actions", "")) {
+    @Override
+    public ActionsPanel<MailTemplateTO> getActions(final IModel<MailTemplateTO> model) {
+        final ActionsPanel<MailTemplateTO> panel = super.getActions(model);
 
-            private static final long serialVersionUID = -3503023501954863131L;
+        panel.add(new ActionLink<MailTemplateTO>() {
+
+            private static final long serialVersionUID = -7978723352517770645L;
 
             @Override
-            public ActionLinksPanel<MailTemplateTO> getActions(
-                    final String componentId, final IModel<MailTemplateTO> model) {
+            public void onClick(final AjaxRequestTarget target, final MailTemplateTO ignore) {
+                TemplateContent<MailTemplateFormat> content = new TemplateContent<>(model.getObject().getKey(),
+                        MailTemplateFormat.HTML);
+                content.setContent(
+                        restClient.readTemplateFormat(model.getObject().getKey(), MailTemplateFormat.HTML));
 
-                final ActionLinksPanel.Builder<MailTemplateTO> panel = ActionLinksPanel.builder();
-
-                panel.add(new ActionLink<MailTemplateTO>() {
-
-                    private static final long serialVersionUID = -7978723352517770645L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final MailTemplateTO ignore) {
-                        TemplateContent<MailTemplateFormat> content =
-                                new TemplateContent<>(model.getObject().getKey(), MailTemplateFormat.HTML);
-                        content.setContent(
-                                restClient.readTemplateFormat(model.getObject().getKey(), MailTemplateFormat.HTML));
-
-                        utilityModal.header(new ResourceModel("mail.template.html", "HTML Content"));
-                        utilityModal.setContent(new TemplateContentEditorPanel(content, pageRef));
-                        utilityModal.show(true);
-                        target.add(utilityModal);
-                    }
-                }, ActionLink.ActionType.HTML, StandardEntitlement.MAIL_TEMPLATE_UPDATE);
-
-                panel.add(new ActionLink<MailTemplateTO>() {
-
-                    private static final long serialVersionUID = -7978723352517770645L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final MailTemplateTO ignore) {
-                        TemplateContent<MailTemplateFormat> content =
-                                new TemplateContent<>(model.getObject().getKey(), MailTemplateFormat.TEXT);
-                        content.setContent(
-                                restClient.readTemplateFormat(model.getObject().getKey(), MailTemplateFormat.TEXT));
-
-                        utilityModal.header(new ResourceModel("mail.template.text", "TEXT Content"));
-                        utilityModal.setContent(new TemplateContentEditorPanel(content, pageRef));
-                        utilityModal.show(true);
-                        target.add(utilityModal);
-                    }
-                }, ActionLink.ActionType.TEXT, StandardEntitlement.MAIL_TEMPLATE_UPDATE);
-
-                panel.add(new ActionLink<MailTemplateTO>() {
-
-                    private static final long serialVersionUID = -3722207913631435501L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final MailTemplateTO ignore) {
-                        try {
-                            restClient.deleteTemplate(model.getObject().getKey());
-                            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-                            target.add(container);
-                        } catch (SyncopeClientException e) {
-                            LOG.error("While deleting object {}", model.getObject().getKey(), e);
-                            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().
-                                    getName() : e.getMessage());
-                        }
-                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-                    }
-                }, ActionLink.ActionType.DELETE, StandardEntitlement.MAIL_TEMPLATE_DELETE);
-
-                return panel.build(componentId);
+                utilityModal.header(new ResourceModel("mail.template.html", "HTML Content"));
+                utilityModal.setContent(new TemplateContentEditorPanel(content, pageRef));
+                utilityModal.show(true);
+                target.add(utilityModal);
             }
-        });
-        return columns;
+        }, ActionLink.ActionType.HTML, StandardEntitlement.MAIL_TEMPLATE_UPDATE);
+
+        panel.add(new ActionLink<MailTemplateTO>() {
+
+            private static final long serialVersionUID = -7978723352517770645L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final MailTemplateTO ignore) {
+                TemplateContent<MailTemplateFormat> content = new TemplateContent<>(model.getObject().getKey(),
+                        MailTemplateFormat.TEXT);
+                content.setContent(
+                        restClient.readTemplateFormat(model.getObject().getKey(), MailTemplateFormat.TEXT));
+
+                utilityModal.header(new ResourceModel("mail.template.text", "TEXT Content"));
+                utilityModal.setContent(new TemplateContentEditorPanel(content, pageRef));
+                utilityModal.show(true);
+                target.add(utilityModal);
+            }
+        }, ActionLink.ActionType.TEXT, StandardEntitlement.MAIL_TEMPLATE_UPDATE);
+
+        panel.add(new ActionLink<MailTemplateTO>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final MailTemplateTO ignore) {
+                try {
+                    restClient.deleteTemplate(model.getObject().getKey());
+                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    target.add(container);
+                } catch (SyncopeClientException e) {
+                    LOG.error("While deleting object {}", model.getObject().getKey(), e);
+                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().
+                            getName() : e.getMessage());
+                }
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+            }
+        }, ActionLink.ActionType.DELETE, StandardEntitlement.MAIL_TEMPLATE_DELETE, true);
+
+        return panel;
     }
 
     @Override

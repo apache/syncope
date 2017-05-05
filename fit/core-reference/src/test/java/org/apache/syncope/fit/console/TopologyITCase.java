@@ -145,7 +145,7 @@ public class TopologyITCase extends AbstractConsoleITCase {
         // ------------------------------------------
 
         TESTER.clickLink("body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:"
-                + "content:group:beans:0:actions:panelMapping:mappingLink");
+                + "content:group:beans:0:actions:actionRepeater:0:action:action");
 
         formTester = TESTER.newFormTester(
                 "body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:content:wizard:form");
@@ -251,7 +251,7 @@ public class TopologyITCase extends AbstractConsoleITCase {
         TESTER.clickLink("body:toggle:container:content:togglePanelContainer:container:actions:provision");
 
         TESTER.clickLink("body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:"
-                + "content:group:beans:0:actions:panelMapping:mappingLink");
+                + "content:group:beans:0:actions:actionRepeater:0:action:action");
 
         formTester = TESTER.newFormTester(
                 "body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:content:wizard:form");
@@ -262,7 +262,7 @@ public class TopologyITCase extends AbstractConsoleITCase {
 
         TESTER.executeAjaxEvent("body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:"
                 + "content:wizard:form:buttons:cancel", Constants.ON_CLICK);
-        
+
         TESTER.clickLink("body:toggle:outerObjectsRepeater:3:outer:dialog:footer:buttons:0:button");
 
         TESTER.cleanupFeedbackMessages();
@@ -288,7 +288,10 @@ public class TopologyITCase extends AbstractConsoleITCase {
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:groupForm:"
                 + "checkgroup:dataTable", "TestDB Task");
 
-        TESTER.clickLink(component.getPageRelativePath() + ":cells:10:cell:panelExecute:executeLink");
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink("body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:first:"
+                + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
+                + "actions:actions:actionRepeater:3:action:action");
 
         TESTER.clickLink("body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:first:"
                 + "container:content:startAt:container:content:togglePanelContainer:startAtForm:startAt");
@@ -298,7 +301,10 @@ public class TopologyITCase extends AbstractConsoleITCase {
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:groupForm:"
                 + "checkgroup:dataTable", "TestDB Task");
 
-        TESTER.clickLink(component.getPageRelativePath() + ":cells:10:cell:panelView:viewLink");
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink("body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:first:"
+                + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
+                + "actions:actions:actionRepeater:0:action:action");
 
         TESTER.assertLabel(
                 "body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:secondLevelContainer:title",
@@ -307,11 +313,11 @@ public class TopologyITCase extends AbstractConsoleITCase {
         int iteration = 0;
         do {
             try {
-                TESTER.assertComponent(
+                component = findComponentByProp("status",
                         "body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:secondLevelContainer:"
                         + "second:executions:firstLevelContainer:first:container:content:searchContainer:resultTable:"
-                        + "tablePanel:groupForm:checkgroup:dataTable:body:rows:1:cells:6:cell:panelView:viewLink",
-                        AjaxLink.class);
+                        + "tablePanel:groupForm:checkgroup:dataTable", "SUCCESS");
+                assertNotNull(component);
                 iteration = 10;
             } catch (AssertionError e) {
                 try {
@@ -320,19 +326,24 @@ public class TopologyITCase extends AbstractConsoleITCase {
                 } catch (Exception ignore) {
                 }
 
-                component = findComponentById(
-                        "body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:secondLevelContainer:second:"
-                        + "executions:firstLevelContainer:first:container:content:searchContainer:resultTable:"
-                        + "tablePanel:groupForm:checkgroup:dataTable:topToolbars:toolbars:1:headers", "panelReload");
+                TESTER.executeAjaxEvent("body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:"
+                        + "secondLevelContainer:second:executions:firstLevelContainer:first:container:content:"
+                        + "searchContainer:tablehandling:actionRepeater:0:action:action", Constants.ON_CLICK);
 
-                TESTER.executeAjaxEvent(component.getPageRelativePath() + ":reloadLink", Constants.ON_CLICK);
                 iteration++;
             }
         } while (iteration < 10);
 
-        TESTER.clickLink("body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:secondLevelContainer:"
+        component = findComponentByProp("status",
+                "body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:secondLevelContainer:"
                 + "second:executions:firstLevelContainer:first:container:content:searchContainer:resultTable:"
-                + "tablePanel:groupForm:checkgroup:dataTable:body:rows:1:cells:6:cell:panelView:viewLink");
+                + "tablePanel:groupForm:checkgroup:dataTable", "SUCCESS");
+        assertNotNull(component);
+
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink("body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:secondLevelContainer:second:"
+                + "executions:firstLevelContainer:first:outerObjectsRepeater:1:outer:container:content:"
+                + "togglePanelContainer:container:actions:actions:actionRepeater:0:action:action");
 
         TESTER.assertComponent("body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:"
                 + "secondLevelContainer:second:executions:secondLevelContainer:title", Label.class);
@@ -353,7 +364,11 @@ public class TopologyITCase extends AbstractConsoleITCase {
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:groupForm:"
                 + "checkgroup:dataTable", ResourceOperation.CREATE);
 
-        TESTER.clickLink(component.getPageRelativePath() + ":cells:10:cell:panelExecute:executeLink");
+        assertNotNull(component);
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink("body:toggle:outerObjectsRepeater:1:outer:form:content:tasks:firstLevelContainer:first:"
+                + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
+                + "actions:actions:actionRepeater:1:action:action");
 
         TESTER.clickLink("body:topologyLI:topology");
 
@@ -366,15 +381,25 @@ public class TopologyITCase extends AbstractConsoleITCase {
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:groupForm:"
                 + "checkgroup:dataTable", ResourceOperation.CREATE);
 
-        TESTER.clickLink(component.getPageRelativePath() + ":cells:10:cell:panelView:viewLink");
+        assertNotNull(component);
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink("body:toggle:outerObjectsRepeater:1:outer:form:content:tasks:firstLevelContainer:first:"
+                + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
+                + "actions:actions:actionRepeater:0:action:action");
 
         TESTER.assertLabel(
                 "body:toggle:outerObjectsRepeater:1:outer:form:content:tasks:secondLevelContainer:title",
                 "CREATE task about USER");
 
+        component = findComponentByProp("status", "body:toggle:outerObjectsRepeater:1:outer:form:content:tasks:"
+                + "secondLevelContainer:second:executions:firstLevelContainer:first:container:content:searchContainer:"
+                + "resultTable:tablePanel:groupForm:checkgroup:dataTable", "FAILURE");
+
+        assertNotNull(component);
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.clickLink("body:toggle:outerObjectsRepeater:1:outer:form:content:tasks:secondLevelContainer:"
-                + "second:executions:firstLevelContainer:first:container:content:searchContainer:resultTable:"
-                + "tablePanel:groupForm:checkgroup:dataTable:body:rows:1:cells:6:cell:panelView:viewLink");
+                + "second:executions:firstLevelContainer:first:outerObjectsRepeater:1:outer:container:content:"
+                + "togglePanelContainer:container:actions:actions:actionRepeater:0:action:action");
 
         TESTER.assertComponent("body:toggle:outerObjectsRepeater:1:outer:form:content:tasks:"
                 + "secondLevelContainer:second:executions:secondLevelContainer:title", Label.class);
@@ -386,9 +411,13 @@ public class TopologyITCase extends AbstractConsoleITCase {
         assertNotNull(component);
         TESTER.executeAjaxEvent(component.getPageRelativePath() + ":res", Constants.ON_CLICK);
         TESTER.clickLink("body:toggle:container:content:togglePanelContainer:container:actions:push");
-        TESTER.clickLink("body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:"
+
+        TESTER.executeAjaxEvent("body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:"
                 + "first:container:content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable:"
-                + "body:rows:1:cells:9:cell:panelEdit:editLink");
+                + "body:rows:1", Constants.ON_CLICK);
+        TESTER.clickLink("body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:first:"
+                + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
+                + "actions:actions:actionRepeater:1:action:action");
 
         FormTester formTester = TESTER.newFormTester(
                 "body:toggle:outerObjectsRepeater:2:outer:form:content:"
@@ -446,9 +475,12 @@ public class TopologyITCase extends AbstractConsoleITCase {
         TESTER.executeAjaxEvent(component.getPageRelativePath() + ":res", Constants.ON_CLICK);
         TESTER.clickLink("body:toggle:container:content:togglePanelContainer:container:actions:pull");
 
-        TESTER.clickLink("body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:"
+        TESTER.executeAjaxEvent("body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:"
                 + "first:container:content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable:"
-                + "body:rows:1:cells:10:cell:panelTemplate:templateLink");
+                + "body:rows:1", Constants.ON_CLICK);
+        TESTER.clickLink("body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:first:"
+                + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
+                + "actions:actions:actionRepeater:4:action:action");
 
         TESTER.assertComponent("body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:"
                 + "first:container:content:toggleTemplates", TogglePanel.class);
@@ -470,9 +502,12 @@ public class TopologyITCase extends AbstractConsoleITCase {
         TESTER.assertInfoMessages("Operation executed successfully");
         TESTER.cleanupFeedbackMessages();
 
-        TESTER.clickLink("body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:"
+        TESTER.executeAjaxEvent("body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:"
                 + "first:container:content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable:"
-                + "body:rows:1:cells:10:cell:panelTemplate:templateLink");
+                + "body:rows:1", Constants.ON_CLICK);
+        TESTER.clickLink("body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:first:"
+                + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
+                + "actions:actions:actionRepeater:4:action:action");
 
         TESTER.assertComponent("body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:"
                 + "first:container:content:toggleTemplates", TogglePanel.class);

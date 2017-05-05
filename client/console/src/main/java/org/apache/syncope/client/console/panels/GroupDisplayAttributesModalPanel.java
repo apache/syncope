@@ -35,7 +35,7 @@ public class GroupDisplayAttributesModalPanel<T extends Serializable> extends Di
 
     private static final long serialVersionUID = 5194630813773543054L;
 
-    public static final String[] DEFAULT_SELECTION = { "key", "name" };
+    public static final String[] DEFAULT_SELECTION = { "name" };
 
     public GroupDisplayAttributesModalPanel(
             final BaseModal<T> modal,

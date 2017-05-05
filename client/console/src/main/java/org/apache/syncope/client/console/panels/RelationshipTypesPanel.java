@@ -34,10 +34,9 @@ import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.RelationshipTypesPanel.RelationshipTypeProvider;
 import org.apache.syncope.client.console.rest.RelationshipTypeRestClient;
-import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wizards.AbstractModalPanelBuilder;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.to.RelationshipTypeTO;
@@ -156,67 +155,43 @@ public class RelationshipTypesPanel extends TypesDirectoryPanel<
             }
         }
 
-        columns.add(new ActionColumn<RelationshipTypeTO, String>(new ResourceModel("actions")) {
-
-            private static final long serialVersionUID = 906457126287899096L;
-
-            @Override
-            public ActionLinksPanel<RelationshipTypeTO> getActions(
-                    final String componentId, final IModel<RelationshipTypeTO> model) {
-
-                ActionLinksPanel<RelationshipTypeTO> panel = ActionLinksPanel.<RelationshipTypeTO>builder().
-                        add(new ActionLink<RelationshipTypeTO>() {
-
-                            private static final long serialVersionUID = -3722207913631435501L;
-
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final RelationshipTypeTO ignore) {
-                                send(RelationshipTypesPanel.this, Broadcast.EXACT,
-                                        new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
-                            }
-                        }, ActionLink.ActionType.EDIT, StandardEntitlement.RELATIONSHIPTYPE_UPDATE).
-                        add(new ActionLink<RelationshipTypeTO>() {
-
-                            private static final long serialVersionUID = -3722207913631435501L;
-
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final RelationshipTypeTO ignore) {
-                                try {
-                                    restClient.delete(model.getObject().getKey());
-                                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-                                    target.add(container);
-                                } catch (Exception e) {
-                                    LOG.error("While deleting {}", model.getObject(), e);
-                                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                                            ? e.getClass().getName() : e.getMessage());
-                                }
-                                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-                            }
-                        }, ActionLink.ActionType.DELETE, StandardEntitlement.RELATIONSHIPTYPE_DELETE).
-                        build(componentId);
-
-                return panel;
-            }
-
-            @Override
-            public ActionLinksPanel<RelationshipTypeTO> getHeader(final String componentId) {
-                final ActionLinksPanel.Builder<RelationshipTypeTO> panel = ActionLinksPanel.builder();
-
-                return panel.add(new ActionLink<RelationshipTypeTO>() {
-
-                    private static final long serialVersionUID = -1140254463922516111L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final RelationshipTypeTO ignore) {
-                        if (target != null) {
-                            target.add(container);
-                        }
-                    }
-                }, ActionLink.ActionType.RELOAD).build(componentId);
-            }
-        });
-
         return columns;
+    }
+
+    @Override
+    public ActionsPanel<RelationshipTypeTO> getActions(final IModel<RelationshipTypeTO> model) {
+        final ActionsPanel<RelationshipTypeTO> panel = super.getActions(model);
+
+        panel.add(new ActionLink<RelationshipTypeTO>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final RelationshipTypeTO ignore) {
+                send(RelationshipTypesPanel.this, Broadcast.EXACT,
+                        new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
+            }
+        }, ActionLink.ActionType.EDIT, StandardEntitlement.RELATIONSHIPTYPE_UPDATE);
+        panel.add(new ActionLink<RelationshipTypeTO>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final RelationshipTypeTO ignore) {
+                try {
+                    restClient.delete(model.getObject().getKey());
+                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    target.add(container);
+                } catch (Exception e) {
+                    LOG.error("While deleting {}", model.getObject(), e);
+                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
+                            ? e.getClass().getName() : e.getMessage());
+                }
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+            }
+        }, ActionLink.ActionType.DELETE, StandardEntitlement.RELATIONSHIPTYPE_DELETE, true);
+
+        return panel;
     }
 
     protected final class RelationshipTypeProvider extends DirectoryDataProvider<RelationshipTypeTO> {

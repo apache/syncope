@@ -37,12 +37,11 @@ import org.apache.syncope.client.console.rest.NotificationRestClient;
 import org.apache.syncope.client.console.rest.ReportRestClient;
 import org.apache.syncope.client.console.rest.TaskRestClient;
 import org.apache.syncope.client.console.wicket.ajax.IndicatorAjaxTimerBehavior;
-import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
@@ -379,8 +378,8 @@ public class JobWidget extends BaseWidget {
         }
     }
 
-    private class RecentExecPanel extends DirectoryPanel<
-        ExecTO, ExecTO, RecentExecProvider, BaseRestClient> {
+    private class RecentExecPanel
+            extends DirectoryPanel<ExecTO, ExecTO, RecentExecPanel.RecentExecProvider, BaseRestClient> {
 
         private static final long serialVersionUID = -8214546246301342868L;
 
@@ -426,81 +425,58 @@ public class JobWidget extends BaseWidget {
 
             columns.add(new PropertyColumn<ExecTO, String>(new ResourceModel("status"), "status", "status"));
 
-            columns.add(new ActionColumn<ExecTO, String>(new ResourceModel("actions")) {
-
-                private static final long serialVersionUID = -3503023501954863131L;
-
-                @Override
-                public ActionLinksPanel<ExecTO> getActions(final String componentId, final IModel<ExecTO> model) {
-
-                    final ActionLinksPanel.Builder<ExecTO> panel = ActionLinksPanel.<ExecTO>builder().
-                            add(new ActionLink<ExecTO>() {
-
-                                private static final long serialVersionUID = -3722207913631435501L;
-
-                                @Override
-                                public void onClick(final AjaxRequestTarget target, final ExecTO ignore) {
-
-                                    StringResourceModel stringResourceModel =
-                                            new StringResourceModel("execution.view", JobWidget.this, model);
-                                    detailModal.header(stringResourceModel);
-                                    detailModal.setContent(new ExecMessageModal(model.getObject().getMessage()));
-                                    detailModal.show(true);
-                                    target.add(detailModal);
-                                }
-                            }, ActionLink.ActionType.VIEW, StandardEntitlement.TASK_READ);
-                    return panel.build(componentId, model.getObject());
-                }
-
-                @Override
-                public ActionLinksPanel<Serializable> getHeader(final String componentId) {
-                    final ActionLinksPanel.Builder<Serializable> panel = ActionLinksPanel.builder();
-
-                    return panel.add(new ActionLink<Serializable>() {
-
-                        private static final long serialVersionUID = -7978723352517770644L;
-
-                        @Override
-                        public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                            if (target != null) {
-                                target.add(container);
-                            }
-                        }
-                    }, ActionLink.ActionType.RELOAD, StandardEntitlement.TASK_LIST).build(componentId);
-                }
-            });
-
             return columns;
         }
 
-    }
+        @Override
+        public ActionsPanel<ExecTO> getActions(final IModel<ExecTO> model) {
+            final ActionsPanel<ExecTO> panel = super.getActions(model);
 
-    protected final class RecentExecProvider extends DirectoryDataProvider<ExecTO> {
+            panel.add(new ActionLink<ExecTO>() {
 
-        private static final long serialVersionUID = 2835707012690698633L;
+                private static final long serialVersionUID = -3722207913631435501L;
 
-        private final SortableDataProviderComparator<ExecTO> comparator;
+                @Override
+                public void onClick(final AjaxRequestTarget target, final ExecTO ignore) {
 
-        private RecentExecProvider() {
-            super(ROWS);
-            setSort("end", SortOrder.DESCENDING);
-            comparator = new SortableDataProviderComparator<>(this);
+                    StringResourceModel stringResourceModel = new StringResourceModel("execution.view", JobWidget.this,
+                            model);
+                    detailModal.header(stringResourceModel);
+                    detailModal.setContent(new ExecMessageModal(model.getObject().getMessage()));
+                    detailModal.show(true);
+                    target.add(detailModal);
+                }
+            }, ActionLink.ActionType.VIEW, StandardEntitlement.TASK_READ);
+            return panel;
         }
 
-        @Override
-        public Iterator<ExecTO> iterator(final long first, final long count) {
-            Collections.sort(recent, comparator);
-            return recent.subList((int) first, (int) first + (int) count).iterator();
-        }
+        protected final class RecentExecProvider extends DirectoryDataProvider<ExecTO> {
 
-        @Override
-        public long size() {
-            return recent.size();
-        }
+            private static final long serialVersionUID = 2835707012690698633L;
 
-        @Override
-        public IModel<ExecTO> model(final ExecTO object) {
-            return new CompoundPropertyModel<>(object);
+            private final SortableDataProviderComparator<ExecTO> comparator;
+
+            private RecentExecProvider() {
+                super(ROWS);
+                setSort("end", SortOrder.DESCENDING);
+                comparator = new SortableDataProviderComparator<>(this);
+            }
+
+            @Override
+            public Iterator<ExecTO> iterator(final long first, final long count) {
+                Collections.sort(recent, comparator);
+                return recent.subList((int) first, (int) first + (int) count).iterator();
+            }
+
+            @Override
+            public long size() {
+                return recent.size();
+            }
+
+            @Override
+            public IModel<ExecTO> model(final ExecTO object) {
+                return new CompoundPropertyModel<>(object);
+            }
         }
     }
 }

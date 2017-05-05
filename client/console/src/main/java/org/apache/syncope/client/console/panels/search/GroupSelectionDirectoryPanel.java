@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.panels.search;
 
 import java.util.List;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.panels.GroupDisplayAttributesModalPanel;
 import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.console.wizards.any.AnyWrapper;
@@ -39,11 +38,6 @@ public final class GroupSelectionDirectoryPanel extends AnySelectionDirectoryPan
     @Override
     protected String paginatorRowsKey() {
         return Constants.PREF_GROUP_PAGINATOR_ROWS;
-    }
-
-    @Override
-    protected String[] getDisplayAttributes() {
-        return GroupDisplayAttributesModalPanel.DEFAULT_SELECTION;
     }
 
     @Override

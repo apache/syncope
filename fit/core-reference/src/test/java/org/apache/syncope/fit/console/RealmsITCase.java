@@ -48,8 +48,7 @@ public class RealmsITCase extends AbstractConsoleITCase {
     @Test
     public void create() {
         TESTER.clickLink(
-                "body:content:body:container:content:tabbedPanel:panel:actions:actions:panelCreate:createLink");
-
+                "body:content:body:container:content:tabbedPanel:panel:actions:actions:actionRepeater:0:action:action");
         TESTER.assertComponent("body:content:body:outerObjectsRepeater:0:outer", Modal.class);
 
         FormTester formTester = TESTER.newFormTester(
@@ -61,9 +60,8 @@ public class RealmsITCase extends AbstractConsoleITCase {
         TESTER.assertInfoMessages("Operation executed successfully");
         TESTER.cleanupFeedbackMessages();
 
-        TESTER.executeAjaxEvent(
-                "body:content:body:outerObjectsRepeater:0:outer:form:content:action:panelClose:closeLink",
-                Constants.ON_CLICK);
+        TESTER.executeAjaxEvent("body:content:body:outerObjectsRepeater:0:outer:form:content:action:actionRepeater:"
+                + "0:action:action", Constants.ON_CLICK);
 
         // remove the new realm just created
         TESTER.clickLink("body:realmsLI:realms");
@@ -76,7 +74,7 @@ public class RealmsITCase extends AbstractConsoleITCase {
 
         TESTER.getRequest().addParameter("confirm", "true");
         TESTER.clickLink(
-                "body:content:body:container:content:tabbedPanel:panel:actions:actions:panelDelete:deleteLink");
+                "body:content:body:container:content:tabbedPanel:panel:actions:actions:actionRepeater:3:action:action");
 
         TESTER.assertInfoMessages("Operation executed successfully");
         TESTER.cleanupFeedbackMessages();
@@ -90,7 +88,7 @@ public class RealmsITCase extends AbstractConsoleITCase {
     @Test
     public void update() {
         TESTER.clickLink(
-                "body:content:body:container:content:tabbedPanel:panel:actions:actions:panelEdit:editLink");
+                "body:content:body:container:content:tabbedPanel:panel:actions:actions:actionRepeater:1:action:action");
         TESTER.assertComponent("body:content:body:outerObjectsRepeater:0:outer", Modal.class);
 
         FormTester formTester = TESTER.newFormTester(
@@ -100,9 +98,8 @@ public class RealmsITCase extends AbstractConsoleITCase {
         TESTER.assertInfoMessages("Operation executed successfully");
         TESTER.cleanupFeedbackMessages();
 
-        TESTER.executeAjaxEvent(
-                "body:content:body:outerObjectsRepeater:0:outer:form:content:action:panelClose:closeLink",
-                Constants.ON_CLICK);
+        TESTER.executeAjaxEvent("body:content:body:outerObjectsRepeater:0:outer:form:content:action:actionRepeater:"
+                + "0:action:action", Constants.ON_CLICK);
     }
 
     @Test
@@ -114,7 +111,7 @@ public class RealmsITCase extends AbstractConsoleITCase {
         TESTER.assertLabel("body:content:realmChoicePanel:container:realm", "/odd");
 
         TESTER.clickLink(
-                "body:content:body:container:content:tabbedPanel:panel:actions:actions:panelTemplate:templateLink");
+                "body:content:body:container:content:tabbedPanel:panel:actions:actions:actionRepeater:2:action:action");
         TESTER.assertComponent("body:content:toggleTemplates", TogglePanel.class);
 
         FormTester formTester = TESTER.newFormTester(
@@ -134,7 +131,7 @@ public class RealmsITCase extends AbstractConsoleITCase {
         TESTER.assertLabel("body:content:realmChoicePanel:container:realm", "/odd");
 
         TESTER.clickLink(
-                "body:content:body:container:content:tabbedPanel:panel:actions:actions:panelTemplate:templateLink");
+                "body:content:body:container:content:tabbedPanel:panel:actions:actions:actionRepeater:2:action:action");
         TESTER.assertComponent("body:content:toggleTemplates", TogglePanel.class);
 
         formTester = TESTER.newFormTester(
@@ -162,7 +159,7 @@ public class RealmsITCase extends AbstractConsoleITCase {
                 Constants.ON_CLICK);
 
         TESTER.clickLink(
-                "body:content:body:container:content:tabbedPanel:panel:actions:actions:panelEdit:editLink");
+                "body:content:body:container:content:tabbedPanel:panel:actions:actions:actionRepeater:1:action:action");
         TESTER.assertComponent("body:content:body:outerObjectsRepeater:0:outer", Modal.class);
         TESTER.assertModelValue("body:content:body:outerObjectsRepeater:0:outer:form:content:form:view:details:"
                 + "container:generics:name:textField", "two");
@@ -182,7 +179,7 @@ public class RealmsITCase extends AbstractConsoleITCase {
         Component component = findComponentByProp("resource", "body:content:body:outerObjectsRepeater:0:outer:form:"
                 + "content:customResultBody:firstLevelContainer:first:container", "resource-ldap-orgunit");
 
-        TESTER.clickLink(component.getPageRelativePath() + ":actions:panelView:viewLink");
+        TESTER.clickLink(component.getPageRelativePath() + ":actions:actionRepeater:0:action:action");
 
         TESTER.assertLabel("body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
                 + "secondLevelContainer:second:remoteObject:propView:2:value:oldAttribute:field-label", "ou");
@@ -209,12 +206,11 @@ public class RealmsITCase extends AbstractConsoleITCase {
                 + "content:customResultBody:firstLevelContainer:first:container", "resource-ldap-orgunit"));
         // ----------------------------------
 
-        TESTER.executeAjaxEvent(
-                "body:content:body:outerObjectsRepeater:0:outer:form:content:action:panelClose:closeLink",
-                Constants.ON_CLICK);
+        TESTER.executeAjaxEvent("body:content:body:outerObjectsRepeater:0:outer:form:content:action:actionRepeater:"
+                + "0:action:action", Constants.ON_CLICK);
 
         TESTER.clickLink(
-                "body:content:body:container:content:tabbedPanel:panel:actions:actions:panelEdit:editLink");
+                "body:content:body:container:content:tabbedPanel:panel:actions:actions:actionRepeater:1:action:action");
         TESTER.assertComponent("body:content:body:outerObjectsRepeater:0:outer", Modal.class);
         TESTER.assertModelValue("body:content:body:outerObjectsRepeater:0:outer:form:content:form:view:details:"
                 + "container:generics:name:textField", "two");
@@ -234,7 +230,7 @@ public class RealmsITCase extends AbstractConsoleITCase {
         component = findComponentByProp("resource", "body:content:body:outerObjectsRepeater:0:outer:form:"
                 + "content:customResultBody:firstLevelContainer:first:container", "resource-ldap-orgunit");
 
-        TESTER.clickLink(component.getPageRelativePath() + ":actions:panelView:viewLink");
+        TESTER.clickLink(component.getPageRelativePath() + ":actions:actionRepeater:0:action:action");
 
         TESTER.assertLabel("body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
                 + "secondLevelContainer:second:remoteObject:propView:2:value:oldAttribute:field-label", "ou");
@@ -261,8 +257,7 @@ public class RealmsITCase extends AbstractConsoleITCase {
                 + "content:customResultBody:firstLevelContainer:first:container", "resource-ldap-orgunit"));
         // ----------------------------------
 
-        TESTER.executeAjaxEvent(
-                "body:content:body:outerObjectsRepeater:0:outer:form:content:action:panelClose:closeLink",
-                Constants.ON_CLICK);
+        TESTER.executeAjaxEvent("body:content:body:outerObjectsRepeater:0:outer:form:content:action:actionRepeater:"
+                + "0:action:action", Constants.ON_CLICK);
     }
 }

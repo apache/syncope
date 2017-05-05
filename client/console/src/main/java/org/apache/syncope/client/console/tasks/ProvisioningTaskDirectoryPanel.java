@@ -72,7 +72,7 @@ public abstract class ProvisioningTaskDirectoryPanel<T extends AbstractProvision
         List<IColumn<T, String>> columns = new ArrayList<>();
 
         columns.add(new KeyPropertyColumn<T>(
-                new StringResourceModel("key", this), "key", "key"));
+                new StringResourceModel("key", this), "key"));
 
         columns.add(new PropertyColumn<T, String>(
                 new StringResourceModel("name", this), "name", "name"));

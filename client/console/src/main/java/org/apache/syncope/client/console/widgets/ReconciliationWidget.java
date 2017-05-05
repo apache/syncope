@@ -47,8 +47,9 @@ import org.apache.syncope.client.console.rest.ReportRestClient;
 import org.apache.syncope.client.console.wicket.ajax.IndicatorAjaxTimerBehavior;
 import org.apache.syncope.client.console.wicket.ajax.markup.html.IndicatorAjaxLink;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
+import org.apache.syncope.client.console.wicket.markup.html.form.Action;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionPanel;
 import org.apache.syncope.client.console.widgets.reconciliation.Any;
 import org.apache.syncope.client.console.widgets.reconciliation.Anys;
 import org.apache.syncope.client.console.widgets.reconciliation.Misaligned;
@@ -428,10 +429,13 @@ public class ReconciliationWidget extends BaseWidget {
                                 return resource.equals(object.getResource());
                             }
                         }, new ArrayList<Misaligned>());
-                        Component content = missing == null
-                                ? misaligned == null || misaligned.isEmpty()
-                                ? new Label(componentId, StringUtils.EMPTY)
-                                : ActionLinksPanel.<Any>builder().add(new ActionLink<Any>() {
+                        Component content;
+
+                        if (missing == null) {
+                            if (misaligned == null || misaligned.isEmpty()) {
+                                content = new Label(componentId, StringUtils.EMPTY);
+                            } else {
+                                final Action<Any> action = new Action<>(new ActionLink<Any>() {
 
                                     private static final long serialVersionUID = -3722207913631435501L;
 
@@ -449,10 +453,15 @@ public class ReconciliationWidget extends BaseWidget {
                                         modal.show(true);
                                         target.add(modal);
                                     }
-                                }, ActionLink.ActionType.VIEW).
-                                        build(componentId)
-                                : ActionLinksPanel.<Any>builder().add(null, ActionLink.ActionType.NOT_FOND).
-                                        build(componentId);
+                                }, ActionLink.ActionType.VIEW);
+                                action.hideLabel();
+                                content = new ActionPanel<>(componentId, rowModel, action);
+                            }
+                        } else {
+                            final Action<Any> action = new Action<>(null, ActionLink.ActionType.NOT_FOUND);
+                            action.hideLabel();
+                            content = new ActionPanel<>(componentId, rowModel, action);
+                        }
                         cellItem.add(content);
                         cellItem.add(new AttributeModifier("class", "text-center"));
                     }

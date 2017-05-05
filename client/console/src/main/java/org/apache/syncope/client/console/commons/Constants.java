@@ -37,6 +37,18 @@ public final class Constants {
 
     public static final String MODEL_ID_PARAM = "modelId";
 
+    public static final String KEY_FIELD_NAME = "key";
+
+    public static final String SCHEMA_FIELD_NAME = "schema";
+
+    public static final String DESCRIPTION_FIELD_NAME = "description";
+
+    public static final String USERNAME_FIELD_NAME = "username";
+
+    public static final String OBJNAME_FIELD_NAME = "name";
+
+    public static final String DEFAULT_TOKEN_FIELD_NAME = "token";
+
     public static final String ON_CLICK = "click";
 
     public static final String ON_CHANGE = "change";

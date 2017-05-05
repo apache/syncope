@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
@@ -31,10 +32,9 @@ import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.TypeExtensionDirectoryPanel.TypeExtensionDataProvider;
 import org.apache.syncope.client.console.rest.BaseRestClient;
 import org.apache.syncope.client.console.rest.GroupRestClient;
-import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.any.TypeExtensionWizardBuilder;
 import org.apache.syncope.common.lib.patch.GroupPatch;
@@ -50,7 +50,6 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
 public class TypeExtensionDirectoryPanel
@@ -131,40 +130,36 @@ public class TypeExtensionDirectoryPanel
         columns.add(new PropertyColumn<TypeExtensionTO, String>(
                 new StringResourceModel("auxClasses", this), "auxClasses", "auxClasses"));
 
-        columns.add(new ActionColumn<TypeExtensionTO, String>(new ResourceModel("actions", "")) {
+        return columns;
+    }
 
-            private static final long serialVersionUID = 2054811145491901166L;
+    @Override
+    public ActionsPanel<TypeExtensionTO> getActions(final IModel<TypeExtensionTO> model) {
+        final ActionsPanel<TypeExtensionTO> panel = super.getActions(model);
+        final TypeExtensionTO typeExtension = model.getObject();
+
+        panel.add(new ActionLink<TypeExtensionTO>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
 
             @Override
-            public ActionLinksPanel<TypeExtensionTO> getActions(
-                    final String componentId, final IModel<TypeExtensionTO> model) {
-
-                final TypeExtensionTO typeExtension = model.getObject();
-
-                return ActionLinksPanel.<TypeExtensionTO>builder().add(new ActionLink<TypeExtensionTO>() {
-
-                    private static final long serialVersionUID = -3722207913631435501L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final TypeExtensionTO ignore) {
-                        send(TypeExtensionDirectoryPanel.this, Broadcast.EXACT,
-                                new AjaxWizard.EditItemActionEvent<>(typeExtension, target));
-                    }
-                }, ActionLink.ActionType.EDIT).add(new ActionLink<TypeExtensionTO>() {
-
-                    private static final long serialVersionUID = -3722207913631435501L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final TypeExtensionTO ignore) {
-                        groupTO.getTypeExtensions().remove(
-                                groupTO.getTypeExtension(typeExtension.getAnyType()));
-                        target.add(container);
-                    }
-                }, ActionLink.ActionType.DELETE).build(componentId);
+            public void onClick(final AjaxRequestTarget target, final TypeExtensionTO ignore) {
+                send(TypeExtensionDirectoryPanel.this, Broadcast.EXACT,
+                        new AjaxWizard.EditItemActionEvent<>(typeExtension, target));
             }
-        });
+        }, ActionLink.ActionType.EDIT, StringUtils.EMPTY);
+        panel.add(new ActionLink<TypeExtensionTO>() {
 
-        return columns;
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final TypeExtensionTO ignore) {
+                groupTO.getTypeExtensions().remove(
+                        groupTO.getTypeExtension(typeExtension.getAnyType()));
+                target.add(container);
+            }
+        }, ActionLink.ActionType.DELETE, StringUtils.EMPTY, true);
+        return panel;
     }
 
     @Override

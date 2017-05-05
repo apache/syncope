@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.tasks;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -35,12 +34,11 @@ import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel.SecondLevel;
 import org.apache.syncope.client.console.rest.ExecutionRestClient;
 import org.apache.syncope.client.console.tasks.ExecutionsDirectoryPanel.ExecProvider;
-import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
@@ -51,7 +49,6 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
 public abstract class ExecutionsDirectoryPanel
@@ -107,70 +104,49 @@ public abstract class ExecutionsDirectoryPanel
         columns.add(new DatePropertyColumn<ExecTO>(new StringResourceModel("end", this), "end", "end"));
 
         columns.add(new PropertyColumn<ExecTO, String>(new StringResourceModel("status", this), "status", "status"));
-
-        columns.add(new ActionColumn<ExecTO, String>(new ResourceModel("actions")) {
-
-            private static final long serialVersionUID = -3503023501954863131L;
-
-            @Override
-            public ActionLinksPanel<ExecTO> getActions(final String componentId, final IModel<ExecTO> model) {
-                final ExecTO taskExecutionTO = model.getObject();
-
-                final ActionLinksPanel.Builder<ExecTO> panel = ActionLinksPanel.<ExecTO>builder().
-                        add(new ActionLink<ExecTO>() {
-
-                            private static final long serialVersionUID = -3722207913631435501L;
-
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final ExecTO ignore) {
-                                next(new StringResourceModel("execution.view", ExecutionsDirectoryPanel.this, model).
-                                        getObject(), new ExecMessage(model.getObject().getMessage()), target);
-                            }
-                        }, ActionLink.ActionType.VIEW, StandardEntitlement.TASK_READ).
-                        add(new ActionLink<ExecTO>() {
-
-                            private static final long serialVersionUID = -3722207913631435501L;
-
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final ExecTO ignore) {
-                                try {
-                                    restClient.deleteExecution(taskExecutionTO.getKey());
-                                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-                                } catch (SyncopeClientException scce) {
-                                    SyncopeConsoleSession.get().error(scce.getMessage());
-                                }
-                                target.add(ExecutionsDirectoryPanel.this);
-                                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-                            }
-                        }, ActionLink.ActionType.DELETE, StandardEntitlement.TASK_DELETE);
-
-                addFurtherAcions(panel, model);
-
-                return panel.build(componentId, model.getObject());
-            }
-
-            @Override
-            public ActionLinksPanel<Serializable> getHeader(final String componentId) {
-                final ActionLinksPanel.Builder<Serializable> panel = ActionLinksPanel.builder();
-
-                return panel.add(new ActionLink<Serializable>() {
-
-                    private static final long serialVersionUID = -7978723352517770644L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
-                        if (target != null) {
-                            target.add(container);
-                        }
-                    }
-                }, ActionLink.ActionType.RELOAD, StandardEntitlement.TASK_LIST).build(componentId);
-            }
-        });
-
         return columns;
     }
 
-    protected void addFurtherAcions(final ActionLinksPanel.Builder<ExecTO> panel, final IModel<ExecTO> model) {
+    @Override
+    public ActionsPanel<ExecTO> getActions(final IModel<ExecTO> model) {
+        final ActionsPanel<ExecTO> panel = super.getActions(model);
+        final ExecTO taskExecutionTO = model.getObject();
+
+        panel.add(new ActionLink<ExecTO>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final ExecTO ignore) {
+                ExecutionsDirectoryPanel.this.getTogglePanel().close(target);
+                next(new StringResourceModel("execution.view", ExecutionsDirectoryPanel.this, model).
+                        getObject(), new ExecMessage(model.getObject().getMessage()), target);
+            }
+        }, ActionLink.ActionType.VIEW, StandardEntitlement.TASK_READ);
+        panel.add(new ActionLink<ExecTO>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final ExecTO ignore) {
+                try {
+                    restClient.deleteExecution(taskExecutionTO.getKey());
+                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                } catch (SyncopeClientException scce) {
+                    SyncopeConsoleSession.get().error(scce.getMessage());
+                }
+                target.add(ExecutionsDirectoryPanel.this);
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                ExecutionsDirectoryPanel.this.getTogglePanel().close(target);
+            }
+        }, ActionLink.ActionType.DELETE, StandardEntitlement.TASK_DELETE, true);
+
+        addFurtherAcions(panel, model);
+
+        return panel;
+    }
+
+    protected void addFurtherAcions(final ActionsPanel<ExecTO> panel, final IModel<ExecTO> model) {
     }
 
     @Override

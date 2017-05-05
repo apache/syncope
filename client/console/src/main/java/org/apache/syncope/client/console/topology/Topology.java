@@ -38,7 +38,7 @@ import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
@@ -92,8 +92,8 @@ public class Topology extends BasePage {
         }
     };
 
-    private final LoadableDetachableModel<Map<String, List<ConnInstanceTO>>> connModel =
-            new LoadableDetachableModel<Map<String, List<ConnInstanceTO>>>() {
+    private final LoadableDetachableModel<Map<String, List<ConnInstanceTO>>> connModel
+            = new LoadableDetachableModel<Map<String, List<ConnInstanceTO>>>() {
 
         private static final long serialVersionUID = 5275935387613157432L;
 
@@ -116,8 +116,8 @@ public class Topology extends BasePage {
         }
     };
 
-    private final LoadableDetachableModel<Pair<List<URI>, List<URI>>> csModel =
-            new LoadableDetachableModel<Pair<List<URI>, List<URI>>>() {
+    private final LoadableDetachableModel<Pair<List<URI>, List<URI>>> csModel
+            = new LoadableDetachableModel<Pair<List<URI>, List<URI>>>() {
 
         private static final long serialVersionUID = 5275935387613157433L;
 
@@ -167,8 +167,7 @@ public class Topology extends BasePage {
         // -----------------------------------------
         // Add Zoom panel
         // -----------------------------------------
-        final ActionLinksPanel.Builder<Serializable> zoomActionPanel = ActionLinksPanel.builder();
-        zoomActionPanel.setDisableIndicator(true);
+        final ActionsPanel<Serializable> zoomActionPanel = new ActionsPanel<>("zoom", null);
 
         zoomActionPanel.add(new ActionLink<Serializable>() {
 
@@ -178,7 +177,8 @@ public class Topology extends BasePage {
             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                 target.appendJavaScript("zoomIn($('#drawing')[0]);");
             }
-        }, ActionLink.ActionType.ZOOM_IN, StandardEntitlement.RESOURCE_LIST).add(new ActionLink<Serializable>() {
+        }, ActionLink.ActionType.ZOOM_IN, StandardEntitlement.RESOURCE_LIST).disableIndicator().hideLabel();
+        zoomActionPanel.add(new ActionLink<Serializable>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
 
@@ -186,9 +186,9 @@ public class Topology extends BasePage {
             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                 target.appendJavaScript("zoomOut($('#drawing')[0]);");
             }
-        }, ActionLink.ActionType.ZOOM_OUT, StandardEntitlement.RESOURCE_LIST);
+        }, ActionLink.ActionType.ZOOM_OUT, StandardEntitlement.RESOURCE_LIST).disableIndicator().hideLabel();
 
-        body.add(zoomActionPanel.build("zoom"));
+        body.add(zoomActionPanel);
         // -----------------------------------------
 
         // -----------------------------------------

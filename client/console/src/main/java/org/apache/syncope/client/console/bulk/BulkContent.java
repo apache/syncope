@@ -39,7 +39,7 @@ import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
-import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
@@ -112,7 +112,7 @@ public class BulkContent<T extends Serializable, S> extends MultilevelPanel.Seco
                 dataProvider,
                 Integer.MAX_VALUE).setMarkupId("selectedObjects").setVisible(items != null && !items.isEmpty()));
 
-        final ActionLinksPanel<Serializable> actionPanel = ActionLinksPanel.builder().build("actions");
+        final ActionsPanel<Serializable> actionPanel = new ActionsPanel<>("actions", null);
         container.add(actionPanel);
 
         for (ActionLink.ActionType action : actions) {
@@ -236,14 +236,15 @@ public class BulkContent<T extends Serializable, S> extends MultilevelPanel.Seco
                         target.add(actionPanel);
 
                         SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-                    } catch (Exception e) {
+                    } catch (IllegalArgumentException | NoSuchMethodException | SecurityException 
+                            | IllegalAccessException | InvocationTargetException e) {
                         LOG.error("Bulk action failure", e);
                         SyncopeConsoleSession.get().error("Operation " + actionToBeAddresed.getActionId()
                                 + " not supported");
                     }
                     ((BasePage) getPage()).getNotificationPanel().refresh(target);
                 }
-            }, action, StandardEntitlement.CONFIGURATION_LIST, !items.isEmpty());
+            }, action, StandardEntitlement.CONFIGURATION_LIST).hideLabel();
         }
     }
 

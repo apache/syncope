@@ -35,7 +35,7 @@ public class UserDisplayAttributesModalPanel<T extends Serializable> extends Dis
 
     private static final long serialVersionUID = 5194630813773543054L;
 
-    public static final String[] DEFAULT_SELECTION = { "key", "username", "status", "mustChangePassword" };
+    public static final String[] DEFAULT_SELECTION = { "username", "status", "mustChangePassword" };
 
     public UserDisplayAttributesModalPanel(
             final BaseModal<T> modal,

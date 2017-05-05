@@ -29,6 +29,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.AnyDataProvider;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.SerializableTransformer;
 import org.apache.syncope.client.console.commons.status.ConnObjectWrapper;
 import org.apache.syncope.client.console.commons.status.StatusBean;
@@ -121,9 +122,9 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
             final Field field,
             final List<IColumn<A, String>> columns) {
 
-        if ("key".equalsIgnoreCase(name)) {
+        if (Constants.KEY_FIELD_NAME.equalsIgnoreCase(name)) {
             columns.add(new KeyPropertyColumn<A>(new ResourceModel(name, name), name, name));
-        } else if ("token".equalsIgnoreCase(name)) {
+        } else if (Constants.DEFAULT_TOKEN_FIELD_NAME.equalsIgnoreCase(name)) {
             columns.add(new TokenColumn<A>(new ResourceModel(name, name), name));
         } else if (field != null
                 && (field.getType().equals(Boolean.class) || field.getType().equals(boolean.class))) {

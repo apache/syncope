@@ -19,55 +19,55 @@ under the License.
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
   <wicket:head>
     <style type="text/css">
-      div.topology-menu {
+      div.toggle-menu {
         display: none;
         border-radius: 5px;
-        background-color: rgba(0, 0, 0, 0.45);
+        background-color: rgba(120, 120, 120, 0.96);
         color: #fff;
         position: absolute;
         right: 5px;
-        top: 130px;
+        top: 0px;
         width: 0px;
         min-width: 250px;
         z-index: 999;
       }
 
-      div.topology-menu ul.menu {
+      div.toggle-menu ul.menu {
         list-style: outside none none;
         margin: 0;
         padding: 0;
         list-style: outside none none;
       }
 
-      div.topology-menu ul.menu li {
+      div.toggle-menu ul.menu li {
         display: block;
-        line-height: 2em;
+        line-height: 1em;
         vertical-align: middle;
-        padding: 5px 10px;
+        padding: 0px 10px;
       }
 
-      div.topology-menu ul.menu li a i {
+      div.toggle-menu ul.menu li a i {
         position: relative;
         padding: 12px 15px 12px 5px;
       }
 
-      div.topology-menu div.header a:active,
-      div.topology-menu div.header a:link,
-      div.topology-menu div.header a:visited,
-      div.topology-menu ul a:active,
-      div.topology-menu ul a:link,
-      div.topology-menu ul a:visited{
+      div.toggle-menu div.header a:active,
+      div.toggle-menu div.header a:link,
+      div.toggle-menu div.header a:visited,
+      div.toggle-menu ul a:active,
+      div.toggle-menu ul a:link,
+      div.toggle-menu ul a:visited{
         color: #fff;
       }
 
-      div.topology-menu ul li:hover {
+      div.toggle-menu ul li:hover {
         color: #fff;
         background-color: rgba(0, 0, 0, 0.2);
         z-index: 1000;
         font-weight: bold;
       }
 
-      div.topology-menu div.header {
+      div.toggle-menu div.header {
         background-color: rgba(0, 0, 0, 0);
         position: relative;
         font-size: 1.5em;
@@ -75,18 +75,18 @@ under the License.
         border-bottom: 1px solid #aaa;
       }
 
-      div.topology-menu div.header a {
+      div.toggle-menu div.header a {
         display: inline-table;
         padding: 6px 2px 0px 0px;
       }
 
-      div.topology-menu div.header .close {
+      div.toggle-menu div.header .close {
         text-align: right;
       }
     </style>
   </wicket:head>
   <wicket:extend>
-    <div wicket:id="togglePanelContainer" class="topology-menu inactive-topology-menu">
+    <div wicket:id="togglePanelContainer" class="toggle-menu inactive-toggle-menu">
       <div class="header">
         <div class="label">
           <label wicket:id="label"/>

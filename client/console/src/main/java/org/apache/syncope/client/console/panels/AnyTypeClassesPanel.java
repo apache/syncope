@@ -33,10 +33,9 @@ import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
-import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wizards.AbstractModalPanelBuilder;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
@@ -153,67 +152,44 @@ public class AnyTypeClassesPanel extends TypesDirectoryPanel<
             }
         }
 
-        columns.add(new ActionColumn<AnyTypeClassTO, String>(new ResourceModel("actions")) {
-
-            private static final long serialVersionUID = 906457126287899096L;
-
-            @Override
-            public ActionLinksPanel<AnyTypeClassTO> getActions(
-                    final String componentId, final IModel<AnyTypeClassTO> model) {
-
-                ActionLinksPanel<AnyTypeClassTO> panel = ActionLinksPanel.<AnyTypeClassTO>builder().
-                        add(new ActionLink<AnyTypeClassTO>() {
-
-                            private static final long serialVersionUID = -3722207913631435501L;
-
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final AnyTypeClassTO ignore) {
-                                send(AnyTypeClassesPanel.this, Broadcast.EXACT,
-                                        new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
-                            }
-                        }, ActionLink.ActionType.EDIT, StandardEntitlement.ANYTYPECLASS_UPDATE).
-                        add(new ActionLink<AnyTypeClassTO>() {
-
-                            private static final long serialVersionUID = -3722207913631435501L;
-
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final AnyTypeClassTO ignore) {
-                                try {
-                                    restClient.delete(model.getObject().getKey());
-                                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-                                    target.add(container);
-                                } catch (Exception e) {
-                                    LOG.error("While deleting {}", model.getObject(), e);
-                                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                                            ? e.getClass().getName() : e.getMessage());
-                                }
-                                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-                            }
-                        }, ActionLink.ActionType.DELETE, StandardEntitlement.ANYTYPECLASS_DELETE).
-                        build(componentId);
-
-                return panel;
-            }
-
-            @Override
-            public ActionLinksPanel<AnyTypeClassTO> getHeader(final String componentId) {
-                final ActionLinksPanel.Builder<AnyTypeClassTO> panel = ActionLinksPanel.builder();
-
-                return panel.add(new ActionLink<AnyTypeClassTO>() {
-
-                    private static final long serialVersionUID = -1140254463922516111L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final AnyTypeClassTO ignore) {
-                        if (target != null) {
-                            target.add(container);
-                        }
-                    }
-                }, ActionLink.ActionType.RELOAD).build(componentId);
-            }
-        });
-
         return columns;
+    }
+
+    @Override
+    public ActionsPanel<AnyTypeClassTO> getActions(final IModel<AnyTypeClassTO> model) {
+        final ActionsPanel<AnyTypeClassTO> panel = super.getActions(model);
+
+        panel.add(new ActionLink<AnyTypeClassTO>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final AnyTypeClassTO ignore) {
+                send(AnyTypeClassesPanel.this, Broadcast.EXACT,
+                        new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
+            }
+        }, ActionLink.ActionType.EDIT, StandardEntitlement.ANYTYPECLASS_UPDATE);
+
+        panel.add(new ActionLink<AnyTypeClassTO>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final AnyTypeClassTO ignore) {
+                try {
+                    restClient.delete(model.getObject().getKey());
+                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    target.add(container);
+                } catch (Exception e) {
+                    LOG.error("While deleting {}", model.getObject(), e);
+                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
+                            ? e.getClass().getName() : e.getMessage());
+                }
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+            }
+        }, ActionLink.ActionType.DELETE, StandardEntitlement.ANYTYPECLASS_DELETE, true);
+
+        return panel;
     }
 
     protected final class AnyTypeClassProvider extends DirectoryDataProvider<AnyTypeClassTO> {

@@ -58,7 +58,7 @@ public abstract class ActionLink<T extends Serializable> implements Serializable
         LAYOUT_EDIT("read"),
         RESET("update"),
         ENABLE("update"),
-        NOT_FOND("read"),
+        NOT_FOUND("read"),
         VIEW("view"),
         MEMBERS("members"),
         SEARCH("search"),

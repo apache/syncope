@@ -30,13 +30,12 @@ import org.apache.syncope.client.console.commons.TaskDataProvider;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
-import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.CollectionPropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
-import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -48,7 +47,6 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
 public abstract class NotificationTaskDirectoryPanel
@@ -83,7 +81,7 @@ public abstract class NotificationTaskDirectoryPanel
         final List<IColumn<NotificationTaskTO, String>> columns = new ArrayList<>();
 
         columns.add(new KeyPropertyColumn<NotificationTaskTO>(
-                new StringResourceModel("key", this), "key", "key"));
+                new StringResourceModel("key", this), "key"));
 
         columns.add(new PropertyColumn<NotificationTaskTO, String>(
                 new StringResourceModel("sender", this), "sender", "sender"));
@@ -92,7 +90,7 @@ public abstract class NotificationTaskDirectoryPanel
                 new StringResourceModel("subject", this), "subject", "subject"));
 
         columns.add(new CollectionPropertyColumn<NotificationTaskTO>(
-                new StringResourceModel("recipients", this), "recipients", "recipients"));
+                new StringResourceModel("recipients", this), "recipients"));
 
         columns.add(new DatePropertyColumn<NotificationTaskTO>(
                 new StringResourceModel("start", this), "start", "start"));
@@ -102,105 +100,80 @@ public abstract class NotificationTaskDirectoryPanel
 
         columns.add(new PropertyColumn<NotificationTaskTO, String>(
                 new StringResourceModel("latestExecStatus", this), "latestExecStatus", "latestExecStatus"));
-
-        columns.add(new ActionColumn<NotificationTaskTO, String>(new ResourceModel("actions", "")) {
-
-            private static final long serialVersionUID = 2054811145491901166L;
-
-            @Override
-            public ActionLinksPanel<NotificationTaskTO> getActions(
-                    final String componentId, final IModel<NotificationTaskTO> model) {
-
-                final NotificationTaskTO taskTO = model.getObject();
-
-                final ActionLinksPanel<NotificationTaskTO> panel = ActionLinksPanel.<NotificationTaskTO>builder().
-                        add(new ActionLink<NotificationTaskTO>() {
-
-                            private static final long serialVersionUID = -3722207913631435501L;
-
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final NotificationTaskTO modelObject) {
-                                viewTask(taskTO, target);
-                            }
-                        }, ActionLink.ActionType.VIEW, StandardEntitlement.TASK_READ).
-                        add(new ActionLink<NotificationTaskTO>() {
-
-                            private static final long serialVersionUID = -3722207913631435501L;
-
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final NotificationTaskTO modelObject) {
-                                viewMailBody(MailTemplateFormat.TEXT, taskTO.getTextBody(), target);
-                            }
-                        }, ActionLink.ActionType.TEXT, StandardEntitlement.TASK_READ).
-                        add(new ActionLink<NotificationTaskTO>() {
-
-                            private static final long serialVersionUID = -3722207913631435501L;
-
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final NotificationTaskTO modelObject) {
-                                viewMailBody(MailTemplateFormat.HTML, taskTO.getHtmlBody(), target);
-                            }
-                        }, ActionLink.ActionType.HTML, StandardEntitlement.TASK_READ).
-                        add(new ActionLink<NotificationTaskTO>() {
-
-                            private static final long serialVersionUID = -3722207913631435501L;
-
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final NotificationTaskTO modelObject) {
-                                try {
-                                    restClient.startExecution(taskTO.getKey(), null);
-                                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-                                    target.add(container);
-                                } catch (SyncopeClientException e) {
-                                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                                            ? e.getClass().getName() : e.getMessage());
-                                    LOG.error("While running {}", taskTO.getKey(), e);
-                                }
-                                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-                            }
-                        }, ActionLink.ActionType.EXECUTE, StandardEntitlement.TASK_EXECUTE).
-                        add(new ActionLink<NotificationTaskTO>() {
-
-                            private static final long serialVersionUID = -3722207913631435501L;
-
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final NotificationTaskTO modelObject) {
-                                try {
-                                    restClient.delete(taskTO.getKey(), NotificationTaskTO.class);
-                                    updateResultTable(target);
-                                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-                                    target.add(container);
-                                } catch (SyncopeClientException e) {
-                                    LOG.error("While deleting {}", taskTO.getKey(), e);
-                                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                                            ? e.getClass().getName() : e.getMessage());
-                                }
-                                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-                            }
-                        }, ActionLink.ActionType.DELETE, StandardEntitlement.TASK_DELETE).build(componentId);
-
-                return panel;
-            }
-
-            @Override
-            public ActionLinksPanel<NotificationTaskTO> getHeader(final String componentId) {
-                final ActionLinksPanel.Builder<NotificationTaskTO> panel = ActionLinksPanel.builder();
-
-                return panel.add(new ActionLink<NotificationTaskTO>() {
-
-                    private static final long serialVersionUID = -7978723352517770644L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final NotificationTaskTO ignore) {
-                        if (target != null) {
-                            target.add(container);
-                        }
-                    }
-                }, ActionLink.ActionType.RELOAD, StandardEntitlement.TASK_LIST).build(componentId);
-            }
-        });
-
         return columns;
+    }
+
+    @Override
+    public ActionsPanel<NotificationTaskTO> getActions(final IModel<NotificationTaskTO> model) {
+        final ActionsPanel<NotificationTaskTO> panel = super.getActions(model);
+        final NotificationTaskTO taskTO = model.getObject();
+
+        panel.add(new ActionLink<NotificationTaskTO>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final NotificationTaskTO modelObject) {
+                viewTask(taskTO, target);
+            }
+        }, ActionLink.ActionType.VIEW, StandardEntitlement.TASK_READ);
+        panel.add(new ActionLink<NotificationTaskTO>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final NotificationTaskTO modelObject) {
+                viewMailBody(MailTemplateFormat.TEXT, taskTO.getTextBody(), target);
+            }
+        }, ActionLink.ActionType.TEXT, StandardEntitlement.TASK_READ);
+        panel.add(new ActionLink<NotificationTaskTO>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final NotificationTaskTO modelObject) {
+                viewMailBody(MailTemplateFormat.HTML, taskTO.getHtmlBody(), target);
+            }
+        }, ActionLink.ActionType.HTML, StandardEntitlement.TASK_READ);
+        panel.add(new ActionLink<NotificationTaskTO>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final NotificationTaskTO modelObject) {
+                try {
+                    restClient.startExecution(taskTO.getKey(), null);
+                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    target.add(container);
+                } catch (SyncopeClientException e) {
+                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
+                            ? e.getClass().getName() : e.getMessage());
+                    LOG.error("While running {}", taskTO.getKey(), e);
+                }
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+            }
+        }, ActionLink.ActionType.EXECUTE, StandardEntitlement.TASK_EXECUTE);
+        panel.add(new ActionLink<NotificationTaskTO>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final NotificationTaskTO modelObject) {
+                try {
+                    restClient.delete(taskTO.getKey(), NotificationTaskTO.class);
+                    updateResultTable(target);
+                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    target.add(container);
+                } catch (SyncopeClientException e) {
+                    LOG.error("While deleting {}", taskTO.getKey(), e);
+                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
+                            ? e.getClass().getName() : e.getMessage());
+                }
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+            }
+        }, ActionLink.ActionType.DELETE, StandardEntitlement.TASK_DELETE, true);
+
+        return panel;
     }
 
     @Override
@@ -237,7 +210,7 @@ public abstract class NotificationTaskDirectoryPanel
                 final String entityKey,
                 final int paginatorRows) {
 
-            super(paginatorRows, TaskType.NOTIFICATION , restClient);
+            super(paginatorRows, TaskType.NOTIFICATION, restClient);
             this.notification = notification;
             this.anyTypeKind = anyTypeKind;
             this.entityKey = entityKey;

@@ -19,12 +19,13 @@
 package org.apache.syncope.client.console.wizards.any;
 
 import java.io.Serializable;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.syncope.client.console.panels.WizardModalPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 
 public abstract class ResultPage<T extends Serializable> extends Panel implements WizardModalPanel<T> {
 
@@ -39,7 +40,10 @@ public abstract class ResultPage<T extends Serializable> extends Panel implement
 
         add(customResultBody("customResultBody", item, result));
 
-        add(ActionLinksPanel.<T>builder().add(new ActionLink<T>() {
+        final ActionsPanel<T> panel = new ActionsPanel<>("action", null);
+        add(panel);
+
+        panel.add(new ActionLink<T>() {
 
             private static final long serialVersionUID = 3257738274365467945L;
 
@@ -47,7 +51,9 @@ public abstract class ResultPage<T extends Serializable> extends Panel implement
             public void onClick(final AjaxRequestTarget target, final T ignore) {
                 closeAction(target);
             }
-        }, ActionLink.ActionType.CLOSE).build("action").setRenderBodyOnly(true));
+        }, ActionLink.ActionType.CLOSE, StringUtils.EMPTY).hideLabel();
+
+        panel.setRenderBodyOnly(true);
     }
 
     protected abstract void closeAction(final AjaxRequestTarget target);

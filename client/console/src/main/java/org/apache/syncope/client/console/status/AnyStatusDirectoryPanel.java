@@ -39,10 +39,9 @@ import org.apache.syncope.client.console.rest.AnyObjectRestClient;
 import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.rest.UserRestClient;
-import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -58,7 +57,6 @@ import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
 public class AnyStatusDirectoryPanel
@@ -159,40 +157,34 @@ public class AnyStatusDirectoryPanel
                 }
             }
         });
+        return columns;
+    }
 
-        columns.add(new ActionColumn<StatusBean, String>(new ResourceModel("actions", "")) {
+    @Override
+    public ActionsPanel<StatusBean> getActions(final IModel<StatusBean> model) {
+        final ActionsPanel<StatusBean> panel = super.getActions(model);
 
-            private static final long serialVersionUID = 3372107192677413965L;
+        panel.add(new ActionLink<StatusBean>() {
+
+            private static final long serialVersionUID = -7978723352517770645L;
 
             @Override
-            public ActionLinksPanel<StatusBean> getActions(
-                    final String componentId, final IModel<StatusBean> model) {
-
-                final ActionLinksPanel.Builder<StatusBean> panel = ActionLinksPanel.builder();
-
-                panel.add(new ActionLink<StatusBean>() {
-
-                    private static final long serialVersionUID = -7978723352517770645L;
-
-                    @Override
-                    protected boolean statusCondition(final StatusBean bean) {
-                        return bean.getConnObjectLink() != null
-                                && !bean.getResourceName().equalsIgnoreCase(Constants.SYNCOPE);
-                    }
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final StatusBean bean) {
-                        multiLevelPanelRef.next(bean.getResourceName(),
-                                new ConnObjectDetails(resourceRestClient.readConnObject(
-                                        bean.getResourceName(), anyTO.getType(), anyTO.getKey())), target);
-                        target.add(multiLevelPanelRef);
-                    }
-                }, ActionLink.ActionType.VIEW, StandardEntitlement.RESOURCE_GET_CONNOBJECT);
-
-                return panel.build(componentId, model.getObject());
+            protected boolean statusCondition(final StatusBean bean) {
+                return bean != null && bean.getConnObjectLink() != null
+                        && !bean.getResourceName().equalsIgnoreCase(Constants.SYNCOPE);
             }
-        });
-        return columns;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final StatusBean bean) {
+                multiLevelPanelRef.next(bean.getResourceName(),
+                        new ConnObjectDetails(resourceRestClient.readConnObject(
+                                bean.getResourceName(), anyTO.getType(), anyTO.getKey())), target);
+                target.add(multiLevelPanelRef);
+                AnyStatusDirectoryPanel.this.getTogglePanel().close(target);
+            }
+        }, ActionLink.ActionType.VIEW, StandardEntitlement.RESOURCE_GET_CONNOBJECT);
+
+        return panel;
     }
 
     @Override

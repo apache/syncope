@@ -42,11 +42,10 @@ import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.panels.search.SearchClause;
 import org.apache.syncope.client.console.reports.ReportletDirectoryPanel.ReportletWrapper;
 import org.apache.syncope.client.console.rest.ReportRestClient;
-import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
-import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -68,7 +67,6 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
 /**
@@ -123,90 +121,87 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
             }
         });
 
-        columns.add(new ActionColumn<ReportletWrapper, String>(new ResourceModel("actions")) {
-
-            private static final long serialVersionUID = 2054811145491901166L;
-
-            @Override
-            public ActionLinksPanel<ReportletWrapper> getActions(final String componentId,
-                    final IModel<ReportletWrapper> model) {
-
-                final ActionLinksPanel<ReportletWrapper> panel = ActionLinksPanel.<ReportletWrapper>builder().
-                        add(new ActionLink<ReportletWrapper>() {
-
-                            private static final long serialVersionUID = -3722207913631435501L;
-
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final ReportletWrapper ignore) {
-                                AbstractReportletConf clone = SerializationUtils.clone(model.getObject().getConf());
-                                clone.setName(null);
-
-                                send(ReportletDirectoryPanel.this, Broadcast.EXACT,
-                                        new AjaxWizard.EditItemActionEvent<>(
-                                                new ReportletWrapper().setConf(clone),
-                                                target));
-                            }
-                        }, ActionLink.ActionType.CLONE, StandardEntitlement.REPORT_UPDATE).
-                        add(new ActionLink<ReportletWrapper>() {
-
-                            private static final long serialVersionUID = -3722207913631435501L;
-
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final ReportletWrapper ignore) {
-                                send(ReportletDirectoryPanel.this, Broadcast.EXACT,
-                                        new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
-                            }
-                        }, ActionLink.ActionType.EDIT, StandardEntitlement.REPORT_UPDATE).
-                        add(new ActionLink<ReportletWrapper>() {
-
-                            private static final long serialVersionUID = -3722207913631435501L;
-
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final ReportletWrapper ignore) {
-                                final ReportletConf reportlet = model.getObject().getConf();
-                                try {
-                                    final ReportTO actual = restClient.read(report);
-                                    CollectionUtils.filter(actual.getReportletConfs(), new Predicate<ReportletConf>() {
-
-                                        @Override
-                                        public boolean evaluate(final ReportletConf object) {
-                                            return !object.getName().equals(reportlet.getName());
-                                        }
-                                    });
-                                    restClient.update(actual);
-                                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-                                    customActionOnFinishCallback(target);
-                                } catch (SyncopeClientException e) {
-                                    LOG.error("While deleting {}", reportlet.getName(), e);
-                                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                                            ? e.getClass().getName() : e.getMessage());
-                                }
-                                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-                            }
-                        }, ActionLink.ActionType.DELETE, StandardEntitlement.REPORT_UPDATE).build(componentId);
-
-                return panel;
-            }
-
-            @Override
-            public ActionLinksPanel<ReportletWrapper> getHeader(final String componentId) {
-                final ActionLinksPanel.Builder<ReportletWrapper> panel = ActionLinksPanel.builder();
-
-                return panel.add(new ActionLink<ReportletWrapper>() {
-
-                    private static final long serialVersionUID = -7978723352517770644L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final ReportletWrapper ignore) {
-                        if (target != null) {
-                            customActionOnFinishCallback(target);
-                        }
-                    }
-                }, ActionLink.ActionType.RELOAD, StandardEntitlement.TASK_LIST).build(componentId);
-            }
-        });
-
         return columns;
+    }
+
+    @Override
+    public ActionsPanel<ReportletWrapper> getActions(final IModel<ReportletWrapper> model) {
+        final ActionsPanel<ReportletWrapper> panel = super.getActions(model);
+
+        panel.add(new ActionLink<ReportletWrapper>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final ReportletWrapper ignore) {
+                ReportletDirectoryPanel.this.getTogglePanel().close(target);
+                AbstractReportletConf clone = SerializationUtils.clone(model.getObject().getConf());
+                clone.setName(null);
+
+                send(ReportletDirectoryPanel.this, Broadcast.EXACT,
+                        new AjaxWizard.EditItemActionEvent<>(
+                                new ReportletWrapper().setConf(clone),
+                                target));
+            }
+        }, ActionLink.ActionType.CLONE, StandardEntitlement.REPORT_CREATE);
+        panel.add(new ActionLink<ReportletWrapper>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final ReportletWrapper ignore) {
+                ReportletDirectoryPanel.this.getTogglePanel().close(target);
+                send(ReportletDirectoryPanel.this, Broadcast.EXACT,
+                        new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
+            }
+        }, ActionLink.ActionType.EDIT, StandardEntitlement.REPORT_UPDATE);
+        panel.add(new ActionLink<ReportletWrapper>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final ReportletWrapper ignore) {
+                final ReportletConf reportlet = model.getObject().getConf();
+                try {
+                    final ReportTO actual = restClient.read(report);
+                    CollectionUtils.filter(actual.getReportletConfs(), new Predicate<ReportletConf>() {
+
+                        @Override
+                        public boolean evaluate(final ReportletConf object) {
+                            return !object.getName().equals(reportlet.getName());
+                        }
+                    });
+                    restClient.update(actual);
+                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    customActionOnFinishCallback(target);
+                } catch (SyncopeClientException e) {
+                    LOG.error("While deleting {}", reportlet.getName(), e);
+                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
+                            ? e.getClass().getName() : e.getMessage());
+                }
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+            }
+        }, ActionLink.ActionType.DELETE, StandardEntitlement.REPORT_DELETE, true);
+
+        return panel;
+    }
+
+    @Override
+    public ActionsPanel<Serializable> getHeader(final String componentId) {
+        final ActionsPanel<Serializable> panel = new ActionsPanel<>(componentId, null);
+
+        panel.add(new ActionLink<Serializable>() {
+
+            private static final long serialVersionUID = -7978723352517770644L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
+                if (target != null) {
+                    customActionOnFinishCallback(target);
+                }
+            }
+        }, ActionLink.ActionType.RELOAD, StandardEntitlement.TASK_LIST).hideLabel();
+        return panel;
     }
 
     @Override

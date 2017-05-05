@@ -32,12 +32,10 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.pages.BasePage;
-import org.apache.syncope.client.console.panels.AnyTypesPanel.AnyTypeProvider;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
-import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.ActionColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
-import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wizards.AbstractModalPanelBuilder;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
@@ -53,7 +51,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 
-public class AnyTypesPanel extends TypesDirectoryPanel<AnyTypeTO, AnyTypeProvider, AnyTypeRestClient> {
+public class AnyTypesPanel extends TypesDirectoryPanel<AnyTypeTO, AnyTypesPanel.AnyTypeProvider, AnyTypeRestClient> {
 
     private static final long serialVersionUID = 3905038169553185171L;
 
@@ -152,69 +150,45 @@ public class AnyTypesPanel extends TypesDirectoryPanel<AnyTypeTO, AnyTypeProvide
             }
         }
 
-        columns.add(new ActionColumn<AnyTypeTO, String>(new ResourceModel("actions")) {
-
-            private static final long serialVersionUID = 906457126287899096L;
-
-            @Override
-            public ActionLinksPanel<AnyTypeTO> getActions(
-                    final String componentId, final IModel<AnyTypeTO> model) {
-
-                ActionLinksPanel<AnyTypeTO> panel = ActionLinksPanel.<AnyTypeTO>builder().
-                        add(new ActionLink<AnyTypeTO>() {
-
-                            private static final long serialVersionUID = -3722207913631435501L;
-
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final AnyTypeTO ignore) {
-                                send(AnyTypesPanel.this, Broadcast.EXACT,
-                                        new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
-                            }
-                        }, ActionLink.ActionType.EDIT, StandardEntitlement.ANYTYPE_UPDATE).
-                        add(new ActionLink<AnyTypeTO>() {
-
-                            private static final long serialVersionUID = -3722207913631435501L;
-
-                            @Override
-                            public void onClick(final AjaxRequestTarget target, final AnyTypeTO ignore) {
-                                try {
-                                    restClient.delete(model.getObject().getKey());
-                                    SyncopeConsoleSession.get().refreshAuth();
-
-                                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-                                    target.add(container);
-                                } catch (Exception e) {
-                                    LOG.error("While deleting {}", model.getObject(), e);
-                                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                                            ? e.getClass().getName() : e.getMessage());
-                                }
-                                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
-                            }
-                        }, ActionLink.ActionType.DELETE, StandardEntitlement.ANYTYPE_DELETE).
-                        build(componentId);
-
-                return panel;
-            }
-
-            @Override
-            public ActionLinksPanel<AnyTypeTO> getHeader(final String componentId) {
-                final ActionLinksPanel.Builder<AnyTypeTO> panel = ActionLinksPanel.builder();
-
-                return panel.add(new ActionLink<AnyTypeTO>() {
-
-                    private static final long serialVersionUID = -1140254463922516111L;
-
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final AnyTypeTO ignore) {
-                        if (target != null) {
-                            target.add(container);
-                        }
-                    }
-                }, ActionLink.ActionType.RELOAD).build(componentId);
-            }
-        });
-
         return columns;
+    }
+
+    @Override
+    public ActionsPanel<AnyTypeTO> getActions(final IModel<AnyTypeTO> model) {
+        final ActionsPanel<AnyTypeTO> panel = super.getActions(model);
+
+        panel.add(new ActionLink<AnyTypeTO>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final AnyTypeTO ignore) {
+                send(AnyTypesPanel.this, Broadcast.EXACT,
+                        new AjaxWizard.EditItemActionEvent<>(model.getObject(), target));
+            }
+        }, ActionLink.ActionType.EDIT, StandardEntitlement.ANYTYPE_UPDATE);
+        panel.add(new ActionLink<AnyTypeTO>() {
+
+            private static final long serialVersionUID = -3722207913631435501L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final AnyTypeTO ignore) {
+                try {
+                    restClient.delete(model.getObject().getKey());
+                    SyncopeConsoleSession.get().refreshAuth();
+
+                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    target.add(container);
+                } catch (Exception e) {
+                    LOG.error("While deleting {}", model.getObject(), e);
+                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
+                            ? e.getClass().getName() : e.getMessage());
+                }
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+            }
+        }, ActionLink.ActionType.DELETE, StandardEntitlement.ANYTYPE_DELETE, true);
+
+        return panel;
     }
 
     protected final class AnyTypeProvider extends DirectoryDataProvider<AnyTypeTO> {

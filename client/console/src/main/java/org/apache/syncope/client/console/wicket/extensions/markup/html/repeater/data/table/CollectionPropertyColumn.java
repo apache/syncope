@@ -33,9 +33,8 @@ public class CollectionPropertyColumn<T> extends PropertyColumn<T, String> {
 
     public CollectionPropertyColumn(
             final IModel<String> displayModel,
-            final String sortProperty,
             final String propertyExpression) {
-        super(displayModel, sortProperty, propertyExpression);
+        super(displayModel, propertyExpression);
     }
 
     @Override
