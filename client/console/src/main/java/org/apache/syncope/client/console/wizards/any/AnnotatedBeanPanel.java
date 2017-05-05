@@ -45,7 +45,7 @@ public class AnnotatedBeanPanel extends Panel {
         // Last change date
         // ------------------------
         add(new Label("lastChangeDate", new Model<>(sysInfoTO.getLastChangeDate() != null
-                ? SyncopeConsoleSession.get().getDateFormat().format(sysInfoTO.getCreationDate()) : "")));
+                ? SyncopeConsoleSession.get().getDateFormat().format(sysInfoTO.getLastChangeDate()) : "")));
         // ------------------------
 
         // ------------------------
