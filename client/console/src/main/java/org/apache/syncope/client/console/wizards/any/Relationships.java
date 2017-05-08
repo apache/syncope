@@ -168,7 +168,7 @@ public class Relationships extends WizardStep {
                 addFragment.add(new Specification().setRenderBodyOnly(true));
                 target.add(Relationships.this);
             }
-        }, ActionType.CREATE, AnyEntitlement.UPDATE.getFor(anyTO.getType()));
+        }, ActionType.CREATE, AnyEntitlement.UPDATE.getFor(anyTO.getType())).hideLabel();
 
         return viewFragment;
     }

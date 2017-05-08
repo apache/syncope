@@ -85,8 +85,8 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
 
         setPageRef(pageRef);
 
-        AjaxBootstrapTabbedPanel<ITab> tabbedPanel =
-                new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList(pageRef));
+        AjaxBootstrapTabbedPanel<ITab> tabbedPanel
+                = new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList(pageRef));
         tabbedPanel.setSelectedTab(selectedIndex);
         addInnerObject(tabbedPanel);
         this.wizardBuilder = new RealmWizardBuilder(pageRef);
@@ -167,15 +167,15 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
             }
         });
 
-        final Triple<UserFormLayoutInfo, GroupFormLayoutInfo, Map<String, AnyObjectFormLayoutInfo>> formLayoutInfo =
-                FormLayoutInfoUtils.fetch(anyTypeTOs);
+        final Triple<UserFormLayoutInfo, GroupFormLayoutInfo, Map<String, AnyObjectFormLayoutInfo>> formLayoutInfo
+                = FormLayoutInfoUtils.fetch(anyTypeTOs);
 
         Collections.sort(anyTypeTOs, new AnyTypeComparator());
         for (final AnyTypeTO anyTypeTO : anyTypeTOs) {
             tabs.add(new ITabComponent(
                     new Model<>(anyTypeTO.getKey()),
                     AnyTypeKind.GROUP.name().equals(anyTypeTO.getKey())
-                    ? null : String.format("%s_SEARCH", anyTypeTO.getKey())) {
+                    ? null : new String[]{String.format("%s_SEARCH", anyTypeTO.getKey())}) {
 
                 private static final long serialVersionUID = 1169585538404171118L;
 
@@ -228,7 +228,7 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
                             || CollectionUtils.isEmpty(afterObj.getAttrMap().get(ConnIdSpecialName.NAME).getValues())
                             ? StringUtils.EMPTY
                             : afterObj.getAttrMap().get(ConnIdSpecialName.NAME).getValues().
-                                    iterator().next();
+                            iterator().next();
 
                     return new Label("field", remoteId);
                 } else if ("status".equalsIgnoreCase(key)) {

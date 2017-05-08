@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.commons;
 
+import java.util.Set;
 import java.util.UUID;
 import org.apache.wicket.Component;
 import org.apache.wicket.authroles.authorization.strategies.role.Roles;
@@ -36,6 +37,15 @@ public abstract class ITabComponent extends Component implements ITab {
 
     private final IModel<String> title;
 
+    /**
+     * Constructor.
+     *
+     * @param title IModel used to represent the title of the tab. Must contain a string
+     * @param roles authorized roles
+     */
+    public ITabComponent(final IModel<String> title, final Set<String> roles) {
+        this(title, roles.toArray(new String[roles.size()]));
+    }
     /**
      * Constructor.
      *
