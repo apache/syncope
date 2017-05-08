@@ -152,6 +152,7 @@ public class ReportExecutionDetails extends MultilevelPanel.SecondLevel {
                 final String execution, final ReportExecExportFormat exportFormat) {
             this.execution = execution;
             this.exportFormat = exportFormat;
+            this.stream = null;
             return this;
         }
 

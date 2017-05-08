@@ -85,7 +85,7 @@ public class ActionLinksTogglePanel<T extends Serializable> extends TogglePanel<
         } else if (modelObject instanceof AccessTokenTO) {
             header = ((AccessTokenTO) modelObject).getOwner();
         } else if (modelObject instanceof ExecTO) {
-            header = ((ExecTO) modelObject).getRefDesc();
+            header = ((ExecTO) modelObject).getKey();
         } else if (modelObject instanceof WorkflowDefinitionTO) {
             header = ((WorkflowDefinitionTO) modelObject).getName();
         } else if (modelObject instanceof EntityTO) {
