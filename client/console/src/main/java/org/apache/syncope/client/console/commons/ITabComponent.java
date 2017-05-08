@@ -42,7 +42,7 @@ public abstract class ITabComponent extends Component implements ITab {
      * @param title IModel used to represent the title of the tab. Must contain a string
      * @param roles authorized roles
      */
-    public ITabComponent(final IModel<String> title, final String[] roles) {
+    public ITabComponent(final IModel<String> title, final String... roles) {
         super(UUID.randomUUID().toString());
         this.title = title;
 
