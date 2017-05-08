@@ -348,6 +348,76 @@ Copy `core/src/main/resources/all/saml2sp-logic.properties` to `core/src/main/re
 Setup a <<keystore,keystore>> and place it under the <<properties-files-location,configuration directory>>, then review
 the content of `core/src/main/resources/saml2sp-logic.properties` accordingly.
 
+[discrete]
+===== Enable the <<elasticsearch>> extension
+
+[WARNING]
+This extension requires the latest JDK 8 that is available.
+
+Add the following dependencies to `core/pom.xml`:
+
+[source,xml,subs="verbatim,attributes"]
+----
+<dependency>
+  <groupId>org.apache.syncope.ext.elasticsearch</groupId>
+  <artifactId>syncope-ext-elasticsearch-provisioning-java</artifactId>
+  <version>${syncope.version}</version>
+</dependency>
+<dependency>
+  <groupId>org.apache.syncope.ext.elasticsearch</groupId>
+  <artifactId>syncope-ext-elasticsearch-persistence-jpa</artifactId>
+  <version>${syncope.version}</version>
+</dependency>
+----
+
+Download 
+
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/ext/elasticsearch/persistence-jpa/src/main/resources/persistence.properties[persistence.properties^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/2_0_X/ext/elasticsearch/persistence-jpa/src/main/resources/persistence.properties[persistence.properties^]
+endif::[]
+
+and
+
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/ext/elasticsearch/client-elasticsearch/src/main/resources/elasticsearchClientContext.xml[elasticsearchClientContext.xml^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/2_0_X/ext/elasticsearch/client-elasticsearch/src/main/resources/elasticsearchClientContext.xml[elasticsearchClientContext.xml^]
+endif::[]
+
+then save both under `core/src/main/resources`.
+
+Now, adjust the parameters in `core/src/main/resources/elasticsearchClientContext.xml` to match your
+Elasticsearch deployment.
+
+Finally, replace the following text in `core/src/main/webapp/WEB-INF/web.xml`:
+
+....
+classpath*:/coreContext.xml
+classpath*:/securityContext.xml
+classpath*:/logicContext.xml
+classpath*:/restCXFContext.xml
+classpath*:/persistenceContext.xml
+classpath*:/provisioning*Context.xml
+classpath*:/workflow*Context.xml
+....
+
+with
+
+....
+      classpath*:/coreContext.xml
+      classpath*:/elasticsearchClientContext.xml
+      classpath*:/securityContext.xml
+      classpath*:/logicContext.xml
+      classpath*:/restCXFContext.xml
+      classpath*:/persistenceContext.xml
+      classpath*:/provisioning*Context.xml
+      classpath*:/workflow*Context.xml
+....
+
 [[customization-console]]
 ==== Console
 

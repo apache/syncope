@@ -115,3 +115,28 @@ endif::[]
 This extension adds features to all components and layers that are available, and can be taken as reference when creating
 <<customization-extensions,new extensions>>.
 ====
+
+==== Elasticsearch
+
+[WARNING]
+This extension requires the latest JDK 8 that is available.
+
+This extension provides an alternate internal search engine for <<users-groups-and-any-objects>>, requiring an external 
+https://www.elastic.co/[Elasticsearch^] cluster.
+
+[TIP]
+As search operations are central for different aspects of the <<provisioning,provisioning process>>, the global
+performances are expected to improve when using this extension.
+
+[NOTE]
+.Extension Sources
+====
+The source code of this extension is available from the Apache Syncope
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/tree/syncope-{docVersion}/ext/elasticsearch[source tree^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/tree/2_0_X/ext/elasticsearch[source tree^]
+endif::[]
+.
+====

@@ -392,6 +392,8 @@ under the License.
     <commons-collection.version>4.1</commons-collection.version>
     <commons-logging.version>1.1.3</commons-logging.version>
 
+    <joda.version>2.9.9</joda.version>
+
     <h2.version>1.4.195</h2.version>
 
     <junit.version>4.12</junit.version>
@@ -708,6 +710,24 @@ under the License.
         <groupId>org.elasticsearch.client</groupId>
         <artifactId>transport</artifactId>
         <version>${elasticsearch.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-dataformat-smile</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-dataformat-yaml</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-dataformat-cbor</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
 
       <dependency>
@@ -762,6 +782,12 @@ under the License.
         <groupId>com.fasterxml.jackson.datatype</groupId>
         <artifactId>jackson-datatype-joda</artifactId>
         <version>${jackson.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>    
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
@@ -785,6 +811,16 @@ under the License.
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson.dataformat</groupId>
+        <artifactId>jackson-dataformat-smile</artifactId>
+        <version>${jackson.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.dataformat</groupId>
+        <artifactId>jackson-dataformat-cbor</artifactId>
+        <version>${jackson.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.dataformat</groupId>
         <artifactId>jackson-dataformat-xml</artifactId>
         <version>${jackson.version}</version>
         <exclusions>
@@ -797,6 +833,12 @@ under the License.
             <artifactId>woodstox-core</artifactId>
           </exclusion>
         </exclusions>
+      </dependency>
+
+      <dependency>
+        <groupId>joda-time</groupId>
+        <artifactId>joda-time</artifactId>
+        <version>${joda.version}</version>
       </dependency>
 
       <dependency>
