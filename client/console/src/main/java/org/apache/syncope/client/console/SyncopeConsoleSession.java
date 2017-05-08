@@ -21,6 +21,7 @@ package org.apache.syncope.client.console;
 import java.text.DateFormat;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -28,6 +29,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MediaType;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.commons.lang3.tuple.Pair;
@@ -148,8 +150,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
         boolean authenticated = false;
 
         try {
-            client = clientFactory.
-                    setDomain(getDomain()).create(username, password);
+            client = clientFactory.setDomain(getDomain()).create(username, password);
 
             afterAuthentication();
 
@@ -165,8 +166,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
         boolean authenticated = false;
 
         try {
-            client = clientFactory.
-                    setDomain(getDomain()).create(jwt);
+            client = clientFactory.setDomain(getDomain()).create(jwt);
 
             afterAuthentication();
 
@@ -215,6 +215,23 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
 
     public UserTO getSelfTO() {
         return selfTO;
+    }
+
+    public Set<String> getAvailableRealms(final String... entitlements) {
+        final Set<String> availableRealms = new HashSet<>();
+        if (entitlements != null && entitlements.length > 0) {
+            for (String entitlement : entitlements) {
+                final Set<String> realms = auth.get(entitlement);
+                if (CollectionUtils.isNotEmpty(realms)) {
+                    availableRealms.addAll(realms);
+                }
+            }
+        } else {
+            for (Map.Entry<String, Set<String>> entitlement : auth.entrySet()) {
+                availableRealms.addAll(entitlement.getValue());
+            }
+        }
+        return availableRealms;
     }
 
     public boolean owns(final String entitlement) {
@@ -266,8 +283,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
         T service;
 
         synchronized (clientFactory) {
-            SyncopeClientFactoryBean.ContentType preType = clientFactory.
-                    getContentType();
+            SyncopeClientFactoryBean.ContentType preType = clientFactory.getContentType();
 
             clientFactory.
                     setContentType(SyncopeClientFactoryBean.ContentType.fromString(mediaType.toString()));

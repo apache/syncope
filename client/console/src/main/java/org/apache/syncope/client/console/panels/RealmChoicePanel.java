@@ -32,8 +32,12 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
@@ -62,6 +66,8 @@ public class RealmChoicePanel extends Panel {
     private final WebMarkupContainer container;
 
     private final Model<RealmTO> model;
+
+    private final Set<String> availableRealms;
 
     private final Map<String, Pair<RealmTO, List<RealmTO>>> tree;
 
@@ -109,6 +115,8 @@ public class RealmChoicePanel extends Panel {
         container.setOutputMarkupId(true);
         add(container);
 
+        availableRealms = SyncopeConsoleSession.get().getAvailableRealms();
+
         reloadRealmTree();
     }
 
@@ -142,6 +150,17 @@ public class RealmChoicePanel extends Panel {
                             label.setDefaultModelObject(model.getObject().getFullPath());
                             target.add(label);
                             send(pageRef.getPage(), Broadcast.EXACT, new ChosenRealm<>(realmTO, target));
+                        }
+
+                        @Override
+                        public boolean isEnabled() {
+                            return IterableUtils.matchesAny(availableRealms, new Predicate<String>() {
+
+                                @Override
+                                public boolean evaluate(final String availableRealm) {
+                                    return realmTO.getFullPath().startsWith(availableRealm);
+                                }
+                            });
                         }
                     });
                 }
