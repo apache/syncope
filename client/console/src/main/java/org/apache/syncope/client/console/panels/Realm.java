@@ -56,7 +56,6 @@ import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -106,7 +105,8 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
     private List<ITab> buildTabList(final PageReference pageRef) {
         List<ITab> tabs = new ArrayList<>();
 
-        tabs.add(new AbstractTab(new Model<>("DETAILS")) {
+        tabs.add(new ITabComponent(new Model<>("DETAILS"), new String[] {
+            StandardEntitlement.REALM_CREATE, StandardEntitlement.REALM_UPDATE, StandardEntitlement.REALM_DELETE }) {
 
             private static final long serialVersionUID = -5861786415855103549L;
 
@@ -159,6 +159,12 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
                 actionPanel.setEnabled(true);
                 return panel;
             }
+
+            @Override
+            public boolean isVisible() {
+                return SyncopeConsoleApplication.get().getSecuritySettings().getAuthorizationStrategy().
+                        isActionAuthorized(this, RENDER);
+            }
         });
 
         final Triple<UserFormLayoutInfo, GroupFormLayoutInfo, Map<String, AnyObjectFormLayoutInfo>> formLayoutInfo
@@ -169,7 +175,7 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
             tabs.add(new ITabComponent(
                     new Model<>(anyTypeTO.getKey()),
                     AnyTypeKind.GROUP.name().equals(anyTypeTO.getKey())
-                    ? null : String.format("%s_SEARCH", anyTypeTO.getKey())) {
+                    ? null : new String[]{String.format("%s_SEARCH", anyTypeTO.getKey())}) {
 
                 private static final long serialVersionUID = 1169585538404171118L;
 
