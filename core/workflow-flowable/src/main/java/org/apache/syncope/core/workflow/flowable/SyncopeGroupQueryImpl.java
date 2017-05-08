@@ -27,6 +27,7 @@ import org.activiti.engine.identity.GroupQuery;
 import org.activiti.engine.impl.persistence.entity.GroupEntity;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
+import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 
 public class SyncopeGroupQueryImpl implements GroupQuery {
@@ -111,15 +112,17 @@ public class SyncopeGroupQueryImpl implements GroupQuery {
             }
         }
         if (result == null) {
-            result = CollectionUtils.collect(groupDAO.findAll(),
-                    new Transformer<org.apache.syncope.core.persistence.api.entity.group.Group, Group>() {
+            result = new ArrayList<>();
+            for (int page = 1; page <= (groupDAO.count() / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
+                CollectionUtils.collect(groupDAO.findAll(page, AnyDAO.DEFAULT_PAGE_SIZE),
+                        new Transformer<org.apache.syncope.core.persistence.api.entity.group.Group, Group>() {
 
-                @Override
-                public Group transform(final org.apache.syncope.core.persistence.api.entity.group.Group user) {
-                    return fromSyncopeGroup(user);
-                }
-
-            }, new ArrayList<Group>());
+                    @Override
+                    public Group transform(final org.apache.syncope.core.persistence.api.entity.group.Group group) {
+                        return fromSyncopeGroup(group);
+                    }
+                }, result);
+            }
         }
     }
 

@@ -31,11 +31,17 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.JPARole;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
+import org.apache.syncope.core.spring.event.AnyCreatedUpdatedEvent;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class JPARoleDAO extends AbstractDAO<Role> implements RoleDAO {
+
+    @Autowired
+    private ApplicationEventPublisher publisher;
 
     private AnySearchDAO searchDAO;
 
@@ -85,6 +91,7 @@ public class JPARoleDAO extends AbstractDAO<Role> implements RoleDAO {
             role.getDynMembership().getMembers().clear();
             for (User user : matchingUsers) {
                 role.getDynMembership().add(user);
+                publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, user));
             }
         }
 
@@ -99,6 +106,7 @@ public class JPARoleDAO extends AbstractDAO<Role> implements RoleDAO {
 
         for (User user : query.getResultList()) {
             user.getRoles().remove(role);
+            publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, user));
         }
 
         entityManager().remove(role);

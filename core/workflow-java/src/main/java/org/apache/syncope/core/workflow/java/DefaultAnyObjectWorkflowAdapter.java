@@ -43,7 +43,7 @@ public class DefaultAnyObjectWorkflowAdapter extends AbstractAnyObjectWorkflowAd
     }
 
     @Override
-    public WorkflowResult<String> create(final AnyObjectTO anyObjectTO) {
+    protected WorkflowResult<String> doCreate(final AnyObjectTO anyObjectTO) {
         AnyObject anyObject = entityFactory.newEntity(AnyObject.class);
         dataBinder.create(anyObject, anyObjectTO);
         anyObject = anyObjectDAO.save(anyObject);

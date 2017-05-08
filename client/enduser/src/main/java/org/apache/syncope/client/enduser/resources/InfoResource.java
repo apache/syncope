@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.enduser.resources;
 
-import static org.apache.syncope.client.enduser.resources.BaseResource.MAPPER;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;

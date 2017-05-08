@@ -65,6 +65,8 @@ public class PlatformInfo extends AbstractBaseBean {
 
     private String passwordGenerator;
 
+    private String anySearchDAO;
+
     private final Set<String> entitlements = new HashSet<>();
 
     private final Set<String> reportletConfs = new HashSet<>();
@@ -164,6 +166,14 @@ public class PlatformInfo extends AbstractBaseBean {
 
     public void setPasswordGenerator(final String passwordGenerator) {
         this.passwordGenerator = passwordGenerator;
+    }
+
+    public String getAnySearchDAO() {
+        return anySearchDAO;
+    }
+
+    public void setAnySearchDAO(final String anySearchDAO) {
+        this.anySearchDAO = anySearchDAO;
     }
 
     @XmlElementWrapper(name = "entitlements")

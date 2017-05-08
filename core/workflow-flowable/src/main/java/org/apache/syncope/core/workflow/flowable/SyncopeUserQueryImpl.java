@@ -27,6 +27,7 @@ import org.activiti.engine.identity.UserQuery;
 import org.activiti.engine.impl.persistence.entity.UserEntity;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
+import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
@@ -156,15 +157,17 @@ public class SyncopeUserQueryImpl implements UserQuery {
         }
         // THIS CAN BE *VERY* DANGEROUS
         if (result == null) {
-            result = CollectionUtils.collect(userDAO.findAll(),
-                    new Transformer<org.apache.syncope.core.persistence.api.entity.user.User, User>() {
+            result = new ArrayList<>();
+            for (int page = 1; page <= (userDAO.count() / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
+                CollectionUtils.collect(userDAO.findAll(page, AnyDAO.DEFAULT_PAGE_SIZE),
+                        new Transformer<org.apache.syncope.core.persistence.api.entity.user.User, User>() {
 
-                @Override
-                public User transform(final org.apache.syncope.core.persistence.api.entity.user.User user) {
-                    return fromSyncopeUser(user);
-                }
-
-            }, new ArrayList<User>());
+                    @Override
+                    public User transform(final org.apache.syncope.core.persistence.api.entity.user.User user) {
+                        return fromSyncopeUser(user);
+                    }
+                }, result);
+            }
         }
     }
 

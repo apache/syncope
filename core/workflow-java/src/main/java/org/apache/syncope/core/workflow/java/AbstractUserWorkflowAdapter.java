@@ -21,6 +21,7 @@ package org.apache.syncope.core.workflow.java;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -50,12 +51,12 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
     @Autowired
     protected EntityFactory entityFactory;
 
-    public static String encrypt(final String clear) {
+    protected String encrypt(final String clear) {
         byte[] encryptedBytes = EncryptorFactory.getInstance().getDefaultEncryptor().encrypt(clear.getBytes());
         return Base64.encode(encryptedBytes);
     }
 
-    public static String decrypt(final String crypted) {
+    protected String decrypt(final String crypted) {
         byte[] decryptedBytes = EncryptorFactory.getInstance().getDefaultEncryptor().decrypt(Base64.decode(crypted));
         return new String(decryptedBytes);
     }
@@ -63,6 +64,31 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
     @Override
     public String getPrefix() {
         return null;
+    }
+
+    @Override
+    public WorkflowResult<Pair<String, Boolean>> create(final UserTO userTO, final boolean disablePwdPolicyCheck,
+            final boolean storePassword) {
+
+        return create(userTO, disablePwdPolicyCheck, null, storePassword);
+    }
+
+    @Override
+    public WorkflowResult<Pair<String, Boolean>> create(final UserTO userTO, final boolean storePassword) {
+        return create(userTO, false, storePassword);
+    }
+
+    protected abstract WorkflowResult<Pair<String, Boolean>> doCreate(
+            UserTO userTO, boolean disablePwdPolicyCheck, Boolean enabled, boolean storePassword);
+
+    @Override
+    public WorkflowResult<Pair<String, Boolean>> create(
+            final UserTO userTO,
+            final boolean disablePwdPolicyCheck,
+            final Boolean enabled,
+            final boolean storePassword) {
+
+        return doCreate(userTO, disablePwdPolicyCheck, enabled, storePassword);
     }
 
     protected abstract WorkflowResult<String> doActivate(User user, String token);
@@ -148,7 +174,7 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
     protected abstract void doDelete(User user);
 
     @Override
-    public void delete(final String key) {
-        doDelete(userDAO.authFind(key));
+    public void delete(final String userKey) {
+        doDelete(userDAO.authFind(userKey));
     }
 }

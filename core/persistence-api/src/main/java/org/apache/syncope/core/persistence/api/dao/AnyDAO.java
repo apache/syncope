@@ -28,6 +28,8 @@ import org.apache.syncope.core.persistence.api.entity.Schema;
 
 public interface AnyDAO<A extends Any<?>> extends DAO<A> {
 
+    int DEFAULT_PAGE_SIZE = 10;
+
     A authFind(String key);
 
     A find(String key);
@@ -53,11 +55,18 @@ public interface AnyDAO<A extends Any<?>> extends DAO<A> {
     List<A> findByResource(ExternalResource resource);
 
     /**
-     * Find any objects without any limitation.
-     *
-     * @return all any objects of type {@link A} available.
+     * @return the total number of any objects of type {@link A}
      */
-    List<A> findAll();
+    int count();
+
+    /**
+     * Find any objects without any limitation, according to given page and items per page.
+     *
+     * @param page search result page
+     * @param itemsPerPage items per search result page
+     * @return any objects of type {@link A} matching the provided conditions
+     */
+    List<A> findAll(int page, int itemsPerPage);
 
     /**
      * Find any objects visible from the given admin realms, according to given page and items per page, sorted as

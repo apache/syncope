@@ -229,7 +229,7 @@ public class PropagationManagerImpl implements PropagationManager {
             origPropByRes.merge(wfResult.getPropByRes());
 
             Set<String> pwdResourceNames = new HashSet<>(userPatch.getPassword().getResources());
-            Collection<String> currentResourceNames = userDAO.findAllResourceNames(userPatch.getKey());
+            Collection<String> currentResourceNames = userDAO.findAllResourceKeys(userPatch.getKey());
             pwdResourceNames.retainAll(currentResourceNames);
             PropagationByResource pwdPropByRes = new PropagationByResource();
             pwdPropByRes.addAll(ResourceOperation.UPDATE, pwdResourceNames);

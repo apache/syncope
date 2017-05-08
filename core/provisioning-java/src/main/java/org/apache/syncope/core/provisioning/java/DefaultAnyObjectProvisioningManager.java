@@ -176,7 +176,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
                 AnyTypeKind.ANY_OBJECT,
                 key,
                 propByRes,
-                CollectionUtils.removeAll(anyObjectDAO.findAllResourceNames(key), resources));
+                CollectionUtils.removeAll(anyObjectDAO.findAllResourceKeys(key), resources));
         PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
 
         return propagationReporter.getStatuses();

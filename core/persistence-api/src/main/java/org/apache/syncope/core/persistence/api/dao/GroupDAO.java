@@ -30,8 +30,6 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 
 public interface GroupDAO extends AnyDAO<Group> {
 
-    int count();
-
     Map<String, Integer> countByRealm();
 
     Group findByName(String name);

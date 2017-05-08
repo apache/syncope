@@ -30,8 +30,6 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 
 public interface UserDAO extends AnyDAO<User> {
 
-    int count();
-
     Map<String, Integer> countByRealm();
 
     Map<String, Integer> countByStatus();
@@ -58,7 +56,7 @@ public interface UserDAO extends AnyDAO<User> {
 
     Collection<ExternalResource> findAllResources(User user);
 
-    Collection<String> findAllResourceNames(String key);
+    Collection<String> findAllResourceKeys(String key);
 
     Pair<Boolean, Boolean> enforcePolicies(User user);
 }

@@ -36,13 +36,13 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.StatusPatchType;
+import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
@@ -192,7 +192,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
             final String key, final Set<String> excludedResources, final boolean nullPriorityAsync) {
 
         PropagationByResource propByRes = new PropagationByResource();
-        propByRes.set(ResourceOperation.DELETE, userDAO.findAllResourceNames(key));
+        propByRes.set(ResourceOperation.DELETE, userDAO.findAllResourceKeys(key));
 
         // Note here that we can only notify about "delete", not any other
         // task defined in workflow process definition: this because this
@@ -344,7 +344,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
                 AnyTypeKind.USER,
                 key,
                 propByRes,
-                CollectionUtils.removeAll(userDAO.findAllResourceNames(key), resources));
+                CollectionUtils.removeAll(userDAO.findAllResourceKeys(key), resources));
         PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
 
         return propagationReporter.getStatuses();

@@ -221,20 +221,11 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     @Override
-    public WorkflowResult<Pair<String, Boolean>> create(final UserTO userTO, final boolean disablePwdPolicyCheck,
+    protected WorkflowResult<Pair<String, Boolean>> doCreate(
+            final UserTO userTO,
+            final boolean disablePwdPolicyCheck,
+            final Boolean enabled,
             final boolean storePassword) {
-
-        return create(userTO, disablePwdPolicyCheck, null, storePassword);
-    }
-
-    @Override
-    public WorkflowResult<Pair<String, Boolean>> create(final UserTO userTO, final boolean storePassword) {
-        return create(userTO, false, storePassword);
-    }
-
-    @Override
-    public WorkflowResult<Pair<String, Boolean>> create(final UserTO userTO, final boolean disablePwdPolicyCheck,
-            final Boolean enabled, final boolean storePassword) {
 
         Map<String, Object> variables = new HashMap<>();
         variables.put(WF_EXECUTOR, AuthContextUtils.getUsername());

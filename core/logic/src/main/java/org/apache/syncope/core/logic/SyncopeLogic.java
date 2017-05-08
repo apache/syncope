@@ -38,6 +38,7 @@ import org.apache.syncope.core.spring.security.PasswordGenerator;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.api.ImplementationLookup.Type;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
+import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
@@ -139,6 +140,9 @@ public class SyncopeLogic extends AbstractLogic<AbstractBaseBean> {
     private PasswordGenerator passwordGenerator;
 
     @Autowired
+    private AnySearchDAO anySearchDAO;
+
+    @Autowired
     private ImplementationLookup implLookup;
 
     public boolean isSelfRegAllowed() {
@@ -176,8 +180,9 @@ public class SyncopeLogic extends AbstractLogic<AbstractBaseBean> {
                 PLATFORM_INFO.setAnyObjectProvisioningManager(AopUtils.getTargetClass(aProvisioningManager).getName());
                 PLATFORM_INFO.setUserProvisioningManager(AopUtils.getTargetClass(uProvisioningManager).getName());
                 PLATFORM_INFO.setGroupProvisioningManager(AopUtils.getTargetClass(gProvisioningManager).getName());
-                PLATFORM_INFO.setVirAttrCache(virAttrCache.getClass().getName());
-                PLATFORM_INFO.setPasswordGenerator(passwordGenerator.getClass().getName());
+                PLATFORM_INFO.setVirAttrCache(AopUtils.getTargetClass(virAttrCache).getName());
+                PLATFORM_INFO.setPasswordGenerator(AopUtils.getTargetClass(passwordGenerator).getName());
+                PLATFORM_INFO.setAnySearchDAO(AopUtils.getTargetClass(anySearchDAO).getName());
 
                 PLATFORM_INFO.getReportletConfs().addAll(implLookup.getClassNames(Type.REPORTLET_CONF));
                 PLATFORM_INFO.getAccountRules().addAll(implLookup.getClassNames(Type.ACCOUNT_RULE_CONF));

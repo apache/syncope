@@ -40,6 +40,7 @@ import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
+import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
@@ -59,7 +60,11 @@ import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAMembership;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPATypeExtension;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUMembership;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
+import org.apache.syncope.core.spring.event.AnyCreatedUpdatedEvent;
+import org.apache.syncope.core.spring.event.AnyDeletedEvent;
+import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -69,9 +74,11 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     @Autowired
     private PlainAttrDAO plainAttrDAO;
 
+    private UserDAO userDAO;
+
     private AnyObjectDAO anyObjectDAO;
 
-    private UserDAO userDAO;
+    private AnySearchDAO jpaAnySearchDAO;
 
     private UserDAO userDAO() {
         synchronized (this) {
@@ -89,6 +96,20 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
             }
         }
         return anyObjectDAO;
+    }
+
+    private AnySearchDAO jpaAnySearchDAO() {
+        synchronized (this) {
+            if (jpaAnySearchDAO == null) {
+                if (AopUtils.getTargetClass(searchDAO()).equals(JPAAnySearchDAO.class)) {
+                    jpaAnySearchDAO = searchDAO();
+                } else {
+                    jpaAnySearchDAO = (AnySearchDAO) ApplicationContextProvider.getBeanFactory().
+                            createBean(JPAAnySearchDAO.class, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
+                }
+            }
+        }
+        return jpaAnySearchDAO;
     }
 
     @Override
@@ -204,8 +225,8 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     @Override
     public List<AMembership> findAMemberships(final Group group) {
         TypedQuery<AMembership> query = entityManager().createQuery(
-                "SELECT e FROM " + JPAAMembership.class.getSimpleName()
-                + " e WHERE e.rightEnd=:group", AMembership.class);
+                "SELECT e FROM " + JPAAMembership.class.getSimpleName() + " e WHERE e.rightEnd=:group",
+                AMembership.class);
         query.setParameter("group", group);
 
         return query.getResultList();
@@ -214,9 +235,19 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     @Override
     public List<UMembership> findUMemberships(final Group group) {
         TypedQuery<UMembership> query = entityManager().createQuery(
-                "SELECT e FROM " + JPAUMembership.class.getSimpleName()
-                + " e WHERE e.rightEnd=:group", UMembership.class);
+                "SELECT e FROM " + JPAUMembership.class.getSimpleName() + " e WHERE e.rightEnd=:group",
+                UMembership.class);
         query.setParameter("group", group);
+
+        return query.getResultList();
+    }
+
+    @Override
+    public List<Group> findAll(final int page, final int itemsPerPage) {
+        TypedQuery<Group> query = entityManager().createQuery(
+                "SELECT e FROM  " + JPAGroup.class.getSimpleName() + " e", Group.class);
+        query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
+        query.setMaxResults(itemsPerPage);
 
         return query.getResultList();
     }
@@ -232,6 +263,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     @Override
     public Group save(final Group group) {
         Group merged = super.save(group);
+        publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, merged));
 
         // refresh dynaminc memberships
         if (merged.getUDynMembership() != null) {
@@ -242,6 +274,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
             merged.getUDynMembership().getMembers().clear();
             for (User user : matching) {
                 merged.getUDynMembership().add(user);
+                publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, user));
             }
         }
         for (ADynGroupMembership memb : merged.getADynMemberships()) {
@@ -252,6 +285,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
             memb.getMembers().clear();
             for (AnyObject anyObject : matching) {
                 memb.add(anyObject);
+                publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, anyObject));
             }
         }
 
@@ -272,6 +306,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
             }
 
             anyObjectDAO().save(leftEnd);
+            publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, leftEnd));
         }
         for (UMembership membership : findUMemberships(group)) {
             User leftEnd = membership.getLeftEnd();
@@ -285,9 +320,11 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
             }
 
             userDAO().save(leftEnd);
+            publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, leftEnd));
         }
 
         entityManager().remove(group);
+        publisher.publishEvent(new AnyDeletedEvent(this, AnyTypeKind.GROUP, group.getKey()));
     }
 
     @Override
@@ -300,35 +337,74 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         return query.getResultList();
     }
 
+    private List<Group> findWithADynMemberships(final int page, final int itemsPerPage) {
+        TypedQuery<Group> query = entityManager().createQuery(
+                "SELECT e FROM  " + JPAGroup.class.getSimpleName() + " e WHERE e.aDynMemberships IS NOT EMPTY",
+                Group.class);
+        query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
+        query.setMaxResults(itemsPerPage);
+
+        return query.getResultList();
+    }
+
     @Transactional
     @Override
     public void refreshDynMemberships(final AnyObject anyObject) {
-        for (Group group : findAll()) {
-            for (ADynGroupMembership memb : group.getADynMemberships()) {
-                if (searchDAO().matches(
-                        anyObject,
-                        buildDynMembershipCond(memb.getFIQLCond(), group.getRealm()))) {
+        Query countQuery = entityManager().createQuery(
+                "SELECT COUNT(e) FROM  " + JPAGroup.class.getSimpleName() + " e WHERE e.aDynMemberships IS NOT EMPTY");
+        int count = ((Number) countQuery.getSingleResult()).intValue();
 
-                    memb.add(anyObject);
-                } else {
-                    memb.getMembers().remove(anyObject);
+        for (int page = 1; page <= (count / DEFAULT_PAGE_SIZE) + 1; page++) {
+            for (Group group : findWithADynMemberships(page, DEFAULT_PAGE_SIZE)) {
+                if (!group.getADynMemberships().isEmpty()) {
+                    for (ADynGroupMembership memb : group.getADynMemberships()) {
+                        if (jpaAnySearchDAO().matches(
+                                anyObject,
+                                buildDynMembershipCond(memb.getFIQLCond(), group.getRealm()))) {
+
+                            memb.add(anyObject);
+                            publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, group));
+                        } else {
+                            memb.getMembers().remove(anyObject);
+                            publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, group));
+                        }
+                    }
                 }
             }
         }
+
+    }
+
+    private List<Group> findWithUDynMemberships(final int page, final int itemsPerPage) {
+        TypedQuery<Group> query = entityManager().createQuery(
+                "SELECT e FROM  " + JPAGroup.class.getSimpleName() + " e WHERE e.uDynMembership IS NOT NULL",
+                Group.class);
+        query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
+        query.setMaxResults(itemsPerPage);
+
+        return query.getResultList();
     }
 
     @Transactional
     @Override
     public void refreshDynMemberships(final User user) {
-        for (Group group : findAll()) {
-            if (group.getUDynMembership() != null) {
-                if (searchDAO().matches(
-                        user,
-                        buildDynMembershipCond(group.getUDynMembership().getFIQLCond(), group.getRealm()))) {
+        Query countQuery = entityManager().createQuery(
+                "SELECT COUNT(e) FROM  " + JPAGroup.class.getSimpleName() + " e WHERE e.uDynMembership IS NOT NULL");
+        int count = ((Number) countQuery.getSingleResult()).intValue();
 
-                    group.getUDynMembership().add(user);
-                } else {
-                    group.getUDynMembership().getMembers().remove(user);
+        for (int page = 1; page <= (count / DEFAULT_PAGE_SIZE) + 1; page++) {
+            for (Group group : findWithUDynMemberships(page, DEFAULT_PAGE_SIZE)) {
+                if (group.getUDynMembership() != null) {
+                    if (jpaAnySearchDAO().matches(
+                            user,
+                            buildDynMembershipCond(group.getUDynMembership().getFIQLCond(), group.getRealm()))) {
+
+                        group.getUDynMembership().add(user);
+                        publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, group));
+                    } else {
+                        group.getUDynMembership().getMembers().remove(user);
+                        publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, group));
+                    }
                 }
             }
         }

@@ -19,6 +19,7 @@
 package org.apache.syncope.core.workflow.java;
 
 import org.apache.syncope.common.lib.patch.AnyObjectPatch;
+import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
@@ -46,6 +47,13 @@ public abstract class AbstractAnyObjectWorkflowAdapter
     @Override
     public String getPrefix() {
         return null;
+    }
+
+    protected abstract WorkflowResult<String> doCreate(AnyObjectTO anyObjectTO);
+
+    @Override
+    public WorkflowResult<String> create(final AnyObjectTO anyObjectTO) {
+        return doCreate(anyObjectTO);
     }
 
     protected abstract WorkflowResult<String> doUpdate(AnyObject anyObject, AnyObjectPatch anyObjectPatch);

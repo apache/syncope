@@ -76,6 +76,8 @@ import org.apache.syncope.core.persistence.jpa.entity.user.JPADynRoleMembership;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUDynGroupMembership;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
+import org.apache.syncope.core.spring.event.AnyCreatedUpdatedEvent;
+import org.apache.syncope.core.spring.event.AnyDeletedEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.stereotype.Repository;
@@ -270,6 +272,16 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
         return policies;
     }
 
+    @Override
+    public List<User> findAll(final int page, final int itemsPerPage) {
+        TypedQuery<User> query = entityManager().createQuery(
+                "SELECT e FROM  " + JPAUser.class.getSimpleName() + " e", User.class);
+        query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
+        query.setMaxResults(itemsPerPage);
+
+        return query.getResultList();
+    }
+
     private List<AccountPolicy> getAccountPolicies(final User user) {
         List<AccountPolicy> policies = new ArrayList<>();
 
@@ -430,6 +442,8 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
             throw e;
         }
 
+        publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, merged));
+
         roleDAO.refreshDynMemberships(merged);
         groupDAO().refreshDynMemberships(merged);
 
@@ -451,6 +465,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
         }
 
         entityManager().remove(user);
+        publisher.publishEvent(new AnyDeletedEvent(this, AnyTypeKind.USER, user.getKey()));
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
@@ -561,7 +576,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
-    public Collection<String> findAllResourceNames(final String key) {
+    public Collection<String> findAllResourceKeys(final String key) {
         return CollectionUtils.collect(findAllResources(authFind(key)), EntityUtils.keyTransformer());
     }
 

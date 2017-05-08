@@ -82,9 +82,6 @@ public class UserTest extends AbstractTest {
     public void delete() {
         List<UMembership> memberships = groupDAO.findUMemberships(groupDAO.findByName("managingDirector"));
         assertFalse(memberships.isEmpty());
-        List<URelationship> relationships = anyObjectDAO.findURelationships(
-                anyObjectDAO.find("fc6dbc3a-6c07-4965-8781-921e7401a4a5"));
-        assertFalse(relationships.isEmpty());
 
         userDAO.delete("c9b2dec2-00a7-4855-97c0-d854842b4b24");
 
@@ -97,9 +94,6 @@ public class UserTest extends AbstractTest {
 
         memberships = groupDAO.findUMemberships(groupDAO.findByName("managingDirector"));
         assertTrue(memberships.isEmpty());
-        relationships = anyObjectDAO.findURelationships(
-                anyObjectDAO.find("fc6dbc3a-6c07-4965-8781-921e7401a4a5"));
-        assertTrue(relationships.isEmpty());
     }
 
     @Test

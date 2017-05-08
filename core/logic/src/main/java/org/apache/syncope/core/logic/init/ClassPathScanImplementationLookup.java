@@ -28,34 +28,35 @@ import java.util.Set;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
 import org.apache.syncope.common.lib.report.ReportletConf;
-import org.apache.syncope.core.persistence.api.dao.Reportlet;
-import org.apache.syncope.core.persistence.api.dao.ReportletConfClass;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
+import org.apache.syncope.core.persistence.api.ImplementationLookup.Type;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.Validator;
 import org.apache.syncope.core.persistence.api.dao.AccountRule;
 import org.apache.syncope.core.persistence.api.dao.AccountRuleConfClass;
 import org.apache.syncope.core.persistence.api.dao.PasswordRule;
 import org.apache.syncope.core.persistence.api.dao.PasswordRuleConfClass;
+import org.apache.syncope.core.persistence.api.dao.Reportlet;
+import org.apache.syncope.core.persistence.api.dao.ReportletConfClass;
 import org.apache.syncope.core.provisioning.api.LogicActions;
 import org.apache.syncope.core.provisioning.api.data.MappingItemTransformer;
 import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate;
 import org.apache.syncope.core.provisioning.api.notification.NotificationRecipientsProvider;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
+import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
+import org.apache.syncope.core.provisioning.api.pushpull.PullCorrelationRule;
 import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
-import org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate;
+import org.apache.syncope.core.provisioning.api.pushpull.ReconciliationFilterBuilder;
+import org.apache.syncope.core.provisioning.java.data.JEXLMappingItemTransformerImpl;
+import org.apache.syncope.core.provisioning.java.job.GroupMemberProvisionTaskJobDelegate;
+import org.apache.syncope.core.provisioning.java.pushpull.PlainAttrsPullCorrelationRule;
 import org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate;
+import org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.util.ClassUtils;
-import org.apache.syncope.core.provisioning.api.pushpull.ReconciliationFilterBuilder;
-import org.apache.syncope.core.provisioning.api.pushpull.PullCorrelationRule;
-import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
-import org.apache.syncope.core.provisioning.java.data.JEXLMappingItemTransformerImpl;
-import org.apache.syncope.core.provisioning.java.job.GroupMemberProvisionTaskJobDelegate;
-import org.apache.syncope.core.provisioning.java.pushpull.PlainAttrsPullCorrelationRule;
 
 /**
  * Cache class names for all implementations of Syncope interfaces found in classpath, for later usage.
@@ -119,9 +120,9 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
             try {
                 Class<?> clazz = ClassUtils.resolveClassName(
                         bd.getBeanClassName(), ClassUtils.getDefaultClassLoader());
-                boolean isAbsractClazz = Modifier.isAbstract(clazz.getModifiers());
+                boolean isAbstractClazz = Modifier.isAbstract(clazz.getModifiers());
 
-                if (Reportlet.class.isAssignableFrom(clazz) && !isAbsractClazz) {
+                if (Reportlet.class.isAssignableFrom(clazz) && !isAbstractClazz) {
                     ReportletConfClass annotation = clazz.getAnnotation(ReportletConfClass.class);
                     if (annotation == null) {
                         LOG.warn("Found Reportlet {} without declared configuration", clazz.getName());
@@ -131,7 +132,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                     }
                 }
 
-                if (AccountRule.class.isAssignableFrom(clazz) && !isAbsractClazz) {
+                if (AccountRule.class.isAssignableFrom(clazz) && !isAbstractClazz) {
                     AccountRuleConfClass annotation = clazz.getAnnotation(AccountRuleConfClass.class);
                     if (annotation == null) {
                         LOG.warn("Found account policy rule {} without declared configuration", clazz.getName());
@@ -141,7 +142,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                     }
                 }
 
-                if (PasswordRule.class.isAssignableFrom(clazz) && !isAbsractClazz) {
+                if (PasswordRule.class.isAssignableFrom(clazz) && !isAbstractClazz) {
                     PasswordRuleConfClass annotation = clazz.getAnnotation(PasswordRuleConfClass.class);
                     if (annotation == null) {
                         LOG.warn("Found password policy rule {} without declared configuration", clazz.getName());
@@ -151,13 +152,13 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                     }
                 }
 
-                if (MappingItemTransformer.class.isAssignableFrom(clazz) && !isAbsractClazz
+                if (MappingItemTransformer.class.isAssignableFrom(clazz) && !isAbstractClazz
                         && !clazz.equals(JEXLMappingItemTransformerImpl.class)) {
 
                     classNames.get(Type.MAPPING_ITEM_TRANSFORMER).add(clazz.getName());
                 }
 
-                if (SchedTaskJobDelegate.class.isAssignableFrom(clazz) && !isAbsractClazz
+                if (SchedTaskJobDelegate.class.isAssignableFrom(clazz) && !isAbstractClazz
                         && !PullJobDelegate.class.isAssignableFrom(clazz)
                         && !PushJobDelegate.class.isAssignableFrom(clazz)
                         && !GroupMemberProvisionTaskJobDelegate.class.isAssignableFrom(clazz)) {
@@ -165,36 +166,36 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                     classNames.get(Type.TASKJOBDELEGATE).add(bd.getBeanClassName());
                 }
 
-                if (ReconciliationFilterBuilder.class.isAssignableFrom(clazz) && !isAbsractClazz) {
+                if (ReconciliationFilterBuilder.class.isAssignableFrom(clazz) && !isAbstractClazz) {
                     classNames.get(Type.RECONCILIATION_FILTER_BUILDER).add(bd.getBeanClassName());
                 }
 
-                if (LogicActions.class.isAssignableFrom(clazz) && !isAbsractClazz) {
+                if (LogicActions.class.isAssignableFrom(clazz) && !isAbstractClazz) {
                     classNames.get(Type.LOGIC_ACTIONS).add(bd.getBeanClassName());
                 }
 
-                if (PropagationActions.class.isAssignableFrom(clazz) && !isAbsractClazz) {
+                if (PropagationActions.class.isAssignableFrom(clazz) && !isAbstractClazz) {
                     classNames.get(Type.PROPAGATION_ACTIONS).add(bd.getBeanClassName());
                 }
 
-                if (PullActions.class.isAssignableFrom(clazz) && !isAbsractClazz) {
+                if (PullActions.class.isAssignableFrom(clazz) && !isAbstractClazz) {
                     classNames.get(Type.PULL_ACTIONS).add(bd.getBeanClassName());
                 }
 
-                if (PushActions.class.isAssignableFrom(clazz) && !isAbsractClazz) {
+                if (PushActions.class.isAssignableFrom(clazz) && !isAbstractClazz) {
                     classNames.get(Type.PUSH_ACTIONS).add(bd.getBeanClassName());
                 }
 
-                if (PullCorrelationRule.class.isAssignableFrom(clazz) && !isAbsractClazz
+                if (PullCorrelationRule.class.isAssignableFrom(clazz) && !isAbstractClazz
                         && !PlainAttrsPullCorrelationRule.class.isAssignableFrom(clazz)) {
                     classNames.get(Type.PULL_CORRELATION_RULE).add(bd.getBeanClassName());
                 }
 
-                if (Validator.class.isAssignableFrom(clazz) && !isAbsractClazz) {
+                if (Validator.class.isAssignableFrom(clazz) && !isAbstractClazz) {
                     classNames.get(Type.VALIDATOR).add(bd.getBeanClassName());
                 }
 
-                if (NotificationRecipientsProvider.class.isAssignableFrom(clazz) && !isAbsractClazz) {
+                if (NotificationRecipientsProvider.class.isAssignableFrom(clazz) && !isAbstractClazz) {
                     classNames.get(Type.NOTIFICATION_RECIPIENTS_PROVIDER).add(bd.getBeanClassName());
                 }
             } catch (Throwable t) {
