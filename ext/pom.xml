@@ -39,6 +39,18 @@ under the License.
 
   <profiles>
     <profile>
+      <id>jdk8</id>
+      
+      <activation>
+        <jdk>1.8</jdk>
+      </activation>
+      
+      <modules>
+        <module>elasticsearch</module>        
+      </modules>
+    </profile>
+
+    <profile>
       <id>site</id>
 
       <build>
@@ -80,7 +92,6 @@ under the License.
     <module>camel</module>
     <module>swagger-ui</module>
     <module>saml2sp</module>
-    <module>elasticsearch</module>
   </modules>
 
 </project>
