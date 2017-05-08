@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import javax.sql.DataSource;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultAccountRuleConf;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
@@ -32,14 +33,18 @@ import org.apache.syncope.common.lib.report.ReconciliationReportletConf;
 import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.common.lib.report.StaticReportletConf;
 import org.apache.syncope.common.lib.report.UserReportletConf;
+import org.apache.syncope.common.lib.to.SchedTaskTO;
+import org.apache.syncope.core.logic.TaskLogic;
 import org.apache.syncope.core.logic.report.AuditReportlet;
 import org.apache.syncope.core.logic.report.GroupReportlet;
 import org.apache.syncope.core.logic.report.ReconciliationReportlet;
 import org.apache.syncope.core.logic.report.StaticReportlet;
 import org.apache.syncope.core.logic.report.UserReportlet;
 import org.apache.syncope.core.migration.MigrationPullActions;
+import org.apache.syncope.core.persistence.api.DomainsHolder;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.api.dao.AccountRule;
+import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.PasswordRule;
 import org.apache.syncope.core.persistence.api.dao.Reportlet;
 import org.apache.syncope.core.persistence.jpa.attrvalue.validation.AlwaysTrueValidator;
@@ -55,6 +60,9 @@ import org.apache.syncope.core.provisioning.java.propagation.LDAPPasswordPropaga
 import org.apache.syncope.core.provisioning.java.pushpull.DBPasswordPullActions;
 import org.apache.syncope.core.provisioning.java.pushpull.LDAPMembershipPullActions;
 import org.apache.syncope.core.provisioning.java.pushpull.LDAPPasswordPullActions;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.springframework.aop.support.AopUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Static implementation providing information about the integration test environment.
@@ -171,14 +179,42 @@ public class ITImplementationLookup implements ImplementationLookup {
         }
     };
 
+    @Autowired
+    private AnySearchDAO anySearchDAO;
+
+    @Autowired
+    private DomainsHolder domainsHolder;
+
+    @Autowired
+    private TaskLogic taskLogic;
+
     @Override
     public Integer getPriority() {
-        return 400;
+        return Integer.MAX_VALUE;
     }
 
     @Override
     public void load() {
-        // nothing to do
+        // in case the Elasticsearch extension is enabled, reinit a clean index for all available domains
+        if (AopUtils.getTargetClass(anySearchDAO).getName().contains("Elasticsearch")) {
+            for (Map.Entry<String, DataSource> entry : domainsHolder.getDomains().entrySet()) {
+                AuthContextUtils.execWithAuthContext(entry.getKey(), new AuthContextUtils.Executable<Void>() {
+
+                    @Override
+                    public Void exec() {
+                        SchedTaskTO task = new SchedTaskTO();
+                        task.setJobDelegateClassName(
+                                "org.apache.syncope.core.provisioning.java.job.ElasticsearchReindex");
+                        task.setName("Elasticsearch Reindex");
+                        task = taskLogic.createSchedTask(task);
+
+                        taskLogic.execute(task.getKey(), null, false);
+
+                        return null;
+                    }
+                });
+            }
+        }
     }
 
     @Override

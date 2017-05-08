@@ -38,7 +38,7 @@ import org.apache.syncope.core.workflow.api.WorkflowException;
 public class DefaultGroupWorkflowAdapter extends AbstractGroupWorkflowAdapter {
 
     @Override
-    public WorkflowResult<String> create(final GroupTO groupTO) {
+    protected WorkflowResult<String> doCreate(final GroupTO groupTO) {
         Group group = entityFactory.newEntity(Group.class);
         dataBinder.create(group, groupTO);
         group = groupDAO.save(group);

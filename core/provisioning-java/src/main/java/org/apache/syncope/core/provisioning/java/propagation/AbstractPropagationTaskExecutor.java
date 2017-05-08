@@ -312,7 +312,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                 switch (task.getAnyTypeKind()) {
                     case USER:
                         try {
-                            resources = userDAO.findAllResourceNames(task.getEntityKey());
+                            resources = userDAO.findAllResourceKeys(task.getEntityKey());
                         } catch (Exception e) {
                             LOG.error("Could not read user {}", task.getEntityKey(), e);
                         }
@@ -329,7 +329,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                     case ANY_OBJECT:
                     default:
                         try {
-                            resources = anyObjectDAO.findAllResourceNames(task.getEntityKey());
+                            resources = anyObjectDAO.findAllResourceKeys(task.getEntityKey());
                         } catch (Exception e) {
                             LOG.error("Could not read any object {}", task.getEntityKey(), e);
                         }

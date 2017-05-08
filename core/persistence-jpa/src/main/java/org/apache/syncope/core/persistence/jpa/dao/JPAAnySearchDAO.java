@@ -18,36 +18,23 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import javax.persistence.Entity;
 import javax.persistence.Query;
 import javax.persistence.TemporalType;
-import javax.validation.ValidationException;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.ClassUtils;
-import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
-import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.dao.RealmDAO;
-import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
-import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
@@ -62,41 +49,17 @@ import org.apache.syncope.core.persistence.api.dao.search.RelationshipCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipTypeCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
-import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
-import org.apache.syncope.core.persistence.api.entity.group.Group;
-import org.apache.syncope.core.persistence.jpa.entity.JPAPlainSchema;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ReflectionUtils;
 
-@Repository
-public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO {
+/**
+ * Search engine implementation for users, groups and any objects, based on self-updating SQL views.
+ */
+public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
     private static final String EMPTY_QUERY = "SELECT any_id FROM user_search_attr WHERE 1=2";
-
-    @Autowired
-    private RealmDAO realmDAO;
-
-    @Autowired
-    private AnyObjectDAO anyObjectDAO;
-
-    @Autowired
-    private UserDAO userDAO;
-
-    @Autowired
-    private GroupDAO groupDAO;
-
-    @Autowired
-    private PlainSchemaDAO schemaDAO;
-
-    @Autowired
-    private AnyUtilsFactory anyUtilsFactory;
 
     private String getAdminRealmsFilter(
             final Set<String> adminRealms,
@@ -135,11 +98,11 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
     }
 
     @Override
-    public int count(final Set<String> adminRealms, final SearchCond cond, final AnyTypeKind typeKind) {
+    protected int doCount(final Set<String> adminRealms, final SearchCond cond, final AnyTypeKind kind) {
         List<Object> parameters = Collections.synchronizedList(new ArrayList<>());
 
         // 1. get the query string from the search condition
-        SearchSupport svs = new SearchSupport(typeKind);
+        SearchSupport svs = new SearchSupport(kind);
         StringBuilder queryString = getQuery(cond, parameters, svs);
 
         // 2. take into account administrative realms
@@ -156,78 +119,56 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
         return ((Number) countQuery.getSingleResult()).intValue();
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
-    public <T extends Any<?>> List<T> searchAssignable(final String realmFullPath, final AnyTypeKind kind) {
-        AssignableCond assignableCond = new AssignableCond();
-        assignableCond.setRealmFullPath(realmFullPath);
-        return search(SearchCond.getLeafCond(assignableCond), kind);
-    }
+    @SuppressWarnings("unchecked")
+    protected <T extends Any<?>> List<T> doSearch(
+            final Set<String> adminRealms,
+            final SearchCond cond,
+            final int page,
+            final int itemsPerPage,
+            final List<OrderByClause> orderBy,
+            final AnyTypeKind kind) {
 
-    @Override
-    public <T extends Any<?>> List<T> search(final SearchCond cond, final AnyTypeKind typeKind) {
-        return search(cond, Collections.<OrderByClause>emptyList(), typeKind);
-    }
+        try {
+            List<Object> parameters = Collections.synchronizedList(new ArrayList<>());
 
-    @Override
-    public <T extends Any<?>> List<T> search(
-            final SearchCond cond, final List<OrderByClause> orderBy, final AnyTypeKind typeKind) {
+            // 1. get the query string from the search condition
+            SearchSupport svs = new SearchSupport(kind);
+            StringBuilder queryString = getQuery(cond, parameters, svs);
 
-        return search(SyncopeConstants.FULL_ADMIN_REALMS, cond, -1, -1, orderBy, typeKind);
-    }
-
-    @Override
-    public <T extends Any<?>> List<T> search(
-            final Set<String> adminRealms, final SearchCond cond, final int page, final int itemsPerPage,
-            final List<OrderByClause> orderBy, final AnyTypeKind typeKind) {
-
-        List<T> result = Collections.<T>emptyList();
-
-        if (adminRealms != null && !adminRealms.isEmpty()) {
-            LOG.debug("Search condition:\n{}", cond);
-
-            if (cond != null && cond.isValid()) {
-                try {
-                    result = doSearch(adminRealms, cond, page, itemsPerPage, orderBy, typeKind);
-                } catch (Exception e) {
-                    LOG.error("While searching for {}", typeKind, e);
-                }
+            // 2. take into account realms and ordering
+            OrderBySupport obs = parseOrderBy(kind, svs, orderBy);
+            if (queryString.charAt(0) == '(') {
+                queryString.insert(0, buildSelect(obs));
+                queryString.append(buildWhere(svs, obs));
             } else {
-                LOG.error("Invalid search condition:\n{}", cond);
+                queryString.insert(0, buildSelect(obs).append('('));
+                queryString.append(')').append(buildWhere(svs, obs));
             }
-        }
-
-        return result;
-    }
-
-    @Override
-    public <T extends Any<?>> boolean matches(final T any, final SearchCond cond) {
-        List<Object> parameters = Collections.synchronizedList(new ArrayList<>());
-
-        // 1. get the query string from the search condition
-        SearchSupport svs = new SearchSupport(any.getType().getKind());
-        StringBuilder queryString = getQuery(cond, parameters, svs);
-
-        boolean matches;
-        if (queryString.length() == 0) {
-            // Could be empty: got into a group search with a single membership condition ...
-            matches = false;
-        } else {
-            // 2. take into account the passed user
-            queryString.insert(0, "SELECT u.any_id FROM (");
-            queryString.append(") u WHERE any_id=?").append(setParameter(parameters, any.getKey()));
+            queryString.
+                    append(getAdminRealmsFilter(adminRealms, svs, parameters)).
+                    append(buildOrderBy(obs));
 
             // 3. prepare the search query
             Query query = entityManager().createNativeQuery(queryString.toString());
 
-            // 4. populate the search query with parameter values
+            // 4. page starts from 1, while setFirtResult() starts from 0
+            query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
+
+            if (itemsPerPage >= 0) {
+                query.setMaxResults(itemsPerPage);
+            }
+
+            // 5. populate the search query with parameter values
             fillWithParameters(query, parameters);
 
-            // 5. executes query
-            matches = !query.getResultList().isEmpty();
+            // 6. Prepare the result (avoiding duplicates)
+            return buildResult(query.getResultList(), kind);
+        } catch (Exception e) {
+            LOG.error("While searching for {}", kind, e);
         }
 
-        return matches;
+        return Collections.emptyList();
     }
 
     private int setParameter(final List<Object> parameters, final Object parameter) {
@@ -370,67 +311,6 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
         return obs;
     }
 
-    @SuppressWarnings("unchecked")
-    private <T extends Any<?>> List<T> doSearch(final Set<String> adminRealms,
-            final SearchCond cond, final int page, final int itemsPerPage, final List<OrderByClause> orderBy,
-            final AnyTypeKind typeKind) {
-
-        List<Object> parameters = Collections.synchronizedList(new ArrayList<>());
-
-        // 1. get the query string from the search condition
-        SearchSupport svs = new SearchSupport(typeKind);
-        StringBuilder queryString = getQuery(cond, parameters, svs);
-
-        // 2. take into account administrative groups and ordering
-        OrderBySupport obs = parseOrderBy(typeKind, svs, orderBy);
-        if (queryString.charAt(0) == '(') {
-            queryString.insert(0, buildSelect(obs));
-            queryString.append(buildWhere(svs, obs));
-        } else {
-            queryString.insert(0, buildSelect(obs).append('('));
-            queryString.append(')').append(buildWhere(svs, obs));
-        }
-        queryString.
-                append(getAdminRealmsFilter(adminRealms, svs, parameters)).
-                append(buildOrderBy(obs));
-
-        // 3. prepare the search query
-        Query query = entityManager().createNativeQuery(queryString.toString());
-
-        // 4. page starts from 1, while setFirtResult() starts from 0
-        query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
-
-        if (itemsPerPage >= 0) {
-            query.setMaxResults(itemsPerPage);
-        }
-
-        // 5. populate the search query with parameter values
-        fillWithParameters(query, parameters);
-
-        // 6. Prepare the result (avoiding duplicates)
-        List<T> result = new ArrayList<>();
-
-        for (Object anyKey : query.getResultList()) {
-            String actualKey = anyKey instanceof Object[]
-                    ? (String) ((Object[]) anyKey)[0]
-                    : ((String) anyKey);
-
-            T any = typeKind == AnyTypeKind.USER
-                    ? (T) userDAO.find(actualKey)
-                    : typeKind == AnyTypeKind.GROUP
-                            ? (T) groupDAO.find(actualKey)
-                            : (T) anyObjectDAO.find(actualKey);
-            if (any == null) {
-                LOG.error("Could not find {} with id {}, even though returned by the native query",
-                        typeKind, actualKey);
-            } else if (!result.contains(any)) {
-                result.add(any);
-            }
-        }
-
-        return result;
-    }
-
     private StringBuilder getQuery(final SearchCond cond, final List<Object> parameters, final SearchSupport svs) {
         StringBuilder query = new StringBuilder();
 
@@ -548,13 +428,9 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
             final RelationshipCond cond, final boolean not, final List<Object> parameters, final SearchSupport svs) {
 
         String rightAnyObjectKey;
-        if (SyncopeConstants.UUID_PATTERN.matcher(cond.getAnyObject()).matches()) {
-            rightAnyObjectKey = cond.getAnyObject();
-        } else {
-            AnyObject anyObject = anyObjectDAO.findByName(cond.getAnyObject());
-            rightAnyObjectKey = anyObject == null ? null : anyObject.getKey();
-        }
-        if (rightAnyObjectKey == null) {
+        try {
+            rightAnyObjectKey = check(cond);
+        } catch (IllegalArgumentException e) {
             return EMPTY_QUERY;
         }
 
@@ -579,13 +455,9 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
             final MembershipCond cond, final boolean not, final List<Object> parameters, final SearchSupport svs) {
 
         String groupKey;
-        if (SyncopeConstants.UUID_PATTERN.matcher(cond.getGroup()).matches()) {
-            groupKey = cond.getGroup();
-        } else {
-            Group group = groupDAO.findByName(cond.getGroup());
-            groupKey = group == null ? null : group.getKey();
-        }
-        if (groupKey == null) {
+        try {
+            groupKey = check(cond);
+        } catch (IllegalArgumentException e) {
             return EMPTY_QUERY;
         }
 
@@ -678,8 +550,10 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
     }
 
     private String getQuery(final AssignableCond cond, final List<Object> parameters, final SearchSupport svs) {
-        Realm realm = realmDAO.findByFullPath(cond.getRealmFullPath());
-        if (realm == null) {
+        Realm realm;
+        try {
+            realm = check(cond);
+        } catch (IllegalArgumentException e) {
             return EMPTY_QUERY;
         }
 
@@ -705,16 +579,9 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
             final MemberCond cond, final boolean not, final List<Object> parameters, final SearchSupport svs) {
 
         String memberKey;
-        if (SyncopeConstants.UUID_PATTERN.matcher(cond.getMember()).matches()) {
-            memberKey = cond.getMember();
-        } else {
-            Any<?> member = userDAO.findByUsername(cond.getMember());
-            if (member == null) {
-                member = anyObjectDAO.findByName(cond.getMember());
-            }
-            memberKey = member == null ? null : member.getKey();
-        }
-        if (memberKey == null) {
+        try {
+            memberKey = check(cond);
+        } catch (IllegalArgumentException e) {
             return EMPTY_QUERY;
         }
 
@@ -746,7 +613,7 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
         return query.toString();
     }
 
-    private void fillAttributeQuery(
+    private void fillAttrQuery(
             final StringBuilder query,
             final PlainAttrValue attrValue,
             final PlainSchema schema,
@@ -864,28 +731,10 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
     private String getQuery(
             final AttributeCond cond, final boolean not, final List<Object> parameters, final SearchSupport svs) {
 
-        AnyUtils attrUtils = anyUtilsFactory.getInstance(svs.anyTypeKind);
-
-        PlainSchema schema = schemaDAO.find(cond.getSchema());
-        if (schema == null) {
-            LOG.warn("Ignoring invalid schema '{}'", cond.getSchema());
-            return EMPTY_QUERY;
-        }
-
-        // keep track of involvement of non-mandatory schemas in the search condition
-        svs.nonMandatorySchemas = !"true".equals(schema.getMandatoryCondition());
-
-        PlainAttrValue attrValue = attrUtils.newPlainAttrValue();
+        Pair<PlainSchema, PlainAttrValue> checked;
         try {
-            if (cond.getType() != AttributeCond.Type.LIKE
-                    && cond.getType() != AttributeCond.Type.ILIKE
-                    && cond.getType() != AttributeCond.Type.ISNULL
-                    && cond.getType() != AttributeCond.Type.ISNOTNULL) {
-
-                schema.getValidator().validate(cond.getExpression(), attrValue);
-            }
-        } catch (ValidationException e) {
-            LOG.error("Could not validate expression '" + cond.getExpression() + "'", e);
+            checked = check(cond, svs.anyTypeKind);
+        } catch (IllegalArgumentException e) {
             return EMPTY_QUERY;
         }
 
@@ -895,22 +744,22 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
                 query.append(svs.field().name).
                         append(" WHERE any_id NOT IN (SELECT any_id FROM ").
                         append(svs.nullAttr().name).
-                        append(" WHERE schema_id='").append(schema.getKey()).append("')");
+                        append(" WHERE schema_id='").append(checked.getLeft().getKey()).append("')");
                 break;
 
             case ISNULL:
                 query.append(svs.nullAttr().name).
-                        append(" WHERE schema_id='").append(schema.getKey()).append("'");
+                        append(" WHERE schema_id='").append(checked.getLeft().getKey()).append("'");
                 break;
 
             default:
-                if (schema.isUniqueConstraint()) {
+                if (checked.getLeft().isUniqueConstraint()) {
                     query.append(svs.uniqueAttr().name);
                 } else {
                     query.append(svs.attr().name);
                 }
-                query.append(" WHERE schema_id='").append(schema.getKey());
-                fillAttributeQuery(query, attrValue, schema, cond, not, parameters, svs);
+                query.append(" WHERE schema_id='").append(checked.getLeft().getKey());
+                fillAttrQuery(query, checked.getRight(), checked.getLeft(), cond, not, parameters, svs);
         }
 
         return query.toString();
@@ -919,78 +768,17 @@ public class JPAAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO
     private String getQuery(
             final AnyCond cond, final boolean not, final List<Object> parameters, final SearchSupport svs) {
 
-        AnyCond condClone = SerializationUtils.clone(cond);
-
-        AnyUtils attrUtils = anyUtilsFactory.getInstance(svs.anyTypeKind);
-
-        // Keeps track of difference between entity's getKey() and JPA @Id fields
-        if ("key".equals(condClone.getSchema())) {
-            condClone.setSchema("id");
-        }
-
-        Field anyField = ReflectionUtils.findField(attrUtils.anyClass(), condClone.getSchema());
-        if (anyField == null) {
-            LOG.warn("Ignoring invalid schema '{}'", condClone.getSchema());
+        Triple<PlainSchema, PlainAttrValue, AnyCond> checked;
+        try {
+            checked = check(cond, svs.anyTypeKind);
+        } catch (IllegalArgumentException e) {
             return EMPTY_QUERY;
-        }
-
-        PlainSchema schema = new JPAPlainSchema();
-        schema.setKey(anyField.getName());
-        for (AttrSchemaType attrSchemaType : AttrSchemaType.values()) {
-            if (anyField.getType().isAssignableFrom(attrSchemaType.getType())) {
-                schema.setType(attrSchemaType);
-            }
-        }
-
-        // Deal with any Integer fields logically mapping to boolean values
-        boolean foundBooleanMin = false;
-        boolean foundBooleanMax = false;
-        if (Integer.class.equals(anyField.getType())) {
-            for (Annotation annotation : anyField.getAnnotations()) {
-                if (Min.class.equals(annotation.annotationType())) {
-                    foundBooleanMin = ((Min) annotation).value() == 0;
-                } else if (Max.class.equals(annotation.annotationType())) {
-                    foundBooleanMax = ((Max) annotation).value() == 1;
-                }
-            }
-        }
-        if (foundBooleanMin && foundBooleanMax) {
-            schema.setType(AttrSchemaType.Boolean);
-        }
-
-        // Deal with any fields representing relationships to other entities
-        if (anyField.getType().getAnnotation(Entity.class) != null) {
-            Method relMethod = null;
-            try {
-                relMethod = ClassUtils.getPublicMethod(anyField.getType(), "getKey", new Class<?>[0]);
-            } catch (Exception e) {
-                LOG.error("Could not find {}#getKey", anyField.getType(), e);
-            }
-
-            if (relMethod != null && String.class.isAssignableFrom(relMethod.getReturnType())) {
-                condClone.setSchema(condClone.getSchema() + "_id");
-                schema.setType(AttrSchemaType.String);
-            }
-        }
-
-        PlainAttrValue attrValue = attrUtils.newPlainAttrValue();
-        if (condClone.getType() != AttributeCond.Type.LIKE
-                && condClone.getType() != AttributeCond.Type.ILIKE
-                && condClone.getType() != AttributeCond.Type.ISNULL
-                && condClone.getType() != AttributeCond.Type.ISNOTNULL) {
-
-            try {
-                schema.getValidator().validate(condClone.getExpression(), attrValue);
-            } catch (ValidationException e) {
-                LOG.error("Could not validate expression '" + condClone.getExpression() + "'", e);
-                return EMPTY_QUERY;
-            }
         }
 
         StringBuilder query = new StringBuilder("SELECT DISTINCT any_id FROM ").
                 append(svs.field().name).append(" WHERE ");
 
-        fillAttributeQuery(query, attrValue, schema, condClone, not, parameters, svs);
+        fillAttrQuery(query, checked.getMiddle(), checked.getLeft(), checked.getRight(), not, parameters, svs);
 
         return query.toString();
     }

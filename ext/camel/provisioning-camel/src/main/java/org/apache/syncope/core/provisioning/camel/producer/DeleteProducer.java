@@ -63,7 +63,7 @@ public class DeleteProducer extends AbstractProducer {
             switch (getAnyTypeKind()) {
                 case USER:
                     PropagationByResource propByRes = new PropagationByResource();
-                    propByRes.set(ResourceOperation.DELETE, userDAO.findAllResourceNames(key));
+                    propByRes.set(ResourceOperation.DELETE, userDAO.findAllResourceKeys(key));
                     // Note here that we can only notify about "delete", not any other
                     // task defined in workflow process definition: this because this
                     // information could only be available after uwfAdapter.delete(), which

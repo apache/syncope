@@ -71,7 +71,7 @@ public class DeprovisionProducer extends AbstractProducer {
                             AnyTypeKind.USER,
                             key,
                             propByRes,
-                            CollectionUtils.removeAll(userDAO.findAllResourceNames(key), resources));
+                            CollectionUtils.removeAll(userDAO.findAllResourceKeys(key), resources));
                     propagationReporter = getPropagationTaskExecutor().execute(tasks, nullPriorityAsync);
                     exchange.getOut().setBody(propagationReporter.getStatuses());
                     break;
@@ -93,7 +93,7 @@ public class DeprovisionProducer extends AbstractProducer {
                             AnyTypeKind.ANY_OBJECT,
                             key,
                             propByRes,
-                            CollectionUtils.removeAll(anyObjectDAO.findAllResourceNames(key), resources));
+                            CollectionUtils.removeAll(anyObjectDAO.findAllResourceKeys(key), resources));
                     propagationReporter = getPropagationTaskExecutor().execute(tasks, nullPriorityAsync);
                     exchange.getOut().setBody(propagationReporter.getStatuses());
                     break;

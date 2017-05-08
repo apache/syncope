@@ -33,6 +33,7 @@ import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
+import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
@@ -50,8 +51,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 
 public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
-
-    private static final int PAGE_SIZE = 1000;
 
     /**
      * User DAO.
@@ -201,15 +200,21 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
                         ? null
                         : pushTask.getFilter(provision.getAnyType()).getFIQLCond();
                 if (StringUtils.isBlank(filter)) {
-                    doHandle(anyDAO.findAll(), handler, pushTask.getResource());
+                    for (int page = 1; page <= (anyDAO.count() / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
+                        doHandle(anyDAO.findAll(page, AnyDAO.DEFAULT_PAGE_SIZE), handler, pushTask.getResource());
+                    }
                 } else {
-                    int count = anyDAO.count(SyncopeConstants.FULL_ADMIN_REALMS);
-                    for (int page = 1; page <= (count / PAGE_SIZE) + 1; page++) {
+                    SearchCond cond = SearchCondConverter.convert(filter);
+                    int count = searchDAO.count(
+                            SyncopeConstants.FULL_ADMIN_REALMS,
+                            cond,
+                            provision.getAnyType().getKind());
+                    for (int page = 1; page <= (count / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
                         List<? extends Any<?>> anys = searchDAO.search(
                                 SyncopeConstants.FULL_ADMIN_REALMS,
-                                SearchCondConverter.convert(filter),
+                                cond,
                                 page,
-                                PAGE_SIZE,
+                                AnyDAO.DEFAULT_PAGE_SIZE,
                                 Collections.<OrderByClause>emptyList(),
                                 provision.getAnyType().getKind());
                         doHandle(anys, handler, pushTask.getResource());

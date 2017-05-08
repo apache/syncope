@@ -34,9 +34,7 @@ public class ExpiredAccessTokenCleanup extends AbstractSchedTaskJobDelegate {
             LOG.debug("Successfully deleted {} expired access tokens", deleted);
         }
 
-        return (dryRun
-                ? "DRY "
-                : "") + "RUNNING";
+        return "SUCCESS";
     }
 
 }

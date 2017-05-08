@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.enduser.resources;
 
-import static org.apache.syncope.client.enduser.resources.BaseResource.LOG;
-
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;

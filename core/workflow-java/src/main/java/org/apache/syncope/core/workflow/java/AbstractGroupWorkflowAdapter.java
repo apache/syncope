@@ -19,6 +19,7 @@
 package org.apache.syncope.core.workflow.java;
 
 import org.apache.syncope.common.lib.patch.GroupPatch;
+import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
@@ -45,6 +46,13 @@ public abstract class AbstractGroupWorkflowAdapter implements GroupWorkflowAdapt
     @Override
     public String getPrefix() {
         return null;
+    }
+
+    protected abstract WorkflowResult<String> doCreate(GroupTO groupTO);
+
+    @Override
+    public WorkflowResult<String> create(final GroupTO groupTO) {
+        return doCreate(groupTO);
     }
 
     protected abstract WorkflowResult<String> doUpdate(Group group, GroupPatch groupPatch);

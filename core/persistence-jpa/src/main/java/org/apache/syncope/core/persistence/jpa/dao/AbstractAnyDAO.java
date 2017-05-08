@@ -36,7 +36,6 @@ import org.apache.commons.jexl3.parser.Parser;
 import org.apache.commons.jexl3.parser.ParserConstants;
 import org.apache.commons.jexl3.parser.Token;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.dao.AllowedSchemas;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
@@ -64,10 +63,15 @@ import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractPlainAttrValue;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> implements AnyDAO<A> {
+
+    @Autowired
+    protected ApplicationEventPublisher publisher;
 
     private PlainSchemaDAO plainSchemaDAO;
 
@@ -423,11 +427,6 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
         query.setParameter("resource", resource);
 
         return query.getResultList();
-    }
-
-    @Override
-    public final List<A> findAll() {
-        return findAll(SyncopeConstants.FULL_ADMIN_REALMS, -1, -1, Collections.<OrderByClause>emptyList());
     }
 
     private SearchCond getAllMatchingCond() {

@@ -22,9 +22,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
@@ -60,8 +58,7 @@ public class AnySearchTest extends AbstractTest {
 
     @Test
     public void issueSYNCOPE95() {
-        Set<Group> groups = new HashSet<>(groupDAO.findAll());
-        for (Group group : groups) {
+        for (Group group : groupDAO.findAll(1, 100)) {
             groupDAO.delete(group.getKey());
         }
         groupDAO.flush();

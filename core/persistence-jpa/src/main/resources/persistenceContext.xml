@@ -30,6 +30,7 @@ under the License.
   <context:annotation-config/>
   
   <context:component-scan base-package="org.apache.syncope.core.persistence.jpa"/>
+  <bean class="${any.search.dao}"/>
 
   <bean class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean"/>
 

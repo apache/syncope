@@ -47,7 +47,7 @@ public class AnyObjectTest extends AbstractTest {
 
     @Test
     public void findAll() {
-        List<AnyObject> list = anyObjectDAO.findAll();
+        List<AnyObject> list = anyObjectDAO.findAll(1, 100);
         assertFalse(list.isEmpty());
     }
 

@@ -26,7 +26,6 @@ import static org.junit.Assert.fail;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
@@ -56,7 +55,7 @@ public class UserTest extends AbstractTest {
 
     @Test
     public void findAll() {
-        List<User> list = userDAO.findAll();
+        List<User> list = userDAO.findAll(1, 100);
         assertEquals("did not get expected number of users", 5, list.size());
     }
 

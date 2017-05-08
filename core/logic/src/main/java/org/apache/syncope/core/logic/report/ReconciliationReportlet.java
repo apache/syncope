@@ -35,6 +35,7 @@ import org.apache.syncope.common.lib.report.ReconciliationReportletConf;
 import org.apache.syncope.common.lib.report.ReconciliationReportletConf.Feature;
 import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
 import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
@@ -402,7 +403,9 @@ public class ReconciliationReportlet extends AbstractReportlet {
             atts.addAttribute("", "", "total", ReportXMLConst.XSD_INT, String.valueOf(userDAO.count()));
             handler.startElement("", "", getAnyElementName(AnyTypeKind.USER) + "s", atts);
 
-            doExtract(handler, userDAO.findAll());
+            for (int page = 1; page <= (userDAO.count() / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
+                doExtract(handler, userDAO.findAll(page, AnyDAO.DEFAULT_PAGE_SIZE));
+            }
         } else {
             SearchCond cond = SearchCondConverter.convert(this.conf.getUserMatchingCond());
 
@@ -419,7 +422,9 @@ public class ReconciliationReportlet extends AbstractReportlet {
             atts.addAttribute("", "", "total", ReportXMLConst.XSD_INT, String.valueOf(groupDAO.count()));
             handler.startElement("", "", getAnyElementName(AnyTypeKind.GROUP) + "s", atts);
 
-            doExtract(handler, groupDAO.findAll());
+            for (int page = 1; page <= (groupDAO.count() / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
+                doExtract(handler, groupDAO.findAll(page, AnyDAO.DEFAULT_PAGE_SIZE));
+            }
         } else {
             SearchCond cond = SearchCondConverter.convert(this.conf.getUserMatchingCond());
 

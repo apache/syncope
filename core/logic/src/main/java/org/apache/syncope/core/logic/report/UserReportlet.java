@@ -33,6 +33,7 @@ import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -52,8 +53,6 @@ import org.xml.sax.helpers.AttributesImpl;
 
 @ReportletConfClass(UserReportletConf.class)
 public class UserReportlet extends AbstractReportlet {
-
-    private static final int PAGE_SIZE = 10;
 
     @Autowired
     private UserDAO userDAO;
@@ -364,15 +363,21 @@ public class UserReportlet extends AbstractReportlet {
 
         doExtractConf(handler);
 
-        if (StringUtils.isBlank(this.conf.getMatchingCond())) {
-            doExtract(handler, userDAO.findAll());
-        } else {
-            for (int page = 1; page <= (count() / PAGE_SIZE) + 1; page++) {
-                List<User> users = searchDAO.search(SyncopeConstants.FULL_ADMIN_REALMS,
+        for (int page = 1; page <= (count() / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
+            List<User> users;
+            if (StringUtils.isBlank(this.conf.getMatchingCond())) {
+                users = userDAO.findAll(page, AnyDAO.DEFAULT_PAGE_SIZE);
+            } else {
+                users = searchDAO.search(
+                        SyncopeConstants.FULL_ADMIN_REALMS,
                         SearchCondConverter.convert(this.conf.getMatchingCond()),
-                        page, PAGE_SIZE, Collections.<OrderByClause>emptyList(), AnyTypeKind.USER);
-                doExtract(handler, users);
+                        page,
+                        AnyDAO.DEFAULT_PAGE_SIZE,
+                        Collections.<OrderByClause>emptyList(),
+                        AnyTypeKind.USER);
             }
+
+            doExtract(handler, users);
         }
     }
 }

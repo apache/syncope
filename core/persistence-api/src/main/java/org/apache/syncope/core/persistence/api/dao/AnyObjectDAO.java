@@ -26,7 +26,6 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 
 public interface AnyObjectDAO extends AnyDAO<AnyObject> {
 
@@ -46,9 +45,7 @@ public interface AnyObjectDAO extends AnyDAO<AnyObject> {
 
     List<Group> findDynGroupMemberships(AnyObject anyObject);
 
-    List<ARelationship> findARelationships(AnyObject anyObject);
-
-    List<URelationship> findURelationships(AnyObject anyObject);
+    List<ARelationship> findAllARelationships(AnyObject anyObject);
 
     Collection<Group> findAllGroups(AnyObject anyObject);
 
@@ -56,5 +53,5 @@ public interface AnyObjectDAO extends AnyDAO<AnyObject> {
 
     Collection<ExternalResource> findAllResources(AnyObject anyObject);
 
-    Collection<String> findAllResourceNames(String key);
+    Collection<String> findAllResourceKeys(String key);
 }

@@ -413,6 +413,70 @@ under the License.
     </profile>
   
     <profile>
+      <id>elasticsearch</id>
+      
+      <dependencies>
+        <dependency>
+          <groupId>org.apache.syncope.ext.elasticsearch</groupId>
+          <artifactId>syncope-ext-elasticsearch-provisioning-java</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+        <dependency>
+          <groupId>org.apache.syncope.ext.elasticsearch</groupId>
+          <artifactId>syncope-ext-elasticsearch-persistence-jpa</artifactId>
+          <version>${project.version}</version>
+        </dependency>
+      </dependencies>
+      
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-war-plugin</artifactId>
+            <configuration>
+              <webResources>
+                <resource>
+                  <directory>src/main/webapp/WEB-INF</directory>
+                  <excludes>
+                    <exclude>web.xml</exclude>
+                  </excludes>
+                </resource>
+              </webResources>
+              <webXml>${basedir}/src/main/resources/elasticsearch/web.xml</webXml>
+            </configuration>
+          </plugin>
+        </plugins>
+        
+        <testResources>
+          <testResource>
+            <directory>src/test/resources</directory>
+            <filtering>true</filtering>
+            <excludes>
+              <exclude>keystore</exclude>
+            </excludes>
+          </testResource>
+          <testResource>
+            <directory>src/test/resources</directory>
+            <filtering>false</filtering>
+            <includes>
+              <include>keystore</include>
+            </includes>
+          </testResource>
+          <testResource>
+            <directory>${basedir}/../../core/rest-cxf/src/main/resources</directory>
+            <includes>
+              <include>errorMessages.properties</include>
+            </includes>
+          </testResource>
+          <testResource>
+            <directory>src/main/resources/elasticsearch</directory>
+            <filtering>true</filtering>
+          </testResource>
+        </testResources>
+      </build>
+    </profile>
+  
+    <profile>
       <id>postgres-it</id>
 
       <properties>
@@ -759,6 +823,14 @@ under the License.
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-war-plugin</artifactId>
             <configuration>
+              <webResources>
+                <resource>
+                  <directory>src/main/webapp/WEB-INF</directory>
+                  <excludes>
+                    <exclude>web.xml</exclude>
+                  </excludes>
+                </resource>
+              </webResources>
               <webXml>${basedir}/src/main/resources/jboss/web.xml</webXml>
               <packagingExcludes>WEB-INF/lib/syncope-*-persistence-jpa-${project.version}.jar</packagingExcludes>
             </configuration>

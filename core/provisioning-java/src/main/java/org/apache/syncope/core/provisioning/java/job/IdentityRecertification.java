@@ -18,13 +18,10 @@
  */
 package org.apache.syncope.core.provisioning.java.job;
 
-import java.util.Collections;
-import java.util.Date;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -35,8 +32,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class IdentityRecertification extends AbstractSchedTaskJobDelegate {
 
     private static final String RECERTIFICATION_TIME = "identity.recertification.day.interval";
-
-    private static final int PAGE_SIZE = 10;
 
     @Autowired
     private ConfDAO confDAO;
@@ -65,27 +60,22 @@ public class IdentityRecertification extends AbstractSchedTaskJobDelegate {
         }
     }
 
-    protected boolean isToBeRecertified(final User user) {
-        Date lastCertificationDate = user.getLastRecertification();
+    protected boolean isToBeRecertified(final User user, final long now) {
+        if (!user.isSuspended()
+                && (user.getLastRecertification() == null
+                || user.getLastRecertification().getTime() + recertificationTime < now)) {
 
-        if (lastCertificationDate != null) {
-            if (lastCertificationDate.getTime() + recertificationTime < System.currentTimeMillis()) {
-                LOG.debug("{} is to be recertified", user);
-                return true;
-            } else {
-                LOG.debug("{} do not need to be recertified", user);
-                return false;
-            }
+            LOG.debug("{} is to be recertified", user);
+            return true;
         }
 
-        return true;
+        LOG.debug("{} does not need to be recertified", user);
+        return false;
     }
 
     @Override
     protected String doExecute(final boolean dryRun) throws JobExecutionException {
-        LOG.info("IdentityRecertification {} running [SchedTask {}]", (dryRun
-                ? "dry "
-                : ""), task.getKey());
+        LOG.info("IdentityRecertification {} running [SchedTask {}]", dryRun ? "dry " : "", task.getKey());
 
         init();
         if (recertificationTime == -1) {
@@ -93,13 +83,16 @@ public class IdentityRecertification extends AbstractSchedTaskJobDelegate {
             return ("IDENTITY RECERTIFICATION DISABLED");
         }
 
-        for (int page = 1; page <= (userDAO.count() / PAGE_SIZE) + 1; page++) {
-            for (User user : userDAO.findAll(
-                    SyncopeConstants.FULL_ADMIN_REALMS, page, PAGE_SIZE, Collections.<OrderByClause>emptyList())) {
+        if (dryRun) {
+            return "DRY RUN";
+        }
 
+        long now = System.currentTimeMillis();
+        for (int page = 1; page <= (userDAO.count() / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
+            for (User user : userDAO.findAll(page, AnyDAO.DEFAULT_PAGE_SIZE)) {
                 LOG.debug("Processing user: {}", user.getUsername());
 
-                if (StringUtils.isNotBlank(user.getWorkflowId()) && isToBeRecertified(user) && !dryRun) {
+                if (StringUtils.isNotBlank(user.getWorkflowId()) && isToBeRecertified(user, now)) {
                     uwfAdapter.requestCertify(user);
                 } else {
                     LOG.warn("Workflow for {} is null or empty", user);
@@ -107,9 +100,7 @@ public class IdentityRecertification extends AbstractSchedTaskJobDelegate {
             }
         }
 
-        return (dryRun
-                ? "DRY "
-                : "") + "RUNNING";
+        return "SUCCESS";
     }
 
     @Override

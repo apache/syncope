@@ -48,20 +48,11 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     private ConfDAO confDAO;
 
     @Override
-    public WorkflowResult<Pair<String, Boolean>> create(final UserTO userTO, final boolean storePassword) {
-        return create(userTO, false, true);
-    }
-
-    @Override
-    public WorkflowResult<Pair<String, Boolean>> create(final UserTO userTO, final boolean disablePwdPolicyCheck,
+    protected WorkflowResult<Pair<String, Boolean>> doCreate(
+            final UserTO userTO,
+            final boolean disablePwdPolicyCheck,
+            final Boolean enabled,
             final boolean storePassword) {
-
-        return create(userTO, disablePwdPolicyCheck, null, storePassword);
-    }
-
-    @Override
-    public WorkflowResult<Pair<String, Boolean>> create(final UserTO userTO, final boolean disablePwdPolicyCheck,
-            final Boolean enabled, final boolean storePassword) {
 
         User user = entityFactory.newEntity(User.class);
         dataBinder.create(user, userTO, storePassword);
@@ -195,7 +186,7 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
     @Override
     public WorkflowResult<String> requestCertify(final User user) {
-        throw new UnsupportedOperationException("Not supported.");
+        throw new WorkflowException(new UnsupportedOperationException("Not supported."));
     }
 
     @Override

@@ -59,6 +59,8 @@ import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAURelationship;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
+import org.apache.syncope.core.spring.event.AnyCreatedUpdatedEvent;
+import org.apache.syncope.core.spring.event.AnyDeletedEvent;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -175,7 +177,43 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
     }
 
     @Override
-    public List<ARelationship> findARelationships(final AnyObject anyObject) {
+    public List<ARelationship> findAllARelationships(final AnyObject anyObject) {
+        TypedQuery<ARelationship> query = entityManager().createQuery(
+                "SELECT e FROM " + JPAARelationship.class.getSimpleName()
+                + " e WHERE e.rightEnd=:anyObject OR e.leftEnd=:anyObject", ARelationship.class);
+        query.setParameter("anyObject", anyObject);
+
+        return query.getResultList();
+    }
+
+    @Override
+    public int count() {
+        Query query = entityManager().createQuery(
+                "SELECT COUNT(e) FROM  " + JPAAnyObject.class.getSimpleName() + " e");
+        return ((Number) query.getSingleResult()).intValue();
+    }
+
+    @Override
+    public List<AnyObject> findAll(final int page, final int itemsPerPage) {
+        TypedQuery<AnyObject> query = entityManager().createQuery(
+                "SELECT e FROM  " + JPAAnyObject.class.getSimpleName() + " e", AnyObject.class);
+        query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
+        query.setMaxResults(itemsPerPage);
+
+        return query.getResultList();
+    }
+
+    @Override
+    public AnyObject save(final AnyObject anyObject) {
+        AnyObject merged = super.save(anyObject);
+        publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, merged));
+
+        groupDAO().refreshDynMemberships(merged);
+
+        return merged;
+    }
+
+    private List<ARelationship> findARelationships(final AnyObject anyObject) {
         TypedQuery<ARelationship> query = entityManager().createQuery(
                 "SELECT e FROM " + JPAARelationship.class.getSimpleName()
                 + " e WHERE e.rightEnd=:anyObject", ARelationship.class);
@@ -184,23 +222,13 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
         return query.getResultList();
     }
 
-    @Override
-    public List<URelationship> findURelationships(final AnyObject anyObject) {
+    private List<URelationship> findURelationships(final AnyObject anyObject) {
         TypedQuery<URelationship> query = entityManager().createQuery(
                 "SELECT e FROM " + JPAURelationship.class.getSimpleName()
                 + " e WHERE e.rightEnd=:anyObject", URelationship.class);
         query.setParameter("anyObject", anyObject);
 
         return query.getResultList();
-    }
-
-    @Override
-    public AnyObject save(final AnyObject anyObject) {
-        AnyObject merged = super.save(anyObject);
-
-        groupDAO().refreshDynMemberships(merged);
-
-        return merged;
     }
 
     @Override
@@ -223,6 +251,7 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
         }
 
         entityManager().remove(any);
+        publisher.publishEvent(new AnyDeletedEvent(this, AnyTypeKind.ANY_OBJECT, any.getKey()));
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
@@ -287,7 +316,7 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
-    public Collection<String> findAllResourceNames(final String key) {
+    public Collection<String> findAllResourceKeys(final String key) {
         return CollectionUtils.collect(findAllResources(authFind(key)), EntityUtils.<ExternalResource>keyTransformer());
     }
 
