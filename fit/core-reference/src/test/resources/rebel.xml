@@ -85,11 +85,11 @@ under the License.
     <dir name="${basedir}/../../ext/elasticsearch/client-elasticsearch/target/classes">
       <exclude name="elasticsearchClientContext.xml"/>
     </dir>
-    <dir name="${basedir}/../../ext/elasticsearch/persistence-jpa/target/classes">
+    <dir name="${basedir}/../../ext/elasticsearch/client-elasticsearch/target/classes">
     </dir>
     <dir name="${basedir}/../../ext/elasticsearch/provisioning-java/target/classes">
     </dir>
-    <dir name="${basedir}/../../ext/elasticsearch/workflow-java/target/classes">
+    <dir name="${basedir}/../../ext/elasticsearch/persistence-jpa/target/classes">
     </dir>
   </classpath>
 
