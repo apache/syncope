@@ -376,7 +376,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/ext/elasticsearch/persistence-jpa/src/main/resources/persistence.properties[persistence.properties^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/2_0_X/ext/elasticsearch/persistence-jpa/src/main/resources/persistence.properties[persistence.properties^]
+https://github.com/apache/syncope/blob/master/ext/elasticsearch/persistence-jpa/src/main/resources/persistence.properties[persistence.properties^]
 endif::[]
 
 and
@@ -385,7 +385,7 @@ ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/ext/elasticsearch/client-elasticsearch/src/main/resources/elasticsearchClientContext.xml[elasticsearchClientContext.xml^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/2_0_X/ext/elasticsearch/client-elasticsearch/src/main/resources/elasticsearchClientContext.xml[elasticsearchClientContext.xml^]
+https://github.com/apache/syncope/blob/master/ext/elasticsearch/client-elasticsearch/src/main/resources/elasticsearchClientContext.xml[elasticsearchClientContext.xml^]
 endif::[]
 
 then save both under `core/src/main/resources`.
