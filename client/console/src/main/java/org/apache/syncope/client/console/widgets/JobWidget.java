@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.client.console.widgets;
 
+import static org.apache.wicket.Component.ENABLE;
+
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbedPanel;
 import java.io.Serializable;
@@ -32,20 +34,28 @@ import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.panels.ExecMessageModal;
+import org.apache.syncope.client.console.reports.ReportWizardBuilder;
+import org.apache.syncope.client.console.reports.ReportletDirectoryPanel;
 import org.apache.syncope.client.console.rest.BaseRestClient;
 import org.apache.syncope.client.console.rest.NotificationRestClient;
 import org.apache.syncope.client.console.rest.ReportRestClient;
 import org.apache.syncope.client.console.rest.TaskRestClient;
+import org.apache.syncope.client.console.tasks.SchedTaskWizardBuilder;
 import org.apache.syncope.client.console.wicket.ajax.IndicatorAjaxTimerBehavior;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksTogglePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
+import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.ReportTO;
+import org.apache.syncope.common.lib.to.SchedTaskTO;
+import org.apache.syncope.common.lib.types.JobType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -76,6 +86,8 @@ public class JobWidget extends BaseWidget {
 
     private static final int ROWS = 5;
 
+    private final ActionLinksTogglePanel<JobTO> actionTogglePanel;
+
     private final BaseModal<Serializable> modal = new BaseModal<Serializable>("modal") {
 
         private static final long serialVersionUID = 389935548143327858L;
@@ -105,7 +117,7 @@ public class JobWidget extends BaseWidget {
         @Override
         protected void onConfigure() {
             super.onConfigure();
-            setFooterVisible(true);
+            setFooterVisible(false);
         }
     };
 
@@ -197,6 +209,9 @@ public class JobWidget extends BaseWidget {
         add(container);
 
         container.add(new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList(pageRef)));
+
+        actionTogglePanel = new ActionLinksTogglePanel<>("actionTogglePanel", pageRef);
+        add(actionTogglePanel);
     }
 
     private List<JobTO> getUpdatedAvailable() {
@@ -275,6 +290,10 @@ public class JobWidget extends BaseWidget {
 
         private static final long serialVersionUID = -8214546246301342868L;
 
+        private final BaseModal<ReportTO> reportModal;
+
+        private final BaseModal<Serializable> jobModal;
+
         AvailableJobsPanel(final String id, final PageReference pageRef) {
             super(id, new Builder<JobTO, JobTO, BaseRestClient>(null, pageRef) {
 
@@ -285,6 +304,14 @@ public class JobWidget extends BaseWidget {
                     throw new UnsupportedOperationException();
                 }
             }.disableCheckBoxes().hidePaginator());
+
+            super.setTogglePanel(actionTogglePanel);
+
+            this.reportModal = JobWidget.this.reportModal;
+            setWindowClosedReloadCallback(reportModal);
+
+            this.jobModal = JobWidget.this.modal;
+            setWindowClosedReloadCallback(jobModal);
 
             rows = ROWS;
             initResultTable();
@@ -326,8 +353,8 @@ public class JobWidget extends BaseWidget {
                         final IModel<JobTO> rowModel) {
 
                     JobTO jobTO = rowModel.getObject();
-                    JobActionPanel panel = new JobActionPanel(componentId, jobTO, JobWidget.this, JobWidget.this.modal,
-                            JobWidget.this.reportModal, pageRef);
+                    JobActionPanel panel
+                            = new JobActionPanel(componentId, jobTO, JobWidget.this, pageRef);
                     MetaDataRoleAuthorizationStrategy.authorize(panel, WebPage.ENABLE,
                             String.format("%s,%s%s,%s",
                                     StandardEntitlement.TASK_EXECUTE,
@@ -341,12 +368,137 @@ public class JobWidget extends BaseWidget {
                 public String getCssClass() {
                     return "col-xs-1";
                 }
-
             });
 
             return columns;
         }
 
+        @Override
+        protected ActionsPanel<JobTO> getActions(final IModel<JobTO> model) {
+            final ActionsPanel<JobTO> panel = super.getActions(model);
+
+            final JobTO jobTO = model.getObject();
+
+            panel.add(new ActionLink<JobTO>() {
+
+                private static final long serialVersionUID = -7978723352517770644L;
+
+                @Override
+                public void onClick(final AjaxRequestTarget target, final JobTO ignore) {
+                    switch (jobTO.getType()) {
+                        case NOTIFICATION:
+                            break;
+
+                        case REPORT:
+                            ReportTO reportTO = new ReportRestClient().read(jobTO.getRefKey());
+
+                            ReportWizardBuilder rwb = new ReportWizardBuilder(reportTO, pageRef);
+                            rwb.setEventSink(AvailableJobsPanel.this);
+
+                            target.add(jobModal.setContent(rwb.build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT)));
+
+                            jobModal.header(new StringResourceModel(
+                                    "any.edit",
+                                    AvailableJobsPanel.this,
+                                    new Model<>(reportTO)));
+
+                            jobModal.show(true);
+                            break;
+
+                        case TASK:
+                            SchedTaskTO schedTaskTO = new TaskRestClient().
+                                    readSchedTask(SchedTaskTO.class, jobTO.getRefKey());
+
+                            SchedTaskWizardBuilder<SchedTaskTO> swb
+                                    = new SchedTaskWizardBuilder<>(schedTaskTO, pageRef);
+                            swb.setEventSink(AvailableJobsPanel.this);
+
+                            target.add(jobModal.setContent(swb.build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT)));
+
+                            jobModal.header(new StringResourceModel(
+                                    "any.edit",
+                                    AvailableJobsPanel.this,
+                                    new Model<>(schedTaskTO)));
+
+                            jobModal.show(true);
+                            break;
+
+                        default:
+                            break;
+                    }
+                }
+
+                @Override
+                protected boolean statusCondition(final JobTO modelObject) {
+                    return !(null != jobTO.getType() && JobType.NOTIFICATION.equals(jobTO.getType()));
+                }
+            }, ActionType.EDIT, StandardEntitlement.TASK_UPDATE);
+
+            panel.add(new ActionLink<JobTO>() {
+
+                private static final long serialVersionUID = -7978723352517770644L;
+
+                @Override
+                public void onClick(final AjaxRequestTarget target, final JobTO ignore) {
+
+                    if (null != jobTO.getType()) {
+                        switch (jobTO.getType()) {
+
+                            case NOTIFICATION:
+                                break;
+
+                            case REPORT:
+
+                                final ReportTO reportTO = new ReportRestClient().read(jobTO.getRefKey());
+
+                                target.add(AvailableJobsPanel.this.reportModal.setContent(
+                                        new ReportletDirectoryPanel(reportModal, jobTO.getRefKey(), pageRef)));
+
+                                MetaDataRoleAuthorizationStrategy.authorize(
+                                        reportModal.getForm(),
+                                        ENABLE, StandardEntitlement.REPORT_UPDATE);
+
+                                reportModal.header(new StringResourceModel(
+                                        "reportlet.conf", AvailableJobsPanel.this, new Model<>(reportTO)));
+
+                                reportModal.show(true);
+
+                                break;
+
+                            case TASK:
+                                break;
+
+                            default:
+                                break;
+                        }
+                    }
+                }
+
+                @Override
+                protected boolean statusCondition(final JobTO modelObject) {
+                    return !(null != jobTO.getType() && (JobType.TASK.equals(jobTO.getType())
+                            || JobType.NOTIFICATION.equals(jobTO.getType())));
+                }
+
+            }, ActionType.COMPOSE, StandardEntitlement.TASK_UPDATE);
+
+            return panel;
+        }
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public void onEvent(final IEvent<?> event) {
+            if (event.getPayload() instanceof AjaxWizard.NewItemEvent) {
+                final AjaxRequestTarget target = AjaxWizard.NewItemEvent.class.cast(event.getPayload()).getTarget();
+
+                if (event.getPayload() instanceof AjaxWizard.NewItemCancelEvent
+                        || event.getPayload() instanceof AjaxWizard.NewItemFinishEvent) {
+                    jobModal.close(target);
+                }
+            }
+
+            super.onEvent(event);
+        }
     }
 
     protected final class AvailableJobsProvider extends DirectoryDataProvider<JobTO> {
