@@ -29,7 +29,7 @@ under the License.
           <value>elasticsearch</value>
         </entry>
         <entry key="client.transport.sniff">
-          <value>true</value>
+          <value>false</value>
         </entry>
       </map>
     </property>  
