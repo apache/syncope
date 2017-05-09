@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.commons;
 
-import java.util.Set;
 import java.util.UUID;
 import org.apache.wicket.Component;
 import org.apache.wicket.authroles.authorization.strategies.role.Roles;
@@ -43,15 +42,6 @@ public abstract class ITabComponent extends Component implements ITab {
      * @param title IModel used to represent the title of the tab. Must contain a string
      * @param roles authorized roles
      */
-    public ITabComponent(final IModel<String> title, final Set<String> roles) {
-        this(title, roles.toArray(new String[roles.size()]));
-    }
-    /**
-     * Constructor.
-     *
-     * @param title IModel used to represent the title of the tab. Must contain a string
-     * @param roles authorized roles
-     */
     public ITabComponent(final IModel<String> title, final String... roles) {
         super(UUID.randomUUID().toString());
         this.title = title;
@@ -65,17 +55,11 @@ public abstract class ITabComponent extends Component implements ITab {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public IModel<String> getTitle() {
         return title;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public boolean isVisible() {
         return true;
@@ -89,9 +73,6 @@ public abstract class ITabComponent extends Component implements ITab {
         internalRenderComponent();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public abstract WebMarkupContainer getPanel(final String panelId);
 
