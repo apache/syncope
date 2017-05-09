@@ -48,33 +48,18 @@ under the License.
     <property name="defaultObject" ref="localMasterDataSource"/>
   </bean>
 
-  <bean id="localMasterDataSource" class="org.apache.commons.dbcp2.BasicDataSource" destroy-method="close">
+  <bean id="localMasterDataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
     <property name="driverClassName" value="${Master.driverClassName}"/>
-    <property name="url" value="${Master.url}"/>
+    <property name="jdbcUrl" value="${Master.url}"/>
     <property name="username" value="${Master.username}"/>
     <property name="password" value="${Master.password}"/>
     <!-- connection pool configuration - transaction isolation, default READ_COMMITTED (see SYNCOPE-202) -->
-    <property name="defaultTransactionIsolation">
-      <util:constant static-field="${Master.pool.defaultTransactionIsolation:java.sql.Connection.TRANSACTION_READ_COMMITTED}"/>
+    <property name="transactionIsolation">
+      <util:constant static-field="${Master.pool.transactionIsolation:java.sql.Connection.TRANSACTION_READ_COMMITTED}"/>
     </property>
-    <!-- connection pool configuration - default values taken from BasicDataSource default values -->
-    <property name="initialSize" value="${Master.pool.initialSize:0}"/>
-    <property name="maxTotal" value="${Master.pool.maxActive:8}"/>
-    <property name="maxIdle" value="${Master.pool.maxIdle:8}"/>
-    <property name="minIdle" value="${Master.pool.minIdle:0}"/>
-    <property name="maxWaitMillis" value="${Master.pool.maxWait:-1}"/>
-    <property name="validationQuery" value="${Master.pool.validationQuery}"/>
-    <property name="validationQueryTimeout" value="${Master.pool.validationQueryTimeout:-1}"/>
-    <property name="testOnBorrow" value="${Master.pool.testOnBorrow:true}"/>
-    <property name="testOnReturn" value="${Master.pool.testOnReturn:false}"/>
-    <property name="testWhileIdle" value="${Master.pool.testWhileIdle:false}"/>
-    <property name="timeBetweenEvictionRunsMillis" value="${Master.pool.timeBetweenEvictionRunsMillis:-1}"/>
-    <property name="numTestsPerEvictionRun" value="${Master.pool.numTestsPerEvictionRun:3}"/>
-    <property name="minEvictableIdleTimeMillis" value="${Master.pool.minEvictableIdleTimeMillis:1800000}"/>
-    <property name="removeAbandonedOnBorrow" value="${Master.pool.removeAbandoned:false}"/>
-    <property name="removeAbandonedOnMaintenance" value="${Master.pool.removeAbandoned:false}"/>
-    <property name="removeAbandonedTimeout" value="${Master.pool.removeAbandonedTimeout:300}"/>
-    <property name="logAbandoned" value="${Master.pool.logAbandoned:false}"/>
+    <!-- connection pool configuration - default values taken from HikariConfig default values -->
+    <property name="maximumPoolSize" value="${Master.pool.maxActive:8}"/>
+    <property name="minimumIdle" value="${Master.pool.minIdle:0}"/>
   </bean>
   
   <bean class="org.springframework.jdbc.datasource.init.DataSourceInitializer">
