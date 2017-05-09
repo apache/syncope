@@ -118,9 +118,6 @@ This extension adds features to all components and layers that are available, an
 
 ==== Elasticsearch
 
-[WARNING]
-This extension requires the latest JDK 8 that is available.
-
 This extension provides an alternate internal search engine for <<users-groups-and-any-objects>>, requiring an external 
 https://www.elastic.co/[Elasticsearch^] cluster.
 

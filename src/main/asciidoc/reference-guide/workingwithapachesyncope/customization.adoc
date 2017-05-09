@@ -351,9 +351,6 @@ the content of `core/src/main/resources/saml2sp-logic.properties` accordingly.
 [discrete]
 ===== Enable the <<elasticsearch>> extension
 
-[WARNING]
-This extension requires the latest JDK 8 that is available.
-
 Add the following dependencies to `core/pom.xml`:
 
 [source,xml,subs="verbatim,attributes"]
