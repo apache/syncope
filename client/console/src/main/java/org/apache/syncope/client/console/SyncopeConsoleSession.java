@@ -30,6 +30,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MediaType;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.commons.lang3.tuple.Pair;
@@ -234,8 +236,29 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
         return availableRealms;
     }
 
-    public boolean owns(final String entitlement) {
-        return auth != null && auth.containsKey(entitlement);
+    public boolean owns(final String entitlements) {
+        return owns(entitlements, "/");
+    }
+
+    public boolean owns(final String entitlements, final String realm) {
+        if (StringUtils.isEmpty(entitlements)) {
+            return true;
+        }
+
+        for (String entitlement : entitlements.split(",")) {
+            if (auth != null && auth.containsKey(entitlement)
+                    && (realm == null || IterableUtils.matchesAny(auth.get(entitlement), new Predicate<String>() {
+
+                        @Override
+                        public boolean evaluate(final String ownedRealm) {
+                            return realm.startsWith(ownedRealm);
+                        }
+                    }))) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     @Override

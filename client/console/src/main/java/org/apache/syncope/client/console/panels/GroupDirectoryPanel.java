@@ -256,7 +256,8 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                         new AjaxWizard.EditItemActionEvent<>(new GroupWrapper(
                                 restClient.read(model.getObject().getKey())), target));
             }
-        }, ActionType.EDIT, StandardEntitlement.GROUP_READ);
+        }, ActionType.EDIT, new StringBuilder().append(StandardEntitlement.GROUP_READ).append(",").
+                append(StandardEntitlement.GROUP_UPDATE).toString()).setRealm(realm);
 
         panel.add(new ActionLink<GroupTO>() {
 
@@ -269,7 +270,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                 send(GroupDirectoryPanel.this, Broadcast.EXACT,
                         new AjaxWizard.NewItemActionEvent<>(new GroupWrapper(clone), target));
             }
-        }, ActionType.CLONE, StandardEntitlement.GROUP_CREATE);
+        }, ActionType.CLONE, StandardEntitlement.GROUP_CREATE).setRealm(realm);
 
         panel.add(new ActionLink<GroupTO>() {
 
@@ -282,7 +283,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                 typeExtensionsModal.header(new StringResourceModel("typeExtensions", model));
                 typeExtensionsModal.show(true);
             }
-        }, ActionType.TYPE_EXTENSIONS, StandardEntitlement.GROUP_UPDATE);
+        }, ActionType.TYPE_EXTENSIONS, StandardEntitlement.GROUP_UPDATE).setRealm(realm);
 
         panel.add(new ActionLink<GroupTO>() {
 
@@ -298,7 +299,8 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
             public boolean isIndicatorEnabled() {
                 return false;
             }
-        }, ActionType.MEMBERS, StandardEntitlement.GROUP_READ);
+        }, ActionType.MEMBERS, new StringBuilder().append(StandardEntitlement.GROUP_READ).append(",").
+                append(StandardEntitlement.GROUP_UPDATE).toString()).setRealm(realm);
 
         panel.add(new ActionLink<GroupTO>() {
 
@@ -363,7 +365,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
 
                 altDefaultModal.show(true);
             }
-        }, ActionType.MANAGE_RESOURCES, StandardEntitlement.GROUP_READ);
+        }, ActionType.MANAGE_RESOURCES, StandardEntitlement.GROUP_READ).setRealm(realm);
 
         panel.add(new ActionLink<GroupTO>() {
 
@@ -408,7 +410,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-        }, ActionType.DELETE, StandardEntitlement.GROUP_DELETE, true);
+        }, ActionType.DELETE, StandardEntitlement.GROUP_DELETE, true).setRealm(realm);
 
         return panel;
     }

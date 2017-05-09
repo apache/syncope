@@ -18,12 +18,16 @@
  */
 package org.apache.syncope.client.console.wicket.markup.html.form;
 
+import static org.apache.wicket.Component.RENDER;
+
 import java.io.Serializable;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -114,6 +118,12 @@ public final class ActionPanel<T extends Serializable> extends Panel {
             };
         }
 
+        if (SyncopeConsoleSession.get().owns(action.getEntitlements(), action.getRealm())) {
+            MetaDataRoleAuthorizationStrategy.authorizeAll(actionLink, RENDER);
+        } else {
+            MetaDataRoleAuthorizationStrategy.unauthorizeAll(actionLink, RENDER);
+        }
+        
         actionLink.setVisible(enabled);
 
         actionIcon = new Label("actionIcon", "");
