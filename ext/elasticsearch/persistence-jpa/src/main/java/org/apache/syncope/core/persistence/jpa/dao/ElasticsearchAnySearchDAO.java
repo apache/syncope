@@ -18,6 +18,9 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import static org.apache.syncope.core.persistence.jpa.dao.AbstractDAO.LOG;
+
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -42,6 +45,7 @@ import org.apache.syncope.core.persistence.api.dao.search.ResourceCond;
 import org.apache.syncope.core.persistence.api.dao.search.RoleCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
@@ -58,6 +62,7 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.ReflectionUtils;
 
 /**
  * Search engine implementation for users, groups and any objects, based on Elasticsearch.
@@ -112,6 +117,42 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
         return (int) builder.get().getHits().getTotalHits();
     }
 
+    private void addSort(
+            final SearchRequestBuilder builder,
+            final AnyTypeKind kind,
+            final List<OrderByClause> orderBy) {
+
+        AnyUtils attrUtils = anyUtilsFactory.getInstance(kind);
+
+        for (OrderByClause clause : orderBy) {
+            String sortName = null;
+
+            // Manage difference among external key attribute and internal JPA @Id
+            String fieldName = "key".equals(clause.getField()) ? "id" : clause.getField();
+
+            Field anyField = ReflectionUtils.findField(attrUtils.anyClass(), fieldName);
+            if (anyField == null) {
+                PlainSchema schema = schemaDAO.find(fieldName);
+                if (schema != null) {
+                    sortName = schema.getType() == AttrSchemaType.String
+                            || schema.getType() == AttrSchemaType.Enum
+                            ? fieldName + ".keyword"
+                            : fieldName;
+                }
+            } else {
+                sortName = anyField.getType().equals(String.class)
+                        ? fieldName + ".keyword"
+                        : fieldName;
+            }
+
+            if (sortName == null) {
+                LOG.warn("Cannot build any valid clause from {}", clause);
+            } else {
+                builder.addSort(sortName, SortOrder.valueOf(clause.getDirection().name()));
+            }
+        }
+    }
+
     @Override
     protected <T extends Any<?>> List<T> doSearch(
             final Set<String> adminRealms,
@@ -124,9 +165,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
         SearchRequestBuilder builder = searchRequestBuilder(adminRealms, cond, kind).
                 setFrom(page <= 0 ? 0 : page - 1).
                 setSize(itemsPerPage < 0 ? elasticsearchUtils.getIndexMaxResultWindow() : itemsPerPage);
-        for (OrderByClause clause : orderBy) {
-            builder.addSort(clause.getField(), SortOrder.valueOf(clause.getDirection().name()));
-        }
+        addSort(builder, kind, orderBy);
 
         return buildResult(
                 CollectionUtils.collect(Arrays.asList(builder.get().getHits().getHits()),

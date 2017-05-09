@@ -251,10 +251,10 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         return orderBy;
     }
 
-    private OrderBySupport parseOrderBy(final AnyTypeKind type, final SearchSupport svs,
+    private OrderBySupport parseOrderBy(final AnyTypeKind kind, final SearchSupport svs,
             final List<OrderByClause> orderByClauses) {
 
-        final AnyUtils attrUtils = anyUtilsFactory.getInstance(type);
+        AnyUtils attrUtils = anyUtilsFactory.getInstance(kind);
 
         OrderBySupport obs = new OrderBySupport();
 
