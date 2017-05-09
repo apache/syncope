@@ -56,6 +56,7 @@ import org.elasticsearch.index.query.MatchNoneQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -123,6 +124,9 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
         SearchRequestBuilder builder = searchRequestBuilder(adminRealms, cond, kind).
                 setFrom(page <= 0 ? 0 : page - 1).
                 setSize(itemsPerPage < 0 ? elasticsearchUtils.getIndexMaxResultWindow() : itemsPerPage);
+        for (OrderByClause clause : orderBy) {
+            builder.addSort(clause.getField(), SortOrder.valueOf(clause.getDirection().name()));
+        }
 
         return buildResult(
                 CollectionUtils.collect(Arrays.asList(builder.get().getHits().getHits()),
