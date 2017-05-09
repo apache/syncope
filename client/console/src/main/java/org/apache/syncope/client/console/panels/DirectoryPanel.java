@@ -105,7 +105,7 @@ public abstract class DirectoryPanel<
 
     protected final BaseModal<W> displayAttributeModal = new BaseModal<>("outer");
 
-    private final ActionLinksTogglePanel<T> actionTogglePanel;
+    private ActionLinksTogglePanel<T> actionTogglePanel;
 
     /**
      * Create simple unfiltered search result panel.
@@ -352,6 +352,10 @@ public abstract class DirectoryPanel<
 
     protected ActionLinksTogglePanel<T> getTogglePanel() {
         return actionTogglePanel;
+    }
+
+    protected void setTogglePanel(final ActionLinksTogglePanel<T> actionTogglePanel) {
+        this.actionTogglePanel = actionTogglePanel;
     }
 
     public static class EventDataWrapper {

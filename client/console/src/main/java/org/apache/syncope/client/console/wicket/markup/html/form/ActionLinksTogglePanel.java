@@ -36,6 +36,7 @@ import org.apache.syncope.common.lib.to.SecurityQuestionTO;
 import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
 import org.apache.syncope.common.lib.to.AccessTokenTO;
 import org.apache.syncope.common.lib.to.ExecTO;
+import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.WorkflowDefinitionTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -98,6 +99,9 @@ public class ActionLinksTogglePanel<T extends Serializable> extends TogglePanel<
             header = ((PolicyRuleWrapper) modelObject).getName();
         } else if (modelObject instanceof ReportletWrapper) {
             header = ((ReportletWrapper) modelObject).getName();
+        } else if (modelObject instanceof JobTO) {
+            header = ((JobTO) modelObject).getRefKey() == null
+                    ? ((JobTO) modelObject).getRefDesc() : ((JobTO) modelObject).getRefKey();
         } else {
             header = new ResourceModel("actions", StringUtils.EMPTY).getObject();
         }
