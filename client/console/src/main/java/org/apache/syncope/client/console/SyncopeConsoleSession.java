@@ -327,5 +327,4 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
         Locale locale = getLocale() == null ? Locale.ENGLISH : getLocale();
         return FastDateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, locale);
     }
-
 }
