@@ -31,6 +31,8 @@ public final class Action<T extends Serializable> implements Serializable {
 
     private static final long serialVersionUID = -7989237020377623993L;
 
+    private String realm = null;
+
     private final ActionLink<T> link;
 
     private final ActionLink.ActionType type;
@@ -62,6 +64,14 @@ public final class Action<T extends Serializable> implements Serializable {
         this.alt = null;
         this.icon = null;
         this.indicator = true;
+    }
+
+    public String getRealm() {
+        return realm;
+    }
+
+    public void setRealm(final String realm) {
+        this.realm = realm;
     }
 
     public ActionLink<T> getLink() {

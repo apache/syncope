@@ -181,7 +181,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                                 target));
             }
         }, ActionType.EDIT, new StringBuilder().append(StandardEntitlement.USER_READ).append(",").
-                append(StandardEntitlement.USER_UPDATE).toString());
+                append(StandardEntitlement.USER_UPDATE).toString()).setRealm(realm);
 
         panel.add(new ActionLink<UserTO>() {
 
@@ -201,7 +201,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                 return addAjaxLink.isVisibleInHierarchy();
             }
 
-        }, ActionType.CLONE, StandardEntitlement.USER_CREATE);
+        }, ActionType.CLONE, StandardEntitlement.USER_CREATE).setRealm(realm);
 
         panel.add(new ActionLink<UserTO>() {
 
@@ -223,7 +223,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-        }, ActionType.MUSTCHANGEPASSWORD, StandardEntitlement.USER_UPDATE);
+        }, ActionType.MUSTCHANGEPASSWORD, StandardEntitlement.USER_UPDATE).setRealm(realm);
 
         if (wizardInModal) {
             panel.add(new ActionLink<UserTO>() {
@@ -247,7 +247,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                     displayAttributeModal.show(true);
                 }
             }, ActionType.PASSWORD_RESET,
-                    new StringBuilder().append(StandardEntitlement.USER_UPDATE).toString());
+                    new StringBuilder().append(StandardEntitlement.USER_UPDATE).toString()).setRealm(realm);
 
             panel.add(new ActionLink<UserTO>() {
 
@@ -271,7 +271,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
 
                     altDefaultModal.show(true);
                 }
-            }, ActionType.ENABLE, StandardEntitlement.USER_UPDATE);
+            }, ActionType.ENABLE, StandardEntitlement.USER_UPDATE).setRealm(realm);
 
             panel.add(new ActionLink<UserTO>() {
 
@@ -295,7 +295,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
 
                     altDefaultModal.show(true);
                 }
-            }, ActionType.MANAGE_RESOURCES, StandardEntitlement.USER_UPDATE);
+            }, ActionType.MANAGE_RESOURCES, StandardEntitlement.USER_UPDATE).setRealm(realm);
 
             panel.add(new ActionLink<UserTO>() {
 
@@ -310,6 +310,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                     utilityModal.show(true);
                 }
             }, ActionType.PROPAGATION_TASKS, StandardEntitlement.TASK_LIST);
+            
             panel.add(new ActionLink<UserTO>() {
 
                 private static final long serialVersionUID = -7978723352517770644L;
@@ -342,7 +343,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-        }, ActionType.DELETE, StandardEntitlement.USER_DELETE, true);
+        }, ActionType.DELETE, StandardEntitlement.USER_DELETE, true).setRealm(realm);
 
         return panel;
     }

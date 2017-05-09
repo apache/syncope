@@ -155,7 +155,9 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
                                 new AnyWrapper<>(new AnyObjectRestClient().read(model.getObject().getKey())),
                                 target));
             }
-        }, ActionType.EDIT, AnyEntitlement.READ.getFor(type));
+        }, ActionType.EDIT, new StringBuilder().append(AnyEntitlement.READ.getFor(type)).append(",").
+                append(AnyEntitlement.UPDATE.getFor(type)).toString()).setRealm(realm);
+
         panel.add(new ActionLink<AnyObjectTO>() {
 
             private static final long serialVersionUID = -7978723352517770645L;
@@ -172,7 +174,7 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
             protected boolean statusCondition(final AnyObjectTO modelObject) {
                 return addAjaxLink.isVisibleInHierarchy();
             }
-        }, ActionType.CLONE, AnyEntitlement.CREATE.getFor(type));
+        }, ActionType.CLONE, AnyEntitlement.CREATE.getFor(type)).setRealm(realm);
 
         if (wizardInModal) {
             panel.add(new ActionLink<AnyObjectTO>() {
@@ -197,7 +199,9 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
 
                     altDefaultModal.show(true);
                 }
-            }, ActionType.MANAGE_RESOURCES, AnyEntitlement.READ.getFor(type));
+            }, ActionType.MANAGE_RESOURCES, new StringBuilder().append(AnyEntitlement.READ.getFor(type)).append(",").
+                    append(AnyEntitlement.UPDATE.getFor(type)).toString()).setRealm(realm);
+
             panel.add(
                     new ActionLink<AnyObjectTO>() {
 
@@ -212,6 +216,7 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
                     utilityModal.show(true);
                 }
             }, ActionType.PROPAGATION_TASKS, StandardEntitlement.TASK_LIST);
+
             panel.add(new ActionLink<AnyObjectTO>() {
 
                 private static final long serialVersionUID = -7978723352517770644L;
@@ -245,7 +250,7 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-        }, ActionType.DELETE, AnyEntitlement.DELETE.getFor(type), true);
+        }, ActionType.DELETE, AnyEntitlement.DELETE.getFor(type), true).setRealm(realm);
 
         return panel;
     }
