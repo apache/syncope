@@ -24,12 +24,14 @@ import java.io.Serializable;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
+import org.apache.syncope.client.console.wicket.markup.html.link.VeilPopupSettings;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.link.AbstractLink;
+import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
@@ -65,7 +67,7 @@ public final class ActionPanel<T extends Serializable> extends Panel {
         }
 
         final boolean enabled;
-        final AjaxLink<Void> actionLink;
+        final AbstractLink actionLink;
 
         if (action.getLink() == null || action.getType() == ActionType.NOT_FOUND) {
             enabled = true;
@@ -82,6 +84,11 @@ public final class ActionPanel<T extends Serializable> extends Panel {
                 public void onClick(final AjaxRequestTarget target) {
                 }
             };
+        } else if (action.getType() == ActionType.WORKFLOW_MODELER) {
+            enabled = action.getLink().isEnabled(obj);
+            actionLink = new BookmarkablePageLink<>(
+                    "action", action.getLink().getPageClass(), action.getLink().getPageParameters()).
+                    setPopupSettings(new VeilPopupSettings().setHeight(600).setWidth(800));
         } else {
             enabled = action.getLink().isEnabled(obj);
 
@@ -123,7 +130,7 @@ public final class ActionPanel<T extends Serializable> extends Panel {
         } else {
             MetaDataRoleAuthorizationStrategy.unauthorizeAll(actionLink, RENDER);
         }
-        
+
         actionLink.setVisible(enabled);
 
         actionIcon = new Label("actionIcon", "");
