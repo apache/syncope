@@ -140,7 +140,7 @@ public class UserIssuesITCase extends AbstractITCase {
         updateUser(userPatch);
     }
 
-    @Test(expected = EmptyResultDataAccessException.class)
+    @Test
     public void issue213() {
         UserTO userTO = UserITCase.getUniqueSampleTO("issue213@syncope.apache.org");
         userTO.getResources().add(RESOURCE_NAME_TESTDB);
@@ -150,14 +150,11 @@ public class UserIssuesITCase extends AbstractITCase {
         assertEquals(1, userTO.getResources().size());
 
         JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
-
-        String username = jdbcTemplate.queryForObject("SELECT id FROM test WHERE id=?", String.class,
-                userTO.getUsername());
-
+        String username = queryForObject(
+                jdbcTemplate, 50, "SELECT id FROM test WHERE id=?", String.class, userTO.getUsername());
         assertEquals(userTO.getUsername(), username);
 
         UserPatch userPatch = new UserPatch();
-
         userPatch.setKey(userTO.getKey());
         userPatch.getResources().add(
                 new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(RESOURCE_NAME_TESTDB).build());
@@ -165,7 +162,13 @@ public class UserIssuesITCase extends AbstractITCase {
         userTO = updateUser(userPatch).getEntity();
         assertTrue(userTO.getResources().isEmpty());
 
-        jdbcTemplate.queryForObject("SELECT id FROM test WHERE id=?", String.class, userTO.getUsername());
+        Exception exception = null;
+        try {
+            jdbcTemplate.queryForObject("SELECT id FROM test WHERE id=?", String.class, userTO.getUsername());
+        } catch (EmptyResultDataAccessException e) {
+            exception = e;
+        }
+        assertNotNull(exception);
     }
 
     @Test
@@ -740,7 +743,7 @@ public class UserIssuesITCase extends AbstractITCase {
         userPatch.setKey(userTO.getKey());
         userPatch.setPassword(
                 new PasswordPatch.Builder().value(getUUIDString() + "abbcbcbddd123").resource(RESOURCE_NAME_TESTDB).
-                build());
+                        build());
 
         result = updateUser(userPatch);
         assertEquals(RESOURCE_NAME_TESTDB, userTO.getResources().iterator().next());

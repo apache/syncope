@@ -201,15 +201,9 @@ public class UserWorkflowITCase extends AbstractITCase {
         assertEquals("active", userTO.getStatus());
         assertEquals(Collections.singleton(RESOURCE_NAME_TESTDB), userTO.getResources());
 
-        exception = null;
-        try {
-            final String username = jdbcTemplate.queryForObject("SELECT id FROM test WHERE id=?", String.class,
-                    userTO.getUsername());
-            assertEquals(userTO.getUsername(), username);
-        } catch (EmptyResultDataAccessException e) {
-            exception = e;
-        }
-        assertNull(exception);
+        String username = queryForObject(
+                jdbcTemplate, 50, "SELECT id FROM test WHERE id=?", String.class, userTO.getUsername());
+        assertEquals(userTO.getUsername(), username);
 
         // 6. update user
         UserPatch userPatch = new UserPatch();

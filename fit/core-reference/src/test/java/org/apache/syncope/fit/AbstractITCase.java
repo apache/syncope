@@ -19,6 +19,7 @@
 package org.apache.syncope.fit;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 import java.io.InputStream;
 import java.net.URI;
@@ -92,6 +93,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.junit.FixMethodOrder;
 import org.junit.runners.MethodSorters;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 @FixMethodOrder(MethodSorters.JVM)
 public abstract class AbstractITCase {
@@ -487,5 +489,36 @@ public abstract class AbstractITCase {
                 }
             }
         }
+    }
+
+    protected <T> T queryForObject(
+            final JdbcTemplate jdbcTemplate,
+            final int maxWaitSeconds,
+            final String sql, final Class<T> requiredType, final Object... args) {
+
+        int i = 0;
+        int maxit = maxWaitSeconds;
+
+        T object = null;
+
+        do {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+
+            try {
+                object = jdbcTemplate.queryForObject(sql, requiredType, args);
+            } catch (Exception e) {
+                LOG.warn("While executing query {}", sql, e);
+            }
+
+            i++;
+        } while (object == null && i < maxit);
+        if (object == null) {
+            fail("Timeout when executing query " + sql);
+        }
+
+        return object;
     }
 }
