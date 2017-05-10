@@ -236,15 +236,14 @@ public class VirAttrITCase extends AbstractITCase {
 
         // 3. update virtual attribute directly
         JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
-
-        String value = jdbcTemplate.queryForObject(
-                "SELECT USERNAME FROM testpull WHERE ID=?", String.class, actual.getKey());
+        String value = queryForObject(
+                jdbcTemplate, 50, "SELECT USERNAME FROM testpull WHERE ID=?", String.class, actual.getKey());
         assertEquals("virattrcache", value);
 
         jdbcTemplate.update("UPDATE testpull set USERNAME='virattrcache2' WHERE ID=?", actual.getKey());
 
-        value = jdbcTemplate.queryForObject(
-                "SELECT USERNAME FROM testpull WHERE ID=?", String.class, actual.getKey());
+        value = queryForObject(
+                jdbcTemplate, 50, "SELECT USERNAME FROM testpull WHERE ID=?", String.class, actual.getKey());
         assertEquals("virattrcache2", value);
 
         // 4. check for cached attribute value
@@ -400,15 +399,14 @@ public class VirAttrITCase extends AbstractITCase {
         // 4. update value on external resource
         // ----------------------------------------
         JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
-
-        String value = jdbcTemplate.queryForObject(
-                "SELECT USERNAME FROM testpull WHERE ID=?", String.class, userTO.getKey());
+        String value = queryForObject(
+                jdbcTemplate, 50, "SELECT USERNAME FROM testpull WHERE ID=?", String.class, userTO.getKey());
         assertEquals("virattrcache", value);
 
         jdbcTemplate.update("UPDATE testpull set USERNAME='virattrcache2' WHERE ID=?", userTO.getKey());
 
-        value = jdbcTemplate.queryForObject(
-                "SELECT USERNAME FROM testpull WHERE ID=?", String.class, userTO.getKey());
+        value = queryForObject(
+                jdbcTemplate, 50, "SELECT USERNAME FROM testpull WHERE ID=?", String.class, userTO.getKey());
         assertEquals("virattrcache2", value);
         // ----------------------------------------
 
@@ -702,9 +700,9 @@ public class VirAttrITCase extends AbstractITCase {
             // modify virtual attribute
             userPatch.getVirAttrs().add(
                     new AttrTO.Builder().schema(virSchema.getKey()).
-                    value("test@issue691.dom3.org").
-                    value("test@issue691.dom4.org").
-                    build());
+                            value("test@issue691.dom3.org").
+                            value("test@issue691.dom4.org").
+                            build());
 
             UserTO updated = updateUser(userPatch).getEntity();
             assertNotNull(updated);

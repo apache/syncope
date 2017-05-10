@@ -94,7 +94,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -925,15 +924,10 @@ public class PullTaskITCase extends AbstractTaskITCase {
         assertEquals("virtualvalue", userTO.getVirAttrMap().get("virtualdata").getValues().get(0));
 
         // ...and that propagation to db succeeded
-        try {
-            JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
-
-            String value = jdbcTemplate.queryForObject(
-                    "SELECT USERNAME FROM testpull WHERE ID=?", String.class, userTO.getKey());
-            assertEquals("virtualvalue", value);
-        } catch (EmptyResultDataAccessException e) {
-            fail();
-        }
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
+        String value = queryForObject(
+                jdbcTemplate, 50, "SELECT USERNAME FROM testpull WHERE ID=?", String.class, userTO.getKey());
+        assertEquals("virtualvalue", value);
     }
 
     @Test
@@ -948,8 +942,8 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
         // 2. Check that the DB resource has the correct password
         JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
-        String value = jdbcTemplate.queryForObject(
-                "SELECT PASSWORD FROM test WHERE ID=?", String.class, user.getUsername());
+        String value = queryForObject(
+                jdbcTemplate, 50, "SELECT PASSWORD FROM test WHERE ID=?", String.class, user.getUsername());
         assertEquals(Encryptor.getInstance().encode("security123", CipherAlgorithm.SHA1), value.toUpperCase());
 
         // 3. Update the password in the DB
@@ -1135,8 +1129,8 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
             // ...and propagated
             JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
-            String email = jdbcTemplate.queryForObject(
-                    "SELECT EMAIL FROM TESTPULL WHERE USERNAME=?", String.class, user.getUsername());
+            String email = queryForObject(
+                    jdbcTemplate, 50, "SELECT EMAIL FROM TESTPULL WHERE USERNAME=?", String.class, user.getUsername());
             assertEquals(user.getPlainAttrMap().get("email").getValues().get(0), email);
 
             // 4. update the user on the external resource
@@ -1157,8 +1151,8 @@ public class PullTaskITCase extends AbstractTaskITCase {
             assertEquals("pullFromLDAP2@syncope.apache.org", user.getPlainAttrMap().get("email").getValues().get(0));
 
             // ...and propagated
-            email = jdbcTemplate.queryForObject(
-                    "SELECT EMAIL FROM TESTPULL WHERE USERNAME=?", String.class, user.getUsername());
+            email = queryForObject(
+                    jdbcTemplate, 50, "SELECT EMAIL FROM TESTPULL WHERE USERNAME=?", String.class, user.getUsername());
             assertEquals(user.getPlainAttrMap().get("email").getValues().get(0), email);
         } catch (Exception e) {
             LOG.error("Unexpected during issueSYNCOPE1062()", e);

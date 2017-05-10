@@ -277,8 +277,8 @@ public class MembershipITCase extends AbstractITCase {
 
             // 2. verify that user was found on resource
             JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
-            String idOnResource = jdbcTemplate.queryForObject(
-                    "SELECT id FROM testpull WHERE id=?", String.class, "5432");
+            String idOnResource = queryForObject(
+                    jdbcTemplate, 50, "SELECT id FROM testpull WHERE id=?", String.class, "5432");
             assertEquals("5432", idOnResource);
 
             // 3. unlink user from resource, then remove it

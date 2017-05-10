@@ -277,8 +277,8 @@ public class UserSelfITCase extends AbstractITCase {
 
         // verify propagation (including password) on external db
         JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
-        String pwdOnResource = jdbcTemplate.queryForObject("SELECT password FROM test WHERE id=?", String.class,
-                user.getUsername());
+        String pwdOnResource = queryForObject(
+                jdbcTemplate, 50, "SELECT password FROM test WHERE id=?", String.class, user.getUsername());
         assertTrue(StringUtils.isNotBlank(pwdOnResource));
 
         // 2. verify that new user is able to authenticate
@@ -317,8 +317,8 @@ public class UserSelfITCase extends AbstractITCase {
         assertNull(read.getToken());
 
         // 7. verify that password was changed on external resource
-        String newPwdOnResource = jdbcTemplate.queryForObject("SELECT password FROM test WHERE id=?", String.class,
-                user.getUsername());
+        String newPwdOnResource = queryForObject(
+                jdbcTemplate, 50, "SELECT password FROM test WHERE id=?", String.class, user.getUsername());
         assertTrue(StringUtils.isNotBlank(newPwdOnResource));
         assertNotEquals(pwdOnResource, newPwdOnResource);
     }
