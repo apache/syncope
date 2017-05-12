@@ -33,7 +33,6 @@ import javax.persistence.Transient;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.Validator;
@@ -231,19 +230,11 @@ public class JPAPlainSchema extends AbstractSchema implements PlainSchema {
 
     @Override
     public String getConversionPattern() {
-        if (!getType().isConversionPatternNeeded()) {
-            LOG.debug("Conversion pattern is not needed: {}'s type is {}", this, getType());
-        }
-
         return conversionPattern;
     }
 
     @Override
     public void setConversionPattern(final String conversionPattern) {
-        if (StringUtils.isNotBlank(conversionPattern) && !getType().isConversionPatternNeeded()) {
-            LOG.warn("Conversion pattern will be ignored: this attribute type is {}", getType());
-        }
-
         this.conversionPattern = conversionPattern;
     }
 
