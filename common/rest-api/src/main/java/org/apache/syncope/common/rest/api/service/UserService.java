@@ -53,7 +53,7 @@ public interface UserService extends AnyService<UserTO, UserPatch> {
             @DefaultValue("true") @QueryParam("storePassword") boolean storePassword);
 
     /**
-     * Performs a status update on given.
+     * Performs a status update on given user.
      *
      * @param statusPatch status update details
      * @return Response object featuring the updated user enriched with propagation status information
