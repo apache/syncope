@@ -104,7 +104,7 @@ under the License.
     </property>
   </bean>
   
-  <bean id="extendedSwagger2Serializers" class="org.apache.syncope.core.rest.cxf.ExtendedSwagger2Serializers">
+  <bean id="swagger2customizer" class="org.apache.syncope.core.rest.cxf.SyncopeSwagger2Customizer">
     <property name="dynamicBasePath" value="true"/>
     <property name="replaceTags" value="true"/>
     <property name="javaDocPaths">
@@ -125,7 +125,7 @@ under the License.
     <property name="scanAllResources" value="true"/>
     <property name="activateOnlyIfJaxrsSupported" value="true"/>
     
-    <property name="swagger2Serializers" ref="extendedSwagger2Serializers"/>
+    <property name="customizer" ref="swagger2customizer"/>
   </bean>
 
   <jaxrs:server id="restContainer" address="/"

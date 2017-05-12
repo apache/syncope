@@ -23,18 +23,17 @@ import io.swagger.models.parameters.Parameter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.cxf.jaxrs.swagger.DefaultSwagger2Serializers;
-import org.apache.cxf.jaxrs.swagger.Swagger2Serializers;
+import org.apache.cxf.jaxrs.swagger.Swagger2Customizer;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.core.persistence.api.DomainsHolder;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 
-public class ExtendedSwagger2Serializers extends DefaultSwagger2Serializers implements Swagger2Serializers {
+public class SyncopeSwagger2Customizer extends Swagger2Customizer {
 
     private List<String> domains;
 
-    public ExtendedSwagger2Serializers() {
+    public SyncopeSwagger2Customizer() {
         super();
 
         URL[] javaDocURLs = JavaDocUtils.getJavaDocURLs();
