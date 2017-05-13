@@ -372,6 +372,8 @@ public class RoleDataBinder extends AbstractAttributableDataBinder {
     public RoleTO getRoleTO(final SyncopeRole role, final boolean details) {
         RoleTO roleTO = new RoleTO();
 
+        roleTO.setSubtree(roleDAO.hasChildren(role));
+
         // set sys info
         roleTO.setCreator(role.getCreator());
         roleTO.setCreationDate(role.getCreationDate());

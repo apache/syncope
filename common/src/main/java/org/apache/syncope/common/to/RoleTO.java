@@ -39,6 +39,8 @@ public class RoleTO extends AbstractSubjectTO {
 
     private long parent;
 
+    private boolean subtree;
+
     private Long userOwner;
 
     private Long roleOwner;
@@ -89,6 +91,14 @@ public class RoleTO extends AbstractSubjectTO {
 
     public void setParent(final long parent) {
         this.parent = parent;
+    }
+
+    public boolean isSubtree() {
+        return subtree;
+    }
+
+    public void setSubtree(final boolean subtree) {
+        this.subtree = subtree;
     }
 
     public Long getUserOwner() {

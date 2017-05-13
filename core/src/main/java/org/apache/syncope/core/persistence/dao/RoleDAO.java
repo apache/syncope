@@ -52,6 +52,8 @@ public interface RoleDAO extends SubjectDAO {
 
     List<SyncopeRole> findAncestors(SyncopeRole role);
 
+    boolean hasChildren(SyncopeRole role);
+
     List<SyncopeRole> findChildren(SyncopeRole role);
 
     List<SyncopeRole> findDescendants(SyncopeRole role);

@@ -55,12 +55,14 @@ public interface RoleService extends JAXRSService {
      * Returns children roles of given role.
      *
      * @param roleId id of role to get children from
+     * @param details whether include all details or not, defaults to true
      * @return children roles of given role
      */
     @GET
     @Path("{roleId}/children")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    List<RoleTO> children(@NotNull @PathParam("roleId") Long roleId);
+    List<RoleTO> children(@NotNull @PathParam("roleId") Long roleId,
+            @QueryParam(PARAM_DETAILS) @DefaultValue("true") boolean details);
 
     /**
      * Returns parent role of the given role (or null if no parent exists).

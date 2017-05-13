@@ -50,8 +50,8 @@ public class RoleServiceImpl extends AbstractServiceImpl implements RoleService 
     private UserController userController;
 
     @Override
-    public List<RoleTO> children(final Long roleId) {
-        return controller.children(roleId);
+    public List<RoleTO> children(final Long roleId, final boolean details) {
+        return controller.children(roleId, details);
     }
 
     @Override

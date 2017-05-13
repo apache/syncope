@@ -75,6 +75,8 @@ public class TreeRolePanel extends Panel {
             protected Component newContentComponent(final String id, final IModel<DefaultMutableTreeNode> node) {
                 final DefaultMutableTreeNode treeNode = node.getObject();
                 final RoleTO roleTO = (RoleTO) treeNode.getUserObject();
+                
+                ((TreeRoleProvider)treeProvider).update(treeNode, roleTreeBuilder,roleTO.getId());
 
                 return new Folder<DefaultMutableTreeNode>(id, TreeRolePanel.this.tree, node) {
 
@@ -100,10 +102,8 @@ public class TreeRolePanel extends Panel {
             }
         };
         tree.add(new WindowsTheme());
-        tree.setOutputMarkupId(true);
-
-        DefaultMutableTreeNodeExpansion.get().expandAll();
-
+        tree.setOutputMarkupId(true);        
+        
         MetaDataRoleAuthorizationStrategy.authorize(tree, ENABLE, xmlRolesReader.getEntitlement("Roles", "read"));
 
         treeContainer.addOrReplace(tree);

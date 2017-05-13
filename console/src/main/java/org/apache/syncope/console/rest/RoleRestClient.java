@@ -196,4 +196,12 @@ public class RoleRestClient extends AbstractSubjectRestClient {
         }
         return result;
     }
+
+    public List<RoleTO> children(final long parentId) {
+        return getService(RoleService.class).children(parentId, false);
+    }
+
+    public RoleTO parent(final Long roleId) {
+        return getService(RoleService.class).parent(roleId);
+    }
 }

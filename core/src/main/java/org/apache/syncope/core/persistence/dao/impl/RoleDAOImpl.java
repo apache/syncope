@@ -283,6 +283,15 @@ public class RoleDAOImpl extends AbstractSubjectDAOImpl implements RoleDAO {
     }
 
     @Override
+    public boolean hasChildren(final SyncopeRole role) {
+        Query query = entityManager.createQuery(
+                "SELECT COUNT(r.id) FROM SyncopeRole r WHERE r.parent=:role", SyncopeRole.class);
+        query.setParameter("role", role);
+
+        return ((Number) query.getSingleResult()).intValue() > 0;
+    }
+
+    @Override
     public List<SyncopeRole> findChildren(final SyncopeRole role) {
         TypedQuery<SyncopeRole> query =
                 entityManager.createQuery("SELECT r FROM SyncopeRole r WHERE r.parent=:role", SyncopeRole.class);

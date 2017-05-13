@@ -67,8 +67,15 @@ public class RoleTreeBuilder {
     }
 
     public TreeModel build() {
-        this.allRoles = this.restClient.list();
+        this.allRoles = this.restClient.children(0);
         return build(this.allRoles);
+    }
+
+    public void update(final DefaultMutableTreeNode treeNode, final long roleId) {
+        if (treeNode.getChildCount() == 0) {
+            this.allRoles.addAll(this.restClient.children(roleId));
+            populateSubtree(treeNode, this.allRoles);
+        }
     }
 
     public TreeModel build(final List<RoleTO> roles) {
