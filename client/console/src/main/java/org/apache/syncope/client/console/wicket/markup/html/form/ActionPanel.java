@@ -28,6 +28,7 @@ import org.apache.syncope.client.console.wicket.markup.html.link.VeilPopupSettin
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
+import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.AbstractLink;
@@ -51,6 +52,8 @@ public final class ActionPanel<T extends Serializable> extends Panel {
 
     private boolean disableIndicator = false;
 
+    private final Action<T> action;
+
     public ActionPanel(final IModel<T> model, final Action<T> action) {
         this("action", model, action);
     }
@@ -58,6 +61,7 @@ public final class ActionPanel<T extends Serializable> extends Panel {
     public ActionPanel(final String componentId, final IModel<T> model, final Action<T> action) {
         super(componentId);
         setOutputMarkupId(true);
+        this.action = action;
 
         final T obj;
         if (model == null) {
@@ -99,6 +103,7 @@ public final class ActionPanel<T extends Serializable> extends Panel {
 
                 @Override
                 public void onClick(final AjaxRequestTarget target) {
+                    beforeOnClick(target);
                     action.getLink().onClick(target, obj);
                 }
 
@@ -114,6 +119,7 @@ public final class ActionPanel<T extends Serializable> extends Panel {
 
                 @Override
                 public void onClick(final AjaxRequestTarget target) {
+                    beforeOnClick(target);
                     action.getLink().onClick(target, obj);
                 }
 
@@ -173,5 +179,18 @@ public final class ActionPanel<T extends Serializable> extends Panel {
 
         this.disableIndicator = !action.hasIndicator();
         // ---------------------------
+    }
+
+    protected void beforeOnClick(final AjaxRequestTarget target) {
+        switch (this.action.getType()) {
+            case DELETE:
+            case CREATE:
+            case MEMBERS:
+            case CLAIM:
+                send(this, Broadcast.BUBBLE, new ActionLinksTogglePanel.ActionLinkTogleCloseEventPayload(target));
+                break;
+            default:
+                break;
+        }
     }
 }

@@ -37,9 +37,12 @@ import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
 import org.apache.syncope.common.lib.to.AccessTokenTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.JobTO;
+import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.WorkflowDefinitionTO;
+import org.apache.syncope.common.lib.to.WorkflowFormTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Fragment;
@@ -89,6 +92,10 @@ public class ActionLinksTogglePanel<T extends Serializable> extends TogglePanel<
             header = ((ExecTO) modelObject).getKey();
         } else if (modelObject instanceof WorkflowDefinitionTO) {
             header = ((WorkflowDefinitionTO) modelObject).getName();
+        } else if (modelObject instanceof SchedTaskTO) {
+            header = ((SchedTaskTO) modelObject).getName();
+        } else if (modelObject instanceof WorkflowFormTO) {
+            header = ((WorkflowFormTO) modelObject).getKey();
         } else if (modelObject instanceof EntityTO) {
             header = ((EntityTO) modelObject).getKey();
         } else if (modelObject instanceof StatusBean) {
@@ -129,5 +136,25 @@ public class ActionLinksTogglePanel<T extends Serializable> extends TogglePanel<
 
     private Fragment getEmptyFragment() {
         return new Fragment("actions", "emptyFragment", this);
+    }
+
+    @Override
+    public void onEvent(final IEvent<?> event) {
+        if (event.getPayload() instanceof ActionLinkTogleCloseEventPayload) {
+            close(ActionLinkTogleCloseEventPayload.class.cast(event.getPayload()).getTarget());
+        }
+    }
+
+    public static class ActionLinkTogleCloseEventPayload {
+
+        private final AjaxRequestTarget target;
+
+        public ActionLinkTogleCloseEventPayload(final AjaxRequestTarget target) {
+            this.target = target;
+        }
+
+        public AjaxRequestTarget getTarget() {
+            return target;
+        }
     }
 }
