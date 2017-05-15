@@ -48,6 +48,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.syncope.client.console.panels.WizardModalPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksTogglePanel;
 import org.apache.wicket.markup.html.basic.Label;
 
 public abstract class WizardMgtPanel<T extends Serializable> extends Panel implements IEventSource {
@@ -122,7 +123,10 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                send(WizardMgtPanel.this, Broadcast.EXACT, new AjaxWizard.NewItemActionEvent<T>(null, target));
+                send(WizardMgtPanel.this, Broadcast.BREADTH,
+                        new ActionLinksTogglePanel.ActionLinkTogleCloseEventPayload(target));
+                send(WizardMgtPanel.this, Broadcast.EXACT,
+                        new AjaxWizard.NewItemActionEvent<T>(null, target));
             }
         };
 
@@ -364,7 +368,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
      */
     protected void customActionCallback(final AjaxRequestTarget target) {
     }
-    
+
     /**
      * Custom action to perform on close callback on finish event.
      *
