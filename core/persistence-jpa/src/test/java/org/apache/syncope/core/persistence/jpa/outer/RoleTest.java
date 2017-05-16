@@ -26,11 +26,10 @@ import static org.junit.Assert.assertTrue;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import javax.persistence.TypedQuery;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
-import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
@@ -123,11 +122,11 @@ public class RoleTest extends AbstractTest {
         assertEquals(actual, actual.getDynMembership().getRole());
 
         // 3. verify that expected users have the created role dynamically assigned
-        assertEquals(2, actual.getDynMembership().getMembers().size());
-        assertEquals(new HashSet<>(Arrays.asList("c9b2dec2-00a7-4855-97c0-d854842b4b24", newUserKey)),
-                CollectionUtils.collect(actual.getDynMembership().getMembers(),
-                        EntityUtils.<User>keyTransformer(),
-                        new HashSet<String>()));
+        List<String> members = roleDAO.findDynMembersKeys(actual);
+        assertEquals(2, members.size());
+        assertEquals(
+                new HashSet<>(Arrays.asList("c9b2dec2-00a7-4855-97c0-d854842b4b24", newUserKey)),
+                new HashSet<>(members));
 
         user = userDAO.find("c9b2dec2-00a7-4855-97c0-d854842b4b24");
         assertNotNull(user);
@@ -141,8 +140,9 @@ public class RoleTest extends AbstractTest {
         userDAO.flush();
 
         actual = roleDAO.find(actual.getKey());
-        assertEquals(1, actual.getDynMembership().getMembers().size());
-        assertEquals("c9b2dec2-00a7-4855-97c0-d854842b4b24", actual.getDynMembership().getMembers().get(0).getKey());
+        members = roleDAO.findDynMembersKeys(actual);
+        assertEquals(1, members.size());
+        assertEquals("c9b2dec2-00a7-4855-97c0-d854842b4b24", members.get(0));
 
         // 5. delete role and verify that dynamic membership was also removed
         String dynMembershipKey = actual.getDynMembership().getKey();

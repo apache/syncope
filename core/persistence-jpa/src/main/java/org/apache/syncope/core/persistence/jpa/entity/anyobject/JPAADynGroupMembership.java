@@ -43,6 +43,8 @@ public class JPAADynGroupMembership extends AbstractDynMembership<AnyObject> imp
 
     public static final String TABLE = "ADynGroupMembership";
 
+    public static final String JOIN_TABLE = TABLE + "_AnyObject";
+
     @OneToOne
     private JPAGroup group;
 
@@ -50,7 +52,7 @@ public class JPAADynGroupMembership extends AbstractDynMembership<AnyObject> imp
     private JPAAnyType anyType;
 
     @ManyToMany
-    @JoinTable(joinColumns =
+    @JoinTable(name = JOIN_TABLE, joinColumns =
             @JoinColumn(name = "aDynGroupMembership_id"),
             inverseJoinColumns =
             @JoinColumn(name = "anyObject_id"))
@@ -85,7 +87,8 @@ public class JPAADynGroupMembership extends AbstractDynMembership<AnyObject> imp
     }
 
     @Override
-    public List<? extends AnyObject> getMembers() {
-        return anyObjects;
+    public void clear() {
+        anyObjects.clear();
     }
+
 }

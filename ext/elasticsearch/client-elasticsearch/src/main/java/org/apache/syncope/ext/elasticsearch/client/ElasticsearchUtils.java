@@ -32,12 +32,10 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.Role;
-import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
-import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -130,10 +128,7 @@ public class ElasticsearchUtils {
                     return input.getLeftEnd().getKey();
                 }
             }, new ArrayList<>());
-            UDynGroupMembership udynmembership = group.getUDynMembership();
-            if (udynmembership != null) {
-                CollectionUtils.collect(udynmembership.getMembers(), EntityUtils.keyTransformer(), members);
-            }
+            members.add(groupDAO.findUDynMembersKeys(group));
             CollectionUtils.collect(groupDAO.findAMemberships(group),
                     new Transformer<AMembership, Object>() {
 
@@ -142,9 +137,7 @@ public class ElasticsearchUtils {
                     return input.getLeftEnd().getKey();
                 }
             }, members);
-            for (ADynGroupMembership adynmembership : group.getADynMemberships()) {
-                CollectionUtils.collect(adynmembership.getMembers(), EntityUtils.keyTransformer(), members);
-            }
+            members.add(groupDAO.findADynMembersKeys(group));
             builder = builder.field("members", members);
         } else if (any instanceof User) {
             User user = ((User) any);

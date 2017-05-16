@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.persistence.api.entity;
 
-import java.util.List;
-
 public interface DynMembership<A extends Any<?>> extends Entity {
 
     String getFIQLCond();
@@ -28,5 +26,5 @@ public interface DynMembership<A extends Any<?>> extends Entity {
 
     boolean add(A any);
 
-    List<? extends A> getMembers();
+    void clear();
 }

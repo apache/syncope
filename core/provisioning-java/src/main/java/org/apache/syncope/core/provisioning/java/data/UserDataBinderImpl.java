@@ -613,9 +613,9 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             }, userTO.getMemberships());
 
             // dynamic memberships
-            CollectionUtils.collect(userDAO.findDynRoleMemberships(user),
+            CollectionUtils.collect(userDAO.findDynRoles(user),
                     EntityUtils.<Role>keyTransformer(), userTO.getDynRoles());
-            CollectionUtils.collect(userDAO.findDynGroupMemberships(user),
+            CollectionUtils.collect(userDAO.findDynGroups(user),
                     EntityUtils.<Group>keyTransformer(), userTO.getDynGroups());
         }
 

@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import static org.apache.syncope.core.persistence.jpa.dao.AbstractDAO.LOG;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -232,34 +234,32 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
     }
 
     @Override
-    public void delete(final AnyObject any) {
-        for (Group group : findDynGroupMemberships(any)) {
-            group.getADynMembership(any.getType()).getMembers().remove(any);
-        }
+    public void delete(final AnyObject anyObject) {
+        groupDAO().removeDynMemberships(anyObject);
 
-        for (ARelationship relationship : findARelationships(any)) {
+        for (ARelationship relationship : findARelationships(anyObject)) {
             relationship.getLeftEnd().getRelationships().remove(relationship);
             save(relationship.getLeftEnd());
 
             entityManager().remove(relationship);
         }
-        for (URelationship relationship : findURelationships(any)) {
+        for (URelationship relationship : findURelationships(anyObject)) {
             relationship.getLeftEnd().getRelationships().remove(relationship);
             userDAO().save(relationship.getLeftEnd());
 
             entityManager().remove(relationship);
         }
 
-        entityManager().remove(any);
-        publisher.publishEvent(new AnyDeletedEvent(this, AnyTypeKind.ANY_OBJECT, any.getKey()));
+        entityManager().remove(anyObject);
+        publisher.publishEvent(new AnyDeletedEvent(this, AnyTypeKind.ANY_OBJECT, anyObject.getKey()));
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
-    public List<Group> findDynGroupMemberships(final AnyObject anyObject) {
+    public List<Group> findDynGroups(final AnyObject anyObject) {
         Query query = entityManager().createNativeQuery(
                 "SELECT t2.id FROM " + JPAADynGroupMembership.TABLE + " t0 "
-                + "INNER JOIN ADynGroupMembership_AnyObject t1 "
+                + "INNER JOIN " + JPAADynGroupMembership.JOIN_TABLE + " t1 "
                 + "ON t0.id = t1.aDynGroupMembership_id "
                 + "LEFT OUTER JOIN " + JPAGroup.TABLE + " t2 "
                 + "ON t0.GROUP_ID = t2.id "
@@ -293,7 +293,7 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
                         return input.getRightEnd();
                     }
                 }, new ArrayList<Group>()),
-                findDynGroupMemberships(anyObject));
+                findDynGroups(anyObject));
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)

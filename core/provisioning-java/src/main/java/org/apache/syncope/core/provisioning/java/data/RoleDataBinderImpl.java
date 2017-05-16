@@ -100,7 +100,7 @@ public class RoleDataBinderImpl implements RoleDataBinder {
         } else if (role.getDynMembership() != null && roleTO.getDynMembershipCond() != null
                 && !role.getDynMembership().getFIQLCond().equals(roleTO.getDynMembershipCond())) {
 
-            role.getDynMembership().getMembers().clear();
+            role.getDynMembership().clear();
             setDynMembership(role, roleTO.getDynMembershipCond());
         }
     }
