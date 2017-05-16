@@ -46,8 +46,16 @@ public interface GroupDAO extends AnyDAO<Group> {
 
     List<TypeExtension> findTypeExtensions(AnyTypeClass anyTypeClass);
 
+    List<String> findADynMembersKeys(Group group);
+
     void refreshDynMemberships(AnyObject anyObject);
 
+    void removeDynMemberships(AnyObject anyObject);
+
+    List<String> findUDynMembersKeys(Group group);
+
     void refreshDynMemberships(User user);
+
+    void removeDynMemberships(User user);
 
 }

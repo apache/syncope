@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
@@ -29,6 +31,7 @@ import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.JPARole;
+import org.apache.syncope.core.persistence.jpa.entity.user.JPADynRoleMembership;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.event.AnyCreatedUpdatedEvent;
@@ -88,7 +91,7 @@ public class JPARoleDAO extends AbstractDAO<Role> implements RoleDAO {
             List<User> matchingUsers = searchDAO().search(
                     SearchCondConverter.convert(role.getDynMembership().getFIQLCond()), AnyTypeKind.USER);
 
-            role.getDynMembership().getMembers().clear();
+            role.getDynMembership().clear();
             for (User user : matchingUsers) {
                 role.getDynMembership().add(user);
                 publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, user));
@@ -122,6 +125,28 @@ public class JPARoleDAO extends AbstractDAO<Role> implements RoleDAO {
         delete(role);
     }
 
+    @Override
+    public List<String> findDynMembersKeys(final Role role) {
+        if (role.getDynMembership() == null) {
+            return Collections.emptyList();
+        }
+
+        Query query = entityManager().createNativeQuery(
+                "SELECT t.user_id FROM " + JPADynRoleMembership.JOIN_TABLE + " t "
+                + "WHERE t.dynRoleMembership_id=?");
+        query.setParameter(1, role.getDynMembership().getKey());
+
+        List<String> result = new ArrayList<>();
+        for (Object key : query.getResultList()) {
+            String actualKey = key instanceof Object[]
+                    ? (String) ((Object[]) key)[0]
+                    : ((String) key);
+
+            result.add(actualKey);
+        }
+        return result;
+    }
+
     @Transactional
     @Override
     public void refreshDynMemberships(final User user) {
@@ -130,10 +155,23 @@ public class JPARoleDAO extends AbstractDAO<Role> implements RoleDAO {
                 if (searchDAO().matches(user, SearchCondConverter.convert(role.getDynMembership().getFIQLCond()))) {
                     role.getDynMembership().add(user);
                 } else {
-                    role.getDynMembership().getMembers().remove(user);
+                    Query query = entityManager().createNativeQuery(
+                            "DELETE FROM " + JPADynRoleMembership.JOIN_TABLE + " t "
+                            + "WHERE t.user_id=? and t.dynRoleMembership_id=?");
+                    query.setParameter(1, user.getKey());
+                    query.setParameter(2, role.getDynMembership().getKey());
+                    query.executeUpdate();
                 }
             }
         }
+    }
+
+    @Override
+    public void removeDynMemberships(final User user) {
+        Query query = entityManager().createNativeQuery(
+                "DELETE FROM " + JPADynRoleMembership.JOIN_TABLE + " t WHERE t.user_id=?");
+        query.setParameter(1, user.getKey());
+        query.executeUpdate();
     }
 
 }

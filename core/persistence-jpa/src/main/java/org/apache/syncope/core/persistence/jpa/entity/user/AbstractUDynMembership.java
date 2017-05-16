@@ -37,7 +37,8 @@ public abstract class AbstractUDynMembership extends AbstractDynMembership<User>
     }
 
     @Override
-    public List<? extends User> getMembers() {
-        return internalGetUsers();
+    public void clear() {
+        internalGetUsers().clear();
     }
+
 }

@@ -125,7 +125,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
             }, anyObjectTO.getMemberships());
 
             // dynamic memberships
-            CollectionUtils.collect(anyObjectDAO.findDynGroupMemberships(anyObject),
+            CollectionUtils.collect(anyObjectDAO.findDynGroups(anyObject),
                     EntityUtils.<Group>keyTransformer(), anyObjectTO.getDynGroups());
         }
 

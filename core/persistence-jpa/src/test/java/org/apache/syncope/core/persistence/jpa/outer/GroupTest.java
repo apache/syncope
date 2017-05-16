@@ -24,15 +24,16 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import javax.persistence.TypedQuery;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
@@ -228,11 +229,10 @@ public class GroupTest extends AbstractTest {
         assertEquals(actual, actual.getUDynMembership().getGroup());
 
         // 3. verify that expected users have the created group dynamically assigned
-        assertEquals(2, actual.getUDynMembership().getMembers().size());
+        List<String> members = groupDAO.findUDynMembersKeys(actual);
+        assertEquals(2, members.size());
         assertEquals(new HashSet<>(Arrays.asList("c9b2dec2-00a7-4855-97c0-d854842b4b24", newUserKey)),
-                CollectionUtils.collect(actual.getUDynMembership().getMembers(),
-                        EntityUtils.<User>keyTransformer(),
-                        new HashSet<String>()));
+                new HashSet<>(members));
 
         user = userDAO.findByUsername("bellini");
         assertNotNull(user);
@@ -246,10 +246,9 @@ public class GroupTest extends AbstractTest {
         userDAO.flush();
 
         actual = groupDAO.find(actual.getKey());
-        assertEquals(1, actual.getUDynMembership().getMembers().size());
-        assertEquals(
-                "c9b2dec2-00a7-4855-97c0-d854842b4b24",
-                actual.getUDynMembership().getMembers().get(0).getKey());
+        members = groupDAO.findUDynMembersKeys(actual);
+        assertEquals(1, members.size());
+        assertEquals("c9b2dec2-00a7-4855-97c0-d854842b4b24", members.get(0));
 
         // 5. delete group and verify that dynamic membership was also removed
         String dynMembershipKey = actual.getUDynMembership().getKey();
@@ -321,12 +320,18 @@ public class GroupTest extends AbstractTest {
         assertEquals(actual, actual.getADynMembership(anyTypeDAO.find("PRINTER")).getGroup());
 
         // 3. verify that expected any objects have the created group dynamically assigned
-        assertEquals(2, actual.getADynMembership(anyTypeDAO.find("PRINTER")).getMembers().size());
-        assertEquals(new HashSet<>(Arrays.asList(
-                "fc6dbc3a-6c07-4965-8781-921e7401a4a5", newAnyObjectKey)),
-                CollectionUtils.collect(actual.getADynMembership(anyTypeDAO.find("PRINTER")).getMembers(),
-                        EntityUtils.<AnyObject>keyTransformer(),
-                        new HashSet<String>()));
+        System.out.println("MMMMMMMMM " + groupDAO.findADynMembersKeys(actual));
+        List<String> members = CollectionUtils.select(groupDAO.findADynMembersKeys(actual), new Predicate<String>() {
+
+            @Override
+            public boolean evaluate(final String object) {
+                return "PRINTER".equals(anyObjectDAO.find(object).getType().getKey());
+            }
+        }, new ArrayList<String>());
+        assertEquals(2, members.size());
+        assertEquals(
+                new HashSet<>(Arrays.asList("fc6dbc3a-6c07-4965-8781-921e7401a4a5", newAnyObjectKey)),
+                new HashSet<>(members));
 
         anyObject = anyObjectDAO.find("fc6dbc3a-6c07-4965-8781-921e7401a4a5");
         assertNotNull(anyObject);
@@ -340,10 +345,15 @@ public class GroupTest extends AbstractTest {
         anyObjectDAO.flush();
 
         actual = groupDAO.find(actual.getKey());
-        assertEquals(1, actual.getADynMembership(anyTypeDAO.find("PRINTER")).getMembers().size());
-        assertEquals(
-                "fc6dbc3a-6c07-4965-8781-921e7401a4a5",
-                actual.getADynMembership(anyTypeDAO.find("PRINTER")).getMembers().get(0).getKey());
+        members = CollectionUtils.select(groupDAO.findADynMembersKeys(actual), new Predicate<String>() {
+
+            @Override
+            public boolean evaluate(final String object) {
+                return "PRINTER".equals(anyObjectDAO.find(object).getType().getKey());
+            }
+        }, new ArrayList<String>());
+        assertEquals(1, members.size());
+        assertEquals("fc6dbc3a-6c07-4965-8781-921e7401a4a5", members.get(0));
 
         // 5. delete group and verify that dynamic membership was also removed
         String dynMembershipKey = actual.getADynMembership(anyTypeDAO.find("PRINTER")).getKey();

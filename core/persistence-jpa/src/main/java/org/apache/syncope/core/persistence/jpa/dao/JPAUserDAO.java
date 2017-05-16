@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import static org.apache.syncope.core.persistence.jpa.dao.AbstractDAO.LOG;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -452,12 +454,8 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
 
     @Override
     public void delete(final User user) {
-        for (Role role : findDynRoleMemberships(user)) {
-            role.getDynMembership().getMembers().remove(user);
-        }
-        for (Group group : findDynGroupMemberships(user)) {
-            group.getUDynMembership().getMembers().remove(user);
-        }
+        roleDAO.removeDynMemberships(user);
+        groupDAO.removeDynMemberships(user);
 
         AccessToken accessToken = accessTokenDAO.findByOwner(user.getUsername());
         if (accessToken != null) {
@@ -470,10 +468,16 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
-    public List<Role> findDynRoleMemberships(final User user) {
+    public Collection<Role> findAllRoles(final User user) {
+        return CollectionUtils.union(user.getRoles(), findDynRoles(user));
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+    @Override
+    public List<Role> findDynRoles(final User user) {
         Query query = entityManager().createNativeQuery(
                 "SELECT t2.id FROM " + JPADynRoleMembership.TABLE + " t0 "
-                + "INNER JOIN " + JPADynRoleMembership.TABLE + "_User t1 "
+                + "INNER JOIN " + JPADynRoleMembership.JOIN_TABLE + " t1 "
                 + "ON t0.id = t1.dynRoleMembership_id "
                 + "LEFT OUTER JOIN " + JPARole.TABLE + " t2 "
                 + "ON t0.ROLE_ID = t2.id "
@@ -498,10 +502,10 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
-    public List<Group> findDynGroupMemberships(final User user) {
+    public List<Group> findDynGroups(final User user) {
         Query query = entityManager().createNativeQuery(
                 "SELECT t2.id FROM " + JPAUDynGroupMembership.TABLE + " t0 "
-                + "INNER JOIN " + JPAUDynGroupMembership.TABLE + "_User t1 "
+                + "INNER JOIN " + JPAUDynGroupMembership.JOIN_TABLE + " t1 "
                 + "ON t0.id = t1.uDynGroupMembership_id "
                 + "LEFT OUTER JOIN " + JPAGroup.TABLE + " t2 "
                 + "ON t0.GROUP_ID = t2.id "
@@ -526,12 +530,6 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
-    public Collection<Role> findAllRoles(final User user) {
-        return CollectionUtils.union(user.getRoles(), findDynRoleMemberships(user));
-    }
-
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
-    @Override
     public Collection<Group> findAllGroups(final User user) {
         return CollectionUtils.union(
                 CollectionUtils.collect(user.getMemberships(), new Transformer<UMembership, Group>() {
@@ -541,7 +539,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
                         return input.getRightEnd();
                     }
                 }, new ArrayList<Group>()),
-                findDynGroupMemberships(user));
+                findDynGroups(user));
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
