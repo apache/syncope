@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import static org.apache.syncope.core.persistence.jpa.dao.AbstractDAO.LOG;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;

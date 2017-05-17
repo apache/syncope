@@ -44,6 +44,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.RoleService;
 import org.apache.syncope.fit.AbstractITCase;
+import org.apache.syncope.fit.ElasticsearchDetector;
 import org.junit.Test;
 
 public class SearchITCase extends AbstractITCase {
@@ -148,6 +149,14 @@ public class SearchITCase extends AbstractITCase {
         group = createGroup(group).getEntity();
         assertNotNull(group);
 
+        if (ElasticsearchDetector.isElasticSearchEnabled(syncopeService)) {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException ex) {
+                // ignore
+            }
+        }
+
         PagedResult<UserTO> matchingUsers = userService.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                         fiql(SyncopeClient.getUserSearchConditionBuilder().inGroups(group.getKey()).query()).
@@ -189,6 +198,14 @@ public class SearchITCase extends AbstractITCase {
         Response response = roleService.create(role);
         role = getObject(response.getLocation(), RoleService.class, RoleTO.class);
         assertNotNull(role);
+
+        if (ElasticsearchDetector.isElasticSearchEnabled(syncopeService)) {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException ex) {
+                // ignore
+            }
+        }
 
         PagedResult<UserTO> matchingUsers = userService.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
@@ -259,6 +276,14 @@ public class SearchITCase extends AbstractITCase {
     @Test
     public void searchByDate() {
         clientFactory.create("bellini", "password").self();
+
+        if (ElasticsearchDetector.isElasticSearchEnabled(syncopeService)) {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException ex) {
+                // ignore
+            }
+        }
 
         PagedResult<UserTO> users = userService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                 fiql(SyncopeClient.getUserSearchConditionBuilder().

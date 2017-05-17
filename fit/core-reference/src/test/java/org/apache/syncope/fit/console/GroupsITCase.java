@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.fit.console;
 
-import static org.apache.syncope.fit.console.AbstractConsoleITCase.TESTER;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 

@@ -26,7 +26,6 @@ import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.index.IndexResponse;
-import org.elasticsearch.action.support.WriteRequest;
 import org.elasticsearch.action.update.UpdateResponse;
 import org.elasticsearch.client.Client;
 import org.slf4j.Logger;
@@ -35,7 +34,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 /**
- * Listen to any create / update and delete in order to keep the Elastsicsearch indexes consistent.
+ * Listen to any create / update and delete in order to keep the Elasticsearch indexes consistent.
  */
 public class ElasticsearchIndexManager {
 
@@ -60,8 +59,8 @@ public class ElasticsearchIndexManager {
                     AuthContextUtils.getDomain().toLowerCase(),
                     event.getAny().getType().getKind().name(),
                     event.getAny().getKey()).
+                    setRetryOnConflict(elasticsearchUtils.getRetryOnConflict()).
                     setDoc(elasticsearchUtils.builder(event.getAny())).
-                    setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE).
                     get();
             LOG.debug("Index successfully updated for {}: {}", event.getAny(), response);
         } else {
@@ -72,7 +71,6 @@ public class ElasticsearchIndexManager {
                     event.getAny().getType().getKind().name(),
                     event.getAny().getKey()).
                     setSource(elasticsearchUtils.builder(event.getAny())).
-                    setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE).
                     get();
 
             LOG.debug("Index successfully created for {}: {}", event.getAny(), response);
@@ -87,9 +85,9 @@ public class ElasticsearchIndexManager {
                 AuthContextUtils.getDomain().toLowerCase(),
                 event.getAnyTypeKind().name(),
                 event.getAnyKey()).
-                setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE).
                 get();
 
-        LOG.debug("Index successfully deleted for {}[{}]: {}", event.getAnyTypeKind(), event.getAnyKey(), response);
+        LOG.debug("Index successfully deleted for {}[{}]: {}",
+                event.getAnyTypeKind(), event.getAnyKey(), response);
     }
 }

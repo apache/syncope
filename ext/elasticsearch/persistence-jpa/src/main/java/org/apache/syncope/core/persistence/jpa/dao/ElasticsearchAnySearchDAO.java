@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import static org.apache.syncope.core.persistence.jpa.dao.AbstractDAO.LOG;
-
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -86,7 +84,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
                 LOG.warn("Ignoring invalid realm {}", realmPath);
             } else {
                 for (Realm descendant : realmDAO.findDescendants(realm)) {
-                    builder.add(QueryBuilders.termQuery("realm.keyword", descendant.getFullPath()));
+                    builder.add(QueryBuilders.termQuery("realm", descendant.getFullPath()));
                 }
             }
         }
@@ -134,15 +132,10 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
             if (anyField == null) {
                 PlainSchema schema = schemaDAO.find(fieldName);
                 if (schema != null) {
-                    sortName = schema.getType() == AttrSchemaType.String
-                            || schema.getType() == AttrSchemaType.Enum
-                            ? fieldName + ".keyword"
-                            : fieldName;
+                    sortName = fieldName;
                 }
             } else {
-                sortName = anyField.getType().equals(String.class)
-                        ? fieldName + ".keyword"
-                        : fieldName;
+                sortName = fieldName;
             }
 
             if (sortName == null) {
@@ -240,11 +233,11 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
     }
 
     private QueryBuilder getQueryBuilder(final AnyTypeCond cond) {
-        return QueryBuilders.termQuery("anyType.keyword", cond.getAnyTypeKey());
+        return QueryBuilders.termQuery("anyType", cond.getAnyTypeKey());
     }
 
     private QueryBuilder getQueryBuilder(final RelationshipTypeCond cond) {
-        return QueryBuilders.termQuery("relationshipTypes.keyword", cond.getRelationshipTypeKey());
+        return QueryBuilders.termQuery("relationshipTypes", cond.getRelationshipTypeKey());
     }
 
     private QueryBuilder getQueryBuilder(final RelationshipCond cond) {
@@ -255,7 +248,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
             return EMPTY_QUERY_BUILDER;
         }
 
-        return QueryBuilders.termQuery("relationships.keyword", rightAnyObjectKey);
+        return QueryBuilders.termQuery("relationships", rightAnyObjectKey);
     }
 
     private QueryBuilder getQueryBuilder(final MembershipCond cond) {
@@ -266,7 +259,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
             return EMPTY_QUERY_BUILDER;
         }
 
-        return QueryBuilders.termQuery("memberships.keyword", groupKey);
+        return QueryBuilders.termQuery("memberships", groupKey);
     }
 
     private QueryBuilder getQueryBuilder(final AssignableCond cond) {
@@ -280,12 +273,12 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
         DisMaxQueryBuilder builder = QueryBuilders.disMaxQuery();
         if (cond.isFromGroup()) {
             for (Realm current = realm; current.getParent() != null; current = current.getParent()) {
-                builder.add(QueryBuilders.termQuery("realm.keyword", current.getFullPath()));
+                builder.add(QueryBuilders.termQuery("realm", current.getFullPath()));
             }
-            builder.add(QueryBuilders.termQuery("realm.keyword", realmDAO.getRoot().getFullPath()));
+            builder.add(QueryBuilders.termQuery("realm", realmDAO.getRoot().getFullPath()));
         } else {
             for (Realm current : realmDAO.findDescendants(realm)) {
-                builder.add(QueryBuilders.termQuery("realm.keyword", current.getFullPath()));
+                builder.add(QueryBuilders.termQuery("realm", current.getFullPath()));
             }
         }
 
@@ -293,7 +286,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
     }
 
     private QueryBuilder getQueryBuilder(final RoleCond cond) {
-        return QueryBuilders.termQuery("roles.keyword", cond.getRoleKey());
+        return QueryBuilders.termQuery("roles", cond.getRoleKey());
     }
 
     private QueryBuilder getQueryBuilder(final MemberCond cond) {
@@ -304,11 +297,11 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
             return EMPTY_QUERY_BUILDER;
         }
 
-        return QueryBuilders.termQuery("members.keyword", memberKey);
+        return QueryBuilders.termQuery("members", memberKey);
     }
 
     private QueryBuilder getQueryBuilder(final ResourceCond cond) {
-        return QueryBuilders.termQuery("resources.keyword", cond.getResourceKey());
+        return QueryBuilders.termQuery("resources", cond.getResourceKey());
     }
 
     private QueryBuilder fillAttrQuery(
@@ -316,10 +309,6 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
             final PlainAttrValue attrValue,
             final AttributeCond cond) {
 
-        String name = schema.getType() == AttrSchemaType.String
-                || schema.getType() == AttrSchemaType.Enum
-                ? schema.getKey() + ".keyword"
-                : schema.getKey();
         Object value = schema.getType() == AttrSchemaType.Date && attrValue.getDateValue() != null
                 ? attrValue.getDateValue().getTime()
                 : attrValue.getValue();
@@ -328,44 +317,44 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
 
         switch (cond.getType()) {
             case ISNOTNULL:
-                builder = QueryBuilders.existsQuery(name);
+                builder = QueryBuilders.existsQuery(schema.getKey());
                 break;
 
             case ISNULL:
-                builder = QueryBuilders.boolQuery().mustNot(QueryBuilders.existsQuery(name));
+                builder = QueryBuilders.boolQuery().mustNot(QueryBuilders.existsQuery(schema.getKey()));
                 break;
 
             case ILIKE:
                 builder = QueryBuilders.queryStringQuery(
-                        schema.getKey() + ":" + cond.getExpression().replace('%', '*'));
+                        schema.getKey() + ":" + cond.getExpression().replace('%', '*').toLowerCase());
                 break;
 
             case LIKE:
-                builder = QueryBuilders.wildcardQuery(name, cond.getExpression().replace('%', '*'));
+                builder = QueryBuilders.wildcardQuery(schema.getKey(), cond.getExpression().replace('%', '*'));
                 break;
 
             case IEQ:
-                builder = QueryBuilders.matchQuery(schema.getKey(), value);
+                builder = QueryBuilders.matchQuery(schema.getKey(), cond.getExpression().toLowerCase());
                 break;
 
             case EQ:
-                builder = QueryBuilders.termQuery(name, value);
+                builder = QueryBuilders.termQuery(schema.getKey(), value);
                 break;
 
             case GE:
-                builder = QueryBuilders.rangeQuery(name).gte(value);
+                builder = QueryBuilders.rangeQuery(schema.getKey()).gte(value);
                 break;
 
             case GT:
-                builder = QueryBuilders.rangeQuery(name).gt(value);
+                builder = QueryBuilders.rangeQuery(schema.getKey()).gt(value);
                 break;
 
             case LE:
-                builder = QueryBuilders.rangeQuery(name).lte(value);
+                builder = QueryBuilders.rangeQuery(schema.getKey()).lte(value);
                 break;
 
             case LT:
-                builder = QueryBuilders.rangeQuery(name).lt(value);
+                builder = QueryBuilders.rangeQuery(schema.getKey()).lt(value);
                 break;
 
             default:
