@@ -32,6 +32,7 @@ import java.util.Map;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
@@ -224,7 +225,7 @@ public class ConnIdBundleManagerImpl implements ConnIdBundleManager {
     }
 
     @Override
-    public ConnectorInfo getConnectorInfo(final ConnInstance connInstance) {
+    public Pair<URI, ConnectorInfo> getConnectorInfo(final ConnInstance connInstance) {
         // check ConnIdLocation
         URI uriLocation = null;
         try {
@@ -252,7 +253,7 @@ public class ConnIdBundleManagerImpl implements ConnIdBundleManager {
             throw new NotFoundException("ConnectorInfo for location " + connInstance.getLocation() + " and key " + key);
         }
 
-        return info;
+        return Pair.of(uriLocation, info);
     }
 
     @Override
