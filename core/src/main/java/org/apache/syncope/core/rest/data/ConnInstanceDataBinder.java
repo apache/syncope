@@ -18,11 +18,13 @@
  */
 package org.apache.syncope.core.rest.data;
 
+import java.net.URI;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.to.ConnInstanceTO;
 import org.apache.syncope.common.to.ConnPoolConfTO;
 import org.apache.syncope.common.types.ConnConfPropSchema;
@@ -34,8 +36,10 @@ import org.apache.syncope.core.connid.ConnPoolConfUtil;
 import org.apache.syncope.core.persistence.beans.ConnInstance;
 import org.apache.syncope.core.persistence.dao.ConnInstanceDAO;
 import org.apache.syncope.core.util.ConnIdBundleManager;
+import org.apache.syncope.core.util.URIUtil;
 import org.identityconnectors.framework.api.ConfigurationProperties;
 import org.identityconnectors.framework.api.ConfigurationProperty;
+import org.identityconnectors.framework.api.ConnectorInfo;
 import org.identityconnectors.framework.impl.api.ConfigurationPropertyImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -43,7 +47,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ConnInstanceDataBinder {
 
-    private static final String[] IGNORE_PROPERTIES = { "id", "poolConf" };
+    private static final String[] IGNORE_PROPERTIES = { "id", "poolConf", "location" };
 
     @Autowired
     private ConnIdBundleManager connIdBundleManager;
@@ -203,15 +207,18 @@ public class ConnInstanceDataBinder {
 
     public ConnInstanceTO getConnInstanceTO(final ConnInstance connInstance) {
         ConnInstanceTO connInstanceTO = new ConnInstanceTO();
-        connInstanceTO.setId(connInstance.getId() == null ? 0L : connInstance.getId().longValue());
+        connInstanceTO.setId(connInstance.getId() == null ? 0L : connInstance.getId());
 
-        // retrieve the ConfigurationProperties
-        ConfigurationProperties properties = connIdBundleManager.getConfigurationProperties(
+        Pair<URI, ConnectorInfo> info =
                 connIdBundleManager.getConnectorInfo(connInstance.getLocation(),
-                        connInstance.getBundleName(), connInstance.getVersion(), connInstance.getConnectorName()));
+                        connInstance.getBundleName(), connInstance.getVersion(), connInstance.getConnectorName());
+        
+        // retrieve the ConfigurationProperties
+        ConfigurationProperties properties = connIdBundleManager.getConfigurationProperties(info.getRight());
 
         BeanUtils.copyProperties(connInstance, connInstanceTO, IGNORE_PROPERTIES);
-
+        connInstanceTO.setLocation(info.getLeft().toASCIIString());
+        
         final Map<String, ConnConfProperty> connInstanceToConfMap = connInstanceTO.getConfigurationMap();
 
         for (String propName : properties.getPropertyNames()) {

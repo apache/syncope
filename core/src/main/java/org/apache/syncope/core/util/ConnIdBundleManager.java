@@ -32,6 +32,7 @@ import java.util.Map;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.core.persistence.dao.NotFoundException;
 import org.identityconnectors.common.IOUtil;
 import org.identityconnectors.common.security.GuardedString;
@@ -213,7 +214,7 @@ public class ConnIdBundleManager {
         return connInfoManagers;
     }
 
-    public ConnectorInfo getConnectorInfo(
+    public Pair<URI, ConnectorInfo> getConnectorInfo(
             final String location, final String bundleName, final String bundleVersion, final String connectorName) {
 
         // check ConnIdLocation
@@ -242,7 +243,7 @@ public class ConnIdBundleManager {
             throw new NotFoundException("Connector Info for location " + location + " and key " + key);
         }
 
-        return info;
+        return Pair.of(uriLocation, info);
     }
 
     public Map<String, List<ConnectorInfo>> getConnectorInfos() {
