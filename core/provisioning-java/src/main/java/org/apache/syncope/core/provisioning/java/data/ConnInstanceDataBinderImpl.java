@@ -18,11 +18,13 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
+import java.net.URI;
 import org.apache.syncope.core.provisioning.api.data.ConnInstanceDataBinder;
 import java.util.Arrays;
 import java.util.Collection;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ConnPoolConfTO;
@@ -38,13 +40,14 @@ import org.identityconnectors.framework.api.ConfigurationProperties;
 import org.identityconnectors.framework.api.ConfigurationProperty;
 import org.identityconnectors.framework.impl.api.ConfigurationPropertyImpl;
 import org.apache.syncope.core.spring.BeanUtils;
+import org.identityconnectors.framework.api.ConnectorInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
 
-    private static final String[] IGNORE_PROPERTIES = { "poolConf" };
+    private static final String[] IGNORE_PROPERTIES = { "poolConf", "location" };
 
     @Autowired
     private ConnIdBundleManager connIdBundleManager;
@@ -181,11 +184,12 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
     public ConnInstanceTO getConnInstanceTO(final ConnInstance connInstance) {
         ConnInstanceTO connInstanceTO = new ConnInstanceTO();
 
+        Pair<URI, ConnectorInfo> info = connIdBundleManager.getConnectorInfo(connInstance);
         BeanUtils.copyProperties(connInstance, connInstanceTO, IGNORE_PROPERTIES);
-
+        connInstanceTO.setLocation(info.getLeft().toASCIIString());
         // refresh stored properties in the given connInstance with direct information from underlying connector
         ConfigurationProperties properties =
-                connIdBundleManager.getConfigurationProperties(connIdBundleManager.getConnectorInfo(connInstance));
+                connIdBundleManager.getConfigurationProperties(info.getRight());
         for (final String propName : properties.getPropertyNames()) {
             ConnConfPropSchema schema = build(properties.getProperty(propName));
 

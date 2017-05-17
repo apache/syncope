@@ -21,6 +21,7 @@ package org.apache.syncope.core.provisioning.api;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.identityconnectors.framework.api.ConfigurationProperties;
 import org.identityconnectors.framework.api.ConnectorInfo;
@@ -35,7 +36,7 @@ public interface ConnIdBundleManager {
 
     Map<URI, ConnectorInfoManager> getConnManagers();
 
-    ConnectorInfo getConnectorInfo(ConnInstance connInstance);
+    Pair<URI, ConnectorInfo> getConnectorInfo(ConnInstance connInstance);
 
     Map<URI, ConnectorInfoManager> getConnInfoManagers();
 
