@@ -63,7 +63,13 @@ public class ActivitiDetector {
      * @return whether Activiti is configured for user workflow or not
      */
     public static boolean isActivitiEnabledForUsers() {
-        return uwfAdapterClassName != null && uwfAdapterClassName.equals(ActivitiUserWorkflowAdapter.class.getName());
+        Class<?> clazz = null;
+        try {
+            clazz = Class.forName(uwfAdapterClassName);
+        } catch (Exception e) {
+            LOG.error("Could not find {}", uwfAdapterClassName, e);
+        }
+        return clazz != null && ActivitiUserWorkflowAdapter.class.isAssignableFrom(clazz);
     }
 
     /**
