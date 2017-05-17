@@ -18,11 +18,6 @@
  */
 package org.apache.syncope.ide.netbeans.view;
 
-import static org.apache.syncope.common.lib.types.MailTemplateFormat.TEXT;
-import static org.apache.syncope.common.lib.types.ReportTemplateFormat.CSV;
-import static org.apache.syncope.common.lib.types.ReportTemplateFormat.FO;
-import static org.apache.syncope.common.lib.types.ReportTemplateFormat.HTML;
-
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.console.wicket.markup.html.form;
 
-import static org.apache.wicket.Component.RENDER;
-
 import java.io.Serializable;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;

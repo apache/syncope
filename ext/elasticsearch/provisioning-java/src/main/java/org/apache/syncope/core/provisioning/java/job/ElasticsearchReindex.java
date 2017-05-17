@@ -37,6 +37,8 @@ import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsReques
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsResponse;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.elasticsearch.common.xcontent.XContentFactory;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -77,8 +79,41 @@ public class ElasticsearchReindex extends AbstractSchedTaskJobDelegate {
                             AuthContextUtils.getDomain().toLowerCase(), deleteIndexResponse);
                 }
 
+                XContentBuilder settings = XContentFactory.jsonBuilder().
+                        startObject().
+                        startObject("analysis").
+                        startObject("analyzer").
+                        startObject("string_lowercase").
+                        field("type", "custom").
+                        field("tokenizer", "standard").
+                        field("filter").
+                        startArray().
+                        value("lowercase").
+                        endArray().
+                        endObject().
+                        endObject().
+                        endObject().
+                        endObject();
+                XContentBuilder mapping = XContentFactory.jsonBuilder().
+                        startObject().
+                        startArray("dynamic_templates").
+                        startObject().
+                        startObject("strings").
+                        field("match_mapping_type", "string").
+                        startObject("mapping").
+                        field("type", "keyword").
+                        field("analyzer", "string_lowercase").
+                        endObject().
+                        endObject().
+                        endObject().
+                        endArray().
+                        endObject();
                 CreateIndexResponse createIndexResponse = client.admin().indices().
-                        create(new CreateIndexRequest(AuthContextUtils.getDomain().toLowerCase())).
+                        create(new CreateIndexRequest(AuthContextUtils.getDomain().toLowerCase()).
+                                settings(settings).
+                                mapping(AnyTypeKind.USER.name(), mapping).
+                                mapping(AnyTypeKind.GROUP.name(), mapping).
+                                mapping(AnyTypeKind.ANY_OBJECT.name(), mapping)).
                         get();
                 LOG.debug("Successfully created {}: {}",
                         AuthContextUtils.getDomain().toLowerCase(), createIndexResponse);

@@ -44,6 +44,7 @@ under the License.
   
   <bean class="org.apache.syncope.ext.elasticsearch.client.ElasticsearchUtils">
     <property name="indexMaxResultWindow" value="10000"/>
+    <property name="retryOnConflict" value="5"/>
   </bean>
   <bean class="org.apache.syncope.ext.elasticsearch.client.ElasticsearchIndexManager"/>
   

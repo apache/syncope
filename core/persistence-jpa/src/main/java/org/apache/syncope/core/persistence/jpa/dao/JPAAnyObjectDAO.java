@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import static org.apache.syncope.core.persistence.jpa.dao.AbstractDAO.LOG;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -179,7 +177,7 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
     }
 
     @Override
-    public List<ARelationship> findAllARelationships(final AnyObject anyObject) {
+    public List<ARelationship> findAllRelationships(final AnyObject anyObject) {
         TypedQuery<ARelationship> query = entityManager().createQuery(
                 "SELECT e FROM " + JPAARelationship.class.getSimpleName()
                 + " e WHERE e.rightEnd=:anyObject OR e.leftEnd=:anyObject", ARelationship.class);

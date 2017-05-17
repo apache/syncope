@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.fit.console;
 
-import static org.apache.syncope.fit.console.AbstractConsoleITCase.TESTER;
 import static org.junit.Assert.assertNotNull;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;

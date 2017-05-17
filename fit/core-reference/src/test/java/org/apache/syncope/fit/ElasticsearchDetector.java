@@ -16,32 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.spring.event;
+package org.apache.syncope.fit;
 
-import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.springframework.context.ApplicationEvent;
+import org.apache.syncope.common.rest.api.service.SyncopeService;
 
-public class AnyCreatedUpdatedEvent<A extends Any<?>> extends ApplicationEvent {
+public class ElasticsearchDetector {
 
-    private static final long serialVersionUID = -781747175059834365L;
-
-    private final A any;
-
-    private final String domain;
-
-    public AnyCreatedUpdatedEvent(final Object source, final A any) {
-        super(source);
-        this.any = any;
-        this.domain = AuthContextUtils.getDomain();
-    }
-
-    public A getAny() {
-        return any;
-    }
-
-    public String getDomain() {
-        return domain;
+    public static boolean isElasticSearchEnabled(final SyncopeService syncopeService) {
+        return syncopeService.platform().getAnySearchDAO().contains("Elasticsearch");
     }
 
 }

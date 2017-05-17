@@ -61,12 +61,22 @@ public class ElasticsearchUtils {
 
     private int indexMaxResultWindow = 10000;
 
+    private int retryOnConflict = 5;
+
     public void setIndexMaxResultWindow(final int indexMaxResultWindow) {
         this.indexMaxResultWindow = indexMaxResultWindow;
     }
 
     public int getIndexMaxResultWindow() {
         return indexMaxResultWindow;
+    }
+
+    public void setRetryOnConflict(final int retryOnConflict) {
+        this.retryOnConflict = retryOnConflict;
+    }
+
+    public int getRetryOnConflict() {
+        return retryOnConflict;
     }
 
     /**
@@ -104,7 +114,7 @@ public class ElasticsearchUtils {
 
             List<Object> relationships = new ArrayList<>();
             List<Object> relationshipTypes = new ArrayList<>();
-            for (ARelationship relationship : anyObjectDAO.findAllARelationships(anyObject)) {
+            for (ARelationship relationship : anyObjectDAO.findAllRelationships(anyObject)) {
                 relationships.add(relationship.getRightEnd().getKey());
                 relationshipTypes.add(relationship.getType().getKey());
             }
@@ -164,20 +174,22 @@ public class ElasticsearchUtils {
             builder = builder.field("relationshipTypes", relationshipTypes);
         }
 
-        for (PlainAttr<?> plainAttr : any.getPlainAttrs()) {
-            List<Object> values = CollectionUtils.collect(plainAttr.getValues(),
-                    new Transformer<PlainAttrValue, Object>() {
+        if (any.getPlainAttrs() != null) {
+            for (PlainAttr<?> plainAttr : any.getPlainAttrs()) {
+                List<Object> values = CollectionUtils.collect(plainAttr.getValues(),
+                        new Transformer<PlainAttrValue, Object>() {
 
-                @Override
-                public Object transform(final PlainAttrValue input) {
-                    return input.getValue();
+                    @Override
+                    public Object transform(final PlainAttrValue input) {
+                        return input.getValue();
+                    }
+                }, new ArrayList<>(plainAttr.getValues().size()));
+                if (plainAttr.getUniqueValue() != null) {
+                    values.add(plainAttr.getUniqueValue().getValue());
                 }
-            }, new ArrayList<>(plainAttr.getValues().size()));
-            if (plainAttr.getUniqueValue() != null) {
-                values.add(plainAttr.getUniqueValue().getValue());
-            }
 
-            builder = builder.field(plainAttr.getSchema().getKey(), values);
+                builder = builder.field(plainAttr.getSchema().getKey(), values);
+            }
         }
 
         builder = builder.endObject();
