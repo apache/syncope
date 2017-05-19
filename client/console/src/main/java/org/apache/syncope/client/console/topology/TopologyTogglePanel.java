@@ -182,9 +182,9 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                target.add(propTaskModal.setContent(new SchedTasks(propTaskModal, pageRef)));
-                propTaskModal.header(new ResourceModel("task.custom.list"));
-                propTaskModal.show(true);
+                target.add(schedTaskModal.setContent(new SchedTasks(schedTaskModal, pageRef)));
+                schedTaskModal.header(new ResourceModel("task.custom.list"));
+                schedTaskModal.show(true);
             }
         };
         fragment.add(tasks);
