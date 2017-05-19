@@ -444,11 +444,11 @@ public class TopologyITCase extends AbstractConsoleITCase {
         TESTER.executeAjaxEvent("body:syncope", Constants.ON_CLICK);
         TESTER.clickLink("body:toggle:container:content:togglePanelContainer:container:actions:tasks");
         TESTER.clickLink(
-                "body:toggle:outerObjectsRepeater:1:outer:form:content:tasks:firstLevelContainer:first:"
+                "body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:first:"
                 + "container:content:add");
 
         FormTester formTester = TESTER.newFormTester(
-                "body:toggle:outerObjectsRepeater:1:outer:form:content:tasks:firstLevelContainer:first:"
+                "body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:first:"
                 + "container:content:wizard:form");
         formTester.setValue("view:name:textField", "test");
         formTester.select("view:jobDelegateClassName:dropDownChoiceField", 0);
@@ -457,11 +457,11 @@ public class TopologyITCase extends AbstractConsoleITCase {
         TESTER.cleanupFeedbackMessages();
 
         formTester = TESTER.newFormTester(
-                "body:toggle:outerObjectsRepeater:1:outer:form:content:tasks:firstLevelContainer:first:"
+                "body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:first:"
                 + "container:content:wizard:form");
 
         TESTER.assertComponent(
-                "body:toggle:outerObjectsRepeater:1:outer:form:content:tasks:firstLevelContainer:"
+                "body:toggle:outerObjectsRepeater:2:outer:form:content:tasks:firstLevelContainer:"
                 + "first:container:content:wizard:form:view:schedule:seconds:textField", TextField.class);
 
         formTester.submit("buttons:finish");
