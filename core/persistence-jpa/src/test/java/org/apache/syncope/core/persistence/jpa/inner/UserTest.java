@@ -169,6 +169,8 @@ public class UserTest extends AbstractTest {
         User actual = userDAO.save(user);
         assertNotNull("expected save to work", actual);
         assertEquals(1, actual.getPasswordHistory().size());
+        assertNotNull(userDAO.findLastChange(actual.getKey()));
+        assertEquals(actual.getLastChangeDate(), userDAO.findLastChange(actual.getKey()));
     }
 
     @Test

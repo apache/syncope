@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -118,6 +119,11 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     @Override
     protected AnyUtils init() {
         return new JPAAnyUtilsFactory().getInstance(AnyTypeKind.GROUP);
+    }
+
+    @Override
+    public Date findLastChange(final String key) {
+        return findLastChange(key, JPAGroup.TABLE);
     }
 
     @Override

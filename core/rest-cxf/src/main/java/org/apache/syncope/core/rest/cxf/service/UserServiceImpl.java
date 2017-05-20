@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.rest.cxf.service;
 
+import java.util.Date;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.patch.StatusPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
@@ -55,9 +56,8 @@ public class UserServiceImpl extends AbstractAnyService<UserTO, UserPatch> imple
 
     @Override
     public Response status(final StatusPatch statusPatch) {
-        UserTO user = logic.read(statusPatch.getKey());
-
-        checkETag(user.getETagValue());
+        Date etagDate = getAnyLogic().findLastChange(statusPatch.getKey());
+        checkETag(String.valueOf(etagDate.getTime()));
 
         ProvisioningResult<UserTO> updated = logic.status(statusPatch, isNullPriorityAsync());
         return modificationResponse(updated);

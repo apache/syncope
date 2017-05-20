@@ -22,6 +22,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
@@ -85,6 +86,17 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
 
     @Autowired
     protected SyncopeLogic syncopeLogic;
+
+    @Transactional(readOnly = true)
+    @Override
+    public Date findLastChange(final String key) {
+        Date etag = userDAO.findLastChange(key);
+        if (etag == null) {
+            throw new NotFoundException("User " + key);
+        }
+
+        return etag;
+    }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.USER_SEARCH + "')")
     @Transactional(readOnly = true)

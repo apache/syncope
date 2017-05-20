@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.jpa.dao;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -130,6 +131,11 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
     @Override
     protected AnyUtils init() {
         return new JPAAnyUtilsFactory().getInstance(AnyTypeKind.USER);
+    }
+
+    @Override
+    public Date findLastChange(final String key) {
+        return findLastChange(key, JPAUser.TABLE);
     }
 
     @Override

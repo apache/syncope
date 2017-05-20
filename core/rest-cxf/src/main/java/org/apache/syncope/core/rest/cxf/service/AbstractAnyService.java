@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.rest.cxf.service;
 
+import java.util.Date;
 import java.util.Set;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
@@ -152,9 +153,8 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
 
     @Override
     public Response update(final P anyPatch) {
-        TO any = getAnyLogic().read(anyPatch.getKey());
-
-        checkETag(any.getETagValue());
+        Date etagDate = getAnyLogic().findLastChange(anyPatch.getKey());
+        checkETag(String.valueOf(etagDate.getTime()));
 
         ProvisioningResult<TO> updated = getAnyLogic().update(anyPatch, isNullPriorityAsync());
         return modificationResponse(updated);
@@ -209,9 +209,8 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
 
     @Override
     public Response delete(final String key) {
-        TO group = getAnyLogic().read(key);
-
-        checkETag(group.getETagValue());
+        Date etagDate = getAnyLogic().findLastChange(key);
+        checkETag(String.valueOf(etagDate.getTime()));
 
         ProvisioningResult<TO> deleted = getAnyLogic().delete(key, isNullPriorityAsync());
         return modificationResponse(deleted);
@@ -219,9 +218,8 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
 
     @Override
     public Response deassociate(final DeassociationPatch patch) {
-        TO any = getAnyLogic().read(patch.getKey());
-
-        checkETag(any.getETagValue());
+        Date etagDate = getAnyLogic().findLastChange(patch.getKey());
+        checkETag(String.valueOf(etagDate.getTime()));
 
         ProvisioningResult<TO> updated;
         switch (patch.getAction()) {
@@ -264,9 +262,8 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
 
     @Override
     public Response associate(final AssociationPatch patch) {
-        TO any = getAnyLogic().read(patch.getKey());
-
-        checkETag(any.getETagValue());
+        Date etagDate = getAnyLogic().findLastChange(patch.getKey());
+        checkETag(String.valueOf(etagDate.getTime()));
 
         ProvisioningResult<TO> updated;
         switch (patch.getAction()) {
@@ -371,7 +368,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
                         try {
                             result.getResults().put(
                                     ((UserLogic) logic).
-                                    status(statusPatch, isNullPriorityAsync()).getEntity().getKey(),
+                                            status(statusPatch, isNullPriorityAsync()).getEntity().getKey(),
                                     BulkActionResult.Status.SUCCESS);
                         } catch (Exception e) {
                             LOG.error("Error performing suspend for user {}", key, e);
@@ -394,7 +391,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
                         try {
                             result.getResults().put(
                                     ((UserLogic) logic).
-                                    status(statusPatch, isNullPriorityAsync()).getEntity().getKey(),
+                                            status(statusPatch, isNullPriorityAsync()).getEntity().getKey(),
                                     BulkActionResult.Status.SUCCESS);
                         } catch (Exception e) {
                             LOG.error("Error performing reactivate for user {}", key, e);
