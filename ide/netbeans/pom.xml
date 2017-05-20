@@ -23,8 +23,8 @@ under the License.
     <version>2.0.4-SNAPSHOT</version>
   </parent>
 
-  <name>Apache Syncope Netbeans IDE plugin</name>
-  <description>Apache Syncope Netbeans IDE plugin</description>
+  <name>Apache Syncope IDE Netbeans plugin</name>
+  <description>Apache Syncope IDE Netbeans plugin</description>
   <groupId>org.apache.syncope.ide</groupId>
   <artifactId>syncope-ide-netbeans</artifactId>
 
