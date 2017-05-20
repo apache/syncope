@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.dao.impl;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import javax.persistence.NoResultException;
@@ -53,6 +54,11 @@ public class UserDAOImpl extends AbstractSubjectDAOImpl implements UserDAO {
 
     @Autowired
     private RoleDAO roleDAO;
+
+    @Override
+    public Date findLastChange(final Long id) {
+        return findLastChange(id, "SyncopeUser");
+    }
 
     @SuppressWarnings("unchecked")
     @Override

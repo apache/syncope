@@ -23,6 +23,7 @@ import java.security.AccessControlException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -127,6 +128,15 @@ public class UserController extends AbstractSubjectController<UserTO, UserMod> {
     @PreAuthorize("hasRole('USER_READ')")
     public Long getUserId(final String username) {
         return binder.getUserTO(username).getId();
+    }
+
+    @Transactional(readOnly = true)
+    public Date findLastChange(final Long id) {
+        Date etag = userDAO.findLastChange(id);
+        if (etag == null) {
+            throw new NotFoundException("User " + id);
+        }
+        return etag;
     }
 
     @PreAuthorize("hasRole('USER_LIST')")

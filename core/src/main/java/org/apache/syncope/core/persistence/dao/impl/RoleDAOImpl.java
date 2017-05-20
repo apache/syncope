@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.dao.impl;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -85,6 +86,11 @@ public class RoleDAOImpl extends AbstractSubjectDAOImpl implements RoleDAO {
 
     @Autowired
     private EntitlementDAO entitlementDAO;
+
+    @Override
+    public Date findLastChange(final Long id) {
+        return findLastChange(id, "SyncopeRole");
+    }
 
     @SuppressWarnings("unchecked")
     @Override

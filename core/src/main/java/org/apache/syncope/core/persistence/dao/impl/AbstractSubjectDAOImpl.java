@@ -22,6 +22,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -52,6 +53,24 @@ public abstract class AbstractSubjectDAOImpl extends AbstractDAOImpl implements 
 
     @Autowired
     protected DerSchemaDAO derSchemaDAO;
+
+    protected Date findLastChange(final Long id, final String table) {
+        Query query = entityManager.createNativeQuery(
+                "SELECT creationDate, lastChangeDate FROM " + table + " WHERE id=?");
+        query.setParameter(1, id);
+
+        @SuppressWarnings("unchecked")
+        List<Object[]> result = query.getResultList();
+
+        Date creationDate = null;
+        Date lastChangeDate = null;
+        if (!result.isEmpty()) {
+            creationDate = (Date) result.get(0)[0];
+            lastChangeDate = (Date) result.get(0)[1];
+        }
+
+        return lastChangeDate == null ? creationDate : lastChangeDate;
+    }
 
     /**
      * Split an attribute value recurring on provided literals/tokens.

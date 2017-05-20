@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.services;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.ws.rs.core.Response;
@@ -30,7 +31,6 @@ import org.apache.syncope.common.to.PropagationStatus;
 import org.apache.syncope.common.wrap.ResourceName;
 import org.apache.syncope.common.to.RoleTO;
 import org.apache.syncope.common.to.TaskExecTO;
-import org.apache.syncope.common.to.UserTO;
 import org.apache.syncope.common.types.ResourceAssociationActionType;
 import org.apache.syncope.common.types.ResourceDeassociationActionType;
 import org.apache.syncope.common.util.CollectionWrapper;
@@ -62,9 +62,8 @@ public class RoleServiceImpl extends AbstractServiceImpl implements RoleService 
 
     @Override
     public Response delete(final Long roleId) {
-        RoleTO role = controller.read(roleId);
-
-        checkETag(role.getETagValue());
+        Date etagDate = controller.findLastChange(roleId);
+        checkETag(String.valueOf(etagDate.getTime()));
 
         RoleTO deleted = controller.delete(roleId);
         return modificationResponse(deleted);
@@ -141,9 +140,8 @@ public class RoleServiceImpl extends AbstractServiceImpl implements RoleService 
 
     @Override
     public Response update(final Long roleId, final RoleMod roleMod) {
-        RoleTO role = controller.read(roleId);
-
-        checkETag(role.getETagValue());
+        Date etagDate = controller.findLastChange(roleId);
+        checkETag(String.valueOf(etagDate.getTime()));
 
         roleMod.setId(roleId);
         RoleTO updated = controller.update(roleMod);
@@ -154,9 +152,8 @@ public class RoleServiceImpl extends AbstractServiceImpl implements RoleService 
     public Response bulkDeassociation(
             final Long roleId, final ResourceDeassociationActionType type, final List<ResourceName> resourceNames) {
 
-        RoleTO role = controller.read(roleId);
-
-        checkETag(role.getETagValue());
+        Date etagDate = controller.findLastChange(roleId);
+        checkETag(String.valueOf(etagDate.getTime()));
 
         RoleTO updated;
         switch (type) {
@@ -197,9 +194,8 @@ public class RoleServiceImpl extends AbstractServiceImpl implements RoleService 
     public Response bulkAssociation(
             final Long roleId, final ResourceAssociationActionType type, final List<ResourceName> resourceNames) {
 
-        RoleTO role = controller.read(roleId);
-
-        checkETag(role.getETagValue());
+        Date etagDate = controller.findLastChange(roleId);
+        checkETag(String.valueOf(etagDate.getTime()));
 
         RoleTO updated;
         switch (type) {

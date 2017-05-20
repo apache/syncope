@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.dao;
 
+import java.util.Date;
 import java.util.List;
 
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
@@ -26,6 +27,8 @@ import org.apache.syncope.core.persistence.beans.ExternalResource;
 import org.apache.syncope.core.util.AttributableUtil;
 
 public interface SubjectDAO extends DAO {
+
+    Date findLastChange(Long id);
 
     <T extends AbstractSubject> List<T> findByAttrValue(String schemaName,
             AbstractAttrValue attrValue, AttributableUtil attrUtil);

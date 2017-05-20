@@ -115,6 +115,15 @@ public class RoleController extends AbstractSubjectController<RoleTO, RoleMod> {
     @Resource(name = "anonymousUser")
     protected String anonymousUser;
 
+    @Transactional(readOnly = true)
+    public Date findLastChange(final Long id) {
+        Date etag = roleDAO.findLastChange(id);
+        if (etag == null) {
+            throw new NotFoundException("Role " + id);
+        }
+        return etag;
+    }
+
     @PreAuthorize("hasAnyRole('ROLE_READ', T(org.apache.syncope.common.SyncopeConstants).ANONYMOUS_ENTITLEMENT)")
     @Transactional(readOnly = true)
     @Override

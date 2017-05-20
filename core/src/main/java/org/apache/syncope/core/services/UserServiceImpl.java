@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.services;
 
+import java.util.Date;
 import java.util.List;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
@@ -69,9 +70,8 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService 
 
     @Override
     public Response delete(final Long userId) {
-        UserTO user = controller.read(userId);
-
-        checkETag(user.getETagValue());
+        Date etagDate = controller.findLastChange(userId);
+        checkETag(String.valueOf(etagDate.getTime()));
 
         UserTO deleted = controller.delete(userId);
         return modificationResponse(deleted);
@@ -132,9 +132,8 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService 
 
     @Override
     public Response update(final Long userId, final UserMod userMod) {
-        UserTO user = controller.read(userId);
-
-        checkETag(user.getETagValue());
+        Date etagDate = controller.findLastChange(userId);
+        checkETag(String.valueOf(etagDate.getTime()));
 
         userMod.setId(userId);
         UserTO updated = controller.update(userMod);
@@ -143,9 +142,8 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService 
 
     @Override
     public Response status(final Long userId, final StatusMod statusMod) {
-        UserTO user = controller.read(userId);
-
-        checkETag(user.getETagValue());
+        Date etagDate = controller.findLastChange(userId);
+        checkETag(String.valueOf(etagDate.getTime()));
 
         statusMod.setId(userId);
         UserTO updated = controller.status(statusMod);
@@ -156,9 +154,8 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService 
     public Response bulkDeassociation(
             final Long userId, final ResourceDeassociationActionType type, final List<ResourceName> resourceNames) {
 
-        final UserTO user = controller.read(userId);
-
-        checkETag(user.getETagValue());
+        Date etagDate = controller.findLastChange(userId);
+        checkETag(String.valueOf(etagDate.getTime()));
 
         UserTO updated;
         switch (type) {
@@ -199,9 +196,8 @@ public class UserServiceImpl extends AbstractServiceImpl implements UserService 
     public Response bulkAssociation(
             final Long userId, final ResourceAssociationActionType type, final ResourceAssociationMod associationMod) {
 
-        final UserTO user = controller.read(userId);
-
-        checkETag(user.getETagValue());
+        Date etagDate = controller.findLastChange(userId);
+        checkETag(String.valueOf(etagDate.getTime()));
 
         UserTO updated;
         switch (type) {
