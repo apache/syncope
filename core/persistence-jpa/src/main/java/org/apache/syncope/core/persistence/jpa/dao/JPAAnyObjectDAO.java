@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.jpa.dao;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -91,6 +92,16 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
     }
 
     @Override
+    protected AnyUtils init() {
+        return new JPAAnyUtilsFactory().getInstance(AnyTypeKind.ANY_OBJECT);
+    }
+
+    @Override
+    public Date findLastChange(final String key) {
+        return findLastChange(key, JPAAnyObject.TABLE);
+    }
+
+    @Override
     public Map<AnyType, Integer> countByType() {
         Query query = entityManager().createQuery(
                 "SELECT e.type, COUNT(e) AS countByType FROM  " + JPAAnyObject.class.getSimpleName() + " e "
@@ -121,11 +132,6 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
         }
 
         return Collections.unmodifiableMap(countByRealm);
-    }
-
-    @Override
-    protected AnyUtils init() {
-        return new JPAAnyUtilsFactory().getInstance(AnyTypeKind.ANY_OBJECT);
     }
 
     @Override

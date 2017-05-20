@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.dao;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
@@ -29,6 +30,8 @@ import org.apache.syncope.core.persistence.api.entity.Schema;
 public interface AnyDAO<A extends Any<?>> extends DAO<A> {
 
     int DEFAULT_PAGE_SIZE = 10;
+
+    Date findLastChange(String key);
 
     A authFind(String key);
 

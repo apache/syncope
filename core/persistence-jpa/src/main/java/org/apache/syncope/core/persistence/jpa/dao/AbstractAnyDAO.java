@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -117,6 +118,24 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
             }
         }
         return anyUtils;
+    }
+
+    protected Date findLastChange(final String key, final String table) {
+        Query query = entityManager().createNativeQuery(
+                "SELECT creationDate, lastChangeDate FROM " + table + " WHERE id=?");
+        query.setParameter(1, key);
+
+        @SuppressWarnings("unchecked")
+        List<Object[]> result = query.getResultList();
+
+        Date creationDate = null;
+        Date lastChangeDate = null;
+        if (!result.isEmpty()) {
+            creationDate = (Date) result.get(0)[0];
+            lastChangeDate = (Date) result.get(0)[1];
+        }
+
+        return lastChangeDate == null ? creationDate : lastChangeDate;
     }
 
     protected abstract void securityChecks(A any);
