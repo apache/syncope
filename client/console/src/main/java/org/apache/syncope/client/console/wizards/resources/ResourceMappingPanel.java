@@ -20,7 +20,9 @@ package org.apache.syncope.client.console.wizards.resources;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wizards.AbstractMappingPanel;
@@ -95,7 +97,7 @@ public class ResourceMappingPanel extends AbstractMappingPanel {
     protected boolean hidePassword() {
         return !AnyTypeKind.USER.name().equals(provisionTO.getAnyType());
     }
-    
+
     @Override
     protected IModel<List<String>> getExtAttrNames() {
         return extAttrNames;
@@ -120,7 +122,7 @@ public class ResourceMappingPanel extends AbstractMappingPanel {
             anyTypeClassTOs.add(anyTypeClassRestClient.read(auxClass));
         }
 
-        List<String> choices = new ArrayList<>();
+        Set<String> choices = new HashSet<>();
 
         switch (provisionTO.getAnyType()) {
             case "USER":
@@ -141,7 +143,8 @@ public class ResourceMappingPanel extends AbstractMappingPanel {
             choices.addAll(anyTypeClassTO.getVirSchemas());
         }
 
-        Collections.sort(choices);
-        toBeUpdated.setChoices(choices);
+        final List<String> names = new ArrayList<>(choices);
+        Collections.sort(names);
+        toBeUpdated.setChoices(names);
     }
 }
