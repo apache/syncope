@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.wicket.markup.html.form;
 import static de.agilecoders.wicket.jquery.JQuery.$;
 
 import de.agilecoders.wicket.jquery.function.JavaScriptInlineFunction;
+import java.util.ArrayList;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
@@ -67,7 +68,7 @@ public abstract class IndicatingOnConfirmAjaxLink<T> extends IndicatingAjaxLink<
                             + "  })"
                             + "} else {"
                             + "  proceed = false;"
-                            + "};"
+                            + "};", new ArrayList<CharSequence>()
                     )).asDomReadyScript());
         }
     }
