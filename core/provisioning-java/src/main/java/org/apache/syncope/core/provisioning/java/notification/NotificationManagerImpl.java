@@ -26,6 +26,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -252,6 +254,26 @@ public class NotificationManagerImpl implements NotificationManager {
                 createTemplate(template).
                 evaluate(new MapContext(jexlVars), writer);
         return writer.toString();
+    }
+
+    @Override
+    public boolean notificationsAvailable(
+            final AuditElements.EventCategoryType type,
+            final String category,
+            final String subcategory,
+            final String event) {
+
+        final String successEvent = AuditLoggerName.buildEvent(type, category, subcategory, event, Result.SUCCESS);
+        final String failureEvent = AuditLoggerName.buildEvent(type, category, subcategory, event, Result.FAILURE);
+        return IterableUtils.matchesAny(notificationDAO.findAll(), new Predicate<Notification>() {
+
+            @Override
+            public boolean evaluate(final Notification notification) {
+                return notification.isActive()
+                        && (notification.getEvents().contains(successEvent)
+                        || notification.getEvents().contains(failureEvent));
+            }
+        });
     }
 
     @Override

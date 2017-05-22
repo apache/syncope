@@ -22,12 +22,39 @@ import org.apache.syncope.common.lib.types.AuditElements;
 
 public interface AuditManager {
 
+    /**
+     * Checks if audit is requested matching the provided conditions.
+     *
+     * @param type event category type
+     * @param category event category
+     * @param subcategory event subcategory
+     * @param event event
+     * @return created notification tasks
+     */
+    boolean auditRequested(
+            AuditElements.EventCategoryType type,
+            String category,
+            String subcategory,
+            String event);
+
+    /**
+     * Create notification tasks for each notification matching provided conditions.
+     *
+     * @param type event category type
+     * @param category event category
+     * @param subcategory event subcategory
+     * @param event event
+     * @param condition result value condition.
+     * @param before object(s) availabile before the event
+     * @param output object(s) produced by the event
+     * @param input object(s) provided to the event
+     */
     void audit(
             AuditElements.EventCategoryType type,
             String category,
             String subcategory,
             String event,
-            AuditElements.Result result,
+            AuditElements.Result condition,
             Object before,
             Object output,
             Object... input);

@@ -20,6 +20,7 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
@@ -55,49 +56,60 @@ public class LogicInvocationHandler {
 
         String event = joinPoint.getSignature().getName();
 
-        AuditElements.Result result = null;
+        boolean notificationsAvailable = notificationManager.notificationsAvailable(
+                AuditElements.EventCategoryType.LOGIC, category, null, event);
+        boolean auditRequested = auditManager.auditRequested(
+                AuditElements.EventCategoryType.LOGIC, category, null, event);
+
+        AuditElements.Result condition = null;
         Object output = null;
         Object before = null;
 
         try {
             LOG.debug("Before {}.{}({})", clazz.getSimpleName(), event,
-                    input == null || input.length == 0 ? "" : Arrays.asList(input));
+                    input == null || input.length == 0 ? StringUtils.EMPTY : Arrays.asList(input));
 
-            try {
-                before = ((AbstractLogic) joinPoint.getTarget()).resolveBeanReference(method, input);
-            } catch (UnresolvedReferenceException ignore) {
-                LOG.debug("Unresolved bean reference ...");
+            if (notificationsAvailable || auditRequested) {
+                try {
+                    before = ((AbstractLogic) joinPoint.getTarget()).resolveBeanReference(method, input);
+                } catch (UnresolvedReferenceException ignore) {
+                    LOG.debug("Unresolved bean reference ...");
+                }
             }
 
             output = joinPoint.proceed();
-            result = AuditElements.Result.SUCCESS;
+            condition = AuditElements.Result.SUCCESS;
 
             LOG.debug("After returning {}.{}: {}", clazz.getSimpleName(), event, output);
             return output;
         } catch (Throwable t) {
             output = t;
-            result = AuditElements.Result.FAILURE;
+            condition = AuditElements.Result.FAILURE;
 
             LOG.debug("After throwing {}.{}", clazz.getSimpleName(), event);
             throw t;
         } finally {
-            notificationManager.createTasks(AuditElements.EventCategoryType.LOGIC,
-                    category,
-                    null,
-                    event,
-                    result,
-                    before,
-                    output,
-                    input);
+            if (notificationsAvailable) {
+                notificationManager.createTasks(AuditElements.EventCategoryType.LOGIC,
+                        category,
+                        null,
+                        event,
+                        condition,
+                        before,
+                        output,
+                        input);
+            }
 
-            auditManager.audit(AuditElements.EventCategoryType.LOGIC,
-                    category,
-                    null,
-                    event,
-                    result,
-                    before,
-                    output,
-                    input);
+            if (auditRequested) {
+                auditManager.audit(AuditElements.EventCategoryType.LOGIC,
+                        category,
+                        null,
+                        event,
+                        condition,
+                        before,
+                        output,
+                        input);
+            }
         }
     }
 }

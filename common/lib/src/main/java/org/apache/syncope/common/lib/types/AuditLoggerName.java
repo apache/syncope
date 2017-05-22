@@ -164,7 +164,7 @@ public class AuditLoggerName extends AbstractBaseBean {
      * @param category event category.
      * @param subcategory event subcategory.
      * @param event event.
-     * @param resultValueCondition result value condition.
+     * @param condition result value condition.
      * @return event string.
      */
     public static String buildEvent(
@@ -172,7 +172,7 @@ public class AuditLoggerName extends AbstractBaseBean {
             final String category,
             final String subcategory,
             final String event,
-            final AuditElements.Result resultValueCondition) {
+            final AuditElements.Result condition) {
 
         final StringBuilder eventBuilder = new StringBuilder();
 
@@ -198,9 +198,9 @@ public class AuditLoggerName extends AbstractBaseBean {
         }
         eventBuilder.append(']');
 
-        if (resultValueCondition != null) {
+        if (condition != null) {
             eventBuilder.append(":[").
-                    append(resultValueCondition).
+                    append(condition).
                     append(']');
         }
 
