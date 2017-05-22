@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.spring.security;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -38,6 +39,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AuditElements;
+import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
@@ -62,6 +64,7 @@ import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.ConnectorFactory;
 import org.apache.syncope.core.provisioning.api.EntitlementsHolder;
 import org.apache.syncope.core.provisioning.api.MappingManager;
+import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -362,6 +365,7 @@ public class AuthDataAccessor {
         }
 
         Set<SyncopeGrantedAuthority> authorities;
+
         if (adminUser.equals(accessToken.getOwner())) {
             authorities = getAdminAuthorities();
         } else {
@@ -381,7 +385,26 @@ public class AuthDataAccessor {
                 throw new DisabledException("User " + user.getUsername() + " not allowed to authenticate");
             }
 
-            authorities = getUserAuthorities(user);
+            if (user.isMustChangePassword()) {
+                authorities = Collections.singleton(
+                        new SyncopeGrantedAuthority(StandardEntitlement.MUST_CHANGE_PASSWORD));
+            } else if (accessToken.getAuthorities() == null) {
+                LOG.debug("No authorities found in JWT, calculating...");
+
+                authorities = getUserAuthorities(user);
+            } else {
+                LOG.debug("Authorities found in JWT, fetching...");
+
+                try {
+                    authorities = POJOHelper.deserialize(
+                            ENCRYPTOR.decode(new String(accessToken.getAuthorities()), CipherAlgorithm.AES),
+                            new TypeReference<Set<SyncopeGrantedAuthority>>() {
+                    });
+                } catch (Exception e) {
+                    LOG.error("Could not read stored authorities", e);
+                    authorities = Collections.emptySet();
+                }
+            }
         }
 
         return authorities;

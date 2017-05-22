@@ -19,7 +19,9 @@
 package org.apache.syncope.core.spring.security;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -61,6 +63,22 @@ public final class AuthContextUtils {
                 auth.getCredentials(), auth.getAuthorities());
         newAuth.setDetails(auth.getDetails());
         SecurityContextHolder.getContext().setAuthentication(newAuth);
+    }
+
+    public static Set<SyncopeGrantedAuthority> getAuthorities() {
+        SecurityContext ctx = SecurityContextHolder.getContext();
+        if (ctx != null && ctx.getAuthentication() != null && ctx.getAuthentication().getAuthorities() != null) {
+            Set<SyncopeGrantedAuthority> result = new HashSet<>();
+            for (GrantedAuthority authority : ctx.getAuthentication().getAuthorities()) {
+                if (authority instanceof SyncopeGrantedAuthority) {
+                    result.add(SyncopeGrantedAuthority.class.cast(authority));
+                }
+            }
+
+            return result;
+        }
+
+        return Collections.emptySet();
     }
 
     public static Map<String, Set<String>> getAuthorizations() {

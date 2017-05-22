@@ -29,7 +29,6 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
-import org.apache.syncope.core.provisioning.api.EntitlementsHolder;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.DuplicateException;
@@ -82,9 +81,7 @@ public class AnyTypeLogic extends AbstractTransactionalLogic<AnyTypeTO> {
             throw new DuplicateException(anyTypeTO.getKey());
         }
 
-        AnyTypeTO result = binder.getAnyTypeTO(anyTypeDAO.save(binder.create(anyTypeTO)));
-        EntitlementsHolder.getInstance().addFor(result.getKey());
-        return result;
+        return binder.getAnyTypeTO(anyTypeDAO.save(binder.create(anyTypeTO)));
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.ANYTYPE_UPDATE + "')")
@@ -95,14 +92,10 @@ public class AnyTypeLogic extends AbstractTransactionalLogic<AnyTypeTO> {
             throw new NotFoundException(anyTypeTO.getKey());
         }
 
-        EntitlementsHolder.getInstance().removeFor(anyTypeTO.getKey());
-
         binder.update(anyType, anyTypeTO);
         anyType = anyTypeDAO.save(anyType);
 
-        AnyTypeTO result = binder.getAnyTypeTO(anyType);
-        EntitlementsHolder.getInstance().addFor(result.getKey());
-        return result;
+        return binder.getAnyTypeTO(anyTypeDAO.save(anyType));
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.ANYTYPE_DELETE + "')")
@@ -114,16 +107,13 @@ public class AnyTypeLogic extends AbstractTransactionalLogic<AnyTypeTO> {
             throw new NotFoundException(key);
         }
 
-        AnyTypeTO deleted = binder.getAnyTypeTO(anyType);
         try {
-            anyTypeDAO.delete(key);
-            EntitlementsHolder.getInstance().removeFor(deleted.getKey());
+            return binder.delete(anyType);
         } catch (IllegalArgumentException e) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidAnyType);
             sce.getElements().add(e.getMessage());
             throw sce;
         }
-        return deleted;
     }
 
     @Override

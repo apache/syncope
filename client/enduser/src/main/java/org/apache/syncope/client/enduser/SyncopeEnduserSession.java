@@ -101,7 +101,7 @@ public class SyncopeEnduserSession extends WebSession {
 
     private void afterAuthentication() {
         Pair<Map<String, Set<String>>, UserTO> self = client.self();
-        selfTO = self.getValue();
+        selfTO = self.getRight();
 
         // bind explicitly this session to have a stateful behavior during http requests, unless session will
         // expire for every request

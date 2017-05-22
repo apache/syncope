@@ -18,15 +18,31 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import java.util.HashSet;
+import java.util.Set;
+import javax.annotation.Resource;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
+import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
+import org.apache.syncope.core.provisioning.api.EntitlementsHolder;
 import org.apache.syncope.core.provisioning.api.data.AnyTypeDataBinder;
+import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.apache.syncope.core.spring.security.Encryptor;
+import org.apache.syncope.core.spring.security.SyncopeGrantedAuthority;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,8 +53,19 @@ public class AnyTypeDataBinderImpl implements AnyTypeDataBinder {
 
     private static final Logger LOG = LoggerFactory.getLogger(AnyTypeDataBinder.class);
 
+    private static final Encryptor ENCRYPTOR = Encryptor.getInstance();
+
+    @Resource(name = "adminUser")
+    private String adminUser;
+
+    @Autowired
+    private AnyTypeDAO anyTypeDAO;
+
     @Autowired
     private AnyTypeClassDAO anyTypeClassDAO;
+
+    @Autowired
+    private AccessTokenDAO accessTokenDAO;
 
     @Autowired
     private EntityFactory entityFactory;
@@ -47,6 +74,31 @@ public class AnyTypeDataBinderImpl implements AnyTypeDataBinder {
     public AnyType create(final AnyTypeTO anyTypeTO) {
         AnyType anyType = entityFactory.newEntity(AnyType.class);
         update(anyType, anyTypeTO);
+
+        Set<String> added = EntitlementsHolder.getInstance().addFor(anyType.getKey());
+
+        if (!adminUser.equals(AuthContextUtils.getUsername())) {
+            AccessToken accessToken = accessTokenDAO.findByOwner(AuthContextUtils.getUsername());
+            try {
+                Set<SyncopeGrantedAuthority> authorities = new HashSet<>(POJOHelper.deserialize(
+                        ENCRYPTOR.decode(new String(accessToken.getAuthorities()), CipherAlgorithm.AES),
+                        new TypeReference<Set<SyncopeGrantedAuthority>>() {
+                }));
+
+                for (String entitlement : added) {
+                    authorities.add(new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM));
+                }
+
+                accessToken.setAuthorities(ENCRYPTOR.encode(
+                        POJOHelper.serialize(authorities), CipherAlgorithm.AES).
+                        getBytes());
+
+                accessTokenDAO.save(accessToken);
+            } catch (Exception e) {
+                LOG.error("Could not fetch or store authorities", e);
+            }
+        }
+
         return anyType;
     }
 
@@ -73,6 +125,43 @@ public class AnyTypeDataBinderImpl implements AnyTypeDataBinder {
                 anyType.add(anyTypeClass);
             }
         }
+    }
+
+    @Override
+    public AnyTypeTO delete(final AnyType anyType) {
+        AnyTypeTO deleted = getAnyTypeTO(anyType);
+
+        anyTypeDAO.delete(anyType.getKey());
+
+        final Set<String> removed = EntitlementsHolder.getInstance().removeFor(deleted.getKey());
+
+        if (!adminUser.equals(AuthContextUtils.getUsername())) {
+            AccessToken accessToken = accessTokenDAO.findByOwner(AuthContextUtils.getUsername());
+            try {
+                Set<SyncopeGrantedAuthority> authorities = new HashSet<>(POJOHelper.deserialize(
+                        ENCRYPTOR.decode(new String(accessToken.getAuthorities()), CipherAlgorithm.AES),
+                        new TypeReference<Set<SyncopeGrantedAuthority>>() {
+                }));
+
+                CollectionUtils.filterInverse(authorities, new Predicate<SyncopeGrantedAuthority>() {
+
+                    @Override
+                    public boolean evaluate(final SyncopeGrantedAuthority authority) {
+                        return removed.contains(authority.getAuthority());
+                    }
+                });
+
+                accessToken.setAuthorities(ENCRYPTOR.encode(
+                        POJOHelper.serialize(authorities), CipherAlgorithm.AES).
+                        getBytes());
+
+                accessTokenDAO.save(accessToken);
+            } catch (Exception e) {
+                LOG.error("Could not fetch or store authorities", e);
+            }
+        }
+
+        return deleted;
     }
 
     @Override

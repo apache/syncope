@@ -42,6 +42,8 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
 
     protected static final Logger LOG = LoggerFactory.getLogger(UsernamePasswordAuthenticationProvider.class);
 
+    protected static final Encryptor ENCRYPTOR = Encryptor.getInstance();
+
     @Autowired
     protected AuthDataAccessor dataAccessor;
 
@@ -62,8 +64,6 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
 
     @Resource(name = "anonymousKey")
     protected String anonymousKey;
-
-    protected final Encryptor encryptor = Encryptor.getInstance();
 
     /**
      * @param adminPassword the adminPassword to set
@@ -99,7 +99,7 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
         } else if (adminUser.equals(authentication.getName())) {
             username[0] = adminUser;
             if (SyncopeConstants.MASTER_DOMAIN.equals(domainKey)) {
-                authenticated = encryptor.verify(
+                authenticated = ENCRYPTOR.verify(
                         authentication.getCredentials().toString(),
                         CipherAlgorithm.valueOf(adminPasswordAlgorithm),
                         adminPassword);
@@ -112,7 +112,7 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
                     public Boolean exec() {
                         Domain domain = dataAccessor.findDomain(domainToFind);
 
-                        return encryptor.verify(
+                        return ENCRYPTOR.verify(
                                 authentication.getCredentials().toString(),
                                 domain.getAdminCipherAlgorithm(),
                                 domain.getAdminPwd());

@@ -27,5 +27,7 @@ public interface AnyTypeDataBinder {
 
     void update(AnyType anyType, AnyTypeTO anyTypeTO);
 
+    AnyTypeTO delete(AnyType anyType);
+
     AnyTypeTO getAnyTypeTO(AnyType anyType);
 }
