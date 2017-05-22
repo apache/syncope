@@ -33,6 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+@Transactional(readOnly = true)
 @Component
 public class AuditManagerImpl implements AuditManager {
 
@@ -43,14 +44,46 @@ public class AuditManagerImpl implements AuditManager {
         return LoggerType.AUDIT.getPrefix() + "." + domain;
     }
 
-    @Transactional(readOnly = true)
+    @Override
+    public boolean auditRequested(
+            final AuditElements.EventCategoryType type,
+            final String category,
+            final String subcategory,
+            final String event) {
+
+        AuditEntry auditEntry = new AuditEntry(
+                AuthContextUtils.getUsername(),
+                new AuditLoggerName(type, category, subcategory, event, Result.SUCCESS),
+                null,
+                null,
+                null);
+        org.apache.syncope.core.persistence.api.entity.Logger syncopeLogger =
+                loggerDAO.find(auditEntry.getLogger().toLoggerName());
+        boolean auditRequested = syncopeLogger != null && syncopeLogger.getLevel() == LoggerLevel.DEBUG;
+
+        if (auditRequested) {
+            return true;
+        }
+
+        auditEntry = new AuditEntry(
+                AuthContextUtils.getUsername(),
+                new AuditLoggerName(type, category, subcategory, event, Result.FAILURE),
+                null,
+                null,
+                null);
+        syncopeLogger = loggerDAO.find(auditEntry.getLogger().toLoggerName());
+        auditRequested = syncopeLogger != null && syncopeLogger.getLevel() == LoggerLevel.DEBUG;
+
+        return auditRequested;
+    }
+
     @Override
     public void audit(
             final AuditElements.EventCategoryType type,
             final String category,
             final String subcategory,
             final String event,
-            final Result result,
+            final Result condition,
             final Object before,
             final Object output,
             final Object... input) {
@@ -62,7 +95,7 @@ public class AuditManagerImpl implements AuditManager {
 
         AuditEntry auditEntry = new AuditEntry(
                 AuthContextUtils.getUsername(),
-                new AuditLoggerName(type, category, subcategory, event, result),
+                new AuditLoggerName(type, category, subcategory, event, condition),
                 before,
                 throwable == null ? output : throwable.getMessage(),
                 input);
