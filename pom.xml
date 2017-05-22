@@ -422,9 +422,9 @@ under the License.
     <codemirror.version>5.24.2</codemirror.version>
     <jsplumb.version>2.0.7</jsplumb.version>
     
-    <wicket.version>7.6.0</wicket.version>
-    <wicket-jqueryui.version>7.6.0</wicket-jqueryui.version>
-    <wicket-bootstrap.version>0.10.11</wicket-bootstrap.version>
+    <wicket.version>7.7.0</wicket.version>
+    <wicket-jqueryui.version>7.7.0</wicket-jqueryui.version>
+    <wicket-bootstrap.version>0.10.13</wicket-bootstrap.version>
     <wicket-chartjs.version>7.0.1</wicket-chartjs.version>
 
     <angular.version>1.6.4</angular.version>
