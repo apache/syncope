@@ -41,12 +41,54 @@ public class AuditManager {
     @Autowired
     private LoggerDAO loggerDAO;
 
+    /**
+     * Checks if audit is requested matching the provided conditions.
+     *
+     * @param type event category type
+     * @param category event category
+     * @param subcategory event subcategory
+     * @param event event
+     * @return created notification tasks
+     */
+    public boolean auditRequested(
+            final AuditElements.EventCategoryType type,
+            final String category,
+            final String subcategory,
+            final String event) {
+
+        AuditLoggerName auditLoggerName = new AuditLoggerName(type, category, subcategory, event, Result.SUCCESS);
+        SyncopeLogger syncopeLogger = loggerDAO.find(auditLoggerName.toLoggerName());
+        boolean auditRequested = syncopeLogger != null && syncopeLogger.getLevel() == LoggerLevel.DEBUG;
+
+        if (auditRequested) {
+            return true;
+        }
+
+        auditLoggerName = new AuditLoggerName(type, category, subcategory, event, Result.FAILURE);
+        syncopeLogger = loggerDAO.find(auditLoggerName.toLoggerName());
+        auditRequested = syncopeLogger != null && syncopeLogger.getLevel() == LoggerLevel.DEBUG;
+
+        return auditRequested;
+    }
+
+    /**
+     * Create notification tasks for each notification matching provided conditions.
+     *
+     * @param type event category type
+     * @param category event category
+     * @param subcategory event subcategory
+     * @param event event
+     * @param condition result value condition.
+     * @param before object(s) available before the event
+     * @param output object(s) produced by the event
+     * @param input object(s) provided to the event
+     */
     public void audit(
             final AuditElements.EventCategoryType type,
             final String category,
             final String subcategory,
             final String event,
-            final Result result,
+            final Result condition,
             final Object before,
             final Object output,
             final Object... input) {
@@ -79,7 +121,7 @@ public class AuditManager {
 
         AuditLoggerName auditLoggerName = null;
         try {
-            auditLoggerName = new AuditLoggerName(type, category, subcategory, event, result);
+            auditLoggerName = new AuditLoggerName(type, category, subcategory, event, condition);
         } catch (IllegalArgumentException e) {
             LOG.error("Invalid audit parameters, aborting...", e);
         }

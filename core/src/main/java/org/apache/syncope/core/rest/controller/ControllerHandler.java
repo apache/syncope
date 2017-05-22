@@ -58,7 +58,12 @@ public class ControllerHandler {
 
         final String event = joinPoint.getSignature().getName();
 
-        AuditElements.Result result = null;
+        boolean notificationsAvailable = notificationManager.notificationsAvailable(
+                AuditElements.EventCategoryType.REST, category, null, event);
+        boolean auditRequested = auditManager.auditRequested(
+                AuditElements.EventCategoryType.REST, category, null, event);
+
+        AuditElements.Result condition = null;
         Object output = null;
         Object before = null;
 
@@ -66,43 +71,49 @@ public class ControllerHandler {
             LOG.debug("Before {}.{}({})", clazz.getSimpleName(), event,
                     input == null || input.length == 0 ? "" : Arrays.asList(input));
 
-            try {
-                before = ((AbstractController) joinPoint.getTarget()).resolveBeanReference(method, input);
-            } catch (UnresolvedReferenceException ignore) {
-                LOG.debug("Unresolved bean reference ...");
+            if (notificationsAvailable || auditRequested) {
+                try {
+                    before = ((AbstractController) joinPoint.getTarget()).resolveBeanReference(method, input);
+                } catch (UnresolvedReferenceException ignore) {
+                    LOG.debug("Unresolved bean reference ...");
+                }
             }
 
             output = joinPoint.proceed();
-            result = AuditElements.Result.SUCCESS;
+            condition = AuditElements.Result.SUCCESS;
 
             LOG.debug("After returning {}.{}: {}", clazz.getSimpleName(), event, output);
             return output;
         } catch (Throwable t) {
             output = t;
-            result = AuditElements.Result.FAILURE;
+            condition = AuditElements.Result.FAILURE;
 
             LOG.debug("After throwing {}.{}", clazz.getSimpleName(), event);
             throw t;
         } finally {
-            notificationManager.createTasks(
-                    AuditElements.EventCategoryType.REST,
-                    category,
-                    null,
-                    event,
-                    result,
-                    before,
-                    output,
-                    input);
+            if (notificationsAvailable) {
+                notificationManager.createTasks(
+                        AuditElements.EventCategoryType.REST,
+                        category,
+                        null,
+                        event,
+                        condition,
+                        before,
+                        output,
+                        input);
+            }
 
-            auditManager.audit(
-                    AuditElements.EventCategoryType.REST,
-                    category,
-                    null,
-                    event,
-                    result,
-                    before,
-                    output,
-                    input);
+            if (auditRequested) {
+                auditManager.audit(
+                        AuditElements.EventCategoryType.REST,
+                        category,
+                        null,
+                        event,
+                        condition,
+                        before,
+                        output,
+                        input);
+            }
         }
     }
 }

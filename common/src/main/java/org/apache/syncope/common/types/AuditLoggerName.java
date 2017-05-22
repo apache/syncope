@@ -48,14 +48,14 @@ public class AuditLoggerName extends AbstractBaseBean {
             @JsonProperty("category") final String category,
             @JsonProperty("subcategory") final String subcategory,
             @JsonProperty("event") final String event,
-            @JsonProperty("result") final Result result)
+            @JsonProperty("result") final Result condition)
             throws IllegalArgumentException {
 
         this.type = type == null ? AuditElements.EventCategoryType.CUSTOM : type;
         this.category = category;
         this.subcategory = subcategory;
         this.event = event;
-        this.result = result == null ? Result.SUCCESS : result;
+        this.result = condition == null ? Result.SUCCESS : condition;
     }
 
     public AuditElements.EventCategoryType getType() {

@@ -260,7 +260,46 @@ public class NotificationManager {
     }
 
     /**
-     * Create notification tasks for each notification matching the given user id and (some of) tasks performed.
+     * Checks if notifications are available matching the provided conditions.
+     *
+     * @param type event category type
+     * @param category event category
+     * @param subcategory event subcategory
+     * @param event event
+     * @return created notification tasks
+     */
+    public boolean notificationsAvailable(
+            final AuditElements.EventCategoryType type,
+            final String category,
+            final String subcategory,
+            final String event) {
+
+        final String successEvent = LoggerEventUtils.buildEvent(type, category, subcategory, event, Result.SUCCESS);
+        final String failureEvent = LoggerEventUtils.buildEvent(type, category, subcategory, event, Result.FAILURE);
+        for (Notification notification : notificationDAO.findAll()) {
+            if (notification.isActive()
+                    && (notification.getEvents().contains(successEvent)
+                    || notification.getEvents().contains(failureEvent))) {
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Create notification tasks for each notification matching provided conditions.
+     *
+     * @param type event category type
+     * @param category event category
+     * @param subcategory event subcategory
+     * @param event event
+     * @param condition result value condition.
+     * @param before object(s) availabile before the event
+     * @param output object(s) produced by the event
+     * @param input object(s) provided to the event
+     * @return created notification tasks
      */
     public List<NotificationTask> createTasks(
             final AuditElements.EventCategoryType type,
