@@ -50,16 +50,26 @@ public final class EntitlementsHolder {
         this.values.addAll(values);
     }
 
-    public void addFor(final String anyType) {
+    public Set<String> addFor(final String anyType) {
+        Set<String> added = new HashSet<>();
+
         for (AnyEntitlement operation : AnyEntitlement.values()) {
             this.values.add(operation.getFor(anyType));
+            added.add(operation.getFor(anyType));
         }
+
+        return added;
     }
 
-    public void removeFor(final String anyType) {
+    public Set<String> removeFor(final String anyType) {
+        Set<String> removed = new HashSet<>();
+
         for (AnyEntitlement operation : AnyEntitlement.values()) {
             this.values.remove(operation.getFor(anyType));
+            removed.add(operation.getFor(anyType));
         }
+
+        return removed;
     }
 
     public Set<String> getValues() {

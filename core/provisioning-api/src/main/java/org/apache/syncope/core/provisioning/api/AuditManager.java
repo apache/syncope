@@ -45,7 +45,7 @@ public interface AuditManager {
      * @param subcategory event subcategory
      * @param event event
      * @param condition result value condition.
-     * @param before object(s) availabile before the event
+     * @param before object(s) available before the event
      * @param output object(s) produced by the event
      * @param input object(s) provided to the event
      */

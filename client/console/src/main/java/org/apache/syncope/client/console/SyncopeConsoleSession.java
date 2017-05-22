@@ -143,8 +143,8 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
 
     private void afterAuthentication() {
         Pair<Map<String, Set<String>>, UserTO> self = client.self();
-        auth = self.getKey();
-        selfTO = self.getValue();
+        auth = self.getLeft();
+        selfTO = self.getRight();
     }
 
     @Override

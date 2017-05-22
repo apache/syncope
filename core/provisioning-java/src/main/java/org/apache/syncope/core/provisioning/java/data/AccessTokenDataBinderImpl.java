@@ -34,23 +34,36 @@ import org.apache.cxf.rs.security.jose.jws.JwsSignatureProvider;
 import org.apache.cxf.rs.security.jose.jwt.JwtClaims;
 import org.apache.cxf.rs.security.jose.jwt.JwtToken;
 import org.apache.syncope.common.lib.to.AccessTokenTO;
+import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.provisioning.api.data.AccessTokenDataBinder;
+import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.BeanUtils;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.apache.syncope.core.spring.security.Encryptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
 
+    private static final Logger LOG = LoggerFactory.getLogger(AccessTokenDataBinder.class);
+
+    private static final Encryptor ENCRYPTOR = Encryptor.getInstance();
+
     private static final String[] IGNORE_PROPERTIES = { "owner" };
 
     private static final RandomBasedGenerator UUID_GENERATOR = Generators.randomBasedGenerator();
 
     private static final JwsHeaders JWS_HEADERS = new JwsHeaders(JoseType.JWT, SignatureAlgorithm.HS512);
+
+    @Resource(name = "adminUser")
+    private String adminUser;
 
     @Resource(name = "jwtIssuer")
     private String jwtIssuer;
@@ -118,6 +131,17 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
             accessToken.setBody(body);
             accessToken.setExpiryTime(created.getRight());
             accessToken.setOwner(subject);
+
+            if (!adminUser.equals(accessToken.getOwner())) {
+                try {
+                    accessToken.setAuthorities(ENCRYPTOR.encode(
+                            POJOHelper.serialize(AuthContextUtils.getAuthorities()), CipherAlgorithm.AES).
+                            getBytes());
+                } catch (Exception e) {
+                    LOG.error("Could not store authorities", e);
+                }
+            }
+
             accessTokenDAO.save(accessToken);
         }
 
@@ -146,6 +170,16 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
 
         accessToken.setBody(body);
         accessToken.setExpiryTime(expiry.getTime());
+
+        if (!adminUser.equals(accessToken.getOwner())) {
+            try {
+                accessToken.setAuthorities(ENCRYPTOR.encode(
+                        POJOHelper.serialize(AuthContextUtils.getAuthorities()), CipherAlgorithm.AES).
+                        getBytes());
+            } catch (Exception e) {
+                LOG.error("Could not store authorities", e);
+            }
+        }
 
         accessTokenDAO.save(accessToken);
 

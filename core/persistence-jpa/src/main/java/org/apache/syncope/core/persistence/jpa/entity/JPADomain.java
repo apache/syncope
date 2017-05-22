@@ -36,6 +36,8 @@ public class JPADomain extends AbstractProvidedKeyEntity implements Domain {
 
     public static final String TABLE = "SyncopeDomain";
 
+    private static final Encryptor ENCRYPTOR = Encryptor.getInstance();
+
     private String adminPwd;
 
     @Enumerated(EnumType.STRING)
@@ -54,7 +56,7 @@ public class JPADomain extends AbstractProvidedKeyEntity implements Domain {
     @Override
     public void setPassword(final String password, final CipherAlgorithm cipherAlgoritm) {
         try {
-            this.adminPwd = Encryptor.getInstance().encode(password, cipherAlgoritm);
+            this.adminPwd = ENCRYPTOR.encode(password, cipherAlgoritm);
             this.adminCipherAlgorithm = cipherAlgoritm;
         } catch (Exception e) {
             LOG.error("Could not encode password", e);

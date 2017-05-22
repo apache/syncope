@@ -26,6 +26,7 @@ import javax.persistence.Lob;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
 
 @Entity
@@ -45,6 +46,9 @@ public class JPAAccessToken extends AbstractProvidedKeyEntity implements AccessT
 
     @Column(nullable = true)
     private String owner;
+
+    @Lob
+    private byte[] authorities;
 
     @Override
     public String getBody() {
@@ -78,6 +82,16 @@ public class JPAAccessToken extends AbstractProvidedKeyEntity implements AccessT
     @Override
     public void setOwner(final String owner) {
         this.owner = owner;
+    }
+
+    @Override
+    public byte[] getAuthorities() {
+        return authorities;
+    }
+
+    @Override
+    public void setAuthorities(final byte[] authorities) {
+        this.authorities = ArrayUtils.clone(authorities);
     }
 
 }

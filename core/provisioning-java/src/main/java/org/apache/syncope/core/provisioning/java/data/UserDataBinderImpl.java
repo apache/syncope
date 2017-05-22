@@ -89,6 +89,8 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         "plainAttrs", "derAttrs", "virAttrs", "resources", "securityQuestion", "securityAnswer"
     };
 
+    private static final Encryptor ENCRYPTOR = Encryptor.getInstance();
+
     @Autowired
     private RoleDAO roleDAO;
 
@@ -109,8 +111,6 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
     @Resource(name = "anonymousUser")
     private String anonymousUser;
-
-    private final Encryptor encryptor = Encryptor.getInstance();
 
     @Transactional(readOnly = true)
     @Override
@@ -152,7 +152,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
     @Transactional(readOnly = true)
     @Override
     public boolean verifyPassword(final User user, final String password) {
-        return encryptor.verify(password, user.getCipherAlgorithm(), user.getPassword());
+        return ENCRYPTOR.verify(password, user.getCipherAlgorithm(), user.getPassword());
     }
 
     private void setPassword(final User user, final String password, final SyncopeClientCompositeException scce) {

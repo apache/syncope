@@ -78,6 +78,8 @@ public class JPAUser
 
     public static final String TABLE = "SyncopeUser";
 
+    private static final Encryptor ENCRYPTOR = Encryptor.getInstance();
+
     @Column(nullable = true)
     private String password;
 
@@ -256,7 +258,7 @@ public class JPAUser
         this.clearPassword = password;
 
         try {
-            this.password = Encryptor.getInstance().encode(password, cipherAlgoritm);
+            this.password = ENCRYPTOR.encode(password, cipherAlgoritm);
             this.cipherAlgorithm = cipherAlgoritm;
         } catch (Exception e) {
             LOG.error("Could not encode password", e);
@@ -460,8 +462,8 @@ public class JPAUser
                 res = passwordHistory.subList(size >= passwordHistory.size()
                         ? 0
                         : passwordHistory.size() - size, passwordHistory.size()).contains(cipherAlgorithm == null
-                                ? password
-                                : Encryptor.getInstance().encode(password, cipherAlgorithm));
+                        ? password
+                        : ENCRYPTOR.encode(password, cipherAlgorithm));
             } catch (Exception e) {
                 LOG.error("Error evaluating password history", e);
             }
