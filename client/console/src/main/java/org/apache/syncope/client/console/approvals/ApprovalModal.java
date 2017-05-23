@@ -24,7 +24,6 @@ import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.rest.UserWorkflowRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -65,17 +64,10 @@ public class ApprovalModal extends Panel implements SubmitableModalPanel, Wizard
 
     @Override
     public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-        try {
-            new UserWorkflowRestClient().submitForm(formTO);
-
-            this.modal.show(false);
-            this.modal.close(target);
-
-            SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-        } catch (SyncopeClientException e) {
-            SyncopeConsoleSession.get().error(getString(Constants.ERROR) + ": " + e.getMessage());
-        }
-        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+        new UserWorkflowRestClient().submitForm(formTO);
+        this.modal.show(false);
+        this.modal.close(target);
+        SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
     }
 
     @Override
