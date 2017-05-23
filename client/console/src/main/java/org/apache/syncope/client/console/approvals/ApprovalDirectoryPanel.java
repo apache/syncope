@@ -45,6 +45,7 @@ import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
+import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
@@ -132,9 +133,25 @@ public class ApprovalDirectoryPanel
                 final IModel<WorkflowFormTO> formModel = new CompoundPropertyModel<>(model.getObject());
                 modal.setFormModel(formModel);
 
-                target.add(modal.setContent(new ApprovalModal(modal, pageRef, model.getObject())));
-                modal.header(new Model<>(getString("approval.edit", new Model<>(model.getObject()))));
+                target.add(modal.setContent(new ApprovalModal(modal, pageRef, model.getObject()) {
 
+                    private static final long serialVersionUID = 5546519445061007248L;
+
+                    @Override
+                    public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+                        try {
+                            super.onSubmit(target, form);
+
+                            ApprovalDirectoryPanel.this.getTogglePanel().close(target);
+                        } catch (SyncopeClientException e) {
+                            SyncopeConsoleSession.get().error(getString(Constants.ERROR) + ": " + e.getMessage());
+                        }
+                        ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                    }
+
+                }));
+                
+                modal.header(new Model<>(getString("approval.edit", new Model<>(model.getObject()))));
                 modal.show(true);
             }
 

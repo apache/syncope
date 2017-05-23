@@ -238,6 +238,11 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+                // send event to close eventually opened actions toggle panel
+                if (builder.getTogglePanel() != null) {
+                    builder.getTogglePanel().close(target);
+                }
+
                 if (builder.multiLevelPanel == null) {
                     bulkModal.header(new ResourceModel("bulk.action", "Bulk action"));
                     bulkModal.changeCloseButtonLabel(getString("cancel", null, "Cancel"), target);

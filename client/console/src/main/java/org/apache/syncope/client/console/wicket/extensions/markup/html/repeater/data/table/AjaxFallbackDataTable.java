@@ -129,9 +129,7 @@ public class AjaxFallbackDataTable<T extends Serializable, S> extends DataTable<
 
                     @Override
                     protected void onEvent(final AjaxRequestTarget target) {
-                        if (target.getLastFocusedElementId() == null
-                                || (!target.getLastFocusedElementId().startsWith("check")
-                                && !target.getLastFocusedElementId().startsWith("groupselector"))) {
+                        if (target.getLastFocusedElementId() == null) {
                             togglePanel.toggleWithContent(target, getActions(model), model.getObject());
                         }
                     }
