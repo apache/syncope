@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.console.wicket.markup.html.form.preview;
 
-import static org.apache.syncope.client.console.wicket.markup.html.form.preview.AbstractBinaryPreviewer.LOG;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
