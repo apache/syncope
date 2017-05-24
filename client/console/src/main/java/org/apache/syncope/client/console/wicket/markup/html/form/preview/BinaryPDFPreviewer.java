@@ -24,7 +24,11 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.Serializable;
+import org.apache.pdfbox.cos.COSObject;
+import org.apache.pdfbox.io.MemoryUsageSetting;
+import org.apache.pdfbox.pdmodel.DefaultResourceCache;
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.graphics.PDXObject;
 import org.apache.pdfbox.rendering.ImageType;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.apache.syncope.client.console.annotations.BinaryPreview;
@@ -44,7 +48,7 @@ public class BinaryPDFPreviewer extends AbstractBinaryPreviewer {
 
     private static final int IMG_SIZE = 300;
 
-    private static final float RESOLUTION = 96;
+    private static final float DPI = 100;
 
     private static final ImageType IMAGE_TYPE = ImageType.RGB;
 
@@ -60,11 +64,18 @@ public class BinaryPDFPreviewer extends AbstractBinaryPreviewer {
 
         PDDocument document = null;
         try {
-            document = PDDocument.load(new ByteArrayInputStream(uploadedBytes));
+            document = PDDocument.load(new ByteArrayInputStream(uploadedBytes), MemoryUsageSetting.setupTempFileOnly());
+            document.setResourceCache(new DefaultResourceCache() {
+
+                @Override
+                public void put(final COSObject indirect, final PDXObject xobject) throws IOException {
+                }
+
+            });
             if (document.isEncrypted()) {
                 LOG.info("Document is encrypted, no preview is possible");
             } else {
-                firstPage = new PDFRenderer(document).renderImage(0, RESOLUTION, IMAGE_TYPE);
+                firstPage = new PDFRenderer(document).renderImageWithDPI(0, DPI, IMAGE_TYPE);
             }
         } catch (IOException e) {
             LOG.error("While generating thumbnail from first page", e);
