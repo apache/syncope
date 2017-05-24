@@ -435,7 +435,9 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
                 final SearchClause searchClause = new SearchClause();
-                searchClause.setType(Type.valueOf(type.getDefaultModelObjectAsString()));
+                if (StringUtils.isNotEmpty(type.getDefaultModelObjectAsString())) {
+                    searchClause.setType(Type.valueOf(type.getDefaultModelObjectAsString()));
+                }
                 SearchClausePanel.this.clause.setObject(searchClause);
 
                 setFieldAccess(searchClause.getType(), property, comparator, value);

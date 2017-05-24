@@ -81,7 +81,8 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> implements UserF
     protected Details<UserTO> addOptionalDetailsPanel(final AnyWrapper<UserTO> modelObject) {
 
         return new UserDetails(
-                UserWrapper.class.cast(modelObject), mode == AjaxWizard.Mode.TEMPLATE,
+                UserWrapper.class.cast(modelObject),
+                mode == AjaxWizard.Mode.TEMPLATE,
                 modelObject.getInnerObject().getKey() != null,
                 UserFormLayoutInfo.class.cast(formLayoutInfo).isPasswordManagement(),
                 pageRef);
