@@ -61,6 +61,8 @@ import org.apache.wicket.util.lang.Bytes;
 public class BinaryFieldPanel extends FieldPanel<String> {
 
     private static final long serialVersionUID = 6264462604183088931L;
+    
+    private static final PreviewUtils PREVIEW_UTILS = PreviewUtils.getInstance();
 
     private final String mimeType;
 
@@ -74,15 +76,13 @@ public class BinaryFieldPanel extends FieldPanel<String> {
 
     private final BootstrapFileInputField fileUpload;
 
-    private final transient PreviewUtils previewUtils = PreviewUtils.getInstance();
-
     private final AbstractBinaryPreviewer previewer;
 
     public BinaryFieldPanel(final String id, final String name, final IModel<String> model, final String mimeType) {
         super(id, name, model);
         this.mimeType = mimeType;
 
-        previewer = previewUtils.getPreviewer(mimeType);
+        previewer = PREVIEW_UTILS.getPreviewer(mimeType);
 
         uploadForm = new StatelessForm<>("uploadForm");
         uploadForm.setMultiPart(true);
@@ -227,7 +227,7 @@ public class BinaryFieldPanel extends FieldPanel<String> {
         if (StringUtils.isNotBlank(model.getObject())) {
             final Component panelPreview;
             if (previewer == null) {
-                panelPreview = previewUtils.getDefaultPreviewer(mimeType);
+                panelPreview = PREVIEW_UTILS.getDefaultPreviewer(mimeType);
             } else {
                 panelPreview = previewer.preview(model.getObject());
             }
