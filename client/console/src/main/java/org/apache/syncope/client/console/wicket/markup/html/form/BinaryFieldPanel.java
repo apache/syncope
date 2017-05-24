@@ -32,8 +32,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.commons.HttpResourceStream;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.commons.HttpResourceStream;
 import org.apache.syncope.client.console.commons.PreviewUtils;
 import org.apache.syncope.client.console.wicket.markup.html.form.preview.AbstractBinaryPreviewer;
 import org.apache.wicket.Component;
@@ -53,15 +53,13 @@ import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.util.ListModel;
-import org.apache.wicket.request.handler.resource.ResourceStreamRequestHandler;
-import org.apache.wicket.request.resource.ContentDisposition;
 import org.apache.wicket.util.crypt.Base64;
 import org.apache.wicket.util.lang.Bytes;
 
 public class BinaryFieldPanel extends FieldPanel<String> {
 
     private static final long serialVersionUID = 6264462604183088931L;
-    
+
     private static final PreviewUtils PREVIEW_UTILS = PreviewUtils.getInstance();
 
     private final String mimeType;
@@ -75,6 +73,10 @@ public class BinaryFieldPanel extends FieldPanel<String> {
     private final Fragment emptyFragment;
 
     private final BootstrapFileInputField fileUpload;
+
+    private final AjaxDownload fileDownload;
+
+    private final transient PreviewUtils previewUtils = PreviewUtils.getInstance();
 
     private final AbstractBinaryPreviewer previewer;
 
@@ -125,6 +127,19 @@ public class BinaryFieldPanel extends FieldPanel<String> {
 
         uploadForm.add(new Label("preview", StringUtils.isBlank(mimeType) ? StringUtils.EMPTY : "(" + mimeType + ")"));
 
+        fileDownload = new AjaxDownload(name, true) {
+
+            private static final long serialVersionUID = 7203445884857810583L;
+
+            @Override
+            protected HttpResourceStream getResourceStream() {
+                return new HttpResourceStream(buildResponse());
+            }
+
+        };
+
+        add(fileDownload);
+
         downloadLink = new AjaxLink<Void>("downloadLink") {
 
             private static final long serialVersionUID = -4331619903296515985L;
@@ -132,13 +147,7 @@ public class BinaryFieldPanel extends FieldPanel<String> {
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 try {
-                    HttpResourceStream stream = new HttpResourceStream(buildResponse());
-
-                    ResourceStreamRequestHandler rsrh = new ResourceStreamRequestHandler(stream);
-                    rsrh.setFileName(stream.getFilename() == null ? name : stream.getFilename());
-                    rsrh.setContentDisposition(ContentDisposition.ATTACHMENT);
-
-                    getRequestCycle().scheduleRequestHandlerAfterCurrent(rsrh);
+                    fileDownload.initiate(target);
                 } catch (Exception e) {
                     SyncopeConsoleSession.get().error(
                             StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
