@@ -37,6 +37,8 @@ public class BinaryTextPreviewer extends AbstractBinaryPreviewer {
 
     private static final long serialVersionUID = 3808379310090668773L;
 
+    private String jsonEditorInfoId;
+
     public BinaryTextPreviewer(final String id, final String mimeType) {
         super(id, mimeType);
     }
@@ -51,7 +53,8 @@ public class BinaryTextPreviewer extends AbstractBinaryPreviewer {
                 InputStream stream = new ByteArrayInputStream(uploadedBytes);
                 TextArea<String> jsonEditor =
                         new TextArea<>("jsonEditorInfo", new Model<>(IOUtils.toString(stream)));
-                jsonEditor.setMarkupId("jsonEditorInfo").setOutputMarkupPlaceholderTag(true);
+                jsonEditor.setOutputMarkupPlaceholderTag(true);
+                jsonEditorInfoId = jsonEditor.getMarkupId();
                 fragment.add(jsonEditor);
             } catch (IOException e) {
                 LOG.error("Error evaluating text file", e);
@@ -81,13 +84,13 @@ public class BinaryTextPreviewer extends AbstractBinaryPreviewer {
         }
 
         response.render(OnLoadHeaderItem.forScript(
-                "var editor = CodeMirror.fromTextArea(document.getElementById('jsonEditorInfo'), {"
+                "var editor = CodeMirror.fromTextArea(document.getElementById('" + jsonEditorInfoId + "'), {"
                 + "  readOnly: true, "
                 + "  lineNumbers: true, "
-                + "  lineWrapping: true, "
+                + "  lineWrapping: false, "
                 + options
                 + "  autoRefresh: true"
                 + "});"
-                + "editor.setSize('100%', 100)"));
+                + "editor.setSize('500', 100)"));
     }
 }
