@@ -31,7 +31,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
+import javax.ws.rs.core.Response;
+import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.patch.MembershipPatch;
 import org.apache.syncope.common.lib.patch.PasswordPatch;
 import org.apache.syncope.common.lib.patch.StringPatchItem;
 import org.apache.syncope.common.lib.patch.UserPatch;
@@ -42,6 +45,7 @@ import org.apache.syncope.common.lib.to.WorkflowFormPropertyTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PatchOperation;
+import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.syncope.common.rest.api.service.UserWorkflowService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.Assume;
@@ -212,6 +216,39 @@ public class UserWorkflowITCase extends AbstractITCase {
 
         userTO = updateUser(userPatch).getEntity();
         assertNotNull(userTO);
+    }
+
+    @Test
+    public void updateApproval() {
+        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
+
+        // read forms *before* any operation
+        List<WorkflowFormTO> forms = userWorkflowService.getForms();
+        assertNotNull(forms);
+        int preForms = forms.size();
+
+        UserTO created = createUser(UserITCase.getUniqueSampleTO("updateApproval@syncope.apache.org")).getEntity();
+        assertNotNull(created);
+
+        UserPatch patch = new UserPatch();
+        patch.setKey(created.getKey());
+        patch.getMemberships().add(new MembershipPatch.Builder().group("b1f7c12d-ec83-441f-a50e-1691daaedf3b").build());
+
+        SyncopeClient client = clientFactory.create(created.getUsername(), "password123");
+        Response response = client.getService(UserSelfService.class).update(patch);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+
+        forms = userWorkflowService.getForms();
+        assertNotNull(forms);
+        assertEquals(preForms + 1, forms.size());
+
+        WorkflowFormTO form = userWorkflowService.getFormForUser(created.getKey());
+        assertNotNull(form);
+        assertNotNull(form.getTaskId());
+        assertNull(form.getOwner());
+        assertNotNull(form.getUserTO());
+        assertNotNull(form.getUserPatch());
+        assertEquals(patch, form.getUserPatch());
     }
 
     @Test

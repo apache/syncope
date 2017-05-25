@@ -31,6 +31,7 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.AbstractBaseBean;
+import org.apache.syncope.common.lib.patch.UserPatch;
 
 @XmlRootElement(name = "workflowForm")
 @XmlType
@@ -49,6 +50,10 @@ public class WorkflowFormTO extends AbstractBaseBean {
     private Date dueDate;
 
     private String owner;
+
+    private UserTO userTO;
+
+    private UserPatch userPatch;
 
     private final List<WorkflowFormPropertyTO> properties = new ArrayList<>();
 
@@ -112,6 +117,22 @@ public class WorkflowFormTO extends AbstractBaseBean {
 
     public void setOwner(final String owner) {
         this.owner = owner;
+    }
+
+    public UserTO getUserTO() {
+        return userTO;
+    }
+
+    public void setUserTO(final UserTO userTO) {
+        this.userTO = userTO;
+    }
+
+    public UserPatch getUserPatch() {
+        return userPatch;
+    }
+
+    public void setUserPatch(final UserPatch userPatch) {
+        this.userPatch = userPatch;
     }
 
     @XmlElementWrapper(name = "workflowFormProperties")
