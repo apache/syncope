@@ -701,7 +701,7 @@ under the License.
               <container>
                 <containerId>glassfish4x</containerId>
                 <zipUrlInstaller>
-                  <url>http://download.oracle.com/glassfish/4.1.1/release/glassfish-4.1.1.zip</url>
+                  <url>http://download.java.net/glassfish/4.1.2/release/glassfish-4.1.2.zip</url>
                   <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
                   <extractDir>${project.build.directory}/cargo/extract</extractDir>
                 </zipUrlInstaller>
@@ -748,7 +748,7 @@ under the License.
               <container>
                 <containerId>glassfish4x</containerId>
                 <zipUrlInstaller>
-                  <url>https://s3-eu-west-1.amazonaws.com/payara.fish/Payara+Downloads/Payara+4.1.1.171.1/payara-4.1.1.171.1.zip</url>
+                  <url>https://s3-eu-west-1.amazonaws.com/payara.fish/Payara+Downloads/Payara+4.1.2.172/payara-4.1.2.172.zip</url>
                   <downloadDir>${settings.localRepository}/org/codehaus/cargo/cargo-container-archives</downloadDir>
                   <extractDir>${project.build.directory}/cargo/extract</extractDir>
                 </zipUrlInstaller>
