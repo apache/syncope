@@ -483,10 +483,10 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     }
 
     protected WorkflowFormTO getFormTO(final Task task, final TaskFormData fd) {
-        final WorkflowFormTO formTO =
+        WorkflowFormTO formTO =
                 getFormTO(task.getProcessInstanceId(), task.getId(), fd.getFormKey(), fd.getFormProperties());
-
         BeanUtils.copyProperties(task, formTO);
+
         return formTO;
     }
 
@@ -501,11 +501,11 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
             }
         }
 
-        final WorkflowFormTO formTO = getHistoricFormTO(
+        WorkflowFormTO formTO = getHistoricFormTO(
                 task.getProcessInstanceId(), task.getId(), task.getFormKey(), props);
         BeanUtils.copyProperties(task, formTO);
 
-        final HistoricActivityInstance historicActivityInstance = engine.getHistoryService().
+        HistoricActivityInstance historicActivityInstance = engine.getHistoryService().
                 createHistoricActivityInstanceQuery().
                 executionId(task.getExecutionId()).activityType("userTask").activityName(task.getName()).singleResult();
 
@@ -533,6 +533,9 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
         formTO.setTaskId(taskId);
         formTO.setKey(formKey);
+
+        formTO.setUserTO(engine.getRuntimeService().getVariable(processInstanceId, USER_TO, UserTO.class));
+        formTO.setUserPatch(engine.getRuntimeService().getVariable(processInstanceId, USER_PATCH, UserPatch.class));
 
         for (HistoricFormPropertyEntity prop : props) {
             WorkflowFormPropertyTO propertyTO = new WorkflowFormPropertyTO();
@@ -562,6 +565,9 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
         formTO.setTaskId(taskId);
         formTO.setKey(formKey);
+
+        formTO.setUserTO(engine.getRuntimeService().getVariable(processInstanceId, USER_TO, UserTO.class));
+        formTO.setUserPatch(engine.getRuntimeService().getVariable(processInstanceId, USER_PATCH, UserPatch.class));
 
         for (FormProperty fProp : properties) {
             WorkflowFormPropertyTO propertyTO = new WorkflowFormPropertyTO();
