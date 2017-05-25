@@ -80,10 +80,7 @@ public class RoleLogic extends AbstractTransactionalLogic<RoleTO> {
             throw new NotFoundException(roleTO.getKey());
         }
 
-        binder.update(role, roleTO);
-        role = roleDAO.save(role);
-
-        return binder.getRoleTO(role);
+        return binder.getRoleTO(roleDAO.save(binder.update(role, roleTO)));
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.ROLE_DELETE + "')")

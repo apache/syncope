@@ -18,42 +18,25 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.user;
 
-import java.util.ArrayList;
-import java.util.List;
 import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import org.apache.syncope.core.persistence.api.entity.user.DynRoleMembership;
 import org.apache.syncope.core.persistence.api.entity.Role;
+import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.persistence.jpa.entity.AbstractDynMembership;
 import org.apache.syncope.core.persistence.jpa.entity.JPARole;
 
 @Entity
 @Table(name = JPADynRoleMembership.TABLE)
-public class JPADynRoleMembership extends AbstractUDynMembership implements DynRoleMembership {
+public class JPADynRoleMembership extends AbstractDynMembership<User> implements DynRoleMembership {
 
     private static final long serialVersionUID = -7336814163949640354L;
 
     public static final String TABLE = "DynRoleMembership";
 
-    public static final String JOIN_TABLE = TABLE + "_User";
-
     @OneToOne
     private JPARole role;
-
-    @ManyToMany
-    @JoinTable(name = JOIN_TABLE, joinColumns =
-            @JoinColumn(name = "dynRoleMembership_id"),
-            inverseJoinColumns =
-            @JoinColumn(name = "user_id"))
-    private List<JPAUser> users = new ArrayList<>();
-
-    @Override
-    protected List<JPAUser> internalGetUsers() {
-        return users;
-    }
 
     @Override
     public Role getRole() {

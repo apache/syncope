@@ -71,10 +71,6 @@ import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyUtilsFactory;
-import org.apache.syncope.core.persistence.jpa.entity.JPARole;
-import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
-import org.apache.syncope.core.persistence.jpa.entity.user.JPADynRoleMembership;
-import org.apache.syncope.core.persistence.jpa.entity.user.JPAUDynGroupMembership;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.apache.syncope.core.spring.event.AnyCreatedUpdatedEvent;
@@ -480,12 +476,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
     @Override
     public List<Role> findDynRoles(final User user) {
         Query query = entityManager().createNativeQuery(
-                "SELECT t2.id FROM " + JPADynRoleMembership.TABLE + " t0 "
-                + "INNER JOIN " + JPADynRoleMembership.JOIN_TABLE + " t1 "
-                + "ON t0.id = t1.dynRoleMembership_id "
-                + "LEFT OUTER JOIN " + JPARole.TABLE + " t2 "
-                + "ON t0.ROLE_ID = t2.id "
-                + "WHERE (t1.user_id = ?1)");
+                "SELECT role_id FROM " + JPARoleDAO.DYNMEMB_TABLE + " WHERE any_id=?");
         query.setParameter(1, user.getKey());
 
         List<Role> result = new ArrayList<>();
@@ -508,12 +499,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
     @Override
     public List<Group> findDynGroups(final User user) {
         Query query = entityManager().createNativeQuery(
-                "SELECT t2.id FROM " + JPAUDynGroupMembership.TABLE + " t0 "
-                + "INNER JOIN " + JPAUDynGroupMembership.JOIN_TABLE + " t1 "
-                + "ON t0.id = t1.uDynGroupMembership_id "
-                + "LEFT OUTER JOIN " + JPAGroup.TABLE + " t2 "
-                + "ON t0.GROUP_ID = t2.id "
-                + "WHERE (t1.user_id = ?1)");
+                "SELECT group_id FROM " + JPAGroupDAO.UDYNMEMB_TABLE + " WHERE any_id=?");
         query.setParameter(1, user.getKey());
 
         List<Group> result = new ArrayList<>();

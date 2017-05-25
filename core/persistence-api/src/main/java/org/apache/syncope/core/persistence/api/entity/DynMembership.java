@@ -23,8 +23,4 @@ public interface DynMembership<A extends Any<?>> extends Entity {
     String getFIQLCond();
 
     void setFIQLCond(String fiql);
-
-    boolean add(A any);
-
-    void clear();
 }

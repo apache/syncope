@@ -18,42 +18,25 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.user;
 
-import java.util.ArrayList;
-import java.util.List;
 import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
+import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.persistence.jpa.entity.AbstractDynMembership;
 import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
 
 @Entity
 @Table(name = JPAUDynGroupMembership.TABLE)
-public class JPAUDynGroupMembership extends AbstractUDynMembership implements UDynGroupMembership {
+public class JPAUDynGroupMembership extends AbstractDynMembership<User> implements UDynGroupMembership {
 
     private static final long serialVersionUID = -7336814163949640354L;
 
     public static final String TABLE = "UDynGroupMembership";
 
-    public static final String JOIN_TABLE = TABLE + "_User";
-
     @OneToOne
     private JPAGroup group;
-
-    @ManyToMany
-    @JoinTable(name = JOIN_TABLE, joinColumns =
-            @JoinColumn(name = "uDynGroupMembership_id"),
-            inverseJoinColumns =
-            @JoinColumn(name = "user_id"))
-    private List<JPAUser> users = new ArrayList<>();
-
-    @Override
-    protected List<JPAUser> internalGetUsers() {
-        return users;
-    }
 
     @Override
     public Group getGroup() {

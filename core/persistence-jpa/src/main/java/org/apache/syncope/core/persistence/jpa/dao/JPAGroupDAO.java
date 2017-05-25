@@ -47,6 +47,7 @@ import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.Realm;
@@ -55,6 +56,7 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttr;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
+import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyUtilsFactory;
@@ -74,6 +76,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
+
+    public static final String UDYNMEMB_TABLE = "UDynGroupMembers";
+
+    public static final String ADYNMEMB_TABLE = "ADynGroupMembers";
 
     @Autowired
     private PlainAttrDAO plainAttrDAO;
@@ -274,15 +280,20 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         Group merged = super.save(group);
         publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, merged));
 
-        // refresh dynaminc memberships
+        // refresh dynamic memberships
         if (merged.getUDynMembership() != null) {
             List<User> matching = searchDAO().search(
                     buildDynMembershipCond(merged.getUDynMembership().getFIQLCond(), merged.getRealm()),
                     AnyTypeKind.USER);
 
-            merged.getUDynMembership().clear();
+            clearUDynMembers(merged);
+
             for (User user : matching) {
-                merged.getUDynMembership().add(user);
+                Query insert = entityManager().createNativeQuery("INSERT INTO " + UDYNMEMB_TABLE + " VALUES(?, ?)");
+                insert.setParameter(1, user.getKey());
+                insert.setParameter(2, merged.getKey());
+                insert.executeUpdate();
+
                 publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, user));
             }
         }
@@ -291,9 +302,15 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
                     buildDynMembershipCond(memb.getFIQLCond(), merged.getRealm()),
                     AnyTypeKind.ANY_OBJECT);
 
-            memb.clear();
+            clearADynMembers(merged);
+
             for (AnyObject anyObject : matching) {
-                memb.add(anyObject);
+                Query insert = entityManager().createNativeQuery("INSERT INTO " + ADYNMEMB_TABLE + " VALUES(?, ?, ?)");
+                insert.setParameter(1, anyObject.getType().getKey());
+                insert.setParameter(2, anyObject.getKey());
+                insert.setParameter(3, merged.getKey());
+                insert.executeUpdate();
+
                 publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, anyObject));
             }
         }
@@ -347,13 +364,13 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     }
 
     @Override
-    public List<String> findADynMembersKeys(final Group group) {
+    public List<String> findADynMembers(final Group group) {
         List<String> result = new ArrayList<>();
         for (ADynGroupMembership memb : group.getADynMemberships()) {
             Query query = entityManager().createNativeQuery(
-                    "SELECT t.anyObject_id FROM " + JPAADynGroupMembership.JOIN_TABLE + " t "
-                    + "WHERE t.aDynGroupMembership_id=?");
-            query.setParameter(1, memb.getKey());
+                    "SELECT any_id FROM " + ADYNMEMB_TABLE + " WHERE group_id=? AND anyType_id=?");
+            query.setParameter(1, group.getKey());
+            query.setParameter(2, memb.getAnyType().getKey());
 
             for (Object key : query.getResultList()) {
                 String actualKey = key instanceof Object[]
@@ -366,45 +383,44 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         return result;
     }
 
-    private List<Group> findWithADynMemberships(final int page, final int itemsPerPage) {
-        TypedQuery<Group> query = entityManager().createQuery(
-                "SELECT e FROM  " + JPAGroup.class.getSimpleName() + " e WHERE e.aDynMemberships IS NOT EMPTY",
-                Group.class);
-        query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
-        query.setMaxResults(itemsPerPage);
+    @Override
+    public void clearADynMembers(final Group group) {
+        Query delete = entityManager().createNativeQuery("DELETE FROM " + ADYNMEMB_TABLE + " WHERE group_id=?");
+        delete.setParameter(1, group.getKey());
+        delete.executeUpdate();
+    }
 
+    private List<ADynGroupMembership> findWithADynMemberships(final AnyType anyType) {
+        TypedQuery<ADynGroupMembership> query = entityManager().createQuery(
+                "SELECT e FROM " + JPAADynGroupMembership.class.getSimpleName() + " e  WHERE e.anyType=:anyType",
+                ADynGroupMembership.class);
+        query.setParameter("anyType", anyType);
         return query.getResultList();
     }
 
     @Transactional
     @Override
     public void refreshDynMemberships(final AnyObject anyObject) {
-        Query countQuery = entityManager().createQuery(
-                "SELECT COUNT(e) FROM  " + JPAGroup.class.getSimpleName() + " e WHERE e.aDynMemberships IS NOT EMPTY");
-        int count = ((Number) countQuery.getSingleResult()).intValue();
+        for (ADynGroupMembership memb : findWithADynMemberships(anyObject.getType())) {
+            Query delete = entityManager().createNativeQuery(
+                    "DELETE FROM " + ADYNMEMB_TABLE + " WHERE group_id=? AND any_id=?");
+            delete.setParameter(1, memb.getGroup().getKey());
+            delete.setParameter(2, anyObject.getKey());
+            delete.executeUpdate();
 
-        for (int page = 1; page <= (count / DEFAULT_PAGE_SIZE) + 1; page++) {
-            for (Group group : findWithADynMemberships(page, DEFAULT_PAGE_SIZE)) {
-                if (!group.getADynMemberships().isEmpty()) {
-                    for (ADynGroupMembership memb : group.getADynMemberships()) {
-                        if (jpaAnySearchDAO().matches(
-                                anyObject,
-                                buildDynMembershipCond(memb.getFIQLCond(), group.getRealm()))) {
+            if (jpaAnySearchDAO().matches(
+                    anyObject,
+                    buildDynMembershipCond(memb.getFIQLCond(), memb.getGroup().getRealm()))) {
 
-                            memb.add(anyObject);
-                        } else {
-                            Query query = entityManager().createNativeQuery(
-                                    "DELETE FROM " + JPAADynGroupMembership.JOIN_TABLE + " t "
-                                    + "WHERE t.anyObject_id=? and t.aDynGroupMembership_id=?");
-                            query.setParameter(1, anyObject.getKey());
-                            query.setParameter(2, memb.getKey());
-                            query.executeUpdate();
-                        }
-
-                        publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, group));
-                    }
-                }
+                Query insert = entityManager().createNativeQuery(
+                        "INSERT INTO " + ADYNMEMB_TABLE + " VALUES(?, ?, ?)");
+                insert.setParameter(1, anyObject.getType().getKey());
+                insert.setParameter(2, anyObject.getKey());
+                insert.setParameter(3, memb.getGroup().getKey());
+                insert.executeUpdate();
             }
+
+            publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, memb.getGroup()));
         }
     }
 
@@ -412,10 +428,9 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     public void removeDynMemberships(final AnyObject anyObject) {
         List<Group> dynGroups = anyObjectDAO().findDynGroups(anyObject);
 
-        Query query = entityManager().createNativeQuery(
-                "DELETE FROM " + JPAADynGroupMembership.JOIN_TABLE + " t WHERE t.anyObject_id=?");
-        query.setParameter(1, anyObject.getKey());
-        query.executeUpdate();
+        Query delete = entityManager().createNativeQuery("DELETE FROM " + ADYNMEMB_TABLE + " WHERE any_id=?");
+        delete.setParameter(1, anyObject.getKey());
+        delete.executeUpdate();
 
         for (Group group : dynGroups) {
             publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, group));
@@ -423,15 +438,14 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     }
 
     @Override
-    public List<String> findUDynMembersKeys(final Group group) {
+    public List<String> findUDynMembers(final Group group) {
         if (group.getUDynMembership() == null) {
             return Collections.emptyList();
         }
 
         Query query = entityManager().createNativeQuery(
-                "SELECT t.user_id FROM " + JPAUDynGroupMembership.JOIN_TABLE + " t "
-                + "WHERE t.uDynGroupMembership_id=?");
-        query.setParameter(1, group.getUDynMembership().getKey());
+                "SELECT any_id FROM " + UDYNMEMB_TABLE + " WHERE group_id=?");
+        query.setParameter(1, group.getKey());
 
         List<String> result = new ArrayList<>();
         for (Object key : query.getResultList()) {
@@ -444,12 +458,17 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         return result;
     }
 
-    private List<Group> findWithUDynMemberships(final int page, final int itemsPerPage) {
-        TypedQuery<Group> query = entityManager().createQuery(
-                "SELECT e FROM  " + JPAGroup.class.getSimpleName() + " e WHERE e.uDynMembership IS NOT NULL",
-                Group.class);
-        query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
-        query.setMaxResults(itemsPerPage);
+    @Override
+    public void clearUDynMembers(final Group group) {
+        Query delete = entityManager().createNativeQuery("DELETE FROM " + UDYNMEMB_TABLE + " WHERE group_id=?");
+        delete.setParameter(1, group.getKey());
+        delete.executeUpdate();
+    }
+
+    private List<UDynGroupMembership> findWithUDynMemberships() {
+        TypedQuery<UDynGroupMembership> query = entityManager().createQuery(
+                "SELECT e FROM " + JPAUDynGroupMembership.class.getSimpleName() + " e",
+                UDynGroupMembership.class);
 
         return query.getResultList();
     }
@@ -457,30 +476,25 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     @Transactional
     @Override
     public void refreshDynMemberships(final User user) {
-        Query countQuery = entityManager().createQuery(
-                "SELECT COUNT(e) FROM  " + JPAGroup.class.getSimpleName() + " e WHERE e.uDynMembership IS NOT NULL");
-        int count = ((Number) countQuery.getSingleResult()).intValue();
+        for (UDynGroupMembership memb : findWithUDynMemberships()) {
+            Query delete = entityManager().createNativeQuery(
+                    "DELETE FROM " + UDYNMEMB_TABLE + " WHERE group_id=? AND any_id=?");
+            delete.setParameter(1, memb.getGroup().getKey());
+            delete.setParameter(2, user.getKey());
+            delete.executeUpdate();
 
-        for (int page = 1; page <= (count / DEFAULT_PAGE_SIZE) + 1; page++) {
-            for (Group group : findWithUDynMemberships(page, DEFAULT_PAGE_SIZE)) {
-                if (group.getUDynMembership() != null) {
-                    if (jpaAnySearchDAO().matches(
-                            user,
-                            buildDynMembershipCond(group.getUDynMembership().getFIQLCond(), group.getRealm()))) {
+            if (jpaAnySearchDAO().matches(
+                    user,
+                    buildDynMembershipCond(memb.getFIQLCond(), memb.getGroup().getRealm()))) {
 
-                        group.getUDynMembership().add(user);
-                    } else {
-                        Query query = entityManager().createNativeQuery(
-                                "DELETE FROM " + JPAUDynGroupMembership.JOIN_TABLE + " t "
-                                + "WHERE t.user_id=? and t.uDynGroupMembership_id=?");
-                        query.setParameter(1, user.getKey());
-                        query.setParameter(2, group.getUDynMembership().getKey());
-                        query.executeUpdate();
-                    }
-
-                    publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, group));
-                }
+                Query insert = entityManager().createNativeQuery(
+                        "INSERT INTO " + UDYNMEMB_TABLE + " VALUES(?, ?)");
+                insert.setParameter(1, user.getKey());
+                insert.setParameter(2, memb.getGroup().getKey());
+                insert.executeUpdate();
             }
+
+            publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, memb.getGroup()));
         }
     }
 
@@ -488,10 +502,9 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     public void removeDynMemberships(final User user) {
         List<Group> dynGroups = userDAO().findDynGroups(user);
 
-        Query query = entityManager().createNativeQuery(
-                "DELETE FROM " + JPAUDynGroupMembership.JOIN_TABLE + " t WHERE t.user_id=?");
-        query.setParameter(1, user.getKey());
-        query.executeUpdate();
+        Query delete = entityManager().createNativeQuery("DELETE FROM " + UDYNMEMB_TABLE + " WHERE any_id=?");
+        delete.setParameter(1, user.getKey());
+        delete.executeUpdate();
 
         for (Group group : dynGroups) {
             publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, group));

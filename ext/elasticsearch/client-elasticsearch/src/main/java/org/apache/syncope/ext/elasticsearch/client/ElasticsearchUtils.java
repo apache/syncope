@@ -138,7 +138,7 @@ public class ElasticsearchUtils {
                     return input.getLeftEnd().getKey();
                 }
             }, new ArrayList<>());
-            members.add(groupDAO.findUDynMembersKeys(group));
+            members.add(groupDAO.findUDynMembers(group));
             CollectionUtils.collect(groupDAO.findAMemberships(group),
                     new Transformer<AMembership, Object>() {
 
@@ -147,7 +147,7 @@ public class ElasticsearchUtils {
                     return input.getLeftEnd().getKey();
                 }
             }, members);
-            members.add(groupDAO.findADynMembersKeys(group));
+            members.add(groupDAO.findADynMembers(group));
             builder = builder.field("members", members);
         } else if (any instanceof User) {
             User user = ((User) any);

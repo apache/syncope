@@ -18,12 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.anyobject;
 
-import java.util.ArrayList;
-import java.util.List;
 import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -43,20 +38,11 @@ public class JPAADynGroupMembership extends AbstractDynMembership<AnyObject> imp
 
     public static final String TABLE = "ADynGroupMembership";
 
-    public static final String JOIN_TABLE = TABLE + "_AnyObject";
-
     @OneToOne
     private JPAGroup group;
 
     @ManyToOne
     private JPAAnyType anyType;
-
-    @ManyToMany
-    @JoinTable(name = JOIN_TABLE, joinColumns =
-            @JoinColumn(name = "aDynGroupMembership_id"),
-            inverseJoinColumns =
-            @JoinColumn(name = "anyObject_id"))
-    private List<JPAAnyObject> anyObjects = new ArrayList<>();
 
     @Override
     public Group getGroup() {
@@ -79,16 +65,4 @@ public class JPAADynGroupMembership extends AbstractDynMembership<AnyObject> imp
         checkType(anyType, JPAAnyType.class);
         this.anyType = (JPAAnyType) anyType;
     }
-
-    @Override
-    public boolean add(final AnyObject anyObject) {
-        checkType(anyObject, JPAAnyObject.class);
-        return anyObjects.add((JPAAnyObject) anyObject);
-    }
-
-    @Override
-    public void clear() {
-        anyObjects.clear();
-    }
-
 }

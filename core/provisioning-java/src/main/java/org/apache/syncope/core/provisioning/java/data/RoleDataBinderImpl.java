@@ -25,6 +25,7 @@ import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Realm;
@@ -43,6 +44,9 @@ public class RoleDataBinderImpl implements RoleDataBinder {
 
     @Autowired
     private RealmDAO realmDAO;
+
+    @Autowired
+    private RoleDAO roleDAO;
 
     @Autowired
     private EntityFactory entityFactory;
@@ -68,14 +72,13 @@ public class RoleDataBinderImpl implements RoleDataBinder {
 
     @Override
     public Role create(final RoleTO roleTO) {
-        Role role = entityFactory.newEntity(Role.class);
-        update(role, roleTO);
-        return role;
+        return update(entityFactory.newEntity(Role.class), roleTO);
     }
 
     @Override
-    public void update(final Role role, final RoleTO roleTO) {
-        role.setKey(roleTO.getKey());
+    public Role update(final Role toBeUpdated, final RoleTO roleTO) {
+        toBeUpdated.setKey(roleTO.getKey());
+        Role role = roleDAO.save(toBeUpdated);
 
         role.getEntitlements().clear();
         role.getEntitlements().addAll(roleTO.getEntitlements());
@@ -90,7 +93,10 @@ public class RoleDataBinderImpl implements RoleDataBinder {
             }
         }
 
+        role = roleDAO.save(role);
+
         // dynamic membership
+        roleDAO.clearDynMembers(role);
         if (role.getKey() == null && roleTO.getDynMembershipCond() != null) {
             setDynMembership(role, roleTO.getDynMembershipCond());
         } else if (role.getDynMembership() != null && roleTO.getDynMembershipCond() == null) {
@@ -100,9 +106,10 @@ public class RoleDataBinderImpl implements RoleDataBinder {
         } else if (role.getDynMembership() != null && roleTO.getDynMembershipCond() != null
                 && !role.getDynMembership().getFIQLCond().equals(roleTO.getDynMembershipCond())) {
 
-            role.getDynMembership().clear();
             setDynMembership(role, roleTO.getDynMembershipCond());
         }
+
+        return role;
     }
 
     @Override

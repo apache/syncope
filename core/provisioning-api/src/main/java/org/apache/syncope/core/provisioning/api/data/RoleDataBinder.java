@@ -25,7 +25,7 @@ public interface RoleDataBinder {
 
     Role create(RoleTO roleTO);
 
-    void update(Role role, RoleTO roleTO);
+    Role update(Role role, RoleTO roleTO);
 
     RoleTO getRoleTO(Role role);
 }

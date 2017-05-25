@@ -23,11 +23,12 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import javax.persistence.TypedQuery;
+import javax.persistence.Query;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
@@ -40,6 +41,7 @@ import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
+import org.apache.syncope.core.persistence.jpa.dao.JPARoleDAO;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPADynRoleMembership;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,13 +70,23 @@ public class RoleTest extends AbstractTest {
      * required for avoiding creating new transaction - good for general use case but bad for the way how
      * this test class is architected.
      */
-    private Collection<Role> findDynRoleMemberships(final User user) {
-        TypedQuery<Role> query = entityManager().createQuery(
-                "SELECT e.role FROM " + JPADynRoleMembership.class.getSimpleName()
-                + " e WHERE :user MEMBER OF e.users", Role.class);
-        query.setParameter("user", user);
+    private List<Role> findDynRoles(final User user) {
+        Query query = entityManager().createNativeQuery(
+                "SELECT role_id FROM " + JPARoleDAO.DYNMEMB_TABLE + " WHERE any_id=?");
+        query.setParameter(1, user.getKey());
 
-        return query.getResultList();
+        List<Role> result = new ArrayList<>();
+        for (Object key : query.getResultList()) {
+            String actualKey = key instanceof Object[]
+                    ? (String) ((Object[]) key)[0]
+                    : ((String) key);
+
+            Role role = roleDAO.find(actualKey);
+            if (role != null && !result.contains(role)) {
+                result.add(role);
+            }
+        }
+        return result;
     }
 
     @Test
@@ -122,7 +134,7 @@ public class RoleTest extends AbstractTest {
         assertEquals(actual, actual.getDynMembership().getRole());
 
         // 3. verify that expected users have the created role dynamically assigned
-        List<String> members = roleDAO.findDynMembersKeys(actual);
+        List<String> members = roleDAO.findDynMembers(actual);
         assertEquals(2, members.size());
         assertEquals(
                 new HashSet<>(Arrays.asList("c9b2dec2-00a7-4855-97c0-d854842b4b24", newUserKey)),
@@ -130,7 +142,7 @@ public class RoleTest extends AbstractTest {
 
         user = userDAO.find("c9b2dec2-00a7-4855-97c0-d854842b4b24");
         assertNotNull(user);
-        Collection<Role> dynRoleMemberships = findDynRoleMemberships(user);
+        Collection<Role> dynRoleMemberships = findDynRoles(user);
         assertEquals(1, dynRoleMemberships.size());
         assertTrue(dynRoleMemberships.contains(actual.getDynMembership().getRole()));
 
@@ -140,7 +152,7 @@ public class RoleTest extends AbstractTest {
         userDAO.flush();
 
         actual = roleDAO.find(actual.getKey());
-        members = roleDAO.findDynMembersKeys(actual);
+        members = roleDAO.findDynMembers(actual);
         assertEquals(1, members.size());
         assertEquals("c9b2dec2-00a7-4855-97c0-d854842b4b24", members.get(0));
 
@@ -153,7 +165,7 @@ public class RoleTest extends AbstractTest {
 
         assertNull(entityManager().find(JPADynRoleMembership.class, dynMembershipKey));
 
-        dynRoleMemberships = findDynRoleMemberships(user);
+        dynRoleMemberships = findDynRoles(user);
         assertTrue(dynRoleMemberships.isEmpty());
     }
 
