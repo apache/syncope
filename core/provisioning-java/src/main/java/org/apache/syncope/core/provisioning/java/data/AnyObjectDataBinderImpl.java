@@ -251,7 +251,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
     @Override
     public PropagationByResource update(final AnyObject toBeUpdated, final AnyObjectPatch anyObjectPatch) {
         // Re-merge any pending change from workflow tasks
-        final AnyObject anyObject = anyObjectDAO.save(toBeUpdated);
+        AnyObject anyObject = anyObjectDAO.save(toBeUpdated);
 
         PropagationByResource propByRes = new PropagationByResource();
 

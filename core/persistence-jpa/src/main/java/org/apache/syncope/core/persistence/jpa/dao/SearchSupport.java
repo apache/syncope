@@ -123,8 +123,8 @@ class SearchSupport {
     }
 
     public SearchView dyngroupmembership() {
-        String kind = anyTypeKind == AnyTypeKind.USER ? "u" : "a";
-        return new SearchView("sv" + kind + "dgm", field().name + "_" + kind + "dyngmemb");
+        return new SearchView("sv" + anyTypeKind.name() + "dgm",
+                anyTypeKind == AnyTypeKind.USER ? JPAGroupDAO.UDYNMEMB_TABLE : JPAGroupDAO.ADYNMEMB_TABLE);
     }
 
     public SearchView role() {
@@ -132,7 +132,7 @@ class SearchSupport {
     }
 
     public SearchView dynrolemembership() {
-        return new SearchView("svdr", field().name + "_dynrmemb");
+        return new SearchView("svdr", JPARoleDAO.DYNMEMB_TABLE);
     }
 
     public SearchView nullAttr() {

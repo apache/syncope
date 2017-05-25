@@ -55,6 +55,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.content.ContentExporter;
+import org.apache.syncope.core.persistence.jpa.entity.JPAAccessToken;
 import org.apache.syncope.core.persistence.jpa.entity.JPAReportExec;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAMembership;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAPlainAttr;
@@ -86,7 +87,7 @@ public class XMLContentExporter extends AbstractContentDealer implements Content
         JPAUser.TABLE, JPAUPlainAttr.TABLE, JPAUPlainAttrValue.TABLE, JPAUPlainAttrUniqueValue.TABLE,
         JPAURelationship.TABLE, JPAUMembership.TABLE,
         JPAAnyObject.TABLE, JPAAPlainAttr.TABLE, JPAAPlainAttrValue.TABLE, JPAAPlainAttrUniqueValue.TABLE,
-        JPAARelationship.TABLE, JPAAMembership.TABLE
+        JPAARelationship.TABLE, JPAAMembership.TABLE, JPAAccessToken.TABLE
     }));
 
     protected static final Map<String, String> TABLES_TO_BE_FILTERED =

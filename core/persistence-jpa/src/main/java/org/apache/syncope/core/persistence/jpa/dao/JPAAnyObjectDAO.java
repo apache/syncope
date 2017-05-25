@@ -54,10 +54,8 @@ import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyUtilsFactory;
-import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAADynGroupMembership;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAARelationship;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
-import org.apache.syncope.core.persistence.jpa.entity.group.JPAGroup;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAURelationship;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.event.AnyCreatedUpdatedEvent;
@@ -262,12 +260,7 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
     @Override
     public List<Group> findDynGroups(final AnyObject anyObject) {
         Query query = entityManager().createNativeQuery(
-                "SELECT t2.id FROM " + JPAADynGroupMembership.TABLE + " t0 "
-                + "INNER JOIN " + JPAADynGroupMembership.JOIN_TABLE + " t1 "
-                + "ON t0.id = t1.aDynGroupMembership_id "
-                + "LEFT OUTER JOIN " + JPAGroup.TABLE + " t2 "
-                + "ON t0.GROUP_ID = t2.id "
-                + "WHERE t1.anyObject_id = ?1");
+                "SELECT group_id FROM " + JPAGroupDAO.ADYNMEMB_TABLE + " WHERE any_id=?");
         query.setParameter(1, anyObject.getKey());
 
         List<Group> result = new ArrayList<>();

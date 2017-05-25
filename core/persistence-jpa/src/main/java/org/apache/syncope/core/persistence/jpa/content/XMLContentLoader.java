@@ -43,11 +43,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class XMLContentLoader extends AbstractContentDealer implements ContentLoader {
 
-    @Resource(name = "indexesXML")
-    private ResourceWithFallbackLoader indexesXML;
-
     @Resource(name = "viewsXML")
     private ResourceWithFallbackLoader viewsXML;
+
+    @Resource(name = "indexesXML")
+    private ResourceWithFallbackLoader indexesXML;
 
     @Override
     public Integer getPriority() {
@@ -83,8 +83,8 @@ public class XMLContentLoader extends AbstractContentDealer implements ContentLo
                     LOG.error("[{}] While loading default content", entry.getKey(), e);
                 }
                 try {
-                    createIndexes(entry.getKey(), entry.getValue());
                     createViews(entry.getKey(), entry.getValue());
+                    createIndexes(entry.getKey(), entry.getValue());
                 } catch (IOException e) {
                     LOG.error("[{}] While creating indexes and views", entry.getKey(), e);
                 }
@@ -109,6 +109,25 @@ public class XMLContentLoader extends AbstractContentDealer implements ContentLo
         }
     }
 
+    private void createViews(final String domain, final DataSource dataSource) throws IOException {
+        LOG.debug("[{}] Creating views", domain);
+
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+
+        Properties views = PropertiesLoaderUtils.loadProperties(viewsXML.getResource());
+        for (String idx : views.stringPropertyNames()) {
+            LOG.debug("[{}] Creating view {}", domain, views.get(idx).toString());
+
+            try {
+                jdbcTemplate.execute(views.get(idx).toString().replaceAll("\\n", " "));
+            } catch (DataAccessException e) {
+                LOG.error("[{}] Could not create view", domain, e);
+            }
+        }
+
+        LOG.debug("Views created");
+    }
+
     private void createIndexes(final String domain, final DataSource dataSource) throws IOException {
         LOG.debug("[{}] Creating indexes", domain);
 
@@ -128,22 +147,4 @@ public class XMLContentLoader extends AbstractContentDealer implements ContentLo
         LOG.debug("Indexes created");
     }
 
-    private void createViews(final String domain, final DataSource dataSource) throws IOException {
-        LOG.debug("[{}] Creating views", domain);
-
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-
-        Properties views = PropertiesLoaderUtils.loadProperties(viewsXML.getResource());
-        for (String idx : views.stringPropertyNames()) {
-            LOG.debug("[{}] Creating view {}", domain, views.get(idx).toString());
-
-            try {
-                jdbcTemplate.execute(views.get(idx).toString().replaceAll("\\n", " "));
-            } catch (DataAccessException e) {
-                LOG.error("[{}] Could not create view", domain, e);
-            }
-        }
-
-        LOG.debug("Views created");
-    }
 }

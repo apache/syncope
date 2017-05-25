@@ -174,6 +174,27 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
     public void create(final User user, final UserTO userTO, final boolean storePassword) {
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
 
+        // set username
+        user.setUsername(userTO.getUsername());
+
+        // set password
+        if (StringUtils.isBlank(userTO.getPassword()) || !storePassword) {
+            LOG.debug("Password was not provided or not required to be stored");
+        } else {
+            setPassword(user, userTO.getPassword(), scce);
+        }
+
+        user.setMustChangePassword(userTO.isMustChangePassword());
+
+        // security question / answer
+        if (userTO.getSecurityQuestion() != null) {
+            SecurityQuestion securityQuestion = securityQuestionDAO.find(userTO.getSecurityQuestion());
+            if (securityQuestion != null) {
+                user.setSecurityQuestion(securityQuestion);
+            }
+        }
+        user.setSecurityAnswer(userTO.getSecurityAnswer());
+
         // roles
         for (String roleKey : userTO.getRoles()) {
             Role role = roleDAO.find(roleKey);
@@ -261,27 +282,6 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
         // attributes and resources
         fill(user, userTO, anyUtils, scce);
-
-        // set password
-        if (StringUtils.isBlank(userTO.getPassword()) || !storePassword) {
-            LOG.debug("Password was not provided or not required to be stored");
-        } else {
-            setPassword(user, userTO.getPassword(), scce);
-        }
-
-        // set username
-        user.setUsername(userTO.getUsername());
-
-        // security question / answer
-        if (userTO.getSecurityQuestion() != null) {
-            SecurityQuestion securityQuestion = securityQuestionDAO.find(userTO.getSecurityQuestion());
-            if (securityQuestion != null) {
-                user.setSecurityQuestion(securityQuestion);
-            }
-        }
-        user.setSecurityAnswer(userTO.getSecurityAnswer());
-
-        user.setMustChangePassword(userTO.isMustChangePassword());
 
         // Throw composite exception if there is at least one element set in the composing exceptions
         if (scce.hasExceptions()) {

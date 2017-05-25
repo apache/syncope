@@ -230,11 +230,14 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
             }
         }
 
+        group = groupDAO.save(group);
+        
         // dynamic membership
         if (groupPatch.getUDynMembershipCond() == null) {
             if (group.getUDynMembership() != null) {
                 group.getUDynMembership().setGroup(null);
                 group.setUDynMembership(null);
+                groupDAO.clearUDynMembers(group);
             }
         } else {
             setDynMembership(group, anyTypeDAO.findUser(), groupPatch.getUDynMembershipCond());
@@ -244,6 +247,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
             memb.setGroup(null);
             itor.remove();
         }
+        groupDAO.clearADynMembers(group);
         for (Map.Entry<String, String> entry : groupPatch.getADynMembershipConds().entrySet()) {
             AnyType anyType = anyTypeDAO.find(entry.getKey());
             if (anyType == null) {

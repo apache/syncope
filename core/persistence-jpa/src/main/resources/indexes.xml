@@ -21,6 +21,14 @@ under the License.
 <properties>
   <comment>Additional indexes (in respect to JPA's)</comment>
 
+  <entry key="UDynGroupMembers_any_id">CREATE INDEX UDynGroupMembers_any_id ON UDynGroupMembers(any_id)</entry>
+  <entry key="UDynGroupMembers_group_id">CREATE INDEX UDynGroupMembers_group_id ON UDynGroupMembers(group_id)</entry>
+  <entry key="ADynGroupMembers_any_id">CREATE INDEX ADynGroupMembers_any_id ON ADynGroupMembers(any_id)</entry>
+  <entry key="ADynGroupMembers_group_id">CREATE INDEX ADynGroupMembers_group_id ON ADynGroupMembers(group_id)</entry>
+
+  <entry key="DynRoleMembers_any_id">CREATE INDEX DynRoleMembers_any_id ON DynRoleMembers(any_id)</entry>
+  <entry key="DynRoleMembers_role_id">CREATE INDEX DynRoleMembers_role_id ON DynRoleMembers(role_id)</entry>
+
   <entry key="UPlainAttrValue_stringvalueIndex">CREATE INDEX UAttrValue_stringvalueIndex ON UPlainAttrValue(stringvalue)</entry>
   <entry key="UPlainAttrValue_datevalueIndex">CREATE INDEX UAttrValue_datevalueIndex ON UPlainAttrValue(datevalue)</entry>
   <entry key="UPlainAttrValue_longvalueIndex">CREATE INDEX UAttrValue_longvalueIndex ON UPlainAttrValue(longvalue)</entry>

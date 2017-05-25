@@ -31,7 +31,6 @@ import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.JPARole;
-import org.apache.syncope.core.persistence.jpa.entity.user.JPADynRoleMembership;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.event.AnyCreatedUpdatedEvent;
@@ -42,6 +41,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 public class JPARoleDAO extends AbstractDAO<Role> implements RoleDAO {
+
+    public static final String DYNMEMB_TABLE = "DynRoleMembers";
 
     @Autowired
     private ApplicationEventPublisher publisher;
@@ -86,19 +87,26 @@ public class JPARoleDAO extends AbstractDAO<Role> implements RoleDAO {
 
     @Override
     public Role save(final Role role) {
-        // refresh dynaminc memberships
-        if (role.getDynMembership() != null) {
-            List<User> matchingUsers = searchDAO().search(
-                    SearchCondConverter.convert(role.getDynMembership().getFIQLCond()), AnyTypeKind.USER);
+        Role merged = entityManager().merge(role);
 
-            role.getDynMembership().clear();
-            for (User user : matchingUsers) {
-                role.getDynMembership().add(user);
+        // refresh dynamic memberships
+        if (merged.getDynMembership() != null) {
+            List<User> matching = searchDAO().search(
+                    SearchCondConverter.convert(merged.getDynMembership().getFIQLCond()), AnyTypeKind.USER);
+
+            clearDynMembers(merged);
+
+            for (User user : matching) {
+                Query insert = entityManager().createNativeQuery("INSERT INTO " + DYNMEMB_TABLE + " VALUES(?, ?)");
+                insert.setParameter(1, user.getKey());
+                insert.setParameter(2, merged.getKey());
+                insert.executeUpdate();
+
                 publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, user));
             }
         }
 
-        return entityManager().merge(role);
+        return merged;
     }
 
     @Override
@@ -126,15 +134,13 @@ public class JPARoleDAO extends AbstractDAO<Role> implements RoleDAO {
     }
 
     @Override
-    public List<String> findDynMembersKeys(final Role role) {
+    public List<String> findDynMembers(final Role role) {
         if (role.getDynMembership() == null) {
             return Collections.emptyList();
         }
 
-        Query query = entityManager().createNativeQuery(
-                "SELECT t.user_id FROM " + JPADynRoleMembership.JOIN_TABLE + " t "
-                + "WHERE t.dynRoleMembership_id=?");
-        query.setParameter(1, role.getDynMembership().getKey());
+        Query query = entityManager().createNativeQuery("SELECT any_id FROM " + DYNMEMB_TABLE + " WHERE role_id=?");
+        query.setParameter(1, role.getKey());
 
         List<String> result = new ArrayList<>();
         for (Object key : query.getResultList()) {
@@ -147,20 +153,29 @@ public class JPARoleDAO extends AbstractDAO<Role> implements RoleDAO {
         return result;
     }
 
+    @Override
+    public void clearDynMembers(final Role role) {
+        Query delete = entityManager().createNativeQuery("DELETE FROM " + DYNMEMB_TABLE + " WHERE role_id=?");
+        delete.setParameter(1, role.getKey());
+        delete.executeUpdate();
+    }
+
     @Transactional
     @Override
     public void refreshDynMemberships(final User user) {
         for (Role role : findAll()) {
             if (role.getDynMembership() != null) {
+                Query delete = entityManager().createNativeQuery(
+                        "DELETE FROM " + DYNMEMB_TABLE + " WHERE role_id=? AND any_id=?");
+                delete.setParameter(1, role.getKey());
+                delete.setParameter(2, user.getKey());
+                delete.executeUpdate();
+
                 if (searchDAO().matches(user, SearchCondConverter.convert(role.getDynMembership().getFIQLCond()))) {
-                    role.getDynMembership().add(user);
-                } else {
-                    Query query = entityManager().createNativeQuery(
-                            "DELETE FROM " + JPADynRoleMembership.JOIN_TABLE + " t "
-                            + "WHERE t.user_id=? and t.dynRoleMembership_id=?");
-                    query.setParameter(1, user.getKey());
-                    query.setParameter(2, role.getDynMembership().getKey());
-                    query.executeUpdate();
+                    Query insert = entityManager().createNativeQuery("INSERT INTO " + DYNMEMB_TABLE + " VALUES(?, ?)");
+                    insert.setParameter(1, user.getKey());
+                    insert.setParameter(2, role.getKey());
+                    insert.executeUpdate();
                 }
             }
         }
@@ -168,10 +183,9 @@ public class JPARoleDAO extends AbstractDAO<Role> implements RoleDAO {
 
     @Override
     public void removeDynMemberships(final User user) {
-        Query query = entityManager().createNativeQuery(
-                "DELETE FROM " + JPADynRoleMembership.JOIN_TABLE + " t WHERE t.user_id=?");
-        query.setParameter(1, user.getKey());
-        query.executeUpdate();
+        Query delete = entityManager().createNativeQuery("DELETE FROM " + DYNMEMB_TABLE + " WHERE any_id=?");
+        delete.setParameter(1, user.getKey());
+        delete.executeUpdate();
     }
 
 }
