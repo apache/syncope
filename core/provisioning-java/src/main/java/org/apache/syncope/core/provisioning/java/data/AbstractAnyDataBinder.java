@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -92,6 +93,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 abstract class AbstractAnyDataBinder {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractAnyDataBinder.class);
+
+    protected static class PropByResContains implements Predicate<String> {
+
+        private final PropagationByResource propByRes;
+
+        PropByResContains(final PropagationByResource propByRes) {
+            this.propByRes = propByRes;
+        }
+
+        @Override
+        public boolean evaluate(final String resourceKey) {
+            return !propByRes.contains(resourceKey);
+        }
+    }
 
     @Autowired
     protected SchemaDataBinder schemaDataBinder;
@@ -287,7 +302,7 @@ abstract class AbstractAnyDataBinder {
             final PlainSchema schema,
             final PlainAttr<?> attr,
             final AnyUtils anyUtils,
-            final Set<ExternalResource> resources,
+            final Collection<ExternalResource> resources,
             final PropagationByResource propByRes,
             final SyncopeClientException invalidValues) {
 

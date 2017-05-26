@@ -44,7 +44,7 @@ public class DefaultAnyObjectWorkflowAdapter extends AbstractAnyObjectWorkflowAd
         anyObject = anyObjectDAO.save(anyObject);
 
         PropagationByResource propByRes = new PropagationByResource();
-        propByRes.set(ResourceOperation.CREATE, anyObject.getResourceKeys());
+        propByRes.set(ResourceOperation.CREATE, anyObjectDAO.findAllResourceKeys(anyObject.getKey()));
 
         return new WorkflowResult<>(anyObject.getKey(), propByRes, "create");
     }

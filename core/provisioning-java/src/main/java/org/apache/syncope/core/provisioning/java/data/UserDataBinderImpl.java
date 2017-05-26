@@ -272,10 +272,10 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                 } else {
                     LOG.error("{} cannot be assigned to {}", group, user);
 
-                    SyncopeClientException unassignabled =
+                    SyncopeClientException unassignable =
                             SyncopeClientException.build(ClientExceptionType.InvalidMembership);
-                    unassignabled.getElements().add("Cannot be assigned: " + group);
-                    scce.addException(unassignabled);
+                    unassignable.getElements().add("Cannot be assigned: " + group);
+                    scce.addException(unassignable);
                 }
             }
         }
@@ -432,17 +432,17 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                         } else {
                             LOG.error("{} cannot be assigned to {}", otherEnd, user);
 
-                            SyncopeClientException unassignabled =
+                            SyncopeClientException unassignable =
                                     SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
-                            unassignabled.getElements().add("Cannot be assigned: " + otherEnd);
-                            scce.addException(unassignabled);
+                            unassignable.getElements().add("Cannot be assigned: " + otherEnd);
+                            scce.addException(unassignable);
                         }
                     }
                 }
             }
         }
 
-        Set<ExternalResource> resources = anyUtils.getAllResources(user);
+        Collection<ExternalResource> resources = userDAO.findAllResources(user);
         SyncopeClientException invalidValues = SyncopeClientException.build(ClientExceptionType.InvalidValues);
 
         // memberships
@@ -552,6 +552,27 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                 propByRes.addOldConnObjectKey(entry.getKey(), entry.getValue());
                 propByRes.add(ResourceOperation.UPDATE, entry.getKey());
             }
+        }
+
+        // finally double-check that there are no resources owned (after all changes above) that remain
+        // not considered for provisioning
+        user = userDAO.save(user);
+        PropByResContains propByResContains = new PropByResContains(propByRes);
+        Collection<String> prospectResources = userDAO.findAllResourceKeys(user.getKey());
+        for (String resourceKey : IterableUtils.filteredIterable(
+                CollectionUtils.intersection(currentResources, prospectResources), propByResContains)) {
+
+            propByRes.add(ResourceOperation.DELETE, resourceKey);
+        }
+        for (String resourceKey : IterableUtils.filteredIterable(
+                CollectionUtils.intersection(prospectResources, currentResources), propByResContains)) {
+
+            propByRes.add(ResourceOperation.CREATE, resourceKey);
+        }
+        for (String resourceKey : IterableUtils.filteredIterable(
+                CollectionUtils.intersection(prospectResources, currentResources), propByResContains)) {
+
+            propByRes.add(ResourceOperation.UPDATE, resourceKey);
         }
 
         // Throw composite exception if there is at least one element set in the composing exceptions
