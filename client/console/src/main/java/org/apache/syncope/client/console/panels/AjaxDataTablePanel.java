@@ -46,10 +46,13 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.ISortableDataProvider;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.CheckGroup;
+import org.apache.wicket.markup.html.form.CheckGroupSelector;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.util.visit.IVisit;
+import org.apache.wicket.util.visit.IVisitor;
 
 public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTablePanel<T, S> {
 
@@ -203,6 +206,15 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
+                group.visitChildren(
+                        CheckGroupSelector.class, new IVisitor<CheckGroupSelector, List<CheckGroupSelector>>() {
+
+                    @Override
+                    public void component(final CheckGroupSelector t, final IVisit<List<CheckGroupSelector>> ivisit) {
+                        target.focusComponent(t);
+                        ivisit.stop();
+                    }
+                });
             }
         });
         bulkActionForm.add(group);
