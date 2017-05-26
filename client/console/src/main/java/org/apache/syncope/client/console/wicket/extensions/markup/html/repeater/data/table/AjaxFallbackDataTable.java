@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.panels.AjaxDataTablePanel;
 import org.apache.syncope.client.console.wicket.ajax.markup.html.navigation.paging.AjaxDataNavigationToolbar;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksTogglePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
@@ -36,9 +37,14 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.ISortableDataProvider;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.NoRecordsToolbar;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.form.Check;
+import org.apache.wicket.markup.html.form.CheckGroupSelector;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.OddEvenItem;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
+import org.apache.wicket.util.visit.IVisit;
+import org.apache.wicket.util.visit.IVisitor;
 
 public class AjaxFallbackDataTable<T extends Serializable, S> extends DataTable<T, S> {
 
@@ -129,8 +135,43 @@ public class AjaxFallbackDataTable<T extends Serializable, S> extends DataTable<
 
                     @Override
                     protected void onEvent(final AjaxRequestTarget target) {
-                        if (target.getLastFocusedElementId() == null) {
+                        final String lastFocussedElementId = target.getLastFocusedElementId();
+                        if (lastFocussedElementId == null) {
                             togglePanel.toggleWithContent(target, getActions(model), model.getObject());
+                        } else {
+                            final AjaxDataTablePanel<?, ?> parent = findParent(AjaxDataTablePanel.class);
+                            final Model<Boolean> isCheck = Model.<Boolean>of(Boolean.FALSE);
+
+                            parent.visitChildren(CheckGroupSelector.class,
+                                    new IVisitor<CheckGroupSelector, List<CheckGroupSelector>>() {
+
+                                @Override
+                                public void component(
+                                        final CheckGroupSelector t,
+                                        final IVisit<List<CheckGroupSelector>> ivisit) {
+                                    if (t.getMarkupId().equalsIgnoreCase(lastFocussedElementId)) {
+                                        isCheck.setObject(Boolean.TRUE);
+                                        ivisit.stop();
+                                    }
+                                }
+                            });
+
+                            if (!isCheck.getObject()) {
+                                parent.visitChildren(Check.class, new IVisitor<Check<?>, List<Check<?>>>() {
+
+                                    @Override
+                                    public void component(final Check<?> t, final IVisit<List<Check<?>>> ivisit) {
+                                        if (t.getMarkupId().equalsIgnoreCase(lastFocussedElementId)) {
+                                            isCheck.setObject(Boolean.TRUE);
+                                            ivisit.stop();
+                                        }
+                                    }
+                                });
+                            }
+
+                            if (!isCheck.getObject()) {
+                                togglePanel.toggleWithContent(target, getActions(model), model.getObject());
+                            }
                         }
                     }
                 });
