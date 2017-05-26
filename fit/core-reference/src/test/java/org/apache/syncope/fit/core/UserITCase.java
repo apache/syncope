@@ -599,8 +599,7 @@ public class UserITCase extends AbstractITCase {
         assertFalse(beforeTasks <= 0);
 
         UserTO userTO = getUniqueSampleTO("pwdonly@t.com");
-        userTO.getMemberships().add(new MembershipTO.Builder().
-                group("f779c0d4-633b-4be5-8f57-32eb478a3ca5").build());
+        userTO.getMemberships().add(new MembershipTO.Builder().group("f779c0d4-633b-4be5-8f57-32eb478a3ca5").build());
 
         userTO = createUser(userTO).getEntity();
 
@@ -615,7 +614,7 @@ public class UserITCase extends AbstractITCase {
 
         int afterTasks = taskService.list(
                 new TaskQuery.Builder(TaskType.PROPAGATION).page(1).size(1).build()).getTotalCount();
-        assertFalse(beforeTasks <= 0);
+        assertFalse(afterTasks <= 0);
 
         assertTrue(beforeTasks < afterTasks);
     }

@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -69,7 +68,7 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
     private AnyUtilsFactory anyUtilsFactory;
 
     private Map<VirSchema, List<String>> getValues(final Any<?> any, final Set<VirSchema> schemas) {
-        Collection<? extends ExternalResource> ownedResources = anyUtilsFactory.getInstance(any).getAllResources(any);
+        Set<ExternalResource> ownedResources = anyUtilsFactory.getInstance(any).getAllResources(any);
 
         Map<VirSchema, List<String>> result = new HashMap<>();
 
@@ -179,7 +178,7 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
         return getValues(
                 any,
                 anyUtilsFactory.getInstance(any).getAllowedSchemas(any, VirSchema.class).
-                getForMembership(membership.getRightEnd()));
+                        getForMembership(membership.getRightEnd()));
     }
 
 }

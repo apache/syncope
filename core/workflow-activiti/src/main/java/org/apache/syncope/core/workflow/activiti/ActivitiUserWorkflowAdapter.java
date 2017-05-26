@@ -263,9 +263,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         }
 
         PropagationByResource propByRes = new PropagationByResource();
-        propByRes.set(
-                ResourceOperation.CREATE,
-                CollectionUtils.collect(userDAO.findAllResources(user), EntityUtils.keyTransformer()));
+        propByRes.set(ResourceOperation.CREATE, userDAO.findAllResourceKeys(user.getKey()));
 
         saveForFormSubmit(user, userTO.getPassword(), propByRes);
 

@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
@@ -231,10 +232,10 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                 } else {
                     LOG.error("{} cannot be assigned to {}", group, anyObject);
 
-                    SyncopeClientException unassignabled =
+                    SyncopeClientException unassignable =
                             SyncopeClientException.build(ClientExceptionType.InvalidMembership);
-                    unassignabled.getElements().add("Cannot be assigned: " + group);
-                    scce.addException(unassignabled);
+                    unassignable.getElements().add("Cannot be assigned: " + group);
+                    scce.addException(unassignable);
                 }
             }
         }
@@ -326,10 +327,10 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                             } else {
                                 LOG.error("{} cannot be assigned to {}", otherEnd, anyObject);
 
-                                SyncopeClientException unassignabled =
+                                SyncopeClientException unassignable =
                                         SyncopeClientException.build(ClientExceptionType.InvalidRelationship);
-                                unassignabled.getElements().add("Cannot be assigned: " + otherEnd);
-                                scce.addException(unassignabled);
+                                unassignable.getElements().add("Cannot be assigned: " + otherEnd);
+                                scce.addException(unassignable);
                             }
                         }
                     }
@@ -337,7 +338,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
             }
         }
 
-        Set<ExternalResource> resources = anyUtils.getAllResources(anyObject);
+        Collection<ExternalResource> resources = anyObjectDAO.findAllResources(anyObject);
         SyncopeClientException invalidValues = SyncopeClientException.build(ClientExceptionType.InvalidValues);
 
         // memberships
@@ -435,6 +436,27 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                 propByRes.addOldConnObjectKey(entry.getKey(), entry.getValue());
                 propByRes.add(ResourceOperation.UPDATE, entry.getKey());
             }
+        }
+
+        // finally double-check that there are no resources owned (after all changes above) that remain
+        // not considered for provisioning
+        anyObject = anyObjectDAO.save(anyObject);
+        PropByResContains propByResContains = new PropByResContains(propByRes);
+        Collection<String> prospectResources = anyObjectDAO.findAllResourceKeys(anyObject.getKey());
+        for (String resourceKey : IterableUtils.filteredIterable(
+                CollectionUtils.intersection(currentResources, prospectResources), propByResContains)) {
+
+            propByRes.add(ResourceOperation.DELETE, resourceKey);
+        }
+        for (String resourceKey : IterableUtils.filteredIterable(
+                CollectionUtils.intersection(prospectResources, currentResources), propByResContains)) {
+
+            propByRes.add(ResourceOperation.CREATE, resourceKey);
+        }
+        for (String resourceKey : IterableUtils.filteredIterable(
+                CollectionUtils.intersection(prospectResources, currentResources), propByResContains)) {
+
+            propByRes.add(ResourceOperation.UPDATE, resourceKey);
         }
 
         // Throw composite exception if there is at least one element set in the composing exceptions

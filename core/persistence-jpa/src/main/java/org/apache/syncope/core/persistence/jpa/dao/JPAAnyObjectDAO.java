@@ -311,7 +311,7 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
         return result;
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
+    @Transactional(readOnly = true)
     @Override
     public Collection<String> findAllResourceKeys(final String key) {
         return CollectionUtils.collect(findAllResources(authFind(key)), EntityUtils.<ExternalResource>keyTransformer());
