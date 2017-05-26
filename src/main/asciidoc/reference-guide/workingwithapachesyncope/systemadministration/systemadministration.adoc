@@ -52,6 +52,8 @@ was generated, the configuration files will be first searched in
 
 include::dbms.adoc[]
 
+include::dbcp.adoc[]
+
 include::javaeecontainer.adoc[]
 
 include::highavailability.adoc[]

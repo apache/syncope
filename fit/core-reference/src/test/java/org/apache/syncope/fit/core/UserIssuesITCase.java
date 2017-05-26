@@ -1344,4 +1344,32 @@ public class UserIssuesITCase extends AbstractITCase {
         // 5. verify that user is not in LDAP anynmore
         assertNull(getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, userDn.getValues().get(0)));
     }
+
+    @Test
+    public void issueSYNCOPE1099() {
+        // 1. create group with dynamic condition and resource
+        GroupTO group = GroupITCase.getSampleTO("syncope1099G");
+        group.getResources().clear();
+        group.getResources().add(RESOURCE_NAME_TESTDB);
+        group.setUDynMembershipCond("firstname==issueSYNCOPE1099");
+
+        group = createGroup(group).getEntity();
+        assertNotNull(group);
+
+        // 2. create user matching the condition above
+        UserTO user = UserITCase.getUniqueSampleTO("syncope1099U@apache.org");
+        user.getPlainAttrMap().get("firstname").getValues().set(0, "issueSYNCOPE1099");
+
+        ProvisioningResult<UserTO> created = createUser(user);
+        assertNotNull(created);
+
+        // 3. verify that dynamic membership is set and that resource is consequently assigned
+        user = created.getEntity();
+        assertTrue(user.getDynGroups().contains(group.getKey()));
+        assertTrue(user.getResources().contains(RESOURCE_NAME_TESTDB));
+
+        // 4. verify that propagation happened towards the resource of the dynamic group
+        assertFalse(created.getPropagationStatuses().isEmpty());
+        assertEquals(RESOURCE_NAME_TESTDB, created.getPropagationStatuses().get(0).getResource());
+    }
 }
