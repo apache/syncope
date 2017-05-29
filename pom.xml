@@ -413,8 +413,8 @@ under the License.
     <jquery-cookie.version>1.4.1-1</jquery-cookie.version>
     
     <bootstrap.version>3.3.7</bootstrap.version>
-    <bootstrap-select.version>1.12.0</bootstrap-select.version>
-    <bootstrap-fileinput.version>4.3.9</bootstrap-fileinput.version>
+    <bootstrap-select.version>1.12.2</bootstrap-select.version>
+    <bootstrap-fileinput.version>4.4.0</bootstrap-fileinput.version>
     <bootbox.version>4.4.0</bootbox.version>
     <font-awesome.version>4.7.0</font-awesome.version>
     <ionicons.version>2.0.1</ionicons.version>
@@ -424,7 +424,7 @@ under the License.
     
     <wicket.version>7.7.0</wicket.version>
     <wicket-jqueryui.version>7.7.0</wicket-jqueryui.version>
-    <wicket-bootstrap.version>0.10.13</wicket-bootstrap.version>
+    <wicket-bootstrap.version>0.10.14</wicket-bootstrap.version>
     <wicket-chartjs.version>7.0.1</wicket-chartjs.version>
 
     <angular.version>1.6.4</angular.version>
@@ -1673,7 +1673,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-dependency-plugin</artifactId>
-          <version>3.0.0</version>
+          <version>3.0.1</version>
           <configuration>
             <outputDirectory>${bundles.directory}</outputDirectory>
             <useBaseVersion>true</useBaseVersion>

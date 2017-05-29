@@ -58,8 +58,8 @@ under the License.
       <util:constant static-field="${Two.pool.transactionIsolation:java.sql.Connection.TRANSACTION_READ_COMMITTED}"/>
     </property>
     <!-- connection pool configuration - default values taken from HikariConfig default values -->
-    <property name="maximumPoolSize" value="${Master.pool.maxActive:8}"/>
-    <property name="minimumIdle" value="${Master.pool.minIdle:0}"/>
+    <property name="maximumPoolSize" value="${Two.pool.maxActive:8}"/>
+    <property name="minimumIdle" value="${Two.pool.minIdle:0}"/>
   </bean>
   
   <bean class="org.springframework.jdbc.datasource.init.DataSourceInitializer">
