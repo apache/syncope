@@ -21,10 +21,12 @@ package org.apache.syncope.core.logic;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import javax.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.AccessTokenTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
@@ -50,7 +52,7 @@ public class AccessTokenLogic extends AbstractTransactionalLogic<AccessTokenTO> 
     private AccessTokenDAO accessTokenDAO;
 
     @PreAuthorize("isAuthenticated()")
-    public String login() {
+    public Pair<String, Date> login() {
         if (anonymousUser.equals(AuthContextUtils.getUsername())) {
             throw new IllegalArgumentException(anonymousUser + " cannot be granted for an access token");
         }
@@ -59,7 +61,7 @@ public class AccessTokenLogic extends AbstractTransactionalLogic<AccessTokenTO> 
     }
 
     @PreAuthorize("isAuthenticated()")
-    public String refresh() {
+    public Pair<String, Date> refresh() {
         AccessToken accessToken = accessTokenDAO.findByOwner(AuthContextUtils.getUsername());
         if (accessToken == null) {
             throw new NotFoundException("AccessToken for " + AuthContextUtils.getUsername());

@@ -20,6 +20,7 @@ package org.apache.syncope.core.provisioning.api.data;
 
 import java.util.Date;
 import java.util.Map;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.to.AccessTokenTO;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
@@ -28,9 +29,9 @@ public interface AccessTokenDataBinder {
 
     Triple<String, String, Date> generateJWT(String subject, int duration, Map<String, Object> claims);
 
-    String create(String subject, Map<String, Object> claims, boolean replaceExisting);
+    Pair<String, Date> create(String subject, Map<String, Object> claims, boolean replaceExisting);
 
-    String update(AccessToken accessToken);
+    Pair<String, Date> update(AccessToken accessToken);
 
     AccessTokenTO getAccessTokenTO(AccessToken accessToken);
 
