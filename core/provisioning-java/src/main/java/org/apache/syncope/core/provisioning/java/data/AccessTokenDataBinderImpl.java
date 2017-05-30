@@ -24,6 +24,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 import javax.annotation.Resource;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.cxf.rs.security.jose.common.JoseType;
 import org.apache.cxf.rs.security.jose.jwa.SignatureAlgorithm;
@@ -110,12 +111,16 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
     }
 
     @Override
-    public String create(final String subject, final Map<String, Object> claims, final boolean replaceExisting) {
+    public Pair<String, Date> create(
+            final String subject, final Map<String, Object> claims, final boolean replaceExisting) {
+
         String body = null;
+        Date expiryTime = null;
 
         AccessToken existing = accessTokenDAO.findByOwner(subject);
         if (existing != null) {
             body = existing.getBody();
+            expiryTime = existing.getExpiryTime();
         }
 
         if (replaceExisting || body == null) {
@@ -125,11 +130,12 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
                     claims);
 
             body = created.getMiddle();
+            expiryTime = created.getRight();
 
             AccessToken accessToken = entityFactory.newEntity(AccessToken.class);
             accessToken.setKey(created.getLeft());
             accessToken.setBody(body);
-            accessToken.setExpiryTime(created.getRight());
+            accessToken.setExpiryTime(expiryTime);
             accessToken.setOwner(subject);
 
             if (!adminUser.equals(accessToken.getOwner())) {
@@ -149,11 +155,11 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
             accessTokenDAO.delete(existing);
         }
 
-        return body;
+        return Pair.of(body, expiryTime);
     }
 
     @Override
-    public String update(final AccessToken accessToken) {
+    public Pair<String, Date> update(final AccessToken accessToken) {
         JwsJwtCompactConsumer consumer = new JwsJwtCompactConsumer(accessToken.getBody());
 
         Date now = new Date();
@@ -167,9 +173,10 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
         JwsJwtCompactProducer producer = new JwsJwtCompactProducer(token);
 
         String body = producer.signWith(jwsSignatureProvider);
+        Date expiryTime = expiry.getTime();
 
         accessToken.setBody(body);
-        accessToken.setExpiryTime(expiry.getTime());
+        accessToken.setExpiryTime(expiryTime);
 
         if (!adminUser.equals(accessToken.getOwner())) {
             try {
@@ -183,7 +190,7 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
 
         accessTokenDAO.save(accessToken);
 
-        return body;
+        return Pair.of(body, expiryTime);
     }
 
     @Override

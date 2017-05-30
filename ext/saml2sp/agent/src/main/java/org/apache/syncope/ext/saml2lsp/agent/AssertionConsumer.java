@@ -45,6 +45,7 @@ public class AssertionConsumer extends AbstractSAML2SPServlet {
                     validateLoginResponse(extract(request.getInputStream()));
 
             request.getSession(true).setAttribute(Constants.SAML2SPJWT, responseTO.getAccessToken());
+            request.getSession(true).setAttribute(Constants.SAML2SPJWT_EXPIRE, responseTO.getAccessTokenExpiryTime());
 
             String successURL = getServletContext().getInitParameter(Constants.CONTEXT_PARAM_LOGIN_SUCCESS_URL);
             if (successURL == null) {

@@ -18,7 +18,10 @@
  */
 package org.apache.syncope.core.rest.cxf.service;
 
+import java.util.Date;
 import javax.ws.rs.core.Response;
+import org.apache.commons.lang3.time.DateFormatUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.AccessTokenTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -36,15 +39,21 @@ public class AccessTokenServiceImpl extends AbstractServiceImpl implements Acces
 
     @Override
     public Response login() {
+        Pair<String, Date> login = logic.login();
         return Response.noContent().
-                header(RESTHeaders.TOKEN, logic.login()).
+                header(RESTHeaders.TOKEN, login.getLeft()).
+                header(RESTHeaders.TOKEN_EXPIRE,
+                        DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT.format(login.getRight())).
                 build();
     }
 
     @Override
     public Response refresh() {
+        Pair<String, Date> refresh = logic.refresh();
         return Response.noContent().
-                header(RESTHeaders.TOKEN, logic.refresh()).
+                header(RESTHeaders.TOKEN, refresh.getLeft()).
+                header(RESTHeaders.TOKEN_EXPIRE,
+                        DateFormatUtils.ISO_8601_EXTENDED_DATETIME_TIME_ZONE_FORMAT.format(refresh.getRight())).
                 build();
     }
 

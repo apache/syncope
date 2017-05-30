@@ -36,6 +36,8 @@ public final class Constants {
 
     public static final String SAML2SPJWT = "saml2sp.jwt";
 
+    public static final String SAML2SPJWT_EXPIRE = "saml2sp.jwt.expire";
+
     private Constants() {
         // private constructor for static utility class
     }

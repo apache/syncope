@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.cxf.rs.security.jose.jws.JwsJwtCompactConsumer;
 import org.apache.cxf.rs.security.jose.jws.JwsSignatureVerifier;
@@ -530,7 +531,9 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
         claims.put(JWT_CLAIM_NAMEID_FORMAT, nameID.getFormat());
         claims.put(JWT_CLAIM_NAMEID_VALUE, nameID.getValue());
         claims.put(JWT_CLAIM_SESSIONINDEX, responseTO.getSessionIndex());
-        responseTO.setAccessToken(accessTokenDataBinder.create(responseTO.getUsername(), claims, true));
+        Pair<String, Date> accessTokenInfo = accessTokenDataBinder.create(responseTO.getUsername(), claims, true);
+        responseTO.setAccessToken(accessTokenInfo.getLeft());
+        responseTO.setAccessTokenExpiryTime(accessTokenInfo.getRight());
 
         return responseTO;
     }

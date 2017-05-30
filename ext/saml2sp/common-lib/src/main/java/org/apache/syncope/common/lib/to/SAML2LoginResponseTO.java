@@ -44,6 +44,8 @@ public class SAML2LoginResponseTO extends AbstractBaseBean {
 
     private String accessToken;
 
+    private Date accessTokenExpiryTime;
+
     private String username;
 
     private final Set<AttrTO> attrs = new HashSet<>();
@@ -104,6 +106,14 @@ public class SAML2LoginResponseTO extends AbstractBaseBean {
 
     public void setAccessToken(final String accessToken) {
         this.accessToken = accessToken;
+    }
+
+    public Date getAccessTokenExpiryTime() {
+        return accessTokenExpiryTime;
+    }
+
+    public void setAccessTokenExpiryTime(final Date accessTokenExpiryTime) {
+        this.accessTokenExpiryTime = accessTokenExpiryTime;
     }
 
     public String getUsername() {
