@@ -202,33 +202,6 @@ public abstract class EventCategoryPanel extends Panel {
             @Override
             public void onClick(final AjaxRequestTarget target, final EventCategoryTO ignore) {
                 if (StringUtils.isNotBlank(custom.getModelObject())) {
-                    Map.Entry<EventCategoryTO, AuditElements.Result> parsed = AuditLoggerName.parseEventCategory(custom.
-                            getModelObject());
-
-                    String eventString = AuditLoggerName.buildEvent(
-                            parsed.getKey().getType(),
-                            null,
-                            null,
-                            parsed.getKey().getEvents().isEmpty()
-                                    ? StringUtils.EMPTY : parsed.getKey().getEvents().iterator().next(),
-                            parsed.getValue());
-
-                    custom.setModelObject(StringUtils.EMPTY);
-                    send(EventCategoryPanel.this.getPage(), Broadcast.BREADTH, new EventSelectionChanged(
-                            target,
-                            Collections.<String>singleton(eventString),
-                            Collections.<String>emptySet()));
-                    target.add(categoryContainer);
-                }
-            }
-        }, ActionLink.ActionType.CREATE, StringUtils.EMPTY);
-        actionsPanel.add(new ActionLink<EventCategoryTO>() {
-
-            private static final long serialVersionUID = -3722207913631435501L;
-
-            @Override
-            public void onClick(final AjaxRequestTarget target, final EventCategoryTO ignore) {
-                if (StringUtils.isNotBlank(custom.getModelObject())) {
                     Pair<EventCategoryTO, AuditElements.Result> parsed = AuditLoggerName.parseEventCategory(custom.
                             getModelObject());
 
@@ -248,7 +221,7 @@ public abstract class EventCategoryPanel extends Panel {
                     target.add(categoryContainer);
                 }
             }
-        }, ActionLink.ActionType.CREATE, StringUtils.EMPTY);
+        }, ActionLink.ActionType.CREATE, StringUtils.EMPTY).hideLabel();
         actionsPanel.add(new ActionLink<EventCategoryTO>() {
 
             private static final long serialVersionUID = -3722207913631435521L;
@@ -275,12 +248,13 @@ public abstract class EventCategoryPanel extends Panel {
                     target.add(categoryContainer);
                 }
             }
-        }, ActionLink.ActionType.DELETE, StringUtils.EMPTY, true);
+        }, ActionLink.ActionType.DELETE, StringUtils.EMPTY, true).hideLabel();
 
         categoryContainer.add(actionsPanel);
 
         actionsPanel.setVisible(false);
         actionsPanel.setEnabled(false);
+        actionsPanel.setMarkupId("inline-actions");
 
         eventsContainer.add(new EventSelectionPanel("eventsPanel", eventCategoryTO, model) {
 
