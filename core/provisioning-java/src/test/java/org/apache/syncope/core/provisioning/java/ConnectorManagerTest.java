@@ -20,6 +20,8 @@ package org.apache.syncope.core.provisioning.java;
 
 import static org.junit.Assert.assertEquals;
 
+import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
@@ -57,15 +59,16 @@ public class ConnectorManagerTest extends AbstractTest {
         connManager.load();
 
         // only consider local connector bundles
-        int expected = 0;
-        for (ExternalResource resource : resourceDAO.findAll()) {
-            if (resource.getConnector().getLocation().startsWith("file")) {
-                expected++;
+        long expected = IterableUtils.countMatches(resourceDAO.findAll(), new Predicate<ExternalResource>() {
+
+            @Override
+            public boolean evaluate(final ExternalResource resource) {
+                return resource.getConnector().getLocation().startsWith("file");
             }
-        }
+        });
 
         assertEquals(expected,
                 ApplicationContextProvider.getBeanFactory().
-                getBeanNamesForType(Connector.class, false, true).length);
+                        getBeanNamesForType(Connector.class, false, true).length);
     }
 }
