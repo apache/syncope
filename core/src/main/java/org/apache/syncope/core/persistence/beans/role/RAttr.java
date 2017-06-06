@@ -140,7 +140,7 @@ public class RAttr extends AbstractAttr {
 
     @Override
     public <T extends AbstractAttrValue> void setUniqueValue(final T uniqueAttributeValue) {
-        if (!(uniqueAttributeValue instanceof RAttrUniqueValue)) {
+        if (uniqueAttributeValue != null && !(uniqueAttributeValue instanceof RAttrUniqueValue)) {
             throw new ClassCastException("uniqueAttributeValue is expected to be typed RAttrUniqueValue: "
                     + uniqueAttributeValue.getClass().getName());
         }

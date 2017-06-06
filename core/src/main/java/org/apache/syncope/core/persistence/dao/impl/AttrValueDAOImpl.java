@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.dao.impl;
 
 import java.util.List;
 import javax.persistence.TypedQuery;
+import org.apache.syncope.core.persistence.beans.AbstractAttrUniqueValue;
 import org.apache.syncope.core.persistence.beans.AbstractAttrValue;
 import org.apache.syncope.core.persistence.dao.AttrValueDAO;
 import org.springframework.stereotype.Repository;
@@ -56,7 +57,11 @@ public class AttrValueDAOImpl extends AbstractDAOImpl implements AttrValueDAO {
     @Override
     public <T extends AbstractAttrValue> void delete(final T attributeValue) {
         if (attributeValue.getAttribute() != null) {
-            attributeValue.getAttribute().removeValue(attributeValue);
+            if (attributeValue instanceof AbstractAttrUniqueValue) {
+                attributeValue.getAttribute().setUniqueValue(null);
+            } else {
+                attributeValue.getAttribute().removeValue(attributeValue);
+            }
         }
 
         entityManager.remove(attributeValue);

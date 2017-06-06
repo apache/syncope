@@ -161,7 +161,7 @@ public class UAttr extends AbstractAttr {
 
     @Override
     public <T extends AbstractAttrValue> void setUniqueValue(final T uniqueAttributeValue) {
-        if (!(uniqueAttributeValue instanceof UAttrUniqueValue)) {
+        if (uniqueAttributeValue != null && !(uniqueAttributeValue instanceof UAttrUniqueValue)) {
             throw new ClassCastException("uniqueAttributeValue is expected to be typed UAttrUniqueValue: "
                     + uniqueAttributeValue.getClass().getName());
         }

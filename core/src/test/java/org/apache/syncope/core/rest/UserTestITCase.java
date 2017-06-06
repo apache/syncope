@@ -2144,4 +2144,25 @@ public class UserTestITCase extends AbstractTest {
         }
         return newMaxId;
     }
+
+    @Test
+    public void issueSYNCOPE1102() {
+        UserTO userTO = getUniqueSampleTO("a@gmail.com");
+        userTO = createUser(userTO);
+        assertNotNull(userTO.getId());
+
+        UserMod userMod = new UserMod();
+        userMod.setId(userTO.getId());
+
+        AttributeMod userIdMod = new AttributeMod();
+        userIdMod.setSchema("userId");
+        userIdMod.getValuesToBeAdded().add("b" + userTO.getUsername());
+        userIdMod.getValuesToBeRemoved().add(userTO.getUsername());
+        userMod.getAttributesToBeUpdated().add(userIdMod);
+
+        userTO = userService.update(userMod.getId(), userMod);
+        assertEquals("b" + userTO.getUsername(), userTO.getAttributeMap().get("userId").getValues().get(0));
+
+        userService.delete(100L);
+    }
 }

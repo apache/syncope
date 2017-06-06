@@ -143,7 +143,7 @@ public class MAttr extends AbstractAttr {
 
     @Override
     public <T extends AbstractAttrValue> void setUniqueValue(final T uniqueAttributeValue) {
-        if (!(uniqueAttributeValue instanceof MAttrUniqueValue)) {
+        if (uniqueAttributeValue != null && !(uniqueAttributeValue instanceof MAttrUniqueValue)) {
             throw new ClassCastException("uniqueAttributeValue is expected to be typed MAttrUniqueValue: "
                     + uniqueAttributeValue.getClass().getName());
         }

@@ -464,8 +464,10 @@ public abstract class AbstractAttributableDataBinder {
                         }
                     }
                 }
+                Class<AbstractAttrValue> valueClass =
+                        schema.isUniqueConstraint() ? attrUtil.attrUniqueValueClass() : attrUtil.attrValueClass();
                 for (Long attributeValueId : valuesToBeRemoved) {
-                    attributeValueDAO.delete(attributeValueId, attrUtil.attrValueClass());
+                    attributeValueDAO.delete(attributeValueId, valueClass);
                 }
 
                 // 1.2 add values
