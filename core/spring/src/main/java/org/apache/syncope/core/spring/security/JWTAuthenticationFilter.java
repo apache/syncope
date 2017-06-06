@@ -87,7 +87,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        LOG.debug("JWT receveid: {}", stringToken);
+        LOG.debug("JWT received: {}", stringToken);
 
         JwsJwtCompactConsumer consumer = new JwsJwtCompactConsumer(stringToken);
         try {
