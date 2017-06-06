@@ -155,6 +155,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
                 userDAO.findAllGroups(userDAO.findByUsername(AuthContextUtils.getUsername())),
                 new Transformer<Group, GroupTO>() {
 
+            @Transactional(readOnly = true)
             @Override
             public GroupTO transform(final Group input) {
                 return binder.getGroupTO(input, true);
@@ -193,6 +194,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
                 page, size, orderBy),
                 new Transformer<Group, GroupTO>() {
 
+            @Transactional(readOnly = true)
             @Override
             public GroupTO transform(final Group input) {
                 return binder.getGroupTO(input, details);
@@ -220,6 +222,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
                 searchCondition, page, size, orderBy, AnyTypeKind.GROUP);
         return CollectionUtils.collect(matchingGroups, new Transformer<Group, GroupTO>() {
 
+            @Transactional(readOnly = true)
             @Override
             public GroupTO transform(final Group input) {
                 return binder.getGroupTO(input, details);
@@ -281,6 +284,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.GroupOwnership);
             sce.getElements().addAll(CollectionUtils.collect(ownedGroups, new Transformer<Group, String>() {
 
+                @Transactional(readOnly = true)
                 @Override
                 public String transform(final Group group) {
                     return group.getKey() + " " + group.getName();

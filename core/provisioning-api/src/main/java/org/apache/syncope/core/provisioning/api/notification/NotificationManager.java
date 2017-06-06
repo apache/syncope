@@ -22,6 +22,7 @@ import java.util.List;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
+import org.apache.syncope.core.provisioning.api.event.AfterHandlingEvent;
 
 /**
  * Create notification tasks that will be executed by NotificationJob.
@@ -53,6 +54,13 @@ public interface NotificationManager {
             String category,
             String subcategory,
             String event);
+
+    /**
+     * Create notification tasks according to the provided event.
+     *
+     * @param event Spring event raised during Logic processing
+     */
+    void createTasks(AfterHandlingEvent event);
 
     /**
      * Create notification tasks for each notification matching provided conditions.

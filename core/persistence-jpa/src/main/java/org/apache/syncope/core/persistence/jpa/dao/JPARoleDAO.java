@@ -32,8 +32,9 @@ import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.JPARole;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
+import org.apache.syncope.core.provisioning.api.event.AnyCreatedUpdatedEvent;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
-import org.apache.syncope.core.spring.event.AnyCreatedUpdatedEvent;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Repository;
@@ -102,7 +103,7 @@ public class JPARoleDAO extends AbstractDAO<Role> implements RoleDAO {
                 insert.setParameter(2, merged.getKey());
                 insert.executeUpdate();
 
-                publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, user));
+                publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, user, AuthContextUtils.getDomain()));
             }
         }
 
@@ -117,7 +118,7 @@ public class JPARoleDAO extends AbstractDAO<Role> implements RoleDAO {
 
         for (User user : query.getResultList()) {
             user.getRoles().remove(role);
-            publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, user));
+            publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, user, AuthContextUtils.getDomain()));
         }
 
         entityManager().remove(role);

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.logic.init;
+package org.apache.syncope.core.provisioning.java.job;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -34,7 +34,6 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.TaskType;
-import org.apache.syncope.core.logic.SystemLoadReporterJob;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.ReportDAO;
@@ -45,13 +44,10 @@ import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
 import org.apache.syncope.core.provisioning.api.job.JobNamer;
-import org.apache.syncope.core.logic.notification.NotificationJob;
-import org.apache.syncope.core.logic.report.ReportJob;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.SyncopeLoader;
 import org.apache.syncope.core.persistence.api.DomainsHolder;
-import org.apache.syncope.core.provisioning.java.job.TaskJob;
 import org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate;
 import org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate;
 import org.quartz.CronScheduleBuilder;
@@ -70,15 +66,15 @@ import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.identityconnectors.common.IOUtil;
 import org.quartz.impl.jdbcjobstore.Constants;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
+import org.apache.syncope.core.provisioning.java.job.notification.NotificationJob;
+import org.apache.syncope.core.provisioning.java.job.report.ReportJob;
 
-@Component
 public class JobManagerImpl implements JobManager, SyncopeLoader {
 
     private static final Logger LOG = LoggerFactory.getLogger(JobManager.class);
@@ -97,6 +93,12 @@ public class JobManagerImpl implements JobManager, SyncopeLoader {
 
     @Autowired
     private ConfDAO confDAO;
+
+    private boolean disableQuartzInstance;
+
+    public void setDisableQuartzInstance(final boolean disableQuartzInstance) {
+        this.disableQuartzInstance = disableQuartzInstance;
+    }
 
     private boolean isRunningHere(final JobKey jobKey) throws SchedulerException {
         return IterableUtils.matchesAny(scheduler.getScheduler().getCurrentlyExecutingJobs(),
@@ -286,6 +288,18 @@ public class JobManagerImpl implements JobManager, SyncopeLoader {
     @Transactional
     @Override
     public void load() {
+        if (disableQuartzInstance) {
+            String instanceId = "AUTO";
+            try {
+                instanceId = scheduler.getScheduler().getSchedulerInstanceId();
+                scheduler.getScheduler().standby();
+
+                LOG.info("Successfully put Quartz instance {} in standby", instanceId);
+            } catch (SchedulerException e) {
+                LOG.error("Could not put Quartz instance {} in standby", instanceId, e);
+            }
+        }
+
         final Pair<String, Long> conf = AuthContextUtils.execWithAuthContext(
                 SyncopeConstants.MASTER_DOMAIN, new AuthContextUtils.Executable<Pair<String, Long>>() {
 

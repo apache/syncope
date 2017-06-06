@@ -57,9 +57,9 @@ import org.apache.syncope.core.persistence.jpa.entity.JPAAnyUtilsFactory;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAARelationship;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAnyObject;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAURelationship;
+import org.apache.syncope.core.provisioning.api.event.AnyCreatedUpdatedEvent;
+import org.apache.syncope.core.provisioning.api.event.AnyDeletedEvent;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
-import org.apache.syncope.core.spring.event.AnyCreatedUpdatedEvent;
-import org.apache.syncope.core.spring.event.AnyDeletedEvent;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -210,7 +210,7 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
     @Override
     public AnyObject save(final AnyObject anyObject) {
         AnyObject merged = super.save(anyObject);
-        publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, merged));
+        publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, merged, AuthContextUtils.getDomain()));
 
         groupDAO().refreshDynMemberships(merged);
 
@@ -253,7 +253,8 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
         }
 
         entityManager().remove(anyObject);
-        publisher.publishEvent(new AnyDeletedEvent(this, AnyTypeKind.ANY_OBJECT, anyObject.getKey()));
+        publisher.publishEvent(
+                new AnyDeletedEvent(this, AnyTypeKind.ANY_OBJECT, anyObject.getKey(), AuthContextUtils.getDomain()));
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)

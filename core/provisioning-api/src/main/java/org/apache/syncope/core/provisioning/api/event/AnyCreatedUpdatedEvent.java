@@ -16,29 +16,31 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.logic.report;
+package org.apache.syncope.core.provisioning.api.event;
 
-public final class ReportXMLConst {
+import org.apache.syncope.core.persistence.api.entity.Any;
+import org.springframework.context.ApplicationEvent;
 
-    public static final String XSD_STRING = "xsd:string";
+public class AnyCreatedUpdatedEvent<A extends Any<?>> extends ApplicationEvent {
 
-    public static final String XSD_INT = "xsd:integer";
+    private static final long serialVersionUID = -781747175059834365L;
 
-    public static final String XSD_LONG = "xsd:long";
+    private final A any;
 
-    public static final String XSD_BOOLEAN = "xsd:boolean";
+    private final String domain;
 
-    public static final String XSD_DATETIME = "xsd:dateTime";
-
-    public static final String ELEMENT_REPORT = "report";
-
-    public static final String ATTR_NAME = "name";
-
-    public static final String ATTR_CLASS = "class";
-
-    public static final String ELEMENT_REPORTLET = "reportlet";
-
-    private ReportXMLConst() {
-        // empty private constructor for static utility class
+    public AnyCreatedUpdatedEvent(final Object source, final A any, final String domain) {
+        super(source);
+        this.any = any;
+        this.domain = domain;
     }
+
+    public A getAny() {
+        return any;
+    }
+
+    public String getDomain() {
+        return domain;
+    }
+
 }

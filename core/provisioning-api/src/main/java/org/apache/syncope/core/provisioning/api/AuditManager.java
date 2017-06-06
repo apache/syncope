@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.api;
 
+import org.apache.syncope.core.provisioning.api.event.AfterHandlingEvent;
 import org.apache.syncope.common.lib.types.AuditElements;
 
 public interface AuditManager {
@@ -38,7 +39,14 @@ public interface AuditManager {
             String event);
 
     /**
-     * Create notification tasks for each notification matching provided conditions.
+     * Create audit entries according to the provided event.
+     * 
+     * @param event Spring event raised during Logic processing
+     */
+    void audit(final AfterHandlingEvent event);
+
+    /**
+     * Create audit entries for each audit matching provided conditions.
      *
      * @param type event category type
      * @param category event category

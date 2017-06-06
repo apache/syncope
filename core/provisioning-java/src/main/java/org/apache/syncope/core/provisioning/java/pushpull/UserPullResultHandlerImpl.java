@@ -31,12 +31,17 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.provisioning.api.ProvisioningManager;
+import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.apache.syncope.core.provisioning.api.pushpull.UserPullResultHandler;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class UserPullResultHandlerImpl extends AbstractPullResultHandler implements UserPullResultHandler {
+
+    @Autowired
+    private UserProvisioningManager userProvisioningManager;
 
     @Override
     protected AnyUtils getAnyUtils() {

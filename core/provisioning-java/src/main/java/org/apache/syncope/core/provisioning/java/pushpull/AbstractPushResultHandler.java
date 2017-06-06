@@ -46,6 +46,7 @@ import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.TimeoutException;
+import org.apache.syncope.core.provisioning.api.event.AfterHandlingEvent;
 import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionException;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePushResultHandler;
 import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
@@ -55,6 +56,7 @@ import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -63,6 +65,9 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
 
     @Autowired
     protected MappingManager mappingManager;
+
+    @Autowired
+    private ApplicationEventPublisher publisher;
 
     protected abstract String getName(Any<?> any);
 
@@ -357,22 +362,17 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
 
                 throw new JobExecutionException(e);
             } finally {
-                notificationManager.createTasks(AuditElements.EventCategoryType.PUSH,
+                publisher.publishEvent(new AfterHandlingEvent(this,
+                        true,
+                        true,
+                        AuditElements.EventCategoryType.PUSH,
                         any.getType().getKind().name().toLowerCase(),
                         profile.getTask().getResource().getKey(),
                         operation,
                         resultStatus,
                         beforeObj,
                         output,
-                        any);
-                auditManager.audit(AuditElements.EventCategoryType.PUSH,
-                        any.getType().getKind().name().toLowerCase(),
-                        profile.getTask().getResource().getKey(),
-                        operation,
-                        resultStatus,
-                        beforeObj,
-                        output,
-                        any);
+                        any));
             }
         }
     }

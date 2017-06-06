@@ -118,6 +118,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
                 page, size, orderBy),
                 new Transformer<User, UserTO>() {
 
+            @Transactional(readOnly = true)
             @Override
             public UserTO transform(final User input) {
                 return binder.returnUserTO(binder.getUserTO(input, details));
@@ -160,6 +161,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
                 searchCondition, page, size, orderBy, AnyTypeKind.USER);
         return CollectionUtils.collect(matchingUsers, new Transformer<User, UserTO>() {
 
+            @Transactional(readOnly = true)
             @Override
             public UserTO transform(final User input) {
                 return binder.returnUserTO(binder.getUserTO(input, details));

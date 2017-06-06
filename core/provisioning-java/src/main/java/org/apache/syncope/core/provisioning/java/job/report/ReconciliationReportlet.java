@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.logic.report;
+package org.apache.syncope.core.provisioning.java.job.report;
 
 import java.util.Collections;
 import java.util.HashMap;

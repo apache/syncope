@@ -62,6 +62,8 @@ import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.PayloadApplicationEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -237,10 +239,11 @@ public class SyncopeLogic extends AbstractLogic<AbstractBaseBean> {
         }
     }
 
-    public void addLoadInstant(final SystemInfo.LoadInstant instant) {
+    @EventListener
+    public void addLoadInstant(final PayloadApplicationEvent<SystemInfo.LoadInstant> event) {
         synchronized (MONITOR) {
             initSystemInfo();
-            SYSTEM_INFO.getLoad().add(instant);
+            SYSTEM_INFO.getLoad().add(event.getPayload());
         }
     }
 

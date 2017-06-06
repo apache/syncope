@@ -16,14 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.logic;
+package org.apache.syncope.core.provisioning.java.job;
 
 import java.lang.management.ManagementFactory;
 import org.apache.syncope.common.lib.info.SystemInfo;
-import org.apache.syncope.core.provisioning.java.job.AbstractInterruptableJob;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 /**
@@ -35,7 +35,7 @@ public class SystemLoadReporterJob extends AbstractInterruptableJob {
     private static final Integer MB = 1024 * 1024;
 
     @Autowired
-    private SyncopeLogic logic;
+    private ApplicationEventPublisher publisher;
 
     @Override
     public void execute(final JobExecutionContext context) throws JobExecutionException {
@@ -52,6 +52,6 @@ public class SystemLoadReporterJob extends AbstractInterruptableJob {
         instant.setMaxMemory(runtime.maxMemory() / MB);
         instant.setFreeMemory(runtime.freeMemory() / MB);
 
-        logic.addLoadInstant(instant);
+        publisher.publishEvent(instant);
     }
 }

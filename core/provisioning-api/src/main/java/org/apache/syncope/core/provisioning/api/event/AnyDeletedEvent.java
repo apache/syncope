@@ -16,10 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.spring.event;
+package org.apache.syncope.core.provisioning.api.event;
 
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.springframework.context.ApplicationEvent;
 
 public class AnyDeletedEvent extends ApplicationEvent {
@@ -32,11 +31,16 @@ public class AnyDeletedEvent extends ApplicationEvent {
 
     private final String domain;
 
-    public AnyDeletedEvent(final Object source, final AnyTypeKind anyTypeKind, final String anyKey) {
+    public AnyDeletedEvent(
+            final Object source,
+            final AnyTypeKind anyTypeKind,
+            final String anyKey,
+            final String domain) {
+
         super(source);
         this.anyTypeKind = anyTypeKind;
         this.anyKey = anyKey;
-        this.domain = AuthContextUtils.getDomain();
+        this.domain = domain;
     }
 
     public AnyTypeKind getAnyTypeKind() {

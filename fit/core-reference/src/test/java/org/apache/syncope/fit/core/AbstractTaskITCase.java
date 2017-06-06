@@ -42,7 +42,7 @@ import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.TaskService;
-import org.apache.syncope.core.logic.notification.NotificationJob;
+import org.apache.syncope.core.provisioning.java.job.notification.NotificationJob;
 import org.apache.syncope.fit.AbstractITCase;
 
 public abstract class AbstractTaskITCase extends AbstractITCase {

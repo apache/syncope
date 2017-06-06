@@ -32,15 +32,20 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.provisioning.api.GroupProvisioningManager;
 import org.apache.syncope.core.provisioning.api.ProvisioningManager;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.apache.syncope.core.provisioning.api.pushpull.GroupPullResultHandler;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class GroupPullResultHandlerImpl extends AbstractPullResultHandler implements GroupPullResultHandler {
 
-    protected final Map<String, String> groupOwnerMap = new HashMap<>();
+    @Autowired
+    private GroupProvisioningManager groupProvisioningManager;
+
+    private final Map<String, String> groupOwnerMap = new HashMap<>();
 
     @Override
     public Map<String, String> getGroupOwnerMap() {

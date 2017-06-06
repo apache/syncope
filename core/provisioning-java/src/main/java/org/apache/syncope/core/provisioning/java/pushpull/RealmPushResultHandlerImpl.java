@@ -34,6 +34,7 @@ import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.TimeoutException;
+import org.apache.syncope.core.provisioning.api.event.AfterHandlingEvent;
 import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionException;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
 import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
@@ -44,12 +45,17 @@ import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ResultsHandler;
 import org.identityconnectors.framework.common.objects.filter.EqualsFilter;
 import org.quartz.JobExecutionException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 public class RealmPushResultHandlerImpl
         extends AbstractRealmResultHandler<PushTask, PushActions>
         implements SyncopePushResultHandler {
+
+    @Autowired
+    private ApplicationEventPublisher publisher;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
@@ -313,22 +319,17 @@ public class RealmPushResultHandlerImpl
 
                 throw new JobExecutionException(e);
             } finally {
-                notificationManager.createTasks(AuditElements.EventCategoryType.PUSH,
+                publisher.publishEvent(new AfterHandlingEvent(this,
+                        true,
+                        true,
+                        AuditElements.EventCategoryType.PUSH,
                         REALM_TYPE.toLowerCase(),
                         profile.getTask().getResource().getKey(),
                         operation,
                         resultStatus,
                         beforeObj,
                         output,
-                        realm);
-                auditManager.audit(AuditElements.EventCategoryType.PUSH,
-                        REALM_TYPE.toLowerCase(),
-                        profile.getTask().getResource().getKey(),
-                        operation,
-                        resultStatus,
-                        beforeObj,
-                        output,
-                        realm);
+                        realm));
             }
         }
     }

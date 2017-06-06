@@ -72,9 +72,9 @@ import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyUtilsFactory;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
+import org.apache.syncope.core.provisioning.api.event.AnyCreatedUpdatedEvent;
+import org.apache.syncope.core.provisioning.api.event.AnyDeletedEvent;
 import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
-import org.apache.syncope.core.spring.event.AnyCreatedUpdatedEvent;
-import org.apache.syncope.core.spring.event.AnyDeletedEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.stereotype.Repository;
@@ -444,7 +444,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
             throw e;
         }
 
-        publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, merged));
+        publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, merged, AuthContextUtils.getDomain()));
 
         roleDAO.refreshDynMemberships(merged);
         groupDAO().refreshDynMemberships(merged);
@@ -463,7 +463,8 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
         }
 
         entityManager().remove(user);
-        publisher.publishEvent(new AnyDeletedEvent(this, AnyTypeKind.USER, user.getKey()));
+        publisher.publishEvent(
+                new AnyDeletedEvent(this, AnyTypeKind.USER, user.getKey(), AuthContextUtils.getDomain()));
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)

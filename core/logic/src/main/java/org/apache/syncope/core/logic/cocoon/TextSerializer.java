@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.logic.report;
+package org.apache.syncope.core.logic.cocoon;
 
 import org.apache.cocoon.sax.component.XMLSerializer;
 import org.xml.sax.Attributes;

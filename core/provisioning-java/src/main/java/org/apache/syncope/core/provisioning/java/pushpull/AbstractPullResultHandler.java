@@ -42,14 +42,17 @@ import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
+import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.ProvisioningManager;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCache;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCacheValue;
+import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionException;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullExecutor;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePullResultHandler;
+import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.identityconnectors.framework.common.objects.SyncDeltaType;
@@ -65,14 +68,23 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
     protected PullUtils pullUtils;
 
     @Autowired
-    protected VirSchemaDAO virSchemaDAO;
+    private NotificationManager notificationManager;
 
     @Autowired
-    protected VirAttrCache virAttrCache;
+    private AuditManager auditManager;
 
-    protected SyncopePullExecutor executor;
+    @Autowired
+    private ConnObjectUtils connObjectUtils;
 
-    protected Result latestResult;
+    @Autowired
+    private VirSchemaDAO virSchemaDAO;
+
+    @Autowired
+    private VirAttrCache virAttrCache;
+
+    private SyncopePullExecutor executor;
+
+    private Result latestResult;
 
     protected abstract String getName(AnyTO anyTO);
 

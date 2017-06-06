@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.logic.report;
+package org.apache.syncope.core.provisioning.java.job.report;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -24,52 +24,40 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.report.GroupReportletConf;
+import org.apache.syncope.common.lib.report.GroupReportletConf.Feature;
 import org.apache.syncope.common.lib.report.ReportletConf;
-import org.apache.syncope.common.lib.report.UserReportletConf;
-import org.apache.syncope.common.lib.report.UserReportletConf.Feature;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
-import org.apache.syncope.common.lib.to.MembershipTO;
-import org.apache.syncope.common.lib.to.RelationshipTO;
-import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
-import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
-import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
-import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportletConfClass;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
-import org.apache.syncope.core.persistence.api.entity.user.URelationship;
-import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
-import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
 
-@ReportletConfClass(UserReportletConf.class)
-public class UserReportlet extends AbstractReportlet {
+@ReportletConfClass(GroupReportletConf.class)
+public class GroupReportlet extends AbstractReportlet {
 
     @Autowired
-    private UserDAO userDAO;
+    private GroupDAO groupDAO;
 
     @Autowired
     private AnySearchDAO searchDAO;
 
     @Autowired
-    private UserDataBinder userDataBinder;
-
-    @Autowired
     private GroupDataBinder groupDataBinder;
 
-    @Autowired
-    private AnyObjectDataBinder anyObjectDataBinder;
-
-    private UserReportletConf conf;
+    private GroupReportletConf conf;
 
     private void doExtractResources(final ContentHandler handler, final AnyTO anyTO)
             throws SAXException {
@@ -176,9 +164,9 @@ public class UserReportlet extends AbstractReportlet {
         }
     }
 
-    private void doExtract(final ContentHandler handler, final List<User> users) throws SAXException {
+    private void doExtract(final ContentHandler handler, final List<Group> groups) throws SAXException {
         AttributesImpl atts = new AttributesImpl();
-        for (User user : users) {
+        for (Group group : groups) {
             atts.clear();
 
             for (Feature feature : conf.getFeatures()) {
@@ -187,53 +175,22 @@ public class UserReportlet extends AbstractReportlet {
                 switch (feature) {
                     case key:
                         type = ReportXMLConst.XSD_STRING;
-                        value = user.getKey();
+                        value = group.getKey();
                         break;
 
-                    case username:
+                    case name:
                         type = ReportXMLConst.XSD_STRING;
-                        value = user.getUsername();
+                        value = String.valueOf(group.getName());
                         break;
 
-                    case workflowId:
+                    case groupOwner:
                         type = ReportXMLConst.XSD_STRING;
-                        value = user.getWorkflowId();
+                        value = group.getGroupOwner().getKey();
                         break;
 
-                    case status:
+                    case userOwner:
                         type = ReportXMLConst.XSD_STRING;
-                        value = user.getStatus();
-                        break;
-
-                    case creationDate:
-                        type = ReportXMLConst.XSD_DATETIME;
-                        value = user.getCreationDate() == null
-                                ? ""
-                                : FormatUtils.format(user.getCreationDate());
-                        break;
-
-                    case lastLoginDate:
-                        type = ReportXMLConst.XSD_DATETIME;
-                        value = user.getLastLoginDate() == null
-                                ? ""
-                                : FormatUtils.format(user.getLastLoginDate());
-                        break;
-
-                    case changePwdDate:
-                        type = ReportXMLConst.XSD_DATETIME;
-                        value = user.getChangePwdDate() == null
-                                ? ""
-                                : FormatUtils.format(user.getChangePwdDate());
-                        break;
-
-                    case passwordHistorySize:
-                        type = ReportXMLConst.XSD_INT;
-                        value = String.valueOf(user.getPasswordHistory().size());
-                        break;
-
-                    case failedLoginCount:
-                        type = ReportXMLConst.XSD_INT;
-                        value = String.valueOf(user.getFailedLogins());
+                        value = group.getUserOwner().getKey();
                         break;
 
                     default:
@@ -244,119 +201,95 @@ public class UserReportlet extends AbstractReportlet {
                 }
             }
 
-            handler.startElement("", "", "user", atts);
+            handler.startElement("", "", "group", atts);
 
-            // Using UserTO for attribute values, since the conversion logic of
+            // Using GroupTO for attribute values, since the conversion logic of
             // values to String is already encapsulated there
-            UserTO userTO = userDataBinder.getUserTO(user, true);
+            GroupTO groupTO = groupDataBinder.getGroupTO(group, true);
 
-            doExtractAttributes(handler, userTO, conf.getPlainAttrs(), conf.getDerAttrs(), conf.getVirAttrs());
+            doExtractAttributes(handler, groupTO, conf.getPlainAttrs(), conf.getDerAttrs(), conf.getVirAttrs());
 
-            if (conf.getFeatures().contains(Feature.relationships)) {
-                handler.startElement("", "", "relationships", null);
-
-                for (RelationshipTO rel : userTO.getRelationships()) {
-                    atts.clear();
-
-                    atts.addAttribute("", "", "anyObjectKey",
-                            ReportXMLConst.XSD_STRING, rel.getRightKey());
-                    handler.startElement("", "", "relationship", atts);
-
-                    if (conf.getFeatures().contains(Feature.resources)) {
-                        for (URelationship actualRel : user.getRelationships(rel.getRightKey())) {
-                            doExtractResources(
-                                    handler, anyObjectDataBinder.getAnyObjectTO(actualRel.getRightEnd(), true));
-                        }
-                    }
-
-                    handler.endElement("", "", "relationship");
-                }
-
-                handler.endElement("", "", "relationships");
-            }
-            if (conf.getFeatures().contains(Feature.memberships)) {
-                handler.startElement("", "", "memberships", null);
-
-                for (MembershipTO memb : userTO.getMemberships()) {
-                    atts.clear();
-
-                    atts.addAttribute("", "", "groupKey",
-                            ReportXMLConst.XSD_STRING, memb.getRightKey());
-                    atts.addAttribute("", "", "groupName", ReportXMLConst.XSD_STRING, memb.getGroupName());
-                    handler.startElement("", "", "membership", atts);
-
-                    if (conf.getFeatures().contains(Feature.resources)) {
-                        UMembership actualMemb = user.getMembership(memb.getRightKey());
-                        if (actualMemb == null) {
-                            LOG.warn("Unexpected: cannot find membership for group {} for user {}",
-                                    memb.getRightKey(), user);
-                        } else {
-                            doExtractResources(handler, groupDataBinder.getGroupTO(actualMemb.getRightEnd(), true));
-                        }
-                    }
-
-                    handler.endElement("", "", "membership");
-                }
-
-                handler.endElement("", "", "memberships");
-            }
-
+            // to get resources associated to a group
             if (conf.getFeatures().contains(Feature.resources)) {
-                doExtractResources(handler, userTO);
+                doExtractResources(handler, groupTO);
+            }
+            //to get users asscoiated to a group is preferred GroupDAO to GroupTO
+            if (conf.getFeatures().contains(Feature.users)) {
+                handler.startElement("", "", "users", null);
+
+                for (UMembership memb : groupDAO.findUMemberships(group)) {
+                    atts.clear();
+
+                    atts.addAttribute("", "", "key", ReportXMLConst.XSD_STRING,
+                            memb.getLeftEnd().getKey());
+                    atts.addAttribute("", "", "username", ReportXMLConst.XSD_STRING,
+                            String.valueOf(memb.getLeftEnd().getUsername()));
+
+                    handler.startElement("", "", "user", atts);
+                    handler.endElement("", "", "user");
+                }
+
+                handler.endElement("", "", "users");
             }
 
-            handler.endElement("", "", "user");
+            handler.endElement("", "", "group");
         }
     }
 
     private void doExtractConf(final ContentHandler handler) throws SAXException {
+        if (conf == null) {
+            LOG.debug("Report configuration is not present");
+        }
+
         AttributesImpl atts = new AttributesImpl();
         handler.startElement("", "", "configurations", null);
-        handler.startElement("", "", "userAttributes", atts);
+        handler.startElement("", "", "groupAttributes", atts);
 
-        for (Feature feature : conf.getFeatures()) {
-            atts.clear();
-            handler.startElement("", "", "feature", atts);
-            handler.characters(feature.name().toCharArray(), 0, feature.name().length());
-            handler.endElement("", "", "feature");
+        if (conf != null) {
+            for (Feature feature : conf.getFeatures()) {
+                atts.clear();
+                handler.startElement("", "", "feature", atts);
+                handler.characters(feature.name().toCharArray(), 0, feature.name().length());
+                handler.endElement("", "", "feature");
+            }
+
+            for (String attr : conf.getPlainAttrs()) {
+                atts.clear();
+                handler.startElement("", "", "attribute", atts);
+                handler.characters(attr.toCharArray(), 0, attr.length());
+                handler.endElement("", "", "attribute");
+            }
+
+            for (String derAttr : conf.getDerAttrs()) {
+                atts.clear();
+                handler.startElement("", "", "derAttribute", atts);
+                handler.characters(derAttr.toCharArray(), 0, derAttr.length());
+                handler.endElement("", "", "derAttribute");
+            }
+
+            for (String virAttr : conf.getVirAttrs()) {
+                atts.clear();
+                handler.startElement("", "", "virAttribute", atts);
+                handler.characters(virAttr.toCharArray(), 0, virAttr.length());
+                handler.endElement("", "", "virAttribute");
+            }
         }
 
-        for (String attr : conf.getPlainAttrs()) {
-            atts.clear();
-            handler.startElement("", "", "attribute", atts);
-            handler.characters(attr.toCharArray(), 0, attr.length());
-            handler.endElement("", "", "attribute");
-        }
-
-        for (String derAttr : conf.getDerAttrs()) {
-            atts.clear();
-            handler.startElement("", "", "derAttribute", atts);
-            handler.characters(derAttr.toCharArray(), 0, derAttr.length());
-            handler.endElement("", "", "derAttribute");
-        }
-
-        for (String virAttr : conf.getVirAttrs()) {
-            atts.clear();
-            handler.startElement("", "", "virAttribute", atts);
-            handler.characters(virAttr.toCharArray(), 0, virAttr.length());
-            handler.endElement("", "", "virAttribute");
-        }
-
-        handler.endElement("", "", "userAttributes");
+        handler.endElement("", "", "groupAttributes");
         handler.endElement("", "", "configurations");
     }
 
     private int count() {
         return StringUtils.isBlank(conf.getMatchingCond())
-                ? userDAO.count()
+                ? groupDAO.count()
                 : searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS,
-                        SearchCondConverter.convert(conf.getMatchingCond()), AnyTypeKind.USER);
+                        SearchCondConverter.convert(conf.getMatchingCond()), AnyTypeKind.GROUP);
     }
 
     @Override
     protected void doExtract(final ReportletConf conf, final ContentHandler handler) throws SAXException {
-        if (conf instanceof UserReportletConf) {
-            this.conf = UserReportletConf.class.cast(conf);
+        if (conf instanceof GroupReportletConf) {
+            this.conf = GroupReportletConf.class.cast(conf);
         } else {
             throw new ReportException(new IllegalArgumentException("Invalid configuration provided"));
         }
@@ -364,11 +297,11 @@ public class UserReportlet extends AbstractReportlet {
         doExtractConf(handler);
 
         for (int page = 1; page <= (count() / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
-            List<User> users;
+            List<Group> groups;
             if (StringUtils.isBlank(this.conf.getMatchingCond())) {
-                users = userDAO.findAll(page, AnyDAO.DEFAULT_PAGE_SIZE);
+                groups = groupDAO.findAll(page, AnyDAO.DEFAULT_PAGE_SIZE);
             } else {
-                users = searchDAO.search(
+                groups = searchDAO.search(
                         SyncopeConstants.FULL_ADMIN_REALMS,
                         SearchCondConverter.convert(this.conf.getMatchingCond()),
                         page,
@@ -377,7 +310,7 @@ public class UserReportlet extends AbstractReportlet {
                         AnyTypeKind.USER);
             }
 
-            doExtract(handler, users);
+            doExtract(handler, groups);
         }
     }
 }

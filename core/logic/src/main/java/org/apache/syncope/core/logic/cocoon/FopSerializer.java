@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.syncope.core.logic.report;
+package org.apache.syncope.core.logic.cocoon;
 
 import java.io.File;
 import java.io.OutputStream;
