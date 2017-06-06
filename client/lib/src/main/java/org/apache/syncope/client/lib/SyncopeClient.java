@@ -127,7 +127,8 @@ public class SyncopeClient {
      * Attempts to extend the lifespan of the JWT currently in use.
      */
     public void refresh() {
-        getService(AccessTokenService.class).refresh();
+        String jwt = getService(AccessTokenService.class).refresh().getHeaderString(RESTHeaders.TOKEN);
+        restClientFactory.getHeaders().put(RESTHeaders.TOKEN, Collections.singletonList(jwt));
     }
 
     /**
