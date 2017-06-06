@@ -2620,4 +2620,25 @@ public class UserTestITCase extends AbstractTest {
         assertEquals(1, userTO.getPropagationStatusTOs().size());
         assertEquals(RESOURCE_NAME_TESTDB, userTO.getPropagationStatusTOs().get(0).getResource());
     }
+
+    @Test
+    public void issueSYNCOPE1102() {
+        UserTO userTO = getUniqueSampleTO("a@gmail.com");
+        userTO = createUser(userTO);
+        assertNotNull(userTO.getId());
+
+        UserMod userMod = new UserMod();
+        userMod.setId(userTO.getId());
+
+        AttributeMod userIdMod = new AttributeMod();
+        userIdMod.setSchema("userId");
+        userIdMod.getValuesToBeAdded().add("b" + userTO.getUsername());
+        userIdMod.getValuesToBeRemoved().add(userTO.getUsername());
+        userMod.getAttrsToUpdate().add(userIdMod);
+
+        userTO = updateUser(userMod);
+        assertEquals("b" + userTO.getUsername(), userTO.getAttrMap().get("userId").getValues().get(0));
+
+        userService.delete(100L);
+    }
 }

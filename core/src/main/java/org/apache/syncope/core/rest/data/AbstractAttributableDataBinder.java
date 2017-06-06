@@ -214,8 +214,8 @@ public abstract class AbstractAttributableDataBinder {
         List<String> valuesProvided = schema.isMultivalue()
                 ? values
                 : (values.isEmpty()
-                        ? Collections.<String>emptyList()
-                        : Collections.singletonList(values.iterator().next()));
+                ? Collections.<String>emptyList()
+                : Collections.singletonList(values.iterator().next()));
 
         for (String value : valuesProvided) {
             if (value == null || value.isEmpty()) {
@@ -410,7 +410,7 @@ public abstract class AbstractAttributableDataBinder {
         } else if (virAttr instanceof MVirAttr) {
             MVirAttrTemplate template =
                     ((Membership) attributable).getSyncopeRole().
-                    getAttrTemplate(MVirAttrTemplate.class, virSchema.getName());
+                            getAttrTemplate(MVirAttrTemplate.class, virSchema.getName());
             if (template != null) {
                 ((MVirAttr) virAttr).setTemplate(template);
             }
@@ -653,8 +653,10 @@ public abstract class AbstractAttributableDataBinder {
                         }
                     }
                 }
+                Class<AbstractAttrValue> valueClass =
+                        schema.isUniqueConstraint() ? attrUtil.attrUniqueValueClass() : attrUtil.attrValueClass();
                 for (Long attributeValueId : valuesToBeRemoved) {
-                    attributeValueDAO.delete(attributeValueId, attrUtil.attrValueClass());
+                    attributeValueDAO.delete(attributeValueId, valueClass);
                 }
 
                 // 1.2 add values
