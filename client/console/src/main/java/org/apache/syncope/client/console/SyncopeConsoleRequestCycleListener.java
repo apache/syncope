@@ -20,6 +20,7 @@ package org.apache.syncope.client.console;
 
 import java.security.AccessControlException;
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.ForbiddenException;
 import javax.xml.ws.WebServiceException;
 import org.apache.syncope.client.console.pages.Login;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -86,8 +87,14 @@ public class SyncopeConsoleRequestCycleListener extends AbstractRequestCycleList
             errorParameters.add("errorMessage", REST);
             errorPage = new Login(errorParameters);
         } else {
-            // redirect to default Wicket error page
-            errorPage = new ExceptionErrorPage(e, null);
+            Throwable cause = instanceOf(e, ForbiddenException.class);
+            if (cause == null) {
+                // redirect to default Wicket error page
+                errorPage = new ExceptionErrorPage(e, null);
+            } else {
+                errorParameters.add("errorMessage", cause.getMessage());
+                errorPage = new Login(errorParameters);
+            }
         }
 
         if (errorPage instanceof Login) {
