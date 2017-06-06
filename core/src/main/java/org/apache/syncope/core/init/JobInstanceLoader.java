@@ -56,10 +56,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
 public class JobInstanceLoader {
 
     private static final Logger LOG = LoggerFactory.getLogger(JobInstanceLoader.class);
@@ -75,6 +73,12 @@ public class JobInstanceLoader {
 
     @Autowired
     private ConfDAO confDAO;
+
+    private boolean disableQuartzInstance;
+
+    public void setDisableQuartzInstance(final boolean disableQuartzInstance) {
+        this.disableQuartzInstance = disableQuartzInstance;
+    }
 
     private static Long getIdFromJobName(final String name, final String pattern, final int prefixLength) {
         Long result = null;
@@ -180,7 +184,7 @@ public class JobInstanceLoader {
 
                     final AbstractSyncActions<?> syncActions =
                             (AbstractSyncActions<?>) ApplicationContextProvider.getBeanFactory().
-                            createBean(actionsClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
+                                    createBean(actionsClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
 
                     actions.add(syncActions);
                 } catch (Exception e) {
@@ -247,6 +251,18 @@ public class JobInstanceLoader {
 
     @Transactional
     public void load() {
+        if (disableQuartzInstance) {
+            String instanceId = "AUTO";
+            try {
+                instanceId = scheduler.getScheduler().getSchedulerInstanceId();
+                scheduler.getScheduler().standby();
+
+                LOG.info("Successfully put Quartz instance {} in standby", instanceId);
+            } catch (SchedulerException e) {
+                LOG.error("Could not put Quartz instance {} in standby", instanceId, e);
+            }
+        }
+
         // 1. jobs for SchedTasks
         Set<SchedTask> tasks = new HashSet<SchedTask>(taskDAO.findAll(SchedTask.class));
         tasks.addAll(taskDAO.findAll(SyncTask.class));

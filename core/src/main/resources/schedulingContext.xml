@@ -49,6 +49,9 @@ under the License.
       </props>
     </property>
   </bean>
+  <bean class="org.apache.syncope.core.init.JobInstanceLoader">
+    <property name="disableQuartzInstance" value="${quartz.disableInstance:false}"/>
+  </bean>
 
   <bean id="notificationJob" class="org.apache.syncope.core.notification.NotificationJob"/>
 </beans>
