@@ -66,6 +66,7 @@ import org.identityconnectors.framework.spi.SearchResultsHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ClassUtils;
 
 public class ConnectorFacadeProxy implements Connector {
@@ -264,6 +265,7 @@ public class ConnectorFacadeProxy implements Connector {
         }
     }
 
+    @Transactional
     @Override
     public void sync(final ObjectClass objectClass, final SyncToken token, final SyncResultsHandler handler,
             final OperationOptions options) {
@@ -330,6 +332,7 @@ public class ConnectorFacadeProxy implements Connector {
         }
     }
 
+    @Transactional
     @Override
     public void fullReconciliation(
             final ObjectClass objectClass,
@@ -339,6 +342,7 @@ public class ConnectorFacadeProxy implements Connector {
         filteredReconciliation(objectClass, null, handler, options);
     }
 
+    @Transactional
     @Override
     public void filteredReconciliation(
             final ObjectClass objectClass,
@@ -348,6 +352,7 @@ public class ConnectorFacadeProxy implements Connector {
 
         search(objectClass, filterBuilder == null ? null : filterBuilder.build(), new ResultsHandler() {
 
+            @Transactional
             @Override
             public boolean handle(final ConnectorObject obj) {
                 return handler.handle(new SyncDeltaBuilder().

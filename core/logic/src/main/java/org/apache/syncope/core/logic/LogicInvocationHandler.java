@@ -24,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
+import org.apache.syncope.core.provisioning.api.event.AfterHandlingEvent;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -31,6 +32,7 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 
 @Aspect
 public class LogicInvocationHandler {
@@ -42,6 +44,9 @@ public class LogicInvocationHandler {
 
     @Autowired
     private AuditManager auditManager;
+
+    @Autowired
+    private ApplicationEventPublisher publisher;
 
     @Around("execution(* org.apache.syncope.core.logic.AbstractLogic+.*(..))")
     public Object around(final ProceedingJoinPoint joinPoint) throws Throwable {
@@ -89,27 +94,17 @@ public class LogicInvocationHandler {
             LOG.debug("After throwing {}.{}", clazz.getSimpleName(), event);
             throw t;
         } finally {
-            if (notificationsAvailable) {
-                notificationManager.createTasks(AuditElements.EventCategoryType.LOGIC,
-                        category,
-                        null,
-                        event,
-                        condition,
-                        before,
-                        output,
-                        input);
-            }
-
-            if (auditRequested) {
-                auditManager.audit(AuditElements.EventCategoryType.LOGIC,
-                        category,
-                        null,
-                        event,
-                        condition,
-                        before,
-                        output,
-                        input);
-            }
+            publisher.publishEvent(new AfterHandlingEvent(this,
+                    notificationsAvailable,
+                    auditRequested,
+                    AuditElements.EventCategoryType.LOGIC,
+                    category,
+                    null,
+                    event,
+                    condition,
+                    before,
+                    output,
+                    input));
         }
     }
 }

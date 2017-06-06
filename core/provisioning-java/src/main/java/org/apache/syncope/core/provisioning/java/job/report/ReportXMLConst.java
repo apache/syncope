@@ -16,17 +16,29 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.logic.report;
+package org.apache.syncope.core.provisioning.java.job.report;
 
-public class ReportException extends RuntimeException {
+public final class ReportXMLConst {
 
-    private static final long serialVersionUID = 6719507778589395283L;
+    public static final String XSD_STRING = "xsd:string";
 
-    public ReportException(final Throwable cause) {
-        super(cause);
-    }
+    public static final String XSD_INT = "xsd:integer";
 
-    public ReportException(final String message, final Throwable cause) {
-        super(message, cause);
+    public static final String XSD_LONG = "xsd:long";
+
+    public static final String XSD_BOOLEAN = "xsd:boolean";
+
+    public static final String XSD_DATETIME = "xsd:dateTime";
+
+    public static final String ELEMENT_REPORT = "report";
+
+    public static final String ATTR_NAME = "name";
+
+    public static final String ATTR_CLASS = "class";
+
+    public static final String ELEMENT_REPORTLET = "reportlet";
+
+    private ReportXMLConst() {
+        // empty private constructor for static utility class
     }
 }

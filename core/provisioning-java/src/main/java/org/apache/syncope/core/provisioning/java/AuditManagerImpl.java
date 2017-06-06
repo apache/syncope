@@ -27,10 +27,13 @@ import org.apache.syncope.common.lib.types.LoggerType;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.dao.LoggerDAO;
+import org.apache.syncope.core.provisioning.api.event.AfterHandlingEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional(readOnly = true)
@@ -75,6 +78,23 @@ public class AuditManagerImpl implements AuditManager {
         auditRequested = syncopeLogger != null && syncopeLogger.getLevel() == LoggerLevel.DEBUG;
 
         return auditRequested;
+    }
+
+    @EventListener
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Override
+    public void audit(final AfterHandlingEvent event) {
+        if (event.isAuditRequested()) {
+            audit(
+                    event.getType(),
+                    event.getCategory(),
+                    event.getSubcategory(),
+                    event.getEvent(),
+                    event.getCondition(),
+                    event.getBefore(),
+                    event.getOutput(),
+                    event.getInput());
+        }
     }
 
     @Override

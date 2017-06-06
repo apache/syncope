@@ -38,7 +38,7 @@ public abstract class AbstractRealmResultHandler<T extends ProvisioningTask, A e
     protected static final Logger LOG = LoggerFactory.getLogger(SyncopeResultHandler.class);
 
     protected static final String REALM_TYPE = "REALM";
-    
+
     @Autowired
     protected RealmDAO realmDAO;
 

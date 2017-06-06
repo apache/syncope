@@ -20,8 +20,8 @@ package org.apache.syncope.ext.elasticsearch.client;
 
 import java.io.IOException;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.spring.event.AnyCreatedUpdatedEvent;
-import org.apache.syncope.core.spring.event.AnyDeletedEvent;
+import org.apache.syncope.core.provisioning.api.event.AnyCreatedUpdatedEvent;
+import org.apache.syncope.core.provisioning.api.event.AnyDeletedEvent;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.action.get.GetResponse;

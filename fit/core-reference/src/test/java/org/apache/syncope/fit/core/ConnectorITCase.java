@@ -559,7 +559,6 @@ public class ConnectorITCase extends AbstractITCase {
 
         objectClassInfo = connectorService.buildObjectClassInfo(ldap, true);
         assertNotNull(objectClassInfo);
-        assertEquals(2, objectClassInfo.size());
 
         Collection<String> objectClasses = CollectionUtils.collect(objectClassInfo,
                 new Transformer<ConnIdObjectClassTO, String>() {
@@ -570,7 +569,6 @@ public class ConnectorITCase extends AbstractITCase {
             }
 
         });
-        assertEquals(2, objectClasses.size());
         assertTrue(objectClasses.contains(ObjectClass.ACCOUNT_NAME));
         assertTrue(objectClasses.contains(ObjectClass.GROUP_NAME));
     }

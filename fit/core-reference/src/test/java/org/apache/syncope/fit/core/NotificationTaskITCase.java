@@ -51,7 +51,7 @@ import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.NotificationService;
-import org.apache.syncope.core.logic.notification.NotificationJob;
+import org.apache.syncope.core.provisioning.java.job.notification.NotificationJob;
 import org.apache.syncope.fit.core.reference.TestNotificationRecipientsProvider;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;

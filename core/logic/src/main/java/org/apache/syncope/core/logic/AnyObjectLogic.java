@@ -136,6 +136,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
                 effectiveRealms, searchCond, page, size, orderBy, AnyTypeKind.ANY_OBJECT);
         return CollectionUtils.collect(matchingAnyObjects, new Transformer<AnyObject, AnyObjectTO>() {
 
+            @Transactional(readOnly = true)
             @Override
             public AnyObjectTO transform(final AnyObject input) {
                 return binder.getAnyObjectTO(input, details);

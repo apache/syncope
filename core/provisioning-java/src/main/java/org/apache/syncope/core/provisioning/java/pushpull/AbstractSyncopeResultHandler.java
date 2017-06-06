@@ -23,24 +23,18 @@ import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
-import org.apache.syncope.core.provisioning.api.GroupProvisioningManager;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
-import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopeResultHandler;
-import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
-import org.apache.syncope.core.provisioning.api.AnyObjectProvisioningManager;
-import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
-import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningActions;
 import org.apache.syncope.core.workflow.api.AnyObjectWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
@@ -62,24 +56,6 @@ public abstract class AbstractSyncopeResultHandler<T extends ProvisioningTask, A
 
     @Autowired
     protected GroupDAO groupDAO;
-
-    /**
-     * ConnectorObject utils.
-     */
-    @Autowired
-    protected ConnObjectUtils connObjectUtils;
-
-    /**
-     * Notification Manager.
-     */
-    @Autowired
-    protected NotificationManager notificationManager;
-
-    /**
-     * Audit Manager.
-     */
-    @Autowired
-    protected AuditManager auditManager;
 
     /**
      * Propagation manager.
@@ -115,15 +91,6 @@ public abstract class AbstractSyncopeResultHandler<T extends ProvisioningTask, A
 
     @Autowired
     protected GroupDataBinder groupDataBinder;
-
-    @Autowired
-    protected AnyObjectProvisioningManager anyObjectProvisioningManager;
-
-    @Autowired
-    protected UserProvisioningManager userProvisioningManager;
-
-    @Autowired
-    protected GroupProvisioningManager groupProvisioningManager;
 
     @Autowired
     protected AnyUtilsFactory anyUtilsFactory;

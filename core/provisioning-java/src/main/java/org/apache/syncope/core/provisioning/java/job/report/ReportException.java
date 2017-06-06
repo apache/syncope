@@ -16,32 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.spring.event;
+package org.apache.syncope.core.provisioning.java.job.report;
 
-import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.spring.security.AuthContextUtils;
-import org.springframework.context.ApplicationEvent;
+public class ReportException extends RuntimeException {
 
-public class AnyCreatedUpdatedEvent<A extends Any<?>> extends ApplicationEvent {
+    private static final long serialVersionUID = 6719507778589395283L;
 
-    private static final long serialVersionUID = -781747175059834365L;
-
-    private final A any;
-
-    private final String domain;
-
-    public AnyCreatedUpdatedEvent(final Object source, final A any) {
-        super(source);
-        this.any = any;
-        this.domain = AuthContextUtils.getDomain();
+    public ReportException(final Throwable cause) {
+        super(cause);
     }
 
-    public A getAny() {
-        return any;
+    public ReportException(final String message, final Throwable cause) {
+        super(message, cause);
     }
-
-    public String getDomain() {
-        return domain;
-    }
-
 }
