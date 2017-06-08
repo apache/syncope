@@ -124,6 +124,7 @@ import org.apache.syncope.core.persistence.api.entity.task.AnyTemplatePullTask;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAOrgUnit;
+import org.apache.syncope.core.persistence.api.entity.DynRealm;
 
 @Component
 public class JPAEntityFactory implements EntityFactory {
@@ -137,6 +138,8 @@ public class JPAEntityFactory implements EntityFactory {
             result = (E) new JPADomain();
         } else if (reference.equals(Realm.class)) {
             result = (E) new JPARealm();
+        } else if (reference.equals(DynRealm.class)) {
+            result = (E) new JPADynRealm();
         } else if (reference.equals(AnyTemplateRealm.class)) {
             result = (E) new JPAAnyTemplateRealm();
         } else if (reference.equals(AccountPolicy.class)) {

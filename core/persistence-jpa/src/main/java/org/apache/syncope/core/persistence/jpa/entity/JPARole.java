@@ -41,6 +41,7 @@ import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPADynRoleMembership;
 import org.apache.syncope.core.persistence.jpa.validation.entity.RoleCheck;
+import org.apache.syncope.core.persistence.api.entity.DynRealm;
 
 @Entity
 @Table(name = JPARole.TABLE)
@@ -67,6 +68,14 @@ public class JPARole extends AbstractProvidedKeyEntity implements Role {
     @Valid
     private List<JPARealm> realms = new ArrayList<>();
 
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(joinColumns =
+            @JoinColumn(name = "role_id"),
+            inverseJoinColumns =
+            @JoinColumn(name = "dynamicRealm_id"))
+    @Valid
+    private List<JPADynRealm> dynRealms = new ArrayList<>();
+
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "role")
     @Valid
     private JPADynRoleMembership dynMembership;
@@ -88,6 +97,17 @@ public class JPARole extends AbstractProvidedKeyEntity implements Role {
     @Override
     public List<? extends Realm> getRealms() {
         return realms;
+    }
+
+    @Override
+    public boolean add(final DynRealm dynamicRealm) {
+        checkType(dynamicRealm, JPADynRealm.class);
+        return dynRealms.add((JPADynRealm) dynamicRealm);
+    }
+
+    @Override
+    public List<? extends DynRealm> getDynRealms() {
+        return dynRealms;
     }
 
     @Override

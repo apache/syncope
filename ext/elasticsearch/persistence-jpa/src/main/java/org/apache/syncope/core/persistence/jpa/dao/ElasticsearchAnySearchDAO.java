@@ -18,9 +18,12 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import static org.apache.syncope.core.persistence.jpa.dao.AbstractDAO.LOG;
+
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
@@ -34,6 +37,7 @@ import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
 import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
+import org.apache.syncope.core.persistence.api.dao.search.DynRealmCond;
 import org.apache.syncope.core.persistence.api.dao.search.MemberCond;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
@@ -44,6 +48,7 @@ import org.apache.syncope.core.persistence.api.dao.search.RoleCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.persistence.api.entity.DynRealm;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
@@ -75,21 +80,37 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
     @Autowired
     private ElasticsearchUtils elasticsearchUtils;
 
-    private DisMaxQueryBuilder adminRealmsFilter(final Set<String> adminRealms) {
+    private Pair<DisMaxQueryBuilder, Set<String>> adminRealmsFilter(final Set<String> adminRealms) {
         DisMaxQueryBuilder builder = QueryBuilders.disMaxQuery();
 
+        Set<String> dynRealmKeys = new HashSet<>();
         for (String realmPath : RealmUtils.normalize(adminRealms)) {
-            Realm realm = realmDAO.findByFullPath(realmPath);
-            if (realm == null) {
-                LOG.warn("Ignoring invalid realm {}", realmPath);
+            if (realmPath.startsWith("/")) {
+                Realm realm = realmDAO.findByFullPath(realmPath);
+                if (realm == null) {
+                    LOG.warn("Ignoring invalid realm {}", realmPath);
+                } else {
+                    for (Realm descendant : realmDAO.findDescendants(realm)) {
+                        builder.add(QueryBuilders.termQuery("realm", descendant.getFullPath()));
+                    }
+                }
             } else {
-                for (Realm descendant : realmDAO.findDescendants(realm)) {
-                    builder.add(QueryBuilders.termQuery("realm", descendant.getFullPath()));
+                DynRealm dynRealm = dynRealmDAO.find(realmPath);
+                if (dynRealm == null) {
+                    LOG.warn("Ignoring invalid dynamic realm {}", realmPath);
+                } else {
+                    dynRealmKeys.add(dynRealm.getKey());
+                    builder.add(QueryBuilders.termQuery("dynRealm", dynRealm.getKey()));
                 }
             }
         }
+        if (!dynRealmKeys.isEmpty()) {
+            for (Realm descendant : realmDAO.findAll()) {
+                builder.add(QueryBuilders.termQuery("realm", descendant.getFullPath()));
+            }
+        }
 
-        return builder;
+        return Pair.of(builder, dynRealmKeys);
     }
 
     private SearchRequestBuilder searchRequestBuilder(
@@ -97,14 +118,16 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
             final SearchCond cond,
             final AnyTypeKind kind) {
 
+        Pair<DisMaxQueryBuilder, Set<String>> filter = adminRealmsFilter(adminRealms);
+
         return client.prepareSearch(AuthContextUtils.getDomain().toLowerCase()).
                 setTypes(kind.name()).
                 setSearchType(SearchType.QUERY_THEN_FETCH).
                 setQuery(SyncopeConstants.FULL_ADMIN_REALMS.equals(adminRealms)
                         ? getQueryBuilder(cond, kind)
                         : QueryBuilders.boolQuery().
-                                must(adminRealmsFilter(adminRealms)).
-                                must(getQueryBuilder(cond, kind)));
+                                must(filter.getLeft()).
+                                must(getQueryBuilder(buildEffectiveCond(cond, filter.getRight()), kind)));
     }
 
     @Override
@@ -196,6 +219,8 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
                     builder = getQueryBuilder(cond.getAssignableCond());
                 } else if (cond.getRoleCond() != null && AnyTypeKind.USER == kind) {
                     builder = getQueryBuilder(cond.getRoleCond());
+                } else if (cond.getDynRealmCond() != null) {
+                    builder = getQueryBuilder(cond.getDynRealmCond());
                 } else if (cond.getMemberCond() != null && AnyTypeKind.GROUP == kind) {
                     builder = getQueryBuilder(cond.getMemberCond());
                 } else if (cond.getResourceCond() != null) {
@@ -286,7 +311,11 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
     }
 
     private QueryBuilder getQueryBuilder(final RoleCond cond) {
-        return QueryBuilders.termQuery("roles", cond.getRoleKey());
+        return QueryBuilders.termQuery("roles", cond.getRole());
+    }
+
+    private QueryBuilder getQueryBuilder(final DynRealmCond cond) {
+        return QueryBuilders.termQuery("dynRealms", cond.getDynRealm());
     }
 
     private QueryBuilder getQueryBuilder(final MemberCond cond) {

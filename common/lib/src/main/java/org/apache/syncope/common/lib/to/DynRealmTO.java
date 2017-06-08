@@ -16,24 +16,40 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.dao.search;
+package org.apache.syncope.common.lib.to;
 
-public class RoleCond extends AbstractSearchCond {
+import javax.ws.rs.PathParam;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+import org.apache.syncope.common.lib.AbstractBaseBean;
 
-    private static final long serialVersionUID = 3581958527829522490L;
+@XmlRootElement(name = "dynRealm")
+@XmlType
+public class DynRealmTO extends AbstractBaseBean implements EntityTO {
 
-    private String role;
+    private static final long serialVersionUID = 4560822655754800031L;
 
-    public String getRole() {
-        return role;
-    }
+    private String key;
 
-    public void setRole(final String role) {
-        this.role = role;
-    }
+    private String cond;
 
     @Override
-    public final boolean isValid() {
-        return role != null;
+    public String getKey() {
+        return key;
     }
+
+    @PathParam("key")
+    @Override
+    public void setKey(final String key) {
+        this.key = key;
+    }
+
+    public String getCond() {
+        return cond;
+    }
+
+    public void setCond(final String cond) {
+        this.cond = cond;
+    }
+
 }

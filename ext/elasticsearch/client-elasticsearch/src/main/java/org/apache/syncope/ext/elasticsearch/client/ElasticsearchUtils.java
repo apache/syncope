@@ -103,7 +103,13 @@ public class ElasticsearchUtils {
                                 ? userDAO.findAllResourceKeys(any.getKey())
                                 : any instanceof AnyObject
                                         ? anyObjectDAO.findAllResourceKeys(any.getKey())
-                                        : any.getResourceKeys());
+                                        : any.getResourceKeys()).
+                field("dynRealms",
+                        any instanceof User
+                                ? userDAO.findDynRealms(any.getKey())
+                                : any instanceof AnyObject
+                                        ? anyObjectDAO.findDynRealms(any.getKey())
+                                        : groupDAO.findDynRealms(any.getKey()));
 
         if (any instanceof AnyObject) {
             AnyObject anyObject = ((AnyObject) any);

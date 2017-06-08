@@ -44,11 +44,13 @@ import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
 import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
+import org.apache.syncope.core.persistence.api.dao.search.DynRealmCond;
 import org.apache.syncope.core.persistence.api.dao.search.MemberCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipTypeCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.persistence.api.entity.DynRealm;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
@@ -61,20 +63,33 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
     private static final String EMPTY_QUERY = "SELECT any_id FROM user_search_attr WHERE 1=2";
 
-    private String getAdminRealmsFilter(
+    private Pair<String, Set<String>> getAdminRealmsFilter(
             final Set<String> adminRealms,
             final SearchSupport svs,
             final List<Object> parameters) {
 
         Set<String> realmKeys = new HashSet<>();
+        Set<String> dynRealmKeys = new HashSet<>();
         for (String realmPath : RealmUtils.normalize(adminRealms)) {
-            Realm realm = realmDAO.findByFullPath(realmPath);
-            if (realm == null) {
-                LOG.warn("Ignoring invalid realm {}", realmPath);
+            if (realmPath.startsWith("/")) {
+                Realm realm = realmDAO.findByFullPath(realmPath);
+                if (realm == null) {
+                    LOG.warn("Ignoring invalid realm {}", realmPath);
+                } else {
+                    CollectionUtils.collect(
+                            realmDAO.findDescendants(realm), EntityUtils.<Realm>keyTransformer(), realmKeys);
+                }
             } else {
-                CollectionUtils.collect(
-                        realmDAO.findDescendants(realm), EntityUtils.<Realm>keyTransformer(), realmKeys);
+                DynRealm dynRealm = dynRealmDAO.find(realmPath);
+                if (dynRealm == null) {
+                    LOG.warn("Ignoring invalid dynamic realm {}", realmPath);
+                } else {
+                    dynRealmKeys.add(dynRealm.getKey());
+                }
             }
+        }
+        if (!dynRealmKeys.isEmpty()) {
+            CollectionUtils.collect(realmDAO.findAll(), EntityUtils.keyTransformer(), realmKeys);
         }
 
         StringBuilder adminRealmFilter = new StringBuilder("u.any_id IN (").
@@ -94,20 +109,23 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
         adminRealmFilter.append("))");
 
-        return adminRealmFilter.toString();
+        return Pair.of(adminRealmFilter.toString(), dynRealmKeys);
     }
 
     @Override
     protected int doCount(final Set<String> adminRealms, final SearchCond cond, final AnyTypeKind kind) {
         List<Object> parameters = Collections.synchronizedList(new ArrayList<>());
 
-        // 1. get the query string from the search condition
         SearchSupport svs = new SearchSupport(kind);
-        StringBuilder queryString = getQuery(cond, parameters, svs);
+
+        Pair<String, Set<String>> filter = getAdminRealmsFilter(adminRealms, svs, parameters);
+
+        // 1. get the query string from the search condition
+        StringBuilder queryString = getQuery(buildEffectiveCond(cond, filter.getRight()), parameters, svs);
 
         // 2. take into account administrative realms
         queryString.insert(0, "SELECT u.any_id FROM (");
-        queryString.append(") u WHERE ").append(getAdminRealmsFilter(adminRealms, svs, parameters));
+        queryString.append(") u WHERE ").append(filter.getLeft());
 
         // 3. prepare the COUNT query
         queryString.insert(0, "SELECT COUNT(any_id) FROM (");
@@ -132,9 +150,12 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
         try {
             List<Object> parameters = Collections.synchronizedList(new ArrayList<>());
 
-            // 1. get the query string from the search condition
             SearchSupport svs = new SearchSupport(kind);
-            StringBuilder queryString = getQuery(cond, parameters, svs);
+
+            Pair<String, Set<String>> filter = getAdminRealmsFilter(adminRealms, svs, parameters);
+
+            // 1. get the query string from the search condition
+            StringBuilder queryString = getQuery(buildEffectiveCond(cond, filter.getRight()), parameters, svs);
 
             // 2. take into account realms and ordering
             OrderBySupport obs = parseOrderBy(kind, svs, orderBy);
@@ -146,7 +167,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                 queryString.append(')').append(buildWhere(svs, obs));
             }
             queryString.
-                    append(getAdminRealmsFilter(adminRealms, svs, parameters)).
+                    append(filter.getLeft()).
                     append(buildOrderBy(obs));
 
             // 3. prepare the search query
@@ -340,6 +361,9 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                 } else if (cond.getRoleCond() != null && AnyTypeKind.USER == svs.anyTypeKind) {
                     query.append(getQuery(cond.getRoleCond(),
                             cond.getType() == SearchCond.Type.NOT_LEAF, parameters, svs));
+                } else if (cond.getDynRealmCond() != null) {
+                    query.append(getQuery(cond.getDynRealmCond(),
+                            cond.getType() == SearchCond.Type.NOT_LEAF, parameters, svs));
                 } else if (cond.getMemberCond() != null && AnyTypeKind.GROUP == svs.anyTypeKind) {
                     query.append(getQuery(cond.getMemberCond(),
                             cond.getType() == SearchCond.Type.NOT_LEAF, parameters, svs));
@@ -503,7 +527,7 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
         query.append("SELECT DISTINCT any_id FROM ").
                 append(svs.role().name).append(" WHERE ").
-                append("role_id=?").append(setParameter(parameters, cond.getRoleKey())).
+                append("role_id=?").append(setParameter(parameters, cond.getRole())).
                 append(") ");
 
         if (not) {
@@ -514,7 +538,27 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
 
         query.append("SELECT DISTINCT any_id FROM ").
                 append(svs.dynrolemembership().name).append(" WHERE ").
-                append("role_id=?").append(setParameter(parameters, cond.getRoleKey())).
+                append("role_id=?").append(setParameter(parameters, cond.getRole())).
+                append("))");
+
+        return query.toString();
+    }
+
+    private String getQuery(
+            final DynRealmCond cond, final boolean not, final List<Object> parameters, final SearchSupport svs) {
+
+        StringBuilder query = new StringBuilder("SELECT DISTINCT any_id FROM ").
+                append(svs.field().name).append(" WHERE (");
+
+        if (not) {
+            query.append("any_id NOT IN (");
+        } else {
+            query.append("any_id IN (");
+        }
+
+        query.append("SELECT DISTINCT any_id FROM ").
+                append(svs.dynrealmmembership().name).append(" WHERE ").
+                append("dynRealm_id=?").append(setParameter(parameters, cond.getDynRealm())).
                 append("))");
 
         return query.toString();

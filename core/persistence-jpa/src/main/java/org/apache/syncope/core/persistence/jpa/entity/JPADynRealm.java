@@ -16,24 +16,35 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.dao.search;
+package org.apache.syncope.core.persistence.jpa.entity;
 
-public class RoleCond extends AbstractSearchCond {
+import javax.persistence.Cacheable;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
+import org.apache.syncope.core.persistence.api.entity.DynRealm;
+import org.apache.syncope.core.persistence.jpa.validation.entity.DynRealmCheck;
 
-    private static final long serialVersionUID = 3581958527829522490L;
+@Entity
+@Table(name = JPADynRealm.TABLE)
+@Cacheable
+@DynRealmCheck
+public class JPADynRealm extends AbstractProvidedKeyEntity implements DynRealm {
 
-    private String role;
+    private static final long serialVersionUID = -6851035842423560341L;
 
-    public String getRole() {
-        return role;
-    }
+    public static final String TABLE = "DynRealm";
 
-    public void setRole(final String role) {
-        this.role = role;
+    @NotNull
+    private String fiql;
+
+    @Override
+    public String getFIQLCond() {
+        return fiql;
     }
 
     @Override
-    public final boolean isValid() {
-        return role != null;
+    public void setFIQLCond(final String fiql) {
+        this.fiql = fiql;
     }
 }

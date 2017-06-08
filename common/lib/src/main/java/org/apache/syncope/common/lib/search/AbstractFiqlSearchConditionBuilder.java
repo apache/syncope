@@ -65,6 +65,18 @@ public abstract class AbstractFiqlSearchConditionBuilder extends FiqlSearchCondi
         return newBuilderInstance().is(property).notNullValue();
     }
 
+    public CompleteCondition inDynRealms(final String dynRealm, final String... moreDynRealms) {
+        return newBuilderInstance().
+                is(SpecialAttr.DYNREALMS.toString()).
+                inDynRealms(dynRealm, moreDynRealms);
+    }
+
+    public CompleteCondition notInDynRealms(final String dynRealm, final String... moreDynRealms) {
+        return newBuilderInstance().
+                is(SpecialAttr.DYNREALMS.toString()).
+                notInDynRealms(dynRealm, moreDynRealms);
+    }
+
     public CompleteCondition hasResources(final String resource, final String... moreResources) {
         return newBuilderInstance().is(SpecialAttr.RESOURCES.toString()).hasResources(resource, moreResources);
     }
@@ -122,5 +134,18 @@ public abstract class AbstractFiqlSearchConditionBuilder extends FiqlSearchCondi
         public CompleteCondition notEqualTolIgnoreCase(final String literalOrPattern) {
             return condition(SyncopeFiqlParser.NIEQ, literalOrPattern);
         }
+
+        @Override
+        public CompleteCondition inDynRealms(final String dynRealm, final String... moreDynRealms) {
+            this.result = SpecialAttr.DYNREALMS.toString();
+            return condition(FiqlParser.EQ, dynRealm, (Object[]) moreDynRealms);
+        }
+
+        @Override
+        public CompleteCondition notInDynRealms(final String dynRealm, final String... moreDynRealms) {
+            this.result = SpecialAttr.DYNREALMS.toString();
+            return condition(FiqlParser.NEQ, dynRealm, (Object[]) moreDynRealms);
+        }
+
     }
 }

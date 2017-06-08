@@ -49,6 +49,8 @@ public class SearchCond extends AbstractSearchCond {
 
     private RoleCond roleCond;
 
+    private DynRealmCond dynRealmCond;
+
     private ResourceCond resourceCond;
 
     private AssignableCond assignableCond;
@@ -113,6 +115,15 @@ public class SearchCond extends AbstractSearchCond {
 
         nodeCond.type = Type.LEAF;
         nodeCond.roleCond = roleCond;
+
+        return nodeCond;
+    }
+
+    public static SearchCond getLeafCond(final DynRealmCond dynRealmCond) {
+        SearchCond nodeCond = new SearchCond();
+
+        nodeCond.type = Type.LEAF;
+        nodeCond.dynRealmCond = dynRealmCond;
 
         return nodeCond;
     }
@@ -196,7 +207,9 @@ public class SearchCond extends AbstractSearchCond {
     }
 
     public static SearchCond getAndCond(final List<SearchCond> conditions) {
-        if (conditions.size() > 2) {
+        if (conditions.size() == 1) {
+            return conditions.get(0);
+        } else if (conditions.size() > 2) {
             SearchCond removed = conditions.remove(0);
             return getAndCond(removed, getAndCond(conditions));
         } else {
@@ -215,7 +228,9 @@ public class SearchCond extends AbstractSearchCond {
     }
 
     public static SearchCond getOrCond(final List<SearchCond> conditions) {
-        if (conditions.size() > 2) {
+        if (conditions.size() == 1) {
+            return conditions.get(0);
+        } else if (conditions.size() > 2) {
             SearchCond removed = conditions.remove(0);
             return getOrCond(removed, getOrCond(conditions));
         } else {
@@ -291,6 +306,10 @@ public class SearchCond extends AbstractSearchCond {
         return roleCond;
     }
 
+    public DynRealmCond getDynRealmCond() {
+        return dynRealmCond;
+    }
+
     public ResourceCond getResourceCond() {
         return resourceCond;
     }
@@ -326,7 +345,7 @@ public class SearchCond extends AbstractSearchCond {
         switch (type) {
             case LEAF:
             case NOT_LEAF:
-                isValid = (anyTypeCond != null || anyCond != null || attributeCond != null
+                isValid = (anyTypeCond != null || anyCond != null || attributeCond != null || dynRealmCond != null
                         || relationshipCond != null || relationshipTypeCond != null || membershipCond != null
                         || roleCond != null || resourceCond != null || assignableCond != null || memberCond != null)
                         && (anyTypeCond == null || anyTypeCond.isValid())

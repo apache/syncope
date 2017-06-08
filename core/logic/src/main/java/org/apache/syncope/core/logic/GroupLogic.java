@@ -49,10 +49,8 @@ import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
-import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
-import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
@@ -82,12 +80,6 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Component
 public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
-
-    @Autowired
-    protected GroupDAO groupDAO;
-
-    @Autowired
-    protected UserDAO userDAO;
 
     @Autowired
     protected AnySearchDAO searchDAO;

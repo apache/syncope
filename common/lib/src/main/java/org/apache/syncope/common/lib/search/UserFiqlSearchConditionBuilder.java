@@ -88,18 +88,6 @@ public class UserFiqlSearchConditionBuilder extends AbstractFiqlSearchConditionB
                 notInRoles(role, moreRoles);
     }
 
-    @Override
-    public CompleteCondition hasResources(final String resource, final String... moreResources) {
-        return newBuilderInstance().
-                is(SpecialAttr.RESOURCES.toString()).
-                hasResources(resource, moreResources);
-    }
-
-    @Override
-    public CompleteCondition hasNotResources(final String resource, final String... moreResources) {
-        return newBuilderInstance().is(SpecialAttr.RESOURCES.toString()).hasNotResources(resource, moreResources);
-    }
-
     protected static class Builder extends AbstractFiqlSearchConditionBuilder.Builder
             implements UserProperty, CompleteCondition {
 

@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import static org.apache.syncope.core.persistence.jpa.dao.AbstractDAO.LOG;
+
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -41,6 +43,7 @@ import org.apache.syncope.core.persistence.api.dao.AllowedSchemas;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
+import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
@@ -51,6 +54,7 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
+import org.apache.syncope.core.persistence.api.entity.DynRealm;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Schema;
@@ -80,6 +84,8 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
 
     private AnySearchDAO searchDAO;
 
+    private DynRealmDAO dynRealmDAO;
+
     private AnyUtils anyUtils;
 
     private PlainSchemaDAO plainSchemaDAO() {
@@ -107,6 +113,15 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
             }
         }
         return searchDAO;
+    }
+
+    protected DynRealmDAO dynRealmDAO() {
+        synchronized (this) {
+            if (dynRealmDAO == null) {
+                dynRealmDAO = ApplicationContextProvider.getApplicationContext().getBean(DynRealmDAO.class);
+            }
+        }
+        return dynRealmDAO;
     }
 
     protected abstract AnyUtils init();
@@ -539,4 +554,28 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
 
         delete(any);
     }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<String> findDynRealms(final String key) {
+        Query query = entityManager().createNativeQuery(
+                "SELECT dynRealm_id FROM " + JPADynRealmDAO.DYNMEMB_TABLE + " WHERE any_id=?");
+        query.setParameter(1, key);
+
+        List<String> result = new ArrayList<>();
+        for (Object resultKey : query.getResultList()) {
+            String actualKey = resultKey instanceof Object[]
+                    ? (String) ((Object[]) resultKey)[0]
+                    : ((String) resultKey);
+
+            DynRealm dynRealm = dynRealmDAO().find(actualKey);
+            if (dynRealm == null) {
+                LOG.error("Could not find dynRealm with id {}, even though returned by the native query", actualKey);
+            } else if (!result.contains(dynRealm)) {
+                result.add(actualKey);
+            }
+        }
+        return result;
+    }
+
 }

@@ -38,12 +38,16 @@ import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.core.persistence.api.dao.AnyDAO;
+import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
@@ -53,6 +57,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 
 public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch> extends AbstractResourceAssociator<TO> {
+
+    @Autowired
+    protected UserDAO userDAO;
+
+    @Autowired
+    protected GroupDAO groupDAO;
+
+    @Autowired
+    protected AnyObjectDAO anyObjectDAO;
 
     @Autowired
     private RealmDAO realmDAO;
@@ -191,9 +204,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch> ext
 
     }
 
-    protected Set<String> getEffectiveRealms(
-            final Set<String> allowedRealms, final String requestedRealm) {
-
+    protected Set<String> getEffectiveRealms(final Set<String> allowedRealms, final String requestedRealm) {
         Set<String> allowed = RealmUtils.normalize(allowedRealms);
         Set<String> requested = new HashSet<>();
         requested.add(requestedRealm);
@@ -202,18 +213,35 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch> ext
         CollectionUtils.select(requested, new StartsWithPredicate(allowed), effective);
         CollectionUtils.select(allowed, new StartsWithPredicate(requested), effective);
 
+        // includes dynamic realms
+        CollectionUtils.select(allowedRealms, new Predicate<String>() {
+
+            @Override
+            public boolean evaluate(final String realm) {
+                return !realm.startsWith("/");
+            }
+        }, effective);
+
         return effective;
     }
 
     protected void securityChecks(final Set<String> effectiveRealms, final String realm, final String key) {
-        if (!IterableUtils.matchesAny(effectiveRealms, new Predicate<String>() {
+        boolean authorized = IterableUtils.matchesAny(effectiveRealms, new Predicate<String>() {
 
             @Override
             public boolean evaluate(final String ownedRealm) {
                 return realm.startsWith(ownedRealm);
             }
-        })) {
-
+        });
+        if (!authorized) {
+            AnyDAO<?> anyDAO = this instanceof UserLogic
+                    ? userDAO
+                    : this instanceof GroupLogic
+                            ? groupDAO
+                            : anyObjectDAO;
+            authorized = !CollectionUtils.intersection(anyDAO.findDynRealms(key), effectiveRealms).isEmpty();
+        }
+        if (!authorized) {
             throw new DelegatedAdministrationException(
                     this instanceof UserLogic
                             ? AnyTypeKind.USER
@@ -225,7 +253,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch> ext
     }
 
     public abstract Date findLastChange(String key);
-    
+
     public abstract TO read(String key);
 
     public abstract int count(String realm);

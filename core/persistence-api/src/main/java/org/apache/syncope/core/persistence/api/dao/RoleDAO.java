@@ -45,6 +45,6 @@ public interface RoleDAO extends DAO<Role> {
 
     void refreshDynMemberships(User user);
 
-    void removeDynMemberships(User user);
+    void removeDynMemberships(String key);
 
 }

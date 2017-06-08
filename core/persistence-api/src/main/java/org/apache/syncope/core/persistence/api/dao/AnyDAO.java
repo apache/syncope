@@ -93,4 +93,5 @@ public interface AnyDAO<A extends Any<?>> extends DAO<A> {
 
     void delete(A any);
 
+    List<String> findDynRealms(String key);
 }

@@ -30,6 +30,10 @@ public interface Role extends ProvidedKeyEntity {
 
     List<? extends Realm> getRealms();
 
+    boolean add(DynRealm dynRealm);
+
+    List<? extends DynRealm> getDynRealms();
+
     DynRoleMembership getDynMembership();
 
     void setDynMembership(DynRoleMembership dynMembership);
