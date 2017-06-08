@@ -23,15 +23,18 @@ import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
+import org.apache.syncope.core.persistence.api.entity.DynRealm;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.user.DynRoleMembership;
 import org.apache.syncope.core.provisioning.api.data.RoleDataBinder;
+import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +47,9 @@ public class RoleDataBinderImpl implements RoleDataBinder {
 
     @Autowired
     private RealmDAO realmDAO;
+
+    @Autowired
+    private DynRealmDAO dynRealmDAO;
 
     @Autowired
     private RoleDAO roleDAO;
@@ -93,6 +99,16 @@ public class RoleDataBinderImpl implements RoleDataBinder {
             }
         }
 
+        role.getDynRealms().clear();
+        for (String key : roleTO.getDynRealms()) {
+            DynRealm dynRealm = dynRealmDAO.find(key);
+            if (dynRealm == null) {
+                LOG.debug("Invalid dynamic ream {}, ignoring", key);
+            } else {
+                role.add(dynRealm);
+            }
+        }
+
         role = roleDAO.save(role);
 
         // dynamic membership
@@ -126,6 +142,8 @@ public class RoleDataBinderImpl implements RoleDataBinder {
                 return input.getFullPath();
             }
         }, roleTO.getRealms());
+
+        CollectionUtils.collect(role.getDynRealms(), EntityUtils.keyTransformer(), roleTO.getDynRealms());
 
         if (role.getDynMembership() != null) {
             roleTO.setDynMembershipCond(role.getDynMembership().getFIQLCond());

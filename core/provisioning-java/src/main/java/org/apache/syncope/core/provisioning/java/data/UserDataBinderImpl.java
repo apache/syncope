@@ -606,6 +606,9 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                 details);
 
         if (details) {
+            // dynamic realms
+            userTO.getDynRealms().addAll(userDAO.findDynRealms(user.getKey()));
+
             // roles
             CollectionUtils.collect(user.getRoles(),
                     EntityUtils.<Role>keyTransformer(), userTO.getRoles());
@@ -634,9 +637,9 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             }, userTO.getMemberships());
 
             // dynamic memberships
-            CollectionUtils.collect(userDAO.findDynRoles(user),
+            CollectionUtils.collect(userDAO.findDynRoles(user.getKey()),
                     EntityUtils.<Role>keyTransformer(), userTO.getDynRoles());
-            CollectionUtils.collect(userDAO.findDynGroups(user),
+            CollectionUtils.collect(userDAO.findDynGroups(user.getKey()),
                     EntityUtils.<Group>keyTransformer(), userTO.getDynGroups());
         }
 

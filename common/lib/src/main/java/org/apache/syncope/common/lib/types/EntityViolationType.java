@@ -35,6 +35,7 @@ public enum EntityViolationType {
     InvalidPolicy("org.apache.syncope.core.persistence.validation.policy"),
     InvalidPropagationTask("org.apache.syncope.core.persistence.validation.propagationtask"),
     InvalidRealm("org.apache.syncope.core.persistence.validation.realm"),
+    InvalidDynRealm("org.apache.syncope.core.persistence.validation.dynrealm"),
     InvalidReport("org.apache.syncope.core.persistence.validation.report"),
     InvalidResource("org.apache.syncope.core.persistence.validation.externalresource"),
     InvalidGroupOwner("org.apache.syncope.core.persistence.validation.group.owner"),

@@ -16,24 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.dao.search;
+package org.apache.syncope.core.provisioning.api.data;
 
-public class RoleCond extends AbstractSearchCond {
+import org.apache.syncope.common.lib.to.DynRealmTO;
+import org.apache.syncope.core.persistence.api.entity.DynRealm;
 
-    private static final long serialVersionUID = 3581958527829522490L;
+public interface DynRealmDataBinder {
 
-    private String role;
+    DynRealm create(DynRealmTO dynRealmTO);
 
-    public String getRole() {
-        return role;
-    }
+    DynRealm update(DynRealm dynRealm, DynRealmTO dynRealmTO);
 
-    public void setRole(final String role) {
-        this.role = role;
-    }
-
-    @Override
-    public final boolean isValid() {
-        return role != null;
-    }
+    DynRealmTO getDynRealmTO(DynRealm dynRealm);
 }

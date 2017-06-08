@@ -70,4 +70,8 @@ public interface SyncopeProperty extends Property {
      */
     CompleteCondition hasNotResources(String resource, String... moreResources);
 
+    CompleteCondition inDynRealms(String dynRealm, String... moreDynRealms);
+
+    CompleteCondition notInDynRealms(String dynRealm, String... moreDynRealms);
+
 }

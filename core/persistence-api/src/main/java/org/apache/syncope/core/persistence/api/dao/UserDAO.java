@@ -42,11 +42,11 @@ public interface UserDAO extends AnyDAO<User> {
 
     List<User> findBySecurityQuestion(SecurityQuestion securityQuestion);
 
-    List<Role> findDynRoles(User user);
+    List<Role> findDynRoles(String key);
 
     Collection<Role> findAllRoles(User user);
 
-    List<Group> findDynGroups(User user);
+    List<Group> findDynGroups(String key);
 
     Collection<Group> findAllGroups(User user);
 

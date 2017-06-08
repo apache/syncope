@@ -143,6 +143,9 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
                 return anyObject.getRealm().getFullPath().startsWith(realm);
             }
         });
+        if (!authorized) {
+            authorized = !CollectionUtils.intersection(findDynRealms(anyObject.getKey()), authRealms).isEmpty();
+        }
         if (authRealms == null || authRealms.isEmpty() || !authorized) {
             throw new DelegatedAdministrationException(AnyTypeKind.ANY_OBJECT, anyObject.getKey());
         }
@@ -213,6 +216,7 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
         publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, merged, AuthContextUtils.getDomain()));
 
         groupDAO().refreshDynMemberships(merged);
+        dynRealmDAO().refreshDynMemberships(merged);
 
         return merged;
     }
@@ -238,6 +242,7 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
     @Override
     public void delete(final AnyObject anyObject) {
         groupDAO().removeDynMemberships(anyObject);
+        dynRealmDAO().removeDynMemberships(anyObject.getKey());
 
         for (ARelationship relationship : findARelationships(anyObject)) {
             relationship.getLeftEnd().getRelationships().remove(relationship);
@@ -259,16 +264,16 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
-    public List<Group> findDynGroups(final AnyObject anyObject) {
+    public List<Group> findDynGroups(final String key) {
         Query query = entityManager().createNativeQuery(
                 "SELECT group_id FROM " + JPAGroupDAO.ADYNMEMB_TABLE + " WHERE any_id=?");
-        query.setParameter(1, anyObject.getKey());
+        query.setParameter(1, key);
 
         List<Group> result = new ArrayList<>();
-        for (Object key : query.getResultList()) {
-            String actualKey = key instanceof Object[]
-                    ? (String) ((Object[]) key)[0]
-                    : ((String) key);
+        for (Object resultKey : query.getResultList()) {
+            String actualKey = resultKey instanceof Object[]
+                    ? (String) ((Object[]) resultKey)[0]
+                    : ((String) resultKey);
 
             Group group = groupDAO().find(actualKey);
             if (group == null) {
@@ -291,7 +296,7 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
                         return input.getRightEnd();
                     }
                 }, new ArrayList<Group>()),
-                findDynGroups(anyObject));
+                findDynGroups(anyObject.getKey()));
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)

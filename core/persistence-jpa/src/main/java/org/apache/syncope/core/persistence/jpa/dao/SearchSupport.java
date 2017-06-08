@@ -135,6 +135,10 @@ class SearchSupport {
         return new SearchView("svdr", JPARoleDAO.DYNMEMB_TABLE);
     }
 
+    public SearchView dynrealmmembership() {
+        return new SearchView("svdrealm", JPADynRealmDAO.DYNMEMB_TABLE);
+    }
+
     public SearchView nullAttr() {
         return new SearchView("svna", field().name + "_null_attr");
     }

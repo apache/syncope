@@ -46,6 +46,8 @@ public abstract class AnyTO extends AbstractAnnotatedBean implements EntityTO, A
 
     private String realm;
 
+    private List<String> dynRealms = new ArrayList<>();
+
     private String status;
 
     private final List<String> auxClasses = new ArrayList<>();
@@ -82,6 +84,13 @@ public abstract class AnyTO extends AbstractAnnotatedBean implements EntityTO, A
 
     public void setRealm(final String realm) {
         this.realm = realm;
+    }
+
+    @XmlElementWrapper(name = "dynRealms")
+    @XmlElement(name = "dynRealmF")
+    @JsonProperty("dynRealms")
+    public List<String> getDynRealms() {
+        return dynRealms;
     }
 
     public String getStatus() {

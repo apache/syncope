@@ -66,6 +66,7 @@ import org.apache.syncope.common.rest.api.service.CamelRouteService;
 import org.apache.syncope.common.rest.api.service.ConfigurationService;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
 import org.apache.syncope.common.rest.api.service.DomainService;
+import org.apache.syncope.common.rest.api.service.DynRealmService;
 import org.apache.syncope.common.rest.api.service.LoggerService;
 import org.apache.syncope.common.rest.api.service.NotificationService;
 import org.apache.syncope.common.rest.api.service.PolicyService;
@@ -182,6 +183,8 @@ public abstract class AbstractITCase {
 
     protected static RoleService roleService;
 
+    protected static DynRealmService dynRealmService;
+
     protected static UserService userService;
 
     protected static UserSelfService userSelfService;
@@ -262,6 +265,7 @@ public abstract class AbstractITCase {
         realmService = adminClient.getService(RealmService.class);
         anyObjectService = adminClient.getService(AnyObjectService.class);
         roleService = adminClient.getService(RoleService.class);
+        dynRealmService = adminClient.getService(DynRealmService.class);
         userService = adminClient.getService(UserService.class);
         userSelfService = adminClient.getService(UserSelfService.class);
         userWorkflowService = adminClient.getService(UserWorkflowService.class);

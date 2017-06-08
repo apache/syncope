@@ -42,6 +42,8 @@ public class RoleTO extends AbstractBaseBean implements EntityTO {
 
     private final List<String> realms = new ArrayList<>();
 
+    private final List<String> dynRealms = new ArrayList<>();
+
     private String dynMembershipCond;
 
     @Override
@@ -67,6 +69,13 @@ public class RoleTO extends AbstractBaseBean implements EntityTO {
     @JsonProperty("realms")
     public List<String> getRealms() {
         return realms;
+    }
+
+    @XmlElementWrapper(name = "dynRealms")
+    @XmlElement(name = "dynRealm")
+    @JsonProperty("dynRealms")
+    public List<String> getDynRealms() {
+        return dynRealms;
     }
 
     public String getDynMembershipCond() {

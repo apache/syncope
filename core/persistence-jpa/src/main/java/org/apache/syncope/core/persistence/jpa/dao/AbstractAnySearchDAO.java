@@ -29,6 +29,8 @@ import javax.persistence.Entity;
 import javax.validation.ValidationException;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -38,6 +40,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
+import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
@@ -45,6 +48,7 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
+import org.apache.syncope.core.persistence.api.dao.search.DynRealmCond;
 import org.apache.syncope.core.persistence.api.dao.search.MemberCond;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
@@ -70,6 +74,9 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
     protected RealmDAO realmDAO;
 
     @Autowired
+    protected DynRealmDAO dynRealmDAO;
+
+    @Autowired
     protected AnyObjectDAO anyObjectDAO;
 
     @Autowired
@@ -90,6 +97,21 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
         AssignableCond assignableCond = new AssignableCond();
         assignableCond.setRealmFullPath(realmFullPath);
         return search(SearchCond.getLeafCond(assignableCond), kind);
+    }
+
+    protected SearchCond buildEffectiveCond(final SearchCond cond, final Set<String> dynRealmKeys) {
+        List<SearchCond> effectiveConds = CollectionUtils.collect(dynRealmKeys, new Transformer<String, SearchCond>() {
+
+            @Override
+            public SearchCond transform(final String input) {
+                DynRealmCond dynRealmCond = new DynRealmCond();
+                dynRealmCond.setDynRealm(input);
+                return SearchCond.getLeafCond(dynRealmCond);
+            }
+        }, new ArrayList<SearchCond>());
+        effectiveConds.add(cond);
+
+        return SearchCond.getAndCond(effectiveConds);
     }
 
     protected abstract int doCount(Set<String> adminRealms, SearchCond cond, AnyTypeKind kind);

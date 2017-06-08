@@ -18,22 +18,22 @@
  */
 package org.apache.syncope.core.persistence.api.dao.search;
 
-public class RoleCond extends AbstractSearchCond {
+public class DynRealmCond extends AbstractSearchCond {
 
-    private static final long serialVersionUID = 3581958527829522490L;
+    private static final long serialVersionUID = 9110213614796095482L;
 
-    private String role;
+    private String dynRealm;
 
-    public String getRole() {
-        return role;
+    public String getDynRealm() {
+        return dynRealm;
     }
 
-    public void setRole(final String role) {
-        this.role = role;
+    public void setDynRealm(final String dynRealm) {
+        this.dynRealm = dynRealm;
     }
 
     @Override
     public final boolean isValid() {
-        return role != null;
+        return dynRealm != null;
     }
 }

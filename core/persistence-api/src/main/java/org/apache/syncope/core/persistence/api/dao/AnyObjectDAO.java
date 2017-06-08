@@ -43,7 +43,7 @@ public interface AnyObjectDAO extends AnyDAO<AnyObject> {
 
     AnyObject authFindByName(String name);
 
-    List<Group> findDynGroups(AnyObject anyObject);
+    List<Group> findDynGroups(String key);
 
     List<ARelationship> findAllRelationships(AnyObject anyObject);
 

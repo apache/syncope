@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.api.search;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.UUID;
 import org.apache.syncope.common.lib.search.AnyObjectFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.search.GroupFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.search.SpecialAttr;
@@ -32,6 +33,7 @@ import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
 import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
+import org.apache.syncope.core.persistence.api.dao.search.DynRealmCond;
 import org.apache.syncope.core.persistence.api.dao.search.MemberCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipTypeCond;
@@ -109,7 +111,8 @@ public class SearchCondConverterTest {
 
     @Test
     public void nilike() {
-        String fiqlExpression = new UserFiqlSearchConditionBuilder().is("username").notEqualTolIgnoreCase("ros*").query();
+        String fiqlExpression = new UserFiqlSearchConditionBuilder().is("username").notEqualTolIgnoreCase("ros*").
+                query();
         assertEquals("username!~ros*", fiqlExpression);
 
         AttributeCond attrCond = new AnyCond(AttributeCond.Type.ILIKE);
@@ -193,8 +196,21 @@ public class SearchCondConverterTest {
         assertEquals(SpecialAttr.ROLES + "==User reviewer", fiqlExpression);
 
         RoleCond roleCond = new RoleCond();
-        roleCond.setRoleKey("User reviewer");
+        roleCond.setRole("User reviewer");
         SearchCond simpleCond = SearchCond.getLeafCond(roleCond);
+
+        assertEquals(simpleCond, SearchCondConverter.convert(fiqlExpression));
+    }
+
+    @Test
+    public void dynRealms() {
+        String dynRealm = UUID.randomUUID().toString();
+        String fiqlExpression = new UserFiqlSearchConditionBuilder().inDynRealms(dynRealm).query();
+        assertEquals(SpecialAttr.DYNREALMS + "==" + dynRealm, fiqlExpression);
+
+        DynRealmCond dynRealmCond = new DynRealmCond();
+        dynRealmCond.setDynRealm(dynRealm);
+        SearchCond simpleCond = SearchCond.getLeafCond(dynRealmCond);
 
         assertEquals(simpleCond, SearchCondConverter.convert(fiqlExpression));
     }

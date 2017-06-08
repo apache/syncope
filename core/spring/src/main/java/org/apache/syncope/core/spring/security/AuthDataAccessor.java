@@ -19,7 +19,6 @@
 package org.apache.syncope.core.spring.security;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -29,11 +28,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Resource;
-import org.apache.commons.collections4.Closure;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.collections4.Transformer;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -65,6 +63,7 @@ import org.apache.syncope.core.provisioning.api.ConnectorFactory;
 import org.apache.syncope.core.provisioning.api.EntitlementsHolder;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -91,6 +90,10 @@ public class AuthDataAccessor {
 
     protected static final Set<SyncopeGrantedAuthority> ANONYMOUS_AUTHORITIES =
             Collections.singleton(new SyncopeGrantedAuthority(StandardEntitlement.ANONYMOUS));
+
+    protected static final String[] GROUP_OWNER_ENTITLEMENTS = new String[] {
+        StandardEntitlement.GROUP_READ, StandardEntitlement.GROUP_UPDATE, StandardEntitlement.GROUP_DELETE
+    };
 
     @Resource(name = "adminUser")
     protected String adminUser;
@@ -282,39 +285,35 @@ public class AuthDataAccessor {
         if (user.isMustChangePassword()) {
             authorities.add(new SyncopeGrantedAuthority(StandardEntitlement.MUST_CHANGE_PASSWORD));
         } else {
-            final Map<String, Set<String>> entForRealms = new HashMap<>();
+            Map<String, Set<String>> entForRealms = new HashMap<>();
 
-            // Give entitlements as assigned by roles (with realms, where applicable) - assigned either
-            // statically and dynamically
-            for (final Role role : userDAO.findAllRoles(user)) {
-                IterableUtils.forEach(role.getEntitlements(), new Closure<String>() {
-
-                    @Override
-                    public void execute(final String entitlement) {
-                        Set<String> realms = entForRealms.get(entitlement);
-                        if (realms == null) {
-                            realms = new HashSet<>();
-                            entForRealms.put(entitlement, realms);
-                        }
-
-                        CollectionUtils.collect(role.getRealms(), new Transformer<Realm, String>() {
-
-                            @Override
-                            public String transform(final Realm realm) {
-                                return realm.getFullPath();
-                            }
-                        }, realms);
+            // Give entitlements as assigned by roles (with static or dynamic realms, where applicable) - assigned
+            // either statically and dynamically
+            for (Role role : userDAO.findAllRoles(user)) {
+                for (String entitlement : role.getEntitlements()) {
+                    Set<String> realms = entForRealms.get(entitlement);
+                    if (realms == null) {
+                        realms = new HashSet<>();
+                        entForRealms.put(entitlement, realms);
                     }
-                });
+
+                    CollectionUtils.collect(role.getRealms(), new Transformer<Realm, String>() {
+
+                        @Override
+                        public String transform(final Realm realm) {
+                            return realm.getFullPath();
+                        }
+                    }, realms);
+
+                    if (!entitlement.endsWith("_CREATE") && !entitlement.endsWith("_DELETE")) {
+                        CollectionUtils.collect(role.getDynRealms(), EntityUtils.keyTransformer(), realms);
+                    }
+                }
             }
 
             // Give group entitlements for owned groups
             for (Group group : groupDAO.findOwnedByUser(user.getKey())) {
-                for (String entitlement : Arrays.asList(
-                        StandardEntitlement.GROUP_READ,
-                        StandardEntitlement.GROUP_UPDATE,
-                        StandardEntitlement.GROUP_DELETE)) {
-
+                for (String entitlement : GROUP_OWNER_ENTITLEMENTS) {
                     Set<String> realms = entForRealms.get(entitlement);
                     if (realms == null) {
                         realms = new HashSet<>();
@@ -376,7 +375,7 @@ public class AuthDataAccessor {
                         + " for JWT " + authentication.getClaims().getTokenId());
             }
 
-            if (user.isSuspended() != null && user.isSuspended()) {
+            if (BooleanUtils.isTrue(user.isSuspended())) {
                 throw new DisabledException("User " + user.getUsername() + " is suspended");
             }
 
@@ -385,13 +384,9 @@ public class AuthDataAccessor {
                 throw new DisabledException("User " + user.getUsername() + " not allowed to authenticate");
             }
 
-            if (user.isMustChangePassword()) {
+            if (BooleanUtils.isTrue(user.isMustChangePassword())) {
                 authorities = Collections.singleton(
                         new SyncopeGrantedAuthority(StandardEntitlement.MUST_CHANGE_PASSWORD));
-            } else if (accessToken.getAuthorities() == null) {
-                LOG.debug("No authorities found in JWT, calculating...");
-
-                authorities = getUserAuthorities(user);
             } else {
                 LOG.debug("Authorities found in JWT, fetching...");
 
@@ -400,8 +395,8 @@ public class AuthDataAccessor {
                             ENCRYPTOR.decode(new String(accessToken.getAuthorities()), CipherAlgorithm.AES),
                             new TypeReference<Set<SyncopeGrantedAuthority>>() {
                     });
-                } catch (Exception e) {
-                    LOG.error("Could not read stored authorities", e);
+                } catch (Throwable t) {
+                    LOG.error("Could not read stored authorities", t);
                     authorities = Collections.emptySet();
                 }
             }

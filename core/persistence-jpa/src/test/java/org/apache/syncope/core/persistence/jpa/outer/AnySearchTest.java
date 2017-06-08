@@ -100,7 +100,7 @@ public class AnySearchTest extends AbstractTest {
 
         // 2. search user by this dynamic role
         RoleCond roleCond = new RoleCond();
-        roleCond.setRoleKey(role.getKey());
+        roleCond.setRole(role.getKey());
 
         List<User> users = searchDAO.search(SearchCond.getLeafCond(roleCond), AnyTypeKind.USER);
         assertNotNull(users);

@@ -186,6 +186,9 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
                     return user.getRealm().getFullPath().startsWith(realm);
                 }
             });
+            if (!authorized) {
+                authorized = !CollectionUtils.intersection(findDynRealms(user.getKey()), authRealms).isEmpty();
+            }
             if (authRealms == null || authRealms.isEmpty() || !authorized) {
                 throw new DelegatedAdministrationException(AnyTypeKind.USER, user.getKey());
             }
@@ -448,14 +451,16 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
 
         roleDAO.refreshDynMemberships(merged);
         groupDAO().refreshDynMemberships(merged);
+        dynRealmDAO().refreshDynMemberships(merged);
 
         return merged;
     }
 
     @Override
     public void delete(final User user) {
-        roleDAO.removeDynMemberships(user);
-        groupDAO.removeDynMemberships(user);
+        roleDAO.removeDynMemberships(user.getKey());
+        groupDAO().removeDynMemberships(user);
+        dynRealmDAO().removeDynMemberships(user.getKey());
 
         AccessToken accessToken = accessTokenDAO.findByOwner(user.getUsername());
         if (accessToken != null) {
@@ -470,21 +475,21 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
     public Collection<Role> findAllRoles(final User user) {
-        return CollectionUtils.union(user.getRoles(), findDynRoles(user));
+        return CollectionUtils.union(user.getRoles(), findDynRoles(user.getKey()));
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
-    public List<Role> findDynRoles(final User user) {
+    public List<Role> findDynRoles(final String key) {
         Query query = entityManager().createNativeQuery(
                 "SELECT role_id FROM " + JPARoleDAO.DYNMEMB_TABLE + " WHERE any_id=?");
-        query.setParameter(1, user.getKey());
+        query.setParameter(1, key);
 
         List<Role> result = new ArrayList<>();
-        for (Object key : query.getResultList()) {
-            String actualKey = key instanceof Object[]
-                    ? (String) ((Object[]) key)[0]
-                    : ((String) key);
+        for (Object resultKey : query.getResultList()) {
+            String actualKey = resultKey instanceof Object[]
+                    ? (String) ((Object[]) resultKey)[0]
+                    : ((String) resultKey);
 
             Role role = roleDAO.find(actualKey);
             if (role == null) {
@@ -498,16 +503,16 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
-    public List<Group> findDynGroups(final User user) {
+    public List<Group> findDynGroups(final String key) {
         Query query = entityManager().createNativeQuery(
                 "SELECT group_id FROM " + JPAGroupDAO.UDYNMEMB_TABLE + " WHERE any_id=?");
-        query.setParameter(1, user.getKey());
+        query.setParameter(1, key);
 
         List<Group> result = new ArrayList<>();
-        for (Object key : query.getResultList()) {
-            String actualKey = key instanceof Object[]
-                    ? (String) ((Object[]) key)[0]
-                    : ((String) key);
+        for (Object resultKey : query.getResultList()) {
+            String actualKey = resultKey instanceof Object[]
+                    ? (String) ((Object[]) resultKey)[0]
+                    : ((String) resultKey);
 
             Group group = groupDAO().find(actualKey);
             if (group == null) {
@@ -530,7 +535,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
                         return input.getRightEnd();
                     }
                 }, new ArrayList<Group>()),
-                findDynGroups(user));
+                findDynGroups(user.getKey()));
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)

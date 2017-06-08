@@ -121,6 +121,8 @@ public class JPARoleDAO extends AbstractDAO<Role> implements RoleDAO {
             publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, user, AuthContextUtils.getDomain()));
         }
 
+        clearDynMembers(role);
+
         entityManager().remove(role);
     }
 
@@ -183,9 +185,9 @@ public class JPARoleDAO extends AbstractDAO<Role> implements RoleDAO {
     }
 
     @Override
-    public void removeDynMemberships(final User user) {
+    public void removeDynMemberships(final String key) {
         Query delete = entityManager().createNativeQuery("DELETE FROM " + DYNMEMB_TABLE + " WHERE any_id=?");
-        delete.setParameter(1, user.getKey());
+        delete.setParameter(1, key);
         delete.executeUpdate();
     }
 

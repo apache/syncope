@@ -39,7 +39,6 @@ import org.apache.syncope.common.lib.types.AnyEntitlement;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PatchOperation;
-import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
@@ -60,9 +59,6 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Component
 public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch> {
-
-    @Autowired
-    protected AnyObjectDAO anyObjectDAO;
 
     @Autowired
     protected AnySearchDAO searchDAO;

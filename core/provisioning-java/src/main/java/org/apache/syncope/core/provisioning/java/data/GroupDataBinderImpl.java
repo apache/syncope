@@ -231,7 +231,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         }
 
         group = groupDAO.save(group);
-        
+
         // dynamic membership
         if (groupPatch.getUDynMembershipCond() == null) {
             if (group.getUDynMembership() != null) {
@@ -344,6 +344,11 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
                 virAttrValues,
                 group.getResources(),
                 details);
+
+        if (details) {
+            // dynamic realms
+            groupTO.getDynRealms().addAll(groupDAO.findDynRealms(group.getKey()));
+        }
 
         if (group.getUDynMembership() != null) {
             groupTO.setUDynMembershipCond(group.getUDynMembership().getFIQLCond());

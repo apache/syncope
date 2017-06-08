@@ -29,6 +29,9 @@ under the License.
   <entry key="DynRoleMembers_any_id">CREATE INDEX DynRoleMembers_any_id ON DynRoleMembers(any_id)</entry>
   <entry key="DynRoleMembers_role_id">CREATE INDEX DynRoleMembers_role_id ON DynRoleMembers(role_id)</entry>
 
+  <entry key="DynRealmMembers_any_id">CREATE INDEX DynRealmMembers_any_id ON DynRealmMembers(any_id)</entry>
+  <entry key="DynRealmMembers_realm_id">CREATE INDEX DynRealmMembers_dynRealm_id ON DynRealmMembers(dynRealm_id)</entry>
+
   <entry key="UPlainAttrValue_stringvalueIndex">CREATE INDEX UAttrValue_stringvalueIndex ON UPlainAttrValue(stringvalue)</entry>
   <entry key="UPlainAttrValue_datevalueIndex">CREATE INDEX UAttrValue_datevalueIndex ON UPlainAttrValue(datevalue)</entry>
   <entry key="UPlainAttrValue_longvalueIndex">CREATE INDEX UAttrValue_longvalueIndex ON UPlainAttrValue(longvalue)</entry>

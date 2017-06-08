@@ -16,24 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.dao.search;
+package org.apache.syncope.core.persistence.jpa.validation.entity;
 
-public class RoleCond extends AbstractSearchCond {
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-    private static final long serialVersionUID = 3581958527829522490L;
+import javax.validation.Constraint;
+import javax.validation.Payload;
 
-    private String role;
+@Target({ ElementType.TYPE })
+@Retention(RetentionPolicy.RUNTIME)
+@Constraint(validatedBy = DynRealmValidator.class)
+@Documented
+public @interface DynRealmCheck {
 
-    public String getRole() {
-        return role;
-    }
+    String message() default "{org.apache.syncope.core.persistence.validation.dynrealm}";
 
-    public void setRole(final String role) {
-        this.role = role;
-    }
+    Class<?>[] groups() default {};
 
-    @Override
-    public final boolean isValid() {
-        return role != null;
-    }
+    Class<? extends Payload>[] payload() default {};
 }

@@ -102,6 +102,9 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                 details);
 
         if (details) {
+            // dynamic realms
+            anyObjectTO.getDynRealms().addAll(userDAO.findDynRealms(anyObject.getKey()));
+
             // relationships
             CollectionUtils.collect(anyObject.getRelationships(), new Transformer<ARelationship, RelationshipTO>() {
 
@@ -126,7 +129,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
             }, anyObjectTO.getMemberships());
 
             // dynamic memberships
-            CollectionUtils.collect(anyObjectDAO.findDynGroups(anyObject),
+            CollectionUtils.collect(anyObjectDAO.findDynGroups(anyObject.getKey()),
                     EntityUtils.<Group>keyTransformer(), anyObjectTO.getDynGroups());
         }
 

@@ -125,7 +125,7 @@ public class ExceptionMapperITCase extends AbstractITCase {
             fail();
         } catch (Exception e) {
             String message = ERROR_MESSAGES.getProperty("errMessage.UniqueConstraintViolation");
-            assertEquals(e.getMessage(), "DataIntegrityViolation [" + message + "]");
+            assertEquals("EntityExists [" + message + "]", e.getMessage());
         }
     }
 
