@@ -185,7 +185,7 @@ public final class ActionPanel<T extends Serializable> extends Panel {
             case CREATE:
             case MEMBERS:
             case CLAIM:
-                send(this, Broadcast.BUBBLE, new ActionLinksTogglePanel.ActionLinkTogleCloseEventPayload(target));
+                send(this, Broadcast.BUBBLE, new ActionLinksTogglePanel.ActionLinkToggleCloseEventPayload(target));
                 break;
             default:
                 break;

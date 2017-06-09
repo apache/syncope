@@ -16,28 +16,32 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.client.console.layout;
+package org.apache.syncope.client.console.rest;
 
-import org.apache.syncope.client.console.wizards.any.AnyObjectWizardBuilder;
-import org.apache.syncope.common.lib.to.AnyObjectTO;
+import java.util.List;
+import org.apache.syncope.common.lib.to.DynRealmTO;
+import org.apache.syncope.common.rest.api.service.DynRealmService;
 
-public class AnyObjectFormLayoutInfo extends AbstractAnyFormLayout<AnyObjectTO, AnyObjectForm> {
+/**
+ * Console client for invoking REST DynRealm's services.
+ */
+public class DynRealmRestClient extends BaseRestClient {
 
-    private static final long serialVersionUID = -5573691733739618500L;
+    private static final long serialVersionUID = -8549081557283519638L;
 
-    private boolean relationships = true;
-
-    @Override
-    protected Class<? extends AnyObjectForm> getDefaultFormClass() {
-        return AnyObjectWizardBuilder.class;
+    public List<DynRealmTO> list() {
+        return getService(DynRealmService.class).list();
     }
 
-    public boolean isRelationships() {
-        return relationships;
+    public void create(final DynRealmTO dynRealmTO) {
+        getService(DynRealmService.class).create(dynRealmTO);
     }
 
-    public void setRelationships(final boolean relationships) {
-        this.relationships = relationships;
+    public void update(final DynRealmTO dynRealmTO) {
+        getService(DynRealmService.class).update(dynRealmTO);
     }
 
+    public void delete(final String key) {
+        getService(DynRealmService.class).delete(key);
+    }
 }

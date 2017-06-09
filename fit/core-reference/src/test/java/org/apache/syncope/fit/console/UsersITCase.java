@@ -192,7 +192,7 @@ public class UsersITCase extends AbstractConsoleITCase {
         formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);
 
-        formTester.setValue("view:groups:paletteField:recorder", "additional,root,otherchild");
+        formTester.setValue("view:groupsContainer:groups:paletteField:recorder", "additional,root,otherchild");
         TESTER.executeAjaxEvent(
                 TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form:buttons:next", Constants.ON_CLICK);
 
@@ -240,7 +240,7 @@ public class UsersITCase extends AbstractConsoleITCase {
 
         formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
         assertNotNull(formTester);
-        formTester.setValue("view:groups:paletteField:recorder", "root,otherchild");
+        formTester.setValue("view:groupsContainer:groups:paletteField:recorder", "root,otherchild");
         TESTER.executeAjaxEvent(
                 TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form:buttons:finish", Constants.ON_CLICK);
 

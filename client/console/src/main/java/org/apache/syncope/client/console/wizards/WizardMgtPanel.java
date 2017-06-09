@@ -124,9 +124,9 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 send(WizardMgtPanel.this, Broadcast.BREADTH,
-                        new ActionLinksTogglePanel.ActionLinkTogleCloseEventPayload(target));
+                        new ActionLinksTogglePanel.ActionLinkToggleCloseEventPayload(target));
                 send(WizardMgtPanel.this, Broadcast.EXACT,
-                        new AjaxWizard.NewItemActionEvent<T>(null, target));
+                        new AjaxWizard.NewItemActionEvent<>(null, target));
             }
         };
 

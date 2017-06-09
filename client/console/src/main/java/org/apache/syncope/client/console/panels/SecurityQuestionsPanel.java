@@ -87,8 +87,8 @@ public class SecurityQuestionsPanel extends DirectoryPanel<
             @Override
             public WizardModalPanel<SecurityQuestionTO> build(
                     final String id, final int index, final AjaxWizard.Mode mode) {
-                final SecurityQuestionTO modelObject = newModelObject();
-                return new SecurityQuestionsModalPanel(modal, modelObject, pageRef);
+
+                return new SecurityQuestionsModalPanel(modal, newModelObject(), pageRef);
             }
         }, true);
 

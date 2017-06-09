@@ -31,6 +31,8 @@ public abstract class AbstractAnyFormLayout<A extends AnyTO, F extends AnyForm<A
 
     private boolean auxClasses = true;
 
+    private boolean groups = true;
+
     private boolean plainAttrs = true;
 
     private final List<String> whichPlainAttrs = new ArrayList<>();
@@ -61,6 +63,14 @@ public abstract class AbstractAnyFormLayout<A extends AnyTO, F extends AnyForm<A
 
     public void setAuxClasses(final boolean auxClasses) {
         this.auxClasses = auxClasses;
+    }
+
+    public boolean isGroups() {
+        return groups;
+    }
+
+    public void setGroups(final boolean groups) {
+        this.groups = groups;
     }
 
     public boolean isPlainAttrs() {
