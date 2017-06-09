@@ -25,7 +25,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.pages.Notifications;
 import org.apache.syncope.client.console.pages.Policies;
-import org.apache.syncope.client.console.pages.Roles;
+import org.apache.syncope.client.console.pages.Administration;
 import org.apache.syncope.client.console.pages.SecurityQuestions;
 import org.apache.syncope.client.console.pages.Types;
 import org.apache.syncope.client.console.topology.Topology;
@@ -113,7 +113,7 @@ public class CompletenessWidget extends BaseWidget {
         actions.add(securityquestions);
         securityquestions.setVisible(!confCompleteness.get(NumbersInfo.ConfItem.SECURITY_QUESTION));
 
-        roles = BookmarkablePageLinkBuilder.build("roles", Roles.class);
+        roles = BookmarkablePageLinkBuilder.build("roles", Administration.class);
         roles.setOutputMarkupPlaceholderTag(true);
         MetaDataRoleAuthorizationStrategy.authorize(roles, WebPage.ENABLE, StandardEntitlement.ROLE_LIST);
         actions.add(roles);

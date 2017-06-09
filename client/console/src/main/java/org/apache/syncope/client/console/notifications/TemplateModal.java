@@ -50,8 +50,8 @@ public class TemplateModal<T extends EntityTO, F> extends AbstractModalPanel<T> 
         this.restClient = restClient;
         this.templateTO = templateTO;
 
-        final AjaxTextFieldPanel key
-                = new AjaxTextFieldPanel("key", "key", new PropertyModel<String>(templateTO, "key"), false);
+        AjaxTextFieldPanel key = new AjaxTextFieldPanel(
+                "key", "key", new PropertyModel<String>(templateTO, "key"), false);
         key.setOutputMarkupPlaceholderTag(true);
         add(key.setRenderBodyOnly(true));
     }

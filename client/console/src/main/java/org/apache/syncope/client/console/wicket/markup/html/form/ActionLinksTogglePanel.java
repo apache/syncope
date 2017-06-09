@@ -140,16 +140,16 @@ public class ActionLinksTogglePanel<T extends Serializable> extends TogglePanel<
 
     @Override
     public void onEvent(final IEvent<?> event) {
-        if (event.getPayload() instanceof ActionLinkTogleCloseEventPayload) {
-            close(ActionLinkTogleCloseEventPayload.class.cast(event.getPayload()).getTarget());
+        if (event.getPayload() instanceof ActionLinkToggleCloseEventPayload) {
+            close(ActionLinkToggleCloseEventPayload.class.cast(event.getPayload()).getTarget());
         }
     }
 
-    public static class ActionLinkTogleCloseEventPayload {
+    public static class ActionLinkToggleCloseEventPayload {
 
         private final AjaxRequestTarget target;
 
-        public ActionLinkTogleCloseEventPayload(final AjaxRequestTarget target) {
+        public ActionLinkToggleCloseEventPayload(final AjaxRequestTarget target) {
             this.target = target;
         }
 

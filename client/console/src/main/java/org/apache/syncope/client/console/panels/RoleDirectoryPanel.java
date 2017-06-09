@@ -300,7 +300,7 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
 
         @Override
         public long size() {
-            return restClient.count();
+            return restClient.list().size();
         }
 
         @Override

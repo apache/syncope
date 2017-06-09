@@ -48,8 +48,11 @@ public class DynRealmDataBinderImpl implements DynRealmDataBinder {
     public DynRealm update(final DynRealm dynRealm, final DynRealmTO dynRealmTO) {
         dynRealm.setKey(dynRealmTO.getKey());
 
-        SearchCond cond = SearchCondConverter.convert(dynRealmTO.getCond());
-        if (!cond.isValid()) {
+        SearchCond cond = null;
+        if (dynRealmTO.getCond() != null) {
+            cond = SearchCondConverter.convert(dynRealmTO.getCond());
+        }
+        if (cond == null || !cond.isValid()) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSearchExpression);
             sce.getElements().add(dynRealmTO.getCond());
             throw sce;

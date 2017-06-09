@@ -47,7 +47,7 @@ public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> implements Gro
     }
 
     /**
-     * This method has been overridden to manage asynchronous translation of FIQL string to search clases list and
+     * This method has been overridden to manage asynchronous translation of FIQL string to search classes list and
      * viceversa.
      *
      * @param item wizard backend item.

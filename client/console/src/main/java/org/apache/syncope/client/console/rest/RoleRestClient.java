@@ -55,10 +55,6 @@ public class RoleRestClient extends BaseRestClient {
         return getService(RoleService.class).list();
     }
 
-    public int count() {
-        return getService(RoleService.class).list().size();
-    }
-
     public String readConsoleLayoutInfo(final String roleKey) {
         try {
             return IOUtils.toString(InputStream.class.cast(

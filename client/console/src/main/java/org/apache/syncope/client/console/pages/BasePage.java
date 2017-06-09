@@ -203,9 +203,9 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
         MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, StandardEntitlement.SCHEMA_LIST);
         liContainer.add(link);
 
-        liContainer = new WebMarkupContainer(getLIContainerId("roles"));
+        liContainer = new WebMarkupContainer(getLIContainerId("administration"));
         confULContainer.add(liContainer);
-        link = BookmarkablePageLinkBuilder.build("roles", Roles.class);
+        link = BookmarkablePageLinkBuilder.build("administration", Administration.class);
         MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, StandardEntitlement.ROLE_LIST);
         liContainer.add(link);
 
@@ -312,9 +312,9 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
         }
 
         // Extensions
-        ClassPathScanImplementationLookup classPathScanImplementationLookup
-                = (ClassPathScanImplementationLookup) SyncopeConsoleApplication.get().
-                getServletContext().getAttribute(ConsoleInitializer.CLASSPATH_LOOKUP);
+        ClassPathScanImplementationLookup classPathScanImplementationLookup =
+                (ClassPathScanImplementationLookup) SyncopeConsoleApplication.get().
+                        getServletContext().getAttribute(ConsoleInitializer.CLASSPATH_LOOKUP);
         List<Class<? extends BaseExtPage>> extPageClasses = classPathScanImplementationLookup.getExtPageClasses();
 
         WebMarkupContainer extensionsLI = new WebMarkupContainer(getLIContainerId("extensions"));

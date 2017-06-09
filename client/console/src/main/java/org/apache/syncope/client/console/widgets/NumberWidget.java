@@ -30,7 +30,7 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.syncope.client.console.pages.Realms;
-import org.apache.syncope.client.console.pages.Roles;
+import org.apache.syncope.client.console.pages.Administration;
 import org.apache.syncope.client.console.topology.Topology;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.request.component.IRequestablePage;
@@ -81,7 +81,7 @@ public class NumberWidget extends BaseWidget {
                     responsePage = Realms.class;
                     isAuthorized = SyncopeConsoleSession.get().owns(label + "_SEARCH");
                 } else {
-                    responsePage = Roles.class;
+                    responsePage = Administration.class;
                     isAuthorized = SyncopeConsoleSession.get().owns(StandardEntitlement.ROLE_LIST);
                 }
                 break;
