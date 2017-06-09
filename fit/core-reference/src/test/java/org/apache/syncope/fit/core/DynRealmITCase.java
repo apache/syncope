@@ -113,13 +113,12 @@ public class DynRealmITCase extends AbstractITCase {
             role = createRole(role);
             assertNotNull(role);
 
-            // 3. assign the new role to vivaldi
-            UserPatch userPatch = new UserPatch();
-            userPatch.setKey("b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee");
-            userPatch.getRoles().add(new StringPatchItem.Builder().value(role.getKey()).build());
-            UserTO vivaldi = updateUser(userPatch).getEntity();
-            assertNotNull(vivaldi);
-            assertTrue(vivaldi.getRoles().contains(role.getKey()));
+            // 3. create new user and assign the new role
+            UserTO dynRealmAdmin = UserITCase.getUniqueSampleTO("dynRealmAdmin@apache.org");
+            dynRealmAdmin.setPassword("password123");
+            dynRealmAdmin.getRoles().add(role.getKey());
+            dynRealmAdmin = createUser(dynRealmAdmin).getEntity();
+            assertNotNull(dynRealmAdmin);
 
             // 4. create new user and group, assign resource-ldap
             UserTO user = UserITCase.getUniqueSampleTO("dynRealmUser@apache.org");
@@ -158,20 +157,20 @@ public class DynRealmITCase extends AbstractITCase {
                 }
             }));
 
-            // 6. perpare to act as vivaldi
-            SyncopeClient vivaldiClient = clientFactory.create("vivaldi", ADMIN_PWD);
-            UserService vivaldiUserService = vivaldiClient.getService(UserService.class);
-            GroupService vivaldiGroupService = vivaldiClient.getService(GroupService.class);
+            // 6. prepare to act as delegated admin
+            SyncopeClient delegatedClient = clientFactory.create(dynRealmAdmin.getUsername(), "password123");
+            UserService delegatedUserService = delegatedClient.getService(UserService.class);
+            GroupService delegatedGroupService = delegatedClient.getService(GroupService.class);
 
             // 7. verify delegated administration
             // USER_READ
-            assertNotNull(vivaldiUserService.read(userKey));
+            assertNotNull(delegatedUserService.read(userKey));
 
             // GROUP_READ
-            assertNotNull(vivaldiGroupService.read(groupKey));
+            assertNotNull(delegatedGroupService.read(groupKey));
 
             // USER_SEARCH
-            matchingUsers = vivaldiUserService.search(new AnyQuery.Builder().realm("/").build());
+            matchingUsers = delegatedUserService.search(new AnyQuery.Builder().realm("/").build());
             assertTrue(IterableUtils.matchesAny(matchingUsers.getResult(), new Predicate<UserTO>() {
 
                 @Override
@@ -181,10 +180,10 @@ public class DynRealmITCase extends AbstractITCase {
             }));
 
             // USER_UPDATE
-            userPatch = new UserPatch();
+            UserPatch userPatch = new UserPatch();
             userPatch.setKey(userKey);
             userPatch.getResources().add(new StringPatchItem.Builder().value(RESOURCE_NAME_NOPROPAGATION).build());
-            user = vivaldiUserService.update(userPatch).
+            user = delegatedUserService.update(userPatch).
                     readEntity(new GenericType<ProvisioningResult<UserTO>>() {
                     }).getEntity();
             assertNotNull(user);
@@ -194,7 +193,7 @@ public class DynRealmITCase extends AbstractITCase {
             GroupPatch groupPatch = new GroupPatch();
             groupPatch.setKey(groupKey);
             groupPatch.getPlainAttrs().add(new AttrPatch.Builder().attrTO(attrTO("icon", "modified")).build());
-            group = vivaldiGroupService.update(groupPatch).
+            group = delegatedGroupService.update(groupPatch).
                     readEntity(new GenericType<ProvisioningResult<GroupTO>>() {
                     }).getEntity();
             assertNotNull(group);
