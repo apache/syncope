@@ -99,7 +99,9 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
             builder = sce.isComposite()
                     ? getSyncopeClientCompositeExceptionResponse(sce.asComposite())
                     : getSyncopeClientExceptionResponse(sce);
-        } else if (ex instanceof DelegatedAdministrationException) {
+        } else if (ex instanceof DelegatedAdministrationException
+                || ExceptionUtils.getRootCause(ex) instanceof DelegatedAdministrationException) {
+
             builder = builder(ClientExceptionType.DelegatedAdministration, ExceptionUtils.getRootCauseMessage(ex));
         } else if (ex instanceof EntityExistsException || ex instanceof DuplicateException
                 || ex instanceof PersistenceException && ex.getCause() instanceof EntityExistsException) {

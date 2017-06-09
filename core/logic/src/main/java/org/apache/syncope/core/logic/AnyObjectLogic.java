@@ -22,6 +22,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
@@ -158,7 +159,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
 
         Pair<String, List<PropagationStatus>> created = provisioningManager.create(before.getLeft(), nullPriorityAsync);
 
-        return after(binder.getAnyObjectTO(created.getKey()), created.getRight(), before.getRight());
+        return afterCreate(binder.getAnyObjectTO(created.getKey()), created.getRight(), before.getRight());
     }
 
     @Override
@@ -166,6 +167,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
             final AnyObjectPatch anyObjectPatch, final boolean nullPriorityAsync) {
 
         AnyObjectTO anyObjectTO = binder.getAnyObjectTO(anyObjectPatch.getKey());
+        Set<String> dynRealmsBefore = new HashSet<>(anyObjectTO.getDynRealms());
         Pair<AnyObjectPatch, List<LogicActions>> before = beforeUpdate(anyObjectPatch, anyObjectTO.getRealm());
 
         String realm =
@@ -175,11 +177,16 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
         Set<String> effectiveRealms = getEffectiveRealms(
                 AuthContextUtils.getAuthorizations().get(AnyEntitlement.UPDATE.getFor(anyObjectTO.getType())),
                 realm);
-        securityChecks(effectiveRealms, realm, before.getLeft().getKey());
+        boolean authDynRealms = securityChecks(effectiveRealms, realm, before.getLeft().getKey());
 
         Pair<String, List<PropagationStatus>> updated = provisioningManager.update(anyObjectPatch, nullPriorityAsync);
 
-        return after(binder.getAnyObjectTO(updated.getKey()), updated.getRight(), before.getRight());
+        return afterUpdate(
+                binder.getAnyObjectTO(updated.getKey()),
+                updated.getRight(),
+                before.getRight(),
+                authDynRealms,
+                dynRealmsBefore);
     }
 
     @Override
@@ -197,7 +204,7 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
         AnyObjectTO anyObjectTO = new AnyObjectTO();
         anyObjectTO.setKey(before.getLeft().getKey());
 
-        return after(anyObjectTO, statuses, before.getRight());
+        return afterDelete(anyObjectTO, statuses, before.getRight());
     }
 
     @Override

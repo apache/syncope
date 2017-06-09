@@ -190,7 +190,8 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
                 authorized = !CollectionUtils.intersection(findDynRealms(user.getKey()), authRealms).isEmpty();
             }
             if (authRealms == null || authRealms.isEmpty() || !authorized) {
-                throw new DelegatedAdministrationException(AnyTypeKind.USER, user.getKey());
+                throw new DelegatedAdministrationException(
+                        user.getRealm().getFullPath(), AnyTypeKind.USER, user.getKey());
             }
         }
     }

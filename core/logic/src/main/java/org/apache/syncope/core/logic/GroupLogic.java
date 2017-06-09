@@ -22,6 +22,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -109,17 +110,22 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
     protected EntityFactory entityFactory;
 
     @Override
-    protected void securityChecks(final Set<String> effectiveRealms, final String realm, final String key) {
-        if (!IterableUtils.matchesAny(effectiveRealms, new Predicate<String>() {
+    protected boolean securityChecks(final Set<String> effectiveRealms, final String realm, final String key) {
+        boolean authorized = IterableUtils.matchesAny(effectiveRealms, new Predicate<String>() {
 
             @Override
             public boolean evaluate(final String ownedRealm) {
                 return realm.startsWith(ownedRealm) || ownedRealm.equals(RealmUtils.getGroupOwnerRealm(realm, key));
             }
-        })) {
-
-            throw new DelegatedAdministrationException(AnyTypeKind.GROUP, key);
+        });
+        if (!authorized) {
+            authorized = !CollectionUtils.intersection(groupDAO.findDynRealms(key), effectiveRealms).isEmpty();
         }
+        if (!authorized) {
+            throw new DelegatedAdministrationException(realm, AnyTypeKind.GROUP, key);
+        }
+
+        return IterableUtils.matchesAny(effectiveRealms, new AbstractAnyLogic.DynRealmsPredicate());
     }
 
     @Transactional(readOnly = true)
@@ -239,25 +245,33 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
         Pair<String, List<PropagationStatus>> created =
                 provisioningManager.create(before.getLeft(), nullPriorityAsync);
 
-        return after(binder.getGroupTO(created.getKey()), created.getRight(), before.getRight());
+        return afterCreate(binder.getGroupTO(created.getKey()), created.getRight(), before.getRight());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.GROUP_UPDATE + "')")
     @Override
     public ProvisioningResult<GroupTO> update(final GroupPatch groupPatch, final boolean nullPriorityAsync) {
         GroupTO groupTO = binder.getGroupTO(groupPatch.getKey());
+        Set<String> dynRealmsBefore = new HashSet<>(groupTO.getDynRealms());
         Pair<GroupPatch, List<LogicActions>> before = beforeUpdate(groupPatch, groupTO.getRealm());
 
-        if (before.getLeft().getRealm() != null && StringUtils.isNotBlank(before.getLeft().getRealm().getValue())) {
-            Set<String> effectiveRealms = getEffectiveRealms(
-                    AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_UPDATE),
-                    before.getLeft().getRealm().getValue());
-            securityChecks(effectiveRealms, before.getLeft().getRealm().getValue(), before.getLeft().getKey());
-        }
+        String realm =
+                before.getLeft().getRealm() != null && StringUtils.isNotBlank(before.getLeft().getRealm().getValue())
+                ? before.getLeft().getRealm().getValue()
+                : groupTO.getRealm();
+        Set<String> effectiveRealms = getEffectiveRealms(
+                AuthContextUtils.getAuthorizations().get(StandardEntitlement.GROUP_UPDATE),
+                realm);
+        boolean authDynRealms = securityChecks(effectiveRealms, realm, before.getLeft().getKey());
 
         Pair<String, List<PropagationStatus>> updated = provisioningManager.update(groupPatch, nullPriorityAsync);
 
-        return after(binder.getGroupTO(updated.getKey()), updated.getRight(), before.getRight());
+        return afterUpdate(
+                binder.getGroupTO(updated.getKey()),
+                updated.getRight(),
+                before.getRight(),
+                authDynRealms,
+                dynRealmsBefore);
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.GROUP_DELETE + "')")
@@ -290,7 +304,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
         GroupTO groupTO = new GroupTO();
         groupTO.setKey(before.getLeft().getKey());
 
-        return after(groupTO, statuses, before.getRight());
+        return afterDelete(groupTO, statuses, before.getRight());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.GROUP_UPDATE + "')")

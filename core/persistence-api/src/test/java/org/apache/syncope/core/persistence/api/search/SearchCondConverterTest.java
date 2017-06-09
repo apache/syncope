@@ -43,231 +43,227 @@ public class SearchCondConverterTest {
 
     @Test
     public void eq() {
-        String fiqlExpression = new UserFiqlSearchConditionBuilder().is("username").equalTo("rossini").query();
-        assertEquals("username==rossini", fiqlExpression);
+        String fiql = new UserFiqlSearchConditionBuilder().is("username").equalTo("rossini").query();
+        assertEquals("username==rossini", fiql);
 
         AnyCond attrCond = new AnyCond(AttributeCond.Type.EQ);
         attrCond.setSchema("username");
         attrCond.setExpression("rossini");
         SearchCond simpleCond = SearchCond.getLeafCond(attrCond);
 
-        assertEquals(simpleCond, SearchCondConverter.convert(fiqlExpression));
+        assertEquals(simpleCond, SearchCondConverter.convert(fiql));
     }
 
     @Test
     public void ieq() {
-        String fiqlExpression = new UserFiqlSearchConditionBuilder().
-                is("username").equalToIgnoreCase("rossini").query();
-        assertEquals("username=~rossini", fiqlExpression);
+        String fiql = new UserFiqlSearchConditionBuilder().is("username").equalToIgnoreCase("rossini").query();
+        assertEquals("username=~rossini", fiql);
 
         AnyCond attrCond = new AnyCond(AttributeCond.Type.IEQ);
         attrCond.setSchema("username");
         attrCond.setExpression("rossini");
         SearchCond simpleCond = SearchCond.getLeafCond(attrCond);
 
-        assertEquals(simpleCond, SearchCondConverter.convert(fiqlExpression));
+        assertEquals(simpleCond, SearchCondConverter.convert(fiql));
     }
 
     @Test
     public void nieq() {
-        String fiqlExpression = new UserFiqlSearchConditionBuilder().
-                is("username").notEqualTolIgnoreCase("rossini").query();
-        assertEquals("username!~rossini", fiqlExpression);
+        String fiql = new UserFiqlSearchConditionBuilder().is("username").notEqualTolIgnoreCase("rossini").query();
+        assertEquals("username!~rossini", fiql);
 
         AnyCond attrCond = new AnyCond(AttributeCond.Type.IEQ);
         attrCond.setSchema("username");
         attrCond.setExpression("rossini");
         SearchCond simpleCond = SearchCond.getNotLeafCond(attrCond);
 
-        assertEquals(simpleCond, SearchCondConverter.convert(fiqlExpression));
+        assertEquals(simpleCond, SearchCondConverter.convert(fiql));
     }
 
     @Test
     public void like() {
-        String fiqlExpression = new UserFiqlSearchConditionBuilder().is("username").equalTo("ros*").query();
-        assertEquals("username==ros*", fiqlExpression);
+        String fiql = new UserFiqlSearchConditionBuilder().is("username").equalTo("ros*").query();
+        assertEquals("username==ros*", fiql);
 
         AttributeCond attrCond = new AnyCond(AttributeCond.Type.LIKE);
         attrCond.setSchema("username");
         attrCond.setExpression("ros%");
         SearchCond simpleCond = SearchCond.getLeafCond(attrCond);
 
-        assertEquals(simpleCond, SearchCondConverter.convert(fiqlExpression));
+        assertEquals(simpleCond, SearchCondConverter.convert(fiql));
     }
 
     @Test
     public void ilike() {
-        String fiqlExpression = new UserFiqlSearchConditionBuilder().is("username").
-                equalToIgnoreCase("ros*").query();
-        assertEquals("username=~ros*", fiqlExpression);
+        String fiql = new UserFiqlSearchConditionBuilder().is("username").equalToIgnoreCase("ros*").query();
+        assertEquals("username=~ros*", fiql);
 
         AttributeCond attrCond = new AnyCond(AttributeCond.Type.ILIKE);
         attrCond.setSchema("username");
         attrCond.setExpression("ros%");
         SearchCond simpleCond = SearchCond.getLeafCond(attrCond);
 
-        assertEquals(simpleCond, SearchCondConverter.convert(fiqlExpression));
+        assertEquals(simpleCond, SearchCondConverter.convert(fiql));
     }
 
     @Test
     public void nilike() {
-        String fiqlExpression = new UserFiqlSearchConditionBuilder().is("username").notEqualTolIgnoreCase("ros*").
-                query();
-        assertEquals("username!~ros*", fiqlExpression);
+        String fiql = new UserFiqlSearchConditionBuilder().is("username").notEqualTolIgnoreCase("ros*").query();
+        assertEquals("username!~ros*", fiql);
 
         AttributeCond attrCond = new AnyCond(AttributeCond.Type.ILIKE);
         attrCond.setSchema("username");
         attrCond.setExpression("ros%");
         SearchCond simpleCond = SearchCond.getNotLeafCond(attrCond);
 
-        assertEquals(simpleCond, SearchCondConverter.convert(fiqlExpression));
+        assertEquals(simpleCond, SearchCondConverter.convert(fiql));
     }
 
     @Test
     public void isNull() {
-        String fiqlExpression = new UserFiqlSearchConditionBuilder().is("loginDate").nullValue().query();
-        assertEquals("loginDate==" + SpecialAttr.NULL, fiqlExpression);
+        String fiql = new UserFiqlSearchConditionBuilder().is("loginDate").nullValue().query();
+        assertEquals("loginDate==" + SpecialAttr.NULL, fiql);
 
         AttributeCond attrCond = new AttributeCond(AttributeCond.Type.ISNULL);
         attrCond.setSchema("loginDate");
         SearchCond simpleCond = SearchCond.getLeafCond(attrCond);
 
-        assertEquals(simpleCond, SearchCondConverter.convert(fiqlExpression));
+        assertEquals(simpleCond, SearchCondConverter.convert(fiql));
     }
 
     @Test
     public void isNotNull() {
-        String fiqlExpression = new UserFiqlSearchConditionBuilder().is("loginDate").notNullValue().query();
-        assertEquals("loginDate!=" + SpecialAttr.NULL, fiqlExpression);
+        String fiql = new UserFiqlSearchConditionBuilder().is("loginDate").notNullValue().query();
+        assertEquals("loginDate!=" + SpecialAttr.NULL, fiql);
 
         AttributeCond attrCond = new AttributeCond(AttributeCond.Type.ISNOTNULL);
         attrCond.setSchema("loginDate");
         SearchCond simpleCond = SearchCond.getLeafCond(attrCond);
 
-        assertEquals(simpleCond, SearchCondConverter.convert(fiqlExpression));
+        assertEquals(simpleCond, SearchCondConverter.convert(fiql));
     }
 
     @Test
     public void relationships() {
-        String fiqlExpression = new UserFiqlSearchConditionBuilder().
+        String fiql = new UserFiqlSearchConditionBuilder().
                 inRelationships("ca20ffca-1305-442f-be9a-3723a0cd88ca").query();
-        assertEquals(SpecialAttr.RELATIONSHIPS + "==ca20ffca-1305-442f-be9a-3723a0cd88ca", fiqlExpression);
+        assertEquals(SpecialAttr.RELATIONSHIPS + "==ca20ffca-1305-442f-be9a-3723a0cd88ca", fiql);
 
         RelationshipCond relationshipCond = new RelationshipCond();
         relationshipCond.setAnyObject("ca20ffca-1305-442f-be9a-3723a0cd88ca");
         SearchCond simpleCond = SearchCond.getLeafCond(relationshipCond);
 
-        assertEquals(simpleCond, SearchCondConverter.convert(fiqlExpression));
+        assertEquals(simpleCond, SearchCondConverter.convert(fiql));
     }
 
     @Test
     public void relationshipTypes() {
-        String fiqlExpression = new UserFiqlSearchConditionBuilder().inRelationshipTypes("type1").query();
-        assertEquals(SpecialAttr.RELATIONSHIP_TYPES + "==type1", fiqlExpression);
+        String fiql = new UserFiqlSearchConditionBuilder().inRelationshipTypes("type1").query();
+        assertEquals(SpecialAttr.RELATIONSHIP_TYPES + "==type1", fiql);
 
         RelationshipTypeCond relationshipCond = new RelationshipTypeCond();
         relationshipCond.setRelationshipTypeKey("type1");
         SearchCond simpleCond = SearchCond.getLeafCond(relationshipCond);
 
-        assertEquals(simpleCond, SearchCondConverter.convert(fiqlExpression));
+        assertEquals(simpleCond, SearchCondConverter.convert(fiql));
 
-        fiqlExpression = new AnyObjectFiqlSearchConditionBuilder("PRINTER").inRelationshipTypes("neighborhood").query();
+        fiql = new AnyObjectFiqlSearchConditionBuilder("PRINTER").inRelationshipTypes("neighborhood").query();
         assertEquals(
                 SpecialAttr.RELATIONSHIP_TYPES + "==neighborhood;" + SpecialAttr.TYPE + "==PRINTER",
-                fiqlExpression);
+                fiql);
     }
 
     @Test
     public void groups() {
-        String fiqlExpression = new UserFiqlSearchConditionBuilder().
+        String fiql = new UserFiqlSearchConditionBuilder().
                 inGroups("e7ff94e8-19c9-4f0a-b8b7-28327edbf6ed").query();
-        assertEquals(SpecialAttr.GROUPS + "==e7ff94e8-19c9-4f0a-b8b7-28327edbf6ed", fiqlExpression);
+        assertEquals(SpecialAttr.GROUPS + "==e7ff94e8-19c9-4f0a-b8b7-28327edbf6ed", fiql);
 
         MembershipCond groupCond = new MembershipCond();
         groupCond.setGroup("e7ff94e8-19c9-4f0a-b8b7-28327edbf6ed");
         SearchCond simpleCond = SearchCond.getLeafCond(groupCond);
 
-        assertEquals(simpleCond, SearchCondConverter.convert(fiqlExpression));
+        assertEquals(simpleCond, SearchCondConverter.convert(fiql));
     }
 
     @Test
     public void roles() {
-        String fiqlExpression = new UserFiqlSearchConditionBuilder().inRoles("User reviewer").query();
-        assertEquals(SpecialAttr.ROLES + "==User reviewer", fiqlExpression);
+        String fiql = new UserFiqlSearchConditionBuilder().inRoles("User reviewer").query();
+        assertEquals(SpecialAttr.ROLES + "==User reviewer", fiql);
 
         RoleCond roleCond = new RoleCond();
         roleCond.setRole("User reviewer");
         SearchCond simpleCond = SearchCond.getLeafCond(roleCond);
 
-        assertEquals(simpleCond, SearchCondConverter.convert(fiqlExpression));
+        assertEquals(simpleCond, SearchCondConverter.convert(fiql));
     }
 
     @Test
     public void dynRealms() {
         String dynRealm = UUID.randomUUID().toString();
-        String fiqlExpression = new UserFiqlSearchConditionBuilder().inDynRealms(dynRealm).query();
-        assertEquals(SpecialAttr.DYNREALMS + "==" + dynRealm, fiqlExpression);
+        String fiql = new UserFiqlSearchConditionBuilder().inDynRealms(dynRealm).query();
+        assertEquals(SpecialAttr.DYNREALMS + "==" + dynRealm, fiql);
 
         DynRealmCond dynRealmCond = new DynRealmCond();
         dynRealmCond.setDynRealm(dynRealm);
         SearchCond simpleCond = SearchCond.getLeafCond(dynRealmCond);
 
-        assertEquals(simpleCond, SearchCondConverter.convert(fiqlExpression));
+        assertEquals(simpleCond, SearchCondConverter.convert(fiql));
     }
 
     @Test
     public void resources() {
-        String fiqlExpression = new UserFiqlSearchConditionBuilder().hasResources("resource-ldap").query();
-        assertEquals(SpecialAttr.RESOURCES + "==resource-ldap", fiqlExpression);
+        String fiql = new UserFiqlSearchConditionBuilder().hasResources("resource-ldap").query();
+        assertEquals(SpecialAttr.RESOURCES + "==resource-ldap", fiql);
 
         ResourceCond resCond = new ResourceCond();
         resCond.setResourceKey("resource-ldap");
         SearchCond simpleCond = SearchCond.getLeafCond(resCond);
 
-        assertEquals(simpleCond, SearchCondConverter.convert(fiqlExpression));
+        assertEquals(simpleCond, SearchCondConverter.convert(fiql));
     }
 
     @Test
     public void assignable() {
-        String fiqlExpression = new GroupFiqlSearchConditionBuilder().isAssignable().query();
-        assertEquals(SpecialAttr.ASSIGNABLE + "==" + SpecialAttr.NULL, fiqlExpression);
+        String fiql = new GroupFiqlSearchConditionBuilder().isAssignable().query();
+        assertEquals(SpecialAttr.ASSIGNABLE + "==" + SpecialAttr.NULL, fiql);
 
         AssignableCond assignableCond = new AssignableCond();
         assignableCond.setRealmFullPath("/even/two");
         SearchCond simpleCond = SearchCond.getLeafCond(assignableCond);
 
-        assertEquals(simpleCond, SearchCondConverter.convert(fiqlExpression, "/even/two"));
+        assertEquals(simpleCond, SearchCondConverter.convert(fiql, "/even/two"));
     }
 
     @Test
     public void type() {
-        String fiqlExpression = new AnyObjectFiqlSearchConditionBuilder("PRINTER").query();
-        assertEquals(SpecialAttr.TYPE + "==PRINTER", fiqlExpression);
+        String fiql = new AnyObjectFiqlSearchConditionBuilder("PRINTER").query();
+        assertEquals(SpecialAttr.TYPE + "==PRINTER", fiql);
 
         AnyTypeCond acond = new AnyTypeCond();
         acond.setAnyTypeKey("PRINTER");
         SearchCond simpleCond = SearchCond.getLeafCond(acond);
 
-        assertEquals(simpleCond, SearchCondConverter.convert(fiqlExpression));
+        assertEquals(simpleCond, SearchCondConverter.convert(fiql));
     }
 
     @Test
     public void member() {
-        String fiqlExpression = new GroupFiqlSearchConditionBuilder().withMembers("rossini").query();
-        assertEquals(SpecialAttr.MEMBER + "==rossini", fiqlExpression);
+        String fiql = new GroupFiqlSearchConditionBuilder().withMembers("rossini").query();
+        assertEquals(SpecialAttr.MEMBER + "==rossini", fiql);
 
         MemberCond mcond = new MemberCond();
         mcond.setMember("rossini");
         SearchCond simpleCond = SearchCond.getLeafCond(mcond);
 
-        assertEquals(simpleCond, SearchCondConverter.convert(fiqlExpression));
+        assertEquals(simpleCond, SearchCondConverter.convert(fiql));
     }
 
     @Test
     public void and() {
-        String fiqlExpression = new UserFiqlSearchConditionBuilder().
+        String fiql = new UserFiqlSearchConditionBuilder().
                 is("fullname").equalTo("*o*").and("fullname").equalTo("*i*").query();
-        assertEquals("fullname==*o*;fullname==*i*", fiqlExpression);
+        assertEquals("fullname==*o*;fullname==*i*", fiql);
 
         AttributeCond fullnameLeafCond1 = new AttributeCond(AttributeCond.Type.LIKE);
         fullnameLeafCond1.setSchema("fullname");
@@ -279,17 +275,17 @@ public class SearchCondConverterTest {
                 SearchCond.getLeafCond(fullnameLeafCond1),
                 SearchCond.getLeafCond(fullnameLeafCond2));
 
-        assertEquals(andCond, SearchCondConverter.convert(fiqlExpression));
+        assertEquals(andCond, SearchCondConverter.convert(fiql));
     }
 
     @Test
     public void or() {
-        String fiqlExpression = new UserFiqlSearchConditionBuilder().
+        String fiql = new UserFiqlSearchConditionBuilder().
                 is("fullname").equalTo("*o*", "*i*", "*ini").query();
-        assertEquals("fullname==*o*,fullname==*i*,fullname==*ini", fiqlExpression);
-        fiqlExpression = new UserFiqlSearchConditionBuilder().
+        assertEquals("fullname==*o*,fullname==*i*,fullname==*ini", fiql);
+        fiql = new UserFiqlSearchConditionBuilder().
                 is("fullname").equalTo("*o*").or("fullname").equalTo("*i*").or("fullname").equalTo("*ini").query();
-        assertEquals("fullname==*o*,fullname==*i*,fullname==*ini", fiqlExpression);
+        assertEquals("fullname==*o*,fullname==*i*,fullname==*ini", fiql);
 
         AttributeCond fullnameLeafCond1 = new AttributeCond(AttributeCond.Type.LIKE);
         fullnameLeafCond1.setSchema("fullname");
@@ -306,7 +302,7 @@ public class SearchCondConverterTest {
                         SearchCond.getLeafCond(fullnameLeafCond2),
                         SearchCond.getLeafCond(fullnameLeafCond3)));
 
-        assertEquals(orCond, SearchCondConverter.convert(fiqlExpression));
+        assertEquals(orCond, SearchCondConverter.convert(fiql));
     }
 
 }
