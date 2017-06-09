@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
@@ -203,7 +204,8 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
         Pair<String, List<PropagationStatus>> created =
                 provisioningManager.create(before.getLeft(), storePassword, nullPriorityAsync);
 
-        return after(binder.returnUserTO(binder.getUserTO(created.getKey())), created.getRight(), before.getRight());
+        return afterCreate(
+                binder.returnUserTO(binder.getUserTO(created.getKey())), created.getRight(), before.getRight());
     }
 
     @PreAuthorize("isAuthenticated() and not(hasRole('" + StandardEntitlement.ANONYMOUS + "'))")
@@ -223,8 +225,10 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
             final UserPatch userPatch, final boolean self, final boolean nullPriorityAsync) {
 
         UserTO userTO = binder.getUserTO(userPatch.getKey());
+        Set<String> dynRealmsBefore = new HashSet<>(userTO.getDynRealms());
         Pair<UserPatch, List<LogicActions>> before = beforeUpdate(userPatch, userTO.getRealm());
 
+        boolean authDynRealms = false;
         if (!self
                 && before.getLeft().getRealm() != null
                 && StringUtils.isNotBlank(before.getLeft().getRealm().getValue())) {
@@ -232,12 +236,18 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
             Set<String> effectiveRealms = getEffectiveRealms(
                     AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_UPDATE),
                     before.getLeft().getRealm().getValue());
-            securityChecks(effectiveRealms, before.getLeft().getRealm().getValue(), before.getLeft().getKey());
+            authDynRealms =
+                    securityChecks(effectiveRealms, before.getLeft().getRealm().getValue(), before.getLeft().getKey());
         }
 
         Pair<String, List<PropagationStatus>> updated = provisioningManager.update(before.getLeft(), nullPriorityAsync);
 
-        return after(binder.returnUserTO(binder.getUserTO(updated.getKey())), updated.getRight(), before.getRight());
+        return afterUpdate(
+                binder.returnUserTO(binder.getUserTO(updated.getKey())),
+                updated.getRight(),
+                before.getRight(),
+                authDynRealms,
+                dynRealmsBefore);
     }
 
     protected Pair<String, List<PropagationStatus>> setStatusOnWfAdapter(
@@ -278,10 +288,12 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
         statusPatch.setKey(toUpdate.getKey());
         Pair<String, List<PropagationStatus>> updated = setStatusOnWfAdapter(statusPatch, nullPriorityAsync);
 
-        return after(
+        return afterUpdate(
                 binder.returnUserTO(binder.getUserTO(updated.getKey())),
                 updated.getRight(),
-                Collections.<LogicActions>emptyList());
+                Collections.<LogicActions>emptyList(),
+                false,
+                Collections.<String>emptySet());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.MUST_CHANGE_PASSWORD + "')")
@@ -371,7 +383,7 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
             deletedTO = binder.getUserTO(before.getLeft().getKey());
         }
 
-        return after(binder.returnUserTO(deletedTO), statuses, before.getRight());
+        return afterDelete(binder.returnUserTO(deletedTO), statuses, before.getRight());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.USER_UPDATE + "')")

@@ -171,7 +171,8 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         }
 
         if (authRealms == null || authRealms.isEmpty() || !authorized) {
-            throw new DelegatedAdministrationException(AnyTypeKind.GROUP, group.getKey());
+            throw new DelegatedAdministrationException(
+                    group.getRealm().getFullPath(), AnyTypeKind.GROUP, group.getKey());
         }
     }
 

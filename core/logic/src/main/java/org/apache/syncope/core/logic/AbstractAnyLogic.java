@@ -167,13 +167,60 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch> ext
         return ImmutablePair.of(any, actions);
     }
 
-    protected ProvisioningResult<TO> after(
+    protected ProvisioningResult<TO> afterCreate(
             final TO input, final List<PropagationStatus> statuses, final List<LogicActions> actions) {
 
         TO any = input;
 
         for (LogicActions action : actions) {
             any = action.afterCreate(any);
+        }
+
+        ProvisioningResult<TO> result = new ProvisioningResult<>();
+        result.setEntity(any);
+        result.getPropagationStatuses().addAll(statuses);
+
+        return result;
+    }
+
+    protected ProvisioningResult<TO> afterUpdate(
+            final TO input,
+            final List<PropagationStatus> statuses,
+            final List<LogicActions> actions,
+            final boolean authDynRealms,
+            final Set<String> dynRealmsBefore) {
+
+        Set<String> dynRealmsAfter = new HashSet<>(input.getDynRealms());
+        if (authDynRealms && !dynRealmsBefore.equals(dynRealmsAfter)) {
+            throw new DelegatedAdministrationException(
+                    this instanceof UserLogic
+                            ? AnyTypeKind.USER
+                            : this instanceof GroupLogic
+                                    ? AnyTypeKind.GROUP
+                                    : AnyTypeKind.ANY_OBJECT,
+                    input.getKey());
+        }
+
+        TO any = input;
+
+        for (LogicActions action : actions) {
+            any = action.afterUpdate(any);
+        }
+
+        ProvisioningResult<TO> result = new ProvisioningResult<>();
+        result.setEntity(any);
+        result.getPropagationStatuses().addAll(statuses);
+
+        return result;
+    }
+
+    protected ProvisioningResult<TO> afterDelete(
+            final TO input, final List<PropagationStatus> statuses, final List<LogicActions> actions) {
+
+        TO any = input;
+
+        for (LogicActions action : actions) {
+            any = action.afterDelete(any);
         }
 
         ProvisioningResult<TO> result = new ProvisioningResult<>();
@@ -204,6 +251,14 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch> ext
 
     }
 
+    protected static class DynRealmsPredicate implements Predicate<String> {
+
+        @Override
+        public boolean evaluate(final String realm) {
+            return !realm.startsWith("/");
+        }
+    }
+
     protected Set<String> getEffectiveRealms(final Set<String> allowedRealms, final String requestedRealm) {
         Set<String> allowed = RealmUtils.normalize(allowedRealms);
         Set<String> requested = new HashSet<>();
@@ -214,18 +269,12 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch> ext
         CollectionUtils.select(allowed, new StartsWithPredicate(requested), effective);
 
         // includes dynamic realms
-        CollectionUtils.select(allowedRealms, new Predicate<String>() {
-
-            @Override
-            public boolean evaluate(final String realm) {
-                return !realm.startsWith("/");
-            }
-        }, effective);
+        CollectionUtils.select(allowedRealms, new DynRealmsPredicate(), effective);
 
         return effective;
     }
 
-    protected void securityChecks(final Set<String> effectiveRealms, final String realm, final String key) {
+    protected boolean securityChecks(final Set<String> effectiveRealms, final String realm, final String key) {
         boolean authorized = IterableUtils.matchesAny(effectiveRealms, new Predicate<String>() {
 
             @Override
@@ -243,6 +292,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch> ext
         }
         if (!authorized) {
             throw new DelegatedAdministrationException(
+                    realm,
                     this instanceof UserLogic
                             ? AnyTypeKind.USER
                             : this instanceof GroupLogic
@@ -250,6 +300,8 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch> ext
                                     : AnyTypeKind.ANY_OBJECT,
                     key);
         }
+
+        return IterableUtils.matchesAny(effectiveRealms, new DynRealmsPredicate());
     }
 
     public abstract Date findLastChange(String key);

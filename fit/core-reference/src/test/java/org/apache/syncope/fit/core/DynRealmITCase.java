@@ -41,6 +41,7 @@ import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.DynRealmService;
@@ -182,6 +183,18 @@ public class DynRealmITCase extends AbstractITCase {
             // USER_UPDATE
             UserPatch userPatch = new UserPatch();
             userPatch.setKey(userKey);
+            userPatch.getResources().add(new StringPatchItem.Builder().
+                    value(RESOURCE_NAME_LDAP).operation(PatchOperation.DELETE).build());
+            // this will fail because unassigning resource-ldap would result in removing the user
+            // from the dynamic realm
+            try {
+                delegatedUserService.update(userPatch);
+                fail();
+            } catch (SyncopeClientException e) {
+                assertEquals(ClientExceptionType.DelegatedAdministration, e.getType());
+            }
+            // this will succeed instead
+            userPatch.getResources().clear();
             userPatch.getResources().add(new StringPatchItem.Builder().value(RESOURCE_NAME_NOPROPAGATION).build());
             user = delegatedUserService.update(userPatch).
                     readEntity(new GenericType<ProvisioningResult<UserTO>>() {
