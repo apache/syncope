@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table;
 
 import java.util.List;
+import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
@@ -50,26 +51,24 @@ public class AttrColumn<T extends AttributableTO> extends AbstractColumn<T, Stri
 
         List<String> values = null;
 
+        AttrTO attr = null;
         switch (schemaType) {
             case PLAIN:
-                if (rowModel.getObject().getPlainAttrMap().containsKey(name)) {
-                    values = rowModel.getObject().getPlainAttrMap().get(name).getValues();
-                }
+                attr = rowModel.getObject().getPlainAttr(name);
                 break;
 
             case DERIVED:
-                if (rowModel.getObject().getDerAttrMap().containsKey(name)) {
-                    values = rowModel.getObject().getDerAttrMap().get(name).getValues();
-                }
+                attr = rowModel.getObject().getDerAttr(name);
                 break;
 
             case VIRTUAL:
-                if (rowModel.getObject().getVirAttrMap().containsKey(name)) {
-                    values = rowModel.getObject().getVirAttrMap().get(name).getValues();
-                }
+                attr = rowModel.getObject().getVirAttr(name);
                 break;
 
             default:
+        }
+        if (attr != null) {
+            values = attr.getValues();
         }
 
         if (values == null || values.isEmpty()) {

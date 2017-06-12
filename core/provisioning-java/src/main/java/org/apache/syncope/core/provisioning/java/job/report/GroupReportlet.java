@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.report.GroupReportletConf;
 import org.apache.syncope.common.lib.report.GroupReportletConf.Feature;
@@ -86,7 +87,7 @@ public class GroupReportlet extends AbstractReportlet {
 
         AttributesImpl atts = new AttributesImpl();
         if (!attrs.isEmpty()) {
-            Map<String, AttrTO> attrMap = anyTO.getPlainAttrMap();
+            Map<String, AttrTO> attrMap = EntityTOUtils.buildAttrMap(anyTO.getPlainAttrs());
 
             handler.startElement("", "", "attributes", null);
             for (String attrName : attrs) {
@@ -112,7 +113,7 @@ public class GroupReportlet extends AbstractReportlet {
         }
 
         if (!derAttrs.isEmpty()) {
-            Map<String, AttrTO> derAttrMap = anyTO.getDerAttrMap();
+            Map<String, AttrTO> derAttrMap = EntityTOUtils.buildAttrMap(anyTO.getDerAttrs());
 
             handler.startElement("", "", "derivedAttributes", null);
             for (String attrName : derAttrs) {
@@ -138,7 +139,7 @@ public class GroupReportlet extends AbstractReportlet {
         }
 
         if (!virAttrs.isEmpty()) {
-            Map<String, AttrTO> virAttrMap = anyTO.getVirAttrMap();
+            Map<String, AttrTO> virAttrMap = EntityTOUtils.buildAttrMap(anyTO.getVirAttrs());
 
             handler.startElement("", "", "virtualAttributes", null);
             for (String attrName : virAttrs) {

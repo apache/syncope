@@ -22,16 +22,15 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.Predicate;
 
 @XmlType
 @XmlSeeAlso({ UserTO.class, GroupTO.class, AnyObjectTO.class })
@@ -46,7 +45,7 @@ public abstract class AnyTO extends AbstractAnnotatedBean implements EntityTO, A
 
     private String realm;
 
-    private List<String> dynRealms = new ArrayList<>();
+    private final List<String> dynRealms = new ArrayList<>();
 
     private String status;
 
@@ -118,13 +117,14 @@ public abstract class AnyTO extends AbstractAnnotatedBean implements EntityTO, A
 
     @JsonIgnore
     @Override
-    public Map<String, AttrTO> getPlainAttrMap() {
-        Map<String, AttrTO> result = new HashMap<>(plainAttrs.size());
-        for (AttrTO attributeTO : plainAttrs) {
-            result.put(attributeTO.getSchema(), attributeTO);
-        }
+    public AttrTO getPlainAttr(final String schema) {
+        return IterableUtils.find(plainAttrs, new Predicate<AttrTO>() {
 
-        return Collections.unmodifiableMap(result);
+            @Override
+            public boolean evaluate(final AttrTO object) {
+                return object.getSchema().equals(schema);
+            }
+        });
     }
 
     @XmlElementWrapper(name = "derAttrs")
@@ -137,13 +137,14 @@ public abstract class AnyTO extends AbstractAnnotatedBean implements EntityTO, A
 
     @JsonIgnore
     @Override
-    public Map<String, AttrTO> getDerAttrMap() {
-        Map<String, AttrTO> result = new HashMap<>(derAttrs.size());
-        for (AttrTO attributeTO : derAttrs) {
-            result.put(attributeTO.getSchema(), attributeTO);
-        }
+    public AttrTO getDerAttr(final String schema) {
+        return IterableUtils.find(derAttrs, new Predicate<AttrTO>() {
 
-        return Collections.unmodifiableMap(result);
+            @Override
+            public boolean evaluate(final AttrTO object) {
+                return object.getSchema().equals(schema);
+            }
+        });
     }
 
     @XmlElementWrapper(name = "virAttrs")
@@ -156,13 +157,14 @@ public abstract class AnyTO extends AbstractAnnotatedBean implements EntityTO, A
 
     @JsonIgnore
     @Override
-    public Map<String, AttrTO> getVirAttrMap() {
-        Map<String, AttrTO> result = new HashMap<>(virAttrs.size());
-        for (AttrTO attributeTO : virAttrs) {
-            result.put(attributeTO.getSchema(), attributeTO);
-        }
+    public AttrTO getVirAttr(final String schema) {
+        return IterableUtils.find(virAttrs, new Predicate<AttrTO>() {
 
-        return Collections.unmodifiableMap(result);
+            @Override
+            public boolean evaluate(final AttrTO object) {
+                return object.getSchema().equals(schema);
+            }
+        });
     }
 
     @XmlElementWrapper(name = "resources")

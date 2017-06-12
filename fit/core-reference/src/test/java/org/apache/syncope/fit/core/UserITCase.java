@@ -93,7 +93,7 @@ public class UserITCase extends AbstractITCase {
     private static final FastDateFormat DATE_FORMAT = DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT;
 
     private boolean getBooleanAttribute(final ConnObjectTO connObjectTO, final String attrName) {
-        return Boolean.parseBoolean(connObjectTO.getAttrMap().get(attrName).getValues().get(0));
+        return Boolean.parseBoolean(connObjectTO.getAttr(attrName).getValues().get(0));
     }
 
     public static UserTO getUniqueSampleTO(final String email) {
@@ -335,7 +335,7 @@ public class UserITCase extends AbstractITCase {
 
         // 4. try (and fail) to create another user with same (unique) values
         userTO = getSampleTO(userTO.getUsername());
-        AttrTO userIdAttr = userTO.getPlainAttrMap().get("userId");
+        AttrTO userIdAttr = userTO.getPlainAttr("userId");
         userIdAttr.getValues().clear();
         userIdAttr.getValues().add("a.b@c.com");
 
@@ -351,7 +351,7 @@ public class UserITCase extends AbstractITCase {
     public void createWithRequiredValueMissing() {
         UserTO userTO = getUniqueSampleTO("a.b@c.it");
 
-        AttrTO type = userTO.getPlainAttrMap().get("ctype");
+        AttrTO type = userTO.getPlainAttr("ctype");
         userTO.getPlainAttrs().remove(type);
 
         userTO.getMemberships().add(new MembershipTO.Builder().
@@ -367,7 +367,7 @@ public class UserITCase extends AbstractITCase {
 
         userTO.getPlainAttrs().add(attrTO("ctype", "F"));
 
-        AttrTO surname = userTO.getPlainAttrMap().get("surname");
+        AttrTO surname = userTO.getPlainAttr("surname");
         userTO.getPlainAttrs().remove(surname);
 
         // 2. create user without surname (mandatory when type == 'F')
@@ -512,8 +512,7 @@ public class UserITCase extends AbstractITCase {
         userTO = updateUser(userPatch).getEntity();
 
         assertNotNull(userTO);
-        assertNotNull(userTO.getDerAttrMap());
-        assertFalse(userTO.getPlainAttrMap().containsKey("ctype"));
+        assertNull(userTO.getPlainAttr("ctype"));
     }
 
     @Test(expected = SyncopeClientException.class)
@@ -585,10 +584,10 @@ public class UserITCase extends AbstractITCase {
         assertEquals(1, userTO.getMemberships().size());
         assertFalse(userTO.getDerAttrs().isEmpty());
 
-        AttrTO userIdAttr = userTO.getPlainAttrMap().get("userId");
+        AttrTO userIdAttr = userTO.getPlainAttr("userId");
         assertEquals(Collections.singletonList(newUserId), userIdAttr.getValues());
 
-        AttrTO fullNameAttr = userTO.getPlainAttrMap().get("fullname");
+        AttrTO fullNameAttr = userTO.getPlainAttr("fullname");
         assertEquals(Collections.singletonList(newFullName), fullNameAttr.getValues());
     }
 
@@ -838,7 +837,7 @@ public class UserITCase extends AbstractITCase {
         userTO = createUser(userTO).getEntity();
         assertNotNull(userTO);
 
-        AttrTO loginDate = userTO.getPlainAttrMap().get("loginDate");
+        AttrTO loginDate = userTO.getPlainAttr("loginDate");
         assertNotNull(loginDate);
         assertEquals(1, loginDate.getValues().size());
 
@@ -852,7 +851,7 @@ public class UserITCase extends AbstractITCase {
         userTO = updateUser(userPatch).getEntity();
         assertNotNull(userTO);
 
-        loginDate = userTO.getPlainAttrMap().get("loginDate");
+        loginDate = userTO.getPlainAttr("loginDate");
         assertNotNull(loginDate);
         assertEquals(2, loginDate.getValues().size());
     }
@@ -928,12 +927,12 @@ public class UserITCase extends AbstractITCase {
 
         UserTO actual = createUser(userTO).getEntity();
         assertNotNull(actual);
-        assertNotNull(actual.getDerAttrMap().get("csvuserid"));
+        assertNotNull(actual.getDerAttr("csvuserid"));
 
         ConnObjectTO connObjectTO =
                 resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey());
         assertNotNull(connObjectTO);
-        assertEquals("sx-dx", connObjectTO.getAttrMap().get("THEIRGROUP").getValues().get(0));
+        assertEquals("sx-dx", connObjectTO.getAttr("THEIRGROUP").getValues().get(0));
     }
 
     @Test
@@ -1013,7 +1012,7 @@ public class UserITCase extends AbstractITCase {
 
         ConnObjectTO connObjectTO =
                 resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), userTO.getKey());
-        assertNull(connObjectTO.getAttrMap().get("email"));
+        assertNull(connObjectTO.getAttr("email"));
     }
 
     @Test
@@ -1321,7 +1320,7 @@ public class UserITCase extends AbstractITCase {
         assertEquals(1, result.getPropagationStatuses().size());
         assertEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
         assertEquals("rest-target-resource", result.getPropagationStatuses().get(0).getResource());
-        assertEquals("surname", userTO.getPlainAttrMap().get("surname").getValues().get(0));
+        assertEquals("surname", userTO.getPlainAttr("surname").getValues().get(0));
 
         // verify user exists on the backend REST service
         WebClient webClient = WebClient.create(
@@ -1341,7 +1340,7 @@ public class UserITCase extends AbstractITCase {
         assertEquals(1, result.getPropagationStatuses().size());
         assertEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
         assertEquals("rest-target-resource", result.getPropagationStatuses().get(0).getResource());
-        assertEquals("surname2", result.getEntity().getPlainAttrMap().get("surname").getValues().get(0));
+        assertEquals("surname2", result.getEntity().getPlainAttr("surname").getValues().get(0));
 
         // verify user still exists on the backend REST service
         response = webClient.get();

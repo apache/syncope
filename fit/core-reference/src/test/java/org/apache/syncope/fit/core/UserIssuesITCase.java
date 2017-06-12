@@ -409,7 +409,7 @@ public class UserIssuesITCase extends AbstractITCase {
         ConnObjectTO connObjectTO =
                 resourceService.readConnObject(RESOURCE_NAME_DBVIRATTR, AnyTypeKind.USER.name(), userTO.getKey());
         assertNotNull(connObjectTO);
-        assertEquals("virtualvalue", connObjectTO.getAttrMap().get("USERNAME").getValues().get(0));
+        assertEquals("virtualvalue", connObjectTO.getAttr("USERNAME").getValues().get(0));
         // ----------------------------------
 
         userTO = userService.read(userTO.getKey());
@@ -467,7 +467,7 @@ public class UserIssuesITCase extends AbstractITCase {
 
         ConnObjectTO userOnDb = resourceService.readConnObject(
                 RESOURCE_NAME_TESTDB, AnyTypeKind.USER.name(), userTO.getKey());
-        final AttrTO pwdOnTestDbAttr = userOnDb.getAttrMap().get(OperationalAttributes.PASSWORD_NAME);
+        final AttrTO pwdOnTestDbAttr = userOnDb.getAttr(OperationalAttributes.PASSWORD_NAME);
         assertNotNull(pwdOnTestDbAttr);
         assertNotNull(pwdOnTestDbAttr.getValues());
         assertFalse(pwdOnTestDbAttr.getValues().isEmpty());
@@ -475,7 +475,7 @@ public class UserIssuesITCase extends AbstractITCase {
 
         ConnObjectTO userOnDb2 = resourceService.readConnObject(
                 RESOURCE_NAME_TESTDB2, AnyTypeKind.USER.name(), userTO.getKey());
-        final AttrTO pwdOnTestDb2Attr = userOnDb2.getAttrMap().get(OperationalAttributes.PASSWORD_NAME);
+        final AttrTO pwdOnTestDb2Attr = userOnDb2.getAttr(OperationalAttributes.PASSWORD_NAME);
         assertNotNull(pwdOnTestDb2Attr);
         assertNotNull(pwdOnTestDb2Attr.getValues());
         assertFalse(pwdOnTestDb2Attr.getValues().isEmpty());
@@ -500,7 +500,7 @@ public class UserIssuesITCase extends AbstractITCase {
 
         // 3c. verify that password *has* changed on testdb
         userOnDb = resourceService.readConnObject(RESOURCE_NAME_TESTDB, AnyTypeKind.USER.name(), userTO.getKey());
-        final AttrTO pwdOnTestDbAttrAfter = userOnDb.getAttrMap().get(OperationalAttributes.PASSWORD_NAME);
+        final AttrTO pwdOnTestDbAttrAfter = userOnDb.getAttr(OperationalAttributes.PASSWORD_NAME);
         assertNotNull(pwdOnTestDbAttrAfter);
         assertNotNull(pwdOnTestDbAttrAfter.getValues());
         assertFalse(pwdOnTestDbAttrAfter.getValues().isEmpty());
@@ -508,7 +508,7 @@ public class UserIssuesITCase extends AbstractITCase {
 
         // 3d. verify that password hasn't changed on testdb2
         userOnDb2 = resourceService.readConnObject(RESOURCE_NAME_TESTDB2, AnyTypeKind.USER.name(), userTO.getKey());
-        final AttrTO pwdOnTestDb2AttrAfter = userOnDb2.getAttrMap().get(OperationalAttributes.PASSWORD_NAME);
+        final AttrTO pwdOnTestDb2AttrAfter = userOnDb2.getAttr(OperationalAttributes.PASSWORD_NAME);
         assertNotNull(pwdOnTestDb2AttrAfter);
         assertNotNull(pwdOnTestDb2AttrAfter.getValues());
         assertFalse(pwdOnTestDb2AttrAfter.getValues().isEmpty());
@@ -607,7 +607,7 @@ public class UserIssuesITCase extends AbstractITCase {
             userPatch.setKey(userKey);
             userPatch.getPlainAttrs().add(attrAddReplacePatch("ctype", "a type"));
             UserTO userTO = updateUser(userPatch).getEntity();
-            assertEquals("a type", userTO.getPlainAttrMap().get("ctype").getValues().get(0));
+            assertEquals("a type", userTO.getPlainAttr("ctype").getValues().get(0));
         }
     }
 
@@ -643,7 +643,7 @@ public class UserIssuesITCase extends AbstractITCase {
         ConnObjectTO connObj = resourceService.readConnObject(
                 RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey());
         assertNotNull(connObj);
-        assertTrue(connObj.getAttrMap().get("uniqueMember").getValues().
+        assertTrue(connObj.getAttr("uniqueMember").getValues().
                 contains("uid=" + userTO.getUsername() + ",ou=people,o=isp"));
 
         // 4. remove membership
@@ -658,7 +658,7 @@ public class UserIssuesITCase extends AbstractITCase {
         // 5. read group on resource, check that user DN was removed from uniqueMember
         connObj = resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey());
         assertNotNull(connObj);
-        assertFalse(connObj.getAttrMap().get("uniqueMember").getValues().
+        assertFalse(connObj.getAttr("uniqueMember").getValues().
                 contains("uid=" + userTO.getUsername() + ",ou=people,o=isp"));
 
         // 6. restore original resource-ldap group mapping
@@ -690,19 +690,19 @@ public class UserIssuesITCase extends AbstractITCase {
 
         userTO = createUser(userTO).getEntity();
         assertTrue(userTO.getResources().contains(RESOURCE_NAME_LDAP));
-        assertNotNull(userTO.getPlainAttrMap().get("obscure"));
-        assertNotNull(userTO.getPlainAttrMap().get("photo"));
+        assertNotNull(userTO.getPlainAttr("obscure"));
+        assertNotNull(userTO.getPlainAttr("photo"));
 
         // 3. read user on resource
         ConnObjectTO connObj = resourceService.readConnObject(
                 RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), userTO.getKey());
         assertNotNull(connObj);
-        AttrTO registeredAddress = connObj.getAttrMap().get("registeredAddress");
+        AttrTO registeredAddress = connObj.getAttr("registeredAddress");
         assertNotNull(registeredAddress);
-        assertEquals(userTO.getPlainAttrMap().get("obscure").getValues(), registeredAddress.getValues());
-        AttrTO jpegPhoto = connObj.getAttrMap().get("jpegPhoto");
+        assertEquals(userTO.getPlainAttr("obscure").getValues(), registeredAddress.getValues());
+        AttrTO jpegPhoto = connObj.getAttr("jpegPhoto");
         assertNotNull(jpegPhoto);
-        assertEquals(userTO.getPlainAttrMap().get("photo").getValues(), jpegPhoto.getValues());
+        assertEquals(userTO.getPlainAttr("photo").getValues(), jpegPhoto.getValues());
 
         // 4. remove group
         groupService.delete(groupTO.getKey());
@@ -806,14 +806,14 @@ public class UserIssuesITCase extends AbstractITCase {
         userTO.getPlainAttrs().add(attrTO("makeItDouble", "3"));
 
         userTO = createUser(userTO).getEntity();
-        assertEquals("6", userTO.getPlainAttrMap().get("makeItDouble").getValues().get(0));
+        assertEquals("6", userTO.getPlainAttr("makeItDouble").getValues().get(0));
 
         UserPatch userPatch = new UserPatch();
         userPatch.setKey(userTO.getKey());
         userPatch.getPlainAttrs().add(attrAddReplacePatch("makeItDouble", "7"));
 
         userTO = updateUser(userPatch).getEntity();
-        assertEquals("14", userTO.getPlainAttrMap().get("makeItDouble").getValues().get(0));
+        assertEquals("14", userTO.getPlainAttr("makeItDouble").getValues().get(0));
     }
 
     @Test
@@ -867,9 +867,9 @@ public class UserIssuesITCase extends AbstractITCase {
 
         // 3. try (and succeed) to perform simple LDAP binding with provided password ('password123')
         assertNotNull(getLdapRemoteObject(
-                connObject.getAttrMap().get(Name.NAME).getValues().get(0),
+                connObject.getAttr(Name.NAME).getValues().get(0),
                 "password123",
-                connObject.getAttrMap().get(Name.NAME).getValues().get(0)));
+                connObject.getAttr(Name.NAME).getValues().get(0)));
 
         // 4. update user without any password change request
         UserPatch userPatch = new UserPatch();
@@ -881,9 +881,9 @@ public class UserIssuesITCase extends AbstractITCase {
 
         // 5. try (and succeed again) to perform simple LDAP binding: password has not changed
         assertNotNull(getLdapRemoteObject(
-                connObject.getAttrMap().get(Name.NAME).getValues().get(0),
+                connObject.getAttr(Name.NAME).getValues().get(0),
                 "password123",
-                connObject.getAttrMap().get(Name.NAME).getValues().get(0)));
+                connObject.getAttr(Name.NAME).getValues().get(0)));
     }
 
     @Test
@@ -901,7 +901,7 @@ public class UserIssuesITCase extends AbstractITCase {
                 resourceService.readConnObject(RESOURCE_NAME_WS1, AnyTypeKind.USER.name(), userTO.getKey());
         assertNotNull(actual);
         // check if mapping attribute with purpose NONE really hasn't been propagated
-        assertNull(actual.getAttrMap().get("NAME"));
+        assertNull(actual.getAttr("NAME"));
 
         // 2.  update resource ws-target-resource-1
         ResourceTO ws1 = resourceService.read(RESOURCE_NAME_WS1);
@@ -941,8 +941,8 @@ public class UserIssuesITCase extends AbstractITCase {
         ConnObjectTO newUser =
                 resourceService.readConnObject(RESOURCE_NAME_WS1, AnyTypeKind.USER.name(), userTO.getKey());
 
-        assertNotNull(newUser.getAttrMap().get("NAME"));
-        assertEquals("firstnameNew", newUser.getAttrMap().get("NAME").getValues().get(0));
+        assertNotNull(newUser.getAttr("NAME"));
+        assertEquals("firstnameNew", newUser.getAttr("NAME").getValues().get(0));
 
         // 4.  restore resource ws-target-resource-1 mapping
         ws1NewUMapping = newWs1.getProvision(AnyTypeKind.USER.name()).getMapping();
@@ -1031,9 +1031,9 @@ public class UserIssuesITCase extends AbstractITCase {
                 resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), user.getKey());
 
         assertNotNull(getLdapRemoteObject(
-                connObject.getAttrMap().get(Name.NAME).getValues().get(0),
+                connObject.getAttr(Name.NAME).getValues().get(0),
                 "security123",
-                connObject.getAttrMap().get(Name.NAME).getValues().get(0)));
+                connObject.getAttr(Name.NAME).getValues().get(0)));
 
         // 5. Remove LDAPPasswordPropagationActions
         resourceTO = resourceService.read(RESOURCE_NAME_LDAP);
@@ -1076,8 +1076,7 @@ public class UserIssuesITCase extends AbstractITCase {
         assertNotNull(connObjectTO);
 
         // check if password has not changed
-        assertEquals("password0", connObjectTO.getAttrMap().
-                get(OperationalAttributes.PASSWORD_NAME).getValues().get(0));
+        assertEquals("password0", connObjectTO.getAttr(OperationalAttributes.PASSWORD_NAME).getValues().get(0));
         assertNull(userTO.getPassword());
 
         // 3. create user with not null password and propagate onto resource-csv, specify not to save password on
@@ -1098,8 +1097,7 @@ public class UserIssuesITCase extends AbstractITCase {
         assertNotNull(connObjectTO);
 
         // check if password has been propagated and that saved userTO's password is null
-        assertEquals("passwordTESTNULL1", connObjectTO.getAttrMap().
-                get(OperationalAttributes.PASSWORD_NAME).getValues().get(0));
+        assertEquals("passwordTESTNULL1", connObjectTO.getAttr(OperationalAttributes.PASSWORD_NAME).getValues().get(0));
         assertNull(userTO.getPassword());
 
         // 4. create user and propagate password on resource-csv and on Syncope local storage
@@ -1119,8 +1117,7 @@ public class UserIssuesITCase extends AbstractITCase {
         assertNotNull(connObjectTO);
 
         // check if password has been correctly propagated on Syncope and resource-csv as usual
-        assertEquals("passwordTESTNULL1", connObjectTO.getAttrMap().
-                get(OperationalAttributes.PASSWORD_NAME).getValues().get(0));
+        assertEquals("passwordTESTNULL1", connObjectTO.getAttr(OperationalAttributes.PASSWORD_NAME).getValues().get(0));
         Pair<Map<String, Set<String>>, UserTO> self =
                 clientFactory.create(userTO.getUsername(), "passwordTESTNULL1").self();
         assertNotNull(self);
@@ -1171,12 +1168,12 @@ public class UserIssuesITCase extends AbstractITCase {
 
         UserTO actual = createUser(userTO).getEntity();
         assertNotNull(actual);
-        assertNotNull(actual.getDerAttrMap().get("csvuserid"));
+        assertNotNull(actual.getDerAttr("csvuserid"));
 
         ConnObjectTO connObjectTO =
                 resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), actual.getKey());
         assertNotNull(connObjectTO);
-        assertEquals("postalAddress", connObjectTO.getAttrMap().get("postalAddress").getValues().get(0));
+        assertEquals("postalAddress", connObjectTO.getAttr("postalAddress").getValues().get(0));
 
         UserPatch userPatch = new UserPatch();
         userPatch.setKey(actual.getKey());
@@ -1186,7 +1183,7 @@ public class UserIssuesITCase extends AbstractITCase {
 
         connObjectTO = resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), actual.getKey());
         assertNotNull(connObjectTO);
-        assertEquals("newPostalAddress", connObjectTO.getAttrMap().get("postalAddress").getValues().get(0));
+        assertEquals("newPostalAddress", connObjectTO.getAttr("postalAddress").getValues().get(0));
     }
 
     @Test
@@ -1333,7 +1330,7 @@ public class UserIssuesITCase extends AbstractITCase {
         ConnObjectTO connObject =
                 resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.USER.name(), user.getKey());
         assertNotNull(connObject);
-        AttrTO userDn = connObject.getAttrMap().get(Name.NAME);
+        AttrTO userDn = connObject.getAttr(Name.NAME);
         assertNotNull(userDn);
         assertEquals(1, userDn.getValues().size());
         assertNotNull(getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, userDn.getValues().get(0)));
@@ -1358,7 +1355,7 @@ public class UserIssuesITCase extends AbstractITCase {
 
         // 2. create user matching the condition above
         UserTO user = UserITCase.getUniqueSampleTO("syncope1099U@apache.org");
-        user.getPlainAttrMap().get("firstname").getValues().set(0, "issueSYNCOPE1099");
+        user.getPlainAttr("firstname").getValues().set(0, "issueSYNCOPE1099");
 
         ProvisioningResult<UserTO> created = createUser(user);
         assertNotNull(created);

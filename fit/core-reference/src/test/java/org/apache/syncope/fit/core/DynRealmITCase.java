@@ -210,7 +210,7 @@ public class DynRealmITCase extends AbstractITCase {
                     readEntity(new GenericType<ProvisioningResult<GroupTO>>() {
                     }).getEntity();
             assertNotNull(group);
-            assertEquals("modified", group.getPlainAttrMap().get("icon").getValues().get(0));
+            assertEquals("modified", group.getPlainAttr("icon").getValues().get(0));
         } finally {
             if (role != null) {
                 roleService.delete(role.getKey());

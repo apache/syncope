@@ -111,7 +111,7 @@ public class MailTemplateTest extends AbstractTest {
         ctx.put("input", input);
 
         UserTO recipient = SerializationUtils.clone(user);
-        recipient.getPlainAttrMap().get("email").getValues().set(0, "another@syncope.apache.org");
+        recipient.getPlainAttr("email").getValues().set(0, "another@syncope.apache.org");
         ctx.put("recipients", Collections.singletonList(recipient));
 
         String htmlBody = evaluate(

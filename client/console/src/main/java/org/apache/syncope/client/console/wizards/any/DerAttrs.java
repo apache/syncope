@@ -25,6 +25,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
@@ -83,7 +84,7 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
 
                     @Override
                     public WebMarkupContainer getPanel(final String panelId) {
-                        return new DerAttrs.DerSchemas(panelId, new ListModel<AttrTO>(getAttrsFromTO(membershipTO)));
+                        return new DerAttrs.DerSchemas(panelId, new ListModel<>(getAttrsFromTO(membershipTO)));
                     }
                 }), Model.of(-1)).setOutputMarkupId(true));
             }
@@ -113,7 +114,7 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
     protected void setAttrs() {
         List<AttrTO> attrs = new ArrayList<>();
 
-        Map<String, AttrTO> attrMap = anyTO.getDerAttrMap();
+        Map<String, AttrTO> attrMap = EntityTOUtils.buildAttrMap(anyTO.getDerAttrs());
 
         for (DerSchemaTO schema : schemas.values()) {
             AttrTO attrTO = new AttrTO();
@@ -133,7 +134,7 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
     protected void setAttrs(final MembershipTO membershipTO) {
         List<AttrTO> attrs = new ArrayList<>();
 
-        Map<String, AttrTO> attrMap = membershipTO.getDerAttrMap();
+        Map<String, AttrTO> attrMap = EntityTOUtils.buildAttrMap(anyTO.getDerAttrs());
 
         for (DerSchemaTO schema : membershipSchemas.get(membershipTO.getGroupKey()).values()) {
             AttrTO attrTO = new AttrTO();

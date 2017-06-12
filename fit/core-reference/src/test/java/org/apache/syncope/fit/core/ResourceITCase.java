@@ -35,6 +35,7 @@ import java.util.Set;
 import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
+import org.apache.syncope.client.console.commons.ConnIdSpecialName;
 import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
@@ -573,7 +574,7 @@ public class ResourceITCase extends AbstractITCase {
 
                     @Override
                     public String transform(final ConnObjectTO input) {
-                        return input.getAttrMap().get("__NAME__").getValues().get(0);
+                        return input.getAttr(ConnIdSpecialName.NAME).getValues().get(0);
                     }
                 }, read);
 

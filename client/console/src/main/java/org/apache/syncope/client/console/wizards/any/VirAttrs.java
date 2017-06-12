@@ -27,6 +27,7 @@ import org.apache.syncope.client.console.wicket.markup.html.bootstrap.tabs.Accor
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
+import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
@@ -117,7 +118,7 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
     protected void setAttrs() {
         List<AttrTO> attrs = new ArrayList<>();
 
-        Map<String, AttrTO> attrMap = anyTO.getVirAttrMap();
+        Map<String, AttrTO> attrMap = EntityTOUtils.buildAttrMap(anyTO.getVirAttrs());
 
         for (VirSchemaTO schema : schemas.values()) {
             AttrTO attrTO = new AttrTO();
@@ -139,7 +140,7 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
     protected void setAttrs(final MembershipTO membershipTO) {
         List<AttrTO> attrs = new ArrayList<>();
 
-        Map<String, AttrTO> attrMap = membershipTO.getVirAttrMap();
+        Map<String, AttrTO> attrMap = EntityTOUtils.buildAttrMap(anyTO.getVirAttrs());
 
         for (VirSchemaTO schema : membershipSchemas.get(membershipTO.getGroupKey()).values()) {
             AttrTO attrTO = new AttrTO();

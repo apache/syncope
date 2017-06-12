@@ -95,7 +95,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
         WorkflowResult<String> created = gwfAdapter.create(groupTO);
 
         // see ConnObjectUtils#getAnyTOFromConnObject for GroupOwnerSchema
-        AttrTO groupOwner = groupTO.getPlainAttrMap().get(StringUtils.EMPTY);
+        AttrTO groupOwner = groupTO.getPlainAttr(StringUtils.EMPTY);
         if (groupOwner != null) {
             groupOwnerMap.put(created.getResult(), groupOwner.getValues().iterator().next());
         }

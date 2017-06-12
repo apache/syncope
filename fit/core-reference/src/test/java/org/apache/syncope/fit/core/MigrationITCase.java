@@ -518,8 +518,8 @@ public class MigrationITCase extends AbstractTaskITCase {
         assertEquals("/" + MIGRATION_REALM, group.getRealm());
 
         // 4a. user plain attrs
-        assertEquals("Gioacchino", user.getPlainAttrMap().get("firstname").getValues().get(0));
-        assertEquals("Rossini", user.getPlainAttrMap().get("surname").getValues().get(0));
+        assertEquals("Gioacchino", user.getPlainAttr("firstname").getValues().get(0));
+        assertEquals("Rossini", user.getPlainAttr("surname").getValues().get(0));
 
         // 4b. user resources
         assertTrue(user.getResources().contains(RESOURCE_NAME_TESTDB2));
@@ -528,7 +528,7 @@ public class MigrationITCase extends AbstractTaskITCase {
         assertNotNull(clientFactory.create("bellini12", ADMIN_PWD).self());
 
         // 4d. group plain attrs
-        assertEquals("r12", group.getPlainAttrMap().get("title").getValues().get(0));
+        assertEquals("r12", group.getPlainAttr("title").getValues().get(0));
 
         // 4e. group resources
         assertTrue(group.getResources().contains(RESOURCE_NAME_CSV));

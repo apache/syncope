@@ -37,6 +37,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.EncryptedFieldP
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
+import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
@@ -142,7 +143,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
     protected void setAttrs() {
         List<AttrTO> attrs = new ArrayList<>();
 
-        Map<String, AttrTO> attrMap = anyTO.getPlainAttrMap();
+        Map<String, AttrTO> attrMap = EntityTOUtils.buildAttrMap(anyTO.getPlainAttrs());
 
         for (PlainSchemaTO schema : schemas.values()) {
             AttrTO attrTO = new AttrTO();
@@ -167,7 +168,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
     protected void setAttrs(final MembershipTO membershipTO) {
         List<AttrTO> attrs = new ArrayList<>();
 
-        Map<String, AttrTO> attrMap = membershipTO.getPlainAttrMap();
+        Map<String, AttrTO> attrMap = EntityTOUtils.buildAttrMap(anyTO.getPlainAttrs());
 
         for (PlainSchemaTO schema : membershipSchemas.get(membershipTO.getGroupKey()).values()) {
             AttrTO attrTO = new AttrTO();

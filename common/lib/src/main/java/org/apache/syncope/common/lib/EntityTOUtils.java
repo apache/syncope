@@ -18,7 +18,11 @@
  */
 package org.apache.syncope.common.lib;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.commons.collections4.Transformer;
+import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.EntityTO;
 
 public final class EntityTOUtils {
@@ -31,6 +35,15 @@ public final class EntityTOUtils {
                 return input.getKey();
             }
         };
+    }
+
+    public static Map<String, AttrTO> buildAttrMap(final Collection<AttrTO> attrs) {
+        Map<String, AttrTO> result = new HashMap<>(attrs.size());
+        for (AttrTO attributeTO : attrs) {
+            result.put(attributeTO.getSchema(), attributeTO);
+        }
+
+        return result;
     }
 
     /**

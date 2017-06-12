@@ -21,7 +21,6 @@ package org.apache.syncope.client.console.commons;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
@@ -54,18 +53,11 @@ public class SortableAnyProviderComparator<T extends AnyTO> extends SortableData
 
         private static final long serialVersionUID = -7856686374020091808L;
 
-        private final Map<String, AttrTO> plainAttrs;
-
-        private final Map<String, AttrTO> derAttrs;
-
-        private final Map<String, AttrTO> virAttrs;
+        private final AnyTO anyTO;
 
         AttrModel(final AnyTO anyTO) {
             super();
-
-            this.plainAttrs = anyTO.getPlainAttrMap();
-            this.derAttrs = anyTO.getDerAttrMap();
-            this.virAttrs = anyTO.getVirAttrMap();
+            this.anyTO = anyTO;
         }
 
         /**
@@ -91,20 +83,20 @@ public class SortableAnyProviderComparator<T extends AnyTO> extends SortableData
 
             final AttrTO attr;
             if (schemaType == null) {
-                attr = this.plainAttrs.get(schema);
+                attr = this.anyTO.getPlainAttr(schema);
             } else {
                 switch (schemaType) {
                     case PLAIN:
                     default:
-                        attr = this.plainAttrs.get(schema);
+                        attr = this.anyTO.getPlainAttr(schema);
                         break;
 
                     case DERIVED:
-                        attr = this.derAttrs.get(schema);
+                        attr = this.anyTO.getDerAttr(schema);
                         break;
 
                     case VIRTUAL:
-                        attr = this.virAttrs.get(schema);
+                        attr = this.anyTO.getVirAttr(schema);
                         break;
                 }
             }
