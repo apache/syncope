@@ -44,6 +44,7 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.AnyOperations;
+import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.patch.AnyObjectPatch;
@@ -119,17 +120,16 @@ public class GroupITCase extends AbstractITCase {
         groupTO = createGroup(groupTO).getEntity();
         assertNotNull(groupTO);
 
-        assertNotNull(groupTO.getVirAttrMap());
-        assertNotNull(groupTO.getVirAttrMap().get("rvirtualdata").getValues());
-        assertFalse(groupTO.getVirAttrMap().get("rvirtualdata").getValues().isEmpty());
-        assertEquals("rvirtualvalue", groupTO.getVirAttrMap().get("rvirtualdata").getValues().get(0));
+        assertNotNull(groupTO.getVirAttr("rvirtualdata").getValues());
+        assertFalse(groupTO.getVirAttr("rvirtualdata").getValues().isEmpty());
+        assertEquals("rvirtualvalue", groupTO.getVirAttr("rvirtualdata").getValues().get(0));
 
         assertTrue(groupTO.getResources().contains(RESOURCE_NAME_LDAP));
 
         ConnObjectTO connObjectTO =
                 resourceService.readConnObject(RESOURCE_NAME_LDAP, AnyTypeKind.GROUP.name(), groupTO.getKey());
         assertNotNull(connObjectTO);
-        assertNotNull(connObjectTO.getAttrMap().get("owner"));
+        assertNotNull(connObjectTO.getAttr("owner"));
 
         // SYNCOPE-515: remove ownership
         GroupPatch groupPatch = new GroupPatch();
@@ -240,12 +240,12 @@ public class GroupITCase extends AbstractITCase {
         assertEquals(modName, groupTO.getName());
         assertEquals(2, groupTO.getPlainAttrs().size());
 
-        groupTO.getPlainAttrMap().get("show").getValues().clear();
+        groupTO.getPlainAttr("show").getValues().clear();
 
         groupTO = groupService.update(groupTO).readEntity(new GenericType<ProvisioningResult<GroupTO>>() {
         }).getEntity();
 
-        assertFalse(groupTO.getPlainAttrMap().containsKey("show"));
+        assertNull(groupTO.getPlainAttr("show"));
     }
 
     @Test
@@ -269,7 +269,7 @@ public class GroupITCase extends AbstractITCase {
         GroupPatch patch = AnyOperations.diff(updated, original, true);
         GroupTO group = updateGroup(patch).getEntity();
 
-        Map<String, AttrTO> attrs = group.getPlainAttrMap();
+        Map<String, AttrTO> attrs = EntityTOUtils.buildAttrMap(group.getPlainAttrs());
         assertFalse(attrs.containsKey("icon"));
         assertFalse(attrs.containsKey("show"));
         assertEquals(Collections.singletonList("sx"), attrs.get("rderived_sx").getValues());
@@ -574,10 +574,10 @@ public class GroupITCase extends AbstractITCase {
 
         // 2. create a group *without* an attribute for that schema: it works
         GroupTO groupTO = getSampleTO("lastGroup");
-        assertFalse(groupTO.getPlainAttrMap().containsKey(badge.getKey()));
+        assertNull(groupTO.getPlainAttr(badge.getKey()));
         groupTO = createGroup(groupTO).getEntity();
         assertNotNull(groupTO);
-        assertFalse(groupTO.getPlainAttrMap().containsKey(badge.getKey()));
+        assertNull(groupTO.getPlainAttr(badge.getKey()));
 
         // 3. add the new mandatory schema to the default group type
         AnyTypeTO type = anyTypeService.read(AnyTypeKind.GROUP.name());
@@ -605,7 +605,7 @@ public class GroupITCase extends AbstractITCase {
 
             groupTO = updateGroup(groupPatch).getEntity();
             assertNotNull(groupTO);
-            assertTrue(groupTO.getPlainAttrMap().containsKey(badge.getKey()));
+            assertNotNull(groupTO.getPlainAttr(badge.getKey()));
         } finally {
             // restore the original group class
             typeClass.getPlainSchemas().remove(badge.getKey());
@@ -669,7 +669,7 @@ public class GroupITCase extends AbstractITCase {
         AnyObjectTO newAny = AnyObjectITCase.getSampleTO("aDynMembership");
         newAny.getResources().clear();
         newAny = createAnyObject(newAny).getEntity();
-        assertNotNull(newAny.getPlainAttrMap().get("location"));
+        assertNotNull(newAny.getPlainAttr("location"));
         assertTrue(anyObjectService.read(
                 "fc6dbc3a-6c07-4965-8781-921e7401a4a5").getDynGroups().contains(group.getKey()));
         assertTrue(anyObjectService.read(
@@ -697,7 +697,7 @@ public class GroupITCase extends AbstractITCase {
                 attrTO(new AttrTO.Builder().schema("location").build()).
                 build());
         newAny = updateAnyObject(anyPatch).getEntity();
-        assertNull(newAny.getPlainAttrMap().get("location"));
+        assertNull(newAny.getPlainAttr("location"));
         assertFalse(anyObjectService.read(
                 "fc6dbc3a-6c07-4965-8781-921e7401a4a5").getDynGroups().contains(group.getKey()));
         assertFalse(anyObjectService.read(
@@ -1036,7 +1036,7 @@ public class GroupITCase extends AbstractITCase {
 
         groupTO = createGroup(groupTO).getEntity();
         assertNotNull(groupTO);
-        assertEquals("11.23", groupTO.getPlainAttrMap().get(doubleSchemaName).getValues().get(0));
+        assertEquals("11.23", groupTO.getPlainAttr(doubleSchemaName).getValues().get(0));
 
         // 3. update schema, set conversion pattern
         schema = schemaService.read(SchemaType.PLAIN, schema.getKey());
@@ -1046,7 +1046,7 @@ public class GroupITCase extends AbstractITCase {
         // 4. re-read group, verify that pattern was applied
         groupTO = groupService.read(groupTO.getKey());
         assertNotNull(groupTO);
-        assertEquals("11.230", groupTO.getPlainAttrMap().get(doubleSchemaName).getValues().get(0));
+        assertEquals("11.230", groupTO.getPlainAttr(doubleSchemaName).getValues().get(0));
 
         // 5. modify group with new double value
         GroupPatch patch = new GroupPatch();
@@ -1055,7 +1055,7 @@ public class GroupITCase extends AbstractITCase {
 
         groupTO = updateGroup(patch).getEntity();
         assertNotNull(groupTO);
-        assertEquals("11.257", groupTO.getPlainAttrMap().get(doubleSchemaName).getValues().get(0));
+        assertEquals("11.257", groupTO.getPlainAttr(doubleSchemaName).getValues().get(0));
 
         // 6. update schema, unset conversion pattern
         schema.setConversionPattern(null);
@@ -1068,7 +1068,7 @@ public class GroupITCase extends AbstractITCase {
 
         groupTO = updateGroup(patch).getEntity();
         assertNotNull(groupTO);
-        assertEquals("11.23", groupTO.getPlainAttrMap().get(doubleSchemaName).getValues().get(0));
+        assertEquals("11.23", groupTO.getPlainAttr(doubleSchemaName).getValues().get(0));
     }
 
 }

@@ -120,7 +120,7 @@ public class CamelRouteITCase extends AbstractITCase {
                 + "    </setProperty>\n"
                 + "    <setBody>\n"
                 + "     <groovy>\n"
-                + "request.body.getPlainAttrMap().get(\"camelAttribute\").getValues().set(0,\"true\")\n"
+                + "request.body.getPlainAttr(\"camelAttribute\").getValues().set(0,\"true\")\n"
                 + "       return request.body\n"
                 + "     </groovy>\n"
                 + "    </setBody>\n"
@@ -165,7 +165,7 @@ public class CamelRouteITCase extends AbstractITCase {
 
             userTO = createUser(userTO).getEntity();
             assertNotNull(userTO);
-            assertEquals("true", userTO.getPlainAttrMap().get("camelAttribute").getValues().get(0));
+            assertEquals("true", userTO.getPlainAttr("camelAttribute").getValues().get(0));
         } finally {
             doUpdate(oldRoute.getKey(), oldRoute.getContent());
         }

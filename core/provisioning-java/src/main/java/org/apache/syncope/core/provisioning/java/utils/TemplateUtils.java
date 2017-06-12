@@ -23,6 +23,7 @@ import java.util.Map;
 import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -75,7 +76,7 @@ public class TemplateUtils {
             }
         }
 
-        Map<String, AttrTO> currentAttrMap = anyTO.getPlainAttrMap();
+        Map<String, AttrTO> currentAttrMap = EntityTOUtils.buildAttrMap(anyTO.getPlainAttrs());
         for (AttrTO templatePlainAttr : template.getPlainAttrs()) {
             if (!templatePlainAttr.getValues().isEmpty()
                     && (!currentAttrMap.containsKey(templatePlainAttr.getSchema())
@@ -85,14 +86,14 @@ public class TemplateUtils {
             }
         }
 
-        currentAttrMap = anyTO.getDerAttrMap();
+        currentAttrMap = EntityTOUtils.buildAttrMap(anyTO.getDerAttrs());
         for (AttrTO templateDerAttr : template.getDerAttrs()) {
             if (!currentAttrMap.containsKey(templateDerAttr.getSchema())) {
                 anyTO.getDerAttrs().add(templateDerAttr);
             }
         }
 
-        currentAttrMap = anyTO.getVirAttrMap();
+        currentAttrMap = EntityTOUtils.buildAttrMap(anyTO.getVirAttrs());
         for (AttrTO templateVirAttr : template.getVirAttrs()) {
             if (!templateVirAttr.getValues().isEmpty()
                     && (!currentAttrMap.containsKey(templateVirAttr.getSchema())

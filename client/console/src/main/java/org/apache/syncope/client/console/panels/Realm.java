@@ -25,8 +25,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
@@ -85,8 +83,8 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
 
         setPageRef(pageRef);
 
-        AjaxBootstrapTabbedPanel<ITab> tabbedPanel
-                = new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList(pageRef));
+        AjaxBootstrapTabbedPanel<ITab> tabbedPanel =
+                new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList(pageRef));
         tabbedPanel.setSelectedTab(selectedIndex);
         addInnerObject(tabbedPanel);
         this.wizardBuilder = new RealmWizardBuilder(pageRef);
@@ -167,15 +165,15 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
             }
         });
 
-        final Triple<UserFormLayoutInfo, GroupFormLayoutInfo, Map<String, AnyObjectFormLayoutInfo>> formLayoutInfo
-                = FormLayoutInfoUtils.fetch(anyTypeTOs);
+        final Triple<UserFormLayoutInfo, GroupFormLayoutInfo, Map<String, AnyObjectFormLayoutInfo>> formLayoutInfo =
+                FormLayoutInfoUtils.fetch(anyTypeTOs);
 
         Collections.sort(anyTypeTOs, new AnyTypeComparator());
         for (final AnyTypeTO anyTypeTO : anyTypeTOs) {
             tabs.add(new ITabComponent(
                     new Model<>(anyTypeTO.getKey()),
                     AnyTypeKind.GROUP.name().equals(anyTypeTO.getKey())
-                    ? null : new String[]{String.format("%s_SEARCH", anyTypeTO.getKey())}) {
+                    ? null : new String[] { String.format("%s_SEARCH", anyTypeTO.getKey()) }) {
 
                 private static final long serialVersionUID = 1169585538404171118L;
 
@@ -223,12 +221,12 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
                 if ("afterObj".equalsIgnoreCase(key)) {
                     ConnObjectTO afterObj = bean.getAfterObj();
                     String remoteId = afterObj == null
-                            || MapUtils.isEmpty(afterObj.getAttrMap())
-                            || !afterObj.getAttrMap().containsKey(ConnIdSpecialName.NAME)
-                            || CollectionUtils.isEmpty(afterObj.getAttrMap().get(ConnIdSpecialName.NAME).getValues())
+                            || afterObj.getAttrs().isEmpty()
+                            || afterObj.getAttr(ConnIdSpecialName.NAME) == null
+                            || afterObj.getAttr(ConnIdSpecialName.NAME).getValues() == null
+                            || afterObj.getAttr(ConnIdSpecialName.NAME).getValues().isEmpty()
                             ? StringUtils.EMPTY
-                            : afterObj.getAttrMap().get(ConnIdSpecialName.NAME).getValues().
-                            iterator().next();
+                            : afterObj.getAttr(ConnIdSpecialName.NAME).getValues().get(0);
 
                     return new Label("field", remoteId);
                 } else if ("status".equalsIgnoreCase(key)) {

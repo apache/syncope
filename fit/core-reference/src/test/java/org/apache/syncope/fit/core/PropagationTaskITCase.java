@@ -93,7 +93,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         List<PropagationTaskTO> tasks = new ArrayList<>(
                 taskService.<PropagationTaskTO>list(new TaskQuery.Builder(TaskType.PROPAGATION).
                         anyTypeKind(AnyTypeKind.USER).entityKey(userTO.getKey()).build()).
-                getResult());
+                        getResult());
         assertFalse(tasks.isEmpty());
 
         BulkAction bulkAction = new BulkAction();
@@ -135,7 +135,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
 
             // 1. create printer on external resource
             AnyObjectTO anyObjectTO = AnyObjectITCase.getSampleTO("propagationJEXLTransformer");
-            String originalLocation = anyObjectTO.getPlainAttrMap().get("location").getValues().get(0);
+            String originalLocation = anyObjectTO.getPlainAttr("location").getValues().get(0);
             assertFalse(originalLocation.endsWith(suffix));
 
             anyObjectTO = createAnyObject(anyObjectTO).getEntity();
@@ -145,8 +145,8 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             // (location ends with given suffix on external resource)
             ConnObjectTO connObjectTO = resourceService.
                     readConnObject(RESOURCE_NAME_DBSCRIPTED, anyObjectTO.getType(), anyObjectTO.getKey());
-            assertFalse(anyObjectTO.getPlainAttrMap().get("location").getValues().get(0).endsWith(suffix));
-            assertTrue(connObjectTO.getAttrMap().get("LOCATION").getValues().get(0).endsWith(suffix));
+            assertFalse(anyObjectTO.getPlainAttr("location").getValues().get(0).endsWith(suffix));
+            assertTrue(connObjectTO.getAttr("LOCATION").getValues().get(0).endsWith(suffix));
         } finally {
             resourceService.update(originalResource);
         }

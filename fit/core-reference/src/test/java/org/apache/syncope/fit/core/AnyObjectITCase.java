@@ -67,10 +67,10 @@ public class AnyObjectITCase extends AbstractITCase {
         ConnObjectTO connObjectTO =
                 resourceService.readConnObject(RESOURCE_NAME_DBSCRIPTED, anyObjectTO.getType(), anyObjectTO.getKey());
         assertNotNull(connObjectTO);
-        assertNotNull(connObjectTO.getAttrMap().get("LOCATION"));
+        assertNotNull(connObjectTO.getAttr("LOCATION"));
         assertEquals(
-                anyObjectTO.getPlainAttrMap().get("location").getValues(),
-                connObjectTO.getAttrMap().get("LOCATION").getValues());
+                anyObjectTO.getPlainAttr("location").getValues(),
+                connObjectTO.getAttr("LOCATION").getValues());
     }
 
     @Test
@@ -123,8 +123,8 @@ public class AnyObjectITCase extends AbstractITCase {
     public void list() {
         PagedResult<AnyObjectTO> anyObjectTOs = anyObjectService.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
-                fiql(SyncopeClient.getAnyObjectSearchConditionBuilder("PRINTER").query()).
-                build());
+                        fiql(SyncopeClient.getAnyObjectSearchConditionBuilder("PRINTER").query()).
+                        build());
         assertNotNull(anyObjectTOs);
         assertTrue(anyObjectTOs.getResult().size() >= 2);
         for (AnyObjectTO anyObjectTO : anyObjectTOs.getResult()) {
@@ -154,7 +154,7 @@ public class AnyObjectITCase extends AbstractITCase {
 
         anyObjectTO = updateAnyObject(anyObjectPatch).getEntity();
 
-        assertEquals(newLocation, anyObjectTO.getPlainAttrMap().get("location").getValues().get(0));
+        assertEquals(newLocation, anyObjectTO.getPlainAttr("location").getValues().get(0));
     }
 
     @Test
@@ -167,7 +167,7 @@ public class AnyObjectITCase extends AbstractITCase {
         assertEquals(anyObjectTO.getPlainAttrs(), attrs);
 
         AttrTO location = anyObjectService.read(anyObjectTO.getKey(), SchemaType.PLAIN, "location");
-        assertEquals(anyObjectTO.getPlainAttrMap().get("location"), location);
+        assertEquals(anyObjectTO.getPlainAttr("location"), location);
     }
 
     @Test
@@ -190,7 +190,7 @@ public class AnyObjectITCase extends AbstractITCase {
         AnyObjectTO anyObjectTO = getSampleTO("deleteAttr");
         anyObjectTO = createAnyObject(anyObjectTO).getEntity();
         assertNotNull(anyObjectTO);
-        assertNotNull(anyObjectTO.getPlainAttrMap().get("location"));
+        assertNotNull(anyObjectTO.getPlainAttr("location"));
 
         anyObjectService.delete(anyObjectTO.getKey(), SchemaType.PLAIN, "location");
 

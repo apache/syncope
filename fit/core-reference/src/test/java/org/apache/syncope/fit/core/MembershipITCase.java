@@ -21,6 +21,7 @@ package org.apache.syncope.fit.core;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -74,7 +75,7 @@ public class MembershipITCase extends AbstractITCase {
         UserTO user = UserITCase.getUniqueSampleTO("memb@apache.org");
         user.setRealm("/even/two");
         user.getPlainAttrs().add(new AttrTO.Builder().schema("aLong").value("1976").build());
-        user.getPlainAttrs().remove(user.getPlainAttrMap().get("ctype"));
+        user.getPlainAttrs().remove(user.getPlainAttr("ctype"));
 
         // the group 034740a9-fa10-453b-af37-dc7897e98fb1 has USER type extensions for 'csv' and 'other' 
         // any type classes
@@ -107,19 +108,19 @@ public class MembershipITCase extends AbstractITCase {
             user = createUser(user).getEntity();
 
             // 1. verify that 'aLong' is correctly populated for user
-            assertEquals(1, user.getPlainAttrMap().get("aLong").getValues().size());
-            assertEquals("1976", user.getPlainAttrMap().get("aLong").getValues().get(0));
+            assertEquals(1, user.getPlainAttr("aLong").getValues().size());
+            assertEquals("1976", user.getPlainAttr("aLong").getValues().get(0));
 
             // 2. verify that 'aLong' is correctly populated for user's membership
             assertEquals(1, user.getMemberships().size());
             membership = user.getMembershipMap().get("034740a9-fa10-453b-af37-dc7897e98fb1");
             assertNotNull(membership);
-            assertEquals(1, membership.getPlainAttrMap().get("aLong").getValues().size());
-            assertEquals("1977", membership.getPlainAttrMap().get("aLong").getValues().get(0));
+            assertEquals(1, membership.getPlainAttr("aLong").getValues().size());
+            assertEquals("1977", membership.getPlainAttr("aLong").getValues().get(0));
 
             // 3. verify that derived attrbutes from 'csv' and 'other' are also populated for user's membership
-            assertFalse(membership.getDerAttrMap().get("csvuserid").getValues().isEmpty());
-            assertFalse(membership.getDerAttrMap().get("noschema").getValues().isEmpty());
+            assertFalse(membership.getDerAttr("csvuserid").getValues().isEmpty());
+            assertFalse(membership.getDerAttr("noschema").getValues().isEmpty());
 
             // update user - change some values and add new membership attribute
             UserPatch userPatch = new UserPatch();
@@ -138,19 +139,19 @@ public class MembershipITCase extends AbstractITCase {
             user = updateUser(userPatch).getEntity();
 
             // 4. verify that 'aLong' is correctly populated for user
-            assertEquals(1, user.getPlainAttrMap().get("aLong").getValues().size());
-            assertEquals("1977", user.getPlainAttrMap().get("aLong").getValues().get(0));
-            assertFalse(user.getPlainAttrMap().containsKey("ctype"));
+            assertEquals(1, user.getPlainAttr("aLong").getValues().size());
+            assertEquals("1977", user.getPlainAttr("aLong").getValues().get(0));
+            assertNull(user.getPlainAttr("ctype"));
 
             // 5. verify that 'aLong' is correctly populated for user's membership
             assertEquals(1, user.getMemberships().size());
             membership = user.getMembershipMap().get("034740a9-fa10-453b-af37-dc7897e98fb1");
             assertNotNull(membership);
-            assertEquals(1, membership.getPlainAttrMap().get("aLong").getValues().size());
-            assertEquals("1976", membership.getPlainAttrMap().get("aLong").getValues().get(0));
+            assertEquals(1, membership.getPlainAttr("aLong").getValues().size());
+            assertEquals("1976", membership.getPlainAttr("aLong").getValues().get(0));
 
             // 6. verify that 'ctype' is correctly populated for user's membership
-            assertEquals("membership type", membership.getPlainAttrMap().get("ctype").getValues().get(0));
+            assertEquals("membership type", membership.getPlainAttr("ctype").getValues().get(0));
 
             // finally remove membership
             userPatch = new UserPatch();
@@ -212,12 +213,12 @@ public class MembershipITCase extends AbstractITCase {
         assertEquals(1, user.getMemberships().size());
         membership = user.getMembershipMap().get(groupTO.getKey());
         assertNotNull(membership);
-        assertEquals(1, membership.getPlainAttrMap().get("aLong").getValues().size());
-        assertEquals("1454", membership.getPlainAttrMap().get("aLong").getValues().get(0));
+        assertEquals(1, membership.getPlainAttr("aLong").getValues().size());
+        assertEquals("1454", membership.getPlainAttr("aLong").getValues().get(0));
 
         // verify that derived attrbutes from 'csv' and 'other' are also populated for user's membership
-        assertFalse(membership.getDerAttrMap().get("csvuserid").getValues().isEmpty());
-        assertFalse(membership.getDerAttrMap().get("noschema").getValues().isEmpty());
+        assertFalse(membership.getDerAttr("csvuserid").getValues().isEmpty());
+        assertFalse(membership.getDerAttr("noschema").getValues().isEmpty());
 
         // now remove the group -> all related memberships should have been removed as well
         groupService.delete(groupTO.getKey());
@@ -264,7 +265,7 @@ public class MembershipITCase extends AbstractITCase {
             // 1. create user with new resource assigned
             UserTO user = UserITCase.getUniqueSampleTO("memb@apache.org");
             user.setRealm("/even/two");
-            user.getPlainAttrs().remove(user.getPlainAttrMap().get("ctype"));
+            user.getPlainAttrs().remove(user.getPlainAttr("ctype"));
             user.getResources().clear();
             user.getResources().add(newResource.getKey());
 
@@ -310,7 +311,7 @@ public class MembershipITCase extends AbstractITCase {
             assertEquals(1, users.getTotalCount());
             assertEquals(1, users.getResult().get(0).getMemberships().size());
             assertEquals("5432", users.getResult().get(0).getMemberships().get(0).
-                    getPlainAttrMap().get("aLong").getValues().get(0));
+                    getPlainAttr("aLong").getValues().get(0));
         } catch (Exception e) {
             LOG.error("Unexpected error", e);
             fail(e.getMessage());

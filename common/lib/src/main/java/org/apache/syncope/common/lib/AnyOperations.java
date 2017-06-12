@@ -89,8 +89,8 @@ public final class AnyOperations {
         result.setGroup(updated.getGroupKey());
 
         // 1. plain attributes
-        Map<String, AttrTO> updatedAttrs = new HashMap<>(updated.getPlainAttrMap());
-        Map<String, AttrTO> originalAttrs = new HashMap<>(original.getPlainAttrMap());
+        Map<String, AttrTO> updatedAttrs = EntityTOUtils.buildAttrMap(updated.getPlainAttrs());
+        Map<String, AttrTO> originalAttrs = EntityTOUtils.buildAttrMap(original.getPlainAttrs());
 
         result.getPlainAttrs().clear();
 
@@ -159,8 +159,8 @@ public final class AnyOperations {
         }
 
         // 3. plain attributes
-        Map<String, AttrTO> updatedAttrs = new HashMap<>(updated.getPlainAttrMap());
-        Map<String, AttrTO> originalAttrs = new HashMap<>(original.getPlainAttrMap());
+        Map<String, AttrTO> updatedAttrs = EntityTOUtils.buildAttrMap(updated.getPlainAttrs());
+        Map<String, AttrTO> originalAttrs = EntityTOUtils.buildAttrMap(original.getPlainAttrs());
 
         result.getPlainAttrs().clear();
 
@@ -483,7 +483,7 @@ public final class AnyOperations {
 
         // 2. plain attributes
         result.getPlainAttrs().clear();
-        result.getPlainAttrs().addAll(patch(to.getPlainAttrMap(), patch.getPlainAttrs()));
+        result.getPlainAttrs().addAll(patch(EntityTOUtils.buildAttrMap(to.getPlainAttrs()), patch.getPlainAttrs()));
 
         // 3. virtual attributes
         result.getVirAttrs().clear();
@@ -571,7 +571,7 @@ public final class AnyOperations {
                         }
                     } else {
                         newMembershipTO.getPlainAttrs().addAll(
-                                patch(memb.getPlainAttrMap(), membPatch.getPlainAttrs()));
+                                patch(EntityTOUtils.buildAttrMap(memb.getPlainAttrs()), membPatch.getPlainAttrs()));
                     }
 
                     // 3. virtual attributes
@@ -637,7 +637,7 @@ public final class AnyOperations {
                         }
                     } else {
                         newMembershipTO.getPlainAttrs().addAll(
-                                patch(memb.getPlainAttrMap(), membPatch.getPlainAttrs()));
+                                patch(EntityTOUtils.buildAttrMap(memb.getPlainAttrs()), membPatch.getPlainAttrs()));
                     }
 
                     // 3. virtual attributes

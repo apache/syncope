@@ -72,7 +72,7 @@ public class CreateProducer extends AbstractProducer {
 
                 if (actual instanceof GroupTO && isPull()) {
                     Map<String, String> groupOwnerMap = exchange.getProperty("groupOwnerMap", Map.class);
-                    AttrTO groupOwner = ((GroupTO) actual).getPlainAttrMap().get(StringUtils.EMPTY);
+                    AttrTO groupOwner = ((GroupTO) actual).getPlainAttr(StringUtils.EMPTY);
                     if (groupOwner != null) {
                         groupOwnerMap.put(created.getResult(), groupOwner.getValues().iterator().next());
                     }

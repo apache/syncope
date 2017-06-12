@@ -20,15 +20,14 @@ package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 
 @XmlRootElement(name = "membership")
@@ -112,13 +111,14 @@ public class MembershipTO extends RelationshipTO implements AttributableTO {
 
     @JsonIgnore
     @Override
-    public Map<String, AttrTO> getPlainAttrMap() {
-        Map<String, AttrTO> result = new HashMap<>(plainAttrs.size());
-        for (AttrTO attributeTO : plainAttrs) {
-            result.put(attributeTO.getSchema(), attributeTO);
-        }
+    public AttrTO getPlainAttr(final String schema) {
+        return IterableUtils.find(plainAttrs, new Predicate<AttrTO>() {
 
-        return Collections.unmodifiableMap(result);
+            @Override
+            public boolean evaluate(final AttrTO object) {
+                return object.getSchema().equals(schema);
+            }
+        });
     }
 
     @XmlElementWrapper(name = "derAttrs")
@@ -131,13 +131,14 @@ public class MembershipTO extends RelationshipTO implements AttributableTO {
 
     @JsonIgnore
     @Override
-    public Map<String, AttrTO> getDerAttrMap() {
-        Map<String, AttrTO> result = new HashMap<>(derAttrs.size());
-        for (AttrTO attributeTO : derAttrs) {
-            result.put(attributeTO.getSchema(), attributeTO);
-        }
+    public AttrTO getDerAttr(final String schema) {
+        return IterableUtils.find(derAttrs, new Predicate<AttrTO>() {
 
-        return Collections.unmodifiableMap(result);
+            @Override
+            public boolean evaluate(final AttrTO object) {
+                return object.getSchema().equals(schema);
+            }
+        });
     }
 
     @XmlElementWrapper(name = "virAttrs")
@@ -150,12 +151,13 @@ public class MembershipTO extends RelationshipTO implements AttributableTO {
 
     @JsonIgnore
     @Override
-    public Map<String, AttrTO> getVirAttrMap() {
-        Map<String, AttrTO> result = new HashMap<>(virAttrs.size());
-        for (AttrTO attributeTO : virAttrs) {
-            result.put(attributeTO.getSchema(), attributeTO);
-        }
+    public AttrTO getVirAttr(final String schema) {
+        return IterableUtils.find(virAttrs, new Predicate<AttrTO>() {
 
-        return Collections.unmodifiableMap(result);
+            @Override
+            public boolean evaluate(final AttrTO object) {
+                return object.getSchema().equals(schema);
+            }
+        });
     }
 }

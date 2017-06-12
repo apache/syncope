@@ -87,16 +87,16 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
         AttrTO result;
         switch (schemaType) {
             case DERIVED:
-                result = any.getDerAttrMap().get(schema);
+                result = any.getDerAttr(schema);
                 break;
 
             case VIRTUAL:
-                result = any.getVirAttrMap().get(schema);
+                result = any.getVirAttr(schema);
                 break;
 
             case PLAIN:
             default:
-                result = any.getPlainAttrMap().get(schema);
+                result = any.getPlainAttr(schema);
         }
 
         if (result == null) {

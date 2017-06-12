@@ -23,6 +23,7 @@ import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.client.enduser.model.CustomAttribute;
 import org.apache.syncope.client.enduser.model.CustomAttributesInfo;
+import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.SchemaType;
@@ -43,11 +44,12 @@ public final class UserRequestValidator {
             return true;
         }
 
-        return validateAttributes(userTO.getPlainAttrMap(), customForm.get(SchemaType.PLAIN.name()), checkDefaultValues)
-                && validateAttributes(userTO.getDerAttrMap(), customForm.get(SchemaType.DERIVED.name()),
-                        checkDefaultValues)
-                && validateAttributes(userTO.getVirAttrMap(), customForm.get(SchemaType.VIRTUAL.name()),
-                        checkDefaultValues);
+        return validateAttributes(EntityTOUtils.buildAttrMap(userTO.getPlainAttrs()),
+                customForm.get(SchemaType.PLAIN.name()), checkDefaultValues)
+                && validateAttributes(EntityTOUtils.buildAttrMap(userTO.getDerAttrs()),
+                        customForm.get(SchemaType.DERIVED.name()), checkDefaultValues)
+                && validateAttributes(EntityTOUtils.buildAttrMap(userTO.getVirAttrs()),
+                        customForm.get(SchemaType.VIRTUAL.name()), checkDefaultValues);
     }
 
     private static boolean validateAttributes(final Map<String, AttrTO> attrMap,

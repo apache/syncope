@@ -31,6 +31,7 @@ import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
+import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.wicket.Component;
 import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.markup.ComponentTag;
@@ -88,11 +89,10 @@ public class ConnObjectPanel extends Panel {
 
         final Map<String, AttrTO> beforeProfile = connObjectTOs == null || connObjectTOs.getLeft() == null
                 ? null
-                : connObjectTOs.getLeft().getAttrMap();
-
+                : EntityTOUtils.buildAttrMap(connObjectTOs.getLeft().getAttrs());
         final Map<String, AttrTO> afterProfile = connObjectTOs == null || connObjectTOs.getRight() == null
                 ? null
-                : connObjectTOs.getRight().getAttrMap();
+                : EntityTOUtils.buildAttrMap(connObjectTOs.getRight().getAttrs());
 
         final ListView<String> propView = new ListView<String>("propView", formProps) {
 

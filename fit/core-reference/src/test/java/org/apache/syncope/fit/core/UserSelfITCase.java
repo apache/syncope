@@ -156,7 +156,7 @@ public class UserSelfITCase extends AbstractITCase {
     public void authenticateByPlainAttribute() {
         UserTO rossini = userService.read("rossini");
         assertNotNull(rossini);
-        String userId = rossini.getPlainAttrMap().get("userId").getValues().get(0);
+        String userId = rossini.getPlainAttr("userId").getValues().get(0);
         assertNotNull(userId);
 
         Pair<Map<String, Set<String>>, UserTO> self = clientFactory.create(userId, ADMIN_PWD).self();

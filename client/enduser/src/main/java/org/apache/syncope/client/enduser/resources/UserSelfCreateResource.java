@@ -19,7 +19,6 @@
 package org.apache.syncope.client.enduser.resources;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
@@ -31,6 +30,7 @@ import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.annotations.Resource;
 import org.apache.syncope.client.enduser.util.UserRequestValidator;
+import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
@@ -114,11 +114,10 @@ public class UserSelfCreateResource extends BaseUserSelfResource {
                     userTO.getPlainAttrs().removeAll(membAttrs);
 
                     // 2. millis -> Date conversion for PLAIN attributes of USER and its MEMBERSHIPS
-                    Map<String, AttrTO> userPlainAttrMap = userTO.getPlainAttrMap();
                     for (PlainSchemaTO plainSchema : SyncopeEnduserSession.get().getDatePlainSchemas()) {
-                        millisToDate(userPlainAttrMap, plainSchema);
+                        millisToDate(EntityTOUtils.buildAttrMap(userTO.getPlainAttrs()), plainSchema);
                         for (MembershipTO membership : userTO.getMemberships()) {
-                            millisToDate(membership.getPlainAttrMap(), plainSchema);
+                            millisToDate(EntityTOUtils.buildAttrMap(membership.getPlainAttrs()), plainSchema);
                         }
                     }
 

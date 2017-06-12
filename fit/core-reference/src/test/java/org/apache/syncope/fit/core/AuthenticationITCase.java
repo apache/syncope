@@ -278,7 +278,7 @@ public class AuthenticationITCase extends AbstractITCase {
 
             user = response.readEntity(new GenericType<ProvisioningResult<UserTO>>() {
             }).getEntity();
-            assertEquals("surname", user.getPlainAttrMap().get("surname").getValues().get(0));
+            assertEquals("surname", user.getPlainAttr("surname").getValues().get(0));
 
             // 5. as delegated, update user attempting to move under realm / -> fail
             UserPatch userPatch = new UserPatch();
@@ -301,7 +301,7 @@ public class AuthenticationITCase extends AbstractITCase {
 
             user = response.readEntity(new GenericType<ProvisioningResult<UserTO>>() {
             }).getEntity();
-            assertEquals("surname2", user.getPlainAttrMap().get("surname").getValues().get(0));
+            assertEquals("surname2", user.getPlainAttr("surname").getValues().get(0));
 
             // 7. as delegated, delete user
             delegatedUserService.delete(user.getKey());

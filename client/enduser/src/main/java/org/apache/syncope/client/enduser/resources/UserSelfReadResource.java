@@ -34,6 +34,7 @@ import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.annotations.Resource;
 import org.apache.syncope.client.enduser.model.CustomAttribute;
 import org.apache.syncope.client.enduser.model.CustomAttributesInfo;
+import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
@@ -62,13 +63,12 @@ public class UserSelfReadResource extends BaseUserSelfResource {
             }
 
             UserTO userTO = SerializationUtils.clone(SyncopeEnduserSession.get().getSelfTO());
-            Map<String, AttrTO> userPlainAttrMap = userTO.getPlainAttrMap();
 
             // 1. Date -> millis conversion for PLAIN attributes of USER and its MEMBERSHIPS
             for (PlainSchemaTO plainSchema : SyncopeEnduserSession.get().getDatePlainSchemas()) {
-                dateToMillis(userPlainAttrMap, plainSchema);
+                dateToMillis(EntityTOUtils.buildAttrMap(userTO.getPlainAttrs()), plainSchema);
                 for (MembershipTO membership : userTO.getMemberships()) {
-                    dateToMillis(membership.getPlainAttrMap(), plainSchema);
+                    dateToMillis(EntityTOUtils.buildAttrMap(membership.getPlainAttrs()), plainSchema);
                 }
             }
 

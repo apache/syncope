@@ -89,7 +89,7 @@ public class VirAttrITCase extends AbstractITCase {
         // 2. check for virtual attribute value
         userTO = userService.read(userTO.getKey());
         assertNotNull(userTO);
-        assertEquals("virtualvalue", userTO.getVirAttrMap().get("virtualdata").getValues().get(0));
+        assertEquals("virtualvalue", userTO.getVirAttr("virtualdata").getValues().get(0));
 
         UserPatch userPatch = new UserPatch();
         userPatch.setKey(userTO.getKey());
@@ -102,7 +102,7 @@ public class VirAttrITCase extends AbstractITCase {
         // 4. check for virtual attribute value
         userTO = userService.read(userTO.getKey());
         assertNotNull(userTO);
-        assertEquals("virtualupdated", userTO.getVirAttrMap().get("virtualdata").getValues().get(0));
+        assertEquals("virtualupdated", userTO.getVirAttr("virtualdata").getValues().get(0));
     }
 
     @Test
@@ -144,7 +144,7 @@ public class VirAttrITCase extends AbstractITCase {
 
         ConnObjectTO connObjectTO =
                 resourceService.readConnObject(RESOURCE_NAME_WS2, AnyTypeKind.USER.name(), userTO.getKey());
-        assertEquals("virtualvalue", connObjectTO.getAttrMap().get("COMPANYNAME").getValues().get(0));
+        assertEquals("virtualvalue", connObjectTO.getAttr("COMPANYNAME").getValues().get(0));
         // ----------------------------------
 
         // ----------------------------------
@@ -162,7 +162,7 @@ public class VirAttrITCase extends AbstractITCase {
         userTO = result.getEntity();
 
         connObjectTO = resourceService.readConnObject(RESOURCE_NAME_WS2, AnyTypeKind.USER.name(), userTO.getKey());
-        assertEquals("virtualvalue2", connObjectTO.getAttrMap().get("COMPANYNAME").getValues().get(0));
+        assertEquals("virtualvalue2", connObjectTO.getAttr("COMPANYNAME").getValues().get(0));
         // ----------------------------------
 
         // ----------------------------------
@@ -176,7 +176,7 @@ public class VirAttrITCase extends AbstractITCase {
         assertEquals("suspended", userTO.getStatus());
 
         connObjectTO = resourceService.readConnObject(RESOURCE_NAME_WS2, AnyTypeKind.USER.name(), userTO.getKey());
-        assertEquals("virtualvalue2", connObjectTO.getAttrMap().get("COMPANYNAME").getValues().get(0));
+        assertEquals("virtualvalue2", connObjectTO.getAttr("COMPANYNAME").getValues().get(0));
 
         statusPatch = new StatusPatch();
         statusPatch.setKey(userTO.getKey());
@@ -186,7 +186,7 @@ public class VirAttrITCase extends AbstractITCase {
         assertEquals("active", userTO.getStatus());
 
         connObjectTO = resourceService.readConnObject(RESOURCE_NAME_WS2, AnyTypeKind.USER.name(), userTO.getKey());
-        assertEquals("virtualvalue2", connObjectTO.getAttrMap().get("COMPANYNAME").getValues().get(0));
+        assertEquals("virtualvalue2", connObjectTO.getAttr("COMPANYNAME").getValues().get(0));
         // ----------------------------------
 
         // ----------------------------------
@@ -204,11 +204,11 @@ public class VirAttrITCase extends AbstractITCase {
         userTO = result.getEntity();
 
         connObjectTO = resourceService.readConnObject(RESOURCE_NAME_WS2, AnyTypeKind.USER.name(), userTO.getKey());
-        assertEquals("Surname2", connObjectTO.getAttrMap().get("SURNAME").getValues().get(0));
+        assertEquals("Surname2", connObjectTO.getAttr("SURNAME").getValues().get(0));
 
         // virtual attribute value did not change
-        assertFalse(connObjectTO.getAttrMap().get("COMPANYNAME").getValues().isEmpty());
-        assertEquals("virtualvalue2", connObjectTO.getAttrMap().get("COMPANYNAME").getValues().get(0));
+        assertFalse(connObjectTO.getAttr("COMPANYNAME").getValues().isEmpty());
+        assertEquals("virtualvalue2", connObjectTO.getAttr("COMPANYNAME").getValues().get(0));
         // ----------------------------------
     }
 
@@ -232,7 +232,7 @@ public class VirAttrITCase extends AbstractITCase {
 
         // 2. check for virtual attribute value
         actual = userService.read(actual.getKey());
-        assertEquals("virattrcache", actual.getVirAttrMap().get("virtualdata").getValues().get(0));
+        assertEquals("virattrcache", actual.getVirAttr("virtualdata").getValues().get(0));
 
         // 3. update virtual attribute directly
         JdbcTemplate jdbcTemplate = new JdbcTemplate(testDataSource);
@@ -248,7 +248,7 @@ public class VirAttrITCase extends AbstractITCase {
 
         // 4. check for cached attribute value
         actual = userService.read(actual.getKey());
-        assertEquals("virattrcache", actual.getVirAttrMap().get("virtualdata").getValues().get(0));
+        assertEquals("virattrcache", actual.getVirAttr("virtualdata").getValues().get(0));
 
         UserPatch userPatch = new UserPatch();
         userPatch.setKey(actual.getKey());
@@ -261,7 +261,7 @@ public class VirAttrITCase extends AbstractITCase {
         // 6. check for virtual attribute value
         actual = userService.read(actual.getKey());
         assertNotNull(actual);
-        assertEquals("virtualupdated", actual.getVirAttrMap().get("virtualdata").getValues().get(0));
+        assertEquals("virtualupdated", actual.getVirAttr("virtualdata").getValues().get(0));
     }
 
     @Test
@@ -376,7 +376,7 @@ public class VirAttrITCase extends AbstractITCase {
 
         // 2. check for virtual attribute value
         userTO = userService.read(userTO.getKey());
-        assertEquals("virattrcache", userTO.getVirAttrMap().get("virtualdata").getValues().get(0));
+        assertEquals("virattrcache", userTO.getVirAttr("virtualdata").getValues().get(0));
 
         // ----------------------------------------
         // 3. change connector URL so that we are sure that any provided value will come from virtual cache
@@ -411,7 +411,7 @@ public class VirAttrITCase extends AbstractITCase {
         // ----------------------------------------
 
         userTO = userService.read(userTO.getKey());
-        assertEquals("virattrcache", userTO.getVirAttrMap().get("virtualdata").getValues().get(0));
+        assertEquals("virattrcache", userTO.getVirAttr("virtualdata").getValues().get(0));
 
         // ----------------------------------------
         // 5. restore connector URL, values can be read again from external resource
@@ -428,7 +428,7 @@ public class VirAttrITCase extends AbstractITCase {
 
         // cached value still in place...
         userTO = userService.read(userTO.getKey());
-        assertEquals("virattrcache", userTO.getVirAttrMap().get("virtualdata").getValues().get(0));
+        assertEquals("virattrcache", userTO.getVirAttr("virtualdata").getValues().get(0));
 
         // force cache update by adding a resource which has virtualdata mapped for propagation
         UserPatch userPatch = new UserPatch();
@@ -439,7 +439,7 @@ public class VirAttrITCase extends AbstractITCase {
         assertNotNull(userTO);
 
         userTO = userService.read(userTO.getKey());
-        assertEquals("virattrcache2", userTO.getVirAttrMap().get("virtualdata").getValues().get(0));
+        assertEquals("virattrcache2", userTO.getVirAttr("virtualdata").getValues().get(0));
     }
 
     @Test
@@ -451,7 +451,7 @@ public class VirAttrITCase extends AbstractITCase {
         userTO.getVirAttrs().add(attrTO("virtualReadOnly", "readOnly"));
         userTO = createUser(userTO).getEntity();
         // finding no values because the virtual attribute is readonly 
-        assertTrue(userTO.getVirAttrMap().get("virtualReadOnly").getValues().isEmpty());
+        assertTrue(userTO.getVirAttr("virtualReadOnly").getValues().isEmpty());
     }
 
     @Test
@@ -564,9 +564,9 @@ public class VirAttrITCase extends AbstractITCase {
 
             Map<String, Object> actuals = jdbcTemplate.queryForMap(
                     "SELECT id, surname, email FROM testpull WHERE id=?",
-                    new Object[] { userTO.getPlainAttrMap().get("fullname").getValues().get(0) });
+                    new Object[] { userTO.getPlainAttr("fullname").getValues().get(0) });
 
-            assertEquals(userTO.getPlainAttrMap().get("fullname").getValues().get(0), actuals.get("id").toString());
+            assertEquals(userTO.getPlainAttr("fullname").getValues().get(0), actuals.get("id").toString());
             assertEquals("ml@group.it", actuals.get("email"));
             // -------------------------------------------
         } catch (Exception e) {
@@ -593,7 +593,7 @@ public class VirAttrITCase extends AbstractITCase {
 
         userTO = createUser(userTO).getEntity();
 
-        assertNotNull(userTO.getVirAttrMap().get("virtualReadOnly"));
+        assertNotNull(userTO.getVirAttr("virtualReadOnly"));
     }
 
     @Test
@@ -611,8 +611,8 @@ public class VirAttrITCase extends AbstractITCase {
 
         userTO = createUser(userTO).getEntity();
 
-        assertNotNull(userTO.getVirAttrMap().get("virtualdata"));
-        assertEquals("syncope501@apache.org", userTO.getVirAttrMap().get("virtualdata").getValues().get(0));
+        assertNotNull(userTO.getVirAttr("virtualdata"));
+        assertEquals("syncope501@apache.org", userTO.getVirAttr("virtualdata").getValues().get(0));
 
         // 2. update virtual attribute
         UserPatch userPatch = new UserPatch();
@@ -624,8 +624,8 @@ public class VirAttrITCase extends AbstractITCase {
         assertNotNull(userTO);
 
         // 3. check that user virtual attribute has really been updated 
-        assertFalse(userTO.getVirAttrMap().get("virtualdata").getValues().isEmpty());
-        assertEquals("syncope501_updated@apache.org", userTO.getVirAttrMap().get("virtualdata").getValues().get(0));
+        assertFalse(userTO.getVirAttr("virtualdata").getValues().isEmpty());
+        assertEquals("syncope501_updated@apache.org", userTO.getVirAttr("virtualdata").getValues().get(0));
     }
 
     @Test

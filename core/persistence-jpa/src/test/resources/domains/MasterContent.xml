@@ -1264,15 +1264,15 @@ we are happy to inform you that the password request was successfully executed f
 &lt;/html&gt;"/>
   <MailTemplate id="test"/>
   <MailTemplate id="optin"
-                textTemplate="Hi ${user.plainAttrMap[&quot;firstname&quot;].values[0]} ${user.plainAttrMap[&quot;surname&quot;].values[0]}, welcome to Syncope!
+                textTemplate="Hi ${user.getPlainAttr(&quot;firstname&quot;).values[0]} ${user.getPlainAttr(&quot;surname&quot;).values[0]}, welcome to Syncope!
 
 Your username is ${user.username}.
-Your email address is ${user.plainAttrMap[&quot;email&quot;].values[0]}.
-Your email address inside a link: http://localhost/?email=${user.plainAttrMap[&quot;email&quot;].values[0].replace('@', '%40')}
+Your email address is ${user.getPlainAttr(&quot;email&quot;).values[0]}.
+Your email address inside a link: http://localhost/?email=${user.getPlainAttr(&quot;email&quot;).values[0].replace('@', '%40')}
 
 This message was sent to the following recipients:&#10;
 $$ for (recipient: recipients) {&#10;
-  * ${recipient.plainAttrMap[&quot;email&quot;].values[0]}&#10;
+  * ${recipient.getPlainAttr(&quot;email&quot;).values[0]}&#10;
 $$ }&#10;
 &#10;
 because one of the following events occurred:&#10;
@@ -1288,19 +1288,19 @@ $$ }&#10;
 $$ }&#10;"
                 htmlTemplate="&lt;html&gt;
 &lt;body&gt;
-&lt;h3&gt;Hi ${user.plainAttrMap[&quot;firstname&quot;].values[0]} ${user.plainAttrMap[&quot;surname&quot;].values[0]}, welcome to Syncope!&lt;/h3&gt;
+&lt;h3&gt;Hi ${user.getPlainAttr(&quot;firstname&quot;).values[0]} ${user.getPlainAttr(&quot;surname&quot;).values[0]}, welcome to Syncope!&lt;/h3&gt;
 
 &lt;p&gt;
    Your username is ${user.username}.&lt;br/&gt;
-   Your email address is ${user.plainAttrMap[&quot;email&quot;].values[0]}.
-   Your email address inside a &lt;a href=&quot;http://localhost/?email=${user.plainAttrMap[&quot;email&quot;].values[0].replace('@', '%40')}&quot;&gt;link&lt;/a&gt;.
+   Your email address is ${user.getPlainAttr(&quot;email&quot;).values[0]}.
+   Your email address inside a &lt;a href=&quot;http://localhost/?email=${user.getPlainAttr(&quot;email&quot;).values[0].replace('@', '%40')}&quot;&gt;link&lt;/a&gt;.
 &lt;/p&gt;
 
 &lt;p&gt;
     This message was sent to the following recipients:
 &lt;ul&gt;&#10;
 $$ for (recipient: recipients) {&#10;Na
-  &lt;li&gt;${recipient.plainAttrMap[&quot;email&quot;].values[0]}&lt;/li&gt;&#10;
+  &lt;li&gt;${recipient.getPlainAttr(&quot;email&quot;).values[0]}&lt;/li&gt;&#10;
 $$ }&#10;
 &lt;/ul&gt;&#10;
 
