@@ -20,7 +20,9 @@ package org.apache.syncope.core.provisioning.java.pushpull;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -50,13 +52,14 @@ import org.apache.syncope.core.provisioning.api.event.AfterHandlingEvent;
 import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionException;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePushResultHandler;
 import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
+import org.apache.syncope.core.provisioning.java.job.AfterHandlingJob;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -67,7 +70,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
     protected MappingManager mappingManager;
 
     @Autowired
-    private ApplicationEventPublisher publisher;
+    protected SchedulerFactoryBean scheduler;
 
     protected abstract String getName(Any<?> any);
 
@@ -362,7 +365,8 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
 
                 throw new JobExecutionException(e);
             } finally {
-                publisher.publishEvent(new AfterHandlingEvent(this,
+                Map<String, Object> jobMap = new HashMap<>();
+                jobMap.put(AfterHandlingEvent.JOBMAP_KEY, new AfterHandlingEvent(
                         true,
                         true,
                         AuditElements.EventCategoryType.PUSH,
@@ -373,6 +377,7 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                         beforeObj,
                         output,
                         any));
+                AfterHandlingJob.schedule(scheduler, jobMap);
             }
         }
     }

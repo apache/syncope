@@ -54,7 +54,6 @@ public abstract class SchedulingPullActions extends DefaultPullActions {
         String jobName = getClass().getName() + UUID.randomUUID();
 
         jobMap.put(JobManager.DOMAIN_KEY, AuthContextUtils.getDomain());
-        jobMap.put(JobManager.INTERRUPT_MAX_RETRIES_KEY, 1L);
 
         ApplicationContextProvider.getBeanFactory().registerSingleton(jobName, jobInstance);
 

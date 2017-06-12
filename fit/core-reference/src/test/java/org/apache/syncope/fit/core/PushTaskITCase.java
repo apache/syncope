@@ -426,7 +426,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
 
         execProvisioningTask(taskService, actual.getKey(), 50, false);
 
-        NotificationTaskTO taskTO = findNotificationTaskBySender("syncope648@syncope.apache.org");
+        NotificationTaskTO taskTO = findNotificationTask(notification.getKey(), 50);
         assertNotNull(taskTO);
     }
 }

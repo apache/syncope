@@ -81,9 +81,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
@@ -279,8 +277,6 @@ public class NotificationManagerImpl implements NotificationManager {
         });
     }
 
-    @EventListener
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     public void createTasks(final AfterHandlingEvent event) {
         if (event.isNotificationsAvailable()) {
