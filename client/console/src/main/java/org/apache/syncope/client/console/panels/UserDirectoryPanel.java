@@ -128,7 +128,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
     @Override
     protected List<IColumn<UserTO, String>> getColumns() {
         final List<IColumn<UserTO, String>> columns = new ArrayList<>();
-        final List<IColumn<UserTO, String>> prefcolumns = new ArrayList<IColumn<UserTO, String>>();
+        final List<IColumn<UserTO, String>> prefcolumns = new ArrayList<>();
 
         columns.add(new KeyPropertyColumn<UserTO>(
                 new ResourceModel(Constants.KEY_FIELD_NAME, Constants.KEY_FIELD_NAME), Constants.KEY_FIELD_NAME));

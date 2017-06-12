@@ -50,7 +50,7 @@ public final class ActionsPanel<T extends Serializable> extends Panel {
 
             @Override
             protected void populateItem(final ListItem<Action<T>> item) {
-                item.add(new ActionPanel<T>(ActionsPanel.this.model, item.getModelObject()));
+                item.add(new ActionPanel<>(ActionsPanel.this.model, item.getModelObject()));
             }
 
         }.setRenderBodyOnly(true));

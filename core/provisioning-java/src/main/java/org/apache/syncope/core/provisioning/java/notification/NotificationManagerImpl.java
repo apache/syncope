@@ -279,17 +279,15 @@ public class NotificationManagerImpl implements NotificationManager {
 
     @Override
     public void createTasks(final AfterHandlingEvent event) {
-        if (event.isNotificationsAvailable()) {
-            createTasks(
-                    event.getType(),
-                    event.getCategory(),
-                    event.getSubcategory(),
-                    event.getEvent(),
-                    event.getCondition(),
-                    event.getBefore(),
-                    event.getOutput(),
-                    event.getInput());
-        }
+        createTasks(
+                event.getType(),
+                event.getCategory(),
+                event.getSubcategory(),
+                event.getEvent(),
+                event.getCondition(),
+                event.getBefore(),
+                event.getOutput(),
+                event.getInput());
     }
 
     @Override

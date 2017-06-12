@@ -324,8 +324,6 @@ public class RealmPushResultHandlerImpl
             } finally {
                 Map<String, Object> jobMap = new HashMap<>();
                 jobMap.put(AfterHandlingEvent.JOBMAP_KEY, new AfterHandlingEvent(
-                        true,
-                        true,
                         AuditElements.EventCategoryType.PUSH,
                         REALM_TYPE.toLowerCase(),
                         profile.getTask().getResource().getKey(),

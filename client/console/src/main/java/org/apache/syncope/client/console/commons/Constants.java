@@ -29,6 +29,8 @@ public final class Constants {
 
     public static final String SYNCOPE = "syncope";
 
+    public static final String VEIL_INDICATOR_MARKUP_ID = "veil";
+
     public static final String ACTIVITI_MODELER_CONTEXT = "activiti-modeler";
 
     public static final String FLOWABLE_MODELER_CONTEXT = "flowable-modeler";

@@ -97,19 +97,19 @@ public class LogicInvocationHandler {
             LOG.debug("After throwing {}.{}", clazz.getSimpleName(), event);
             throw t;
         } finally {
-            Map<String, Object> jobMap = new HashMap<>();
-            jobMap.put(AfterHandlingEvent.JOBMAP_KEY, new AfterHandlingEvent(
-                    notificationsAvailable,
-                    auditRequested,
-                    AuditElements.EventCategoryType.LOGIC,
-                    category,
-                    null,
-                    event,
-                    condition,
-                    before,
-                    output,
-                    input));
-            AfterHandlingJob.schedule(scheduler, jobMap);
+            if (notificationsAvailable || auditRequested) {
+                Map<String, Object> jobMap = new HashMap<>();
+                jobMap.put(AfterHandlingEvent.JOBMAP_KEY, new AfterHandlingEvent(
+                        AuditElements.EventCategoryType.LOGIC,
+                        category,
+                        null,
+                        event,
+                        condition,
+                        before,
+                        output,
+                        input));
+                AfterHandlingJob.schedule(scheduler, jobMap);
+            }
         }
     }
 }

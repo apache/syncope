@@ -80,17 +80,15 @@ public class AuditManagerImpl implements AuditManager {
 
     @Override
     public void audit(final AfterHandlingEvent event) {
-        if (event.isAuditRequested()) {
-            audit(
-                    event.getType(),
-                    event.getCategory(),
-                    event.getSubcategory(),
-                    event.getEvent(),
-                    event.getCondition(),
-                    event.getBefore(),
-                    event.getOutput(),
-                    event.getInput());
-        }
+        audit(
+                event.getType(),
+                event.getCategory(),
+                event.getSubcategory(),
+                event.getEvent(),
+                event.getCondition(),
+                event.getBefore(),
+                event.getOutput(),
+                event.getInput());
     }
 
     @Override

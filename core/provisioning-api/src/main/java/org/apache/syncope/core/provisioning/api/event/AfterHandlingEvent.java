@@ -27,10 +27,6 @@ public class AfterHandlingEvent implements Serializable {
 
     public static final String JOBMAP_KEY = "AfterHandlingEvent";
 
-    private final boolean notificationsAvailable;
-
-    private final boolean auditRequested;
-
     private final AuditElements.EventCategoryType type;
 
     private final String category;
@@ -48,8 +44,6 @@ public class AfterHandlingEvent implements Serializable {
     private final Object[] input;
 
     public AfterHandlingEvent(
-            final boolean notificationsAvailable,
-            final boolean auditRequested,
             final AuditElements.EventCategoryType type,
             final String category,
             final String subcategory,
@@ -59,8 +53,6 @@ public class AfterHandlingEvent implements Serializable {
             final Object output,
             final Object... input) {
 
-        this.notificationsAvailable = notificationsAvailable;
-        this.auditRequested = auditRequested;
         this.type = type;
         this.category = category;
         this.subcategory = subcategory;
@@ -69,14 +61,6 @@ public class AfterHandlingEvent implements Serializable {
         this.before = before;
         this.output = output;
         this.input = input;
-    }
-
-    public boolean isNotificationsAvailable() {
-        return notificationsAvailable;
-    }
-
-    public boolean isAuditRequested() {
-        return auditRequested;
     }
 
     public AuditElements.EventCategoryType getType() {

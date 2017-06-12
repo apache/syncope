@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.wicket.markup.html.link;
 
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.wicket.markup.html.link.PopupSettings;
 
 public class VeilPopupSettings extends PopupSettings {
@@ -26,7 +27,7 @@ public class VeilPopupSettings extends PopupSettings {
 
     @Override
     public String getPopupJavaScript() {
-        return "document.getElementById('veil').style.display = 'block';"
+        return "document.getElementById('" + Constants.VEIL_INDICATOR_MARKUP_ID + "').style.display = 'block';"
                 + super.getPopupJavaScript().substring(0, super.getPopupJavaScript().lastIndexOf("return false;"))
                 + "var loop = setInterval(function() { "
                 + "  if(w.closed) {"

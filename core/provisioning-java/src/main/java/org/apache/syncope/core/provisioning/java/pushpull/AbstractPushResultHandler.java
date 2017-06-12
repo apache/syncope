@@ -367,8 +367,6 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
             } finally {
                 Map<String, Object> jobMap = new HashMap<>();
                 jobMap.put(AfterHandlingEvent.JOBMAP_KEY, new AfterHandlingEvent(
-                        true,
-                        true,
                         AuditElements.EventCategoryType.PUSH,
                         any.getType().getKind().name().toLowerCase(),
                         profile.getTask().getResource().getKey(),
