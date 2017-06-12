@@ -22,6 +22,7 @@ import static de.agilecoders.wicket.jquery.JQuery.$;
 
 import de.agilecoders.wicket.jquery.function.JavaScriptInlineFunction;
 import java.util.ArrayList;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
@@ -72,4 +73,10 @@ public abstract class IndicatingOnConfirmAjaxLink<T> extends IndicatingAjaxLink<
                     )).asDomReadyScript());
         }
     }
+
+    @Override
+    public String getAjaxIndicatorMarkupId() {
+        return Constants.VEIL_INDICATOR_MARKUP_ID;
+    }
+
 }

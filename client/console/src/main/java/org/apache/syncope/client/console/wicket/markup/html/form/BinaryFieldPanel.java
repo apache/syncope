@@ -208,6 +208,12 @@ public class BinaryFieldPanel extends FieldPanel<String> {
                 uploadForm.addOrReplace(container);
                 target.add(uploadForm);
             }
+
+            @Override
+            public String getAjaxIndicatorMarkupId() {
+                return Constants.VEIL_INDICATOR_MARKUP_ID;
+            }
+
         };
         uploadForm.add(resetLink);
     }
