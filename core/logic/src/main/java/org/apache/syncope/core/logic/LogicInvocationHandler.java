@@ -20,11 +20,14 @@ package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.provisioning.api.event.AfterHandlingEvent;
+import org.apache.syncope.core.provisioning.java.job.AfterHandlingJob;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -32,7 +35,7 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 
 @Aspect
 public class LogicInvocationHandler {
@@ -46,7 +49,7 @@ public class LogicInvocationHandler {
     private AuditManager auditManager;
 
     @Autowired
-    private ApplicationEventPublisher publisher;
+    private SchedulerFactoryBean scheduler;
 
     @Around("execution(* org.apache.syncope.core.logic.AbstractLogic+.*(..))")
     public Object around(final ProceedingJoinPoint joinPoint) throws Throwable {
@@ -94,7 +97,8 @@ public class LogicInvocationHandler {
             LOG.debug("After throwing {}.{}", clazz.getSimpleName(), event);
             throw t;
         } finally {
-            publisher.publishEvent(new AfterHandlingEvent(this,
+            Map<String, Object> jobMap = new HashMap<>();
+            jobMap.put(AfterHandlingEvent.JOBMAP_KEY, new AfterHandlingEvent(
                     notificationsAvailable,
                     auditRequested,
                     AuditElements.EventCategoryType.LOGIC,
@@ -105,6 +109,7 @@ public class LogicInvocationHandler {
                     before,
                     output,
                     input));
+            AfterHandlingJob.schedule(scheduler, jobMap);
         }
     }
 }

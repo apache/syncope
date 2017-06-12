@@ -19,7 +19,6 @@
 package org.apache.syncope.fit.core;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
@@ -31,8 +30,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
@@ -160,18 +157,29 @@ public abstract class AbstractTaskITCase extends AbstractITCase {
         service.shutdownNow();
     }
 
-    protected NotificationTaskTO findNotificationTaskBySender(final String sender) {
-        PagedResult<NotificationTaskTO> tasks =
-                taskService.list(new TaskQuery.Builder(TaskType.NOTIFICATION).page(1).size(100).build());
-        assertNotNull(tasks);
-        assertFalse(tasks.getResult().isEmpty());
+    protected NotificationTaskTO findNotificationTask(final String notification, final int maxWaitSeconds) {
+        int i = 0;
+        int maxit = maxWaitSeconds;
 
-        return IterableUtils.find(tasks.getResult(), new Predicate<NotificationTaskTO>() {
-
-            @Override
-            public boolean evaluate(final NotificationTaskTO task) {
-                return sender.equals(task.getSender());
+        NotificationTaskTO notificationTask = null;
+        do {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
             }
-        });
+
+            PagedResult<NotificationTaskTO> tasks =
+                    taskService.list(new TaskQuery.Builder(TaskType.NOTIFICATION).notification(notification).build());
+            if (!tasks.getResult().isEmpty()) {
+                notificationTask = tasks.getResult().get(0);
+            }
+
+            i++;
+        } while (notificationTask == null && i < maxit);
+        if (notificationTask == null) {
+            fail("Timeout when looking for notification tasks from notification " + notification);
+        }
+
+        return notificationTask;
     }
 }

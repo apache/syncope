@@ -18,12 +18,14 @@
  */
 package org.apache.syncope.core.provisioning.api.event;
 
+import java.io.Serializable;
 import org.apache.syncope.common.lib.types.AuditElements;
-import org.springframework.context.ApplicationEvent;
 
-public class AfterHandlingEvent extends ApplicationEvent {
+public class AfterHandlingEvent implements Serializable {
 
     private static final long serialVersionUID = 5950986229089263378L;
+
+    public static final String JOBMAP_KEY = "AfterHandlingEvent";
 
     private final boolean notificationsAvailable;
 
@@ -46,7 +48,6 @@ public class AfterHandlingEvent extends ApplicationEvent {
     private final Object[] input;
 
     public AfterHandlingEvent(
-            final Object source,
             final boolean notificationsAvailable,
             final boolean auditRequested,
             final AuditElements.EventCategoryType type,
@@ -57,8 +58,6 @@ public class AfterHandlingEvent extends ApplicationEvent {
             final Object before,
             final Object output,
             final Object... input) {
-
-        super(source);
 
         this.notificationsAvailable = notificationsAvailable;
         this.auditRequested = auditRequested;

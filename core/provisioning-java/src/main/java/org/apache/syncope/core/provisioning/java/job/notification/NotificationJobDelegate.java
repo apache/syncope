@@ -31,13 +31,11 @@ import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.provisioning.api.AuditManager;
-import org.apache.syncope.core.provisioning.api.event.AfterHandlingEvent;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -49,9 +47,6 @@ public class NotificationJobDelegate {
 
     private static final Logger LOG = LoggerFactory.getLogger(NotificationJobDelegate.class);
 
-    /**
-     * Task DAO.
-     */
     @Autowired
     private TaskDAO taskDAO;
 
@@ -66,9 +61,6 @@ public class NotificationJobDelegate {
 
     @Autowired
     private NotificationManager notificationManager;
-
-    @Autowired
-    private ApplicationEventPublisher publisher;
 
     private long maxRetries;
 
@@ -156,9 +148,7 @@ public class NotificationJobDelegate {
                         execution.setMessage(report.toString());
                     }
 
-                    publisher.publishEvent(new AfterHandlingEvent(this,
-                            true,
-                            true,
+                    notificationManager.createTasks(
                             AuditElements.EventCategoryType.TASK,
                             "notification",
                             null,
@@ -167,7 +157,7 @@ public class NotificationJobDelegate {
                             null,
                             null,
                             task,
-                            "Successfully sent notification to " + to));
+                            "Successfully sent notification to " + to);
                 } catch (Exception e) {
                     LOG.error("Could not send e-mail", e);
 
@@ -176,9 +166,7 @@ public class NotificationJobDelegate {
                         execution.setMessage(ExceptionUtils2.getFullStackTrace(e));
                     }
 
-                    publisher.publishEvent(new AfterHandlingEvent(this,
-                            true,
-                            true,
+                    notificationManager.createTasks(
                             AuditElements.EventCategoryType.TASK,
                             "notification",
                             null,
@@ -187,7 +175,7 @@ public class NotificationJobDelegate {
                             null,
                             null,
                             task,
-                            "Could not send notification to " + to, e));
+                            "Could not send notification to " + to, e);
                 }
 
                 execution.setEnd(new Date());

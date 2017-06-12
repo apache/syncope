@@ -31,9 +31,7 @@ import org.apache.syncope.core.provisioning.api.event.AfterHandlingEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional(readOnly = true)
@@ -80,8 +78,6 @@ public class AuditManagerImpl implements AuditManager {
         return auditRequested;
     }
 
-    @EventListener
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     public void audit(final AfterHandlingEvent event) {
         if (event.isAuditRequested()) {

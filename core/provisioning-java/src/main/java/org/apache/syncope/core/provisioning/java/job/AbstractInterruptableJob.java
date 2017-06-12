@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.provisioning.java.job;
 
-
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicReference;
 import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
@@ -35,7 +34,7 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractInterruptableJob implements InterruptableJob {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractInterruptableJob.class);
-    
+
     /**
      * The current running thread containing the task to be executed.
      */
@@ -46,7 +45,11 @@ public abstract class AbstractInterruptableJob implements InterruptableJob {
     @Override
     public void execute(final JobExecutionContext context) throws JobExecutionException {
         this.runningThread.set(Thread.currentThread());
-        this.interruptMaxRetries = context.getMergedJobDataMap().getLong(JobManager.INTERRUPT_MAX_RETRIES_KEY);
+        try {
+            this.interruptMaxRetries = context.getMergedJobDataMap().getLong(JobManager.INTERRUPT_MAX_RETRIES_KEY);
+        } catch (Exception e) {
+            LOG.debug("Could not set {}, defaults to {}", JobManager.INTERRUPT_MAX_RETRIES_KEY, interruptMaxRetries, e);
+        }
     }
 
     @Override

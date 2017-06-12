@@ -19,7 +19,9 @@
 package org.apache.syncope.core.provisioning.java.pushpull;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.AuditElements;
@@ -39,6 +41,7 @@ import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionExceptio
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
 import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePushResultHandler;
+import org.apache.syncope.core.provisioning.java.job.AfterHandlingJob;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
@@ -46,7 +49,7 @@ import org.identityconnectors.framework.common.objects.ResultsHandler;
 import org.identityconnectors.framework.common.objects.filter.EqualsFilter;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,7 +58,7 @@ public class RealmPushResultHandlerImpl
         implements SyncopePushResultHandler {
 
     @Autowired
-    private ApplicationEventPublisher publisher;
+    protected SchedulerFactoryBean scheduler;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
@@ -319,7 +322,8 @@ public class RealmPushResultHandlerImpl
 
                 throw new JobExecutionException(e);
             } finally {
-                publisher.publishEvent(new AfterHandlingEvent(this,
+                Map<String, Object> jobMap = new HashMap<>();
+                jobMap.put(AfterHandlingEvent.JOBMAP_KEY, new AfterHandlingEvent(
                         true,
                         true,
                         AuditElements.EventCategoryType.PUSH,
@@ -330,6 +334,7 @@ public class RealmPushResultHandlerImpl
                         beforeObj,
                         output,
                         realm));
+                AfterHandlingJob.schedule(scheduler, jobMap);
             }
         }
     }
