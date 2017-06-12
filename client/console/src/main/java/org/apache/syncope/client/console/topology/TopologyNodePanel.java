@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.topology;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.topology.TopologyNode.Kind;
 import org.apache.syncope.client.console.topology.TopologyTogglePanel.UpdateEvent;
@@ -108,7 +109,7 @@ public class TopologyNodePanel extends Panel implements IAjaxIndicatorAware {
 
     @Override
     public String getAjaxIndicatorMarkupId() {
-        return "veil";
+        return Constants.VEIL_INDICATOR_MARKUP_ID;
     }
 
     @Override

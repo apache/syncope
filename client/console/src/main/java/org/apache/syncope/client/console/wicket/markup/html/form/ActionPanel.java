@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.wicket.markup.html.form;
 import java.io.Serializable;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.link.VeilPopupSettings;
 import org.apache.wicket.AttributeModifier;
@@ -108,7 +109,7 @@ public final class ActionPanel<T extends Serializable> extends Panel {
                 @Override
                 public String getAjaxIndicatorMarkupId() {
                     return disableIndicator || !action.getLink().isIndicatorEnabled()
-                            ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
+                            ? StringUtils.EMPTY : Constants.VEIL_INDICATOR_MARKUP_ID;
                 }
             }
                     : new IndicatingAjaxLink<Void>("action") {
@@ -124,7 +125,7 @@ public final class ActionPanel<T extends Serializable> extends Panel {
                 @Override
                 public String getAjaxIndicatorMarkupId() {
                     return disableIndicator || !action.getLink().isIndicatorEnabled()
-                            ? StringUtils.EMPTY : super.getAjaxIndicatorMarkupId();
+                            ? StringUtils.EMPTY : Constants.VEIL_INDICATOR_MARKUP_ID;
                 }
             };
         }

@@ -401,7 +401,7 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
 
     @Override
     public String getAjaxIndicatorMarkupId() {
-        return "veil";
+        return Constants.VEIL_INDICATOR_MARKUP_ID;
     }
 
     public NotificationPanel getNotificationPanel() {

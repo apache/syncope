@@ -1137,6 +1137,10 @@ ul.menu li a {
   cursor: pointer !important;
 }
 
+ul.menu i {
+  width: 35px;
+}
+
 .toggle-menu ul.menu li a {
   padding: 0px;
   text-align: left;

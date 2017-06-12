@@ -18,12 +18,15 @@
  */
 package org.apache.syncope.core.persistence.api.dao.search;
 
+import java.io.Serializable;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
-public class OrderByClause {
+public class OrderByClause implements Serializable {
+
+    private static final long serialVersionUID = -1741826744085524716L;
 
     public enum Direction {
 
