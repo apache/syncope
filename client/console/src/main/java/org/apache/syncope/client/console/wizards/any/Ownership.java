@@ -250,6 +250,12 @@ public class Ownership extends WizardStep implements WizardModel.ICondition {
                 send(Ownership.this, Broadcast.EXACT,
                         new GroupSelectionDirectoryPanel.ItemSelection<GroupTO>(target, null));
             }
+
+            @Override
+            public String getAjaxIndicatorMarkupId() {
+                return Constants.VEIL_INDICATOR_MARKUP_ID;
+            }
+
         };
         userSearchFragment.add(userOwnerReset);
 
@@ -298,6 +304,12 @@ public class Ownership extends WizardStep implements WizardModel.ICondition {
                 send(Ownership.this, Broadcast.EXACT,
                         new GroupSelectionDirectoryPanel.ItemSelection<GroupTO>(target, null));
             }
+
+            @Override
+            public String getAjaxIndicatorMarkupId() {
+                return Constants.VEIL_INDICATOR_MARKUP_ID;
+            }
+
         };
         groupSearchFragment.add(groupOwnerReset);
     }

@@ -204,7 +204,7 @@ public class TopologyITCase extends AbstractConsoleITCase {
                 "body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:content:wizard:form");
 
         formTester.setValue("view:container:type:dropDownChoiceField", "0");
-        formTester.setValue("view:container:class", "__ACCOUNT__");
+        formTester.setValue("view:container:clazz:textField", "__ACCOUNT__");
         formTester.submit("buttons:next");
         TESTER.assertNoErrorMessage();
         TESTER.assertNoInfoMessage();

@@ -30,6 +30,7 @@ import org.apache.syncope.client.console.commons.ConnIdSpecialName;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.ProvisionAuxClassesPanel;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
+import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
@@ -47,8 +48,6 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.form.FormComponent;
-import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
@@ -58,6 +57,8 @@ import org.apache.wicket.model.StringResourceModel;
 public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> {
 
     private static final long serialVersionUID = 3739399543837732640L;
+
+    private final ConnectorRestClient connectorRestClient = new ConnectorRestClient();
 
     private final ResourceTO resourceTO;
 
@@ -115,8 +116,10 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> {
                     setRequired(true);
             container.add(type);
 
-            final FormComponent<String> clazz = new TextField<>(
-                    "class", new PropertyModel<String>(item, "objectClass")).setRequired(true);
+            final AjaxTextFieldPanel clazz = new AjaxTextFieldPanel(
+                    "clazz", "clazz", new PropertyModel<String>(item, "objectClass"));
+            clazz.setRequired(true);
+            clazz.setChoices(connectorRestClient.getObjectClasses(resourceTO.getConnector()));
             container.add(clazz);
 
             type.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {

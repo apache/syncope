@@ -24,8 +24,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.ws.rs.core.Response;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
+import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -62,6 +64,25 @@ public class ConnectorRestClient extends BaseRestClient {
         Response response = service.create(connectorTO);
 
         return getObject(service, response.getLocation(), ConnInstanceTO.class);
+    }
+
+    public List<String> getObjectClasses(final String connectorKey) {
+        List<String> result = new ArrayList<>();
+
+        ConnectorService service = getService(ConnectorService.class);
+        ConnInstanceTO connInstance = service.read(connectorKey, SyncopeConsoleSession.get().getLocale().getLanguage());
+        if (connInstance != null) {
+            CollectionUtils.collect(service.buildObjectClassInfo(connInstance, true),
+                    new Transformer<ConnIdObjectClassTO, String>() {
+
+                @Override
+                public String transform(final ConnIdObjectClassTO input) {
+                    return input.getType();
+                }
+            }, result);
+        }
+
+        return result;
     }
 
     public List<String> getExtAttrNames(
