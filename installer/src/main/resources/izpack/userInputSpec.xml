@@ -145,7 +145,7 @@ under the License.
       <spec id="persistence.jdbc.url" size="20" set="jdbc:postgresql://localhost:5432/syncope"/>
     </field>
     <field type="text" variable="persistence.url" conditionid="mysql.choice">
-      <spec id="persistence.jdbc.url" size="20" set="jdbc:mysql://localhost:3306/syncope?characterEncoding=UTF-8"/>
+      <spec id="persistence.jdbc.url" size="20" set="jdbc:mysql://localhost:3306/syncope?characterEncoding=UTF-8&amp;relaxAutoCommit=true"/>
     </field>
     <field type="text" variable="persistence.url" conditionid="oracle.choice">
       <spec id="persistence.jdbc.url" size="20" set="jdbc:oracle:thin:@localhost:1521:orcl"/>

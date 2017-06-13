@@ -78,20 +78,21 @@ under the License.
       <arg>$mvn.conf.directory</arg><!-- 13 -->
       <arg>$mvn.log.directory</arg><!-- 14 -->
       <arg>$mvn.bundle.directory</arg><!-- 15 -->
-      <arg>$with.datasuorce</arg><!-- 16 -->
-      <arg>$jboss.container.ssl</arg><!-- 17 -->
-      <arg>$jboss.container.host</arg><!-- 18 -->
-      <arg>$jboss.container.port</arg><!-- 19 -->
-      <arg>$jboss.container.jdbc.module</arg><!-- 20 -->
-      <arg>$jboss.container.user</arg><!-- 21 -->
-      <arg>$jboss.container.pwd</arg><!-- 22 -->
-      <arg>$jboss.container.management.port</arg><!-- 23 -->
-      <arg>$mvn.proxy</arg><!-- 24 -->
-      <arg>$mvn.proxy.host</arg><!-- 25 -->
-      <arg>$mvn.proxy.port</arg><!-- 26 -->
-      <arg>$mvn.proxy.user</arg><!-- 27 -->
-      <arg>$mvn.proxy.pwd</arg><!-- 28 -->
-      <arg>$mvn.proxy.autoconf</arg><!-- 29 -->
+      <arg>$mvn.modeler.directory</arg><!-- 16 -->
+      <arg>$with.datasuorce</arg><!-- 17 -->
+      <arg>$jboss.container.ssl</arg><!-- 18 -->
+      <arg>$jboss.container.host</arg><!-- 19 -->
+      <arg>$jboss.container.port</arg><!-- 20 -->
+      <arg>$jboss.container.jdbc.module</arg><!-- 21 -->
+      <arg>$jboss.container.user</arg><!-- 22 -->
+      <arg>$jboss.container.pwd</arg><!-- 23 -->
+      <arg>$jboss.container.management.port</arg><!-- 24 -->
+      <arg>$mvn.proxy</arg><!-- 25 -->
+      <arg>$mvn.proxy.host</arg><!-- 26 -->
+      <arg>$mvn.proxy.port</arg><!-- 27 -->
+      <arg>$mvn.proxy.user</arg><!-- 28 -->
+      <arg>$mvn.proxy.pwd</arg><!-- 29 -->
+      <arg>$mvn.proxy.autoconf</arg><!-- 30 -->
     </executeclass>
   </job>
   <onFail previous="true" next="false" />

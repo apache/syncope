@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.Properties;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
+import org.apache.syncope.installer.files.ConsolePom;
 import org.apache.syncope.installer.files.CorePom;
 import org.apache.syncope.installer.files.ParentPom;
 import org.apache.syncope.installer.utilities.InstallLog;
@@ -98,9 +99,9 @@ public class ArchetypeProcess extends BaseProcess {
         if (syncopeVersion.contains("SNAPSHOT")) {
             final File pomFile = new File(syncopeInstallDir + PROPERTIES.getProperty("pomFile"));
             String contentPomFile = fileSystemUtils.readFile(pomFile);
-            fileSystemUtils.
-                    writeToFile(pomFile, contentPomFile.replace(ParentPom.REPOSITORY_PLACEHOLDER,
-                            ParentPom.REPOSITORY_CONTENT_TO_ADD));
+            fileSystemUtils.writeToFile(
+                    pomFile,
+                    contentPomFile.replace(ParentPom.REPOSITORY_PLACEHOLDER, ParentPom.REPOSITORY_CONTENT_TO_ADD));
         }
 
         if (swagger) {
@@ -111,9 +112,9 @@ public class ArchetypeProcess extends BaseProcess {
                     + File.separator
                     + PROPERTIES.getProperty("pomFile"));
             String contentPomFile = fileSystemUtils.readFile(pomFile);
-            contentPomFile = contentPomFile.replace(CorePom.SWAGGER_PLACEHOLDER, CorePom.SWAGGER_CONTENT_TO_ADD);
-
-            fileSystemUtils.writeToFile(pomFile, contentPomFile);
+            fileSystemUtils.writeToFile(
+                    pomFile,
+                    contentPomFile.replace(CorePom.SWAGGER_PLACEHOLDER, CorePom.SWAGGER_CONTENT_TO_ADD));
         }
 
         fileSystemUtils.createDirectory(confDirectory);
@@ -122,50 +123,38 @@ public class ArchetypeProcess extends BaseProcess {
         fileSystemUtils.createDirectory(modelerDirectory);
 
         if (activiti) {
-            fileSystemUtils.copyFileFromResources(
-                    File.separator + PROPERTIES.getProperty("modelerPomFile"),
-                    modelerDirectory + File.separator + PROPERTIES.getProperty("pomFile"), handler);
-
-            File modelerPomFile = new File(modelerDirectory + File.separator + PROPERTIES.getProperty("pomFile"));
-
-            String contentModelerPomFile =
-                    fileSystemUtils.readFile(modelerPomFile).replace("${syncope.version}", syncopeVersion);
-            fileSystemUtils.writeToFile(modelerPomFile, String.format(contentModelerPomFile, modelerDirectory));
-            fileSystemUtils.copyFile(
-                    syncopeInstallDir
-                    + PROPERTIES.getProperty("consoleResDirectory")
-                    + File.separator + PROPERTIES.getProperty("urlConfig"),
-                    modelerDirectory + File.separator + PROPERTIES.getProperty("urlConfig"));
-            fileSystemUtils.copyFile(
-                    syncopeInstallDir
-                    + PROPERTIES.getProperty("consoleResDirectory")
-                    + File.separator + PROPERTIES.getProperty("saveModel"),
-                    modelerDirectory + File.separator + PROPERTIES.getProperty("saveModel"));
-
-            final Properties modelerProperties = new Properties();
-            modelerProperties.setProperty("activiti-modeler.directory", modelerDirectory);
-            mavenUtils.mvnCleanPackageWithProperties(modelerDirectory, modelerProperties, customMavenProxySettings);
-            FileSystemUtils.delete(new File(modelerDirectory + File.separator + PROPERTIES.getProperty("saveModel")));
-            FileSystemUtils.delete(new File(modelerDirectory + File.separator + PROPERTIES.getProperty("urlConfig")));
-        } else {
-            final File pomFile = new File(
+            File pomFile = new File(
                     syncopeInstallDir
                     + File.separator
                     + "core"
                     + File.separator
                     + PROPERTIES.getProperty("pomFile"));
             String contentPomFile = fileSystemUtils.readFile(pomFile);
-            contentPomFile = contentPomFile.replace(CorePom.ACTIVITI_PLACEHOLDER, "");
-            fileSystemUtils.writeToFile(pomFile, contentPomFile);
+            fileSystemUtils.writeToFile(
+                    pomFile,
+                    contentPomFile.replace(CorePom.ACTIVITI_PLACEHOLDER, CorePom.ACTIVITI_CONTENT_TO_ADD));
 
             fileSystemUtils.copyFileFromResources("/workflow.properties",
                     syncopeInstallDir + PROPERTIES.getProperty("workflowPropertiesFile"), handler);
+
+            pomFile = new File(
+                    syncopeInstallDir
+                    + File.separator
+                    + "console"
+                    + File.separator
+                    + PROPERTIES.getProperty("pomFile"));
+            contentPomFile = fileSystemUtils.readFile(pomFile);
+            fileSystemUtils.writeToFile(
+                    pomFile,
+                    contentPomFile.replace(ConsolePom.ACTIVITI_PLACEHOLDER, ConsolePom.ACTIVITI_CONTENT_TO_ADD).
+                            replace(ConsolePom.MODELER_PLACEHOLDER, ConsolePom.MODELER_CONTENT_TO_ADD));
         }
 
         final Properties syncopeProperties = new Properties();
         syncopeProperties.setProperty("conf.directory", confDirectory);
         syncopeProperties.setProperty("log.directory", logsDirectory);
         syncopeProperties.setProperty("bundles.directory", bundlesDirectory);
+        syncopeProperties.setProperty("activiti-modeler.directory", modelerDirectory);
         mavenUtils.mvnCleanPackageWithProperties(
                 installPath + File.separator + artifactId, syncopeProperties, customMavenProxySettings);
     }

@@ -23,8 +23,8 @@ GlassFish Application Server 3.1 Servlet 3.0//EN" "http://glassfish.org/dtds/gla
   <context-root>/syncope</context-root>
   <!-- Uncomment this when using JNDI DataSource -->
   <!--<resource-ref>
-    <res-ref-name>jdbc/syncopeDataSource</res-ref-name>
-    <jndi-name>jdbc/syncopeDataSource</jndi-name>
+    <res-ref-name>jdbc/syncopeMasterDataSource</res-ref-name>
+    <jndi-name>jdbc/syncopeMasterDataSource</jndi-name>
   </resource-ref>-->
   <class-loader delegate="false"/>
   <jsp-config>

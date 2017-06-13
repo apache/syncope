@@ -76,6 +76,7 @@ public final class ContainerProcess extends BaseProcess {
     private String logsDirectory;
 
     private String bundlesDirectory;
+    private String modelerDirectory;
 
     private boolean withDataSource;
 
@@ -123,20 +124,21 @@ public final class ContainerProcess extends BaseProcess {
         confDirectory = args[13];
         logsDirectory = args[14];
         bundlesDirectory = args[15];
-        withDataSource = Boolean.valueOf(args[16]);
-        jbossSsl = Boolean.valueOf(args[17]);
-        jbossHost = args[18];
-        jbossPort = args[19];
-        jbossJdbcModuleName = args[20];
-        jbossAdminUsername = args[21];
-        jbossAdminPassword = args[22];
-        jbossManagementPort = args[23];
-        isProxyEnabled = Boolean.valueOf(args[24]);
-        proxyHost = args[25];
-        proxyPort = args[26];
-        proxyUser = args[27];
-        proxyPwd = args[28];
-        mavenProxyAutoconf = Boolean.valueOf(args[29]);
+        modelerDirectory = args[16];
+        withDataSource = Boolean.valueOf(args[17]);
+        jbossSsl = Boolean.valueOf(args[18]);
+        jbossHost = args[19];
+        jbossPort = args[20];
+        jbossJdbcModuleName = args[21];
+        jbossAdminUsername = args[22];
+        jbossAdminPassword = args[23];
+        jbossManagementPort = args[24];
+        isProxyEnabled = Boolean.valueOf(args[25]);
+        proxyHost = args[26];
+        proxyPort = args[27];
+        proxyUser = args[28];
+        proxyPwd = args[29];
+        mavenProxyAutoconf = Boolean.valueOf(args[30]);
 
         handler.logOutput("Configure web.xml file according to " + selectedContainer + " properties", true);
         InstallLog.getInstance().info("Configure web.xml file according to " + selectedContainer + " properties");
@@ -227,6 +229,7 @@ public final class ContainerProcess extends BaseProcess {
         mvnProperties.setProperty("conf.directory", confDirectory);
         mvnProperties.setProperty("log.directory", logsDirectory);
         mvnProperties.setProperty("bundles.directory", bundlesDirectory);
+        mvnProperties.setProperty("activiti-modeler.directory", modelerDirectory);
         mavenUtils.mvnCleanPackageWithProperties(
                 installPath + File.separator + artifactId, mvnProperties, customMavenProxySettings);
 

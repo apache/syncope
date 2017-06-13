@@ -60,7 +60,7 @@ public class FileSystemUtils {
             FileUtils.copyFile(new File(sourceFilePath), new File(targetFilePath));
         } catch (final IOException ex) {
             final String errorMessage =
-                    "Error copying file " + sourceFilePath + " to " + targetFilePath;
+                    "Error copying file " + sourceFilePath + " to " + targetFilePath + ": " + ex.getMessage();
             handler.emitError(errorMessage, errorMessage);
             InstallLog.getInstance().error(errorMessage);
         }
@@ -82,8 +82,7 @@ public class FileSystemUtils {
         }
     }
 
-    private void readResponse(final InputStream inputStream) throws
-            IOException {
+    private void readResponse(final InputStream inputStream) throws IOException {
         final BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
         String line = reader.readLine();
         while (line != null) {
@@ -98,9 +97,9 @@ public class FileSystemUtils {
     public void writeToFile(final File file, final String content) {
         try {
             final FileWriter fw = new FileWriter(file.getAbsoluteFile());
-            final BufferedWriter bw = new BufferedWriter(fw);
-            bw.write(content);
-            bw.close();
+            try (BufferedWriter bw = new BufferedWriter(fw)) {
+                bw.write(content);
+            }
         } catch (final IOException ex) {
             final String errorMessage = "Error writing file " + file.getAbsolutePath() + ": " + ex.getMessage();
             handler.emitError(errorMessage, errorMessage);
@@ -125,9 +124,9 @@ public class FileSystemUtils {
             if (!file.exists()) {
                 file.createNewFile();
             }
-            final PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(file, true)));
-            out.println(content);
-            out.close();
+            try (PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(file, true)))) {
+                out.println(content);
+            }
         } catch (IOException ex) {
             final String errorMessage = "Error writing file " + file.getAbsolutePath() + ": " + ex.getMessage();
             handler.emitError(errorMessage, errorMessage);
@@ -135,8 +134,7 @@ public class FileSystemUtils {
         }
     }
 
-    public static void writeXML(final Document doc, final OutputStream out) throws IOException,
-            TransformerException {
+    public static void writeXML(final Document doc, final OutputStream out) throws IOException, TransformerException {
         try {
             final TransformerFactory factory = TransformerFactory.newInstance();
             factory.setFeature(javax.xml.XMLConstants.FEATURE_SECURE_PROCESSING, true);
@@ -157,13 +155,13 @@ public class FileSystemUtils {
         FileUtils.deleteQuietly(file);
     }
 
-    public void copyFileFromResources(final String filePath,
-            final String destination, final AbstractUIProcessHandler handler) {
+    public void copyFileFromResources(
+            final String filePath, final String destination, final AbstractUIProcessHandler handler) {
 
         try {
             FileUtils.copyURLToFile(getClass().getResource(filePath), new File(destination));
         } catch (IOException ex) {
-            String errorMessage = "Error copying file " + filePath + " to + " + destination;
+            String errorMessage = "Error copying file " + filePath + " to + " + destination + ": " + ex.getMessage();
             handler.emitError(errorMessage, errorMessage);
             InstallLog.getInstance().error(errorMessage);
         }

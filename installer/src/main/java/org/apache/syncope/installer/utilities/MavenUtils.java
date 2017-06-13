@@ -58,12 +58,20 @@ public class MavenUtils {
         this.handler = handler;
     }
 
-    public void archetypeGenerate(final String archetypeVersion, final String groupId,
-            final String artifactId, final String secretKey, final String anonymousKey, final String installPath,
+    public void archetypeGenerate(
+            final String archetypeVersion,
+            final String groupId,
+            final String artifactId,
+            final String secretKey,
+            final String anonymousKey,
+            final String installPath,
             final File customSettingsFile) {
 
         final InvocationRequest request = new DefaultInvocationRequest();
-        request.setGoals(Collections.singletonList("archetype:generate"));
+        request.setGoals(Collections.singletonList(
+                archetypeVersion.contains("SNAPSHOT")
+                ? "org.apache.maven.plugins:maven-archetype-plugin:2.4:generate"
+                : "archetype:generate"));
         request.setBatchMode(true);
         final Properties properties =
                 archetypeProperties(archetypeVersion, groupId, artifactId, secretKey, anonymousKey);
@@ -76,17 +84,20 @@ public class MavenUtils {
         invoke(request, installPath);
     }
 
-    private Properties archetypeProperties(final String archetypeVersion, final String groupId,
-            final String artifactId, final String secretKey, final String anonymousKey) {
+    private Properties archetypeProperties(
+            final String archetypeVersion,
+            final String groupId,
+            final String artifactId,
+            final String secretKey,
+            final String anonymousKey) {
+
         final Properties properties = new Properties();
         properties.setProperty("archetypeGroupId", "org.apache.syncope");
         properties.setProperty("archetypeArtifactId", "syncope-archetype");
-        if (archetypeVersion.contains("SNAPSHOT")) {
-            properties.setProperty("archetypeRepository",
-                    "http://repository.apache.org/content/repositories/snapshots");
-        } else {
-            properties.setProperty("archetypeRepository", "http://repo1.maven.org/maven2");
-        }
+        properties.setProperty("archetypeRepository",
+                archetypeVersion.contains("SNAPSHOT")
+                ? "http://repository.apache.org/content/repositories/snapshots"
+                : "http://repo1.maven.org/maven2");
         properties.setProperty("archetypeVersion", archetypeVersion);
         properties.setProperty("groupId", groupId);
         properties.setProperty("artifactId", artifactId);

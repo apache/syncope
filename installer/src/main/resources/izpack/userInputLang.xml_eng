@@ -51,7 +51,7 @@ under the License.
   <str id="persistence.mysql.is.innodb" txt="INNODB"/>
   <str id="persistence.oracle.tablespace" txt="Oracle tablespace:"/>
   
-  <str id="with.datasuorce.id" txt="DataSource with JNDI name 'java:/syncopeDataSource':"/>
+  <str id="with.datasuorce.id" txt="DataSource with JNDI name 'java:/syncopeMasterDataSource':"/>
   
   <str id="tomcat.container.ssl.id" txt="Https"/>
   <str id="tomcat.container.host.id" txt="Tomcat host:"/>

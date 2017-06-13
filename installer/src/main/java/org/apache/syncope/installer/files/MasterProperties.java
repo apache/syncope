@@ -44,17 +44,21 @@ public final class MasterProperties {
             + "Master.databasePlatform=org.apache.openjpa.jdbc.sql.PostgresDictionary%n"
             + "Master.orm=META-INF/spring-orm.xml%n"
             + "Master.pool.validationQuery=SELECT 1%n"
+            + "Master.pool.maxActive=10%n"
+            + "Master.pool.minIdle=2%n"
             + "Master.audit.sql=audit.sql%n";
 
     public static final String MYSQL = ""
             + "Master.driverClassName=com.mysql.jdbc.Driver%n"
-            + "Master.url=%s%n"
+            + "Master.url=%s&relaxAutoCommit=true%n"
             + "Master.schema=%n"
             + "Master.username=%s%n"
             + "Master.password=%s%n"
-            + "Master.databasePlatform=org.apache.openjpa.jdbc.sql.MySQLDictionary%n"
+            + "Master.databasePlatform=org.apache.openjpa.jdbc.sql.MySQLDictionary(blobTypeName=LONGBLOB)%n"
             + "Master.orm=META-INF/spring-orm.xml%n"
             + "Master.pool.validationQuery=SELECT 1%n"
+            + "Master.pool.maxActive=10%n"
+            + "Master.pool.minIdle=2%n"
             + "Master.audit.sql=audit.sql%n";
 
     public static final String MARIADB = ""
@@ -63,9 +67,11 @@ public final class MasterProperties {
             + "Master.schema=%n"
             + "Master.username=%s%n"
             + "Master.password=%s%n"
-            + "Master.databasePlatform=org.apache.openjpa.jdbc.sql.MariaDBDictionary%n"
+            + "Master.databasePlatform=org.apache.openjpa.jdbc.sql.MariaDBDictionary(blobTypeName=LONGBLOB)%n"
             + "Master.orm=META-INF/spring-orm.xml%n"
             + "Master.pool.validationQuery=SELECT 1%n"
+            + "Master.pool.maxActive=10%n"
+            + "Master.pool.minIdle=2%n"
             + "Master.audit.sql=audit.sql%n";
 
     public static final String ORACLE = ""
@@ -77,6 +83,8 @@ public final class MasterProperties {
             + "Master.databasePlatform=org.apache.openjpa.jdbc.sql.OracleDictionary%n"
             + "Master.orm=META-INF/spring-orm-oracle.xml%n"
             + "Master.pool.validationQuery=SELECT 1 FROM DUAL%n"
+            + "Master.pool.maxActive=10%n"
+            + "Master.pool.minIdle=2%n"
             + "Master.audit.sql=audit_oracle.sql%n";
 
     public static final String SQLSERVER = ""
@@ -88,6 +96,8 @@ public final class MasterProperties {
             + "Master.databasePlatform=org.apache.openjpa.jdbc.sql.SQLServerDictionary%n"
             + "Master.orm=META-INF/spring-orm-sqlserver.xml%n"
             + "Master.pool.validationQuery=SELECT 1%n"
+            + "Master.pool.maxActive=10%n"
+            + "Master.pool.minIdle=2%n"
             + "Master.audit.sql=audit_sqlserver.sql%n";
 
     private MasterProperties() {
