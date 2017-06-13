@@ -86,8 +86,8 @@ public abstract class StartAtTogglePanel extends TogglePanel<Serializable> {
                     toggle(target, false);
                     target.add(container);
                 } catch (SyncopeClientException e) {
-                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.
-                            getMessage());
+                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
+                            ? e.getClass().getName() : e.getMessage());
                     LOG.error("While running task {}", key, e);
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);

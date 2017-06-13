@@ -69,8 +69,8 @@ public class TemplateModal<T extends EntityTO, F> extends AbstractModalPanel<T> 
             modal.close(target);
         } catch (SyncopeClientException e) {
             LOG.error("While creating template for {}", templateTO.getKey(), e);
-            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.
-                    getMessage());
+            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
+                    ? e.getClass().getName() : e.getMessage());
         }
         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
     }

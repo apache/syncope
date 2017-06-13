@@ -131,7 +131,7 @@ public class ReportTemplateDirectoryPanel
                 content.setContent(
                         restClient.readTemplateFormat(model.getObject().getKey(), ReportTemplateFormat.FO));
 
-                utilityModal.header(new ResourceModel("report.template.fo", "FO Content"));
+                utilityModal.header(new ResourceModel("report.template.fo", "XSLT for XSL-FO"));
                 utilityModal.setContent(new TemplateContentEditorPanel(content, pageRef));
                 utilityModal.show(true);
                 target.add(utilityModal);
@@ -149,7 +149,7 @@ public class ReportTemplateDirectoryPanel
                 content.setContent(
                         restClient.readTemplateFormat(model.getObject().getKey(), ReportTemplateFormat.HTML));
 
-                utilityModal.header(new ResourceModel("report.template.html", "HTML Content"));
+                utilityModal.header(new ResourceModel("report.template.html", "XSLT for HTML"));
                 utilityModal.setContent(new TemplateContentEditorPanel(content, pageRef));
                 utilityModal.show(true);
                 target.add(utilityModal);
@@ -167,7 +167,7 @@ public class ReportTemplateDirectoryPanel
                 content.setContent(
                         restClient.readTemplateFormat(model.getObject().getKey(), ReportTemplateFormat.CSV));
 
-                utilityModal.header(new ResourceModel("report.template.text", "TEXT Content"));
+                utilityModal.header(new ResourceModel("report.template.csv", "XSLT for CSV"));
                 utilityModal.setContent(new TemplateContentEditorPanel(content, pageRef));
                 utilityModal.show(true);
                 target.add(utilityModal);
@@ -266,17 +266,20 @@ public class ReportTemplateDirectoryPanel
 
         @Override
         public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-            try {
-                restClient.updateTemplateFormat(
-                        content.getKey(), content.getContent(), content.getFormat());
-                SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-                modal.show(false);
-                modal.close(target);
-            } catch (Exception e) {
-                LOG.error("While updating template for {}", content.getKey(), e);
-                SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                        ? e.getClass().getName() : e.
-                        getMessage());
+            if (StringUtils.isBlank(content.getContent())) {
+                SyncopeConsoleSession.get().error("No content to save");
+            } else {
+                try {
+                    restClient.updateTemplateFormat(
+                            content.getKey(), content.getContent(), content.getFormat());
+                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    modal.show(false);
+                    modal.close(target);
+                } catch (Exception e) {
+                    LOG.error("While updating template for {}", content.getKey(), e);
+                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
+                            ? e.getClass().getName() : e.getMessage());
+                }
             }
             ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
         }

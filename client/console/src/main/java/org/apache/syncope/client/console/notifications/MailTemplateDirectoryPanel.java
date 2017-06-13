@@ -246,17 +246,20 @@ public class MailTemplateDirectoryPanel
 
         @Override
         public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-            try {
-                restClient.updateTemplateFormat(
-                        content.getKey(), content.getContent(), content.getFormat());
-                SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-                modal.show(false);
-                modal.close(target);
-            } catch (Exception e) {
-                LOG.error("While updating template for {}", content.getKey(), e);
-                SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                        ? e.getClass().getName() : e.
-                        getMessage());
+            if (StringUtils.isBlank(content.getContent())) {
+                SyncopeConsoleSession.get().error("No content to save");
+            } else {
+                try {
+                    restClient.updateTemplateFormat(
+                            content.getKey(), content.getContent(), content.getFormat());
+                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    modal.show(false);
+                    modal.close(target);
+                } catch (Exception e) {
+                    LOG.error("While updating template for {}", content.getKey(), e);
+                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
+                            ? e.getClass().getName() : e.getMessage());
+                }
             }
             ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
         }

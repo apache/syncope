@@ -245,8 +245,8 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                         } catch (Exception e) {
                             LOG.error("While setting latest sync token for {}/{}",
                                     resourceTO.getKey(), provisionTO.getAnyType(), e);
-                            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().
-                                    getName() : e.getMessage());
+                            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
+                                    ? e.getClass().getName() : e.getMessage());
                         }
                         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                     }
@@ -263,8 +263,8 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                         } catch (Exception e) {
                             LOG.error("While removing sync token for {}/{}",
                                     resourceTO.getKey(), provisionTO.getAnyType(), e);
-                            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().
-                                    getName() : e.getMessage());
+                            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
+                                    ? e.getClass().getName() : e.getMessage());
                         }
                         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                     }
@@ -336,8 +336,8 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
             modal.close(target);
         } catch (Exception e) {
             LOG.error("While creating or updating {}", resourceTO, e);
-            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.
-                    getMessage());
+            SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
+                    ? e.getClass().getName() : e.getMessage());
         }
         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
     }
