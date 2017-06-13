@@ -77,7 +77,7 @@ public class ContainerValidator extends AbstractValidator {
                 if (responseCode == 200) {
                     return Status.OK;
                 } else {
-                    error = new StringBuilder("Tomcat URL is offline");
+                    error = new StringBuilder("The provided Tomcat instance seems to be offline");
                     return Status.ERROR;
                 }
             case JBOSS:
@@ -113,7 +113,7 @@ public class ContainerValidator extends AbstractValidator {
                 if (jResponseCode == 200) {
                     return Status.OK;
                 } else {
-                    error = new StringBuilder("JBoss URL is offline");
+                    error = new StringBuilder("The provided JBoss instance seems to be offline");
                     return Status.ERROR;
                 }
             case GLASSFISH:

@@ -29,10 +29,13 @@ public final class CorePom {
             + "    </dependency>\n"
             + "  </dependencies>\n";
 
-    public static final String ACTIVITI_PLACEHOLDER = "    <dependency>\n"
+    public static final String ACTIVITI_PLACEHOLDER = "</dependencies>";
+
+    public static final String ACTIVITI_CONTENT_TO_ADD = "    <dependency>\n"
             + "      <groupId>org.apache.syncope.core</groupId>\n"
             + "      <artifactId>syncope-core-workflow-activiti</artifactId>\n"
-            + "    </dependency>\n";
+            + "    </dependency>\n"
+            + "  </dependencies>\n";
 
     private CorePom() {
         // private constructor for static utility class

@@ -22,12 +22,12 @@ public final class GlassfishCoreWebXml {
 
     public static final String PLACEHOLDER = "  <!--<resource-ref>\n"
             + "    <res-ref-name>jdbc/syncopeDataSource</res-ref-name>\n"
-            + "    <jndi-name>jdbc/syncopeDataSource</jndi-name>\n"
+            + "    <jndi-name>jdbc/syncopeMasterDataSource</jndi-name>\n"
             + "  </resource-ref>-->";
 
     public static final String DATA_SOURCE = "  <resource-ref>\n"
             + "    <res-ref-name>jdbc/syncopeDataSource</res-ref-name>\n"
-            + "    <jndi-name>jdbc/syncopeDataSource</jndi-name>\n"
+            + "    <jndi-name>jdbc/syncopeMasterDataSource</jndi-name>\n"
             + "  </resource-ref>";
 
     private GlassfishCoreWebXml() {

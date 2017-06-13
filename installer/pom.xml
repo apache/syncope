@@ -178,7 +178,6 @@ under the License.
         <directory>src/main/resources</directory>
         <includes>
           <include>installer.properties</include>
-          <include>modelerPom.xml</include>
         </includes>
       </resource>
       <resource>
@@ -190,13 +189,13 @@ under the License.
       <resource>
         <directory>${basedir}/../fit/core-reference/src/main/resources/all</directory>
         <includes>
-          <include>provisioning.properties</include>
+          <include>workflow.properties</include>
         </includes>
       </resource>
       <resource>
         <directory>${basedir}/../fit/core-reference/src/main/resources</directory>
         <includes>
-          <include>workflow.properties</include>
+          <include>provisioning.properties</include>
         </includes>
       </resource>
       <resource>
