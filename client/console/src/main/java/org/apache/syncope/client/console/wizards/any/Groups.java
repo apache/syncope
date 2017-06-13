@@ -20,8 +20,10 @@ package org.apache.syncope.client.console.wizards.any;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
@@ -29,6 +31,7 @@ import org.apache.cxf.jaxrs.ext.search.client.CompleteCondition;
 import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.rest.DynRealmRestClient;
 import org.apache.syncope.client.console.rest.GroupRestClient;
+import org.apache.syncope.client.console.wicket.ajax.markup.html.LabelInfo;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.EntityTOUtils;
@@ -64,11 +67,11 @@ public class Groups extends WizardStep implements ICondition {
 
     private final AnyTO anyTO;
 
-    public <T extends AnyTO> Groups(final T anyTO, final boolean templateMode) {
+    public <T extends AnyTO> Groups(final AnyWrapper<T> modelObject, final boolean templateMode) {
         super();
-        this.anyTO = anyTO;
 
-        final String realm = templateMode ? "/" : anyTO.getRealm();
+        this.anyTO = modelObject.getInnerObject();
+        final String realm = templateMode ? "/" : this.anyTO.getRealm();
 
         // -----------------------------------------------------------------
         // Pre-Authorizations
@@ -136,6 +139,33 @@ public class Groups extends WizardStep implements ICondition {
             // ---------------------------------
             // Retrieve group memberships
             // ---------------------------------
+            // this is to be sure to have group names (required to see membership details in approval page)
+            GroupFiqlSearchConditionBuilder searchConditionBuilder = SyncopeClient.getGroupSearchConditionBuilder();
+
+            List<CompleteCondition> conditions = new ArrayList<>();
+            for (MembershipTO membershipTO : GroupableRelatableTO.class.cast(anyTO).getMemberships()) {
+                conditions.add(searchConditionBuilder.is("key").equalTo(membershipTO.getGroupKey()).wrap());
+            }
+
+            List<GroupTO> groups = new ArrayList<>();
+            if (!conditions.isEmpty()) {
+                groups.addAll(groupRestClient.search(
+                        "/",
+                        searchConditionBuilder.or(conditions).query(),
+                        -1,
+                        -1,
+                        new SortParam<>("name", true),
+                        null));
+            }
+
+            // set group names in membership TOs
+            Map<String, MembershipTO> membershipMap = GroupableRelatableTO.class.cast(anyTO).getMembershipMap();
+            for (GroupTO group : groups) {
+                if (membershipMap.containsKey(group.getKey())) {
+                    membershipMap.get(group.getKey()).setGroupName(group.getName());
+                }
+            }
+
             groupsContainer.add(builder.setAllowOrder(true).withFilter().build("groups",
                     new ListModel<>(GroupableRelatableTO.class.cast(anyTO).getMemberships()),
                     new AjaxPalettePanel.Builder.Query<MembershipTO>() {
@@ -150,7 +180,7 @@ public class Groups extends WizardStep implements ICondition {
                             : groupRestClient.search(
                                     realm,
                                     SyncopeClient.getGroupSearchConditionBuilder().
-                                            isAssignable().and().is("name").equalTo(filter).query(),
+                                    isAssignable().and().is("name").equalTo(filter).query(),
                                     1, MAX_GROUP_LIST_CARDINALITY,
                                     new SortParam<>("name", true),
                                     null),
@@ -170,16 +200,16 @@ public class Groups extends WizardStep implements ICondition {
             // ---------------------------------
             // Retrieve dyn group memberships
             // ---------------------------------
-            GroupFiqlSearchConditionBuilder searchConditionBuilder = SyncopeClient.getGroupSearchConditionBuilder();
+            searchConditionBuilder = SyncopeClient.getGroupSearchConditionBuilder();
 
-            List<CompleteCondition> conditions = new ArrayList<>();
+            conditions = new ArrayList<>();
             for (String groupKey : GroupableRelatableTO.class.cast(anyTO).getDynGroups()) {
                 conditions.add(searchConditionBuilder.is("key").equalTo(groupKey).wrap());
             }
 
-            List<GroupTO> dynGroups = new ArrayList<>();
+            groups = new ArrayList<>();
             if (!conditions.isEmpty()) {
-                dynGroups.addAll(groupRestClient.search(
+                groups.addAll(groupRestClient.search(
                         "/",
                         searchConditionBuilder.or(conditions).query(),
                         -1,
@@ -189,7 +219,7 @@ public class Groups extends WizardStep implements ICondition {
             }
 
             dyngroupsContainer.add(new AjaxPalettePanel.Builder<String>().setAllowOrder(true).build("dyngroups",
-                    new ListModel<>(CollectionUtils.collect(dynGroups, new Transformer<GroupTO, String>() {
+                    new ListModel<>(CollectionUtils.collect(groups, new Transformer<GroupTO, String>() {
 
                         @Override
                         public String transform(final GroupTO input) {
@@ -215,6 +245,20 @@ public class Groups extends WizardStep implements ICondition {
                                 EntityTOUtils.keyTransformer(),
                                 new ArrayList<String>()))).
                 hideLabel().setEnabled(false).setOutputMarkupId(true));
+
+        // ------------------
+        // insert changed label if needed
+        // ------------------
+        if (modelObject instanceof UserWrapper
+                && UserWrapper.class.cast(modelObject).getPreviousUserTO() != null
+                && !ListUtils.isEqualList(
+                        UserWrapper.class.cast(modelObject).getInnerObject().getMemberships(),
+                        UserWrapper.class.cast(modelObject).getPreviousUserTO().getMemberships())) {
+            groupsContainer.add(new LabelInfo("changed", StringUtils.EMPTY));
+        } else {
+            groupsContainer.add(new Label("changed", StringUtils.EMPTY));
+        }
+        // ------------------
     }
 
     @Override
@@ -223,6 +267,6 @@ public class Groups extends WizardStep implements ICondition {
                 ? CollectionUtils.isNotEmpty(allDynRealms)
                 : CollectionUtils.isNotEmpty(allDynRealms) || CollectionUtils.isNotEmpty(allGroups))
                 && SyncopeConsoleApplication.get().getSecuritySettings().getAuthorizationStrategy().
-                        isActionAuthorized(this, RENDER);
+                isActionAuthorized(this, RENDER);
     }
 }

@@ -21,7 +21,6 @@ package org.apache.syncope.client.console.wicket.markup.html.form;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.FormComponent;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
@@ -71,7 +70,7 @@ public abstract class AbstractFieldPanel<T> extends Panel {
         return this;
     }
 
-    public AbstractFieldPanel<T> showExternAction(final FormComponent<?> component) {
+    public AbstractFieldPanel<T> showExternAction(final Component component) {
         final Fragment fragment = new Fragment("externalAction", "externalActionFragment", AbstractFieldPanel.this);
         addOrReplace(fragment);
         fragment.add(component.setRenderBodyOnly(false));

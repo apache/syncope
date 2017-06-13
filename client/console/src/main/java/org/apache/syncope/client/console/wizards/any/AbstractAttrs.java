@@ -74,7 +74,10 @@ public abstract class AbstractAttrs<S extends AbstractSchemaTO> extends WizardSt
 
     private final List<String> anyTypeClasses;
 
-    public AbstractAttrs(final AnyTO anyTO, final List<String> anyTypeClasses, final List<String> whichAttrs) {
+    public AbstractAttrs(
+            final AnyWrapper<?> modelObject,
+            final List<String> anyTypeClasses,
+            final List<String> whichAttrs) {
         super();
         this.anyTypeClasses = anyTypeClasses;
         this.attrTOs = new ListModel<>(Collections.<AttrTO>emptyList());
@@ -82,7 +85,7 @@ public abstract class AbstractAttrs<S extends AbstractSchemaTO> extends WizardSt
 
         this.setOutputMarkupId(true);
 
-        this.anyTO = anyTO;
+        this.anyTO = modelObject.getInnerObject();
         this.whichAttrs = whichAttrs;
     }
 
@@ -197,7 +200,7 @@ public abstract class AbstractAttrs<S extends AbstractSchemaTO> extends WizardSt
                 && org.apache.cxf.common.util.CollectionUtils.isEmpty(membershipTOs.getObject())) {
             response.render(OnDomReadyHeaderItem.forScript(
                     String.format("$('#emptyPlaceholder').append(\"%s\"); $('#attributes').hide();",
-                    getString("attribute.empty.list"))));
+                            getString("attribute.empty.list"))));
         }
     }
 

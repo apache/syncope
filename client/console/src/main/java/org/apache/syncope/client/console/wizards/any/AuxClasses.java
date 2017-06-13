@@ -21,11 +21,15 @@ package org.apache.syncope.client.console.wizards.any;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
+import org.apache.syncope.client.console.wicket.ajax.markup.html.LabelInfo;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.wicket.extensions.wizard.WizardStep;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.util.ListModel;
 
@@ -33,7 +37,7 @@ public class AuxClasses extends WizardStep {
 
     private static final long serialVersionUID = 552437609667518888L;
 
-    public <T extends AnyTO> AuxClasses(final T anyTO, final List<String> anyTypeClasses) {
+    public <T extends AnyTO> AuxClasses(final AnyWrapper<T> modelObject, final List<String> anyTypeClasses) {
         super();
         setOutputMarkupId(true);
 
@@ -47,7 +51,21 @@ public class AuxClasses extends WizardStep {
         }
         Collections.sort(choices);
         add(new AjaxPalettePanel.Builder<String>().setAllowOrder(true).build("auxClasses",
-                new PropertyModel<List<String>>(anyTO, "auxClasses"),
+                new PropertyModel<List<String>>(modelObject.getInnerObject(), "auxClasses"),
                 new ListModel<>(choices)).hideLabel().setOutputMarkupId(true));
+
+        // ------------------
+        // insert changed label if needed
+        // ------------------
+        if (modelObject instanceof UserWrapper
+                && UserWrapper.class.cast(modelObject).getPreviousUserTO() != null
+                && !ListUtils.isEqualList(
+                        modelObject.getInnerObject().getAuxClasses(),
+                        UserWrapper.class.cast(modelObject).getPreviousUserTO().getAuxClasses())) {
+            add(new LabelInfo("changed", StringUtils.EMPTY));
+        } else {
+            add(new Label("changed", StringUtils.EMPTY));
+        }
+        // ------------------
     }
 }

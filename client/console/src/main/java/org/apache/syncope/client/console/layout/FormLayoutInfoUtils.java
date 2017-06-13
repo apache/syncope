@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,7 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.rest.RoleRestClient;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.PageReference;
 
@@ -127,13 +129,24 @@ public final class FormLayoutInfoUtils {
             final PageReference pageRef) {
 
         try {
-            return anyFormLayout.getFormClass().getConstructor(
-                    anyTO.getClass(),
-                    List.class,
-                    anyFormLayout.getClass(),
-                    pageRef.getClass()).
-                    newInstance(anyTO, anyTypeClasses, anyFormLayout, pageRef);
-        } catch (Exception e) {
+            if (anyTO instanceof UserTO) {
+                return anyFormLayout.getFormClass().getConstructor(
+                        anyTO.getClass(), // previous
+                        anyTO.getClass(), // actual
+                        List.class,
+                        anyFormLayout.getClass(),
+                        pageRef.getClass()).
+                        newInstance(null, anyTO, anyTypeClasses, anyFormLayout, pageRef);
+            } else {
+                return anyFormLayout.getFormClass().getConstructor(
+                        anyTO.getClass(), // actual
+                        List.class,
+                        anyFormLayout.getClass(),
+                        pageRef.getClass()).
+                        newInstance(anyTO, anyTypeClasses, anyFormLayout, pageRef);
+            }
+        } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException 
+                | IllegalArgumentException | InvocationTargetException e) {
             throw new IllegalArgumentException("Could not instantiate " + anyFormLayout.getFormClass().getName(), e);
         }
     }

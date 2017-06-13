@@ -22,8 +22,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.rest.RoleRestClient;
+import org.apache.syncope.client.console.wicket.ajax.markup.html.LabelInfo;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -34,6 +37,7 @@ import org.apache.wicket.authroles.authorization.strategies.role.metadata.Action
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.wizard.WizardModel.ICondition;
 import org.apache.wicket.extensions.wizard.WizardStep;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.util.ListModel;
 
@@ -43,7 +47,22 @@ public class Roles extends WizardStep implements ICondition {
 
     private final List<String> allRoles;
 
-    public <T extends AnyTO> Roles(final UserTO entityTO) {
+    public <T extends AnyTO> Roles(final AnyWrapper<?> modelObject) {
+        if (!(modelObject.getInnerObject() instanceof UserTO)) {
+            throw new IllegalStateException("Invalid instance " + modelObject.getInnerObject());
+        }
+
+        if (UserWrapper.class.cast(modelObject).getPreviousUserTO() != null
+                && !ListUtils.isEqualList(
+                        UserWrapper.class.cast(modelObject).getInnerObject().getRoles(),
+                        UserWrapper.class.cast(modelObject).getPreviousUserTO().getRoles())) {
+            add(new LabelInfo("changed", StringUtils.EMPTY));
+        } else {
+            add(new Label("changed", StringUtils.EMPTY));
+        }
+
+        final UserTO entityTO = UserTO.class.cast(modelObject.getInnerObject());
+
         // -----------------------------------------------------------------
         // Pre-Authorizations
         // -----------------------------------------------------------------

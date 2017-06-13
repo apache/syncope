@@ -49,11 +49,11 @@ public class DerAttrs extends AbstractAttrs<DerSchemaTO> {
     private static final long serialVersionUID = -5387344116983102292L;
 
     public <T extends AnyTO> DerAttrs(
-            final T anyTO,
+            final AnyWrapper<T> modelObject,
             final List<String> anyTypeClasses,
             final List<String> whichDerAttrs) {
 
-        super(anyTO, anyTypeClasses, whichDerAttrs);
+        super(modelObject, anyTypeClasses, whichDerAttrs);
         setTitleModel(new ResourceModel("attributes.derived"));
 
         add(new Accordion("derSchemas", Collections.<ITab>singletonList(new AbstractTab(

@@ -28,6 +28,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.collections4.Predicate;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.SerializableTransformer;
 import org.apache.syncope.client.console.panels.AnyDirectoryPanel;
@@ -43,6 +44,7 @@ import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.RelationshipTypeRestClient;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
+import org.apache.syncope.client.console.wicket.ajax.markup.html.LabelInfo;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
@@ -59,16 +61,19 @@ import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.to.RelationshipTypeTO;
 import org.apache.syncope.common.lib.types.AnyEntitlement;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
+import org.apache.wicket.extensions.wizard.IWizard;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -89,10 +94,21 @@ public class Relationships extends WizardStep {
 
     private final AnyTO anyTO;
 
-    public Relationships(final AnyTO anyTO, final PageReference pageRef) {
+    public Relationships(final AnyWrapper<?> modelObject, final PageReference pageRef) {
         super();
-        setTitleModel(new ResourceModel("any.relationships"));
-        this.anyTO = anyTO;
+        add(new Label("title", new ResourceModel("any.relationships")));
+
+        if (modelObject instanceof UserWrapper
+                && UserWrapper.class.cast(modelObject).getPreviousUserTO() != null
+                && !ListUtils.isEqualList(
+                        UserWrapper.class.cast(modelObject).getInnerObject().getRelationships(),
+                        UserWrapper.class.cast(modelObject).getPreviousUserTO().getRelationships())) {
+            add(new LabelInfo("changed", StringUtils.EMPTY));
+        } else {
+            add(new Label("changed", StringUtils.EMPTY));
+        }
+
+        this.anyTO = modelObject.getInnerObject();
         this.pageRef = pageRef;
 
         // ------------------------
@@ -100,6 +116,11 @@ public class Relationships extends WizardStep {
         // ------------------------
         add(getViewFragment().setRenderBodyOnly(true));
         // ------------------------ 
+    }
+
+    @Override
+    public Component getHeader(final String id, final Component parent, final IWizard wizard) {
+        return super.getHeader(id, parent, wizard).setVisible(false);
     }
 
     private Fragment getViewFragment() {

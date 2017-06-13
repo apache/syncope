@@ -100,17 +100,17 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AjaxWizardBuilde
         }
 
         if (formLayoutInfo.isAuxClasses()) {
-            wizardModel.add(new AuxClasses(modelObject.getInnerObject(), anyTypeClasses));
+            wizardModel.add(new AuxClasses(modelObject, anyTypeClasses));
         }
 
         if (formLayoutInfo.isGroups()) {
-            wizardModel.add(new Groups(modelObject.getInnerObject(), mode == AjaxWizard.Mode.TEMPLATE));
+            wizardModel.add(new Groups(modelObject, mode == AjaxWizard.Mode.TEMPLATE));
         }
 
         // attributes panel steps
         if (formLayoutInfo.isPlainAttrs()) {
             wizardModel.add(new PlainAttrs(
-                    modelObject.getInnerObject(),
+                    modelObject,
                     null,
                     mode,
                     anyTypeClasses,
@@ -118,11 +118,11 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AjaxWizardBuilde
         }
         if (formLayoutInfo.isDerAttrs() && mode != AjaxWizard.Mode.TEMPLATE) {
             wizardModel.add(new DerAttrs(
-                    modelObject.getInnerObject(), anyTypeClasses, formLayoutInfo.getWhichDerAttrs()));
+                    modelObject, anyTypeClasses, formLayoutInfo.getWhichDerAttrs()));
         }
         if (formLayoutInfo.isVirAttrs()) {
             wizardModel.add(new VirAttrs(
-                    modelObject.getInnerObject(), mode, anyTypeClasses, formLayoutInfo.getWhichVirAttrs()));
+                    modelObject, mode, anyTypeClasses, formLayoutInfo.getWhichVirAttrs()));
         }
 
         // role panel step (just available for users)
@@ -131,7 +131,7 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AjaxWizardBuilde
                 && (formLayoutInfo instanceof UserFormLayoutInfo)
                 && UserFormLayoutInfo.class.cast(formLayoutInfo).isRoles()) {
 
-            wizardModel.add(new Roles(UserTO.class.cast(modelObject.getInnerObject())));
+            wizardModel.add(new Roles(modelObject));
         }
 
         // relationship panel step (available for users and any objects)
@@ -140,12 +140,12 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AjaxWizardBuilde
                 || ((formLayoutInfo instanceof AnyObjectFormLayoutInfo)
                 && AnyObjectFormLayoutInfo.class.cast(formLayoutInfo).isRelationships())) {
 
-            wizardModel.add(new Relationships(modelObject.getInnerObject(), pageRef));
+            wizardModel.add(new Relationships(modelObject, pageRef));
         }
 
         // resource panel step
         if (formLayoutInfo.isResources()) {
-            wizardModel.add(new Resources(modelObject.getInnerObject()));
+            wizardModel.add(new Resources(modelObject));
         }
 
         return wizardModel;
