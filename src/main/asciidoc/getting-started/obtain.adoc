@@ -196,7 +196,7 @@ operating system. +
  . http://maven.apache.org/[Apache Maven^] (version 3.0.3 or higher) installed
  . one of the supported <<internal-storage,DBMSes>> up and running
  . one of the supported <<java-ee-container, Java EE containers>> up and running
- . A datasource with the name `syncopeDataSource` configured in the selected Java EE container, for a database instance in the
+ . A datasource with the name `syncopeMasterDataSource` configured in the selected Java EE container, for a database instance in the
  DBMS of choice
 
 [WARNING]
