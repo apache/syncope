@@ -252,8 +252,8 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                     toggle(target, false);
                 } catch (SyncopeClientException e) {
                     LOG.error("While deleting resource {}", node.getKey(), e);
-                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.
-                            getMessage());
+                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
+                            ? e.getClass().getName() : e.getMessage());
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
@@ -344,8 +344,8 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                     toggle(target, false);
                 } catch (SyncopeClientException e) {
                     LOG.error("While deleting resource {}", node.getKey(), e);
-                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.
-                            getMessage());
+                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
+                            ? e.getClass().getName() : e.getMessage());
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }

@@ -226,8 +226,7 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
                         } catch (Exception e) {
                             LOG.error("While updating onsole layout info for role {}", info.getKey(), e);
                             SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
-                                    ? e.getClass().getName() : e.
-                                    getMessage());
+                                    ? e.getClass().getName() : e.getMessage());
                         }
                         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                     }
