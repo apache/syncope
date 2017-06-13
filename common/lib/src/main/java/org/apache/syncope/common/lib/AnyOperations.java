@@ -438,17 +438,6 @@ public final class AnyOperations {
                 if (patch.getOperation() == PatchOperation.ADD_REPLACE) {
                     rwattrs.put(patch.getAttrTO().getSchema(), patch.getAttrTO());
                 }
-                switch (patch.getOperation()) {
-                    case ADD_REPLACE:
-                        if (rwattrs.containsKey(patch.getAttrTO().getSchema())) {
-                            rwattrs.remove(patch.getAttrTO().getSchema());
-                        }
-                        break;
-
-                    case DELETE:
-                    default:
-                        rwattrs.remove(patch.getAttrTO().getSchema());
-                }
             }
         }
 
@@ -472,12 +461,12 @@ public final class AnyOperations {
         for (StringPatchItem auxClassPatch : patch.getAuxClasses()) {
             switch (auxClassPatch.getOperation()) {
                 case ADD_REPLACE:
-                    to.getAuxClasses().add(auxClassPatch.getValue());
+                    result.getAuxClasses().add(auxClassPatch.getValue());
                     break;
 
                 case DELETE:
                 default:
-                    to.getAuxClasses().remove(auxClassPatch.getValue());
+                    result.getAuxClasses().remove(auxClassPatch.getValue());
             }
         }
 

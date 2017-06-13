@@ -23,9 +23,13 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.SchemaUtils;
+import org.apache.syncope.client.console.wicket.ajax.markup.html.LabelInfo;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.tabs.Accordion;
+import org.apache.syncope.client.console.wicket.markup.html.form.AbstractFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxSpinnerFieldPanel;
@@ -65,15 +69,23 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
     private final AjaxWizard.Mode mode;
 
+    private final AnyTO previousObject;
+
     public <T extends AnyTO> PlainAttrs(
-            final T anyTO,
+            final AnyWrapper<T> modelObject,
             final Form<?> form,
             final AjaxWizard.Mode mode,
             final List<String> anyTypeClasses,
             final List<String> whichPlainAttrs) throws IllegalArgumentException {
 
-        super(anyTO, anyTypeClasses, whichPlainAttrs);
+        super(modelObject, anyTypeClasses, whichPlainAttrs);
         this.mode = mode;
+
+        if (modelObject instanceof UserWrapper) {
+            previousObject = UserWrapper.class.cast(modelObject).getPreviousUserTO();
+        } else {
+            previousObject = null;
+        }
 
         setTitleModel(new ResourceModel("attributes.plain"));
 
@@ -337,17 +349,41 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                 protected void populateItem(final ListItem<AttrTO> item) {
                     AttrTO attrTO = item.getModelObject();
 
-                    FieldPanel panel = getFieldPanel(availableSchemas.get(attrTO.getSchema()));
+                    AbstractFieldPanel<?> panel = getFieldPanel(availableSchemas.get(attrTO.getSchema()));
                     if (mode == AjaxWizard.Mode.TEMPLATE
                             || !availableSchemas.get(attrTO.getSchema()).isMultivalue()) {
-                        panel.setNewModel(attrTO.getValues());
-                        item.add(panel);
+                        FieldPanel.class.cast(panel).setNewModel(attrTO.getValues());
                     } else {
-                        item.add(new MultiFieldPanel.Builder<>(
+                        panel = new MultiFieldPanel.Builder<>(
                                 new PropertyModel<List<String>>(attrTO, "values")).build(
                                 "panel",
                                 attrTO.getSchema(),
-                                panel));
+                                FieldPanel.class.cast(panel));
+                    }
+                    item.add(panel);
+
+                    if (previousObject != null
+                            && (previousObject.getPlainAttr(attrTO.getSchema()) == null
+                            || !ListUtils.isEqualList(
+                                    ListUtils.select(previousObject.getPlainAttr(attrTO.getSchema()).getValues(),
+                                            new Predicate<String>() {
+
+                                        @Override
+                                        public boolean evaluate(final String object) {
+                                            return StringUtils.isNotEmpty(object);
+                                        }
+                                    }), ListUtils.select(attrTO.getValues(),
+                                            new Predicate<String>() {
+
+                                        @Override
+                                        public boolean evaluate(final String object) {
+                                            return StringUtils.isNotEmpty(object);
+                                        }
+                                    })))) {
+                        List<String> oldValues = previousObject.getPlainAttr(attrTO.getSchema()) == null
+                                ? Collections.<String>emptyList()
+                                : previousObject.getPlainAttr(attrTO.getSchema()).getValues();
+                        panel.showExternAction(new LabelInfo("externalAction", oldValues));
                     }
                 }
             });

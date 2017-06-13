@@ -19,6 +19,8 @@
 package org.apache.syncope.client.console.wizards.any;
 
 import java.util.Collections;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.wicket.ajax.markup.html.LabelInfo;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -55,6 +57,11 @@ public class UserDetails extends Details<UserTO> {
         // ------------------------
         final AjaxTextFieldPanel username = new AjaxTextFieldPanel(
                 "username", "username", new PropertyModel<String>(userTO, "username"), false);
+
+        if (wrapper.getPreviousUserTO() != null && StringUtils.
+                compare(wrapper.getPreviousUserTO().getUsername(), wrapper.getInnerObject().getUsername()) != 0) {
+            username.showExternAction(new LabelInfo("externalAction", wrapper.getPreviousUserTO().getUsername()));
+        }
 
         if (templateMode) {
             username.enableJexlHelp();

@@ -21,9 +21,10 @@ package org.apache.syncope.client.console.approvals;
 import org.apache.syncope.client.console.layout.UserFormLayoutInfo;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
-import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.any.UserWizardBuilder;
+import org.apache.syncope.common.lib.AnyOperations;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.PageReference;
@@ -35,7 +36,20 @@ public class ApprovalDetails extends MultilevelPanel.SecondLevel {
     public ApprovalDetails(final PageReference pageRef, final WorkflowFormTO formTO) {
         super(MultilevelPanel.SECOND_LEVEL_ID);
 
-        add(new UserWizardBuilder(new UserRestClient().read(formTO.getUsername()),
+        final UserTO newUserTO;
+        final UserTO previousUserTO;
+        if (formTO.getUserPatch() == null) {
+            newUserTO = formTO.getUserTO();
+            previousUserTO = null;
+        } else {
+            formTO.getUserTO().setKey(formTO.getUserPatch().getKey());
+            newUserTO = AnyOperations.patch(formTO.getUserTO(), formTO.getUserPatch());
+            previousUserTO = formTO.getUserTO();
+        }
+
+        add(new UserWizardBuilder(
+                previousUserTO,
+                newUserTO,
                 new AnyTypeRestClient().read(AnyTypeKind.USER.name()).getClasses(),
                 new UserFormLayoutInfo(),
                 pageRef).

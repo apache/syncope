@@ -26,8 +26,15 @@ public class UserWrapper extends AnyWrapper<UserTO> {
 
     private boolean storePasswordInSyncope = true;
 
+    private UserTO previousUserTO;
+
     public UserWrapper(final UserTO userTO) {
+        this(null, userTO);
+    }
+
+    public UserWrapper(final UserTO previousUserTO, final UserTO userTO) {
         super(userTO);
+        this.previousUserTO = previousUserTO;
     }
 
     public boolean isStorePasswordInSyncope() {
@@ -38,4 +45,7 @@ public class UserWrapper extends AnyWrapper<UserTO> {
         this.storePasswordInSyncope = storePasswordInSyncope;
     }
 
+    public UserTO getPreviousUserTO() {
+        return previousUserTO;
+    }
 }

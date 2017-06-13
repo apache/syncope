@@ -22,8 +22,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.wicket.ajax.markup.html.LabelInfo;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.tabs.Accordion;
+import org.apache.syncope.client.console.wicket.markup.html.form.AbstractFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
@@ -51,14 +54,17 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
 
     private final AjaxWizard.Mode mode;
 
+    private final AnyWrapper<?> modelObject;
+
     public <T extends AnyTO> VirAttrs(
-            final T anyTO,
+            final AnyWrapper<T> modelObject,
             final AjaxWizard.Mode mode,
             final List<String> anyTypeClasses,
             final List<String> whichVirAttrs) {
 
-        super(anyTO, anyTypeClasses, whichVirAttrs);
+        super(modelObject, anyTypeClasses, whichVirAttrs);
         this.mode = mode;
+        this.modelObject = modelObject;
 
         setTitleModel(new ResourceModel("attributes.virtual"));
 
@@ -174,24 +180,34 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
                 protected void populateItem(final ListItem<AttrTO> item) {
                     AttrTO attrTO = item.getModelObject();
 
-                    AjaxTextFieldPanel panel =
-                            new AjaxTextFieldPanel("panel", attrTO.getSchema(), new Model<String>(), false);
+                    AbstractFieldPanel<?> panel
+                            = new AjaxTextFieldPanel("panel", attrTO.getSchema(), new Model<String>(), false);
 
                     boolean readonly = attrTO.getSchemaInfo() == null
                             ? false
                             : VirSchemaTO.class.cast(attrTO.getSchemaInfo()).isReadonly();
 
                     if (mode == AjaxWizard.Mode.TEMPLATE) {
-                        item.add(panel.enableJexlHelp().setEnabled(!readonly));
+                        AjaxTextFieldPanel.class.cast(panel).enableJexlHelp().setEnabled(!readonly);
                     } else {
-                        item.add(new MultiFieldPanel.Builder<>(
+                        panel = new MultiFieldPanel.Builder<>(
                                 new PropertyModel<List<String>>(attrTO, "values")).build(
                                 "panel",
                                 attrTO.getSchema(),
-                                panel).setEnabled(!readonly));
+                                AjaxTextFieldPanel.class.cast(panel));
+                        panel.setEnabled(!readonly);
+                    }
+
+                    item.add(panel);
+
+                    if (CollectionUtils.isNotEmpty(attrTO.getValues())
+                            && VirAttrs.this.modelObject instanceof UserWrapper
+                            && UserWrapper.class.cast(VirAttrs.this.modelObject).getPreviousUserTO() != null) {
+                        panel.showExternAction(new LabelInfo("externalAction", StringUtils.EMPTY));
                     }
                 }
-            });
+            }
+            );
         }
     }
 }

@@ -25,6 +25,8 @@ import com.googlecode.wicket.jquery.ui.form.spinner.SpinnerAdapter;
 import com.googlecode.wicket.jquery.ui.form.spinner.SpinnerBehavior;
 import java.io.Serializable;
 import java.util.List;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
@@ -33,7 +35,6 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
-import org.springframework.util.StringUtils;
 
 public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T> {
 
@@ -97,7 +98,8 @@ public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T>
             public T getObject() {
                 T value = null;
 
-                if (list != null && !list.isEmpty() && StringUtils.hasText(list.get(0).toString())) {
+                if (CollectionUtils.isNotEmpty(list)
+                        && list.get(0) != null && StringUtils.isNotBlank(list.get(0).toString())) {
                     value = reference.equals(Integer.class)
                             ? reference.cast(NumberUtils.toInt(list.get(0).toString()))
                             : reference.equals(Long.class)

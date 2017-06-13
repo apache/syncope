@@ -38,13 +38,38 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> implements UserF
 
     private final UserRestClient userRestClient = new UserRestClient();
 
+    /**
+     * Costructor to be used for templating only.
+     *
+     * @param anyTypeClasses any type classes.
+     * @param formLayoutInfo form layout.
+     * @param pageRef reference page.
+     */
     public UserWizardBuilder(
+            final List<String> anyTypeClasses,
+            final UserFormLayoutInfo formLayoutInfo,
+            final PageReference pageRef) {
+
+        super(new UserWrapper(null), anyTypeClasses, formLayoutInfo, pageRef);
+    }
+
+    /**
+     * Constructor to be used for Approval details only.
+     *
+     * @param previousUserTO previous user status.
+     * @param userTO new user status to be approved.
+     * @param anyTypeClasses any type classes.
+     * @param formLayoutInfo from layout.
+     * @param pageRef reference page.
+     */
+    public UserWizardBuilder(
+            final UserTO previousUserTO,
             final UserTO userTO,
             final List<String> anyTypeClasses,
             final UserFormLayoutInfo formLayoutInfo,
             final PageReference pageRef) {
 
-        super(new UserWrapper(userTO), anyTypeClasses, formLayoutInfo, pageRef);
+        super(new UserWrapper(previousUserTO, userTO), anyTypeClasses, formLayoutInfo, pageRef);
     }
 
     @Override

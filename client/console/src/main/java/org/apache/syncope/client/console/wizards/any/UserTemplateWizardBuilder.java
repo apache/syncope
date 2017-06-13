@@ -38,7 +38,7 @@ public class UserTemplateWizardBuilder extends UserWizardBuilder implements Temp
             final List<String> anyTypeClasses,
             final UserFormLayoutInfo formLayoutInfo,
             final PageReference pageRef) {
-        super(null, anyTypeClasses, formLayoutInfo, pageRef);
+        super(anyTypeClasses, formLayoutInfo, pageRef);
         this.templatable = templatable;
 
         if (templatable.getTemplates().containsKey(AnyTypeKind.USER.name())) {
