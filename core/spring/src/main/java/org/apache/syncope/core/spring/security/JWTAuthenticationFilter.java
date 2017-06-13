@@ -53,7 +53,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
     private SyncopeAuthenticationDetailsSource authenticationDetailsSource;
 
     @Autowired
-    private JwsSignatureVerifier jwsSignatureCerifier;
+    private JwsSignatureVerifier jwsSignatureVerifier;
 
     public void setAuthenticationEntryPoint(final AuthenticationEntryPoint authenticationEntryPoint) {
         this.authenticationEntryPoint = authenticationEntryPoint;
@@ -91,7 +91,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
         JwsJwtCompactConsumer consumer = new JwsJwtCompactConsumer(stringToken);
         try {
-            if (!consumer.verifySignatureWith(jwsSignatureCerifier)) {
+            if (!consumer.verifySignatureWith(jwsSignatureVerifier)) {
                 throw new BadCredentialsException("Invalid signature found in JWT");
             }
 

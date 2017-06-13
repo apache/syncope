@@ -169,7 +169,7 @@ public class AuthDataAccessor {
                 if (users.size() == 1) {
                     user = users.get(0);
                 } else {
-                    LOG.warn("Value {} provided for {} does not uniquely identifies an user",
+                    LOG.warn("Value {} provided for {} does not uniquely identify a user",
                             authentication.getName(), authAttrValues.get(i));
                 }
             }
