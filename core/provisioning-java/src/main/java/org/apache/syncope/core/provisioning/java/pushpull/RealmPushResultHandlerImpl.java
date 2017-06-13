@@ -152,7 +152,6 @@ public class RealmPushResultHandlerImpl
 
         Object output = null;
         Result resultStatus = null;
-        String operation = null;
 
         // Try to read remote object BEFORE any actual operation
         ConnectorObject beforeObj = getRemoteObject(
@@ -168,9 +167,22 @@ public class RealmPushResultHandlerImpl
             }
             result.setStatus(ProvisioningReport.Status.SUCCESS);
         } else {
+            String operation = beforeObj == null
+                    ? UnmatchingRule.toEventName(profile.getTask().getUnmatchingRule())
+                    : MatchingRule.toEventName(profile.getTask().getMatchingRule());
+
+            boolean notificationsAvailable = notificationManager.notificationsAvailable(
+                    AuditElements.EventCategoryType.PUSH,
+                    REALM_TYPE.toLowerCase(),
+                    profile.getTask().getResource().getKey(),
+                    operation);
+            boolean auditRequested = auditManager.auditRequested(
+                    AuditElements.EventCategoryType.PUSH,
+                    REALM_TYPE.toLowerCase(),
+                    profile.getTask().getResource().getKey(),
+                    operation);
             try {
                 if (beforeObj == null) {
-                    operation = UnmatchingRule.toEventName(profile.getTask().getUnmatchingRule());
                     result.setOperation(getResourceOperation(profile.getTask().getUnmatchingRule()));
 
                     switch (profile.getTask().getUnmatchingRule()) {
@@ -220,7 +232,6 @@ public class RealmPushResultHandlerImpl
                         // do nothing
                     }
                 } else {
-                    operation = MatchingRule.toEventName(profile.getTask().getMatchingRule());
                     result.setOperation(getResourceOperation(profile.getTask().getMatchingRule()));
 
                     switch (profile.getTask().getMatchingRule()) {
@@ -322,17 +333,19 @@ public class RealmPushResultHandlerImpl
 
                 throw new JobExecutionException(e);
             } finally {
-                Map<String, Object> jobMap = new HashMap<>();
-                jobMap.put(AfterHandlingEvent.JOBMAP_KEY, new AfterHandlingEvent(
-                        AuditElements.EventCategoryType.PUSH,
-                        REALM_TYPE.toLowerCase(),
-                        profile.getTask().getResource().getKey(),
-                        operation,
-                        resultStatus,
-                        beforeObj,
-                        output,
-                        realm));
-                AfterHandlingJob.schedule(scheduler, jobMap);
+                if (notificationsAvailable || auditRequested) {
+                    Map<String, Object> jobMap = new HashMap<>();
+                    jobMap.put(AfterHandlingEvent.JOBMAP_KEY, new AfterHandlingEvent(
+                            AuditElements.EventCategoryType.PUSH,
+                            REALM_TYPE.toLowerCase(),
+                            profile.getTask().getResource().getKey(),
+                            operation,
+                            resultStatus,
+                            beforeObj,
+                            output,
+                            realm));
+                    AfterHandlingJob.schedule(scheduler, jobMap);
+                }
             }
         }
     }
