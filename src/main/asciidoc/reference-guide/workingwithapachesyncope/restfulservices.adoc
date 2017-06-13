@@ -89,6 +89,23 @@ user.
 The same header with provided value must be included in all subsequent requests, in order for the requester to
 be checked for authorization.
 
+For example, using http://curl.haxx.se/[curl^]:
+
+....
+curl -I -u admin:password -X POST \
+   http://localhost:9080/syncope/rest/accessTokens/login
+....
+returns
+....
+HTTP/1.1 204 
+X-Syncope-Token: eyJ0e..
+....
+which can then be used to make a call to the REST API
+.....
+curl -I -H "X-Syncope-Token: eyJ0e.." \
+   http://localhost:9080/syncope/rest/users/self
+.....
+
 The token duration can be configured via the `jwt.lifetime.minutes` property - see
 <<configuration-parameters, below>> for details.
 
