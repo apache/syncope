@@ -25,7 +25,7 @@ under the License.
 
   <!-- Sample PostgreSQL Data source
 
-    <Resource name="jdbc/syncopeDataSource" auth="Container"
+    <Resource name="jdbc/syncopeMasterDataSource" auth="Container"
               type="javax.sql.DataSource" driverClassName="org.postgresql.Driver"
               url="jdbc:postgresql://127.0.0.1:5432/syncope"
               username="syncope" password="password" maxActive="20" maxIdle="10"
@@ -34,7 +34,7 @@ under the License.
 
   <!--  https://cwiki.apache.org/confluence/display/SYNCOPE/Run+Syncope+in+real+environments
 
-   <Resource name="jdbc/syncopeDataSource" auth="Container" type="javax.sql.DataSource"
+   <Resource name="jdbc/syncopeMasterDataSource" auth="Container" type="javax.sql.DataSource"
       factory="org.apache.tomcat.jdbc.pool.DataSourceFactory" testWhileIdle="true"
       testOnBorrow="true" testOnReturn="true" validationQuery="SELECT 1" validationInterval="30000"
       maxActive="100" minIdle="2" maxWait="10000" initialSize="2" removeAbandonedTimeout="20000"
