@@ -63,7 +63,9 @@ public class SAML2ITCase extends AbstractITCase {
 
     @BeforeClass
     public static void importFromIdPMetadata() {
-        Assume.assumeTrue(SAML2SPDetector.isSAML2SPAvailable());
+        if (!SAML2SPDetector.isSAML2SPAvailable()) {
+            return;
+        }
 
         assertTrue(saml2IdPService.list().isEmpty());
 
@@ -86,7 +88,9 @@ public class SAML2ITCase extends AbstractITCase {
 
     @AfterClass
     public static void clearIdPs() {
-        Assume.assumeTrue(SAML2SPDetector.isSAML2SPAvailable());
+        if (!SAML2SPDetector.isSAML2SPAvailable()) {
+            return;
+        }
 
         for (SAML2IdPTO idp : saml2IdPService.list()) {
             saml2IdPService.delete(idp.getKey());
@@ -115,6 +119,8 @@ public class SAML2ITCase extends AbstractITCase {
 
     @Test
     public void createLoginRequest() {
+        Assume.assumeTrue(SAML2SPDetector.isSAML2SPAvailable());
+
         SAML2RequestTO loginRequest = anonymous.getService(SAML2SPService.class).
                 createLoginRequest(ADDRESS, "https://idp.testshib.org/idp/shibboleth");
         assertNotNull(loginRequest);
@@ -127,6 +133,8 @@ public class SAML2ITCase extends AbstractITCase {
 
     @Test
     public void setIdPMapping() {
+        Assume.assumeTrue(SAML2SPDetector.isSAML2SPAvailable());
+
         SAML2IdPTO ssoCircle = IterableUtils.find(saml2IdPService.list(), new Predicate<SAML2IdPTO>() {
 
             @Override
