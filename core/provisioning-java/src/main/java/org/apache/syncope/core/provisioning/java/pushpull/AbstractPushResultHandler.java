@@ -46,9 +46,11 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
+import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.TimeoutException;
 import org.apache.syncope.core.provisioning.api.event.AfterHandlingEvent;
+import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionException;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePushResultHandler;
 import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
@@ -65,6 +67,18 @@ import org.springframework.transaction.annotation.Transactional;
 
 public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHandler<PushTask, PushActions>
         implements SyncopePushResultHandler {
+
+    /**
+     * Notification Manager.
+     */
+    @Autowired
+    protected NotificationManager notificationManager;
+
+    /**
+     * Audit Manager.
+     */
+    @Autowired
+    protected AuditManager auditManager;
 
     @Autowired
     protected MappingManager mappingManager;
@@ -196,7 +210,6 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
 
         Object output = null;
         Result resultStatus = null;
-        String operation = null;
 
         // Try to read remote object BEFORE any actual operation
         Provision provision = profile.getTask().getResource().getProvision(any.getType());
@@ -214,9 +227,22 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
             }
             result.setStatus(ProvisioningReport.Status.SUCCESS);
         } else {
+            String operation = beforeObj == null
+                    ? UnmatchingRule.toEventName(profile.getTask().getUnmatchingRule())
+                    : MatchingRule.toEventName(profile.getTask().getMatchingRule());
+
+            boolean notificationsAvailable = notificationManager.notificationsAvailable(
+                    AuditElements.EventCategoryType.PUSH,
+                    any.getType().getKind().name().toLowerCase(),
+                    profile.getTask().getResource().getKey(),
+                    operation);
+            boolean auditRequested = auditManager.auditRequested(
+                    AuditElements.EventCategoryType.PUSH,
+                    any.getType().getKind().name().toLowerCase(),
+                    profile.getTask().getResource().getKey(),
+                    operation);
             try {
                 if (beforeObj == null) {
-                    operation = UnmatchingRule.toEventName(profile.getTask().getUnmatchingRule());
                     result.setOperation(getResourceOperation(profile.getTask().getUnmatchingRule()));
 
                     switch (profile.getTask().getUnmatchingRule()) {
@@ -266,7 +292,6 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                         // do nothing
                     }
                 } else {
-                    operation = MatchingRule.toEventName(profile.getTask().getMatchingRule());
                     result.setOperation(getResourceOperation(profile.getTask().getMatchingRule()));
 
                     switch (profile.getTask().getMatchingRule()) {
@@ -365,17 +390,19 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
 
                 throw new JobExecutionException(e);
             } finally {
-                Map<String, Object> jobMap = new HashMap<>();
-                jobMap.put(AfterHandlingEvent.JOBMAP_KEY, new AfterHandlingEvent(
-                        AuditElements.EventCategoryType.PUSH,
-                        any.getType().getKind().name().toLowerCase(),
-                        profile.getTask().getResource().getKey(),
-                        operation,
-                        resultStatus,
-                        beforeObj,
-                        output,
-                        any));
-                AfterHandlingJob.schedule(scheduler, jobMap);
+                if (notificationsAvailable || auditRequested) {
+                    Map<String, Object> jobMap = new HashMap<>();
+                    jobMap.put(AfterHandlingEvent.JOBMAP_KEY, new AfterHandlingEvent(
+                            AuditElements.EventCategoryType.PUSH,
+                            any.getType().getKind().name().toLowerCase(),
+                            profile.getTask().getResource().getKey(),
+                            operation,
+                            resultStatus,
+                            beforeObj,
+                            output,
+                            any));
+                    AfterHandlingJob.schedule(scheduler, jobMap);
+                }
             }
         }
     }
