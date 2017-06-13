@@ -40,7 +40,7 @@ domain and MySQL): please also check that the connection parameters are the same
 
 [source,xml]
 ....
-<Resource name="jdbc/MasterDataSource" auth="Container" type="javax.sql.DataSource"
+<Resource name="jdbc/syncopeMasterDataSource" auth="Container" type="javax.sql.DataSource"
           factory="org.apache.tomcat.jdbc.pool.DataSourceFactory" testWhileIdle="true"
           testOnBorrow="true" testOnReturn="true" validationQuery="SELECT 1" validationInterval="30000"
           maxActive="100" minIdle="2" maxWait="10000" initialSize="2" removeAbandonedTimeout="20000"
@@ -62,13 +62,13 @@ When using a datasource for internal storage, be sure to add
 [source,xml]
 ....
 <resource-ref>
-  <res-ref-name>jdbc/MasterDataSource</res-ref-name>
-  <jndi-name>jdbc/MasterDataSource</jndi-name>
+  <res-ref-name>jdbc/syncopeMasterDataSource</res-ref-name>
+  <jndi-name>jdbc/syncopeMasterDataSource</jndi-name>
 </resource-ref>
 ....
 
 right after `</context-root>` in `core/src/main/webapp/WEB-INF/glassfish-web.xml`, assuming that your Glassfish instance
-provides a datasource named `jdbc/MasterDataSource`.
+provides a datasource named `jdbc/syncopeMasterDataSource`.
 
 ===== Wildfly 9 and 10
 
