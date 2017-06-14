@@ -18,7 +18,8 @@
 //
 === Roles
 
-Roles map a set of <<entitlements,entitlements>> to a set of <<realms,realms>>.
+Roles map a set of <<entitlements,entitlements>> to a set of <<realms,realms>> and / or
+<<dynamic-realms, dynamic realms>>.
 
 [TIP]
 .Static and Dynamic Memberships
@@ -31,9 +32,22 @@ role.
 
 ==== Delegated Administration
 
-The idea is that any user U assigned to a role R, which provides entitlements E~1~...E~n~ for realms Re~1~...Re~k~, can 
+The idea is that any user U assigned to a role R, which provides entitlements E~1~...E~n~ for realms Re~1~...Re~m~, can 
 exercise E~i~ on entities (Users, Groups, Any Objects of given types, depending on E~i~) under any Re~j~ or related
 sub-realms.
+
+Moreover, any user U assigned to a role R, which provides entitlements E~1~...E~n~ for dynamic realms DR~1~..DR~n~, can
+exercise E~i~ on entities (Users, Groups, Any Objects of given types, depending on E~i~) matching the conditions defined
+for any DR~k~.
+
+[WARNING]
+.Dynamic Realms limitations
+====
+Users to whom administration rights were granted via Dynamic Realms can only *update* Users, Groups and Any Objects,
+not create nor delete. +
+Moreover, the only accepted changes on a given entity are the ones that do not change any Dynamic Realm's matching
+condition for such entity.
+====
 
 .Authorization
 ====
