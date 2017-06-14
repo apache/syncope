@@ -1141,6 +1141,10 @@ ul.menu i {
   width: 35px;
 }
 
+div#inline-actions ul.menu i, div#tablehandling ul.menu i {
+  width: auto !important;
+}
+
 .toggle-menu ul.menu li a {
   padding: 0px;
   text-align: left;

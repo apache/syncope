@@ -42,6 +42,7 @@ import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.console.wizards.any.AnyWrapper;
 import org.apache.syncope.client.console.wizards.any.UserWrapper;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -198,9 +199,8 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
 
             @Override
             protected boolean statusCondition(final UserTO modelObject) {
-                return addAjaxLink.isVisibleInHierarchy();
+                return addAjaxLink.isVisibleInHierarchy() && realm.startsWith(SyncopeConstants.ROOT_REALM);
             }
-
         }, ActionType.CLONE, StandardEntitlement.USER_CREATE).setRealm(realm);
 
         panel.add(new ActionLink<UserTO>() {
@@ -310,7 +310,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                     utilityModal.show(true);
                 }
             }, ActionType.PROPAGATION_TASKS, StandardEntitlement.TASK_LIST);
-            
+
             panel.add(new ActionLink<UserTO>() {
 
                 private static final long serialVersionUID = -7978723352517770644L;
@@ -342,6 +342,11 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                             getName() : e.getMessage());
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+            }
+
+            @Override
+            protected boolean statusCondition(final UserTO modelObject) {
+                return realm.startsWith(SyncopeConstants.ROOT_REALM);
             }
         }, ActionType.DELETE, StandardEntitlement.USER_DELETE, true).setRealm(realm);
 
