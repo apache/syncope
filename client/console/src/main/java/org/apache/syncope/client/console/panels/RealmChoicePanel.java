@@ -123,7 +123,7 @@ public class RealmChoicePanel extends Panel {
             @Override
             protected List<DynRealmTO> load() {
                 final List<DynRealmTO> dynRealms = realmRestClient.listDynReams();
-                dynRealms.sort(new Comparator<DynRealmTO>() {
+                Collections.sort(dynRealms, new Comparator<DynRealmTO>() {
 
                     @Override
                     public int compare(final DynRealmTO left, final DynRealmTO right) {
