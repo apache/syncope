@@ -48,6 +48,7 @@ import org.apache.syncope.client.console.wizards.any.AnyWrapper;
 import org.apache.syncope.client.console.wizards.any.GroupWrapper;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
@@ -270,6 +271,11 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                 send(GroupDirectoryPanel.this, Broadcast.EXACT,
                         new AjaxWizard.NewItemActionEvent<>(new GroupWrapper(clone), target));
             }
+
+            @Override
+            protected boolean statusCondition(final GroupTO modelObject) {
+                return realm.startsWith(SyncopeConstants.ROOT_REALM);
+            }
         }, ActionType.CLONE, StandardEntitlement.GROUP_CREATE).setRealm(realm);
 
         panel.add(new ActionLink<GroupTO>() {
@@ -409,6 +415,11 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                             ? e.getClass().getName() : e.getMessage());
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+            }
+
+            @Override
+            protected boolean statusCondition(final GroupTO modelObject) {
+                return realm.startsWith(SyncopeConstants.ROOT_REALM);
             }
         }, ActionType.DELETE, StandardEntitlement.GROUP_DELETE, true).setRealm(realm);
 

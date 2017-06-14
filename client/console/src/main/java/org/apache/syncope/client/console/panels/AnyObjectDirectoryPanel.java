@@ -40,6 +40,7 @@ import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.console.wizards.any.AnyWrapper;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.types.AnyEntitlement;
@@ -172,7 +173,7 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
 
             @Override
             protected boolean statusCondition(final AnyObjectTO modelObject) {
-                return addAjaxLink.isVisibleInHierarchy();
+                return addAjaxLink.isVisibleInHierarchy() && realm.startsWith(SyncopeConstants.ROOT_REALM);
             }
         }, ActionType.CLONE, AnyEntitlement.CREATE.getFor(type)).setRealm(realm);
 
@@ -249,6 +250,11 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
                             ? e.getClass().getName() : e.getMessage());
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+            }
+
+            @Override
+            protected boolean statusCondition(final AnyObjectTO modelObject) {
+                return realm.startsWith(SyncopeConstants.ROOT_REALM);
             }
         }, ActionType.DELETE, AnyEntitlement.DELETE.getFor(type), true).setRealm(realm);
 

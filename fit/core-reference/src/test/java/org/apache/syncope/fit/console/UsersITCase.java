@@ -164,7 +164,7 @@ public class UsersITCase extends AbstractConsoleITCase {
     public void editUserMembership() {
         TESTER.clickLink("body:realmsLI:realms");
         TESTER.executeAjaxEvent("body:content:realmChoicePanel:container:realms:btn", Constants.ON_CLICK);
-        TESTER.executeAjaxEvent("body:content:realmChoicePanel:container:realms:dropdown-menu:buttons:1:button",
+        TESTER.executeAjaxEvent("body:content:realmChoicePanel:container:realms:dropdown-menu:buttons:2:button",
                 Constants.ON_CLICK);
 
         TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:1:link");

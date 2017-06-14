@@ -43,6 +43,7 @@ import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.Bas
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wizards.any.AnyWrapper;
 import org.apache.syncope.client.console.wizards.any.StatusPanel;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
@@ -91,7 +92,8 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
 
     protected AnyDirectoryPanel(final String id, final Builder<A, E> builder, final boolean wizardInModal) {
         super(id, builder, wizardInModal);
-        if (SyncopeConsoleSession.get().owns(String.format("%s_CREATE", builder.type), builder.realm)) {
+        if (SyncopeConsoleSession.get().owns(String.format("%s_CREATE", builder.type), builder.realm)
+                && builder.realm.startsWith(SyncopeConstants.ROOT_REALM)) {
             MetaDataRoleAuthorizationStrategy.authorizeAll(addAjaxLink, RENDER);
         } else {
             MetaDataRoleAuthorizationStrategy.unauthorizeAll(addAjaxLink, RENDER);
@@ -176,7 +178,7 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
         /**
          * Realm related to current panel.
          */
-        protected String realm = "/";
+        protected String realm = SyncopeConstants.ROOT_REALM;
 
         /**
          * Any type related to current panel.
