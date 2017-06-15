@@ -2006,6 +2006,7 @@ under the License.
             <exclude>**/deb/control/control</exclude>
             <exclude>**/*.lst</exclude>
             <exclude>**/*.json</exclude>
+            <exclude>**/target/**</exclude>
           </excludes>
         </configuration>
         <executions>
