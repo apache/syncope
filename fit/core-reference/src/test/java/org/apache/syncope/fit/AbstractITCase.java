@@ -59,6 +59,7 @@ import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.service.AccessTokenService;
 import org.apache.syncope.common.rest.api.service.AnyObjectService;
 import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
 import org.apache.syncope.common.rest.api.service.AnyTypeService;
@@ -163,6 +164,10 @@ public abstract class AbstractITCase {
 
     protected static String ANONYMOUS_KEY;
 
+    protected static String JWS_KEY;
+
+    protected static String JWT_ISSUER;
+
     protected static SyncopeClientFactoryBean clientFactory;
 
     protected static SyncopeClient adminClient;
@@ -235,6 +240,8 @@ public abstract class AbstractITCase {
 
             ANONYMOUS_UNAME = props.getProperty("anonymousUser");
             ANONYMOUS_KEY = props.getProperty("anonymousKey");
+            JWS_KEY = props.getProperty("jwsKey");
+            JWT_ISSUER = props.getProperty("jwtIssuer");
         } catch (Exception e) {
             LOG.error("Could not read secretKey", e);
         } finally {
@@ -243,6 +250,8 @@ public abstract class AbstractITCase {
 
         assertNotNull(ANONYMOUS_UNAME);
         assertNotNull(ANONYMOUS_KEY);
+        assertNotNull(JWS_KEY);
+        assertNotNull(JWT_ISSUER);
     }
 
     @BeforeClass
