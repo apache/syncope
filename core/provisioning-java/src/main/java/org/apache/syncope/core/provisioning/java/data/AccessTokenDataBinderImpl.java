@@ -27,7 +27,6 @@ import javax.annotation.Resource;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.cxf.rs.security.jose.common.JoseType;
-import org.apache.cxf.rs.security.jose.jwa.SignatureAlgorithm;
 import org.apache.cxf.rs.security.jose.jws.JwsHeaders;
 import org.apache.cxf.rs.security.jose.jws.JwsJwtCompactConsumer;
 import org.apache.cxf.rs.security.jose.jws.JwsJwtCompactProducer;
@@ -60,8 +59,6 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
     private static final String[] IGNORE_PROPERTIES = { "owner" };
 
     private static final RandomBasedGenerator UUID_GENERATOR = Generators.randomBasedGenerator();
-
-    private static final JwsHeaders JWS_HEADERS = new JwsHeaders(JoseType.JWT, SignatureAlgorithm.HS512);
 
     @Resource(name = "adminUser")
     private String adminUser;
@@ -102,7 +99,8 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
             jwtClaims.setClaim(entry.getKey(), entry.getValue());
         }
 
-        JwtToken token = new JwtToken(JWS_HEADERS, jwtClaims);
+        JwsHeaders jwsHeaders = new JwsHeaders(JoseType.JWT, jwsSignatureProvider.getAlgorithm());
+        JwtToken token = new JwtToken(jwsHeaders, jwtClaims);
         JwsJwtCompactProducer producer = new JwsJwtCompactProducer(token);
 
         String signed = producer.signWith(jwsSignatureProvider);
@@ -169,7 +167,8 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
                 confDAO.find("jwt.lifetime.minutes", "120").getValues().get(0).getLongValue().intValue());
         consumer.getJwtClaims().setExpiryTime(expiry.getTime().getTime());
 
-        JwtToken token = new JwtToken(JWS_HEADERS, consumer.getJwtClaims());
+        JwsHeaders jwsHeaders = new JwsHeaders(JoseType.JWT, jwsSignatureProvider.getAlgorithm());
+        JwtToken token = new JwtToken(jwsHeaders, consumer.getJwtClaims());
         JwsJwtCompactProducer producer = new JwsJwtCompactProducer(token);
 
         String body = producer.signWith(jwsSignatureProvider);
