@@ -20,7 +20,6 @@ package org.apache.syncope.core.provisioning.java.data;
 
 import com.fasterxml.uuid.Generators;
 import com.fasterxml.uuid.impl.RandomBasedGenerator;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 import javax.annotation.Resource;
@@ -83,17 +82,14 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
             final String subject, final int duration, final Map<String, Object> claims) {
 
         Date now = new Date();
-
-        Calendar expiry = Calendar.getInstance();
-        expiry.setTime(now);
-        expiry.add(Calendar.MINUTE, duration);
+        Date expiry = new Date(now.getTime() + 60L * 1000L * duration);
 
         JwtClaims jwtClaims = new JwtClaims();
         jwtClaims.setTokenId(UUID_GENERATOR.generate().toString());
         jwtClaims.setSubject(subject);
         jwtClaims.setIssuedAt(now.getTime());
         jwtClaims.setIssuer(jwtIssuer);
-        jwtClaims.setExpiryTime(expiry.getTime().getTime());
+        jwtClaims.setExpiryTime(expiry.getTime());
         jwtClaims.setNotBefore(now.getTime());
         for (Map.Entry<String, Object> entry : claims.entrySet()) {
             jwtClaims.setClaim(entry.getKey(), entry.getValue());
@@ -105,7 +101,7 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
 
         String signed = producer.signWith(jwsSignatureProvider);
 
-        return Triple.of(jwtClaims.getTokenId(), signed, expiry.getTime());
+        return Triple.of(jwtClaims.getTokenId(), signed, expiry);
     }
 
     @Override
@@ -161,21 +157,18 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
         JwsJwtCompactConsumer consumer = new JwsJwtCompactConsumer(accessToken.getBody());
 
         Date now = new Date();
-        Calendar expiry = Calendar.getInstance();
-        expiry.setTime(now);
-        expiry.add(Calendar.MINUTE,
-                confDAO.find("jwt.lifetime.minutes", "120").getValues().get(0).getLongValue().intValue());
-        consumer.getJwtClaims().setExpiryTime(expiry.getTime().getTime());
+        int duration = confDAO.find("jwt.lifetime.minutes", "120").getValues().get(0).getLongValue().intValue();
+        Date expiry = new Date(now.getTime() + 60L * 1000L * duration);
+        consumer.getJwtClaims().setExpiryTime(expiry.getTime());
 
         JwsHeaders jwsHeaders = new JwsHeaders(JoseType.JWT, jwsSignatureProvider.getAlgorithm());
         JwtToken token = new JwtToken(jwsHeaders, consumer.getJwtClaims());
         JwsJwtCompactProducer producer = new JwsJwtCompactProducer(token);
 
         String body = producer.signWith(jwsSignatureProvider);
-        Date expiryTime = expiry.getTime();
 
         accessToken.setBody(body);
-        accessToken.setExpiryTime(expiryTime);
+        accessToken.setExpiryTime(expiry);
 
         if (!adminUser.equals(accessToken.getOwner())) {
             try {
@@ -189,7 +182,7 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
 
         accessTokenDAO.save(accessToken);
 
-        return Pair.of(body, expiryTime);
+        return Pair.of(body, expiry);
     }
 
     @Override
