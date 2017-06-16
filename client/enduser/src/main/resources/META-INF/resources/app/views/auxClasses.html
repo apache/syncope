@@ -18,8 +18,9 @@ under the License.
 -->
 <div ng-init='init()'>
   <ui-select on-select="addAuxClass($item, $model)" on-remove="removeAuxClass($item, $model)" multiple
+             validate-dropdown="auxClasses" dynamic-form="dynamicForm"
              ng-model="dynamicForm.selectedAuxClasses" theme="select2" class="attribute-ui-select" 
-             ng-disabled="{{auxClassDisabled}}">
+             ng-disabled="inputDisabled">
     <ui-select-match placeholder="{{'AUXILIARY_CLASSES_PLACEHOLDER'| translate}}" class="ui-select-match">
       {{$item}}
     </ui-select-match>
