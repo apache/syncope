@@ -34,14 +34,12 @@ angular.module('SyncopeEnduserApp')
                 });
                 currentForm.$setSubmitted();
                 if ($.isEmptyObject(currentForm.$error)) {
-                  return true
-                }
-                else {
+                  return true;
+                } else {
                   scope.showError("Data are invalid: please correct accordingly", scope.notification);
                   return false;
                 }
-              }
-              else
+              } else
                 return true;
             };
             return validationExecutor;

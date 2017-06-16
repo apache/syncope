@@ -17,7 +17,9 @@ specific language governing permissions and limitations
 under the License.
 -->
 <ui-select on-select="addResource($item, $model)" on-remove="removeResource($item, $model)" multiple
-           ng-model="dynamicForm.selectedResources" theme="select2" class="attribute-ui-select">
+           validate-dropdown="resources" dynamic-form="dynamicForm"
+           ng-model="dynamicForm.selectedResources" theme="select2" class="attribute-ui-select"
+           ng-disabled="inputDisabled">
   <ui-select-match placeholder="{{'RESOURCES_PLACEHOLDER'|translate}}" class="ui-select-match">{{$item}}</ui-select-match>
   <ui-select-choices repeat="resource in dynamicForm.resources" class="ui-select-choices">
     <div ng-bind-html="resource | highlight: $select.search"></div>

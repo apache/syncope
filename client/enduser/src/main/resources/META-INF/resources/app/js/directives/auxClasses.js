@@ -33,7 +33,6 @@ angular.module('self')
                 if (!$scope.user.auxClasses) {
                   $scope.user.auxClasses = new Array();                  
                 }
-                $scope.auxClassDisabled = false;
               };
 
               $scope.addAuxClass = function (item, model) {
