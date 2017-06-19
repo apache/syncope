@@ -198,7 +198,7 @@ public final class SearchUtils implements Serializable {
     }
 
     public static String buildFIQL(final List<SearchClause> clauses, final AbstractFiqlSearchConditionBuilder builder) {
-        return buildFIQL(clauses, builder, Collections.emptyMap());
+        return buildFIQL(clauses, builder, Collections.<String, PlainSchemaTO>emptyMap());
     }
 
     public static String buildFIQL(
