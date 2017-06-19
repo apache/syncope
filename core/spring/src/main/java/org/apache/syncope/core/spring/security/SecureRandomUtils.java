@@ -18,28 +18,54 @@
  */
 package org.apache.syncope.core.spring.security;
 
-import java.security.SecureRandom;
-
-import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.text.CharacterPredicate;
+import org.apache.commons.text.CharacterPredicates;
+import org.apache.commons.text.RandomStringGenerator;
+import org.apache.syncope.common.lib.SecureTextRandomProvider;
 
 public final class SecureRandomUtils {
 
-    private static final SecureRandom RANDOM = new SecureRandom();
+    private static final RandomStringGenerator FOR_PASSWORD = new RandomStringGenerator.Builder().
+            usingRandom(new SecureTextRandomProvider()).
+            build();
+
+    private static final RandomStringGenerator FOR_LETTERS = new RandomStringGenerator.Builder().
+            usingRandom(new SecureTextRandomProvider()).
+            filteredBy(CharacterPredicates.LETTERS).
+            build();
+
+    private static final RandomStringGenerator FOR_NUMBERS = new RandomStringGenerator.Builder().
+            usingRandom(new SecureTextRandomProvider()).
+            filteredBy(CharacterPredicates.LETTERS).
+            build();
 
     public static String generateRandomPassword(final int tokenLength) {
-        return RandomStringUtils.random(tokenLength, 0, 0, true, false, null, RANDOM);
+        return FOR_PASSWORD.generate(tokenLength);
     }
 
     public static String generateRandomLetter() {
-        return RandomStringUtils.random(1, 0, 0, true, false, null, RANDOM);
+        return FOR_LETTERS.generate(1);
     }
 
     public static String generateRandomNumber() {
-        return RandomStringUtils.random(1, 0, 0, false, true, null, RANDOM);
+        return FOR_NUMBERS.generate(1);
     }
 
     public static String generateRandomSpecialCharacter(final char[] characters) {
-        return RandomStringUtils.random(1, 0, 0, false, false, characters, RANDOM);
+        return new RandomStringGenerator.Builder().
+                usingRandom(new SecureTextRandomProvider()).
+                filteredBy(new CharacterPredicate() {
+
+                    @Override
+                    public boolean test(final int codePoint) {
+                        boolean found = false;
+                        for (int i = 0; i < characters.length && !found; i++) {
+                            found = codePoint == Character.codePointAt(characters, i);
+                        }
+
+                        return found;
+                    }
+                }).build().generate(1);
     }
 
     private SecureRandomUtils() {
