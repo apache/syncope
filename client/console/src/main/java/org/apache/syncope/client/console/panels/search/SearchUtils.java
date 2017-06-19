@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.panels.search;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +39,8 @@ import org.apache.syncope.common.lib.search.SyncopeFiqlParser;
 import org.apache.syncope.common.lib.search.SyncopeFiqlSearchCondition;
 import org.apache.syncope.common.lib.search.SyncopeProperty;
 import org.apache.syncope.common.lib.search.UserFiqlSearchConditionBuilder;
+import org.apache.syncope.common.lib.to.PlainSchemaTO;
+import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -195,6 +198,13 @@ public final class SearchUtils implements Serializable {
     }
 
     public static String buildFIQL(final List<SearchClause> clauses, final AbstractFiqlSearchConditionBuilder builder) {
+        return buildFIQL(clauses, builder, Collections.emptyMap());
+    }
+
+    public static String buildFIQL(
+            final List<SearchClause> clauses,
+            final AbstractFiqlSearchConditionBuilder builder,
+            final Map<String, PlainSchemaTO> availableSchemaTypes) {
         LOG.debug("Generating FIQL from List<SearchClause>: {}", clauses);
 
         CompleteCondition prevCondition;
@@ -249,6 +259,10 @@ public final class SearchUtils implements Serializable {
 
                     case ATTRIBUTE:
                         if (StringUtils.isNotBlank(clause.getProperty())) {
+                            boolean isLong = availableSchemaTypes.get(clause.getProperty()) != null
+                                    && availableSchemaTypes.get(clause.getProperty()).getType()
+                                    == AttrSchemaType.Long;
+
                             SyncopeProperty property = builder.is(clause.getProperty());
                             switch (clause.getComparator()) {
                                 case IS_NULL:
@@ -260,26 +274,26 @@ public final class SearchUtils implements Serializable {
                                     break;
 
                                 case LESS_THAN:
-                                    condition = StringUtils.isNumeric(clause.getProperty())
-                                            ? property.lessThan(NumberUtils.toDouble(clause.getValue()))
+                                    condition = isLong
+                                            ? property.lessThan(NumberUtils.toLong(clause.getValue()))
                                             : property.lexicalBefore(clause.getValue());
                                     break;
 
                                 case LESS_OR_EQUALS:
-                                    condition = StringUtils.isNumeric(clause.getProperty())
-                                            ? property.lessOrEqualTo(NumberUtils.toDouble(clause.getValue()))
+                                    condition = isLong
+                                            ? property.lessOrEqualTo(NumberUtils.toLong(clause.getValue()))
                                             : property.lexicalNotAfter(clause.getValue());
                                     break;
 
                                 case GREATER_THAN:
-                                    condition = StringUtils.isNumeric(clause.getProperty())
-                                            ? property.greaterThan(NumberUtils.toDouble(clause.getValue()))
+                                    condition = isLong
+                                            ? property.greaterThan(NumberUtils.toLong(clause.getValue()))
                                             : property.lexicalAfter(clause.getValue());
                                     break;
 
                                 case GREATER_OR_EQUALS:
-                                    condition = StringUtils.isNumeric(clause.getProperty())
-                                            ? property.greaterOrEqualTo(NumberUtils.toDouble(clause.getValue()))
+                                    condition = isLong
+                                            ? property.greaterOrEqualTo(NumberUtils.toLong(clause.getValue()))
                                             : property.lexicalNotBefore(clause.getValue());
                                     break;
 

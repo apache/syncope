@@ -40,6 +40,7 @@ import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormCompo
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
+import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.RelationshipTypeTO;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
@@ -71,7 +72,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
     private final IModel<List<SearchClause.Type>> types;
 
-    private final IModel<List<String>> anames;
+    private final IModel<Map<String, PlainSchemaTO>> anames;
 
     private final IModel<List<String>> dnames;
 
@@ -101,7 +102,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
             final Model<SearchClause> clause,
             final boolean required,
             final IModel<List<SearchClause.Type>> types,
-            final IModel<List<String>> anames,
+            final IModel<Map<String, PlainSchemaTO>> anames,
             final IModel<List<String>> dnames,
             final IModel<Map<String, String>> groupNames,
             final IModel<List<String>> roleNames,
@@ -194,7 +195,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                     case ATTRIBUTE:
                         final List<String> names = new ArrayList<>(dnames.getObject());
                         if (anames != null && anames.getObject() != null && !anames.getObject().isEmpty()) {
-                            names.addAll(anames.getObject());
+                            names.addAll(anames.getObject().keySet());
                         }
                         Collections.sort(names);
                         return names;
