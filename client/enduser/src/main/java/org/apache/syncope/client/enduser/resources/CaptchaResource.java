@@ -19,7 +19,6 @@
 package org.apache.syncope.client.enduser.resources;
 
 import javax.servlet.http.HttpServletRequest;
-import org.apache.commons.text.CharacterPredicates;
 import org.apache.commons.text.RandomStringGenerator;
 import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
 import org.apache.syncope.common.lib.SecureTextRandomProvider;
@@ -36,7 +35,7 @@ public class CaptchaResource extends CaptchaImageResource {
 
     private static final RandomStringGenerator RANDOM_LETTERS = new RandomStringGenerator.Builder().
             usingRandom(new SecureTextRandomProvider()).
-            filteredBy(CharacterPredicates.LETTERS).
+            withinRange('a', 'z').
             build();
 
     @Override
