@@ -49,17 +49,10 @@ import org.apache.syncope.common.lib.types.ReportExecExportFormat;
 import org.apache.syncope.common.lib.types.ReportExecStatus;
 import org.apache.syncope.common.rest.api.beans.BulkExecDeleteQuery;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
-import org.apache.syncope.common.rest.api.service.ReportService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.Test;
 
 public class ReportITCase extends AbstractITCase {
-
-    private ReportTO createReport(final ReportTO report) {
-        Response response = reportService.create(report);
-        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatusInfo().getStatusCode());
-        return getObject(response.getLocation(), ReportService.class, ReportTO.class);
-    }
 
     @Test
     public void getReportletConfs() {
@@ -281,62 +274,5 @@ public class ReportITCase extends AbstractITCase {
         } finally {
             loggerService.delete(LoggerType.AUDIT, auditLoggerName.toLoggerName());
         }
-    }
-
-    @Test
-    public void issueSYNCOPE43() {
-        ReportTO reportTO = new ReportTO();
-        reportTO.setName("issueSYNCOPE43" + getUUIDString());
-        reportTO.setActive(true);
-        reportTO.setTemplate("sample");
-        reportTO = createReport(reportTO);
-        assertNotNull(reportTO);
-
-        ExecTO execution = reportService.execute(new ExecuteQuery.Builder().key(reportTO.getKey()).build());
-        assertNotNull(execution);
-
-        int maxit = 50;
-        do {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-            }
-
-            reportTO = reportService.read(reportTO.getKey());
-
-            maxit--;
-        } while (reportTO.getExecutions().isEmpty() && maxit > 0);
-
-        assertEquals(1, reportTO.getExecutions().size());
-    }
-
-    @Test
-    public void issueSYNCOPE102() throws IOException {
-        // Create
-        ReportTO reportTO = reportService.read("0062ea9c-924d-4ecf-9961-4492a8cc6d1b");
-        reportTO.setKey(null);
-        reportTO.setName("issueSYNCOPE102" + getUUIDString());
-        reportTO = createReport(reportTO);
-        assertNotNull(reportTO);
-
-        // Execute (multiple requests)
-        for (int i = 0; i < 10; i++) {
-            ExecTO execution = reportService.execute(new ExecuteQuery.Builder().key(reportTO.getKey()).build());
-            assertNotNull(execution);
-        }
-
-        // Wait for one execution
-        int maxit = 50;
-        do {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-            }
-
-            reportTO = reportService.read(reportTO.getKey());
-
-            maxit--;
-        } while (reportTO.getExecutions().isEmpty() && maxit > 0);
-        assertFalse(reportTO.getExecutions().isEmpty());
     }
 }

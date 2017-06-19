@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.fit;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
@@ -36,6 +37,7 @@ import javax.naming.directory.InitialDirContext;
 import javax.naming.directory.ModificationItem;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -52,14 +54,18 @@ import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.MembershipTO;
+import org.apache.syncope.common.lib.to.NotificationTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
+import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.SchemaType;
+import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.common.rest.api.RESTHeaders;
-import org.apache.syncope.common.rest.api.service.AccessTokenService;
 import org.apache.syncope.common.rest.api.service.AnyObjectService;
 import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
 import org.apache.syncope.common.rest.api.service.AnyTypeService;
@@ -89,6 +95,7 @@ import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.common.rest.api.service.UserWorkflowService;
 import org.apache.syncope.common.rest.api.service.WorkflowService;
+import org.apache.syncope.fit.core.UserITCase;
 import org.identityconnectors.common.security.Encryptor;
 import org.junit.BeforeClass;
 import org.slf4j.Logger;
@@ -341,6 +348,58 @@ public abstract class AbstractITCase {
             }
         }
         return getObject(response.getLocation(), RoleService.class, RoleTO.class);
+    }
+
+    protected ReportTO createReport(final ReportTO report) {
+        Response response = reportService.create(report);
+        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatusInfo().getStatusCode());
+        return getObject(response.getLocation(), ReportService.class, ReportTO.class);
+    }
+
+    protected Pair<String, String> createNotificationTask(
+            final boolean active,
+            final boolean includeAbout,
+            final TraceLevel traceLevel,
+            final String sender,
+            final String subject,
+            final String... staticRecipients) {
+
+        // 1. Create notification
+        NotificationTO notification = new NotificationTO();
+        notification.setTraceLevel(traceLevel);
+        notification.getEvents().add("[LOGIC]:[UserLogic]:[]:[create]:[SUCCESS]");
+
+        if (includeAbout) {
+            notification.getAbouts().put(AnyTypeKind.USER.name(),
+                    SyncopeClient.getUserSearchConditionBuilder().
+                            inGroups("bf825fe1-7320-4a54-bd64-143b5c18ab97").query());
+        }
+
+        notification.setRecipientsFIQL(SyncopeClient.getUserSearchConditionBuilder().
+                inGroups("f779c0d4-633b-4be5-8f57-32eb478a3ca5").query());
+        notification.setSelfAsRecipient(true);
+        notification.setRecipientAttrName("email");
+        if (staticRecipients != null) {
+            CollectionUtils.addAll(notification.getStaticRecipients(), staticRecipients);
+        }
+
+        notification.setSender(sender);
+        notification.setSubject(subject);
+        notification.setTemplate("optin");
+        notification.setActive(active);
+
+        Response response = notificationService.create(notification);
+        notification = getObject(response.getLocation(), NotificationService.class, NotificationTO.class);
+        assertNotNull(notification);
+
+        // 2. create user
+        UserTO userTO = UserITCase.getUniqueSampleTO("notificationtest@syncope.apache.org");
+        userTO.getMemberships().add(
+                new MembershipTO.Builder().group("bf825fe1-7320-4a54-bd64-143b5c18ab97").build());
+
+        userTO = createUser(userTO).getEntity();
+        assertNotNull(userTO);
+        return Pair.of(notification.getKey(), userTO.getUsername());
     }
 
     protected ProvisioningResult<UserTO> createUser(final UserTO userTO) {

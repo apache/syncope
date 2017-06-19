@@ -230,6 +230,9 @@ under the License.
           <includes>
             <include>**/org/apache/syncope/fit/core/*ITCase.java</include>
           </includes>
+          <excludes>
+            <exclude>**/*IssuesITCase.java</exclude>
+          </excludes>
         </configuration>
         <executions>
           <execution>
