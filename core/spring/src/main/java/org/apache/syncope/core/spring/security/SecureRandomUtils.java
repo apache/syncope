@@ -19,7 +19,6 @@
 package org.apache.syncope.core.spring.security;
 
 import org.apache.commons.text.CharacterPredicate;
-import org.apache.commons.text.CharacterPredicates;
 import org.apache.commons.text.RandomStringGenerator;
 import org.apache.syncope.common.lib.SecureTextRandomProvider;
 
@@ -31,12 +30,12 @@ public final class SecureRandomUtils {
 
     private static final RandomStringGenerator FOR_LETTERS = new RandomStringGenerator.Builder().
             usingRandom(new SecureTextRandomProvider()).
-            filteredBy(CharacterPredicates.LETTERS).
+            withinRange('a', 'z').
             build();
 
     private static final RandomStringGenerator FOR_NUMBERS = new RandomStringGenerator.Builder().
             usingRandom(new SecureTextRandomProvider()).
-            filteredBy(CharacterPredicates.LETTERS).
+            withinRange('0', '9').
             build();
 
     public static String generateRandomPassword(final int tokenLength) {
