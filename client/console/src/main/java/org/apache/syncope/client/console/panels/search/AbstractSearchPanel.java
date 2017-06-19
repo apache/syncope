@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.panels.search;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
@@ -29,7 +30,7 @@ import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.search.SearchableFields;
-import org.apache.syncope.common.lib.to.AbstractSchemaTO;
+import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.SchemaType;
@@ -56,7 +57,7 @@ public abstract class AbstractSearchPanel extends Panel {
 
     protected IModel<List<String>> dnames;
 
-    protected IModel<List<String>> anames;
+    protected IModel<Map<String, PlainSchemaTO>> anames;
 
     protected IModel<List<String>> resourceNames;
 
@@ -167,16 +168,21 @@ public abstract class AbstractSearchPanel extends Panel {
             }
         };
 
-        anames = new LoadableDetachableModel<List<String>>() {
+        anames = new LoadableDetachableModel<Map<String, PlainSchemaTO>>() {
 
             private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
-            protected List<String> load() {
-                return CollectionUtils.collect(
-                        schemaRestClient.getSchemas(SchemaType.PLAIN, anyTypeRestClient.read(type).getClasses().
-                                toArray(new String[] {})),
-                        EntityTOUtils.<AbstractSchemaTO>keyTransformer(), new ArrayList<String>());
+            protected Map<String, PlainSchemaTO> load() {
+                final List<PlainSchemaTO> schemas = schemaRestClient.<PlainSchemaTO>getSchemas(
+                        SchemaType.PLAIN,
+                        anyTypeRestClient.read(type).getClasses().toArray(new String[] {}));
+
+                final Map<String, PlainSchemaTO> res = new HashMap<>();
+                for (PlainSchemaTO schema : schemas) {
+                    res.put(schema.getKey(), schema);
+                }
+                return res;
             }
         };
 
@@ -198,5 +204,9 @@ public abstract class AbstractSearchPanel extends Panel {
 
     public String getBackObjectType() {
         return this.type;
+    }
+
+    public Map<String, PlainSchemaTO> getAvailableSchemaTypes() {
+        return anames.getObject();
     }
 }

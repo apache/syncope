@@ -163,19 +163,22 @@ public class AnyPanel extends Panel implements ModalPanel {
                     UserDirectoryPanel.class.cast(AnyPanel.this.directoryPanel).search(
                             precond + SearchUtils.buildFIQL(
                                     AnyPanel.this.searchPanel.getModel().getObject(),
-                                    SyncopeClient.getUserSearchConditionBuilder()), target);
+                                    SyncopeClient.getUserSearchConditionBuilder(),
+                                    AnyPanel.this.searchPanel.getAvailableSchemaTypes()), target);
                     break;
                 case GROUP:
                     GroupDirectoryPanel.class.cast(AnyPanel.this.directoryPanel).search(
                             precond + SearchUtils.buildFIQL(
                                     AnyPanel.this.searchPanel.getModel().getObject(),
-                                    SyncopeClient.getGroupSearchConditionBuilder()), target);
+                                    SyncopeClient.getGroupSearchConditionBuilder(),
+                                    AnyPanel.this.searchPanel.getAvailableSchemaTypes()), target);
                     break;
                 case ANY_OBJECT:
                     AnyObjectDirectoryPanel.class.cast(AnyPanel.this.directoryPanel).search(
                             precond + SearchUtils.buildFIQL(
                                     AnyPanel.this.searchPanel.getModel().getObject(),
-                                    SyncopeClient.getAnyObjectSearchConditionBuilder(anyTypeTO.getKey())), target);
+                                    SyncopeClient.getAnyObjectSearchConditionBuilder(anyTypeTO.getKey()),
+                                    AnyPanel.this.searchPanel.getAvailableSchemaTypes()), target);
                     break;
                 default:
             }
