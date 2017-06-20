@@ -67,16 +67,16 @@ under the License.
   <entry key="ARelationship_AnyObjectIndex">CREATE INDEX ARelationship_AnyObjectIndex ON ARelationship(left_anyObject_id)</entry>
 
   <entry key="UPlainAttrValue_attrIndex">CREATE INDEX UPlainAttrValue_attrIndex on UPlainAttrValue(attribute_id)</entry>
-  <entry key="UPlainAttrUniqueValue_attrIndex">CREATE INDEX UPlainAttrUniqueValue_attrIndex on UPlainAttrUniqueValue(attribute_id)</entry>
+  <entry key="UPAttrUniqueValue_attrIndex">CREATE INDEX UPAttrUniqueValue_attrIndex on UPlainAttrUniqueValue(attribute_id)</entry>
 
   <entry key="GPlainAttrValue_attrIndex">CREATE INDEX GPlainAttrValue_attrIndex on GPlainAttrValue(attribute_id)</entry>
-  <entry key="GPlainAttrUniquesValue_attrIndex">CREATE INDEX GPlainAttrUniqueValue_attrIndex on GPlainAttrUniqueValue(attribute_id)</entry>
+  <entry key="GPAttrUniquesValue_attrIndex">CREATE INDEX GPAttrUniqueValue_attrIndex on GPlainAttrUniqueValue(attribute_id)</entry>
 
   <entry key="APlainAttrValue_attrIndex">CREATE INDEX APlainAttrValue_attrIndex on APlainAttrValue(attribute_id)</entry>
-  <entry key="APlainAttrUniqueValue_attrIndex">CREATE INDEX APlainAttrUniqueValue_attrIndex on APlainAttrUniqueValue(attribute_id)</entry>
+  <entry key="APAttrUniqueValue_attrIndex">CREATE INDEX APAttrUniqueValue_attrIndex on APlainAttrUniqueValue(attribute_id)</entry>
 
   <entry key="CPlainAttrValue_attrIndex">CREATE INDEX CPlainAttrValue_attrIndex on CPlainAttrValue(attribute_id)</entry>
-  <entry key="CPlainAttrUniqueValue_attrIndex">CREATE INDEX CPlainAttrUniqueValue_attrIndex on CPlainAttrUniqueValue(attribute_id)</entry>
+  <entry key="CPAttrUniqueValue_attrIndex">CREATE INDEX CPAttrUniqueValue_attrIndex on CPlainAttrUniqueValue(attribute_id)</entry>
 
   <entry key="UPlainAttr_owner_Index">CREATE INDEX UPlainAttr_owner_Index on UPlainAttr(owner_id)</entry>
   <entry key="UPlainAttr_schema_Index">CREATE INDEX UPlainAttr_schema_Index on UPlainAttr(schema_id)</entry>
