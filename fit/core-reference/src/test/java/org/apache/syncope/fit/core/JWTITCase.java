@@ -38,6 +38,7 @@ import org.apache.cxf.rs.security.jose.jws.JwsJwtCompactConsumer;
 import org.apache.cxf.rs.security.jose.jws.JwsJwtCompactProducer;
 import org.apache.cxf.rs.security.jose.jws.JwsSignatureProvider;
 import org.apache.cxf.rs.security.jose.jws.JwsSignatureVerifier;
+import org.apache.cxf.rs.security.jose.jws.NoneJwsSignatureProvider;
 import org.apache.cxf.rs.security.jose.jwt.JwtClaims;
 import org.apache.cxf.rs.security.jose.jwt.JwtToken;
 import org.apache.syncope.client.lib.SyncopeClient;
@@ -298,4 +299,44 @@ public class JWTITCase extends AbstractITCase {
             // expected
         }
     }
+
+    @Test
+    public void testNoneSignature() throws ParseException {
+        // Get an initial token
+        SyncopeClient adminClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
+        AccessTokenService accessTokenService = adminClient.getService(AccessTokenService.class);
+
+        Response response = accessTokenService.login();
+        String token = response.getHeaderString(RESTHeaders.TOKEN);
+        assertNotNull(token);
+        JwsJwtCompactConsumer consumer = new JwsJwtCompactConsumer(token);
+        String tokenId = consumer.getJwtClaims().getTokenId();
+
+        // Create a new token using the Id of the first token
+
+        JwtClaims jwtClaims = new JwtClaims();
+        jwtClaims.setTokenId(tokenId);
+        jwtClaims.setSubject(consumer.getJwtClaims().getSubject());
+        jwtClaims.setIssuedAt(consumer.getJwtClaims().getIssuedAt());
+        jwtClaims.setIssuer(consumer.getJwtClaims().getIssuer());
+        jwtClaims.setExpiryTime(consumer.getJwtClaims().getExpiryTime());
+        jwtClaims.setNotBefore(consumer.getJwtClaims().getNotBefore());
+
+        JwsHeaders jwsHeaders = new JwsHeaders(JoseType.JWT, SignatureAlgorithm.NONE);
+        JwtToken jwtToken = new JwtToken(jwsHeaders, jwtClaims);
+        JwsJwtCompactProducer producer = new JwsJwtCompactProducer(jwtToken);
+
+        JwsSignatureProvider jwsSignatureProvider = new NoneJwsSignatureProvider();
+        String signed = producer.signWith(jwsSignatureProvider);
+
+        SyncopeClient jwtClient = clientFactory.create(signed);
+        UserSelfService jwtUserSelfService = jwtClient.getService(UserSelfService.class);
+        try {
+            jwtUserSelfService.read();
+            fail("Failure expected on no signature");
+        } catch (AccessControlException ex) {
+            // expected
+        }
+    }
+
 }
