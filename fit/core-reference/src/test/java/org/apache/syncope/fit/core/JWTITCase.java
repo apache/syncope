@@ -18,17 +18,19 @@
  */
 package org.apache.syncope.fit.core;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.security.AccessControlException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-
+import java.util.UUID;
 import javax.ws.rs.core.Response;
 import javax.xml.ws.WebServiceException;
-
 import org.apache.cxf.rs.security.jose.common.JoseType;
 import org.apache.cxf.rs.security.jose.jwa.SignatureAlgorithm;
 import org.apache.cxf.rs.security.jose.jws.HmacJwsSignatureProvider;
@@ -48,8 +50,6 @@ import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.Test;
 
-import com.fasterxml.uuid.Generators;
-
 /**
  * Some tests for JWT Tokens
  */
@@ -58,8 +58,8 @@ public class JWTITCase extends AbstractITCase {
     @Test
     public void testGetJWTToken() throws ParseException {
         // Get the token
-        SyncopeClient adminClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
-        AccessTokenService accessTokenService = adminClient.getService(AccessTokenService.class);
+        SyncopeClient localClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
+        AccessTokenService accessTokenService = localClient.getService(AccessTokenService.class);
 
         Response response = accessTokenService.login();
         String token = response.getHeaderString(RESTHeaders.TOKEN);
@@ -70,7 +70,7 @@ public class JWTITCase extends AbstractITCase {
         // Validate the signature
         JwsJwtCompactConsumer consumer = new JwsJwtCompactConsumer(token);
         JwsSignatureVerifier jwsSignatureVerifier =
-            new HmacJwsSignatureVerifier(JWS_KEY.getBytes(), SignatureAlgorithm.HS512);
+                new HmacJwsSignatureVerifier(JWS_KEY.getBytes(), SignatureAlgorithm.HS512);
         assertTrue(consumer.verifySignatureWith(jwsSignatureVerifier));
 
         Date now = new Date();
@@ -80,7 +80,7 @@ public class JWTITCase extends AbstractITCase {
         assertNotNull(expiryTime);
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
-        Date tokenDate = dateFormat.parse(dateFormat.format(new Date(expiryTime.longValue())));
+        Date tokenDate = dateFormat.parse(dateFormat.format(new Date(expiryTime)));
         Date parsedDate = dateFormat.parse(expiry);
 
         assertEquals(tokenDate, parsedDate);
@@ -89,7 +89,7 @@ public class JWTITCase extends AbstractITCase {
         // Verify issuedAt
         Long issuedAt = consumer.getJwtClaims().getIssuedAt();
         assertNotNull(issuedAt);
-        assertTrue(new Date(issuedAt.longValue()).before(now));
+        assertTrue(new Date(issuedAt).before(now));
 
         // Validate subject + issuer
         assertEquals("admin", consumer.getJwtClaims().getSubject());
@@ -98,14 +98,14 @@ public class JWTITCase extends AbstractITCase {
         // Verify NotBefore
         Long notBefore = consumer.getJwtClaims().getNotBefore();
         assertNotNull(notBefore);
-        assertTrue(new Date(notBefore.longValue()).before(now));
+        assertTrue(new Date(notBefore).before(now));
     }
 
     @Test
     public void testQueryUsingToken() throws ParseException {
         // Get the token
-        SyncopeClient adminClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
-        AccessTokenService accessTokenService = adminClient.getService(AccessTokenService.class);
+        SyncopeClient localClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
+        AccessTokenService accessTokenService = localClient.getService(AccessTokenService.class);
 
         Response response = accessTokenService.login();
         String token = response.getHeaderString(RESTHeaders.TOKEN);
@@ -130,8 +130,8 @@ public class JWTITCase extends AbstractITCase {
     @Test
     public void testTokenValidation() throws ParseException {
         // Get an initial token
-        SyncopeClient adminClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
-        AccessTokenService accessTokenService = adminClient.getService(AccessTokenService.class);
+        SyncopeClient localClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
+        AccessTokenService accessTokenService = localClient.getService(AccessTokenService.class);
 
         Response response = accessTokenService.login();
         String token = response.getHeaderString(RESTHeaders.TOKEN);
@@ -159,7 +159,7 @@ public class JWTITCase extends AbstractITCase {
         JwsJwtCompactProducer producer = new JwsJwtCompactProducer(jwtToken);
 
         JwsSignatureProvider jwsSignatureProvider =
-            new HmacJwsSignatureProvider(JWS_KEY.getBytes(), SignatureAlgorithm.HS512);
+                new HmacJwsSignatureProvider(JWS_KEY.getBytes(), SignatureAlgorithm.HS512);
         String signed = producer.signWith(jwsSignatureProvider);
 
         SyncopeClient jwtClient = clientFactory.create(signed);
@@ -170,8 +170,8 @@ public class JWTITCase extends AbstractITCase {
     @Test
     public void testInvalidIssuer() throws ParseException {
         // Get an initial token
-        SyncopeClient adminClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
-        AccessTokenService accessTokenService = adminClient.getService(AccessTokenService.class);
+        SyncopeClient localClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
+        AccessTokenService accessTokenService = localClient.getService(AccessTokenService.class);
 
         Response response = accessTokenService.login();
         String token = response.getHeaderString(RESTHeaders.TOKEN);
@@ -199,7 +199,7 @@ public class JWTITCase extends AbstractITCase {
         JwsJwtCompactProducer producer = new JwsJwtCompactProducer(jwtToken);
 
         JwsSignatureProvider jwsSignatureProvider =
-            new HmacJwsSignatureProvider(JWS_KEY.getBytes(), SignatureAlgorithm.HS512);
+                new HmacJwsSignatureProvider(JWS_KEY.getBytes(), SignatureAlgorithm.HS512);
         String signed = producer.signWith(jwsSignatureProvider);
 
         SyncopeClient jwtClient = clientFactory.create(signed);
@@ -215,8 +215,8 @@ public class JWTITCase extends AbstractITCase {
     @Test
     public void testExpiredToken() throws ParseException {
         // Get an initial token
-        SyncopeClient adminClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
-        AccessTokenService accessTokenService = adminClient.getService(AccessTokenService.class);
+        SyncopeClient localClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
+        AccessTokenService accessTokenService = localClient.getService(AccessTokenService.class);
 
         Response response = accessTokenService.login();
         String token = response.getHeaderString(RESTHeaders.TOKEN);
@@ -244,7 +244,7 @@ public class JWTITCase extends AbstractITCase {
         JwsJwtCompactProducer producer = new JwsJwtCompactProducer(jwtToken);
 
         JwsSignatureProvider jwsSignatureProvider =
-            new HmacJwsSignatureProvider(JWS_KEY.getBytes(), SignatureAlgorithm.HS512);
+                new HmacJwsSignatureProvider(JWS_KEY.getBytes(), SignatureAlgorithm.HS512);
         String signed = producer.signWith(jwsSignatureProvider);
 
         SyncopeClient jwtClient = clientFactory.create(signed);
@@ -260,8 +260,8 @@ public class JWTITCase extends AbstractITCase {
     @Test
     public void testNotBefore() throws ParseException {
         // Get an initial token
-        SyncopeClient adminClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
-        AccessTokenService accessTokenService = adminClient.getService(AccessTokenService.class);
+        SyncopeClient localClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
+        AccessTokenService accessTokenService = localClient.getService(AccessTokenService.class);
 
         Response response = accessTokenService.login();
         String token = response.getHeaderString(RESTHeaders.TOKEN);
@@ -289,7 +289,7 @@ public class JWTITCase extends AbstractITCase {
         JwsJwtCompactProducer producer = new JwsJwtCompactProducer(jwtToken);
 
         JwsSignatureProvider jwsSignatureProvider =
-            new HmacJwsSignatureProvider(JWS_KEY.getBytes(), SignatureAlgorithm.HS512);
+                new HmacJwsSignatureProvider(JWS_KEY.getBytes(), SignatureAlgorithm.HS512);
         String signed = producer.signWith(jwsSignatureProvider);
 
         SyncopeClient jwtClient = clientFactory.create(signed);
@@ -305,8 +305,8 @@ public class JWTITCase extends AbstractITCase {
     @Test
     public void testNoneSignature() throws ParseException {
         // Get an initial token
-        SyncopeClient adminClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
-        AccessTokenService accessTokenService = adminClient.getService(AccessTokenService.class);
+        SyncopeClient localClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
+        AccessTokenService accessTokenService = localClient.getService(AccessTokenService.class);
 
         Response response = accessTokenService.login();
         String token = response.getHeaderString(RESTHeaders.TOKEN);
@@ -315,7 +315,6 @@ public class JWTITCase extends AbstractITCase {
         String tokenId = consumer.getJwtClaims().getTokenId();
 
         // Create a new token using the Id of the first token
-
         JwtClaims jwtClaims = new JwtClaims();
         jwtClaims.setTokenId(tokenId);
         jwtClaims.setSubject(consumer.getJwtClaims().getSubject());
@@ -344,8 +343,8 @@ public class JWTITCase extends AbstractITCase {
     @Test
     public void testUnknownId() throws ParseException {
         // Get an initial token
-        SyncopeClient adminClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
-        AccessTokenService accessTokenService = adminClient.getService(AccessTokenService.class);
+        SyncopeClient localClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
+        AccessTokenService accessTokenService = localClient.getService(AccessTokenService.class);
 
         Response response = accessTokenService.login();
         String token = response.getHeaderString(RESTHeaders.TOKEN);
@@ -359,7 +358,7 @@ public class JWTITCase extends AbstractITCase {
         expiry.add(Calendar.MINUTE, 5);
 
         JwtClaims jwtClaims = new JwtClaims();
-        jwtClaims.setTokenId(Generators.randomBasedGenerator().generate().toString());
+        jwtClaims.setTokenId(UUID.randomUUID().toString());
         jwtClaims.setSubject("admin");
         jwtClaims.setIssuedAt(now.getTime());
         jwtClaims.setIssuer(JWT_ISSUER);
@@ -371,7 +370,7 @@ public class JWTITCase extends AbstractITCase {
         JwsJwtCompactProducer producer = new JwsJwtCompactProducer(jwtToken);
 
         JwsSignatureProvider jwsSignatureProvider =
-            new HmacJwsSignatureProvider(JWS_KEY.getBytes(), SignatureAlgorithm.HS512);
+                new HmacJwsSignatureProvider(JWS_KEY.getBytes(), SignatureAlgorithm.HS512);
         String signed = producer.signWith(jwsSignatureProvider);
 
         SyncopeClient jwtClient = clientFactory.create(signed);
