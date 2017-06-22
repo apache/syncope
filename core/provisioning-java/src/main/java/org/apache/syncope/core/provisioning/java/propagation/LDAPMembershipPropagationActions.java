@@ -32,6 +32,7 @@ import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
@@ -58,6 +59,9 @@ public class LDAPMembershipPropagationActions extends DefaultPropagationActions 
     @Autowired
     protected UserDAO userDAO;
 
+    @Autowired
+    protected GroupDAO groupDAO;
+
     /**
      * Allows easy subclassing for the ConnId AD connector bundle.
      *
@@ -73,14 +77,16 @@ public class LDAPMembershipPropagationActions extends DefaultPropagationActions 
         super.before(task, beforeObj);
 
         Provision provision = task.getResource().getProvision(anyTypeDAO.findGroup());
-        if (AnyTypeKind.USER == task.getAnyTypeKind() && provision != null && provision.getMapping() != null) {
+        if (AnyTypeKind.USER == task.getAnyTypeKind()
+                && provision != null && provision.getMapping() != null
+                && StringUtils.isNotBlank(provision.getMapping().getConnObjectLink())) {
+
             User user = userDAO.find(task.getEntityKey());
             if (user != null) {
                 List<String> groupConnObjectLinks = new ArrayList<>();
-                for (Group group : userDAO.findAllGroups(user)) {
-                    if (group.getResourceKeys().contains(task.getResource().getKey())
-                            && StringUtils.isNotBlank(provision.getMapping().getConnObjectLink())) {
-
+                for (String groupKey : userDAO.findAllGroupKeys(user)) {
+                    Group group = groupDAO.find(groupKey);
+                    if (group != null && group.getResourceKeys().contains(task.getResource().getKey())) {
                         LOG.debug("Evaluating connObjectLink for {}", group);
 
                         JexlContext jexlContext = new MapContext();
