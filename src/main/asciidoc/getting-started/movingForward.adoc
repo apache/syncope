@@ -45,4 +45,4 @@ Authorization" of the Reference Guide for more information.
 
 Note that if you installed Syncope using either the installer or the maven archetype methods, then you will have already
 supplied custom values for "*secretKey*" and "*anonymousKey*". From Syncope 2.0.4 onwards, both installation methods will also
-query for "*jwsKey*", meaning that only the "*adminPassword*" must be changed for these installation methods.
+query for "*jwsKey*" and "*adminPassword*", and so no further action is required for these installation methods.
