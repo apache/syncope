@@ -48,6 +48,8 @@ import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.Test;
 
+import com.fasterxml.uuid.Generators;
+
 /**
  * Some tests for JWT Tokens
  */
@@ -334,6 +336,49 @@ public class JWTITCase extends AbstractITCase {
         try {
             jwtUserSelfService.read();
             fail("Failure expected on no signature");
+        } catch (AccessControlException ex) {
+            // expected
+        }
+    }
+
+    @Test
+    public void testUnknownId() throws ParseException {
+        // Get an initial token
+        SyncopeClient adminClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
+        AccessTokenService accessTokenService = adminClient.getService(AccessTokenService.class);
+
+        Response response = accessTokenService.login();
+        String token = response.getHeaderString(RESTHeaders.TOKEN);
+        assertNotNull(token);
+
+        // Create a new token using an unknown Id
+        Date now = new Date();
+
+        Calendar expiry = Calendar.getInstance();
+        expiry.setTime(now);
+        expiry.add(Calendar.MINUTE, 5);
+
+        JwtClaims jwtClaims = new JwtClaims();
+        jwtClaims.setTokenId(Generators.randomBasedGenerator().generate().toString());
+        jwtClaims.setSubject("admin");
+        jwtClaims.setIssuedAt(now.getTime());
+        jwtClaims.setIssuer(JWT_ISSUER);
+        jwtClaims.setExpiryTime(expiry.getTime().getTime());
+        jwtClaims.setNotBefore(now.getTime());
+
+        JwsHeaders jwsHeaders = new JwsHeaders(JoseType.JWT, SignatureAlgorithm.HS512);
+        JwtToken jwtToken = new JwtToken(jwsHeaders, jwtClaims);
+        JwsJwtCompactProducer producer = new JwsJwtCompactProducer(jwtToken);
+
+        JwsSignatureProvider jwsSignatureProvider =
+            new HmacJwsSignatureProvider(JWS_KEY.getBytes(), SignatureAlgorithm.HS512);
+        String signed = producer.signWith(jwsSignatureProvider);
+
+        SyncopeClient jwtClient = clientFactory.create(signed);
+        UserSelfService jwtUserSelfService = jwtClient.getService(UserSelfService.class);
+        try {
+            jwtUserSelfService.read();
+            fail("Failure expected on an unknown id");
         } catch (AccessControlException ex) {
             // expected
         }
