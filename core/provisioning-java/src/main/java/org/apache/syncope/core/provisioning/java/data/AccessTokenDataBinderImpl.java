@@ -42,6 +42,7 @@ import org.apache.syncope.core.provisioning.api.data.AccessTokenDataBinder;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.BeanUtils;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.apache.syncope.core.spring.security.DefaultCredentialChecker;
 import org.apache.syncope.core.spring.security.Encryptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,9 +78,14 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
     @Autowired
     private EntityFactory entityFactory;
 
+    @Autowired
+    private DefaultCredentialChecker credentialChecker;
+
     @Override
     public Triple<String, String, Date> generateJWT(
             final String subject, final int duration, final Map<String, Object> claims) {
+
+        credentialChecker.checkIsDefaultJWSKeyInUse();
 
         Date now = new Date();
         Date expiry = new Date(now.getTime() + 60L * 1000L * duration);
@@ -155,6 +161,8 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
     @Override
     public Pair<String, Date> update(final AccessToken accessToken) {
         JwsJwtCompactConsumer consumer = new JwsJwtCompactConsumer(accessToken.getBody());
+
+        credentialChecker.checkIsDefaultJWSKeyInUse();
 
         Date now = new Date();
         int duration = confDAO.find("jwt.lifetime.minutes", "120").getValues().get(0).getLongValue().intValue();
