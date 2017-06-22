@@ -55,6 +55,9 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     private JwsSignatureVerifier jwsSignatureVerifier;
 
+    @Autowired
+    private DefaultCredentialChecker credentialChecker;
+
     public void setAuthenticationEntryPoint(final AuthenticationEntryPoint authenticationEntryPoint) {
         this.authenticationEntryPoint = authenticationEntryPoint;
     }
@@ -91,6 +94,8 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
 
         JwsJwtCompactConsumer consumer = new JwsJwtCompactConsumer(stringToken);
         try {
+            credentialChecker.checkIsDefaultJWSKeyInUse();
+
             if (!consumer.verifySignatureWith(jwsSignatureVerifier)) {
                 throw new BadCredentialsException("Invalid signature found in JWT");
             }

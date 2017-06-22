@@ -48,6 +48,12 @@ under the License.
   <bean id="jwsKey" class="java.lang.String">
     <constructor-arg value="${jwsKey}"/>
   </bean>
+
+  <bean id="credentialChecker" class="org.apache.syncope.core.spring.security.DefaultCredentialChecker">
+      <constructor-arg value="${jwsKey}" index="0"/>
+      <constructor-arg value="${adminPassword}" index="1"/>
+  </bean>
+
   <bean id="jwsSignatureVerifier" class="org.apache.cxf.rs.security.jose.jws.HmacJwsSignatureVerifier">
     <constructor-arg value="#{jwsKey.getBytes()}" index="0"/>
     <constructor-arg index="1">
