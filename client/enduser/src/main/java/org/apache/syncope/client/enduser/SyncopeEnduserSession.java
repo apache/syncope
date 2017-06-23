@@ -19,7 +19,6 @@
 package org.apache.syncope.client.enduser;
 
 import java.security.AccessControlException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,7 +28,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
-import org.apache.syncope.client.enduser.model.CustomAttributesInfo;
 import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.info.PlatformInfo;
@@ -68,8 +66,6 @@ public class SyncopeEnduserSession extends WebSession {
 
     private final CookieUtils cookieUtils;
 
-    private final Map<String, CustomAttributesInfo> customForm;
-
     private boolean xsrfTokenGenerated = false;
 
     public static SyncopeEnduserSession get() {
@@ -96,7 +92,6 @@ public class SyncopeEnduserSession extends WebSession {
                 return object.getType() == AttrSchemaType.Date;
             }
         });
-        customForm = new HashMap<>();
     }
 
     private void afterAuthentication() {
@@ -201,15 +196,6 @@ public class SyncopeEnduserSession extends WebSession {
 
     public void setXsrfTokenGenerated(final boolean xsrfTokenGenerated) {
         this.xsrfTokenGenerated = xsrfTokenGenerated;
-    }
-
-    public Map<String, CustomAttributesInfo> getCustomForm() {
-        return customForm;
-    }
-
-    public void setCustomForm(final Map<String, CustomAttributesInfo> customForm) {
-        this.customForm.clear();
-        this.customForm.putAll(customForm);
     }
 
 }
