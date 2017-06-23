@@ -20,6 +20,8 @@ package org.apache.syncope.core.rest.cxf.service;
 
 import java.io.IOException;
 import java.io.OutputStream;
+
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
@@ -27,7 +29,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.SAML2RequestTO;
 import org.apache.syncope.common.lib.to.SAML2LoginResponseTO;
 import org.apache.syncope.common.lib.to.SAML2ReceivedResponseTO;
-import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.SAML2SPService;
 import org.apache.syncope.core.logic.SAML2SPLogic;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,13 +69,22 @@ public class SAML2SPServiceImpl extends AbstractServiceImpl implements SAML2SPSe
     @Override
     public SAML2RequestTO createLogoutRequest(final String spEntityID) {
         return logic.createLogoutRequest(
-                messageContext.getHttpHeaders().getHeaderString(RESTHeaders.TOKEN),
+                getJWTToken(),
                 StringUtils.appendIfMissing(spEntityID, "/"));
     }
 
     @Override
     public void validateLogoutResponse(final SAML2ReceivedResponseTO response) {
-        logic.validateLogoutResponse(messageContext.getHttpHeaders().getHeaderString(RESTHeaders.TOKEN), response);
+        logic.validateLogoutResponse(getJWTToken(), response);
     }
 
+    private String getJWTToken() {
+        String auth = messageContext.getHttpHeaders().getHeaderString(HttpHeaders.AUTHORIZATION);
+        String[] parts = auth == null ? null : auth.split(" ");
+        if (parts == null || parts.length != 2 || !"Bearer".equals(parts[0])) {
+            return null;
+        }
+
+        return parts[1];
+    }
 }
