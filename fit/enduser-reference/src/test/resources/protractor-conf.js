@@ -23,13 +23,13 @@ exports.config = {
     'phantomjs.binary.path': '${phantomjs.binary}',
     'phantomjs.ghostdriver.cli.args': ['--loglevel=DEBUG']
   },
-  
+
   allScriptsTimeout: 241000,
-  
+
   jasmineNodeOpts: {
     defaultTimeoutInterval: 2500000
   },
-  
+
   // Spec patterns are relative to the current working directly when protractor is called.
   specs: ['tests/*.js'],
   exclude: ['tests/abstract.js']
