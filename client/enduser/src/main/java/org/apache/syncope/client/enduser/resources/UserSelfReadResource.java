@@ -21,9 +21,12 @@ package org.apache.syncope.client.enduser.resources;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserApplication;
 import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
@@ -95,6 +98,7 @@ public class UserSelfReadResource extends BaseUserSelfResource {
             for (PlainSchemaTO plainSchema : SyncopeEnduserSession.get().getDatePlainSchemas()) {
                 dateToMillis(userTO.getPlainAttrs(), plainSchema);
             }
+
             final String selfTOJson = MAPPER.writeValueAsString(userTO);
             response.setContentType(MediaType.APPLICATION_JSON);
             response.setTextEncoding(StandardCharsets.UTF_8.name());
@@ -126,6 +130,24 @@ public class UserSelfReadResource extends BaseUserSelfResource {
             customizeAttrTOs(userTO.getDerAttrs(), customForm.get(SchemaType.DERIVED.name()));
             // filter VIRTUAL attributes
             customizeAttrTOs(userTO.getVirAttrs(), customForm.get(SchemaType.VIRTUAL.name()));
+        }
+    }
+
+    private void customizeAttrTOs(final Set<AttrTO> attrs, final CustomAttributesInfo customAttributesInfo) {
+        if (customAttributesInfo != null
+                && customAttributesInfo.isShow()
+                && !customAttributesInfo.getAttributes().isEmpty()) {
+
+            CollectionUtils.filter(attrs, new Predicate<AttrTO>() {
+
+                @Override
+                public boolean evaluate(final AttrTO attr) {
+                    return customAttributesInfo.getAttributes().containsKey(attr.getSchema());
+                }
+            });
+
+        } else if (customAttributesInfo != null && !customAttributesInfo.isShow()) {
+            attrs.clear();
         }
     }
 

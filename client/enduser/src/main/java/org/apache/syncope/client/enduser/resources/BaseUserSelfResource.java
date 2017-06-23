@@ -21,14 +21,10 @@ package org.apache.syncope.client.enduser.resources;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
-import java.util.HashSet;
-import org.apache.commons.collections4.Predicate;
 import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.time.FastDateFormat;
-import org.apache.syncope.client.enduser.model.CustomAttributesInfo;
-import org.apache.syncope.common.lib.patch.AttrPatch;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 
@@ -89,40 +85,6 @@ public abstract class BaseUserSelfResource extends BaseResource {
                 attributes.getResponse().write(message);
             }
         });
-    }
-
-    protected void customizeAttrTOs(final Set<AttrTO> attrs, final CustomAttributesInfo customAttributesInfo) {
-        if (customAttributesInfo != null
-                && customAttributesInfo.getShow()
-                && !customAttributesInfo.getAttributes().isEmpty()) {
-            Set<AttrTO> attrsToAdd = new HashSet<>();
-            for (AttrTO attr : attrs) {
-                if (customAttributesInfo.getAttributes().containsKey(attr.getSchema())) {
-                    attrsToAdd.add(attr);
-                }
-            }
-            attrs.clear();
-            attrs.addAll(attrsToAdd);
-        } else if (customAttributesInfo != null && !customAttributesInfo.getShow()) {
-            attrs.clear();
-        }
-    }
-
-    protected void customizeAttrPatches(final Set<AttrPatch> attrs, final CustomAttributesInfo customAttributesInfo) {
-        if (customAttributesInfo != null
-                && customAttributesInfo.getShow()
-                && !customAttributesInfo.getAttributes().isEmpty()) {
-            CollectionUtils.filter(attrs, new Predicate<AttrPatch>() {
-
-                @Override
-                public boolean evaluate(final AttrPatch patchPlainAttr) {
-                    // if membership attribute clean schema name coming from custom form
-                    return customAttributesInfo.getAttributes().containsKey(patchPlainAttr.getAttrTO().getSchema());
-                }
-            });
-        } else if (customAttributesInfo != null && !customAttributesInfo.getShow()) {
-            attrs.clear();
-        }
     }
 
 }

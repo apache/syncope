@@ -56,7 +56,7 @@ public final class UserRequestValidator {
             final CustomAttributesInfo customAttrInfo, final boolean checkDefaultValues) {
 
         return customAttrInfo == null
-                || (customAttrInfo.getAttributes().isEmpty() && customAttrInfo.getShow())
+                || (customAttrInfo.getAttributes().isEmpty() && customAttrInfo.isShow())
                 || IterableUtils.matchesAll(attrMap.entrySet(), new Predicate<Map.Entry<String, AttrTO>>() {
 
                     @Override
