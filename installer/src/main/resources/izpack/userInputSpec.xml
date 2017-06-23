@@ -49,6 +49,10 @@ under the License.
       <spec id="mvn.anonymous.key.id" size="20" set="123456789asdfghj"/>
     </field>
     <field type="space"/>
+    <field type="text" variable="mvn.jws.key">
+      <spec id="mvn.jws.key.id" size="20" set="ZW7pRixehFuNUtnY5Se47IemgMryTzazPPJ9CGX5LTCmsOJpOgHAQEuPQeV9A28f"/>
+    </field>
+    <field type="space"/>
     <field type="dir" variable="mvn.conf.directory">
       <spec id="archetype.mvn.conf.directory" size="20" set="/var/tmp/syncope/conf" mustExist="false" create="true"/>
     </field>

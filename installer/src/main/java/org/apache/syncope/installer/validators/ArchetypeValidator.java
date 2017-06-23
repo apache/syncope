@@ -33,6 +33,7 @@ public class ArchetypeValidator extends AbstractValidator {
         final String mavenArtifactId = StringUtils.trim(installData.getVariable("mvn.artifactid"));
         final String mavenSecretKey = StringUtils.trim(installData.getVariable("mvn.secretkey"));
         final String mavenAnonymousKey = StringUtils.trim(installData.getVariable("mvn.anonymous.key"));
+        final String mavenJwsKey = StringUtils.trim(installData.getVariable("mvn.jws.key"));
         final String mavenLogDirectory = StringUtils.trim(installData.getVariable("mvn.log.directory"));
         final String mavenBundleDirectory = StringUtils.trim(installData.getVariable("mvn.bundle.directory"));
 
@@ -59,6 +60,10 @@ public class ArchetypeValidator extends AbstractValidator {
         }
         if (StringUtils.isBlank(mavenAnonymousKey)) {
             error.append("AnonymousKey\n");
+            verified = false;
+        }
+        if (StringUtils.isBlank(mavenJwsKey)) {
+            error.append("JwsKey\n");
             verified = false;
         }
         if (StringUtils.isBlank(mavenLogDirectory)) {
