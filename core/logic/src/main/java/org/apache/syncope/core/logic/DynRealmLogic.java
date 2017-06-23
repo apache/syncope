@@ -68,7 +68,7 @@ public class DynRealmLogic extends AbstractTransactionalLogic<DynRealmTO> {
 
     @PreAuthorize("hasRole('" + StandardEntitlement.DYNREALM_CREATE + "')")
     public DynRealmTO create(final DynRealmTO dynRealmTO) {
-        return binder.getDynRealmTO(dynRealmDAO.save(binder.create(dynRealmTO)));
+        return binder.getDynRealmTO(binder.create(dynRealmTO));
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.DYNREALM_UPDATE + "')")
@@ -79,7 +79,7 @@ public class DynRealmLogic extends AbstractTransactionalLogic<DynRealmTO> {
             throw new NotFoundException(dynRealmTO.getKey());
         }
 
-        return binder.getDynRealmTO(dynRealmDAO.save(binder.update(dynRealm, dynRealmTO)));
+        return binder.getDynRealmTO(binder.update(dynRealm, dynRealmTO));
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.DYNREALM_DELETE + "')")
