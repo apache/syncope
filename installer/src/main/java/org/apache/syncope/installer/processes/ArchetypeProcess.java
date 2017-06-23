@@ -56,6 +56,7 @@ public class ArchetypeProcess extends BaseProcess {
         final boolean mavenProxyAutoconf = Boolean.valueOf(args[17]);
         final boolean swagger = Boolean.valueOf(args[18]);
         final boolean activiti = Boolean.valueOf(args[19]);
+        final String jwsKey = args[20];
 
         setSyncopeInstallDir(installPath, artifactId);
 
@@ -94,7 +95,8 @@ public class ArchetypeProcess extends BaseProcess {
         handler.logOutput("See " + InstallLog.getInstance().getFileAbsolutePath() + " for the maven logs", true);
         handler.logOutput("########################## IMPORTANT ##########################", true);
         mavenUtils.archetypeGenerate(
-                syncopeVersion, groupId, artifactId, secretKey, anonymousKey, installPath, customMavenProxySettings);
+                syncopeVersion, groupId, artifactId, secretKey, anonymousKey, jwsKey, syncopeAdminPassword,
+                installPath, customMavenProxySettings);
 
         if (syncopeVersion.contains("SNAPSHOT")) {
             final File pomFile = new File(syncopeInstallDir + PROPERTIES.getProperty("pomFile"));

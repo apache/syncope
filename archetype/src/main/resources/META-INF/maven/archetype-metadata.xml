@@ -23,6 +23,7 @@ under the License.
   <requiredProperties>
     <requiredProperty key="secretKey"/>
     <requiredProperty key="anonymousKey"/>
+    <requiredProperty key="jwsKey"/>
   </requiredProperties>
   
   <modules>

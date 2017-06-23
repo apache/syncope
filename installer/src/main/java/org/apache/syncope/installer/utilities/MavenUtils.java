@@ -64,6 +64,8 @@ public class MavenUtils {
             final String artifactId,
             final String secretKey,
             final String anonymousKey,
+            final String jwsKey,
+            final String adminPassword,
             final String installPath,
             final File customSettingsFile) {
 
@@ -74,7 +76,8 @@ public class MavenUtils {
                 : "archetype:generate"));
         request.setBatchMode(true);
         final Properties properties =
-                archetypeProperties(archetypeVersion, groupId, artifactId, secretKey, anonymousKey);
+                archetypeProperties(archetypeVersion, groupId, artifactId, secretKey,
+                                    anonymousKey, jwsKey, adminPassword);
         request.setProperties(properties);
         if (customSettingsFile != null && FileUtils.sizeOf(customSettingsFile) > 0) {
             request.setUserSettingsFile(customSettingsFile);
@@ -89,7 +92,9 @@ public class MavenUtils {
             final String groupId,
             final String artifactId,
             final String secretKey,
-            final String anonymousKey) {
+            final String anonymousKey,
+            final String jwsKey,
+            final String adminPassword) {
 
         final Properties properties = new Properties();
         properties.setProperty("archetypeGroupId", "org.apache.syncope");
@@ -103,6 +108,10 @@ public class MavenUtils {
         properties.setProperty("artifactId", artifactId);
         properties.setProperty("secretKey", secretKey);
         properties.setProperty("anonymousKey", anonymousKey);
+        properties.setProperty("jwsKey", jwsKey);
+
+        //String encodedPassword = PasswordGenerator.password(adminPassword, "SHA-1");
+        //properties.setProperty("adminPassword", encodedPassword);
         properties.setProperty("version", "1.0-SNAPSHOT");
         return properties;
     }
