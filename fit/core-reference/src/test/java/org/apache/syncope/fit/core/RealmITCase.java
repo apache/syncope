@@ -203,25 +203,41 @@ public class RealmITCase extends AbstractITCase {
         RealmTO realm = new RealmTO();
         realm.setName("test");
         realm.getResources().add(RESOURCE_NAME_LDAP_ORGUNIT);
+        RealmTO childRealm = new RealmTO();
+        childRealm.setName("child");
+        childRealm.getResources().add(RESOURCE_NAME_LDAP_ORGUNIT);
 
         // 2. check propagation
         ProvisioningResult<RealmTO> result =
                 realmService.create("/", realm).readEntity(new GenericType<ProvisioningResult<RealmTO>>() {
-        });
+                });
+        ProvisioningResult<RealmTO> resultChild =
+                realmService.create("/test", childRealm).readEntity(new GenericType<ProvisioningResult<RealmTO>>() {
+                });
         assertNotNull(result);
+        assertNotNull(resultChild);
         assertEquals(1, result.getPropagationStatuses().size());
+        assertEquals(1, resultChild.getPropagationStatuses().size());
         assertEquals(RESOURCE_NAME_LDAP_ORGUNIT, result.getPropagationStatuses().get(0).getResource());
+        assertEquals(RESOURCE_NAME_LDAP_ORGUNIT, resultChild.getPropagationStatuses().get(0).getResource());
         assertEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
+        assertEquals(PropagationTaskExecStatus.SUCCESS, resultChild.getPropagationStatuses().get(0).getStatus());
 
         realm = result.getEntity();
 
         // 3. check on LDAP
         assertNotNull(getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, "ou=test,o=isp"));
 
-        // 4. remove realm
+        // 3.1. check on LDAP also child realm, it should be under test organizational unit
+        assertNull(getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, "ou=child,o=isp"));
+        assertNotNull(getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, "ou=child,ou=test,o=isp"));
+
+        // 4. remove realms
+        realmService.delete("/test/child");
         realmService.delete(realm.getFullPath());
 
-        // 5. check on LDAP
+        // 5. check on LDAP: both realms should be deleted
         assertNull(getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, "ou=test,o=isp"));
+        assertNull(getLdapRemoteObject(RESOURCE_LDAP_ADMIN_DN, RESOURCE_LDAP_ADMIN_PWD, "ou=child,ou=test,o=isp"));
     }
 }

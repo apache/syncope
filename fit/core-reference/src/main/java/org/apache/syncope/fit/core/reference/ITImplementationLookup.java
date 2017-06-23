@@ -56,6 +56,7 @@ import org.apache.syncope.core.provisioning.java.DefaultLogicActions;
 import org.apache.syncope.core.provisioning.java.data.DefaultMappingItemTransformer;
 import org.apache.syncope.core.provisioning.java.propagation.DBPasswordPropagationActions;
 import org.apache.syncope.core.provisioning.java.propagation.LDAPMembershipPropagationActions;
+import org.apache.syncope.core.provisioning.java.propagation.LDAPNestedRealmPropagationActions;
 import org.apache.syncope.core.provisioning.java.propagation.LDAPPasswordPropagationActions;
 import org.apache.syncope.core.provisioning.java.pushpull.DBPasswordPullActions;
 import org.apache.syncope.core.provisioning.java.pushpull.LDAPMembershipPullActions;
@@ -114,6 +115,7 @@ public class ITImplementationLookup implements ImplementationLookup {
             classNames.add(LDAPMembershipPropagationActions.class.getName());
             classNames.add(LDAPPasswordPropagationActions.class.getName());
             classNames.add(DBPasswordPropagationActions.class.getName());
+            classNames.add(LDAPNestedRealmPropagationActions.class.getName());
             put(Type.PROPAGATION_ACTIONS, classNames);
 
             classNames = new HashSet<>();
