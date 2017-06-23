@@ -19,6 +19,7 @@
 package org.apache.syncope.client.enduser.resources;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
@@ -30,9 +31,11 @@ import org.apache.syncope.client.enduser.SyncopeEnduserApplication;
 import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.annotations.Resource;
+import org.apache.syncope.client.enduser.model.CustomAttributesInfo;
 import org.apache.syncope.client.enduser.util.UserRequestValidator;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.EntityTOUtils;
+import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
@@ -66,9 +69,10 @@ public class UserSelfUpdateResource extends BaseUserSelfResource {
             }
 
             UserTO userTO = MAPPER.readValue(request.getReader().readLine(), UserTO.class);
+            Map<String, CustomAttributesInfo> customForm = SyncopeEnduserApplication.get().getCustomForm();
 
             // check if request is compliant with customization form rules
-            if (UserRequestValidator.compliant(userTO, SyncopeEnduserApplication.get().getCustomForm(), false)) {
+            if (UserRequestValidator.compliant(userTO, customForm, false)) {
                 // 1. membership attributes management
                 Set<AttrTO> membAttrs = new HashSet<>();
                 for (AttrTO attr : userTO.getPlainAttrs()) {
@@ -97,9 +101,9 @@ public class UserSelfUpdateResource extends BaseUserSelfResource {
 
                 // 2. millis -> Date conversion for PLAIN attributes of USER and its MEMBERSHIPS
                 for (PlainSchemaTO plainSchema : SyncopeEnduserSession.get().getDatePlainSchemas()) {
-                    millisToDate(EntityTOUtils.buildAttrMap(userTO.getPlainAttrs()), plainSchema);
+                    millisToDate(userTO.getPlainAttrs(), plainSchema);
                     for (MembershipTO membership : userTO.getMemberships()) {
-                        millisToDate(EntityTOUtils.buildAttrMap(membership.getPlainAttrs()), plainSchema);
+                        millisToDate(membership.getPlainAttrs(), plainSchema);
                     }
                 }
 
@@ -153,11 +157,17 @@ public class UserSelfUpdateResource extends BaseUserSelfResource {
                     }
                 }
                 userTO.getVirAttrs().removeAll(membAttrs);
-
+                
+                UserTO selfTO = SyncopeEnduserSession.get().getSelfTO();
+                // align "userTO" and "selfTO" objects
+                if (customForm != null && !customForm.isEmpty()) {
+                   completeUserObject(userTO, selfTO);
+                }
+                // create diff patch
+                UserPatch diffPatch = AnyOperations.diff(userTO, selfTO, false);
                 // update user by patch
                 Response res = SyncopeEnduserSession.get().
-                        getService(userTO.getETagValue(), UserSelfService.class).update(AnyOperations.diff(userTO,
-                        SyncopeEnduserSession.get().getSelfTO(), true));
+                        getService(userTO.getETagValue(), UserSelfService.class).update(diffPatch);
 
                 buildResponse(response, res.getStatus(), res.getStatusInfo().getFamily().equals(
                         Response.Status.Family.SUCCESSFUL)
@@ -180,6 +190,36 @@ public class UserSelfUpdateResource extends BaseUserSelfResource {
                             toString());
         }
         return response;
+    }
+
+    private void completeUserObject(final UserTO userTO, final UserTO selfTO) {
+        // memberships plain and virtual attrs
+        for (MembershipTO userTOMembership : userTO.getMemberships()) {
+            for (MembershipTO selfTOMembership : selfTO.getMemberships()) {
+                if (userTOMembership.getGroupKey().equals(selfTOMembership.getGroupKey())) {
+                    if (userTOMembership.getPlainAttrs().size() > 0) {
+                        completeUserAttrs(userTOMembership.getPlainAttrs(), selfTOMembership.getPlainAttrs());
+                    }
+                    if (userTOMembership.getVirAttrs().size() > 0) {
+                        completeUserAttrs(userTOMembership.getVirAttrs(), selfTOMembership.getVirAttrs());
+                    }
+                }
+            }
+        }
+        // plain attrs
+        completeUserAttrs(userTO.getPlainAttrs(), selfTO.getPlainAttrs());
+        // virtual attrs
+        completeUserAttrs(userTO.getVirAttrs(), selfTO.getVirAttrs());
+    }
+
+    private void completeUserAttrs(final Set<AttrTO> userTOAttrs, final Set<AttrTO> selfTOAttrs) {
+        Map<String, AttrTO> userTOAttrsMap =
+                EntityTOUtils.buildAttrMap(userTOAttrs);
+        for (AttrTO selfTOAttr : selfTOAttrs) {
+            if (!userTOAttrsMap.containsKey(selfTOAttr.getSchema())) {
+                userTOAttrs.add(selfTOAttr);
+            }
+        }
     }
 
 }
