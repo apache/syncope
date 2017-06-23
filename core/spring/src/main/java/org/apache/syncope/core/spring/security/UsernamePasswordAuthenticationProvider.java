@@ -50,6 +50,9 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
     @Autowired
     protected UserProvisioningManager provisioningManager;
 
+    @Autowired
+    private DefaultCredentialChecker credentialChecker;
+
     @Resource(name = "adminUser")
     protected String adminUser;
 
@@ -99,6 +102,7 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
         } else if (adminUser.equals(authentication.getName())) {
             username[0] = adminUser;
             if (SyncopeConstants.MASTER_DOMAIN.equals(domainKey)) {
+                credentialChecker.checkIsDefaultAdminPasswordInUse();
                 authenticated = ENCRYPTOR.verify(
                         authentication.getCredentials().toString(),
                         CipherAlgorithm.valueOf(adminPasswordAlgorithm),
