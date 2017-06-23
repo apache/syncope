@@ -19,6 +19,9 @@
 package org.apache.syncope.client.console.rest;
 
 import java.net.URI;
+
+import javax.ws.rs.core.HttpHeaders;
+
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.lib.SyncopeClient;
@@ -76,7 +79,7 @@ public abstract class BaseRestClient implements RestClient {
         webClient.accept(SyncopeConsoleSession.get().getMediaType()).to(location.toASCIIString(), false);
         return webClient.
                 header(RESTHeaders.DOMAIN, SyncopeConsoleSession.get().getDomain()).
-                header(RESTHeaders.TOKEN, SyncopeConsoleSession.get().getJWT()).
+                header(HttpHeaders.AUTHORIZATION, "Bearer " + SyncopeConsoleSession.get().getJWT()).
                 get(resultClass);
     }
 }

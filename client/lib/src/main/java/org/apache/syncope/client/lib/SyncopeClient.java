@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.ws.rs.core.EntityTag;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -107,18 +108,19 @@ public class SyncopeClient {
             restClientFactory.setPassword(((BasicAuthenticationHandler) handler).getPassword());
 
             String jwt = getService(AccessTokenService.class).login().getHeaderString(RESTHeaders.TOKEN);
-            restClientFactory.getHeaders().put(RESTHeaders.TOKEN, Collections.singletonList(jwt));
+            restClientFactory.getHeaders().put(HttpHeaders.AUTHORIZATION, Collections.singletonList("Bearer " + jwt));
 
             restClientFactory.setUsername(null);
             restClientFactory.setPassword(null);
         } else if (handler instanceof JWTAuthenticationHandler) {
             restClientFactory.getHeaders().put(
-                    RESTHeaders.TOKEN, Collections.singletonList(((JWTAuthenticationHandler) handler).getJwt()));
+                    HttpHeaders.AUTHORIZATION,
+                    Collections.singletonList("Bearer " + ((JWTAuthenticationHandler) handler).getJwt()));
         }
     }
 
     protected void cleanup() {
-        restClientFactory.getHeaders().remove(RESTHeaders.TOKEN);
+        restClientFactory.getHeaders().remove(HttpHeaders.AUTHORIZATION);
         restClientFactory.setUsername(null);
         restClientFactory.setPassword(null);
     }
@@ -128,7 +130,7 @@ public class SyncopeClient {
      */
     public void refresh() {
         String jwt = getService(AccessTokenService.class).refresh().getHeaderString(RESTHeaders.TOKEN);
-        restClientFactory.getHeaders().put(RESTHeaders.TOKEN, Collections.singletonList(jwt));
+        restClientFactory.getHeaders().put(HttpHeaders.AUTHORIZATION, Collections.singletonList("Bearer " + jwt));
     }
 
     /**
@@ -186,16 +188,22 @@ public class SyncopeClient {
     }
 
     /**
-     * Returns the JWT in used by this instance, passed with the {@link RESTHeaders#TOKEN} header in all requests.
-     * It can be null (in case {@link NoAuthenticationHandler} or {@link AnonymousAuthenticationHandler} were used).
+     * Returns the JWT in used by this instance, passed with the {@link HttpHeaders#AUTHORIZATION} header
+     * in all requests. It can be null (in case {@link NoAuthenticationHandler} or
+     * {@link AnonymousAuthenticationHandler} were used).
      *
      * @return the JWT in used by this instance
      */
     public String getJWT() {
-        List<String> headerValues = restClientFactory.getHeaders().get(RESTHeaders.TOKEN);
-        return headerValues == null || headerValues.isEmpty()
+        List<String> headerValues = restClientFactory.getHeaders().get(HttpHeaders.AUTHORIZATION);
+        String header = headerValues == null || headerValues.isEmpty()
                 ? null
                 : headerValues.get(0);
+        if (header != null && header.startsWith("Bearer ")) {
+            return header.substring("Bearer ".length());
+
+        }
+        return null;
     }
 
     /**

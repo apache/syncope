@@ -104,6 +104,8 @@ import org.junit.FixMethodOrder;
 import org.junit.runners.MethodSorters;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import com.google.common.net.HttpHeaders;
+
 @FixMethodOrder(MethodSorters.JVM)
 public abstract class AbstractITCase {
 
@@ -322,7 +324,7 @@ public abstract class AbstractITCase {
 
         return webClient.
                 header(RESTHeaders.DOMAIN, adminClient.getDomain()).
-                header(RESTHeaders.TOKEN, adminClient.getJWT()).
+                header(HttpHeaders.AUTHORIZATION, "Bearer " + adminClient.getJWT()).
                 get(resultClass);
     }
 

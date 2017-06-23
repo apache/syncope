@@ -23,9 +23,10 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.HttpHeaders;
+
 import org.apache.cxf.rs.security.jose.jws.JwsJwtCompactConsumer;
 import org.apache.cxf.rs.security.jose.jws.JwsSignatureVerifier;
-import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +40,7 @@ import org.springframework.util.Assert;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
- * Processes the JSON Web Token provided as {@link RESTHeaders#TOKEN} HTTP header, putting the result into the
+ * Processes the JSON Web Token provided as {@link HttpHeaders#AUTHORIZATION} HTTP header, putting the result into the
  * {@link SecurityContextHolder}.
  */
 public class JWTAuthenticationFilter extends OncePerRequestFilter {
@@ -84,12 +85,14 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
             final FilterChain chain)
             throws ServletException, IOException {
 
-        String stringToken = request.getHeader(RESTHeaders.TOKEN);
-        if (stringToken == null) {
+        String auth = request.getHeader(HttpHeaders.AUTHORIZATION);
+        String[] parts = auth == null ? null : auth.split(" ");
+        if (parts == null || parts.length != 2 || !"Bearer".equals(parts[0])) {
             chain.doFilter(request, response);
             return;
         }
 
+        String stringToken = parts[1];
         LOG.debug("JWT received: {}", stringToken);
 
         JwsJwtCompactConsumer consumer = new JwsJwtCompactConsumer(stringToken);

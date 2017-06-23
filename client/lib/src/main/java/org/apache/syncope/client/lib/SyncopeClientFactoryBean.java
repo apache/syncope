@@ -245,7 +245,7 @@ public class SyncopeClientFactoryBean {
 
     /**
      * Builds client instance with the given credentials.
-     * Such credentials will be used only to obtain a valid JWT in the {@link RESTHeaders#TOKEN} header;
+     * Such credentials will be used only to obtain a valid JWT in the {@link HttpHeaders#AUTHORIZATION} header;
      *
      * @param username username
      * @param password password
@@ -256,11 +256,11 @@ public class SyncopeClientFactoryBean {
     }
 
     /**
-     * Builds client instance which will be passing the provided value in the {@link RESTHeaders#TOKEN}
+     * Builds client instance which will be passing the provided value in the {@link HttpHeaders#AUTHORIZATION}
      * request header.
      *
      * @param jwt value received after login, in the {@link RESTHeaders#TOKEN} response header
-     * @return client instance which will be passing the provided value in the {{@link RESTHeaders#TOKEN}
+     * @return client instance which will be passing the provided value in the {@link HttpHeaders#AUTHORIZATION}
      * request header
      */
     public SyncopeClient create(final String jwt) {
