@@ -21,10 +21,14 @@ package org.apache.syncope.client.enduser.resources;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.HashSet;
+import org.apache.commons.collections4.Predicate;
+import java.util.Set;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.time.FastDateFormat;
+import org.apache.syncope.client.enduser.model.CustomAttributesInfo;
+import org.apache.syncope.common.lib.patch.AttrPatch;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 
@@ -32,40 +36,49 @@ public abstract class BaseUserSelfResource extends BaseResource {
 
     private static final long serialVersionUID = -5892402817902884085L;
 
-    protected void dateToMillis(final Map<String, AttrTO> plainAttrMap, final PlainSchemaTO plainSchema)
+    protected void dateToMillis(final Set<AttrTO> attrs, final PlainSchemaTO plainSchema)
             throws ParseException {
-        if (plainAttrMap.containsKey(plainSchema.getKey())) {
-            FastDateFormat fmt = FastDateFormat.getInstance(plainSchema.getConversionPattern());
+        final FastDateFormat fmt = FastDateFormat.getInstance(plainSchema.getConversionPattern());
 
-            AttrTO dateAttr = plainAttrMap.get(plainSchema.getKey());
-            List<String> milliValues = new ArrayList<>(dateAttr.getValues().size());
-            for (String value : dateAttr.getValues()) {
-                milliValues.add(String.valueOf(fmt.parse(value).getTime()));
+        for (AttrTO attr : attrs) {
+            if (attr.getSchema().equals(plainSchema.getKey())) {
+                CollectionUtils.transform(attr.getValues(), new Transformer<String, String>() {
+
+                    @Override
+                    public String transform(final String input) {
+                        try {
+                            return String.valueOf(fmt.parse(input).getTime());
+                        } catch (ParseException ex) {
+                            LOG.error("Unable to parse date {}", input);
+                            return input;
+                        }
+                    }
+                });
             }
-            dateAttr.getValues().clear();
-            dateAttr.getValues().addAll(milliValues);
         }
     }
 
-    protected void millisToDate(final Map<String, AttrTO> plainAttrMap, final PlainSchemaTO plainSchema)
+    protected void millisToDate(final Set<AttrTO> attrs, final PlainSchemaTO plainSchema)
             throws IllegalArgumentException {
-        if (plainAttrMap.containsKey(plainSchema.getKey())) {
-            FastDateFormat fmt = FastDateFormat.getInstance(plainSchema.getConversionPattern());
+        final FastDateFormat fmt = FastDateFormat.getInstance(plainSchema.getConversionPattern());
+        for (AttrTO attr : attrs) {
+            if (attr.getSchema().equals(plainSchema.getKey())) {
+                CollectionUtils.transform(attr.getValues(), new Transformer<String, String>() {
 
-            AttrTO dateAttr = plainAttrMap.get(plainSchema.getKey());
-            List<String> formattedValues = new ArrayList<>(dateAttr.getValues().size());
-            for (String value : dateAttr.getValues()) {
-                try {
-                    formattedValues.add(fmt.format(Long.valueOf(value)));
-                } catch (NumberFormatException e) {
-                    throw new IllegalArgumentException("Invalid format value for " + value);
-                }
+                    @Override
+                    public String transform(final String input) {
+                        try {
+                            return fmt.format(Long.valueOf(input));
+                        } catch (NumberFormatException ex) {
+                            LOG.error("Invalid format value for {}", input);
+                            return input;
+                        }
+                    }
+                });
             }
-            dateAttr.getValues().clear();
-            dateAttr.getValues().addAll(formattedValues);
         }
     }
-    
+
     protected void buildResponse(final ResourceResponse response, final int statusCode, final String message) {
         response.setTextEncoding(StandardCharsets.UTF_8.name());
         response.setStatusCode(statusCode);
@@ -76,6 +89,40 @@ public abstract class BaseUserSelfResource extends BaseResource {
                 attributes.getResponse().write(message);
             }
         });
+    }
+
+    protected void customizeAttrTOs(final Set<AttrTO> attrs, final CustomAttributesInfo customAttributesInfo) {
+        if (customAttributesInfo != null
+                && customAttributesInfo.getShow()
+                && !customAttributesInfo.getAttributes().isEmpty()) {
+            Set<AttrTO> attrsToAdd = new HashSet<>();
+            for (AttrTO attr : attrs) {
+                if (customAttributesInfo.getAttributes().containsKey(attr.getSchema())) {
+                    attrsToAdd.add(attr);
+                }
+            }
+            attrs.clear();
+            attrs.addAll(attrsToAdd);
+        } else if (customAttributesInfo != null && !customAttributesInfo.getShow()) {
+            attrs.clear();
+        }
+    }
+
+    protected void customizeAttrPatches(final Set<AttrPatch> attrs, final CustomAttributesInfo customAttributesInfo) {
+        if (customAttributesInfo != null
+                && customAttributesInfo.getShow()
+                && !customAttributesInfo.getAttributes().isEmpty()) {
+            CollectionUtils.filter(attrs, new Predicate<AttrPatch>() {
+
+                @Override
+                public boolean evaluate(final AttrPatch patchPlainAttr) {
+                    // if membership attribute clean schema name coming from custom form
+                    return customAttributesInfo.getAttributes().containsKey(patchPlainAttr.getAttrTO().getSchema());
+                }
+            });
+        } else if (customAttributesInfo != null && !customAttributesInfo.getShow()) {
+            attrs.clear();
+        }
     }
 
 }

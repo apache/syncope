@@ -19,6 +19,7 @@
 package org.apache.syncope.client.enduser.resources;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
@@ -30,13 +31,15 @@ import org.apache.syncope.client.enduser.SyncopeEnduserApplication;
 import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.annotations.Resource;
+import org.apache.syncope.client.enduser.model.CustomAttributesInfo;
 import org.apache.syncope.client.enduser.util.UserRequestValidator;
 import org.apache.syncope.common.lib.AnyOperations;
-import org.apache.syncope.common.lib.EntityTOUtils;
+import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.request.resource.IResource;
@@ -66,9 +69,10 @@ public class UserSelfUpdateResource extends BaseUserSelfResource {
             }
 
             UserTO userTO = MAPPER.readValue(request.getReader().readLine(), UserTO.class);
+            Map<String, CustomAttributesInfo> customForm = SyncopeEnduserApplication.get().getCustomForm();
 
             // check if request is compliant with customization form rules
-            if (UserRequestValidator.compliant(userTO, SyncopeEnduserApplication.get().getCustomForm(), false)) {
+            if (UserRequestValidator.compliant(userTO, customForm, false)) {
                 // 1. membership attributes management
                 Set<AttrTO> membAttrs = new HashSet<>();
                 for (AttrTO attr : userTO.getPlainAttrs()) {
@@ -97,9 +101,9 @@ public class UserSelfUpdateResource extends BaseUserSelfResource {
 
                 // 2. millis -> Date conversion for PLAIN attributes of USER and its MEMBERSHIPS
                 for (PlainSchemaTO plainSchema : SyncopeEnduserSession.get().getDatePlainSchemas()) {
-                    millisToDate(EntityTOUtils.buildAttrMap(userTO.getPlainAttrs()), plainSchema);
+                    millisToDate(userTO.getPlainAttrs(), plainSchema);
                     for (MembershipTO membership : userTO.getMemberships()) {
-                        millisToDate(EntityTOUtils.buildAttrMap(membership.getPlainAttrs()), plainSchema);
+                        millisToDate(membership.getPlainAttrs(), plainSchema);
                     }
                 }
 
@@ -154,10 +158,13 @@ public class UserSelfUpdateResource extends BaseUserSelfResource {
                 }
                 userTO.getVirAttrs().removeAll(membAttrs);
 
+                UserPatch userPatch = AnyOperations.diff(userTO, SyncopeEnduserSession.get().getSelfTO(), false);
+
+                applyFormCustomization(userPatch, customForm);
+
                 // update user by patch
                 Response res = SyncopeEnduserSession.get().
-                        getService(userTO.getETagValue(), UserSelfService.class).update(AnyOperations.diff(userTO,
-                        SyncopeEnduserSession.get().getSelfTO(), true));
+                        getService(userTO.getETagValue(), UserSelfService.class).update(userPatch);
 
                 buildResponse(response, res.getStatus(), res.getStatusInfo().getFamily().equals(
                         Response.Status.Family.SUCCESSFUL)
@@ -180,6 +187,18 @@ public class UserSelfUpdateResource extends BaseUserSelfResource {
                             toString());
         }
         return response;
+    }
+
+    private void applyFormCustomization(final UserPatch userPatch, final Map<String, CustomAttributesInfo> customForm) {
+        final CustomAttributesInfo customPlainAttrsInfo = customForm.get(SchemaType.PLAIN.name());
+        final CustomAttributesInfo customVirtualAttrsInfo = customForm.get(SchemaType.VIRTUAL.name());
+        // clean patch to avoid unwanted deletions of hidden schemas (custom form)
+        if (customPlainAttrsInfo != null) {
+            customizeAttrPatches(userPatch.getPlainAttrs(), customPlainAttrsInfo);
+        }
+        if (customVirtualAttrsInfo != null) {
+            customizeAttrTOs(userPatch.getVirAttrs(), customPlainAttrsInfo);
+        }
     }
 
 }

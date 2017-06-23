@@ -52,10 +52,10 @@ describe('syncope enduser user create', function () {
     //plainSchemas
     abstract.waitSpinner();
     browser.wait(element(by.name('fullname')).isPresent());
-    element.all(by.name('fullname')).first().sendKeys('Gaetano Donizetti');
-    element.all(by.name('userId')).first().sendKeys('donizetti@apache.org');
-    element.all(by.name('firstname')).first().sendKeys('Gaetano');
-    element.all(by.name('surname')).first().sendKeys('Donizetti');
+    element.all(by.name('fullname')).first().clear().sendKeys('Gaetano Donizetti');
+    element.all(by.name('userId')).first().clear().sendKeys('donizetti@apache.org');
+    element.all(by.name('firstname')).first().clear().sendKeys('Gaetano');
+    element.all(by.name('surname')).first().clear().sendKeys('Donizetti');
     element.all(by.id('next')).first().click();
 
     //derivedSchemas,virtualSchemas,resources
