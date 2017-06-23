@@ -26,6 +26,7 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.SerializationUtils;
+import org.apache.syncope.client.enduser.SyncopeEnduserApplication;
 import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.annotations.Resource;
@@ -67,7 +68,7 @@ public class UserSelfUpdateResource extends BaseUserSelfResource {
             UserTO userTO = MAPPER.readValue(request.getReader().readLine(), UserTO.class);
 
             // check if request is compliant with customization form rules
-            if (UserRequestValidator.compliant(userTO, SyncopeEnduserSession.get().getCustomForm(), false)) {
+            if (UserRequestValidator.compliant(userTO, SyncopeEnduserApplication.get().getCustomForm(), false)) {
                 // 1. membership attributes management
                 Set<AttrTO> membAttrs = new HashSet<>();
                 for (AttrTO attr : userTO.getPlainAttrs()) {
