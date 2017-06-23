@@ -21,20 +21,15 @@ package org.apache.syncope.client.enduser.resources;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
-import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserApplication;
 import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.annotations.Resource;
-import org.apache.syncope.client.enduser.model.CustomAttribute;
 import org.apache.syncope.client.enduser.model.CustomAttributesInfo;
-import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
@@ -64,11 +59,10 @@ public class UserSelfReadResource extends BaseUserSelfResource {
 
             UserTO userTO = SerializationUtils.clone(SyncopeEnduserSession.get().getSelfTO());
 
-            // 1. Date -> millis conversion for PLAIN attributes of USER and its MEMBERSHIPS
+            // 1. Date -> millis conversion for PLAIN MEMBERSHIPS attributes of USER
             for (PlainSchemaTO plainSchema : SyncopeEnduserSession.get().getDatePlainSchemas()) {
-                dateToMillis(EntityTOUtils.buildAttrMap(userTO.getPlainAttrs()), plainSchema);
                 for (MembershipTO membership : userTO.getMemberships()) {
-                    dateToMillis(EntityTOUtils.buildAttrMap(membership.getPlainAttrs()), plainSchema);
+                    dateToMillis(membership.getPlainAttrs(), plainSchema);
                 }
             }
 
@@ -95,21 +89,11 @@ public class UserSelfReadResource extends BaseUserSelfResource {
                 membership.getVirAttrs().clear();
             }
             // USER from customization, if empty or null ignore it, use it to filter attributes otherwise
-            Map<String, CustomAttributesInfo> customForm = SyncopeEnduserApplication.get().getCustomForm();
+            applyFromCustomization(userTO, SyncopeEnduserApplication.get().getCustomForm());
 
-            if (customForm != null && !customForm.isEmpty()) {
-                if (customForm.get(SchemaType.PLAIN.name()) != null) {
-                    // filter PLAIN attributes
-                    customizeAttrs(userTO.getPlainAttrs(), customForm.get(SchemaType.PLAIN.name()).getAttributes());
-                }
-                if (customForm.get(SchemaType.DERIVED.name()) != null) {
-                    // filter DERIVED attributes
-                    customizeAttrs(userTO.getDerAttrs(), customForm.get(SchemaType.DERIVED.name()).getAttributes());
-                }
-                if (customForm.get(SchemaType.VIRTUAL.name()) != null) {
-                    // filter VIRTUAL attributes
-                    customizeAttrs(userTO.getVirAttrs(), customForm.get(SchemaType.VIRTUAL.name()).getAttributes());
-                }
+            // 1.1 Date -> millis conversion for PLAIN attributes of USER
+            for (PlainSchemaTO plainSchema : SyncopeEnduserSession.get().getDatePlainSchemas()) {
+                dateToMillis(userTO.getPlainAttrs(), plainSchema);
             }
             final String selfTOJson = MAPPER.writeValueAsString(userTO);
             response.setContentType(MediaType.APPLICATION_JSON);
@@ -134,15 +118,15 @@ public class UserSelfReadResource extends BaseUserSelfResource {
         return response;
     }
 
-    private void customizeAttrs(final Set<AttrTO> attrs,
-            final Map<String, CustomAttribute> customForm) {
-
-        CollectionUtils.filter(attrs, new Predicate<AttrTO>() {
-
-            @Override
-            public boolean evaluate(final AttrTO attr) {
-                return customForm.containsKey(attr.getSchema());
-            }
-        });
+    private void applyFromCustomization(final UserTO userTO, final Map<String, CustomAttributesInfo> customForm) {
+        if (customForm != null && !customForm.isEmpty()) {
+            // filter PLAIN attributes
+            customizeAttrTOs(userTO.getPlainAttrs(), customForm.get(SchemaType.PLAIN.name()));
+            // filter DERIVED attributes
+            customizeAttrTOs(userTO.getDerAttrs(), customForm.get(SchemaType.DERIVED.name()));
+            // filter VIRTUAL attributes
+            customizeAttrTOs(userTO.getVirAttrs(), customForm.get(SchemaType.VIRTUAL.name()));
+        }
     }
+
 }
