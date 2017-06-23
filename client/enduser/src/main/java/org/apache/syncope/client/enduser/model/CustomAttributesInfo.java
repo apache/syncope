@@ -33,7 +33,7 @@ public class CustomAttributesInfo implements Serializable {
     public CustomAttributesInfo() {
     }
 
-    public Boolean getShow() {
+    public Boolean isShow() {
         return show;
     }
 

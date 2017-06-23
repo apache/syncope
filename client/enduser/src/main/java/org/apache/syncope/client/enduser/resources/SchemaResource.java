@@ -111,7 +111,7 @@ public class SchemaResource extends BaseResource {
                     : customForm == null || customForm.isEmpty() || customForm.get(SchemaType.PLAIN.name()) == null
                     ? schemaService.list(
                             new SchemaQuery.Builder().type(SchemaType.PLAIN).anyTypeClasses(classes).build())
-                    : customForm.get(SchemaType.PLAIN.name()).getShow()
+                    : customForm.get(SchemaType.PLAIN.name()).isShow()
                     ? customizeSchemas(schemaService.list(new SchemaQuery.Builder().type(SchemaType.PLAIN).
                             anyTypeClasses(classes).build()), groupParam, customForm.get(SchemaType.PLAIN.name()).
                             getAttributes())
@@ -121,7 +121,7 @@ public class SchemaResource extends BaseResource {
                     : customForm == null || customForm.isEmpty() || customForm.get(SchemaType.DERIVED.name()) == null
                     ? schemaService.list(
                             new SchemaQuery.Builder().type(SchemaType.DERIVED).anyTypeClasses(classes).build())
-                    : customForm.get(SchemaType.DERIVED.name()).getShow()
+                    : customForm.get(SchemaType.DERIVED.name()).isShow()
                     ? customizeSchemas(schemaService.list(new SchemaQuery.Builder().type(SchemaType.DERIVED).
                             anyTypeClasses(classes).build()), groupParam, customForm.get(SchemaType.DERIVED.name()).
                             getAttributes())
@@ -131,7 +131,7 @@ public class SchemaResource extends BaseResource {
                     : customForm == null || customForm.isEmpty() || customForm.get(SchemaType.VIRTUAL.name()) == null
                     ? schemaService.list(
                             new SchemaQuery.Builder().type(SchemaType.VIRTUAL).anyTypeClasses(classes).build())
-                    : customForm.get(SchemaType.VIRTUAL.name()).getShow()
+                    : customForm.get(SchemaType.VIRTUAL.name()).isShow()
                     ? customizeSchemas(schemaService.list(new SchemaQuery.Builder().type(SchemaType.VIRTUAL).
                             anyTypeClasses(classes).build()), groupParam, customForm.get(SchemaType.VIRTUAL.name()).
                             getAttributes())

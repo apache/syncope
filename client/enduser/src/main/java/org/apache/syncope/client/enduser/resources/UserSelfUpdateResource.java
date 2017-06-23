@@ -34,12 +34,12 @@ import org.apache.syncope.client.enduser.annotations.Resource;
 import org.apache.syncope.client.enduser.model.CustomAttributesInfo;
 import org.apache.syncope.client.enduser.util.UserRequestValidator;
 import org.apache.syncope.common.lib.AnyOperations;
+import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.request.resource.IResource;
@@ -158,10 +158,14 @@ public class UserSelfUpdateResource extends BaseUserSelfResource {
                 }
                 userTO.getVirAttrs().removeAll(membAttrs);
 
-                UserPatch userPatch = AnyOperations.diff(userTO, SyncopeEnduserSession.get().getSelfTO(), false);
-
-                applyFormCustomization(userPatch, customForm);
-
+                // get old user object from session
+                UserTO selfTO = SyncopeEnduserSession.get().getSelfTO();
+                // align "userTO" and "selfTO" objects
+                if (customForm != null && !customForm.isEmpty()) {
+                    completeUserObject(userTO, selfTO);
+                }
+                // create diff patch
+                UserPatch userPatch = AnyOperations.diff(userTO, selfTO, false);
                 // update user by patch
                 Response res = SyncopeEnduserSession.get().
                         getService(userTO.getETagValue(), UserSelfService.class).update(userPatch);
@@ -189,15 +193,39 @@ public class UserSelfUpdateResource extends BaseUserSelfResource {
         return response;
     }
 
-    private void applyFormCustomization(final UserPatch userPatch, final Map<String, CustomAttributesInfo> customForm) {
-        final CustomAttributesInfo customPlainAttrsInfo = customForm.get(SchemaType.PLAIN.name());
-        final CustomAttributesInfo customVirtualAttrsInfo = customForm.get(SchemaType.VIRTUAL.name());
-        // clean patch to avoid unwanted deletions of hidden schemas (custom form)
-        if (customPlainAttrsInfo != null) {
-            customizeAttrPatches(userPatch.getPlainAttrs(), customPlainAttrsInfo);
+    private void completeUserObject(final UserTO userTO, final UserTO selfTO) {
+        // memberships plain and virtual attrs
+        for (final MembershipTO updatedTOMemb : userTO.getMemberships()) {
+            MembershipTO oldTOMatchedMemb =
+                    IterableUtils.find(selfTO.getMemberships(), new Predicate<MembershipTO>() {
+
+                        @Override
+                        public boolean evaluate(final MembershipTO oldTOMemb) {
+                            return updatedTOMemb.getGroupKey().equals(oldTOMemb.getGroupKey());
+                        }
+                    });
+            if (oldTOMatchedMemb != null) {
+                if (!updatedTOMemb.getPlainAttrs().isEmpty()) {
+                    completeAttrs(updatedTOMemb.getPlainAttrs(), oldTOMatchedMemb.getPlainAttrs());
+                }
+                if (!updatedTOMemb.getVirAttrs().isEmpty()) {
+                    completeAttrs(updatedTOMemb.getVirAttrs(), oldTOMatchedMemb.getVirAttrs());
+                }
+            }
         }
-        if (customVirtualAttrsInfo != null) {
-            customizeAttrTOs(userPatch.getVirAttrs(), customPlainAttrsInfo);
+        // plain attrs
+        completeAttrs(userTO.getPlainAttrs(), selfTO.getPlainAttrs());
+        // virtual attrs
+        completeAttrs(userTO.getVirAttrs(), selfTO.getVirAttrs());
+    }
+
+    private void completeAttrs(final Set<AttrTO> userTOAttrs, final Set<AttrTO> selfTOAttrs) {
+        Map<String, AttrTO> userTOAttrsMap =
+                EntityTOUtils.buildAttrMap(userTOAttrs);
+        for (AttrTO selfTOAttr : selfTOAttrs) {
+            if (!userTOAttrsMap.containsKey(selfTOAttr.getSchema())) {
+                userTOAttrs.add(selfTOAttr);
+            }
         }
     }
 
