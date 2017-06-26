@@ -293,15 +293,13 @@ public class ResourceTest extends AbstractTest {
         ExternalResource resource = resourceDAO.find("resource-ldap-orgunit");
         assertNotNull(resource);
         assertNotNull(resource.getOrgUnit());
-        assertTrue(resource.getPropagationActionsClassNames().size() == 1);
 
         String orgUnitKey = resource.getOrgUnit().getKey();
         assertNotNull(entityManager().find(JPAOrgUnit.class, orgUnitKey));
 
         resource.getOrgUnit().setResource(null);
         resource.setOrgUnit(null);
-        resource.getPropagationActionsClassNames().clear();
-        
+
         resourceDAO.save(resource);
         resourceDAO.flush();
 
