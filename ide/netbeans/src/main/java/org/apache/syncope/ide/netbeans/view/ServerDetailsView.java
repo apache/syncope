@@ -36,6 +36,8 @@ public class ServerDetailsView extends JDialog {
 
     /**
      * Creates new form LoginView
+     * @param parent Parent Frame
+     * @param modal Whether it is modal or not
      */
     public ServerDetailsView(final java.awt.Frame parent, final boolean modal) {
         super(parent, modal);
