@@ -795,26 +795,8 @@ under the License.
         </dependency>
 
         <dependency>
-          <groupId>org.apache.syncope.core</groupId>
-          <artifactId>syncope-core-persistence-jpa</artifactId>
-          <version>${project.version}</version>
-          <exclusions>
-            <exclusion>
-              <groupId>org.apache.bval</groupId>
-              <artifactId>bval-jsr</artifactId>
-            </exclusion>
-          </exclusions>
-        </dependency>
-        
-        <dependency>
           <groupId>com.h2database</groupId>
           <artifactId>h2</artifactId>
-        </dependency>
-        
-        <dependency>
-          <groupId>org.apache.syncope.ext.camel</groupId>
-          <artifactId>syncope-ext-camel-persistence-jpa</artifactId>
-          <version>${project.version}</version>
         </dependency>
       </dependencies>
 
@@ -835,62 +817,7 @@ under the License.
                 </resource>
               </webResources>
               <webXml>${basedir}/src/main/resources/jboss/web.xml</webXml>
-              <packagingExcludes>WEB-INF/lib/syncope-*-persistence-jpa-${project.version}.jar</packagingExcludes>
             </configuration>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-dependency-plugin</artifactId>
-            <inherited>true</inherited>
-            <executions>
-              <execution>
-                <id>unpack-jpa-entities</id>
-                <phase>process-resources</phase>
-                <goals>
-                  <goal>unpack</goal>
-                </goals>
-                <configuration>
-                  <artifactItems>
-                    <artifactItem>
-                      <groupId>org.apache.syncope.core</groupId>
-                      <artifactId>syncope-core-persistence-jpa</artifactId>
-                      <version>${project.version}</version>
-                      <type>jar</type>
-                      <overWrite>false</overWrite>
-                    </artifactItem>
-                    <artifactItem>
-                      <groupId>org.apache.syncope.ext.camel</groupId>
-                      <artifactId>syncope-ext-camel-persistence-jpa</artifactId>
-                      <version>${project.version}</version>
-                      <type>jar</type>
-                      <overWrite>false</overWrite>
-                    </artifactItem>
-                  </artifactItems>
-                  <outputDirectory>${project.build.directory}/${project.build.finalName}/WEB-INF/classes</outputDirectory>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-antrun-plugin</artifactId>
-            <inherited>true</inherited>
-            <executions>
-              <execution>
-                <id>remove-jpa-jar</id>
-                <phase>package</phase>
-                <configuration>
-                  <target>
-                    <delete> 
-                      <fileset dir="${project.build.directory}/${project.build.finalName}/WEB-INF/lib" includes="syncope-*-persistence-jpa-${project.version}.jar" />
-                    </delete>
-                  </target>
-                </configuration>
-                <goals>
-                  <goal>run</goal>
-                </goals>
-              </execution>
-            </executions>
           </plugin>
 
           <plugin>
@@ -924,6 +851,13 @@ under the License.
             <excludes>
               <exclude>restCXFContext.xml</exclude>
             </excludes>
+          </resource>
+          <resource>
+            <directory>${basedir}/../../core/persistence-jpa/src/main/resources</directory>
+            <includes>
+              <include>persistenceContext.xml</include>
+            </includes>
+            <filtering>true</filtering>
           </resource>
           <resource>
             <directory>src/main/resources/jboss</directory>

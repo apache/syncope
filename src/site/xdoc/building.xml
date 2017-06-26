@@ -84,6 +84,11 @@ under the License.
         subdirectory, not from top-level.
       </p>
       <subsection name="fit/core-reference">
+        <h4>All integration tests</h4>
+        In order to keep the overall build time under acceptable time limits on average hardware, not all the available
+        integration tests are run by default; in order to run them all, anyway, a specific build profile is provided.
+        <source>$ mvn clean verify -Pfull-it,all</source>
+
         <h4>application/xml</h4>
         By default, integration tests are run using <code>application/json</code> for both <code>Accept</code> and
         <code>Content-Type</code> HTTP headers; it is possible, however, to use <code>application/xml</code>.

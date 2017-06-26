@@ -43,7 +43,7 @@ under the License.
   <!-- Use JNDI datasource as default but, when not available, revert to
   local datasource, with different properties for execution and testing. 
   In any case, get all JDBC connections with a determined isolation level. -->
-  <bean id="TwoDataSource" class="org.springframework.jndi.JndiObjectFactoryBean">
+  <bean id="TwoDataSource" class="org.springframework.jndi.JndiObjectFactoryBean" primary="true">
     <property name="jndiName" value="java:comp/env/jdbc/syncopeTwoDataSource"/>
     <property name="defaultObject" ref="localTwoDataSource"/>
   </bean>
@@ -58,8 +58,8 @@ under the License.
       <util:constant static-field="${Two.pool.transactionIsolation:java.sql.Connection.TRANSACTION_READ_COMMITTED}"/>
     </property>
     <!-- connection pool configuration - default values taken from HikariConfig default values -->
-    <property name="maximumPoolSize" value="${Master.pool.maxActive:8}"/>
-    <property name="minimumIdle" value="${Master.pool.minIdle:0}"/>
+    <property name="maximumPoolSize" value="${Two.pool.maxActive:8}"/>
+    <property name="minimumIdle" value="${Two.pool.minIdle:0}"/>
   </bean>
   
   <bean class="org.springframework.jdbc.datasource.init.DataSourceInitializer">
@@ -101,10 +101,10 @@ under the License.
     <property name="jpaPropertyMap">
       <map>
         <entry key="openjpa.MetaDataFactory" 
-               value="jpa(URLs=vfs:${project.build.directory}/cargo/configurations/wildfly10x/deployments/syncope.war/WEB-INF/classes, Resources=${Two.orm})"/>
+               value="jpa(URLs=vfs:${project.build.directory}/cargo/configurations/wildfly10x/deployments/syncope.war/WEB-INF/lib/syncope-core-persistence-jpa-${syncope.version}.jar, Resources=${Master.orm})"/>
       </map>
     </property>
-  </bean>
+  </bean>  
 
   <bean id="TwoTransactionManager" class="org.springframework.orm.jpa.JpaTransactionManager">
     <property name="entityManagerFactory" ref="TwoEntityManagerFactory"/>
@@ -112,5 +112,5 @@ under the License.
   </bean>
   
   <tx:annotation-driven transaction-manager="TwoTransactionManager"/>
-  
+
 </beans>

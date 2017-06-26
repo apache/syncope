@@ -21,15 +21,22 @@ under the License.
   <deployment>
     <exclude-subsystems>
       <subsystem name="webservices"/>
+      <subsystem name="jaxrs"/>
+      <subsystem name="jaxws"/>
     </exclude-subsystems>
     <dependencies>
       <module name="org.apache.xalan"/>
     </dependencies>
     <exclusions>
+      <module name="javax.ws.soap.api"/>
+      <module name="javax.ws.rs.api"/>
       <module name="org.apache.cxf"/>
       <module name="org.apache.cxf.impl"/>
+      <module name="org.hibernate"/>
       <module name="org.slf4j"/>
       <module name="org.slf4j.impl"/>
+      <module name="org.apache.log4j"/>
+      <module name="org.jboss.log4j.logmanager"/>
     </exclusions>
   </deployment>
 </jboss-deployment-structure>

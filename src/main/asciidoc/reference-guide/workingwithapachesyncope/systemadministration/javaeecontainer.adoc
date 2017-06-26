@@ -74,34 +74,6 @@ provides a datasource named `jdbc/syncopeMasterDataSource`.
 
 ===== Wildfly 9 and 10
 
-Replace
-
-[source,xml]
-....
-    <dependency>
-      <groupId>org.apache.syncope.core</groupId>
-      <artifactId>syncope-core-persistence-jpa</artifactId>
-    </dependency>
-....
-
-with
-
-[source,xml]
-....
-    <dependency>
-      <groupId>org.apache.syncope.core</groupId>
-      <artifactId>syncope-core-persistence-jpa</artifactId>
-      <exclusions>
-        <exclusion>
-          <groupId>org.apache.bval</groupId>
-          <artifactId>bval-jsr</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-....
-
-in `core/pom.xml`.
-
 Add
 
 [source,xml]
@@ -154,7 +126,7 @@ classpath*:/coreContext.xml
 classpath*:/securityContext.xml
 classpath*:/logicContext.xml
 classpath:/restCXFContext.xml
-classpath*:/persistenceContext.xml
+classpath:/persistenceContext.xml
 classpath*:/provisioning*Context.xml
 classpath*:/workflow*Context.xml
 ....
@@ -167,6 +139,24 @@ https://github.com/apache/syncope/blob/syncope-{docVersion}/fit/core-reference/s
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
 https://github.com/apache/syncope/blob/master/fit/core-reference/src/main/resources/jboss/restCXFContext.xml[restCXFContext.xml^]
+endif::[]
+and save it under `core/src/main/resources/`.
+
+Download
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/fit/core-reference/src/main/resources/jboss/domains.xml[domains.xml^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/fit/core-reference/src/main/resources/jboss/domains.xml[domains.xml^]
+endif::[]
+and save it under `core/src/main/resources/`.
+
+Download
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/persistence-jpa/src/main/resources/persistenceContext.xml[persistenceContext.xml^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/master/core/persistence-jpa/src/main/resources/persistenceContext.xml[persistenceContext.xml^]
 endif::[]
 and save it under `core/src/main/resources/`.
 
