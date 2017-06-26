@@ -751,12 +751,9 @@ under the License.
                     propagationPriority="1"
                     createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" provisioningTraceLevel="ALL"
                     jsonConf='[{"schema":{"name":"uidAttribute","displayName":"Uid Attribute","helpMessage":"The name of the LDAP attribute which is mapped to the Uid attribute. Default is \"entryUUID\".","type":"java.lang.String","required":false,"order":21,"confidential":false,"defaultValues":["entryUUID"]},"overridable":true,"values":["entryUUID"]},{"schema":{"name":"baseContexts","displayName":"Base Contexts","helpMessage":"One or more starting points in the LDAP tree that will be used when searching the tree. Searches are performed when discovering users from the LDAP server or when looking for the groups of which a user is a member.","type":"[Ljava.lang.String;","required":true,"order":7,"confidential":false,"defaultValues":[]},"overridable":true,"values":["o=isp"]}]'/>
-  <OrgUnit id="599a59cf-9a23-4447-9a59-cf9a2334473a" connObjectLink="'ou=' + name + ',o=isp'"
+  <OrgUnit id="599a59cf-9a23-4447-9a59-cf9a2334473a" connObjectLink="syncope:fullPath2Dn(fullPath, 'ou') + ',o=isp'"
            extAttrName="ou" objectClass="organizationalUnit" resource_id="resource-ldap-orgunit"/>
 
-  <ExternalResource_PropActions resource_id="resource-ldap-orgunit"
-                                actionClassName="org.apache.syncope.core.provisioning.java.propagation.LDAPNestedRealmPropagationActions"/>
-  
   <ExternalResource id="ws-target-resource-nopropagation" connector_id="fcf9f2b0-f7d6-42c9-84a6-61b28255a42b"
                     randomPwdIfNotProvided="0" enforceMandatoryCondition="1" overrideCapabilities="0"
                     createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" provisioningTraceLevel="ALL"

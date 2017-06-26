@@ -23,6 +23,7 @@ import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +43,7 @@ import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,6 +65,7 @@ public final class JexlUtils {
                 JEXL_ENGINE = new JexlBuilder().
                         uberspect(new ClassFreeUberspect()).
                         loader(new EmptyClassLoader()).
+                        namespaces(Collections.<String, Object>singletonMap("syncope", new SyncopeJexlFunctions())).
                         cache(512).
                         silent(false).
                         strict(false).
@@ -152,8 +155,11 @@ public final class JexlUtils {
         if (object instanceof Any) {
             Any<?> any = (Any<?>) object;
             if (any.getRealm() != null) {
-                context.set("realm", any.getRealm().getName());
+                context.set("realm", any.getRealm().getFullPath());
             }
+        } else if (object instanceof Realm) {
+            Realm realm = (Realm) object;
+            context.set("fullPath", realm.getFullPath());
         }
 
         return context;

@@ -174,3 +174,19 @@ to the selected `aLong` value before sending it out to the underlying connector.
 }
 ----
 ====
+
+[[object-link-realms-hierarchy]]
+[TIP]
+.Object link and Realms hierarchy
+====
+When Object link is applicable - typically with LDAP or Active Directory, as said - the need may arise to map the Realms
+hierarchy into nested structures, as
+https://en.wikipedia.org/wiki/Organizational_unit_(computing)[Organizational Units^].
+
+In such cases, the following JEXL expressions can be set for Object link (assuming `o=isp` is the root suffix), for
+example, which leverage the `syncope:fullPath2Dn()` custom JEXL function:
+
+* Realms: `syncope:fullPath2Dn(fullPath, 'ou') + ',o=isp'`
+* Users: `'uid=' + name + syncope:fullPath2Dn(realm, 'ou', ',') + ',o=isp'`
+* Groups: `'cn=' + name + syncope:fullPath2Dn(realm, 'ou', ',') + ',o=isp'`
+====
