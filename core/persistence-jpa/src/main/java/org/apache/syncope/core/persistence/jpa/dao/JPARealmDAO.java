@@ -178,9 +178,7 @@ public class JPARealmDAO extends AbstractDAO<Realm> implements RealmDAO {
 
     @Override
     public List<Realm> findAll() {
-        TypedQuery<Realm> query = entityManager().createQuery(
-                "SELECT e FROM " + JPARealm.class.getSimpleName() + " e ", Realm.class);
-        return query.getResultList();
+        return findDescendants(getRoot());
     }
 
     @Override

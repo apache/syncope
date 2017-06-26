@@ -101,6 +101,17 @@ https://connid.atlassian.net/wiki/display/BASE/LDAP#LDAP-Configuration[LDAP conn
 
 | 
 ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/LDAPNestedRealmPropagationActions.java[LDAPNestedRealmPropagationActions^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/2_0_X/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/LDAPNestedRealmPropagationActions.java[LDAPNestedRealmPropagationActions^]
+endif::[]
+| If a realm is child of some other realm (except root), i.e. has depth greater than 1, hence this hierarchy has to be 
+respected while propagating a realm to an LDAP resource.
+This propagation action guarantees correct hierarchy propagation.
+
+| 
+ifeval::["{snapshotOrRelease}" == "release"]
 https://github.com/apache/syncope/blob/syncope-{docVersion}/core/provisioning-java/src/main/java/org/apache/syncope/core/provisioning/java/propagation/LDAPPasswordPropagationActions.java[DBPasswordPropagationActions^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
