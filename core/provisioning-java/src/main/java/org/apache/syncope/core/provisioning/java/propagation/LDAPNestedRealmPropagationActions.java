@@ -32,6 +32,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+/**
+ * Action for propagating realms to LDAP resource respecting realms hierarchy.
+ *
+ */
 public class LDAPNestedRealmPropagationActions extends DefaultPropagationActions {
 
     private static final Logger LOG = LoggerFactory.getLogger(LDAPNestedRealmPropagationActions.class);

@@ -154,14 +154,14 @@ public class RealmsITCase extends AbstractConsoleITCase {
     @Test
     public void verifyPropagation() {
         TESTER.executeAjaxEvent("body:content:realmChoicePanel:container:realms:btn", Constants.ON_CLICK);
-        TESTER.executeAjaxEvent("body:content:realmChoicePanel:container:realms:dropdown-menu:buttons:3:button",
+        TESTER.executeAjaxEvent("body:content:realmChoicePanel:container:realms:dropdown-menu:buttons:2:button",
                 Constants.ON_CLICK);
 
         TESTER.clickLink(
                 "body:content:body:container:content:tabbedPanel:panel:actions:actions:actionRepeater:1:action:action");
         TESTER.assertComponent("body:content:body:outerObjectsRepeater:0:outer", Modal.class);
         TESTER.assertModelValue("body:content:body:outerObjectsRepeater:0:outer:form:content:form:view:details:"
-                + "container:generics:name:textField", "two");
+                + "container:generics:name:textField", "even");
 
         FormTester formTester = TESTER.newFormTester(
                 "body:content:body:outerObjectsRepeater:0:outer:form:content:form");
@@ -173,7 +173,7 @@ public class RealmsITCase extends AbstractConsoleITCase {
         TESTER.cleanupFeedbackMessages();
 
         // ----------------------------------
-        // Check for propagation rsults
+        // Check for propagation results
         // ----------------------------------
         Component component = findComponentByProp("resource", "body:content:body:outerObjectsRepeater:0:outer:form:"
                 + "content:customResultBody:firstLevelContainer:first:container", "resource-ldap-orgunit");
@@ -196,7 +196,7 @@ public class RealmsITCase extends AbstractConsoleITCase {
                 + "secondLevelContainer:second:remoteObject:propView:2:value:newAttribute:field-label", "ou");
 
         TESTER.assertModelValue("body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
-                + "secondLevelContainer:second:remoteObject:propView:2:value:newAttribute:textField", "two");
+                + "secondLevelContainer:second:remoteObject:propView:2:value:newAttribute:textField", "even");
 
         TESTER.clickLink("body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
                 + "secondLevelContainer:back");
@@ -212,7 +212,7 @@ public class RealmsITCase extends AbstractConsoleITCase {
                 "body:content:body:container:content:tabbedPanel:panel:actions:actions:actionRepeater:1:action:action");
         TESTER.assertComponent("body:content:body:outerObjectsRepeater:0:outer", Modal.class);
         TESTER.assertModelValue("body:content:body:outerObjectsRepeater:0:outer:form:content:form:view:details:"
-                + "container:generics:name:textField", "two");
+                + "container:generics:name:textField", "even");
 
         formTester = TESTER.newFormTester(
                 "body:content:body:outerObjectsRepeater:0:outer:form:content:form");
@@ -224,7 +224,7 @@ public class RealmsITCase extends AbstractConsoleITCase {
         TESTER.cleanupFeedbackMessages();
 
         // ----------------------------------
-        // Check for propagation rsults
+        // Check for propagation results
         // ----------------------------------
         component = findComponentByProp("resource", "body:content:body:outerObjectsRepeater:0:outer:form:"
                 + "content:customResultBody:firstLevelContainer:first:container", "resource-ldap-orgunit");
@@ -235,7 +235,7 @@ public class RealmsITCase extends AbstractConsoleITCase {
                 + "secondLevelContainer:second:remoteObject:propView:2:value:oldAttribute:field-label", "ou");
 
         TESTER.assertModelValue("body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
-                + "secondLevelContainer:second:remoteObject:propView:2:value:oldAttribute:textField", "two");
+                + "secondLevelContainer:second:remoteObject:propView:2:value:oldAttribute:textField", "even");
 
         TESTER.assertLabel("body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
                 + "secondLevelContainer:second:remoteObject:propView:2:value:newAttribute:field-label", "ou");
