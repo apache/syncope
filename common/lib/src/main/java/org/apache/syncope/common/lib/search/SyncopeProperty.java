@@ -37,7 +37,7 @@ public interface SyncopeProperty extends Property {
 
     /** Is textual property different (ignoring case) than given literal or not matching given pattern?
      *
-     * @param literalOrPattern
+     * @param literalOrPattern The literal or Pattern String
      * @return updated condition
      */
     CompleteCondition notEqualTolIgnoreCase(String literalOrPattern);
