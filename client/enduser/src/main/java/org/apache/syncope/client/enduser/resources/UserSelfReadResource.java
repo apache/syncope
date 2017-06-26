@@ -98,12 +98,18 @@ public class UserSelfReadResource extends BaseUserSelfResource {
             Map<String, CustomAttributesInfo> customForm = SyncopeEnduserApplication.get().getCustomForm();
 
             if (customForm != null && !customForm.isEmpty()) {
-                // filter PLAIN attributes
-                customizeAttrs(userTO.getPlainAttrs(), customForm.get(SchemaType.PLAIN.name()).getAttributes());
-                // filter DERIVED attributes
-                customizeAttrs(userTO.getDerAttrs(), customForm.get(SchemaType.DERIVED.name()).getAttributes());
-                // filter VIRTUAL attributes
-                customizeAttrs(userTO.getVirAttrs(), customForm.get(SchemaType.VIRTUAL.name()).getAttributes());
+                if (customForm.get(SchemaType.PLAIN.name()) != null) {
+                    // filter PLAIN attributes
+                    customizeAttrs(userTO.getPlainAttrs(), customForm.get(SchemaType.PLAIN.name()).getAttributes());
+                }
+                if (customForm.get(SchemaType.DERIVED.name()) != null) {
+                    // filter DERIVED attributes
+                    customizeAttrs(userTO.getDerAttrs(), customForm.get(SchemaType.DERIVED.name()).getAttributes());
+                }
+                if (customForm.get(SchemaType.VIRTUAL.name()) != null) {
+                    // filter VIRTUAL attributes
+                    customizeAttrs(userTO.getVirAttrs(), customForm.get(SchemaType.VIRTUAL.name()).getAttributes());
+                }
             }
             final String selfTOJson = MAPPER.writeValueAsString(userTO);
             response.setContentType(MediaType.APPLICATION_JSON);
