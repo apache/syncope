@@ -23,15 +23,23 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
+
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.shared.invoker.DefaultInvocationRequest;
 import org.apache.maven.shared.invoker.DefaultInvoker;
@@ -110,8 +118,17 @@ public class MavenUtils {
         properties.setProperty("anonymousKey", anonymousKey);
         properties.setProperty("jwsKey", jwsKey);
 
-        //String encodedPassword = PasswordGenerator.password(adminPassword, "SHA-1");
-        //properties.setProperty("adminPassword", encodedPassword);
+        if (adminPassword != null) {
+            try {
+                final MessageDigest cript = MessageDigest.getInstance("SHA-1");
+                String encodedPassword =
+                    new String(Hex.encodeHex(cript.digest(adminPassword.getBytes(StandardCharsets.UTF_8))));
+                properties.setProperty("adminPassword", encodedPassword);
+            } catch (final NoSuchAlgorithmException ex) {
+                Logger.getLogger(MavenUtils.class.getName()).log(Level.SEVERE, "NoSuchAlgorithmException", ex);
+
+            }
+        }
         properties.setProperty("version", "1.0-SNAPSHOT");
         return properties;
     }

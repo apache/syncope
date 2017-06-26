@@ -24,6 +24,9 @@ under the License.
     <requiredProperty key="secretKey"/>
     <requiredProperty key="anonymousKey"/>
     <requiredProperty key="jwsKey"/>
+    <requiredProperty key="adminPassword">
+        <defaultValue>5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8</defaultValue>
+    </requiredProperty>
   </requiredProperties>
   
   <modules>

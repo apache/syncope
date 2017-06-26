@@ -34,6 +34,7 @@ under the License.
     <secretKey>${secretKey}</secretKey>
     <anonymousKey>${anonymousKey}</anonymousKey>
     <jwsKey>${jwsKey}</jwsKey>
+    <adminPassword>${adminPassword}</adminPassword>
     
     <rat.skip>true</rat.skip>
     <checkstyle.skip>true</checkstyle.skip>
