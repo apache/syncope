@@ -43,7 +43,11 @@ the Reference Guide for more information).
 * *jwsKey* - The symmetric signing key used to sign access tokens (Syncope 2.0.3 onwards only). See section 4.4.1 "REST Authentication and 
 Authorization" of the Reference Guide for more information.
 
-Note that if you installed Syncope using either the installer or the maven archetype methods, then you will have already
-supplied custom values for "*secretKey*" and "*anonymousKey*". From Syncope 2.0.4 onwards, both installation methods will also
-query for "*jwsKey*", and the installer method will prompt for the "*adminPassword*" as well. 
+[NOTE]
+====
+If you installed Syncope using either the <<gui-installer>> or the <<maven-project>> methods, then you will have already
+supplied custom values for "*secretKey*" and "*anonymousKey*".
 
+From Syncope 2.0.4 onwards, both installation methods will also query for "*jwsKey*", and the <<gui-installer>> will
+prompt for the "*adminPassword*" as well. 
+====
