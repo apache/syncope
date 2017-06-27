@@ -26,8 +26,10 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -44,21 +46,21 @@ public class ConnObjects extends Panel implements ModalPanel {
 
     private final MultilevelPanel connObjects;
 
-    public ConnObjects(final BaseModal<?> baseModal,
-            final String resource,
-            final PageReference pageReference) {
-
+    public ConnObjects(final String resource, final PageReference pageRef) {
         super(BaseModal.CONTENT_ID);
 
-        List<String> availableAnyTypes = CollectionUtils.
-                collect(new ResourceRestClient().read(resource).getProvisions(),
-                        new Transformer<ProvisionTO, String>() {
+        ResourceTO resourceTO = new ResourceRestClient().read(resource);
+        List<String> availableAnyTypes = CollectionUtils.collect(resourceTO.getProvisions(),
+                new Transformer<ProvisionTO, String>() {
 
-                    @Override
-                    public String transform(final ProvisionTO provision) {
-                        return provision.getAnyType();
-                    }
-                }, new ArrayList<String>());
+            @Override
+            public String transform(final ProvisionTO provision) {
+                return provision.getAnyType();
+            }
+        }, new ArrayList<String>());
+        if (resourceTO.getOrgUnit() != null) {
+            availableAnyTypes.add(SyncopeConstants.REALM_ANYTYPE);
+        }
 
         anyTypes = new AjaxDropDownChoicePanel<>("anyTypes", "anyTypes", new Model<String>());
         anyTypes.setChoices(availableAnyTypes);
@@ -87,7 +89,7 @@ public class ConnObjects extends Panel implements ModalPanel {
 
         };
         connObjects.setFirstLevel(new NextableConnObjectDirectoryPanel(
-                baseModal, connObjects, resource, anyTypes.getField().getModelObject(), pageReference));
+                connObjects, resource, anyTypes.getField().getModelObject(), pageRef));
         connObjects.setOutputMarkupId(true);
         add(connObjects);
 
@@ -98,7 +100,7 @@ public class ConnObjects extends Panel implements ModalPanel {
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
                 connObjects.setFirstLevel(new NextableConnObjectDirectoryPanel(
-                        baseModal, connObjects, resource, anyTypes.getField().getModelObject(), pageReference));
+                        connObjects, resource, anyTypes.getField().getModelObject(), pageRef));
                 target.add(connObjects);
             }
         });
@@ -108,20 +110,13 @@ public class ConnObjects extends Panel implements ModalPanel {
 
         private static final long serialVersionUID = 956427874406567048L;
 
-        private final BaseModal<?> baseModal;
-
-        private final PageReference pageRef;
-
         NextableConnObjectDirectoryPanel(
-                final BaseModal<?> baseModal,
                 final MultilevelPanel multiLevelPanelRef,
                 final String resource,
                 final String anyType,
                 final PageReference pageRef) {
 
             super(MultilevelPanel.FIRST_LEVEL_ID, resource, anyType, pageRef);
-            this.baseModal = baseModal;
-            this.pageRef = pageRef;
         }
 
         @Override

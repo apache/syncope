@@ -113,8 +113,7 @@ public abstract class ConnObjectListViewPanel extends Panel {
             public void onClick(final AjaxRequestTarget target) {
                 final List<ConnObjectTO> listOfItems = reloadItems(resource, anyType, nextPageCookie);
                 target.add(arrows);
-                send(ConnObjectListViewPanel.this, Broadcast.DEPTH,
-                        new ListViewReload<ConnObjectTO>(listOfItems, target));
+                send(ConnObjectListViewPanel.this, Broadcast.DEPTH, new ListViewReload<>(listOfItems, target));
             }
 
             @Override
@@ -131,11 +130,11 @@ public abstract class ConnObjectListViewPanel extends Panel {
             final String anyType,
             final String cookie) {
 
-        final Pair<String, List<ConnObjectTO>> items = new ResourceRestClient().listConnObjects(resource,
+        Pair<String, List<ConnObjectTO>> items = new ResourceRestClient().listConnObjects(resource,
                 anyType,
                 SIZE,
                 cookie,
-                new SortParam<String>(ConnIdSpecialName.UID, true));
+                new SortParam<>(ConnIdSpecialName.UID, true));
 
         nextPageCookie = items.getLeft();
         return items.getRight();

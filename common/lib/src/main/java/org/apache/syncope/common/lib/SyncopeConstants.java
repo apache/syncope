@@ -32,6 +32,8 @@ public final class SyncopeConstants {
 
     public static final String ROOT_REALM = "/";
 
+    public static final String REALM_ANYTYPE = "REALM";
+
     public static final Set<String> FULL_ADMIN_REALMS = Collections.singleton("/");
 
     public static final String UNAUTHENTICATED = "unauthenticated";

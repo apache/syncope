@@ -443,7 +443,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                target.add(propTaskModal.setContent(new ConnObjects(propTaskModal, node.getKey(), pageRef)));
+                target.add(propTaskModal.setContent(new ConnObjects(node.getKey(), pageRef)));
                 propTaskModal.header(new StringResourceModel("resource.explore.list", Model.of(node)));
                 propTaskModal.show(true);
             }

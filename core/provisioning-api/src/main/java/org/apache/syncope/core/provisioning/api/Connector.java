@@ -18,12 +18,10 @@
  */
 package org.apache.syncope.core.provisioning.api;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
-import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
@@ -173,7 +171,7 @@ public interface Connector {
      * query results
      * @param orderBy the sort keys which should be used for ordering the {@link ConnectorObject} returned by
      * search request
-     * @param mapItems mapping items
+     * @param options ConnId's OperationOptions
      */
     void search(
             ObjectClass objectClass,
@@ -182,7 +180,7 @@ public interface Connector {
             int pageSize,
             String pagedResultsCookie,
             List<OrderByClause> orderBy,
-            Iterator<? extends MappingItem> mapItems);
+            OperationOptions options);
 
     /**
      * Builds metadata description of ConnId {@link ObjectClass}.
