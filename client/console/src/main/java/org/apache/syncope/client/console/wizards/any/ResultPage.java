@@ -33,10 +33,13 @@ public abstract class ResultPage<T extends Serializable> extends Panel implement
 
     private final T item;
 
+    private final Serializable result;
+
     public ResultPage(final T item, final Serializable result) {
         super(BaseModal.CONTENT_ID);
         setOutputMarkupId(true);
         this.item = item;
+        this.result = result;
 
         add(customResultBody("customResultBody", item, result));
 
@@ -63,5 +66,9 @@ public abstract class ResultPage<T extends Serializable> extends Panel implement
     @Override
     public T getItem() {
         return this.item;
+    }
+
+    public Serializable getResult() {
+        return result;
     }
 }

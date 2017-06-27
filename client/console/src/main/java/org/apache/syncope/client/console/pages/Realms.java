@@ -33,6 +33,7 @@ import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.Bas
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.any.ResultPage;
 import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.TemplatableTO;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -194,8 +195,10 @@ public class Realms extends BasePage {
                         target.add(realmChoicePanel.reloadRealmTree(target));
 
                         if (modal.getContent() instanceof ResultPage) {
+                            Serializable result = ResultPage.class.cast(modal.getContent()).getResult();
+
                             updateRealmContent(RealmTO.class.cast(
-                                    ResultPage.class.cast(modal.getContent()).getItem()), selectedIndex);
+                                    ProvisioningResult.class.cast(result).getEntity()), selectedIndex);
                             target.add(content);
                         }
 
