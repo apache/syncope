@@ -34,6 +34,7 @@ import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -66,6 +67,8 @@ import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.Name;
+import org.identityconnectors.framework.common.objects.ObjectClass;
+import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.identityconnectors.framework.common.objects.SearchResult;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.identityconnectors.framework.spi.SearchResultsHandler;
@@ -269,8 +272,8 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         Any<?> any = init.getMiddle().getKind() == AnyTypeKind.USER
                 ? userDAO.find(anyKey)
                 : init.getMiddle().getKind() == AnyTypeKind.ANY_OBJECT
-                        ? anyObjectDAO.find(anyKey)
-                        : groupDAO.find(anyKey);
+                ? anyObjectDAO.find(anyKey)
+                : groupDAO.find(anyKey);
         if (any == null) {
             throw new NotFoundException(init.getMiddle() + " " + anyKey);
         }
@@ -320,22 +323,40 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
     public Pair<SearchResult, List<ConnObjectTO>> listConnObjects(final String key, final String anyTypeKey,
             final int size, final String pagedResultsCookie, final List<OrderByClause> orderBy) {
 
-        Triple<ExternalResource, AnyType, Provision> init = connObjectInit(key, anyTypeKey);
+        ExternalResource resource;
+        ObjectClass objectClass;
+        OperationOptions options;
+        if (SyncopeConstants.REALM_ANYTYPE.equals(anyTypeKey)) {
+            resource = resourceDAO.find(key);
+            if (resource == null) {
+                throw new NotFoundException("Resource '" + key + "'");
+            }
+            if (resource.getOrgUnit() == null) {
+                throw new NotFoundException("Realm provisioning for resource '" + key + "'");
+            }
 
-        Connector connector = connFactory.getConnector(init.getLeft());
+            objectClass = resource.getOrgUnit().getObjectClass();
+            options = MappingUtils.buildOperationOptions(resource.getOrgUnit());
+        } else {
+            Triple<ExternalResource, AnyType, Provision> init = connObjectInit(key, anyTypeKey);
+            resource = init.getLeft();
+            objectClass = init.getRight().getObjectClass();
+            init.getRight().getMapping().getItems();
 
-        Set<MappingItem> linkinMappingItems = new HashSet<>();
-        for (VirSchema virSchema : virSchemaDAO.findByProvision(init.getRight())) {
-            linkinMappingItems.add(virSchema.asLinkingMappingItem());
+            Set<MappingItem> linkinMappingItems = new HashSet<>();
+            for (VirSchema virSchema : virSchemaDAO.findByProvision(init.getRight())) {
+                linkinMappingItems.add(virSchema.asLinkingMappingItem());
+            }
+            Iterator<MappingItem> mapItems = IteratorUtils.chainedIterator(
+                    init.getRight().getMapping().getItems().iterator(),
+                    linkinMappingItems.iterator());
+            options = MappingUtils.buildOperationOptions(mapItems);
         }
-        Iterator<MappingItem> mapItems = IteratorUtils.chainedIterator(
-                init.getRight().getMapping().getItems().iterator(),
-                linkinMappingItems.iterator());
 
         final SearchResult[] searchResult = new SearchResult[1];
         final List<ConnObjectTO> connObjects = new ArrayList<>();
 
-        connector.search(init.getRight().getObjectClass(), null, new SearchResultsHandler() {
+        connFactory.getConnector(resource).search(objectClass, null, new SearchResultsHandler() {
 
             private int count;
 
@@ -351,7 +372,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
                 count++;
                 return count < size;
             }
-        }, size, pagedResultsCookie, orderBy, mapItems);
+        }, size, pagedResultsCookie, orderBy, options);
 
         return ImmutablePair.of(searchResult[0], connObjects);
     }

@@ -21,7 +21,6 @@ package org.apache.syncope.core.provisioning.java;
 import java.io.File;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Future;
@@ -36,9 +35,7 @@ import org.apache.syncope.core.provisioning.api.utils.ConnPoolConfUtils;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.TimeoutException;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
-import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.provisioning.api.pushpull.ReconciliationFilterBuilder;
-import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.identityconnectors.common.security.GuardedByteArray;
 import org.identityconnectors.common.security.GuardedString;
@@ -469,7 +466,7 @@ public class ConnectorFacadeProxy implements Connector {
             final int pageSize,
             final String pagedResultsCookie,
             final List<OrderByClause> orderBy,
-            final Iterator<? extends MappingItem> mapItems) {
+            final OperationOptions options) {
 
         OperationOptionsBuilder builder = new OperationOptionsBuilder().setPageSize(pageSize);
         if (pagedResultsCookie != null) {
@@ -483,7 +480,7 @@ public class ConnectorFacadeProxy implements Connector {
             }
         }, new ArrayList<SortKey>(orderBy.size())));
 
-        builder.setAttributesToGet(MappingUtils.buildOperationOptions(mapItems).getAttributesToGet());
+        builder.setAttributesToGet(options.getAttributesToGet());
 
         search(objectClass, filter, handler, builder.build());
     }

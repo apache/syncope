@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.jpa.validation.entity;
 
 import javax.validation.ConstraintValidatorContext;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
@@ -42,7 +43,8 @@ public class AnyTypeValidator extends AbstractValidator<AnyTypeCheck, AnyType> {
             case ANY_OBJECT:
             default:
                 isValid = !AnyTypeKind.USER.name().equalsIgnoreCase(object.getKey())
-                        && !AnyTypeKind.GROUP.name().equalsIgnoreCase(object.getKey());
+                        && !AnyTypeKind.GROUP.name().equalsIgnoreCase(object.getKey())
+                        && !SyncopeConstants.REALM_ANYTYPE.equalsIgnoreCase(object.getKey());
         }
 
         if (!isValid) {

@@ -401,6 +401,9 @@ under the License.
               <includes>
                 <include>**/*ITCase.java</include>
               </includes>
+              <excludes>
+                <exclude>**/*Test.java</exclude>
+              </excludes>
             </configuration>
             <executions>
               <execution>
