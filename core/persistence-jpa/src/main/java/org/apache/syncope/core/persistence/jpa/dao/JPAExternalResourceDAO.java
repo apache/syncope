@@ -29,6 +29,7 @@ import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
@@ -37,6 +38,7 @@ import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.Policy;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
@@ -71,6 +73,8 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implem
     private PolicyDAO policyDAO;
 
     private VirSchemaDAO virSchemaDAO;
+
+    private RealmDAO realmDAO;
 
     private TaskDAO taskDAO() {
         synchronized (this) {
@@ -124,6 +128,15 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implem
             }
         }
         return virSchemaDAO;
+    }
+
+    private RealmDAO realmDAO() {
+        synchronized (this) {
+            if (realmDAO == null) {
+                realmDAO = ApplicationContextProvider.getApplicationContext().getBean(RealmDAO.class);
+            }
+        }
+        return realmDAO;
     }
 
     @Override
@@ -244,6 +257,9 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implem
         taskDAO().deleteAll(resource, TaskType.PULL);
         taskDAO().deleteAll(resource, TaskType.PUSH);
 
+        for (Realm realm : realmDAO().findByResource(resource)) {
+            realm.getResources().remove(resource);
+        }
         for (AnyObject anyObject : anyObjectDAO().findByResource(resource)) {
             anyObject.getResources().remove(resource);
         }
