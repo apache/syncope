@@ -66,13 +66,13 @@ public class ContentExporter extends AbstractContentDealer {
 
     protected final static Set<String> TABLE_PREFIXES_TO_BE_EXCLUDED =
             new HashSet<String>(Arrays.asList(new String[] {
-                "QRTZ_", "LOGGING", "REPORTEXEC", "TASKEXEC",
-                "SYNCOPEUSER", "UATTR", "UATTRVALUE", "UATTRUNIQUEVALUE", "UDERATTR", "UVIRATTR",
-                "MEMBERSHIP", "MATTR", "MATTRVALUE", "MATTRUNIQUEVALUE", "MDERATTR", "MVIRATTR"
-            }));
-    
+        "QRTZ_", "LOGGING", "REPORTEXEC", "TASKEXEC",
+        "SYNCOPEUSER", "UATTR", "UATTRVALUE", "UATTRUNIQUEVALUE", "UDERATTR", "UVIRATTR",
+        "MEMBERSHIP", "MATTR", "MATTRVALUE", "MATTRUNIQUEVALUE", "MDERATTR", "MVIRATTR"
+    }));
+
     protected final static Set<String> TABLE_SUFFIXES_TO_BE_INCLUDED =
-            new HashSet<String>(Arrays.asList(new String[] {"TEMPLATE"}));
+            new HashSet<String>(Arrays.asList(new String[] { "TEMPLATE" }));
 
     protected static final Map<String, String> TABLES_TO_BE_FILTERED =
             Collections.singletonMap("TASK", "DTYPE <> 'PropagationTask'");
@@ -85,10 +85,10 @@ public class ContentExporter extends AbstractContentDealer {
         for (String prefix : TABLE_PREFIXES_TO_BE_EXCLUDED) {
             if (tableName.toUpperCase().startsWith(prefix)) {
                 for (String suffix : TABLE_SUFFIXES_TO_BE_INCLUDED) {
-                    if (!tableName.toUpperCase().endsWith(suffix)) {                       
+                    if (!tableName.toUpperCase().endsWith(suffix)) {
                         allowed = false;
                     }
-                }               
+                }
             }
         }
         return allowed;
@@ -217,7 +217,11 @@ public class ContentExporter extends AbstractContentDealer {
         return res;
     }
 
-    private void doExportTable(final TransformerHandler handler, final Connection conn, final String tableName,
+    private void doExportTable(
+            final TransformerHandler handler,
+            final String dbSchema,
+            final Connection conn,
+            final String tableName,
             final String whereClause) throws SQLException, SAXException {
 
         LOG.debug("Export table {}", tableName);
@@ -226,24 +230,58 @@ public class ContentExporter extends AbstractContentDealer {
 
         PreparedStatement stmt = null;
         ResultSet rs = null;
-        ResultSet pkeyRS = null;
         try {
+            StringBuilder orderBy = new StringBuilder();
+
+            DatabaseMetaData meta = conn.getMetaData();
+
             // ------------------------------------
-            // retrieve primary keys to perform an ordered select
+            // retrieve foreign keys (linked to the same table) to perform an ordered select
+            ResultSet pkeyRS = null;
+            try {
+                pkeyRS = meta.getImportedKeys(conn.getCatalog(), dbSchema, tableName);
+                while (pkeyRS.next()) {
+                    if (tableName.equals(pkeyRS.getString("PKTABLE_NAME"))) {
+                        String columnName = pkeyRS.getString("FKCOLUMN_NAME");
+                        if (columnName != null) {
+                            if (orderBy.length() > 0) {
+                                orderBy.append(",");
+                            }
 
-            final DatabaseMetaData meta = conn.getMetaData();
-            pkeyRS = meta.getPrimaryKeys(null, null, tableName);
-
-            final StringBuilder orderBy = new StringBuilder();
-
-            while (pkeyRS.next()) {
-                final String columnName = pkeyRS.getString("COLUMN_NAME");
-                if (columnName != null) {
-                    if (orderBy.length() > 0) {
-                        orderBy.append(",");
+                            orderBy.append(columnName);
+                        }
                     }
+                }
+            } finally {
+                if (pkeyRS != null) {
+                    try {
+                        pkeyRS.close();
+                    } catch (SQLException e) {
+                        LOG.error("While closing result set", e);
+                    }
+                }
+            }
 
-                    orderBy.append(columnName);
+            // retrieve primary keys to perform an ordered select
+            try {
+                pkeyRS = meta.getPrimaryKeys(null, null, tableName);
+                while (pkeyRS.next()) {
+                    String columnName = pkeyRS.getString("COLUMN_NAME");
+                    if (columnName != null) {
+                        if (orderBy.length() > 0) {
+                            orderBy.append(",");
+                        }
+
+                        orderBy.append(columnName);
+                    }
+                }
+            } finally {
+                if (pkeyRS != null) {
+                    try {
+                        pkeyRS.close();
+                    } catch (SQLException e) {
+                        LOG.error("While closing result set", e);
+                    }
                 }
             }
 
@@ -285,13 +323,6 @@ public class ContentExporter extends AbstractContentDealer {
             if (rs != null) {
                 try {
                     rs.close();
-                } catch (SQLException e) {
-                    LOG.error("While closing result set", e);
-                }
-            }
-            if (pkeyRS != null) {
-                try {
-                    pkeyRS.close();
                 } catch (SQLException e) {
                     LOG.error("While closing result set", e);
                 }
@@ -347,7 +378,8 @@ public class ContentExporter extends AbstractContentDealer {
             // then sort tables based on foreign keys and dump
             for (String tableName : sortByForeignKeys(conn, tableNames)) {
                 try {
-                    doExportTable(handler, conn, tableName, TABLES_TO_BE_FILTERED.get(tableName.toUpperCase()));
+                    doExportTable(
+                            handler, dbSchema, conn, tableName, TABLES_TO_BE_FILTERED.get(tableName.toUpperCase()));
                 } catch (Exception e) {
                     LOG.error("Failure exporting table {}", tableName, e);
                 }
