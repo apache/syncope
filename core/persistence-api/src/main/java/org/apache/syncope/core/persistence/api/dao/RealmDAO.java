@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 import org.apache.syncope.core.persistence.api.entity.Policy;
 import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 
 public interface RealmDAO extends DAO<Realm> {
 
@@ -32,6 +33,8 @@ public interface RealmDAO extends DAO<Realm> {
     Realm find(String key);
 
     Realm findByFullPath(String fullPath);
+
+    List<Realm> findByResource(ExternalResource resource);
 
     <T extends Policy> List<Realm> findByPolicy(T policy);
 

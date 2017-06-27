@@ -36,6 +36,7 @@ import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -114,6 +115,15 @@ public class JPARealmDAO extends AbstractDAO<Realm> implements RealmDAO {
         }
 
         return result;
+    }
+
+    @Override
+    public List<Realm> findByResource(final ExternalResource resource) {
+        TypedQuery<Realm> query = entityManager().createQuery("SELECT e FROM " + JPARealm.class.getSimpleName() + " e "
+                + "WHERE :resource MEMBER OF e.resources", Realm.class);
+        query.setParameter("resource", resource);
+
+        return query.getResultList();
     }
 
     @Override
