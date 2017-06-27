@@ -86,8 +86,9 @@ It is possible to deal with the headers below when using the <<client-library>> 
 contains the unique signed https://en.wikipedia.org/wiki/JSON_Web_Token[JSON Web Token^] identifying the authenticated
 user.
 
-The same header with provided value must be included in all subsequent requests, in order for the requester to
-be checked for authorization.
+The value returned for the `X-Syncope-Token` header must be included in all subsequent requests, in order for the
+requester to be checked for authorization, as part of the standard https://tools.ietf.org/html/rfc6750[Bearer^]
+`Authorization` header.
 
 .Obtaining JWT with http://curl.haxx.se/[curl^] 
 ====
@@ -101,7 +102,7 @@ X-Syncope-Token: eyJ0e..
 ....
 which can then be used to make a call to the REST API
 .....
-curl -I -H "X-Syncope-Token: eyJ0e.." http://localhost:9080/syncope/rest/users/self
+curl -I -H "Authorization: Bearer eyJ0e.." http://localhost:9080/syncope/rest/users/self
 .....
 ====
 
