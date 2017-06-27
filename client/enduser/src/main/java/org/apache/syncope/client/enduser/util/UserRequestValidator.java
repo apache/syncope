@@ -55,26 +55,28 @@ public final class UserRequestValidator {
     private static boolean validateAttributes(final Map<String, AttrTO> attrMap,
             final CustomAttributesInfo customAttrInfo, final boolean checkDefaultValues) {
 
-        return IterableUtils.matchesAll(attrMap.entrySet(), new Predicate<Map.Entry<String, AttrTO>>() {
+        return customAttrInfo == null
+                || (customAttrInfo.getAttributes().isEmpty() && customAttrInfo.getShow())
+                || IterableUtils.matchesAll(attrMap.entrySet(), new Predicate<Map.Entry<String, AttrTO>>() {
 
-            @Override
-            public boolean evaluate(final Map.Entry<String, AttrTO> entry) {
-                String schemaKey = entry.getKey();
-                AttrTO attrTO = entry.getValue();
-                CustomAttribute customAttr = customAttrInfo.getAttributes().get(schemaKey);
-                boolean compliant = customAttr != null && (!checkDefaultValues || isValid(attrTO, customAttr));
-                if (!compliant) {
-                    LOG.trace("Attribute [{}] or its values [{}] are not allowed by form customization rules",
-                            attrTO.getSchema(), attrTO.getValues());
-                }
-                return compliant;
-            }
-        });
+                    @Override
+                    public boolean evaluate(final Map.Entry<String, AttrTO> entry) {
+                        String schemaKey = entry.getKey();
+                        AttrTO attrTO = entry.getValue();
+                        CustomAttribute customAttr = customAttrInfo.getAttributes().get(schemaKey);
+                        boolean compliant = customAttr != null && (!checkDefaultValues || isValid(attrTO, customAttr));
+                        if (!compliant) {
+                            LOG.trace("Attribute [{}] or its values [{}] are not allowed by form customization rules",
+                                    attrTO.getSchema(), attrTO.getValues());
+                        }
+                        return compliant;
+                    }
+                });
 
     }
 
     private static boolean isValid(final AttrTO attrTO, final CustomAttribute customAttribute) {
-        return customAttribute.getReadonly()
+        return customAttribute.isReadonly()
                 ? IterableUtils.matchesAll(attrTO.getValues(), new Predicate<String>() {
 
                     @Override

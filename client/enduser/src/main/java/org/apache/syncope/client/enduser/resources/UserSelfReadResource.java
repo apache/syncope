@@ -34,7 +34,6 @@ import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.annotations.Resource;
 import org.apache.syncope.client.enduser.model.CustomAttribute;
 import org.apache.syncope.client.enduser.model.CustomAttributesInfo;
-import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
@@ -64,11 +63,10 @@ public class UserSelfReadResource extends BaseUserSelfResource {
 
             UserTO userTO = SerializationUtils.clone(SyncopeEnduserSession.get().getSelfTO());
 
-            // 1. Date -> millis conversion for PLAIN attributes of USER and its MEMBERSHIPS
+            // 1. Date -> millis conversion for PLAIN MEMBERSHIPS attributes of USER
             for (PlainSchemaTO plainSchema : SyncopeEnduserSession.get().getDatePlainSchemas()) {
-                dateToMillis(EntityTOUtils.buildAttrMap(userTO.getPlainAttrs()), plainSchema);
                 for (MembershipTO membership : userTO.getMemberships()) {
-                    dateToMillis(EntityTOUtils.buildAttrMap(membership.getPlainAttrs()), plainSchema);
+                    dateToMillis(membership.getPlainAttrs(), plainSchema);
                 }
             }
 
@@ -111,6 +109,12 @@ public class UserSelfReadResource extends BaseUserSelfResource {
                     customizeAttrs(userTO.getVirAttrs(), customForm.get(SchemaType.VIRTUAL.name()).getAttributes());
                 }
             }
+
+            // 1.1 Date -> millis conversion for PLAIN attributes of USER
+            for (PlainSchemaTO plainSchema : SyncopeEnduserSession.get().getDatePlainSchemas()) {
+                dateToMillis(userTO.getPlainAttrs(), plainSchema);
+            }
+
             final String selfTOJson = MAPPER.writeValueAsString(userTO);
             response.setContentType(MediaType.APPLICATION_JSON);
             response.setTextEncoding(StandardCharsets.UTF_8.name());
@@ -134,9 +138,7 @@ public class UserSelfReadResource extends BaseUserSelfResource {
         return response;
     }
 
-    private void customizeAttrs(final Set<AttrTO> attrs,
-            final Map<String, CustomAttribute> customForm) {
-
+    private void customizeAttrs(final Set<AttrTO> attrs, final Map<String, CustomAttribute> customForm) {
         CollectionUtils.filter(attrs, new Predicate<AttrTO>() {
 
             @Override
@@ -144,5 +146,6 @@ public class UserSelfReadResource extends BaseUserSelfResource {
                 return customForm.containsKey(attr.getSchema());
             }
         });
+
     }
 }

@@ -26,18 +26,18 @@ public class CustomAttribute implements Serializable {
 
     private static final long serialVersionUID = 4910266842123376686L;
 
-    private Boolean readonly;
+    private boolean readonly;
 
     private List<String> defaultValues = new ArrayList<>();
 
     public CustomAttribute() {
     }
 
-    public Boolean getReadonly() {
+    public boolean isReadonly() {
         return readonly;
     }
 
-    public void setReadonly(final Boolean readonly) {
+    public void setReadonly(final boolean readonly) {
         this.readonly = readonly;
     }
 
