@@ -180,7 +180,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
     protected void setAttrs(final MembershipTO membershipTO) {
         List<AttrTO> attrs = new ArrayList<>();
 
-        Map<String, AttrTO> attrMap = EntityTOUtils.buildAttrMap(anyTO.getPlainAttrs());
+        Map<String, AttrTO> attrMap = EntityTOUtils.buildAttrMap(membershipTO.getPlainAttrs());
 
         for (PlainSchemaTO schema : membershipSchemas.get(membershipTO.getGroupKey()).values()) {
             AttrTO attrTO = new AttrTO();
