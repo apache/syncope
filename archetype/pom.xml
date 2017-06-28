@@ -195,6 +195,7 @@ under the License.
         <targetPath>${project.build.outputDirectory}/archetype-resources/core/src/test/resources</targetPath>
         <includes>
           <include>connid.properties</include>
+          <include>userWorkflow.bpmn20.xml</include>
         </includes>
       </resource>
       <resource>
