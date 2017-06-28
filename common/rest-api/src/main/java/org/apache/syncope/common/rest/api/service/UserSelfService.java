@@ -98,7 +98,7 @@ public interface UserSelfService extends JAXRSService {
     Response delete();
 
     /**
-     * Changes own password.
+     * Changes own password when change was forced by an administrator.
      *
      * @param password the password value to update
      *
@@ -107,7 +107,7 @@ public interface UserSelfService extends JAXRSService {
     @POST
     @Path("changePassword")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
-    Response changePassword(@NotNull @QueryParam("password") String password);
+    Response changePassword(String password);
 
     /**
      * Provides answer for the security question configured for user matching the given username, if any.
