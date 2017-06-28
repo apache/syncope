@@ -20,8 +20,6 @@ package org.apache.syncope.client.console.panels;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -36,8 +34,6 @@ import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.status.AnyStatusModal;
 import org.apache.syncope.client.console.tasks.AnyPropagationTasks;
-import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AttrColumn;
-import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
@@ -57,13 +53,11 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyEntitlement;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.BulkMembersActionType;
-import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.event.Broadcast;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
@@ -71,7 +65,6 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
-import org.springframework.util.ReflectionUtils;
 
 public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestClient> {
 
@@ -184,6 +177,11 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
     }
 
     @Override
+    protected String[] getDefaultAttributeSelection() {
+        return GroupDisplayAttributesModalPanel.DEFAULT_SELECTION;
+    }
+
+    @Override
     public ActionsPanel<Serializable> getHeader(final String componentId) {
         final ActionsPanel<Serializable> panel = super.getHeader(componentId);
 
@@ -200,47 +198,6 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
             }
         }, ActionType.CHANGE_VIEW, StandardEntitlement.GROUP_READ).hideLabel();
         return panel;
-    }
-
-    @Override
-    protected List<IColumn<GroupTO, String>> getColumns() {
-
-        final List<IColumn<GroupTO, String>> columns = new ArrayList<>();
-        final List<IColumn<GroupTO, String>> prefcolumns = new ArrayList<>();
-
-        columns.add(new KeyPropertyColumn<GroupTO>(
-                new ResourceModel(Constants.KEY_FIELD_NAME, Constants.KEY_FIELD_NAME), Constants.KEY_FIELD_NAME));
-
-        for (String name : prefMan.getList(getRequest(), Constants.PREF_GROUP_DETAILS_VIEW)) {
-            if (!Constants.KEY_FIELD_NAME.equalsIgnoreCase(name)) {
-                addPropertyColumn(name, ReflectionUtils.findField(GroupTO.class, name), prefcolumns);
-            }
-        }
-
-        for (String name : prefMan.getList(getRequest(), Constants.PREF_GROUP_PLAIN_ATTRS_VIEW)) {
-            if (pSchemaNames.contains(name)) {
-                prefcolumns.add(new AttrColumn<GroupTO>(name, SchemaType.PLAIN));
-            }
-        }
-
-        for (String name : prefMan.getList(getRequest(), Constants.PREF_GROUP_DER_ATTRS_VIEW)) {
-            if (dSchemaNames.contains(name)) {
-                prefcolumns.add(new AttrColumn<GroupTO>(name, SchemaType.DERIVED));
-            }
-        }
-
-        // Add defaults in case of no selection
-        if (prefcolumns.isEmpty()) {
-            for (String name : GroupDisplayAttributesModalPanel.DEFAULT_SELECTION) {
-                addPropertyColumn(name, ReflectionUtils.findField(GroupTO.class, name), prefcolumns);
-            }
-
-            prefMan.setList(getRequest(), getResponse(), Constants.PREF_GROUP_DETAILS_VIEW,
-                    Arrays.asList(GroupDisplayAttributesModalPanel.DEFAULT_SELECTION));
-        }
-
-        columns.addAll(prefcolumns);
-        return columns;
     }
 
     @Override

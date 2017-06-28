@@ -22,6 +22,7 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -35,6 +36,7 @@ import org.apache.syncope.client.console.commons.status.ConnObjectWrapper;
 import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
+import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AttrColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.BooleanPropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.DatePropertyColumn;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
@@ -49,6 +51,7 @@ import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
+import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -57,6 +60,7 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColu
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.util.ListModel;
+import org.springframework.util.ReflectionUtils;
 
 public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRestClient<A, ?>>
         extends DirectoryPanel<A, AnyWrapper<A>, AnyDataProvider<A>, E> {
@@ -122,6 +126,57 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
 
         initResultTable();
     }
+
+    @Override
+    protected final List<IColumn<A, String>> getColumns() {
+        final List<IColumn<A, String>> columns = new ArrayList<>();
+        final List<IColumn<A, String>> prefcolumns = new ArrayList<>();
+
+        columns.add(new KeyPropertyColumn<A>(
+                new ResourceModel(Constants.KEY_FIELD_NAME, Constants.KEY_FIELD_NAME), Constants.KEY_FIELD_NAME));
+
+        for (String name : prefMan.getList(
+                getRequest(), DisplayAttributesModalPanel.getPrefDetailView(type))) {
+            if (!Constants.KEY_FIELD_NAME.equalsIgnoreCase(name)) {
+                addPropertyColumn(
+                        name,
+                        ReflectionUtils.findField(DisplayAttributesModalPanel.getTOClass(type), name),
+                        prefcolumns);
+            }
+        }
+
+        for (String name : prefMan.getList(
+                getRequest(), DisplayAttributesModalPanel.getPrefPlainAttributeView(type))) {
+            if (pSchemaNames.contains(name)) {
+                prefcolumns.add(new AttrColumn<A>(name, SchemaType.PLAIN));
+            }
+        }
+
+        for (String name : prefMan.getList(
+                getRequest(), DisplayAttributesModalPanel.getPrefDerivedAttributeView(type))) {
+            if (dSchemaNames.contains(name)) {
+                prefcolumns.add(new AttrColumn<A>(name, SchemaType.DERIVED));
+            }
+        }
+
+        // Add defaults in case of no selection
+        if (prefcolumns.isEmpty()) {
+            for (String name : getDefaultAttributeSelection()) {
+                addPropertyColumn(
+                        name,
+                        ReflectionUtils.findField(DisplayAttributesModalPanel.getTOClass(type), name),
+                        prefcolumns);
+            }
+
+            prefMan.setList(getRequest(), getResponse(), Constants.PREF_ANY_DETAILS_VIEW,
+                    Arrays.asList(getDefaultAttributeSelection()));
+        }
+
+        columns.addAll(prefcolumns);
+        return columns;
+    }
+
+    protected abstract String[] getDefaultAttributeSelection();
 
     protected void addPropertyColumn(
             final String name,

@@ -182,7 +182,6 @@ public class AnyPanel extends Panel implements ModalPanel {
                     break;
                 default:
             }
-            target.add(directoryPanel);
         } else {
             super.onEvent(event);
         }

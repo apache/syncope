@@ -360,7 +360,7 @@ public class Relationships extends WizardStep {
                         anyObjectDirectoryPanel = new AnyObjectSelectionDirectoryPanel.Builder(
                                 anyTypeClassRestClient.list(anyType.getClasses()),
                                 anyType.getKey(),
-                                pageRef).setFiltered(true).
+                                pageRef).
                                 setFiql(SyncopeClient.getAnyObjectSearchConditionBuilder(anyType.getKey()).
                                         is("key").notNullValue().query()).
                                 setWizardInModal(true).build("searchResultPanel");
@@ -378,7 +378,7 @@ public class Relationships extends WizardStep {
                         getTarget();
                 final String fiql = SearchUtils.buildFIQL(anyObjectSearchPanel.getModel().getObject(),
                         SyncopeClient.getAnyObjectSearchConditionBuilder(anyObjectSearchPanel.getBackObjectType()));
-                AnyDirectoryPanel.class.cast(anyObjectDirectoryPanel).search(fiql, target);
+                AnyDirectoryPanel.class.cast(Specification.this.anyObjectDirectoryPanel).search(fiql, target);
             } else if (event.getPayload() instanceof AnySelectionDirectoryPanel.ItemSelection) {
                 final AjaxRequestTarget target = AnySelectionDirectoryPanel.ItemSelection.class.cast(event.
                         getPayload()).getTarget();

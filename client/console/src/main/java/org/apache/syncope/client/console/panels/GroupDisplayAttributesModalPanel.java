@@ -20,9 +20,8 @@ package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
 import java.util.List;
-import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.PageReference;
 
 /**
@@ -42,26 +41,6 @@ public class GroupDisplayAttributesModalPanel<T extends Serializable> extends Di
             final PageReference pageRef,
             final List<String> schemaNames,
             final List<String> dSchemaNames) {
-        super(modal, pageRef, schemaNames, dSchemaNames);
-    }
-
-    @Override
-    protected String getPrefDetailView() {
-        return Constants.PREF_GROUP_DETAILS_VIEW;
-    }
-
-    @Override
-    protected String getPrefPlainAttributeView() {
-        return Constants.PREF_GROUP_PLAIN_ATTRS_VIEW;
-    }
-
-    @Override
-    protected String getPrefDerivedAttributeView() {
-        return Constants.PREF_GROUP_DER_ATTRS_VIEW;
-    }
-
-    @Override
-    protected Class<GroupTO> getTOClass() {
-        return GroupTO.class;
+        super(modal, pageRef, schemaNames, dSchemaNames, AnyTypeKind.GROUP.name());
     }
 }
