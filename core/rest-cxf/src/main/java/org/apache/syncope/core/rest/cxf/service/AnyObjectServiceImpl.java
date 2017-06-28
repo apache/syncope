@@ -18,12 +18,13 @@
  */
 package org.apache.syncope.core.rest.cxf.service;
 
-import javax.ws.rs.BadRequestException;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.search.SpecialAttr;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.PagedResult;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.AnyObjectService;
 import org.apache.syncope.core.logic.AbstractAnyLogic;
@@ -54,7 +55,9 @@ public class AnyObjectServiceImpl extends AbstractAnyService<AnyObjectTO, AnyObj
         if (StringUtils.isBlank(anyQuery.getFiql())
                 || -1 == anyQuery.getFiql().indexOf(SpecialAttr.TYPE.toString())) {
 
-            throw new BadRequestException(SpecialAttr.TYPE.toString() + " is required in the FIQL string");
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSearchExpression);
+            sce.getElements().add(SpecialAttr.TYPE.toString() + " is required in the FIQL string");
+            throw sce;
         }
 
         return super.search(anyQuery);
