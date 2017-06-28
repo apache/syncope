@@ -293,7 +293,9 @@ public final class AnyOperations {
         if (updated.getPassword() != null
                 && (original.getPassword() == null || !original.getPassword().equals(updated.getPassword()))) {
 
-            result.setPassword(new PasswordPatch.Builder().value(updated.getPassword()).build());
+            result.setPassword(new PasswordPatch.Builder()
+                    .value(updated.getPassword())
+                    .resources(updated.getResources()).build());
         }
 
         // 2. username
