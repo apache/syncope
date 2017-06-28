@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
@@ -33,8 +32,6 @@ import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.status.AnyStatusModal;
 import org.apache.syncope.client.console.status.ChangePasswordModal;
 import org.apache.syncope.client.console.tasks.AnyPropagationTasks;
-import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AttrColumn;
-import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
@@ -46,19 +43,16 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
-import org.springframework.util.ReflectionUtils;
 
 public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient> {
 
@@ -86,6 +80,11 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
     @Override
     protected String paginatorRowsKey() {
         return Constants.PREF_USERS_PAGINATOR_ROWS;
+    }
+
+    @Override
+    protected String[] getDefaultAttributeSelection() {
+        return UserDisplayAttributesModalPanel.DEFAULT_SELECTION;
     }
 
     @Override
@@ -124,46 +123,6 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
             }
         }, ActionType.CHANGE_VIEW, StandardEntitlement.USER_READ).hideLabel();
         return panel;
-    }
-
-    @Override
-    protected List<IColumn<UserTO, String>> getColumns() {
-        final List<IColumn<UserTO, String>> columns = new ArrayList<>();
-        final List<IColumn<UserTO, String>> prefcolumns = new ArrayList<>();
-
-        columns.add(new KeyPropertyColumn<UserTO>(
-                new ResourceModel(Constants.KEY_FIELD_NAME, Constants.KEY_FIELD_NAME), Constants.KEY_FIELD_NAME));
-
-        for (String name : prefMan.getList(getRequest(), Constants.PREF_USERS_DETAILS_VIEW)) {
-            if (!Constants.KEY_FIELD_NAME.equalsIgnoreCase(name)) {
-                addPropertyColumn(name, ReflectionUtils.findField(UserTO.class, name), prefcolumns);
-            }
-        }
-
-        for (String name : prefMan.getList(getRequest(), Constants.PREF_USERS_PLAIN_ATTRS_VIEW)) {
-            if (pSchemaNames.contains(name)) {
-                prefcolumns.add(new AttrColumn<UserTO>(name, SchemaType.PLAIN));
-            }
-        }
-
-        for (String name : prefMan.getList(getRequest(), Constants.PREF_USERS_DER_ATTRS_VIEW)) {
-            if (dSchemaNames.contains(name)) {
-                prefcolumns.add(new AttrColumn<UserTO>(name, SchemaType.DERIVED));
-            }
-        }
-
-        // Add defaults in case of no selection
-        if (prefcolumns.isEmpty()) {
-            for (String name : UserDisplayAttributesModalPanel.DEFAULT_SELECTION) {
-                addPropertyColumn(name, ReflectionUtils.findField(UserTO.class, name), prefcolumns);
-            }
-
-            prefMan.setList(getRequest(), getResponse(), Constants.PREF_USERS_DETAILS_VIEW,
-                    Arrays.asList(UserDisplayAttributesModalPanel.DEFAULT_SELECTION));
-        }
-
-        columns.addAll(prefcolumns);
-        return columns;
     }
 
     @Override

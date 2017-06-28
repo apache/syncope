@@ -42,7 +42,7 @@ public class ApprovalDetails extends MultilevelPanel.SecondLevel {
             newUserTO = formTO.getUserTO();
             previousUserTO = null;
         } else if (formTO.getUserTO() == null) {
-            // make it stronger by handling NPE in case of test users or missing approval info
+            // make it stronger by handling possible NPE
             previousUserTO = new UserTO();
             previousUserTO.setKey(formTO.getUserPatch().getKey());
             newUserTO = AnyOperations.patch(previousUserTO, formTO.getUserPatch());

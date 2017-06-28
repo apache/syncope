@@ -20,9 +20,7 @@ package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
 import java.util.List;
-import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.wicket.PageReference;
 
 /**
@@ -45,25 +43,5 @@ public class AnyObjectDisplayAttributesModalPanel<T extends Serializable> extend
             final String type) {
 
         super(modal, pageRef, schemaNames, dSchemaNames, type);
-    }
-
-    @Override
-    protected String getPrefDetailView() {
-        return String.format(Constants.PREF_ANY_OBJECT_DETAILS_VIEW, type);
-    }
-
-    @Override
-    protected String getPrefPlainAttributeView() {
-        return String.format(Constants.PREF_ANY_OBJECT_PLAIN_ATTRS_VIEW, type);
-    }
-
-    @Override
-    protected String getPrefDerivedAttributeView() {
-        return String.format(Constants.PREF_ANY_OBJECT_DER_ATTRS_VIEW, type);
-    }
-
-    @Override
-    protected Class<AnyObjectTO> getTOClass() {
-        return AnyObjectTO.class;
     }
 }

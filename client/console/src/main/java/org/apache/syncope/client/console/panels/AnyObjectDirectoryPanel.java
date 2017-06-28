@@ -19,8 +19,6 @@
 package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -31,8 +29,6 @@ import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.AnyObjectRestClient;
 import org.apache.syncope.client.console.status.AnyStatusModal;
 import org.apache.syncope.client.console.tasks.AnyPropagationTasks;
-import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AttrColumn;
-import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink.ActionType;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
@@ -45,18 +41,15 @@ import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.types.AnyEntitlement;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
-import org.springframework.util.ReflectionUtils;
 
 public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyObjectRestClient> {
 
@@ -69,6 +62,11 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
     @Override
     protected String paginatorRowsKey() {
         return Constants.PREF_ANYOBJECT_PAGINATOR_ROWS;
+    }
+
+    @Override
+    protected String[] getDefaultAttributeSelection() {
+        return AnyObjectDisplayAttributesModalPanel.DEFAULT_SELECTION;
     }
 
     @Override
@@ -94,51 +92,6 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
             }
         }, ActionType.CHANGE_VIEW, AnyEntitlement.READ.getFor(type)).hideLabel();
         return panel;
-    }
-
-    @Override
-    protected List<IColumn<AnyObjectTO, String>> getColumns() {
-        final List<IColumn<AnyObjectTO, String>> columns = new ArrayList<>();
-        final List<IColumn<AnyObjectTO, String>> prefcolumns = new ArrayList<>();
-
-        columns.add(new KeyPropertyColumn<AnyObjectTO>(
-                new ResourceModel(Constants.KEY_FIELD_NAME, Constants.KEY_FIELD_NAME), Constants.KEY_FIELD_NAME));
-
-        for (String name : prefMan.getList(
-                getRequest(), String.format(Constants.PREF_ANY_OBJECT_DETAILS_VIEW, type))) {
-            if (!Constants.KEY_FIELD_NAME.equalsIgnoreCase(name)) {
-                addPropertyColumn(name, ReflectionUtils.findField(AnyObjectTO.class, name), prefcolumns);
-            }
-        }
-
-        for (String name : prefMan.getList(
-                getRequest(), String.format(Constants.PREF_ANY_OBJECT_PLAIN_ATTRS_VIEW, type))) {
-
-            if (pSchemaNames.contains(name)) {
-                prefcolumns.add(new AttrColumn<AnyObjectTO>(name, SchemaType.PLAIN));
-            }
-        }
-
-        for (String name : prefMan.getList(
-                getRequest(), String.format(Constants.PREF_ANY_OBJECT_DER_ATTRS_VIEW, type))) {
-
-            if (dSchemaNames.contains(name)) {
-                prefcolumns.add(new AttrColumn<AnyObjectTO>(name, SchemaType.DERIVED));
-            }
-        }
-
-        // Add defaults in case of no selection
-        if (prefcolumns.isEmpty()) {
-            for (String name : AnyObjectDisplayAttributesModalPanel.DEFAULT_SELECTION) {
-                addPropertyColumn(name, ReflectionUtils.findField(AnyObjectTO.class, name), prefcolumns);
-            }
-
-            prefMan.setList(getRequest(), getResponse(), Constants.PREF_ANY_OBJECT_DETAILS_VIEW,
-                    Arrays.asList(AnyObjectDisplayAttributesModalPanel.DEFAULT_SELECTION));
-        }
-
-        columns.addAll(prefcolumns);
-        return columns;
     }
 
     @Override

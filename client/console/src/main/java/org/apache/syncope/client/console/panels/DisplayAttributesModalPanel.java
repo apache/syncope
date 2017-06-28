@@ -30,7 +30,11 @@ import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.common.lib.search.SearchableFields;
+import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -67,14 +71,6 @@ public abstract class DisplayAttributesModalPanel<T extends Serializable> extend
     public DisplayAttributesModalPanel(
             final BaseModal<T> modal,
             final PageReference pageRef,
-            final List<String> schemaNames,
-            final List<String> dSchemaNames) {
-        this(modal, pageRef, schemaNames, dSchemaNames, null);
-    }
-
-    public DisplayAttributesModalPanel(
-            final BaseModal<T> modal,
-            final PageReference pageRef,
             final List<String> pSchemaNames,
             final List<String> dSchemaNames,
             final String type) {
@@ -82,7 +78,7 @@ public abstract class DisplayAttributesModalPanel<T extends Serializable> extend
         super(modal, pageRef);
         this.type = type;
 
-        final List<String> detailslList = SearchableFields.get(getTOClass());
+        final List<String> detailslList = SearchableFields.get(DisplayAttributesModalPanel.getTOClass(type));
         Collections.sort(detailslList);
         Collections.sort(pSchemaNames);
         Collections.sort(dSchemaNames);
@@ -117,9 +113,12 @@ public abstract class DisplayAttributesModalPanel<T extends Serializable> extend
             }
         };
 
-        selectedDetails = prefMan.getList(getRequest(), getPrefDetailView());
-        selectedPlainSchemas = prefMan.getList(getRequest(), getPrefPlainAttributeView());
-        selectedDerSchemas = prefMan.getList(getRequest(), getPrefDerivedAttributeView());
+        selectedDetails
+                = prefMan.getList(getRequest(), DisplayAttributesModalPanel.getPrefDetailView(type));
+        selectedPlainSchemas
+                = prefMan.getList(getRequest(), DisplayAttributesModalPanel.getPrefPlainAttributeView(type));
+        selectedDerSchemas
+                = prefMan.getList(getRequest(), DisplayAttributesModalPanel.getPrefDerivedAttributeView(type));
 
         final WebMarkupContainer container = new WebMarkupContainer("container");
         container.setOutputMarkupId(true);
@@ -164,9 +163,9 @@ public abstract class DisplayAttributesModalPanel<T extends Serializable> extend
         } else {
             final Map<String, List<String>> prefs = new HashMap<>();
 
-            prefs.put(getPrefDetailView(), selectedDetails);
-            prefs.put(getPrefPlainAttributeView(), selectedPlainSchemas);
-            prefs.put(getPrefDerivedAttributeView(), selectedDerSchemas);
+            prefs.put(DisplayAttributesModalPanel.getPrefDetailView(type), selectedDetails);
+            prefs.put(DisplayAttributesModalPanel.getPrefPlainAttributeView(type), selectedPlainSchemas);
+            prefs.put(DisplayAttributesModalPanel.getPrefDerivedAttributeView(type), selectedDerSchemas);
             prefMan.setList(getRequest(), getResponse(), prefs);
 
             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
@@ -175,12 +174,25 @@ public abstract class DisplayAttributesModalPanel<T extends Serializable> extend
         }
     }
 
-    protected abstract String getPrefDetailView();
+    protected static final String getPrefDetailView(final String type) {
+        return String.format(Constants.PREF_ANY_DETAILS_VIEW, type);
+    }
 
-    protected abstract String getPrefPlainAttributeView();
+    protected static final String getPrefPlainAttributeView(final String type) {
+        return String.format(Constants.PREF_ANY_PLAIN_ATTRS_VIEW, type);
+    }
 
-    protected abstract String getPrefDerivedAttributeView();
+    protected static final String getPrefDerivedAttributeView(final String type) {
+        return String.format(Constants.PREF_ANY_DER_ATTRS_VIEW, type);
+    }
 
-    protected abstract Class<? extends AnyTO> getTOClass();
-
+    protected static final Class<? extends AnyTO> getTOClass(final String type) {
+        if (type.equalsIgnoreCase(AnyTypeKind.USER.name())) {
+            return UserTO.class;
+        } else if (type.equalsIgnoreCase(AnyTypeKind.USER.name())) {
+            return GroupTO.class;
+        } else {
+            return AnyObjectTO.class;
+        }
+    }
 }

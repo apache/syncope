@@ -20,9 +20,8 @@ package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
 import java.util.List;
-import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
-import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.PageReference;
 
 /**
@@ -42,27 +41,6 @@ public class UserDisplayAttributesModalPanel<T extends Serializable> extends Dis
             final PageReference pageRef,
             final List<String> schemaNames,
             final List<String> dSchemaNames) {
-        super(modal, pageRef, schemaNames, dSchemaNames);
+        super(modal, pageRef, schemaNames, dSchemaNames, AnyTypeKind.USER.name());
     }
-
-    @Override
-    protected String getPrefDetailView() {
-        return Constants.PREF_USERS_DETAILS_VIEW;
-    }
-
-    @Override
-    protected String getPrefPlainAttributeView() {
-        return Constants.PREF_USERS_PLAIN_ATTRS_VIEW;
-    }
-
-    @Override
-    protected String getPrefDerivedAttributeView() {
-        return Constants.PREF_USERS_DER_ATTRS_VIEW;
-    }
-
-    @Override
-    protected Class<UserTO> getTOClass() {
-        return UserTO.class;
-    }
-
 }

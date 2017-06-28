@@ -99,6 +99,74 @@ public class UsersITCase extends AbstractConsoleITCase {
     }
 
     @Test
+    public void editRelationships() {
+        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:1:link");
+
+        Component component = findComponentByProp("username", CONTAINER
+                + ":searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", "puccini");
+        assertNotNull(component);
+
+        TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
+        TESTER.clickLink(TAB_PANEL + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
+                + "actions:actions:actionRepeater:0:action:action");
+
+        TESTER.assertComponent(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form:view:username:textField",
+                TextField.class);
+
+        FormTester formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
+        assertNotNull(formTester);
+
+        formTester.submit("buttons:next");
+
+        formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
+        assertNotNull(formTester);
+        formTester.submit("buttons:next");
+
+        formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
+        assertNotNull(formTester);
+        formTester.submit("buttons:next");
+
+        formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
+        assertNotNull(formTester);
+        formTester.submit("buttons:next");
+
+        formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
+        assertNotNull(formTester);
+        formTester.submit("buttons:next");
+
+        formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
+        assertNotNull(formTester);
+        formTester.submit("buttons:next");
+
+        formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
+        assertNotNull(formTester);
+        formTester.submit("buttons:next");
+
+        TESTER.executeAjaxEvent(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form:view:relationships:actions:"
+                + "actionRepeater:0:action:action", Constants.ON_CLICK);
+
+        formTester = TESTER.newFormTester(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form");
+        assertNotNull(formTester);
+
+        formTester.setValue("view:relationships:specification:type:dropDownChoiceField", "1");
+        TESTER.executeAjaxEvent(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form:view:relationships:"
+                + "specification:type:dropDownChoiceField", Constants.ON_CHANGE);
+
+        formTester.setValue("view:relationships:specification:rightType:dropDownChoiceField", "PRINTER");
+        TESTER.executeAjaxEvent(TAB_PANEL + "outerObjectsRepeater:0:outer:form:content:form:view:relationships:"
+                + "specification:rightType:dropDownChoiceField", Constants.ON_CHANGE);
+
+        component = findComponentByProp("name", TAB_PANEL + "outerObjectsRepeater:"
+                + "0:outer:form:content:form:view:relationships:specification:searchPanelContainer:searchPanel:"
+                + "searchResultPanel:container:content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:"
+                + "dataTable:body:rows:1:cells:2:cell", "Canon MF 8030cn");
+        assertNotNull(component);
+
+        formTester.submit("buttons:cancel");
+    }
+
+    @Test
     public void editUser() {
         TESTER.clickLink("body:realmsLI:realms");
         TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:1:link");

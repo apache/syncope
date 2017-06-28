@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.panels.search;
 
 import java.util.List;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.panels.UserDisplayAttributesModalPanel;
 import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.console.wizards.any.AnyWrapper;
@@ -32,7 +33,7 @@ public final class UserSelectionDirectoryPanel extends AnySelectionDirectoryPane
     private static final long serialVersionUID = -1100228004207271272L;
 
     private UserSelectionDirectoryPanel(final String id, final Builder builder, final boolean wizardInModal) {
-        super(id, builder, UserTO.class, wizardInModal);
+        super(id, builder, wizardInModal);
     }
 
     @Override
@@ -41,18 +42,8 @@ public final class UserSelectionDirectoryPanel extends AnySelectionDirectoryPane
     }
 
     @Override
-    protected String getPrefDetailsView() {
-        return Constants.PREF_USERS_DETAILS_VIEW;
-    }
-
-    @Override
-    protected String getPrefPlainAttributesView() {
-        return Constants.PREF_USERS_PLAIN_ATTRS_VIEW;
-    }
-
-    @Override
-    protected String getPrefDerivedAttributesView() {
-        return Constants.PREF_USERS_DER_ATTRS_VIEW;
+    protected String[] getDefaultAttributeSelection() {
+        return UserDisplayAttributesModalPanel.DEFAULT_SELECTION;
     }
 
     public static final class Builder extends AnySelectionDirectoryPanel.Builder<UserTO, UserRestClient> {
@@ -61,8 +52,6 @@ public final class UserSelectionDirectoryPanel extends AnySelectionDirectoryPane
 
         public Builder(final List<AnyTypeClassTO> anyTypeClassTOs, final String type, final PageReference pageRef) {
             super(anyTypeClassTOs, new UserRestClient(), type, pageRef);
-            this.filtered = true;
-            this.checkBoxEnabled = false;
         }
 
         @Override

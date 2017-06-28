@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.panels.search;
 
 import java.util.List;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.panels.GroupDisplayAttributesModalPanel;
 import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.console.wizards.any.AnyWrapper;
@@ -32,7 +33,7 @@ public final class GroupSelectionDirectoryPanel extends AnySelectionDirectoryPan
     private static final long serialVersionUID = -1100228004207271271L;
 
     private GroupSelectionDirectoryPanel(final String id, final Builder builder, final boolean wizardInModal) {
-        super(id, builder, GroupTO.class, wizardInModal);
+        super(id, builder, wizardInModal);
     }
 
     @Override
@@ -41,18 +42,8 @@ public final class GroupSelectionDirectoryPanel extends AnySelectionDirectoryPan
     }
 
     @Override
-    public String getPrefDetailsView() {
-        return Constants.PREF_GROUP_DETAILS_VIEW;
-    }
-
-    @Override
-    public String getPrefPlainAttributesView() {
-        return Constants.PREF_GROUP_PLAIN_ATTRS_VIEW;
-    }
-
-    @Override
-    public String getPrefDerivedAttributesView() {
-        return Constants.PREF_GROUP_DER_ATTRS_VIEW;
+    protected String[] getDefaultAttributeSelection() {
+        return GroupDisplayAttributesModalPanel.DEFAULT_SELECTION;
     }
 
     public static final class Builder extends AnySelectionDirectoryPanel.Builder<GroupTO, GroupRestClient> {
@@ -61,8 +52,6 @@ public final class GroupSelectionDirectoryPanel extends AnySelectionDirectoryPan
 
         public Builder(final List<AnyTypeClassTO> anyTypeClassTOs, final String type, final PageReference pageRef) {
             super(anyTypeClassTOs, new GroupRestClient(), type, pageRef);
-            this.filtered = true;
-            this.checkBoxEnabled = false;
         }
 
         @Override

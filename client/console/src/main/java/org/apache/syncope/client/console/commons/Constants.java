@@ -73,12 +73,6 @@ public final class Constants {
 
     public static final String PARAM_PASSWORD_RESET_TOKEN = "pwdResetToken";
 
-    public static final String PREF_USERS_DETAILS_VIEW = "users.details.view";
-
-    public static final String PREF_USERS_PLAIN_ATTRS_VIEW = "users.plain.attrs.view";
-
-    public static final String PREF_USERS_DER_ATTRS_VIEW = "users.der.attrs.view";
-
     public static final String PREF_CONF_SCHEMA_PAGINATOR_ROWS = "conf.schema.paginator.rows";
 
     public static final String PREF_USER_PLAIN_SCHEMA_PAGINATOR_ROWS = "user.schema.paginator.rows";
@@ -94,12 +88,6 @@ public final class Constants {
     public static final String PREF_PARAMETERS_PAGINATOR_ROWS = "parameters.paginator.rows";
 
     public static final String PREF_RELATIONSHIPTYPE_PAGINATOR_ROWS = "relationshiptype.painator.rows";
-
-    public static final String PREF_GROUP_DETAILS_VIEW = "group.details.view";
-
-    public static final String PREF_GROUP_PLAIN_ATTRS_VIEW = "group.plain.attrs.view";
-
-    public static final String PREF_GROUP_DER_ATTRS_VIEW = "group.der.attrs.view";
 
     public static final String PREF_GROUP_PLAIN_SCHEMA_PAGINATOR_ROWS = "group.schema.paginator.rows";
 
@@ -169,11 +157,11 @@ public final class Constants {
 
     public static final String PAGEPARAM_CURRENT_PAGE = "_current_page";
 
-    public static final String PREF_ANY_OBJECT_DETAILS_VIEW = "anyobject.%s.details.view";
+    public static final String PREF_ANY_DETAILS_VIEW = "any.%s.details.view";
 
-    public static final String PREF_ANY_OBJECT_PLAIN_ATTRS_VIEW = "anyobject.%s.plain.attrs.view";
+    public static final String PREF_ANY_PLAIN_ATTRS_VIEW = "any.%s.plain.attrs.view";
 
-    public static final String PREF_ANY_OBJECT_DER_ATTRS_VIEW = "anyobject.%s.der.attrs.view";
+    public static final String PREF_ANY_DER_ATTRS_VIEW = "any.%s.der.attrs.view";
 
     public static final String CREATED_ICON = "glyphicon glyphicon-ok-circle";
 
