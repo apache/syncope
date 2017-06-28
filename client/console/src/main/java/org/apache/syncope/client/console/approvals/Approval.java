@@ -195,6 +195,9 @@ public abstract class Approval extends Panel {
         };
         MetaDataRoleAuthorizationStrategy.authorize(userDetails, ENABLE, StandardEntitlement.USER_READ);
 
+        final boolean enabled = formTO.getUserTO() != null;
+        userDetails.setVisible(enabled).setEnabled(enabled);
+
         add(propView);
         add(userDetails);
     }
