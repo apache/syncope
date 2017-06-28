@@ -192,6 +192,7 @@ Besides replacing existing classes as explained <<override-behavior,above>>, new
 * <<workflow-adapters,workflow adapters>>
 * <<provisioning-managers,provisioning managers>>
 * <<notifications,notification recipient providers>>
+* <<jwtssoprovider,JWT SSO providers>>
 
 [[new-rest-endpoints]]
 [TIP]

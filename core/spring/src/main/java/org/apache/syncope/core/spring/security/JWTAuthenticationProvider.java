@@ -19,11 +19,9 @@
 package org.apache.syncope.core.spring.security;
 
 import java.util.Date;
-import javax.annotation.Resource;
 import org.apache.cxf.rs.security.jose.jwt.JwtClaims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -34,9 +32,6 @@ import org.springframework.security.core.AuthenticationException;
  */
 public class JWTAuthenticationProvider implements AuthenticationProvider {
 
-    @Resource(name = "jwtIssuer")
-    private String jwtIssuer;
-
     @Autowired
     private AuthDataAccessor dataAccessor;
 
@@ -45,8 +40,7 @@ public class JWTAuthenticationProvider implements AuthenticationProvider {
         final JWTAuthentication jwtAuthentication = (JWTAuthentication) authentication;
 
         AuthContextUtils.execWithAuthContext(
-                jwtAuthentication.getDetails().getDomain(),
-                new AuthContextUtils.Executable<Void>() {
+                jwtAuthentication.getDetails().getDomain(), new AuthContextUtils.Executable<Void>() {
 
             @Override
             public Void exec() {
@@ -67,10 +61,6 @@ public class JWTAuthenticationProvider implements AuthenticationProvider {
         Long notBefore = claims.getNotBefore();
         if (notBefore == null || notBefore > referenceTime) {
             throw new CredentialsExpiredException("JWT not valid yet");
-        }
-
-        if (!jwtIssuer.equals(claims.getIssuer())) {
-            throw new BadCredentialsException("Invalid JWT issuer");
         }
 
         jwtAuthentication.setAuthenticated(true);

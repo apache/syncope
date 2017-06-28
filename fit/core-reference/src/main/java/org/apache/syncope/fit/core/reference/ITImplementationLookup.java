@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.fit.core.reference;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -61,6 +62,7 @@ import org.apache.syncope.core.provisioning.java.pushpull.DBPasswordPullActions;
 import org.apache.syncope.core.provisioning.java.pushpull.LDAPMembershipPullActions;
 import org.apache.syncope.core.provisioning.java.pushpull.LDAPPasswordPullActions;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.apache.syncope.core.spring.security.SyncopeJWTSSOProvider;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -220,6 +222,11 @@ public class ITImplementationLookup implements ImplementationLookup {
     @Override
     public Set<String> getClassNames(final Type type) {
         return CLASS_NAMES.get(type);
+    }
+
+    @Override
+    public Set<Class<?>> getJWTSSOProviderClasses() {
+        return Collections.<Class<?>>singleton(SyncopeJWTSSOProvider.class);
     }
 
     @Override

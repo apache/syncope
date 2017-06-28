@@ -50,6 +50,11 @@ public class DummyImplementationLookup implements ImplementationLookup {
     }
 
     @Override
+    public Set<Class<?>> getJWTSSOProviderClasses() {
+        return Collections.emptySet();
+    }
+
+    @Override
     public Class<Reportlet> getReportletClass(
             final Class<? extends ReportletConf> reportletConfClass) {
 

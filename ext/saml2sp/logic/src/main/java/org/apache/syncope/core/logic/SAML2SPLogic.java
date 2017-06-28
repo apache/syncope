@@ -31,11 +31,14 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
+import org.apache.cxf.rs.security.jose.jws.HmacJwsSignatureVerifier;
 import org.apache.cxf.rs.security.jose.jws.JwsJwtCompactConsumer;
+import org.apache.cxf.rs.security.jose.jws.JwsSignatureProvider;
 import org.apache.cxf.rs.security.jose.jws.JwsSignatureVerifier;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -114,13 +117,14 @@ import org.opensaml.saml.saml2.metadata.impl.SPSSODescriptorBuilder;
 import org.opensaml.saml.saml2.metadata.impl.SingleLogoutServiceBuilder;
 import org.opensaml.xmlsec.keyinfo.KeyInfoGenerator;
 import org.opensaml.xmlsec.keyinfo.impl.X509KeyInfoGeneratorFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
+public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> implements InitializingBean {
 
     private static final Integer JWT_RELAY_STATE_DURATION = 5;
 
@@ -135,9 +139,6 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
     private static final String JWT_CLAIM_SESSIONINDEX = "SESSIONINDEX";
 
     private static final RandomBasedGenerator UUID_GENERATOR = Generators.randomBasedGenerator();
-
-    @Autowired
-    private JwsSignatureVerifier jwsSignatureCerifier;
 
     @Autowired
     private AccessTokenDataBinder accessTokenDataBinder;
@@ -165,6 +166,19 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
 
     @Autowired
     private SAML2ReaderWriter saml2rw;
+
+    @Resource(name = "jwsKey")
+    private String jwsKey;
+
+    @Autowired
+    private JwsSignatureProvider jwsSignatureProvider;
+
+    private JwsSignatureVerifier jwsSignatureVerifier;
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        jwsSignatureVerifier = new HmacJwsSignatureVerifier(jwsKey.getBytes(), jwsSignatureProvider.getAlgorithm());
+    }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.ANONYMOUS + "')")
     public void getMetadata(final String spEntityID, final String urlContext, final OutputStream os) {
@@ -412,7 +426,7 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
 
         // 1. first checks for the provided relay state
         JwsJwtCompactConsumer relayState = new JwsJwtCompactConsumer(response.getRelayState());
-        if (!relayState.verifySignatureWith(jwsSignatureCerifier)) {
+        if (!relayState.verifySignatureWith(jwsSignatureVerifier)) {
             throw new IllegalArgumentException("Invalid signature found in Relay State");
         }
         Boolean useDeflateEncoding = Boolean.valueOf(
@@ -544,7 +558,7 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
 
         // 1. fetch the current JWT used for Syncope authentication
         JwsJwtCompactConsumer consumer = new JwsJwtCompactConsumer(accessToken);
-        if (!consumer.verifySignatureWith(jwsSignatureCerifier)) {
+        if (!consumer.verifySignatureWith(jwsSignatureVerifier)) {
             throw new IllegalArgumentException("Invalid signature found in Access Token");
         }
 
@@ -624,7 +638,7 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
 
         // 1. fetch the current JWT used for Syncope authentication
         JwsJwtCompactConsumer consumer = new JwsJwtCompactConsumer(accessToken);
-        if (!consumer.verifySignatureWith(jwsSignatureCerifier)) {
+        if (!consumer.verifySignatureWith(jwsSignatureVerifier)) {
             throw new IllegalArgumentException("Invalid signature found in Access Token");
         }
 
@@ -634,7 +648,7 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
         if (StringUtils.isNotBlank(response.getRelayState())) {
             // first checks for the provided relay state, if available
             relayState = new JwsJwtCompactConsumer(response.getRelayState());
-            if (!relayState.verifySignatureWith(jwsSignatureCerifier)) {
+            if (!relayState.verifySignatureWith(jwsSignatureVerifier)) {
                 throw new IllegalArgumentException("Invalid signature found in Relay State");
             }
             useDeflateEncoding = Boolean.valueOf(

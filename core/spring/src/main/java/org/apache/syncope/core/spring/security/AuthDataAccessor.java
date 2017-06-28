@@ -39,6 +39,7 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
@@ -64,10 +65,13 @@ import org.apache.syncope.core.provisioning.api.EntitlementsHolder;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
+import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.DisabledException;
@@ -82,7 +86,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @see UsernamePasswordAuthenticationProvider
  * @see SyncopeAuthenticationDetails
  */
-public class AuthDataAccessor {
+public class AuthDataAccessor implements InitializingBean {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AuthDataAccessor.class);
 
@@ -133,6 +137,30 @@ public class AuthDataAccessor {
 
     @Autowired
     protected MappingManager mappingManager;
+
+    @Autowired
+    protected ImplementationLookup implementationLookup;
+
+    protected Map<String, JWTSSOProvider> jwtSSOProviders = new HashMap<>();
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        for (Class<?> clazz : implementationLookup.getJWTSSOProviderClasses()) {
+            JWTSSOProvider jwtSSOProvider = (JWTSSOProvider) ApplicationContextProvider.getBeanFactory().
+                    createBean(clazz, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
+            jwtSSOProviders.put(jwtSSOProvider.getIssuer(), jwtSSOProvider);
+        }
+    }
+
+    public JWTSSOProvider getJWTSSOProvider(final String issuer) {
+        JWTSSOProvider provider = jwtSSOProviders.get(issuer);
+        if (provider == null) {
+            throw new AuthenticationCredentialsNotFoundException(
+                    "Could not find any registered JWTSSOProvider for issuer " + issuer);
+        }
+
+        return provider;
+    }
 
     @Transactional(readOnly = true)
     public Domain findDomain(final String key) {
@@ -368,12 +396,17 @@ public class AuthDataAccessor {
         if (adminUser.equals(accessToken.getOwner())) {
             authorities = getAdminAuthorities();
         } else {
-            User user = userDAO.findByUsername(accessToken.getOwner());
+            JWTSSOProvider jwtSSOProvider = getJWTSSOProvider(authentication.getClaims().getIssuer());
+            User user = jwtSSOProvider.resolve(accessToken.getOwner());
             if (user == null) {
                 throw new AuthenticationCredentialsNotFoundException(
                         "Could not find user " + accessToken.getOwner()
                         + " for JWT " + authentication.getClaims().getTokenId());
             }
+            LOG.debug("JWT {} issued by {} resolved to user {}",
+                    authentication.getClaims().getTokenId(),
+                    authentication.getClaims().getIssuer(),
+                    user.getUsername());
 
             if (BooleanUtils.isTrue(user.isSuspended())) {
                 throw new DisabledException("User " + user.getUsername() + " is suspended");
