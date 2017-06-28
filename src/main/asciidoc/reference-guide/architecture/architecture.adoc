@@ -39,7 +39,7 @@ More details are available in the dedicated <<admin-console,usage>> section.
 [[enduser-component]]
 === End-user UI
 
-The End-user UI is the web-based application for self-registration, self-service and password reset.
+The End-user UI is the web-based application for self-registration, self-service and <<password-reset,password reset>>.
 
 The communication between End-user UI and Core is exclusively REST-based.
 

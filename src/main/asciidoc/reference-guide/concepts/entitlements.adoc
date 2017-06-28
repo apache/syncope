@@ -30,7 +30,7 @@ ifeval::["{snapshotOrRelease}" == "snapshot"]
 https://github.com/apache/syncope/tree/2_0_X/core/logic/src/main/java/org/apache/syncope/core/logic/RealmLogic.java[RealmLogic^]
 endif::[]
 , the
-http://docs.spring.io/spring-security/site/docs/4.1.x/reference/htmlsingle/#el-common-built-in[`hasRole` expression^]
+http://docs.spring.io/spring-security/site/docs/4.2.x/reference/htmlsingle/#el-common-built-in[`hasRole` expression^]
 is used together with one of the standard entitlements to restrict access only to Users owning the `REALM_LIST`
 entitlement.
 
