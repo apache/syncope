@@ -22,15 +22,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This class provides some methods to check whether default credentials are being used, and
- * logs a warning if they are.
+ * Provides some methods to check whether default credentials are being used, and logs a warning if they are.
  */
 public class DefaultCredentialChecker {
+
     private static final Logger LOG = LoggerFactory.getLogger(DefaultCredentialChecker.class);
 
     private static final String DEFAULT_JWS_KEY = "ZW7pRixehFuNUtnY5Se47IemgMryTzazPPJ9CGX5LTCmsOJpOgHAQEuPQeV9A28f";
+
     private static final String DEFAULT_ADMIN_PASSWORD = "5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8";
+
     private final boolean defaultAdminPasswordInUse;
+
     private final boolean defaultJwsKeyInUse;
 
     public DefaultCredentialChecker(final String jwsKey, final String adminPassword) {
@@ -41,14 +44,14 @@ public class DefaultCredentialChecker {
     public void checkIsDefaultJWSKeyInUse() {
         if (defaultJwsKeyInUse) {
             LOG.warn("The default jwsKey property is being used. "
-                     + "This must be changed to avoid a security breach!");
+                    + "This must be changed to avoid a security breach!");
         }
     }
 
     public void checkIsDefaultAdminPasswordInUse() {
         if (defaultAdminPasswordInUse) {
             LOG.warn("The default adminPassword property is being used. "
-                     + "This must be changed to avoid a security breach!");
+                    + "This must be changed to avoid a security breach!");
         }
     }
 

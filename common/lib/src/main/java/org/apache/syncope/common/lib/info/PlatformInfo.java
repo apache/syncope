@@ -69,6 +69,8 @@ public class PlatformInfo extends AbstractBaseBean {
 
     private final Set<String> entitlements = new HashSet<>();
 
+    private final Set<String> jwtSSOProviders = new HashSet<>();
+
     private final Set<String> reportletConfs = new HashSet<>();
 
     private final Set<String> accountRules = new HashSet<>();
@@ -181,6 +183,13 @@ public class PlatformInfo extends AbstractBaseBean {
     @JsonProperty("entitlements")
     public Set<String> getEntitlements() {
         return entitlements;
+    }
+
+    @XmlElementWrapper(name = "jwtSSOProviders")
+    @XmlElement(name = "jwtSSOProvider")
+    @JsonProperty("jwtSSOProviders")
+    public Set<String> getJwtSSOProviders() {
+        return jwtSSOProviders;
     }
 
     @XmlElementWrapper(name = "reportletConfs")

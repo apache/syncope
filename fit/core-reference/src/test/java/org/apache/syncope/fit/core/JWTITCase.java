@@ -51,12 +51,12 @@ import org.apache.syncope.fit.AbstractITCase;
 import org.junit.Test;
 
 /**
- * Some tests for JWT Tokens
+ * Some tests for JWT Tokens.
  */
 public class JWTITCase extends AbstractITCase {
 
     @Test
-    public void testGetJWTToken() throws ParseException {
+    public void getJWTToken() throws ParseException {
         // Get the token
         SyncopeClient localClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
         AccessTokenService accessTokenService = localClient.getService(AccessTokenService.class);
@@ -92,7 +92,7 @@ public class JWTITCase extends AbstractITCase {
         assertTrue(new Date(issuedAt).before(now));
 
         // Validate subject + issuer
-        assertEquals("admin", consumer.getJwtClaims().getSubject());
+        assertEquals(ADMIN_UNAME, consumer.getJwtClaims().getSubject());
         assertEquals(JWT_ISSUER, consumer.getJwtClaims().getIssuer());
 
         // Verify NotBefore
@@ -102,7 +102,7 @@ public class JWTITCase extends AbstractITCase {
     }
 
     @Test
-    public void testQueryUsingToken() throws ParseException {
+    public void queryUsingToken() throws ParseException {
         // Get the token
         SyncopeClient localClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
         AccessTokenService accessTokenService = localClient.getService(AccessTokenService.class);
@@ -128,7 +128,7 @@ public class JWTITCase extends AbstractITCase {
     }
 
     @Test
-    public void testTokenValidation() throws ParseException {
+    public void tokenValidation() throws ParseException {
         // Get an initial token
         SyncopeClient localClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
         AccessTokenService accessTokenService = localClient.getService(AccessTokenService.class);
@@ -148,7 +148,7 @@ public class JWTITCase extends AbstractITCase {
 
         JwtClaims jwtClaims = new JwtClaims();
         jwtClaims.setTokenId(tokenId);
-        jwtClaims.setSubject("admin");
+        jwtClaims.setSubject(ADMIN_UNAME);
         jwtClaims.setIssuedAt(now.getTime());
         jwtClaims.setIssuer(JWT_ISSUER);
         jwtClaims.setExpiryTime(expiry.getTime().getTime());
@@ -168,7 +168,7 @@ public class JWTITCase extends AbstractITCase {
     }
 
     @Test
-    public void testInvalidIssuer() throws ParseException {
+    public void invalidIssuer() throws ParseException {
         // Get an initial token
         SyncopeClient localClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
         AccessTokenService accessTokenService = localClient.getService(AccessTokenService.class);
@@ -188,7 +188,7 @@ public class JWTITCase extends AbstractITCase {
 
         JwtClaims jwtClaims = new JwtClaims();
         jwtClaims.setTokenId(tokenId);
-        jwtClaims.setSubject("admin");
+        jwtClaims.setSubject(ADMIN_UNAME);
         jwtClaims.setIssuedAt(now.getTime());
         jwtClaims.setIssuer("UnknownIssuer");
         jwtClaims.setExpiryTime(expiry.getTime().getTime());
@@ -213,7 +213,7 @@ public class JWTITCase extends AbstractITCase {
     }
 
     @Test
-    public void testExpiredToken() throws ParseException {
+    public void expiredToken() throws ParseException {
         // Get an initial token
         SyncopeClient localClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
         AccessTokenService accessTokenService = localClient.getService(AccessTokenService.class);
@@ -233,7 +233,7 @@ public class JWTITCase extends AbstractITCase {
 
         JwtClaims jwtClaims = new JwtClaims();
         jwtClaims.setTokenId(tokenId);
-        jwtClaims.setSubject("admin");
+        jwtClaims.setSubject(ADMIN_UNAME);
         jwtClaims.setIssuedAt(now.getTime());
         jwtClaims.setIssuer(JWT_ISSUER);
         jwtClaims.setExpiryTime(now.getTime() - 5000L);
@@ -258,7 +258,7 @@ public class JWTITCase extends AbstractITCase {
     }
 
     @Test
-    public void testNotBefore() throws ParseException {
+    public void notBefore() throws ParseException {
         // Get an initial token
         SyncopeClient localClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
         AccessTokenService accessTokenService = localClient.getService(AccessTokenService.class);
@@ -278,7 +278,7 @@ public class JWTITCase extends AbstractITCase {
 
         JwtClaims jwtClaims = new JwtClaims();
         jwtClaims.setTokenId(tokenId);
-        jwtClaims.setSubject("admin");
+        jwtClaims.setSubject(ADMIN_UNAME);
         jwtClaims.setIssuedAt(now.getTime());
         jwtClaims.setIssuer(JWT_ISSUER);
         jwtClaims.setExpiryTime(expiry.getTime().getTime());
@@ -303,7 +303,7 @@ public class JWTITCase extends AbstractITCase {
     }
 
     @Test
-    public void testNoneSignature() throws ParseException {
+    public void noneSignature() throws ParseException {
         // Get an initial token
         SyncopeClient localClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
         AccessTokenService accessTokenService = localClient.getService(AccessTokenService.class);
@@ -341,7 +341,7 @@ public class JWTITCase extends AbstractITCase {
     }
 
     @Test
-    public void testUnknownId() throws ParseException {
+    public void unknownId() throws ParseException {
         // Get an initial token
         SyncopeClient localClient = clientFactory.create(ADMIN_UNAME, ADMIN_PWD);
         AccessTokenService accessTokenService = localClient.getService(AccessTokenService.class);
@@ -359,7 +359,7 @@ public class JWTITCase extends AbstractITCase {
 
         JwtClaims jwtClaims = new JwtClaims();
         jwtClaims.setTokenId(UUID.randomUUID().toString());
-        jwtClaims.setSubject("admin");
+        jwtClaims.setSubject(ADMIN_UNAME);
         jwtClaims.setIssuedAt(now.getTime());
         jwtClaims.setIssuer(JWT_ISSUER);
         jwtClaims.setExpiryTime(expiry.getTime().getTime());

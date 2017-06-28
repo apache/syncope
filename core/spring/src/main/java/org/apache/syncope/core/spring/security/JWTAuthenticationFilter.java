@@ -26,7 +26,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.HttpHeaders;
 
 import org.apache.cxf.rs.security.jose.jws.JwsJwtCompactConsumer;
-import org.apache.cxf.rs.security.jose.jws.JwsSignatureVerifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +53,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
     private SyncopeAuthenticationDetailsSource authenticationDetailsSource;
 
     @Autowired
-    private JwsSignatureVerifier jwsSignatureVerifier;
+    private AuthDataAccessor dataAccessor;
 
     @Autowired
     private DefaultCredentialChecker credentialChecker;
@@ -99,7 +98,8 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
         try {
             credentialChecker.checkIsDefaultJWSKeyInUse();
 
-            if (!consumer.verifySignatureWith(jwsSignatureVerifier)) {
+            JWTSSOProvider jwtSSOProvider = dataAccessor.getJWTSSOProvider(consumer.getJwtClaims().getIssuer());
+            if (!consumer.verifySignatureWith(jwtSSOProvider)) {
                 throw new BadCredentialsException("Invalid signature found in JWT");
             }
 

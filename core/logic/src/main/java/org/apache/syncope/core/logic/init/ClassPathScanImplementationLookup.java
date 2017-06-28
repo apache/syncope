@@ -51,6 +51,7 @@ import org.apache.syncope.core.provisioning.java.job.GroupMemberProvisionTaskJob
 import org.apache.syncope.core.provisioning.java.pushpull.PlainAttrsPullCorrelationRule;
 import org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate;
 import org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate;
+import org.apache.syncope.core.spring.security.JWTSSOProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -68,6 +69,8 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
     private static final String DEFAULT_BASE_PACKAGE = "org.apache.syncope.core";
 
     private Map<Type, Set<String>> classNames;
+
+    private Set<Class<?>> jwtSSOProviderClasses;
 
     private Map<Class<? extends ReportletConf>, Class<? extends Reportlet>> reportletClasses;
 
@@ -97,11 +100,13 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
             classNames.put(type, new HashSet<String>());
         }
 
+        jwtSSOProviderClasses = new HashSet<>();
         reportletClasses = new HashMap<>();
         accountRuleClasses = new HashMap<>();
         passwordRuleClasses = new HashMap<>();
 
         ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false);
+        scanner.addIncludeFilter(new AssignableTypeFilter(JWTSSOProvider.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(Reportlet.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(AccountRule.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(PasswordRule.class));
@@ -121,6 +126,11 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                 Class<?> clazz = ClassUtils.resolveClassName(
                         bd.getBeanClassName(), ClassUtils.getDefaultClassLoader());
                 boolean isAbstractClazz = Modifier.isAbstract(clazz.getModifiers());
+
+                if (JWTSSOProvider.class.isAssignableFrom(clazz) && !isAbstractClazz) {
+                    classNames.get(Type.JWT_SSO_PROVIDER).add(clazz.getName());
+                    jwtSSOProviderClasses.add(clazz);
+                }
 
                 if (Reportlet.class.isAssignableFrom(clazz) && !isAbstractClazz) {
                     ReportletConfClass annotation = clazz.getAnnotation(ReportletConfClass.class);
@@ -213,6 +223,11 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
     @Override
     public Set<String> getClassNames(final Type type) {
         return classNames.get(type);
+    }
+
+    @Override
+    public Set<Class<?>> getJWTSSOProviderClasses() {
+        return jwtSSOProviderClasses;
     }
 
     @Override

@@ -186,6 +186,7 @@ public class SyncopeLogic extends AbstractLogic<AbstractBaseBean> {
                 PLATFORM_INFO.setPasswordGenerator(AopUtils.getTargetClass(passwordGenerator).getName());
                 PLATFORM_INFO.setAnySearchDAO(AopUtils.getTargetClass(anySearchDAO).getName());
 
+                PLATFORM_INFO.getJwtSSOProviders().addAll(implLookup.getClassNames(Type.JWT_SSO_PROVIDER));
                 PLATFORM_INFO.getReportletConfs().addAll(implLookup.getClassNames(Type.REPORTLET_CONF));
                 PLATFORM_INFO.getAccountRules().addAll(implLookup.getClassNames(Type.ACCOUNT_RULE_CONF));
                 PLATFORM_INFO.getPasswordRules().addAll(implLookup.getClassNames(Type.PASSWORD_RULE_CONF));

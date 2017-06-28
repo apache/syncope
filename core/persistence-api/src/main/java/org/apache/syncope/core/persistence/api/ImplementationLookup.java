@@ -30,6 +30,7 @@ public interface ImplementationLookup extends SyncopeLoader {
 
     enum Type {
 
+        JWT_SSO_PROVIDER,
         REPORTLET_CONF,
         ACCOUNT_RULE_CONF,
         PASSWORD_RULE_CONF,
@@ -47,6 +48,8 @@ public interface ImplementationLookup extends SyncopeLoader {
     }
 
     Set<String> getClassNames(Type type);
+
+    Set<Class<?>> getJWTSSOProviderClasses();
 
     Class<? extends Reportlet> getReportletClass(Class<? extends ReportletConf> reportletConfClass);
 
