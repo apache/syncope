@@ -80,7 +80,7 @@ The set of RESTful services provided by Apache Syncope can be divided as:
 . endpoints accessible without any sort of authentication (e.g. truly anonymous), for self-registration and
 <<password-reset,password reset>>;
 . endpoints disclosing information about the given Syncope deployment (available <<schema,schema>>, configured
-<<extensions,extensions>>, Groups, Roles, ...), requiring some sort of shared authentication defined by the
+<<extensions,extensions>>, Groups, ...), requiring some sort of shared authentication defined by the
 `anonymousKey` value  in the `security.properties` file - for more information, read about Spring Security's
 http://docs.spring.io/spring-security/site/docs/4.2.x/reference/htmlsingle/#anonymous[Anonymous Authentication^];
 . endpoints for self-service (self-update, password change, ...), requiring user authentication and no entitlements;
