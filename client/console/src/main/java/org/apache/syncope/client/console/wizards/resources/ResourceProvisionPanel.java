@@ -42,6 +42,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPan
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.MappingItemTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
@@ -219,20 +220,26 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
         builder.includes("anyType", "objectClass", "auxClasses");
         builder.setReuseItem(false);
 
-        builder.
-                addAction(new ActionLink<ProvisionTO>() {
+        builder.addAction(new ActionLink<ProvisionTO>() {
 
-                    private static final long serialVersionUID = -3722207913631435504L;
+            private static final long serialVersionUID = -3722207913631435504L;
 
-                    @Override
-                    public void onClick(final AjaxRequestTarget target, final ProvisionTO provisionTO) {
-                        send(ResourceProvisionPanel.this, Broadcast.DEPTH,
-                                new AjaxWizard.NewItemActionEvent<>(provisionTO, 2, target).setResourceModel(
-                                        new StringResourceModel("inner.provision.mapping",
-                                                ResourceProvisionPanel.this,
-                                                Model.of(provisionTO))));
-                    }
-                }, ActionLink.ActionType.MAPPING, StandardEntitlement.RESOURCE_UPDATE).
+            @Override
+            public void onClick(final AjaxRequestTarget target, final ProvisionTO provisionTO) {
+                try {
+                    send(ResourceProvisionPanel.this, Broadcast.DEPTH,
+                            new AjaxWizard.NewItemActionEvent<>(provisionTO, 2, target).setResourceModel(
+                                    new StringResourceModel("inner.provision.mapping",
+                                            ResourceProvisionPanel.this,
+                                            Model.of(provisionTO))));
+                } catch (SyncopeClientException e) {
+                    LOG.error("While contacting resource", e);
+                    SyncopeConsoleSession.get().error(
+                            StringUtils.isBlank(e.getMessage()) ? e.getClass().getName() : e.getMessage());
+                    ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+                }
+            }
+        }, ActionLink.ActionType.MAPPING, StandardEntitlement.RESOURCE_UPDATE).
                 addAction(new ActionLink<ProvisionTO>() {
 
                     private static final long serialVersionUID = -7780999687733432439L;
