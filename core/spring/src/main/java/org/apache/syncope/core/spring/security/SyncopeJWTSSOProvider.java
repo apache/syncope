@@ -20,40 +20,27 @@ package org.apache.syncope.core.spring.security;
 
 import javax.annotation.Resource;
 import org.apache.cxf.rs.security.jose.jwa.SignatureAlgorithm;
-import org.apache.cxf.rs.security.jose.jws.HmacJwsSignatureVerifier;
 import org.apache.cxf.rs.security.jose.jws.JwsHeaders;
-import org.apache.cxf.rs.security.jose.jws.JwsSignatureProvider;
 import org.apache.cxf.rs.security.jose.jws.JwsSignatureVerifier;
 import org.apache.cxf.rs.security.jose.jws.JwsVerificationSignature;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Default implementation for internal JWT validation.
  */
-public class SyncopeJWTSSOProvider implements JWTSSOProvider, InitializingBean {
+public class SyncopeJWTSSOProvider implements JWTSSOProvider {
 
     @Resource(name = "jwtIssuer")
     private String jwtIssuer;
 
-    @Resource(name = "jwsKey")
-    private String jwsKey;
-
-    @Autowired
-    private JwsSignatureProvider signatureProvider;
+    @Resource(name = "syncopeJWTSSOProviderDelegate")
+    private JwsSignatureVerifier delegate;
 
     @Autowired
     private UserDAO userDAO;
-
-    private JwsSignatureVerifier delegate;
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        delegate = new HmacJwsSignatureVerifier(jwsKey.getBytes(), signatureProvider.getAlgorithm());
-    }
 
     @Override
     public String getIssuer() {

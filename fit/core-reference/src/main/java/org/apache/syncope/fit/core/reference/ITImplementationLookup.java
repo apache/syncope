@@ -77,6 +77,10 @@ public class ITImplementationLookup implements ImplementationLookup {
 
         {
             Set<String> classNames = new HashSet<>();
+            classNames.add(SyncopeJWTSSOProvider.class.getName());
+            put(Type.JWT_SSO_PROVIDER, classNames);
+
+            classNames = new HashSet<>();
             classNames.add(ReconciliationReportletConf.class.getName());
             classNames.add(UserReportletConf.class.getName());
             classNames.add(GroupReportletConf.class.getName());
