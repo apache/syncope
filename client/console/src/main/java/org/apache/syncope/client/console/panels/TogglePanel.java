@@ -139,6 +139,11 @@ public abstract class TogglePanel<T extends Serializable> extends WizardMgtPanel
                         selector + ".toggle(\"slow\");"
                         + selector + ".attr(\"class\", \"toggle-menu active-toggle-menu\");");
                 status = Status.ACTIVE;
+            } else if (status == Status.ACTIVE) {
+                // useful when handling action menu after refreshing (ref. SYNCOPE-1134)
+                target.appendJavaScript(
+                        selector + ".not(':visible')" + ".toggle(\"slow\")" + ".removeClass(\"inactive-toggle-menu\")"
+                        + ".addClass(\"active-toggle-menu\");");
             }
         } else if (status == Status.ACTIVE) {
             target.appendJavaScript(
