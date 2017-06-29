@@ -19,7 +19,9 @@
 package org.apache.syncope.client.console.wizards.any;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.ListUtils;
@@ -62,15 +64,19 @@ public class Groups extends WizardStep implements ICondition {
 
     private final List<DynRealmTO> allDynRealms = new DynRealmRestClient().list();
 
-    private List<GroupTO> allGroups;
+    private GroupsModel groupsModel;
 
     private final AnyTO anyTO;
 
+    private boolean templateMode;
+
     public <T extends AnyTO> Groups(final AnyWrapper<T> modelObject, final boolean templateMode) {
         super();
+        this.templateMode = templateMode;
 
         this.anyTO = modelObject.getInnerObject();
-        final String realm = templateMode ? "/" : this.anyTO.getRealm();
+
+        groupsModel = new GroupsModel();
 
         // -----------------------------------------------------------------
         // Pre-Authorizations
@@ -127,47 +133,17 @@ public class Groups extends WizardStep implements ICondition {
                         }
                     });
 
-            allGroups = groupRestClient.search(
-                    realm,
-                    SyncopeClient.getGroupSearchConditionBuilder().isAssignable().query(),
-                    1,
-                    MAX_GROUP_LIST_CARDINALITY,
-                    new SortParam<>("name", true),
-                    null);
-
-            // ---------------------------------
-            // Retrieve group memberships
-            // ---------------------------------
-            // this is to be sure to have group names (required to see membership details in approval page)
-            GroupFiqlSearchConditionBuilder searchConditionBuilder = SyncopeClient.getGroupSearchConditionBuilder();
-
-            List<CompleteCondition> conditions = new ArrayList<>();
-            for (MembershipTO membershipTO : GroupableRelatableTO.class.cast(anyTO).getMemberships()) {
-                conditions.add(searchConditionBuilder.is("key").equalTo(membershipTO.getGroupKey()).wrap());
-            }
-
-            List<GroupTO> groups = new ArrayList<>();
-            if (!conditions.isEmpty()) {
-                groups.addAll(groupRestClient.search(
-                        "/",
-                        searchConditionBuilder.or(conditions).query(),
-                        -1,
-                        -1,
-                        new SortParam<>("name", true),
-                        null));
-            }
-
-            // set group names in membership TOs
-            for (GroupTO group : groups) {
-                MembershipTO membership = GroupableRelatableTO.class.cast(anyTO).getMembership(group.getKey());
-                if (membership != null) {
-                    membership.setGroupName(group.getName());
-                }
-            }
-
             groupsContainer.add(builder.setAllowOrder(true).withFilter().build("groups",
-                    new ListModel<>(GroupableRelatableTO.class.cast(anyTO).getMemberships()),
-                    new AjaxPalettePanel.Builder.Query<MembershipTO>() {
+                    new ListModel<MembershipTO>() {
+
+                private static final long serialVersionUID = -2583290457773357445L;
+
+                @Override
+                public List<MembershipTO> getObject() {
+                    return Groups.this.groupsModel.getMemberships();
+                }
+
+            }, new AjaxPalettePanel.Builder.Query<MembershipTO>() {
 
                 private static final long serialVersionUID = -7223078772249308813L;
 
@@ -175,11 +151,11 @@ public class Groups extends WizardStep implements ICondition {
                 public List<MembershipTO> execute(final String filter) {
                     return CollectionUtils.collect(
                             StringUtils.isEmpty(filter) || "*".equals(filter)
-                            ? allGroups
+                            ? groupsModel.getObject()
                             : groupRestClient.search(
-                                    realm,
+                                    anyTO.getRealm(),
                                     SyncopeClient.getGroupSearchConditionBuilder().
-                                            isAssignable().and().is("name").equalTo(filter).query(),
+                                    isAssignable().and().is("name").equalTo(filter).query(),
                                     1, MAX_GROUP_LIST_CARDINALITY,
                                     new SortParam<>("name", true),
                                     null),
@@ -194,38 +170,19 @@ public class Groups extends WizardStep implements ICondition {
                     }, new ArrayList<MembershipTO>());
                 }
             }).hideLabel().setOutputMarkupId(true));
-            // ---------------------------------
-
-            // ---------------------------------
-            // Retrieve dyn group memberships
-            // ---------------------------------
-            searchConditionBuilder = SyncopeClient.getGroupSearchConditionBuilder();
-
-            conditions = new ArrayList<>();
-            for (String groupKey : GroupableRelatableTO.class.cast(anyTO).getDynGroups()) {
-                conditions.add(searchConditionBuilder.is("key").equalTo(groupKey).wrap());
-            }
-
-            groups = new ArrayList<>();
-            if (!conditions.isEmpty()) {
-                groups.addAll(groupRestClient.search(
-                        "/",
-                        searchConditionBuilder.or(conditions).query(),
-                        -1,
-                        -1,
-                        new SortParam<>("name", true),
-                        null));
-            }
 
             dyngroupsContainer.add(new AjaxPalettePanel.Builder<String>().setAllowOrder(true).build("dyngroups",
-                    new ListModel<>(CollectionUtils.collect(groups, new Transformer<GroupTO, String>() {
+                    new ListModel<String>() {
 
-                        @Override
-                        public String transform(final GroupTO input) {
-                            return input.getName();
-                        }
-                    }, new ArrayList<String>())),
-                    new ListModel<>(CollectionUtils.collect(allGroups, new Transformer<GroupTO, String>() {
+                private static final long serialVersionUID = -2583290457773357445L;
+
+                @Override
+                public List<String> getObject() {
+                    return Groups.this.groupsModel.getDynMemberships();
+                }
+
+            }, new ListModel<>(CollectionUtils.collect(groupsModel.getObject(),
+                            new Transformer<GroupTO, String>() {
 
                         @Override
                         public String transform(final GroupTO input) {
@@ -264,8 +221,143 @@ public class Groups extends WizardStep implements ICondition {
     public boolean evaluate() {
         return ((anyTO instanceof GroupTO)
                 ? CollectionUtils.isNotEmpty(allDynRealms)
-                : CollectionUtils.isNotEmpty(allDynRealms) || CollectionUtils.isNotEmpty(allGroups))
+                : CollectionUtils.isNotEmpty(allDynRealms) || CollectionUtils.isNotEmpty(groupsModel.getObject()))
                 && SyncopeConsoleApplication.get().getSecuritySettings().getAuthorizationStrategy().
-                        isActionAuthorized(this, RENDER);
+                isActionAuthorized(this, RENDER);
+    }
+
+    private class GroupsModel extends ListModel<GroupTO> {
+
+        private static final long serialVersionUID = -4541954630939063927L;
+
+        private List<GroupTO> groups;
+
+        private List<MembershipTO> memberships;
+
+        private List<String> dynMemberships;
+
+        private String realm;
+
+        @Override
+        public List<GroupTO> getObject() {
+            reload();
+            return groups;
+        }
+
+        /**
+         * Retrieve the first MAX_GROUP_LIST_CARDINALITY assignable.
+         */
+        private void reloadObject() {
+            groups = groupRestClient.search(
+                    realm,
+                    SyncopeClient.getGroupSearchConditionBuilder().isAssignable().query(),
+                    1,
+                    MAX_GROUP_LIST_CARDINALITY,
+                    new SortParam<>("name", true),
+                    null);
+        }
+
+        public List<MembershipTO> getMemberships() {
+            reload();
+            return memberships;
+        }
+
+        /**
+         * Retrieve group memberships.
+         */
+        private void reloadMemberships() {
+            // this is to be sure to have group names (required to see membership details in approval page)
+            GroupFiqlSearchConditionBuilder searchConditionBuilder = SyncopeClient.getGroupSearchConditionBuilder();
+
+            List<CompleteCondition> conditions = new ArrayList<>();
+            for (MembershipTO membershipTO : GroupableRelatableTO.class.cast(anyTO).getMemberships()) {
+                conditions.add(searchConditionBuilder.is("key").equalTo(membershipTO.getGroupKey()).wrap());
+            }
+
+            Map<String, GroupTO> assignedGroups = new HashMap<>();
+            if (!conditions.isEmpty()) {
+                for (GroupTO group : groupRestClient.search(
+                        realm,
+                        searchConditionBuilder.isAssignable().and().or(conditions).query(),
+                        -1,
+                        -1,
+                        new SortParam<>("name", true),
+                        null)) {
+                    assignedGroups.put(group.getKey(), group);
+                }
+            }
+
+            // set group names in membership TOs and remove membership not assignable
+            List<MembershipTO> toBeRemoved = new ArrayList<>();
+            for (MembershipTO membership : GroupableRelatableTO.class.cast(anyTO).getMemberships()) {
+                if (assignedGroups.containsKey(membership.getRightKey())) {
+                    membership.setGroupName(assignedGroups.get(membership.getRightKey()).getName());
+                } else {
+                    toBeRemoved.add(membership);
+                }
+            }
+            GroupableRelatableTO.class.cast(anyTO).getMemberships().removeAll(toBeRemoved);
+
+            memberships = GroupableRelatableTO.class.cast(anyTO).getMemberships();
+        }
+
+        public List<String> getDynMemberships() {
+            reload();
+            return dynMemberships;
+        }
+
+        /**
+         * Retrieve dyn group memberships.
+         */
+        private void reloadDynMemberships() {
+            GroupFiqlSearchConditionBuilder searchConditionBuilder = SyncopeClient.getGroupSearchConditionBuilder();
+
+            ArrayList<CompleteCondition> conditions = new ArrayList<>();
+            for (String groupKey : GroupableRelatableTO.class.cast(anyTO).getDynGroups()) {
+                conditions.add(searchConditionBuilder.is("key").equalTo(groupKey).wrap());
+            }
+
+            Map<String, GroupTO> assignedGroups = new HashMap<>();
+            if (!conditions.isEmpty()) {
+                for (GroupTO group : groupRestClient.search(
+                        "/",
+                        searchConditionBuilder.or(conditions).query(),
+                        -1,
+                        -1,
+                        new SortParam<>("name", true),
+                        null)) {
+                    assignedGroups.put(group.getKey(), group);
+                }
+            }
+
+            dynMemberships = CollectionUtils.collect(assignedGroups.values(), new Transformer<GroupTO, String>() {
+
+                @Override
+                public String transform(final GroupTO input) {
+                    return input.getName();
+                }
+            }, new ArrayList<String>());
+        }
+
+        /**
+         * Reload data if the realm changes (see SYNCOPE-1135).
+         */
+        private void reload() {
+            boolean reload;
+
+            if (Groups.this.templateMode) {
+                reload = realm == null;
+                realm = "/";
+            } else {
+                reload = !Groups.this.anyTO.getRealm().equalsIgnoreCase(realm);
+                realm = Groups.this.anyTO.getRealm();
+            }
+
+            if (reload) {
+                reloadObject();
+                reloadMemberships();
+                reloadDynMemberships();
+            }
+        }
     }
 }

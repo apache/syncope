@@ -254,4 +254,8 @@ public class Realms extends BasePage {
         });
         return content;
     }
+
+    public RealmChoicePanel getRealmChoicePanel() {
+        return realmChoicePanel;
+    }
 }
