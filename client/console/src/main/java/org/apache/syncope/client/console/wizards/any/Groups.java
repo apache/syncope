@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.wizards.any;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.ListUtils;
@@ -159,10 +158,10 @@ public class Groups extends WizardStep implements ICondition {
             }
 
             // set group names in membership TOs
-            Map<String, MembershipTO> membershipMap = GroupableRelatableTO.class.cast(anyTO).getMembershipMap();
             for (GroupTO group : groups) {
-                if (membershipMap.containsKey(group.getKey())) {
-                    membershipMap.get(group.getKey()).setGroupName(group.getName());
+                MembershipTO membership = GroupableRelatableTO.class.cast(anyTO).getMembership(group.getKey());
+                if (membership != null) {
+                    membership.setGroupName(group.getName());
                 }
             }
 
@@ -180,7 +179,7 @@ public class Groups extends WizardStep implements ICondition {
                             : groupRestClient.search(
                                     realm,
                                     SyncopeClient.getGroupSearchConditionBuilder().
-                                    isAssignable().and().is("name").equalTo(filter).query(),
+                                            isAssignable().and().is("name").equalTo(filter).query(),
                                     1, MAX_GROUP_LIST_CARDINALITY,
                                     new SortParam<>("name", true),
                                     null),
@@ -267,6 +266,6 @@ public class Groups extends WizardStep implements ICondition {
                 ? CollectionUtils.isNotEmpty(allDynRealms)
                 : CollectionUtils.isNotEmpty(allDynRealms) || CollectionUtils.isNotEmpty(allGroups))
                 && SyncopeConsoleApplication.get().getSecuritySettings().getAuthorizationStrategy().
-                isActionAuthorized(this, RENDER);
+                        isActionAuthorized(this, RENDER);
     }
 }

@@ -60,7 +60,6 @@ import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.lib.to.WorkflowFormPropertyTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
@@ -524,10 +523,7 @@ public class AuthenticationITCase extends AbstractITCase {
         // 3. approve user
         WorkflowFormTO form = userWorkflowService.getFormForUser(userTO.getKey());
         form = userWorkflowService.claimForm(form.getTaskId());
-        Map<String, WorkflowFormPropertyTO> props = form.getPropertyMap();
-        props.get("approve").setValue(Boolean.TRUE.toString());
-        form.getProperties().clear();
-        form.getProperties().addAll(props.values());
+        form.getProperty("approve").setValue(Boolean.TRUE.toString());
         userTO = userWorkflowService.submitForm(form);
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());

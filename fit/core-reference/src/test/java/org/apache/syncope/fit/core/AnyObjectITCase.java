@@ -92,7 +92,7 @@ public class AnyObjectITCase extends AbstractITCase {
         anyObjectTO.setRealm("/even/two");
 
         anyObjectTO = createAnyObject(anyObjectTO).getEntity();
-        assertTrue(anyObjectTO.getMembershipMap().containsKey("034740a9-fa10-453b-af37-dc7897e98fb1"));
+        assertNotNull(anyObjectTO.getMembership("034740a9-fa10-453b-af37-dc7897e98fb1"));
     }
 
     @Test

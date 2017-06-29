@@ -535,7 +535,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
             propertyTO.setId(prop.getPropertyId());
             propertyTO.setName(prop.getPropertyId());
             propertyTO.setValue(prop.getPropertyValue());
-            formTO.addProperty(propertyTO);
+            formTO.getProperties().add(propertyTO);
         }
 
         return formTO;
@@ -574,7 +574,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
                 propertyTO.getEnumValues().putAll((Map<String, String>) fProp.getType().getInformation("values"));
             }
 
-            formTO.addProperty(propertyTO);
+            formTO.getProperties().add(propertyTO);
         }
 
         return formTO;
@@ -712,6 +712,17 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         return getFormTO(task, checked.getValue());
     }
 
+    private Map<String, String> getPropertiesForSubmit(final WorkflowFormTO form) {
+        Map<String, String> props = new HashMap<>();
+        for (WorkflowFormPropertyTO prop : form.getProperties()) {
+            if (prop.isWritable()) {
+                props.put(prop.getId(), prop.getValue());
+            }
+        }
+
+        return Collections.unmodifiableMap(props);
+    }
+
     @Override
     public WorkflowResult<UserPatch> submitForm(final WorkflowFormTO form) {
         String authUser = AuthContextUtils.getUsername();
@@ -729,7 +740,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
         Set<String> preTasks = getPerformedTasks(user);
         try {
-            engine.getFormService().submitTaskFormData(form.getTaskId(), form.getPropertiesForSubmit());
+            engine.getFormService().submitTaskFormData(form.getTaskId(), getPropertiesForSubmit(form));
             engine.getRuntimeService().setVariable(user.getWorkflowId(), FORM_SUBMITTER, authUser);
         } catch (ActivitiException e) {
             throwException(e, "While submitting form for task " + form.getTaskId());

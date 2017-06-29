@@ -89,40 +89,8 @@ public final class AnyOperations {
         result.setGroup(updated.getGroupKey());
 
         // 1. plain attributes
-        Map<String, AttrTO> updatedAttrs = EntityTOUtils.buildAttrMap(updated.getPlainAttrs());
-        Map<String, AttrTO> originalAttrs = EntityTOUtils.buildAttrMap(original.getPlainAttrs());
-
         result.getPlainAttrs().clear();
-
-        if (!incremental) {
-            IterableUtils.forEach(CollectionUtils.subtract(originalAttrs.keySet(), updatedAttrs.keySet()),
-                    new Closure<String>() {
-
-                @Override
-                public void execute(final String schema) {
-                    result.getPlainAttrs().add(new AttrPatch.Builder().
-                            operation(PatchOperation.DELETE).
-                            attrTO(new AttrTO.Builder().schema(schema).build()).
-                            build());
-                }
-            });
-        }
-
-        for (AttrTO attrTO : updatedAttrs.values()) {
-            if (attrTO.getValues().isEmpty()) {
-                if (!incremental) {
-                    result.getPlainAttrs().add(new AttrPatch.Builder().
-                            operation(PatchOperation.DELETE).
-                            attrTO(new AttrTO.Builder().schema(attrTO.getSchema()).build()).
-                            build());
-                }
-            } else {
-                AttrPatch patch = new AttrPatch.Builder().operation(PatchOperation.ADD_REPLACE).attrTO(attrTO).build();
-                if (!patch.isEmpty()) {
-                    result.getPlainAttrs().add(patch);
-                }
-            }
-        }
+        result.getPlainAttrs().addAll(updated.getPlainAttrs());
 
         // 2. virtual attributes
         result.getVirAttrs().clear();
@@ -236,8 +204,10 @@ public final class AnyOperations {
         result.setName(replacePatchItem(updated.getName(), original.getName(), new StringReplacePatchItem()));
 
         // 2. relationships
-        Map<Pair<String, String>, RelationshipTO> updatedRels = updated.getRelationshipMap();
-        Map<Pair<String, String>, RelationshipTO> originalRels = original.getRelationshipMap();
+        Map<Pair<String, String>, RelationshipTO> updatedRels =
+                EntityTOUtils.buildRelationshipMap(updated.getRelationships());
+        Map<Pair<String, String>, RelationshipTO> originalRels =
+                EntityTOUtils.buildRelationshipMap(original.getRelationships());
 
         for (Map.Entry<Pair<String, String>, RelationshipTO> entry : updatedRels.entrySet()) {
             if (!originalRels.containsKey(entry.getKey())) {
@@ -256,8 +226,8 @@ public final class AnyOperations {
         }
 
         // 3. memberships
-        Map<String, MembershipTO> updatedMembs = updated.getMembershipMap();
-        Map<String, MembershipTO> originalMembs = original.getMembershipMap();
+        Map<String, MembershipTO> updatedMembs = EntityTOUtils.buildMembershipMap(updated.getMemberships());
+        Map<String, MembershipTO> originalMembs = EntityTOUtils.buildMembershipMap(original.getMemberships());
 
         for (Map.Entry<String, MembershipTO> entry : updatedMembs.entrySet()) {
             if (!originalMembs.containsKey(entry.getKey())) {
@@ -332,8 +302,10 @@ public final class AnyOperations {
         }
 
         // 5. relationships
-        Map<Pair<String, String>, RelationshipTO> updatedRels = updated.getRelationshipMap();
-        Map<Pair<String, String>, RelationshipTO> originalRels = original.getRelationshipMap();
+        Map<Pair<String, String>, RelationshipTO> updatedRels =
+                EntityTOUtils.buildRelationshipMap(updated.getRelationships());
+        Map<Pair<String, String>, RelationshipTO> originalRels =
+                EntityTOUtils.buildRelationshipMap(original.getRelationships());
 
         for (Map.Entry<Pair<String, String>, RelationshipTO> entry : updatedRels.entrySet()) {
             if (!originalRels.containsKey(entry.getKey())) {
@@ -352,8 +324,8 @@ public final class AnyOperations {
         }
 
         // 6. memberships
-        Map<String, MembershipTO> updatedMembs = updated.getMembershipMap();
-        Map<String, MembershipTO> originalMembs = original.getMembershipMap();
+        Map<String, MembershipTO> updatedMembs = EntityTOUtils.buildMembershipMap(updated.getMemberships());
+        Map<String, MembershipTO> originalMembs = EntityTOUtils.buildMembershipMap(original.getMemberships());
 
         for (Map.Entry<String, MembershipTO> entry : updatedMembs.entrySet()) {
             MembershipPatch membershipPatch = new MembershipPatch.Builder().
@@ -365,8 +337,7 @@ public final class AnyOperations {
                 omemb = originalMembs.get(entry.getKey());
             } else {
                 // create an empty one to generate the patch
-                omemb = new MembershipTO();
-                omemb.setGroupKey(entry.getKey());
+                omemb = new MembershipTO.Builder().group(entry.getKey()).build();
             }
 
             diff(entry.getValue(), omemb, membershipPatch, incremental);
@@ -553,19 +524,12 @@ public final class AnyOperations {
                 }
 
                 if (membPatch.getOperation() == PatchOperation.ADD_REPLACE) {
-                    MembershipTO newMembershipTO = new MembershipTO();
-                    newMembershipTO.setGroupKey(membPatch.getGroup());
+                    MembershipTO newMembershipTO = new MembershipTO.Builder().group(membPatch.getGroup()).build();
 
-                    if (memb == null) {
-                        for (AttrPatch attrPatch : membPatch.getPlainAttrs()) {
-                            newMembershipTO.getPlainAttrs().add(attrPatch.getAttrTO());
-                        }
-                    } else {
-                        newMembershipTO.getPlainAttrs().addAll(
-                                patch(EntityTOUtils.buildAttrMap(memb.getPlainAttrs()), membPatch.getPlainAttrs()));
-                    }
+                    // 3. plain attributes
+                    newMembershipTO.getPlainAttrs().addAll(membPatch.getPlainAttrs());
 
-                    // 3. virtual attributes
+                    // 4. virtual attributes
                     newMembershipTO.getVirAttrs().addAll(membPatch.getVirAttrs());
 
                     result.getMemberships().add(newMembershipTO);
@@ -619,19 +583,12 @@ public final class AnyOperations {
                 }
 
                 if (membPatch.getOperation() == PatchOperation.ADD_REPLACE) {
-                    MembershipTO newMembershipTO = new MembershipTO();
-                    newMembershipTO.setGroupKey(membPatch.getGroup());
+                    MembershipTO newMembershipTO = new MembershipTO.Builder().group(membPatch.getGroup()).build();
 
-                    if (memb == null) {
-                        for (AttrPatch attrPatch : membPatch.getPlainAttrs()) {
-                            newMembershipTO.getPlainAttrs().add(attrPatch.getAttrTO());
-                        }
-                    } else {
-                        newMembershipTO.getPlainAttrs().addAll(
-                                patch(EntityTOUtils.buildAttrMap(memb.getPlainAttrs()), membPatch.getPlainAttrs()));
-                    }
+                    // 3. plain attributes
+                    newMembershipTO.getPlainAttrs().addAll(membPatch.getPlainAttrs());
 
-                    // 3. virtual attributes
+                    // 4. virtual attributes
                     newMembershipTO.getVirAttrs().addAll(membPatch.getVirAttrs());
 
                     result.getMemberships().add(newMembershipTO);

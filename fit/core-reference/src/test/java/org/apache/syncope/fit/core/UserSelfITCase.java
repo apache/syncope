@@ -46,7 +46,6 @@ import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.lib.to.WorkflowFormPropertyTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -127,10 +126,7 @@ public class UserSelfITCase extends AbstractITCase {
         // now approve and verify that propagation has happened
         WorkflowFormTO form = userWorkflowService.getFormForUser(userTO.getKey());
         form = userWorkflowService.claimForm(form.getTaskId());
-        Map<String, WorkflowFormPropertyTO> props = form.getPropertyMap();
-        props.get("approve").setValue(Boolean.TRUE.toString());
-        form.getProperties().clear();
-        form.getProperties().addAll(props.values());
+        form.getProperty("approve").setValue(Boolean.TRUE.toString());
         userTO = userWorkflowService.submitForm(form);
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
@@ -228,10 +224,7 @@ public class UserSelfITCase extends AbstractITCase {
         // 3. approve self-update as admin
         WorkflowFormTO form = userWorkflowService.getFormForUser(updated.getKey());
         form = userWorkflowService.claimForm(form.getTaskId());
-        Map<String, WorkflowFormPropertyTO> props = form.getPropertyMap();
-        props.get("approve").setValue(Boolean.TRUE.toString());
-        form.getProperties().clear();
-        form.getProperties().addAll(props.values());
+        form.getProperty("approve").setValue(Boolean.TRUE.toString());
         updated = userWorkflowService.submitForm(form);
         assertNotNull(updated);
         assertEquals("active", updated.getStatus());

@@ -626,7 +626,7 @@ public class MappingManagerImpl implements MappingManager {
                     if (groupableTO == null || group == null) {
                         anyTO.getPlainAttrs().add(attrTO);
                     } else {
-                        MembershipTO membership = groupableTO.getMembershipMap().get(group.getKey());
+                        MembershipTO membership = groupableTO.getMembership(group.getKey());
                         if (membership == null) {
                             membership = new MembershipTO.Builder().group(group.getKey(), group.getName()).build();
                             groupableTO.getMemberships().add(membership);
@@ -641,7 +641,7 @@ public class MappingManagerImpl implements MappingManager {
                     if (groupableTO == null || group == null) {
                         anyTO.getDerAttrs().add(attrTO);
                     } else {
-                        MembershipTO membership = groupableTO.getMembershipMap().get(group.getKey());
+                        MembershipTO membership = groupableTO.getMembership(group.getKey());
                         if (membership == null) {
                             membership = new MembershipTO.Builder().group(group.getKey(), group.getName()).build();
                             groupableTO.getMemberships().add(membership);
@@ -666,7 +666,7 @@ public class MappingManagerImpl implements MappingManager {
                     if (groupableTO == null || group == null) {
                         anyTO.getVirAttrs().add(attrTO);
                     } else {
-                        MembershipTO membership = groupableTO.getMembershipMap().get(group.getKey());
+                        MembershipTO membership = groupableTO.getMembership(group.getKey());
                         if (membership == null) {
                             membership = new MembershipTO.Builder().group(group.getKey(), group.getName()).build();
                             groupableTO.getMemberships().add(membership);

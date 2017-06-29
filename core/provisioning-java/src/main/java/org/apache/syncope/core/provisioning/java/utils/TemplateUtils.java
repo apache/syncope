@@ -18,17 +18,16 @@
  */
 package org.apache.syncope.core.provisioning.java.utils;
 
-import java.util.List;
 import java.util.Map;
 import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.GroupableRelatableTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -108,22 +107,18 @@ public class TemplateUtils {
         anyTO.getAuxClasses().addAll(template.getAuxClasses());
     }
 
-    private void fillRelationships(final Map<Pair<String, String>, RelationshipTO> anyRelMap,
-            final List<RelationshipTO> anyRels, final List<RelationshipTO> templateRels) {
-
-        for (RelationshipTO memb : templateRels) {
-            if (!anyRelMap.containsKey(Pair.of(memb.getRightType(), memb.getRightKey()))) {
-                anyRels.add(memb);
+    private void fillRelationships(final GroupableRelatableTO any, final GroupableRelatableTO template) {
+        for (RelationshipTO relationship : template.getRelationships()) {
+            if (any.getRelationship(relationship.getRightKey(), relationship.getRightKey()) == null) {
+                any.getRelationships().add(relationship);
             }
         }
     }
 
-    private void fillMemberships(final Map<String, MembershipTO> anyMembMap,
-            final List<MembershipTO> anyMembs, final List<MembershipTO> templateMembs) {
-
-        for (MembershipTO memb : templateMembs) {
-            if (!anyMembMap.containsKey(memb.getRightKey())) {
-                anyMembs.add(memb);
+    private void fillMemberships(final GroupableRelatableTO any, final GroupableRelatableTO template) {
+        for (MembershipTO membership : template.getMemberships()) {
+            if (any.getMembership(membership.getGroupKey()) == null) {
+                any.getMemberships().add(membership);
             }
         }
     }
@@ -135,10 +130,8 @@ public class TemplateUtils {
             fill(anyTO, template);
 
             if (template instanceof AnyObjectTO) {
-                fillRelationships(((AnyObjectTO) anyTO).getRelationshipMap(),
-                        ((AnyObjectTO) anyTO).getRelationships(), ((AnyObjectTO) template).getRelationships());
-                fillMemberships(((AnyObjectTO) anyTO).getMembershipMap(),
-                        ((AnyObjectTO) anyTO).getMemberships(), ((AnyObjectTO) template).getMemberships());
+                fillRelationships((GroupableRelatableTO) anyTO, ((GroupableRelatableTO) template));
+                fillMemberships((GroupableRelatableTO) anyTO, ((GroupableRelatableTO) template));
             } else if (template instanceof UserTO) {
                 if (StringUtils.isNotBlank(((UserTO) template).getUsername())) {
                     String evaluated = JexlUtils.evaluate(((UserTO) template).getUsername(), anyTO, new MapContext());
@@ -154,10 +147,8 @@ public class TemplateUtils {
                     }
                 }
 
-                fillRelationships(((UserTO) anyTO).getRelationshipMap(),
-                        ((UserTO) anyTO).getRelationships(), ((UserTO) template).getRelationships());
-                fillMemberships(((UserTO) anyTO).getMembershipMap(),
-                        ((UserTO) anyTO).getMemberships(), ((UserTO) template).getMemberships());
+                fillRelationships((GroupableRelatableTO) anyTO, ((GroupableRelatableTO) template));
+                fillMemberships((GroupableRelatableTO) anyTO, ((GroupableRelatableTO) template));
             } else if (template instanceof GroupTO) {
                 if (StringUtils.isNotBlank(((GroupTO) template).getName())) {
                     String evaluated = JexlUtils.evaluate(((GroupTO) template).getName(), anyTO, new MapContext());

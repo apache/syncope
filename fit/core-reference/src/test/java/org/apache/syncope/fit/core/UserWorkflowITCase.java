@@ -29,7 +29,6 @@ import static org.junit.Assert.fail;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import javax.sql.DataSource;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.lib.SyncopeClient;
@@ -41,7 +40,6 @@ import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.lib.to.WorkflowFormPropertyTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PatchOperation;
@@ -120,11 +118,8 @@ public class UserWorkflowITCase extends AbstractITCase {
         assertNotNull(form.getOwner());
 
         // 5. reject user
-        Map<String, WorkflowFormPropertyTO> props = form.getPropertyMap();
-        props.get("approve").setValue(Boolean.FALSE.toString());
-        props.get("rejectReason").setValue("I don't like him.");
-        form.getProperties().clear();
-        form.getProperties().addAll(props.values());
+        form.getProperty("approve").setValue(Boolean.FALSE.toString());
+        form.getProperty("rejectReason").setValue("I don't like him.");
         userTO = userService3.submitForm(form);
         assertNotNull(userTO);
         assertEquals("rejected", userTO.getStatus());
@@ -196,10 +191,7 @@ public class UserWorkflowITCase extends AbstractITCase {
         assertNotNull(form.getOwner());
 
         // 5. approve user (and verify that propagation occurred)
-        Map<String, WorkflowFormPropertyTO> props = form.getPropertyMap();
-        props.get("approve").setValue(Boolean.TRUE.toString());
-        form.getProperties().clear();
-        form.getProperties().addAll(props.values());
+        form.getProperty("approve").setValue(Boolean.TRUE.toString());
         userTO = userWorkflowService.submitForm(form);
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
@@ -300,10 +292,7 @@ public class UserWorkflowITCase extends AbstractITCase {
         assertNotNull(form);
 
         // 5. approve user
-        Map<String, WorkflowFormPropertyTO> props = form.getPropertyMap();
-        props.get("approve").setValue(Boolean.TRUE.toString());
-        form.getProperties().clear();
-        form.getProperties().addAll(props.values());
+        form.getProperty("approve").setValue(Boolean.TRUE.toString());
 
         // 6. submit approve
         userTO = userWorkflowService.submitForm(form);

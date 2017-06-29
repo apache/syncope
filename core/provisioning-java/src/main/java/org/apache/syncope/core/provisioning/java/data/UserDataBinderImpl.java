@@ -40,6 +40,7 @@ import org.apache.syncope.common.lib.patch.PasswordPatch;
 import org.apache.syncope.common.lib.patch.RelationshipPatch;
 import org.apache.syncope.common.lib.patch.StringPatchItem;
 import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -476,30 +477,27 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
                         user.add(membership);
 
-                        for (AttrPatch patch : membPatch.getPlainAttrs()) {
-                            if (patch.getAttrTO() != null) {
-                                PlainSchema schema = getPlainSchema(patch.getAttrTO().getSchema());
-                                if (schema == null) {
-                                    LOG.debug("Invalid " + PlainSchema.class.getSimpleName()
-                                            + "{}, ignoring...", patch.getAttrTO().getSchema());
-                                } else {
-                                    UPlainAttr attr = user.getPlainAttr(schema.getKey(), membership);
-                                    if (attr == null) {
-                                        LOG.debug("No plain attribute found for {} and membership of {}",
-                                                schema, membership.getRightEnd());
+                        for (AttrTO attrTO : membPatch.getPlainAttrs()) {
+                            PlainSchema schema = getPlainSchema(attrTO.getSchema());
+                            if (schema == null) {
+                                LOG.debug("Invalid " + PlainSchema.class.getSimpleName()
+                                        + "{}, ignoring...", attrTO.getSchema());
+                            } else {
+                                UPlainAttr attr = user.getPlainAttr(schema.getKey(), membership);
+                                if (attr == null) {
+                                    LOG.debug("No plain attribute found for {} and membership of {}",
+                                            schema, membership.getRightEnd());
 
-                                        if (patch.getOperation() == PatchOperation.ADD_REPLACE) {
-                                            attr = anyUtils.newPlainAttr();
-                                            attr.setOwner(user);
-                                            attr.setMembership(membership);
-                                            attr.setSchema(schema);
-                                            user.add(attr);
+                                    attr = anyUtils.newPlainAttr();
+                                    attr.setOwner(user);
+                                    attr.setMembership(membership);
+                                    attr.setSchema(schema);
+                                    user.add(attr);
 
-                                            processAttrPatch(
-                                                    user, patch, schema, attr, anyUtils,
-                                                    resources, propByRes, invalidValues);
-                                        }
-                                    }
+                                    AttrPatch patch = new AttrPatch.Builder().attrTO(attrTO).build();
+                                    processAttrPatch(
+                                            user, patch, schema, attr, anyUtils,
+                                            resources, propByRes, invalidValues);
                                 }
                             }
                         }
