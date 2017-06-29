@@ -19,9 +19,10 @@
 package org.apache.syncope.client.console.wizards.any;
 
 import java.util.ArrayList;
+import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
-import org.apache.syncope.client.console.rest.RealmRestClient;
+import org.apache.syncope.client.console.pages.Realms;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
@@ -29,6 +30,7 @@ import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.wizard.WizardStep;
+import org.apache.wicket.markup.html.link.AbstractLink;
 import org.apache.wicket.model.PropertyModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,11 +60,20 @@ public class Details<T extends AnyTO> extends WizardStep {
                     "destinationRealm", "destinationRealm", new PropertyModel<String>(inner, "realm"), false);
             AjaxTextFieldPanel.class.cast(realm).enableJexlHelp();
         } else {
+            final List<AbstractLink> realmLinks = Realms.class.cast(pageRef.getPage()).getRealmChoicePanel().getLinks();
+            final List<RealmTO> realms = new ArrayList<>();
+            for (AbstractLink link : realmLinks) {
+                Object obj = link.getDefaultModelObject();
+                if (obj instanceof RealmTO) {
+                    realms.add((RealmTO) obj);
+                }
+            }
+
             realm = new AjaxDropDownChoicePanel<>(
                     "destinationRealm", "destinationRealm", new PropertyModel<String>(inner, "realm"), false);
 
             ((AjaxDropDownChoicePanel<String>) realm).setChoices(CollectionUtils.collect(
-                    new RealmRestClient().list(),
+                    realms,
                     new Transformer<RealmTO, String>() {
 
                 @Override

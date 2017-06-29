@@ -76,6 +76,8 @@ public class RealmChoicePanel extends Panel {
 
     private final Map<String, Pair<RealmTO, List<RealmTO>>> tree;
 
+    private final List<AbstractLink> links = new ArrayList<>();
+
     public RealmChoicePanel(final String id, final PageReference pageRef) {
         super(id);
         this.pageRef = pageRef;
@@ -172,11 +174,11 @@ public class RealmChoicePanel extends Panel {
 
             @Override
             protected List<AbstractLink> newSubMenuButtons(final String buttonMarkupId) {
-                List<AbstractLink> links = new ArrayList<>();
+                RealmChoicePanel.this.links.clear();
 
-                links.add(new BootstrapAjaxLink<String>(
+                RealmChoicePanel.this.links.add(new BootstrapAjaxLink<RealmTO>(
                         ButtonList.getButtonMarkupId(),
-                        new Model<String>(),
+                        new Model<RealmTO>(),
                         Buttons.Type.Link,
                         new ResourceModel("realms", "Realms")) {
 
@@ -201,9 +203,9 @@ public class RealmChoicePanel extends Panel {
 
                 for (Pair<String, RealmTO> link : realmTree.getObject()) {
                     final RealmTO realmTO = link.getValue();
-                    links.add(new BootstrapAjaxLink<String>(
+                    RealmChoicePanel.this.links.add(new BootstrapAjaxLink<RealmTO>(
                             ButtonList.getButtonMarkupId(),
-                            new Model<String>(),
+                            Model.of(realmTO),
                             Buttons.Type.Link,
                             new Model<>(link.getKey())) {
 
@@ -232,9 +234,9 @@ public class RealmChoicePanel extends Panel {
                 }
 
                 if (!dynRealmTree.getObject().isEmpty()) {
-                    links.add(new BootstrapAjaxLink<String>(
+                    RealmChoicePanel.this.links.add(new BootstrapAjaxLink<RealmTO>(
                             ButtonList.getButtonMarkupId(),
-                            new Model<String>(),
+                            new Model<RealmTO>(),
                             Buttons.Type.Link,
                             new ResourceModel("dynrealms", "Dynamic Realms")) {
 
@@ -263,9 +265,9 @@ public class RealmChoicePanel extends Panel {
                         realmTO.setName(dynRealmTO.getKey());
                         realmTO.setFullPath(dynRealmTO.getKey());
 
-                        links.add(new BootstrapAjaxLink<String>(
+                        RealmChoicePanel.this.links.add(new BootstrapAjaxLink<RealmTO>(
                                 ButtonList.getButtonMarkupId(),
-                                new Model<String>(),
+                                new Model<RealmTO>(),
                                 Buttons.Type.Link,
                                 new Model<>(realmTO.getKey())) {
 
@@ -295,7 +297,7 @@ public class RealmChoicePanel extends Panel {
                     }
                 }
 
-                return links;
+                return RealmChoicePanel.this.links;
             }
         };
         realms.setOutputMarkupId(true);
@@ -403,5 +405,9 @@ public class RealmChoicePanel extends Panel {
         public AjaxRequestTarget getTarget() {
             return target;
         }
+    }
+
+    public List<AbstractLink> getLinks() {
+        return links;
     }
 }
