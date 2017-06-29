@@ -59,6 +59,7 @@ under the License.
   <bean id="credentialChecker" class="org.apache.syncope.core.spring.security.DefaultCredentialChecker">
       <constructor-arg value="${jwsKey}" index="0"/>
       <constructor-arg value="${adminPassword}" index="1"/>
+      <constructor-arg value="${anonymousKey}" index="2"/>
   </bean>
   
 </beans>

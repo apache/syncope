@@ -98,6 +98,7 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
 
         if (anonymousUser.equals(authentication.getName())) {
             username[0] = anonymousUser;
+            credentialChecker.checkIsDefaultAnonymousKeyInUse();
             authenticated = authentication.getCredentials().toString().equals(anonymousKey);
         } else if (adminUser.equals(authentication.getName())) {
             username[0] = adminUser;

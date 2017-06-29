@@ -32,13 +32,18 @@ public class DefaultCredentialChecker {
 
     private static final String DEFAULT_ADMIN_PASSWORD = "5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8";
 
+    private static final String DEFAULT_ANON_KEY = "anonymousKey";
+
     private final boolean defaultAdminPasswordInUse;
 
     private final boolean defaultJwsKeyInUse;
 
-    public DefaultCredentialChecker(final String jwsKey, final String adminPassword) {
+    private final boolean defaultAnonymousKeyInUse;
+
+    public DefaultCredentialChecker(final String jwsKey, final String adminPassword, final String anonymousKey) {
         defaultJwsKeyInUse = DEFAULT_JWS_KEY.equals(jwsKey);
         defaultAdminPasswordInUse = DEFAULT_ADMIN_PASSWORD.equals(adminPassword);
+        defaultAnonymousKeyInUse = DEFAULT_ANON_KEY.equals(anonymousKey);
     }
 
     public void checkIsDefaultJWSKeyInUse() {
@@ -51,6 +56,13 @@ public class DefaultCredentialChecker {
     public void checkIsDefaultAdminPasswordInUse() {
         if (defaultAdminPasswordInUse) {
             LOG.warn("The default adminPassword property is being used. "
+                    + "This must be changed to avoid a security breach!");
+        }
+    }
+
+    public void checkIsDefaultAnonymousKeyInUse() {
+        if (defaultAnonymousKeyInUse) {
+            LOG.warn("The default anonymousKey property is being used. "
                     + "This must be changed to avoid a security breach!");
         }
     }
