@@ -39,7 +39,6 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.time.DateFormatUtils;
-import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.lib.SyncopeClient;
@@ -90,8 +89,6 @@ import org.junit.Test;
 
 public class UserITCase extends AbstractITCase {
 
-    private static final FastDateFormat DATE_FORMAT = DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT;
-
     private boolean getBooleanAttribute(final ConnObjectTO connObjectTO, final String attrName) {
         return Boolean.parseBoolean(connObjectTO.getAttr(attrName).getValues().get(0));
     }
@@ -112,8 +109,9 @@ public class UserITCase extends AbstractITCase {
         userTO.getPlainAttrs().add(attrTO("ctype", "a type"));
         userTO.getPlainAttrs().add(attrTO("userId", email));
         userTO.getPlainAttrs().add(attrTO("email", email));
-        userTO.getPlainAttrs().add(attrTO("loginDate", DATE_FORMAT.format(new Date())));
-        userTO.getDerAttrs().add(attrTO("cn", null));
+        userTO.getPlainAttrs().add(
+                attrTO("loginDate", DateFormatUtils.ISO_8601_EXTENDED_DATETIME_FORMAT.format(new Date())));
+
         return userTO;
     }
 
@@ -445,18 +443,6 @@ public class UserITCase extends AbstractITCase {
     @Test
     public void list() {
         PagedResult<UserTO> users = userService.search(
-                new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).build());
-        assertNotNull(users);
-        assertFalse(users.getResult().isEmpty());
-
-        for (UserTO user : users.getResult()) {
-            assertNotNull(user);
-        }
-    }
-
-    @Test
-    public void paginatedList() {
-        PagedResult<UserTO> users = userService.search(
                 new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).page(1).size(2).build());
         assertNotNull(users);
         assertFalse(users.getResult().isEmpty());
@@ -486,13 +472,6 @@ public class UserITCase extends AbstractITCase {
         assertNull(userTO.getPassword());
         assertNotNull(userTO.getPlainAttrs());
         assertFalse(userTO.getPlainAttrs().isEmpty());
-    }
-
-    @Test
-    public void readWithMailAddressAsUserName() {
-        UserTO userTO = createUser(getUniqueSampleTO("mail@domain.org")).getEntity();
-        userTO = userService.read(userTO.getKey());
-        assertNotNull(userTO);
     }
 
     @Test
@@ -999,10 +978,6 @@ public class UserITCase extends AbstractITCase {
     public void mappingPurpose() {
         UserTO userTO = getUniqueSampleTO("mpurpose@apache.org");
         userTO.getAuxClasses().add("csv");
-
-        AttrTO csvuserid = new AttrTO();
-        csvuserid.setSchema("csvuserid");
-        userTO.getDerAttrs().add(csvuserid);
 
         userTO.getResources().clear();
         userTO.getResources().add(RESOURCE_NAME_CSV);

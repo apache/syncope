@@ -22,18 +22,16 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 
 @XmlRootElement(name = "user")
@@ -197,6 +195,18 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
         this.mustChangePassword = mustChangePassword;
     }
 
+    @JsonIgnore
+    @Override
+    public RelationshipTO getRelationship(final String type, final String rightKey) {
+        return IterableUtils.find(relationships, new Predicate<RelationshipTO>() {
+
+            @Override
+            public boolean evaluate(final RelationshipTO object) {
+                return type.equals(object.getType()) && rightKey.equals(object.getRightKey());
+            }
+        });
+    }
+
     @XmlElementWrapper(name = "relationships")
     @XmlElement(name = "relationship")
     @JsonProperty("relationships")
@@ -207,12 +217,14 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
 
     @JsonIgnore
     @Override
-    public Map<Pair<String, String>, RelationshipTO> getRelationshipMap() {
-        Map<Pair<String, String>, RelationshipTO> result = new HashMap<>(getRelationships().size());
-        for (RelationshipTO relationship : getRelationships()) {
-            result.put(Pair.of(relationship.getType(), relationship.getRightKey()), relationship);
-        }
-        return Collections.unmodifiableMap(result);
+    public MembershipTO getMembership(final String groupKey) {
+        return IterableUtils.find(memberships, new Predicate<MembershipTO>() {
+
+            @Override
+            public boolean evaluate(final MembershipTO object) {
+                return groupKey.equals(object.getGroupKey());
+            }
+        });
     }
 
     @XmlElementWrapper(name = "memberships")
@@ -221,18 +233,6 @@ public class UserTO extends AnyTO implements GroupableRelatableTO {
     @Override
     public List<MembershipTO> getMemberships() {
         return memberships;
-    }
-
-    @JsonIgnore
-    @Override
-    public Map<String, MembershipTO> getMembershipMap() {
-        Map<String, MembershipTO> result = new HashMap<>(getMemberships().size());
-        for (MembershipTO membership : getMemberships()) {
-            result.put(membership.getRightKey(), membership);
-        }
-        result = Collections.unmodifiableMap(result);
-
-        return result;
     }
 
     @XmlElementWrapper(name = "dynGroups")

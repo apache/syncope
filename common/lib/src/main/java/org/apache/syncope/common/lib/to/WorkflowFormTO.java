@@ -21,15 +21,14 @@ package org.apache.syncope.common.lib.to;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.patch.UserPatch;
 
@@ -135,42 +134,21 @@ public class WorkflowFormTO extends AbstractBaseBean {
         this.userPatch = userPatch;
     }
 
+    @JsonIgnore
+    public WorkflowFormPropertyTO getProperty(final String id) {
+        return IterableUtils.find(properties, new Predicate<WorkflowFormPropertyTO>() {
+
+            @Override
+            public boolean evaluate(final WorkflowFormPropertyTO object) {
+                return id.equals(object.getId());
+            }
+        });
+    }
+
     @XmlElementWrapper(name = "workflowFormProperties")
     @XmlElement(name = "workflowFormProperty")
     @JsonProperty("workflowFormProperties")
     public List<WorkflowFormPropertyTO> getProperties() {
         return properties;
-    }
-
-    public boolean addProperty(final WorkflowFormPropertyTO property) {
-        return properties.contains(property)
-                ? true
-                : properties.add(property);
-    }
-
-    public boolean removeProperty(final WorkflowFormPropertyTO property) {
-        return properties.remove(property);
-    }
-
-    @JsonIgnore
-    public Map<String, WorkflowFormPropertyTO> getPropertyMap() {
-        Map<String, WorkflowFormPropertyTO> result = new HashMap<>();
-        for (WorkflowFormPropertyTO prop : getProperties()) {
-            result.put(prop.getId(), prop);
-        }
-
-        return Collections.unmodifiableMap(result);
-    }
-
-    @JsonIgnore
-    public Map<String, String> getPropertiesForSubmit() {
-        Map<String, String> props = new HashMap<>();
-        for (WorkflowFormPropertyTO prop : getProperties()) {
-            if (prop.isWritable()) {
-                props.put(prop.getId(), prop.getValue());
-            }
-        }
-
-        return Collections.unmodifiableMap(props);
     }
 }

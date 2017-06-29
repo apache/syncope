@@ -196,14 +196,13 @@ public class UserSelfUpdateResource extends BaseUserSelfResource {
     private void completeUserObject(final UserTO userTO, final UserTO selfTO) {
         // memberships plain and virtual attrs
         for (final MembershipTO updatedTOMemb : userTO.getMemberships()) {
-            MembershipTO oldTOMatchedMemb =
-                    IterableUtils.find(selfTO.getMemberships(), new Predicate<MembershipTO>() {
+            MembershipTO oldTOMatchedMemb = IterableUtils.find(selfTO.getMemberships(), new Predicate<MembershipTO>() {
 
-                        @Override
-                        public boolean evaluate(final MembershipTO oldTOMemb) {
-                            return updatedTOMemb.getGroupKey().equals(oldTOMemb.getGroupKey());
-                        }
-                    });
+                @Override
+                public boolean evaluate(final MembershipTO oldTOMemb) {
+                    return updatedTOMemb.getGroupKey().equals(oldTOMemb.getGroupKey());
+                }
+            });
             if (oldTOMatchedMemb != null) {
                 if (!updatedTOMemb.getPlainAttrs().isEmpty()) {
                     completeAttrs(updatedTOMemb.getPlainAttrs(), oldTOMatchedMemb.getPlainAttrs());

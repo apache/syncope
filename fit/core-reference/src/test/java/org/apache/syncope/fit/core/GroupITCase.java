@@ -187,8 +187,8 @@ public class GroupITCase extends AbstractITCase {
         UserTO userTO = userService.read("1417acbe-cbf6-4277-9372-e75e04f97000");
         assertNotNull(userTO);
 
-        assertTrue(userTO.getMembershipMap().containsKey("37d15e4c-cdc1-460b-a591-8505c8133806"));
-        assertFalse(userTO.getMembershipMap().containsKey("29f96485-729e-4d31-88a1-6fc60e4677f3"));
+        assertNotNull(userTO.getMembership("37d15e4c-cdc1-460b-a591-8505c8133806"));
+        assertNull(userTO.getMembership("29f96485-729e-4d31-88a1-6fc60e4677f3"));
 
         GroupService groupService2 = clientFactory.create("rossini", ADMIN_PWD).getService(GroupService.class);
 

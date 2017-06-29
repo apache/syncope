@@ -29,7 +29,7 @@ import org.apache.syncope.common.lib.to.AttrTO;
 
 @XmlRootElement(name = "membershipPatch")
 @XmlType
-public class MembershipPatch extends AbstractPatch implements AttributablePatch {
+public class MembershipPatch extends AbstractPatch {
 
     private static final long serialVersionUID = -6783121761221554433L;
 
@@ -48,7 +48,7 @@ public class MembershipPatch extends AbstractPatch implements AttributablePatch 
 
     private String group;
 
-    private final Set<AttrPatch> plainAttrs = new HashSet<>();
+    private final Set<AttrTO> plainAttrs = new HashSet<>();
 
     private final Set<AttrTO> virAttrs = new HashSet<>();
 
@@ -63,15 +63,13 @@ public class MembershipPatch extends AbstractPatch implements AttributablePatch 
     @XmlElementWrapper(name = "plainAttrs")
     @XmlElement(name = "attribute")
     @JsonProperty("plainAttrs")
-    @Override
-    public Set<AttrPatch> getPlainAttrs() {
+    public Set<AttrTO> getPlainAttrs() {
         return plainAttrs;
     }
 
     @XmlElementWrapper(name = "virAttrs")
     @XmlElement(name = "attribute")
     @JsonProperty("virAttrs")
-    @Override
     public Set<AttrTO> getVirAttrs() {
         return virAttrs;
     }

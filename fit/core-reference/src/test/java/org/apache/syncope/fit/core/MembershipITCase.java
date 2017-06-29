@@ -113,7 +113,7 @@ public class MembershipITCase extends AbstractITCase {
 
             // 2. verify that 'aLong' is correctly populated for user's membership
             assertEquals(1, user.getMemberships().size());
-            membership = user.getMembershipMap().get("034740a9-fa10-453b-af37-dc7897e98fb1");
+            membership = user.getMembership("034740a9-fa10-453b-af37-dc7897e98fb1");
             assertNotNull(membership);
             assertEquals(1, membership.getPlainAttr("aLong").getValues().size());
             assertEquals("1977", membership.getPlainAttr("aLong").getValues().get(0));
@@ -130,10 +130,10 @@ public class MembershipITCase extends AbstractITCase {
                     attrTO(new AttrTO.Builder().schema("aLong").value("1977").build()).build());
 
             MembershipPatch membershipPatch = new MembershipPatch.Builder().group(membership.getGroupKey()).build();
-            membershipPatch.getPlainAttrs().add(new AttrPatch.Builder().
-                    attrTO(new AttrTO.Builder().schema("aLong").value("1976").build()).build());
-            membershipPatch.getPlainAttrs().add(new AttrPatch.Builder().
-                    attrTO(new AttrTO.Builder().schema("ctype").value("membership type").build()).build());
+            membershipPatch.getPlainAttrs().add(
+                    new AttrTO.Builder().schema("aLong").value("1976").build());
+            membershipPatch.getPlainAttrs().add(
+                    new AttrTO.Builder().schema("ctype").value("membership type").build());
             userPatch.getMemberships().add(membershipPatch);
 
             user = updateUser(userPatch).getEntity();
@@ -145,7 +145,7 @@ public class MembershipITCase extends AbstractITCase {
 
             // 5. verify that 'aLong' is correctly populated for user's membership
             assertEquals(1, user.getMemberships().size());
-            membership = user.getMembershipMap().get("034740a9-fa10-453b-af37-dc7897e98fb1");
+            membership = user.getMembership("034740a9-fa10-453b-af37-dc7897e98fb1");
             assertNotNull(membership);
             assertEquals(1, membership.getPlainAttr("aLong").getValues().size());
             assertEquals("1976", membership.getPlainAttr("aLong").getValues().get(0));
@@ -211,7 +211,7 @@ public class MembershipITCase extends AbstractITCase {
 
         // verify that 'aLong' is correctly populated for user's membership
         assertEquals(1, user.getMemberships().size());
-        membership = user.getMembershipMap().get(groupTO.getKey());
+        membership = user.getMembership(groupTO.getKey());
         assertNotNull(membership);
         assertEquals(1, membership.getPlainAttr("aLong").getValues().size());
         assertEquals("1454", membership.getPlainAttr("aLong").getValues().get(0));

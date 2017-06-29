@@ -19,11 +19,15 @@
 package org.apache.syncope.common.lib;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.collections4.Transformer;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.EntityTO;
+import org.apache.syncope.common.lib.to.MembershipTO;
+import org.apache.syncope.common.lib.to.RelationshipTO;
 
 public final class EntityTOUtils {
 
@@ -43,7 +47,27 @@ public final class EntityTOUtils {
             result.put(attributeTO.getSchema(), attributeTO);
         }
 
-        return result;
+        return Collections.unmodifiableMap(result);
+    }
+
+    public static Map<Pair<String, String>, RelationshipTO> buildRelationshipMap(
+            final Collection<RelationshipTO> relationships) {
+
+        Map<Pair<String, String>, RelationshipTO> result = new HashMap<>(relationships.size());
+        for (RelationshipTO relationship : relationships) {
+            result.put(Pair.of(relationship.getType(), relationship.getRightKey()), relationship);
+        }
+
+        return Collections.unmodifiableMap(result);
+    }
+
+    public static Map<String, MembershipTO> buildMembershipMap(final Collection<MembershipTO> memberships) {
+        Map<String, MembershipTO> result = new HashMap<>(memberships.size());
+        for (MembershipTO membership : memberships) {
+            result.put(membership.getRightKey(), membership);
+        }
+
+        return Collections.unmodifiableMap(result);
     }
 
     /**
