@@ -54,6 +54,12 @@ under the License.
     <constructor-arg value="${adminPassword}" index="1"/>
   </bean>
 
+  <bean id="syncopeJWTSSOProviderDelegate" class="org.apache.cxf.rs.security.jose.jws.HmacJwsSignatureVerifier">
+    <constructor-arg value="#{jwsKey.getBytes()}" index="0"/>
+    <constructor-arg index="1">
+      <value type="org.apache.cxf.rs.security.jose.jwa.SignatureAlgorithm">HS512</value>
+    </constructor-arg>
+  </bean>
   <bean id="jwsSignatureProvider" class="org.apache.cxf.rs.security.jose.jws.HmacJwsSignatureProvider">
     <constructor-arg value="#{jwsKey.getBytes()}" index="0"/>
     <constructor-arg index="1">

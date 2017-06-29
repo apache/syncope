@@ -69,7 +69,6 @@ import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
@@ -86,7 +85,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @see UsernamePasswordAuthenticationProvider
  * @see SyncopeAuthenticationDetails
  */
-public class AuthDataAccessor implements InitializingBean {
+public class AuthDataAccessor {
 
     protected static final Logger LOG = LoggerFactory.getLogger(AuthDataAccessor.class);
 
@@ -141,18 +140,21 @@ public class AuthDataAccessor implements InitializingBean {
     @Autowired
     protected ImplementationLookup implementationLookup;
 
-    protected Map<String, JWTSSOProvider> jwtSSOProviders = new HashMap<>();
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        for (Class<?> clazz : implementationLookup.getJWTSSOProviderClasses()) {
-            JWTSSOProvider jwtSSOProvider = (JWTSSOProvider) ApplicationContextProvider.getBeanFactory().
-                    createBean(clazz, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
-            jwtSSOProviders.put(jwtSSOProvider.getIssuer(), jwtSSOProvider);
-        }
-    }
+    private Map<String, JWTSSOProvider> jwtSSOProviders;
 
     public JWTSSOProvider getJWTSSOProvider(final String issuer) {
+        synchronized (this) {
+            if (jwtSSOProviders == null) {
+                jwtSSOProviders = new HashMap<>();
+
+                for (Class<?> clazz : implementationLookup.getJWTSSOProviderClasses()) {
+                    JWTSSOProvider jwtSSOProvider = (JWTSSOProvider) ApplicationContextProvider.getBeanFactory().
+                            createBean(clazz, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
+                    jwtSSOProviders.put(jwtSSOProvider.getIssuer(), jwtSSOProvider);
+                }
+            }
+        }
+
         JWTSSOProvider provider = jwtSSOProviders.get(issuer);
         if (provider == null) {
             throw new AuthenticationCredentialsNotFoundException(

@@ -36,9 +36,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
-import org.apache.cxf.rs.security.jose.jws.HmacJwsSignatureVerifier;
 import org.apache.cxf.rs.security.jose.jws.JwsJwtCompactConsumer;
-import org.apache.cxf.rs.security.jose.jws.JwsSignatureProvider;
 import org.apache.cxf.rs.security.jose.jws.JwsSignatureVerifier;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -117,14 +115,13 @@ import org.opensaml.saml.saml2.metadata.impl.SPSSODescriptorBuilder;
 import org.opensaml.saml.saml2.metadata.impl.SingleLogoutServiceBuilder;
 import org.opensaml.xmlsec.keyinfo.KeyInfoGenerator;
 import org.opensaml.xmlsec.keyinfo.impl.X509KeyInfoGeneratorFactory;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> implements InitializingBean {
+public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
 
     private static final Integer JWT_RELAY_STATE_DURATION = 5;
 
@@ -167,18 +164,8 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> implement
     @Autowired
     private SAML2ReaderWriter saml2rw;
 
-    @Resource(name = "jwsKey")
-    private String jwsKey;
-
-    @Autowired
-    private JwsSignatureProvider jwsSignatureProvider;
-
+    @Resource(name = "syncopeJWTSSOProviderDelegate")
     private JwsSignatureVerifier jwsSignatureVerifier;
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        jwsSignatureVerifier = new HmacJwsSignatureVerifier(jwsKey.getBytes(), jwsSignatureProvider.getAlgorithm());
-    }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.ANONYMOUS + "')")
     public void getMetadata(final String spEntityID, final String urlContext, final OutputStream os) {
