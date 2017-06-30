@@ -18,11 +18,13 @@
  */
 package org.apache.syncope.fit.console;
 
+import static org.apache.syncope.fit.console.AbstractConsoleITCase.TESTER;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.pages.Realms;
 import org.apache.syncope.client.console.pages.Types;
 import org.apache.syncope.client.console.panels.AjaxDataTablePanel;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
@@ -81,6 +83,12 @@ public class AnyTypesITCase extends AbstractTypesITCase {
 
         TESTER.assertLabel(component.getPageRelativePath() + ":cells:1:cell", anyTypeTest);
         TESTER.assertLabel(component.getPageRelativePath() + ":cells:3:cell", "[csv]");
+
+        // issue SYNCOPE-1111
+        TESTER.clickLink("body:realmsLI:realms");
+        TESTER.assertRenderedPage(Realms.class);
+        TESTER.assertLabel("body:content:body:container:content:tabbedPanel:tabs-container:tabs:4:link:title",
+                anyTypeTest);
     }
 
     @Test
