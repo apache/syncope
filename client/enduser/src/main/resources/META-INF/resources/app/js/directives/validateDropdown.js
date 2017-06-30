@@ -32,7 +32,7 @@ angular.module('SyncopeEnduserApp').
 
                 $scope.dynamicform = $scope.$eval(attrs.dynamicForm);
                 var dropdownSelectName = attrs.validateDropdown;
-                
+
                 var realmTemp;
                 var isGroups = dropdownSelectName === "groups";
                 if (isGroups) {
@@ -51,10 +51,22 @@ angular.module('SyncopeEnduserApp').
                   $timeout(function () {
                     $elem.trigger('click');
                   }, 100);
-                  
+
                   // remove selected groups when realm changes
                   if (isGroups && realmTemp !== $scope.user.realm) {
-                    $scope.dynamicform.selectedGroups = [];
+                    // remove group list only whether selected groups are not in realms
+
+                    for (var item in $scope.dynamicform.selectedGroups) {
+                      var filtered = newValues.filter(function (e) {
+                        return $scope.dynamicform.selectedGroups[item] &&
+                                e.groupName === $scope.dynamicform.selectedGroups[item].groupName;
+                      });
+                      if (filtered.length === 0) {
+                        $scope.$parent.removeGroup($scope.dynamicform.selectedGroups[item], $scope.ngModel);
+                        $scope.dynamicform.selectedGroups = _.without($scope.dynamicform.selectedGroups,
+                                $scope.dynamicform.selectedGroups[item]);
+                      }
+                    }
                     realmTemp = $scope.user.realm;
                   }
                 });
