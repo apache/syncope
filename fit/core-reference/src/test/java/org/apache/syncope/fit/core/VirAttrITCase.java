@@ -310,11 +310,8 @@ public class VirAttrITCase extends AbstractITCase {
             userTO.getAuxClasses().add(newClass.getKey());
             userTO.getResources().clear();
             userTO.getMemberships().clear();
-            userTO.getDerAttrs().clear();
-            userTO.getVirAttrs().clear();
 
-            userTO.getDerAttrs().add(attrTO("csvuserid", null));
-            userTO.getDerAttrs().add(attrTO("cn", null));
+            userTO.getVirAttrs().clear();
             userTO.getVirAttrs().add(attrTO(virSchema.getKey(), "test@testone.org"));
             // assign resource-csv to user
             userTO.getResources().add(RESOURCE_NAME_CSV);
@@ -549,7 +546,6 @@ public class VirAttrITCase extends AbstractITCase {
             userTO.getResources().clear();
             userTO.getResources().add(resourceName);
             userTO.getVirAttrs().clear();
-            userTO.getDerAttrs().clear();
             userTO.getMemberships().clear();
 
             userTO.getMemberships().add(new MembershipTO.Builder().group(groupTO.getKey()).build());
@@ -673,7 +669,6 @@ public class VirAttrITCase extends AbstractITCase {
             userTO.getAuxClasses().add(newClass.getKey());
             userTO.getResources().clear();
             userTO.getMemberships().clear();
-            userTO.getDerAttrs().clear();
             userTO.getVirAttrs().clear();
 
             AttrTO emailTO = new AttrTO();
