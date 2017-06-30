@@ -142,9 +142,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
     }
 
     private void afterAuthentication() {
-        Pair<Map<String, Set<String>>, UserTO> self = client.self();
-        auth = self.getLeft();
-        selfTO = self.getRight();
+        refreshAuthorization();
     }
 
     @Override
@@ -274,6 +272,12 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
     public void refreshAuth() {
         client.refresh();
         roles = null;
+    }
+
+    public void refreshAuthorization() {
+        Pair<Map<String, Set<String>>, UserTO> self = client.self();
+        auth = self.getLeft();
+        selfTO = self.getRight();
     }
 
     @SuppressWarnings("unchecked")
