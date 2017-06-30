@@ -187,7 +187,6 @@ public class UserITCase extends AbstractITCase {
             }
 
             userTO.getAuxClasses().add("csv");
-            userTO.getDerAttrs().add(new AttrTO.Builder().schema("csvuserid").build());
 
             userTO = createUser(userTO).getEntity();
             assertNotNull(userTO);
@@ -810,7 +809,6 @@ public class UserITCase extends AbstractITCase {
     public void updateMultivalueAttribute() {
         UserTO userTO = getUniqueSampleTO("multivalue@syncope.apache.org");
         userTO.getResources().clear();
-        userTO.getDerAttrs().clear();
         userTO.getVirAttrs().clear();
 
         userTO = createUser(userTO).getEntity();
@@ -893,11 +891,9 @@ public class UserITCase extends AbstractITCase {
         UserTO userTO = getUniqueSampleTO("checkGroupAttrPropagation@syncope.apache.org");
         userTO.getResources().clear();
         userTO.getMemberships().clear();
-        userTO.getDerAttrs().clear();
         userTO.getVirAttrs().clear();
 
         userTO.getAuxClasses().add("csv");
-        userTO.getDerAttrs().add(attrTO("csvuserid", null));
 
         userTO.getMemberships().add(new MembershipTO.Builder().
                 group("37d15e4c-cdc1-460b-a591-8505c8133806").build());
@@ -1027,10 +1023,8 @@ public class UserITCase extends AbstractITCase {
         UserTO userTO = getUniqueSampleTO("unlink@syncope.apache.org");
         userTO.getResources().clear();
         userTO.getMemberships().clear();
-        userTO.getDerAttrs().clear();
         userTO.getVirAttrs().clear();
         userTO.getAuxClasses().add("csv");
-        userTO.getDerAttrs().add(attrTO("csvuserid", null));
         userTO.getResources().add(RESOURCE_NAME_CSV);
 
         UserTO actual = createUser(userTO).getEntity();
@@ -1056,10 +1050,8 @@ public class UserITCase extends AbstractITCase {
         UserTO userTO = getUniqueSampleTO("link@syncope.apache.org");
         userTO.getResources().clear();
         userTO.getMemberships().clear();
-        userTO.getDerAttrs().clear();
         userTO.getVirAttrs().clear();
         userTO.getAuxClasses().add("csv");
-        userTO.getDerAttrs().add(attrTO("csvuserid", null));
 
         UserTO actual = createUser(userTO).getEntity();
         assertNotNull(actual);
@@ -1096,10 +1088,8 @@ public class UserITCase extends AbstractITCase {
         UserTO userTO = getUniqueSampleTO("unassign@syncope.apache.org");
         userTO.getResources().clear();
         userTO.getMemberships().clear();
-        userTO.getDerAttrs().clear();
         userTO.getVirAttrs().clear();
         userTO.getAuxClasses().add("csv");
-        userTO.getDerAttrs().add(attrTO("csvuserid", null));
         userTO.getResources().add(RESOURCE_NAME_CSV);
 
         UserTO actual = createUser(userTO).getEntity();
@@ -1130,10 +1120,8 @@ public class UserITCase extends AbstractITCase {
         UserTO userTO = getUniqueSampleTO("assign@syncope.apache.org");
         userTO.getResources().clear();
         userTO.getMemberships().clear();
-        userTO.getDerAttrs().clear();
         userTO.getVirAttrs().clear();
         userTO.getAuxClasses().add("csv");
-        userTO.getDerAttrs().add(attrTO("csvuserid", null));
 
         UserTO actual = createUser(userTO).getEntity();
         assertNotNull(actual);
@@ -1165,10 +1153,8 @@ public class UserITCase extends AbstractITCase {
         UserTO userTO = getUniqueSampleTO("deprovision@syncope.apache.org");
         userTO.getResources().clear();
         userTO.getMemberships().clear();
-        userTO.getDerAttrs().clear();
         userTO.getVirAttrs().clear();
         userTO.getAuxClasses().add("csv");
-        userTO.getDerAttrs().add(attrTO("csvuserid", null));
         userTO.getResources().add(RESOURCE_NAME_CSV);
 
         UserTO actual = createUser(userTO).getEntity();
@@ -1199,10 +1185,8 @@ public class UserITCase extends AbstractITCase {
         UserTO userTO = getUniqueSampleTO("provision@syncope.apache.org");
         userTO.getResources().clear();
         userTO.getMemberships().clear();
-        userTO.getDerAttrs().clear();
         userTO.getVirAttrs().clear();
         userTO.getAuxClasses().add("csv");
-        userTO.getDerAttrs().add(attrTO("csvuserid", null));
 
         UserTO actual = createUser(userTO).getEntity();
         assertNotNull(actual);
@@ -1234,10 +1218,8 @@ public class UserITCase extends AbstractITCase {
         UserTO userTO = getUniqueSampleTO("provision@syncope.apache.org");
         userTO.getResources().clear();
         userTO.getMemberships().clear();
-        userTO.getDerAttrs().clear();
         userTO.getVirAttrs().clear();
         userTO.getAuxClasses().add("csv");
-        userTO.getDerAttrs().add(attrTO("csvuserid", null));
 
         UserTO actual = createUser(userTO).getEntity();
         assertNotNull(actual);

@@ -194,7 +194,6 @@ public class UserIssuesITCase extends AbstractITCase {
         UserTO userTO = UserITCase.getUniqueSampleTO("issue280@syncope.apache.org");
         userTO.getResources().clear();
         userTO.getMemberships().clear();
-        userTO.getDerAttrs().clear();
 
         userTO = createUser(userTO).getEntity();
         assertNotNull(userTO);
@@ -224,7 +223,6 @@ public class UserIssuesITCase extends AbstractITCase {
         UserTO userTO = UserITCase.getUniqueSampleTO("issue281@syncope.apache.org");
         userTO.getResources().clear();
         userTO.getMemberships().clear();
-        userTO.getDerAttrs().clear();
         userTO.getResources().add(RESOURCE_NAME_CSV);
 
         ProvisioningResult<UserTO> result = createUser(userTO);
@@ -257,10 +255,8 @@ public class UserIssuesITCase extends AbstractITCase {
         UserTO userTO = UserITCase.getUniqueSampleTO("syncope108@syncope.apache.org");
         userTO.getResources().clear();
         userTO.getMemberships().clear();
-        userTO.getDerAttrs().clear();
         userTO.getVirAttrs().clear();
         userTO.getAuxClasses().add("csv");
-        userTO.getDerAttrs().add(attrTO("csvuserid", null));
 
         userTO.getMemberships().add(new MembershipTO.Builder().
                 group("0626100b-a4ba-4e00-9971-86fad52a6216").build());
@@ -1064,7 +1060,6 @@ public class UserIssuesITCase extends AbstractITCase {
         userTO.getPlainAttrs().add(attrTO("surname", "cognome0"));
         userTO.getPlainAttrs().add(attrTO("userId", "syncope391@syncope.apache.org"));
         userTO.getPlainAttrs().add(attrTO("email", "syncope391@syncope.apache.org"));
-        userTO.getDerAttrs().add(attrTO("csvuserid", null));
 
         userTO.getAuxClasses().add("csv");
         userTO.getResources().add(RESOURCE_NAME_CSV);
@@ -1083,10 +1078,8 @@ public class UserIssuesITCase extends AbstractITCase {
         // Syncope local storage
         userTO = UserITCase.getUniqueSampleTO("syncope391@syncope.apache.org");
         userTO.setPassword("passwordTESTNULL1");
-        userTO.getDerAttrs().clear();
         userTO.getVirAttrs().clear();
         userTO.getAuxClasses().add("csv");
-        userTO.getDerAttrs().add(attrTO("csvuserid", null));
 
         userTO.getResources().add(RESOURCE_NAME_CSV);
         userTO = createUser(userTO, false).getEntity();
@@ -1103,10 +1096,8 @@ public class UserIssuesITCase extends AbstractITCase {
         // 4. create user and propagate password on resource-csv and on Syncope local storage
         userTO = UserITCase.getUniqueSampleTO("syncope391@syncope.apache.org");
         userTO.setPassword("passwordTESTNULL1");
-        userTO.getDerAttrs().clear();
         userTO.getVirAttrs().clear();
         userTO.getAuxClasses().add("csv");
-        userTO.getDerAttrs().add(attrTO("csvuserid", null));
 
         userTO.getResources().add(RESOURCE_NAME_CSV);
         // storePassword true by default
@@ -1133,10 +1124,8 @@ public class UserIssuesITCase extends AbstractITCase {
 
             userTO = UserITCase.getUniqueSampleTO("syncope391@syncope.apache.org");
             userTO.setPassword(null);
-            userTO.getDerAttrs().clear();
             userTO.getVirAttrs().clear();
             userTO.getAuxClasses().add("csv");
-            userTO.getDerAttrs().add(attrTO("csvuserid", null));
 
             userTO.getResources().add(RESOURCE_NAME_CSV);
             createUser(userTO, false);
@@ -1156,10 +1145,8 @@ public class UserIssuesITCase extends AbstractITCase {
         UserTO userTO = UserITCase.getUniqueSampleTO("syncope647@syncope.apache.org");
         userTO.getResources().clear();
         userTO.getMemberships().clear();
-        userTO.getDerAttrs().clear();
         userTO.getVirAttrs().clear();
         userTO.getAuxClasses().add("csv");
-        userTO.getDerAttrs().add(attrTO("csvuserid", null));
 
         userTO.getAuxClasses().add("generic membership");
         userTO.getPlainAttrs().add(attrTO("postalAddress", "postalAddress"));
