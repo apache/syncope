@@ -28,12 +28,14 @@ before_install:
   - echo 'MAVEN_OPTS="-Xms512m -Xmx1024m -XX:+TieredCompilation -XX:TieredStopAtLevel=1"' >~/.mavenrc
 # default install is mvn install --quiet -DskipTests=true
 install: travis_wait mvn --show-version --quiet -P all,skipTests
+before_script:
+  - cd fit/core-reference
 script:
-  #invoker.streamLogs: we cannot access to log files through Travis web ui, so display everything in the console
-  - mvn --show-version clean install -Dinvoker.streamLogs=true
+  # invoker.streamLogs: we cannot access to log files through Travis web ui, so display everything in the console
+  - mvn --show-version clean verify -Dinvoker.streamLogs=true
 after_failure:
-  - cat fit/core-reference/target/log/*
-  - cat fit/core/reference/target/failsafe-reports/org.apache.syncope.fit.*-output.txt
+  - cat target/log/*
+  - cat target/failsafe-reports/org.apache.syncope.fit.*-output.txt
 notifications:
   email:
     - dev@syncope.apache.org
