@@ -2,6 +2,84 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 2.0.4
+================================================================================
+
+** Sub-task
+    * [SYNCOPE-808] - Netbeans plugin
+
+** Bug
+    * [SYNCOPE-1066] - WADL servlet uses request url to provide wadl
+    * [SYNCOPE-1069] - Incomplete HA setup instructions
+    * [SYNCOPE-1070] - Conversion pattern ignored for date, long and double values during propagation
+    * [SYNCOPE-1071] - The executed notification tasks are not displaying on the console
+    * [SYNCOPE-1075] - User lastChangeDate attribute is not displayed correctly
+    * [SYNCOPE-1076] - The console doesn't allow to download the report in various formats
+    * [SYNCOPE-1078] - Activiti modeler window doesn't open on click
+    * [SYNCOPE-1079] - Missing toggle panel for the job control widget of the administration console dashboard
+    * [SYNCOPE-1081] - Console: new toggle panel behavior anomalies
+    * [SYNCOPE-1082] - Concurrent CRUD random failures with dynamic memberships
+    * [SYNCOPE-1085] - Custom tasks modal page shouldn't show "Cancel" button
+    * [SYNCOPE-1089] - Improve provisioning mapping page in order to avoid duplicates in internal attribute name list
+    * [SYNCOPE-1090] - Error defining clause to search for group owners
+    * [SYNCOPE-1091] - Error while downloading Jpeg binary attribute content
+    * [SYNCOPE-1094] - Out of memory error while rendering PDF
+    * [SYNCOPE-1098] - User edit modal page opening takes long in case of a lot of groups defined
+    * [SYNCOPE-1099] - Dynamic group membership does not trigger propagation
+    * [SYNCOPE-1101] - Error showing action icons on Notidfication events managements
+    * [SYNCOPE-1104] - Missing autocomplete for ConnId object class when defining new provision
+    * [SYNCOPE-1107] - The installer fails with a NoClassDefFoundError
+    * [SYNCOPE-1108] - NullPointerException while saving an empty template
+    * [SYNCOPE-1109] - Installer fails to setup Activiti
+    * [SYNCOPE-1110] - Error replacing group/auxclass/resource during self-management operation
+    * [SYNCOPE-1111] - New any type not shown unders Realms
+    * [SYNCOPE-1112] - Error searching for user/group/anyobject by providing conditions on attribute with schema type Long
+    * [SYNCOPE-1114] - Dynamic group information not available during propagation
+    * [SYNCOPE-1121] - Enduser form customization does not work with empty section in edit mode
+    * [SYNCOPE-1122] - Enduser must show all attributes when customForm.json has empty section with show=true
+    * [SYNCOPE-1123] - Enduser UserRequestValidator NPE on custom form empty sections
+    * [SYNCOPE-1125] - Password on external resource not updated via Enduser
+    * [SYNCOPE-1127] - Membership attribute values are not shown
+    * [SYNCOPE-1128] - Content exporter does not sort for internal foreign keys
+    * [SYNCOPE-1130] - NPE refreshing realm page after realm creation
+    * [SYNCOPE-1131] - Cannot delete resources owned by realms
+    * [SYNCOPE-1133] - Search panel used for relationships definition does not work
+    * [SYNCOPE-1134] - Action menu not working after page refresh
+    * [SYNCOPE-1135] - Groups list not refreshing after realm change
+
+** Improvement
+    * [SYNCOPE-1047] - Replace ActionLinksPanel with TogglePanel
+    * [SYNCOPE-1053] - Show actual pending modifications during approval
+    * [SYNCOPE-1067] - More flexible delegated administration model
+    * [SYNCOPE-1068] - Console: CSRF protection
+    * [SYNCOPE-1072] - Display or enable add button only to realms were CREATE is owned
+    * [SYNCOPE-1073] - Hide realm management if no realm entitlement are owned
+    * [SYNCOPE-1074] - Realm navigator: show only relevant realms for delegated admin
+    * [SYNCOPE-1083] - ConnInstance location is not normalized
+    * [SYNCOPE-1084] - Switch to HikariCP for Core's default DataSource definitions
+    * [SYNCOPE-1086] - Avoid to read whole entities to check ETag
+    * [SYNCOPE-1087] - Avoid to read input entities if no notification or audit are requested
+    * [SYNCOPE-1088] - Store authorizations with access tokens
+    * [SYNCOPE-1093] - Add some feedbacks when linking not existing groups/resources to existing user
+    * [SYNCOPE-1100] - Provide JWT expiration information to self
+    * [SYNCOPE-1103] - Option to disable Quartz instances across cluster
+    * [SYNCOPE-1106] - Remove misleading getAttrMap and similar methods from TOs
+    * [SYNCOPE-1117] - Make it more obvious that the jwsKey needs to be changed
+    * [SYNCOPE-1118] - Update docs to explain what "anonymousKey" refers to
+    * [SYNCOPE-1119] - Make it more obvious that the default admin password needs to be changed
+    * [SYNCOPE-1120] - Use the standard Bearer Authorization header for JWT tokens
+    * [SYNCOPE-1124] - Support functions for internal JEXL engine
+    * [SYNCOPE-1126] - Include realms into the Explore Resource feature
+    * [SYNCOPE-1136] - Groups list reset always after realm change
+
+** New Feature
+    * [SYNCOPE-1077] - Extension: Elasticsearch-based search engine
+    * [SYNCOPE-1095] - Provide preview for JSON and XML binary field
+    * [SYNCOPE-1129] - Third Party JWT SSO integration
+
+** Task
+    * [SYNCOPE-1080] - Update swagger-jaxrs dependency to 1.5.13
+
 Release Notes - Syncope - Version 2.0.3
 ================================================================================
 
