@@ -288,19 +288,19 @@ cp $SYNCOPE_RELEASE_DIR/client/cli/target/syncope-client-cli-*.zip .
 cp $SYNCOPE_RELEASE_DIR/client/cli/target/syncope-client-cli-*.zip.asc .
 cp $SYNCOPE_RELEASE_DIR/ide/eclipse/releng/org.apache.syncope.ide.eclipse.site/target/org.apache.syncope.ide.eclipse.site-*.zip .
 cp $SYNCOPE_RELEASE_DIR/ide/eclipse/releng/org.apache.syncope.ide.eclipse.site/target/org.apache.syncope.ide.eclipse.site-*.zip.asc .
-cp $SYNCOPE_RELEASE_DIR/ide/netbeans/target/syncope-ide-netbeans-*.nbm .
-cp $SYNCOPE_RELEASE_DIR/ide/netbeans/target/syncope-ide-netbeans-*.nbm.asc .
+cp $SYNCOPE_RELEASE_DIR/ide/netbeans/target/nbm/syncope-ide-netbeans-*.nbm .
+cp $SYNCOPE_RELEASE_DIR/ide/netbeans/target/nbm/syncope-ide-netbeans-*.nbm.asc .
               
 for file in `find . -type f -iname '*.asc'`
 do
   gpg --verify ${file} 
 done
           
-for file in `find . -name '*.deb' -or -name '*.jar' -or -name '*.zip'`; do
+for file in `find . -name '*.deb' -or -name '*.jar' -or -name '*.zip' -or -name '*.nbm'`; do
  openssl md5 $file | sed 's/.*= //' > $file.md5
  openssl sha1 $file | sed 's/.*= //' > $file.sha1
 done
-              
+
 cd ..
 svn add $VERSION
 svn commit -m "Staging artifacts for $VERSION vote"]]></source>
