@@ -20,7 +20,7 @@ under the License.
   <parent>
     <groupId>org.apache.syncope</groupId>
     <artifactId>syncope-ide</artifactId>
-    <version>2.0.4-SNAPSHOT</version>
+    <version>2.0.4</version>
   </parent>
 
   <name>Apache Syncope IDE Netbeans plugin</name>
@@ -155,7 +155,7 @@ under the License.
             <configuration>
               <target>
                 <zip update="true" destfile="${project.build.directory}/syncope-ide-netbeans-${project.version}.nbm">
-                  <zipfileset dir="${basedir}" prefix="META-INF" includes="LICENSE,NOTICE"/>
+                  <zipfileset dir="${basedir}" prefix="META-INF" includes="LICENSE,NOTICE" />
                 </zip>
               </target>
             </configuration>
