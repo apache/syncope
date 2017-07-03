@@ -46,8 +46,8 @@ Moreover, this partition allows fine-grained control over policy enforcement and
 [[dynamic-realms]]
 .Dynamic Realms
 ****
-Realms provide a mean to model static containment hierarchies. +
-Such strategy might not be the ideal fit for situations where the set of Users, Groups and Any Objects to administer
+Realms provide a means to model static containment hierarchies. +
+This might not be the ideal fit for situations where the set of Users, Groups and Any Objects to administer
 cannot be statically defined by containment.
 
 Dynamic Realms can be used to identify Users, Groups and Any Objects according to some attributes' value, resource
