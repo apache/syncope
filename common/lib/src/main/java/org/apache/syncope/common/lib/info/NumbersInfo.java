@@ -37,7 +37,7 @@ public class NumbersInfo extends AbstractBaseBean {
 
     @XmlEnum
     @XmlType(name = "confItem")
-    public static enum ConfItem {
+    public enum ConfItem {
 
         RESOURCE(20),
         ACCOUNT_POLICY(10),
