@@ -24,17 +24,27 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.ParseException;
 import java.util.List;
+import java.util.Properties;
 import javax.ws.rs.core.Response;
 import javax.xml.ws.WebServiceException;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.log.EventCategoryTO;
 import org.apache.syncope.common.lib.log.LogAppender;
 import org.apache.syncope.common.lib.log.LogStatementTO;
 import org.apache.syncope.common.lib.log.LoggerTO;
+import org.apache.syncope.common.lib.to.ConnInstanceTO;
+import org.apache.syncope.common.lib.to.ConnPoolConfTO;
+import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.EventCategoryType;
@@ -43,11 +53,13 @@ import org.apache.syncope.common.lib.types.LoggerLevel;
 import org.apache.syncope.common.lib.types.LoggerType;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.rest.api.LoggerWrapper;
+import org.apache.syncope.core.logic.ConnectorLogic;
 import org.apache.syncope.core.logic.ReportLogic;
 import org.apache.syncope.core.logic.ResourceLogic;
 import org.apache.syncope.core.logic.GroupLogic;
 import org.apache.syncope.core.logic.UserLogic;
 import org.apache.syncope.fit.AbstractITCase;
+import org.junit.Assert;
 import org.junit.Test;
 
 public class LoggerITCase extends AbstractITCase {
@@ -269,5 +281,86 @@ public class LoggerITCase extends AbstractITCase {
         });
         assertNotNull(userLogic);
         assertEquals(1, IterableUtils.frequency(userLogic.getEvents(), "create"));
+    }
+
+    @Test
+    public void testCustomAuditAppender() throws IOException, InterruptedException {
+        InputStream propStream = null;
+        try {
+            Properties props = new Properties();
+            propStream = getClass().getResourceAsStream("/core-test.properties");
+            props.load(propStream);
+
+            final String auditFilePath = props.getProperty("test.log.dir") + File.separator
+                    + "audit_for_Master_file.log";
+            final String auditNoRewriteFilePath = props.getProperty("test.log.dir") + File.separator
+                    + "audit_for_Master_norewrite_file.log";
+            // 1. Enable audit for resource update -> catched by FileRewriteAuditAppender
+            AuditLoggerName auditLoggerResUpd = new AuditLoggerName(
+                    EventCategoryType.LOGIC,
+                    ResourceLogic.class.getSimpleName(),
+                    null,
+                    "update",
+                    AuditElements.Result.SUCCESS);
+
+            LoggerTO loggerTOUpd = new LoggerTO();
+            loggerTOUpd.setKey(auditLoggerResUpd.toLoggerName());
+            loggerTOUpd.setLevel(LoggerLevel.DEBUG);
+            loggerService.update(LoggerType.AUDIT, loggerTOUpd);
+            // 2. Enable audit for connector update -> NOT catched by FileRewriteAuditAppender
+            AuditLoggerName auditLoggerConnUpd = new AuditLoggerName(
+                    EventCategoryType.LOGIC,
+                    ConnectorLogic.class.getSimpleName(),
+                    null,
+                    "update",
+                    AuditElements.Result.SUCCESS);
+
+            LoggerTO loggerTOConnUpd = new LoggerTO();
+            loggerTOConnUpd.setKey(auditLoggerConnUpd.toLoggerName());
+            loggerTOConnUpd.setLevel(LoggerLevel.DEBUG);
+            loggerService.update(LoggerType.AUDIT, loggerTOConnUpd);
+
+            // 3. check that resource update is transformed and logged onto an audit file.
+            ResourceTO resource = resourceService.read(RESOURCE_NAME_CSV);
+            assertNotNull(resource);
+            resource.setPropagationPriority(100);
+            resourceService.update(resource);
+
+            ConnInstanceTO connector = connectorService.readByResource(RESOURCE_NAME_CSV, null);
+            assertNotNull(connector);
+            connector.setPoolConf(new ConnPoolConfTO());
+            connectorService.update(connector);
+
+            File auditTempFile = new File(auditFilePath);
+            // check audit_for_Master_file.log, it should contain only a static message
+            String auditLog = FileUtils.readFileToString(auditTempFile, "UTF-8");
+
+            Assert.assertTrue(StringUtils.contains(auditLog,
+                    "DEBUG Master.syncope.audit.[LOGIC]:[ResourceLogic]:[]:[update]:[SUCCESS]"
+                    + " - This is a static test message"));
+            File auditNoRewriteTempFile = new File(auditNoRewriteFilePath);
+            // check audit_for_Master_file.log, it should contain only a static message
+            String auditLogNoRewrite = FileUtils.readFileToString(auditNoRewriteTempFile, "UTF-8");
+
+            Assert.assertFalse(StringUtils.contains(auditLogNoRewrite,
+                    "DEBUG Master.syncope.audit.[LOGIC]:[ResourceLogic]:[]:[update]:[SUCCESS]"
+                    + " - This is a static test message"));
+
+            // clean audit_for_Master_file.log
+            FileUtils.writeStringToFile(auditTempFile, StringUtils.EMPTY, "UTF-8");
+            loggerService.delete(LoggerType.AUDIT, "syncope.audit.[LOGIC]:[ResourceLogic]:[]:[update]:[SUCCESS]");
+
+            resource = resourceService.read(RESOURCE_NAME_CSV);
+            assertNotNull(resource);
+            resource.setPropagationPriority(200);
+            resourceService.update(resource);
+
+            // check that nothing has been written to audit_for_Master_file.log
+            assertTrue(StringUtils.isEmpty(FileUtils.readFileToString(auditTempFile, "UTF-8")));
+        } catch (IOException e) {
+            fail("Unable to read/write log files" + e.getMessage());
+        } finally {
+            IOUtils.closeQuietly(propStream);
+        }
     }
 }

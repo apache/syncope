@@ -19,9 +19,10 @@
 === Audit
 
 The audit feature allows to capture <<audit-events,events>> occurring within the <<core>> and to log relevant information
-about them as entries into the `SYNCOPEAUDIT` table of the internal storage.
+about them. By default events are logged as entries into the `SYNCOPEAUDIT` table of the internal storage,
+but can also be logged on some additional Log4j2 appenders defined through simple customization mechanisms.
 
-Once events are reported in the table above, they can be used as input for external tools.
+Once events are reported, they can be used as input for external tools.
 
 [TIP]
 ====
@@ -32,3 +33,48 @@ An example of how audit entries can be extracted for reporting is shown by the <
 
 The information provided for <<notification-events,notification events>> is also valid for audit events, including examples -
 except for the admin console <<console-configuration-audit,tooling>>, which is naturally distinct.
+
+==== Audit Customization
+
+As mentioned above, events are, basically, logged in a database table, but this behavior can be extended through 
+`AuditAppender` interface implementation which allows an user to define additional logging supports that we address 
+as appenders.
+
+Appender is a Log4j entity that allows to write whatever log message on different destinations (file, queues, syslog, 
+other appenders, etc.). Moreover it provides the ability to edit (rewrite) the message, that is flowing through appenders,
+in order to customize information.
+Audit customization relies on Log4j appenders. To implement a custom audit appender an user just needs to extend to basic 
+classes:
+
+. DefaultAuditAppender
+. DefaultRewriteAuditAppender
+
+The first is intended to add custom appender without any rewrtining of the message, the second allows message rewriting.
+
+What is needed to implement a well formed appender:
+ 
+. Events: a set of events to which the appender is bound. Appender will log only if one of those events occurs.
+. Target Appender: the Log4j appender that writes message somewhere. See 
+  https://github.com/andrea-patricelli/syncope/blob/2_0_X/fit/core-reference/src/main/java/org/apache/syncope/fit/core/reference/TestFileRewriteAuditAppender.java[TestFileRewriteAuditAppender^] or 
+  https://github.com/andrea-patricelli/syncope/blob/2_0_X/fit/core-reference/src/main/java/org/apache/syncope/fit/core/reference/TestFileAuditAppender.java[TestFileAuditAppender^].
+. Rewrite policy (if needed): in case of rewrite enabled a rewrite policy should be defined, by implementing Log4j 
+  `RewritePolicy` interface. Some examples are 
+  https://github.com/andrea-patricelli/syncope/blob/2_0_X/core/logic/src/main/java/org/apache/syncope/core/logic/PassThroughRewritePolicy.java[PassThroughRewritePolicy^] 
+  and https://github.com/andrea-patricelli/syncope/blob/2_0_X/fit/core-reference/src/main/java/org/apache/syncope/fit/core/reference/TestRewritePolicy.java[TestRewritePolicy^].
+  If no rewrite policy is specified `PassThroughRewritePolicy` will be used.
+
+[TIP]
+====
+Be careful while assigning names to the appenders. The name of the target appender should be unique and should depend on
+the domain. 
+A best practice is to assign different names to the appenders in order to avoid names collisions and strange behavior of
+the logging framework.
+====
+
+===== How custom appenders work
+
+An appender is bound to specific events. While enabling audit on some event, if that event is "catched" also by the custom
+appender, it automatically activates. Once the audit is enabled the same audit message will be logged by the 
+default audit appender and all the extensions bound to those events. While disabling audit all audit extensions are 
+disabled.
+To enable an audit extension an user just needs to implement his custom `AuditAppender` in the sources, build application and deploy.
