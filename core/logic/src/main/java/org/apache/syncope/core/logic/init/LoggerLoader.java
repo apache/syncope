@@ -20,7 +20,9 @@ package org.apache.syncope.core.logic.init;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
 import org.apache.logging.log4j.Level;
@@ -31,13 +33,20 @@ import org.apache.logging.log4j.core.appender.db.ColumnMapping;
 import org.apache.logging.log4j.core.appender.db.jdbc.ColumnConfig;
 import org.apache.logging.log4j.core.appender.db.jdbc.ConnectionSource;
 import org.apache.logging.log4j.core.appender.db.jdbc.JdbcAppender;
+import org.apache.logging.log4j.core.appender.rewrite.RewriteAppender;
 import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.apache.syncope.common.lib.types.AuditLoggerName;
+import org.apache.syncope.core.logic.AuditAppender;
 import org.apache.syncope.core.logic.MemoryAppender;
 import org.apache.syncope.core.provisioning.java.AuditManagerImpl;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.persistence.api.DomainsHolder;
+import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.api.SyncopeLoader;
+import org.apache.syncope.core.spring.ApplicationContextProvider;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Component;
 
@@ -49,6 +58,9 @@ public class LoggerLoader implements SyncopeLoader {
 
     @Autowired
     private LoggerAccessor loggerAccessor;
+
+    @Autowired
+    private ImplementationLookup implementationLookup;
 
     private final Map<String, MemoryAppender> memoryAppenders = new HashMap<>();
 
@@ -81,6 +93,7 @@ public class LoggerLoader implements SyncopeLoader {
             setConfiguration(ctx.getConfiguration()).setName("THROWABLE").setPattern("%ex{full}").build()
         };
         ColumnMapping[] columnMappings = new ColumnMapping[0];
+
         for (Map.Entry<String, DataSource> entry : domainsHolder.getDomains().entrySet()) {
             Appender appender = ctx.getConfiguration().getAppender("audit_for_" + entry.getKey());
             if (appender == null) {
@@ -103,6 +116,9 @@ public class LoggerLoader implements SyncopeLoader {
             logConf.setLevel(Level.DEBUG);
             ctx.getConfiguration().addLogger(AuditManagerImpl.getDomainAuditLoggerName(entry.getKey()), logConf);
 
+            // SYNCOPE-1144 For each custom audit appender class add related appenders to log4j logger
+            configureCustomAppenders(entry.getKey(), ctx);
+
             AuthContextUtils.execWithAuthContext(entry.getKey(), new AuthContextUtils.Executable<Void>() {
 
                 @Override
@@ -118,6 +134,69 @@ public class LoggerLoader implements SyncopeLoader {
 
     public Map<String, MemoryAppender> getMemoryAppenders() {
         return memoryAppenders;
+    }
+
+    public void configureCustomAppenders(final String domainName, final LoggerContext ctx) {
+        List<AuditAppender> auditAppenders = auditAppenders(domainName);
+        for (AuditAppender auditAppender : auditAppenders) {
+            for (AuditLoggerName event : auditAppender.getEvents()) {
+                String domainAuditLoggerName =
+                        AuditManagerImpl.getDomainAuditEventLoggerName(domainName, event.toLoggerName());
+                LoggerConfig eventLogConf = ctx.getConfiguration().getLoggerConfig(domainAuditLoggerName);
+                boolean isRootLogConf = LogManager.ROOT_LOGGER_NAME.equals(eventLogConf.getName());
+
+                if (isRootLogConf) {
+                    eventLogConf = new LoggerConfig(domainAuditLoggerName, null, false);
+                }
+                addAppenderToContext(ctx, auditAppender, eventLogConf);
+                eventLogConf.setLevel(Level.DEBUG);
+                if (isRootLogConf) {
+                    ctx.getConfiguration().addLogger(domainAuditLoggerName, eventLogConf);
+                }
+            }
+        }
+    }
+
+    public List<AuditAppender> auditAppenders(final String domainName) throws BeansException {
+        List<AuditAppender> auditAppenders = new ArrayList<>();
+        for (Class<?> clazz : implementationLookup.getAuditAppenderClasses()) {
+            AuditAppender auditAppender;
+            if (ApplicationContextProvider.getBeanFactory().containsSingleton(clazz.getName())) {
+                auditAppender = (AuditAppender) ApplicationContextProvider.getBeanFactory().
+                        getSingleton(clazz.getName());
+            } else {
+                auditAppender = (AuditAppender) ApplicationContextProvider.getBeanFactory().
+                        createBean(clazz, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
+                auditAppender.setDomainName(domainName);
+                auditAppender.init();
+            }
+            auditAppenders.add(auditAppender);
+        }
+        return auditAppenders;
+    }
+
+    public void addAppenderToContext(
+            final LoggerContext ctx,
+            final AuditAppender auditAppender,
+            final LoggerConfig eventLogConf) {
+        Appender targetAppender = ctx.getConfiguration().getAppender(auditAppender.getTargetAppenderName());
+        if (targetAppender == null) {
+            targetAppender = auditAppender.getTargetAppender();
+        }
+        targetAppender.start();
+        ctx.getConfiguration().addAppender(targetAppender);
+        if (auditAppender.isRewriteEnabled()) {
+            RewriteAppender rewriteAppender = ctx.getConfiguration().getAppender(auditAppender.
+                    getTargetAppenderName() + "_rewrite");
+            if (rewriteAppender == null) {
+                rewriteAppender = auditAppender.getRewriteAppender();
+            }
+            rewriteAppender.start();
+            ctx.getConfiguration().addAppender(rewriteAppender);
+            eventLogConf.addAppender(rewriteAppender, Level.DEBUG, null);
+        } else {
+            eventLogConf.addAppender(targetAppender, Level.DEBUG, null);
+        }
     }
 
     private static class DataSourceConnectionSource implements ConnectionSource {

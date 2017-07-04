@@ -75,4 +75,9 @@ public class DummyImplementationLookup implements ImplementationLookup {
         return DefaultPasswordRule.class;
     }
 
+    @Override
+    public Set<Class<?>> getAuditAppenderClasses() {
+        return Collections.emptySet();
+    }
+
 }

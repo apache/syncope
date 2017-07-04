@@ -146,6 +146,11 @@ public class ITImplementationLookup implements ImplementationLookup {
             classNames = new HashSet<>();
             classNames.add(TestNotificationRecipientsProvider.class.getName());
             put(Type.NOTIFICATION_RECIPIENTS_PROVIDER, classNames);
+
+            classNames = new HashSet<>();
+            classNames.add(TestFileRewriteAuditAppender.class.getName());
+            classNames.add(TestFileAuditAppender.class.getName());
+            put(Type.AUDIT_APPENDER, classNames);
         }
     };
 
@@ -255,5 +260,13 @@ public class ITImplementationLookup implements ImplementationLookup {
             final Class<? extends PasswordRuleConf> passwordRuleConfClass) {
 
         return PASSWORD_RULE_CLASSES.get(passwordRuleConfClass);
+    }
+
+    @Override
+    public Set<Class<?>> getAuditAppenderClasses() {
+        Set<Class<?>> classes = new HashSet<>();
+        classes.add(TestFileRewriteAuditAppender.class);
+        classes.add(TestFileAuditAppender.class);
+        return classes;
     }
 }
