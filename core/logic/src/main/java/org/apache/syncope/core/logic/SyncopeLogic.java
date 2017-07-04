@@ -287,23 +287,23 @@ public class SyncopeLogic extends AbstractLogic<AbstractBaseBean> {
         numbersInfo.setTotalRoles(roleDAO.count());
 
         numbersInfo.getConfCompleteness().put(
-                NumbersInfo.ConfItem.RESOURCE, numbersInfo.getTotalResources() > 0);
+                NumbersInfo.ConfItem.RESOURCE.name(), numbersInfo.getTotalResources() > 0);
         numbersInfo.getConfCompleteness().put(
-                NumbersInfo.ConfItem.ACCOUNT_POLICY, !policyDAO.find(AccountPolicy.class).isEmpty());
+                NumbersInfo.ConfItem.ACCOUNT_POLICY.name(), !policyDAO.find(AccountPolicy.class).isEmpty());
         numbersInfo.getConfCompleteness().put(
-                NumbersInfo.ConfItem.PASSWORD_POLICY, !policyDAO.find(PasswordPolicy.class).isEmpty());
+                NumbersInfo.ConfItem.PASSWORD_POLICY.name(), !policyDAO.find(PasswordPolicy.class).isEmpty());
         numbersInfo.getConfCompleteness().put(
-                NumbersInfo.ConfItem.NOTIFICATION, !notificationDAO.findAll().isEmpty());
+                NumbersInfo.ConfItem.NOTIFICATION.name(), !notificationDAO.findAll().isEmpty());
         numbersInfo.getConfCompleteness().put(
-                NumbersInfo.ConfItem.SYNC_TASK, !taskDAO.findAll(TaskType.PULL).isEmpty());
+                NumbersInfo.ConfItem.PULL_TASK.name(), !taskDAO.findAll(TaskType.PULL).isEmpty());
         numbersInfo.getConfCompleteness().put(
-                NumbersInfo.ConfItem.VIR_SCHEMA, !virSchemaDAO.findAll().isEmpty());
+                NumbersInfo.ConfItem.VIR_SCHEMA.name(), !virSchemaDAO.findAll().isEmpty());
         numbersInfo.getConfCompleteness().put(
-                NumbersInfo.ConfItem.ANY_TYPE, !anyObjectNumbers.isEmpty());
+                NumbersInfo.ConfItem.ANY_TYPE.name(), !anyObjectNumbers.isEmpty());
         numbersInfo.getConfCompleteness().put(
-                NumbersInfo.ConfItem.SECURITY_QUESTION, !securityQuestionDAO.findAll().isEmpty());
+                NumbersInfo.ConfItem.SECURITY_QUESTION.name(), !securityQuestionDAO.findAll().isEmpty());
         numbersInfo.getConfCompleteness().put(
-                NumbersInfo.ConfItem.ROLE, numbersInfo.getTotalRoles() > 0);
+                NumbersInfo.ConfItem.ROLE.name(), numbersInfo.getTotalRoles() > 0);
 
         return numbersInfo;
     }

@@ -37,13 +37,13 @@ public class NumbersInfo extends AbstractBaseBean {
 
     @XmlEnum
     @XmlType(name = "confItem")
-    public enum ConfItem {
+    public static enum ConfItem {
 
         RESOURCE(20),
         ACCOUNT_POLICY(10),
         PASSWORD_POLICY(10),
         NOTIFICATION(8),
-        SYNC_TASK(10),
+        PULL_TASK(10),
         VIR_SCHEMA(10),
         ANY_TYPE(5),
         SECURITY_QUESTION(12),
@@ -55,7 +55,13 @@ public class NumbersInfo extends AbstractBaseBean {
             this.score = score;
         }
 
-        public int getScore() {
+        public static int getScore(final String name) {
+            int score = 0;
+            for (ConfItem value : values()) {
+                if (value.name().equals(name)) {
+                    score = value.score;
+                }
+            }
             return score;
         }
 
@@ -99,7 +105,7 @@ public class NumbersInfo extends AbstractBaseBean {
 
     @XmlJavaTypeAdapter(XmlGenericMapAdapter.class)
     @JsonIgnore
-    private final Map<ConfItem, Boolean> confCompleteness = new HashMap<>();
+    private final Map<String, Boolean> confCompleteness = new HashMap<>();
 
     public int getTotalUsers() {
         return totalUsers;
@@ -191,7 +197,7 @@ public class NumbersInfo extends AbstractBaseBean {
     }
 
     @JsonProperty
-    public Map<ConfItem, Boolean> getConfCompleteness() {
+    public Map<String, Boolean> getConfCompleteness() {
         return confCompleteness;
     }
 

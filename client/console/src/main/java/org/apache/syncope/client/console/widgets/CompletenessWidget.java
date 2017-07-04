@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.widgets;
 import com.pingunaut.wicket.chartjs.chart.impl.Doughnut;
 import com.pingunaut.wicket.chartjs.core.panel.DoughnutChartPanel;
 import java.util.Map;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.pages.Notifications;
@@ -41,7 +42,7 @@ public class CompletenessWidget extends BaseWidget {
 
     private static final long serialVersionUID = 7667120094526529934L;
 
-    private Map<NumbersInfo.ConfItem, Boolean> confCompleteness;
+    private Map<String, Boolean> confCompleteness;
 
     private final DoughnutChartPanel chart;
 
@@ -59,7 +60,7 @@ public class CompletenessWidget extends BaseWidget {
 
     private final BookmarkablePageLink<Administration> roles;
 
-    public CompletenessWidget(final String id, final Map<NumbersInfo.ConfItem, Boolean> confCompleteness) {
+    public CompletenessWidget(final String id, final Map<String, Boolean> confCompleteness) {
         super(id);
         this.confCompleteness = confCompleteness;
         setOutputMarkupId(true);
@@ -81,45 +82,45 @@ public class CompletenessWidget extends BaseWidget {
         MetaDataRoleAuthorizationStrategy.authorize(topology, WebPage.ENABLE,
                 String.format("%s,%s", StandardEntitlement.CONNECTOR_LIST, StandardEntitlement.RESOURCE_LIST));
         topology.setVisible(
-                !confCompleteness.get(NumbersInfo.ConfItem.RESOURCE)
-                || !confCompleteness.get(NumbersInfo.ConfItem.SYNC_TASK));
+                !confCompleteness.get(NumbersInfo.ConfItem.RESOURCE.name())
+                || !confCompleteness.get(NumbersInfo.ConfItem.PULL_TASK.name()));
 
         policies = BookmarkablePageLinkBuilder.build("policies", Policies.class);
         policies.setOutputMarkupPlaceholderTag(true);
         MetaDataRoleAuthorizationStrategy.authorize(policies, WebPage.ENABLE, StandardEntitlement.POLICY_LIST);
         actions.add(policies);
         policies.setVisible(
-                !confCompleteness.get(NumbersInfo.ConfItem.ACCOUNT_POLICY)
-                || !confCompleteness.get(NumbersInfo.ConfItem.PASSWORD_POLICY));
+                !confCompleteness.get(NumbersInfo.ConfItem.ACCOUNT_POLICY.name())
+                || !confCompleteness.get(NumbersInfo.ConfItem.PASSWORD_POLICY.name()));
 
         notifications = BookmarkablePageLinkBuilder.build("notifications", Notifications.class);
         notifications.setOutputMarkupPlaceholderTag(true);
         MetaDataRoleAuthorizationStrategy.authorize(
                 notifications, WebPage.ENABLE, StandardEntitlement.NOTIFICATION_LIST);
         actions.add(notifications);
-        notifications.setVisible(!confCompleteness.get(NumbersInfo.ConfItem.NOTIFICATION));
+        notifications.setVisible(!confCompleteness.get(NumbersInfo.ConfItem.NOTIFICATION.name()));
 
         types = BookmarkablePageLinkBuilder.build("types", Types.class);
         types.setOutputMarkupPlaceholderTag(true);
         MetaDataRoleAuthorizationStrategy.authorize(types, WebPage.ENABLE, StandardEntitlement.SCHEMA_LIST);
         actions.add(types);
         types.setVisible(
-                !confCompleteness.get(NumbersInfo.ConfItem.VIR_SCHEMA)
-                || !confCompleteness.get(NumbersInfo.ConfItem.ANY_TYPE));
+                !confCompleteness.get(NumbersInfo.ConfItem.VIR_SCHEMA.name())
+                || !confCompleteness.get(NumbersInfo.ConfItem.ANY_TYPE.name()));
 
         securityquestions = BookmarkablePageLinkBuilder.build("securityquestions", SecurityQuestions.class);
         securityquestions.setOutputMarkupPlaceholderTag(true);
         actions.add(securityquestions);
-        securityquestions.setVisible(!confCompleteness.get(NumbersInfo.ConfItem.SECURITY_QUESTION));
+        securityquestions.setVisible(!confCompleteness.get(NumbersInfo.ConfItem.SECURITY_QUESTION.name()));
 
         roles = BookmarkablePageLinkBuilder.build("roles", Administration.class);
         roles.setOutputMarkupPlaceholderTag(true);
         MetaDataRoleAuthorizationStrategy.authorize(roles, WebPage.ENABLE, StandardEntitlement.ROLE_LIST);
         actions.add(roles);
-        roles.setVisible(!confCompleteness.get(NumbersInfo.ConfItem.ROLE));
+        roles.setVisible(!confCompleteness.get(NumbersInfo.ConfItem.ROLE.name()));
     }
 
-    private Pair<Doughnut, Integer> build(final Map<NumbersInfo.ConfItem, Boolean> confCompleteness) {
+    private Pair<Doughnut, Integer> build(final Map<String, Boolean> confCompleteness) {
         Doughnut doughnut = new Doughnut();
         doughnut.getOptions().setResponsive(true);
         doughnut.getOptions().setMaintainAspectRatio(true);
@@ -127,9 +128,9 @@ public class CompletenessWidget extends BaseWidget {
 
         int done = 0;
         int todo = 0;
-        for (Map.Entry<NumbersInfo.ConfItem, Boolean> entry : confCompleteness.entrySet()) {
-            if (entry.getValue()) {
-                done += entry.getKey().getScore();
+        for (Map.Entry<String, Boolean> entry : confCompleteness.entrySet()) {
+            if (BooleanUtils.isTrue(entry.getValue())) {
+                done += NumbersInfo.ConfItem.getScore(entry.getKey());
             } else {
                 todo++;
             }
@@ -143,7 +144,7 @@ public class CompletenessWidget extends BaseWidget {
         return Pair.of(doughnut, todo);
     }
 
-    public boolean refresh(final Map<NumbersInfo.ConfItem, Boolean> confCompleteness) {
+    public boolean refresh(final Map<String, Boolean> confCompleteness) {
         if (!this.confCompleteness.equals(confCompleteness)) {
             this.confCompleteness = confCompleteness;
 
@@ -154,22 +155,22 @@ public class CompletenessWidget extends BaseWidget {
             actions.setVisible(built.getRight() > 0);
 
             topology.setVisible(
-                    !confCompleteness.get(NumbersInfo.ConfItem.RESOURCE)
-                    || !confCompleteness.get(NumbersInfo.ConfItem.SYNC_TASK));
+                    !confCompleteness.get(NumbersInfo.ConfItem.RESOURCE.name())
+                    || !confCompleteness.get(NumbersInfo.ConfItem.PULL_TASK.name()));
 
             policies.setVisible(
-                    !confCompleteness.get(NumbersInfo.ConfItem.ACCOUNT_POLICY)
-                    || !confCompleteness.get(NumbersInfo.ConfItem.PASSWORD_POLICY));
+                    !confCompleteness.get(NumbersInfo.ConfItem.ACCOUNT_POLICY.name())
+                    || !confCompleteness.get(NumbersInfo.ConfItem.PASSWORD_POLICY.name()));
 
-            notifications.setVisible(!confCompleteness.get(NumbersInfo.ConfItem.NOTIFICATION));
+            notifications.setVisible(!confCompleteness.get(NumbersInfo.ConfItem.NOTIFICATION.name()));
 
             types.setVisible(
-                    !confCompleteness.get(NumbersInfo.ConfItem.VIR_SCHEMA)
-                    || !confCompleteness.get(NumbersInfo.ConfItem.ANY_TYPE));
+                    !confCompleteness.get(NumbersInfo.ConfItem.VIR_SCHEMA.name())
+                    || !confCompleteness.get(NumbersInfo.ConfItem.ANY_TYPE.name()));
 
-            securityquestions.setVisible(!confCompleteness.get(NumbersInfo.ConfItem.SECURITY_QUESTION));
+            securityquestions.setVisible(!confCompleteness.get(NumbersInfo.ConfItem.SECURITY_QUESTION.name()));
 
-            roles.setVisible(!confCompleteness.get(NumbersInfo.ConfItem.ROLE));
+            roles.setVisible(!confCompleteness.get(NumbersInfo.ConfItem.ROLE.name()));
 
             return true;
         }
