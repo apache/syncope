@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.collections4.IteratorUtils;
+import org.apache.syncope.common.lib.to.ExecTO;
+import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
@@ -57,9 +59,11 @@ import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
+import org.apache.syncope.core.persistence.api.entity.task.TaskUtilsFactory;
 import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCache;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCacheValue;
+import org.apache.syncope.core.provisioning.api.data.TaskDataBinder;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
@@ -141,6 +145,15 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
      */
     @Autowired
     protected AuditManager auditManager;
+
+    /**
+     * Task data binder.
+     */
+    @Autowired
+    protected TaskDataBinder taskDataBinder;
+
+    @Autowired
+    private TaskUtilsFactory taskUtilsFactory;
 
     @Autowired
     protected EntityFactory entityFactory;
@@ -371,6 +384,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         Uid uid = null;
         Connector connector = null;
         Result result;
+        String resource = task.getResource().getKey();
         try {
             provision = task.getResource().getProvision(new ObjectClass(task.getObjectClassName()));
             orgUnit = task.getResource().getOrgUnit();
@@ -408,7 +422,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             result = Result.SUCCESS;
         } catch (Exception e) {
             result = Result.FAILURE;
-            LOG.error("Exception during provision on resource " + task.getResource().getKey(), e);
+            LOG.error("Exception during provision on resource " + resource, e);
 
             if (e instanceof ConnectorException && e.getCause() != null) {
                 taskExecutionMessage = e.getCause().getMessage();
@@ -493,26 +507,31 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         for (PropagationActions action : actions) {
             action.after(task, execution, afterObj);
         }
+        
+        String anyTypeKind = task.getAnyTypeKind() == null ? "realm" : task.getAnyTypeKind().name().toLowerCase();
+        String operation = task.getOperation().name().toLowerCase();
+        // SYNCOPE-1139, check if notification or audit are requested and use TOs instead of persistence objects
+        boolean notificationsAvailable = notificationManager.notificationsAvailable(
+                AuditElements.EventCategoryType.PROPAGATION, anyTypeKind, resource, operation);
+        boolean auditRequested = auditManager.auditRequested(AuditElements.EventCategoryType.PROPAGATION, anyTypeKind,
+                resource, operation);
 
-        notificationManager.createTasks(
-                AuditElements.EventCategoryType.PROPAGATION,
-                task.getAnyTypeKind() == null ? "realm" : task.getAnyTypeKind().name().toLowerCase(),
-                task.getResource().getKey(),
-                task.getOperation().name().toLowerCase(),
-                result,
-                beforeObj,
-                new Object[] { execution, afterObj },
-                task);
+        if (notificationsAvailable || auditRequested) {
+            ExecTO execTO = taskDataBinder.getExecTO(execution);
+            PropagationTaskTO taskTO = taskDataBinder.getTaskTO(task, taskUtilsFactory.getInstance(task), false);
+            notificationManager.createTasks(AuditElements.EventCategoryType.PROPAGATION, anyTypeKind, resource,
+                    operation,
+                    result,
+                    beforeObj,
+                    new Object[] { execTO, afterObj },
+                    taskTO);
 
-        auditManager.audit(
-                AuditElements.EventCategoryType.PROPAGATION,
-                task.getAnyTypeKind() == null ? "realm" : task.getAnyTypeKind().name().toLowerCase(),
-                task.getResource().getKey(),
-                task.getOperation().name().toLowerCase(),
-                result,
-                beforeObj,
-                new Object[] { execution, afterObj },
-                task);
+            auditManager.audit(AuditElements.EventCategoryType.PROPAGATION, anyTypeKind, resource, operation,
+                    result,
+                    beforeObj,
+                    new Object[] { execTO, afterObj },
+                    taskTO);
+        }
 
         return execution;
     }
