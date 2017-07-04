@@ -25,7 +25,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.IteratorUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.commons.collections4.PredicateUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.collections4.TransformerUtils;
@@ -60,9 +62,11 @@ import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Logger;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
+import org.apache.syncope.core.provisioning.java.AuditManagerImpl;
 import org.apache.syncope.core.spring.BeanUtils;
 import org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate;
 import org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
@@ -216,10 +220,41 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
         syncopeLogger.setLevel(LoggerLevel.fromLevel(level));
         syncopeLogger = loggerDAO.save(syncopeLogger);
 
+        boolean isAudit = LoggerType.AUDIT.equals(syncopeLogger.getType());
         LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+        String domainAuditLoggerName =
+                AuditManagerImpl.getDomainAuditEventLoggerName(AuthContextUtils.getDomain(), syncopeLogger.
+                        getKey());
         LoggerConfig logConf = SyncopeConstants.ROOT_LOGGER.equals(name)
                 ? ctx.getConfiguration().getLoggerConfig(LogManager.ROOT_LOGGER_NAME)
-                : ctx.getConfiguration().getLoggerConfig(name);
+                : isAudit
+                        ? ctx.getConfiguration().getLoggerConfig(domainAuditLoggerName)
+                        : ctx.getConfiguration().getLoggerConfig(name);
+
+        if (isAudit) {
+            // SYNCOPE-1144 For each custom audit appender class add related appenders to log4j logger
+            List<AuditAppender> auditAppenders = loggerLoader.auditAppenders(AuthContextUtils.getDomain());
+            boolean isRootLogConf = LogManager.ROOT_LOGGER_NAME.equals(logConf.getName());
+            final String loggerKey = syncopeLogger.getKey();
+            if (isRootLogConf) {
+                logConf = new LoggerConfig(domainAuditLoggerName, null, false);
+            }
+            for (AuditAppender auditAppender : auditAppenders) {
+
+                if (IterableUtils.matchesAny(auditAppender.getEvents(), new Predicate<AuditLoggerName>() {
+
+                    @Override
+                    public boolean evaluate(final AuditLoggerName auditLoggerName) {
+                        return loggerKey.equalsIgnoreCase(auditLoggerName.toLoggerName());
+                    }
+                })) {
+                    loggerLoader.addAppenderToContext(ctx, auditAppender, logConf);
+                }
+            }
+            if (isRootLogConf) {
+                ctx.getConfiguration().addLogger(domainAuditLoggerName, logConf);
+            }
+        }
         logConf.setLevel(level);
         ctx.updateLoggers();
 
@@ -254,6 +289,7 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
         if (expectedType != syncopeLogger.getType()) {
             throwInvalidLogger(expectedType);
         }
+        boolean isAudit = LoggerType.AUDIT.equals(syncopeLogger.getType());
 
         LoggerTO loggerToDelete = new LoggerTO();
         BeanUtils.copyProperties(syncopeLogger, loggerToDelete);
@@ -263,8 +299,14 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
 
         // set log level to OFF in order to disable configured logger until next reboot
         LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+        String domainAuditLoggerName =
+                AuditManagerImpl.getDomainAuditEventLoggerName(AuthContextUtils.getDomain(), syncopeLogger.
+                        getKey());
         org.apache.logging.log4j.core.Logger logger = SyncopeConstants.ROOT_LOGGER.equals(name)
-                ? ctx.getLogger(LogManager.ROOT_LOGGER_NAME) : ctx.getLogger(name);
+                ? ctx.getLogger(LogManager.ROOT_LOGGER_NAME)
+                : isAudit
+                        ? ctx.getLogger(domainAuditLoggerName)
+                        : ctx.getLogger(name);
         logger.setLevel(Level.OFF);
         ctx.updateLoggers();
 
