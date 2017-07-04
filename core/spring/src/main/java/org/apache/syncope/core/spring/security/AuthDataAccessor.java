@@ -155,6 +155,9 @@ public class AuthDataAccessor {
             }
         }
 
+        if (issuer == null) {
+            throw new AuthenticationCredentialsNotFoundException("A null issuer is not permitted");
+        }
         JWTSSOProvider provider = jwtSSOProviders.get(issuer);
         if (provider == null) {
             throw new AuthenticationCredentialsNotFoundException(
