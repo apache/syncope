@@ -420,4 +420,110 @@ public class JWTITCase extends AbstractITCase {
         assertFalse(self.getLeft().isEmpty());
         assertEquals("puccini", self.getRight().getUsername());
     }
+
+    @Test
+    public void thirdPartyTokenUnknownUser() throws ParseException {
+        // Create a new token
+        Date now = new Date();
+
+        Calendar expiry = Calendar.getInstance();
+        expiry.setTime(now);
+        expiry.add(Calendar.MINUTE, 5);
+
+        JwtClaims jwtClaims = new JwtClaims();
+        jwtClaims.setTokenId(UUID.randomUUID().toString());
+        jwtClaims.setSubject("strauss@apache.org");
+        jwtClaims.setIssuedAt(now.getTime());
+        jwtClaims.setIssuer(CustomJWTSSOProvider.ISSUER);
+        jwtClaims.setExpiryTime(expiry.getTime().getTime());
+        jwtClaims.setNotBefore(now.getTime());
+
+        JwsHeaders jwsHeaders = new JwsHeaders(JoseType.JWT, SignatureAlgorithm.HS512);
+        JwtToken jwtToken = new JwtToken(jwsHeaders, jwtClaims);
+        JwsJwtCompactProducer producer = new JwsJwtCompactProducer(jwtToken);
+
+        JwsSignatureProvider jwsSignatureProvider =
+                new HmacJwsSignatureProvider(CustomJWTSSOProvider.CUSTOM_KEY.getBytes(), SignatureAlgorithm.HS512);
+        String signed = producer.signWith(jwsSignatureProvider);
+
+        SyncopeClient jwtClient = clientFactory.create(signed);
+
+        try {
+            jwtClient.self();
+            fail("Failure expected on an unknown subject");
+        } catch (AccessControlException ex) {
+            // expected
+        }
+    }
+
+    @Test
+    public void thirdPartyTokenUnknownIssuer() throws ParseException {
+        // Create a new token
+        Date now = new Date();
+
+        Calendar expiry = Calendar.getInstance();
+        expiry.setTime(now);
+        expiry.add(Calendar.MINUTE, 5);
+
+        JwtClaims jwtClaims = new JwtClaims();
+        jwtClaims.setTokenId(UUID.randomUUID().toString());
+        jwtClaims.setSubject("puccini@apache.org");
+        jwtClaims.setIssuedAt(now.getTime());
+        jwtClaims.setIssuer(CustomJWTSSOProvider.ISSUER + "_");
+        jwtClaims.setExpiryTime(expiry.getTime().getTime());
+        jwtClaims.setNotBefore(now.getTime());
+
+        JwsHeaders jwsHeaders = new JwsHeaders(JoseType.JWT, SignatureAlgorithm.HS512);
+        JwtToken jwtToken = new JwtToken(jwsHeaders, jwtClaims);
+        JwsJwtCompactProducer producer = new JwsJwtCompactProducer(jwtToken);
+
+        JwsSignatureProvider jwsSignatureProvider =
+                new HmacJwsSignatureProvider(CustomJWTSSOProvider.CUSTOM_KEY.getBytes(), SignatureAlgorithm.HS512);
+        String signed = producer.signWith(jwsSignatureProvider);
+
+        SyncopeClient jwtClient = clientFactory.create(signed);
+
+        try {
+            jwtClient.self();
+            fail("Failure expected on an unknown issuer");
+        } catch (AccessControlException ex) {
+            // expected
+        }
+    }
+
+    @Test
+    public void thirdPartyTokenBadSignature() throws ParseException {
+        // Create a new token
+        Date now = new Date();
+
+        Calendar expiry = Calendar.getInstance();
+        expiry.setTime(now);
+        expiry.add(Calendar.MINUTE, 5);
+
+        JwtClaims jwtClaims = new JwtClaims();
+        jwtClaims.setTokenId(UUID.randomUUID().toString());
+        jwtClaims.setSubject("puccini@apache.org");
+        jwtClaims.setIssuedAt(now.getTime());
+        jwtClaims.setIssuer(CustomJWTSSOProvider.ISSUER);
+        jwtClaims.setExpiryTime(expiry.getTime().getTime());
+        jwtClaims.setNotBefore(now.getTime());
+
+        JwsHeaders jwsHeaders = new JwsHeaders(JoseType.JWT, SignatureAlgorithm.HS512);
+        JwtToken jwtToken = new JwtToken(jwsHeaders, jwtClaims);
+        JwsJwtCompactProducer producer = new JwsJwtCompactProducer(jwtToken);
+
+        JwsSignatureProvider jwsSignatureProvider =
+                new HmacJwsSignatureProvider((CustomJWTSSOProvider.CUSTOM_KEY + "_").getBytes(), SignatureAlgorithm.HS512);
+        String signed = producer.signWith(jwsSignatureProvider);
+
+        SyncopeClient jwtClient = clientFactory.create(signed);
+
+        try {
+            jwtClient.self();
+            fail("Failure expected on a bad signature");
+        } catch (AccessControlException ex) {
+            // expected
+        }
+    }
+
 }
