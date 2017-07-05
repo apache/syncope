@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.fit.core.reference;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -78,6 +77,7 @@ public class ITImplementationLookup implements ImplementationLookup {
         {
             Set<String> classNames = new HashSet<>();
             classNames.add(SyncopeJWTSSOProvider.class.getName());
+            classNames.add(CustomJWTSSOProvider.class.getName());
             put(Type.JWT_SSO_PROVIDER, classNames);
 
             classNames = new HashSet<>();
@@ -230,7 +230,10 @@ public class ITImplementationLookup implements ImplementationLookup {
 
     @Override
     public Set<Class<?>> getJWTSSOProviderClasses() {
-        return Collections.<Class<?>>singleton(SyncopeJWTSSOProvider.class);
+        Set<Class<?>> classNames = new HashSet<>();
+        classNames.add(SyncopeJWTSSOProvider.class);
+        classNames.add(CustomJWTSSOProvider.class);
+        return classNames;
     }
 
     @Override
