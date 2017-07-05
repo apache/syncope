@@ -19,6 +19,7 @@
 package org.apache.syncope.fit.core;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -28,9 +29,12 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import javax.ws.rs.core.Response;
 import javax.xml.ws.WebServiceException;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.rs.security.jose.common.JoseType;
 import org.apache.cxf.rs.security.jose.jwa.SignatureAlgorithm;
 import org.apache.cxf.rs.security.jose.jws.HmacJwsSignatureProvider;
@@ -44,10 +48,12 @@ import org.apache.cxf.rs.security.jose.jws.NoneJwsSignatureProvider;
 import org.apache.cxf.rs.security.jose.jwt.JwtClaims;
 import org.apache.cxf.rs.security.jose.jwt.JwtToken;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.AccessTokenService;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.syncope.fit.AbstractITCase;
+import org.apache.syncope.fit.core.reference.CustomJWTSSOProvider;
 import org.junit.Test;
 
 /**
@@ -384,7 +390,6 @@ public class JWTITCase extends AbstractITCase {
     }
 
     @Test
-    @org.junit.Ignore
     public void thirdPartyToken() throws ParseException {
         // Create a new token
         Date now = new Date();
@@ -395,9 +400,9 @@ public class JWTITCase extends AbstractITCase {
 
         JwtClaims jwtClaims = new JwtClaims();
         jwtClaims.setTokenId(UUID.randomUUID().toString());
-        jwtClaims.setSubject(ADMIN_UNAME);
+        jwtClaims.setSubject("puccini@apache.org");
         jwtClaims.setIssuedAt(now.getTime());
-        jwtClaims.setIssuer("custom-issuer");
+        jwtClaims.setIssuer(CustomJWTSSOProvider.ISSUER);
         jwtClaims.setExpiryTime(expiry.getTime().getTime());
         jwtClaims.setNotBefore(now.getTime());
 
@@ -405,14 +410,14 @@ public class JWTITCase extends AbstractITCase {
         JwtToken jwtToken = new JwtToken(jwsHeaders, jwtClaims);
         JwsJwtCompactProducer producer = new JwsJwtCompactProducer(jwtToken);
 
-        String customKey = "12345678910987654321";
-
         JwsSignatureProvider jwsSignatureProvider =
-                new HmacJwsSignatureProvider(customKey.getBytes(), SignatureAlgorithm.HS512);
+                new HmacJwsSignatureProvider(CustomJWTSSOProvider.CUSTOM_KEY.getBytes(), SignatureAlgorithm.HS512);
         String signed = producer.signWith(jwsSignatureProvider);
 
         SyncopeClient jwtClient = clientFactory.create(signed);
-        UserSelfService jwtUserSelfService = jwtClient.getService(UserSelfService.class);
-        jwtUserSelfService.read();
+
+        Pair<Map<String, Set<String>>, UserTO> self = jwtClient.self();
+        assertFalse(self.getLeft().isEmpty());
+        assertEquals("puccini", self.getRight().getUsername());
     }
 }

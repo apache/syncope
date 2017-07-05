@@ -38,6 +38,8 @@ public class JWTAuthentication implements Authentication {
 
     private final SyncopeAuthenticationDetails details;
 
+    private String username;
+
     private final Set<SyncopeGrantedAuthority> authorities = new HashSet<>();
 
     private boolean authenticated = false;
@@ -68,7 +70,11 @@ public class JWTAuthentication implements Authentication {
 
     @Override
     public Object getPrincipal() {
-        return claims.getSubject();
+        return username == null ? claims.getSubject() : username;
+    }
+
+    public void setUsername(final String username) {
+        this.username = username;
     }
 
     @Override
@@ -83,6 +89,6 @@ public class JWTAuthentication implements Authentication {
 
     @Override
     public String getName() {
-        return claims.getSubject();
+        return username == null ? claims.getSubject() : username;
     }
 }

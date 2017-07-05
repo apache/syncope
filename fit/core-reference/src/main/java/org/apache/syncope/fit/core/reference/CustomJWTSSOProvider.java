@@ -18,14 +18,28 @@
  */
 package org.apache.syncope.fit.core.reference;
 
+import java.util.List;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.rs.security.jose.jwa.SignatureAlgorithm;
 import org.apache.cxf.rs.security.jose.jws.HmacJwsSignatureVerifier;
 import org.apache.cxf.rs.security.jose.jws.JwsHeaders;
 import org.apache.cxf.rs.security.jose.jws.JwsSignatureVerifier;
 import org.apache.cxf.rs.security.jose.jws.JwsVerificationSignature;
-import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.cxf.rs.security.jose.jwt.JwtClaims;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.CipherAlgorithm;
+import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
+import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
+import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
+import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import org.apache.syncope.core.spring.security.AuthDataAccessor;
+import org.apache.syncope.core.spring.security.Encryptor;
+import org.apache.syncope.core.spring.security.JWTAccessToken;
 import org.apache.syncope.core.spring.security.JWTSSOProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,21 +48,29 @@ import org.springframework.transaction.annotation.Transactional;
  */
 public class CustomJWTSSOProvider implements JWTSSOProvider {
 
-    private String jwtIssuer = "custom-issuer";
+    private static final Logger LOG = LoggerFactory.getLogger(CustomJWTSSOProvider.class);
+
+    private static final Encryptor ENCRYPTOR = Encryptor.getInstance();
+
+    public static final String ISSUER = "custom-issuer";
+
+    public static final String CUSTOM_KEY = "12345678910987654321";
 
     private final JwsSignatureVerifier delegate;
 
     @Autowired
-    private UserDAO userDAO;
+    private AnySearchDAO searchDAO;
+
+    @Autowired
+    private AuthDataAccessor authDataAccessor;
 
     public CustomJWTSSOProvider() {
-        String customKey = "12345678910987654321";
-        delegate = new HmacJwsSignatureVerifier(customKey.getBytes(), SignatureAlgorithm.HS512);
+        delegate = new HmacJwsSignatureVerifier(CUSTOM_KEY.getBytes(), SignatureAlgorithm.HS512);
     }
 
     @Override
     public String getIssuer() {
-        return jwtIssuer;
+        return ISSUER;
     }
 
     @Override
@@ -68,8 +90,30 @@ public class CustomJWTSSOProvider implements JWTSSOProvider {
 
     @Transactional(readOnly = true)
     @Override
-    public User resolve(final String jwtSubject) {
-        return userDAO.findByUsername(jwtSubject);
+    public Pair<User, AccessToken> resolve(final JwtClaims jwtClaims) {
+        AttributeCond userIdCond = new AttributeCond();
+        userIdCond.setSchema("userId");
+        userIdCond.setType(AttributeCond.Type.EQ);
+        userIdCond.setExpression(jwtClaims.getSubject());
+
+        List<User> matching = searchDAO.search(SearchCond.getLeafCond(userIdCond), AnyTypeKind.USER);
+        if (matching.size() == 1) {
+            User user = matching.get(0);
+
+            AccessToken accessToken = null;
+            try {
+                accessToken = new JWTAccessToken(jwtClaims);
+                accessToken.setAuthorities(ENCRYPTOR.encode(
+                        POJOHelper.serialize(authDataAccessor.getAuthorities(user.getUsername())), CipherAlgorithm.AES).
+                        getBytes());
+            } catch (Exception e) {
+                LOG.error("Could not fetch or store authorities", e);
+            }
+
+            return Pair.of(user, accessToken);
+        }
+
+        return null;
     }
 
 }
