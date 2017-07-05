@@ -383,4 +383,36 @@ public class JWTITCase extends AbstractITCase {
         }
     }
 
+    @Test
+    @org.junit.Ignore
+    public void thirdPartyToken() throws ParseException {
+        // Create a new token
+        Date now = new Date();
+
+        Calendar expiry = Calendar.getInstance();
+        expiry.setTime(now);
+        expiry.add(Calendar.MINUTE, 5);
+
+        JwtClaims jwtClaims = new JwtClaims();
+        jwtClaims.setTokenId(UUID.randomUUID().toString());
+        jwtClaims.setSubject(ADMIN_UNAME);
+        jwtClaims.setIssuedAt(now.getTime());
+        jwtClaims.setIssuer("custom-issuer");
+        jwtClaims.setExpiryTime(expiry.getTime().getTime());
+        jwtClaims.setNotBefore(now.getTime());
+
+        JwsHeaders jwsHeaders = new JwsHeaders(JoseType.JWT, SignatureAlgorithm.HS512);
+        JwtToken jwtToken = new JwtToken(jwsHeaders, jwtClaims);
+        JwsJwtCompactProducer producer = new JwsJwtCompactProducer(jwtToken);
+
+        String customKey = "12345678910987654321";
+
+        JwsSignatureProvider jwsSignatureProvider =
+                new HmacJwsSignatureProvider(customKey.getBytes(), SignatureAlgorithm.HS512);
+        String signed = producer.signWith(jwsSignatureProvider);
+
+        SyncopeClient jwtClient = clientFactory.create(signed);
+        UserSelfService jwtUserSelfService = jwtClient.getService(UserSelfService.class);
+        jwtUserSelfService.read();
+    }
 }
