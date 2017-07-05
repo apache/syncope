@@ -19,6 +19,8 @@
 package org.apache.syncope.core.spring.security;
 
 import java.util.Date;
+import java.util.Set;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.rs.security.jose.jwt.JwtClaims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -44,7 +46,9 @@ public class JWTAuthenticationProvider implements AuthenticationProvider {
 
             @Override
             public Void exec() {
-                jwtAuthentication.getAuthorities().addAll(dataAccessor.authenticate(jwtAuthentication));
+                Pair<String, Set<SyncopeGrantedAuthority>> authenticated = dataAccessor.authenticate(jwtAuthentication);
+                jwtAuthentication.setUsername(authenticated.getLeft());
+                jwtAuthentication.getAuthorities().addAll(authenticated.getRight());
                 return null;
             }
         });

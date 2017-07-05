@@ -19,11 +19,15 @@
 package org.apache.syncope.core.spring.security;
 
 import javax.annotation.Resource;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.rs.security.jose.jwa.SignatureAlgorithm;
 import org.apache.cxf.rs.security.jose.jws.JwsHeaders;
 import org.apache.cxf.rs.security.jose.jws.JwsSignatureVerifier;
 import org.apache.cxf.rs.security.jose.jws.JwsVerificationSignature;
+import org.apache.cxf.rs.security.jose.jwt.JwtClaims;
+import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,6 +45,9 @@ public class SyncopeJWTSSOProvider implements JWTSSOProvider {
 
     @Autowired
     private UserDAO userDAO;
+
+    @Autowired
+    private AccessTokenDAO accessTokenDAO;
 
     @Override
     public String getIssuer() {
@@ -64,8 +71,8 @@ public class SyncopeJWTSSOProvider implements JWTSSOProvider {
 
     @Transactional(readOnly = true)
     @Override
-    public User resolve(final String jwtSubject) {
-        return userDAO.findByUsername(jwtSubject);
+    public Pair<User, AccessToken> resolve(final JwtClaims jwtClaims) {
+        return Pair.of(userDAO.findByUsername(jwtClaims.getSubject()), accessTokenDAO.find(jwtClaims.getTokenId()));
     }
 
 }

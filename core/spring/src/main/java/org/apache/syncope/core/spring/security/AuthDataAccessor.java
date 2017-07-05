@@ -389,37 +389,47 @@ public class AuthDataAccessor {
     }
 
     @Transactional
-    public Set<SyncopeGrantedAuthority> authenticate(final JWTAuthentication authentication) {
-        AccessToken accessToken = accessTokenDAO.find(authentication.getClaims().getTokenId());
-        if (accessToken == null) {
-            throw new AuthenticationCredentialsNotFoundException(
-                    "Could not find JWT " + authentication.getClaims().getTokenId());
-        }
-
+    public Pair<String, Set<SyncopeGrantedAuthority>> authenticate(final JWTAuthentication authentication) {
+        String username;
         Set<SyncopeGrantedAuthority> authorities;
 
-        if (adminUser.equals(accessToken.getOwner())) {
+        if (adminUser.equals(authentication.getClaims().getSubject())) {
+            AccessToken accessToken = accessTokenDAO.find(authentication.getClaims().getTokenId());
+            if (accessToken == null) {
+                throw new AuthenticationCredentialsNotFoundException(
+                        "Could not find an Access Token for JWT " + authentication.getClaims().getTokenId());
+            }
+
+            username = adminUser;
             authorities = getAdminAuthorities();
         } else {
             JWTSSOProvider jwtSSOProvider = getJWTSSOProvider(authentication.getClaims().getIssuer());
-            User user = jwtSSOProvider.resolve(accessToken.getOwner());
-            if (user == null) {
+            Pair<User, AccessToken> resolved = jwtSSOProvider.resolve(authentication.getClaims());
+            if (resolved == null || resolved.getLeft() == null) {
                 throw new AuthenticationCredentialsNotFoundException(
-                        "Could not find user " + accessToken.getOwner()
+                        "Could not find User " + authentication.getClaims().getSubject()
                         + " for JWT " + authentication.getClaims().getTokenId());
             }
-            LOG.debug("JWT {} issued by {} resolved to user {}",
+            if (resolved == null || resolved.getRight() == null) {
+                throw new AuthenticationCredentialsNotFoundException(
+                        "Could not find an Access Token for JWT " + authentication.getClaims().getTokenId());
+            }
+
+            User user = resolved.getLeft();
+            username = user.getUsername();
+            AccessToken accessToken = resolved.getRight();
+            LOG.debug("JWT {} issued by {} resolved to User {} and Access Token {}",
                     authentication.getClaims().getTokenId(),
                     authentication.getClaims().getIssuer(),
-                    user.getUsername());
+                    username, accessToken.getKey());
 
             if (BooleanUtils.isTrue(user.isSuspended())) {
-                throw new DisabledException("User " + user.getUsername() + " is suspended");
+                throw new DisabledException("User " + username + " is suspended");
             }
 
             CPlainAttr authStatuses = confDAO.find("authentication.statuses");
             if (authStatuses != null && !authStatuses.getValuesAsStrings().contains(user.getStatus())) {
-                throw new DisabledException("User " + user.getUsername() + " not allowed to authenticate");
+                throw new DisabledException("User " + username + " not allowed to authenticate");
             }
 
             if (BooleanUtils.isTrue(user.isMustChangePassword())) {
@@ -440,7 +450,7 @@ public class AuthDataAccessor {
             }
         }
 
-        return authorities;
+        return Pair.of(username, authorities);
     }
 
     @Transactional
