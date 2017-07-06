@@ -125,18 +125,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
             throw new DuplicateException(resourceTO.getKey());
         }
 
-        ExternalResource resource = null;
-        try {
-            resource = resourceDAO.save(binder.create(resourceTO));
-        } catch (SyncopeClientException e) {
-            throw e;
-        } catch (Exception e) {
-            SyncopeClientException ex = SyncopeClientException.build(ClientExceptionType.InvalidExternalResource);
-            ex.getElements().add(e.getMessage());
-            throw ex;
-        }
-
-        return binder.getResourceTO(resource);
+        return binder.getResourceTO(resourceDAO.save(binder.create(resourceTO)));
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.RESOURCE_UPDATE + "')")
@@ -146,18 +135,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
             throw new NotFoundException("Resource '" + resourceTO.getKey() + "'");
         }
 
-        resource = binder.update(resource, resourceTO);
-        try {
-            resource = resourceDAO.save(resource);
-        } catch (SyncopeClientException e) {
-            throw e;
-        } catch (Exception e) {
-            SyncopeClientException ex = SyncopeClientException.build(ClientExceptionType.InvalidExternalResource);
-            ex.getElements().add(e.getMessage());
-            throw ex;
-        }
-
-        return binder.getResourceTO(resource);
+        return binder.getResourceTO(resourceDAO.save(binder.update(resource, resourceTO)));
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.RESOURCE_UPDATE + "')")
@@ -208,25 +186,25 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.RESOURCE_DELETE + "')")
-    public ResourceTO delete(final String resourceName) {
-        ExternalResource resource = resourceDAO.find(resourceName);
+    public ResourceTO delete(final String key) {
+        ExternalResource resource = resourceDAO.find(key);
         if (resource == null) {
-            throw new NotFoundException("Resource '" + resourceName + "'");
+            throw new NotFoundException("Resource '" + key + "'");
         }
 
         ResourceTO resourceToDelete = binder.getResourceTO(resource);
 
-        resourceDAO.delete(resourceName);
+        resourceDAO.delete(key);
 
         return resourceToDelete;
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.RESOURCE_READ + "')")
     @Transactional(readOnly = true)
-    public ResourceTO read(final String resourceName) {
-        ExternalResource resource = resourceDAO.find(resourceName);
+    public ResourceTO read(final String key) {
+        ExternalResource resource = resourceDAO.find(key);
         if (resource == null) {
-            throw new NotFoundException("Resource '" + resourceName + "'");
+            throw new NotFoundException("Resource '" + key + "'");
         }
 
         return binder.getResourceTO(resource);

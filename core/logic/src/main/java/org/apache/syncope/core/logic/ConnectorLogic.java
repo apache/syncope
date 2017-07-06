@@ -77,34 +77,12 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
 
     @PreAuthorize("hasRole('" + StandardEntitlement.CONNECTOR_CREATE + "')")
     public ConnInstanceTO create(final ConnInstanceTO connInstanceTO) {
-        ConnInstance connInstance = binder.getConnInstance(connInstanceTO);
-        try {
-            connInstance = connInstanceDAO.save(connInstance);
-        } catch (SyncopeClientException e) {
-            throw e;
-        } catch (Exception e) {
-            SyncopeClientException ex = SyncopeClientException.build(ClientExceptionType.InvalidConnInstance);
-            ex.getElements().add(e.getMessage());
-            throw ex;
-        }
-
-        return binder.getConnInstanceTO(connInstance);
+        return binder.getConnInstanceTO(connInstanceDAO.save(binder.getConnInstance(connInstanceTO)));
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.CONNECTOR_UPDATE + "')")
     public ConnInstanceTO update(final ConnInstanceTO connInstanceTO) {
-        ConnInstance connInstance = binder.update(connInstanceTO.getKey(), connInstanceTO);
-        try {
-            connInstance = connInstanceDAO.save(connInstance);
-        } catch (SyncopeClientException e) {
-            throw e;
-        } catch (Exception e) {
-            SyncopeClientException ex = SyncopeClientException.build(ClientExceptionType.InvalidConnInstance);
-            ex.getElements().add(e.getMessage());
-            throw ex;
-        }
-
-        return binder.getConnInstanceTO(connInstance);
+        return binder.getConnInstanceTO(binder.update(connInstanceTO));
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.CONNECTOR_DELETE + "')")

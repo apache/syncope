@@ -31,6 +31,7 @@ import org.apache.syncope.core.persistence.api.entity.AnyTemplateRealm;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
+import org.apache.syncope.core.persistence.api.entity.ConnInstanceHistoryConf;
 import org.apache.syncope.core.persistence.api.entity.ConnPoolConf;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.Domain;
@@ -125,6 +126,8 @@ import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAOrgUnit;
 import org.apache.syncope.core.persistence.api.entity.DynRealm;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResourceHistoryConf;
+import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResourceHistoryConf;
 
 @Component
 public class JPAEntityFactory implements EntityFactory {
@@ -184,12 +187,16 @@ public class JPAEntityFactory implements EntityFactory {
             result = (E) new JPANotification();
         } else if (reference.equals(ExternalResource.class)) {
             result = (E) new JPAExternalResource();
+        } else if (reference.equals(ExternalResourceHistoryConf.class)) {
+            result = (E) new JPAExternalResourceHistoryConf();
         } else if (reference.equals(Provision.class)) {
             result = (E) new JPAProvision();
         } else if (reference.equals(OrgUnit.class)) {
             result = (E) new JPAOrgUnit();
         } else if (reference.equals(ConnInstance.class)) {
             result = (E) new JPAConnInstance();
+        } else if (reference.equals(ConnInstanceHistoryConf.class)) {
+            result = (E) new JPAConnInstanceHistoryConf();
         } else if (reference.equals(PlainSchema.class)) {
             result = (E) new JPAPlainSchema();
         } else if (reference.equals(APlainAttr.class)) {

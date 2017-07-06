@@ -87,11 +87,9 @@ public abstract class ConnectorConfPanel extends AbstractConnConfPanel<ConnInsta
                 final ConnConfProperty property = new ConnConfProperty();
                 property.setSchema(key);
 
-                if (instance.getConfMap().containsKey(key.getName())
-                        && instance.getConfMap().get(key.getName()).getValues() != null) {
-
-                    property.getValues().addAll(instance.getConfMap().get(key.getName()).getValues());
-                    property.setOverridable(instance.getConfMap().get(key.getName()).isOverridable());
+                if (instance.getConf(key.getName()) != null && instance.getConf(key.getName()).getValues() != null) {
+                    property.getValues().addAll(instance.getConf(key.getName()).getValues());
+                    property.setOverridable(instance.getConf(key.getName()).isOverridable());
                 }
 
                 if (property.getValues().isEmpty() && !key.getDefaultValues().isEmpty()) {

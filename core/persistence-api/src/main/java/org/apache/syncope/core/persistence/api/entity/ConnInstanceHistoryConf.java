@@ -16,21 +16,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.api.data;
+package org.apache.syncope.core.persistence.api.entity;
 
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
-import org.apache.syncope.common.lib.types.ConnConfPropSchema;
-import org.apache.syncope.core.persistence.api.entity.ConnInstance;
-import org.identityconnectors.framework.api.ConfigurationProperty;
 
-public interface ConnInstanceDataBinder {
-
-    ConnConfPropSchema build(ConfigurationProperty property);
-
-    ConnInstance getConnInstance(ConnInstanceTO connInstanceTO);
-
-    ConnInstanceTO getConnInstanceTO(ConnInstance connInstance);
-
-    ConnInstance update(ConnInstanceTO connInstanceTO);
-
+public interface ConnInstanceHistoryConf extends HistoryConf<ConnInstance, ConnInstanceTO> {
 }

@@ -563,7 +563,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         try {
             connForTest.getCapabilities().add(ConnectorCapability.SYNC);
 
-            ConnConfProperty changeLogColumn = connForTest.getConfMap().get("changeLogColumn");
+            ConnConfProperty changeLogColumn = connForTest.getConf("changeLogColumn");
             assertNotNull(changeLogColumn);
             assertTrue(changeLogColumn.getValues().isEmpty());
             changeLogColumn.getValues().add("lastModification");
@@ -953,7 +953,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             ResourceTO ldapResource = resourceService.read(RESOURCE_NAME_LDAP);
             resourceConnector = connectorService.read(
                     ldapResource.getConnector(), Locale.ENGLISH.getLanguage());
-            property = resourceConnector.getConfMap().get("retrievePasswordsWithSearch");
+            property = resourceConnector.getConf("retrievePasswordsWithSearch");
             property.getValues().clear();
             property.getValues().add(Boolean.TRUE);
             connectorService.update(resourceConnector);

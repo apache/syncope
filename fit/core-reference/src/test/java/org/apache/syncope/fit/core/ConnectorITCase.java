@@ -20,6 +20,7 @@ package org.apache.syncope.fit.core;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -27,24 +28,25 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ConnBundleTO;
 import org.apache.syncope.common.lib.to.ConnIdObjectClassTO;
+import org.apache.syncope.common.lib.to.ConnInstanceHistoryConfTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ConnPoolConfTO;
 import org.apache.syncope.common.lib.to.MappingItemTO;
@@ -268,97 +270,9 @@ public class ConnectorITCase extends AbstractITCase {
         assertEquals(Integer.valueOf(20), actual.getConnRequestTimeout());
     }
 
-    private List<ResourceTO> filter(final List<ResourceTO> input, final String connectorKey) {
-        List<ResourceTO> result = new ArrayList<>();
-
-        for (ResourceTO resource : input) {
-            if (connectorKey.equals(resource.getConnector())) {
-                result.add(resource);
-            }
-        }
-
-        return result;
-    }
-
     @Test
-    public void issueSYNCOPE10() {
-        // ----------------------------------
-        // Copy resource and connector in order to create new objects.
-        // ----------------------------------
-        // Retrieve a connector instance template.
-        ConnInstanceTO connInstanceTO = connectorService.read(
-                "fcf9f2b0-f7d6-42c9-84a6-61b28255a42b", Locale.ENGLISH.getLanguage());
-        assertNotNull(connInstanceTO);
-
-        // check for resource
-        List<ResourceTO> resources =
-                filter(resourceService.list(), "fcf9f2b0-f7d6-42c9-84a6-61b28255a42b");
-        assertEquals(4, resources.size());
-
-        // Retrieve a resource TO template.
-        ResourceTO resourceTO = resources.get(0);
-
-        // Make it new.
-        resourceTO.setKey("newAbout103" + getUUIDString());
-
-        // Make it new.
-        connInstanceTO.setKey(null);
-        connInstanceTO.setDisplayName("newDisplayName" + getUUIDString());
-        // ----------------------------------
-
-        // ----------------------------------
-        // Create a new connector instance.
-        // ----------------------------------
-        Response response = connectorService.create(connInstanceTO);
-        if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
-            throw (RuntimeException) clientFactory.getExceptionMapper().fromResponse(response);
-        }
-
-        connInstanceTO = getObject(response.getLocation(), ConnectorService.class, ConnInstanceTO.class);
-        assertNotNull(connInstanceTO);
-        assertFalse(connInstanceTO.getCapabilities().contains(ConnectorCapability.AUTHENTICATE));
-
-        String connKey = connInstanceTO.getKey();
-
-        // Link resourceTO to the new connector instance.
-        resourceTO.setConnector(connKey);
-        // ----------------------------------
-
-        // ----------------------------------
-        // Check for connector instance update after resource creation.
-        // ----------------------------------
-        response = resourceService.create(resourceTO);
-        resourceTO = getObject(response.getLocation(), ResourceService.class, ResourceTO.class);
-
-        assertNotNull(resourceTO);
-
-        resources = filter(resourceService.list(), connKey);
-        assertEquals(1, resources.size());
-        // ----------------------------------
-
-        // ----------------------------------
-        // Check for spring bean.
-        // ----------------------------------
-        ConnInstanceTO connInstanceBean = connectorService.readByResource(
-                resourceTO.getKey(), Locale.ENGLISH.getLanguage());
-        assertNotNull(connInstanceBean);
-        assertFalse(connInstanceBean.getCapabilities().contains(ConnectorCapability.AUTHENTICATE));
-        // ----------------------------------
-
-        // ----------------------------------
-        // Check for spring bean update after connector instance update.
-        // ----------------------------------
-        connInstanceTO.getCapabilities().add(ConnectorCapability.AUTHENTICATE);
-
-        connectorService.update(connInstanceTO);
-        ConnInstanceTO actual = connectorService.read(connInstanceTO.getKey(), Locale.ENGLISH.getLanguage());
-        assertNotNull(actual);
-        assertTrue(connInstanceTO.getCapabilities().contains(ConnectorCapability.AUTHENTICATE));
-
-        // check for spring bean update
-        connInstanceBean = connectorService.readByResource(resourceTO.getKey(), Locale.ENGLISH.getLanguage());
-        assertTrue(connInstanceBean.getCapabilities().contains(ConnectorCapability.AUTHENTICATE));
-        // ----------------------------------
+    public void reload() {
+        connectorService.reload();
     }
 
     @Test
@@ -425,11 +339,9 @@ public class ConnectorITCase extends AbstractITCase {
         // 1. Check Italian
         List<ConnInstanceTO> connectorInstanceTOs = connectorService.list("it");
 
-        Map<String, ConnConfProperty> instanceConfMap;
         for (ConnInstanceTO instance : connectorInstanceTOs) {
             if ("net.tirasa.connid.bundles.db.table".equals(instance.getBundleName())) {
-                instanceConfMap = instance.getConfMap();
-                assertEquals("Utente", instanceConfMap.get("user").getSchema().getDisplayName());
+                assertEquals("Utente", instance.getConf("user").getSchema().getDisplayName());
             }
         }
 
@@ -438,8 +350,7 @@ public class ConnectorITCase extends AbstractITCase {
 
         for (ConnInstanceTO instance : connectorInstanceTOs) {
             if ("net.tirasa.connid.bundles.db.table".equals(instance.getBundleName())) {
-                instanceConfMap = instance.getConfMap();
-                assertEquals("User", instanceConfMap.get("user").getSchema().getDisplayName());
+                assertEquals("User", instance.getConf("user").getSchema().getDisplayName());
             }
         }
     }
@@ -574,6 +485,132 @@ public class ConnectorITCase extends AbstractITCase {
     }
 
     @Test
+    public void history() {
+        List<ConnInstanceHistoryConfTO> history = connectorHistoryService.list("74141a3b-0762-4720-a4aa-fc3e374ef3ef");
+        assertNotNull(history);
+        int pre = history.size();
+
+        ConnInstanceTO ldapConn = connectorService.read("74141a3b-0762-4720-a4aa-fc3e374ef3ef", null);
+        String originalDisplayName = ldapConn.getDisplayName();
+        Set<ConnectorCapability> originalCapabilities = new HashSet<>(ldapConn.getCapabilities());
+        ConnConfProperty originalConfProp = SerializationUtils.clone(ldapConn.getConf("maintainPosixGroupMembership"));
+        assertEquals(1, originalConfProp.getValues().size());
+        assertEquals("false", originalConfProp.getValues().get(0));
+
+        ldapConn.setDisplayName(originalDisplayName + " modified");
+        ldapConn.getCapabilities().clear();
+        ldapConn.getConf("maintainPosixGroupMembership").getValues().set(0, "true");
+        connectorService.update(ldapConn);
+
+        ldapConn = connectorService.read("74141a3b-0762-4720-a4aa-fc3e374ef3ef", null);
+        assertNotEquals(originalDisplayName, ldapConn.getDisplayName());
+        assertNotEquals(originalCapabilities, ldapConn.getCapabilities());
+        assertNotEquals(originalConfProp, ldapConn.getConf("maintainPosixGroupMembership"));
+
+        history = connectorHistoryService.list("74141a3b-0762-4720-a4aa-fc3e374ef3ef");
+        assertEquals(pre + 1, history.size());
+
+        connectorHistoryService.restore(history.get(0).getKey());
+
+        ldapConn = connectorService.read("74141a3b-0762-4720-a4aa-fc3e374ef3ef", null);
+        assertEquals(originalDisplayName, ldapConn.getDisplayName());
+        assertEquals(originalCapabilities, ldapConn.getCapabilities());
+        assertEquals(originalConfProp, ldapConn.getConf("maintainPosixGroupMembership"));
+    }
+
+    @Test
+    public void issueSYNCOPE10() {
+        // ----------------------------------
+        // Copy resource and connector in order to create new objects.
+        // ----------------------------------
+        // Retrieve a connector instance template.
+        ConnInstanceTO connInstanceTO = connectorService.read(
+                "fcf9f2b0-f7d6-42c9-84a6-61b28255a42b", Locale.ENGLISH.getLanguage());
+        assertNotNull(connInstanceTO);
+
+        // check for resource
+        Collection<ResourceTO> resources = CollectionUtils.select(resourceService.list(), new Predicate<ResourceTO>() {
+
+            @Override
+            public boolean evaluate(final ResourceTO object) {
+                return "fcf9f2b0-f7d6-42c9-84a6-61b28255a42b".equals(object.getConnector());
+            }
+        });
+        assertEquals(4, resources.size());
+
+        // Retrieve a resource TO template.
+        ResourceTO resourceTO = resources.iterator().next();
+
+        // Make it new.
+        resourceTO.setKey("newAbout103" + getUUIDString());
+
+        // Make it new.
+        connInstanceTO.setKey(null);
+        connInstanceTO.setDisplayName("newDisplayName" + getUUIDString());
+        // ----------------------------------
+
+        // ----------------------------------
+        // Create a new connector instance.
+        // ----------------------------------
+        Response response = connectorService.create(connInstanceTO);
+        if (response.getStatusInfo().getStatusCode() != Response.Status.CREATED.getStatusCode()) {
+            throw (RuntimeException) clientFactory.getExceptionMapper().fromResponse(response);
+        }
+
+        connInstanceTO = getObject(response.getLocation(), ConnectorService.class, ConnInstanceTO.class);
+        assertNotNull(connInstanceTO);
+        assertFalse(connInstanceTO.getCapabilities().contains(ConnectorCapability.AUTHENTICATE));
+
+        final String connKey = connInstanceTO.getKey();
+
+        // Link resourceTO to the new connector instance.
+        resourceTO.setConnector(connKey);
+        // ----------------------------------
+
+        // ----------------------------------
+        // Check for connector instance update after resource creation.
+        // ----------------------------------
+        response = resourceService.create(resourceTO);
+        resourceTO = getObject(response.getLocation(), ResourceService.class, ResourceTO.class);
+
+        assertNotNull(resourceTO);
+
+        resources = CollectionUtils.select(resourceService.list(), new Predicate<ResourceTO>() {
+
+            @Override
+            public boolean evaluate(final ResourceTO object) {
+                return connKey.equals(object.getConnector());
+            }
+        });
+        assertEquals(1, resources.size());
+        // ----------------------------------
+
+        // ----------------------------------
+        // Check for spring bean.
+        // ----------------------------------
+        ConnInstanceTO connInstanceBean = connectorService.readByResource(
+                resourceTO.getKey(), Locale.ENGLISH.getLanguage());
+        assertNotNull(connInstanceBean);
+        assertFalse(connInstanceBean.getCapabilities().contains(ConnectorCapability.AUTHENTICATE));
+        // ----------------------------------
+
+        // ----------------------------------
+        // Check for spring bean update after connector instance update.
+        // ----------------------------------
+        connInstanceTO.getCapabilities().add(ConnectorCapability.AUTHENTICATE);
+
+        connectorService.update(connInstanceTO);
+        ConnInstanceTO actual = connectorService.read(connInstanceTO.getKey(), Locale.ENGLISH.getLanguage());
+        assertNotNull(actual);
+        assertTrue(connInstanceTO.getCapabilities().contains(ConnectorCapability.AUTHENTICATE));
+
+        // check for spring bean update
+        connInstanceBean = connectorService.readByResource(resourceTO.getKey(), Locale.ENGLISH.getLanguage());
+        assertTrue(connInstanceBean.getCapabilities().contains(ConnectorCapability.AUTHENTICATE));
+        // ----------------------------------
+    }
+
+    @Test
     public void issueSYNCOPE112() {
         // ----------------------------------------
         // Create a new connector
@@ -683,11 +720,6 @@ public class ConnectorITCase extends AbstractITCase {
             // Remove connector from db to make test re-runnable
             connectorService.delete(connectorTO.getKey());
         }
-    }
-
-    @Test
-    public void reload() {
-        connectorService.reload();
     }
 
     @Test

@@ -25,7 +25,6 @@ import static org.junit.Assert.fail;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 import javax.naming.Context;
@@ -61,7 +60,6 @@ import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.TraceLevel;
@@ -105,6 +103,9 @@ import org.junit.runners.MethodSorters;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import com.google.common.net.HttpHeaders;
+import org.apache.syncope.common.lib.to.ConnInstanceTO;
+import org.apache.syncope.common.rest.api.service.ConnectorHistoryService;
+import org.apache.syncope.common.rest.api.service.ResourceHistoryService;
 
 @FixMethodOrder(MethodSorters.JVM)
 public abstract class AbstractITCase {
@@ -209,9 +210,13 @@ public abstract class AbstractITCase {
 
     protected static ResourceService resourceService;
 
+    protected static ResourceHistoryService resourceHistoryService;
+
     protected static ConfigurationService configurationService;
 
     protected static ConnectorService connectorService;
+
+    protected static ConnectorHistoryService connectorHistoryService;
 
     protected static LoggerService loggerService;
 
@@ -289,8 +294,10 @@ public abstract class AbstractITCase {
         userWorkflowService = adminClient.getService(UserWorkflowService.class);
         groupService = adminClient.getService(GroupService.class);
         resourceService = adminClient.getService(ResourceService.class);
+        resourceHistoryService = adminClient.getService(ResourceHistoryService.class);
         configurationService = adminClient.getService(ConfigurationService.class);
         connectorService = adminClient.getService(ConnectorService.class);
+        connectorHistoryService = adminClient.getService(ConnectorHistoryService.class);
         loggerService = adminClient.getService(LoggerService.class);
         reportTemplateService = adminClient.getService(ReportTemplateService.class);
         reportService = adminClient.getService(ReportService.class);
@@ -507,18 +514,17 @@ public abstract class AbstractITCase {
     protected InitialDirContext getLdapResourceDirContext(final String bindDn, final String bindPwd)
             throws NamingException {
         ResourceTO ldapRes = resourceService.read(RESOURCE_NAME_LDAP);
-        final Map<String, ConnConfProperty> ldapConnConf =
-                connectorService.read(ldapRes.getConnector(), Locale.ENGLISH.getLanguage()).getConfMap();
+        ConnInstanceTO ldapConn = connectorService.read(ldapRes.getConnector(), Locale.ENGLISH.getLanguage());
 
         Properties env = new Properties();
         env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-        env.put(Context.PROVIDER_URL, "ldap://" + ldapConnConf.get("host").getValues().get(0)
-                + ":" + ldapConnConf.get("port").getValues().get(0) + "/");
+        env.put(Context.PROVIDER_URL, "ldap://" + ldapConn.getConf("host").getValues().get(0)
+                + ":" + ldapConn.getConf("port").getValues().get(0) + "/");
         env.put(Context.SECURITY_AUTHENTICATION, "simple");
         env.put(Context.SECURITY_PRINCIPAL,
-                bindDn == null ? ldapConnConf.get("principal").getValues().get(0) : bindDn);
+                bindDn == null ? ldapConn.getConf("principal").getValues().get(0) : bindDn);
         env.put(Context.SECURITY_CREDENTIALS,
-                bindPwd == null ? ldapConnConf.get("credentials").getValues().get(0) : bindPwd);
+                bindPwd == null ? ldapConn.getConf("credentials").getValues().get(0) : bindPwd);
 
         return new InitialDirContext(env);
     }

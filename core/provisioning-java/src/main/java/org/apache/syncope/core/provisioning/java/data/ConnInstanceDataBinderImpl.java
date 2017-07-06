@@ -22,6 +22,8 @@ import java.net.URI;
 import org.apache.syncope.core.provisioning.api.data.ConnInstanceDataBinder;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
+import java.util.List;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.tuple.Pair;
@@ -31,8 +33,12 @@ import org.apache.syncope.common.lib.to.ConnPoolConfTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ConnConfPropSchema;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
+import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
+import org.apache.syncope.core.persistence.api.dao.ConnInstanceHistoryConfDAO;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
+import org.apache.syncope.core.persistence.api.entity.ConnInstanceHistoryConf;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
 import org.apache.syncope.core.provisioning.api.utils.ConnPoolConfUtils;
@@ -40,6 +46,7 @@ import org.identityconnectors.framework.api.ConfigurationProperties;
 import org.identityconnectors.framework.api.ConfigurationProperty;
 import org.identityconnectors.framework.impl.api.ConfigurationPropertyImpl;
 import org.apache.syncope.core.spring.BeanUtils;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.identityconnectors.framework.api.ConnectorInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -54,6 +61,12 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
 
     @Autowired
     private ConnInstanceDAO connInstanceDAO;
+
+    @Autowired
+    private ConnInstanceHistoryConfDAO connInstanceHistoryConfDAO;
+
+    @Autowired
+    private ConfDAO confDAO;
 
     @Autowired
     private EntityFactory entityFactory;
@@ -102,14 +115,31 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
     }
 
     @Override
-    public ConnInstance update(final String key, final ConnInstanceTO connInstanceTO) {
-        SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
-
-        if (key == null) {
-            sce.getElements().add("connector key");
+    public ConnInstance update(final ConnInstanceTO connInstanceTO) {
+        ConnInstance connInstance = connInstanceDAO.find(connInstanceTO.getKey());
+        if (connInstance == null) {
+            throw new NotFoundException("Connector '" + connInstanceTO.getKey() + "'");
         }
 
-        ConnInstance connInstance = connInstanceDAO.find(key);
+        // 1. save the current configuration, before update
+        ConnInstanceHistoryConf connInstanceHistoryConf = entityFactory.newEntity(ConnInstanceHistoryConf.class);
+        connInstanceHistoryConf.setCreator(AuthContextUtils.getUsername());
+        connInstanceHistoryConf.setCreation(new Date());
+        connInstanceHistoryConf.setEntity(connInstance);
+        connInstanceHistoryConf.setConf(getConnInstanceTO(connInstance));
+        connInstanceHistoryConfDAO.save(connInstanceHistoryConf);
+
+        // 2. ensure the maximum history size is not exceeded
+        List<ConnInstanceHistoryConf> history = connInstanceHistoryConfDAO.findByEntity(connInstance);
+        long maxHistorySize = confDAO.find("connector.conf.history.size", "10").getValues().get(0).getLongValue();
+        if (maxHistorySize < history.size()) {
+            // always remove the last item since history was obtained  by a query with ORDER BY creation DESC
+            for (int i = 0; i < history.size() - maxHistorySize; i++) {
+                connInstanceHistoryConfDAO.delete(history.get(history.size() - 1).getKey());
+            }
+        }
+
+        // 3. actual update
         connInstance.getCapabilities().clear();
         connInstance.getCapabilities().addAll(connInstanceTO.getCapabilities());
 
@@ -148,8 +178,12 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
                     ConnPoolConfUtils.getConnPoolConf(connInstanceTO.getPoolConf(), entityFactory.newConnPoolConf()));
         }
 
-        if (!sce.isEmpty()) {
-            throw sce;
+        try {
+            connInstance = connInstanceDAO.save(connInstance);
+        } catch (Exception e) {
+            SyncopeClientException ex = SyncopeClientException.build(ClientExceptionType.InvalidConnInstance);
+            ex.getElements().add(e.getMessage());
+            throw ex;
         }
 
         return connInstance;
@@ -188,8 +222,7 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
         BeanUtils.copyProperties(connInstance, connInstanceTO, IGNORE_PROPERTIES);
         connInstanceTO.setLocation(info.getLeft().toASCIIString());
         // refresh stored properties in the given connInstance with direct information from underlying connector
-        ConfigurationProperties properties =
-                connIdBundleManager.getConfigurationProperties(info.getRight());
+        ConfigurationProperties properties = connIdBundleManager.getConfigurationProperties(info.getRight());
         for (final String propName : properties.getPropertyNames()) {
             ConnConfPropSchema schema = build(properties.getProperty(propName));
 

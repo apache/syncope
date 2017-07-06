@@ -20,17 +20,16 @@ package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.Collections;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import javax.ws.rs.PathParam;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
@@ -112,15 +111,14 @@ public class ConnInstanceTO extends AbstractBaseBean implements EntityTO {
     }
 
     @JsonIgnore
-    public Map<String, ConnConfProperty> getConfMap() {
-        Map<String, ConnConfProperty> result = new HashMap<>();
+    public ConnConfProperty getConf(final String schemaName) {
+        return IterableUtils.find(conf, new Predicate<ConnConfProperty>() {
 
-        for (ConnConfProperty prop : getConf()) {
-            result.put(prop.getSchema().getName(), prop);
-        }
-        result = Collections.unmodifiableMap(result);
-
-        return Collections.unmodifiableMap(result);
+            @Override
+            public boolean evaluate(final ConnConfProperty object) {
+                return object.getSchema().getName().equals(schemaName);
+            }
+        });
     }
 
     @XmlElementWrapper(name = "capabilities")

@@ -16,21 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.api.data;
+package org.apache.syncope.core.persistence.api.entity;
 
-import org.apache.syncope.common.lib.to.ConnInstanceTO;
-import org.apache.syncope.common.lib.types.ConnConfPropSchema;
-import org.apache.syncope.core.persistence.api.entity.ConnInstance;
-import org.identityconnectors.framework.api.ConfigurationProperty;
+import java.util.Date;
+import org.apache.syncope.common.lib.to.EntityTO;
 
-public interface ConnInstanceDataBinder {
+public interface HistoryConf<E extends Entity, T extends EntityTO> extends Entity {
 
-    ConnConfPropSchema build(ConfigurationProperty property);
+    String getCreator();
 
-    ConnInstance getConnInstance(ConnInstanceTO connInstanceTO);
+    void setCreator(String creator);
 
-    ConnInstanceTO getConnInstanceTO(ConnInstance connInstance);
+    Date getCreation();
 
-    ConnInstance update(ConnInstanceTO connInstanceTO);
+    void setCreation(Date creation);
 
+    E getEntity();
+
+    void setEntity(E entity);
+
+    T getConf();
+
+    void setConf(T conf);
 }

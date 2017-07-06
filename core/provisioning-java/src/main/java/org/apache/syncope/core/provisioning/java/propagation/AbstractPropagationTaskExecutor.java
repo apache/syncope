@@ -153,7 +153,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     protected TaskDataBinder taskDataBinder;
 
     @Autowired
-    private TaskUtilsFactory taskUtilsFactory;
+    protected TaskUtilsFactory taskUtilsFactory;
 
     @Autowired
     protected EntityFactory entityFactory;
@@ -365,6 +365,8 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     protected TaskExec execute(final PropagationTask task, final PropagationReporter reporter) {
         List<PropagationActions> actions = getPropagationActions(task.getResource());
 
+        String resource = task.getResource().getKey();
+
         Date start = new Date();
 
         TaskExec execution = entityFactory.newEntity(TaskExec.class);
@@ -384,7 +386,6 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         Uid uid = null;
         Connector connector = null;
         Result result;
-        String resource = task.getResource().getKey();
         try {
             provision = task.getResource().getProvision(new ObjectClass(task.getObjectClassName()));
             orgUnit = task.getResource().getOrgUnit();
@@ -507,10 +508,9 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         for (PropagationActions action : actions) {
             action.after(task, execution, afterObj);
         }
-        
+
         String anyTypeKind = task.getAnyTypeKind() == null ? "realm" : task.getAnyTypeKind().name().toLowerCase();
         String operation = task.getOperation().name().toLowerCase();
-        // SYNCOPE-1139, check if notification or audit are requested and use TOs instead of persistence objects
         boolean notificationsAvailable = notificationManager.notificationsAvailable(
                 AuditElements.EventCategoryType.PROPAGATION, anyTypeKind, resource, operation);
         boolean auditRequested = auditManager.auditRequested(AuditElements.EventCategoryType.PROPAGATION, anyTypeKind,
