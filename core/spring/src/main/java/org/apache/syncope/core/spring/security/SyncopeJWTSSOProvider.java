@@ -18,6 +18,9 @@
  */
 package org.apache.syncope.core.spring.security;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import java.util.Collections;
+import java.util.Set;
 import javax.annotation.Resource;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.rs.security.jose.jwa.SignatureAlgorithm;
@@ -25,10 +28,14 @@ import org.apache.cxf.rs.security.jose.jws.JwsHeaders;
 import org.apache.cxf.rs.security.jose.jws.JwsSignatureVerifier;
 import org.apache.cxf.rs.security.jose.jws.JwsVerificationSignature;
 import org.apache.cxf.rs.security.jose.jwt.JwtClaims;
+import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +43,10 @@ import org.springframework.transaction.annotation.Transactional;
  * Default implementation for internal JWT validation.
  */
 public class SyncopeJWTSSOProvider implements JWTSSOProvider {
+
+    private static final Logger LOG = LoggerFactory.getLogger(SyncopeJWTSSOProvider.class);
+
+    private static final Encryptor ENCRYPTOR = Encryptor.getInstance();
 
     @Resource(name = "jwtIssuer")
     private String jwtIssuer;
@@ -71,8 +82,23 @@ public class SyncopeJWTSSOProvider implements JWTSSOProvider {
 
     @Transactional(readOnly = true)
     @Override
-    public Pair<User, AccessToken> resolve(final JwtClaims jwtClaims) {
-        return Pair.of(userDAO.findByUsername(jwtClaims.getSubject()), accessTokenDAO.find(jwtClaims.getTokenId()));
+    public Pair<User, Set<SyncopeGrantedAuthority>> resolve(final JwtClaims jwtClaims) {
+        User user = userDAO.findByUsername(jwtClaims.getSubject());
+        Set<SyncopeGrantedAuthority> authorities = null;
+        if (user != null) {
+            AccessToken accessToken = accessTokenDAO.find(jwtClaims.getTokenId());
+            try {
+                authorities = POJOHelper.deserialize(
+                        ENCRYPTOR.decode(new String(accessToken.getAuthorities()), CipherAlgorithm.AES),
+                        new TypeReference<Set<SyncopeGrantedAuthority>>() {
+                });
+            } catch (Throwable t) {
+                LOG.error("Could not read stored authorities", t);
+                authorities = Collections.emptySet();
+            }
+        }
+
+        return Pair.of(user, authorities);
     }
 
 }

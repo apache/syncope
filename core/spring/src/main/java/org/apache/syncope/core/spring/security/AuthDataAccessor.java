@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.spring.security;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -37,7 +36,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AuditElements;
-import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
@@ -63,7 +61,6 @@ import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.ConnectorFactory;
 import org.apache.syncope.core.provisioning.api.EntitlementsHolder;
 import org.apache.syncope.core.provisioning.api.MappingManager;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.identityconnectors.framework.common.objects.Uid;
@@ -404,24 +401,20 @@ public class AuthDataAccessor {
             authorities = getAdminAuthorities();
         } else {
             JWTSSOProvider jwtSSOProvider = getJWTSSOProvider(authentication.getClaims().getIssuer());
-            Pair<User, AccessToken> resolved = jwtSSOProvider.resolve(authentication.getClaims());
+            Pair<User, Set<SyncopeGrantedAuthority>> resolved = jwtSSOProvider.resolve(authentication.getClaims());
             if (resolved == null || resolved.getLeft() == null) {
                 throw new AuthenticationCredentialsNotFoundException(
                         "Could not find User " + authentication.getClaims().getSubject()
                         + " for JWT " + authentication.getClaims().getTokenId());
             }
-            if (resolved == null || resolved.getRight() == null) {
-                throw new AuthenticationCredentialsNotFoundException(
-                        "Could not find an Access Token for JWT " + authentication.getClaims().getTokenId());
-            }
 
             User user = resolved.getLeft();
             username = user.getUsername();
-            AccessToken accessToken = resolved.getRight();
-            LOG.debug("JWT {} issued by {} resolved to User {} and Access Token {}",
+            authorities = SetUtils.emptyIfNull(resolved.getRight());
+            LOG.debug("JWT {} issued by {} resolved to User {} with authorities {}",
                     authentication.getClaims().getTokenId(),
                     authentication.getClaims().getIssuer(),
-                    username, accessToken.getKey());
+                    username, authorities);
 
             if (BooleanUtils.isTrue(user.isSuspended())) {
                 throw new DisabledException("User " + username + " is suspended");
@@ -433,20 +426,9 @@ public class AuthDataAccessor {
             }
 
             if (BooleanUtils.isTrue(user.isMustChangePassword())) {
+                LOG.debug("User {} must change password, resetting authorities", username);
                 authorities = Collections.singleton(
                         new SyncopeGrantedAuthority(StandardEntitlement.MUST_CHANGE_PASSWORD));
-            } else {
-                LOG.debug("Authorities found in JWT, fetching...");
-
-                try {
-                    authorities = POJOHelper.deserialize(
-                            ENCRYPTOR.decode(new String(accessToken.getAuthorities()), CipherAlgorithm.AES),
-                            new TypeReference<Set<SyncopeGrantedAuthority>>() {
-                    });
-                } catch (Throwable t) {
-                    LOG.error("Could not read stored authorities", t);
-                    authorities = Collections.emptySet();
-                }
             }
         }
 

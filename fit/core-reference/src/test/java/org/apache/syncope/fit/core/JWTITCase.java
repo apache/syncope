@@ -512,8 +512,8 @@ public class JWTITCase extends AbstractITCase {
         JwtToken jwtToken = new JwtToken(jwsHeaders, jwtClaims);
         JwsJwtCompactProducer producer = new JwsJwtCompactProducer(jwtToken);
 
-        JwsSignatureProvider jwsSignatureProvider =
-                new HmacJwsSignatureProvider((CustomJWTSSOProvider.CUSTOM_KEY + "_").getBytes(), SignatureAlgorithm.HS512);
+        JwsSignatureProvider jwsSignatureProvider = new HmacJwsSignatureProvider(
+                (CustomJWTSSOProvider.CUSTOM_KEY + "_").getBytes(), SignatureAlgorithm.HS512);
         String signed = producer.signWith(jwsSignatureProvider);
 
         SyncopeClient jwtClient = clientFactory.create(signed);
