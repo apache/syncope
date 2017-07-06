@@ -24,6 +24,7 @@ import javax.persistence.TypedQuery;
 import org.apache.commons.collections4.Closure;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
+import org.apache.syncope.core.persistence.api.dao.ConnInstanceHistoryConfDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
@@ -35,6 +36,9 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public class JPAConnInstanceDAO extends AbstractDAO<ConnInstance> implements ConnInstanceDAO {
+
+    @Autowired
+    private ConnInstanceHistoryConfDAO connInstanceHistoryConfDAO;
 
     @Autowired
     private ExternalResourceDAO resourceDAO;
@@ -85,8 +89,10 @@ public class JPAConnInstanceDAO extends AbstractDAO<ConnInstance> implements Con
 
         });
 
+        connInstanceHistoryConfDAO.deleteByEntity(connInstance);
+
         entityManager().remove(connInstance);
 
-        connRegistry.unregisterConnector(key.toString());
+        connRegistry.unregisterConnector(key);
     }
 }

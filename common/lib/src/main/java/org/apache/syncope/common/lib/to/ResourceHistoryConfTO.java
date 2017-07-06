@@ -16,21 +16,25 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.api.data;
+package org.apache.syncope.common.lib.to;
 
-import org.apache.syncope.common.lib.to.ConnInstanceTO;
-import org.apache.syncope.common.lib.types.ConnConfPropSchema;
-import org.apache.syncope.core.persistence.api.entity.ConnInstance;
-import org.identityconnectors.framework.api.ConfigurationProperty;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
 
-public interface ConnInstanceDataBinder {
+@XmlRootElement(name = "resourceHistoryConf")
+@XmlType
+public class ResourceHistoryConfTO extends AbstractHistoryConf {
 
-    ConnConfPropSchema build(ConfigurationProperty property);
+    private static final long serialVersionUID = -7308499697925335157L;
 
-    ConnInstance getConnInstance(ConnInstanceTO connInstanceTO);
+    private ResourceTO resourceTO;
 
-    ConnInstanceTO getConnInstanceTO(ConnInstance connInstance);
+    public ResourceTO getResourceTO() {
+        return resourceTO;
+    }
 
-    ConnInstance update(ConnInstanceTO connInstanceTO);
+    public void setResourceTO(final ResourceTO resourceTO) {
+        this.resourceTO = resourceTO;
+    }
 
 }

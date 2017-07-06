@@ -95,7 +95,7 @@ public class SchemaLogic extends AbstractTransactionalLogic<AbstractSchemaTO> {
     public <T extends AbstractSchemaTO> T create(final SchemaType schemaType, final T schemaTO) {
         if (StringUtils.isBlank(schemaTO.getKey())) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
-            sce.getElements().add("Schema name");
+            sce.getElements().add("Schema key");
             throw sce;
         }
 
@@ -124,23 +124,23 @@ public class SchemaLogic extends AbstractTransactionalLogic<AbstractSchemaTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.SCHEMA_DELETE + "')")
-    public void delete(final SchemaType schemaType, final String schemaName) {
-        if (!doesSchemaExist(schemaType, schemaName)) {
-            throw new NotFoundException(schemaType + "/" + schemaName);
+    public void delete(final SchemaType schemaType, final String schemaKey) {
+        if (!doesSchemaExist(schemaType, schemaKey)) {
+            throw new NotFoundException(schemaType + "/" + schemaKey);
         }
 
         switch (schemaType) {
             case VIRTUAL:
-                virSchemaDAO.delete(schemaName);
+                virSchemaDAO.delete(schemaKey);
                 break;
 
             case DERIVED:
-                derSchemaDAO.delete(schemaName);
+                derSchemaDAO.delete(schemaKey);
                 break;
 
             case PLAIN:
             default:
-                plainSchemaDAO.delete(schemaName);
+                plainSchemaDAO.delete(schemaKey);
         }
     }
 
@@ -207,22 +207,22 @@ public class SchemaLogic extends AbstractTransactionalLogic<AbstractSchemaTO> {
 
     @PreAuthorize("isAuthenticated()")
     @SuppressWarnings("unchecked")
-    public <T extends AbstractSchemaTO> T read(final SchemaType schemaType, final String schemaName) {
+    public <T extends AbstractSchemaTO> T read(final SchemaType schemaType, final String schemaKey) {
         T read;
         switch (schemaType) {
             case VIRTUAL:
-                VirSchema virSchema = virSchemaDAO.find(schemaName);
+                VirSchema virSchema = virSchemaDAO.find(schemaKey);
                 if (virSchema == null) {
-                    throw new NotFoundException("Virtual Schema '" + schemaName + "'");
+                    throw new NotFoundException("Virtual Schema '" + schemaKey + "'");
                 }
 
                 read = (T) binder.getVirSchemaTO(virSchema);
                 break;
 
             case DERIVED:
-                DerSchema derSchema = derSchemaDAO.find(schemaName);
+                DerSchema derSchema = derSchemaDAO.find(schemaKey);
                 if (derSchema == null) {
-                    throw new NotFoundException("Derived schema '" + schemaName + "'");
+                    throw new NotFoundException("Derived schema '" + schemaKey + "'");
                 }
 
                 read = (T) binder.getDerSchemaTO(derSchema);
@@ -230,9 +230,9 @@ public class SchemaLogic extends AbstractTransactionalLogic<AbstractSchemaTO> {
 
             case PLAIN:
             default:
-                PlainSchema schema = plainSchemaDAO.find(schemaName);
+                PlainSchema schema = plainSchemaDAO.find(schemaKey);
                 if (schema == null) {
-                    throw new NotFoundException("Schema '" + schemaName + "'");
+                    throw new NotFoundException("Schema '" + schemaKey + "'");
                 }
 
                 read = (T) binder.getPlainSchemaTO(schema);

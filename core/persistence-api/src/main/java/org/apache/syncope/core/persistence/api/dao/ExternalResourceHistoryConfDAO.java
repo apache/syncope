@@ -16,21 +16,21 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.api.data;
+package org.apache.syncope.core.persistence.api.dao;
 
-import org.apache.syncope.common.lib.to.ConnInstanceTO;
-import org.apache.syncope.common.lib.types.ConnConfPropSchema;
-import org.apache.syncope.core.persistence.api.entity.ConnInstance;
-import org.identityconnectors.framework.api.ConfigurationProperty;
+import java.util.List;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.resource.ExternalResourceHistoryConf;
 
-public interface ConnInstanceDataBinder {
+public interface ExternalResourceHistoryConfDAO extends DAO<ExternalResourceHistoryConf> {
 
-    ConnConfPropSchema build(ConfigurationProperty property);
+    ExternalResourceHistoryConf find(String key);
 
-    ConnInstance getConnInstance(ConnInstanceTO connInstanceTO);
+    List<ExternalResourceHistoryConf> findByEntity(ExternalResource entity);
 
-    ConnInstanceTO getConnInstanceTO(ConnInstance connInstance);
+    ExternalResourceHistoryConf save(ExternalResourceHistoryConf conf);
 
-    ConnInstance update(ConnInstanceTO connInstanceTO);
+    void delete(String key);
 
+    void deleteByEntity(ExternalResource entity);
 }

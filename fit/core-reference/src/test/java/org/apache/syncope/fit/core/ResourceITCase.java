@@ -20,6 +20,7 @@ package org.apache.syncope.fit.core;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -35,6 +36,7 @@ import java.util.Set;
 import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.console.commons.ConnIdSpecialName;
 import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -46,6 +48,7 @@ import org.apache.syncope.common.lib.to.MappingTO;
 import org.apache.syncope.common.lib.to.OrgUnitTO;
 import org.apache.syncope.common.lib.to.PagedConnObjectTOResult;
 import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.ResourceHistoryConfTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -53,6 +56,7 @@ import org.apache.syncope.common.lib.types.ConnConfPropSchema;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
+import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.common.rest.api.beans.ConnObjectTOListQuery;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.identityconnectors.framework.common.objects.ObjectClass;
@@ -498,29 +502,6 @@ public class ResourceITCase extends AbstractITCase {
     }
 
     @Test
-    public void issueSYNCOPE323() {
-        ResourceTO actual = resourceService.read(RESOURCE_NAME_TESTDB);
-        assertNotNull(actual);
-
-        try {
-            createResource(actual);
-            fail();
-        } catch (SyncopeClientException e) {
-            assertEquals(Response.Status.CONFLICT, e.getType().getResponseStatus());
-            assertEquals(ClientExceptionType.EntityExists, e.getType());
-        }
-
-        actual.setKey(null);
-        try {
-            createResource(actual);
-            fail();
-        } catch (SyncopeClientException e) {
-            assertEquals(Response.Status.BAD_REQUEST, e.getType().getResponseStatus());
-            assertEquals(ClientExceptionType.RequiredValuesMissing, e.getType());
-        }
-    }
-
-    @Test
     public void anonymous() {
         ResourceService unauthenticated = clientFactory.create().getService(ResourceService.class);
         try {
@@ -589,6 +570,65 @@ public class ResourceITCase extends AbstractITCase {
             for (String key : groupKeys) {
                 groupService.delete(key);
             }
+        }
+    }
+
+    @Test
+    public void history() {
+        List<ResourceHistoryConfTO> history = resourceHistoryService.list(RESOURCE_NAME_LDAP);
+        assertNotNull(history);
+        int pre = history.size();
+
+        ResourceTO ldap = resourceService.read(RESOURCE_NAME_LDAP);
+        TraceLevel originalTraceLevel = SerializationUtils.clone(ldap.getUpdateTraceLevel());
+        assertEquals(TraceLevel.ALL, originalTraceLevel);
+        ProvisionTO originalProvision = SerializationUtils.clone(ldap.getProvision(AnyTypeKind.USER.name()));
+        assertEquals(ObjectClass.ACCOUNT_NAME, originalProvision.getObjectClass());
+        boolean originalFlag = ldap.isRandomPwdIfNotProvided();
+        assertTrue(originalFlag);
+
+        ldap.setUpdateTraceLevel(TraceLevel.FAILURES);
+        ldap.getProvision(AnyTypeKind.USER.name()).setObjectClass("ANOTHER");
+        ldap.setRandomPwdIfNotProvided(false);
+        resourceService.update(ldap);
+
+        ldap = resourceService.read(RESOURCE_NAME_LDAP);
+        assertNotEquals(originalTraceLevel, ldap.getUpdateTraceLevel());
+        assertNotEquals(
+                originalProvision.getObjectClass(), ldap.getProvision(AnyTypeKind.USER.name()).getObjectClass());
+        assertNotEquals(originalFlag, ldap.isRandomPwdIfNotProvided());
+
+        history = resourceHistoryService.list(RESOURCE_NAME_LDAP);
+        assertEquals(pre + 1, history.size());
+
+        resourceHistoryService.restore(history.get(0).getKey());
+
+        ldap = resourceService.read(RESOURCE_NAME_LDAP);
+        assertEquals(originalTraceLevel, ldap.getUpdateTraceLevel());
+        assertEquals(originalProvision.getObjectClass(), ldap.getProvision(AnyTypeKind.USER.name()).getObjectClass());
+        assertEquals(originalFlag, ldap.isRandomPwdIfNotProvided());
+    }
+
+    @Test
+    public void issueSYNCOPE323() {
+        ResourceTO actual = resourceService.read(RESOURCE_NAME_TESTDB);
+        assertNotNull(actual);
+
+        try {
+            createResource(actual);
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(Response.Status.CONFLICT, e.getType().getResponseStatus());
+            assertEquals(ClientExceptionType.EntityExists, e.getType());
+        }
+
+        actual.setKey(null);
+        try {
+            createResource(actual);
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(Response.Status.BAD_REQUEST, e.getType().getResponseStatus());
+            assertEquals(ClientExceptionType.RequiredValuesMissing, e.getType());
         }
     }
 
