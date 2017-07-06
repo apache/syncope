@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.core.spring.security;
 
+import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.rs.security.jose.jws.JwsSignatureVerifier;
 import org.apache.cxf.rs.security.jose.jwt.JwtClaims;
-import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 
 /**
@@ -38,11 +38,11 @@ public interface JWTSSOProvider extends JwsSignatureVerifier {
     String getIssuer();
 
     /**
-     * Attempts to resolve the given JWT claims into internal {@link User} and {@link AccessToken}.
+     * Attempts to resolve the given JWT claims into internal {@link User} and authorities.
      * <strong>IMPORTANT</strong>: this is not invoked for the {@code}admin{@code} super-user.
      *
      * @param jwtClaims JWT claims
-     * @return internal User and Access Token matching the provided JWT claims, if found; otherwise null
+     * @return internal User, with authorities, matching the provided JWT claims, if found; otherwise null
      */
-    Pair<User, AccessToken> resolve(JwtClaims jwtClaims);
+    Pair<User, Set<SyncopeGrantedAuthority>> resolve(JwtClaims jwtClaims);
 }

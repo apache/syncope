@@ -19,6 +19,7 @@
 package org.apache.syncope.fit.core.reference;
 
 import java.util.List;
+import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.rs.security.jose.jwa.SignatureAlgorithm;
 import org.apache.cxf.rs.security.jose.jws.HmacJwsSignatureVerifier;
@@ -27,19 +28,13 @@ import org.apache.cxf.rs.security.jose.jws.JwsSignatureVerifier;
 import org.apache.cxf.rs.security.jose.jws.JwsVerificationSignature;
 import org.apache.cxf.rs.security.jose.jwt.JwtClaims;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
-import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
-import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.security.AuthDataAccessor;
-import org.apache.syncope.core.spring.security.Encryptor;
-import org.apache.syncope.core.spring.security.JWTAccessToken;
 import org.apache.syncope.core.spring.security.JWTSSOProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.syncope.core.spring.security.SyncopeGrantedAuthority;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,10 +42,6 @@ import org.springframework.transaction.annotation.Transactional;
  * Custom implementation for internal JWT validation.
  */
 public class CustomJWTSSOProvider implements JWTSSOProvider {
-
-    private static final Logger LOG = LoggerFactory.getLogger(CustomJWTSSOProvider.class);
-
-    private static final Encryptor ENCRYPTOR = Encryptor.getInstance();
 
     public static final String ISSUER = "custom-issuer";
 
@@ -90,7 +81,7 @@ public class CustomJWTSSOProvider implements JWTSSOProvider {
 
     @Transactional(readOnly = true)
     @Override
-    public Pair<User, AccessToken> resolve(final JwtClaims jwtClaims) {
+    public Pair<User, Set<SyncopeGrantedAuthority>> resolve(final JwtClaims jwtClaims) {
         AttributeCond userIdCond = new AttributeCond();
         userIdCond.setSchema("userId");
         userIdCond.setType(AttributeCond.Type.EQ);
@@ -99,18 +90,9 @@ public class CustomJWTSSOProvider implements JWTSSOProvider {
         List<User> matching = searchDAO.search(SearchCond.getLeafCond(userIdCond), AnyTypeKind.USER);
         if (matching.size() == 1) {
             User user = matching.get(0);
+            Set<SyncopeGrantedAuthority> authorities = authDataAccessor.getAuthorities(user.getUsername());
 
-            AccessToken accessToken = null;
-            try {
-                accessToken = new JWTAccessToken(jwtClaims);
-                accessToken.setAuthorities(ENCRYPTOR.encode(
-                        POJOHelper.serialize(authDataAccessor.getAuthorities(user.getUsername())), CipherAlgorithm.AES).
-                        getBytes());
-            } catch (Exception e) {
-                LOG.error("Could not fetch or store authorities", e);
-            }
-
-            return Pair.of(user, accessToken);
+            return Pair.of(user, authorities);
         }
 
         return null;
