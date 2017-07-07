@@ -190,3 +190,18 @@ example, which leverage the `syncope:fullPath2Dn()` custom JEXL function:
 * Users: `'uid=' + name + syncope:fullPath2Dn(realm, 'ou', ',') + ',o=isp'`
 * Groups: `'cn=' + name + syncope:fullPath2Dn(realm, 'ou', ',') + ',o=isp'`
 ====
+
+[[connectors-resources-history]]
+[NOTE]
+.Connector Instances and External Resources Configuration History Management
+====
+When either developing an IdM solution or managing a production deployment, it often happens to play with
+Connector Instances and / or External Resources configuration; sometimes, this results in failures which prevent
+<<provisioning,provisioning>> to work properly.
+
+In such situations it is possible to revert a Connector Instance's and / or External Resource's configuration to a
+previous working state.
+
+The maximum number of configurations to keep, for each Connector Instance and for each External Resource, is set by
+`connector.conf.history.size` and `resource.conf.history.size`: see <<configuration-parameters, below>> for details.
+====
