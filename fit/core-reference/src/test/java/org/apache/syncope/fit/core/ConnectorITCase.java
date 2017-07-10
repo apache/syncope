@@ -38,12 +38,15 @@ import java.util.Set;
 import java.util.UUID;
 import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ConnBundleTO;
 import org.apache.syncope.common.lib.to.ConnIdObjectClassTO;
 import org.apache.syncope.common.lib.to.ConnInstanceHistoryConfTO;
@@ -54,6 +57,7 @@ import org.apache.syncope.common.lib.to.MappingTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ConnConfPropSchema;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
@@ -117,6 +121,7 @@ public class ConnectorITCase extends AbstractITCase {
     @Test
     public void create() {
         ConnInstanceTO connectorTO = new ConnInstanceTO();
+        connectorTO.setAdminRealm(SyncopeConstants.ROOT_REALM);
         connectorTO.setLocation(connectorService.read(
                 "88a7a819-dab5-46b4-9b90-0b9769eabdb8", Locale.ENGLISH.getLanguage()).getLocation());
         connectorTO.setVersion(connIdSoapVersion);
@@ -217,6 +222,7 @@ public class ConnectorITCase extends AbstractITCase {
     @Test
     public void update() {
         ConnInstanceTO connectorTO = new ConnInstanceTO();
+        connectorTO.setAdminRealm(SyncopeConstants.ROOT_REALM);
 
         // set connector instance key
         connectorTO.setKey("fcf9f2b0-f7d6-42c9-84a6-61b28255a42b");
@@ -358,6 +364,7 @@ public class ConnectorITCase extends AbstractITCase {
     @Test
     public void validate() {
         ConnInstanceTO connectorTO = new ConnInstanceTO();
+        connectorTO.setAdminRealm(SyncopeConstants.ROOT_REALM);
         connectorTO.setLocation(connectorServerLocation);
         connectorTO.setVersion(connIdDbVersion);
         connectorTO.setConnectorName("net.tirasa.connid.bundles.db.table.DatabaseTableConnector");
@@ -519,6 +526,52 @@ public class ConnectorITCase extends AbstractITCase {
     }
 
     @Test
+    public void authorizations() {
+        SyncopeClient puccini = clientFactory.create("puccini", ADMIN_PWD);
+        ConnectorService pcs = puccini.getService(ConnectorService.class);
+
+        // 1. list connectors: get only the ones allowed
+        List<ConnInstanceTO> connInstances = pcs.list(null);
+        assertEquals(2, connInstances.size());
+
+        assertTrue(IterableUtils.matchesAll(connInstances, new Predicate<ConnInstanceTO>() {
+
+            @Override
+            public boolean evaluate(final ConnInstanceTO object) {
+                return "a6d017fd-a705-4507-bb7c-6ab6a6745997".equals(object.getKey())
+                        || "44c02549-19c3-483c-8025-4919c3283c37".equals(object.getKey());
+            }
+        }));
+
+        // 2. attempt to read a connector with a different admin realm: fail
+        try {
+            pcs.read("88a7a819-dab5-46b4-9b90-0b9769eabdb8", null);
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.DelegatedAdministration, e.getType());
+        }
+
+        // 3. read and upate a connector in the realm for which entitlements are owned: succeed
+        try {
+            ConnInstanceTO scriptedsql = pcs.read("a6d017fd-a705-4507-bb7c-6ab6a6745997", null);
+            ConnConfProperty reloadScriptOnExecution = scriptedsql.getConf("reloadScriptOnExecution");
+            assertEquals("true", reloadScriptOnExecution.getValues().get(0).toString());
+
+            reloadScriptOnExecution.getValues().set(0, "false");
+            pcs.update(scriptedsql);
+
+            scriptedsql = pcs.read(scriptedsql.getKey(), null);
+            reloadScriptOnExecution = scriptedsql.getConf("reloadScriptOnExecution");
+            assertEquals("false", reloadScriptOnExecution.getValues().get(0).toString());
+        } finally {
+            ConnInstanceTO scriptedsql = connectorService.read("a6d017fd-a705-4507-bb7c-6ab6a6745997", null);
+            ConnConfProperty reloadScriptOnExecution = scriptedsql.getConf("reloadScriptOnExecution");
+            reloadScriptOnExecution.getValues().set(0, "true");
+            connectorService.update(scriptedsql);
+        }
+    }
+
+    @Test
     public void issueSYNCOPE10() {
         // ----------------------------------
         // Copy resource and connector in order to create new objects.
@@ -616,6 +669,7 @@ public class ConnectorITCase extends AbstractITCase {
         // Create a new connector
         // ----------------------------------------
         ConnInstanceTO connectorTO = new ConnInstanceTO();
+        connectorTO.setAdminRealm(SyncopeConstants.ROOT_REALM);
 
         connectorTO.setLocation(connectorService.read(
                 "88a7a819-dab5-46b4-9b90-0b9769eabdb8", Locale.ENGLISH.getLanguage()).getLocation());

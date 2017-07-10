@@ -24,7 +24,7 @@ public class DelegatedAdministrationException extends RuntimeException {
 
     private static final long serialVersionUID = 7540587364235915081L;
 
-    public DelegatedAdministrationException(final String realm, final AnyTypeKind type, final String key) {
+    public DelegatedAdministrationException(final String realm, final String type, final String key) {
         super("Missing entitlement or realm administration under " + realm + " for "
                 + (key == null
                         ? "new " + type

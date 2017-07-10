@@ -26,6 +26,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.commons.collections4.PredicateUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.ArrayUtils;
@@ -44,6 +46,9 @@ import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
 import org.apache.syncope.core.provisioning.api.ConnectorFactory;
 import org.apache.syncope.core.provisioning.api.data.ConnInstanceDataBinder;
+import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.identityconnectors.common.l10n.CurrentLocale;
 import org.identityconnectors.framework.api.ConfigurationProperties;
 import org.identityconnectors.framework.api.ConnectorInfo;
@@ -75,22 +80,60 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
     @Autowired
     private ConnectorFactory connFactory;
 
+    protected void securityChecks(final Set<String> effectiveRealms, final String realm, final String key) {
+        boolean authorized = IterableUtils.matchesAny(effectiveRealms, new Predicate<String>() {
+
+            @Override
+            public boolean evaluate(final String ownedRealm) {
+                return realm.startsWith(ownedRealm);
+            }
+        });
+        if (!authorized) {
+            throw new DelegatedAdministrationException(realm, ConnInstance.class.getSimpleName(), key);
+        }
+    }
+
     @PreAuthorize("hasRole('" + StandardEntitlement.CONNECTOR_CREATE + "')")
     public ConnInstanceTO create(final ConnInstanceTO connInstanceTO) {
+        if (connInstanceTO.getAdminRealm() == null) {
+            throw SyncopeClientException.build(ClientExceptionType.InvalidRealm);
+        }
+
+        Set<String> effectiveRealms = RealmUtils.getEffective(
+                AuthContextUtils.getAuthorizations().get(StandardEntitlement.CONNECTOR_CREATE),
+                connInstanceTO.getAdminRealm());
+        securityChecks(effectiveRealms, connInstanceTO.getAdminRealm(), null);
+
         return binder.getConnInstanceTO(connInstanceDAO.save(binder.getConnInstance(connInstanceTO)));
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.CONNECTOR_UPDATE + "')")
     public ConnInstanceTO update(final ConnInstanceTO connInstanceTO) {
+        if (connInstanceTO.getAdminRealm() == null) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidConnInstance);
+            sce.getElements().add("Invalid or null realm specified: " + connInstanceTO.getAdminRealm());
+            throw sce;
+        }
+
+        Set<String> effectiveRealms = RealmUtils.getEffective(
+                AuthContextUtils.getAuthorizations().get(StandardEntitlement.CONNECTOR_UPDATE),
+                connInstanceTO.getAdminRealm());
+        securityChecks(effectiveRealms, connInstanceTO.getAdminRealm(), connInstanceTO.getKey());
+
         return binder.getConnInstanceTO(binder.update(connInstanceTO));
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.CONNECTOR_DELETE + "')")
     public ConnInstanceTO delete(final String key) {
-        ConnInstance connInstance = connInstanceDAO.find(key);
+        ConnInstance connInstance = connInstanceDAO.authFind(key);
         if (connInstance == null) {
             throw new NotFoundException("Connector '" + key + "'");
         }
+
+        Set<String> effectiveRealms = RealmUtils.getEffective(
+                AuthContextUtils.getAuthorizations().get(StandardEntitlement.CONNECTOR_DELETE),
+                connInstance.getAdminRealm().getFullPath());
+        securityChecks(effectiveRealms, connInstance.getAdminRealm().getFullPath(), connInstance.getKey());
 
         if (!connInstance.getResources().isEmpty()) {
             SyncopeClientException associatedResources = SyncopeClientException.build(
@@ -136,7 +179,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
     public ConnInstanceTO read(final String key, final String lang) {
         CurrentLocale.set(StringUtils.isBlank(lang) ? Locale.ENGLISH : new Locale(lang));
 
-        ConnInstance connInstance = connInstanceDAO.find(key);
+        ConnInstance connInstance = connInstanceDAO.authFind(key);
         if (connInstance == null) {
             throw new NotFoundException("Connector '" + key + "'");
         }
@@ -183,7 +226,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
     public List<ConnIdObjectClassTO> buildObjectClassInfo(
             final ConnInstanceTO connInstanceTO, final boolean includeSpecial) {
 
-        ConnInstance connInstance = connInstanceDAO.find(connInstanceTO.getKey());
+        ConnInstance connInstance = connInstanceDAO.authFind(connInstanceTO.getKey());
         if (connInstance == null) {
             throw new NotFoundException("Connector '" + connInstanceTO.getKey() + "'");
         }
@@ -214,6 +257,10 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
     @PreAuthorize("hasRole('" + StandardEntitlement.CONNECTOR_READ + "')")
     @Transactional(readOnly = true)
     public void check(final ConnInstanceTO connInstanceTO) {
+        if (connInstanceTO.getAdminRealm() == null) {
+            throw SyncopeClientException.build(ClientExceptionType.InvalidRealm);
+        }
+
         connFactory.createConnector(binder.getConnInstance(connInstanceTO)).test();
     }
 

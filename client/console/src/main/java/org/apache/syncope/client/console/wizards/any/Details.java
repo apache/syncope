@@ -73,8 +73,7 @@ public class Details<T extends AnyTO> extends WizardStep {
                     "destinationRealm", "destinationRealm", new PropertyModel<String>(inner, "realm"), false);
 
             ((AjaxDropDownChoicePanel<String>) realm).setChoices(CollectionUtils.collect(
-                    realms,
-                    new Transformer<RealmTO, String>() {
+                    realms, new Transformer<RealmTO, String>() {
 
                 @Override
                 public String transform(final RealmTO input) {

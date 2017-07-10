@@ -25,6 +25,8 @@ public interface ConnInstanceDAO extends DAO<ConnInstance> {
 
     ConnInstance find(String key);
 
+    ConnInstance authFind(String key);
+
     List<ConnInstance> findAll();
 
     ConnInstance save(ConnInstance connector);

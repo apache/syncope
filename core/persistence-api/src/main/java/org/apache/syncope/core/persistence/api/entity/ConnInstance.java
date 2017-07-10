@@ -26,6 +26,10 @@ import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 
 public interface ConnInstance extends Entity {
 
+    Realm getAdminRealm();
+
+    void setAdminRealm(Realm adminRealm);
+
     void setConnectorName(String connectorName);
 
     String getConnectorName();

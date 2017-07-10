@@ -21,6 +21,9 @@ package org.apache.syncope.core.provisioning.api.utils;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.Predicate;
 
 public final class RealmUtils {
 
@@ -55,6 +58,50 @@ public final class RealmUtils {
         }
 
         return normalized;
+    }
+
+    private static class StartsWithPredicate implements Predicate<String> {
+
+        private final Collection<String> targets;
+
+        StartsWithPredicate(final Collection<String> targets) {
+            this.targets = targets;
+        }
+
+        @Override
+        public boolean evaluate(final String realm) {
+            return IterableUtils.matchesAny(targets, new Predicate<String>() {
+
+                @Override
+                public boolean evaluate(final String target) {
+                    return realm.startsWith(target);
+                }
+            });
+        }
+
+    }
+
+    public static class DynRealmsPredicate implements Predicate<String> {
+
+        @Override
+        public boolean evaluate(final String realm) {
+            return !realm.startsWith("/");
+        }
+    }
+
+    public static Set<String> getEffective(final Set<String> allowedRealms, final String requestedRealm) {
+        Set<String> allowed = RealmUtils.normalize(allowedRealms);
+        Set<String> requested = new HashSet<>();
+        requested.add(requestedRealm);
+
+        Set<String> effective = new HashSet<>();
+        CollectionUtils.select(requested, new StartsWithPredicate(allowed), effective);
+        CollectionUtils.select(allowed, new StartsWithPredicate(requested), effective);
+
+        // includes dynamic realms
+        CollectionUtils.select(allowedRealms, new DynRealmsPredicate(), effective);
+
+        return effective;
     }
 
     private RealmUtils() {

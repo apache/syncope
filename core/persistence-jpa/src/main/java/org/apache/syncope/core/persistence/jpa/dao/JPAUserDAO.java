@@ -191,7 +191,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
             }
             if (authRealms == null || authRealms.isEmpty() || !authorized) {
                 throw new DelegatedAdministrationException(
-                        user.getRealm().getFullPath(), AnyTypeKind.USER, user.getKey());
+                        user.getRealm().getFullPath(), AnyTypeKind.USER.name(), user.getKey());
             }
         }
     }

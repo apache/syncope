@@ -148,7 +148,7 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
         }
         if (authRealms == null || authRealms.isEmpty() || !authorized) {
             throw new DelegatedAdministrationException(
-                    anyObject.getRealm().getFullPath(), AnyTypeKind.ANY_OBJECT, anyObject.getKey());
+                    anyObject.getRealm().getFullPath(), AnyTypeKind.ANY_OBJECT.name(), anyObject.getKey());
         }
     }
 

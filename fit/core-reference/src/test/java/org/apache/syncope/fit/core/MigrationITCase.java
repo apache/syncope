@@ -31,6 +31,7 @@ import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.AttrTO;
@@ -166,6 +167,7 @@ public class MigrationITCase extends AbstractTaskITCase {
 
     private String setupConnector() {
         ConnInstanceTO connInstanceTO = new ConnInstanceTO();
+        connInstanceTO.setAdminRealm(SyncopeConstants.ROOT_REALM);
         connInstanceTO.setLocation(connectorServerLocation);
         connInstanceTO.setConnectorName("net.tirasa.connid.bundles.db.scriptedsql.ScriptedSQLConnector");
         connInstanceTO.setBundleName("net.tirasa.connid.bundles.db.scriptedsql");

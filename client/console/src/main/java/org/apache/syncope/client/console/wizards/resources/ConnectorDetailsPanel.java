@@ -19,12 +19,16 @@
 package org.apache.syncope.client.console.wizards.resources;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.collections4.Transformer;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxSpinnerFieldPanel;
@@ -32,18 +36,63 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPa
 import org.apache.syncope.common.lib.to.ConnBundleTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ConnPoolConfTO;
+import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.form.DropDownChoice;
+import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.PropertyModel;
 
 public class ConnectorDetailsPanel extends WizardStep {
 
     private static final long serialVersionUID = -2435937897614232137L;
 
+    private final LoadableDetachableModel<List<String>> realms;
+
     public ConnectorDetailsPanel(final ConnInstanceTO connInstanceTO, final List<ConnBundleTO> bundles) {
         super();
         setOutputMarkupId(true);
+
+        final List<String> authRealms = SyncopeConsoleSession.get().getAuthRealms();
+        realms = new LoadableDetachableModel<List<String>>() {
+
+            private static final long serialVersionUID = 5275935387613157437L;
+
+            @Override
+            protected List<String> load() {
+                List<RealmTO> allRealms = new RealmRestClient().list();
+                CollectionUtils.filter(allRealms, new Predicate<RealmTO>() {
+
+                    @Override
+                    public boolean evaluate(final RealmTO realm) {
+                        return IterableUtils.matchesAny(authRealms, new Predicate<String>() {
+
+                            @Override
+                            public boolean evaluate(final String fullpath) {
+                                return realm.getFullPath().startsWith(fullpath);
+                            }
+                        });
+                    }
+                });
+
+                List<String> result = CollectionUtils.collect(allRealms, new Transformer<RealmTO, String>() {
+
+                    @Override
+                    public String transform(final RealmTO realm) {
+                        return realm.getFullPath();
+                    }
+                }, new ArrayList<String>());
+                Collections.sort(result);
+                return result;
+            }
+        };
+
+        AjaxDropDownChoicePanel<String> realm = new AjaxDropDownChoicePanel<>(
+                "adminRealm", "adminRealm", new PropertyModel<String>(connInstanceTO, "adminRealm"), false);
+        realm.setChoices(realms);
+        realm.setOutputMarkupId(true);
+        realm.addRequiredLabel();
+        add(realm);
 
         AjaxTextFieldPanel displayName = new AjaxTextFieldPanel(
                 "displayName", "displayName", new PropertyModel<String>(connInstanceTO, "displayName"), false);

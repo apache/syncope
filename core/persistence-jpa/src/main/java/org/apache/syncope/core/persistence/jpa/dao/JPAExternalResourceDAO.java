@@ -23,6 +23,9 @@ import java.util.List;
 import java.util.Set;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
+import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.Predicate;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
@@ -53,6 +56,8 @@ import org.apache.syncope.core.persistence.jpa.entity.resource.JPAMapping;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAProvision;
 import org.apache.syncope.core.provisioning.api.ConnectorRegistry;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -165,6 +170,33 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implem
     }
 
     @Override
+    public ExternalResource authFind(final String key) {
+        final ExternalResource resource = find(key);
+        if (resource == null) {
+            return null;
+        }
+
+        final Set<String> authRealms = AuthContextUtils.getAuthorizations().get(StandardEntitlement.RESOURCE_READ);
+        if (authRealms == null || authRealms.isEmpty()
+                || !IterableUtils.matchesAny(authRealms, new Predicate<String>() {
+
+                    @Override
+                    public boolean evaluate(final String realm) {
+                        return resource.getConnector() != null
+                                && resource.getConnector().getAdminRealm().getFullPath().startsWith(realm);
+                    }
+                })) {
+
+            throw new DelegatedAdministrationException(
+                    resource.getConnector().getAdminRealm().getFullPath(),
+                    ExternalResource.class.getSimpleName(),
+                    resource.getKey());
+        }
+
+        return resource;
+    }
+
+    @Override
     public List<Provision> findProvisionsByAuxClass(final AnyTypeClass anyTypeClass) {
         TypedQuery<Provision> query = entityManager().createQuery(
                 "SELECT e FROM " + JPAProvision.class.getSimpleName()
@@ -193,15 +225,8 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implem
     @Override
     public List<ExternalResource> findByPolicy(final Policy policy) {
         TypedQuery<ExternalResource> query = entityManager().createQuery(
-                getByPolicyQuery(policy.getClass()).append(" = :policy").toString(), ExternalResource.class);
+                getByPolicyQuery(policy.getClass()).append("=:policy").toString(), ExternalResource.class);
         query.setParameter("policy", policy);
-        return query.getResultList();
-    }
-
-    @Override
-    public List<ExternalResource> findWithoutPolicy(final Class<? extends Policy> policyClass) {
-        TypedQuery<ExternalResource> query = entityManager().createQuery(
-                getByPolicyQuery(policyClass).append(" IS NULL").toString(), ExternalResource.class);
         return query.getResultList();
     }
 
@@ -209,14 +234,6 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implem
     public List<ExternalResource> findAll() {
         TypedQuery<ExternalResource> query = entityManager().createQuery(
                 "SELECT e FROM  " + JPAExternalResource.class.getSimpleName() + " e", ExternalResource.class);
-        return query.getResultList();
-    }
-
-    @Override
-    public List<ExternalResource> findAllByPriority() {
-        TypedQuery<ExternalResource> query = entityManager().createQuery(
-                "SELECT e FROM  " + JPAExternalResource.class.getSimpleName() + " e ORDER BY e.propagationPriority",
-                ExternalResource.class);
         return query.getResultList();
     }
 
