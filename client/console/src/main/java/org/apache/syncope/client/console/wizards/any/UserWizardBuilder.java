@@ -104,7 +104,6 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> implements UserF
 
     @Override
     protected Details<UserTO> addOptionalDetailsPanel(final AnyWrapper<UserTO> modelObject) {
-
         return new UserDetails(
                 UserWrapper.class.cast(modelObject),
                 mode == AjaxWizard.Mode.TEMPLATE,

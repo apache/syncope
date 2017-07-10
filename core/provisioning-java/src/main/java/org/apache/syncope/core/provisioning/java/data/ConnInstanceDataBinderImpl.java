@@ -24,8 +24,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
@@ -37,9 +35,11 @@ import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.api.dao.ConnInstanceHistoryConfDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.ConnInstanceHistoryConf;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
 import org.apache.syncope.core.provisioning.api.utils.ConnPoolConfUtils;
 import org.identityconnectors.framework.api.ConfigurationProperties;
@@ -54,7 +54,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
 
-    private static final String[] IGNORE_PROPERTIES = { "poolConf", "location" };
+    private static final String[] IGNORE_PROPERTIES = { "poolConf", "location", "adminRealm" };
 
     @Autowired
     private ConnIdBundleManager connIdBundleManager;
@@ -64,6 +64,9 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
 
     @Autowired
     private ConnInstanceHistoryConfDAO connInstanceHistoryConfDAO;
+
+    @Autowired
+    private RealmDAO realmDAO;
 
     @Autowired
     private ConfDAO confDAO;
@@ -98,6 +101,12 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
         ConnInstance connInstance = entityFactory.newEntity(ConnInstance.class);
 
         BeanUtils.copyProperties(connInstanceTO, connInstance, IGNORE_PROPERTIES);
+        if (connInstanceTO.getAdminRealm() != null) {
+            connInstance.setAdminRealm(realmDAO.findByFullPath(connInstanceTO.getAdminRealm()));
+        }
+        if (connInstance.getAdminRealm() == null) {
+            sce.getElements().add("Invalid or null realm specified: " + connInstanceTO.getAdminRealm());
+        }
         if (connInstanceTO.getLocation() != null) {
             connInstance.setLocation(connInstanceTO.getLocation());
         }
@@ -116,7 +125,7 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
 
     @Override
     public ConnInstance update(final ConnInstanceTO connInstanceTO) {
-        ConnInstance connInstance = connInstanceDAO.find(connInstanceTO.getKey());
+        ConnInstance connInstance = connInstanceDAO.authFind(connInstanceTO.getKey());
         if (connInstance == null) {
             throw new NotFoundException("Connector '" + connInstanceTO.getKey() + "'");
         }
@@ -142,6 +151,16 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
         // 3. actual update
         connInstance.getCapabilities().clear();
         connInstance.getCapabilities().addAll(connInstanceTO.getCapabilities());
+
+        if (connInstanceTO.getAdminRealm() != null) {
+            Realm realm = realmDAO.findByFullPath(connInstanceTO.getAdminRealm());
+            if (realm == null) {
+                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
+                sce.getElements().add("Invalid or null realm specified: " + connInstanceTO.getAdminRealm());
+                throw sce;
+            }
+            connInstance.setAdminRealm(realm);
+        }
 
         if (connInstanceTO.getLocation() != null) {
             connInstance.setLocation(connInstanceTO.getLocation());
@@ -181,9 +200,9 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
         try {
             connInstance = connInstanceDAO.save(connInstance);
         } catch (Exception e) {
-            SyncopeClientException ex = SyncopeClientException.build(ClientExceptionType.InvalidConnInstance);
-            ex.getElements().add(e.getMessage());
-            throw ex;
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidConnInstance);
+            sce.getElements().add(e.getMessage());
+            throw sce;
         }
 
         return connInstance;
@@ -220,25 +239,18 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
 
         Pair<URI, ConnectorInfo> info = connIdBundleManager.getConnectorInfo(connInstance);
         BeanUtils.copyProperties(connInstance, connInstanceTO, IGNORE_PROPERTIES);
+        connInstanceTO.setAdminRealm(connInstance.getAdminRealm().getFullPath());
         connInstanceTO.setLocation(info.getLeft().toASCIIString());
         // refresh stored properties in the given connInstance with direct information from underlying connector
         ConfigurationProperties properties = connIdBundleManager.getConfigurationProperties(info.getRight());
         for (final String propName : properties.getPropertyNames()) {
             ConnConfPropSchema schema = build(properties.getProperty(propName));
 
-            ConnConfProperty property = IterableUtils.find(connInstanceTO.getConf(),
-                    new Predicate<ConnConfProperty>() {
-
-                @Override
-                public boolean evaluate(final ConnConfProperty candidate) {
-                    return propName.equals(candidate.getSchema().getName());
-                }
-            });
+            ConnConfProperty property = connInstanceTO.getConf(propName);
             if (property == null) {
                 property = new ConnConfProperty();
                 connInstanceTO.getConf().add(property);
             }
-
             property.setSchema(schema);
         }
 

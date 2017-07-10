@@ -22,10 +22,13 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
@@ -39,6 +42,7 @@ import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
+import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
@@ -92,8 +96,8 @@ public class Topology extends BasePage {
         }
     };
 
-    private final LoadableDetachableModel<Map<String, List<ConnInstanceTO>>> connModel
-            = new LoadableDetachableModel<Map<String, List<ConnInstanceTO>>>() {
+    private final LoadableDetachableModel<Map<String, List<ConnInstanceTO>>> connModel =
+            new LoadableDetachableModel<Map<String, List<ConnInstanceTO>>>() {
 
         private static final long serialVersionUID = 5275935387613157432L;
 
@@ -116,8 +120,8 @@ public class Topology extends BasePage {
         }
     };
 
-    private final LoadableDetachableModel<Pair<List<URI>, List<URI>>> csModel
-            = new LoadableDetachableModel<Pair<List<URI>, List<URI>>>() {
+    private final LoadableDetachableModel<Pair<List<URI>, List<URI>>> csModel =
+            new LoadableDetachableModel<Pair<List<URI>, List<URI>>>() {
 
         private static final long serialVersionUID = 5275935387613157433L;
 
@@ -177,7 +181,7 @@ public class Topology extends BasePage {
             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                 target.appendJavaScript("zoomIn($('#drawing')[0]);");
             }
-        }, ActionLink.ActionType.ZOOM_IN, StandardEntitlement.RESOURCE_LIST).disableIndicator().hideLabel();
+        }, ActionLink.ActionType.ZOOM_IN, StandardEntitlement.CONNECTOR_LIST).disableIndicator().hideLabel();
         zoomActionPanel.add(new ActionLink<Serializable>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
@@ -186,7 +190,7 @@ public class Topology extends BasePage {
             public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                 target.appendJavaScript("zoomOut($('#drawing')[0]);");
             }
-        }, ActionLink.ActionType.ZOOM_OUT, StandardEntitlement.RESOURCE_LIST).disableIndicator().hideLabel();
+        }, ActionLink.ActionType.ZOOM_OUT, StandardEntitlement.CONNECTOR_LIST).disableIndicator().hideLabel();
 
         body.add(zoomActionPanel);
         // -----------------------------------------
@@ -366,24 +370,31 @@ public class Topology extends BasePage {
         // -----------------------------------------
         // Add Resources
         // -----------------------------------------
+        final Collection<String> administrableConns = new HashSet<>();
+        for (List<ConnInstanceTO> connInstances : connModel.getObject().values()) {
+            administrableConns.addAll(CollectionUtils.collect(connInstances, EntityTOUtils.keyTransformer()));
+        }
+
         final List<String> connToBeProcessed = new ArrayList<>();
-        for (ResourceTO resourceTO : resModel.getObject()) {
-            final TopologyNode topologynode = new TopologyNode(
-                    resourceTO.getKey(), resourceTO.getKey(), TopologyNode.Kind.RESOURCE);
+        for (final ResourceTO resourceTO : resModel.getObject()) {
+            if (administrableConns.contains(resourceTO.getConnector())) {
+                final TopologyNode topologynode = new TopologyNode(
+                        resourceTO.getKey(), resourceTO.getKey(), TopologyNode.Kind.RESOURCE);
 
-            final Map<Serializable, TopologyNode> remoteConnections;
+                final Map<Serializable, TopologyNode> remoteConnections;
 
-            if (connections.containsKey(resourceTO.getConnector())) {
-                remoteConnections = connections.get(resourceTO.getConnector());
-            } else {
-                remoteConnections = new HashMap<>();
-                connections.put(resourceTO.getConnector(), remoteConnections);
-            }
+                if (connections.containsKey(resourceTO.getConnector())) {
+                    remoteConnections = connections.get(resourceTO.getConnector());
+                } else {
+                    remoteConnections = new HashMap<>();
+                    connections.put(resourceTO.getConnector(), remoteConnections);
+                }
 
-            remoteConnections.put(topologynode.getKey(), topologynode);
+                remoteConnections.put(topologynode.getKey(), topologynode);
 
-            if (!connToBeProcessed.contains(resourceTO.getConnector())) {
-                connToBeProcessed.add(resourceTO.getConnector());
+                if (!connToBeProcessed.contains(resourceTO.getConnector())) {
+                    connToBeProcessed.add(resourceTO.getConnector());
+                }
             }
         }
 

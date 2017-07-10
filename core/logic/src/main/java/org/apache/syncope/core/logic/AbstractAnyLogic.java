@@ -19,7 +19,6 @@
 package org.apache.syncope.core.logic;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -40,7 +39,6 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
-import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
@@ -53,6 +51,7 @@ import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.provisioning.api.LogicActions;
+import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 
@@ -230,50 +229,6 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch> ext
         return result;
     }
 
-    private static class StartsWithPredicate implements Predicate<String> {
-
-        private final Collection<String> targets;
-
-        StartsWithPredicate(final Collection<String> targets) {
-            this.targets = targets;
-        }
-
-        @Override
-        public boolean evaluate(final String realm) {
-            return IterableUtils.matchesAny(targets, new Predicate<String>() {
-
-                @Override
-                public boolean evaluate(final String target) {
-                    return realm.startsWith(target);
-                }
-            });
-        }
-
-    }
-
-    protected static class DynRealmsPredicate implements Predicate<String> {
-
-        @Override
-        public boolean evaluate(final String realm) {
-            return !realm.startsWith("/");
-        }
-    }
-
-    protected Set<String> getEffectiveRealms(final Set<String> allowedRealms, final String requestedRealm) {
-        Set<String> allowed = RealmUtils.normalize(allowedRealms);
-        Set<String> requested = new HashSet<>();
-        requested.add(requestedRealm);
-
-        Set<String> effective = new HashSet<>();
-        CollectionUtils.select(requested, new StartsWithPredicate(allowed), effective);
-        CollectionUtils.select(allowed, new StartsWithPredicate(requested), effective);
-
-        // includes dynamic realms
-        CollectionUtils.select(allowedRealms, new DynRealmsPredicate(), effective);
-
-        return effective;
-    }
-
     protected boolean securityChecks(final Set<String> effectiveRealms, final String realm, final String key) {
         boolean authorized = IterableUtils.matchesAny(effectiveRealms, new Predicate<String>() {
 
@@ -293,15 +248,15 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch> ext
         if (!authorized) {
             throw new DelegatedAdministrationException(
                     realm,
-                    this instanceof UserLogic
+                    (this instanceof UserLogic
                             ? AnyTypeKind.USER
                             : this instanceof GroupLogic
                                     ? AnyTypeKind.GROUP
-                                    : AnyTypeKind.ANY_OBJECT,
+                                    : AnyTypeKind.ANY_OBJECT).name(),
                     key);
         }
 
-        return IterableUtils.matchesAny(effectiveRealms, new DynRealmsPredicate());
+        return IterableUtils.matchesAny(effectiveRealms, new RealmUtils.DynRealmsPredicate());
     }
 
     public abstract Date findLastChange(String key);

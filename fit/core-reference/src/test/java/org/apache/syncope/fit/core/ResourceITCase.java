@@ -39,6 +39,7 @@ import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.console.commons.ConnIdSpecialName;
 import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
+import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
@@ -607,6 +608,36 @@ public class ResourceITCase extends AbstractITCase {
         assertEquals(originalTraceLevel, ldap.getUpdateTraceLevel());
         assertEquals(originalProvision.getObjectClass(), ldap.getProvision(AnyTypeKind.USER.name()).getObjectClass());
         assertEquals(originalFlag, ldap.isRandomPwdIfNotProvided());
+    }
+
+    @Test
+    public void authorizations() {
+        SyncopeClient puccini = clientFactory.create("puccini", ADMIN_PWD);
+        ResourceService prs = puccini.getService(ResourceService.class);
+
+        // 1. attempt to read a resource for a connector with a different admin realm: fail
+        try {
+            prs.read(RESOURCE_NAME_WS1);
+            fail();
+        } catch (SyncopeClientException e) {
+            assertEquals(ClientExceptionType.DelegatedAdministration, e.getType());
+        }
+
+        // 2. read and upate a resource for a connector in the realm for which entitlements are owned: succeed
+        try {
+            ResourceTO scriptedsql = prs.read(RESOURCE_NAME_DBSCRIPTED);
+            assertEquals(TraceLevel.ALL, scriptedsql.getCreateTraceLevel());
+
+            scriptedsql.setCreateTraceLevel(TraceLevel.FAILURES);
+            prs.update(scriptedsql);
+
+            scriptedsql = prs.read(RESOURCE_NAME_DBSCRIPTED);
+            assertEquals(TraceLevel.FAILURES, scriptedsql.getCreateTraceLevel());
+        } finally {
+            ResourceTO scriptedsql = resourceService.read(RESOURCE_NAME_DBSCRIPTED);
+            scriptedsql.setCreateTraceLevel(TraceLevel.ALL);
+            resourceService.update(scriptedsql);
+        }
     }
 
     @Test

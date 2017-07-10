@@ -274,6 +274,18 @@ under the License.
   <SyncopeRole_entitlements entitlement="USER_SEARCH" role_id="Search for realm evenTwo"/>
   <SyncopeRole_Realm role_id="Search for realm evenTwo" realm_id="0679e069-7355-4b20-bd11-a5a0a5453c7c"/>
 
+  <SyncopeRole id="Connector and Resource for realm evenTwo"/>
+  <SyncopeRole_entitlements entitlement="CONNECTOR_READ" role_id="Connector and Resource for realm evenTwo"/>
+  <SyncopeRole_entitlements entitlement="CONNECTOR_UPDATE" role_id="Connector and Resource for realm evenTwo"/>
+  <SyncopeRole_entitlements entitlement="CONNECTOR_DELETE" role_id="Connector and Resource for realm evenTwo"/>
+  <SyncopeRole_entitlements entitlement="CONNECTOR_LIST" role_id="Connector and Resource for realm evenTwo"/>
+  <SyncopeRole_entitlements entitlement="RESOURCE_READ" role_id="Connector and Resource for realm evenTwo"/>
+  <SyncopeRole_entitlements entitlement="RESOURCE_UPDATE" role_id="Connector and Resource for realm evenTwo"/>
+  <SyncopeRole_entitlements entitlement="RESOURCE_DELETE" role_id="Connector and Resource for realm evenTwo"/>
+  <SyncopeRole_entitlements entitlement="RESOURCE_LIST" role_id="Connector and Resource for realm evenTwo"/>
+  <SyncopeRole_Realm role_id="Connector and Resource for realm evenTwo"
+                     realm_id="0679e069-7355-4b20-bd11-a5a0a5453c7c"/>
+
   <SyncopeUser id="1417acbe-cbf6-4277-9372-e75e04f97000" workflowId="4" status="active"
                password="5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8" cipherAlgorithm="SHA1"
                realm_id="c5b75db1-fce7-470f-b780-3b9934d82a9d"
@@ -303,6 +315,7 @@ under the License.
                username="puccini" creator="admin" lastModifier="admin" 
                creationDate="2010-10-20 11:00:00" lastChangeDate="2010-10-20 11:00:00" suspended="0"/>
   <SyncopeUser_SyncopeRole user_id="823074dc-d280-436d-a7dd-07399fae48ec" role_id="Search for realm evenTwo"/>
+  <SyncopeUser_SyncopeRole user_id="823074dc-d280-436d-a7dd-07399fae48ec" role_id="Connector and Resource for realm evenTwo"/>
   
   <SyncopeGroup id="37d15e4c-cdc1-460b-a591-8505c8133806" name="root"
                 realm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
@@ -614,6 +627,7 @@ under the License.
   <GPlainAttrValue attribute_id="22690472-ed3f-4972-8979-4c9251fab044" id="e16765e6-f806-469e-ae34-1ddf56f2102a" stringValue="r13"/>
 
   <ConnInstance id="88a7a819-dab5-46b4-9b90-0b9769eabdb8" displayName="ConnInstance100"
+                adminRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
                 location="${connid.location}"
                 bundleName="net.tirasa.connid.bundles.soap"
                 connectorName="net.tirasa.connid.bundles.soap.WebServiceConnector"
@@ -625,6 +639,7 @@ under the License.
   <ConnInstance_capabilities connInstance_id="88a7a819-dab5-46b4-9b90-0b9769eabdb8" capability="SEARCH"/>
 
   <ConnInstance id="5aa5b8be-7521-481a-9651-c557aea078c1" displayName="H2"
+                adminRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
                 location="connid://${testconnectorserver.key}@localhost:${testconnectorserver.port}"
                 bundleName="net.tirasa.connid.bundles.db.table"
                 connectorName="net.tirasa.connid.bundles.db.table.DatabaseTableConnector"
@@ -638,6 +653,7 @@ under the License.
   <ConnInstance_capabilities connInstance_id="5aa5b8be-7521-481a-9651-c557aea078c1" capability="SYNC"/>
 
   <ConnInstance id="5ffbb4ac-a8c3-4b44-b699-11b398a1ba08" displayName="ConnInstance102"
+                adminRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
                 location="${connid.location}"
                 bundleName="net.tirasa.connid.bundles.soap"
                 connectorName="net.tirasa.connid.bundles.soap.WebServiceConnector"
@@ -650,6 +666,7 @@ under the License.
   <ConnInstance_capabilities connInstance_id="5ffbb4ac-a8c3-4b44-b699-11b398a1ba08" capability="SEARCH"/>
 
   <ConnInstance id="fcf9f2b0-f7d6-42c9-84a6-61b28255a42b" displayName="ConnInstance103"
+                adminRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
                 location="${connid.location}"
                 bundleName="net.tirasa.connid.bundles.soap"
                 connectorName="net.tirasa.connid.bundles.soap.WebServiceConnector"
@@ -657,6 +674,7 @@ under the License.
                 jsonConf='[{"schema":{"name":"endpoint","displayName":null,"helpMessage":null,"type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["http://localhost:${cargo.servlet.port}/syncope-fit-build-tools/cxf/soap/provisioning"]},{"schema":{"name":"servicename","displayName":null,"helpMessage":null,"type":"java.lang.String","required":true,"order":0,"confidential":false,"defaultValues":null},"overridable":false,"values":["net.tirasa.connid.bundles.soap.provisioning.interfaces.Provisioning"]}]'/>
 
   <ConnInstance id="6c2acf1b-b052-46f0-8c56-7a8ad6905edf" displayName="CSVDir"
+                adminRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
                 location="${connid.location}"
                 bundleName="net.tirasa.connid.bundles.csvdir"
                 connectorName="net.tirasa.connid.bundles.csvdir.CSVDirConnector"
@@ -668,7 +686,9 @@ under the License.
   <ConnInstance_capabilities connInstance_id="6c2acf1b-b052-46f0-8c56-7a8ad6905edf" capability="SEARCH"/>
   <ConnInstance_capabilities connInstance_id="6c2acf1b-b052-46f0-8c56-7a8ad6905edf" capability="SYNC"/>
     
-  <ConnInstance id="74141a3b-0762-4720-a4aa-fc3e374ef3ef" bundleName="net.tirasa.connid.bundles.ldap" displayName="ApacheDS"
+  <ConnInstance id="74141a3b-0762-4720-a4aa-fc3e374ef3ef"
+                bundleName="net.tirasa.connid.bundles.ldap" displayName="ApacheDS"
+                adminRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
                 location="${connid.location}"
                 connectorName="net.tirasa.connid.bundles.ldap.LdapConnector"
                 version="${connid.ldap.version}" 
@@ -679,6 +699,7 @@ under the License.
   <ConnInstance_capabilities connInstance_id="74141a3b-0762-4720-a4aa-fc3e374ef3ef" capability="SEARCH"/>
   
   <ConnInstance id="a28abd9b-9f4a-4ef6-a7a8-d19ad2a8f29d" displayName="H2-test2"
+                adminRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
                 location="connid://${testconnectorserver.key}@localhost:${testconnectorserver.port}"
                 bundleName="net.tirasa.connid.bundles.db.table"
                 connectorName="net.tirasa.connid.bundles.db.table.DatabaseTableConnector"
@@ -690,6 +711,7 @@ under the License.
   <ConnInstance_capabilities connInstance_id="a28abd9b-9f4a-4ef6-a7a8-d19ad2a8f29d" capability="SYNC"/>
   
   <ConnInstance id="be24b061-019d-4e3e-baf0-0a6d0a45cb9c" bundleName="net.tirasa.connid.bundles.db.table" 
+                adminRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
                 location="connid://${testconnectorserver.key}@localhost:${testconnectorserver.port}"
                 connectorName="net.tirasa.connid.bundles.db.table.DatabaseTableConnector" 
                 displayName="H2-testpull" version="${connid.database.version}"
@@ -700,6 +722,7 @@ under the License.
   <ConnInstance_capabilities connInstance_id="be24b061-019d-4e3e-baf0-0a6d0a45cb9c" capability="SEARCH"/>
   
   <ConnInstance id="a6d017fd-a705-4507-bb7c-6ab6a6745997" bundleName="net.tirasa.connid.bundles.db.scriptedsql" 
+                adminRealm_id="0679e069-7355-4b20-bd11-a5a0a5453c7c"
                 location="connid://${testconnectorserver.key}@localhost:${testconnectorserver.port}"
                 connectorName="net.tirasa.connid.bundles.db.scriptedsql.ScriptedSQLConnector"
                 displayName="Scripted SQL" version="${connid.database.version}"
@@ -711,6 +734,7 @@ under the License.
   <ConnInstance_capabilities connInstance_id="a6d017fd-a705-4507-bb7c-6ab6a6745997" capability="SYNC"/>
   
   <ConnInstance id="44c02549-19c3-483c-8025-4919c3283c37" bundlename="net.tirasa.connid.bundles.rest"
+                adminRealm_id="0679e069-7355-4b20-bd11-a5a0a5453c7c"
                 location="connid://${testconnectorserver.key}@localhost:${testconnectorserver.port}"
                 connectorname="net.tirasa.connid.bundles.rest.RESTConnector"
                 displayname="REST" version="${connid.rest.version}"

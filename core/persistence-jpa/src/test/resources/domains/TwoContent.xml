@@ -185,6 +185,7 @@ we are happy to inform you that the password request was successfully executed f
   <Notification_events notification_id="71769807-7f74-4dc3-ba61-e4a7a00eb8ad" event="[CUSTOM]:[]:[]:[confirmPasswordReset]:[SUCCESS]"/>
 
   <ConnInstance id="b7ea96c3-c633-488b-98a0-b52ac35850f7" bundleName="net.tirasa.connid.bundles.ldap" displayName="LDAP"
+                adminRealm_id="ea696a4f-e77a-4ef1-be67-8f8093bc8686"
                 location="${connid.location}"
                 connectorName="net.tirasa.connid.bundles.ldap.LdapConnector"
                 version="${connid.ldap.version}" 

@@ -19,9 +19,10 @@
 package org.apache.syncope.client.console;
 
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -29,9 +30,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MediaType;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
+import org.apache.commons.collections4.list.SetUniqueList;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.commons.lang3.tuple.Pair;
@@ -217,25 +218,18 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
         return selfTO;
     }
 
-    public Set<String> getAvailableRealms(final String... entitlements) {
-        final Set<String> availableRealms = new HashSet<>();
-        if (entitlements != null && entitlements.length > 0) {
-            for (String entitlement : entitlements) {
-                final Set<String> realms = auth.get(entitlement);
-                if (CollectionUtils.isNotEmpty(realms)) {
-                    availableRealms.addAll(realms);
-                }
-            }
-        } else {
-            for (Map.Entry<String, Set<String>> entitlement : auth.entrySet()) {
-                availableRealms.addAll(entitlement.getValue());
-            }
+    public List<String> getAuthRealms() {
+        List<String> sortable = new ArrayList<>();
+        List<String> available = SetUniqueList.setUniqueList(sortable);
+        for (Map.Entry<String, Set<String>> entitlement : auth.entrySet()) {
+            available.addAll(entitlement.getValue());
         }
-        return availableRealms;
+        Collections.sort(sortable);
+        return sortable;
     }
 
     public boolean owns(final String entitlements) {
-        return owns(entitlements, "/");
+        return owns(entitlements, SyncopeConstants.ROOT_REALM);
     }
 
     public boolean owns(final String entitlements, final String realm) {

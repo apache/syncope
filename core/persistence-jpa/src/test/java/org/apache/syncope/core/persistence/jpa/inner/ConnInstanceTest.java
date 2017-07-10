@@ -23,18 +23,30 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.ConnConfPropSchema;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
+import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
+import org.apache.syncope.core.spring.security.SyncopeAuthenticationDetails;
+import org.apache.syncope.core.spring.security.SyncopeGrantedAuthority;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional("Master")
@@ -45,21 +57,44 @@ public class ConnInstanceTest extends AbstractTest {
 
     @Test
     public void findAll() {
-        List<ConnInstance> connectors = connInstanceDAO.findAll();
-        assertNotNull(connectors);
-        assertFalse(connectors.isEmpty());
+        List<GrantedAuthority> authorities = CollectionUtils.collect(StandardEntitlement.values(),
+                new Transformer<String, GrantedAuthority>() {
+
+            @Override
+            public GrantedAuthority transform(final String entitlement) {
+                return new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM);
+            }
+        }, new ArrayList<GrantedAuthority>());
+
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                new org.springframework.security.core.userdetails.User(
+                        "admin", "FAKE_PASSWORD", authorities), "FAKE_PASSWORD", authorities);
+        auth.setDetails(new SyncopeAuthenticationDetails("Master"));
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        try {
+            List<ConnInstance> connectors = connInstanceDAO.findAll();
+            assertNotNull(connectors);
+            assertFalse(connectors.isEmpty());
+        } finally {
+            SecurityContextHolder.getContext().setAuthentication(null);
+        }
     }
 
     @Test
     public void findById() {
-        ConnInstance connectorInstance = connInstanceDAO.find("88a7a819-dab5-46b4-9b90-0b9769eabdb8");
-
-        assertNotNull("findById did not work", connectorInstance);
-
+        ConnInstance connInstance = connInstanceDAO.find("88a7a819-dab5-46b4-9b90-0b9769eabdb8");
+        assertNotNull(connInstance);
         assertEquals("invalid connector name",
-                "net.tirasa.connid.bundles.soap.WebServiceConnector", connectorInstance.getConnectorName());
+                "net.tirasa.connid.bundles.soap.WebServiceConnector", connInstance.getConnectorName());
+        assertEquals("invalid bundle name", "net.tirasa.connid.bundles.soap", connInstance.getBundleName());
 
-        assertEquals("invalid bundle name", "net.tirasa.connid.bundles.soap", connectorInstance.getBundleName());
+        try {
+            connInstanceDAO.authFind("88a7a819-dab5-46b4-9b90-0b9769eabdb8");
+            fail();
+        } catch (DelegatedAdministrationException e) {
+            assertNotNull(e);
+        }
     }
 
     @Test

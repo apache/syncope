@@ -27,12 +27,12 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.image.GlyphIconType;
 import de.agilecoders.wicket.core.markup.html.bootstrap.image.IconType;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
@@ -72,7 +72,7 @@ public class RealmChoicePanel extends Panel {
 
     private final Model<RealmTO> model;
 
-    private final Set<String> availableRealms;
+    private final Collection<String> availableRealms;
 
     private final Map<String, Pair<RealmTO, List<RealmTO>>> tree;
 
@@ -146,13 +146,13 @@ public class RealmChoicePanel extends Panel {
         container.setOutputMarkupId(true);
         add(container);
 
-        availableRealms = SyncopeConsoleSession.get().getAvailableRealms();
+        availableRealms = SyncopeConsoleSession.get().getAuthRealms();
 
         reloadRealmTree();
     }
 
     public final void reloadRealmTree() {
-        final Label realmLabel = new Label("realmLabel", new Model<String>());
+        final Label realmLabel = new Label("realmLabel", new Model<>());
         realmLabel.setOutputMarkupId(true);
 
         container.addOrReplace(realmLabel);
@@ -186,7 +186,6 @@ public class RealmChoicePanel extends Panel {
 
                     @Override
                     public void onClick(final AjaxRequestTarget target) {
-
                     }
 
                     @Override
@@ -288,7 +287,7 @@ public class RealmChoicePanel extends Panel {
 
                                     @Override
                                     public boolean evaluate(final String availableRealm) {
-                                        return "/".equals(availableRealm)
+                                        return SyncopeConstants.ROOT_REALM.equals(availableRealm)
                                                 || realmTO.getKey().equals(availableRealm);
                                     }
                                 });

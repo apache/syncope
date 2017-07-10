@@ -38,7 +38,7 @@ public abstract class AbstractAny<P extends PlainAttr<?>> extends AbstractAnnota
 
     private static final long serialVersionUID = -2666540708092702810L;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     private JPARealm realm;
 
     private String workflowId;

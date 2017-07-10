@@ -90,6 +90,7 @@ public class ConnectorManager implements ConnectorRegistry, ConnectorFactory, Sy
         }
 
         ConnInstance override = entityFactory.newEntity(ConnInstance.class);
+        override.setAdminRealm(connInstance.getAdminRealm());
         override.setConnectorName(connInstance.getConnectorName());
         override.setDisplayName(connInstance.getDisplayName());
         override.setBundleName(connInstance.getBundleName());

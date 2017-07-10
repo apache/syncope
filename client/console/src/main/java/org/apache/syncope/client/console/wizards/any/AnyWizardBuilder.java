@@ -152,15 +152,14 @@ public abstract class AnyWizardBuilder<A extends AnyTO> extends AjaxWizardBuilde
     }
 
     protected Details<A> addOptionalDetailsPanel(final AnyWrapper<A> modelObject) {
-
-        if (modelObject.getInnerObject().getKey() != null) {
+        if (modelObject.getInnerObject().getKey() == null) {
+            return null;
+        } else {
             return new Details<>(
                     modelObject,
                     mode == AjaxWizard.Mode.TEMPLATE,
                     true,
                     pageRef);
-        } else {
-            return null;
         }
     }
 }

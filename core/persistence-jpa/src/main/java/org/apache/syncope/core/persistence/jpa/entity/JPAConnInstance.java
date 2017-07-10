@@ -32,6 +32,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
@@ -41,6 +42,7 @@ import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.ConnPoolConf;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.jpa.validation.entity.ConnInstanceCheck;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
@@ -56,6 +58,9 @@ public class JPAConnInstance extends AbstractGeneratedKeyEntity implements ConnI
     public static final String TABLE = "ConnInstance";
 
     private static final int DEFAULT_TIMEOUT = 10;
+
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    private JPARealm adminRealm;
 
     /**
      * URI identifying the local / remote ConnId location where the related connector bundle is found.
@@ -123,6 +128,17 @@ public class JPAConnInstance extends AbstractGeneratedKeyEntity implements ConnI
     private Integer connRequestTimeout = DEFAULT_TIMEOUT;
 
     private JPAConnPoolConf poolConf;
+
+    @Override
+    public Realm getAdminRealm() {
+        return adminRealm;
+    }
+
+    @Override
+    public void setAdminRealm(final Realm adminRealm) {
+        checkType(adminRealm, JPARealm.class);
+        this.adminRealm = (JPARealm) adminRealm;
+    }
 
     @Override
     public String getLocation() {

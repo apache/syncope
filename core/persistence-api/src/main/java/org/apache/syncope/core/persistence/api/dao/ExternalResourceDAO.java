@@ -30,15 +30,13 @@ public interface ExternalResourceDAO extends DAO<ExternalResource> {
 
     ExternalResource find(String key);
 
+    ExternalResource authFind(String key);
+
     List<Provision> findProvisionsByAuxClass(AnyTypeClass anyTypeClass);
 
     List<ExternalResource> findByPolicy(Policy policy);
 
-    List<ExternalResource> findWithoutPolicy(Class<? extends Policy> policyClass);
-
     List<ExternalResource> findAll();
-
-    List<ExternalResource> findAllByPriority();
 
     ExternalResource save(ExternalResource resource);
 

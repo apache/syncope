@@ -39,6 +39,7 @@ import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
+import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,6 +75,13 @@ public class ResourceTest extends AbstractTest {
                 return "7f55b09c-b573-41dc-a9eb-ccd80bd3ea7a".equals(item.getKey());
             }
         }));
+
+        try {
+            resourceDAO.authFind("ws-target-resource-1");
+            fail();
+        } catch (DelegatedAdministrationException e) {
+            assertNotNull(e);
+        }
     }
 
     @Test
@@ -88,13 +96,6 @@ public class ResourceTest extends AbstractTest {
         List<ExternalResource> resources = resourceDAO.findAll();
         assertNotNull(resources);
         assertEquals(21, resources.size());
-    }
-
-    @Test
-    public void findAllByPriority() {
-        List<ExternalResource> resources = resourceDAO.findAllByPriority();
-        assertNotNull(resources);
-        assertFalse(resources.isEmpty());
     }
 
     @Test

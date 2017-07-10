@@ -42,6 +42,8 @@ public class ConnInstanceTO extends AbstractBaseBean implements EntityTO {
 
     private String key;
 
+    private String adminRealm;
+
     private String location;
 
     private String connectorName;
@@ -69,6 +71,14 @@ public class ConnInstanceTO extends AbstractBaseBean implements EntityTO {
     @Override
     public void setKey(final String key) {
         this.key = key;
+    }
+
+    public String getAdminRealm() {
+        return adminRealm;
+    }
+
+    public void setAdminRealm(final String adminRealm) {
+        this.adminRealm = adminRealm;
     }
 
     public String getLocation() {
