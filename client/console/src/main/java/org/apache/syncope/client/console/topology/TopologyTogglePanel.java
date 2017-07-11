@@ -25,6 +25,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
+import org.apache.syncope.client.console.panels.HistoryConfList;
 import org.apache.syncope.client.console.panels.ConnObjects;
 import org.apache.syncope.client.console.wizards.resources.ConnectorWizardBuilder;
 import org.apache.syncope.client.console.wizards.resources.ResourceWizardBuilder;
@@ -75,6 +76,8 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
     protected final BaseModal<Serializable> provisionModal;
 
+    private final BaseModal<Serializable> historyModal;
+
     public TopologyTogglePanel(final String id, final PageReference pageRef) {
         super(id, "topologyTogglePanel", pageRef);
 
@@ -102,6 +105,10 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
         provisionModal.size(Modal.Size.Large);
         provisionModal.addSubmitButton();
         addOuterObject(provisionModal);
+
+        historyModal = new BaseModal<>("outer");
+        historyModal.size(Modal.Size.Large);
+        addOuterObject(historyModal);
 
         container = new WebMarkupContainer("container");
         container.setOutputMarkupPlaceholderTag(true);
@@ -325,6 +332,32 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
         MetaDataRoleAuthorizationStrategy.authorize(edit, RENDER, StandardEntitlement.CONNECTOR_UPDATE);
         fragment.add(edit);
 
+        AjaxLink<String> history = new IndicatingAjaxLink<String>("history") {
+
+            private static final long serialVersionUID = -1876519166660008562L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+                String connKey = String.class.cast(node.getKey());
+                final ConnInstanceTO modelObject = connectorRestClient.read(String.class.cast(node.getKey()));
+
+                target.add(historyModal.setContent(new HistoryConfList<>(historyModal, connKey, pageRef, modelObject)));
+
+                historyModal.header(
+                        new Model<>(MessageFormat.format(getString("connector.menu.history"), node.getDisplayName())));
+
+                historyModal.show(true);
+            }
+
+            @Override
+            public String getAjaxIndicatorMarkupId() {
+                return Constants.VEIL_INDICATOR_MARKUP_ID;
+            }
+
+        };
+        MetaDataRoleAuthorizationStrategy.authorize(history, RENDER, StandardEntitlement.CONNECTOR_HISTORY_LIST);
+        fragment.add(history);
+
         return fragment;
     }
 
@@ -369,8 +402,8 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
                 modal.header(new Model<>(MessageFormat.format(getString("resource.edit"), node.getKey())));
 
-                MetaDataRoleAuthorizationStrategy.
-                        authorize(modal.getForm(), RENDER, StandardEntitlement.RESOURCE_UPDATE);
+                MetaDataRoleAuthorizationStrategy.authorize(
+                        modal.getForm(), RENDER, StandardEntitlement.RESOURCE_UPDATE);
 
                 modal.show(true);
             }
@@ -521,6 +554,33 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
         };
         MetaDataRoleAuthorizationStrategy.authorize(push, RENDER, StandardEntitlement.TASK_LIST);
         fragment.add(push);
+
+        AjaxLink<String> history = new IndicatingAjaxLink<String>("history") {
+
+            private static final long serialVersionUID = -1876519166660008562L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+                String resourceKey = String.class.cast(node.getKey());
+                final ResourceTO modelObject = resourceRestClient.read(String.class.cast(node.getKey()));
+
+                target.add(historyModal.setContent(
+                        new HistoryConfList<>(historyModal, resourceKey, pageRef, modelObject)));
+
+                historyModal.header(
+                        new Model<>(MessageFormat.format(getString("resource.menu.history"), node.getDisplayName())));
+
+                historyModal.show(true);
+            }
+
+            @Override
+            public String getAjaxIndicatorMarkupId() {
+                return Constants.VEIL_INDICATOR_MARKUP_ID;
+            }
+
+        };
+        MetaDataRoleAuthorizationStrategy.authorize(history, RENDER, StandardEntitlement.RESOURCE_HISTORY_LIST);
+        fragment.add(history);
 
         return fragment;
     }

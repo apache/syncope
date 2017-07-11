@@ -1,0 +1,265 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+package org.apache.syncope.client.console.panels;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.Predicate;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.client.console.SyncopeConsoleSession;
+import org.apache.syncope.client.console.rest.ConnectorRestClient;
+import org.apache.syncope.client.console.rest.ResourceRestClient;
+import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
+import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.JsonDiffPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.JsonEditorPanel;
+import org.apache.syncope.common.lib.to.AbstractHistoryConf;
+import org.apache.syncope.common.lib.to.ConnInstanceHistoryConfTO;
+import org.apache.syncope.common.lib.to.ConnInstanceTO;
+import org.apache.syncope.common.lib.to.ResourceHistoryConfTO;
+import org.apache.syncope.common.lib.to.ResourceTO;
+import org.apache.wicket.PageReference;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
+import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.IChoiceRenderer;
+import org.apache.wicket.model.CompoundPropertyModel;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.PropertyModel;
+
+public class HistoryConfDetails<T extends AbstractHistoryConf> extends MultilevelPanel.SecondLevel {
+
+    private static final long serialVersionUID = -7400543686272100483L;
+
+    private static final ObjectMapper MAPPER = new ObjectMapper();
+
+    private final T selectedHistoryConfTO;
+
+    private final List<T> availableHistoryConfTOs;
+
+    private AbstractModalPanel<String> jsonPanel;
+
+    public HistoryConfDetails(final BaseModal<?> baseModal, final T selectedHistoryConfTO,
+            final PageReference pageRef, final List<T> availableHistoryConfTOs) {
+        super();
+
+        // remove selected conf from list
+        CollectionUtils.filter(availableHistoryConfTOs, new Predicate<T>() {
+
+            @Override
+            public boolean evaluate(final T object) {
+                return !object.getKey().equals(selectedHistoryConfTO.getKey());
+            }
+        });
+        this.availableHistoryConfTOs = availableHistoryConfTOs;
+        this.selectedHistoryConfTO = selectedHistoryConfTO;
+
+        // add current conf to list
+        addCurrentInstanceConf();
+
+        Form<?> form = initDropdownDiffConfForm();
+        add(form);
+        if (availableHistoryConfTOs.isEmpty()) {
+            form.setVisible(false);
+        } else {
+            form.setVisible(true);
+        }
+
+        showConfigurationSinglePanel();
+    }
+
+    private void showConfigurationSinglePanel() {
+        Pair<String, String> info = getJSONInfo(selectedHistoryConfTO);
+
+        jsonPanel = new JsonEditorPanel(null, new PropertyModel<String>(info, "right"), true, null) {
+
+            private static final long serialVersionUID = -8927036362466990179L;
+
+            @Override
+            public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+                modal.close(target);
+            }
+        };
+        jsonPanel.setOutputMarkupId(true);
+
+        addOrReplace(jsonPanel);
+    }
+
+    private void showConfigurationDiffPanel(final List<T> historyConfTOs) {
+        List<Pair<String, String>> infos = new ArrayList<>();
+        for (T historyConfTO : historyConfTOs) {
+            infos.add(getJSONInfo(historyConfTO));
+        }
+
+        jsonPanel = new JsonDiffPanel(null, new PropertyModel<String>(infos.get(0), "value"),
+                new PropertyModel<String>(infos.get(1), "value"), null) {
+
+            private static final long serialVersionUID = -8927036362466990179L;
+
+            @Override
+            public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
+                modal.close(target);
+            }
+        };
+
+        replace(jsonPanel);
+    }
+
+    private Pair<String, String> getJSONInfo(final T historyConfTO) {
+        Object conf = null; // selected configuration instance
+        String key = "";
+        if (historyConfTO instanceof ConnInstanceHistoryConfTO) {
+            ConnInstanceHistoryConfTO historyConf = ConnInstanceHistoryConfTO.class.cast(historyConfTO);
+            conf = historyConf.getConnInstanceTO();
+            key = historyConf.getKey();
+        } else if (historyConfTO instanceof ResourceHistoryConfTO) {
+            ResourceHistoryConfTO historyConf = ResourceHistoryConfTO.class.cast(historyConfTO);
+            conf = historyConf.getResourceTO();
+            key = historyConf.getKey();
+        }
+
+        String json = "";
+        try {
+            json = MAPPER.writerWithDefaultPrettyPrinter().writeValueAsString(conf);
+        } catch (IOException ex) {
+            DirectoryPanel.LOG.error("Error converting objects to JSON", ex);
+        }
+
+        return Pair.of(key, json);
+    }
+
+    private Map<String, String> getDropdownNamesMap(final List<T> historyConfTOs) {
+        Map<String, String> historyConfMap = new HashMap<>();
+        if (selectedHistoryConfTO instanceof ConnInstanceHistoryConfTO) {
+            for (T historyConfValue : historyConfTOs) {
+                ConnInstanceHistoryConfTO historyConf = ConnInstanceHistoryConfTO.class.cast(historyConfValue);
+                historyConfMap.put(historyConf.getKey(),
+                        historyConf.getCreation() != null ? historyConf.getCreator() + " - " + SyncopeConsoleSession.
+                        get().getDateFormat().format(
+                                historyConf.getCreation()) + " - " + historyConf.getKey() : getString("current"));
+            }
+        } else if (selectedHistoryConfTO instanceof ResourceHistoryConfTO) {
+            for (T historyConfValue : historyConfTOs) {
+                ResourceHistoryConfTO historyConf = ResourceHistoryConfTO.class.cast(historyConfValue);
+                historyConfMap.put(historyConf.getKey(),
+                        historyConf.getCreation() != null ? historyConf.getCreator() + " - " + SyncopeConsoleSession.
+                        get().getDateFormat().format(
+                                historyConf.getCreation()) + " - " + historyConf.getKey() : getString("current"));
+            }
+        }
+        return historyConfMap;
+    }
+
+    private Form initDropdownDiffConfForm() {
+        final Form<T> form = new Form<>("form");
+        form.setModel(new CompoundPropertyModel<>(selectedHistoryConfTO));
+        form.setOutputMarkupId(true);
+
+        final Map<String, String> namesMap = getDropdownNamesMap(availableHistoryConfTOs);
+        List<String> keys = new ArrayList<>(namesMap.keySet());
+
+        final AjaxDropDownChoicePanel<String> dropdownElem = new AjaxDropDownChoicePanel<>(
+                "compareDropdown",
+                getString("compare"),
+                new PropertyModel<String>(selectedHistoryConfTO, "key"),
+                false);
+        dropdownElem.setChoices(keys);
+        dropdownElem.setChoiceRenderer(new IChoiceRenderer<String>() {
+
+            private static final long serialVersionUID = -6265603675261014912L;
+
+            @Override
+            public Object getDisplayValue(final String value) {
+                return namesMap.get(value) == null ? value : namesMap.get(value);
+            }
+
+            @Override
+            public String getIdValue(final String value, final int i) {
+                return value;
+            }
+
+            @Override
+            public String getObject(
+                    final String id, final IModel<? extends List<? extends String>> choices) {
+                return id;
+            }
+        });
+        dropdownElem.setNullValid(true);
+        dropdownElem.getField().add(new AjaxFormComponentUpdatingBehavior("onchange") {
+
+            private static final long serialVersionUID = -1107858522700306810L;
+
+            @Override
+            protected void onUpdate(final AjaxRequestTarget target) {
+                List<T> elemsToCompare = new ArrayList<>();
+                elemsToCompare.add(selectedHistoryConfTO);
+
+                final String selectedKey = dropdownElem.getModelObject();
+                if (selectedKey != null) {
+                    if (!selectedKey.isEmpty()) {
+                        T confToCompare = IterableUtils.find(availableHistoryConfTOs, new Predicate<T>() {
+
+                            @Override
+                            public boolean evaluate(final T object) {
+                                return object.getKey().equals(selectedKey);
+                            }
+                        });
+                        elemsToCompare.add(confToCompare);
+                        showConfigurationDiffPanel(elemsToCompare);
+                    } else {
+                        showConfigurationSinglePanel();
+                    }
+                }
+                target.add(jsonPanel);
+            }
+        });
+        form.add(dropdownElem);
+
+        return form;
+    }
+
+    @SuppressWarnings("unchecked")
+    private void addCurrentInstanceConf() {
+        T conf = null;
+
+        if (selectedHistoryConfTO instanceof ConnInstanceHistoryConfTO) {
+            ConnInstanceTO current = new ConnectorRestClient().read(
+                    ConnInstanceHistoryConfTO.class.cast(selectedHistoryConfTO).getConnInstanceTO().getKey());
+            conf = (T) new ConnInstanceHistoryConfTO();
+            ((ConnInstanceHistoryConfTO) conf).setConnInstanceTO(current);
+        } else if (selectedHistoryConfTO instanceof ResourceHistoryConfTO) {
+            ResourceTO currentRes = new ResourceRestClient().read(
+                    ResourceHistoryConfTO.class.cast(selectedHistoryConfTO).getResourceTO().getKey());
+            conf = (T) new ResourceHistoryConfTO();
+            ((ResourceHistoryConfTO) conf).setResourceTO(currentRes);
+        }
+
+        if (conf != null) {
+            conf.setCreator(selectedHistoryConfTO.getCreator());
+            conf.setKey("current");
+            availableHistoryConfTOs.add(conf);
+        }
+    }
+}
