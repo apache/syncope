@@ -25,11 +25,16 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
+import org.apache.commons.collections4.Transformer;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
@@ -40,9 +45,14 @@ import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
+import org.apache.syncope.core.spring.security.SyncopeAuthenticationDetails;
+import org.apache.syncope.core.spring.security.SyncopeGrantedAuthority;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional("Master")
@@ -93,9 +103,28 @@ public class ResourceTest extends AbstractTest {
 
     @Test
     public void findAll() {
-        List<ExternalResource> resources = resourceDAO.findAll();
-        assertNotNull(resources);
-        assertEquals(21, resources.size());
+        List<GrantedAuthority> authorities = CollectionUtils.collect(StandardEntitlement.values(),
+                new Transformer<String, GrantedAuthority>() {
+
+            @Override
+            public GrantedAuthority transform(final String entitlement) {
+                return new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM);
+            }
+        }, new ArrayList<GrantedAuthority>());
+
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                new org.springframework.security.core.userdetails.User(
+                        "admin", "FAKE_PASSWORD", authorities), "FAKE_PASSWORD", authorities);
+        auth.setDetails(new SyncopeAuthenticationDetails("Master"));
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
+        try {
+            List<ExternalResource> resources = resourceDAO.findAll();
+            assertNotNull(resources);
+            assertFalse(resources.isEmpty());
+        } finally {
+            SecurityContextHolder.getContext().setAuthentication(null);
+        }
     }
 
     @Test

@@ -61,7 +61,7 @@ public class AnyTypeClassRestClient extends BaseRestClient {
     public List<AnyTypeClassTO> list(final Collection<String> anyTypeClassNames) {
         List<AnyTypeClassTO> anyTypeClassTOs = new ArrayList<>();
         for (String anyTypeClass : anyTypeClassNames) {
-            anyTypeClassTOs.add(getService(AnyTypeClassService.class).read(anyTypeClass));
+            anyTypeClassTOs.add(read(anyTypeClass));
         }
         return anyTypeClassTOs;
     }

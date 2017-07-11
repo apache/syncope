@@ -210,7 +210,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
       var initResources = function () {
         ResourceService.getResources().then(function (response) {
           for (var i in response) {
-            $scope.dynamicForm.resources.push(response[i].key);
+            $scope.dynamicForm.resources.push(response[i]);
           }
           $scope.dynamicForm.resources.sort();
         });
@@ -239,13 +239,13 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
 
       var initAuxClasses = function () {
         //fetching default user classes, that should remain in any case
-        AnyService.getAnyType("USER").then(function (response) {
-          $scope.dynamicForm.anyUserType = response.classes;
+        AnyService.getUserClasses().then(function (response) {
+          $scope.dynamicForm.anyUserType = response;
           AnyService.getAuxClasses().then(function (response) {
             for (var i = 0; i < response.length; i++) {
-              //we should only add schemas that aren't in the anyUserType
-              if ($scope.dynamicForm.anyUserType.indexOf(response[i].key) === -1) {
-                $scope.dynamicForm.auxClasses.push(response[i].key);
+              // we should only add schemas that aren't in the anyUserType
+              if ($scope.dynamicForm.anyUserType.indexOf(response[i]) === -1) {
+                $scope.dynamicForm.auxClasses.push(response[i]);
               }
             }
           }, function (e) {

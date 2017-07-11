@@ -18,11 +18,8 @@
  */
 package org.apache.syncope.client.console.widgets;
 
-import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
-import org.apache.syncope.client.console.commons.AnyTypeComparator;
-import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -55,7 +52,7 @@ public class NumberWidget extends BaseWidget {
         boolean isAuthorized = true;
         final PageParameters pageParameters = new PageParameters();
         final Class<? extends IRequestablePage> responsePage;
-        List<AnyTypeTO> anyTypeTOs = new AnyTypeRestClient().list();
+        List<String> anyTypes = new AnyTypeRestClient().list();
         switch (id) {
             case "totalUsers":
                 pageParameters.add("selectedIndex", 1);
@@ -70,10 +67,9 @@ public class NumberWidget extends BaseWidget {
 
             case "totalAny1OrRoles":
                 if (icon.equals("ion ion-gear-a")) {
-                    Collections.sort(anyTypeTOs, new AnyTypeComparator());
                     Integer selectedIndex = null;
-                    for (int i = 0; i < anyTypeTOs.size() && selectedIndex == null; i++) {
-                        if (anyTypeTOs.get(i).getKey().equals(label)) {
+                    for (int i = 0; i < anyTypes.size() && selectedIndex == null; i++) {
+                        if (anyTypes.get(i).equals(label)) {
                             selectedIndex = i + 1;
                             pageParameters.add("selectedIndex", selectedIndex);
                         }
@@ -88,10 +84,9 @@ public class NumberWidget extends BaseWidget {
 
             case "totalAny2OrResources":
                 if (icon.equals("ion ion-gear-a")) {
-                    Collections.sort(anyTypeTOs, new AnyTypeComparator());
                     Integer selectedIndex = null;
-                    for (int i = 0; i < anyTypeTOs.size() && selectedIndex == null; i++) {
-                        if (anyTypeTOs.get(i).getKey().equals(label)) {
+                    for (int i = 0; i < anyTypes.size() && selectedIndex == null; i++) {
+                        if (anyTypes.get(i).equals(label)) {
                             selectedIndex = i + 1;
                             pageParameters.add("selectedIndex", selectedIndex);
                         }

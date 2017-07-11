@@ -18,9 +18,16 @@
  */
 package org.apache.syncope.core.rest.cxf.service;
 
+import java.util.List;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.info.NumbersInfo;
 import org.apache.syncope.common.lib.info.SystemInfo;
 import org.apache.syncope.common.lib.info.PlatformInfo;
+import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.PagedResult;
+import org.apache.syncope.common.lib.to.TypeExtensionTO;
 import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.syncope.core.logic.SyncopeLogic;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +52,20 @@ public class SyncopeServiceImpl extends AbstractServiceImpl implements SyncopeSe
     @Override
     public NumbersInfo numbers() {
         return logic.numbers();
+    }
+
+    @Override
+    public PagedResult<GroupTO> searchAssignableGroups(
+            final String realm, final int page, final int size) {
+
+        Pair<Integer, List<GroupTO>> result = logic.searchAssignableGroups(
+                StringUtils.prependIfMissing(realm, SyncopeConstants.ROOT_REALM), page, size);
+        return buildPagedResult(result.getRight(), page, size, result.getLeft());
+    }
+
+    @Override
+    public TypeExtensionTO readUserTypeExtension(final String groupName) {
+        return logic.readTypeExtension(groupName);
     }
 
 }

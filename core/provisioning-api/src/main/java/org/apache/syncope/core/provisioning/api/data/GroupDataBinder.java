@@ -21,12 +21,16 @@ package org.apache.syncope.core.provisioning.api.data;
 import java.util.Map;
 import org.apache.syncope.common.lib.patch.GroupPatch;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.TypeExtensionTO;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
+import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
 
 public interface GroupDataBinder {
 
     GroupTO getGroupTO(String key);
+
+    TypeExtensionTO getTypeExtensionTO(TypeExtension typeExt);
 
     GroupTO getGroupTO(Group group, boolean details);
 

@@ -26,7 +26,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.security.AccessControlException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -38,7 +37,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.console.commons.ConnIdSpecialName;
-import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
@@ -500,22 +498,6 @@ public class ResourceITCase extends AbstractITCase {
         assertNotNull(provision);
         assertFalse(provision.getMapping().getItems().isEmpty());
         assertFalse(provision.getMapping().getLinkingItems().isEmpty());
-    }
-
-    @Test
-    public void anonymous() {
-        ResourceService unauthenticated = clientFactory.create().getService(ResourceService.class);
-        try {
-            unauthenticated.list();
-            fail();
-        } catch (AccessControlException e) {
-            assertNotNull(e);
-        }
-
-        ResourceService anonymous = clientFactory.create(
-                new AnonymousAuthenticationHandler(ANONYMOUS_UNAME, ANONYMOUS_KEY)).
-                getService(ResourceService.class);
-        assertFalse(anonymous.list().isEmpty());
     }
 
     @Test

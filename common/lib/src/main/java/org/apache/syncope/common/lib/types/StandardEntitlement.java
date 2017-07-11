@@ -46,13 +46,21 @@ public final class StandardEntitlement {
 
     public static final String REALM_DELETE = "REALM_DELETE";
 
+    public static final String ANYTYPECLASS_LIST = "ANYTYPECLASS_LIST";
+
     public static final String ANYTYPECLASS_CREATE = "ANYTYPECLASS_CREATE";
+
+    public static final String ANYTYPECLASS_READ = "ANYTYPECLASS_READ";
 
     public static final String ANYTYPECLASS_UPDATE = "ANYTYPECLASS_UPDATE";
 
     public static final String ANYTYPECLASS_DELETE = "ANYTYPECLASS_DELETE";
 
+    public static final String ANYTYPE_LIST = "ANYTYPE_LIST";
+
     public static final String ANYTYPE_CREATE = "ANYTYPE_CREATE";
+
+    public static final String ANYTYPE_READ = "ANYTYPE_READ";
 
     public static final String ANYTYPE_UPDATE = "ANYTYPE_UPDATE";
 
@@ -108,6 +116,8 @@ public final class StandardEntitlement {
 
     public static final String GROUP_CREATE = "GROUP_CREATE";
 
+    public static final String GROUP_SEARCH = "GROUP_SEARCH";
+
     public static final String GROUP_READ = "GROUP_READ";
 
     public static final String GROUP_UPDATE = "GROUP_UPDATE";
@@ -155,6 +165,8 @@ public final class StandardEntitlement {
     public static final String CONFIGURATION_EXPORT = "CONFIGURATION_EXPORT";
 
     public static final String CONFIGURATION_LIST = "CONFIGURATION_LIST";
+
+    public static final String CONFIGURATION_GET = "CONFIGURATION_GET";
 
     public static final String CONFIGURATION_SET = "CONFIGURATION_SET";
 
@@ -261,6 +273,8 @@ public final class StandardEntitlement {
     public static final String AUDIT_DISABLE = "AUDIT_DISABLE";
 
     public static final String SECURITY_QUESTION_CREATE = "SECURITY_QUESTION_CREATE";
+
+    public static final String SECURITY_QUESTION_READ = "SECURITY_QUESTION_READ";
 
     public static final String SECURITY_QUESTION_UPDATE = "SECURITY_QUESTION_UPDATE";
 

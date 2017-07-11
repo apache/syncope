@@ -35,6 +35,7 @@ import org.apache.syncope.core.provisioning.api.data.SecurityQuestionDataBinder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class SecurityQuestionLogic extends AbstractTransactionalLogic<SecurityQuestionTO> {
@@ -49,6 +50,7 @@ public class SecurityQuestionLogic extends AbstractTransactionalLogic<SecurityQu
     private SecurityQuestionDataBinder binder;
 
     @PreAuthorize("isAuthenticated()")
+    @Transactional(readOnly = true)
     public List<SecurityQuestionTO> list() {
         return CollectionUtils.collect(securityQuestionDAO.findAll(),
                 new Transformer<SecurityQuestion, SecurityQuestionTO>() {
@@ -60,7 +62,8 @@ public class SecurityQuestionLogic extends AbstractTransactionalLogic<SecurityQu
         }, new ArrayList<SecurityQuestionTO>());
     }
 
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasRole('" + StandardEntitlement.SECURITY_QUESTION_READ + "')")
+    @Transactional(readOnly = true)
     public SecurityQuestionTO read(final String key) {
         SecurityQuestion securityQuestion = securityQuestionDAO.find(key);
         if (securityQuestion == null) {

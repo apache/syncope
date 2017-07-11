@@ -81,7 +81,8 @@ public class ConfigurationLogic extends AbstractTransactionalLogic<AttrTO> {
         return binder.getConfTO();
     }
 
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasRole('" + StandardEntitlement.CONFIGURATION_GET + "')")
+    @Transactional(readOnly = true)
     public AttrTO get(final String schema) {
         AttrTO result;
 

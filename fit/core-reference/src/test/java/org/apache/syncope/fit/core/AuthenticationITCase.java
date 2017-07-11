@@ -100,7 +100,7 @@ public class AuthenticationITCase extends AbstractITCase {
     }
 
     @Test
-    public void testReadEntitlements() {
+    public void readEntitlements() {
         // 1. as not authenticated (not allowed)
         try {
             clientFactory.create().self();
@@ -130,7 +130,7 @@ public class AuthenticationITCase extends AbstractITCase {
     }
 
     @Test
-    public void testUserSchemaAuthorization() {
+    public void userSchemaAuthorization() {
         String schemaName = "authTestSchema" + getUUIDString();
 
         // 1. create a schema (as admin)
@@ -169,7 +169,7 @@ public class AuthenticationITCase extends AbstractITCase {
     }
 
     @Test
-    public void testUserRead() {
+    public void userRead() {
         UserTO userTO = UserITCase.getUniqueSampleTO("testuserread@test.org");
         userTO.getRoles().add("User manager");
 
@@ -194,7 +194,7 @@ public class AuthenticationITCase extends AbstractITCase {
     }
 
     @Test
-    public void testUserSearch() {
+    public void userSearch() {
         UserTO userTO = UserITCase.getUniqueSampleTO("testusersearch@test.org");
         userTO.getRoles().add("User reviewer");
 

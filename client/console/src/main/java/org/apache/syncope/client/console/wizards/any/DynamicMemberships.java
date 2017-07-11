@@ -59,7 +59,7 @@ public class DynamicMemberships extends WizardStep {
 
             @Override
             protected List<AnyTypeTO> load() {
-                return CollectionUtils.select(anyTypeRestClient.list(), new Predicate<AnyTypeTO>() {
+                return CollectionUtils.select(anyTypeRestClient.listAnyTypes(), new Predicate<AnyTypeTO>() {
 
                     @Override
                     public boolean evaluate(final AnyTypeTO t) {

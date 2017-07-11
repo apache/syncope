@@ -19,9 +19,7 @@
 package org.apache.syncope.client.console.tasks;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
@@ -40,11 +38,9 @@ import org.apache.syncope.client.console.wizards.any.AnyWrapper;
 import org.apache.syncope.client.console.wizards.any.GroupTemplateWizardBuilder;
 import org.apache.syncope.client.console.wizards.any.TemplateWizardBuilder;
 import org.apache.syncope.client.console.wizards.any.UserTemplateWizardBuilder;
-import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.TemplatableTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -74,9 +70,7 @@ public abstract class TemplatesTogglePanel extends TogglePanel<Serializable> {
 
         @Override
         protected List<String> load() {
-            final List<String> res = new ArrayList<>();
-            CollectionUtils.collect(new AnyTypeRestClient().list(), EntityTOUtils.<AnyTypeTO>keyTransformer(), res);
-            return res;
+            return new AnyTypeRestClient().list();
         }
     };
 
@@ -101,8 +95,8 @@ public abstract class TemplatesTogglePanel extends TogglePanel<Serializable> {
             @Override
             protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
                 try {
-                    final AjaxWizard.NewItemActionEvent<AnyTO> payload
-                            = new AjaxWizard.NewItemActionEvent<>(null, target);
+                    final AjaxWizard.NewItemActionEvent<AnyTO> payload =
+                            new AjaxWizard.NewItemActionEvent<>(null, target);
 
                     payload.setResourceModel(new StringResourceModel("inner.template.edit", container,
                             Model.of(Pair.of(typeModel.getObject(), targetObject))).setDefaultValue(

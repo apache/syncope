@@ -20,23 +20,23 @@ package org.apache.syncope.client.enduser.resources;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.annotations.Resource;
-import org.apache.syncope.common.lib.to.AnyTypeTO;
-import org.apache.syncope.common.rest.api.service.AnyTypeService;
+import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.wicket.request.resource.AbstractResource;
 
-@Resource(key = "anyType", path = "/api/anyTypes")
-public class AnyTypeResource extends BaseResource {
+@Resource(key = "anyType", path = "/api/userClasses")
+public class UserClassesResource extends BaseResource {
 
     private static final long serialVersionUID = 7475706378304995200L;
 
     @Override
     protected ResourceResponse newResourceResponse(final Attributes attributes) {
-        LOG.debug("Get all available auxiliary classes");
+        LOG.debug("Get USER classes");
 
         ResourceResponse response = new ResourceResponse();
         response.setContentType(MediaType.APPLICATION_JSON);
@@ -49,16 +49,15 @@ public class AnyTypeResource extends BaseResource {
                 return response;
             }
 
-            String kind = attributes.getParameters().get(0).toString();
-            final AnyTypeTO anyTypeTO = SyncopeEnduserSession.get().getService(AnyTypeService.class).read(kind);
+            final List<String> userClasses = SyncopeEnduserSession.get().
+                    getService(SyncopeService.class).platform().getUserClasses();
 
             response.setTextEncoding(StandardCharsets.UTF_8.name());
-
             response.setWriteCallback(new AbstractResource.WriteCallback() {
 
                 @Override
                 public void writeData(final Attributes attributes) throws IOException {
-                    attributes.getResponse().write(MAPPER.writeValueAsString(anyTypeTO));
+                    attributes.getResponse().write(MAPPER.writeValueAsString(userClasses));
                 }
             });
             response.setStatusCode(Response.Status.OK.getStatusCode());

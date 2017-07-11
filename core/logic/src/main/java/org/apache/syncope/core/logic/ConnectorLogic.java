@@ -163,8 +163,7 @@ public class ConnectorLogic extends AbstractTransactionalLogic<ConnInstanceTO> {
                 try {
                     result = binder.getConnInstanceTO(connInstance);
                 } catch (NotFoundException e) {
-                    LOG.error("Connector '{}#{}' not found",
-                            connInstance.getBundleName(), connInstance.getVersion());
+                    LOG.error("Connector '{}#{}' not found", connInstance.getBundleName(), connInstance.getVersion());
                 }
 
                 return result;

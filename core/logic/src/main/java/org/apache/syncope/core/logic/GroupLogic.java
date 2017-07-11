@@ -41,7 +41,6 @@ import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
-import org.apache.syncope.common.lib.to.TypeExtensionTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.BulkMembersActionType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -161,19 +160,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
         }, new ArrayList<GroupTO>());
     }
 
-    @PreAuthorize("isAuthenticated()")
-    @Transactional(readOnly = true)
-    public TypeExtensionTO readTypeExtension(final String key, final String anyTypeKey) {
-        Group group = groupDAO.find(key);
-        if (group == null) {
-            throw new NotFoundException("Group " + key);
-        }
-
-        GroupTO groupTO = binder.getGroupTO(group, false);
-        return groupTO.getTypeExtension(anyTypeKey);
-    }
-
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasRole('" + StandardEntitlement.GROUP_SEARCH + "')")
     @Transactional(readOnly = true)
     @Override
     public Pair<Integer, List<GroupTO>> search(

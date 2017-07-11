@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
@@ -29,9 +28,7 @@ import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
-import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.PageReference;
@@ -57,14 +54,15 @@ public abstract class MembersTogglePanel extends TogglePanel<Serializable> {
 
         @Override
         protected List<String> load() {
-            return CollectionUtils.collect(
-                    CollectionUtils.select(new AnyTypeRestClient().list(), new Predicate<AnyTypeTO>() {
+            List<String> result = new AnyTypeRestClient().list();
+            CollectionUtils.filter(result, new Predicate<String>() {
 
-                        @Override
-                        public boolean evaluate(final AnyTypeTO object) {
-                            return object.getKind() != AnyTypeKind.GROUP;
-                        }
-                    }), EntityTOUtils.<AnyTypeTO>keyTransformer(), new ArrayList<String>());
+                @Override
+                public boolean evaluate(final String anyType) {
+                    return !AnyTypeKind.GROUP.name().equals(anyType);
+                }
+            });
+            return result;
         }
     };
 

@@ -26,7 +26,7 @@ angular.module('self')
             var any = {};
 
             any.getAuxClasses = function () {
-              return  $http.get("/syncope-enduser/api/auxiliaryClasses")
+              return  $http.get("/syncope-enduser/api/auxClasses")
                       .then(function (response) {
                         return response.data;
                       }, function (response) {
@@ -36,8 +36,8 @@ angular.module('self')
                       });
             };
 
-            any.getAnyType = function (kind) {
-              return  $http.get("/syncope-enduser/api/anyTypes/" + encodeURI(kind))
+            any.getUserClasses = function () {
+              return  $http.get("/syncope-enduser/api/userClasses")
                       .then(function (response) {
                         return response.data;
                       }, function (response) {

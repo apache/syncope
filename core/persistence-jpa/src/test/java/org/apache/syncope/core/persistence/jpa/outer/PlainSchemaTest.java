@@ -25,11 +25,17 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import javax.persistence.EntityExistsException;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
+import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
@@ -41,8 +47,15 @@ import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
+import org.apache.syncope.core.spring.security.SyncopeAuthenticationDetails;
+import org.apache.syncope.core.spring.security.SyncopeGrantedAuthority;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional("Master")
@@ -65,6 +78,29 @@ public class PlainSchemaTest extends AbstractTest {
 
     @Autowired
     private ExternalResourceDAO resourceDAO;
+
+    @BeforeClass
+    public static void setAuthContext() {
+        List<GrantedAuthority> authorities = CollectionUtils.collect(StandardEntitlement.values(),
+                new Transformer<String, GrantedAuthority>() {
+
+            @Override
+            public GrantedAuthority transform(final String entitlement) {
+                return new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM);
+            }
+        }, new ArrayList<GrantedAuthority>());
+
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+                new org.springframework.security.core.userdetails.User(
+                        "admin", "FAKE_PASSWORD", authorities), "FAKE_PASSWORD", authorities);
+        auth.setDetails(new SyncopeAuthenticationDetails("Master"));
+        SecurityContextHolder.getContext().setAuthentication(auth);
+    }
+
+    @AfterClass
+    public static void unsetAuthContext() {
+        SecurityContextHolder.getContext().setAuthentication(null);
+    }
 
     @Test
     public void checkIdUniqueness() {

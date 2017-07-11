@@ -21,27 +21,39 @@ package org.apache.syncope.core.logic;
 import java.lang.management.ManagementFactory;
 import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.RuntimeMXBean;
-import org.apache.syncope.core.provisioning.api.EntitlementsHolder;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import javax.annotation.Resource;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.AbstractBaseBean;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.info.NumbersInfo;
 import org.apache.syncope.common.lib.info.SystemInfo;
 import org.apache.syncope.common.lib.info.PlatformInfo;
+import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.TypeExtensionTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.spring.security.PasswordGenerator;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.api.ImplementationLookup.Type;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeClassDAO;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
@@ -49,14 +61,23 @@ import org.apache.syncope.core.persistence.api.dao.SecurityQuestionDAO;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
+import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
+import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
+import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
+import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.provisioning.api.AnyObjectProvisioningManager;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
+import org.apache.syncope.core.provisioning.api.EntitlementsHolder;
 import org.apache.syncope.core.provisioning.api.GroupProvisioningManager;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCache;
+import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
+import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.workflow.api.AnyObjectWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
@@ -77,6 +98,12 @@ public class SyncopeLogic extends AbstractLogic<AbstractBaseBean> {
     private static PlatformInfo PLATFORM_INFO;
 
     private static SystemInfo SYSTEM_INFO;
+
+    @Autowired
+    private AnyTypeDAO anyTypeDAO;
+
+    @Autowired
+    private AnyTypeClassDAO anyTypeClassDAO;
 
     @Autowired
     private UserDAO userDAO;
@@ -110,6 +137,12 @@ public class SyncopeLogic extends AbstractLogic<AbstractBaseBean> {
 
     @Autowired
     private ConfDAO confDAO;
+
+    @Autowired
+    private AnySearchDAO searchDAO;
+
+    @Autowired
+    private GroupDataBinder groupDataBinder;
 
     @Resource(name = "version")
     private String version;
@@ -208,6 +241,37 @@ public class SyncopeLogic extends AbstractLogic<AbstractBaseBean> {
 
             PLATFORM_INFO.getEntitlements().clear();
             PLATFORM_INFO.getEntitlements().addAll(EntitlementsHolder.getInstance().getValues());
+
+            PLATFORM_INFO.getAnyTypes().clear();
+            PLATFORM_INFO.getUserClasses().clear();
+            PLATFORM_INFO.getAnyTypeClasses().clear();
+            PLATFORM_INFO.getResources().clear();
+            AuthContextUtils.execWithAuthContext(AuthContextUtils.getDomain(), new AuthContextUtils.Executable<Void>() {
+
+                @Override
+                public Void exec() {
+                    CollectionUtils.collect(
+                            anyTypeDAO.findAll(),
+                            EntityUtils.keyTransformer(),
+                            PLATFORM_INFO.getAnyTypes());
+
+                    CollectionUtils.collect(
+                            anyTypeDAO.findUser().getClasses(),
+                            EntityUtils.keyTransformer(),
+                            PLATFORM_INFO.getUserClasses());
+
+                    CollectionUtils.collect(
+                            anyTypeClassDAO.findAll(),
+                            EntityUtils.keyTransformer(),
+                            PLATFORM_INFO.getAnyTypeClasses());
+
+                    CollectionUtils.collect(
+                            resourceDAO.findAll(),
+                            EntityUtils.keyTransformer(),
+                            PLATFORM_INFO.getResources());
+                    return null;
+                }
+            });
         }
 
         return PLATFORM_INFO;
@@ -308,10 +372,55 @@ public class SyncopeLogic extends AbstractLogic<AbstractBaseBean> {
         return numbersInfo;
     }
 
+    @PreAuthorize("isAuthenticated()")
+    public Pair<Integer, List<GroupTO>> searchAssignableGroups(
+            final String realm, final int page, final int size) {
+
+        AssignableCond assignableCond = new AssignableCond();
+        assignableCond.setRealmFullPath(realm);
+        SearchCond searchCond = SearchCond.getLeafCond(assignableCond);
+
+        int count = searchDAO.count(SyncopeConstants.FULL_ADMIN_REALMS, searchCond, AnyTypeKind.GROUP);
+
+        OrderByClause orderByClause = new OrderByClause();
+        orderByClause.setField("name");
+        orderByClause.setDirection(OrderByClause.Direction.ASC);
+        List<Group> matching = searchDAO.search(
+                SyncopeConstants.FULL_ADMIN_REALMS,
+                searchCond,
+                page, size,
+                Collections.singletonList(orderByClause), AnyTypeKind.GROUP);
+        List<GroupTO> result = CollectionUtils.collect(matching, new Transformer<Group, GroupTO>() {
+
+            @Transactional(readOnly = true)
+            @Override
+            public GroupTO transform(final Group input) {
+                return groupDataBinder.getGroupTO(input, false);
+            }
+        }, new ArrayList<GroupTO>());
+
+        return Pair.of(count, result);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    public TypeExtensionTO readTypeExtension(final String groupName) {
+        Group group = groupDAO.findByName(groupName);
+        if (group == null) {
+            throw new NotFoundException("Group " + groupName);
+        }
+        TypeExtension typeExt = group.getTypeExtension(anyTypeDAO.findUser());
+        if (typeExt == null) {
+            throw new NotFoundException("TypeExtension in " + groupName + " for users");
+        }
+
+        return groupDataBinder.getTypeExtensionTO(typeExt);
+    }
+
     @Override
     protected AbstractBaseBean resolveReference(final Method method, final Object... args)
             throws UnresolvedReferenceException {
 
         throw new UnresolvedReferenceException();
     }
+
 }

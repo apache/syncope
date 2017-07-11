@@ -18,11 +18,14 @@
  */
 package org.apache.syncope.client.console.rest;
 
+import java.io.Serializable;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-import org.apache.syncope.client.console.commons.AnyTypeComparator;
+import org.apache.commons.collections4.ComparatorUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.rest.api.service.AnyTypeService;
 
 public class AnyTypeRestClient extends BaseRestClient {
@@ -41,7 +44,7 @@ public class AnyTypeRestClient extends BaseRestClient {
         return type;
     }
 
-    public List<AnyTypeTO> list() {
+    public List<AnyTypeTO> listAnyTypes() {
         List<AnyTypeTO> types = Collections.emptyList();
 
         try {
@@ -51,6 +54,12 @@ public class AnyTypeRestClient extends BaseRestClient {
             LOG.error("While reading all any types", e);
         }
 
+        return types;
+    }
+
+    public List<String> list() {
+        List<String> types = getSyncopeService().platform().getAnyTypes();
+        Collections.sort(types, new AnyTypeKeyComparator());
         return types;
     }
 
@@ -64,5 +73,49 @@ public class AnyTypeRestClient extends BaseRestClient {
 
     public void delete(final String key) {
         getService(AnyTypeService.class).delete(key);
+    }
+
+    private static class AnyTypeComparator implements Comparator<AnyTypeTO>, Serializable {
+
+        private static final long serialVersionUID = -8227715253094467138L;
+
+        @Override
+        public int compare(final AnyTypeTO o1, final AnyTypeTO o2) {
+            if (o1.getKind() == AnyTypeKind.USER) {
+                return -1;
+            }
+            if (o2.getKind() == AnyTypeKind.USER) {
+                return 1;
+            }
+            if (o1.getKind() == AnyTypeKind.GROUP) {
+                return -1;
+            }
+            if (o2.getKind() == AnyTypeKind.GROUP) {
+                return 1;
+            }
+            return ComparatorUtils.<String>naturalComparator().compare(o1.getKey(), o2.getKey());
+        }
+    }
+
+    private static class AnyTypeKeyComparator implements Comparator<String>, Serializable {
+
+        private static final long serialVersionUID = -7778622183107320760L;
+
+        @Override
+        public int compare(final String o1, final String o2) {
+            if (AnyTypeKind.USER.name().equals(o1)) {
+                return -1;
+            }
+            if (AnyTypeKind.USER.name().equals(o2)) {
+                return 1;
+            }
+            if (AnyTypeKind.GROUP.name().equals(o1)) {
+                return -1;
+            }
+            if (AnyTypeKind.GROUP.name().equals(2)) {
+                return 1;
+            }
+            return ComparatorUtils.<String>naturalComparator().compare(o1, o2);
+        }
     }
 }
