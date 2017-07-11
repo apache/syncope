@@ -20,8 +20,7 @@ package org.apache.syncope.core.persistence.api.dao;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
+import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
@@ -58,6 +57,11 @@ public interface AnyDAO<A extends Any<?>> extends DAO<A> {
     List<A> findByResource(ExternalResource resource);
 
     /**
+     * @return the search condition to match all entities
+     */
+    SearchCond getAllMatchingCond();
+
+    /**
      * @return the total number of any objects of type {@link A}
      */
     int count();
@@ -71,21 +75,7 @@ public interface AnyDAO<A extends Any<?>> extends DAO<A> {
      */
     List<A> findAll(int page, int itemsPerPage);
 
-    /**
-     * Find any objects visible from the given admin realms, according to given page and items per page, sorted as
-     * required.
-     *
-     * @param adminRealms admin realms
-     * @param page search result page
-     * @param itemsPerPage items per search result page
-     * @param orderBy ordering clauses
-     * @return any objects of type {@link A} matching the provided conditions
-     */
-    List<A> findAll(Set<String> adminRealms, int page, int itemsPerPage, List<OrderByClause> orderBy);
-
     <S extends Schema> AllowedSchemas<S> findAllowedSchemas(A any, Class<S> reference);
-
-    int count(Set<String> adminRealms);
 
     A save(A any);
 

@@ -89,6 +89,8 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
 
     private AnyObjectDAO anyObjectDAO;
 
+    private AnySearchDAO searchDAO;
+
     private AnySearchDAO jpaAnySearchDAO;
 
     private UserDAO userDAO() {
@@ -107,6 +109,15 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
             }
         }
         return anyObjectDAO;
+    }
+
+    private AnySearchDAO searchDAO() {
+        synchronized (this) {
+            if (searchDAO == null) {
+                searchDAO = ApplicationContextProvider.getApplicationContext().getBean(AnySearchDAO.class);
+            }
+        }
+        return searchDAO;
     }
 
     private AnySearchDAO jpaAnySearchDAO() {

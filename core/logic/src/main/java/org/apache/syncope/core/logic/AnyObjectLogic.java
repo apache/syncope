@@ -90,37 +90,11 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
 
     @Transactional(readOnly = true)
     @Override
-    public int count(final String realm) {
-        throw new UnsupportedOperationException("Need to specify " + AnyType.class.getSimpleName());
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public List<AnyObjectTO> list(
+    public Pair<Integer, List<AnyObjectTO>> search(
+            final SearchCond searchCond,
             final int page, final int size, final List<OrderByClause> orderBy,
-            final String realm, final boolean details) {
-
-        throw new UnsupportedOperationException("Need to specify " + AnyType.class.getSimpleName());
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public int searchCount(final SearchCond searchCond, final String realm) {
-        if (searchCond.hasAnyTypeCond() == null) {
-            throw new UnsupportedOperationException("Need to specify " + AnyType.class.getSimpleName());
-        }
-
-        Set<String> effectiveRealms = RealmUtils.getEffective(
-                AuthContextUtils.getAuthorizations().get(AnyEntitlement.SEARCH.getFor(searchCond.hasAnyTypeCond())),
-                realm);
-
-        return searchDAO.count(effectiveRealms, searchCond, AnyTypeKind.ANY_OBJECT);
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public List<AnyObjectTO> search(final SearchCond searchCond, final int page, final int size,
-            final List<OrderByClause> orderBy, final String realm, final boolean details) {
+            final String realm,
+            final boolean details) {
 
         if (searchCond.hasAnyTypeCond() == null) {
             throw new UnsupportedOperationException("Need to specify " + AnyType.class.getSimpleName());
@@ -130,9 +104,11 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
                 AuthContextUtils.getAuthorizations().get(AnyEntitlement.SEARCH.getFor(searchCond.hasAnyTypeCond())),
                 realm);
 
-        List<AnyObject> matchingAnyObjects = searchDAO.search(
+        int count = searchDAO.count(effectiveRealms, searchCond, AnyTypeKind.ANY_OBJECT);
+
+        List<AnyObject> matching = searchDAO.search(
                 effectiveRealms, searchCond, page, size, orderBy, AnyTypeKind.ANY_OBJECT);
-        return CollectionUtils.collect(matchingAnyObjects, new Transformer<AnyObject, AnyObjectTO>() {
+        List<AnyObjectTO> result = CollectionUtils.collect(matching, new Transformer<AnyObject, AnyObjectTO>() {
 
             @Transactional(readOnly = true)
             @Override
@@ -140,6 +116,8 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
                 return binder.getAnyObjectTO(input, details);
             }
         }, new ArrayList<AnyObjectTO>());
+
+        return Pair.of(count, result);
     }
 
     @Override

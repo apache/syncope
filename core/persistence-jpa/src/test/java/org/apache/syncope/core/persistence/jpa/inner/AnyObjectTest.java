@@ -22,7 +22,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-import java.util.List;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
@@ -44,12 +43,6 @@ public class AnyObjectTest extends AbstractTest {
 
     @Autowired
     private RealmDAO realmDAO;
-
-    @Test
-    public void findAll() {
-        List<AnyObject> list = anyObjectDAO.findAll(1, 100);
-        assertFalse(list.isEmpty());
-    }
 
     @Test
     public void find() {

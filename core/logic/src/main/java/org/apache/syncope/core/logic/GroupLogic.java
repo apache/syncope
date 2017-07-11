@@ -176,21 +176,21 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     @Override
-    public int count(final String realm) {
-        return groupDAO.count(RealmUtils.getEffective(SyncopeConstants.FULL_ADMIN_REALMS, realm));
-    }
-
-    @PreAuthorize("isAuthenticated()")
-    @Transactional(readOnly = true)
-    @Override
-    public List<GroupTO> list(
+    public Pair<Integer, List<GroupTO>> search(
+            final SearchCond searchCond,
             final int page, final int size, final List<OrderByClause> orderBy,
-            final String realm, final boolean details) {
+            final String realm,
+            final boolean details) {
 
-        return CollectionUtils.collect(groupDAO.findAll(
+        int count = searchDAO.count(
                 RealmUtils.getEffective(SyncopeConstants.FULL_ADMIN_REALMS, realm),
-                page, size, orderBy),
-                new Transformer<Group, GroupTO>() {
+                searchCond == null ? groupDAO.getAllMatchingCond() : searchCond, AnyTypeKind.GROUP);
+
+        List<Group> matching = searchDAO.search(
+                RealmUtils.getEffective(SyncopeConstants.FULL_ADMIN_REALMS, realm),
+                searchCond == null ? groupDAO.getAllMatchingCond() : searchCond,
+                page, size, orderBy, AnyTypeKind.GROUP);
+        List<GroupTO> result = CollectionUtils.collect(matching, new Transformer<Group, GroupTO>() {
 
             @Transactional(readOnly = true)
             @Override
@@ -198,34 +198,8 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
                 return binder.getGroupTO(input, details);
             }
         }, new ArrayList<GroupTO>());
-    }
 
-    @PreAuthorize("isAuthenticated()")
-    @Transactional(readOnly = true)
-    @Override
-    public int searchCount(final SearchCond searchCondition, final String realm) {
-        return searchDAO.count(
-                RealmUtils.getEffective(SyncopeConstants.FULL_ADMIN_REALMS, realm),
-                searchCondition, AnyTypeKind.GROUP);
-    }
-
-    @PreAuthorize("isAuthenticated()")
-    @Transactional(readOnly = true)
-    @Override
-    public List<GroupTO> search(final SearchCond searchCondition, final int page, final int size,
-            final List<OrderByClause> orderBy, final String realm, final boolean details) {
-
-        List<Group> matchingGroups = searchDAO.search(
-                RealmUtils.getEffective(SyncopeConstants.FULL_ADMIN_REALMS, realm),
-                searchCondition, page, size, orderBy, AnyTypeKind.GROUP);
-        return CollectionUtils.collect(matchingGroups, new Transformer<Group, GroupTO>() {
-
-            @Transactional(readOnly = true)
-            @Override
-            public GroupTO transform(final Group input) {
-                return binder.getGroupTO(input, details);
-            }
-        }, new ArrayList<GroupTO>());
+        return Pair.of(count, result);
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.GROUP_CREATE + "')")
