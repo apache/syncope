@@ -422,6 +422,7 @@ under the License.
     <ionicons.version>2.0.1</ionicons.version>
     <highlightjs.version>9.8.0</highlightjs.version>
     <codemirror.version>5.24.2</codemirror.version>
+    <googlediffmatchpath.version>20121119-1</googlediffmatchpath.version>
     <jsplumb.version>2.0.7</jsplumb.version>
     
     <wicket.version>7.7.0</wicket.version>
@@ -1329,6 +1330,11 @@ under the License.
         <groupId>org.webjars</groupId>
         <artifactId>codemirror</artifactId>
         <version>${codemirror.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.webjars</groupId>
+        <artifactId>google-diff-match-patch</artifactId>
+        <version>${googlediffmatchpath.version}</version>
       </dependency>
       <dependency>
         <groupId>org.webjars</groupId>
