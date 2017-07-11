@@ -162,7 +162,7 @@ public class LoggerITCase extends AbstractITCase {
             if (UserLogic.class.getSimpleName().equals(eventCategoryTO.getCategory())) {
                 assertEquals(EventCategoryType.LOGIC, eventCategoryTO.getType());
                 assertTrue(eventCategoryTO.getEvents().contains("create"));
-                assertTrue(eventCategoryTO.getEvents().contains("list"));
+                assertTrue(eventCategoryTO.getEvents().contains("search"));
                 assertFalse(eventCategoryTO.getEvents().contains("doCreate"));
                 assertFalse(eventCategoryTO.getEvents().contains("setStatusOnWfAdapter"));
                 assertFalse(eventCategoryTO.getEvents().contains("resolveReference"));
@@ -176,7 +176,7 @@ public class LoggerITCase extends AbstractITCase {
             if (GroupLogic.class.getSimpleName().equals(eventCategoryTO.getCategory())) {
                 assertEquals(EventCategoryType.LOGIC, eventCategoryTO.getType());
                 assertTrue(eventCategoryTO.getEvents().contains("create"));
-                assertTrue(eventCategoryTO.getEvents().contains("list"));
+                assertTrue(eventCategoryTO.getEvents().contains("search"));
                 assertFalse(eventCategoryTO.getEvents().contains("resolveReference"));
                 found = true;
             }

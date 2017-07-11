@@ -92,33 +92,6 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
         return etag;
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.USER_SEARCH + "')")
-    @Transactional(readOnly = true)
-    @Override
-    public int count(final String realm) {
-        return userDAO.count(RealmUtils.getEffective(
-                AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_SEARCH), realm));
-    }
-
-    @PreAuthorize("hasRole('" + StandardEntitlement.USER_SEARCH + "')")
-    @Transactional(readOnly = true)
-    @Override
-    public List<UserTO> list(
-            final int page, final int size, final List<OrderByClause> orderBy,
-            final String realm, final boolean details) {
-
-        return CollectionUtils.collect(userDAO.findAll(RealmUtils.getEffective(
-                AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_SEARCH), realm), page, size, orderBy),
-                new Transformer<User, UserTO>() {
-
-            @Transactional(readOnly = true)
-            @Override
-            public UserTO transform(final User input) {
-                return binder.returnUserTO(binder.getUserTO(input, details));
-            }
-        }, new ArrayList<UserTO>());
-    }
-
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public Pair<String, UserTO> selfRead() {
@@ -137,22 +110,21 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
     @PreAuthorize("hasRole('" + StandardEntitlement.USER_SEARCH + "')")
     @Transactional(readOnly = true)
     @Override
-    public int searchCount(final SearchCond searchCondition, final String realm) {
-        return searchDAO.count(RealmUtils.getEffective(
-                AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_SEARCH), realm),
-                searchCondition, AnyTypeKind.USER);
-    }
+    public Pair<Integer, List<UserTO>> search(
+            final SearchCond searchCond,
+            final int page, final int size, final List<OrderByClause> orderBy,
+            final String realm,
+            final boolean details) {
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.USER_SEARCH + "')")
-    @Transactional(readOnly = true)
-    @Override
-    public List<UserTO> search(final SearchCond searchCondition, final int page, final int size,
-            final List<OrderByClause> orderBy, final String realm, final boolean details) {
-
-        List<User> matchingUsers = searchDAO.search(RealmUtils.getEffective(
+        int count = searchDAO.count(RealmUtils.getEffective(
                 AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_SEARCH), realm),
-                searchCondition, page, size, orderBy, AnyTypeKind.USER);
-        return CollectionUtils.collect(matchingUsers, new Transformer<User, UserTO>() {
+                searchCond == null ? userDAO.getAllMatchingCond() : searchCond, AnyTypeKind.USER);
+
+        List<User> matching = searchDAO.search(RealmUtils.getEffective(
+                AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_SEARCH), realm),
+                searchCond == null ? userDAO.getAllMatchingCond() : searchCond,
+                page, size, orderBy, AnyTypeKind.USER);
+        List<UserTO> result = CollectionUtils.collect(matching, new Transformer<User, UserTO>() {
 
             @Transactional(readOnly = true)
             @Override
@@ -160,6 +132,8 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
                 return binder.returnUserTO(binder.getUserTO(input, details));
             }
         }, new ArrayList<UserTO>());
+
+        return Pair.of(count, result);
     }
 
     @PreAuthorize("isAnonymous() or hasRole('" + StandardEntitlement.ANONYMOUS + "')")

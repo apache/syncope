@@ -39,14 +39,12 @@ import org.apache.commons.jexl3.parser.Token;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.core.persistence.api.dao.AllowedSchemas;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
-import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
-import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
@@ -80,8 +78,6 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
 
     private DerSchemaDAO derSchemaDAO;
 
-    private AnySearchDAO searchDAO;
-
     private DynRealmDAO dynRealmDAO;
 
     private AnyUtils anyUtils;
@@ -102,15 +98,6 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
             }
         }
         return derSchemaDAO;
-    }
-
-    protected AnySearchDAO searchDAO() {
-        synchronized (this) {
-            if (searchDAO == null) {
-                searchDAO = ApplicationContextProvider.getApplicationContext().getBean(AnySearchDAO.class);
-            }
-        }
-        return searchDAO;
     }
 
     protected DynRealmDAO dynRealmDAO() {
@@ -461,18 +448,11 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
         return query.getResultList();
     }
 
-    private SearchCond getAllMatchingCond() {
+    @Override
+    public SearchCond getAllMatchingCond() {
         AnyCond idCond = new AnyCond(AttributeCond.Type.ISNOTNULL);
         idCond.setSchema("id");
         return SearchCond.getLeafCond(idCond);
-    }
-
-    @Override
-    public List<A> findAll(final Set<String> adminRealms,
-            final int page, final int itemsPerPage, final List<OrderByClause> orderBy) {
-
-        return searchDAO().search(adminRealms, getAllMatchingCond(), page, itemsPerPage, orderBy,
-                anyUtils().getAnyTypeKind());
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
@@ -534,11 +514,6 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
     }
 
     @Override
-    public final int count(final Set<String> adminRealms) {
-        return searchDAO().count(adminRealms, getAllMatchingCond(), anyUtils().getAnyTypeKind());
-    }
-
-    @Override
     public A save(final A any) {
         return entityManager().merge(any);
     }
@@ -569,7 +544,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
             DynRealm dynRealm = dynRealmDAO().find(actualKey);
             if (dynRealm == null) {
                 LOG.error("Could not find dynRealm with id {}, even though returned by the native query", actualKey);
-            } else if (!result.contains(dynRealm)) {
+            } else if (!result.contains(actualKey)) {
                 result.add(actualKey);
             }
         }

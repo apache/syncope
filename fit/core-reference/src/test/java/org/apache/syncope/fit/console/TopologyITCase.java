@@ -389,7 +389,7 @@ public class TopologyITCase extends AbstractConsoleITCase {
 
         TESTER.assertLabel(
                 "body:toggle:outerObjectsRepeater:1:outer:form:content:tasks:secondLevelContainer:title",
-                "CREATE task about USER");
+                "CREATE __ACCOUNT__");
 
         component = findComponentByProp("status", "body:toggle:outerObjectsRepeater:1:outer:form:content:tasks:"
                 + "secondLevelContainer:second:executions:firstLevelContainer:first:container:content:searchContainer:"

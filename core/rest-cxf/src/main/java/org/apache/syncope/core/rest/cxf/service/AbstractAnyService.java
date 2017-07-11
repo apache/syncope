@@ -19,10 +19,12 @@
 package org.apache.syncope.core.rest.cxf.service;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.patch.AnyPatch;
@@ -115,34 +117,24 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
     public PagedResult<TO> search(final AnyQuery anyQuery) {
         String realm = StringUtils.prependIfMissing(anyQuery.getRealm(), SyncopeConstants.ROOT_REALM);
 
-        if (StringUtils.isBlank(anyQuery.getFiql())) {
-            return buildPagedResult(
-                    getAnyLogic().list(
-                            anyQuery.getPage(),
-                            anyQuery.getSize(),
-                            getOrderByClauses(anyQuery.getOrderBy()),
-                            realm,
-                            anyQuery.getDetails()),
-                    anyQuery.getPage(),
-                    anyQuery.getSize(),
-                    getAnyLogic().count(realm));
-        } else {
-            // if an assignable query is provided in the FIQL string, start anyway from root realm
-            boolean isAssignableCond = -1 != anyQuery.getFiql().indexOf(SpecialAttr.ASSIGNABLE.toString());
+        // if an assignable query is provided in the FIQL string, start anyway from root realm
+        boolean isAssignableCond = StringUtils.isBlank(anyQuery.getFiql())
+                ? false
+                : -1 != anyQuery.getFiql().indexOf(SpecialAttr.ASSIGNABLE.toString());
 
-            SearchCond cond = getSearchCond(anyQuery.getFiql(), realm);
-            return buildPagedResult(
-                    getAnyLogic().search(
-                            cond,
-                            anyQuery.getPage(),
-                            anyQuery.getSize(),
-                            getOrderByClauses(anyQuery.getOrderBy()),
-                            isAssignableCond ? SyncopeConstants.ROOT_REALM : realm,
-                            anyQuery.getDetails()),
-                    anyQuery.getPage(),
-                    anyQuery.getSize(),
-                    getAnyLogic().searchCount(cond, isAssignableCond ? SyncopeConstants.ROOT_REALM : realm));
-        }
+        SearchCond searchCond = StringUtils.isBlank(anyQuery.getFiql())
+                ? null
+                : getSearchCond(anyQuery.getFiql(), realm);
+
+        Pair<Integer, List<TO>> result = getAnyLogic().search(
+                searchCond,
+                anyQuery.getPage(),
+                anyQuery.getSize(),
+                getOrderByClauses(anyQuery.getOrderBy()),
+                isAssignableCond ? SyncopeConstants.ROOT_REALM : realm,
+                anyQuery.getDetails());
+
+        return buildPagedResult(result.getRight(), anyQuery.getPage(), anyQuery.getSize(), result.getLeft());
     }
 
     @Override
