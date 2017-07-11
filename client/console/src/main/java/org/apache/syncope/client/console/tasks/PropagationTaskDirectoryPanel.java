@@ -40,16 +40,15 @@ import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 
-/**
- * Tasks page.
- */
 public abstract class PropagationTaskDirectoryPanel
         extends TaskDirectoryPanel<PropagationTaskTO> implements ModalPanel {
 
@@ -74,15 +73,27 @@ public abstract class PropagationTaskDirectoryPanel
         columns.add(new KeyPropertyColumn<PropagationTaskTO>(
                 new StringResourceModel("key", this), "key"));
 
-        columns.add(new PropertyColumn<PropagationTaskTO, String>(new StringResourceModel(
-                "operation", this), "operation", "operation"));
+        columns.add(new PropertyColumn<PropagationTaskTO, String>(
+                new StringResourceModel("operation", this), "operation", "operation"));
 
         if (resource == null) {
-            columns.add(new PropertyColumn<PropagationTaskTO, String>(new StringResourceModel(
-                    "resource", this), "resource", "resource"));
+            columns.add(new PropertyColumn<PropagationTaskTO, String>(
+                    new StringResourceModel("resource", this), "resource", "resource"));
         } else {
             columns.add(new PropertyColumn<PropagationTaskTO, String>(
-                    new StringResourceModel("anyTypeKind", this), "anyTypeKind", "anyTypeKind"));
+                    new StringResourceModel("anyTypeKind", this), "anyTypeKind", "anyTypeKind") {
+
+                private static final long serialVersionUID = 3344577098912281394L;
+
+                @Override
+                public IModel<?> getDataModel(final IModel<PropagationTaskTO> rowModel) {
+                    if (rowModel.getObject().getAnyTypeKind() == null) {
+                        return Model.of(SyncopeConstants.REALM_ANYTYPE);
+                    } else {
+                        return super.getDataModel(rowModel);
+                    }
+                }
+            });
         }
 
         columns.add(new PropertyColumn<PropagationTaskTO, String>(

@@ -37,7 +37,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 
 /**
- * Tasks page.
+ * Tasks {@link DirectoryPanel}.
  *
  * @param <T> task type.
  */
