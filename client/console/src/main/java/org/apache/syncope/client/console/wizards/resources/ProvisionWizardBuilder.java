@@ -37,8 +37,6 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownCho
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
-import org.apache.syncope.common.lib.EntityTOUtils;
-import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.MappingTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
@@ -78,19 +76,13 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> {
                 }
             }, currentlyAdded);
 
-            final List<String> res = new ArrayList<>();
-
-            CollectionUtils.filter(CollectionUtils.collect(new AnyTypeRestClient().list(),
-                    EntityTOUtils.<AnyTypeTO>keyTransformer(), res),
-                    new Predicate<String>() {
+            return ListUtils.select(new AnyTypeRestClient().list(), new Predicate<String>() {
 
                 @Override
                 public boolean evaluate(final String key) {
                     return !currentlyAdded.contains(key);
                 }
             });
-
-            return res;
         }
     };
 
@@ -210,13 +202,8 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> {
 
                 @Override
                 protected void onUpdate(final AjaxRequestTarget target) {
-                    if (connObjectLinkCheckbox.getModelObject()) {
-                        connObjectLink.setEnabled(Boolean.TRUE);
-                        connObjectLink.setModelObject("");
-                    } else {
-                        connObjectLink.setEnabled(Boolean.FALSE);
-                        connObjectLink.setModelObject("");
-                    }
+                    connObjectLink.setEnabled(connObjectLinkCheckbox.getModelObject());
+                    connObjectLink.setModelObject("");
 
                     target.add(connObjectLink);
                 }

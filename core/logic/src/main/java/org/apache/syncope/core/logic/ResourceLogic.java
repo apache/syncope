@@ -260,7 +260,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         return binder.getResourceTO(resource);
     }
 
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasRole('" + StandardEntitlement.RESOURCE_LIST + "')")
     @Transactional(readOnly = true)
     public List<ResourceTO> list() {
         return CollectionUtils.collect(resourceDAO.findAll(), new Transformer<ExternalResource, ResourceTO>() {

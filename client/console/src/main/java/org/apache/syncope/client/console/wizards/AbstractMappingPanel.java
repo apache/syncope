@@ -307,7 +307,7 @@ public abstract class AbstractMappingPanel extends Panel {
                 // Purpose
                 // -------------------------------
                 WebMarkupContainer purpose = new WebMarkupContainer("purpose");
-                purpose.setOutputMarkupId(Boolean.TRUE);
+                purpose.setOutputMarkupId(true);
 
                 final MappingPurposePanel purposeActions = new MappingPurposePanel(
                         "purposeActions", new PropertyModel<MappingPurpose>(mapItem, "purpose"), purpose);

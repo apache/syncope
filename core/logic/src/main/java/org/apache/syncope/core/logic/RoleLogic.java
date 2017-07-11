@@ -34,6 +34,7 @@ import org.apache.syncope.core.provisioning.api.data.RoleDataBinder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class RoleLogic extends AbstractTransactionalLogic<RoleTO> {
@@ -45,6 +46,7 @@ public class RoleLogic extends AbstractTransactionalLogic<RoleTO> {
     private RoleDAO roleDAO;
 
     @PreAuthorize("hasRole('" + StandardEntitlement.ROLE_READ + "')")
+    @Transactional(readOnly = true)
     public RoleTO read(final String key) {
         Role role = roleDAO.find(key);
         if (role == null) {
@@ -57,6 +59,7 @@ public class RoleLogic extends AbstractTransactionalLogic<RoleTO> {
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.ROLE_LIST + "')")
+    @Transactional(readOnly = true)
     public List<RoleTO> list() {
         return CollectionUtils.collect(roleDAO.findAll(), new Transformer<Role, RoleTO>() {
 

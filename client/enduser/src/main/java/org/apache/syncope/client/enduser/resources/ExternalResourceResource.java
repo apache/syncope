@@ -26,8 +26,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.annotations.Resource;
-import org.apache.syncope.common.lib.to.ResourceTO;
-import org.apache.syncope.common.rest.api.service.ResourceService;
+import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.request.resource.IResource;
 
@@ -50,14 +49,15 @@ public class ExternalResourceResource extends BaseResource {
                 return response;
             }
 
-            final List<ResourceTO> resourceTOs = SyncopeEnduserSession.get().getService(ResourceService.class).list();
+            final List<String> resources = SyncopeEnduserSession.get().
+                    getService(SyncopeService.class).platform().getResources();
 
             response.setTextEncoding(StandardCharsets.UTF_8.name());
             response.setWriteCallback(new AbstractResource.WriteCallback() {
 
                 @Override
                 public void writeData(final IResource.Attributes attributes) throws IOException {
-                    attributes.getResponse().write(MAPPER.writeValueAsString(resourceTOs));
+                    attributes.getResponse().write(MAPPER.writeValueAsString(resources));
                 }
             });
             response.setStatusCode(Response.Status.OK.getStatusCode());

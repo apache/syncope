@@ -70,11 +70,11 @@ public class TypeExtensionWizardBuilder extends AjaxWizardBuilder<TypeExtensionT
         wizardModel.add(new Details(modelObject));
         return wizardModel;
     }
-    
+
     @Override
     protected Serializable onApplyInternal(final TypeExtensionTO modelObject) {
-        final List<TypeExtensionTO> typeExtensions
-                = ListUtils.select(groupTO.getTypeExtensions(), new Predicate<TypeExtensionTO>() {
+        final List<TypeExtensionTO> typeExtensions =
+                ListUtils.select(groupTO.getTypeExtensions(), new Predicate<TypeExtensionTO>() {
 
                     @Override
                     public boolean evaluate(final TypeExtensionTO object) {
@@ -98,8 +98,7 @@ public class TypeExtensionWizardBuilder extends AjaxWizardBuilder<TypeExtensionT
             add(new Label("anyType.label", anyTypeLabel));
 
             if (typeExtensionTO.getAnyType() == null) {
-                List<String> anyTypes = CollectionUtils.collect(new AnyTypeRestClient().list(),
-                        EntityTOUtils.keyTransformer(), new ArrayList<String>());
+                List<String> anyTypes = new AnyTypeRestClient().list();
                 anyTypes.remove(AnyTypeKind.GROUP.name());
                 CollectionUtils.filter(anyTypes, new Predicate<String>() {
 

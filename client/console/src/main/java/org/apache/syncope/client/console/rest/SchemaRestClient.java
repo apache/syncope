@@ -56,7 +56,7 @@ public class SchemaRestClient extends BaseRestClient {
                 break;
 
             default:
-                for (AnyTypeTO anyTypeTO : new AnyTypeRestClient().list()) {
+                for (AnyTypeTO anyTypeTO : new AnyTypeRestClient().listAnyTypes()) {
                     if (anyTypeTO.getKind() != AnyTypeKind.USER && anyTypeTO.getKind() != AnyTypeKind.GROUP) {
                         classes.addAll(anyTypeTO.getClasses());
                     }

@@ -18,9 +18,7 @@
  */
 package org.apache.syncope.client.console.status;
 
-import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.status.StatusBean;
@@ -30,7 +28,6 @@ import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
-import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -57,13 +54,12 @@ public class ResourceStatusModal extends StatusModal<ResourceTO> {
 
             @Override
             protected List<String> load() {
-                return CollectionUtils.collect(
-                        new AnyTypeRestClient().list(), EntityTOUtils.keyTransformer(), new ArrayList<String>());
+                return new AnyTypeRestClient().list();
             }
         };
 
-        AjaxDropDownChoicePanel<String> anyTypes
-                = new AjaxDropDownChoicePanel<>("anyTypes", "anyTypes", typeModel, false);
+        AjaxDropDownChoicePanel<String> anyTypes =
+                new AjaxDropDownChoicePanel<>("anyTypes", "anyTypes", typeModel, false);
         anyTypes.setChoices(types);
         anyTypes.hideLabel();
         add(anyTypes);

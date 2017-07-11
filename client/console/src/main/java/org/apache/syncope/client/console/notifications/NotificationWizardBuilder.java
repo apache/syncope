@@ -45,7 +45,6 @@ import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
 import org.apache.syncope.common.lib.EntityTOUtils;
-import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
 import org.apache.syncope.common.lib.to.MailTemplateTO;
 import org.apache.syncope.common.lib.to.NotificationTO;
@@ -217,9 +216,7 @@ public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationWra
                         }
 
                     });
-            type.setChoices(CollectionUtils.collect(
-                    new AnyTypeRestClient().list(),
-                    EntityTOUtils.<AnyTypeTO>keyTransformer(), new ArrayList<String>()));
+            type.setChoices(new AnyTypeRestClient().list());
             type.addRequiredLabel();
             add(type);
 

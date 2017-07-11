@@ -18,13 +18,22 @@
  */
 package org.apache.syncope.common.rest.api.service;
 
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import org.apache.syncope.common.lib.info.NumbersInfo;
 import org.apache.syncope.common.lib.info.SystemInfo;
 import org.apache.syncope.common.lib.info.PlatformInfo;
+import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.PagedResult;
+import org.apache.syncope.common.lib.to.TypeExtensionTO;
 
 /**
  * General info about this Apache Syncope deployment.
@@ -63,4 +72,34 @@ public interface SyncopeService extends JAXRSService {
     @Path("/numbers")
     @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
     NumbersInfo numbers();
+
+    /**
+     * Returns the list of Groups, according to provided paging instructions, assignable to Users and Any Objects of
+     * the provided Realm.
+     *
+     * @param realm of the User and Any Objects assignable to the returned Groups
+     * @param page search page
+     * @param size search page size
+     * @return list of Groups, according to provided paging instructions, assignable to Users and Any Objects of
+     * the provided Realm
+     */
+    @POST
+    @Path("/assignableGroups/{realm:.*}")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    PagedResult<GroupTO> searchAssignableGroups(
+            @NotNull @PathParam("realm") String realm,
+            @Min(1) @QueryParam(PARAM_PAGE) @DefaultValue("1") int page,
+            @Min(1) @QueryParam(PARAM_SIZE) @DefaultValue("25") int size);
+
+    /**
+     * Extracts User type extension information, for the provided group.
+     *
+     * @param groupName group name
+     * @return User type extension information, for the provided group
+     */
+    @GET
+    @Path("/userTypeExtension/{groupName}")
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
+    TypeExtensionTO readUserTypeExtension(
+            @NotNull @PathParam("groupName") String groupName);
 }

@@ -26,11 +26,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.enduser.SyncopeEnduserSession;
 import org.apache.syncope.client.enduser.annotations.Resource;
-import org.apache.syncope.common.lib.to.AnyTypeClassTO;
-import org.apache.syncope.common.rest.api.service.AnyTypeClassService;
+import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.wicket.request.resource.AbstractResource;
 
-@Resource(key = "auxClasses", path = "/api/auxiliaryClasses")
+@Resource(key = "auxClasses", path = "/api/auxClasses")
 public class AnyTypeClassResource extends BaseResource {
 
     private static final long serialVersionUID = 7475706378304995200L;
@@ -49,15 +48,15 @@ public class AnyTypeClassResource extends BaseResource {
                 return response;
             }
 
-            final List<AnyTypeClassTO> anyTypeClassTOs =
-                    SyncopeEnduserSession.get().getService(AnyTypeClassService.class).list();
+            final List<String> anyTypeClasses = SyncopeEnduserSession.get().
+                    getService(SyncopeService.class).platform().getAnyTypeClasses();
 
             response.setTextEncoding(StandardCharsets.UTF_8.name());
             response.setWriteCallback(new AbstractResource.WriteCallback() {
 
                 @Override
                 public void writeData(final Attributes attributes) throws IOException {
-                    attributes.getResponse().write(MAPPER.writeValueAsString(anyTypeClassTOs));
+                    attributes.getResponse().write(MAPPER.writeValueAsString(anyTypeClasses));
                 }
             });
             response.setStatusCode(Response.Status.OK.getStatusCode());

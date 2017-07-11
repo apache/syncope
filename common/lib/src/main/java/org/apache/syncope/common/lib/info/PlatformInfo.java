@@ -19,7 +19,9 @@
 package org.apache.syncope.common.lib.info;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
@@ -66,6 +68,14 @@ public class PlatformInfo extends AbstractBaseBean {
     private String passwordGenerator;
 
     private String anySearchDAO;
+
+    private final List<String> anyTypes = new ArrayList<>();
+
+    private final List<String> userClasses = new ArrayList<>();
+
+    private final List<String> anyTypeClasses = new ArrayList<>();
+
+    private final List<String> resources = new ArrayList<>();
 
     private final Set<String> entitlements = new HashSet<>();
 
@@ -176,6 +186,34 @@ public class PlatformInfo extends AbstractBaseBean {
 
     public void setAnySearchDAO(final String anySearchDAO) {
         this.anySearchDAO = anySearchDAO;
+    }
+
+    @XmlElementWrapper(name = "anyTypes")
+    @XmlElement(name = "anyType")
+    @JsonProperty("anyTypes")
+    public List<String> getAnyTypes() {
+        return anyTypes;
+    }
+
+    @XmlElementWrapper(name = "userClasses")
+    @XmlElement(name = "userClass")
+    @JsonProperty("userClasses")
+    public List<String> getUserClasses() {
+        return userClasses;
+    }
+
+    @XmlElementWrapper(name = "anyTypeClasses")
+    @XmlElement(name = "anyTypeClass")
+    @JsonProperty("anyTypeClasses")
+    public List<String> getAnyTypeClasses() {
+        return anyTypeClasses;
+    }
+
+    @XmlElementWrapper(name = "resources")
+    @XmlElement(name = "resource")
+    @JsonProperty("resources")
+    public List<String> getResources() {
+        return resources;
     }
 
     @XmlElementWrapper(name = "entitlements")

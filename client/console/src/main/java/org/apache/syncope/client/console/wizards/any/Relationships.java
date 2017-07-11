@@ -258,7 +258,7 @@ public class Relationships extends WizardStep {
             type.setChoices(availableRels);
             add(type.setRenderBodyOnly(true));
 
-            final List<AnyTypeTO> availableTypes = ListUtils.select(anyTypeRestClient.list(),
+            final List<AnyTypeTO> availableTypes = ListUtils.select(anyTypeRestClient.listAnyTypes(),
                     new Predicate<AnyTypeTO>() {
 
                 @Override
@@ -313,6 +313,8 @@ public class Relationships extends WizardStep {
                     });
                 }
             });
+            // enable "rightType" dropdown only if "type" option is selected - SYNCOPE-1140
+            rightType.setEnabled(false);
             add(rightType);
 
             final WebMarkupContainer container = new WebMarkupContainer("searchPanelContainer");
@@ -337,8 +339,6 @@ public class Relationships extends WizardStep {
                     target.add(container);
                 }
             });
-            // enable "rightType" dropdown only if "type" option is selected - SYNCOPE-1140
-            rightType.setEnabled(Boolean.FALSE);
 
             rightType.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 

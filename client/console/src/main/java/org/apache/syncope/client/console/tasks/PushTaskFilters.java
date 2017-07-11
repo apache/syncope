@@ -50,7 +50,7 @@ public class PushTaskFilters extends WizardStep {
 
             @Override
             protected List<AnyTypeTO> load() {
-                return new AnyTypeRestClient().list();
+                return new AnyTypeRestClient().listAnyTypes();
             }
         };
 

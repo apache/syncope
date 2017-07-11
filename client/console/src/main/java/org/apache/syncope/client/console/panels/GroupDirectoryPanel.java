@@ -100,9 +100,9 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
 
                 final AnyTypeTO anyTypeTO = typeRestClient.read(type);
 
-                ModalPanel panel = new AnyPanel(BaseModal.CONTENT_ID, anyTypeTO, null, null, false, pageRef) {
+                ModalPanel panel = new AnyPanel(BaseModal.CONTENT_ID, type, null, null, false, pageRef) {
 
-                    private static final long serialVersionUID = 1L;
+                    private static final long serialVersionUID = 7980820232811890502L;
 
                     @Override
                     protected Panel getDirectoryPanel(final String id) {

@@ -89,6 +89,7 @@ import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.GroupService;
+import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.syncope.core.provisioning.java.job.TaskJob;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.Test;
@@ -619,17 +620,24 @@ public class GroupITCase extends AbstractITCase {
     public void anonymous() {
         GroupService unauthenticated = clientFactory.create().getService(GroupService.class);
         try {
-            unauthenticated.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).build());
+            unauthenticated.search(new AnyQuery.Builder().realm("/even").build());
             fail();
         } catch (AccessControlException e) {
             assertNotNull(e);
         }
 
-        GroupService anonymous = clientFactory.create(
-                new AnonymousAuthenticationHandler(ANONYMOUS_UNAME, ANONYMOUS_KEY)).
-                getService(GroupService.class);
-        assertFalse(anonymous.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).build()).
-                getResult().isEmpty());
+        SyncopeClient anonymous = clientFactory.create(
+                new AnonymousAuthenticationHandler(ANONYMOUS_UNAME, ANONYMOUS_KEY));
+        try {
+            anonymous.getService(GroupService.class).
+                    search(new AnyQuery.Builder().realm("/even").build());
+            fail();
+        } catch (ForbiddenException e) {
+            assertNotNull(e);
+        }
+
+        assertFalse(anonymous.getService(SyncopeService.class).
+                searchAssignableGroups("/even", 1, 100).getResult().isEmpty());
     }
 
     @Test

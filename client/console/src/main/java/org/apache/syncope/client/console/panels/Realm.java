@@ -22,14 +22,12 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import de.agilecoders.wicket.core.markup.html.bootstrap.tabs.AjaxBootstrapTabbedPanel;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.client.console.SyncopeConsoleApplication;
-import org.apache.syncope.client.console.commons.AnyTypeComparator;
 import org.apache.syncope.client.console.commons.ConnIdSpecialName;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.ITabComponent;
@@ -44,12 +42,10 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.console.wizards.any.ConnObjectPanel;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RealmTO;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.Component;
@@ -71,19 +67,19 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
 
     private final RealmTO realmTO;
 
-    private final List<AnyTypeTO> anyTypeTOs;
+    private final List<String> anyTypes;
 
     protected final RealmWizardBuilder wizardBuilder;
 
     public Realm(final String id, final RealmTO realmTO, final PageReference pageRef, final int selectedIndex) {
         super(id, true);
         this.realmTO = realmTO;
-        this.anyTypeTOs = new AnyTypeRestClient().list();
+        this.anyTypes = new AnyTypeRestClient().list();
 
         setPageRef(pageRef);
 
-        AjaxBootstrapTabbedPanel<ITab> tabbedPanel
-                = new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList(pageRef));
+        AjaxBootstrapTabbedPanel<ITab> tabbedPanel =
+                new AjaxBootstrapTabbedPanel<>("tabbedPanel", buildTabList(pageRef));
         tabbedPanel.setSelectedTab(selectedIndex);
         addInnerObject(tabbedPanel);
         this.wizardBuilder = new RealmWizardBuilder(pageRef);
@@ -153,7 +149,7 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
                         }
                     }, ActionLink.ActionType.DELETE, StandardEntitlement.REALM_DELETE, true).hideLabel();
                 }
-                
+
                 RealmDetails panel = new RealmDetails(panelId, realmTO, actionPanel, false);
                 panel.setContentEnabled(false);
                 actionPanel.setEnabled(true);
@@ -167,21 +163,19 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
             }
         });
 
-        final Triple<UserFormLayoutInfo, GroupFormLayoutInfo, Map<String, AnyObjectFormLayoutInfo>> formLayoutInfo
-                = FormLayoutInfoUtils.fetch(anyTypeTOs);
+        final Triple<UserFormLayoutInfo, GroupFormLayoutInfo, Map<String, AnyObjectFormLayoutInfo>> formLayoutInfo =
+                FormLayoutInfoUtils.fetch(anyTypes);
 
-        Collections.sort(anyTypeTOs, new AnyTypeComparator());
-        for (final AnyTypeTO anyTypeTO : anyTypeTOs) {
+        for (final String anyType : anyTypes) {
             tabs.add(new ITabComponent(
-                    new Model<>(anyTypeTO.getKey()),
-                    AnyTypeKind.GROUP.name().equals(anyTypeTO.getKey())
-                    ? null : new String[] { String.format("%s_SEARCH", anyTypeTO.getKey()) }) {
+                    new Model<>(anyType),
+                    StandardEntitlement.ANYTYPE_READ, String.format("%s_SEARCH", anyType)) {
 
                 private static final long serialVersionUID = 1169585538404171118L;
 
                 @Override
                 public WebMarkupContainer getPanel(final String panelId) {
-                    return new AnyPanel(panelId, anyTypeTO, realmTO, formLayoutInfo, true, pageRef);
+                    return new AnyPanel(panelId, anyType, realmTO, formLayoutInfo, true, pageRef);
                 }
 
                 @Override

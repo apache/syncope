@@ -311,6 +311,22 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         return propByRes;
     }
 
+    @Override
+    public TypeExtensionTO getTypeExtensionTO(final TypeExtension typeExt) {
+        TypeExtensionTO typeExtTO = new TypeExtensionTO();
+        typeExtTO.setAnyType(typeExt.getAnyType().getKey());
+        typeExtTO.getAuxClasses().addAll(CollectionUtils.collect(typeExt.getAuxClasses(),
+                new Transformer<AnyTypeClass, String>() {
+
+            @Override
+            public String transform(final AnyTypeClass clazz) {
+                return clazz.getKey();
+            }
+        }));
+
+        return typeExtTO;
+    }
+
     @Transactional(readOnly = true)
     @Override
     public GroupTO getGroupTO(final Group group, final boolean details) {
@@ -358,17 +374,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         }
 
         for (TypeExtension typeExt : group.getTypeExtensions()) {
-            TypeExtensionTO typeExtTO = new TypeExtensionTO();
-            typeExtTO.setAnyType(typeExt.getAnyType().getKey());
-            typeExtTO.getAuxClasses().addAll(CollectionUtils.collect(typeExt.getAuxClasses(),
-                    new Transformer<AnyTypeClass, String>() {
-
-                @Override
-                public String transform(final AnyTypeClass clazz) {
-                    return clazz.getKey();
-                }
-            }));
-            groupTO.getTypeExtensions().add(typeExtTO);
+            groupTO.getTypeExtensions().add(getTypeExtensionTO(typeExt));
         }
 
         return groupTO;

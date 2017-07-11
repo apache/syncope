@@ -29,7 +29,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserApplication;
@@ -40,16 +39,12 @@ import org.apache.syncope.client.enduser.model.CustomAttribute;
 import org.apache.syncope.client.enduser.model.CustomAttributesInfo;
 import org.apache.syncope.client.enduser.model.SchemaResponse;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
-import org.apache.syncope.common.lib.to.AnyTypeTO;
-import org.apache.syncope.common.lib.to.GroupTO;
-import org.apache.syncope.common.lib.to.PagedResult;
+import org.apache.syncope.common.lib.to.TypeExtensionTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.SchemaType;
-import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.beans.SchemaQuery;
-import org.apache.syncope.common.rest.api.service.AnyTypeService;
-import org.apache.syncope.common.rest.api.service.GroupService;
 import org.apache.syncope.common.rest.api.service.SchemaService;
+import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.request.resource.IResource;
 
@@ -58,7 +53,6 @@ public class SchemaResource extends BaseResource {
 
     private static final long serialVersionUID = 6453101466981543020L;
 
-    @SuppressWarnings("unchecked")
     @Override
     protected AbstractResource.ResourceResponse newResourceResponse(final IResource.Attributes attributes) {
         LOG.debug("Search all {} any type kind related schemas", AnyTypeKind.USER.name());
@@ -76,29 +70,22 @@ public class SchemaResource extends BaseResource {
 
             List<String> classes = Collections.emptyList();
 
-            final String groupParam = attributes.getParameters().get("group").toString();
-            if (groupParam != null) {
-                PagedResult<GroupTO> groups = SyncopeEnduserSession.get().getService(GroupService.class).search(
-                        new AnyQuery.Builder().realm("/").page(1).size(1000).build());
-                GroupTO group = IterableUtils.find(groups.getResult(), new Predicate<GroupTO>() {
-
-                    @Override
-                    public boolean evaluate(final GroupTO item) {
-                        return groupParam.equals(item.getName());
-                    }
-                });
-
-                if (group != null && group.getTypeExtension(AnyTypeKind.USER.name()) != null) {
-                    classes = group.getTypeExtension(AnyTypeKind.USER.name()).getAuxClasses();
+            String group = attributes.getParameters().get("group").toString();
+            if (group != null) {
+                try {
+                    TypeExtensionTO typeExt = SyncopeEnduserSession.get().
+                            getService(SyncopeService.class).readUserTypeExtension(group);
+                    classes = typeExt.getAuxClasses();
+                } catch (Exception e) {
+                    LOG.error("Could not read User type extension for Group {}", group, e);
                 }
             } else {
                 String anyTypeClass = attributes.getParameters().get("anyTypeClass").toString();
                 if (anyTypeClass != null) {
                     classes = Collections.singletonList(anyTypeClass);
                 } else {
-                    AnyTypeTO anyTypeUserTO = SyncopeEnduserSession.get().getService(AnyTypeService.class).
-                            read(AnyTypeKind.USER.name());
-                    classes = anyTypeUserTO.getClasses();
+                    classes = SyncopeEnduserSession.get().
+                            getService(SyncopeService.class).platform().getUserClasses();
                 }
             }
 
@@ -113,7 +100,7 @@ public class SchemaResource extends BaseResource {
                             new SchemaQuery.Builder().type(SchemaType.PLAIN).anyTypeClasses(classes).build())
                     : customForm.get(SchemaType.PLAIN.name()).isShow()
                     ? customizeSchemas(schemaService.list(new SchemaQuery.Builder().type(SchemaType.PLAIN).
-                            anyTypeClasses(classes).build()), groupParam, customForm.get(SchemaType.PLAIN.name()).
+                            anyTypeClasses(classes).build()), group, customForm.get(SchemaType.PLAIN.name()).
                             getAttributes())
                     : Collections.<AbstractSchemaTO>emptyList();
             final List<AbstractSchemaTO> derSchemas = classes.isEmpty()
@@ -123,7 +110,7 @@ public class SchemaResource extends BaseResource {
                             new SchemaQuery.Builder().type(SchemaType.DERIVED).anyTypeClasses(classes).build())
                     : customForm.get(SchemaType.DERIVED.name()).isShow()
                     ? customizeSchemas(schemaService.list(new SchemaQuery.Builder().type(SchemaType.DERIVED).
-                            anyTypeClasses(classes).build()), groupParam, customForm.get(SchemaType.DERIVED.name()).
+                            anyTypeClasses(classes).build()), group, customForm.get(SchemaType.DERIVED.name()).
                             getAttributes())
                     : Collections.<AbstractSchemaTO>emptyList();
             final List<AbstractSchemaTO> virSchemas = classes.isEmpty()
@@ -133,19 +120,19 @@ public class SchemaResource extends BaseResource {
                             new SchemaQuery.Builder().type(SchemaType.VIRTUAL).anyTypeClasses(classes).build())
                     : customForm.get(SchemaType.VIRTUAL.name()).isShow()
                     ? customizeSchemas(schemaService.list(new SchemaQuery.Builder().type(SchemaType.VIRTUAL).
-                            anyTypeClasses(classes).build()), groupParam, customForm.get(SchemaType.VIRTUAL.name()).
+                            anyTypeClasses(classes).build()), group, customForm.get(SchemaType.VIRTUAL.name()).
                             getAttributes())
                     : Collections.<AbstractSchemaTO>emptyList();
 
-            if (groupParam != null) {
+            if (group != null) {
                 for (AbstractSchemaTO schema : plainSchemas) {
-                    schema.setKey(compositeSchemaKey(groupParam, schema.getKey()));
+                    schema.setKey(compositeSchemaKey(group, schema.getKey()));
                 }
                 for (AbstractSchemaTO schema : derSchemas) {
-                    schema.setKey(compositeSchemaKey(groupParam, schema.getKey()));
+                    schema.setKey(compositeSchemaKey(group, schema.getKey()));
                 }
                 for (AbstractSchemaTO schema : virSchemas) {
-                    schema.setKey(compositeSchemaKey(groupParam, schema.getKey()));
+                    schema.setKey(compositeSchemaKey(group, schema.getKey()));
                 }
             }
 

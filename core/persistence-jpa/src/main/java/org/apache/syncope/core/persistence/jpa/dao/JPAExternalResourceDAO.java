@@ -18,11 +18,14 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
@@ -232,9 +235,28 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implem
 
     @Override
     public List<ExternalResource> findAll() {
+        final Set<String> authRealms = AuthContextUtils.getAuthorizations().get(StandardEntitlement.RESOURCE_LIST);
+        if (authRealms == null || authRealms.isEmpty()) {
+            return Collections.emptyList();
+        }
+
         TypedQuery<ExternalResource> query = entityManager().createQuery(
                 "SELECT e FROM  " + JPAExternalResource.class.getSimpleName() + " e", ExternalResource.class);
-        return query.getResultList();
+
+        return CollectionUtils.select(query.getResultList(), new Predicate<ExternalResource>() {
+
+            @Override
+            public boolean evaluate(final ExternalResource resource) {
+                return IterableUtils.matchesAny(authRealms, new Predicate<String>() {
+
+                    @Override
+                    public boolean evaluate(final String realm) {
+                        return resource.getConnector() != null
+                                && resource.getConnector().getAdminRealm().getFullPath().startsWith(realm);
+                    }
+                });
+            }
+        }, new ArrayList<ExternalResource>());
     }
 
     @Override

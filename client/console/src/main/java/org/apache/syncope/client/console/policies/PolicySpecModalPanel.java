@@ -43,7 +43,6 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePane
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiPanel;
 import org.apache.syncope.common.lib.policy.PullPolicyTO;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
-import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 import org.apache.syncope.common.lib.types.SchemaType;
@@ -84,8 +83,8 @@ public class PolicySpecModalPanel extends AbstractModalPanel<PullPolicyTO> {
 
             private List<CorrelationRule> rules = CollectionUtils.collect(
                     policyTO.getSpecification().getCorrelationRules() == null
-                            ? Collections.<String>emptySet()
-                            : policyTO.getSpecification().getCorrelationRules().keySet(),
+                    ? Collections.<String>emptySet()
+                    : policyTO.getSpecification().getCorrelationRules().keySet(),
                     new Transformer<String, CorrelationRule>() {
 
                 @Override
@@ -154,15 +153,7 @@ public class PolicySpecModalPanel extends AbstractModalPanel<PullPolicyTO> {
             AjaxDropDownChoicePanel<String> anyType = new AjaxDropDownChoicePanel<>(
                     "anyType", "any.type", new PropertyModel<String>(rule.getObject(), "any")).
                     setNullValid(true).
-                    setChoices(CollectionUtils.collect(
-                            new AnyTypeRestClient().list(),
-                            new Transformer<AnyTypeTO, String>() {
-
-                        @Override
-                        public String transform(final AnyTypeTO input) {
-                            return input.getKey();
-                        }
-                    }, new ArrayList<String>()));
+                    setChoices(new AnyTypeRestClient().list());
             add(anyType);
 
             final AjaxDropDownChoicePanel<String> ruleType = new AjaxDropDownChoicePanel<>(

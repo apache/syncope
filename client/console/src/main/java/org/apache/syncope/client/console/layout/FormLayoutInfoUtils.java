@@ -31,7 +31,6 @@ import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.rest.RoleRestClient;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.PageReference;
@@ -46,7 +45,7 @@ public final class FormLayoutInfoUtils {
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     public static Triple<UserFormLayoutInfo, GroupFormLayoutInfo, Map<String, AnyObjectFormLayoutInfo>> fetch(
-            final List<AnyTypeTO> anyTypeTOs) {
+            final List<String> anyTypes) {
 
         List<String> ownedRoles = SyncopeConsoleSession.get().getSelfTO().getRoles();
         try {
@@ -70,14 +69,13 @@ public final class FormLayoutInfoUtils {
                     : new GroupFormLayoutInfo();
 
             Map<String, AnyObjectFormLayoutInfo> anyObjectFormLayoutInfos = new HashMap<>();
-            for (AnyTypeTO anyTypeTO : anyTypeTOs) {
-                if (!anyTypeTO.getKey().equals(AnyTypeKind.USER.name())
-                        && !anyTypeTO.getKey().equals(AnyTypeKind.GROUP.name())) {
+            for (String anyType : anyTypes) {
+                if (!anyType.equals(AnyTypeKind.USER.name()) && !anyType.equals(AnyTypeKind.GROUP.name())) {
 
                     anyObjectFormLayoutInfos.put(
-                            anyTypeTO.getKey(),
-                            tree.has(anyTypeTO.getKey())
-                            ? MAPPER.treeToValue(tree.get(anyTypeTO.getKey()), AnyObjectFormLayoutInfo.class)
+                            anyType,
+                            tree.has(anyType)
+                            ? MAPPER.treeToValue(tree.get(anyType), AnyObjectFormLayoutInfo.class)
                             : new AnyObjectFormLayoutInfo());
                 }
             }
@@ -89,7 +87,7 @@ public final class FormLayoutInfoUtils {
         }
     }
 
-    public static String defaultConsoleLayoutInfoIfEmpty(final String content, final List<AnyTypeTO> anyTypeTOs) {
+    public static String defaultConsoleLayoutInfoIfEmpty(final String content, final List<String> anyTypes) {
         String result;
 
         if (StringUtils.isBlank(content)) {
@@ -98,11 +96,9 @@ public final class FormLayoutInfoUtils {
 
                 tree.set(AnyTypeKind.USER.name(), MAPPER.valueToTree(new UserFormLayoutInfo()));
                 tree.set(AnyTypeKind.GROUP.name(), MAPPER.valueToTree(new GroupFormLayoutInfo()));
-                for (AnyTypeTO anyTypeTO : anyTypeTOs) {
-                    if (!anyTypeTO.getKey().equals(AnyTypeKind.USER.name())
-                            && !anyTypeTO.getKey().equals(AnyTypeKind.GROUP.name())) {
-
-                        tree.set(anyTypeTO.getKey(), MAPPER.valueToTree(new AnyObjectFormLayoutInfo()));
+                for (String anyType : anyTypes) {
+                    if (!anyType.equals(AnyTypeKind.USER.name()) && !anyType.equals(AnyTypeKind.GROUP.name())) {
+                        tree.set(anyType, MAPPER.valueToTree(new AnyObjectFormLayoutInfo()));
                     }
                 }
 
@@ -145,7 +141,7 @@ public final class FormLayoutInfoUtils {
                         pageRef.getClass()).
                         newInstance(anyTO, anyTypeClasses, anyFormLayout, pageRef);
             }
-        } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException 
+        } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException
                 | IllegalArgumentException | InvocationTargetException e) {
             throw new IllegalArgumentException("Could not instantiate " + anyFormLayout.getFormClass().getName(), e);
         }

@@ -37,6 +37,7 @@ import org.apache.syncope.core.provisioning.api.data.AnyTypeClassDataBinder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 @Component
 public class AnyTypeClassLogic extends AbstractTransactionalLogic<AnyTypeClassTO> {
@@ -47,7 +48,8 @@ public class AnyTypeClassLogic extends AbstractTransactionalLogic<AnyTypeClassTO
     @Autowired
     private AnyTypeClassDAO anyTypeClassDAO;
 
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasRole('" + StandardEntitlement.ANYTYPECLASS_READ + "')")
+    @Transactional(readOnly = true)
     public AnyTypeClassTO read(final String key) {
         AnyTypeClass anyType = anyTypeClassDAO.find(key);
         if (anyType == null) {
@@ -59,7 +61,8 @@ public class AnyTypeClassLogic extends AbstractTransactionalLogic<AnyTypeClassTO
         return binder.getAnyTypeClassTO(anyType);
     }
 
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasRole('" + StandardEntitlement.ANYTYPECLASS_LIST + "')")
+    @Transactional(readOnly = true)
     public List<AnyTypeClassTO> list() {
         return CollectionUtils.collect(anyTypeClassDAO.findAll(), new Transformer<AnyTypeClass, AnyTypeClassTO>() {
 

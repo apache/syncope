@@ -36,6 +36,7 @@ import org.apache.syncope.client.console.panels.search.SearchClausePanel;
 import org.apache.syncope.client.console.panels.search.SearchUtils;
 import org.apache.syncope.client.console.panels.search.UserSearchPanel;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
+import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -86,14 +87,14 @@ public class AnyPanel extends Panel implements ModalPanel {
 
     public AnyPanel(
             final String id,
-            final AnyTypeTO anyTypeTO,
+            final String anyType,
             final RealmTO realmTO,
             final Triple<UserFormLayoutInfo, GroupFormLayoutInfo, Map<String, AnyObjectFormLayoutInfo>> formLayoutInfo,
             final boolean enableSearch,
             final PageReference pageRef) {
 
         super(id);
-        this.anyTypeTO = anyTypeTO;
+        this.anyTypeTO = new AnyTypeRestClient().read(anyType);
         this.realmTO = realmTO;
         this.formLayoutInfo = formLayoutInfo;
         this.pageRef = pageRef;
@@ -281,9 +282,9 @@ public class AnyPanel extends Panel implements ModalPanel {
             case ANY_OBJECT:
                 fiql = dynRealm == null
                         ? SyncopeClient.getAnyObjectSearchConditionBuilder(anyTypeTO.getKey()).is("key").notNullValue()
-                        .query()
+                                .query()
                         : SyncopeClient.getAnyObjectSearchConditionBuilder(anyTypeTO.getKey()).inDynRealms(dynRealm)
-                        .query();
+                                .query();
 
                 final AnyObjectTO anyObjectTO = new AnyObjectTO();
                 anyObjectTO.setRealm(realmTO.getFullPath());
