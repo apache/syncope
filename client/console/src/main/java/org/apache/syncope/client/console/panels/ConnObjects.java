@@ -23,7 +23,6 @@ import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -46,11 +45,10 @@ public class ConnObjects extends Panel implements ModalPanel {
 
     private final MultilevelPanel connObjects;
 
-    public ConnObjects(final String resource, final PageReference pageRef) {
+    public ConnObjects(final ResourceTO resource, final PageReference pageRef) {
         super(BaseModal.CONTENT_ID);
 
-        ResourceTO resourceTO = new ResourceRestClient().read(resource);
-        List<String> availableAnyTypes = CollectionUtils.collect(resourceTO.getProvisions(),
+        List<String> availableAnyTypes = CollectionUtils.collect(resource.getProvisions(),
                 new Transformer<ProvisionTO, String>() {
 
             @Override
@@ -58,7 +56,7 @@ public class ConnObjects extends Panel implements ModalPanel {
                 return provision.getAnyType();
             }
         }, new ArrayList<String>());
-        if (resourceTO.getOrgUnit() != null) {
+        if (resource.getOrgUnit() != null) {
             availableAnyTypes.add(SyncopeConstants.REALM_ANYTYPE);
         }
 
@@ -89,7 +87,7 @@ public class ConnObjects extends Panel implements ModalPanel {
 
         };
         connObjects.setFirstLevel(new NextableConnObjectDirectoryPanel(
-                connObjects, resource, anyTypes.getField().getModelObject(), pageRef));
+                connObjects, resource.getKey(), anyTypes.getField().getModelObject(), pageRef));
         connObjects.setOutputMarkupId(true);
         add(connObjects);
 
@@ -100,7 +98,7 @@ public class ConnObjects extends Panel implements ModalPanel {
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
                 connObjects.setFirstLevel(new NextableConnObjectDirectoryPanel(
-                        connObjects, resource, anyTypes.getField().getModelObject(), pageRef));
+                        connObjects, resource.getKey(), anyTypes.getField().getModelObject(), pageRef));
                 target.add(connObjects);
             }
         });

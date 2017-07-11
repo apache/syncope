@@ -413,12 +413,12 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                ResourceTO modelObject = resourceRestClient.read(node.getKey());
+                ResourceTO resource = resourceRestClient.read(node.getKey());
 
-                IModel<ResourceTO> model = new CompoundPropertyModel<>(modelObject);
+                IModel<ResourceTO> model = new CompoundPropertyModel<>(resource);
                 provisionModal.setFormModel(model);
 
-                target.add(provisionModal.setContent(new ResourceProvisionPanel(provisionModal, modelObject, pageRef)));
+                target.add(provisionModal.setContent(new ResourceProvisionPanel(provisionModal, resource, pageRef)));
 
                 provisionModal.header(new Model<>(MessageFormat.format(getString("resource.edit"), node.getKey())));
 
@@ -443,7 +443,9 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                target.add(propTaskModal.setContent(new ConnObjects(node.getKey(), pageRef)));
+                ResourceTO resource = resourceRestClient.read(node.getKey());
+
+                target.add(propTaskModal.setContent(new ConnObjects(resource, pageRef)));
                 propTaskModal.header(new StringResourceModel("resource.explore.list", Model.of(node)));
                 propTaskModal.show(true);
             }
