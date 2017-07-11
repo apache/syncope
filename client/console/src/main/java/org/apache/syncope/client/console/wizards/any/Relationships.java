@@ -331,10 +331,14 @@ public class Relationships extends WizardStep {
                     Fragment emptyFragment = new Fragment("searchPanel", "emptyFragment", Specification.this);
                     container.addOrReplace(emptyFragment.setRenderBodyOnly(true));
                     rightType.setModelObject(null);
+                    // enable "rightType" dropdown only if "type" option is selected - SYNCOPE-1140
+                    rightType.setEnabled(type.getModelObject() != null && !type.getModelObject().isEmpty());
                     target.add(rightType);
                     target.add(container);
                 }
             });
+            // enable "rightType" dropdown only if "type" option is selected - SYNCOPE-1140
+            rightType.setEnabled(Boolean.FALSE);
 
             rightType.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
