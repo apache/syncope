@@ -93,7 +93,7 @@ public class ResourceStatusDataProvider extends DirectoryDataProvider<StatusBean
 
         setSort("connObjectLink", SortOrder.ASCENDING);
 
-        this.comparator = new SortableDataProviderComparator<StatusBean>(this);
+        this.comparator = new SortableDataProviderComparator<>(this);
 
         this.realm = realm;
         this.type = type;
@@ -106,15 +106,15 @@ public class ResourceStatusDataProvider extends DirectoryDataProvider<StatusBean
         }
 
         final int page = ((int) first / paginatorRows);
-        List<? extends AnyTO> result
-                = restClient.search(realm, fiql, (page < 0 ? 0 : page) + 1, paginatorRows, getSort(), type);
+        List<? extends AnyTO> result =
+                restClient.search(realm, fiql, (page < 0 ? 0 : page) + 1, paginatorRows, getSort(), type);
 
         List<StatusBean> res = CollectionUtils.collect(result, new Transformer<AnyTO, StatusBean>() {
 
             @Override
             public StatusBean transform(final AnyTO input) {
-                final List<ConnObjectWrapper> connObjects
-                        = statusUtils.getConnectorObjects(input, Collections.singletonList(resource));
+                final List<ConnObjectWrapper> connObjects =
+                        statusUtils.getConnectorObjects(input, Collections.singletonList(resource));
 
                 return statusUtils.getStatusBean(
                         input,

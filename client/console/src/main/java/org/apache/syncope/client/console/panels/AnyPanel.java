@@ -36,7 +36,6 @@ import org.apache.syncope.client.console.panels.search.SearchClausePanel;
 import org.apache.syncope.client.console.panels.search.SearchUtils;
 import org.apache.syncope.client.console.panels.search.UserSearchPanel;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
-import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -87,14 +86,14 @@ public class AnyPanel extends Panel implements ModalPanel {
 
     public AnyPanel(
             final String id,
-            final String anyType,
+            final AnyTypeTO anyTypeTO,
             final RealmTO realmTO,
             final Triple<UserFormLayoutInfo, GroupFormLayoutInfo, Map<String, AnyObjectFormLayoutInfo>> formLayoutInfo,
             final boolean enableSearch,
             final PageReference pageRef) {
 
         super(id);
-        this.anyTypeTO = new AnyTypeRestClient().read(anyType);
+        this.anyTypeTO = anyTypeTO;
         this.realmTO = realmTO;
         this.formLayoutInfo = formLayoutInfo;
         this.pageRef = pageRef;

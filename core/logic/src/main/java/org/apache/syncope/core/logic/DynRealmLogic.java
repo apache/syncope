@@ -55,7 +55,6 @@ public class DynRealmLogic extends AbstractTransactionalLogic<DynRealmTO> {
         return binder.getDynRealmTO(dynRealm);
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.DYNREALM_LIST + "')")
     public List<DynRealmTO> list() {
         return CollectionUtils.collect(dynRealmDAO.findAll(), new Transformer<DynRealm, DynRealmTO>() {
 

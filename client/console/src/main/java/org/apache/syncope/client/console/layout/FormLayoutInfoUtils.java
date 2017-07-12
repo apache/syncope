@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +46,7 @@ public final class FormLayoutInfoUtils {
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     public static Triple<UserFormLayoutInfo, GroupFormLayoutInfo, Map<String, AnyObjectFormLayoutInfo>> fetch(
-            final List<String> anyTypes) {
+            final Collection<String> anyTypes) {
 
         List<String> ownedRoles = SyncopeConsoleSession.get().getSelfTO().getRoles();
         try {

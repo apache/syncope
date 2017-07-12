@@ -86,8 +86,6 @@ public final class StandardEntitlement {
 
     public static final String ROLE_DELETE = "ROLE_DELETE";
 
-    public static final String DYNREALM_LIST = "DYNREALM_LIST";
-
     public static final String DYNREALM_CREATE = "DYNREALM_CREATE";
 
     public static final String DYNREALM_READ = "DYNREALM_READ";
