@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
@@ -370,6 +371,10 @@ public class RealmPushResultHandlerImpl
                     action.after(profile, realm, result);
                 }
 
+                if (result.getStatus() == null) {
+                    result.setStatus(ProvisioningReport.Status.SUCCESS);
+                }
+                resultStatus = AuditElements.Result.SUCCESS;
                 output = getRemoteObject(
                         realm.getName(),
                         profile.getConnector(),
@@ -377,6 +382,9 @@ public class RealmPushResultHandlerImpl
             } catch (IgnoreProvisionException e) {
                 throw e;
             } catch (Exception e) {
+                result.setStatus(ProvisioningReport.Status.FAILURE);
+                result.setMessage(ExceptionUtils.getRootCauseMessage(e));
+                resultStatus = AuditElements.Result.FAILURE;
                 output = e;
 
                 LOG.warn("Error pushing {} towards {}", realm, profile.getTask().getResource(), e);

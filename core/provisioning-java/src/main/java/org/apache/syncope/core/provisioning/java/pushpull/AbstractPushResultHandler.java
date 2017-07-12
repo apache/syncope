@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IteratorUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.patch.StringPatchItem;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -424,10 +425,17 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                     action.after(profile, any, result);
                 }
 
+                if (result.getStatus() == null) {
+                    result.setStatus(ProvisioningReport.Status.SUCCESS);
+                }
+                resultStatus = AuditElements.Result.SUCCESS;
                 output = getRemoteObject(connObjecKey, provision.getObjectClass());
             } catch (IgnoreProvisionException e) {
                 throw e;
             } catch (Exception e) {
+                result.setStatus(ProvisioningReport.Status.FAILURE);
+                result.setMessage(ExceptionUtils.getRootCauseMessage(e));
+                resultStatus = AuditElements.Result.FAILURE;
                 output = e;
 
                 LOG.warn("Error pushing {} towards {}", any, profile.getTask().getResource(), e);

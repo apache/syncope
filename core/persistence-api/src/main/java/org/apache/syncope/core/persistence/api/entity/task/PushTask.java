@@ -20,8 +20,13 @@ package org.apache.syncope.core.persistence.api.entity.task;
 
 import java.util.List;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 
 public interface PushTask extends ProvisioningTask {
+
+    Realm getSourceRealm();
+
+    void setSourceRealm(Realm sourceRealm);
 
     boolean add(PushTaskAnyFilter filter);
 

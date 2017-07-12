@@ -240,8 +240,28 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
             pullTaskSpecifics.add(destinationRealm);
 
             // ------------------------------
+            // Only for pull tasks
+            // ------------------------------  
+            WebMarkupContainer pushTaskSpecifics = new WebMarkupContainer("pushTaskSpecifics");
+            add(pushTaskSpecifics.setRenderBodyOnly(true));
+
+            if (!(taskTO instanceof PushTaskTO)) {
+                pushTaskSpecifics.setEnabled(false).setVisible(false);
+            }
+
+            AjaxDropDownChoicePanel<String> sourceRealm = new AjaxDropDownChoicePanel<>(
+                    "sourceRealm", "sourceRealm",
+                    new PropertyModel<String>(taskTO, "sourceRealm"), false).
+                    setChoices(realms);
+            if (taskTO instanceof PushTaskTO) {
+                sourceRealm.addRequiredLabel();
+            }
+            sourceRealm.setNullValid(!(taskTO instanceof PushTaskTO));
+            pushTaskSpecifics.add(sourceRealm);
+
+            // ------------------------------
             // For push and pull tasks
-            // ------------------------------            
+            // ------------------------------
             WebMarkupContainer provisioningTaskSpecifics = new WebMarkupContainer("provisioningTaskSpecifics");
             add(provisioningTaskSpecifics.setRenderBodyOnly(true));
 

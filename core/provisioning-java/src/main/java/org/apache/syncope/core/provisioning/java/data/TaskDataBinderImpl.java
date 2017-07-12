@@ -116,6 +116,8 @@ public class TaskDataBinderImpl implements TaskDataBinder {
 
             pushTask.setJobDelegateClassName(PushJobDelegate.class.getName());
 
+            pushTask.setSourceRealm(realmDAO.findByFullPath(pushTaskTO.getSourceRealm()));
+
             pushTask.setMatchingRule(pushTaskTO.getMatchingRule() == null
                     ? MatchingRule.LINK : pushTaskTO.getMatchingRule());
             pushTask.setUnmatchingRule(pushTaskTO.getUnmatchingRule() == null
@@ -346,6 +348,7 @@ public class TaskDataBinderImpl implements TaskDataBinder {
 
             case PUSH:
                 setExecTime((SchedTaskTO) taskTO, task);
+                ((PushTaskTO) taskTO).setSourceRealm(((PushTask) task).getSourceRealm().getFullPath());
                 ((PushTaskTO) taskTO).setResource(((PushTask) task).getResource().getKey());
                 ((PushTaskTO) taskTO).setMatchingRule(((PushTask) task).getMatchingRule() == null
                         ? MatchingRule.LINK : ((PushTask) task).getMatchingRule());

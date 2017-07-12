@@ -30,18 +30,24 @@ import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.task.PushTaskAnyFilter;
+import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
 
 @Entity
 @DiscriminatorValue("PushTask")
 public class JPAPushTask extends AbstractProvisioningTask implements PushTask {
 
     private static final long serialVersionUID = -4141057723006682564L;
+
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    private JPARealm sourceRealm;
 
     @ElementCollection(fetch = FetchType.EAGER)
     @Column(name = "actionClassName")
@@ -52,6 +58,17 @@ public class JPAPushTask extends AbstractProvisioningTask implements PushTask {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "pushTask")
     private List<JPAPushTaskAnyFilter> filters = new ArrayList<>();
+
+    @Override
+    public JPARealm getSourceRealm() {
+        return sourceRealm;
+    }
+
+    @Override
+    public void setSourceRealm(final Realm sourceRealm) {
+        checkType(sourceRealm, JPARealm.class);
+        this.sourceRealm = (JPARealm) sourceRealm;
+    }
 
     @Override
     public Set<String> getActionsClassNames() {
