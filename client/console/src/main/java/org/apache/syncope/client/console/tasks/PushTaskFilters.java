@@ -54,9 +54,6 @@ public class PushTaskFilters extends WizardStep {
             }
         };
 
-        // ------------------------
-        // aDynMembershipConds
-        // ------------------------
         add(new ListView<AnyTypeTO>("filters", types) {
 
             private static final long serialVersionUID = 9101744072914090143L;
@@ -80,6 +77,5 @@ public class PushTaskFilters extends WizardStep {
                         .setOutputMarkupId(true));
             }
         });
-        // ------------------------
     }
 }

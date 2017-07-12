@@ -30,6 +30,7 @@ import java.util.Set;
 import javax.sql.DataSource;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.PagedResult;
@@ -101,6 +102,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
         PushTaskTO task = new PushTaskTO();
         task.setName("Test create Push");
         task.setResource(RESOURCE_NAME_WS2);
+        task.setSourceRealm(SyncopeConstants.ROOT_REALM);
         task.getFilters().put(AnyTypeKind.USER.name(),
                 SyncopeClient.getUserSearchConditionBuilder().hasNotResources(RESOURCE_NAME_TESTDB2).query());
         task.getFilters().put(AnyTypeKind.GROUP.name(),
@@ -281,6 +283,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
         task.setName("For orgUnit");
         task.setActive(true);
         task.setResource(RESOURCE_NAME_LDAP_ORGUNIT);
+        task.setSourceRealm(SyncopeConstants.ROOT_REALM);
         task.setPerformCreate(true);
         task.setPerformDelete(true);
         task.setPerformUpdate(true);
@@ -363,6 +366,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
             task.setName("issueSYNCOPE598");
             task.setActive(true);
             task.setResource(resourceName);
+            task.setSourceRealm(SyncopeConstants.ROOT_REALM);
             task.setPerformCreate(true);
             task.setPerformDelete(true);
             task.setPerformUpdate(true);
@@ -393,6 +397,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
         task.setName("Test create Push");
         task.setActive(true);
         task.setResource(RESOURCE_NAME_LDAP);
+        task.setSourceRealm(SyncopeConstants.ROOT_REALM);
         task.getFilters().put(AnyTypeKind.USER.name(),
                 SyncopeClient.getUserSearchConditionBuilder().is("username").equalTo("_NO_ONE_").query());
         task.getFilters().put(AnyTypeKind.GROUP.name(),

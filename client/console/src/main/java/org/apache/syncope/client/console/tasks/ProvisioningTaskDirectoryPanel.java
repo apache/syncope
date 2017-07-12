@@ -29,6 +29,7 @@ import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.common.lib.to.AbstractProvisioningTaskTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
+import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
@@ -83,6 +84,9 @@ public abstract class ProvisioningTaskDirectoryPanel<T extends AbstractProvision
         if (reference == PullTaskTO.class) {
             columns.add(new PropertyColumn<T, String>(
                     new StringResourceModel("destinationRealm", this), "destinationRealm", "destinationRealm"));
+        } else if (reference == PushTaskTO.class) {
+            columns.add(new PropertyColumn<T, String>(
+                    new StringResourceModel("sourceRealm", this), "sourceRealm", "sourceRealm"));
         }
 
         columns.add(new DatePropertyColumn<T>(

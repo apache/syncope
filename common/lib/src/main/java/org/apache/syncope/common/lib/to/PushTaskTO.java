@@ -36,9 +36,19 @@ public class PushTaskTO extends AbstractProvisioningTaskTO {
 
     private static final long serialVersionUID = -2143537546915809018L;
 
+    private String sourceRealm;
+
     @XmlJavaTypeAdapter(XmlGenericMapAdapter.class)
     @JsonIgnore
     private final Map<String, String> filters = new HashMap<>();
+
+    public String getSourceRealm() {
+        return sourceRealm;
+    }
+
+    public void setSourceRealm(final String sourceRealm) {
+        this.sourceRealm = sourceRealm;
+    }
 
     @JsonProperty
     public Map<String, String> getFilters() {

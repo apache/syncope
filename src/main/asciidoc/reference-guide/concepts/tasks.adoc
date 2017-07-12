@@ -113,6 +113,7 @@ Push tasks are required to define and trigger the <<provisioning-push,push>> pro
 When defining a push task, the following information must be provided:
 
 * related <<external-resources,external resource>>
+* source <<realms,Realm>> - where entities to push will be read from
 * filter information for selecting which internal entities will be pushed onto the identity store
 * whether creation, update or deletion on the identity store are allowed or not
 * whether to synchronize the status information with internal storage
