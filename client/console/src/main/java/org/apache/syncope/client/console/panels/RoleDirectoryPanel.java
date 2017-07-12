@@ -166,7 +166,7 @@ public class RoleDirectoryPanel extends DirectoryPanel<RoleTO, RoleWrapper, Role
 
                 final AnyTypeTO anyTypeTO = typeRestClient.read(AnyTypeKind.USER.name());
 
-                ModalPanel panel = new AnyPanel(BaseModal.CONTENT_ID, anyTypeTO.getKey(), null, null, false, pageRef) {
+                ModalPanel panel = new AnyPanel(BaseModal.CONTENT_ID, anyTypeTO, null, null, false, pageRef) {
 
                     private static final long serialVersionUID = -7514498203393023415L;
 

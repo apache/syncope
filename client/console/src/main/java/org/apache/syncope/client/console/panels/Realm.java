@@ -24,6 +24,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
@@ -41,7 +42,9 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.console.wizards.any.ConnObjectPanel;
+import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
@@ -67,14 +70,14 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
 
     private final RealmTO realmTO;
 
-    private final List<String> anyTypes;
+    private final List<AnyTypeTO> anyTypes;
 
     protected final RealmWizardBuilder wizardBuilder;
 
     public Realm(final String id, final RealmTO realmTO, final PageReference pageRef, final int selectedIndex) {
         super(id, true);
         this.realmTO = realmTO;
-        this.anyTypes = new AnyTypeRestClient().list();
+        this.anyTypes = new AnyTypeRestClient().listAnyTypes();
 
         setPageRef(pageRef);
 
@@ -164,11 +167,11 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
         });
 
         final Triple<UserFormLayoutInfo, GroupFormLayoutInfo, Map<String, AnyObjectFormLayoutInfo>> formLayoutInfo =
-                FormLayoutInfoUtils.fetch(anyTypes);
+                FormLayoutInfoUtils.fetch(CollectionUtils.collect(anyTypes, EntityTOUtils.keyTransformer()));
 
-        for (final String anyType : anyTypes) {
+        for (final AnyTypeTO anyType : anyTypes) {
             tabs.add(new ITabComponent(
-                    new Model<>(anyType),
+                    new Model<>(anyType.getKey()),
                     StandardEntitlement.ANYTYPE_READ, String.format("%s_SEARCH", anyType)) {
 
                 private static final long serialVersionUID = 1169585538404171118L;

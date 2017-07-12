@@ -63,6 +63,7 @@ public class NumberWidget extends BaseWidget {
             case "totalGroups":
                 pageParameters.add("selectedIndex", 2);
                 responsePage = Realms.class;
+                isAuthorized = SyncopeConsoleSession.get().owns(StandardEntitlement.GROUP_SEARCH);
                 break;
 
             case "totalAny1OrRoles":
