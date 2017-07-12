@@ -536,11 +536,6 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         return execution;
     }
 
-    @Override
-    public void execute(final Collection<PropagationTask> tasks) {
-        execute(tasks, false);
-    }
-
     protected abstract void doExecute(
             Collection<PropagationTask> tasks, PropagationReporter reporter, boolean nullPriorityAsync);
 

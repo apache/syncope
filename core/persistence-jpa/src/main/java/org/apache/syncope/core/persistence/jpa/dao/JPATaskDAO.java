@@ -206,9 +206,7 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
             query.setParameter("entityKey", entityKey);
         }
 
-        query.setFirstResult(itemsPerPage * (page <= 0
-                ? 0
-                : page - 1));
+        query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
 
         if (itemsPerPage > 0) {
             query.setMaxResults(itemsPerPage);

@@ -290,7 +290,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
                     new WorkflowResult<Pair<UserPatch, Boolean>>(
                             new ImmutablePair<>(userPatch, Boolean.FALSE),
                             updated.getLeft().getPropByRes(), updated.getLeft().getPerformedTasks()));
-            taskExecutor.execute(tasks);
+            taskExecutor.execute(tasks, false);
         }
     }
 

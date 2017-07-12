@@ -76,7 +76,7 @@ public class UserWorkflowLogic extends AbstractTransactionalLogic<WorkflowFormTO
                         new ImmutablePair<UserPatch, Boolean>(userPatch, null),
                         updated.getPropByRes(), updated.getPerformedTasks()));
 
-        taskExecutor.execute(tasks);
+        taskExecutor.execute(tasks, false);
 
         return binder.getUserTO(updated.getResult());
     }
@@ -111,7 +111,7 @@ public class UserWorkflowLogic extends AbstractTransactionalLogic<WorkflowFormTO
                             updated.getPropByRes(),
                             updated.getPerformedTasks()));
 
-            taskExecutor.execute(tasks);
+            taskExecutor.execute(tasks, false);
         }
 
         return binder.getUserTO(updated.getResult().getKey());

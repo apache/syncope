@@ -31,6 +31,8 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
+import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
+import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
 import org.apache.syncope.core.provisioning.api.pushpull.UserPushResultHandler;
 
 public class UserPushResultHandlerImpl extends AbstractPushResultHandler implements UserPushResultHandler {
@@ -41,7 +43,7 @@ public class UserPushResultHandlerImpl extends AbstractPushResultHandler impleme
     }
 
     @Override
-    protected void provision(final Any<?> any, final Boolean enabled) {
+    protected void provision(final Any<?> any, final Boolean enabled, final ProvisioningReport result) {
         AnyTO before = getAnyTO(any.getKey());
 
         List<String> noPropResources = new ArrayList<>(before.getResources());
@@ -50,13 +52,15 @@ public class UserPushResultHandlerImpl extends AbstractPushResultHandler impleme
         PropagationByResource propByRes = new PropagationByResource();
         propByRes.add(ResourceOperation.CREATE, profile.getTask().getResource().getKey());
 
-        taskExecutor.execute(propagationManager.getUserCreateTasks(
+        PropagationReporter reporter = taskExecutor.execute(propagationManager.getUserCreateTasks(
                 before.getKey(),
                 null,
                 enabled,
                 propByRes,
                 before.getVirAttrs(),
-                noPropResources));
+                noPropResources),
+                false);
+        reportPropagation(result, reporter);
     }
 
     @Override

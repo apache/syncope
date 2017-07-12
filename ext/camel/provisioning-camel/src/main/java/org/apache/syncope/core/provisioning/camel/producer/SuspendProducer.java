@@ -51,7 +51,7 @@ public class SuspendProducer extends AbstractProducer {
                         new WorkflowResult<Pair<UserPatch, Boolean>>(
                                 new ImmutablePair<>(userPatch, Boolean.FALSE),
                                 updated.getKey().getPropByRes(), updated.getKey().getPerformedTasks()));
-                getPropagationTaskExecutor().execute(tasks);
+                getPropagationTaskExecutor().execute(tasks, false);
             }
         }
     }

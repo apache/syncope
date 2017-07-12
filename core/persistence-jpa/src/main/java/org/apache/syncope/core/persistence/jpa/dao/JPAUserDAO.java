@@ -281,7 +281,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
     @Override
     public List<User> findAll(final int page, final int itemsPerPage) {
         TypedQuery<User> query = entityManager().createQuery(
-                "SELECT e FROM  " + JPAUser.class.getSimpleName() + " e", User.class);
+                "SELECT e FROM  " + JPAUser.class.getSimpleName() + " e ORDER BY e.id", User.class);
         query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
         query.setMaxResults(itemsPerPage);
 

@@ -22,21 +22,21 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.MatchingRule;
+import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
-import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.TimeoutException;
 import org.apache.syncope.core.provisioning.api.event.AfterHandlingEvent;
+import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionException;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
 import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
@@ -84,38 +84,50 @@ public class RealmPushResultHandlerImpl
         }
     }
 
-    private Realm update(final RealmTO realmTO) {
+    private void reportPropagation(final ProvisioningReport result, final PropagationReporter reporter) {
+        if (!reporter.getStatuses().isEmpty()) {
+            result.setStatus(toProvisioningReportStatus(reporter.getStatuses().get(0).getStatus()));
+            result.setMessage(reporter.getStatuses().get(0).getFailureReason());
+        }
+    }
+
+    private Realm update(final RealmTO realmTO, final ProvisioningReport result) {
         Realm realm = realmDAO.findByFullPath(realmTO.getFullPath());
         PropagationByResource propByRes = binder.update(realm, realmTO);
         realm = realmDAO.save(realm);
 
-        List<PropagationTask> tasks = propagationManager.createTasks(realm, propByRes, null);
-        taskExecutor.execute(tasks, false);
+        PropagationReporter reporter = taskExecutor.execute(
+                propagationManager.createTasks(realm, propByRes, null), false);
+        reportPropagation(result, reporter);
 
         return realm;
     }
 
-    private void deprovision(final Realm realm) {
+    private void deprovision(final Realm realm, final ProvisioningReport result) {
         List<String> noPropResources = new ArrayList<>(realm.getResourceKeys());
         noPropResources.remove(profile.getTask().getResource().getKey());
 
         PropagationByResource propByRes = new PropagationByResource();
         propByRes.addAll(ResourceOperation.DELETE, realm.getResourceKeys());
 
-        taskExecutor.execute(propagationManager.createTasks(realm, propByRes, noPropResources));
+        PropagationReporter reporter = taskExecutor.execute(
+                propagationManager.createTasks(realm, propByRes, noPropResources), false);
+        reportPropagation(result, reporter);
     }
 
-    private void provision(final Realm realm) {
+    private void provision(final Realm realm, final ProvisioningReport result) {
         List<String> noPropResources = new ArrayList<>(realm.getResourceKeys());
         noPropResources.remove(profile.getTask().getResource().getKey());
 
         PropagationByResource propByRes = new PropagationByResource();
         propByRes.add(ResourceOperation.CREATE, profile.getTask().getResource().getKey());
 
-        taskExecutor.execute(propagationManager.createTasks(realm, propByRes, noPropResources));
+        PropagationReporter reporter = taskExecutor.execute(
+                propagationManager.createTasks(realm, propByRes, noPropResources), false);
+        reportPropagation(result, reporter);
     }
 
-    private void link(final Realm realm, final Boolean unlink) {
+    private void link(final Realm realm, final boolean unlink, final ProvisioningReport result) {
         RealmTO realmTO = binder.getRealmTO(realm, true);
         if (unlink) {
             realmTO.getResources().remove(profile.getTask().getResource().getKey());
@@ -123,253 +135,21 @@ public class RealmPushResultHandlerImpl
             realmTO.getResources().add(profile.getTask().getResource().getKey());
         }
 
-        update(realmTO);
+        update(realmTO, result);
     }
 
-    private void unassign(final Realm realm) {
+    private void unassign(final Realm realm, final ProvisioningReport result) {
         RealmTO realmTO = binder.getRealmTO(realm, true);
         realmTO.getResources().remove(profile.getTask().getResource().getKey());
 
-        deprovision(update(realmTO));
+        deprovision(update(realmTO, result), result);
     }
 
-    private void assign(final Realm realm) {
+    private void assign(final Realm realm, final ProvisioningReport result) {
         RealmTO realmTO = binder.getRealmTO(realm, true);
         realmTO.getResources().add(profile.getTask().getResource().getKey());
 
-        provision(update(realmTO));
-    }
-
-    private void doHandle(final Realm realm) throws JobExecutionException {
-        ProvisioningReport result = new ProvisioningReport();
-        profile.getResults().add(result);
-
-        result.setKey(realm.getKey());
-        result.setAnyType(REALM_TYPE);
-        result.setName(realm.getFullPath());
-
-        LOG.debug("Propagating Realm with key {} towards {}", realm.getKey(), profile.getTask().getResource());
-
-        Object output = null;
-        Result resultStatus = null;
-
-        // Try to read remote object BEFORE any actual operation
-        ConnectorObject beforeObj = getRemoteObject(
-                realm.getName(),
-                profile.getConnector(),
-                profile.getTask().getResource().getOrgUnit());
-
-        if (profile.isDryRun()) {
-            if (beforeObj == null) {
-                result.setOperation(getResourceOperation(profile.getTask().getUnmatchingRule()));
-            } else {
-                result.setOperation(getResourceOperation(profile.getTask().getMatchingRule()));
-            }
-            result.setStatus(ProvisioningReport.Status.SUCCESS);
-        } else {
-            String operation = beforeObj == null
-                    ? UnmatchingRule.toEventName(profile.getTask().getUnmatchingRule())
-                    : MatchingRule.toEventName(profile.getTask().getMatchingRule());
-
-            boolean notificationsAvailable = notificationManager.notificationsAvailable(
-                    AuditElements.EventCategoryType.PUSH,
-                    REALM_TYPE.toLowerCase(),
-                    profile.getTask().getResource().getKey(),
-                    operation);
-            boolean auditRequested = auditManager.auditRequested(
-                    AuditElements.EventCategoryType.PUSH,
-                    REALM_TYPE.toLowerCase(),
-                    profile.getTask().getResource().getKey(),
-                    operation);
-            try {
-                if (beforeObj == null) {
-                    result.setOperation(getResourceOperation(profile.getTask().getUnmatchingRule()));
-
-                    switch (profile.getTask().getUnmatchingRule()) {
-                        case ASSIGN:
-                            for (PushActions action : profile.getActions()) {
-                                action.beforeAssign(profile, realm);
-                            }
-
-                            if (!profile.getTask().isPerformCreate()) {
-                                LOG.debug("PushTask not configured for create");
-                            } else {
-                                assign(realm);
-                            }
-
-                            break;
-
-                        case PROVISION:
-                            for (PushActions action : profile.getActions()) {
-                                action.beforeProvision(profile, realm);
-                            }
-
-                            if (!profile.getTask().isPerformCreate()) {
-                                LOG.debug("PushTask not configured for create");
-                            } else {
-                                provision(realm);
-                            }
-
-                            break;
-
-                        case UNLINK:
-                            for (PushActions action : profile.getActions()) {
-                                action.beforeUnlink(profile, realm);
-                            }
-
-                            if (!profile.getTask().isPerformUpdate()) {
-                                LOG.debug("PushTask not configured for update");
-                            } else {
-                                link(realm, true);
-                            }
-
-                            break;
-
-                        case IGNORE:
-                            LOG.debug("Ignored any: {}", realm);
-                            break;
-                        default:
-                        // do nothing
-                    }
-                } else {
-                    result.setOperation(getResourceOperation(profile.getTask().getMatchingRule()));
-
-                    switch (profile.getTask().getMatchingRule()) {
-                        case UPDATE:
-                            for (PushActions action : profile.getActions()) {
-                                action.beforeUpdate(profile, realm);
-                            }
-                            if (!profile.getTask().isPerformUpdate()) {
-                                LOG.debug("PushTask not configured for update");
-                            } else {
-                                update(binder.getRealmTO(realm, true));
-                            }
-
-                            break;
-
-                        case DEPROVISION:
-                            for (PushActions action : profile.getActions()) {
-                                action.beforeDeprovision(profile, realm);
-                            }
-
-                            if (!profile.getTask().isPerformDelete()) {
-                                LOG.debug("PushTask not configured for delete");
-                            } else {
-                                deprovision(realm);
-                            }
-
-                            break;
-
-                        case UNASSIGN:
-                            for (PushActions action : profile.getActions()) {
-                                action.beforeUnassign(profile, realm);
-                            }
-
-                            if (!profile.getTask().isPerformDelete()) {
-                                LOG.debug("PushTask not configured for delete");
-                            } else {
-                                unassign(realm);
-                            }
-
-                            break;
-
-                        case LINK:
-                            for (PushActions action : profile.getActions()) {
-                                action.beforeLink(profile, realm);
-                            }
-
-                            if (!profile.getTask().isPerformUpdate()) {
-                                LOG.debug("PushTask not configured for update");
-                            } else {
-                                link(realm, false);
-                            }
-
-                            break;
-
-                        case UNLINK:
-                            for (PushActions action : profile.getActions()) {
-                                action.beforeUnlink(profile, realm);
-                            }
-
-                            if (!profile.getTask().isPerformUpdate()) {
-                                LOG.debug("PushTask not configured for update");
-                            } else {
-                                link(realm, true);
-                            }
-
-                            break;
-
-                        case IGNORE:
-                            LOG.debug("Ignored any: {}", realm);
-                            break;
-                        default:
-                        // do nothing
-                    }
-                }
-
-                for (PushActions action : profile.getActions()) {
-                    action.after(profile, realm, result);
-                }
-
-                result.setStatus(ProvisioningReport.Status.SUCCESS);
-                resultStatus = AuditElements.Result.SUCCESS;
-                output = getRemoteObject(
-                        realm.getName(),
-                        profile.getConnector(),
-                        profile.getTask().getResource().getOrgUnit());
-            } catch (IgnoreProvisionException e) {
-                throw e;
-            } catch (Exception e) {
-                result.setStatus(ProvisioningReport.Status.FAILURE);
-                result.setMessage(ExceptionUtils.getRootCauseMessage(e));
-                resultStatus = AuditElements.Result.FAILURE;
-                output = e;
-
-                LOG.warn("Error pushing {} towards {}", realm, profile.getTask().getResource(), e);
-
-                for (PushActions action : profile.getActions()) {
-                    action.onError(profile, realm, result, e);
-                }
-
-                throw new JobExecutionException(e);
-            } finally {
-                if (notificationsAvailable || auditRequested) {
-                    Map<String, Object> jobMap = new HashMap<>();
-                    jobMap.put(AfterHandlingEvent.JOBMAP_KEY, new AfterHandlingEvent(
-                            AuditElements.EventCategoryType.PUSH,
-                            REALM_TYPE.toLowerCase(),
-                            profile.getTask().getResource().getKey(),
-                            operation,
-                            resultStatus,
-                            beforeObj,
-                            output,
-                            realm));
-                    AfterHandlingJob.schedule(scheduler, jobMap);
-                }
-            }
-        }
-    }
-
-    private ResourceOperation getResourceOperation(final UnmatchingRule rule) {
-        switch (rule) {
-            case ASSIGN:
-            case PROVISION:
-                return ResourceOperation.CREATE;
-            default:
-                return ResourceOperation.NONE;
-        }
-    }
-
-    private ResourceOperation getResourceOperation(final MatchingRule rule) {
-        switch (rule) {
-            case UPDATE:
-                return ResourceOperation.UPDATE;
-            case DEPROVISION:
-            case UNASSIGN:
-                return ResourceOperation.DELETE;
-            default:
-                return ResourceOperation.NONE;
-        }
+        provision(update(realmTO, result), result);
     }
 
     /**
@@ -405,5 +185,259 @@ public class RealmPushResultHandlerImpl
         }
 
         return obj[0];
+    }
+
+    private void doHandle(final Realm realm) throws JobExecutionException {
+        ProvisioningReport result = new ProvisioningReport();
+        profile.getResults().add(result);
+
+        result.setKey(realm.getKey());
+        result.setAnyType(REALM_TYPE);
+        result.setName(realm.getFullPath());
+
+        LOG.debug("Propagating Realm with key {} towards {}", realm.getKey(), profile.getTask().getResource());
+
+        Object output = null;
+        Result resultStatus = null;
+
+        // Try to read remote object BEFORE any actual operation
+        ConnectorObject beforeObj = getRemoteObject(
+                realm.getName(),
+                profile.getConnector(),
+                profile.getTask().getResource().getOrgUnit());
+
+        if (profile.isDryRun()) {
+            if (beforeObj == null) {
+                result.setOperation(toResourceOperation(profile.getTask().getUnmatchingRule()));
+            } else {
+                result.setOperation(toResourceOperation(profile.getTask().getMatchingRule()));
+            }
+            result.setStatus(ProvisioningReport.Status.SUCCESS);
+        } else {
+            String operation = beforeObj == null
+                    ? UnmatchingRule.toEventName(profile.getTask().getUnmatchingRule())
+                    : MatchingRule.toEventName(profile.getTask().getMatchingRule());
+
+            boolean notificationsAvailable = notificationManager.notificationsAvailable(
+                    AuditElements.EventCategoryType.PUSH,
+                    REALM_TYPE.toLowerCase(),
+                    profile.getTask().getResource().getKey(),
+                    operation);
+            boolean auditRequested = auditManager.auditRequested(
+                    AuditElements.EventCategoryType.PUSH,
+                    REALM_TYPE.toLowerCase(),
+                    profile.getTask().getResource().getKey(),
+                    operation);
+            try {
+                if (beforeObj == null) {
+                    result.setOperation(toResourceOperation(profile.getTask().getUnmatchingRule()));
+
+                    switch (profile.getTask().getUnmatchingRule()) {
+                        case ASSIGN:
+                            for (PushActions action : profile.getActions()) {
+                                action.beforeAssign(profile, realm);
+                            }
+
+                            if (!profile.getTask().isPerformCreate()) {
+                                LOG.debug("PushTask not configured for create");
+                                result.setStatus(ProvisioningReport.Status.IGNORE);
+                            } else {
+                                assign(realm, result);
+                            }
+
+                            break;
+
+                        case PROVISION:
+                            for (PushActions action : profile.getActions()) {
+                                action.beforeProvision(profile, realm);
+                            }
+
+                            if (!profile.getTask().isPerformCreate()) {
+                                LOG.debug("PushTask not configured for create");
+                                result.setStatus(ProvisioningReport.Status.IGNORE);
+                            } else {
+                                provision(realm, result);
+                            }
+
+                            break;
+
+                        case UNLINK:
+                            for (PushActions action : profile.getActions()) {
+                                action.beforeUnlink(profile, realm);
+                            }
+
+                            if (!profile.getTask().isPerformUpdate()) {
+                                LOG.debug("PushTask not configured for update");
+                                result.setStatus(ProvisioningReport.Status.IGNORE);
+                            } else {
+                                link(realm, true, result);
+                            }
+
+                            break;
+
+                        case IGNORE:
+                            LOG.debug("Ignored any: {}", realm);
+                            result.setStatus(ProvisioningReport.Status.IGNORE);
+                            break;
+
+                        default:
+                        // do nothing
+                    }
+                } else {
+                    result.setOperation(toResourceOperation(profile.getTask().getMatchingRule()));
+
+                    switch (profile.getTask().getMatchingRule()) {
+                        case UPDATE:
+                            for (PushActions action : profile.getActions()) {
+                                action.beforeUpdate(profile, realm);
+                            }
+                            if (!profile.getTask().isPerformUpdate()) {
+                                LOG.debug("PushTask not configured for update");
+                                result.setStatus(ProvisioningReport.Status.IGNORE);
+                            } else {
+                                update(binder.getRealmTO(realm, true), result);
+                            }
+
+                            break;
+
+                        case DEPROVISION:
+                            for (PushActions action : profile.getActions()) {
+                                action.beforeDeprovision(profile, realm);
+                            }
+
+                            if (!profile.getTask().isPerformDelete()) {
+                                LOG.debug("PushTask not configured for delete");
+                                result.setStatus(ProvisioningReport.Status.IGNORE);
+                            } else {
+                                deprovision(realm, result);
+                            }
+
+                            break;
+
+                        case UNASSIGN:
+                            for (PushActions action : profile.getActions()) {
+                                action.beforeUnassign(profile, realm);
+                            }
+
+                            if (!profile.getTask().isPerformDelete()) {
+                                LOG.debug("PushTask not configured for delete");
+                                result.setStatus(ProvisioningReport.Status.IGNORE);
+                            } else {
+                                unassign(realm, result);
+                            }
+
+                            break;
+
+                        case LINK:
+                            for (PushActions action : profile.getActions()) {
+                                action.beforeLink(profile, realm);
+                            }
+
+                            if (!profile.getTask().isPerformUpdate()) {
+                                LOG.debug("PushTask not configured for update");
+                                result.setStatus(ProvisioningReport.Status.IGNORE);
+                            } else {
+                                link(realm, false, result);
+                            }
+
+                            break;
+
+                        case UNLINK:
+                            for (PushActions action : profile.getActions()) {
+                                action.beforeUnlink(profile, realm);
+                            }
+
+                            if (!profile.getTask().isPerformUpdate()) {
+                                LOG.debug("PushTask not configured for update");
+                                result.setStatus(ProvisioningReport.Status.IGNORE);
+                            } else {
+                                link(realm, true, result);
+                            }
+
+                            break;
+
+                        case IGNORE:
+                            LOG.debug("Ignored any: {}", realm);
+                            result.setStatus(ProvisioningReport.Status.IGNORE);
+                            break;
+
+                        default:
+                        // do nothing
+                    }
+                }
+
+                for (PushActions action : profile.getActions()) {
+                    action.after(profile, realm, result);
+                }
+
+                output = getRemoteObject(
+                        realm.getName(),
+                        profile.getConnector(),
+                        profile.getTask().getResource().getOrgUnit());
+            } catch (IgnoreProvisionException e) {
+                throw e;
+            } catch (Exception e) {
+                output = e;
+
+                LOG.warn("Error pushing {} towards {}", realm, profile.getTask().getResource(), e);
+
+                for (PushActions action : profile.getActions()) {
+                    action.onError(profile, realm, result, e);
+                }
+
+                throw new JobExecutionException(e);
+            } finally {
+                if (notificationsAvailable || auditRequested) {
+                    Map<String, Object> jobMap = new HashMap<>();
+                    jobMap.put(AfterHandlingEvent.JOBMAP_KEY, new AfterHandlingEvent(
+                            AuditElements.EventCategoryType.PUSH,
+                            REALM_TYPE.toLowerCase(),
+                            profile.getTask().getResource().getKey(),
+                            operation,
+                            resultStatus,
+                            beforeObj,
+                            output,
+                            realm));
+                    AfterHandlingJob.schedule(scheduler, jobMap);
+                }
+            }
+        }
+    }
+
+    private ResourceOperation toResourceOperation(final UnmatchingRule rule) {
+        switch (rule) {
+            case ASSIGN:
+            case PROVISION:
+                return ResourceOperation.CREATE;
+            default:
+                return ResourceOperation.NONE;
+        }
+    }
+
+    private ResourceOperation toResourceOperation(final MatchingRule rule) {
+        switch (rule) {
+            case UPDATE:
+                return ResourceOperation.UPDATE;
+            case DEPROVISION:
+            case UNASSIGN:
+                return ResourceOperation.DELETE;
+            default:
+                return ResourceOperation.NONE;
+        }
+    }
+
+    private ProvisioningReport.Status toProvisioningReportStatus(final PropagationTaskExecStatus status) {
+        switch (status) {
+            case FAILURE:
+                return ProvisioningReport.Status.FAILURE;
+
+            case SUCCESS:
+                return ProvisioningReport.Status.SUCCESS;
+
+            case CREATED:
+            case NOT_ATTEMPTED:
+            default:
+                return ProvisioningReport.Status.IGNORE;
+        }
     }
 }

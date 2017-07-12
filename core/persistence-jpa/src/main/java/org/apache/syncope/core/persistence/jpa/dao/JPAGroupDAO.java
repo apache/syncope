@@ -277,7 +277,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     @Override
     public List<Group> findAll(final int page, final int itemsPerPage) {
         TypedQuery<Group> query = entityManager().createQuery(
-                "SELECT e FROM  " + JPAGroup.class.getSimpleName() + " e", Group.class);
+                "SELECT e FROM  " + JPAGroup.class.getSimpleName() + " e ORDER BY e.id", Group.class);
         query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
         query.setMaxResults(itemsPerPage);
 
