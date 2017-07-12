@@ -100,9 +100,7 @@ public class JPAAccessTokenDAO extends AbstractDAO<AccessToken> implements Acces
 
         TypedQuery<AccessToken> query = entityManager().createQuery(queryString.toString(), AccessToken.class);
 
-        query.setFirstResult(itemsPerPage * (page <= 0
-                ? 0
-                : page - 1));
+        query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
 
         if (itemsPerPage > 0) {
             query.setMaxResults(itemsPerPage);

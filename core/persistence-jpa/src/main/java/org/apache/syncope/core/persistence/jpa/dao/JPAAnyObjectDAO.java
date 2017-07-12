@@ -204,7 +204,7 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
     @Override
     public List<AnyObject> findAll(final int page, final int itemsPerPage) {
         TypedQuery<AnyObject> query = entityManager().createQuery(
-                "SELECT e FROM  " + JPAAnyObject.class.getSimpleName() + " e", AnyObject.class);
+                "SELECT e FROM  " + JPAAnyObject.class.getSimpleName() + " e ORDER BY e.id", AnyObject.class);
         query.setFirstResult(itemsPerPage * (page <= 0 ? 0 : page - 1));
         query.setMaxResults(itemsPerPage);
 

@@ -347,7 +347,7 @@ public class RealmPullResultHandlerImpl
 
                 PropagationByResource propByRes = new PropagationByResource();
                 propByRes.add(ResourceOperation.DELETE, profile.getTask().getResource().getKey());
-                taskExecutor.execute(propagationManager.createTasks(realm, propByRes, null));
+                taskExecutor.execute(propagationManager.createTasks(realm, propByRes, null), false);
 
                 if (unlink) {
                     realm.getResources().remove(profile.getTask().getResource());

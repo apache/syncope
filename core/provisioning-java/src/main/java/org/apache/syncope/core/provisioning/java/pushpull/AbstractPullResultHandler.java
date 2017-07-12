@@ -102,7 +102,8 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                     kind,
                     key,
                     propByRes,
-                    null));
+                    null),
+                    false);
         } catch (Exception e) {
             // A propagation failure doesn't imply a pull failure.
             // The propagation exception status will be reported into the propagation task execution.
@@ -441,7 +442,8 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                                 provision.getAnyType().getKind(),
                                 key,
                                 propByRes,
-                                null));
+                                null),
+                                false);
 
                         AnyPatch anyPatch = null;
                         if (unlink) {

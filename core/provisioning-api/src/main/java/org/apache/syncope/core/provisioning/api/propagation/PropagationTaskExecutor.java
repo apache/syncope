@@ -51,14 +51,6 @@ public interface PropagationTaskExecutor {
 
     /**
      * Execute a collection of PropagationTask objects.
-     * The process is interrupted as soon as the result of the communication with a primary resource is in error.
-     *
-     * @param tasks to be executed
-     */
-    void execute(Collection<PropagationTask> tasks);
-
-    /**
-     * Execute a collection of PropagationTask objects.
      * The process is interrupted as soon as the result of the communication with a resource with non-null priority is
      * in error.
      *
