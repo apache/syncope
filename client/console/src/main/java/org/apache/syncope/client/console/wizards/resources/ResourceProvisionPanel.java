@@ -21,6 +21,8 @@ package org.apache.syncope.client.console.wizards.resources;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.IteratorUtils;
@@ -33,6 +35,7 @@ import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.AbstractModalPanel;
 import org.apache.syncope.client.console.panels.ListViewPanel;
 import org.apache.syncope.client.console.panels.ListViewPanel.ListViewReload;
+import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
@@ -193,7 +196,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
 
             @Override
             protected void customActionCallback(final AjaxRequestTarget target) {
-                // change modal foter visibility
+                // change modal footer visibility
                 send(ResourceProvisionPanel.this, Broadcast.BUBBLE, new BaseModal.ChangeFooterVisibilityEvent(target));
             }
 
@@ -202,7 +205,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                 ResourceProvisionPanel.this.aboutRealmProvison.setVisible(true);
                 target.add(ResourceProvisionPanel.this.aboutRealmProvison);
 
-                // change modal foter visibility
+                // change modal footer visibility
                 send(ResourceProvisionPanel.this, Broadcast.BUBBLE, new BaseModal.ChangeFooterVisibilityEvent(target));
             }
 
@@ -211,10 +214,16 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                 ResourceProvisionPanel.this.aboutRealmProvison.setVisible(true);
                 target.add(ResourceProvisionPanel.this.aboutRealmProvison);
 
-                // change modal foter visibility
+                // keep list ordered - SYNCOPE-1154
+                sortProvisionList();
+
+                // change modal footer visibility
                 send(ResourceProvisionPanel.this, Broadcast.BUBBLE, new BaseModal.ChangeFooterVisibilityEvent(target));
             }
         };
+
+        // keep list ordered - SYNCOPE-1154
+        sortProvisionList();
 
         builder.setItems(resourceTO.getProvisions());
         builder.includes("anyType", "objectClass", "auxClasses");
@@ -347,6 +356,16 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                     ? e.getClass().getName() : e.getMessage());
         }
         ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+    }
+
+    private void sortProvisionList() {
+        Collections.sort(resourceTO.getProvisions(), new Comparator<ProvisionTO>() {
+
+            @Override
+            public int compare(final ProvisionTO o1, final ProvisionTO o2) {
+                return new AnyTypeRestClient.AnyTypeKeyComparator().compare(o1.getAnyType(), o2.getAnyType());
+            }
+        });
     }
 
     @Override

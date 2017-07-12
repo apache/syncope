@@ -75,7 +75,7 @@ public class AnyTypeRestClient extends BaseRestClient {
         getService(AnyTypeService.class).delete(key);
     }
 
-    private static class AnyTypeComparator implements Comparator<AnyTypeTO>, Serializable {
+    public static class AnyTypeComparator implements Comparator<AnyTypeTO>, Serializable {
 
         private static final long serialVersionUID = -8227715253094467138L;
 
@@ -97,7 +97,7 @@ public class AnyTypeRestClient extends BaseRestClient {
         }
     }
 
-    private static class AnyTypeKeyComparator implements Comparator<String>, Serializable {
+    public static class AnyTypeKeyComparator implements Comparator<String>, Serializable {
 
         private static final long serialVersionUID = -7778622183107320760L;
 
