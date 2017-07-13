@@ -45,6 +45,7 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 public class Realms extends BasePage {
@@ -191,17 +192,19 @@ public class Realms extends BasePage {
                     private static final long serialVersionUID = 8804221891699487139L;
 
                     @Override
-                    public void onClose(final AjaxRequestTarget target) {
-                        target.add(realmChoicePanel.reloadRealmTree(target));
-
+                    public void onClose(final AjaxRequestTarget target) {                        
                         if (modal.getContent() instanceof ResultPage) {
                             Serializable result = ResultPage.class.cast(modal.getContent()).getResult();
+                            
+                            RealmTO reamTO = RealmTO.class.cast(ProvisioningResult.class.cast(result).getEntity());
+                            // reload realmChoicePanel label too - SYNCOPE-1151
+                            target.add(realmChoicePanel.reloadRealmTree(target, Model.of(reamTO)));
+                            updateRealmContent(reamTO, selectedIndex);
 
-                            updateRealmContent(RealmTO.class.cast(
-                                    ProvisioningResult.class.cast(result).getEntity()), selectedIndex);
                             target.add(content);
+                        } else {
+                            target.add(realmChoicePanel.reloadRealmTree(target));
                         }
-
                         modal.show(false);
                     }
                 });
