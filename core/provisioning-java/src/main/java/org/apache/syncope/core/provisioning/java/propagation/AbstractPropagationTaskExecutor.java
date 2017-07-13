@@ -508,7 +508,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         for (PropagationActions action : actions) {
             action.after(task, execution, afterObj);
         }
-
+        // SYNCOPE-1136
         String anyTypeKind = task.getAnyTypeKind() == null ? "realm" : task.getAnyTypeKind().name().toLowerCase();
         String operation = task.getOperation().name().toLowerCase();
         boolean notificationsAvailable = notificationManager.notificationsAvailable(

@@ -694,3 +694,9 @@ Moreover, `defaultValues` do not overwrite any existing value.
 For example, the http://www.chorevolution.eu/[CHOReVOLUTION^] IdM - based on Apache Syncope - provides
 https://gitlab.ow2.org/chorevolution/syncope/tree/master/ext/choreography[an extension^]
 for managing via the <<core>> and visualizing via the <<admin-console-component>> the running choreography instances.
+
+[[audit-customization]]
+==== Audit Extensions
+
+<<audit>> by default, if enabled, logs on a specific database table, though this functionality could be extended to log 
+also on different supports (file, queue, syslog, etc.).

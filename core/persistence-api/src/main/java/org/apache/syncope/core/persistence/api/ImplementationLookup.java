@@ -43,7 +43,8 @@ public interface ImplementationLookup extends SyncopeLoader {
         PUSH_ACTIONS,
         PULL_CORRELATION_RULE,
         VALIDATOR,
-        NOTIFICATION_RECIPIENTS_PROVIDER;
+        NOTIFICATION_RECIPIENTS_PROVIDER,
+        AUDIT_APPENDER;
 
     }
 
@@ -56,4 +57,6 @@ public interface ImplementationLookup extends SyncopeLoader {
     Class<? extends AccountRule> getAccountRuleClass(Class<? extends AccountRuleConf> accountRuleConfClass);
 
     Class<? extends PasswordRule> getPasswordRuleClass(Class<? extends PasswordRuleConf> passwordRuleConfClass);
+
+    Set<Class<?>> getAuditAppenderClasses();
 }

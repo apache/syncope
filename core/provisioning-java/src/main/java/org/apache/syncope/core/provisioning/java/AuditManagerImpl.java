@@ -45,6 +45,10 @@ public class AuditManagerImpl implements AuditManager {
         return LoggerType.AUDIT.getPrefix() + "." + domain;
     }
 
+    public static String getDomainAuditEventLoggerName(final String domain, final String loggerName) {
+        return domain + "." + loggerName;
+    }
+
     @Override
     public boolean auditRequested(
             final AuditElements.EventCategoryType type,
@@ -118,10 +122,15 @@ public class AuditManagerImpl implements AuditManager {
                 loggerDAO.find(auditEntry.getLogger().toLoggerName());
         if (syncopeLogger != null && syncopeLogger.getLevel() == LoggerLevel.DEBUG) {
             Logger logger = LoggerFactory.getLogger(getDomainAuditLoggerName(AuthContextUtils.getDomain()));
+            Logger eventLogger = LoggerFactory.getLogger(getDomainAuditEventLoggerName(AuthContextUtils.getDomain(),
+                    syncopeLogger.getKey()));
+            String serializedAuditEntry = POJOHelper.serialize(auditEntry);
             if (throwable == null) {
-                logger.debug(POJOHelper.serialize(auditEntry));
+                logger.debug(serializedAuditEntry);
+                eventLogger.debug(POJOHelper.serialize(auditEntry));
             } else {
-                logger.debug(POJOHelper.serialize(auditEntry), throwable);
+                logger.debug(serializedAuditEntry, throwable);
+                eventLogger.debug(serializedAuditEntry, throwable);
             }
         }
     }

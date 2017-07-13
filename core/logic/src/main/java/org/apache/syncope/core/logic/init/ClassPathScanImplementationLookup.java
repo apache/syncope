@@ -28,6 +28,7 @@ import java.util.Set;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
 import org.apache.syncope.common.lib.report.ReportletConf;
+import org.apache.syncope.core.logic.AuditAppender;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.Validator;
 import org.apache.syncope.core.persistence.api.dao.AccountRule;
@@ -77,6 +78,8 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
 
     private Map<Class<? extends PasswordRuleConf>, Class<? extends PasswordRule>> passwordRuleClasses;
 
+    private Set<Class<?>> auditAppenderClasses;
+    
     @Override
     public Integer getPriority() {
         return 400;
@@ -103,6 +106,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
         reportletClasses = new HashMap<>();
         accountRuleClasses = new HashMap<>();
         passwordRuleClasses = new HashMap<>();
+        auditAppenderClasses = new HashSet<>();
 
         ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false);
         scanner.addIncludeFilter(new AssignableTypeFilter(JWTSSOProvider.class));
@@ -119,6 +123,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
         scanner.addIncludeFilter(new AssignableTypeFilter(PullCorrelationRule.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(Validator.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(NotificationRecipientsProvider.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(AuditAppender.class));
 
         for (BeanDefinition bd : scanner.findCandidateComponents(getBasePackage())) {
             try {
@@ -207,6 +212,11 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                 if (NotificationRecipientsProvider.class.isAssignableFrom(clazz) && !isAbstractClazz) {
                     classNames.get(Type.NOTIFICATION_RECIPIENTS_PROVIDER).add(bd.getBeanClassName());
                 }
+
+                if (AuditAppender.class.isAssignableFrom(clazz) && !isAbstractClazz) {
+                    classNames.get(Type.AUDIT_APPENDER).add(clazz.getName());
+                    auditAppenderClasses.add(clazz);
+                }
             } catch (Throwable t) {
                 LOG.warn("Could not inspect class {}", bd.getBeanClassName(), t);
             }
@@ -248,5 +258,10 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
             final Class<? extends PasswordRuleConf> passwordRuleConfClass) {
 
         return passwordRuleClasses.get(passwordRuleConfClass);
+    }
+
+    @Override
+    public Set<Class<?>> getAuditAppenderClasses() {
+        return auditAppenderClasses;
     }
 }
