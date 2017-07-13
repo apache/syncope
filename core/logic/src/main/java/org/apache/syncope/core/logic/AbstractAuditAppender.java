@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.logic;
 
+import org.apache.syncope.core.logic.audit.AuditAppender;
 import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.appender.rewrite.RewriteAppender;
 import org.apache.logging.log4j.core.appender.rewrite.RewritePolicy;

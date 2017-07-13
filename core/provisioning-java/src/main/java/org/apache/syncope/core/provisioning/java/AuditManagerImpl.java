@@ -23,7 +23,6 @@ import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.common.lib.types.LoggerLevel;
-import org.apache.syncope.common.lib.types.LoggerType;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.dao.LoggerDAO;
@@ -40,14 +39,6 @@ public class AuditManagerImpl implements AuditManager {
 
     @Autowired
     private LoggerDAO loggerDAO;
-
-    public static String getDomainAuditLoggerName(final String domain) {
-        return LoggerType.AUDIT.getPrefix() + "." + domain;
-    }
-
-    public static String getDomainAuditEventLoggerName(final String domain, final String loggerName) {
-        return domain + "." + loggerName;
-    }
 
     @Override
     public boolean auditRequested(
@@ -121,9 +112,10 @@ public class AuditManagerImpl implements AuditManager {
         org.apache.syncope.core.persistence.api.entity.Logger syncopeLogger =
                 loggerDAO.find(auditEntry.getLogger().toLoggerName());
         if (syncopeLogger != null && syncopeLogger.getLevel() == LoggerLevel.DEBUG) {
-            Logger logger = LoggerFactory.getLogger(getDomainAuditLoggerName(AuthContextUtils.getDomain()));
-            Logger eventLogger = LoggerFactory.getLogger(getDomainAuditEventLoggerName(AuthContextUtils.getDomain(),
-                    syncopeLogger.getKey()));
+            Logger logger = LoggerFactory.getLogger(
+                    AuditLoggerName.getAuditLoggerName(AuthContextUtils.getDomain()));
+            Logger eventLogger = LoggerFactory.getLogger(
+                    AuditLoggerName.getAuditEventLoggerName(AuthContextUtils.getDomain(), syncopeLogger.getKey()));
             String serializedAuditEntry = POJOHelper.serialize(auditEntry);
             if (throwable == null) {
                 logger.debug(serializedAuditEntry);

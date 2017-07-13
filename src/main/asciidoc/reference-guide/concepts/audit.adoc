@@ -19,8 +19,8 @@
 === Audit
 
 The audit feature allows to capture <<audit-events,events>> occurring within the <<core>> and to log relevant information
-about them. By default events are logged as entries into the `SYNCOPEAUDIT` table of the internal storage,
-but can also be logged on some additional Log4j2 appenders defined through simple customization mechanisms.
+about them. +
+By default, events are logged as entries into the `SYNCOPEAUDIT` table of the internal storage.
 
 Once events are reported, they can be used as input for external tools.
 
@@ -34,47 +34,48 @@ An example of how audit entries can be extracted for reporting is shown by the <
 The information provided for <<notification-events,notification events>> is also valid for audit events, including examples -
 except for the admin console <<console-configuration-audit,tooling>>, which is naturally distinct.
 
-==== Audit Customization
+==== Audit Appenders
 
-As mentioned above, events are, basically, logged in a database table, but this behavior can be extended through 
-`AuditAppender` interface implementation which allows an user to define additional logging supports that we address 
-as appenders.
+In addition to insertions into the `SYNCOPEAUDIT` table, events are also available for custom handling via Audit
+Appenders, based on https://logging.apache.org/log4j/2.x/manual/appenders.html[Apache Log4j 2 Appenders^]. +
+This allows to empower the available implementations or to write new ones in order to route audit messages, with optional
+transformation (rewrite), to files, queues, sockets, syslog, etc.
 
-Appender is a Log4j entity that allows to write whatever log message on different destinations (file, queues, syslog, 
-other appenders, etc.). Moreover it provides the ability to edit (rewrite) the message, that is flowing through appenders,
-in order to customize information.
-Audit customization relies on Log4j appenders. To implement a custom audit appender an user just needs to extend to basic 
-classes:
+Custom implementations must follow the
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/logic/src/main/java/org/apache/syncope/core/logic/audit/AuditAppender.java[AuditAppender^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/2_0_X/core/logic/src/main/java/org/apache/syncope/core/logic/audit/AuditAppender.java[AuditAppender^]
+endif::[]
+interface.
 
-. DefaultAuditAppender
-. DefaultRewriteAuditAppender
+Some convenience implementations are provided, meant to serve as reference - see table below.
 
-The first is intended to add custom appender without any rewrtining of the message, the second allows message rewriting.
+[cols="1,2"]
+|===
 
-What is needed to implement a well formed appender:
- 
-. Events: a set of events to which the appender is bound. Appender will log only if one of those events occurs.
-. Target Appender: the Log4j appender that writes message somewhere. See 
-  https://github.com/andrea-patricelli/syncope/blob/2_0_X/fit/core-reference/src/main/java/org/apache/syncope/fit/core/reference/TestFileRewriteAuditAppender.java[TestFileRewriteAuditAppender^] or 
-  https://github.com/andrea-patricelli/syncope/blob/2_0_X/fit/core-reference/src/main/java/org/apache/syncope/fit/core/reference/TestFileAuditAppender.java[TestFileAuditAppender^].
-. Rewrite policy (if needed): in case of rewrite enabled a rewrite policy should be defined, by implementing Log4j 
-  `RewritePolicy` interface. Some examples are 
-  https://github.com/andrea-patricelli/syncope/blob/2_0_X/core/logic/src/main/java/org/apache/syncope/core/logic/PassThroughRewritePolicy.java[PassThroughRewritePolicy^] 
-  and https://github.com/andrea-patricelli/syncope/blob/2_0_X/fit/core-reference/src/main/java/org/apache/syncope/fit/core/reference/TestRewritePolicy.java[TestRewritePolicy^].
-  If no rewrite policy is specified `PassThroughRewritePolicy` will be used.
+| 
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/logic/src/main/java/org/apache/syncope/core/logic/audit/DefaultAuditAppender.java[DefaultAuditAppender^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/2_0_X/core/logic/src/main/java/org/apache/syncope/core/logic/audit/DefaultAuditAppender.java[DefaultAuditAppender^]
+endif::[]
+| This requires to specify (a) a set of events to which the appender is bound (log only if one of such events occurs)
+and (b) a target appender, e.g. one of https://logging.apache.org/log4j/2.x/manual/appenders.html[Apache Log4j 2 Appenders^]
+or a custom implementation.
 
-[TIP]
-====
-Be careful while assigning names to the appenders. The name of the target appender should be unique and should depend on
-the domain. 
-A best practice is to assign different names to the appenders in order to avoid names collisions and strange behavior of
-the logging framework.
-====
+| 
+ifeval::["{snapshotOrRelease}" == "release"]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/logic/src/main/java/org/apache/syncope/core/logic/audit/DefaultRewriteAuditAppender.java[DefaultRewriteAuditAppender^]
+endif::[]
+ifeval::["{snapshotOrRelease}" == "snapshot"]
+https://github.com/apache/syncope/blob/2_0_X/core/logic/src/main/java/org/apache/syncope/core/logic/audit/DefaultRewriteAuditAppender.java[DefaultRewriteAuditAppender^]
+endif::[]
+| In addition, this requires to provide a
+https://logging.apache.org/log4j/2.x/log4j-core/apidocs/org/apache/logging/log4j/core/appender/rewrite/RewritePolicy.html[RewritePolicy^] 
+implementation, which allows to rewrite the original audit message into something more suitable to the target
+destination.
 
-===== How custom appenders work
-
-An appender is bound to specific events. While enabling audit on some event, if that event is "catched" also by the custom
-appender, it automatically activates. Once the audit is enabled the same audit message will be logged by the 
-default audit appender and all the extensions bound to those events. While disabling audit all audit extensions are 
-disabled.
-To enable an audit extension an user just needs to implement his custom `AuditAppender` in the sources, build application and deploy.
+|===

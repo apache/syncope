@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.fit.core.reference;
 
-import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
@@ -30,7 +29,7 @@ import org.apache.logging.log4j.core.appender.rewrite.RewritePolicy;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
-import org.apache.syncope.core.logic.DefaultRewriteAuditAppender;
+import org.apache.syncope.core.logic.audit.DefaultRewriteAuditAppender;
 import org.apache.syncope.core.logic.ResourceLogic;
 
 public class TestFileRewriteAuditAppender extends DefaultRewriteAuditAppender {
@@ -51,20 +50,17 @@ public class TestFileRewriteAuditAppender extends DefaultRewriteAuditAppender {
     @Override
     public void initTargetAppender() {
         LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+
         // get log file path from existing file appender
         RollingRandomAccessFileAppender mainFile =
                 (RollingRandomAccessFileAppender) ctx.getConfiguration().getAppender("mainFile");
+        String pathPrefix = StringUtils.replace(mainFile.getFileName(), "core.log", StringUtils.EMPTY);
 
-        String pathPrefix = mainFile == null
-                ? System.getProperty("user.dir") + StringUtils.replace("/target/log", "/", File.separator)
-                + File.separator
-                : StringUtils.replace(mainFile.getFileName(), "core.log", StringUtils.EMPTY);
-
-        targetAppender = FileAppender.newBuilder()
-                .withName(getTargetAppenderName())
-                .withAppend(true)
-                .withFileName(pathPrefix + getTargetAppenderName() + ".log")
-                .withLayout(
+        targetAppender = FileAppender.newBuilder().
+                withName(getTargetAppenderName()).
+                withAppend(true).
+                withFileName(pathPrefix + getTargetAppenderName() + ".log").
+                withLayout(
                         PatternLayout.newBuilder()
                                 .withPattern("%d{HH:mm:ss.SSS} %-5level %logger - %msg%n")
                                 .build())

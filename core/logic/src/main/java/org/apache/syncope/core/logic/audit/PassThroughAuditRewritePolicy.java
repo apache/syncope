@@ -16,39 +16,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.logic;
+package org.apache.syncope.core.logic.audit;
 
-import java.util.Collections;
-import java.util.Set;
+import org.apache.logging.log4j.core.Core;
+import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.appender.rewrite.RewritePolicy;
-import org.apache.syncope.common.lib.types.AuditLoggerName;
+import org.apache.logging.log4j.core.config.plugins.Plugin;
+import org.apache.logging.log4j.core.config.plugins.PluginFactory;
 
-/**
- * Default (abstract) implementation of custom audit appender.
- * It is bound to an empty collection of events, i.e. it does not create any logger.
- * This class has to be extended by non-rewrite appenders
- *
- * @see org.apache.syncope.fit.core.reference.TestFileAuditAppender
- */
-public abstract class DefaultAuditAppender extends AbstractAuditAppender {
+@Plugin(name = "PassThroughRewritePolicy",
+        category = Core.CATEGORY_NAME,
+        elementType = "rewritePolicy",
+        printObject = true)
+public class PassThroughAuditRewritePolicy implements RewritePolicy {
 
     @Override
-    public void init() {
-        initTargetAppender();
+    public LogEvent rewrite(final LogEvent event) {
+        return event;
     }
 
-    @Override
-    public Set<AuditLoggerName> getEvents() {
-        return Collections.emptySet();
-    }
-
-    @Override
-    public void initRewriteAppender() {
-    }
-
-    @Override
-    public RewritePolicy getRewritePolicy() {
-        return null;
+    @PluginFactory
+    public static PassThroughAuditRewritePolicy createPolicy() {
+        return new PassThroughAuditRewritePolicy();
     }
 
 }
