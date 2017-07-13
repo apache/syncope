@@ -27,6 +27,7 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.text.ParseException;
 import java.util.List;
 import java.util.Properties;
@@ -59,7 +60,6 @@ import org.apache.syncope.core.logic.ResourceLogic;
 import org.apache.syncope.core.logic.GroupLogic;
 import org.apache.syncope.core.logic.UserLogic;
 import org.apache.syncope.fit.AbstractITCase;
-import org.junit.Assert;
 import org.junit.Test;
 
 public class LoggerITCase extends AbstractITCase {
@@ -256,45 +256,17 @@ public class LoggerITCase extends AbstractITCase {
     }
 
     @Test
-    public void issueSYNCOPE708() {
-        try {
-            loggerService.read(LoggerType.LOG, "notExists");
-            fail("Reading non-existing logger, it should go in exception");
-        } catch (final WebServiceException ex) {
-            fail("Exception is WebServiceException but it should be SyncopeClientException");
-        } catch (final SyncopeClientException ex) {
-            assertEquals(Response.Status.NOT_FOUND, ex.getType().getResponseStatus());
-        }
-    }
-
-    @Test
-    public void issueSYNCOPE976() {
-        List<EventCategoryTO> events = loggerService.events();
-        assertNotNull(events);
-
-        EventCategoryTO userLogic = IterableUtils.find(events, new Predicate<EventCategoryTO>() {
-
-            @Override
-            public boolean evaluate(final EventCategoryTO object) {
-                return "UserLogic".equals(object.getCategory());
-            }
-        });
-        assertNotNull(userLogic);
-        assertEquals(1, IterableUtils.frequency(userLogic.getEvents(), "create"));
-    }
-
-    @Test
-    public void testCustomAuditAppender() throws IOException, InterruptedException {
+    public void customAuditAppender() throws IOException, InterruptedException {
         InputStream propStream = null;
         try {
             Properties props = new Properties();
             propStream = getClass().getResourceAsStream("/core-test.properties");
             props.load(propStream);
 
-            final String auditFilePath = props.getProperty("test.log.dir") + File.separator
-                    + "audit_for_Master_file.log";
-            final String auditNoRewriteFilePath = props.getProperty("test.log.dir") + File.separator
-                    + "audit_for_Master_norewrite_file.log";
+            String auditFilePath = props.getProperty("test.log.dir")
+                    + File.separator + "audit_for_Master_file.log";
+            String auditNoRewriteFilePath = props.getProperty("test.log.dir")
+                    + File.separator + "audit_for_Master_norewrite_file.log";
             // 1. Enable audit for resource update -> catched by FileRewriteAuditAppender
             AuditLoggerName auditLoggerResUpd = new AuditLoggerName(
                     EventCategoryType.LOGIC,
@@ -307,6 +279,7 @@ public class LoggerITCase extends AbstractITCase {
             loggerTOUpd.setKey(auditLoggerResUpd.toLoggerName());
             loggerTOUpd.setLevel(LoggerLevel.DEBUG);
             loggerService.update(LoggerType.AUDIT, loggerTOUpd);
+
             // 2. Enable audit for connector update -> NOT catched by FileRewriteAuditAppender
             AuditLoggerName auditLoggerConnUpd = new AuditLoggerName(
                     EventCategoryType.LOGIC,
@@ -333,21 +306,21 @@ public class LoggerITCase extends AbstractITCase {
 
             File auditTempFile = new File(auditFilePath);
             // check audit_for_Master_file.log, it should contain only a static message
-            String auditLog = FileUtils.readFileToString(auditTempFile, "UTF-8");
+            String auditLog = FileUtils.readFileToString(auditTempFile, Charset.defaultCharset());
 
-            Assert.assertTrue(StringUtils.contains(auditLog,
+            assertTrue(StringUtils.contains(auditLog,
                     "DEBUG Master.syncope.audit.[LOGIC]:[ResourceLogic]:[]:[update]:[SUCCESS]"
                     + " - This is a static test message"));
             File auditNoRewriteTempFile = new File(auditNoRewriteFilePath);
             // check audit_for_Master_file.log, it should contain only a static message
-            String auditLogNoRewrite = FileUtils.readFileToString(auditNoRewriteTempFile, "UTF-8");
+            String auditLogNoRewrite = FileUtils.readFileToString(auditNoRewriteTempFile, Charset.defaultCharset());
 
-            Assert.assertFalse(StringUtils.contains(auditLogNoRewrite,
+            assertFalse(StringUtils.contains(auditLogNoRewrite,
                     "DEBUG Master.syncope.audit.[LOGIC]:[ResourceLogic]:[]:[update]:[SUCCESS]"
                     + " - This is a static test message"));
 
             // clean audit_for_Master_file.log
-            FileUtils.writeStringToFile(auditTempFile, StringUtils.EMPTY, "UTF-8");
+            FileUtils.writeStringToFile(auditTempFile, StringUtils.EMPTY, Charset.defaultCharset());
             loggerService.delete(LoggerType.AUDIT, "syncope.audit.[LOGIC]:[ResourceLogic]:[]:[update]:[SUCCESS]");
 
             resource = resourceService.read(RESOURCE_NAME_CSV);
@@ -356,11 +329,39 @@ public class LoggerITCase extends AbstractITCase {
             resourceService.update(resource);
 
             // check that nothing has been written to audit_for_Master_file.log
-            assertTrue(StringUtils.isEmpty(FileUtils.readFileToString(auditTempFile, "UTF-8")));
+            assertTrue(StringUtils.isEmpty(FileUtils.readFileToString(auditTempFile, Charset.defaultCharset())));
         } catch (IOException e) {
             fail("Unable to read/write log files" + e.getMessage());
         } finally {
             IOUtils.closeQuietly(propStream);
         }
+    }
+
+    @Test
+    public void issueSYNCOPE708() {
+        try {
+            loggerService.read(LoggerType.LOG, "notExists");
+            fail("Reading non-existing logger, it should go in exception");
+        } catch (final WebServiceException ex) {
+            fail("Exception is WebServiceException but it should be SyncopeClientException");
+        } catch (final SyncopeClientException ex) {
+            assertEquals(Response.Status.NOT_FOUND, ex.getType().getResponseStatus());
+        }
+    }
+
+    @Test
+    public void issueSYNCOPE976() {
+        List<EventCategoryTO> events = loggerService.events();
+        assertNotNull(events);
+
+        EventCategoryTO userLogic = IterableUtils.find(events, new Predicate<EventCategoryTO>() {
+
+            @Override
+            public boolean evaluate(final EventCategoryTO object) {
+                return "UserLogic".equals(object.getCategory());
+            }
+        });
+        assertNotNull(userLogic);
+        assertEquals(1, IterableUtils.frequency(userLogic.getEvents(), "create"));
     }
 }

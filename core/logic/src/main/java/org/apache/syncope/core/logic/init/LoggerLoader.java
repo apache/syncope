@@ -36,9 +36,8 @@ import org.apache.logging.log4j.core.appender.db.jdbc.JdbcAppender;
 import org.apache.logging.log4j.core.appender.rewrite.RewriteAppender;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
-import org.apache.syncope.core.logic.AuditAppender;
+import org.apache.syncope.core.logic.audit.AuditAppender;
 import org.apache.syncope.core.logic.MemoryAppender;
-import org.apache.syncope.core.provisioning.java.AuditManagerImpl;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.persistence.api.DomainsHolder;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
@@ -111,13 +110,28 @@ public class LoggerLoader implements SyncopeLoader {
             }
 
             LoggerConfig logConf = new LoggerConfig(
-                    AuditManagerImpl.getDomainAuditLoggerName(entry.getKey()), null, false);
+                    AuditLoggerName.getAuditLoggerName(entry.getKey()), null, false);
             logConf.addAppender(appender, Level.DEBUG, null);
             logConf.setLevel(Level.DEBUG);
-            ctx.getConfiguration().addLogger(AuditManagerImpl.getDomainAuditLoggerName(entry.getKey()), logConf);
+            ctx.getConfiguration().addLogger(AuditLoggerName.getAuditLoggerName(entry.getKey()), logConf);
 
             // SYNCOPE-1144 For each custom audit appender class add related appenders to log4j logger
-            configureCustomAppenders(entry.getKey(), ctx);
+            for (AuditAppender auditAppender : auditAppenders(entry.getKey())) {
+                for (AuditLoggerName event : auditAppender.getEvents()) {
+                    String domainAuditLoggerName =
+                            AuditLoggerName.getAuditEventLoggerName(entry.getKey(), event.toLoggerName());
+                    LoggerConfig eventLogConf = ctx.getConfiguration().getLoggerConfig(domainAuditLoggerName);
+
+                    if (LogManager.ROOT_LOGGER_NAME.equals(eventLogConf.getName())) {
+                        eventLogConf = new LoggerConfig(domainAuditLoggerName, null, false);
+                    }
+                    addAppenderToContext(ctx, auditAppender, eventLogConf);
+                    eventLogConf.setLevel(Level.DEBUG);
+                    if (LogManager.ROOT_LOGGER_NAME.equals(eventLogConf.getName())) {
+                        ctx.getConfiguration().addLogger(domainAuditLoggerName, eventLogConf);
+                    }
+                }
+            }
 
             AuthContextUtils.execWithAuthContext(entry.getKey(), new AuthContextUtils.Executable<Void>() {
 
@@ -136,28 +150,7 @@ public class LoggerLoader implements SyncopeLoader {
         return memoryAppenders;
     }
 
-    public void configureCustomAppenders(final String domainName, final LoggerContext ctx) {
-        List<AuditAppender> auditAppenders = auditAppenders(domainName);
-        for (AuditAppender auditAppender : auditAppenders) {
-            for (AuditLoggerName event : auditAppender.getEvents()) {
-                String domainAuditLoggerName =
-                        AuditManagerImpl.getDomainAuditEventLoggerName(domainName, event.toLoggerName());
-                LoggerConfig eventLogConf = ctx.getConfiguration().getLoggerConfig(domainAuditLoggerName);
-                boolean isRootLogConf = LogManager.ROOT_LOGGER_NAME.equals(eventLogConf.getName());
-
-                if (isRootLogConf) {
-                    eventLogConf = new LoggerConfig(domainAuditLoggerName, null, false);
-                }
-                addAppenderToContext(ctx, auditAppender, eventLogConf);
-                eventLogConf.setLevel(Level.DEBUG);
-                if (isRootLogConf) {
-                    ctx.getConfiguration().addLogger(domainAuditLoggerName, eventLogConf);
-                }
-            }
-        }
-    }
-
-    public List<AuditAppender> auditAppenders(final String domainName) throws BeansException {
+    public List<AuditAppender> auditAppenders(final String domain) throws BeansException {
         List<AuditAppender> auditAppenders = new ArrayList<>();
         for (Class<?> clazz : implementationLookup.getAuditAppenderClasses()) {
             AuditAppender auditAppender;
@@ -167,7 +160,7 @@ public class LoggerLoader implements SyncopeLoader {
             } else {
                 auditAppender = (AuditAppender) ApplicationContextProvider.getBeanFactory().
                         createBean(clazz, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
-                auditAppender.setDomainName(domainName);
+                auditAppender.setDomainName(domain);
                 auditAppender.init();
             }
             auditAppenders.add(auditAppender);
@@ -179,6 +172,7 @@ public class LoggerLoader implements SyncopeLoader {
             final LoggerContext ctx,
             final AuditAppender auditAppender,
             final LoggerConfig eventLogConf) {
+
         Appender targetAppender = ctx.getConfiguration().getAppender(auditAppender.getTargetAppenderName());
         if (targetAppender == null) {
             targetAppender = auditAppender.getTargetAppender();

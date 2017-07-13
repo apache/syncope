@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.logic;
+package org.apache.syncope.core.logic.audit;
 
 import java.util.Set;
 import org.apache.logging.log4j.core.Appender;
@@ -27,7 +27,8 @@ import org.apache.syncope.common.lib.types.AuditLoggerName;
 /**
  * Basic interface to implement to define a custom audit appender
  *
- * @see org.apache.syncope.core.logic.DefaultRewriteAuditAppender or org.apache.syncope.core.logic.DefaultAuditAppender
+ * @see DefaultAuditAppender
+ * @see DefaultRewriteAuditAppender
  */
 public interface AuditAppender {
 
@@ -40,7 +41,7 @@ public interface AuditAppender {
     RewritePolicy getRewritePolicy();
 
     String getTargetAppenderName();
-    
+
     void setDomainName(String name);
 
     String getDomainName();

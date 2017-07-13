@@ -34,6 +34,14 @@ public class AuditLoggerName extends AbstractBaseBean {
 
     private static final long serialVersionUID = -647989486671786839L;
 
+    public static String getAuditLoggerName(final String domain) {
+        return LoggerType.AUDIT.getPrefix() + "." + domain;
+    }
+
+    public static String getAuditEventLoggerName(final String domain, final String loggerName) {
+        return domain + "." + loggerName;
+    }
+
     private final AuditElements.EventCategoryType type;
 
     private final String category;
@@ -105,7 +113,7 @@ public class AuditLoggerName extends AbstractBaseBean {
                 eventCategory.getKey().getCategory(),
                 eventCategory.getKey().getSubcategory(),
                 eventCategory.getKey().getEvents().isEmpty()
-                        ? StringUtils.EMPTY : eventCategory.getKey().getEvents().iterator().next(),
+                ? StringUtils.EMPTY : eventCategory.getKey().getEvents().iterator().next(),
                 eventCategory.getValue());
     }
 

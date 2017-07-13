@@ -24,13 +24,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.common.lib.types.LoggerLevel;
 import org.apache.syncope.common.lib.types.LoggerType;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.persistence.api.dao.LoggerDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Logger;
-import org.apache.syncope.core.provisioning.java.AuditManagerImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,8 +58,8 @@ public class LoggerAccessor {
             }
         }
         for (Logger syncopeLogger : loggerDAO.findAll(LoggerType.AUDIT)) {
-            syncopeLoggers.put(AuditManagerImpl.getDomainAuditEventLoggerName(AuthContextUtils.getDomain(),
-                    syncopeLogger.getKey()), syncopeLogger);
+            syncopeLoggers.put(AuditLoggerName.getAuditEventLoggerName(
+                    AuthContextUtils.getDomain(), syncopeLogger.getKey()), syncopeLogger);
         }
 
         /*
@@ -73,8 +73,9 @@ public class LoggerAccessor {
                 if (syncopeLoggers.containsKey(loggerName)) {
                     logConf.setLevel(syncopeLoggers.get(loggerName).getLevel().getLevel());
                     syncopeLoggers.remove(loggerName);
-                } else if (!loggerName.startsWith(LoggerType.AUDIT.getPrefix()) || !loggerName.startsWith(
-                        AuthContextUtils.getDomain() + "." + LoggerType.AUDIT.getPrefix())) {
+                } else if (!loggerName.startsWith(LoggerType.AUDIT.getPrefix())
+                        || !loggerName.startsWith(AuthContextUtils.getDomain() + "." + LoggerType.AUDIT.getPrefix())) {
+
                     Logger syncopeLogger = entityFactory.newEntity(Logger.class);
                     syncopeLogger.setKey(loggerName);
                     syncopeLogger.setLevel(LoggerLevel.fromLevel(logConf.getLevel()));
@@ -88,9 +89,8 @@ public class LoggerAccessor {
          * Foreach SyncopeLogger not found in log4j create a new log4j logger with given name and level.
          */
         for (Map.Entry<String, Logger> entry : syncopeLoggers.entrySet()) {
-            Logger syncopeLogger = entry.getValue();
             LoggerConfig logConf = ctx.getConfiguration().getLoggerConfig(entry.getKey());
-            logConf.setLevel(syncopeLogger.getLevel().getLevel());
+            logConf.setLevel(entry.getValue().getLevel().getLevel());
         }
 
         ctx.updateLoggers();
