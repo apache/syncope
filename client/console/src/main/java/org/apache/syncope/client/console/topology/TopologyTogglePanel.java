@@ -315,7 +315,8 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 target.add(modal.setContent(new ConnectorWizardBuilder(modelObject, pageRef).
                         build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT)));
 
-                modal.header(new Model<>(MessageFormat.format(getString("connector.edit"), node.getDisplayName())));
+                modal.header(
+                        new Model<>(MessageFormat.format(getString("connector.edit"), modelObject.getDisplayName())));
 
                 MetaDataRoleAuthorizationStrategy.
                         authorize(modal.getForm(), RENDER, StandardEntitlement.CONNECTOR_UPDATE);
