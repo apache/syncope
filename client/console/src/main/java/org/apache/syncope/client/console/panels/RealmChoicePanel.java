@@ -70,7 +70,7 @@ public class RealmChoicePanel extends Panel {
 
     private final WebMarkupContainer container;
 
-    private final Model<RealmTO> model;
+    private Model<RealmTO> model;
 
     private final Collection<String> availableRealms;
 
@@ -311,6 +311,12 @@ public class RealmChoicePanel extends Panel {
     public final RealmChoicePanel reloadRealmTree(final AjaxRequestTarget target) {
         reloadRealmTree();
         target.add(container);
+        return this;
+    }
+
+    public final RealmChoicePanel reloadRealmTree(final AjaxRequestTarget target, final Model<RealmTO> newModel) {
+        model = newModel;
+        reloadRealmTree(target);
         return this;
     }
 
