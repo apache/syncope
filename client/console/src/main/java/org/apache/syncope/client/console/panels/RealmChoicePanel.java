@@ -380,6 +380,10 @@ public class RealmChoicePanel extends Panel {
         return model.getObject();
     }
 
+    public void setCurrentRealm(final RealmTO realmTO) {
+        model.setObject(realmTO);
+    }
+
     public RealmTO moveToParentRealm(final String key) {
         for (Pair<RealmTO, List<RealmTO>> subtree : tree.values()) {
             for (RealmTO child : subtree.getRight()) {

@@ -196,15 +196,15 @@ public class Realms extends BasePage {
                         if (modal.getContent() instanceof ResultPage) {
                             Serializable result = ResultPage.class.cast(modal.getContent()).getResult();
 
-                            RealmTO reamTO = RealmTO.class.cast(ProvisioningResult.class.cast(result).getEntity());
+                            RealmTO newRealmTO = RealmTO.class.cast(ProvisioningResult.class.cast(result).getEntity());
                             // reload realmChoicePanel label too - SYNCOPE-1151
-                            target.add(realmChoicePanel.reloadRealmTree(target, Model.of(reamTO)));
-                            updateRealmContent(reamTO, selectedIndex);
-
-                            target.add(content);
+                            target.add(realmChoicePanel.reloadRealmTree(target, Model.of(newRealmTO)));
+                            realmChoicePanel.setCurrentRealm(newRealmTO);
+                            send(Realms.this, Broadcast.DEPTH, new ChosenRealm<>(newRealmTO, target));
                         } else {
                             target.add(realmChoicePanel.reloadRealmTree(target));
                         }
+                        target.add(content);
                         modal.show(false);
                     }
                 });
