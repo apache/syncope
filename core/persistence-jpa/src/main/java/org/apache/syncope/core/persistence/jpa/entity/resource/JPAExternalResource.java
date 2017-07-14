@@ -171,9 +171,8 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
         super();
 
         enforceMandatoryCondition = getBooleanAsInteger(false);
-        propagationPriority = 0;
-        randomPwdIfNotProvided = 0;
-        overrideCapabilities = 0;
+        randomPwdIfNotProvided = getBooleanAsInteger(false);
+        overrideCapabilities = getBooleanAsInteger(false);
 
         createTraceLevel = TraceLevel.FAILURES;
         updateTraceLevel = TraceLevel.FAILURES;
@@ -253,9 +252,7 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
 
     @Override
     public void setPropagationPriority(final Integer propagationPriority) {
-        if (propagationPriority != null) {
-            this.propagationPriority = propagationPriority;
-        }
+        this.propagationPriority = propagationPriority;
     }
 
     @Override

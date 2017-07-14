@@ -175,6 +175,7 @@ public class ResourceITCase extends AbstractITCase {
         // check the existence
         actual = resourceService.read(resourceKey);
         assertNotNull(actual);
+        assertNull(actual.getPropagationPriority());
     }
 
     @Test
@@ -455,6 +456,7 @@ public class ResourceITCase extends AbstractITCase {
         String resourceKey = "ws-orgunit";
         ResourceTO resourceTO = buildResourceTO(resourceKey);
         assertNull(resourceTO.getOrgUnit());
+        assertNull(resourceTO.getPropagationPriority());
 
         Response response = resourceService.create(resourceTO);
         resourceTO = getObject(response.getLocation(), ResourceService.class, ResourceTO.class);
@@ -468,15 +470,18 @@ public class ResourceITCase extends AbstractITCase {
 
         resourceTO.setOrgUnit(orgUnit);
         resourceService.update(resourceTO);
+        assertNull(resourceTO.getPropagationPriority());
 
         resourceTO = resourceService.read(resourceKey);
         assertNotNull(resourceTO.getOrgUnit());
 
         resourceTO.setOrgUnit(null);
+        resourceTO.setPropagationPriority(11);
         resourceService.update(resourceTO);
 
         resourceTO = resourceService.read(resourceKey);
         assertNull(resourceTO.getOrgUnit());
+        assertEquals(Integer.valueOf(11), resourceTO.getPropagationPriority());
     }
 
     @Test
