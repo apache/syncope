@@ -79,10 +79,10 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
     private Map<Class<? extends PasswordRuleConf>, Class<? extends PasswordRule>> passwordRuleClasses;
 
     private Set<Class<?>> auditAppenderClasses;
-    
+
     @Override
     public Integer getPriority() {
-        return 400;
+        return Integer.MIN_VALUE;
     }
 
     /**
