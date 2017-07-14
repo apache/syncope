@@ -148,7 +148,7 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
                     createBean(RealmPushResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
             rhandler.setProfile(profile);
 
-            for (Realm realm : realmDAO.findAll()) {
+            for (Realm realm : realmDAO.findDescendants(profile.getTask().getSourceRealm())) {
                 // Never push the root realm
                 if (realm.getParent() != null) {
                     try {
