@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.security;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -55,5 +56,11 @@ public class EncryptorTest {
                 assertTrue(encryptor.verify(password, cipherAlgorithm, encSamePassword));
             }
         }
+    }
+
+    @Test
+    public void testDecodeDefaultAESKey() throws Exception {
+        String password = encryptor.decode("9Pav+xl+UyHt02H9ZBytiA==", CipherAlgorithm.AES);
+        assertEquals("password", password);
     }
 }
