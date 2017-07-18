@@ -481,7 +481,7 @@ under the License.
 
     <adminUser>admin</adminUser>
     <anonymousUser>anonymous</anonymousUser>
-    <adminPassword>5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8</adminPassword>
+    <adminPassword>DE088591C00CC98B36F5ADAAF7DA2B004CF7F2FE7BBB45B766B6409876E2F3DB13C7905C6AA59464</adminPassword>
     <!-- static keys, only used for build: generated overlays will override during archetype:generate -->
     <anonymousKey>anonymousKey</anonymousKey>
     <secretKey>1abcdefghilmnopqrstuvz2!</secretKey>

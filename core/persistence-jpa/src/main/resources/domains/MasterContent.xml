@@ -28,7 +28,7 @@ under the License.
   <CPlainAttr id="56db89b9-119e-4923-a16e-f42823b90c66" 
               owner_id="cd64d66f-6fff-4008-b966-a06b1cc1436d" schema_id="password.cipher.algorithm"/>
   <CPlainAttrValue id="870323e8-8db6-4a64-b512-15f9fa094905" 
-                   attribute_id="56db89b9-119e-4923-a16e-f42823b90c66" stringValue="SHA1"/>
+                   attribute_id="56db89b9-119e-4923-a16e-f42823b90c66" stringValue="SSHA256"/>
 
   <!-- notificationjob.cronExpression:
   + not existing: NotificationJob runs according to NotificationJob.DEFAULT_CRON_EXP

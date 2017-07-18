@@ -30,7 +30,8 @@ public class DefaultCredentialChecker {
 
     private static final String DEFAULT_JWS_KEY = "ZW7pRixehFuNUtnY5Se47IemgMryTzazPPJ9CGX5LTCmsOJpOgHAQEuPQeV9A28f";
 
-    private static final String DEFAULT_ADMIN_PASSWORD = "5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8";
+    private static final String DEFAULT_ADMIN_PASSWORD =
+        "DE088591C00CC98B36F5ADAAF7DA2B004CF7F2FE7BBB45B766B6409876E2F3DB13C7905C6AA59464";
 
     private static final String DEFAULT_ANON_KEY = "anonymousKey";
 
