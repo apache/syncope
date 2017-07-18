@@ -18,10 +18,9 @@
  */
 package org.apache.syncope.core.persistence.api.entity.resource;
 
-public interface MappingItem extends Item {
+public interface OrgUnitItem extends Item {
 
-    Mapping getMapping();
+    OrgUnit getOrgUnit();
 
-    void setMapping(Mapping mapping);
-
+    void setOrgUnit(OrgUnit orgUnit);
 }

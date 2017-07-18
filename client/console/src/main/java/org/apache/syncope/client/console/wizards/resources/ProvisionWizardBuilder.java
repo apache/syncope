@@ -37,6 +37,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownCho
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.MappingTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
@@ -52,7 +53,7 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
-public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> {
+public class ProvisionWizardBuilder extends AjaxWizardBuilder<ResourceProvision> {
 
     private static final long serialVersionUID = 3739399543837732640L;
 
@@ -76,13 +77,18 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> {
                 }
             }, currentlyAdded);
 
-            return ListUtils.select(new AnyTypeRestClient().list(), new Predicate<String>() {
+            List<String> result = ListUtils.select(new AnyTypeRestClient().list(), new Predicate<String>() {
 
                 @Override
                 public boolean evaluate(final String key) {
                     return !currentlyAdded.contains(key);
                 }
             });
+            if (resourceTO.getOrgUnit() == null) {
+                result.add(0, SyncopeConstants.REALM_ANYTYPE);
+            }
+
+            return result;
         }
     };
 
@@ -93,7 +99,7 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> {
 
         private static final long serialVersionUID = -1657800545799468278L;
 
-        ObjectType(final ProvisionTO item) {
+        ObjectType(final ResourceProvision item) {
             super(new ResourceModel("type.title", StringUtils.EMPTY),
                     new ResourceModel("type.summary", StringUtils.EMPTY), new Model<>(item));
 
@@ -135,14 +141,23 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> {
     /**
      * AuxClasses definition step.
      */
-    private static final class AuxClasses extends WizardStep {
+    private static final class AuxClasses extends WizardStep implements WizardModel.ICondition {
 
         private static final long serialVersionUID = 5315236191866427500L;
 
-        AuxClasses(final ProvisionTO item) {
+        private final ResourceProvision provision;
+
+        AuxClasses(final ResourceProvision item) {
+            this.provision = item;
+
             setTitleModel(new ResourceModel("auxClasses.title"));
             setSummaryModel(new StringResourceModel("auxClasses.summary", this, new Model<>(item)));
-            add(new ProvisionAuxClassesPanel("auxClasses", item));
+            add(new ProvisionAuxClassesPanel("auxClasses", item.getProvisionTO()));
+        }
+
+        @Override
+        public boolean evaluate() {
+            return provision.getProvisionTO() != null;
         }
     }
 
@@ -153,7 +168,7 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> {
 
         private static final long serialVersionUID = 3454904947720856253L;
 
-        Mapping(final ProvisionTO item) {
+        Mapping(final ResourceProvision item) {
             setTitleModel(Model.of("Mapping"));
             setSummaryModel(Model.of(StringUtils.EMPTY));
         }
@@ -166,7 +181,7 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> {
 
         private static final long serialVersionUID = 2359955465172450478L;
 
-        ConnObjectLink(final ProvisionTO item) {
+        ConnObjectLink(final ResourceProvision item) {
             super(new ResourceModel("link.title", StringUtils.EMPTY),
                     new ResourceModel("link.summary", StringUtils.EMPTY));
 
@@ -175,7 +190,7 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> {
             add(connObjectLinkContainer);
 
             boolean connObjectLinkEnabled = false;
-            if (StringUtils.isNotBlank(item.getMapping().getConnObjectLink())) {
+            if (StringUtils.isNotBlank(item.getConnObjectLink())) {
                 connObjectLinkEnabled = true;
             }
 
@@ -191,8 +206,9 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> {
             final AjaxTextFieldPanel connObjectLink = new AjaxTextFieldPanel(
                     "connObjectLink",
                     new ResourceModel("connObjectLink", "connObjectLink").getObject(),
-                    new PropertyModel<String>(item.getMapping(), "connObjectLink"),
+                    new PropertyModel<String>(item, "connObjectLink"),
                     false);
+            connObjectLink.enableJexlHelp();
             connObjectLink.setEnabled(connObjectLinkEnabled);
             connObjectLinkContainer.add(connObjectLink);
 
@@ -218,28 +234,27 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> {
      * @param pageRef Caller page reference.
      */
     public ProvisionWizardBuilder(final ResourceTO resurceTO, final PageReference pageRef) {
-        super(new ProvisionTO(), pageRef);
+        super(new ResourceProvision(), pageRef);
         this.resourceTO = resurceTO;
     }
 
     @Override
-    protected WizardModel buildModelSteps(final ProvisionTO modelObject, final WizardModel wizardModel) {
+    protected WizardModel buildModelSteps(final ResourceProvision modelObject, final WizardModel wizardModel) {
         wizardModel.add(new ObjectType(modelObject));
         wizardModel.add(new AuxClasses(modelObject));
 
         Mapping mapping = new Mapping(modelObject);
         mapping.setOutputMarkupId(true);
 
-        MappingItemTransformersTogglePanel mapItemTransformers =
-                new MappingItemTransformersTogglePanel(mapping, pageRef);
-        addOuterObject(mapItemTransformers);
+        ItemTransformersTogglePanel itemTransformers = new ItemTransformersTogglePanel(mapping, pageRef);
+        addOuterObject(itemTransformers);
         JEXLTransformersTogglePanel jexlTransformers = new JEXLTransformersTogglePanel(mapping, pageRef);
         addOuterObject(jexlTransformers);
-        if (modelObject.getMapping() == null) {
-            modelObject.setMapping(new MappingTO());
+        if (modelObject.getProvisionTO() != null && modelObject.getProvisionTO().getMapping() == null) {
+            modelObject.getProvisionTO().setMapping(new MappingTO());
         }
         mapping.add(new ResourceMappingPanel(
-                "mapping", resourceTO, modelObject, mapItemTransformers, jexlTransformers));
+                "mapping", resourceTO, modelObject, itemTransformers, jexlTransformers));
 
         wizardModel.add(mapping);
 
@@ -248,28 +263,41 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ProvisionTO> {
     }
 
     @Override
-    protected Serializable onApplyInternal(final ProvisionTO modelObject) {
-        final List<ProvisionTO> provisions;
-        if (modelObject.getKey() == null) {
-            provisions = ListUtils.select(this.resourceTO.getProvisions(), new Predicate<ProvisionTO>() {
+    protected Serializable onApplyInternal(final ResourceProvision modelObject) {
+        if (modelObject.getOrgUnitTO() != null) {
+            this.resourceTO.setOrgUnit(modelObject.getOrgUnitTO());
 
-                @Override
-                public boolean evaluate(final ProvisionTO object) {
-                    return !modelObject.getAnyType().equals(object.getAnyType());
-                }
-            });
-        } else {
-            provisions = ListUtils.select(this.resourceTO.getProvisions(), new Predicate<ProvisionTO>() {
+            this.resourceTO.getOrgUnit().getItems().clear();
+            this.resourceTO.getOrgUnit().getItems().addAll(modelObject.getItems());
+        } else if (modelObject.getProvisionTO() != null) {
+            final List<ProvisionTO> provisions;
+            if (modelObject.getKey() == null) {
+                provisions = ListUtils.select(this.resourceTO.getProvisions(), new Predicate<ProvisionTO>() {
 
-                @Override
-                public boolean evaluate(final ProvisionTO object) {
-                    return !modelObject.getKey().equals(object.getKey());
-                }
-            });
+                    @Override
+                    public boolean evaluate(final ProvisionTO object) {
+                        return !modelObject.getAnyType().equals(object.getAnyType());
+                    }
+                });
+            } else {
+                provisions = ListUtils.select(this.resourceTO.getProvisions(), new Predicate<ProvisionTO>() {
+
+                    @Override
+                    public boolean evaluate(final ProvisionTO object) {
+                        return !modelObject.getKey().equals(object.getKey());
+                    }
+                });
+            }
+
+            ProvisionTO provisionTO = modelObject.getProvisionTO();
+            provisionTO.getMapping().getItems().clear();
+            provisionTO.getMapping().getItems().addAll(modelObject.getItems());
+            provisions.add(provisionTO);
+
+            this.resourceTO.getProvisions().clear();
+            this.resourceTO.getProvisions().addAll(provisions);
         }
-        provisions.add(modelObject);
-        this.resourceTO.getProvisions().clear();
-        this.resourceTO.getProvisions().addAll(provisions);
+
         return modelObject;
     }
 }

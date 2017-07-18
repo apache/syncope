@@ -28,7 +28,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import net.shibboleth.utilities.java.support.xml.XMLParserException;
-import org.apache.syncope.common.lib.to.MappingItemTO;
+import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.types.SAML2BindingType;
 import org.apache.syncope.core.logic.init.SAML2SPLoader;
 import org.apache.syncope.core.persistence.api.entity.SAML2IdP;
@@ -66,7 +66,7 @@ public class SAML2IdPCache {
 
     public SAML2IdPEntity put(
             final EntityDescriptor entityDescriptor,
-            final MappingItemTO connObjectKeyItem,
+            final ItemTO connObjectKeyItem,
             final boolean useDeflateEncoding,
             final SAML2BindingType bindingType)
             throws CertificateException, IOException, KeyStoreException, NoSuchAlgorithmException {

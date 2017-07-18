@@ -26,7 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.panels.TogglePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
-import org.apache.syncope.common.lib.to.MappingItemTO;
+import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
@@ -37,14 +37,14 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.util.ListModel;
 
-public class MappingItemTransformersTogglePanel extends TogglePanel<Serializable> {
+public class ItemTransformersTogglePanel extends TogglePanel<Serializable> {
 
     private static final long serialVersionUID = -3195479265440591519L;
 
-    private MappingItemTO mapItem;
+    private ItemTO item;
 
-    public MappingItemTransformersTogglePanel(final WebMarkupContainer container, final PageReference pageRef) {
-        super("outer", "mappingItemTransformersTogglePanel", pageRef);
+    public ItemTransformersTogglePanel(final WebMarkupContainer container, final PageReference pageRef) {
+        super("outer", "itemTransformersTogglePanel", pageRef);
 
         final LoadableDetachableModel<List<String>> model = new LoadableDetachableModel<List<String>>() {
 
@@ -53,9 +53,9 @@ public class MappingItemTransformersTogglePanel extends TogglePanel<Serializable
             @Override
             protected List<String> load() {
                 // [!] this is required to disable changed with close button
-                return mapItem == null
+                return item == null
                         ? Collections.<String>emptyList()
-                        : new ArrayList<>(mapItem.getMappingItemTransformerClassNames());
+                        : new ArrayList<>(item.getTransformerClassNames());
             }
         };
 
@@ -89,8 +89,7 @@ public class MappingItemTransformersTogglePanel extends TogglePanel<Serializable
         }).build(
                 "classes",
                 model,
-                new ListModel<>(
-                        new ArrayList<>(SyncopeConsoleSession.get().getPlatformInfo().getMappingItemTransformers()))).
+                new ListModel<>(new ArrayList<>(SyncopeConsoleSession.get().getPlatformInfo().getItemTransformers()))).
                 hideLabel().setEnabled(true).setOutputMarkupId(true));
 
         form.add(new AjaxSubmitLink("submit", form) {
@@ -102,8 +101,8 @@ public class MappingItemTransformersTogglePanel extends TogglePanel<Serializable
                 toggle(target, false);
 
                 // [!] this is required to disable changed with close button
-                mapItem.getMappingItemTransformerClassNames().clear();
-                mapItem.getMappingItemTransformerClassNames().addAll(model.getObject());
+                item.getTransformerClassNames().clear();
+                item.getTransformerClassNames().addAll(model.getObject());
 
                 target.add(container);
             }
@@ -111,10 +110,8 @@ public class MappingItemTransformersTogglePanel extends TogglePanel<Serializable
         });
     }
 
-    public MappingItemTransformersTogglePanel setMappingItem(
-            final AjaxRequestTarget target, final MappingItemTO mapItem) {
-
-        this.mapItem = mapItem;
+    public ItemTransformersTogglePanel setItem(final AjaxRequestTarget target, final ItemTO item) {
+        this.item = item;
         setHeader(target, StringUtils.EMPTY);
         return this;
     }

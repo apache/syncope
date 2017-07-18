@@ -40,7 +40,7 @@ import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.GroupTO;
-import org.apache.syncope.common.lib.to.MappingItemTO;
+import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PullTaskTO;
@@ -234,11 +234,11 @@ public class MembershipITCase extends AbstractITCase {
         ResourceTO newResource = resourceService.read(RESOURCE_NAME_DBPULL);
         newResource.setKey(getUUIDString());
 
-        MappingItemTO item = IterableUtils.find(newResource.getProvision("USER").getMapping().getItems(),
-                new Predicate<MappingItemTO>() {
+        ItemTO item = IterableUtils.find(newResource.getProvision("USER").getMapping().getItems(),
+                new Predicate<ItemTO>() {
 
             @Override
-            public boolean evaluate(final MappingItemTO object) {
+            public boolean evaluate(final ItemTO object) {
                 return "firstname".equals(object.getIntAttrName());
             }
         });
@@ -248,10 +248,10 @@ public class MembershipITCase extends AbstractITCase {
         item.setPurpose(MappingPurpose.BOTH);
 
         item = IterableUtils.find(newResource.getProvision("USER").getMapping().getItems(),
-                new Predicate<MappingItemTO>() {
+                new Predicate<ItemTO>() {
 
             @Override
-            public boolean evaluate(final MappingItemTO object) {
+            public boolean evaluate(final ItemTO object) {
                 return "fullname".equals(object.getIntAttrName());
             }
         });

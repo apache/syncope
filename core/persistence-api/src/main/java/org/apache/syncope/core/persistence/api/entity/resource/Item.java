@@ -19,23 +19,42 @@
 package org.apache.syncope.core.persistence.api.entity.resource;
 
 import java.util.List;
+import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 
-public interface Mapping extends Entity {
+public interface Item extends Entity {
 
-    Provision getProvision();
+    String getExtAttrName();
 
-    void setProvision(Provision provision);
+    void setExtAttrName(String extAttrName);
 
-    String getConnObjectLink();
+    String getIntAttrName();
 
-    void setConnObjectLink(String connObjectLink);
+    void setIntAttrName(String intAttrName);
 
-    boolean add(MappingItem item);
+    String getMandatoryCondition();
 
-    MappingItem getConnObjectKeyItem();
+    void setMandatoryCondition(String condition);
 
-    void setConnObjectKeyItem(MappingItem item);
+    MappingPurpose getPurpose();
 
-    List<? extends MappingItem> getItems();
+    void setPurpose(MappingPurpose purpose);
+
+    boolean isConnObjectKey();
+
+    void setConnObjectKey(boolean connObjectKey);
+
+    boolean isPassword();
+
+    void setPassword(boolean password);
+
+    String getPropagationJEXLTransformer();
+
+    void setPropagationJEXLTransformer(String propagationJEXLTransformer);
+
+    String getPullJEXLTransformer();
+
+    void setPullJEXLTransformer(String pullJEXLTransformer);
+
+    List<String> getTransformerClassNames();
 }

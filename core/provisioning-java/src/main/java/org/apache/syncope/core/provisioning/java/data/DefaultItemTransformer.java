@@ -19,35 +19,28 @@
 package org.apache.syncope.core.provisioning.java.data;
 
 import java.util.List;
-import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.common.lib.to.EntityTO;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
-import org.apache.syncope.core.provisioning.api.data.MappingItemTransformer;
+import org.apache.syncope.core.persistence.api.entity.resource.Item;
+import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Default (empty) implementation of {@link MappingItemTransformer}.
+ * Default (empty) implementation of {@link ItemTransformer}.
  */
-public class DefaultMappingItemTransformer implements MappingItemTransformer {
+@Transactional(readOnly = true)
+public class DefaultItemTransformer implements ItemTransformer {
 
-    @Transactional(readOnly = true)
     @Override
     public List<PlainAttrValue> beforePropagation(
-            final MappingItem mappingItem,
-            final Any<?> any,
-            final List<PlainAttrValue> values) {
+            final Item item, final Entity entity, final List<PlainAttrValue> values) {
 
         return values;
     }
 
-    @Transactional(readOnly = true)
     @Override
-    public List<Object> beforePull(
-            final MappingItem mappingItem,
-            final AnyTO anyTO,
-            final List<Object> values) {
-
+    public List<Object> beforePull(final Item item, final EntityTO entityTO, final List<Object> values) {
         return values;
     }
 

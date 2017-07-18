@@ -18,7 +18,11 @@
  */
 package org.apache.syncope.client.console.status;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
 import org.apache.syncope.client.console.commons.status.StatusBean;
@@ -28,11 +32,12 @@ import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
-import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 
 public class ResourceStatusModal extends StatusModal<ResourceTO> {
@@ -44,23 +49,26 @@ public class ResourceStatusModal extends StatusModal<ResourceTO> {
     public ResourceStatusModal(
             final BaseModal<?> baseModal,
             final PageReference pageReference,
-            final ResourceTO resourceTO) {
+            final ResourceTO resource) {
 
-        super(baseModal, pageReference, resourceTO, null, false);
+        super(baseModal, pageReference, resource, null, false);
 
-        final LoadableDetachableModel<List<String>> types = new LoadableDetachableModel<List<String>>() {
-
-            private static final long serialVersionUID = 5275935387613157437L;
+        List<String> availableAnyTypes = CollectionUtils.collect(
+                resource.getProvisions(), new Transformer<ProvisionTO, String>() {
 
             @Override
-            protected List<String> load() {
-                return new AnyTypeRestClient().list();
+            public String transform(final ProvisionTO provision) {
+                return provision.getAnyType();
             }
-        };
+        }, new ArrayList<String>());
+        Collections.sort(availableAnyTypes, new AnyTypeRestClient.AnyTypeKeyComparator());
+        if (resource.getOrgUnit() != null) {
+            availableAnyTypes.add(0, SyncopeConstants.REALM_ANYTYPE);
+        }
 
         AjaxDropDownChoicePanel<String> anyTypes =
                 new AjaxDropDownChoicePanel<>("anyTypes", "anyTypes", typeModel, false);
-        anyTypes.setChoices(types);
+        anyTypes.setChoices(availableAnyTypes);
         anyTypes.hideLabel();
         add(anyTypes);
 

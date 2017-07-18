@@ -27,7 +27,8 @@ import org.apache.commons.collections4.IteratorUtils;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
-import org.apache.syncope.common.lib.to.MappingItemTO;
+import org.apache.syncope.common.lib.to.ItemContainerTO;
+import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.MappingTO;
 import org.apache.syncope.common.lib.to.OrgUnitTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
@@ -58,7 +59,9 @@ import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResourceHistoryConf;
+import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
+import org.apache.syncope.core.persistence.api.entity.resource.OrgUnitItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.provisioning.java.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
@@ -76,7 +79,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
     private static final Logger LOG = LoggerFactory.getLogger(ResourceDataBinder.class);
 
-    private static final String[] MAPPINGITEM_IGNORE_PROPERTIES = { "key", "mapping" };
+    private static final String[] ITEM_IGNORE_PROPERTIES = { "key", "mapping" };
 
     @Autowired
     private AnyTypeDAO anyTypeDAO;
@@ -126,7 +129,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
             List<ExternalResourceHistoryConf> history = resourceHistoryConfDAO.findByEntity(resource);
             long maxHistorySize = confDAO.find("resource.conf.history.size", "10").getValues().get(0).getLongValue();
             if (maxHistorySize < history.size()) {
-            // always remove the last item since history was obtained  by a query with ORDER BY creation DESC
+                // always remove the last item since history was obtained  by a query with ORDER BY creation DESC
                 for (int i = 0; i < history.size() - maxHistorySize; i++) {
                     resourceHistoryConfDAO.delete(history.get(history.size() - 1).getKey());
                 }
@@ -275,19 +278,60 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
             }
             orgUnit.setObjectClass(new ObjectClass(orgUnitTO.getObjectClass()));
 
-            if (orgUnitTO.getExtAttrName() == null) {
-                SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidOrgUnit);
-                sce.getElements().add("Null extAttrName");
-                throw sce;
-            }
-            orgUnit.setExtAttrName(orgUnitTO.getExtAttrName());
-
             if (orgUnitTO.getConnObjectLink() == null) {
                 SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidOrgUnit);
                 sce.getElements().add("Null connObjectLink");
                 throw sce;
             }
             orgUnit.setConnObjectLink(orgUnitTO.getConnObjectLink());
+
+            SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
+            SyncopeClientException invalidMapping = SyncopeClientException.build(
+                    ClientExceptionType.InvalidMapping);
+            SyncopeClientException requiredValuesMissing = SyncopeClientException.build(
+                    ClientExceptionType.RequiredValuesMissing);
+
+            orgUnit.getItems().clear();
+            for (ItemTO itemTO : orgUnitTO.getItems()) {
+                if (itemTO == null) {
+                    LOG.error("Null {}", ItemTO.class.getSimpleName());
+                    invalidMapping.getElements().add("Null " + ItemTO.class.getSimpleName());
+                } else if (itemTO.getIntAttrName() == null) {
+                    requiredValuesMissing.getElements().add("intAttrName");
+                    scce.addException(requiredValuesMissing);
+                } else {
+                    if (!"name".equals(itemTO.getIntAttrName()) && !"fullpath".equals(itemTO.getIntAttrName())) {
+                        LOG.error("Only 'name' and 'fullpath' are supported for Realms");
+                        invalidMapping.getElements().add("Only 'name' and 'fullpath' are supported for Realms");
+                    } else {
+                        // no mandatory condition implies mandatory condition false
+                        if (!JexlUtils.isExpressionValid(itemTO.getMandatoryCondition() == null
+                                ? "false" : itemTO.getMandatoryCondition())) {
+
+                            SyncopeClientException invalidMandatoryCondition = SyncopeClientException.build(
+                                    ClientExceptionType.InvalidValues);
+                            invalidMandatoryCondition.getElements().add(itemTO.getMandatoryCondition());
+                            scce.addException(invalidMandatoryCondition);
+                        }
+
+                        OrgUnitItem item = entityFactory.newEntity(OrgUnitItem.class);
+                        BeanUtils.copyProperties(itemTO, item, ITEM_IGNORE_PROPERTIES);
+                        item.setOrgUnit(orgUnit);
+                        if (item.isConnObjectKey()) {
+                            orgUnit.setConnObjectKeyItem(item);
+                        } else {
+                            orgUnit.add(item);
+                        }
+
+                    }
+                }
+            }
+            if (!invalidMapping.getElements().isEmpty()) {
+                scce.addException(invalidMapping);
+            }
+            if (scce.hasExceptions()) {
+                throw scce;
+            }
         }
 
         resource.setCreateTraceLevel(resourceTO.getCreateTraceLevel());
@@ -328,10 +372,10 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         SyncopeClientException requiredValuesMissing = SyncopeClientException.build(
                 ClientExceptionType.RequiredValuesMissing);
 
-        for (MappingItemTO itemTO : mappingTO.getItems()) {
+        for (ItemTO itemTO : mappingTO.getItems()) {
             if (itemTO == null) {
-                LOG.error("Null {}", MappingItemTO.class.getSimpleName());
-                invalidMapping.getElements().add("Null " + MappingItemTO.class.getSimpleName());
+                LOG.error("Null {}", ItemTO.class.getSimpleName());
+                invalidMapping.getElements().add("Null " + ItemTO.class.getSimpleName());
             } else if (itemTO.getIntAttrName() == null) {
                 requiredValuesMissing.getElements().add("intAttrName");
                 scce.addException(requiredValuesMissing);
@@ -377,7 +421,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                         }
 
                         MappingItem item = entityFactory.newEntity(MappingItem.class);
-                        BeanUtils.copyProperties(itemTO, item, MAPPINGITEM_IGNORE_PROPERTIES);
+                        BeanUtils.copyProperties(itemTO, item, ITEM_IGNORE_PROPERTIES);
                         item.setMapping(mapping);
                         if (item.isConnObjectKey()) {
                             if (intAttrName.getSchemaType() == SchemaType.VIRTUAL) {
@@ -442,18 +486,16 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         }
     }
 
-    private void populateMappingTO(final Mapping mapping, final MappingTO mappingTO) {
-        mappingTO.setConnObjectLink(mapping.getConnObjectLink());
-
-        for (MappingItem item : mapping.getItems()) {
-            MappingItemTO itemTO = new MappingItemTO();
+    private void populateItems(final List<? extends Item> items, final ItemContainerTO containerTO) {
+        for (Item item : items) {
+            ItemTO itemTO = new ItemTO();
             itemTO.setKey(item.getKey());
-            BeanUtils.copyProperties(item, itemTO, MAPPINGITEM_IGNORE_PROPERTIES);
+            BeanUtils.copyProperties(item, itemTO, ITEM_IGNORE_PROPERTIES);
 
             if (itemTO.isConnObjectKey()) {
-                mappingTO.setConnObjectKeyItem(itemTO);
+                containerTO.setConnObjectKeyItem(itemTO);
             } else {
-                mappingTO.add(itemTO);
+                containerTO.add(itemTO);
             }
         }
     }
@@ -484,7 +526,8 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
             if (provision.getMapping() != null) {
                 MappingTO mappingTO = new MappingTO();
                 provisionTO.setMapping(mappingTO);
-                populateMappingTO(provision.getMapping(), mappingTO);
+                mappingTO.setConnObjectLink(provision.getMapping().getConnObjectLink());
+                populateItems(provision.getMapping().getItems(), mappingTO);
             }
 
             for (VirSchema virSchema : virSchemaDAO.findByProvision(provision)) {
@@ -492,9 +535,9 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
                 MappingItem linkingMappingItem = virSchema.asLinkingMappingItem();
 
-                MappingItemTO itemTO = new MappingItemTO();
+                ItemTO itemTO = new ItemTO();
                 itemTO.setKey(linkingMappingItem.getKey());
-                BeanUtils.copyProperties(linkingMappingItem, itemTO, MAPPINGITEM_IGNORE_PROPERTIES);
+                BeanUtils.copyProperties(linkingMappingItem, itemTO, ITEM_IGNORE_PROPERTIES);
 
                 provisionTO.getMapping().getLinkingItems().add(itemTO);
             }
@@ -509,8 +552,8 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
             orgUnitTO.setKey(orgUnit.getKey());
             orgUnitTO.setObjectClass(orgUnit.getObjectClass().getObjectClassValue());
             orgUnitTO.setSyncToken(orgUnit.getSerializedSyncToken());
-            orgUnitTO.setExtAttrName(orgUnit.getExtAttrName());
             orgUnitTO.setConnObjectLink(orgUnit.getConnObjectLink());
+            populateItems(orgUnit.getItems(), orgUnitTO);
 
             resourceTO.setOrgUnit(orgUnitTO);
         }

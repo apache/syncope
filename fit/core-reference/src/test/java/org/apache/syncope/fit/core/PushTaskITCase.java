@@ -37,7 +37,7 @@ import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.GroupTO;
-import org.apache.syncope.common.lib.to.MappingItemTO;
+import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.MappingTO;
 import org.apache.syncope.common.lib.to.NotificationTO;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
@@ -346,7 +346,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
             MappingTO mapping = new MappingTO();
             provisionTO.setMapping(mapping);
 
-            MappingItemTO item = new MappingItemTO();
+            ItemTO item = new ItemTO();
             item.setExtAttrName("cn");
             item.setIntAttrName(schemaTO.getKey());
             item.setConnObjectKey(true);

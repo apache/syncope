@@ -181,22 +181,16 @@ public class RealmsITCase extends AbstractConsoleITCase {
         TESTER.clickLink(component.getPageRelativePath() + ":actions:actionRepeater:0:action:action");
 
         TESTER.assertLabel("body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
-                + "secondLevelContainer:second:remoteObject:propView:2:value:oldAttribute:field-label", "ou");
+                + "secondLevelContainer:second:remoteObject:propView:4:value:oldAttribute:field-label", "ou");
 
         TESTER.assertModelValue("body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
-                + "secondLevelContainer:second:remoteObject:propView:0:value:oldAttribute:textField", null);
-
-        TESTER.assertModelValue("body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
-                + "secondLevelContainer:second:remoteObject:propView:1:value:oldAttribute:textField", null);
-
-        TESTER.assertModelValue("body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
-                + "secondLevelContainer:second:remoteObject:propView:2:value:oldAttribute:textField", null);
+                + "secondLevelContainer:second:remoteObject:propView:4:value:oldAttribute:textField", null);
 
         TESTER.assertLabel("body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
-                + "secondLevelContainer:second:remoteObject:propView:2:value:newAttribute:field-label", "ou");
+                + "secondLevelContainer:second:remoteObject:propView:4:value:newAttribute:field-label", "ou");
 
         TESTER.assertModelValue("body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
-                + "secondLevelContainer:second:remoteObject:propView:2:value:newAttribute:textField", "even");
+                + "secondLevelContainer:second:remoteObject:propView:4:value:newAttribute:textField", "even");
 
         TESTER.clickLink("body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
                 + "secondLevelContainer:back");
@@ -232,22 +226,16 @@ public class RealmsITCase extends AbstractConsoleITCase {
         TESTER.clickLink(component.getPageRelativePath() + ":actions:actionRepeater:0:action:action");
 
         TESTER.assertLabel("body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
-                + "secondLevelContainer:second:remoteObject:propView:2:value:oldAttribute:field-label", "ou");
+                + "secondLevelContainer:second:remoteObject:propView:4:value:oldAttribute:field-label", "ou");
 
         TESTER.assertModelValue("body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
-                + "secondLevelContainer:second:remoteObject:propView:2:value:oldAttribute:textField", "even");
+                + "secondLevelContainer:second:remoteObject:propView:4:value:oldAttribute:textField", "even");
 
         TESTER.assertLabel("body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
-                + "secondLevelContainer:second:remoteObject:propView:2:value:newAttribute:field-label", "ou");
+                + "secondLevelContainer:second:remoteObject:propView:4:value:newAttribute:field-label", "ou");
 
         TESTER.assertModelValue("body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
-                + "secondLevelContainer:second:remoteObject:propView:0:value:newAttribute:textField", null);
-
-        TESTER.assertModelValue("body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
-                + "secondLevelContainer:second:remoteObject:propView:1:value:newAttribute:textField", null);
-
-        TESTER.assertModelValue("body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
-                + "secondLevelContainer:second:remoteObject:propView:2:value:newAttribute:textField", null);
+                + "secondLevelContainer:second:remoteObject:propView:4:value:newAttribute:textField", null);
 
         TESTER.clickLink("body:content:body:outerObjectsRepeater:0:outer:form:content:customResultBody:"
                 + "secondLevelContainer:back");

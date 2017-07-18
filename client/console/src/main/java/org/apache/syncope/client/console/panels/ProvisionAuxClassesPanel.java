@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.panels;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
@@ -27,6 +28,7 @@ import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.util.ListModel;
 
@@ -47,16 +49,27 @@ public class ProvisionAuxClassesPanel extends Panel {
     protected void onBeforeRender() {
         super.onBeforeRender();
 
-        AnyTypeTO anyType = new AnyTypeRestClient().read(provisionTO.getAnyType());
-        List<String> choices = new ArrayList<>();
-        for (AnyTypeClassTO aux : new AnyTypeClassRestClient().list()) {
-            if (!anyType.getClasses().contains(aux.getKey())) {
-                choices.add(aux.getKey());
+        IModel<List<String>> model;
+        List<String> choices;
+        if (provisionTO == null) {
+            model = new ListModel<>(Collections.<String>emptyList());
+            choices = Collections.emptyList();
+        } else {
+            model = new PropertyModel<>(provisionTO, "auxClasses");
+
+            AnyTypeTO anyType = new AnyTypeRestClient().read(provisionTO.getAnyType());
+            choices = new ArrayList<>();
+            for (AnyTypeClassTO aux : new AnyTypeClassRestClient().list()) {
+                if (!anyType.getClasses().contains(aux.getKey())) {
+                    choices.add(aux.getKey());
+                }
             }
         }
-        addOrReplace(new AjaxPalettePanel.Builder<String>().build("auxClasses",
-                new PropertyModel<List<String>>(provisionTO, "auxClasses"),
-                new ListModel<>(choices)).hideLabel().setOutputMarkupId(true));
+        addOrReplace(
+                new AjaxPalettePanel.Builder<String>().build("auxClasses", model, new ListModel<>(choices)).
+                        hideLabel().
+                        setOutputMarkupId(true).
+                        setEnabled(provisionTO != null));
     }
 
 }

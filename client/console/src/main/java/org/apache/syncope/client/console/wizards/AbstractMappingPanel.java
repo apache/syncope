@@ -44,12 +44,12 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPan
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MappingPurposePanel;
 import org.apache.syncope.client.console.widgets.JEXLTransformerWidget;
-import org.apache.syncope.client.console.widgets.MappingItemTransformerWidget;
+import org.apache.syncope.client.console.widgets.ItemTransformerWidget;
 import org.apache.syncope.client.console.wizards.resources.JEXLTransformersTogglePanel;
-import org.apache.syncope.client.console.wizards.resources.MappingItemTransformersTogglePanel;
+import org.apache.syncope.client.console.wizards.resources.ItemTransformersTogglePanel;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.GroupTO;
-import org.apache.syncope.common.lib.to.MappingItemTO;
+import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
@@ -120,28 +120,24 @@ public abstract class AbstractMappingPanel extends Panel {
     /**
      * All mappings.
      */
-    protected final ListView<MappingItemTO> mappings;
+    protected final ListView<ItemTO> mappings;
 
     /**
      * Mapping container.
      */
     protected final WebMarkupContainer mappingContainer;
 
-    protected final IModel<List<MappingItemTO>> model;
-
     public AbstractMappingPanel(
             final String id,
-            final MappingItemTransformersTogglePanel mapItemTransformers,
+            final ItemTransformersTogglePanel itemTransformers,
             final JEXLTransformersTogglePanel jexlTransformers,
-            final IModel<List<MappingItemTO>> model,
+            final IModel<List<ItemTO>> model,
             final boolean addMappingBtnVisible,
             final boolean hidePurpose,
             final MappingPurpose defaultPurpose) {
 
         super(id);
         setOutputMarkupId(true);
-
-        this.model = model;
 
         mappingContainer = new WebMarkupContainer("mappingContainer");
         mappingContainer.setOutputMarkupId(true);
@@ -173,10 +169,10 @@ public abstract class AbstractMappingPanel extends Panel {
 
         mappingContainer.add(Constants.getJEXLPopover(this, TooltipConfig.Placement.bottom));
 
-        Collections.sort(model.getObject(), new Comparator<MappingItemTO>() {
+        Collections.sort(model.getObject(), new Comparator<ItemTO>() {
 
             @Override
-            public int compare(final MappingItemTO left, final MappingItemTO right) {
+            public int compare(final ItemTO left, final ItemTO right) {
                 int compared;
                 if (left == null && right == null) {
                     compared = 0;
@@ -216,15 +212,15 @@ public abstract class AbstractMappingPanel extends Panel {
             }
         });
 
-        mappings = new ListView<MappingItemTO>("mappings", model.getObject()) {
+        mappings = new ListView<ItemTO>("mappings", model) {
 
             private static final long serialVersionUID = 4949588177564901031L;
 
             @Override
-            protected void populateItem(final ListItem<MappingItemTO> item) {
-                final MappingItemTO mapItem = item.getModelObject();
-                if (mapItem.getPurpose() == null) {
-                    mapItem.setPurpose(defaultPurpose);
+            protected void populateItem(final ListItem<ItemTO> item) {
+                final ItemTO itemTO = item.getModelObject();
+                if (itemTO.getPurpose() == null) {
+                    itemTO.setPurpose(defaultPurpose);
                 }
 
                 //--------------------------------
@@ -233,7 +229,7 @@ public abstract class AbstractMappingPanel extends Panel {
                 AjaxTextFieldPanel intAttrName = new AjaxTextFieldPanel(
                         "intAttrName",
                         getString("intAttrName"),
-                        new PropertyModel<String>(mapItem, "intAttrName"),
+                        new PropertyModel<String>(itemTO, "intAttrName"),
                         false);
                 intAttrName.setChoices(Collections.<String>emptyList());
                 intAttrName.setRequired(true).hideLabel();
@@ -246,10 +242,10 @@ public abstract class AbstractMappingPanel extends Panel {
                 final AjaxTextFieldPanel extAttrName = new AjaxTextFieldPanel(
                         "extAttrName",
                         getString("extAttrName"),
-                        new PropertyModel<String>(mapItem, "extAttrName"));
+                        new PropertyModel<String>(itemTO, "extAttrName"));
                 extAttrName.setChoices(getExtAttrNames().getObject());
 
-                boolean required = !mapItem.isPassword();
+                boolean required = !itemTO.isPassword();
                 extAttrName.setRequired(required).hideLabel();
                 extAttrName.setEnabled(required);
                 item.add(extAttrName);
@@ -259,14 +255,14 @@ public abstract class AbstractMappingPanel extends Panel {
                 // JEXL transformers
                 // -------------------------------
                 item.add(new JEXLTransformerWidget(
-                        "jexlTransformers", mapItem, jexlTransformers).setRenderBodyOnly(true));
+                        "jexlTransformers", itemTO, jexlTransformers).setRenderBodyOnly(true));
                 // -------------------------------
 
                 //--------------------------------
                 // Mapping item transformers
                 // -------------------------------
-                item.add(new MappingItemTransformerWidget(
-                        "mappingItemTransformers", mapItem, mapItemTransformers).setRenderBodyOnly(true));
+                item.add(new ItemTransformerWidget(
+                        "itemTransformers", itemTO, itemTransformers).setRenderBodyOnly(true));
                 // -------------------------------
 
                 //--------------------------------
@@ -275,10 +271,10 @@ public abstract class AbstractMappingPanel extends Panel {
                 final AjaxTextFieldPanel mandatory = new AjaxTextFieldPanel(
                         "mandatoryCondition",
                         new ResourceModel("mandatoryCondition", "mandatoryCondition").getObject(),
-                        new PropertyModel<String>(mapItem, "mandatoryCondition"));
+                        new PropertyModel<String>(itemTO, "mandatoryCondition"));
                 mandatory.hideLabel();
                 mandatory.setChoices(Arrays.asList(new String[] { "true", "false" }));
-                mandatory.setEnabled(!mapItem.isConnObjectKey());
+                mandatory.setEnabled(!itemTO.isConnObjectKey());
                 item.add(mandatory);
                 // -------------------------------
 
@@ -288,7 +284,7 @@ public abstract class AbstractMappingPanel extends Panel {
                 final AjaxCheckBoxPanel connObjectKey = new AjaxCheckBoxPanel(
                         "connObjectKey",
                         new ResourceModel("connObjectKey", "connObjectKey").getObject(),
-                        new PropertyModel<Boolean>(mapItem, "connObjectKey"), false);
+                        new PropertyModel<Boolean>(itemTO, "connObjectKey"), false);
                 connObjectKey.hideLabel();
                 item.add(connObjectKey);
                 // -------------------------------
@@ -299,7 +295,7 @@ public abstract class AbstractMappingPanel extends Panel {
                 final AjaxCheckBoxPanel password = new AjaxCheckBoxPanel(
                         "password",
                         new ResourceModel("password", "password").getObject(),
-                        new PropertyModel<Boolean>(mapItem, "password"), false);
+                        new PropertyModel<Boolean>(itemTO, "password"), false);
                 item.add(password.hideLabel());
                 // -------------------------------
 
@@ -310,7 +306,7 @@ public abstract class AbstractMappingPanel extends Panel {
                 purpose.setOutputMarkupId(true);
 
                 final MappingPurposePanel purposeActions = new MappingPurposePanel(
-                        "purposeActions", new PropertyModel<MappingPurpose>(mapItem, "purpose"), purpose);
+                        "purposeActions", new PropertyModel<MappingPurpose>(itemTO, "purpose"), purpose);
                 purpose.add(purposeActions.setRenderBodyOnly(true));
                 item.add(purpose);
                 // -------------------------------
@@ -327,7 +323,7 @@ public abstract class AbstractMappingPanel extends Panel {
                     public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                         int index = -1;
                         for (int i = 0; i < model.getObject().size() && index == -1; i++) {
-                            if (mapItem.equals(model.getObject().get(i))) {
+                            if (itemTO.equals(model.getObject().get(i))) {
                                 index = i;
                             }
                         }
@@ -358,11 +354,11 @@ public abstract class AbstractMappingPanel extends Panel {
                     @Override
                     protected void onUpdate(final AjaxRequestTarget target) {
                         if (connObjectKey.getModelObject()) {
-                            mapItem.setMandatoryCondition("true");
+                            itemTO.setMandatoryCondition("true");
                             mandatory.setModelObject("true");
                             mandatory.setEnabled(false);
                         } else {
-                            mapItem.setMandatoryCondition("false");
+                            itemTO.setMandatoryCondition("false");
                             mandatory.setModelObject("false");
                             mandatory.setEnabled(true);
                         }
@@ -395,11 +391,11 @@ public abstract class AbstractMappingPanel extends Panel {
 
                     // Changes required by clone ....
                     extAttrName.setEnabled(true);
-                    if (mapItem.isPassword()) {
+                    if (itemTO.isPassword()) {
                         // re-enable if and only if cloned object mapping item was a password
                         intAttrName.setEnabled(true);
                     }
-                    mapItem.setPassword(false);
+                    itemTO.setPassword(false);
                 }
 
                 if (hidePurpose) {
@@ -417,7 +413,7 @@ public abstract class AbstractMappingPanel extends Panel {
 
             @Override
             protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-                model.getObject().add(new MappingItemTO());
+                model.getObject().add(new ItemTO());
                 target.add(AbstractMappingPanel.this);
             }
         };

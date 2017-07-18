@@ -23,55 +23,60 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.GroupableRelatableTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
+import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
-import org.apache.syncope.core.provisioning.api.utils.policy.InvalidPasswordRuleConf;
-import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
-import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
-import org.apache.syncope.core.persistence.api.entity.AnyUtils;
-import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
-import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
-import org.apache.syncope.core.persistence.api.entity.PlainAttr;
-import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.group.Group;
-import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.provisioning.api.cache.VirAttrCache;
-import org.apache.syncope.core.spring.security.Encryptor;
-import org.apache.syncope.core.spring.security.PasswordGenerator;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
+import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
+import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.GroupableRelatable;
 import org.apache.syncope.core.persistence.api.entity.Membership;
+import org.apache.syncope.core.persistence.api.entity.PlainAttr;
+import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
+import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Schema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
+import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
+import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
+import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
+import org.apache.syncope.core.persistence.api.entity.resource.OrgUnitItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
+import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrValue;
+import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
-import org.apache.syncope.core.provisioning.api.data.MappingItemTransformer;
+import org.apache.syncope.core.provisioning.api.cache.VirAttrCache;
+import org.apache.syncope.core.provisioning.api.utils.policy.InvalidPasswordRuleConf;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
+import org.apache.syncope.core.spring.security.Encryptor;
+import org.apache.syncope.core.spring.security.PasswordGenerator;
 import org.identityconnectors.framework.common.FrameworkUtil;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
@@ -82,7 +87,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.syncope.common.lib.to.GroupableRelatableTO;
+import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
 
 @Component
 public class MappingManagerImpl implements MappingManager {
@@ -108,6 +113,9 @@ public class MappingManagerImpl implements MappingManager {
 
     @Autowired
     private GroupDAO groupDAO;
+
+    @Autowired
+    private RealmDAO realmDAO;
 
     @Autowired
     private DerAttrHandler derAttrHandler;
@@ -145,7 +153,7 @@ public class MappingManagerImpl implements MappingManager {
         Set<Attribute> attributes = new HashSet<>();
         String connObjectKey = null;
 
-        for (MappingItem mapItem : MappingUtils.getPropagationMappingItems(provision)) {
+        for (MappingItem mapItem : MappingUtils.getPropagationItems(provision)) {
             LOG.debug("Processing expression '{}'", mapItem.getIntAttrName());
 
             try {
@@ -164,7 +172,7 @@ public class MappingManagerImpl implements MappingManager {
                             attributes.remove(alreadyAdded);
 
                             Set<Object> values = new HashSet<>();
-                            if (alreadyAdded.getValue() != null && !alreadyAdded.getValue().isEmpty()) {
+                            if (CollectionUtils.isNotEmpty(alreadyAdded.getValue())) {
                                 values.addAll(alreadyAdded.getValue());
                             }
 
@@ -198,7 +206,75 @@ public class MappingManagerImpl implements MappingManager {
             }
         }
 
-        return new ImmutablePair<>(connObjectKey, attributes);
+        return Pair.of(connObjectKey, attributes);
+    }
+
+    private String getIntValue(final Realm realm, final OrgUnitItem orgUnitItem) {
+        String value = null;
+        switch (orgUnitItem.getIntAttrName()) {
+            case "key":
+                value = realm.getKey();
+                break;
+
+            case "name":
+                value = realm.getName();
+                break;
+
+            case "fullpath":
+                value = realm.getFullPath();
+                break;
+
+            default:
+        }
+
+        return value;
+    }
+
+    @Override
+    public Pair<String, Set<Attribute>> prepareAttrs(final Realm realm, final OrgUnit orgUnit) {
+        LOG.debug("Preparing resource attributes for {} with orgUnit {}", realm, orgUnit);
+
+        Set<Attribute> attributes = new HashSet<>();
+        String connObjectKey = null;
+
+        for (OrgUnitItem orgUnitItem : MappingUtils.getPropagationItems(orgUnit)) {
+            LOG.debug("Processing expression '{}'", orgUnitItem.getIntAttrName());
+
+            String value = getIntValue(realm, orgUnitItem);
+
+            if (orgUnitItem.isConnObjectKey()) {
+                connObjectKey = value;
+            }
+
+            Attribute alreadyAdded = AttributeUtil.find(orgUnitItem.getExtAttrName(), attributes);
+            if (alreadyAdded == null) {
+                if (value == null) {
+                    attributes.add(AttributeBuilder.build(orgUnitItem.getExtAttrName()));
+                } else {
+                    attributes.add(AttributeBuilder.build(orgUnitItem.getExtAttrName(), value));
+                }
+            } else if (value != null) {
+                attributes.remove(alreadyAdded);
+
+                Set<Object> values = new HashSet<>();
+                if (CollectionUtils.isNotEmpty(alreadyAdded.getValue())) {
+                    values.addAll(alreadyAdded.getValue());
+                }
+                values.add(value);
+
+                attributes.add(AttributeBuilder.build(orgUnitItem.getExtAttrName(), values));
+            }
+        }
+
+        Attribute connObjectKeyExtAttr =
+                AttributeUtil.find(orgUnit.getConnObjectKeyItem().getExtAttrName(), attributes);
+        if (connObjectKeyExtAttr != null) {
+            attributes.remove(connObjectKeyExtAttr);
+            attributes.add(AttributeBuilder.build(orgUnit.getConnObjectKeyItem().getExtAttrName(), connObjectKey));
+        }
+        attributes.add(MappingUtils.evaluateNAME(realm, orgUnit, connObjectKey));
+
+        return Pair.of(connObjectKey, attributes);
     }
 
     /**
@@ -263,7 +339,7 @@ public class MappingManagerImpl implements MappingManager {
             }
 
             if (mapItem.isConnObjectKey()) {
-                result = new ImmutablePair<>(objValues.isEmpty() ? null : objValues.iterator().next().toString(), null);
+                result = Pair.of(objValues.isEmpty() ? null : objValues.iterator().next().toString(), null);
             } else if (mapItem.isPassword() && any instanceof User) {
                 String passwordAttrValue = password;
                 if (StringUtils.isBlank(passwordAttrValue)) {
@@ -286,15 +362,12 @@ public class MappingManagerImpl implements MappingManager {
                 if (passwordAttrValue == null) {
                     result = null;
                 } else {
-                    result = new ImmutablePair<>(
-                            null, AttributeBuilder.buildPassword(passwordAttrValue.toCharArray()));
+                    result = Pair.of(null, AttributeBuilder.buildPassword(passwordAttrValue.toCharArray()));
                 }
             } else if (schema != null && schema.isMultivalue()) {
-                result = new ImmutablePair<>(
-                        null, AttributeBuilder.build(mapItem.getExtAttrName(), objValues));
+                result = Pair.of(null, AttributeBuilder.build(mapItem.getExtAttrName(), objValues));
             } else {
-                result = new ImmutablePair<>(
-                        null, objValues.isEmpty()
+                result = Pair.of(null, objValues.isEmpty()
                         ? AttributeBuilder.build(mapItem.getExtAttrName())
                         : AttributeBuilder.build(mapItem.getExtAttrName(), objValues.iterator().next()));
             }
@@ -484,7 +557,7 @@ public class MappingManagerImpl implements MappingManager {
 
         List<PlainAttrValue> transformed = values;
         if (transform) {
-            for (MappingItemTransformer transformer : MappingUtils.getMappingItemTransformers(mapItem)) {
+            for (ItemTransformer transformer : MappingUtils.getItemTransformers(mapItem)) {
                 transformed = transformer.beforePropagation(mapItem, any, transformed);
             }
             LOG.debug("Transformed values: {}", values);
@@ -519,13 +592,21 @@ public class MappingManagerImpl implements MappingManager {
 
     @Transactional(readOnly = true)
     @Override
+    public String getConnObjectKeyValue(final Realm realm, final OrgUnit orgUnit) {
+        OrgUnitItem orgUnitItem = orgUnit.getConnObjectKeyItem();
+
+        return getIntValue(realm, orgUnitItem);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
     public void setIntValues(
             final MappingItem mapItem, final Attribute attr, final AnyTO anyTO, final AnyUtils anyUtils) {
 
         List<Object> values = null;
         if (attr != null) {
             values = attr.getValue();
-            for (MappingItemTransformer transformer : MappingUtils.getMappingItemTransformers(mapItem)) {
+            for (ItemTransformer transformer : MappingUtils.getItemTransformers(mapItem)) {
                 values = transformer.beforePull(mapItem, anyTO, values);
             }
         }
@@ -679,4 +760,36 @@ public class MappingManagerImpl implements MappingManager {
             }
         }
     }
+
+    @Override
+    public void setIntValues(final OrgUnitItem orgUnitItem, final Attribute attr, final RealmTO realmTO) {
+        List<Object> values = null;
+        if (attr != null) {
+            values = attr.getValue();
+            for (ItemTransformer transformer : MappingUtils.getItemTransformers(orgUnitItem)) {
+                values = transformer.beforePull(orgUnitItem, realmTO, values);
+            }
+        }
+
+        if (values != null && !values.isEmpty() && values.get(0) != null) {
+            switch (orgUnitItem.getIntAttrName()) {
+                case "name":
+                    realmTO.setName(values.get(0).toString());
+                    break;
+
+                case "fullpath":
+                    String parentFullPath = StringUtils.substringBeforeLast(values.get(0).toString(), "/");
+                    Realm parent = realmDAO.findByFullPath(parentFullPath);
+                    if (parent == null) {
+                        LOG.warn("Could not find Realm with path {}, ignoring", parentFullPath);
+                    } else {
+                        realmTO.setParent(parent.getFullPath());
+                    }
+                    break;
+
+                default:
+            }
+        }
+    }
+
 }

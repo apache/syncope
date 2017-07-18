@@ -178,7 +178,6 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
         }
 
         AnyTO anyTO = connObjectUtils.getAnyTO(delta.getObject(), profile.getTask(), provision, anyUtils);
-
         anyTO.getResources().add(profile.getTask().getResource().getKey());
 
         ProvisioningReport result = new ProvisioningReport();
@@ -324,9 +323,10 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                 result.setName(getName(before));
             }
 
-            Result resultStatus;
-            Object output;
             if (!profile.isDryRun()) {
+                Result resultStatus;
+                Object output;
+
                 if (before == null) {
                     resultStatus = Result.FAILURE;
                     output = null;
@@ -395,15 +395,12 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             return Collections.<ProvisioningReport>emptyList();
         }
 
-        LOG.debug("About to update {}", anys);
+        LOG.debug("About to deprovision {}", anys);
 
-        final List<ProvisioningReport> updResults = new ArrayList<>();
+        final List<ProvisioningReport> results = new ArrayList<>();
 
         for (String key : anys) {
             LOG.debug("About to unassign resource {}", key);
-
-            Object output;
-            Result resultStatus;
 
             ProvisioningReport result = new ProvisioningReport();
             result.setOperation(ResourceOperation.DELETE);
@@ -419,6 +416,9 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             }
 
             if (!profile.isDryRun()) {
+                Object output;
+                Result resultStatus;
+
                 if (before == null) {
                     resultStatus = Result.FAILURE;
                     output = null;
@@ -487,10 +487,10 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                         ? MatchingRule.toEventName(MatchingRule.UNASSIGN)
                         : MatchingRule.toEventName(MatchingRule.DEPROVISION), resultStatus, before, output, delta);
             }
-            updResults.add(result);
+            results.add(result);
         }
 
-        return updResults;
+        return results;
     }
 
     protected List<ProvisioningReport> link(
@@ -510,13 +510,10 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
 
         LOG.debug("About to update {}", anys);
 
-        final List<ProvisioningReport> updResults = new ArrayList<>();
+        final List<ProvisioningReport> results = new ArrayList<>();
 
         for (String key : anys) {
             LOG.debug("About to unassign resource {}", key);
-
-            Object output;
-            Result resultStatus;
 
             ProvisioningReport result = new ProvisioningReport();
             result.setOperation(ResourceOperation.NONE);
@@ -532,6 +529,9 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             }
 
             if (!profile.isDryRun()) {
+                Object output;
+                Result resultStatus;
+
                 if (before == null) {
                     resultStatus = Result.FAILURE;
                     output = null;
@@ -585,10 +585,10 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                         ? MatchingRule.toEventName(MatchingRule.UNLINK)
                         : MatchingRule.toEventName(MatchingRule.LINK), resultStatus, before, output, delta);
             }
-            updResults.add(result);
+            results.add(result);
         }
 
-        return updResults;
+        return results;
     }
 
     protected List<ProvisioningReport> delete(
@@ -605,7 +605,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
 
         LOG.debug("About to delete {}", anys);
 
-        List<ProvisioningReport> delResults = new ArrayList<>();
+        List<ProvisioningReport> results = new ArrayList<>();
 
         SyncDelta workingDelta = delta;
         for (String key : anys) {
@@ -648,7 +648,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                     finalize(ResourceOperation.DELETE.name().toLowerCase(), resultStatus, before, output, workingDelta);
                 }
 
-                delResults.add(result);
+                results.add(result);
             } catch (NotFoundException e) {
                 LOG.error("Could not find {} {}", provision.getAnyType().getKey(), key, e);
             } catch (DelegatedAdministrationException e) {
@@ -658,7 +658,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
             }
         }
 
-        return delResults;
+        return results;
     }
 
     protected ProvisioningReport ignore(

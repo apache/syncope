@@ -16,12 +16,17 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.api.entity.resource;
+package org.apache.syncope.common.lib.to;
 
-public interface MappingItem extends Item {
+import java.util.List;
 
-    Mapping getMapping();
+public interface ItemContainerTO {
 
-    void setMapping(Mapping mapping);
+    void setConnObjectLink(String connObjectLink);
 
+    boolean setConnObjectKeyItem(ItemTO connObjectKeyItem);
+
+    boolean add(ItemTO item);
+
+    List<ItemTO> getItems();
 }

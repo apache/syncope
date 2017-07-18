@@ -28,7 +28,6 @@ import org.apache.syncope.common.lib.patch.AssociationPatch;
 import org.apache.syncope.common.lib.patch.DeassociationPatch;
 import org.apache.syncope.common.lib.patch.StatusPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.ResourceAssociationAction;
@@ -187,9 +186,5 @@ public abstract class AbstractAnyRestClient<TO extends AnyTO, P extends AnyPatch
             resetClient(getAnyServiceClass());
         }
         return result;
-    }
-
-    public BulkActionResult bulkAction(final BulkAction action) {
-        return getService(getAnyServiceClass()).bulk(action).readEntity(BulkActionResult.class);
     }
 }

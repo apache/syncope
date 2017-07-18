@@ -35,7 +35,7 @@ import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
-import org.apache.syncope.common.lib.to.MappingItemTO;
+import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.UserTO;
@@ -116,16 +116,16 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         ProvisionTO provision = resource.getProvision("PRINTER");
         assertNotNull(provision);
 
-        MappingItemTO mappingItem = IterableUtils.find(
-                provision.getMapping().getItems(), new Predicate<MappingItemTO>() {
+        ItemTO mappingItem = IterableUtils.find(
+                provision.getMapping().getItems(), new Predicate<ItemTO>() {
 
             @Override
-            public boolean evaluate(final MappingItemTO object) {
+            public boolean evaluate(final ItemTO object) {
                 return "location".equals(object.getIntAttrName());
             }
         });
         assertNotNull(mappingItem);
-        assertTrue(mappingItem.getMappingItemTransformerClassNames().isEmpty());
+        assertTrue(mappingItem.getTransformerClassNames().isEmpty());
 
         String suffix = getUUIDString();
         mappingItem.setPropagationJEXLTransformer("value + '" + suffix + "'");

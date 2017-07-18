@@ -19,7 +19,6 @@
 package org.apache.syncope.core.provisioning.api.pushpull;
 
 import org.apache.syncope.common.lib.patch.AnyPatch;
-import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.quartz.JobExecutionException;
@@ -132,19 +131,18 @@ public interface PullActions extends ProvisioningActions {
      * The entity is updated upon pull in case of the matching rule
      * {@link org.apache.syncope.common.lib.types.MatchingRule#UPDATE} (default matching rule) is applied.
      *
-     * @param <M> concrete any object
      * @param <P> any object modifications
      * @param profile profile of the pull being executed.
      * @param delta retrieved pull information
-     * @param any any object
+     * @param entityTO entity
      * @param anyPatch modification
      * @return pull information used for logging and to be passed to the 'after' method.
      * @throws JobExecutionException in case of generic failure.
      */
-    <M extends AnyTO, P extends AnyPatch> SyncDelta beforeUpdate(
+    <P extends AnyPatch> SyncDelta beforeUpdate(
             ProvisioningProfile<?, ?> profile,
             SyncDelta delta,
-            M any,
+            EntityTO entityTO,
             P anyPatch)
             throws JobExecutionException;
 

@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.AuditElements;
@@ -32,9 +33,10 @@ import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
-import org.apache.syncope.core.provisioning.api.Connector;
+import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.TimeoutException;
 import org.apache.syncope.core.provisioning.api.event.AfterHandlingEvent;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
@@ -44,10 +46,9 @@ import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePushResultHandler;
 import org.apache.syncope.core.provisioning.java.job.AfterHandlingJob;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
-import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
-import org.identityconnectors.framework.common.objects.ResultsHandler;
-import org.identityconnectors.framework.common.objects.filter.EqualsFilter;
+import org.identityconnectors.framework.common.objects.ObjectClass;
+import org.identityconnectors.framework.common.objects.Uid;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
@@ -59,7 +60,10 @@ public class RealmPushResultHandlerImpl
         implements SyncopePushResultHandler {
 
     @Autowired
-    protected SchedulerFactoryBean scheduler;
+    private MappingManager mappingManager;
+
+    @Autowired
+    private SchedulerFactoryBean scheduler;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
@@ -153,39 +157,22 @@ public class RealmPushResultHandlerImpl
         provision(update(realmTO, result), result);
     }
 
-    /**
-     * Get remote object for given realm .
-     *
-     * @param connector connector facade proxy.
-     * @param task current propagation task.
-     * @param orgUnit orgUnit
-     * @return remote connector object.
-     */
-    private ConnectorObject getRemoteObject(
-            final String realmName,
-            final Connector connector,
-            final OrgUnit orgUnit) {
-
-        final ConnectorObject[] obj = new ConnectorObject[1];
+    protected ConnectorObject getRemoteObject(final String connObjectKey, final ObjectClass objectClass) {
+        ConnectorObject obj = null;
         try {
-            connector.search(orgUnit.getObjectClass(),
-                    new EqualsFilter(AttributeBuilder.build(orgUnit.getExtAttrName(), realmName)),
-                    new ResultsHandler() {
+            Uid uid = new Uid(connObjectKey);
 
-                @Override
-                public boolean handle(final ConnectorObject connectorObject) {
-                    obj[0] = connectorObject;
-                    return false;
-                }
-            }, MappingUtils.buildOperationOptions(orgUnit));
+            obj = profile.getConnector().getObject(objectClass,
+                    uid,
+                    MappingUtils.buildOperationOptions(IteratorUtils.<MappingItem>emptyIterator()));
         } catch (TimeoutException toe) {
             LOG.debug("Request timeout", toe);
             throw toe;
         } catch (RuntimeException ignore) {
-            LOG.debug("While resolving {}", realmName, ignore);
+            LOG.debug("While resolving {}", connObjectKey, ignore);
         }
 
-        return obj[0];
+        return obj;
     }
 
     private void doHandle(final Realm realm) throws JobExecutionException {
@@ -202,10 +189,10 @@ public class RealmPushResultHandlerImpl
         Result resultStatus = null;
 
         // Try to read remote object BEFORE any actual operation
-        ConnectorObject beforeObj = getRemoteObject(
-                realm.getName(),
-                profile.getConnector(),
-                profile.getTask().getResource().getOrgUnit());
+        OrgUnit orgUnit = profile.getTask().getResource().getOrgUnit();
+        String connObjecKey = mappingManager.getConnObjectKeyValue(realm, orgUnit);
+
+        ConnectorObject beforeObj = getRemoteObject(connObjecKey, orgUnit.getObjectClass());
 
         if (profile.isDryRun()) {
             if (beforeObj == null) {
@@ -375,10 +362,7 @@ public class RealmPushResultHandlerImpl
                     result.setStatus(ProvisioningReport.Status.SUCCESS);
                 }
                 resultStatus = AuditElements.Result.SUCCESS;
-                output = getRemoteObject(
-                        realm.getName(),
-                        profile.getConnector(),
-                        profile.getTask().getResource().getOrgUnit());
+                output = getRemoteObject(connObjecKey, orgUnit.getObjectClass());
             } catch (IgnoreProvisionException e) {
                 throw e;
             } catch (Exception e) {

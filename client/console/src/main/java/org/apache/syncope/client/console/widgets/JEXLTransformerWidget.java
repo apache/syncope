@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.wizards.resources.JEXLTransformersTogglePanel;
-import org.apache.syncope.common.lib.to.MappingItemTO;
+import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.link.AbstractLink;
@@ -35,21 +35,21 @@ public class JEXLTransformerWidget extends AlertWidget<String> {
 
     private static final long serialVersionUID = 7667120094526529934L;
 
-    private final MappingItemTO mapItem;
+    private final ItemTO item;
 
     private final JEXLTransformersTogglePanel transformers;
 
     public JEXLTransformerWidget(
             final String id,
-            final MappingItemTO mapItem,
+            final ItemTO item,
             final JEXLTransformersTogglePanel transformers) {
 
         super(id);
         setOutputMarkupId(true);
 
-        this.mapItem = mapItem;
+        this.item = item;
         this.transformers = transformers;
-        
+
         this.latestAlertsList.setVisible(false);
     }
 
@@ -62,11 +62,11 @@ public class JEXLTransformerWidget extends AlertWidget<String> {
             @Override
             public List<String> getObject() {
                 List<String> result = new ArrayList<>();
-                if (StringUtils.isNotBlank(mapItem.getPropagationJEXLTransformer())) {
-                    result.add(mapItem.getPropagationJEXLTransformer());
+                if (StringUtils.isNotBlank(item.getPropagationJEXLTransformer())) {
+                    result.add(item.getPropagationJEXLTransformer());
                 }
-                if (StringUtils.isNotBlank(mapItem.getPullJEXLTransformer())) {
-                    result.add(mapItem.getPullJEXLTransformer());
+                if (StringUtils.isNotBlank(item.getPullJEXLTransformer())) {
+                    result.add(item.getPullJEXLTransformer());
                 }
                 return result;
             }
@@ -81,7 +81,7 @@ public class JEXLTransformerWidget extends AlertWidget<String> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                transformers.setMappingItem(target, JEXLTransformerWidget.this.mapItem);
+                transformers.setItem(target, JEXLTransformerWidget.this.item);
                 transformers.toggle(target, true);
             }
         };

@@ -241,7 +241,7 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
             super(pageRef);
             this.reference = reference;
             this.items = null;
-            this.actions = new ActionsPanel<T>("actions", null);
+            this.actions = new ActionsPanel<>("actions", null);
         }
 
         public Builder<T> setModel(final IModel<? extends Collection<T>> model) {
@@ -376,7 +376,7 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
             return new ListViewPanel<T>(
                     id, items, reference, includes, actions, check, reuseItem, wizardInModal, model) {
 
-                private static final long serialVersionUID = 1L;
+                private static final long serialVersionUID = -1715389337530657988L;
 
                 @Override
                 protected Component getValueComponent(final String key, final T bean) {

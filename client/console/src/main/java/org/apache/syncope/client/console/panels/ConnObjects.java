@@ -19,10 +19,12 @@
 package org.apache.syncope.client.console.panels;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -48,16 +50,17 @@ public class ConnObjects extends Panel implements ModalPanel {
     public ConnObjects(final ResourceTO resource, final PageReference pageRef) {
         super(BaseModal.CONTENT_ID);
 
-        List<String> availableAnyTypes = CollectionUtils.collect(resource.getProvisions(),
-                new Transformer<ProvisionTO, String>() {
+        List<String> availableAnyTypes = CollectionUtils.collect(
+                resource.getProvisions(), new Transformer<ProvisionTO, String>() {
 
             @Override
             public String transform(final ProvisionTO provision) {
                 return provision.getAnyType();
             }
         }, new ArrayList<String>());
+        Collections.sort(availableAnyTypes, new AnyTypeRestClient.AnyTypeKeyComparator());
         if (resource.getOrgUnit() != null) {
-            availableAnyTypes.add(SyncopeConstants.REALM_ANYTYPE);
+            availableAnyTypes.add(0, SyncopeConstants.REALM_ANYTYPE);
         }
 
         anyTypes = new AjaxDropDownChoicePanel<>("anyTypes", "anyTypes", new Model<String>());

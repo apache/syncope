@@ -40,7 +40,7 @@ import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
-import org.apache.syncope.common.lib.to.MappingItemTO;
+import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.MappingTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
@@ -273,10 +273,10 @@ public class VirAttrITCase extends AbstractITCase {
         try {
             // remove this mapping
             CollectionUtils.filterInverse(csv.getProvisions().get(0).getMapping().getItems(),
-                    new Predicate<MappingItemTO>() {
+                    new Predicate<ItemTO>() {
 
                 @Override
-                public boolean evaluate(final MappingItemTO item) {
+                public boolean evaluate(final ItemTO item) {
                     return "email".equals(item.getIntAttrName());
                 }
             });
@@ -504,20 +504,20 @@ public class VirAttrITCase extends AbstractITCase {
             MappingTO mapping = new MappingTO();
             provisionTO.setMapping(mapping);
 
-            MappingItemTO item = new MappingItemTO();
+            ItemTO item = new ItemTO();
             item.setIntAttrName("fullname");
             item.setExtAttrName("ID");
             item.setPurpose(MappingPurpose.PROPAGATION);
             item.setConnObjectKey(true);
             mapping.setConnObjectKeyItem(item);
 
-            item = new MappingItemTO();
+            item = new ItemTO();
             item.setIntAttrName("username");
             item.setExtAttrName("USERNAME");
             item.setPurpose(MappingPurpose.PROPAGATION);
             mapping.getItems().add(item);
 
-            item = new MappingItemTO();
+            item = new ItemTO();
             item.setIntAttrName("groups[" + groupName + "].rvirtualdata");
             item.setExtAttrName("EMAIL");
             item.setPurpose(MappingPurpose.PROPAGATION);
@@ -630,10 +630,10 @@ public class VirAttrITCase extends AbstractITCase {
         try {
             ProvisionTO provision = ldap.getProvision(AnyTypeKind.USER.name());
             assertNotNull(provision);
-            CollectionUtils.filterInverse(provision.getMapping().getItems(), new Predicate<MappingItemTO>() {
+            CollectionUtils.filterInverse(provision.getMapping().getItems(), new Predicate<ItemTO>() {
 
                 @Override
-                public boolean evaluate(final MappingItemTO item) {
+                public boolean evaluate(final ItemTO item) {
                     return "mail".equals(item.getExtAttrName());
                 }
             });

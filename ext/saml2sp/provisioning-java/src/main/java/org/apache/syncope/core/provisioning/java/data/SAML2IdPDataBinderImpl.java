@@ -22,7 +22,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
-import org.apache.syncope.common.lib.to.MappingItemTO;
+import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.SAML2IdPTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -87,10 +87,10 @@ public class SAML2IdPDataBinderImpl implements SAML2IdPDataBinder {
         SyncopeClientException requiredValuesMissing = SyncopeClientException.build(
                 ClientExceptionType.RequiredValuesMissing);
 
-        for (MappingItemTO itemTO : idpTO.getMappingItems()) {
+        for (ItemTO itemTO : idpTO.getMappingItems()) {
             if (itemTO == null) {
-                LOG.error("Null {}", MappingItemTO.class.getSimpleName());
-                invalidMapping.getElements().add("Null " + MappingItemTO.class.getSimpleName());
+                LOG.error("Null {}", ItemTO.class.getSimpleName());
+                invalidMapping.getElements().add("Null " + ItemTO.class.getSimpleName());
             } else if (itemTO.getIntAttrName() == null) {
                 requiredValuesMissing.getElements().add("intAttrName");
                 scce.addException(requiredValuesMissing);
@@ -194,7 +194,7 @@ public class SAML2IdPDataBinderImpl implements SAML2IdPDataBinder {
 
     private void populateMappingTO(final SAML2IdP idp, final SAML2IdPTO idpTO) {
         for (MappingItem item : idp.getMappingItems()) {
-            MappingItemTO itemTO = new MappingItemTO();
+            ItemTO itemTO = new ItemTO();
             itemTO.setKey(item.getKey());
             BeanUtils.copyProperties(item, itemTO, MAPPINGITEM_IGNORE_PROPERTIES);
             itemTO.setPurpose(MappingPurpose.NONE);

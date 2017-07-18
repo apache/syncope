@@ -99,7 +99,7 @@ public class ActionLinksTogglePanel<T extends Serializable> extends TogglePanel<
         } else if (modelObject instanceof EntityTO) {
             header = ((EntityTO) modelObject).getKey();
         } else if (modelObject instanceof StatusBean) {
-            header = ((StatusBean) modelObject).getResourceName();
+            header = ((StatusBean) modelObject).getResource();
         } else if (modelObject instanceof PolicyRuleWrapper) {
             header = ((PolicyRuleWrapper) modelObject).getName();
         } else if (modelObject instanceof PolicyRuleWrapper) {

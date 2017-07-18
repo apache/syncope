@@ -24,7 +24,7 @@ import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.entity.SAML2IdP;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
-import org.apache.syncope.core.provisioning.api.data.MappingItemTransformer;
+import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
 
 public class SAML2IdPValidator extends AbstractValidator<SAML2IdPCheck, SAML2IdP> {
 
@@ -61,12 +61,12 @@ public class SAML2IdPValidator extends AbstractValidator<SAML2IdPCheck, SAML2IdP
         }
 
         for (MappingItem item : value.getMappingItems()) {
-            for (String className : item.getMappingItemTransformerClassNames()) {
+            for (String className : item.getTransformerClassNames()) {
                 Class<?> actionsClass = null;
                 boolean isAssignable = false;
                 try {
                     actionsClass = Class.forName(className);
-                    isAssignable = MappingItemTransformer.class.isAssignableFrom(actionsClass);
+                    isAssignable = ItemTransformer.class.isAssignableFrom(actionsClass);
                 } catch (Exception e) {
                     LOG.error("Invalid MappingItemTransformer specified: {}", className, e);
                 }

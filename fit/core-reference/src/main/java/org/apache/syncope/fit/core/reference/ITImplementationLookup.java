@@ -53,7 +53,7 @@ import org.apache.syncope.core.persistence.jpa.attrvalue.validation.EmailAddress
 import org.apache.syncope.core.persistence.jpa.dao.DefaultAccountRule;
 import org.apache.syncope.core.persistence.jpa.dao.DefaultPasswordRule;
 import org.apache.syncope.core.provisioning.java.DefaultLogicActions;
-import org.apache.syncope.core.provisioning.java.data.DefaultMappingItemTransformer;
+import org.apache.syncope.core.provisioning.java.data.DefaultItemTransformer;
 import org.apache.syncope.core.provisioning.java.propagation.DBPasswordPropagationActions;
 import org.apache.syncope.core.provisioning.java.propagation.LDAPMembershipPropagationActions;
 import org.apache.syncope.core.provisioning.java.propagation.LDAPPasswordPropagationActions;
@@ -99,9 +99,9 @@ public class ITImplementationLookup implements ImplementationLookup {
             put(Type.PASSWORD_RULE_CONF, classNames);
 
             classNames = new HashSet<>();
-            classNames.add(PrefixMappingItemTransformer.class.getName());
-            classNames.add(DefaultMappingItemTransformer.class.getName());
-            put(Type.MAPPING_ITEM_TRANSFORMER, classNames);
+            classNames.add(PrefixItemTransformer.class.getName());
+            classNames.add(DefaultItemTransformer.class.getName());
+            put(Type.ITEM_TRANSFORMER, classNames);
 
             classNames = new HashSet<>();
             classNames.add(TestSampleJobDelegate.class.getName());

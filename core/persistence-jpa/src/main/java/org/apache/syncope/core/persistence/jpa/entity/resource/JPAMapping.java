@@ -27,7 +27,6 @@ import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
@@ -44,8 +43,7 @@ public class JPAMapping extends AbstractGeneratedKeyEntity implements Mapping {
 
     public static final String TABLE = "Mapping";
 
-    @NotNull
-    @OneToOne
+    @OneToOne(optional = false)
     private JPAProvision provision;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "mapping")

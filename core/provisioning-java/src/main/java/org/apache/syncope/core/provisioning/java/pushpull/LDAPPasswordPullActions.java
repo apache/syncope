@@ -21,7 +21,6 @@ package org.apache.syncope.core.provisioning.java.pushpull;
 import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.patch.PasswordPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
-import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
@@ -70,10 +69,10 @@ public class LDAPPasswordPullActions extends DefaultPullActions {
 
     @Transactional(readOnly = true)
     @Override
-    public <A extends AnyTO, M extends AnyPatch> SyncDelta beforeUpdate(
+    public <M extends AnyPatch> SyncDelta beforeUpdate(
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
-            final A any,
+            final EntityTO entityTO,
             final M anyPatch) throws JobExecutionException {
 
         if (anyPatch instanceof UserPatch) {

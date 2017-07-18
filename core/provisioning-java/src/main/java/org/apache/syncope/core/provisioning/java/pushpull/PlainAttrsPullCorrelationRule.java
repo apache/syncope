@@ -27,11 +27,11 @@ import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
-import org.apache.syncope.core.provisioning.api.data.MappingItemTransformer;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.apache.syncope.core.provisioning.api.pushpull.PullCorrelationRule;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
+import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
 
 public class PlainAttrsPullCorrelationRule implements PullCorrelationRule {
 
@@ -47,7 +47,7 @@ public class PlainAttrsPullCorrelationRule implements PullCorrelationRule {
     @Override
     public SearchCond getSearchCond(final ConnectorObject connObj) {
         Map<String, MappingItem> mappingItems = new HashMap<>();
-        for (MappingItem item : MappingUtils.getPullMappingItems(provision)) {
+        for (MappingItem item : MappingUtils.getPullItems(provision)) {
             mappingItems.put(item.getIntAttrName(), item);
         }
 
@@ -65,7 +65,7 @@ public class PlainAttrsPullCorrelationRule implements PullCorrelationRule {
             }
 
             List<Object> values = attr.getValue();
-            for (MappingItemTransformer transformer : MappingUtils.getMappingItemTransformers(mappingItem)) {
+            for (ItemTransformer transformer : MappingUtils.getItemTransformers(mappingItem)) {
                 values = transformer.beforePull(mappingItem, null, values);
             }
 

@@ -24,6 +24,7 @@ import java.util.Comparator;
 import java.util.List;
 import org.apache.commons.collections4.ComparatorUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.rest.api.service.AnyTypeService;
@@ -103,6 +104,12 @@ public class AnyTypeRestClient extends BaseRestClient {
 
         @Override
         public int compare(final String o1, final String o2) {
+            if (SyncopeConstants.REALM_ANYTYPE.equals(o1)) {
+                return -1;
+            }
+            if (SyncopeConstants.REALM_ANYTYPE.equals(o2)) {
+                return 1;
+            }
             if (AnyTypeKind.USER.name().equals(o1)) {
                 return -1;
             }

@@ -23,9 +23,9 @@ import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wizards.resources.JEXLTransformersTogglePanel;
-import org.apache.syncope.client.console.wizards.resources.MappingItemTransformersTogglePanel;
+import org.apache.syncope.client.console.wizards.resources.ItemTransformersTogglePanel;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
-import org.apache.syncope.common.lib.to.MappingItemTO;
+import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.SAML2IdPTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.MappingPurpose;
@@ -40,13 +40,13 @@ public class SAML2IdPMappingPanel extends AbstractMappingPanel {
     public SAML2IdPMappingPanel(
             final String id,
             final SAML2IdPTO idpTO,
-            final MappingItemTransformersTogglePanel mapItemTransformers,
+            final ItemTransformersTogglePanel mapItemTransformers,
             final JEXLTransformersTogglePanel jexlTransformers) {
 
         super(id,
                 mapItemTransformers,
                 jexlTransformers,
-                new ListModel<MappingItemTO>(idpTO.getMappingItems()),
+                new ListModel<ItemTO>(idpTO.getMappingItems()),
                 true,
                 true,
                 MappingPurpose.NONE);

@@ -575,7 +575,7 @@ div#startAt {
   z-index: 6000 !important;
 }
 
-div#mappingItemTransformersTogglePanel {
+div#itemTransformersTogglePanel {
   min-width: 1000px;
 }
 
@@ -994,12 +994,12 @@ div.transformersContainer #body {
   display: block;
 }
 
-div.mappingItemTransformersContainer #body select {
+div.itemTransformersContainer #body select {
   border: 1px solid #ccc !important;
   background: rgba(240, 240, 240, 0.95) !important
 }
 
-div.mappingItemTransformersContainer #body a {
+div.itemTransformersContainer #body a {
   color: #ccc !important;
   cursor: pointer !important;
 }
