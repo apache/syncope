@@ -60,7 +60,15 @@ public class EncryptorTest {
 
     @Test
     public void testDecodeDefaultAESKey() throws Exception {
-        String password = encryptor.decode("9Pav+xl+UyHt02H9ZBytiA==", CipherAlgorithm.AES);
-        assertEquals("password", password);
+        String decPassword = encryptor.decode("9Pav+xl+UyHt02H9ZBytiA==", CipherAlgorithm.AES);
+        assertEquals(password, decPassword);
+    }
+
+    @Test
+    public void testSmallKey() throws Exception {
+        Encryptor smallKeyEncryptor = Encryptor.getInstance("123");
+        String encPassword = smallKeyEncryptor.encode(password, CipherAlgorithm.AES);
+        String decPassword = smallKeyEncryptor.decode(encPassword, CipherAlgorithm.AES);
+        assertEquals(password, decPassword);
     }
 }
