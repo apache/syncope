@@ -34,6 +34,8 @@ public interface RealmDAO extends DAO<Realm> {
 
     Realm findByFullPath(String fullPath);
 
+    List<Realm> findByName(String name);
+
     List<Realm> findByResource(ExternalResource resource);
 
     <T extends Policy> List<Realm> findByPolicy(T policy);

@@ -31,7 +31,7 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.syncope.common.lib.to.MappingItemTO;
+import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.types.SAML2BindingType;
 import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.metadata.Endpoint;
@@ -55,7 +55,7 @@ public class SAML2IdPEntity {
 
     private SAML2BindingType bindingType;
 
-    private MappingItemTO connObjectKeyItem;
+    private ItemTO connObjectKeyItem;
 
     private final Map<String, Endpoint> ssoBindings = new HashMap<>();
 
@@ -67,7 +67,7 @@ public class SAML2IdPEntity {
 
     public SAML2IdPEntity(
             final EntityDescriptor entityDescriptor,
-            final MappingItemTO connObjectKeyItem,
+            final ItemTO connObjectKeyItem,
             final boolean useDeflateEncoding,
             final SAML2BindingType bindingType,
             final String keyPass)
@@ -142,11 +142,11 @@ public class SAML2IdPEntity {
         this.bindingType = bindingType;
     }
 
-    public MappingItemTO getConnObjectKeyItem() {
+    public ItemTO getConnObjectKeyItem() {
         return connObjectKeyItem;
     }
 
-    public void setConnObjectKeyItem(final MappingItemTO connObjectKeyItem) {
+    public void setConnObjectKeyItem(final ItemTO connObjectKeyItem) {
         this.connObjectKeyItem = connObjectKeyItem;
     }
 

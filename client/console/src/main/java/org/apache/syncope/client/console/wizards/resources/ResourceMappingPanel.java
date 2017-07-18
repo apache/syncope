@@ -26,10 +26,10 @@ import java.util.Set;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wizards.AbstractMappingPanel;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
-import org.apache.syncope.common.lib.to.MappingItemTO;
-import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.MappingPurpose;
@@ -47,7 +47,7 @@ public class ResourceMappingPanel extends AbstractMappingPanel {
     /**
      * External resource provisioning configuration instance to be updated.
      */
-    private final ProvisionTO provisionTO;
+    private final ResourceProvision provision;
 
     private final LoadableDetachableModel<List<String>> extAttrNames;
 
@@ -56,28 +56,28 @@ public class ResourceMappingPanel extends AbstractMappingPanel {
      *
      * @param id panel id
      * @param resourceTO external resource to be updated
-     * @param provisionTO external resource provisioning configuration instance
-     * @param mapItemTransformers mapping item transformers toggle panel
+     * @param provision external resource provisioning configuration instance
+     * @param itemTransformers mapping item transformers toggle panel
      * @param jexlTransformers JEXL transformers toggle panel
      */
     public ResourceMappingPanel(
             final String id,
             final ResourceTO resourceTO,
-            final ProvisionTO provisionTO,
-            final MappingItemTransformersTogglePanel mapItemTransformers,
+            final ResourceProvision provision,
+            final ItemTransformersTogglePanel itemTransformers,
             final JEXLTransformersTogglePanel jexlTransformers) {
 
         super(id,
-                mapItemTransformers,
+                itemTransformers,
                 jexlTransformers,
-                new ListModel<MappingItemTO>(provisionTO.getMapping().getItems()),
+                new ListModel<ItemTO>(provision.getItems()),
                 resourceTO.getConnector() != null,
                 false,
                 MappingPurpose.BOTH);
 
         setOutputMarkupId(true);
 
-        this.provisionTO = provisionTO;
+        this.provision = provision;
 
         extAttrNames = new LoadableDetachableModel<List<String>>() {
 
@@ -86,7 +86,7 @@ public class ResourceMappingPanel extends AbstractMappingPanel {
             @Override
             protected List<String> load() {
                 return new ConnectorRestClient().getExtAttrNames(
-                        provisionTO.getObjectClass(),
+                        provision.getObjectClass(),
                         resourceTO.getConnector(),
                         resourceTO.getConfOverride());
             }
@@ -95,7 +95,7 @@ public class ResourceMappingPanel extends AbstractMappingPanel {
 
     @Override
     protected boolean hidePassword() {
-        return !AnyTypeKind.USER.name().equals(provisionTO.getAnyType());
+        return !AnyTypeKind.USER.name().equals(provision.getAnyType());
     }
 
     @Override
@@ -106,7 +106,7 @@ public class ResourceMappingPanel extends AbstractMappingPanel {
     @Override
     protected void onBeforeRender() {
         super.onBeforeRender();
-        passwordLabel.setVisible(AnyTypeKind.USER.name().equals(this.provisionTO.getAnyType()));
+        passwordLabel.setVisible(AnyTypeKind.USER.name().equals(this.provision.getAnyType()));
     }
 
     @Override
@@ -114,33 +114,38 @@ public class ResourceMappingPanel extends AbstractMappingPanel {
         toBeUpdated.setRequired(true);
         toBeUpdated.setEnabled(true);
 
-        AnyTypeTO anyTypeTO = anyTypeRestClient.read(provisionTO.getAnyType());
-
-        List<AnyTypeClassTO> anyTypeClassTOs = new ArrayList<>();
-        anyTypeClassTOs.addAll(anyTypeClassRestClient.list(anyTypeTO.getClasses()));
-        for (String auxClass : provisionTO.getAuxClasses()) {
-            anyTypeClassTOs.add(anyTypeClassRestClient.read(auxClass));
-        }
-
         Set<String> choices = new HashSet<>();
+        if (SyncopeConstants.REALM_ANYTYPE.equals(provision.getAnyType())) {
+            choices.add("key");
+            choices.add("name");
+            choices.add("fullpath");
+        } else {
+            AnyTypeTO anyTypeTO = anyTypeRestClient.read(provision.getAnyType());
 
-        switch (provisionTO.getAnyType()) {
-            case "USER":
-                choices.addAll(USER_FIELD_NAMES);
-                break;
+            List<AnyTypeClassTO> anyTypeClassTOs = new ArrayList<>();
+            anyTypeClassTOs.addAll(anyTypeClassRestClient.list(anyTypeTO.getClasses()));
+            for (String auxClass : provision.getAuxClasses()) {
+                anyTypeClassTOs.add(anyTypeClassRestClient.read(auxClass));
+            }
 
-            case "GROUP":
-                choices.addAll(GROUP_FIELD_NAMES);
-                break;
+            switch (provision.getAnyType()) {
+                case "USER":
+                    choices.addAll(USER_FIELD_NAMES);
+                    break;
 
-            default:
-                choices.addAll(ANY_OBJECT_FIELD_NAMES);
-        }
+                case "GROUP":
+                    choices.addAll(GROUP_FIELD_NAMES);
+                    break;
 
-        for (AnyTypeClassTO anyTypeClassTO : anyTypeClassTOs) {
-            choices.addAll(anyTypeClassTO.getPlainSchemas());
-            choices.addAll(anyTypeClassTO.getDerSchemas());
-            choices.addAll(anyTypeClassTO.getVirSchemas());
+                default:
+                    choices.addAll(ANY_OBJECT_FIELD_NAMES);
+            }
+
+            for (AnyTypeClassTO anyTypeClassTO : anyTypeClassTOs) {
+                choices.addAll(anyTypeClassTO.getPlainSchemas());
+                choices.addAll(anyTypeClassTO.getDerSchemas());
+                choices.addAll(anyTypeClassTO.getVirSchemas());
+            }
         }
 
         final List<String> names = new ArrayList<>(choices);

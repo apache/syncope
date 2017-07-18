@@ -131,7 +131,7 @@ public class Info {
 
     public void mappingItemTransformers() {
         try {
-            infoResultManager.printMappingItemTransformers(platformInfo.getMappingItemTransformers());
+            infoResultManager.printMappingItemTransformers(platformInfo.getItemTransformers());
         } catch (final Exception ex) {
             LOG.error("Information error", ex);
             infoResultManager.genericError(ex.getMessage());

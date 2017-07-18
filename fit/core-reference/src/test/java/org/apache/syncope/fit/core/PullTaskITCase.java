@@ -61,7 +61,7 @@ import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
-import org.apache.syncope.common.lib.to.MappingItemTO;
+import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
@@ -83,7 +83,7 @@ import org.apache.syncope.core.provisioning.java.pushpull.DBPasswordPullActions;
 import org.apache.syncope.core.provisioning.java.pushpull.LDAPPasswordPullActions;
 import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.fit.ActivitiDetector;
-import org.apache.syncope.fit.core.reference.PrefixMappingItemTransformer;
+import org.apache.syncope.fit.core.reference.PrefixItemTransformer;
 import org.apache.syncope.fit.core.reference.TestReconciliationFilterBuilder;
 import org.apache.syncope.fit.core.reference.TestPullActions;
 import org.apache.syncope.fit.core.reference.TestPullRule;
@@ -417,17 +417,16 @@ public class PullTaskITCase extends AbstractTaskITCase {
         ProvisionTO provision = resource.getProvision("PRINTER");
         assertNotNull(provision);
 
-        MappingItemTO mappingItem = IterableUtils.find(
-                provision.getMapping().getItems(), new Predicate<MappingItemTO>() {
+        ItemTO mappingItem = IterableUtils.find(provision.getMapping().getItems(), new Predicate<ItemTO>() {
 
             @Override
-            public boolean evaluate(final MappingItemTO object) {
+            public boolean evaluate(final ItemTO object) {
                 return "location".equals(object.getIntAttrName());
             }
         });
         assertNotNull(mappingItem);
-        mappingItem.getMappingItemTransformerClassNames().clear();
-        mappingItem.getMappingItemTransformerClassNames().add(PrefixMappingItemTransformer.class.getName());
+        mappingItem.getTransformerClassNames().clear();
+        mappingItem.getTransformerClassNames().add(PrefixItemTransformer.class.getName());
 
         try {
             resourceService.update(resource);
@@ -443,7 +442,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             // 1. create printer on external resource
             AnyObjectTO anyObjectTO = AnyObjectITCase.getSampleTO("pull");
             String originalLocation = anyObjectTO.getPlainAttr("location").getValues().get(0);
-            assertFalse(originalLocation.startsWith(PrefixMappingItemTransformer.PREFIX));
+            assertFalse(originalLocation.startsWith(PrefixItemTransformer.PREFIX));
 
             anyObjectTO = createAnyObject(anyObjectTO).getEntity();
             assertNotNull(anyObjectTO);
@@ -453,9 +452,9 @@ public class PullTaskITCase extends AbstractTaskITCase {
             ConnObjectTO connObjectTO = resourceService.
                     readConnObject(RESOURCE_NAME_DBSCRIPTED, anyObjectTO.getType(), anyObjectTO.getKey());
             assertFalse(anyObjectTO.getPlainAttr("location").getValues().get(0).
-                    startsWith(PrefixMappingItemTransformer.PREFIX));
+                    startsWith(PrefixItemTransformer.PREFIX));
             assertTrue(connObjectTO.getAttr("LOCATION").getValues().get(0).
-                    startsWith(PrefixMappingItemTransformer.PREFIX));
+                    startsWith(PrefixItemTransformer.PREFIX));
 
             // 3. unlink any existing printer and delete from Syncope (printer is now only on external resource)
             PagedResult<AnyObjectTO> matchingPrinters = anyObjectService.search(

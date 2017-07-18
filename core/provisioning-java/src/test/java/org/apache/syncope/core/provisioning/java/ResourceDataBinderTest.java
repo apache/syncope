@@ -28,7 +28,7 @@ import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.to.MappingItemTO;
+import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.MappingTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
@@ -122,7 +122,7 @@ public class ResourceDataBinderTest extends AbstractTest {
         MappingTO mapping = new MappingTO();
         provisionTO.setMapping(mapping);
 
-        MappingItemTO item = new MappingItemTO();
+        ItemTO item = new ItemTO();
         item.setIntAttrName("userId");
         item.setExtAttrName("campo1");
         item.setConnObjectKey(true);

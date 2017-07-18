@@ -179,19 +179,6 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         if (resource == null) {
             throw new NotFoundException("Resource '" + key + "'");
         }
-        AnyType anyType = anyTypeDAO.find(anyTypeKey);
-        if (anyType == null) {
-            throw new NotFoundException("AnyType '" + anyTypeKey + "'");
-        }
-        Provision provision = resource.getProvision(anyType);
-        if (provision == null) {
-            throw new NotFoundException("Provision for AnyType '" + anyTypeKey + "' in Resource '" + key + "'");
-        }
-
-        Set<String> effectiveRealms = RealmUtils.getEffective(
-                AuthContextUtils.getAuthorizations().get(StandardEntitlement.RESOURCE_UPDATE),
-                resource.getConnector().getAdminRealm().getFullPath());
-        securityChecks(effectiveRealms, resource.getConnector().getAdminRealm().getFullPath(), resource.getKey());
 
         Connector connector;
         try {
@@ -202,7 +189,30 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
             throw sce;
         }
 
-        provision.setSyncToken(connector.getLatestSyncToken(provision.getObjectClass()));
+        if (SyncopeConstants.REALM_ANYTYPE.equals(anyTypeKey)) {
+            if (resource.getOrgUnit() == null) {
+                throw new NotFoundException("Realm provision not enabled for Resource '" + key + "'");
+            }
+
+            resource.getOrgUnit().setSyncToken(connector.getLatestSyncToken(resource.getOrgUnit().getObjectClass()));
+        } else {
+            AnyType anyType = anyTypeDAO.find(anyTypeKey);
+            if (anyType == null) {
+                throw new NotFoundException("AnyType '" + anyTypeKey + "'");
+            }
+            Provision provision = resource.getProvision(anyType);
+            if (provision == null) {
+                throw new NotFoundException("Provision for AnyType '" + anyTypeKey + "' in Resource '" + key + "'");
+            }
+
+            provision.setSyncToken(connector.getLatestSyncToken(provision.getObjectClass()));
+        }
+
+        Set<String> effectiveRealms = RealmUtils.getEffective(
+                AuthContextUtils.getAuthorizations().get(StandardEntitlement.RESOURCE_UPDATE),
+                resource.getConnector().getAdminRealm().getFullPath());
+        securityChecks(effectiveRealms, resource.getConnector().getAdminRealm().getFullPath(), resource.getKey());
+
         resourceDAO.save(resource);
     }
 
@@ -212,13 +222,23 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         if (resource == null) {
             throw new NotFoundException("Resource '" + key + "'");
         }
-        AnyType anyType = anyTypeDAO.find(anyTypeKey);
-        if (anyType == null) {
-            throw new NotFoundException("AnyType '" + anyTypeKey + "'");
-        }
-        Provision provision = resource.getProvision(anyType);
-        if (provision == null) {
-            throw new NotFoundException("Provision for AnyType '" + anyTypeKey + "' in Resource '" + key + "'");
+        if (SyncopeConstants.REALM_ANYTYPE.equals(anyTypeKey)) {
+            if (resource.getOrgUnit() == null) {
+                throw new NotFoundException("Realm provision not enabled for Resource '" + key + "'");
+            }
+
+            resource.getOrgUnit().setSyncToken(null);
+        } else {
+            AnyType anyType = anyTypeDAO.find(anyTypeKey);
+            if (anyType == null) {
+                throw new NotFoundException("AnyType '" + anyTypeKey + "'");
+            }
+            Provision provision = resource.getProvision(anyType);
+            if (provision == null) {
+                throw new NotFoundException("Provision for AnyType '" + anyTypeKey + "' in Resource '" + key + "'");
+            }
+
+            provision.setSyncToken(null);
         }
 
         Set<String> effectiveRealms = RealmUtils.getEffective(
@@ -226,7 +246,6 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
                 resource.getConnector().getAdminRealm().getFullPath());
         securityChecks(effectiveRealms, resource.getConnector().getAdminRealm().getFullPath(), resource.getKey());
 
-        provision.setSyncToken(null);
         resourceDAO.save(resource);
     }
 
@@ -364,7 +383,8 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
             }
 
             objectClass = resource.getOrgUnit().getObjectClass();
-            options = MappingUtils.buildOperationOptions(resource.getOrgUnit());
+            options = MappingUtils.buildOperationOptions(
+                    MappingUtils.getPropagationItems(resource.getOrgUnit()).iterator());
         } else {
             Triple<ExternalResource, AnyType, Provision> init = connObjectInit(key, anyTypeKey);
             resource = init.getLeft();

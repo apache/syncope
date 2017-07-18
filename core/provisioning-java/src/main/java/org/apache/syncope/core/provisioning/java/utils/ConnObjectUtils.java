@@ -29,6 +29,7 @@ import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -41,6 +42,8 @@ import org.apache.syncope.core.spring.security.PasswordGenerator;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
+import org.apache.syncope.core.persistence.api.entity.resource.OrgUnitItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.provisioning.api.MappingManager;
@@ -159,6 +162,16 @@ public class ConnObjectUtils {
         return anyTO;
     }
 
+    public RealmTO getRealmTO(final ConnectorObject obj, final PullTask task, final OrgUnit orgUnit) {
+        RealmTO realmTO = new RealmTO();
+
+        for (OrgUnitItem item : MappingUtils.getPullItems(orgUnit)) {
+            mappingManager.setIntValues(item, obj.getAttributeByName(item.getExtAttrName()), realmTO);
+        }
+
+        return realmTO;
+    }
+
     /**
      * Build {@link AnyPatch} out of connector object attributes and schema mapping.
      *
@@ -255,7 +268,7 @@ public class ConnObjectUtils {
 
         // 1. fill with data from connector object
         anyTO.setRealm(pullTask.getDestinatioRealm().getFullPath());
-        for (MappingItem item : MappingUtils.getPullMappingItems(provision)) {
+        for (MappingItem item : MappingUtils.getPullItems(provision)) {
             mappingManager.setIntValues(item, obj.getAttributeByName(item.getExtAttrName()), anyTO, anyUtils);
         }
 

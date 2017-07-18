@@ -29,20 +29,20 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
-import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
+import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
+import org.apache.syncope.core.persistence.api.entity.resource.OrgUnitItem;
 
 @Entity
-@Table(name = JPAMappingItem.TABLE)
+@Table(name = JPAOrgUnitItem.TABLE)
 @Cacheable
-public class JPAMappingItem extends AbstractItem implements MappingItem {
+public class JPAOrgUnitItem extends AbstractItem implements OrgUnitItem {
 
-    private static final long serialVersionUID = 7383601853619332424L;
+    private static final long serialVersionUID = 7872073846646341777L;
 
-    public static final String TABLE = "MappingItem";
+    public static final String TABLE = "OrgUnitItem";
 
     @ManyToOne
-    private JPAMapping mapping;
+    private JPAOrgUnit orgUnit;
 
     /**
      * (Optional) classes for MappingItem transformation.
@@ -51,18 +51,18 @@ public class JPAMappingItem extends AbstractItem implements MappingItem {
     @Column(name = "transformerClassName")
     @CollectionTable(name = TABLE + "_Transformer",
             joinColumns =
-            @JoinColumn(name = "mappingItem_id", referencedColumnName = "id"))
+            @JoinColumn(name = "orgUnitItem_id", referencedColumnName = "id"))
     private List<String> transformerClassNames = new ArrayList<>();
 
     @Override
-    public Mapping getMapping() {
-        return mapping;
+    public OrgUnit getOrgUnit() {
+        return orgUnit;
     }
 
     @Override
-    public void setMapping(final Mapping mapping) {
-        checkType(mapping, JPAMapping.class);
-        this.mapping = (JPAMapping) mapping;
+    public void setOrgUnit(final OrgUnit mapping) {
+        checkType(mapping, JPAOrgUnit.class);
+        this.orgUnit = (JPAOrgUnit) mapping;
     }
 
     @Override

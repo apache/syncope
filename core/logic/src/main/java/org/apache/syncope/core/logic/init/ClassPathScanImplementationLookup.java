@@ -38,7 +38,7 @@ import org.apache.syncope.core.persistence.api.dao.PasswordRuleConfClass;
 import org.apache.syncope.core.persistence.api.dao.Reportlet;
 import org.apache.syncope.core.persistence.api.dao.ReportletConfClass;
 import org.apache.syncope.core.provisioning.api.LogicActions;
-import org.apache.syncope.core.provisioning.api.data.MappingItemTransformer;
+import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
 import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate;
 import org.apache.syncope.core.provisioning.api.notification.NotificationRecipientsProvider;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
@@ -46,7 +46,7 @@ import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
 import org.apache.syncope.core.provisioning.api.pushpull.PullCorrelationRule;
 import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
 import org.apache.syncope.core.provisioning.api.pushpull.ReconciliationFilterBuilder;
-import org.apache.syncope.core.provisioning.java.data.JEXLMappingItemTransformerImpl;
+import org.apache.syncope.core.provisioning.java.data.JEXLItemTransformerImpl;
 import org.apache.syncope.core.provisioning.java.job.GroupMemberProvisionTaskJobDelegate;
 import org.apache.syncope.core.provisioning.java.pushpull.PlainAttrsPullCorrelationRule;
 import org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate;
@@ -113,7 +113,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
         scanner.addIncludeFilter(new AssignableTypeFilter(Reportlet.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(AccountRule.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(PasswordRule.class));
-        scanner.addIncludeFilter(new AssignableTypeFilter(MappingItemTransformer.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(ItemTransformer.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(SchedTaskJobDelegate.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(ReconciliationFilterBuilder.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(LogicActions.class));
@@ -166,10 +166,10 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                     }
                 }
 
-                if (MappingItemTransformer.class.isAssignableFrom(clazz) && !isAbstractClazz
-                        && !clazz.equals(JEXLMappingItemTransformerImpl.class)) {
+                if (ItemTransformer.class.isAssignableFrom(clazz) && !isAbstractClazz
+                        && !clazz.equals(JEXLItemTransformerImpl.class)) {
 
-                    classNames.get(Type.MAPPING_ITEM_TRANSFORMER).add(clazz.getName());
+                    classNames.get(Type.ITEM_TRANSFORMER).add(clazz.getName());
                 }
 
                 if (SchedTaskJobDelegate.class.isAssignableFrom(clazz) && !isAbstractClazz

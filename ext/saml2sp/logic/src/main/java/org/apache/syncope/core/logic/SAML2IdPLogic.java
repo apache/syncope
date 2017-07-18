@@ -30,7 +30,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.MappingItemTO;
+import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.SAML2IdPTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.SAML2BindingType;
@@ -154,7 +154,7 @@ public class SAML2IdPLogic extends AbstractSAML2Logic<SAML2IdPTO> {
                 idpTO.setMetadata(Base64.getEncoder().encodeToString(baos.toByteArray()));
             }
 
-            MappingItemTO connObjectKeyItem = new MappingItemTO();
+            ItemTO connObjectKeyItem = new ItemTO();
             connObjectKeyItem.setIntAttrName("username");
             connObjectKeyItem.setExtAttrName("NameID");
             idpTO.setConnObjectKeyItem(connObjectKeyItem);

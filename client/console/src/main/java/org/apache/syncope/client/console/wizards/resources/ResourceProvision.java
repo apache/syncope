@@ -1,0 +1,151 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+package org.apache.syncope.client.console.wizards.resources;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.to.ItemTO;
+import org.apache.syncope.common.lib.to.MappingTO;
+import org.apache.syncope.common.lib.to.OrgUnitTO;
+import org.apache.syncope.common.lib.to.ProvisionTO;
+
+public class ResourceProvision implements Serializable {
+
+    private static final long serialVersionUID = 1103991919577739952L;
+
+    private ProvisionTO provisionTO;
+
+    private OrgUnitTO orgUnitTO;
+
+    private List<ItemTO> items;
+
+    public ResourceProvision() {
+        this.items = new ArrayList<>();
+    }
+
+    public ResourceProvision(final ProvisionTO provisionTO) {
+        setProvisionTO(provisionTO);
+    }
+
+    public ResourceProvision(final OrgUnitTO orgUnitTO) {
+        setOrgUnitTO(orgUnitTO);
+    }
+
+    public ProvisionTO getProvisionTO() {
+        return provisionTO;
+    }
+
+    public final void setProvisionTO(final ProvisionTO provisionTO) {
+        this.provisionTO = provisionTO;
+        this.orgUnitTO = null;
+
+        if (this.items == null) {
+            this.items = new ArrayList<>();
+        } else {
+            this.items.clear();
+        }
+        if (provisionTO.getMapping() != null) {
+            this.items.addAll(provisionTO.getMapping().getItems());
+        }
+    }
+
+    public OrgUnitTO getOrgUnitTO() {
+        return orgUnitTO;
+    }
+
+    public final void setOrgUnitTO(final OrgUnitTO orgUnitTO) {
+        this.orgUnitTO = orgUnitTO;
+        this.provisionTO = null;
+
+        if (this.items == null) {
+            this.items = new ArrayList<>();
+        } else {
+            this.items.clear();
+        }
+        this.items.addAll(orgUnitTO.getItems());
+    }
+
+    public String getKey() {
+        return provisionTO == null
+                ? orgUnitTO == null
+                        ? null
+                        : orgUnitTO.getKey()
+                : provisionTO.getKey();
+    }
+
+    public String getAnyType() {
+        return provisionTO == null
+                ? orgUnitTO == null
+                        ? null
+                        : SyncopeConstants.REALM_ANYTYPE : provisionTO.getAnyType();
+    }
+
+    public void setAnyType(final String anyType) {
+        if (SyncopeConstants.REALM_ANYTYPE.equals(anyType)) {
+            setOrgUnitTO(new OrgUnitTO());
+        } else {
+            setProvisionTO(new ProvisionTO());
+            getProvisionTO().setAnyType(anyType);
+            getProvisionTO().setMapping(new MappingTO());
+        }
+    }
+
+    public String getObjectClass() {
+        return provisionTO == null
+                ? orgUnitTO == null
+                        ? null
+                        : orgUnitTO.getObjectClass() : provisionTO.getObjectClass();
+    }
+
+    public void setObjectClass(final String objectClass) {
+        if (provisionTO == null) {
+            orgUnitTO.setObjectClass(objectClass);
+        } else {
+            provisionTO.setObjectClass(objectClass);
+        }
+    }
+
+    public List<String> getAuxClasses() {
+        return provisionTO == null ? Collections.<String>emptyList() : provisionTO.getAuxClasses();
+    }
+
+    public String getConnObjectLink() {
+        return provisionTO == null
+                ? orgUnitTO == null
+                        ? null
+                        : orgUnitTO.getConnObjectLink()
+                : provisionTO.getMapping().getConnObjectLink();
+    }
+
+    public void setConnObjectLink(final String connObjectLink) {
+        if (provisionTO == null) {
+            orgUnitTO.setConnObjectLink(connObjectLink);
+        } else {
+            provisionTO.getMapping().setConnObjectLink(connObjectLink);
+        }
+    }
+
+    public List<ItemTO> getItems() {
+        return items;
+    }
+
+}

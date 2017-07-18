@@ -19,25 +19,27 @@
 package org.apache.syncope.core.provisioning.java.utils;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.to.MappingItemTO;
+import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
+import org.apache.syncope.core.persistence.api.entity.resource.OrgUnitItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
-import org.apache.syncope.core.provisioning.api.data.JEXLMappingItemTransformer;
-import org.apache.syncope.core.provisioning.api.data.MappingItemTransformer;
-import org.apache.syncope.core.provisioning.java.data.JEXLMappingItemTransformerImpl;
+import org.apache.syncope.core.provisioning.java.data.JEXLItemTransformerImpl;
 import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.identityconnectors.framework.common.objects.Name;
@@ -48,6 +50,8 @@ import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
+import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
+import org.apache.syncope.core.provisioning.api.data.JEXLItemTransformer;
 
 public final class MappingUtils {
 
@@ -64,67 +68,68 @@ public final class MappingUtils {
                 : mapping.getConnObjectKeyItem();
     }
 
-    private static List<MappingItem> getMappingItems(final Provision provision, final MappingPurpose purpose) {
-        List<? extends MappingItem> items = Collections.<MappingItem>emptyList();
-        if (provision != null) {
-            items = provision.getMapping().getItems();
-        }
+    public static List<? extends MappingItem> getPropagationItems(final Provision provision) {
+        return ListUtils.select(provision.getMapping().getItems(), new Predicate<MappingItem>() {
 
-        List<MappingItem> result = new ArrayList<>();
-
-        switch (purpose) {
-            case PULL:
-                for (MappingItem item : items) {
-                    if (MappingPurpose.PROPAGATION != item.getPurpose()
-                            && MappingPurpose.NONE != item.getPurpose()) {
-
-                        result.add(item);
-                    }
-                }
-                break;
-
-            case PROPAGATION:
-                for (MappingItem item : items) {
-                    if (MappingPurpose.PULL != item.getPurpose()
-                            && MappingPurpose.NONE != item.getPurpose()) {
-
-                        result.add(item);
-                    }
-                }
-                break;
-
-            case BOTH:
-                for (MappingItem item : items) {
-                    if (MappingPurpose.NONE != item.getPurpose()) {
-                        result.add(item);
-                    }
-                }
-                break;
-
-            case NONE:
-                for (MappingItem item : items) {
-                    if (MappingPurpose.NONE == item.getPurpose()) {
-                        result.add(item);
-                    }
-                }
-                break;
-
-            default:
-        }
-
-        return result;
+            @Override
+            public boolean evaluate(final MappingItem item) {
+                return item.getPurpose() == MappingPurpose.PROPAGATION || item.getPurpose() == MappingPurpose.BOTH;
+            }
+        });
     }
 
-    public static List<MappingItem> getPropagationMappingItems(final Provision provision) {
-        return getMappingItems(provision, MappingPurpose.PROPAGATION);
+    public static List<? extends MappingItem> getPullItems(final Provision provision) {
+        return ListUtils.select(provision.getMapping().getItems(), new Predicate<MappingItem>() {
+
+            @Override
+            public boolean evaluate(final MappingItem item) {
+                return item.getPurpose() == MappingPurpose.PULL || item.getPurpose() == MappingPurpose.BOTH;
+            }
+        });
     }
 
-    public static List<MappingItem> getPullMappingItems(final Provision provision) {
-        return getMappingItems(provision, MappingPurpose.PULL);
+    public static List<? extends OrgUnitItem> getPropagationItems(final OrgUnit orgUnit) {
+        return ListUtils.select(orgUnit.getItems(), new Predicate<OrgUnitItem>() {
+
+            @Override
+            public boolean evaluate(final OrgUnitItem item) {
+                return item.getPurpose() == MappingPurpose.PROPAGATION || item.getPurpose() == MappingPurpose.BOTH;
+            }
+        });
+    }
+
+    public static List<? extends OrgUnitItem> getPullItems(final OrgUnit orgUnit) {
+        return ListUtils.select(orgUnit.getItems(), new Predicate<OrgUnitItem>() {
+
+            @Override
+            public boolean evaluate(final OrgUnitItem item) {
+                return item.getPurpose() == MappingPurpose.PULL || item.getPurpose() == MappingPurpose.BOTH;
+            }
+        });
+    }
+
+    private static Name evaluateNAME(final String evalConnObjectLink, final String connObjectKey) {
+        // If connObjectLink evaluates to an empty string, just use the provided connObjectKey as Name(),
+        // otherwise evaluated connObjectLink expression is taken as Name().
+        Name name;
+        if (StringUtils.isBlank(evalConnObjectLink)) {
+            // add connObjectKey as __NAME__ attribute ...
+            LOG.debug("Add connObjectKey [{}] as __NAME__", connObjectKey);
+            name = new Name(connObjectKey);
+        } else {
+            LOG.debug("Add connObjectLink [{}] as __NAME__", evalConnObjectLink);
+            name = new Name(evalConnObjectLink);
+
+            // connObjectKey not propagated: it will be used to set the value for __UID__ attribute
+            LOG.debug("connObjectKey will be used just as __UID__ attribute");
+        }
+
+        return name;
     }
 
     /**
-     * Build __NAME__ for propagation. First look if there ia a defined connObjectLink for the given resource (and in
+     * Build __NAME__ for propagation.
+     * First look if there is a defined connObjectLink for the given resource (and in
      * this case evaluate as JEXL); otherwise, take given connObjectKey.
      *
      * @param any given any object
@@ -151,36 +156,51 @@ public final class MappingUtils {
             evalConnObjectLink = JexlUtils.evaluate(connObjectLink, jexlContext);
         }
 
-        // If connObjectLink evaluates to an empty string, just use the provided connObjectKey as Name(),
-        // otherwise evaluated connObjectLink expression is taken as Name().
-        Name name;
-        if (StringUtils.isBlank(evalConnObjectLink)) {
-            // add connObjectKey as __NAME__ attribute ...
-            LOG.debug("Add connObjectKey [{}] as __NAME__", connObjectKey);
-            name = new Name(connObjectKey);
-        } else {
-            LOG.debug("Add connObjectLink [{}] as __NAME__", evalConnObjectLink);
-            name = new Name(evalConnObjectLink);
-
-            // connObjectKey not propagated: it will be used to set the value for __UID__ attribute
-            LOG.debug("connObjectKey will be used just as __UID__ attribute");
-        }
-
-        return name;
+        return evaluateNAME(evalConnObjectLink, connObjectKey);
     }
 
-    private static List<MappingItemTransformer> getMappingItemTransformers(
+    /**
+     * Build __NAME__ for propagation.
+     * First look if there is a defined connObjectLink for the given resource (and in
+     * this case evaluate as JEXL); otherwise, take given connObjectKey.
+     *
+     * @param realm given any object
+     * @param orgUnit external resource
+     * @param connObjectKey connector object key
+     * @return the value to be propagated as __NAME__
+     */
+    public static Name evaluateNAME(final Realm realm, final OrgUnit orgUnit, final String connObjectKey) {
+        if (StringUtils.isBlank(connObjectKey)) {
+            // LOG error but avoid to throw exception: leave it to the external resource
+            LOG.error("Missing ConnObjectKey for '{}': ", orgUnit.getResource());
+        }
+
+        // Evaluate connObjectKey expression
+        String connObjectLink = orgUnit == null
+                ? null
+                : orgUnit.getConnObjectLink();
+        String evalConnObjectLink = null;
+        if (StringUtils.isNotBlank(connObjectLink)) {
+            JexlContext jexlContext = new MapContext();
+            JexlUtils.addFieldsToContext(realm, jexlContext);
+            evalConnObjectLink = JexlUtils.evaluate(connObjectLink, jexlContext);
+        }
+
+        return evaluateNAME(evalConnObjectLink, connObjectKey);
+    }
+
+    private static List<ItemTransformer> getMappingItemTransformers(
             final String propagationJEXLTransformer,
             final String pullJEXLTransformer,
             final List<String> mappingItemTransformerClassNames) {
 
-        List<MappingItemTransformer> result = new ArrayList<>();
+        List<ItemTransformer> result = new ArrayList<>();
 
         // First consider the JEXL transformation expressions
         if (StringUtils.isNotBlank(propagationJEXLTransformer) || StringUtils.isNotBlank(pullJEXLTransformer)) {
-            JEXLMappingItemTransformer jexlTransformer =
-                    (JEXLMappingItemTransformer) ApplicationContextProvider.getBeanFactory().
-                            createBean(JEXLMappingItemTransformerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME,
+            JEXLItemTransformer jexlTransformer =
+                    (JEXLItemTransformer) ApplicationContextProvider.getBeanFactory().
+                            createBean(JEXLItemTransformerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME,
                                     false);
 
             jexlTransformer.setPropagationJEXL(propagationJEXLTransformer);
@@ -193,7 +213,7 @@ public final class MappingUtils {
             try {
                 Class<?> transformerClass = ClassUtils.getClass(className);
 
-                result.add((MappingItemTransformer) ApplicationContextProvider.getBeanFactory().
+                result.add((ItemTransformer) ApplicationContextProvider.getBeanFactory().
                         createBean(transformerClass, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false));
             } catch (Exception e) {
                 LOG.error("Could not instantiate {}, ignoring...", className, e);
@@ -203,28 +223,28 @@ public final class MappingUtils {
         return result;
     }
 
-    public static List<MappingItemTransformer> getMappingItemTransformers(final MappingItemTO mappingItem) {
+    public static List<ItemTransformer> getItemTransformers(final ItemTO item) {
         return getMappingItemTransformers(
-                mappingItem.getPropagationJEXLTransformer(),
-                mappingItem.getPullJEXLTransformer(),
-                mappingItem.getMappingItemTransformerClassNames());
+                item.getPropagationJEXLTransformer(),
+                item.getPullJEXLTransformer(),
+                item.getTransformerClassNames());
     }
 
-    public static List<MappingItemTransformer> getMappingItemTransformers(final MappingItem mappingItem) {
+    public static List<ItemTransformer> getItemTransformers(final Item item) {
         return getMappingItemTransformers(
-                mappingItem.getPropagationJEXLTransformer(),
-                mappingItem.getPullJEXLTransformer(),
-                mappingItem.getMappingItemTransformerClassNames());
+                item.getPropagationJEXLTransformer(),
+                item.getPullJEXLTransformer(),
+                item.getTransformerClassNames());
     }
 
     /**
      * Build options for requesting all mapped connector attributes.
      *
-     * @param mapItems mapping items
+     * @param iterator items
      * @return options for requesting all mapped connector attributes
      * @see OperationOptions
      */
-    public static OperationOptions buildOperationOptions(final Iterator<? extends MappingItem> mapItems) {
+    public static OperationOptions buildOperationOptions(final Iterator<? extends Item> iterator) {
         OperationOptionsBuilder builder = new OperationOptionsBuilder();
 
         Set<String> attrsToGet = new HashSet<>();
@@ -232,10 +252,10 @@ public final class MappingUtils {
         attrsToGet.add(Uid.NAME);
         attrsToGet.add(OperationalAttributes.ENABLE_NAME);
 
-        while (mapItems.hasNext()) {
-            MappingItem mapItem = mapItems.next();
-            if (mapItem.getPurpose() != MappingPurpose.NONE) {
-                attrsToGet.add(mapItem.getExtAttrName());
+        while (iterator.hasNext()) {
+            Item item = iterator.next();
+            if (item.getPurpose() != MappingPurpose.NONE) {
+                attrsToGet.add(item.getExtAttrName());
             }
         }
 
@@ -243,17 +263,6 @@ public final class MappingUtils {
         // -------------------------------------
 
         return builder.build();
-    }
-
-    /**
-     * Build options for requesting connector attributes for the given orgUnit.
-     *
-     * @param orgUnit orgUnit
-     * @return options for requesting connector attributes for the given orgUnit
-     * @see OperationOptions
-     */
-    public static OperationOptions buildOperationOptions(final OrgUnit orgUnit) {
-        return new OperationOptionsBuilder().setAttributesToGet(Name.NAME, Uid.NAME, orgUnit.getExtAttrName()).build();
     }
 
     /**

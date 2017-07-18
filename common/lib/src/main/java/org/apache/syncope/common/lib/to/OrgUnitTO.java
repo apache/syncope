@@ -18,13 +18,20 @@
  */
 package org.apache.syncope.common.lib.to;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.ArrayList;
+import java.util.List;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 
 @XmlRootElement(name = "orgUnit")
 @XmlType
-public class OrgUnitTO extends AbstractBaseBean implements EntityTO {
+public class OrgUnitTO extends AbstractBaseBean implements EntityTO, ItemContainerTO {
 
     private static final long serialVersionUID = -1868877794174953177L;
 
@@ -34,9 +41,9 @@ public class OrgUnitTO extends AbstractBaseBean implements EntityTO {
 
     private String syncToken;
 
-    private String extAttrName;
-
     private String connObjectLink;
+
+    private final List<ItemTO> items = new ArrayList<>();
 
     @Override
     public String getKey() {
@@ -64,20 +71,53 @@ public class OrgUnitTO extends AbstractBaseBean implements EntityTO {
         this.syncToken = syncToken;
     }
 
-    public String getExtAttrName() {
-        return extAttrName;
-    }
-
-    public void setExtAttrName(final String extAttrName) {
-        this.extAttrName = extAttrName;
-    }
-
     public String getConnObjectLink() {
         return connObjectLink;
     }
 
+    @Override
     public void setConnObjectLink(final String connObjectLink) {
         this.connObjectLink = connObjectLink;
     }
 
+    public ItemTO getConnObjectKeyItem() {
+        return IterableUtils.find(getItems(), new Predicate<ItemTO>() {
+
+            @Override
+            public boolean evaluate(final ItemTO item) {
+                return item.isConnObjectKey();
+            }
+        });
+    }
+
+    protected boolean addConnObjectKeyItem(final ItemTO connObjectItem) {
+        connObjectItem.setMandatoryCondition("true");
+        connObjectItem.setConnObjectKey(true);
+
+        return this.add(connObjectItem);
+    }
+
+    @Override
+    public boolean setConnObjectKeyItem(final ItemTO connObjectKeyItem) {
+        return connObjectKeyItem == null
+                ? remove(getConnObjectKeyItem())
+                : addConnObjectKeyItem(connObjectKeyItem);
+    }
+
+    @XmlElementWrapper(name = "items")
+    @XmlElement(name = "item")
+    @JsonProperty("items")
+    @Override
+    public List<ItemTO> getItems() {
+        return items;
+    }
+
+    @Override
+    public boolean add(final ItemTO item) {
+        return item == null ? false : this.items.contains(item) || this.items.add(item);
+    }
+
+    public boolean remove(final ItemTO item) {
+        return this.items.remove(item);
+    }
 }

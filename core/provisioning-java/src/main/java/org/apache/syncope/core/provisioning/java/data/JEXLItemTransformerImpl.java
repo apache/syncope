@@ -24,14 +24,15 @@ import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
-import org.apache.syncope.core.provisioning.api.data.JEXLMappingItemTransformer;
+import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
+import org.apache.syncope.core.provisioning.api.data.JEXLItemTransformer;
 
-public class JEXLMappingItemTransformerImpl
-        extends DefaultMappingItemTransformer implements JEXLMappingItemTransformer {
+public class JEXLItemTransformerImpl extends DefaultItemTransformer implements JEXLItemTransformer {
 
     private String propagationJEXL;
 
@@ -49,17 +50,19 @@ public class JEXLMappingItemTransformerImpl
 
     @Override
     public List<PlainAttrValue> beforePropagation(
-            final MappingItem mappingItem,
-            final Any<?> any,
+            final Item item,
+            final Entity entity,
             final List<PlainAttrValue> values) {
 
         if (StringUtils.isNotBlank(propagationJEXL) && values != null) {
             for (PlainAttrValue value : values) {
                 JexlContext jexlContext = new MapContext();
-                if (any != null) {
-                    JexlUtils.addFieldsToContext(any, jexlContext);
-                    JexlUtils.addPlainAttrsToContext(any.getPlainAttrs(), jexlContext);
-                    JexlUtils.addDerAttrsToContext(any, jexlContext);
+                if (entity != null) {
+                    JexlUtils.addFieldsToContext(entity, jexlContext);
+                    if (entity instanceof Any) {
+                        JexlUtils.addPlainAttrsToContext(((Any<?>) entity).getPlainAttrs(), jexlContext);
+                        JexlUtils.addDerAttrsToContext(((Any<?>) entity), jexlContext);
+                    }
                 }
                 jexlContext.set("value", value.getValueAsString());
 
@@ -69,13 +72,13 @@ public class JEXLMappingItemTransformerImpl
             return values;
         }
 
-        return super.beforePropagation(mappingItem, any, values);
+        return super.beforePropagation(item, entity, values);
     }
 
     @Override
     public List<Object> beforePull(
-            final MappingItem mappingItem,
-            final AnyTO anyTO,
+            final Item item,
+            final EntityTO entityTO,
             final List<Object> values) {
 
         if (StringUtils.isNotBlank(pullJEXL) && values != null) {
@@ -83,17 +86,17 @@ public class JEXLMappingItemTransformerImpl
             for (Object value : values) {
                 JexlContext jexlContext = new MapContext();
                 jexlContext.set("value", value);
-                if (anyTO == null) {
-                    newValues.add(JexlUtils.evaluate(pullJEXL, jexlContext));
+                if (entityTO instanceof AnyTO) {
+                    newValues.add(JexlUtils.evaluate(pullJEXL, (AnyTO) entityTO, jexlContext));
                 } else {
-                    newValues.add(JexlUtils.evaluate(pullJEXL, anyTO, jexlContext));
+                    newValues.add(JexlUtils.evaluate(pullJEXL, jexlContext));
                 }
             }
 
             return newValues;
         }
 
-        return super.beforePull(mappingItem, anyTO, values);
+        return super.beforePull(item, entityTO, values);
     }
 
 }

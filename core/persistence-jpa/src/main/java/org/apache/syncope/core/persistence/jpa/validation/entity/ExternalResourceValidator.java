@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.jpa.validation.entity;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import javax.validation.ConstraintValidatorContext;
 import org.apache.commons.collections4.IterableUtils;
@@ -26,24 +27,22 @@ import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
+import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
-import org.apache.syncope.core.provisioning.api.data.MappingItemTransformer;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
 import org.identityconnectors.framework.common.objects.ObjectClass;
+import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
 
 public class ExternalResourceValidator extends AbstractValidator<ExternalResourceCheck, ExternalResource> {
 
-    private boolean isValid(final Mapping mapping, final ConstraintValidatorContext context) {
-        if (mapping == null) {
-            return true;
-        }
-
-        long connObjectKeys = IterableUtils.countMatches(mapping.getItems(), new Predicate<MappingItem>() {
+    private boolean isValid(final List<? extends Item> items, final ConstraintValidatorContext context) {
+        long connObjectKeys = IterableUtils.countMatches(items, new Predicate<Item>() {
 
             @Override
-            public boolean evaluate(final MappingItem item) {
+            public boolean evaluate(final Item item) {
                 return item.isConnObjectKey();
             }
         });
@@ -52,6 +51,45 @@ public class ExternalResourceValidator extends AbstractValidator<ExternalResourc
                     getTemplate(EntityViolationType.InvalidMapping, "Single ConnObjectKey mapping is required")).
                     addPropertyNode("connObjectKey.size").addConstraintViolation();
             return false;
+        }
+
+        boolean isValid = true;
+
+        for (Item item : items) {
+            for (String className : item.getTransformerClassNames()) {
+                Class<?> actionsClass = null;
+                boolean isAssignable = false;
+                try {
+                    actionsClass = Class.forName(className);
+                    isAssignable = ItemTransformer.class.isAssignableFrom(actionsClass);
+                } catch (Exception e) {
+                    LOG.error("Invalid ItemTransformer specified: {}", className, e);
+                }
+
+                if (actionsClass == null || !isAssignable) {
+                    context.buildConstraintViolationWithTemplate(
+                            getTemplate(EntityViolationType.InvalidMapping,
+                                    "Invalid item trasformer class name")).
+                            addPropertyNode("itemTransformerClassName").addConstraintViolation();
+                    isValid = false;
+                }
+            }
+        }
+
+        return isValid;
+    }
+
+    private boolean isValid(final OrgUnit orgUnit, final ConstraintValidatorContext context) {
+        if (orgUnit == null) {
+            return true;
+        }
+
+        return isValid(orgUnit.getItems(), context);
+    }
+
+    private boolean isValid(final Mapping mapping, final ConstraintValidatorContext context) {
+        if (mapping == null) {
+            return true;
         }
 
         boolean isValid = true;
@@ -70,28 +108,7 @@ public class ExternalResourceValidator extends AbstractValidator<ExternalResourc
             isValid = false;
         }
 
-        for (MappingItem item : mapping.getItems()) {
-            for (String className : item.getMappingItemTransformerClassNames()) {
-                Class<?> actionsClass = null;
-                boolean isAssignable = false;
-                try {
-                    actionsClass = Class.forName(className);
-                    isAssignable = MappingItemTransformer.class.isAssignableFrom(actionsClass);
-                } catch (Exception e) {
-                    LOG.error("Invalid MappingItemTransformer specified: {}", className, e);
-                }
-
-                if (actionsClass == null || !isAssignable) {
-                    context.buildConstraintViolationWithTemplate(
-                            getTemplate(EntityViolationType.InvalidMapping,
-                                    "Invalid mapping item trasformer class name")).
-                            addPropertyNode("mappingItemTransformerClassName").addConstraintViolation();
-                    isValid = false;
-                }
-            }
-        }
-
-        return isValid;
+        return isValid && isValid(mapping.getItems(), context);
     }
 
     @Override
@@ -138,6 +155,7 @@ public class ExternalResourceValidator extends AbstractValidator<ExternalResourc
                 return isValid(provision.getMapping(), context);
             }
         });
+        validMappings &= isValid(resource.getOrgUnit(), context);
 
         if (anyTypes.size() < resource.getProvisions().size()) {
             context.buildConstraintViolationWithTemplate(getTemplate(EntityViolationType.InvalidResource,

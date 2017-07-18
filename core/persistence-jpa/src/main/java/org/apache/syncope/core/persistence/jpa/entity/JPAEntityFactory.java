@@ -127,7 +127,9 @@ import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAOrgUnit;
 import org.apache.syncope.core.persistence.api.entity.DynRealm;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResourceHistoryConf;
+import org.apache.syncope.core.persistence.api.entity.resource.OrgUnitItem;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResourceHistoryConf;
+import org.apache.syncope.core.persistence.jpa.entity.resource.JPAOrgUnitItem;
 
 @Component
 public class JPAEntityFactory implements EntityFactory {
@@ -219,6 +221,8 @@ public class JPAEntityFactory implements EntityFactory {
             result = (E) new JPAMapping();
         } else if (reference.equals(MappingItem.class)) {
             result = (E) new JPAMappingItem();
+        } else if (reference.equals(OrgUnitItem.class)) {
+            result = (E) new JPAOrgUnitItem();
         } else if (reference.equals(GPlainAttr.class)) {
             result = (E) new JPAGPlainAttr();
         } else if (reference.equals(GPlainAttrValue.class)) {

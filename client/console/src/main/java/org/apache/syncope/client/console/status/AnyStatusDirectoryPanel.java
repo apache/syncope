@@ -121,7 +121,7 @@ public class AnyStatusDirectoryPanel
                     final String componentId,
                     final IModel<StatusBean> model) {
 
-                cellItem.add(new Label(componentId, model.getObject().getResourceName()) {
+                cellItem.add(new Label(componentId, model.getObject().getResource()) {
 
                     private static final long serialVersionUID = 8432079838783825801L;
 
@@ -171,14 +171,14 @@ public class AnyStatusDirectoryPanel
             @Override
             protected boolean statusCondition(final StatusBean bean) {
                 return bean != null && bean.getConnObjectLink() != null
-                        && !bean.getResourceName().equalsIgnoreCase(Constants.SYNCOPE);
+                        && !bean.getResource().equalsIgnoreCase(Constants.SYNCOPE);
             }
 
             @Override
             public void onClick(final AjaxRequestTarget target, final StatusBean bean) {
-                multiLevelPanelRef.next(bean.getResourceName(),
+                multiLevelPanelRef.next(bean.getResource(),
                         new ConnObjectDetails(resourceRestClient.readConnObject(
-                                bean.getResourceName(), anyTO.getType(), anyTO.getKey())), target);
+                                bean.getResource(), anyTO.getType(), anyTO.getKey())), target);
                 target.add(multiLevelPanelRef);
                 AnyStatusDirectoryPanel.this.getTogglePanel().close(target);
             }

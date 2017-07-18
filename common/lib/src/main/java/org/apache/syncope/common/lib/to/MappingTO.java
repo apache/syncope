@@ -31,42 +31,44 @@ import org.apache.syncope.common.lib.AbstractBaseBean;
 
 @XmlRootElement(name = "mapping")
 @XmlType
-public class MappingTO extends AbstractBaseBean {
+public class MappingTO extends AbstractBaseBean implements ItemContainerTO {
 
     private static final long serialVersionUID = 8447688036282611118L;
 
     private String connObjectLink;
 
-    private final List<MappingItemTO> items = new ArrayList<>();
+    private final List<ItemTO> items = new ArrayList<>();
 
-    private final List<MappingItemTO> linkingItems = new ArrayList<>();
+    private final List<ItemTO> linkingItems = new ArrayList<>();
 
     public String getConnObjectLink() {
         return connObjectLink;
     }
 
+    @Override
     public void setConnObjectLink(final String connObjectLink) {
         this.connObjectLink = connObjectLink;
     }
 
-    public MappingItemTO getConnObjectKeyItem() {
-        return IterableUtils.find(getItems(), new Predicate<MappingItemTO>() {
+    public ItemTO getConnObjectKeyItem() {
+        return IterableUtils.find(getItems(), new Predicate<ItemTO>() {
 
             @Override
-            public boolean evaluate(final MappingItemTO item) {
+            public boolean evaluate(final ItemTO item) {
                 return item.isConnObjectKey();
             }
         });
     }
 
-    protected boolean addConnObjectKeyItem(final MappingItemTO connObjectItem) {
+    protected boolean addConnObjectKeyItem(final ItemTO connObjectItem) {
         connObjectItem.setMandatoryCondition("true");
         connObjectItem.setConnObjectKey(true);
 
         return this.add(connObjectItem);
     }
 
-    public boolean setConnObjectKeyItem(final MappingItemTO connObjectKeyItem) {
+    @Override
+    public boolean setConnObjectKeyItem(final ItemTO connObjectKeyItem) {
         return connObjectKeyItem == null
                 ? remove(getConnObjectKeyItem())
                 : addConnObjectKeyItem(connObjectKeyItem);
@@ -75,22 +77,24 @@ public class MappingTO extends AbstractBaseBean {
     @XmlElementWrapper(name = "items")
     @XmlElement(name = "item")
     @JsonProperty("items")
-    public List<MappingItemTO> getItems() {
+    @Override
+    public List<ItemTO> getItems() {
         return items;
     }
 
-    public boolean add(final MappingItemTO item) {
+    @Override
+    public boolean add(final ItemTO item) {
         return item == null ? false : this.items.contains(item) || this.items.add(item);
     }
 
-    public boolean remove(final MappingItemTO item) {
+    public boolean remove(final ItemTO item) {
         return this.items.remove(item);
     }
 
     @XmlElementWrapper(name = "linkingItems")
     @XmlElement(name = "item")
     @JsonProperty("linkingItems")
-    public List<MappingItemTO> getLinkingItems() {
+    public List<ItemTO> getLinkingItems() {
         return linkingItems;
     }
 }

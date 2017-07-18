@@ -81,7 +81,7 @@ public class PlatformInfo extends AbstractBaseBean {
 
     private final Set<String> passwordRules = new HashSet<>();
 
-    private final Set<String> mappingItemTransformers = new HashSet<>();
+    private final Set<String> itemTransformers = new HashSet<>();
 
     private final Set<String> taskJobs = new HashSet<>();
 
@@ -233,11 +233,11 @@ public class PlatformInfo extends AbstractBaseBean {
         return passwordRules;
     }
 
-    @XmlElementWrapper(name = "mappingItemTransformers")
-    @XmlElement(name = "mappingItemTransformer")
-    @JsonProperty("mappingItemTransformers")
-    public Set<String> getMappingItemTransformers() {
-        return mappingItemTransformers;
+    @XmlElementWrapper(name = "itemTransformers")
+    @XmlElement(name = "itemTransformer")
+    @JsonProperty("itemTransformers")
+    public Set<String> getItemTransformers() {
+        return itemTransformers;
     }
 
     @XmlElementWrapper(name = "taskJobs")

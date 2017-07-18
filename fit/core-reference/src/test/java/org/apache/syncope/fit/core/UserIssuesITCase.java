@@ -50,7 +50,7 @@ import org.apache.syncope.common.lib.policy.PasswordPolicyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.GroupTO;
-import org.apache.syncope.common.lib.to.MappingItemTO;
+import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.MappingTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
@@ -611,7 +611,7 @@ public class UserIssuesITCase extends AbstractITCase {
     public void issueSYNCOPE354() {
         // change resource-ldap group mapping for including uniqueMember (need for assertions below)
         ResourceTO ldap = resourceService.read(RESOURCE_NAME_LDAP);
-        for (MappingItemTO item : ldap.getProvision(AnyTypeKind.GROUP.name()).getMapping().getItems()) {
+        for (ItemTO item : ldap.getProvision(AnyTypeKind.GROUP.name()).getMapping().getItems()) {
             if ("description".equals(item.getExtAttrName())) {
                 item.setExtAttrName("uniqueMember");
             }
@@ -658,7 +658,7 @@ public class UserIssuesITCase extends AbstractITCase {
                 contains("uid=" + userTO.getUsername() + ",ou=people,o=isp"));
 
         // 6. restore original resource-ldap group mapping
-        for (MappingItemTO item : ldap.getProvision(AnyTypeKind.GROUP.name()).getMapping().getItems()) {
+        for (ItemTO item : ldap.getProvision(AnyTypeKind.GROUP.name()).getMapping().getItems()) {
             if ("uniqueMember".equals(item.getExtAttrName())) {
                 item.setExtAttrName("description");
             }
@@ -905,7 +905,7 @@ public class UserIssuesITCase extends AbstractITCase {
 
         MappingTO ws1NewUMapping = ws1.getProvision(AnyTypeKind.USER.name()).getMapping();
         // change purpose from NONE to BOTH
-        for (MappingItemTO itemTO : ws1NewUMapping.getItems()) {
+        for (ItemTO itemTO : ws1NewUMapping.getItems()) {
             if ("firstname".equals(itemTO.getIntAttrName())) {
                 itemTO.setPurpose(MappingPurpose.BOTH);
             }
@@ -918,7 +918,7 @@ public class UserIssuesITCase extends AbstractITCase {
         assertNotNull(newWs1);
 
         // check for existence
-        Collection<MappingItemTO> mapItems = newWs1.getProvision(AnyTypeKind.USER.name()).getMapping().getItems();
+        Collection<ItemTO> mapItems = newWs1.getProvision(AnyTypeKind.USER.name()).getMapping().getItems();
         assertNotNull(mapItems);
         assertEquals(7, mapItems.size());
 
@@ -943,7 +943,7 @@ public class UserIssuesITCase extends AbstractITCase {
         // 4.  restore resource ws-target-resource-1 mapping
         ws1NewUMapping = newWs1.getProvision(AnyTypeKind.USER.name()).getMapping();
         // restore purpose from BOTH to NONE
-        for (MappingItemTO itemTO : ws1NewUMapping.getItems()) {
+        for (ItemTO itemTO : ws1NewUMapping.getItems()) {
             if ("firstname".equals(itemTO.getIntAttrName())) {
                 itemTO.setPurpose(MappingPurpose.NONE);
             }

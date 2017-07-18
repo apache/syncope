@@ -21,24 +21,24 @@ package org.apache.syncope.fit.core.reference;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.core.persistence.api.entity.Any;
+import org.apache.syncope.common.lib.to.EntityTO;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
-import org.apache.syncope.core.provisioning.java.data.DefaultMappingItemTransformer;
+import org.apache.syncope.core.persistence.api.entity.resource.Item;
+import org.apache.syncope.core.provisioning.java.data.DefaultItemTransformer;
 
-public class PrefixMappingItemTransformer extends DefaultMappingItemTransformer {
+public class PrefixItemTransformer extends DefaultItemTransformer {
 
     public static final String PREFIX = "PREFIX_";
 
     @Override
     public List<PlainAttrValue> beforePropagation(
-            final MappingItem mappingItem,
-            final Any<?> any,
+            final Item item,
+            final Entity entity,
             final List<PlainAttrValue> values) {
 
         if (values == null || values.isEmpty() || values.get(0).getStringValue() == null) {
-            return super.beforePropagation(mappingItem, any, values);
+            return super.beforePropagation(item, entity, values);
         } else {
             String value = values.get(0).getStringValue();
             values.get(0).setStringValue(PREFIX + value);
@@ -49,12 +49,12 @@ public class PrefixMappingItemTransformer extends DefaultMappingItemTransformer 
 
     @Override
     public List<Object> beforePull(
-            final MappingItem mappingItem,
-            final AnyTO anyTO,
+            final Item item,
+            final EntityTO entityTO,
             final List<Object> values) {
 
         if (values == null || values.isEmpty() || values.get(0) == null) {
-            return super.beforePull(mappingItem, anyTO, values);
+            return super.beforePull(item, entityTO, values);
         } else {
             List<Object> newValues = new ArrayList<>(values);
             newValues.set(0, StringUtils.substringAfter(values.get(0).toString(), PREFIX));

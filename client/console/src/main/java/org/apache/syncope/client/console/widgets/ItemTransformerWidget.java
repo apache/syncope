@@ -21,29 +21,29 @@ package org.apache.syncope.client.console.widgets;
 import de.agilecoders.wicket.core.markup.html.bootstrap.image.Icon;
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.icon.FontAwesomeIconTypeBuilder;
 import java.util.List;
-import org.apache.syncope.client.console.wizards.resources.MappingItemTransformersTogglePanel;
-import org.apache.syncope.common.lib.to.MappingItemTO;
+import org.apache.syncope.client.console.wizards.resources.ItemTransformersTogglePanel;
+import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.link.AbstractLink;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.util.ListModel;
 
-public class MappingItemTransformerWidget extends AlertWidget<String> {
+public class ItemTransformerWidget extends AlertWidget<String> {
 
     private static final long serialVersionUID = 7667120094526529934L;
 
-    private final MappingItemTO mapItem;
+    private final ItemTO item;
 
-    private final MappingItemTransformersTogglePanel transformers;
+    private final ItemTransformersTogglePanel transformers;
 
-    public MappingItemTransformerWidget(
+    public ItemTransformerWidget(
             final String id,
-            final MappingItemTO mapItem,
-            final MappingItemTransformersTogglePanel transformers) {
+            final ItemTO item,
+            final ItemTransformersTogglePanel transformers) {
 
         super(id);
-        this.mapItem = mapItem;
+        this.item = item;
         this.transformers = transformers;
         setOutputMarkupId(true);
     }
@@ -56,7 +56,7 @@ public class MappingItemTransformerWidget extends AlertWidget<String> {
 
             @Override
             public List<String> getObject() {
-                return mapItem.getMappingItemTransformerClassNames();
+                return item.getTransformerClassNames();
             }
         };
     }
@@ -69,7 +69,7 @@ public class MappingItemTransformerWidget extends AlertWidget<String> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                transformers.setMappingItem(target, MappingItemTransformerWidget.this.mapItem);
+                transformers.setItem(target, ItemTransformerWidget.this.item);
                 transformers.toggle(target, true);
             }
         };

@@ -171,11 +171,11 @@ public class BulkContent<T extends Serializable, S> extends MultilevelPanel.Seco
                             for (T bean : items) {
                                 final StatusBean sb = StatusBean.class.cast(bean);
                                 final List<StatusBean> sblist;
-                                if (beans.containsKey(sb.getAnyKey())) {
-                                    sblist = beans.get(sb.getAnyKey());
+                                if (beans.containsKey(sb.getKey())) {
+                                    sblist = beans.get(sb.getKey());
                                 } else {
                                     sblist = new ArrayList<>();
-                                    beans.put(sb.getAnyKey(), sblist);
+                                    beans.put(sb.getKey(), sblist);
                                 }
                                 sblist.add(sb);
                             }

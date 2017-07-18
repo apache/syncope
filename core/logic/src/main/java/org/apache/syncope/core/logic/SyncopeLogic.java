@@ -220,8 +220,8 @@ public class SyncopeLogic extends AbstractLogic<AbstractBaseBean> {
                 PLATFORM_INFO.getReportletConfs().addAll(implLookup.getClassNames(Type.REPORTLET_CONF));
                 PLATFORM_INFO.getAccountRules().addAll(implLookup.getClassNames(Type.ACCOUNT_RULE_CONF));
                 PLATFORM_INFO.getPasswordRules().addAll(implLookup.getClassNames(Type.PASSWORD_RULE_CONF));
-                PLATFORM_INFO.getMappingItemTransformers().addAll(
-                        implLookup.getClassNames(Type.MAPPING_ITEM_TRANSFORMER));
+                PLATFORM_INFO.getItemTransformers().addAll(
+                        implLookup.getClassNames(Type.ITEM_TRANSFORMER));
                 PLATFORM_INFO.getTaskJobs().addAll(implLookup.getClassNames(Type.TASKJOBDELEGATE));
                 PLATFORM_INFO.getReconciliationFilterBuilders().
                         addAll(implLookup.getClassNames(Type.RECONCILIATION_FILTER_BUILDER));

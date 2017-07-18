@@ -21,7 +21,7 @@ package org.apache.syncope.client.cli.commands.resource;
 import java.util.List;
 import java.util.Map;
 import org.apache.syncope.client.cli.commands.CommonsResultManager;
-import org.apache.syncope.common.lib.to.MappingItemTO;
+import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.MappingTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
@@ -74,8 +74,8 @@ public class ResourceResultManager extends CommonsResultManager {
         printMappingItem(mappingTO.getItems());
     }
 
-    private void printMappingItem(final List<MappingItemTO> mappingItemTOs) {
-        for (final MappingItemTO mappingItemTO : mappingItemTOs) {
+    private void printMappingItem(final List<ItemTO> mappingItemTOs) {
+        for (final ItemTO mappingItemTO : mappingItemTOs) {
             System.out.println("             mapping key: " + mappingItemTO.getKey());
             System.out.println("             internal attribute name: " + mappingItemTO.getIntAttrName());
             System.out.println("             external attribute name: " + mappingItemTO.getExtAttrName());
@@ -85,7 +85,7 @@ public class ResourceResultManager extends CommonsResultManager {
             System.out.println("             JEXL pull transformer: "
                     + mappingItemTO.getPullJEXLTransformer());
             System.out.println("             transformers classes: "
-                    + mappingItemTO.getMappingItemTransformerClassNames());
+                    + mappingItemTO.getTransformerClassNames());
             System.out.println("             purpose: " + mappingItemTO.getPurpose());
             System.out.println("             connector object key: " + mappingItemTO.isConnObjectKey());
             System.out.println("             password: " + mappingItemTO.isPassword());

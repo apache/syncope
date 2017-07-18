@@ -79,10 +79,10 @@ public class TestPullActions extends DefaultPullActions {
     }
 
     @Override
-    public <A extends AnyTO, M extends AnyPatch> SyncDelta beforeUpdate(
+    public <M extends AnyPatch> SyncDelta beforeUpdate(
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
-            final A any,
+            final EntityTO entityTO,
             final M anyPatch) throws JobExecutionException {
 
         AttrPatch fullnamePatch = null;

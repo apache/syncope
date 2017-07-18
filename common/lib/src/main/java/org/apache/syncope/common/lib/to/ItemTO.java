@@ -28,9 +28,9 @@ import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 
-@XmlRootElement(name = "mappingItem")
+@XmlRootElement(name = "item")
 @XmlType
-public class MappingItemTO extends AbstractBaseBean implements EntityTO {
+public class ItemTO extends AbstractBaseBean implements EntityTO {
 
     private static final long serialVersionUID = 2983498836767176862L;
 
@@ -77,7 +77,7 @@ public class MappingItemTO extends AbstractBaseBean implements EntityTO {
      */
     private String pullJEXLTransformer;
 
-    private final List<String> mappingItemTransformerClassNames = new ArrayList<>();
+    private final List<String> transformerClassNames = new ArrayList<>();
 
     public boolean isConnObjectKey() {
         return connObjectKey;
@@ -153,11 +153,11 @@ public class MappingItemTO extends AbstractBaseBean implements EntityTO {
         this.pullJEXLTransformer = pullJEXLTransformer;
     }
 
-    @XmlElementWrapper(name = "mappingItemTransformerClassNames")
-    @XmlElement(name = "className")
-    @JsonProperty("mappingItemTransformerClassNames")
-    public List<String> getMappingItemTransformerClassNames() {
-        return mappingItemTransformerClassNames;
+    @XmlElementWrapper(name = "transformerClassNames")
+    @XmlElement(name = "transformerClassName")
+    @JsonProperty("transformerClassNames")
+    public List<String> getTransformerClassNames() {
+        return transformerClassNames;
     }
 
 }

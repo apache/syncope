@@ -121,7 +121,7 @@ public class StatusPanel extends Panel {
         }
 
         statusBeans.add(syncope);
-        initialStatusBeanMap.put(syncope.getResourceName(), syncope);
+        initialStatusBeanMap.put(syncope.getResource(), syncope);
 
         for (Pair<ConnObjectTO, ConnObjectWrapper> pair : connObjects) {
             ConnObjectWrapper entry = pair.getRight();
@@ -164,14 +164,14 @@ public class StatusPanel extends Panel {
             @Override
             protected boolean statusCondition(final StatusBean bean) {
                 final Pair<ConnObjectTO, ConnObjectTO> pair
-                        = getConnObjectTO(bean.getAnyKey(), bean.getResourceName(), connObjects);
+                        = getConnObjectTO(bean.getKey(), bean.getResource(), connObjects);
 
                 return pair != null && pair.getRight() != null;
             }
 
             @Override
             public void onClick(final AjaxRequestTarget target, final StatusBean bean) {
-                mlp.next(bean.getResourceName(), new RemoteAnyPanel(bean, connObjects), target);
+                mlp.next(bean.getResource(), new RemoteAnyPanel(bean, connObjects), target);
             }
         };
 
@@ -225,7 +225,7 @@ public class StatusPanel extends Panel {
 
         @Override
         protected final Pair<ConnObjectTO, ConnObjectTO> getConnObjectTO() {
-            return StatusPanel.this.getConnObjectTO(bean.getAnyKey(), bean.getResourceName(), connObjects);
+            return StatusPanel.this.getConnObjectTO(bean.getKey(), bean.getResource(), connObjects);
         }
     }
 }

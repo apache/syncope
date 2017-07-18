@@ -19,7 +19,6 @@
 package org.apache.syncope.core.provisioning.java.pushpull;
 
 import org.apache.syncope.common.lib.patch.AnyPatch;
-import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionException;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
@@ -38,10 +37,10 @@ public abstract class DefaultPullActions implements PullActions {
     }
 
     @Override
-    public <A extends AnyTO, P extends AnyPatch> SyncDelta beforeUpdate(
+    public <P extends AnyPatch> SyncDelta beforeUpdate(
             final ProvisioningProfile<?, ?> profile,
             final SyncDelta delta,
-            final A any,
+            final EntityTO entityTO,
             final P anyMod) throws JobExecutionException {
 
         return delta;

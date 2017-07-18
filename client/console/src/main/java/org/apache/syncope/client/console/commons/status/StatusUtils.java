@@ -32,6 +32,7 @@ import org.apache.syncope.common.lib.patch.StatusPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
+import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.basic.Label;
@@ -88,7 +89,7 @@ public class StatusUtils implements Serializable {
             final AnyTO anyTO,
             final String resourceName,
             final ConnObjectTO objectTO,
-            final boolean isGroup) {
+            final boolean notUser) {
 
         final StatusBean statusBean = new StatusBean(anyTO, resourceName);
 
@@ -96,7 +97,32 @@ public class StatusUtils implements Serializable {
             final Boolean enabled = isEnabled(objectTO);
 
             final Status status = enabled == null
-                    ? (isGroup ? Status.ACTIVE : Status.UNDEFINED)
+                    ? (notUser ? Status.ACTIVE : Status.UNDEFINED)
+                    : enabled
+                            ? Status.ACTIVE
+                            : Status.SUSPENDED;
+
+            String connObjectLink = getConnObjectLink(objectTO);
+
+            statusBean.setStatus(status);
+            statusBean.setConnObjectLink(connObjectLink);
+        }
+
+        return statusBean;
+    }
+
+    public StatusBean getStatusBean(
+            final RealmTO anyTO,
+            final String resourceName,
+            final ConnObjectTO objectTO) {
+
+        final StatusBean statusBean = new StatusBean(anyTO, resourceName);
+
+        if (objectTO != null) {
+            final Boolean enabled = isEnabled(objectTO);
+
+            final Status status = enabled == null
+                    ? Status.ACTIVE
                     : enabled
                             ? Status.ACTIVE
                             : Status.SUSPENDED;
@@ -129,10 +155,10 @@ public class StatusUtils implements Serializable {
         builder.value(password);
 
         for (StatusBean status : statuses) {
-            if (Constants.SYNCOPE.equalsIgnoreCase(status.getResourceName())) {
+            if (Constants.SYNCOPE.equalsIgnoreCase(status.getResource())) {
                 builder.onSyncope(true);
             } else {
-                builder.resource(status.getResourceName());
+                builder.resource(status.getResource());
             }
         }
         return builder.build();
@@ -150,10 +176,10 @@ public class StatusUtils implements Serializable {
             if (enable == null
                     || (enable && !status.getStatus().isActive()) || (!enable && status.getStatus().isActive())) {
 
-                if ("syncope".equalsIgnoreCase(status.getResourceName())) {
+                if ("syncope".equalsIgnoreCase(status.getResource())) {
                     statusPatch.setOnSyncope(true);
                 } else {
-                    statusPatch.getResources().add(status.getResourceName());
+                    statusPatch.getResources().add(status.getResource());
                 }
 
             }

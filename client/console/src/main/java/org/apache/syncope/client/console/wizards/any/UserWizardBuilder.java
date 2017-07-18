@@ -39,7 +39,7 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> implements UserF
     private final UserRestClient userRestClient = new UserRestClient();
 
     /**
-     * Costructor to be used for templating only.
+     * Constructor to be used for templating only.
      *
      * @param anyTypeClasses any type classes.
      * @param formLayoutInfo form layout.

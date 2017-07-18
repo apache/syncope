@@ -32,8 +32,8 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownCho
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.client.console.wizards.resources.JEXLTransformersTogglePanel;
-import org.apache.syncope.client.console.wizards.resources.MappingItemTransformersTogglePanel;
-import org.apache.syncope.common.lib.to.MappingItemTO;
+import org.apache.syncope.client.console.wizards.resources.ItemTransformersTogglePanel;
+import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.SAML2IdPTO;
 import org.apache.syncope.common.lib.types.SAML2BindingType;
 import org.apache.wicket.Component;
@@ -68,8 +68,8 @@ public class SAML2IdPWizardBuilder extends AjaxWizardBuilder<SAML2IdPTO> {
         Mapping mapping = new Mapping(modelObject);
         mapping.setOutputMarkupId(true);
 
-        MappingItemTransformersTogglePanel mapItemTransformers =
-                new MappingItemTransformersTogglePanel(mapping, pageRef);
+        ItemTransformersTogglePanel mapItemTransformers =
+                new ItemTransformersTogglePanel(mapping, pageRef);
         addOuterObject(mapItemTransformers);
         JEXLTransformersTogglePanel jexlTransformers = new JEXLTransformersTogglePanel(mapping, pageRef);
         addOuterObject(jexlTransformers);
@@ -133,10 +133,10 @@ public class SAML2IdPWizardBuilder extends AjaxWizardBuilder<SAML2IdPTO> {
     @Override
     protected Serializable onApplyInternal(final SAML2IdPTO modelObject) {
         long connObjectKeyCount = IterableUtils.countMatches(
-                modelObject.getMappingItems(), new Predicate<MappingItemTO>() {
+                modelObject.getMappingItems(), new Predicate<ItemTO>() {
 
             @Override
-            public boolean evaluate(final MappingItemTO item) {
+            public boolean evaluate(final ItemTO item) {
                 return item.isConnObjectKey();
             }
         });

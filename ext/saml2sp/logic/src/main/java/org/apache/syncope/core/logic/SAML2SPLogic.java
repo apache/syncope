@@ -43,7 +43,7 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.SAML2RequestTO;
 import org.apache.syncope.common.lib.to.SAML2LoginResponseTO;
-import org.apache.syncope.common.lib.to.MappingItemTO;
+import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.SAML2ReceivedResponseTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -66,7 +66,6 @@ import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
 import org.apache.syncope.core.provisioning.api.data.AccessTokenDataBinder;
-import org.apache.syncope.core.provisioning.api.data.MappingItemTransformer;
 import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.apache.syncope.core.provisioning.java.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
@@ -119,6 +118,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Component;
+import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
 
 @Component
 public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
@@ -340,11 +340,11 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
         return requestTO;
     }
 
-    private List<String> findMatchingUser(final String keyValue, final MappingItemTO connObjectKeyItem) {
+    private List<String> findMatchingUser(final String keyValue, final ItemTO connObjectKeyItem) {
         List<String> result = new ArrayList<>();
 
         String transformed = keyValue;
-        for (MappingItemTransformer transformer : MappingUtils.getMappingItemTransformers(connObjectKeyItem)) {
+        for (ItemTransformer transformer : MappingUtils.getItemTransformers(connObjectKeyItem)) {
             List<Object> output = transformer.beforePull(
                     null,
                     null,

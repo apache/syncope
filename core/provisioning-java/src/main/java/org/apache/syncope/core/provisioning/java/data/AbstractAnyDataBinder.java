@@ -226,7 +226,7 @@ abstract class AbstractAnyDataBinder {
     private List<String> evaluateMandatoryCondition(final Provision provision, final Any<?> any) {
         List<String> missingAttrNames = new ArrayList<>();
 
-        for (MappingItem mapItem : MappingUtils.getPropagationMappingItems(provision)) {
+        for (MappingItem mapItem : MappingUtils.getPropagationItems(provision)) {
             IntAttrName intAttrName =
                     intAttrNameParser.parse(mapItem.getIntAttrName(), provision.getAnyType().getKind());
             if (intAttrName.getSchemaType() != null) {
@@ -346,7 +346,7 @@ abstract class AbstractAnyDataBinder {
         }
 
         for (ExternalResource resource : resources) {
-            for (MappingItem item : MappingUtils.getPropagationMappingItems(resource.getProvision(any.getType()))) {
+            for (MappingItem item : MappingUtils.getPropagationItems(resource.getProvision(any.getType()))) {
                 if (schema.getKey().equals(item.getIntAttrName())) {
                     propByRes.add(ResourceOperation.UPDATE, resource.getKey());
 

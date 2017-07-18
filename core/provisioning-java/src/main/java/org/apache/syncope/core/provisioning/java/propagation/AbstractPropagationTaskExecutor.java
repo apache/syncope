@@ -51,9 +51,7 @@ import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.provisioning.api.utils.ExceptionUtils2;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
-import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
-import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
@@ -69,15 +67,12 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationException
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.Attribute;
-import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ConnectorObjectBuilder;
 import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.ObjectClass;
-import org.identityconnectors.framework.common.objects.ResultsHandler;
 import org.identityconnectors.framework.common.objects.Uid;
-import org.identityconnectors.framework.common.objects.filter.EqualsFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -118,12 +113,6 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
      */
     @Autowired
     protected GroupDAO groupDAO;
-
-    /**
-     * Realm DAO.
-     */
-    @Autowired
-    protected RealmDAO realmDAO;
 
     /**
      * Task DAO.
@@ -396,7 +385,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                     ? null
                     : orgUnit == null
                             ? getRemoteObject(task, connector, provision, false)
-                            : getRemoteObject(task, connector, orgUnit);
+                            : getRemoteObject(task, connector, orgUnit, false);
 
             for (PropagationActions action : actions) {
                 action.before(task, beforeObj);
@@ -463,7 +452,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                             ? null
                             : orgUnit == null
                                     ? getRemoteObject(task, connector, provision, true)
-                                    : getRemoteObject(task, connector, orgUnit);
+                                    : getRemoteObject(task, connector, orgUnit, true);
                 } catch (Exception ignore) {
                     // ignore exception
                     LOG.error("Error retrieving after object", ignore);
@@ -621,7 +610,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
             obj = connector.getObject(new ObjectClass(task.getObjectClassName()),
                     new Uid(connObjectKey),
                     MappingUtils.buildOperationOptions(IteratorUtils.chainedIterator(
-                            MappingUtils.getPropagationMappingItems(provision).iterator(),
+                            MappingUtils.getPropagationItems(provision).iterator(),
                             linkingMappingItems.iterator())));
 
             for (MappingItem item : linkingMappingItems) {
@@ -650,37 +639,31 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
      * @param connector connector facade proxy.
      * @param task current propagation task.
      * @param orgUnit orgUnit
+     * @param latest 'FALSE' to retrieve object using old connObjectKey if not null.
      * @return remote connector object.
      */
     protected ConnectorObject getRemoteObject(
             final PropagationTask task,
             final Connector connector,
-            final OrgUnit orgUnit) {
+            final OrgUnit orgUnit,
+            final boolean latest) {
 
-        Realm realm = realmDAO.find(task.getEntityKey());
-        if (realm == null) {
-            return null;
-        }
+        String connObjectKey = latest || task.getOldConnObjectKey() == null
+                ? task.getConnObjectKey()
+                : task.getOldConnObjectKey();
 
-        final ConnectorObject[] obj = new ConnectorObject[1];
+        ConnectorObject obj = null;
         try {
-            connector.search(new ObjectClass(task.getObjectClassName()),
-                    new EqualsFilter(AttributeBuilder.build(orgUnit.getExtAttrName(), realm.getName())),
-                    new ResultsHandler() {
-
-                @Override
-                public boolean handle(final ConnectorObject connectorObject) {
-                    obj[0] = connectorObject;
-                    return false;
-                }
-            }, MappingUtils.buildOperationOptions(orgUnit));
+            obj = connector.getObject(new ObjectClass(task.getObjectClassName()),
+                    new Uid(connObjectKey),
+                    MappingUtils.buildOperationOptions(MappingUtils.getPropagationItems(orgUnit).iterator()));
         } catch (TimeoutException toe) {
             LOG.debug("Request timeout", toe);
             throw toe;
         } catch (RuntimeException ignore) {
-            LOG.debug("While resolving {}", task.getConnObjectKey(), ignore);
+            LOG.debug("While resolving {}", connObjectKey, ignore);
         }
 
-        return obj[0];
+        return obj;
     }
 }

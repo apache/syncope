@@ -38,7 +38,7 @@ import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.GroupTO;
-import org.apache.syncope.common.lib.to.MappingItemTO;
+import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.MappingTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
@@ -263,14 +263,14 @@ public class MigrationITCase extends AbstractTaskITCase {
         MappingTO mapping = new MappingTO();
         provisionTO.setMapping(mapping);
 
-        MappingItemTO item = new MappingItemTO();
+        ItemTO item = new ItemTO();
         item.setIntAttrName("username");
         item.setExtAttrName("username");
         item.setMandatoryCondition("true");
         item.setPurpose(MappingPurpose.PULL);
         mapping.setConnObjectKeyItem(item);
 
-        item = new MappingItemTO();
+        item = new ItemTO();
         item.setPassword(true);
         item.setIntAttrName("password");
         item.setExtAttrName("__PASSWORD__");
@@ -278,56 +278,56 @@ public class MigrationITCase extends AbstractTaskITCase {
         item.setPurpose(MappingPurpose.PULL);
         mapping.add(item);
 
-        item = new MappingItemTO();
+        item = new ItemTO();
         item.setIntAttrName(MIGRATION_CIPHER_ALGORITHM);
         item.setExtAttrName("cipherAlgorithm");
         item.setMandatoryCondition("true");
         item.setPurpose(MappingPurpose.PULL);
         mapping.add(item);
 
-        item = new MappingItemTO();
+        item = new ItemTO();
         item.setIntAttrName("surname");
         item.setExtAttrName("surname");
         item.setMandatoryCondition("false");
         item.setPurpose(MappingPurpose.PULL);
         mapping.add(item);
 
-        item = new MappingItemTO();
+        item = new ItemTO();
         item.setIntAttrName("email");
         item.setExtAttrName("email");
         item.setMandatoryCondition("false");
         item.setPurpose(MappingPurpose.PULL);
         mapping.add(item);
 
-        item = new MappingItemTO();
+        item = new ItemTO();
         item.setIntAttrName("firstname");
         item.setExtAttrName("firstname");
         item.setMandatoryCondition("false");
         item.setPurpose(MappingPurpose.PULL);
         mapping.add(item);
 
-        item = new MappingItemTO();
+        item = new ItemTO();
         item.setIntAttrName("ctype");
         item.setExtAttrName("type");
         item.setMandatoryCondition("false");
         item.setPurpose(MappingPurpose.PULL);
         mapping.add(item);
 
-        item = new MappingItemTO();
+        item = new ItemTO();
         item.setIntAttrName("gender");
         item.setExtAttrName("gender");
         item.setMandatoryCondition("false");
         item.setPurpose(MappingPurpose.PULL);
         mapping.add(item);
 
-        item = new MappingItemTO();
+        item = new ItemTO();
         item.setIntAttrName("loginDate");
         item.setExtAttrName("loginDate");
         item.setMandatoryCondition("false");
         item.setPurpose(MappingPurpose.PULL);
         mapping.add(item);
 
-        item = new MappingItemTO();
+        item = new ItemTO();
         item.setIntAttrName(MIGRATION_RESOURCES_SCHEMA);
         item.setExtAttrName("__RESOURCES__");
         item.setMandatoryCondition("false");
@@ -344,42 +344,42 @@ public class MigrationITCase extends AbstractTaskITCase {
         mapping = new MappingTO();
         provisionTO.setMapping(mapping);
 
-        item = new MappingItemTO();
+        item = new ItemTO();
         item.setIntAttrName("name");
         item.setExtAttrName("name");
         item.setMandatoryCondition("true");
         item.setPurpose(MappingPurpose.PULL);
         mapping.setConnObjectKeyItem(item);
 
-        item = new MappingItemTO();
+        item = new ItemTO();
         item.setIntAttrName("show");
         item.setExtAttrName("show");
         item.setMandatoryCondition("false");
         item.setPurpose(MappingPurpose.PULL);
         mapping.add(item);
 
-        item = new MappingItemTO();
+        item = new ItemTO();
         item.setIntAttrName("title");
         item.setExtAttrName("title");
         item.setMandatoryCondition("false");
         item.setPurpose(MappingPurpose.PULL);
         mapping.add(item);
 
-        item = new MappingItemTO();
+        item = new ItemTO();
         item.setIntAttrName("icon");
         item.setExtAttrName("icon");
         item.setMandatoryCondition("false");
         item.setPurpose(MappingPurpose.PULL);
         mapping.add(item);
 
-        item = new MappingItemTO();
+        item = new ItemTO();
         item.setIntAttrName(MIGRATION_RESOURCES_SCHEMA);
         item.setExtAttrName("__RESOURCES__");
         item.setMandatoryCondition("false");
         item.setPurpose(MappingPurpose.PULL);
         mapping.add(item);
 
-        item = new MappingItemTO();
+        item = new ItemTO();
         item.setIntAttrName(MIGRATION_MEMBERSHIPS_SCHEMA);
         item.setExtAttrName("__MEMBERSHIPS__");
         item.setMandatoryCondition("false");

@@ -80,10 +80,10 @@ public class ChangePasswordModal extends AbstractModalPanel<AnyWrapper<UserTO>> 
                 final List<String> resources = new ArrayList<String>();
                 boolean isOnSyncope = false;
                 for (StatusBean sb : statusModel.getObject()) {
-                    if (sb.getResourceName().equals(Constants.SYNCOPE)) {
+                    if (sb.getResource().equals(Constants.SYNCOPE)) {
                         isOnSyncope = true;
                     } else {
-                        resources.add(sb.getResourceName());
+                        resources.add(sb.getResource());
                     }
                 }
 

@@ -18,13 +18,21 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity.resource;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.Cacheable;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Lob;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.resource.OrgUnitItem;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractGeneratedKeyEntity;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
@@ -50,10 +58,10 @@ public class JPAOrgUnit extends AbstractGeneratedKeyEntity implements OrgUnit {
     private String serializedSyncToken;
 
     @NotNull
-    private String extAttrName;
-
-    @NotNull
     private String connObjectLink;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "orgUnit")
+    private List<JPAOrgUnitItem> items = new ArrayList<>();
 
     @Override
     public ExternalResource getResource() {
@@ -96,16 +104,6 @@ public class JPAOrgUnit extends AbstractGeneratedKeyEntity implements OrgUnit {
     }
 
     @Override
-    public String getExtAttrName() {
-        return extAttrName;
-    }
-
-    @Override
-    public void setExtAttrName(final String extAttrName) {
-        this.extAttrName = extAttrName;
-    }
-
-    @Override
     public String getConnObjectLink() {
         return connObjectLink;
     }
@@ -115,4 +113,31 @@ public class JPAOrgUnit extends AbstractGeneratedKeyEntity implements OrgUnit {
         this.connObjectLink = connObjectLink;
     }
 
+    @Override
+    public boolean add(final OrgUnitItem item) {
+        checkType(item, JPAOrgUnitItem.class);
+        return items.contains((JPAOrgUnitItem) item) || items.add((JPAOrgUnitItem) item);
+    }
+
+    @Override
+    public List<? extends OrgUnitItem> getItems() {
+        return items;
+    }
+
+    @Override
+    public OrgUnitItem getConnObjectKeyItem() {
+        return IterableUtils.find(getItems(), new Predicate<OrgUnitItem>() {
+
+            @Override
+            public boolean evaluate(final OrgUnitItem item) {
+                return item.isConnObjectKey();
+            }
+        });
+    }
+
+    @Override
+    public void setConnObjectKeyItem(final OrgUnitItem item) {
+        item.setConnObjectKey(true);
+        this.add(item);
+    }
 }

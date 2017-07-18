@@ -36,6 +36,7 @@ import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.rest.UserRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
+import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -145,7 +146,7 @@ public class ResourceStatusDirectoryPanel
 
     @Override
     protected ResourceStatusDataProvider dataProvider() {
-        return new ResourceStatusDataProvider(type, resourceTO.getKey(), rows, "/");
+        return new ResourceStatusDataProvider(type, resourceTO.getKey(), rows, SyncopeConstants.ROOT_REALM);
     }
 
     @Override

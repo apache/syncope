@@ -144,7 +144,7 @@ public class BulkActionITCase extends AbstractConsoleITCase {
 
         component = TESTER.getComponentFromLastRenderedPage(component.getPageRelativePath() + ":cells:1:cell:check");
         assertEquals(Status.ACTIVE, StatusBean.class.cast(component.getDefaultModelObject()).getStatus());
-        assertEquals(resourceName, StatusBean.class.cast(component.getDefaultModelObject()).getResourceName());
+        assertEquals(resourceName, StatusBean.class.cast(component.getDefaultModelObject()).getResource());
 
         FormTester formTester = TESTER.newFormTester(
                 TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:firstLevelContainer:"
@@ -181,7 +181,7 @@ public class BulkActionITCase extends AbstractConsoleITCase {
 
         component = TESTER.getComponentFromLastRenderedPage(component.getPageRelativePath() + ":cells:1:cell:check");
         assertEquals(Status.SUSPENDED, StatusBean.class.cast(component.getDefaultModelObject()).getStatus());
-        assertEquals(resourceName, StatusBean.class.cast(component.getDefaultModelObject()).getResourceName());
+        assertEquals(resourceName, StatusBean.class.cast(component.getDefaultModelObject()).getResource());
 
         // re-activate
         TESTER.clickLink("body:realmsLI:realms");
@@ -236,7 +236,7 @@ public class BulkActionITCase extends AbstractConsoleITCase {
 
         component = TESTER.getComponentFromLastRenderedPage(component.getPageRelativePath() + ":cells:1:cell:check");
         assertEquals(Status.ACTIVE, StatusBean.class.cast(component.getDefaultModelObject()).getStatus());
-        assertEquals(resourceName, StatusBean.class.cast(component.getDefaultModelObject()).getResourceName());
+        assertEquals(resourceName, StatusBean.class.cast(component.getDefaultModelObject()).getResource());
 
         TESTER.executeAjaxEvent(TAB_PANEL + "outerObjectsRepeater:2:outer:dialog:footer:buttons:0:button",
                 Constants.ON_CLICK);

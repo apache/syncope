@@ -22,7 +22,7 @@ import java.io.Serializable;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.panels.TogglePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.common.lib.to.MappingItemTO;
+import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxSubmitLink;
@@ -69,9 +69,9 @@ public class JEXLTransformersTogglePanel extends TogglePanel<Serializable> {
         });
     }
 
-    public JEXLTransformersTogglePanel setMappingItem(final AjaxRequestTarget target, final MappingItemTO mapItem) {
-        this.propagationJEXLTransformer.setNewModel(new PropertyModel<String>(mapItem, "propagationJEXLTransformer"));
-        this.pullJEXLTransformer.setNewModel(new PropertyModel<String>(mapItem, "pullJEXLTransformer"));
+    public JEXLTransformersTogglePanel setItem(final AjaxRequestTarget target, final ItemTO item) {
+        this.propagationJEXLTransformer.setNewModel(new PropertyModel<String>(item, "propagationJEXLTransformer"));
+        this.pullJEXLTransformer.setNewModel(new PropertyModel<String>(item, "pullJEXLTransformer"));
         setHeader(target, StringUtils.EMPTY);
         return this;
     }

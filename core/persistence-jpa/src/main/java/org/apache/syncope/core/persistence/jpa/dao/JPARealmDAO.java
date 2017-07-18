@@ -63,6 +63,7 @@ public class JPARealmDAO extends AbstractDAO<Realm> implements RealmDAO {
         return result;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Realm find(final String key) {
         return entityManager().find(JPARealm.class, key);
@@ -115,6 +116,15 @@ public class JPARealmDAO extends AbstractDAO<Realm> implements RealmDAO {
         }
 
         return result;
+    }
+
+    @Override
+    public List<Realm> findByName(final String name) {
+        TypedQuery<Realm> query = entityManager().createQuery("SELECT e FROM " + JPARealm.class.getSimpleName() + " e "
+                + "WHERE e.name=:name", Realm.class);
+        query.setParameter("name", name);
+
+        return query.getResultList();
     }
 
     @Override
@@ -186,6 +196,7 @@ public class JPARealmDAO extends AbstractDAO<Realm> implements RealmDAO {
         return result;
     }
 
+    @Transactional(readOnly = true)
     @Override
     public List<Realm> findAll() {
         return findDescendants(getRoot());

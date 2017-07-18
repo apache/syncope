@@ -38,7 +38,7 @@ import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
-import org.apache.syncope.common.lib.to.MappingItemTO;
+import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.SAML2IdPTO;
 import org.apache.syncope.common.lib.to.SAML2RequestTO;
 import org.apache.syncope.common.rest.api.service.SAML2SPService;
@@ -150,7 +150,7 @@ public class SAML2ITCase extends AbstractITCase {
 
         ssoCircle.getMappingItems().clear();
 
-        MappingItemTO keyMapping = new MappingItemTO();
+        ItemTO keyMapping = new ItemTO();
         keyMapping.setIntAttrName("email");
         keyMapping.setExtAttrName("EmailAddress");
         ssoCircle.setConnObjectKeyItem(keyMapping);

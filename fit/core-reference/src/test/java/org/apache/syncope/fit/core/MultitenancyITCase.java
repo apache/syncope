@@ -33,7 +33,7 @@ import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
-import org.apache.syncope.common.lib.to.MappingItemTO;
+import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.MappingTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ProvisionTO;
@@ -151,13 +151,13 @@ public class MultitenancyITCase extends AbstractITCase {
             mapping.setConnObjectLink("'uid=' + username + ',ou=people,o=isp'");
             provisionTO.setMapping(mapping);
 
-            MappingItemTO item = new MappingItemTO();
+            ItemTO item = new ItemTO();
             item.setIntAttrName("username");
             item.setExtAttrName("cn");
             item.setPurpose(MappingPurpose.BOTH);
             mapping.setConnObjectKeyItem(item);
 
-            item = new MappingItemTO();
+            item = new ItemTO();
             item.setPassword(true);
             item.setIntAttrName("password");
             item.setExtAttrName("userPassword");
@@ -165,14 +165,14 @@ public class MultitenancyITCase extends AbstractITCase {
             item.setMandatoryCondition("true");
             mapping.add(item);
 
-            item = new MappingItemTO();
+            item = new ItemTO();
             item.setIntAttrName("key");
             item.setPurpose(MappingPurpose.BOTH);
             item.setExtAttrName("sn");
             item.setMandatoryCondition("true");
             mapping.add(item);
 
-            item = new MappingItemTO();
+            item = new ItemTO();
             item.setIntAttrName("email");
             item.setPurpose(MappingPurpose.BOTH);
             item.setExtAttrName("mail");

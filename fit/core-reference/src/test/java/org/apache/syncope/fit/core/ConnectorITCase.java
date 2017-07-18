@@ -52,7 +52,7 @@ import org.apache.syncope.common.lib.to.ConnIdObjectClassTO;
 import org.apache.syncope.common.lib.to.ConnInstanceHistoryConfTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.ConnPoolConfTO;
-import org.apache.syncope.common.lib.to.MappingItemTO;
+import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.MappingTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
@@ -754,7 +754,7 @@ public class ConnectorITCase extends AbstractITCase {
             MappingTO mapping = new MappingTO();
             provisionTO.setMapping(mapping);
 
-            MappingItemTO mapItem = new MappingItemTO();
+            ItemTO mapItem = new ItemTO();
             mapItem.setExtAttrName("uid");
             mapItem.setIntAttrName("userId");
             mapItem.setConnObjectKey(true);

@@ -28,8 +28,6 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
-import org.apache.commons.jexl3.JexlContext;
-import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.StringPatchItem;
@@ -68,7 +66,6 @@ import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
-import org.identityconnectors.framework.common.objects.Name;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -204,8 +201,8 @@ public class PropagationManagerImpl implements PropagationManager {
         return getUpdateTasks(
                 userDAO.authFind(wfResult.getResult().getKey().getKey()),
                 wfResult.getResult().getKey().getPassword() == null
-                        ? null
-                        : wfResult.getResult().getKey().getPassword().getValue(),
+                ? null
+                : wfResult.getResult().getKey().getPassword().getValue(),
                 changePwd,
                 wfResult.getResult().getValue(),
                 wfResult.getPropByRes(),
@@ -381,9 +378,9 @@ public class PropagationManagerImpl implements PropagationManager {
         for (Map.Entry<String, ResourceOperation> entry : propByRes.asMap().entrySet()) {
             ExternalResource resource = resourceDAO.find(entry.getKey());
             Provision provision = resource == null ? null : resource.getProvision(any.getType());
-            List<MappingItem> mappingItems = provision == null
+            List<? extends MappingItem> mappingItems = provision == null
                     ? Collections.<MappingItem>emptyList()
-                    : MappingUtils.getPropagationMappingItems(provision);
+                    : MappingUtils.getPropagationItems(provision);
 
             if (resource == null) {
                 LOG.error("Invalid resource name specified: {}, ignoring...", entry.getKey());
@@ -484,28 +481,11 @@ public class PropagationManagerImpl implements PropagationManager {
                 task.setObjectClassName(orgUnit.getObjectClass().getObjectClassValue());
                 task.setEntityKey(realm.getKey());
                 task.setOperation(entry.getValue());
+                task.setOldConnObjectKey(propByRes.getOldConnObjectKey(resource.getKey()));
 
-                Set<Attribute> preparedAttrs = new HashSet<>();
-                preparedAttrs.add(AttributeBuilder.build(orgUnit.getExtAttrName(), realm.getName()));
-
-                JexlContext jexlContext = new MapContext();
-                JexlUtils.addFieldsToContext(realm, jexlContext);
-                String evalConnObjectLink = JexlUtils.evaluate(orgUnit.getConnObjectLink(), jexlContext);
-                if (StringUtils.isBlank(evalConnObjectLink)) {
-                    // add connObjectKey as __NAME__ attribute ...
-                    LOG.debug("Add connObjectKey [{}] as __NAME__", realm.getName());
-                    preparedAttrs.add(new Name(realm.getName()));
-                } else {
-                    LOG.debug("Add connObjectLink [{}] as __NAME__", evalConnObjectLink);
-                    preparedAttrs.add(new Name(evalConnObjectLink));
-
-                    // connObjectKey not propagated: it will be used to set the value for __UID__ attribute
-                    LOG.debug("connObjectKey will be used just as __UID__ attribute");
-                }
-
-                task.setConnObjectKey(realm.getName());
-
-                task.setAttributes(preparedAttrs);
+                Pair<String, Set<Attribute>> preparedAttrs = mappingManager.prepareAttrs(realm, orgUnit);
+                task.setConnObjectKey(preparedAttrs.getKey());
+                task.setAttributes(preparedAttrs.getValue());
 
                 tasks.add(task);
 

@@ -25,17 +25,18 @@ import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.UserTO;
 
 public class StatusBean implements Serializable {
 
     private static final long serialVersionUID = -5207260204921071129L;
 
-    private final String anyKey;
+    private final String key;
 
-    private final String anyName;
+    private final String name;
 
-    private final String resourceName;
+    private final String resource;
 
     private String connObjectLink;
 
@@ -44,11 +45,17 @@ public class StatusBean implements Serializable {
     private boolean linked = true;
 
     public StatusBean(final AnyTO any, final String resourceName) {
-        this.anyKey = any.getKey();
-        this.anyName = any instanceof UserTO
+        this.key = any.getKey();
+        this.name = any instanceof UserTO
                 ? ((UserTO) any).getUsername()
                 : any instanceof GroupTO ? ((GroupTO) any).getName() : String.valueOf(any.getKey());
-        this.resourceName = resourceName;
+        this.resource = resourceName;
+    }
+
+    public StatusBean(final RealmTO realm, final String resourceName) {
+        this.key = realm.getKey();
+        this.name = realm.getFullPath();
+        this.resource = resourceName;
     }
 
     public String getConnObjectLink() {
@@ -59,8 +66,8 @@ public class StatusBean implements Serializable {
         this.connObjectLink = connObjectLink;
     }
 
-    public String getResourceName() {
-        return resourceName;
+    public String getResource() {
+        return resource;
     }
 
     public Status getStatus() {
@@ -71,12 +78,12 @@ public class StatusBean implements Serializable {
         this.status = status;
     }
 
-    public String getAnyKey() {
-        return anyKey;
+    public String getKey() {
+        return key;
     }
 
-    public String getAnyName() {
-        return anyName;
+    public String getName() {
+        return name;
     }
 
     public boolean isLinked() {
