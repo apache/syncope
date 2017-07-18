@@ -204,12 +204,12 @@ public class BulkContent<T extends Serializable, S> extends MultilevelPanel.Seco
                                     case "REACTIVATE":
                                         res = ((UserRestClient) anyRestClient).
                                                 reactivate(etag, entry.getKey(), entry.getValue());
-                                        fieldName = "resourceName";
+                                        fieldName = "resource";
                                         break;
                                     case "SUSPEND":
                                         res = ((UserRestClient) anyRestClient).
                                                 suspend(etag, entry.getKey(), entry.getValue());
-                                        fieldName = "resourceName";
+                                        fieldName = "resource";
                                         break;
                                     default:
                                         break;
@@ -236,7 +236,7 @@ public class BulkContent<T extends Serializable, S> extends MultilevelPanel.Seco
                         target.add(actionPanel);
 
                         SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-                    } catch (IllegalArgumentException | NoSuchMethodException | SecurityException 
+                    } catch (IllegalArgumentException | NoSuchMethodException | SecurityException
                             | IllegalAccessException | InvocationTargetException e) {
                         LOG.error("Bulk action failure", e);
                         SyncopeConsoleSession.get().error("Operation " + actionToBeAddresed.getActionId()

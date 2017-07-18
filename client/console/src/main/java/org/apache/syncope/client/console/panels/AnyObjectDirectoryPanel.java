@@ -145,7 +145,7 @@ public class AnyObjectDirectoryPanel extends AnyDirectoryPanel<AnyObjectTO, AnyO
                             altDefaultModal,
                             pageRef,
                             formModel.getObject().getInnerObject(),
-                            "resourceName",
+                            "resource",
                             false)));
 
                     altDefaultModal.header(new Model<>(
