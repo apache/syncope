@@ -32,7 +32,6 @@ import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.wicket.PageReference;
@@ -62,9 +61,6 @@ public class ResourceStatusModal extends StatusModal<ResourceTO> {
             }
         }, new ArrayList<String>());
         Collections.sort(availableAnyTypes, new AnyTypeRestClient.AnyTypeKeyComparator());
-        if (resource.getOrgUnit() != null) {
-            availableAnyTypes.add(0, SyncopeConstants.REALM_ANYTYPE);
-        }
 
         AjaxDropDownChoicePanel<String> anyTypes =
                 new AjaxDropDownChoicePanel<>("anyTypes", "anyTypes", typeModel, false);
