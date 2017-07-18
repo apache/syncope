@@ -153,7 +153,7 @@ public class StatusPanel extends Panel {
 
         builder.setModel(model);
         builder.setItems(statusBeans);
-        builder.includes("resourceName", "connObjectLink", "status");
+        builder.includes("resource", "connObjectLink", "status");
         builder.withChecks(ListViewPanel.CheckAvailability.NONE);
         builder.setReuseItem(false);
 

@@ -222,7 +222,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                             altDefaultModal,
                             pageRef,
                             formModel.getObject().getInnerObject(),
-                            "resourceName",
+                            "resource",
                             true)));
 
                     altDefaultModal.header(new Model<>(
@@ -246,7 +246,7 @@ public class UserDirectoryPanel extends AnyDirectoryPanel<UserTO, UserRestClient
                             altDefaultModal,
                             pageRef,
                             formModel.getObject().getInnerObject(),
-                            "resourceName",
+                            "resource",
                             false)));
 
                     altDefaultModal.header(new Model<>(

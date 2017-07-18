@@ -320,7 +320,7 @@ public class GroupDirectoryPanel extends AnyDirectoryPanel<GroupTO, GroupRestCli
                         altDefaultModal,
                         pageRef,
                         formModel.getObject().getInnerObject(),
-                        "resourceName",
+                        "resource",
                         false)));
 
                 altDefaultModal.header(new Model<>(
