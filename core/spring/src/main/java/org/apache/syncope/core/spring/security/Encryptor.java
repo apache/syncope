@@ -154,11 +154,14 @@ public final class Encryptor {
         String actualKey = secretKey;
         if (actualKey.length() < 16) {
             StringBuilder actualKeyPadding = new StringBuilder(actualKey);
-            for (int i = 0; i < 16 - actualKey.length(); i++) {
-                actualKeyPadding.append('0');
-            }
+            int length = 16 - actualKey.length();
+            String randomChars = SecureRandomUtils.generateRandomPassword(length);
+
+            actualKeyPadding.append(randomChars);
             actualKey = actualKeyPadding.toString();
-            LOG.debug("actualKey too short, adding some random characters");
+            LOG.warn("The secret key is too short (< 16), adding some random characters. "
+                     + "Passwords encrypted with AES and this key will not be recoverable "
+                     + "as a result if the container is restarted.");
         }
 
         try {
