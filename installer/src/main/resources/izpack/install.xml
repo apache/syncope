@@ -140,6 +140,7 @@ under the License.
   <jar src="lib/jackson-databind-@{jackson.version}.jar"/>
   <jar src="lib/jackson-core-@{jackson.version}.jar"/>
   <jar src="lib/jackson-annotations-@{jackson.version}.jar"/>
+  <jar src="lib/jasypt-@{jasypt.version}.jar"/>
   
   <jar src="lib/maven-invoker-@{maven-invoker.version}.jar"/>
   <jar src="lib/plexus-utils-3.0.24.jar"/>

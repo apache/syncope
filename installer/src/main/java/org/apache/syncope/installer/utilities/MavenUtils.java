@@ -23,23 +23,17 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
-import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.FileUtils;
 import org.apache.maven.shared.invoker.DefaultInvocationRequest;
 import org.apache.maven.shared.invoker.DefaultInvoker;
@@ -49,6 +43,8 @@ import org.apache.maven.shared.invoker.Invoker;
 import org.apache.maven.shared.invoker.MavenInvocationException;
 import org.apache.maven.shared.invoker.PrintStreamHandler;
 import org.apache.maven.shared.invoker.PrintStreamLogger;
+import org.jasypt.commons.CommonUtils;
+import org.jasypt.digest.StandardStringDigester;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -119,15 +115,9 @@ public class MavenUtils {
         properties.setProperty("jwsKey", jwsKey);
 
         if (adminPassword != null) {
-            try {
-                final MessageDigest cript = MessageDigest.getInstance("SHA-1");
-                String encodedPassword =
-                    new String(Hex.encodeHex(cript.digest(adminPassword.getBytes(StandardCharsets.UTF_8))));
-                properties.setProperty("adminPassword", encodedPassword);
-            } catch (final NoSuchAlgorithmException ex) {
-                Logger.getLogger(MavenUtils.class.getName()).log(Level.SEVERE, "NoSuchAlgorithmException", ex);
-
-            }
+            StandardStringDigester digester = getDigester("S-SHA-256");
+            String encodedPassword = digester.digest(adminPassword);
+            properties.setProperty("adminPassword", encodedPassword);
         }
         properties.setProperty("version", "1.0-SNAPSHOT");
         return properties;
@@ -244,5 +234,27 @@ public class MavenUtils {
 
         }
         return tempSettingsXML;
+    }
+
+    private static StandardStringDigester getDigester(final String cipherAlgorithm) {
+        StandardStringDigester digester = new StandardStringDigester();
+
+        if (cipherAlgorithm.startsWith("S-")) {
+            // Salted ...
+            digester.setAlgorithm(cipherAlgorithm.replaceFirst("S\\-", ""));
+            digester.setIterations(1);
+            digester.setSaltSizeBytes(8);
+            digester.setInvertPositionOfPlainSaltInEncryptionResults(true);
+            digester.setInvertPositionOfSaltInMessageBeforeDigesting(true);
+            digester.setUseLenientSaltSizeCheck(true);
+        } else {
+            // Not salted ...
+            digester.setAlgorithm(cipherAlgorithm);
+            digester.setIterations(1);
+            digester.setSaltSizeBytes(0);
+        }
+
+        digester.setStringOutputType(CommonUtils.STRING_OUTPUT_TYPE_HEXADECIMAL);
+        return digester;
     }
 }
