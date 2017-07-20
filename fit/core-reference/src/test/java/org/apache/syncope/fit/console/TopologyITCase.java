@@ -95,7 +95,7 @@ public class TopologyITCase extends AbstractConsoleITCase {
                 Constants.ON_CHANGE);
         formTester.setValue("content:anyTypes:dropDownChoiceField", "0");
 
-        component = findComponentByProp("anyKey", "body:toggle:outerObjectsRepeater:1:outer:form:content:status:"
+        component = findComponentByProp("key", "body:toggle:outerObjectsRepeater:1:outer:form:content:status:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:groupForm:"
                 + "checkgroup:dataTable", "b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee");
 

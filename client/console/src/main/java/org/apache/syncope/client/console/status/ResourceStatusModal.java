@@ -22,9 +22,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
+import org.apache.syncope.client.console.commons.SerializableTransformer;
 import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
@@ -53,7 +53,7 @@ public class ResourceStatusModal extends StatusModal<ResourceTO> {
         super(baseModal, pageReference, resource, null, false);
 
         List<String> availableAnyTypes = CollectionUtils.collect(
-                resource.getProvisions(), new Transformer<ProvisionTO, String>() {
+                resource.getProvisions(), new SerializableTransformer<ProvisionTO, String>() {
 
             @Override
             public String transform(final ProvisionTO provision) {

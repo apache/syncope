@@ -85,7 +85,7 @@ public class BulkActionITCase extends AbstractConsoleITCase {
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:groupForm:"
                 + "checkgroup:dataTable", WebMarkupContainer.class);
 
-        component = findComponentByProp("resourceName",
+        component = findComponentByProp("resource",
                 TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:groupForm:"
                 + "checkgroup:dataTable", "resource-csv");
@@ -105,7 +105,7 @@ public class BulkActionITCase extends AbstractConsoleITCase {
         TESTER.assertComponent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
                 + "secondLevelContainer:second:container", WebMarkupContainer.class);
 
-        assertNotNull(findComponentByProp("resourceName", TAB_PANEL + "outerObjectsRepeater:2:outer:"
+        assertNotNull(findComponentByProp("resource", TAB_PANEL + "outerObjectsRepeater:2:outer:"
                 + "form:content:status:secondLevelContainer:second:container", "resource-csv"));
     }
 
@@ -119,7 +119,7 @@ public class BulkActionITCase extends AbstractConsoleITCase {
         userStatusBulkAction(0, "Syncope");
     }
 
-    private void userStatusBulkAction(final int index, final String resourceName) {
+    private void userStatusBulkAction(final int index, final String resource) {
         // suspend 
         TESTER.clickLink("body:realmsLI:realms");
         TESTER.clickLink("body:content:body:container:content:tabbedPanel:tabs-container:tabs:1:link");
@@ -138,13 +138,13 @@ public class BulkActionITCase extends AbstractConsoleITCase {
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:groupForm:"
                 + "checkgroup:dataTable", WebMarkupContainer.class);
 
-        component = findComponentByProp("resourceName",
+        component = findComponentByProp("resource",
                 TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:firstLevelContainer:first:container:"
-                + "content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", resourceName);
+                + "content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", resource);
 
         component = TESTER.getComponentFromLastRenderedPage(component.getPageRelativePath() + ":cells:1:cell:check");
         assertEquals(Status.ACTIVE, StatusBean.class.cast(component.getDefaultModelObject()).getStatus());
-        assertEquals(resourceName, StatusBean.class.cast(component.getDefaultModelObject()).getResource());
+        assertEquals(resource, StatusBean.class.cast(component.getDefaultModelObject()).getResource());
 
         FormTester formTester = TESTER.newFormTester(
                 TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:firstLevelContainer:"
@@ -175,13 +175,13 @@ public class BulkActionITCase extends AbstractConsoleITCase {
                 + "outerObjectsRepeater:2:outer:form:content:status:secondLevelContainer:back",
                 Constants.ON_CLICK);
 
-        component = findComponentByProp("resourceName",
+        component = findComponentByProp("resource",
                 TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:firstLevelContainer:first:container:"
-                + "content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", resourceName);
+                + "content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", resource);
 
         component = TESTER.getComponentFromLastRenderedPage(component.getPageRelativePath() + ":cells:1:cell:check");
         assertEquals(Status.SUSPENDED, StatusBean.class.cast(component.getDefaultModelObject()).getStatus());
-        assertEquals(resourceName, StatusBean.class.cast(component.getDefaultModelObject()).getResource());
+        assertEquals(resource, StatusBean.class.cast(component.getDefaultModelObject()).getResource());
 
         // re-activate
         TESTER.clickLink("body:realmsLI:realms");
@@ -230,13 +230,13 @@ public class BulkActionITCase extends AbstractConsoleITCase {
                 + "outerObjectsRepeater:2:outer:form:content:status:secondLevelContainer:back",
                 Constants.ON_CLICK);
 
-        component = findComponentByProp("resourceName",
+        component = findComponentByProp("resource",
                 TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:firstLevelContainer:first:container:"
-                + "content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", resourceName);
+                + "content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable", resource);
 
         component = TESTER.getComponentFromLastRenderedPage(component.getPageRelativePath() + ":cells:1:cell:check");
         assertEquals(Status.ACTIVE, StatusBean.class.cast(component.getDefaultModelObject()).getStatus());
-        assertEquals(resourceName, StatusBean.class.cast(component.getDefaultModelObject()).getResource());
+        assertEquals(resource, StatusBean.class.cast(component.getDefaultModelObject()).getResource());
 
         TESTER.executeAjaxEvent(TAB_PANEL + "outerObjectsRepeater:2:outer:dialog:footer:buttons:0:button",
                 Constants.ON_CLICK);
@@ -265,7 +265,7 @@ public class BulkActionITCase extends AbstractConsoleITCase {
                 + "container:content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable:topToolbars:"
                 + "toolbars:1:headers:2:header:orderByLink", true);
 
-        component = findComponentByProp("resourceName",
+        component = findComponentByProp("resource",
                 TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:groupForm:"
                 + "checkgroup:dataTable", "ws-target-resource-1");
@@ -285,7 +285,7 @@ public class BulkActionITCase extends AbstractConsoleITCase {
         TESTER.assertComponent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
                 + "secondLevelContainer:second:container", WebMarkupContainer.class);
 
-        assertNotNull(findComponentByProp("resourceName", TAB_PANEL + "outerObjectsRepeater:2:outer:"
+        assertNotNull(findComponentByProp("resource", TAB_PANEL + "outerObjectsRepeater:2:outer:"
                 + "form:content:status:secondLevelContainer:second:container:selectedObjects", "resource-testdb2"));
     }
 
@@ -313,7 +313,7 @@ public class BulkActionITCase extends AbstractConsoleITCase {
                 + "container:content:searchContainer:resultTable:tablePanel:groupForm:checkgroup:dataTable:topToolbars:"
                 + "toolbars:1:headers:2:header:orderByLink", true);
 
-        component = findComponentByProp("resourceName",
+        component = findComponentByProp("resource",
                 TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
                 + "firstLevelContainer:first:container:content:searchContainer:resultTable:tablePanel:groupForm:"
                 + "checkgroup:dataTable", "ws-target-resource-1");
@@ -333,7 +333,7 @@ public class BulkActionITCase extends AbstractConsoleITCase {
         TESTER.assertComponent(TAB_PANEL + "outerObjectsRepeater:2:outer:form:content:status:"
                 + "secondLevelContainer:second:container", WebMarkupContainer.class);
 
-        assertNotNull(findComponentByProp("resourceName", TAB_PANEL + "outerObjectsRepeater:2:outer:"
+        assertNotNull(findComponentByProp("resource", TAB_PANEL + "outerObjectsRepeater:2:outer:"
                 + "form:content:status:secondLevelContainer:second:container:selectedObjects", "resource-testdb2"));
     }
 
