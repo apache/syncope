@@ -75,7 +75,7 @@ public class ResourceStatusDirectoryPanel
         this.multiLevelPanelRef = multiLevelPanelRef;
         this.type = type;
         this.resourceTO = resourceTO;
-        this.itemKeyFieldName = "anyKey";
+        this.itemKeyFieldName = "key";
 
         initResultTable();
     }
@@ -90,7 +90,7 @@ public class ResourceStatusDirectoryPanel
         final List<IColumn<StatusBean, String>> columns = new ArrayList<>();
 
         columns.add(new PropertyColumn<StatusBean, String>(
-                new StringResourceModel("anyKey", this), "anyKey", "anyKey"));
+                new StringResourceModel("key", this), "key", "key"));
 
         columns.add(new PropertyColumn<StatusBean, String>(
                 new StringResourceModel("connObjectLink", this), "connObjectLink", "connObjectLink"));
