@@ -128,7 +128,7 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
     }
 
     @Override
-    protected final List<IColumn<A, String>> getColumns() {
+    protected List<IColumn<A, String>> getColumns() {
         final List<IColumn<A, String>> columns = new ArrayList<>();
         final List<IColumn<A, String>> prefcolumns = new ArrayList<>();
 
