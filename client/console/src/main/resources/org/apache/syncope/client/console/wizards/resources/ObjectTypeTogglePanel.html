@@ -17,8 +17,16 @@ specific language governing permissions and limitations
 under the License.
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wicket="http://wicket.apache.org">
-    <wicket:extend>
-    <span wicket:id="provision">[PROVISION]</span>
-    <span wicket:id="objectTypeToggle"/>
+  <wicket:extend>
+    <div id="startAtContainer">
+      <form wicket:id="objectTypeForm">
+        <div class="input-group">
+          <span wicket:id="type"/>
+          <div class="input-group-addon">
+            <a wicket:id="changeit"><i class="fa fa-list-alt" alt="object type icon" title="ObjectType"></i></a>
+          </div>
+        </div>
+      </form>
+    </div>
   </wicket:extend>
 </html>

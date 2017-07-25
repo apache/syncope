@@ -23,9 +23,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.IteratorUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.collections4.Predicate;
+import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
@@ -37,6 +40,7 @@ import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksTogglePanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -47,8 +51,10 @@ import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 
@@ -62,6 +68,14 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
 
     private final List<ResourceProvision> provisions;
 
+    private final ObjectTypeTogglePanel objectTypeTogglePanel;
+
+    private final WizardMgtPanel<ResourceProvision> list;
+
+    private final ProvisionWizardBuilder wizard;
+
+    private final AjaxLink<ResourceProvision> addAjaxLink;
+
     public ResourceProvisionPanel(
             final BaseModal<Serializable> modal,
             final ResourceTO resourceTO,
@@ -72,7 +86,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
 
         setOutputMarkupId(true);
 
-        final ProvisionWizardBuilder wizard = new ProvisionWizardBuilder(resourceTO, pageRef);
+        wizard = new ProvisionWizardBuilder(resourceTO, pageRef);
 
         final ListViewPanel.Builder<ResourceProvision> builder = new ListViewPanel.Builder<ResourceProvision>(
                 ResourceProvision.class, pageRef) {
@@ -111,6 +125,8 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
 
             @Override
             protected void customActionOnFinishCallback(final AjaxRequestTarget target) {
+                checkAddButton();
+
                 // keep list ordered - SYNCOPE-1154
                 sortProvisions();
 
@@ -141,7 +157,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
             public void onClick(final AjaxRequestTarget target, final ResourceProvision provision) {
                 try {
                     send(ResourceProvisionPanel.this, Broadcast.DEPTH,
-                            new AjaxWizard.NewItemActionEvent<>(provision, 2, target).setResourceModel(
+                            new AjaxWizard.NewItemActionEvent<>(provision, 1, target).setResourceModel(
                                     new StringResourceModel("inner.provision.mapping",
                                             ResourceProvisionPanel.this,
                                             Model.of(provision))));
@@ -201,14 +217,53 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                             resourceTO.getProvisions().remove(provision.getProvisionTO());
                         }
                         provisions.remove(provision);
+                        checkAddButton();
                         send(ResourceProvisionPanel.this, Broadcast.DEPTH, new ListViewReload<>(target));
                     }
                 }, ActionLink.ActionType.DELETE, StandardEntitlement.RESOURCE_UPDATE);
 
         builder.addNewItemPanelBuilder(wizard);
 
-        final WizardMgtPanel<ResourceProvision> list = builder.build("provision");
+        list = builder.build("provision");
+
+        addAjaxLink = new AjaxLink<ResourceProvision>("add") {
+
+            private static final long serialVersionUID = -7978723352517770644L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+                objectTypeTogglePanel.setHeaderLabel(target);
+                objectTypeTogglePanel.toggle(target, true);
+            }
+        };
+        list.addOrReplaceInnerObject(addAjaxLink);
         add(list);
+
+        // ----------------------------------------------------------------------
+        // toggle panel, used to choose 'type' before starting wizard - SYNCOPE-1167
+        final ResourceProvision provision = new ResourceProvision();
+        provision.setAnyType("");
+        objectTypeTogglePanel =
+                new ObjectTypeTogglePanel("objectTypeToggle", provision, getAnyTypes(), pageRef) {
+
+            private static final long serialVersionUID = 7878063325027015067L;
+
+            @Override
+            protected void onSubmit(final String type, final AjaxRequestTarget target) {
+
+                provision.setAnyType(type);
+
+                send(list, Broadcast.BREADTH,
+                        new ActionLinksTogglePanel.ActionLinkToggleCloseEventPayload(target));
+                send(list, Broadcast.DEPTH,
+                        new AjaxWizard.NewItemActionEvent<>(provision, target));
+
+                wizard.setObjectClassModelObject(type);
+            }
+
+        };
+        checkAddButton();
+        add(objectTypeTogglePanel);
     }
 
     private void checkConnObjectKeyCount(final String anyType, final List<ItemTO> items) {
@@ -262,5 +317,39 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                 return new AnyTypeRestClient.AnyTypeKeyComparator().compare(o1.getAnyType(), o2.getAnyType());
             }
         });
+    }
+
+    private LoadableDetachableModel<List<String>> getAnyTypes() {
+        return new LoadableDetachableModel<List<String>>() {
+
+            private static final long serialVersionUID = 5275935387613157437L;
+
+            @Override
+            protected List<String> load() {
+                final List<String> currentlyAdded = new ArrayList<>();
+
+                CollectionUtils.collect(resourceTO.getProvisions(), new Transformer<ProvisionTO, String>() {
+
+                    @Override
+                    public String transform(final ProvisionTO provisionTO) {
+                        return provisionTO.getAnyType();
+                    }
+                }, currentlyAdded);
+
+                return ListUtils.select(new AnyTypeRestClient().list(), new Predicate<String>() {
+
+                    @Override
+                    public boolean evaluate(final String key) {
+                        return !currentlyAdded.contains(key);
+                    }
+                });
+            }
+        };
+    }
+
+    private void checkAddButton() {
+        boolean test = !getAnyTypes().getObject().isEmpty();
+        addAjaxLink.setVisible(test);
+        objectTypeTogglePanel.setEnabled(test);
     }
 }
