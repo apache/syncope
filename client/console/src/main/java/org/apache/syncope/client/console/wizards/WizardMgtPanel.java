@@ -296,6 +296,16 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
     public MarkupContainer addInnerObject(final Component... childs) {
         return initialFragment.add(childs);
     }
+    
+    /**
+     * Add or replace object inside the main container.
+     *
+     * @param childs components to be added.
+     * @return the current panel instance.
+     */
+    public MarkupContainer addOrReplaceInnerObject(final Component... childs) {
+        return initialFragment.addOrReplace(childs);
+    }
 
     /**
      * Add object outside the main container.

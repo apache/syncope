@@ -19,25 +19,18 @@
 package org.apache.syncope.client.console.wizards.resources;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.collections4.Predicate;
-import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.ConnIdSpecialName;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.ProvisionAuxClassesPanel;
-import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
-import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.MappingTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
@@ -47,7 +40,6 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
@@ -61,36 +53,7 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ResourceProvision>
 
     private final ResourceTO resourceTO;
 
-    private final LoadableDetachableModel<List<String>> anyTypes = new LoadableDetachableModel<List<String>>() {
-
-        private static final long serialVersionUID = 5275935387613157437L;
-
-        @Override
-        protected List<String> load() {
-            final List<String> currentlyAdded = new ArrayList<>();
-
-            CollectionUtils.collect(resourceTO.getProvisions(), new Transformer<ProvisionTO, String>() {
-
-                @Override
-                public String transform(final ProvisionTO provisionTO) {
-                    return provisionTO.getAnyType();
-                }
-            }, currentlyAdded);
-
-            List<String> result = ListUtils.select(new AnyTypeRestClient().list(), new Predicate<String>() {
-
-                @Override
-                public boolean evaluate(final String key) {
-                    return !currentlyAdded.contains(key);
-                }
-            });
-            if (resourceTO.getOrgUnit() == null) {
-                result.add(0, SyncopeConstants.REALM_ANYTYPE);
-            }
-
-            return result;
-        }
-    };
+    protected AjaxTextFieldPanel clazz;
 
     /**
      * The object type specification step.
@@ -100,41 +63,30 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ResourceProvision>
         private static final long serialVersionUID = -1657800545799468278L;
 
         ObjectType(final ResourceProvision item) {
-            super(new ResourceModel("type.title", StringUtils.EMPTY),
-                    new ResourceModel("type.summary", StringUtils.EMPTY), new Model<>(item));
+            super(new ResourceModel("clazz.title", StringUtils.EMPTY),
+                    new ResourceModel("clazz.summary", StringUtils.EMPTY), new Model<>(item));
 
             final WebMarkupContainer container = new WebMarkupContainer("container");
             container.setOutputMarkupId(true);
             add(container);
 
-            final FieldPanel<String> type = new AjaxDropDownChoicePanel<>(
-                    "type", "type", new PropertyModel<String>(item, "anyType"), false).
-                    setChoices(anyTypes).
-                    setStyleSheet("form-control").
-                    setRequired(true);
-            container.add(type);
-
-            final AjaxTextFieldPanel clazz = new AjaxTextFieldPanel(
+            clazz = new AjaxTextFieldPanel(
                     "clazz", "clazz", new PropertyModel<String>(item, "objectClass"));
             clazz.setRequired(true);
             clazz.setChoices(connectorRestClient.getObjectClasses(resourceTO.getConnector()));
             container.add(clazz);
+        }
+    }
 
-            type.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
-
-                private static final long serialVersionUID = -1107858522700306810L;
-
-                @Override
-                protected void onUpdate(final AjaxRequestTarget target) {
-                    if (AnyTypeKind.USER.name().equals(type.getModelObject())) {
-                        clazz.setModelObject(ConnIdSpecialName.ACCOUNT);
-                        target.add(container);
-                    } else if (AnyTypeKind.GROUP.name().equals(type.getModelObject())) {
-                        clazz.setModelObject(ConnIdSpecialName.GROUP);
-                        target.add(container);
-                    }
-                }
-            });
+    protected void setObjectClassModelObject(final String type) {
+        if (clazz != null) {
+            if (AnyTypeKind.USER.name().equals(type)) {
+                clazz.setModelObject(ConnIdSpecialName.ACCOUNT);
+            } else if (AnyTypeKind.GROUP.name().equals(type)) {
+                clazz.setModelObject(ConnIdSpecialName.GROUP);
+            } else {
+                clazz.setModelObject("");
+            }
         }
     }
 
@@ -230,12 +182,12 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ResourceProvision>
     /**
      * Construct.
      *
-     * @param resurceTO external resource to be updated.
+     * @param resourceTO external resource to be updated.
      * @param pageRef Caller page reference.
      */
-    public ProvisionWizardBuilder(final ResourceTO resurceTO, final PageReference pageRef) {
+    public ProvisionWizardBuilder(final ResourceTO resourceTO, final PageReference pageRef) {
         super(new ResourceProvision(), pageRef);
-        this.resourceTO = resurceTO;
+        this.resourceTO = resourceTO;
     }
 
     @Override

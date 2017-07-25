@@ -87,7 +87,7 @@ public abstract class AjaxWizardBuilder<T extends Serializable> extends Abstract
     public AjaxWizard<T> build(final String id, final AjaxWizard.Mode mode) {
         this.mode = mode;
 
-        // ge the specified item if available
+        // get the specified item if available
         final T modelObject = newModelObject();
 
         return new AjaxWizard<T>(id, modelObject, buildModelSteps(modelObject, new WizardModel()), mode, this.pageRef) {
