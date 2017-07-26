@@ -86,7 +86,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDataBinder {
 
     private static final String[] IGNORE_PROPERTIES = {
-        "type", "realm", "auxClasses", "roles", "dynRoles", "relationships", "memberships", "dynGroups",
+        "type", "realm", "auxClasses", "roles", "dynRoles", "relationships", "memberships", "dynMemberships",
         "plainAttrs", "derAttrs", "virAttrs", "resources", "securityQuestion", "securityAnswer"
     };
 
@@ -637,8 +637,17 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             // dynamic memberships
             CollectionUtils.collect(userDAO.findDynRoles(user.getKey()),
                     EntityUtils.<Role>keyTransformer(), userTO.getDynRoles());
-            CollectionUtils.collect(userDAO.findDynGroups(user.getKey()),
-                    EntityUtils.<Group>keyTransformer(), userTO.getDynGroups());
+            CollectionUtils.collect(userDAO.findDynGroups(user.getKey()), new Transformer<Group, MembershipTO>() {
+
+                @Override
+                public MembershipTO transform(final Group group) {
+                    MembershipTO membershipTO = new MembershipTO.Builder().
+                        group(group.getKey(), group.getName()).
+                        build();
+                    return membershipTO;
+
+                }
+            }, userTO.getDynMemberships());
         }
 
         return userTO;

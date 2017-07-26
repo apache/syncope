@@ -41,7 +41,7 @@ public class AnyObjectTO extends AnyTO implements GroupableRelatableTO {
 
     private final List<MembershipTO> memberships = new ArrayList<>();
 
-    private final List<String> dynGroups = new ArrayList<>();
+    private final List<MembershipTO> dynMemberships = new ArrayList<>();
 
     public String getName() {
         return name;
@@ -91,11 +91,11 @@ public class AnyObjectTO extends AnyTO implements GroupableRelatableTO {
         return memberships;
     }
 
-    @XmlElementWrapper(name = "dynGroups")
-    @XmlElement(name = "role")
-    @JsonProperty("dynGroups")
+    @XmlElementWrapper(name = "dynMemberships")
+    @XmlElement(name = "dynMembership")
+    @JsonProperty("dynMemberships")
     @Override
-    public List<String> getDynGroups() {
-        return dynGroups;
+    public List<MembershipTO> getDynMemberships() {
+        return dynMemberships;
     }
 }

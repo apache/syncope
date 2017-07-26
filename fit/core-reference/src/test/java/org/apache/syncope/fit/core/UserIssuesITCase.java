@@ -922,7 +922,7 @@ public class UserIssuesITCase extends AbstractITCase {
         assertNotNull(mapItems);
         assertEquals(7, mapItems.size());
 
-        // 3.  update user and check firstname propagation        
+        // 3.  update user and check firstname propagation
         UserPatch userPatch = new UserPatch();
         userPatch.setKey(userTO.getKey());
         userPatch.setPassword(new PasswordPatch());
@@ -1349,7 +1349,8 @@ public class UserIssuesITCase extends AbstractITCase {
 
         // 3. verify that dynamic membership is set and that resource is consequently assigned
         user = created.getEntity();
-        assertTrue(user.getDynGroups().contains(group.getKey()));
+        final String groupKey = group.getKey();
+        assertTrue(user.getDynMemberships().stream().anyMatch(m -> m.getGroupKey().equals(groupKey)));
         assertTrue(user.getResources().contains(RESOURCE_NAME_TESTDB));
 
         // 4. verify that propagation happened towards the resource of the dynamic group
