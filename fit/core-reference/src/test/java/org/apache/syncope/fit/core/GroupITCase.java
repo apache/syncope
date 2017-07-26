@@ -601,7 +601,7 @@ public class GroupITCase extends AbstractITCase {
                 assertEquals(ClientExceptionType.RequiredValuesMissing, e.getType());
             }
 
-            // 5. also add an actual attribute for badge - it will work        
+            // 5. also add an actual attribute for badge - it will work
             groupPatch.getPlainAttrs().add(attrAddReplacePatch(badge.getKey(), "xxxxxxxxxx"));
 
             groupTO = updateGroup(groupPatch).getEntity();
@@ -642,22 +642,24 @@ public class GroupITCase extends AbstractITCase {
 
     @Test
     public void uDynMembership() {
-        assertTrue(userService.read("c9b2dec2-00a7-4855-97c0-d854842b4b24").getDynGroups().isEmpty());
+        assertTrue(userService.read("c9b2dec2-00a7-4855-97c0-d854842b4b24").getDynMemberships().isEmpty());
 
         GroupTO group = getBasicSampleTO("uDynMembership");
         group.setUDynMembershipCond("cool==true");
         group = createGroup(group).getEntity();
         assertNotNull(group);
+        final String groupKey = group.getKey();
 
-        assertTrue(userService.read(
-                "c9b2dec2-00a7-4855-97c0-d854842b4b24").getDynGroups().contains(group.getKey()));
+        List<MembershipTO> memberships = userService.read(
+            "c9b2dec2-00a7-4855-97c0-d854842b4b24").getDynMemberships();
+        assertTrue(memberships.stream().anyMatch(m -> m.getGroupKey().equals(groupKey)));
 
         GroupPatch patch = new GroupPatch();
         patch.setKey(group.getKey());
         patch.setUDynMembershipCond("cool==false");
         groupService.update(patch);
 
-        assertTrue(userService.read("c9b2dec2-00a7-4855-97c0-d854842b4b24").getDynGroups().isEmpty());
+        assertTrue(userService.read("c9b2dec2-00a7-4855-97c0-d854842b4b24").getDynMemberships().isEmpty());
     }
 
     @Test
@@ -671,6 +673,7 @@ public class GroupITCase extends AbstractITCase {
         assertEquals(fiql, group.getADynMembershipConds().get("PRINTER"));
 
         group = groupService.read(group.getKey());
+        final String groupKey = group.getKey();
         assertEquals(fiql, group.getADynMembershipConds().get("PRINTER"));
 
         // verify that the condition is dynamically applied
@@ -678,11 +681,16 @@ public class GroupITCase extends AbstractITCase {
         newAny.getResources().clear();
         newAny = createAnyObject(newAny).getEntity();
         assertNotNull(newAny.getPlainAttr("location"));
-        assertTrue(anyObjectService.read(
-                "fc6dbc3a-6c07-4965-8781-921e7401a4a5").getDynGroups().contains(group.getKey()));
-        assertTrue(anyObjectService.read(
-                "8559d14d-58c2-46eb-a2d4-a7d35161e8f8").getDynGroups().contains(group.getKey()));
-        assertTrue(anyObjectService.read(newAny.getKey()).getDynGroups().contains(group.getKey()));
+        List<MembershipTO> memberships = anyObjectService.read(
+            "fc6dbc3a-6c07-4965-8781-921e7401a4a5").getDynMemberships();
+        assertTrue(memberships.stream().anyMatch(m -> m.getGroupKey().equals(groupKey)));
+
+        memberships = anyObjectService.read(
+            "8559d14d-58c2-46eb-a2d4-a7d35161e8f8").getDynMemberships();
+        assertTrue(memberships.stream().anyMatch(m -> m.getGroupKey().equals(groupKey)));
+
+        memberships = anyObjectService.read(newAny.getKey()).getDynMemberships();
+        assertTrue(memberships.stream().anyMatch(m -> m.getGroupKey().equals(groupKey)));
 
         // 2. update group and change aDynMembership condition
         fiql = SyncopeClient.getAnyObjectSearchConditionBuilder("PRINTER").is("location").nullValue().query();
@@ -706,11 +714,15 @@ public class GroupITCase extends AbstractITCase {
                 build());
         newAny = updateAnyObject(anyPatch).getEntity();
         assertNull(newAny.getPlainAttr("location"));
-        assertFalse(anyObjectService.read(
-                "fc6dbc3a-6c07-4965-8781-921e7401a4a5").getDynGroups().contains(group.getKey()));
-        assertFalse(anyObjectService.read(
-                "8559d14d-58c2-46eb-a2d4-a7d35161e8f8").getDynGroups().contains(group.getKey()));
-        assertTrue(anyObjectService.read(newAny.getKey()).getDynGroups().contains(group.getKey()));
+
+        memberships = anyObjectService.read(
+            "fc6dbc3a-6c07-4965-8781-921e7401a4a5").getDynMemberships();
+        assertFalse(memberships.stream().anyMatch(m -> m.getGroupKey().equals(groupKey)));
+        memberships = anyObjectService.read(
+            "8559d14d-58c2-46eb-a2d4-a7d35161e8f8").getDynMemberships();
+        assertFalse(memberships.stream().anyMatch(m -> m.getGroupKey().equals(groupKey)));
+        memberships = anyObjectService.read(newAny.getKey()).getDynMemberships();
+        assertTrue(memberships.stream().anyMatch(m -> m.getGroupKey().equals(groupKey)));
     }
 
     @Test

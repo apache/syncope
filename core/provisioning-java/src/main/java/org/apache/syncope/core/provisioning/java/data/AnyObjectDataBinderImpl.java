@@ -69,7 +69,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements AnyObjectDataBinder {
 
     private static final String[] IGNORE_PROPERTIES = {
-        "type", "realm", "auxClasses", "relationships", "memberships", "dynGroups",
+        "type", "realm", "auxClasses", "relationships", "memberships", "dynMemberships",
         "plainAttrs", "derAttrs", "virAttrs", "resources"
     };
 
@@ -131,7 +131,17 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
 
             // dynamic memberships
             CollectionUtils.collect(anyObjectDAO.findDynGroups(anyObject.getKey()),
-                    EntityUtils.<Group>keyTransformer(), anyObjectTO.getDynGroups());
+                                    new Transformer<Group, MembershipTO>() {
+
+                @Override
+                public MembershipTO transform(final Group group) {
+                    MembershipTO membershipTO = new MembershipTO.Builder().
+                        group(group.getKey(), group.getName()).
+                        build();
+                    return membershipTO;
+
+                }
+            }, anyObjectTO.getDynMemberships());
         }
 
         return anyObjectTO;

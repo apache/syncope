@@ -313,8 +313,8 @@ public class Groups extends WizardStep implements ICondition {
             GroupFiqlSearchConditionBuilder searchConditionBuilder = SyncopeClient.getGroupSearchConditionBuilder();
 
             ArrayList<CompleteCondition> conditions = new ArrayList<>();
-            for (String groupKey : GroupableRelatableTO.class.cast(anyTO).getDynGroups()) {
-                conditions.add(searchConditionBuilder.is("key").equalTo(groupKey).wrap());
+            for (MembershipTO membership : GroupableRelatableTO.class.cast(anyTO).getDynMemberships()) {
+                conditions.add(searchConditionBuilder.is("key").equalTo(membership.getGroupKey()).wrap());
             }
 
             Map<String, GroupTO> assignedGroups = new HashMap<>();
