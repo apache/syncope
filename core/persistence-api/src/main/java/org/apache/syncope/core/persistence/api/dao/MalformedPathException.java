@@ -26,6 +26,6 @@ public class MalformedPathException extends RuntimeException {
     private static final long serialVersionUID = -164735562182120006L;
 
     public MalformedPathException(final String path) {
-        super("Malformed path: " + path);
+        super("The provided realm path is malformed: " + path);
     }
 }
