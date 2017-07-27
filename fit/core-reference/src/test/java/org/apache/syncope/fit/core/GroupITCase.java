@@ -38,6 +38,8 @@ import javax.naming.directory.SearchResult;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
+
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.SerializationUtils;
@@ -652,7 +654,14 @@ public class GroupITCase extends AbstractITCase {
 
         List<MembershipTO> memberships = userService.read(
             "c9b2dec2-00a7-4855-97c0-d854842b4b24").getDynMemberships();
-        assertTrue(memberships.stream().anyMatch(m -> m.getGroupKey().equals(groupKey)));
+        assertFalse(CollectionUtils.select(memberships, new Predicate<MembershipTO>() {
+
+            public boolean evaluate(MembershipTO object) {
+                return object.getGroupKey().equals(groupKey);
+            }
+
+
+        }).isEmpty());
 
         GroupPatch patch = new GroupPatch();
         patch.setKey(group.getKey());
@@ -683,14 +692,35 @@ public class GroupITCase extends AbstractITCase {
         assertNotNull(newAny.getPlainAttr("location"));
         List<MembershipTO> memberships = anyObjectService.read(
             "fc6dbc3a-6c07-4965-8781-921e7401a4a5").getDynMemberships();
-        assertTrue(memberships.stream().anyMatch(m -> m.getGroupKey().equals(groupKey)));
+        assertFalse(CollectionUtils.select(memberships, new Predicate<MembershipTO>() {
+
+            public boolean evaluate(MembershipTO object) {
+                return object.getGroupKey().equals(groupKey);
+            }
+
+
+        }).isEmpty());
 
         memberships = anyObjectService.read(
             "8559d14d-58c2-46eb-a2d4-a7d35161e8f8").getDynMemberships();
-        assertTrue(memberships.stream().anyMatch(m -> m.getGroupKey().equals(groupKey)));
+        assertFalse(CollectionUtils.select(memberships, new Predicate<MembershipTO>() {
+
+            public boolean evaluate(MembershipTO object) {
+                return object.getGroupKey().equals(groupKey);
+            }
+
+
+        }).isEmpty());
 
         memberships = anyObjectService.read(newAny.getKey()).getDynMemberships();
-        assertTrue(memberships.stream().anyMatch(m -> m.getGroupKey().equals(groupKey)));
+        assertFalse(CollectionUtils.select(memberships, new Predicate<MembershipTO>() {
+
+            public boolean evaluate(MembershipTO object) {
+                return object.getGroupKey().equals(groupKey);
+            }
+
+
+        }).isEmpty());
 
         // 2. update group and change aDynMembership condition
         fiql = SyncopeClient.getAnyObjectSearchConditionBuilder("PRINTER").is("location").nullValue().query();
@@ -717,12 +747,33 @@ public class GroupITCase extends AbstractITCase {
 
         memberships = anyObjectService.read(
             "fc6dbc3a-6c07-4965-8781-921e7401a4a5").getDynMemberships();
-        assertFalse(memberships.stream().anyMatch(m -> m.getGroupKey().equals(groupKey)));
+        assertTrue(CollectionUtils.select(memberships, new Predicate<MembershipTO>() {
+
+            public boolean evaluate(MembershipTO object) {
+                return object.getGroupKey().equals(groupKey);
+            }
+
+
+        }).isEmpty());
         memberships = anyObjectService.read(
             "8559d14d-58c2-46eb-a2d4-a7d35161e8f8").getDynMemberships();
-        assertFalse(memberships.stream().anyMatch(m -> m.getGroupKey().equals(groupKey)));
+        assertTrue(CollectionUtils.select(memberships, new Predicate<MembershipTO>() {
+
+            public boolean evaluate(MembershipTO object) {
+                return object.getGroupKey().equals(groupKey);
+            }
+
+
+        }).isEmpty());
         memberships = anyObjectService.read(newAny.getKey()).getDynMemberships();
-        assertTrue(memberships.stream().anyMatch(m -> m.getGroupKey().equals(groupKey)));
+        assertFalse(CollectionUtils.select(memberships, new Predicate<MembershipTO>() {
+
+            public boolean evaluate(MembershipTO object) {
+                return object.getGroupKey().equals(groupKey);
+            }
+
+
+        }).isEmpty());
     }
 
     @Test

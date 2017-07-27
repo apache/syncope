@@ -35,6 +35,9 @@ import java.util.Set;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 import javax.ws.rs.core.GenericType;
+
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.helpers.IOUtils;
@@ -1350,7 +1353,14 @@ public class UserIssuesITCase extends AbstractITCase {
         // 3. verify that dynamic membership is set and that resource is consequently assigned
         user = created.getEntity();
         final String groupKey = group.getKey();
-        assertTrue(user.getDynMemberships().stream().anyMatch(m -> m.getGroupKey().equals(groupKey)));
+        assertFalse(CollectionUtils.select(user.getDynMemberships(), new Predicate<MembershipTO>() {
+
+            public boolean evaluate(MembershipTO object) {
+                return object.getGroupKey().equals(groupKey);
+            }
+
+
+        }).isEmpty());
         assertTrue(user.getResources().contains(RESOURCE_NAME_TESTDB));
 
         // 4. verify that propagation happened towards the resource of the dynamic group
