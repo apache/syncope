@@ -71,9 +71,7 @@ public class ProvisionProducer extends AbstractProducer {
             }
 
             PropagationByResource propByRes = new PropagationByResource();
-            for (String resource : resources) {
-                propByRes.add(ResourceOperation.UPDATE, resource);
-            }
+            propByRes.addAll(ResourceOperation.UPDATE, resources);
 
             WorkflowResult<Pair<UserPatch, Boolean>> wfResult = new WorkflowResult<Pair<UserPatch, Boolean>>(
                     ImmutablePair.of(userPatch, (Boolean) null), propByRes, "update");

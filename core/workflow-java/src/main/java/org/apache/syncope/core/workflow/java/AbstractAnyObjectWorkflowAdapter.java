@@ -60,7 +60,12 @@ public abstract class AbstractAnyObjectWorkflowAdapter
 
     @Override
     public WorkflowResult<String> update(final AnyObjectPatch anyObjectPatch) {
-        return doUpdate(anyObjectDAO.authFind(anyObjectPatch.getKey()), anyObjectPatch);
+        WorkflowResult<String> result = doUpdate(anyObjectDAO.authFind(anyObjectPatch.getKey()), anyObjectPatch);
+
+        // re-read to ensure that requester's administration rights are still valid
+        anyObjectDAO.authFind(anyObjectPatch.getKey());
+
+        return result;
     }
 
     protected abstract void doDelete(AnyObject anyObject);

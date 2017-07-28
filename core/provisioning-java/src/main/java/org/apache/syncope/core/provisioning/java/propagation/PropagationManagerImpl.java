@@ -199,7 +199,7 @@ public class PropagationManagerImpl implements PropagationManager {
             final Collection<String> noPropResourceKeys) {
 
         return getUpdateTasks(
-                userDAO.authFind(wfResult.getResult().getKey().getKey()),
+                userDAO.authFind(wfResult.getResult().getLeft().getKey()),
                 wfResult.getResult().getKey().getPassword() == null
                 ? null
                 : wfResult.getResult().getKey().getPassword().getValue(),
@@ -222,34 +222,36 @@ public class PropagationManagerImpl implements PropagationManager {
         } else {
             // b. generate the propagation task list in two phases: first the ones containing password,
             // the the rest (with no password)
-            PropagationByResource origPropByRes = new PropagationByResource();
-            origPropByRes.merge(wfResult.getPropByRes());
+            WorkflowResult<Pair<UserPatch, Boolean>> pwdWFResult = new WorkflowResult<>(
+                    wfResult.getResult(), new PropagationByResource(), wfResult.getPerformedTasks());
 
             Set<String> pwdResourceNames = new HashSet<>(userPatch.getPassword().getResources());
-            Collection<String> currentResourceNames = userDAO.findAllResourceKeys(userPatch.getKey());
-            pwdResourceNames.retainAll(currentResourceNames);
-            PropagationByResource pwdPropByRes = new PropagationByResource();
-            pwdPropByRes.addAll(ResourceOperation.UPDATE, pwdResourceNames);
-            if (!pwdPropByRes.isEmpty()) {
-                Set<String> toBeExcluded = new HashSet<>(currentResourceNames);
-                toBeExcluded.addAll(CollectionUtils.collect(userPatch.getResources(),
-                        new Transformer<StringPatchItem, String>() {
+            Collection<String> allResourceNames = userDAO.findAllResourceKeys(userPatch.getKey());
+            pwdResourceNames.retainAll(allResourceNames);
+
+            pwdWFResult.getPropByRes().addAll(ResourceOperation.UPDATE, pwdResourceNames);
+            if (!pwdWFResult.getPropByRes().isEmpty()) {
+                Set<String> toBeExcluded = new HashSet<>(allResourceNames);
+                CollectionUtils.collect(userPatch.getResources(), new Transformer<StringPatchItem, String>() {
 
                     @Override
                     public String transform(final StringPatchItem input) {
                         return input.getValue();
                     }
-                }));
+                }, toBeExcluded);
                 toBeExcluded.removeAll(pwdResourceNames);
-                tasks.addAll(getUserUpdateTasks(wfResult, true, toBeExcluded));
+
+                tasks.addAll(getUserUpdateTasks(pwdWFResult, true, toBeExcluded));
             }
 
-            PropagationByResource nonPwdPropByRes = new PropagationByResource();
-            nonPwdPropByRes.merge(origPropByRes);
-            nonPwdPropByRes.removeAll(pwdResourceNames);
-            nonPwdPropByRes.purge();
-            if (!nonPwdPropByRes.isEmpty()) {
-                tasks.addAll(getUserUpdateTasks(wfResult, false, pwdResourceNames));
+            WorkflowResult<Pair<UserPatch, Boolean>> noPwdWFResult = new WorkflowResult<>(
+                    wfResult.getResult(), new PropagationByResource(), wfResult.getPerformedTasks());
+
+            noPwdWFResult.getPropByRes().merge(wfResult.getPropByRes());
+            noPwdWFResult.getPropByRes().removeAll(pwdResourceNames);
+            noPwdWFResult.getPropByRes().purge();
+            if (!noPwdWFResult.getPropByRes().isEmpty()) {
+                tasks.addAll(getUserUpdateTasks(noPwdWFResult, false, pwdResourceNames));
             }
         }
 

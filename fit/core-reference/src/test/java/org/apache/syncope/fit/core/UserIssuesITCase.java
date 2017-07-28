@@ -1357,4 +1357,32 @@ public class UserIssuesITCase extends AbstractITCase {
         assertFalse(created.getPropagationStatuses().isEmpty());
         assertEquals(RESOURCE_NAME_TESTDB, created.getPropagationStatuses().get(0).getResource());
     }
+
+    @Test
+    public void issueSYNCOPE1166() {
+        UserTO userTO = UserITCase.getUniqueSampleTO("syncope1166@apache.org");
+        userTO = createUser(userTO).getEntity();
+        assertNotNull(userTO);
+
+        UserPatch userPatch = new UserPatch();
+        userPatch.setKey(userTO.getKey());
+        // resource-ldap has password mapped, resource-db-virattr does not
+        userPatch.setPassword(new PasswordPatch.Builder().
+                onSyncope(true).
+                resource(RESOURCE_NAME_LDAP).
+                value("new2Password").build());
+
+        userPatch.getResources().add(new StringPatchItem.Builder().
+                operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_LDAP).build());
+        userPatch.getResources().add(new StringPatchItem.Builder().
+                operation(PatchOperation.ADD_REPLACE).value(RESOURCE_NAME_DBVIRATTR).build());
+
+        ProvisioningResult<UserTO> result = updateUser(userPatch);
+        assertNotNull(result);
+        assertEquals(2, result.getPropagationStatuses().size());
+        assertEquals(RESOURCE_NAME_LDAP, result.getPropagationStatuses().get(0).getResource());
+        assertEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
+        assertEquals(RESOURCE_NAME_DBVIRATTR, result.getPropagationStatuses().get(1).getResource());
+        assertEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(1).getStatus());
+    }
 }

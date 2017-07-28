@@ -102,7 +102,12 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
 
     @Override
     public WorkflowResult<Pair<UserPatch, Boolean>> update(final UserPatch userPatch) {
-        return doUpdate(userDAO.authFind(userPatch.getKey()), userPatch);
+        WorkflowResult<Pair<UserPatch, Boolean>> result = doUpdate(userDAO.authFind(userPatch.getKey()), userPatch);
+
+        // re-read to ensure that requester's administration rights are still valid
+        userDAO.authFind(userPatch.getKey());
+
+        return result;
     }
 
     protected abstract WorkflowResult<String> doSuspend(User user);

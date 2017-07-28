@@ -108,7 +108,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                 excludedResources);
         PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
 
-        return new ImmutablePair<>(created.getResult(), null);
+        return new ImmutablePair<>(created.getResult(), propagationReporter.getStatuses());
     }
 
     @Override

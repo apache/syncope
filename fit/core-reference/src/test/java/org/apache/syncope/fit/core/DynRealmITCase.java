@@ -185,8 +185,7 @@ public class DynRealmITCase extends AbstractITCase {
             userPatch.setKey(userKey);
             userPatch.getResources().add(new StringPatchItem.Builder().
                     value(RESOURCE_NAME_LDAP).operation(PatchOperation.DELETE).build());
-            // this will fail because unassigning resource-ldap would result in removing the user
-            // from the dynamic realm
+            // this will fail because unassigning resource-ldap would result in removing the user from the dynamic realm
             try {
                 delegatedUserService.update(userPatch);
                 fail();
