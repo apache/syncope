@@ -653,13 +653,13 @@ public class GroupITCase extends AbstractITCase {
         final String groupKey = group.getKey();
 
         List<MembershipTO> memberships = userService.read(
-            "c9b2dec2-00a7-4855-97c0-d854842b4b24").getDynMemberships();
+                "c9b2dec2-00a7-4855-97c0-d854842b4b24").getDynMemberships();
         assertFalse(CollectionUtils.select(memberships, new Predicate<MembershipTO>() {
 
+            @Override
             public boolean evaluate(MembershipTO object) {
                 return object.getGroupKey().equals(groupKey);
             }
-
 
         }).isEmpty());
 
@@ -691,34 +691,34 @@ public class GroupITCase extends AbstractITCase {
         newAny = createAnyObject(newAny).getEntity();
         assertNotNull(newAny.getPlainAttr("location"));
         List<MembershipTO> memberships = anyObjectService.read(
-            "fc6dbc3a-6c07-4965-8781-921e7401a4a5").getDynMemberships();
+                "fc6dbc3a-6c07-4965-8781-921e7401a4a5").getDynMemberships();
         assertFalse(CollectionUtils.select(memberships, new Predicate<MembershipTO>() {
 
+            @Override
             public boolean evaluate(MembershipTO object) {
                 return object.getGroupKey().equals(groupKey);
             }
-
 
         }).isEmpty());
 
         memberships = anyObjectService.read(
-            "8559d14d-58c2-46eb-a2d4-a7d35161e8f8").getDynMemberships();
+                "8559d14d-58c2-46eb-a2d4-a7d35161e8f8").getDynMemberships();
         assertFalse(CollectionUtils.select(memberships, new Predicate<MembershipTO>() {
 
+            @Override
             public boolean evaluate(MembershipTO object) {
                 return object.getGroupKey().equals(groupKey);
             }
-
 
         }).isEmpty());
 
         memberships = anyObjectService.read(newAny.getKey()).getDynMemberships();
         assertFalse(CollectionUtils.select(memberships, new Predicate<MembershipTO>() {
 
+            @Override
             public boolean evaluate(MembershipTO object) {
                 return object.getGroupKey().equals(groupKey);
             }
-
 
         }).isEmpty());
 
@@ -746,32 +746,32 @@ public class GroupITCase extends AbstractITCase {
         assertNull(newAny.getPlainAttr("location"));
 
         memberships = anyObjectService.read(
-            "fc6dbc3a-6c07-4965-8781-921e7401a4a5").getDynMemberships();
+                "fc6dbc3a-6c07-4965-8781-921e7401a4a5").getDynMemberships();
         assertTrue(CollectionUtils.select(memberships, new Predicate<MembershipTO>() {
 
+            @Override
             public boolean evaluate(MembershipTO object) {
                 return object.getGroupKey().equals(groupKey);
             }
-
 
         }).isEmpty());
         memberships = anyObjectService.read(
-            "8559d14d-58c2-46eb-a2d4-a7d35161e8f8").getDynMemberships();
+                "8559d14d-58c2-46eb-a2d4-a7d35161e8f8").getDynMemberships();
         assertTrue(CollectionUtils.select(memberships, new Predicate<MembershipTO>() {
 
+            @Override
             public boolean evaluate(MembershipTO object) {
                 return object.getGroupKey().equals(groupKey);
             }
-
 
         }).isEmpty());
         memberships = anyObjectService.read(newAny.getKey()).getDynMemberships();
         assertFalse(CollectionUtils.select(memberships, new Predicate<MembershipTO>() {
 
+            @Override
             public boolean evaluate(MembershipTO object) {
                 return object.getGroupKey().equals(groupKey);
             }
-
 
         }).isEmpty());
     }

@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
@@ -131,13 +130,13 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
 
             // dynamic memberships
             CollectionUtils.collect(anyObjectDAO.findDynGroups(anyObject.getKey()),
-                                    new Transformer<Group, MembershipTO>() {
+                    new Transformer<Group, MembershipTO>() {
 
                 @Override
                 public MembershipTO transform(final Group group) {
                     MembershipTO membershipTO = new MembershipTO.Builder().
-                        group(group.getKey(), group.getName()).
-                        build();
+                            group(group.getKey(), group.getName()).
+                            build();
                     return membershipTO;
 
                 }
@@ -449,26 +448,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
             }
         }
 
-        // finally double-check that there are no resources owned (after all changes above) that remain
-        // not considered for provisioning
-        anyObject = anyObjectDAO.save(anyObject);
-        PropByResContains propByResContains = new PropByResContains(propByRes);
-        Collection<String> prospectResources = anyObjectDAO.findAllResourceKeys(anyObject.getKey());
-        for (String resourceKey : IterableUtils.filteredIterable(
-                CollectionUtils.intersection(currentResources, prospectResources), propByResContains)) {
-
-            propByRes.add(ResourceOperation.DELETE, resourceKey);
-        }
-        for (String resourceKey : IterableUtils.filteredIterable(
-                CollectionUtils.intersection(prospectResources, currentResources), propByResContains)) {
-
-            propByRes.add(ResourceOperation.CREATE, resourceKey);
-        }
-        for (String resourceKey : IterableUtils.filteredIterable(
-                CollectionUtils.intersection(prospectResources, currentResources), propByResContains)) {
-
-            propByRes.add(ResourceOperation.UPDATE, resourceKey);
-        }
+        anyObjectDAO.save(anyObject);
 
         // Throw composite exception if there is at least one element set in the composing exceptions
         if (scce.hasExceptions()) {

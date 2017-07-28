@@ -551,26 +551,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             }
         }
 
-        // finally double-check that there are no resources owned (after all changes above) that remain
-        // not considered for provisioning
-        user = userDAO.save(user);
-        PropByResContains propByResContains = new PropByResContains(propByRes);
-        Collection<String> prospectResources = userDAO.findAllResourceKeys(user.getKey());
-        for (String resourceKey : IterableUtils.filteredIterable(
-                CollectionUtils.intersection(currentResources, prospectResources), propByResContains)) {
-
-            propByRes.add(ResourceOperation.DELETE, resourceKey);
-        }
-        for (String resourceKey : IterableUtils.filteredIterable(
-                CollectionUtils.intersection(prospectResources, currentResources), propByResContains)) {
-
-            propByRes.add(ResourceOperation.CREATE, resourceKey);
-        }
-        for (String resourceKey : IterableUtils.filteredIterable(
-                CollectionUtils.intersection(prospectResources, currentResources), propByResContains)) {
-
-            propByRes.add(ResourceOperation.UPDATE, resourceKey);
-        }
+        userDAO.save(user);
 
         // Throw composite exception if there is at least one element set in the composing exceptions
         if (scce.hasExceptions()) {
