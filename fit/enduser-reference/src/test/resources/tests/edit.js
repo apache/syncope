@@ -54,7 +54,6 @@ describe('syncope enduser user edit', function () {
     browser.wait(element(by.model('user.realm')).isPresent());
     element(by.model('user.realm')).click();
     element.all(by.repeater('realm in availableRealms')).get(0).click();
-    browser.wait(element(by.model('dynamicForm.selectedGroups')).isPresent());
     var group = element(by.model('dynamicForm.selectedGroups'));
     var selectedGroup = group.element(by.css('.ui-select-search'));
     group.click();

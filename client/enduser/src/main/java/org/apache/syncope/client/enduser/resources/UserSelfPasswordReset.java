@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.enduser.resources;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
@@ -33,14 +31,15 @@ import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.request.resource.IResource;
 
 @Resource(key = "userSelfPasswordReset", path = "/api/self/requestPasswordReset")
-public class UserSelfPasswordReset extends BaseResource {
+public class UserSelfPasswordReset extends BaseUserSelfResource {
 
     private static final long serialVersionUID = -2721621682300247583L;
 
     @Override
     protected ResourceResponse newResourceResponse(final IResource.Attributes attributes) {
         ResourceResponse response = new AbstractResource.ResourceResponse();
-        response.setContentType(MediaType.APPLICATION_JSON);
+        response.setContentType(MediaType.TEXT_PLAIN);
+        String[] usernameParam = { "<unknown>" };
         try {
             HttpServletRequest request = (HttpServletRequest) attributes.getRequest().getContainerRequest();
             if (!xsrfCheck(request)) {
@@ -50,7 +49,7 @@ public class UserSelfPasswordReset extends BaseResource {
             }
 
             Map<String, String[]> parameters = request.getParameterMap();
-            String[] usernameParam = parameters.get("username");
+            usernameParam = parameters.get("username");
             if (ArrayUtils.isEmpty(usernameParam)) {
                 throw new Exception("A valid username should be provided");
             }
@@ -74,28 +73,12 @@ public class UserSelfPasswordReset extends BaseResource {
                 SyncopeEnduserSession.get().getService(UserSelfService.class).
                         requestPasswordReset(usernameParam[0], null);
             }
-            final String responseMessage = new StringBuilder().
-                    append("Password reset request sent for user ").append(usernameParam[0]).toString();
-
-            response.setTextEncoding(StandardCharsets.UTF_8.name());
-            response.setWriteCallback(new WriteCallback() {
-
-                @Override
-                public void writeData(final Attributes attributes) throws IOException {
-                    attributes.getResponse().write(responseMessage);
-                }
-            });
-
-            response.setStatusCode(Response.Status.OK.getStatusCode());
         } catch (final Exception e) {
             LOG.error("Error while updating user", e);
-            response.setError(Response.Status.BAD_REQUEST.getStatusCode(),
-                    new StringBuilder().
-                            append("ErrorMessage{{ ").
-                            append(e.getMessage()).
-                            append(" }}").
-                            toString());
         }
+
+        buildResponse(response, Response.Status.OK.getStatusCode(),
+                "Password reset request sent for user " + usernameParam[0]);
         return response;
     }
 

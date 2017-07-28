@@ -446,8 +446,7 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
     $scope.retrieveSecurityQuestion = function (user) {
       if ($rootScope.pwdResetRequiringSecurityQuestions) {
         if (user && user.username && user.username.length) {
-          return SecurityQuestionService.
-                  getSecurityQuestionByUser(user.username).then(function (data) {
+          return SecurityQuestionService.getSecurityQuestionByUser(user.username).then(function (data) {
             $scope.userSecurityQuestion = data.content;
           }, function (response) {
             var errorMessage;
@@ -467,13 +466,15 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
 
     $scope.resetPassword = function (user) {
       if (user && user.username) {
-        $scope.retrieveSecurityQuestion(user);
         UserSelfService.passwordReset(user, $scope.captchaInput.value).then(function (data) {
-          console.info("User " + $scope.user.username);
           $rootScope.currentUser = $scope.user.username;
           $rootScope.currentOp = "PASSWORD_UPDATED";
           $translate.use($scope.languages.selectedLanguage.code);
-          $state.go('success');
+          $scope.success({successMessage: $filter('translate')(["USER"]).USER
+                    + " "
+                    + $scope.user.username
+                    + " "
+                    + $filter('translate')(["SUCCESSFULLY_UPDATED"]).SUCCESSFULLY_UPDATED});
         }, function (response) {
           var errorMessage;
           // parse error response 
@@ -499,9 +500,8 @@ angular.module("self").controller("UserController", ['$scope', '$rootScope', '$l
           var token = $location.search().token;
           if (user && user.password && token) {
             UserSelfService.confirmPasswordReset({"newPassword": user.password, "token": token}).then(function (data) {
-              $scope.showSuccess(data, $scope.notification);
               $translate.use($scope.languages.selectedLanguage.code);
-              $location.path('/self');
+              $scope.success({successMessage: $filter('translate')(["PASSWORD_UPDATED"]).PASSWORD_UPDATED});
             }, function (response) {
               var errorMessage;
               // parse error response 

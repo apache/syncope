@@ -40,8 +40,7 @@ angular.module('login')
                                 headers: {'captcha': captcha}
                               })
                       .then(function (response) {
-                        var username = response;
-                        return username;
+                        return response;
                       }, function (response) {
                         console.error("Something went wrong during user self creation, exit with status: ", response);
                         return $q.reject(response.data || response.statusText);
@@ -54,7 +53,7 @@ angular.module('login')
                                 headers: {'captcha': captcha}
                               })
                       .then(function (response) {
-                        var username = response;
+                        return response;
                       }, function (response) {
                         console.error("Something went wrong during user self update, exit with status: ", response);
                         return $q.reject(response.data || response.statusText);

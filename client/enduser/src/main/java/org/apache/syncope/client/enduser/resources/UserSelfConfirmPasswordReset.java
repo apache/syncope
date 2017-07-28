@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.client.enduser.resources;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
@@ -31,14 +29,14 @@ import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.request.resource.IResource;
 
 @Resource(key = "userSelfConfirmPasswordReset", path = "/api/self/confirmPasswordReset")
-public class UserSelfConfirmPasswordReset extends BaseResource {
+public class UserSelfConfirmPasswordReset extends BaseUserSelfResource {
 
     private static final long serialVersionUID = -2721621682300247583L;
 
     @Override
     protected ResourceResponse newResourceResponse(final IResource.Attributes attributes) {
         ResourceResponse response = new AbstractResource.ResourceResponse();
-        response.setContentType(MediaType.APPLICATION_JSON);
+        response.setContentType(MediaType.TEXT_PLAIN);
         try {
             HttpServletRequest request = (HttpServletRequest) attributes.getRequest().getContainerRequest();
             if (!xsrfCheck(request)) {
@@ -61,18 +59,8 @@ public class UserSelfConfirmPasswordReset extends BaseResource {
             SyncopeEnduserSession.get().getService(UserSelfService.class).
                     confirmPasswordReset(token, parameters.get("newPassword")[0]);
 
-            final String responseMessage = new StringBuilder().append("Password changed correctly").toString();
-
-            response.setTextEncoding(StandardCharsets.UTF_8.name());
-            response.setWriteCallback(new WriteCallback() {
-
-                @Override
-                public void writeData(final Attributes attributes) throws IOException {
-                    attributes.getResponse().write(responseMessage);
-                }
-            });
-
-            response.setStatusCode(Response.Status.OK.getStatusCode());
+            buildResponse(response, Response.Status.OK.getStatusCode(),
+                    "Password successfully updated");
         } catch (final Exception e) {
             LOG.error("Error while updating user", e);
             response.setError(Response.Status.BAD_REQUEST.getStatusCode(), new StringBuilder()

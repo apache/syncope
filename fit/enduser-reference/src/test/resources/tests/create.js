@@ -47,7 +47,7 @@ describe('syncope enduser user create', function () {
     selectedGroup.sendKeys('root');
     element.all(by.css('.ui-select-choices-row-inner span')).first().click();
     abstract.waitSpinner();
-    element.all(by.id('next')).first().click();
+    abstract.doNext();
 
     //plainSchemas
     abstract.waitSpinner();

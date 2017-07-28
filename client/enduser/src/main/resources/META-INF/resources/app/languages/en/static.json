@@ -47,9 +47,9 @@
   "RESOURCES_PLACEHOLDER": "Click to select resources...",
   "REALM": "Realm",
   "NEWUSER": "New User",
-  "SUCCESSFULLY_CREATED": "succesfully created",
-  "SUCCESSFULLY_UPDATED": "succesfully updated",
-  "PASSWORD_UPDATED": ": password succesfully reset",
+  "SUCCESSFULLY_CREATED": "successfully created",
+  "SUCCESSFULLY_UPDATED": "successfully updated",
+  "PASSWORD_UPDATED": "Password successfully reset",
   "GOBACKHOME": "Click on this link to go back to the home page",
   "CONFIRM_REMOVE": "This will remove the current value. Continue?",
   "own": "Own"
