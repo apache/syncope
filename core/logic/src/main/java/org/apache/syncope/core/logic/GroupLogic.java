@@ -431,7 +431,7 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
             Map<String, Object> jobDataMap = jobManager.register(
                     task,
                     null,
-                    confDAO.find("tasks.interruptMaxRetries", "1").getValues().get(0).getLongValue());
+                    confDAO.find("tasks.interruptMaxRetries", 1L));
 
             jobDataMap.put(TaskJob.DRY_RUN_JOBDETAIL_KEY, false);
             jobDataMap.put(GroupMemberProvisionTaskJobDelegate.GROUP_KEY_JOBDETAIL_KEY, key);

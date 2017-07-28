@@ -27,7 +27,7 @@ import org.apache.syncope.core.persistence.api.entity.AccessToken;
 
 public interface AccessTokenDataBinder {
 
-    Triple<String, String, Date> generateJWT(String subject, int duration, Map<String, Object> claims);
+    Triple<String, String, Date> generateJWT(String subject, long duration, Map<String, Object> claims);
 
     Pair<String, Date> create(String subject, Map<String, Object> claims, boolean replaceExisting);
 

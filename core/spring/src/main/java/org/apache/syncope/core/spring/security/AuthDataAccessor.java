@@ -221,7 +221,7 @@ public class AuthDataAccessor {
             boolean userModified = false;
             authenticated = AuthDataAccessor.this.authenticate(user, authentication.getCredentials().toString());
             if (authenticated) {
-                if (confDAO.find("log.lastlogindate", Boolean.toString(true)).getValues().get(0).getBooleanValue()) {
+                if (confDAO.find("log.lastlogindate", true)) {
                     user.setLastLoginDate(new Date());
                     userModified = true;
                 }

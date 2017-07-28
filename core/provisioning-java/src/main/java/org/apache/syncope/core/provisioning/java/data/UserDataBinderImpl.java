@@ -116,7 +116,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
     @Transactional(readOnly = true)
     @Override
     public UserTO returnUserTO(final UserTO userTO) {
-        if (!confDAO.find("return.password.value", "false").getValues().get(0).getBooleanValue()) {
+        if (!confDAO.find("return.password.value", false)) {
             userTO.setPassword(null);
         }
         return userTO;
@@ -158,8 +158,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
     private void setPassword(final User user, final String password, final SyncopeClientCompositeException scce) {
         try {
-            String algorithm = confDAO.find(
-                    "password.cipher.algorithm", CipherAlgorithm.AES.name()).getValues().get(0).getStringValue();
+            String algorithm = confDAO.find("password.cipher.algorithm", CipherAlgorithm.AES.name());
             CipherAlgorithm predefined = CipherAlgorithm.valueOf(algorithm);
             user.setPassword(password, predefined);
         } catch (IllegalArgumentException e) {
@@ -642,8 +641,8 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                 @Override
                 public MembershipTO transform(final Group group) {
                     MembershipTO membershipTO = new MembershipTO.Builder().
-                        group(group.getKey(), group.getName()).
-                        build();
+                            group(group.getKey(), group.getName()).
+                            build();
                     return membershipTO;
 
                 }

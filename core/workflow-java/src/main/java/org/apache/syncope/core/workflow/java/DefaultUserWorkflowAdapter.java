@@ -127,8 +127,8 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     @Override
     protected void doRequestPasswordReset(final User user) {
         user.generateToken(
-                confDAO.find("token.length", "256").getValues().get(0).getLongValue().intValue(),
-                confDAO.find("token.expireTime", "60").getValues().get(0).getLongValue().intValue());
+                confDAO.find("token.length", 256L).intValue(),
+                confDAO.find("token.expireTime", 60L).intValue());
         userDAO.save(user);
     }
 

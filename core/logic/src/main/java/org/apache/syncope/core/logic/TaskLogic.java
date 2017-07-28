@@ -105,7 +105,7 @@ public class TaskLogic extends AbstractExecutableLogic<AbstractTaskTO> {
             jobManager.register(
                     task,
                     task.getStartAt(),
-                    confDAO.find("tasks.interruptMaxRetries", "1").getValues().get(0).getLongValue());
+                    confDAO.find("tasks.interruptMaxRetries", 1L));
         } catch (Exception e) {
             LOG.error("While registering quartz job for task " + task.getKey(), e);
 
@@ -133,7 +133,7 @@ public class TaskLogic extends AbstractExecutableLogic<AbstractTaskTO> {
             jobManager.register(
                     task,
                     task.getStartAt(),
-                    confDAO.find("tasks.interruptMaxRetries", "1").getValues().get(0).getLongValue());
+                    confDAO.find("tasks.interruptMaxRetries", 1L));
         } catch (Exception e) {
             LOG.error("While registering quartz job for task " + task.getKey(), e);
 
@@ -228,7 +228,7 @@ public class TaskLogic extends AbstractExecutableLogic<AbstractTaskTO> {
                     Map<String, Object> jobDataMap = jobManager.register(
                             (SchedTask) task,
                             startAt,
-                            confDAO.find("tasks.interruptMaxRetries", "1").getValues().get(0).getLongValue());
+                            confDAO.find("tasks.interruptMaxRetries", 1L));
 
                     jobDataMap.put(TaskJob.DRY_RUN_JOBDETAIL_KEY, dryRun);
 

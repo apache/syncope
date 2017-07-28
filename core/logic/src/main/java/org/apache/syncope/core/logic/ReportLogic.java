@@ -97,7 +97,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
             jobManager.register(
                     report,
                     null,
-                    confDAO.find("tasks.interruptMaxRetries", "1").getValues().get(0).getLongValue());
+                    confDAO.find("tasks.interruptMaxRetries", 1L));
         } catch (Exception e) {
             LOG.error("While registering quartz job for report " + report.getKey(), e);
 
@@ -123,7 +123,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
             jobManager.register(
                     report,
                     null,
-                    confDAO.find("tasks.interruptMaxRetries", "1").getValues().get(0).getLongValue());
+                    confDAO.find("tasks.interruptMaxRetries", 1L));
         } catch (Exception e) {
             LOG.error("While registering quartz job for report " + report.getKey(), e);
 
@@ -173,7 +173,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
             jobManager.register(
                     report,
                     startAt,
-                    confDAO.find("tasks.interruptMaxRetries", "1").getValues().get(0).getLongValue());
+                    confDAO.find("tasks.interruptMaxRetries", 1L));
 
             scheduler.getScheduler().triggerJob(JobNamer.getJobKey(report));
         } catch (Exception e) {

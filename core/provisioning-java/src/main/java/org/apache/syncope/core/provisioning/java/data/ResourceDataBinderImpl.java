@@ -127,7 +127,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
             // 2. ensure the maximum history size is not exceeded
             List<ExternalResourceHistoryConf> history = resourceHistoryConfDAO.findByEntity(resource);
-            long maxHistorySize = confDAO.find("resource.conf.history.size", "10").getValues().get(0).getLongValue();
+            long maxHistorySize = confDAO.find("resource.conf.history.size", 10L);
             if (maxHistorySize < history.size()) {
                 // always remove the last item since history was obtained  by a query with ORDER BY creation DESC
                 for (int i = 0; i < history.size() - maxHistorySize; i++) {

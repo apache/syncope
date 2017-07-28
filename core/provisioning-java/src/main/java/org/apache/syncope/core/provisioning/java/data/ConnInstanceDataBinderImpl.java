@@ -140,7 +140,7 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
 
         // 2. ensure the maximum history size is not exceeded
         List<ConnInstanceHistoryConf> history = connInstanceHistoryConfDAO.findByEntity(connInstance);
-        long maxHistorySize = confDAO.find("connector.conf.history.size", "10").getValues().get(0).getLongValue();
+        long maxHistorySize = confDAO.find("connector.conf.history.size", 10L);
         if (maxHistorySize < history.size()) {
             // always remove the last item since history was obtained  by a query with ORDER BY creation DESC
             for (int i = 0; i < history.size() - maxHistorySize; i++) {

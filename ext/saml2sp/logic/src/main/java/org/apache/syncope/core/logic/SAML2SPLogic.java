@@ -123,7 +123,7 @@ import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
 @Component
 public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
 
-    private static final Integer JWT_RELAY_STATE_DURATION = 5;
+    private static final long JWT_RELAY_STATE_DURATION = 5L;
 
     private static final String JWT_CLAIM_IDP_DEFLATE = "IDP_DEFLATE";
 
