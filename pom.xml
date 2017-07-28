@@ -302,6 +302,17 @@ under the License.
       <url>http://people.apache.org/~matteodc/</url>
       <email>matteodc@apache.org</email>
     </developer>
+    <developer>
+      <id>skylark17</id>
+      <name>Matteo Alessandroni</name>
+      <organization>Tirasa</organization>
+      <organizationUrl>http://www.tirasa.net/</organizationUrl>
+      <roles>
+        <role>committer</role>
+      </roles>
+      <url>http://people.apache.org/~skylark17/</url>
+      <email>skylark17@apache.org</email>
+    </developer>
   </developers>
   <contributors>
     <contributor>
