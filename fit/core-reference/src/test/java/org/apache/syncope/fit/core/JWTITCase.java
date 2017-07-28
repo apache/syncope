@@ -86,7 +86,7 @@ public class JWTITCase extends AbstractITCase {
         assertNotNull(expiryTime);
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
-        Date tokenDate = dateFormat.parse(dateFormat.format(new Date(expiryTime)));
+        Date tokenDate = dateFormat.parse(dateFormat.format(new Date(expiryTime * 1000L)));
         Date parsedDate = dateFormat.parse(expiry);
 
         assertEquals(tokenDate, parsedDate);
@@ -147,6 +147,7 @@ public class JWTITCase extends AbstractITCase {
 
         // Create a new token using the Id of the first token
         Date now = new Date();
+        long currentTime = now.getTime() / 1000L;
 
         Calendar expiry = Calendar.getInstance();
         expiry.setTime(now);
@@ -155,10 +156,10 @@ public class JWTITCase extends AbstractITCase {
         JwtClaims jwtClaims = new JwtClaims();
         jwtClaims.setTokenId(tokenId);
         jwtClaims.setSubject(ADMIN_UNAME);
-        jwtClaims.setIssuedAt(now.getTime());
+        jwtClaims.setIssuedAt(currentTime);
         jwtClaims.setIssuer(JWT_ISSUER);
-        jwtClaims.setExpiryTime(expiry.getTime().getTime());
-        jwtClaims.setNotBefore(now.getTime());
+        jwtClaims.setExpiryTime(expiry.getTime().getTime() / 1000L);
+        jwtClaims.setNotBefore(currentTime);
 
         JwsHeaders jwsHeaders = new JwsHeaders(JoseType.JWT, SignatureAlgorithm.HS512);
         JwtToken jwtToken = new JwtToken(jwsHeaders, jwtClaims);
@@ -187,6 +188,7 @@ public class JWTITCase extends AbstractITCase {
 
         // Create a new token using the Id of the first token
         Date now = new Date();
+        long currentTime = now.getTime() / 1000L;
 
         Calendar expiry = Calendar.getInstance();
         expiry.setTime(now);
@@ -195,10 +197,10 @@ public class JWTITCase extends AbstractITCase {
         JwtClaims jwtClaims = new JwtClaims();
         jwtClaims.setTokenId(tokenId);
         jwtClaims.setSubject(ADMIN_UNAME);
-        jwtClaims.setIssuedAt(now.getTime());
+        jwtClaims.setIssuedAt(currentTime);
         jwtClaims.setIssuer("UnknownIssuer");
-        jwtClaims.setExpiryTime(expiry.getTime().getTime());
-        jwtClaims.setNotBefore(now.getTime());
+        jwtClaims.setExpiryTime(expiry.getTime().getTime() / 1000L);
+        jwtClaims.setNotBefore(currentTime);
 
         JwsHeaders jwsHeaders = new JwsHeaders(JoseType.JWT, SignatureAlgorithm.HS512);
         JwtToken jwtToken = new JwtToken(jwsHeaders, jwtClaims);
@@ -232,6 +234,7 @@ public class JWTITCase extends AbstractITCase {
 
         // Create a new token using the Id of the first token
         Date now = new Date();
+        long currentTime = now.getTime() / 1000L;
 
         Calendar expiry = Calendar.getInstance();
         expiry.setTime(now);
@@ -240,10 +243,10 @@ public class JWTITCase extends AbstractITCase {
         JwtClaims jwtClaims = new JwtClaims();
         jwtClaims.setTokenId(tokenId);
         jwtClaims.setSubject(ADMIN_UNAME);
-        jwtClaims.setIssuedAt(now.getTime());
+        jwtClaims.setIssuedAt(currentTime);
         jwtClaims.setIssuer(JWT_ISSUER);
-        jwtClaims.setExpiryTime(now.getTime() - 5000L);
-        jwtClaims.setNotBefore(now.getTime());
+        jwtClaims.setExpiryTime((now.getTime() - 5000L) / 1000L);
+        jwtClaims.setNotBefore(currentTime);
 
         JwsHeaders jwsHeaders = new JwsHeaders(JoseType.JWT, SignatureAlgorithm.HS512);
         JwtToken jwtToken = new JwtToken(jwsHeaders, jwtClaims);
@@ -277,6 +280,7 @@ public class JWTITCase extends AbstractITCase {
 
         // Create a new token using the Id of the first token
         Date now = new Date();
+        long currentTime = now.getTime() / 1000L;
 
         Calendar expiry = Calendar.getInstance();
         expiry.setTime(now);
@@ -285,10 +289,10 @@ public class JWTITCase extends AbstractITCase {
         JwtClaims jwtClaims = new JwtClaims();
         jwtClaims.setTokenId(tokenId);
         jwtClaims.setSubject(ADMIN_UNAME);
-        jwtClaims.setIssuedAt(now.getTime());
+        jwtClaims.setIssuedAt(currentTime);
         jwtClaims.setIssuer(JWT_ISSUER);
-        jwtClaims.setExpiryTime(expiry.getTime().getTime());
-        jwtClaims.setNotBefore(now.getTime() + 60000L);
+        jwtClaims.setExpiryTime(expiry.getTime().getTime() / 1000L);
+        jwtClaims.setNotBefore(currentTime + 60L);
 
         JwsHeaders jwsHeaders = new JwsHeaders(JoseType.JWT, SignatureAlgorithm.HS512);
         JwtToken jwtToken = new JwtToken(jwsHeaders, jwtClaims);
@@ -358,6 +362,7 @@ public class JWTITCase extends AbstractITCase {
 
         // Create a new token using an unknown Id
         Date now = new Date();
+        long currentTime = now.getTime() / 1000L;
 
         Calendar expiry = Calendar.getInstance();
         expiry.setTime(now);
@@ -366,10 +371,10 @@ public class JWTITCase extends AbstractITCase {
         JwtClaims jwtClaims = new JwtClaims();
         jwtClaims.setTokenId(UUID.randomUUID().toString());
         jwtClaims.setSubject(ADMIN_UNAME);
-        jwtClaims.setIssuedAt(now.getTime());
+        jwtClaims.setIssuedAt(currentTime);
         jwtClaims.setIssuer(JWT_ISSUER);
-        jwtClaims.setExpiryTime(expiry.getTime().getTime());
-        jwtClaims.setNotBefore(now.getTime());
+        jwtClaims.setExpiryTime(expiry.getTime().getTime() / 1000L);
+        jwtClaims.setNotBefore(currentTime);
 
         JwsHeaders jwsHeaders = new JwsHeaders(JoseType.JWT, SignatureAlgorithm.HS512);
         JwtToken jwtToken = new JwtToken(jwsHeaders, jwtClaims);
@@ -393,6 +398,7 @@ public class JWTITCase extends AbstractITCase {
     public void thirdPartyToken() throws ParseException {
         // Create a new token
         Date now = new Date();
+        long currentTime = now.getTime() / 1000L;
 
         Calendar expiry = Calendar.getInstance();
         expiry.setTime(now);
@@ -401,10 +407,10 @@ public class JWTITCase extends AbstractITCase {
         JwtClaims jwtClaims = new JwtClaims();
         jwtClaims.setTokenId(UUID.randomUUID().toString());
         jwtClaims.setSubject("puccini@apache.org");
-        jwtClaims.setIssuedAt(now.getTime());
+        jwtClaims.setIssuedAt(currentTime);
         jwtClaims.setIssuer(CustomJWTSSOProvider.ISSUER);
-        jwtClaims.setExpiryTime(expiry.getTime().getTime());
-        jwtClaims.setNotBefore(now.getTime());
+        jwtClaims.setExpiryTime(expiry.getTime().getTime() / 1000L);
+        jwtClaims.setNotBefore(currentTime);
 
         JwsHeaders jwsHeaders = new JwsHeaders(JoseType.JWT, SignatureAlgorithm.HS512);
         JwtToken jwtToken = new JwtToken(jwsHeaders, jwtClaims);
@@ -425,6 +431,7 @@ public class JWTITCase extends AbstractITCase {
     public void thirdPartyTokenUnknownUser() throws ParseException {
         // Create a new token
         Date now = new Date();
+        long currentTime = now.getTime() / 1000L;
 
         Calendar expiry = Calendar.getInstance();
         expiry.setTime(now);
@@ -433,10 +440,10 @@ public class JWTITCase extends AbstractITCase {
         JwtClaims jwtClaims = new JwtClaims();
         jwtClaims.setTokenId(UUID.randomUUID().toString());
         jwtClaims.setSubject("strauss@apache.org");
-        jwtClaims.setIssuedAt(now.getTime());
+        jwtClaims.setIssuedAt(currentTime);
         jwtClaims.setIssuer(CustomJWTSSOProvider.ISSUER);
-        jwtClaims.setExpiryTime(expiry.getTime().getTime());
-        jwtClaims.setNotBefore(now.getTime());
+        jwtClaims.setExpiryTime(expiry.getTime().getTime() / 1000L);
+        jwtClaims.setNotBefore(currentTime);
 
         JwsHeaders jwsHeaders = new JwsHeaders(JoseType.JWT, SignatureAlgorithm.HS512);
         JwtToken jwtToken = new JwtToken(jwsHeaders, jwtClaims);
@@ -460,6 +467,7 @@ public class JWTITCase extends AbstractITCase {
     public void thirdPartyTokenUnknownIssuer() throws ParseException {
         // Create a new token
         Date now = new Date();
+        long currentTime = now.getTime() / 1000L;
 
         Calendar expiry = Calendar.getInstance();
         expiry.setTime(now);
@@ -468,10 +476,10 @@ public class JWTITCase extends AbstractITCase {
         JwtClaims jwtClaims = new JwtClaims();
         jwtClaims.setTokenId(UUID.randomUUID().toString());
         jwtClaims.setSubject("puccini@apache.org");
-        jwtClaims.setIssuedAt(now.getTime());
+        jwtClaims.setIssuedAt(currentTime);
         jwtClaims.setIssuer(CustomJWTSSOProvider.ISSUER + "_");
-        jwtClaims.setExpiryTime(expiry.getTime().getTime());
-        jwtClaims.setNotBefore(now.getTime());
+        jwtClaims.setExpiryTime(expiry.getTime().getTime() / 1000L);
+        jwtClaims.setNotBefore(currentTime);
 
         JwsHeaders jwsHeaders = new JwsHeaders(JoseType.JWT, SignatureAlgorithm.HS512);
         JwtToken jwtToken = new JwtToken(jwsHeaders, jwtClaims);
