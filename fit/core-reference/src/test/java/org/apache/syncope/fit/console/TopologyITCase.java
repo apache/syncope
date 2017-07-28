@@ -119,6 +119,10 @@ public class TopologyITCase extends AbstractConsoleITCase {
                 "body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:content:wizard:form");
         formTester.submit("buttons:next");
 
+        formTester = TESTER.newFormTester(
+                "body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:content:wizard:form");
+        formTester.submit("buttons:next");
+
         TESTER.assertComponent("body:toggle:outerObjectsRepeater:3:outer:form:content:provision:"
                 + "container:content:wizard:form:view:mapping:mappingContainer:mappings:1", WebMarkupContainer.class);
 
@@ -166,23 +170,32 @@ public class TopologyITCase extends AbstractConsoleITCase {
         TESTER.executeAjaxEvent(component.getPageRelativePath() + ":res", Constants.ON_CLICK);
         TESTER.clickLink("body:toggle:container:content:togglePanelContainer:container:actions:provision");
 
+        // -- create new provision rules for the current resource
         TESTER.clickLink("body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:content:add");
 
         formTester = TESTER.newFormTester(
-                "body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:content:wizard:form");
-
-        formTester.setValue("view:container:type:dropDownChoiceField", "1");
-        formTester.setValue("view:container:clazz:textField", "__ACCOUNT__");
-        formTester.submit("buttons:next");
+                "body:toggle:outerObjectsRepeater:3:outer:form:content:objectTypeToggle:container:"
+                + "content:togglePanelContainer:objectTypeForm");
+        formTester.select("type:dropDownChoiceField", 1);
+        formTester.submit("changeit");
         TESTER.assertNoErrorMessage();
         TESTER.assertNoInfoMessage();
 
+        // choose object class
         formTester = TESTER.newFormTester(
                 "body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:content:wizard:form");
         formTester.submit("buttons:next");
         TESTER.assertNoErrorMessage();
         TESTER.assertNoInfoMessage();
 
+        // aux classes
+        formTester = TESTER.newFormTester(
+                "body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:content:wizard:form");
+        formTester.submit("buttons:next");
+        TESTER.assertNoErrorMessage();
+        TESTER.assertNoInfoMessage();
+
+        // set a new mapping rule
         TESTER.executeAjaxEvent("body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:"
                 + "content:wizard:form:view:mapping:mappingContainer:addMappingBtn", Constants.ON_CLICK);
 
@@ -202,6 +215,7 @@ public class TopologyITCase extends AbstractConsoleITCase {
         TESTER.assertNoErrorMessage();
         TESTER.assertNoInfoMessage();
 
+        // finish
         TESTER.cleanupFeedbackMessages();
         // ajax event required to retrieve AjaxRequestTarget (used into finish custom event)
         TESTER.executeAjaxEvent("body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:"
@@ -211,15 +225,21 @@ public class TopologyITCase extends AbstractConsoleITCase {
         TESTER.assertComponent(
                 "body:toggle:outerObjectsRepeater:3:outer:dialog:footer:inputs:0:submit", AjaxSubmitLink.class);
 
+        // save
         TESTER.cleanupFeedbackMessages();
         TESTER.executeAjaxEvent(
                 "body:toggle:outerObjectsRepeater:3:outer:dialog:footer:inputs:0:submit", Constants.ON_CLICK);
+        TESTER.assertNoErrorMessage();
         TESTER.assertInfoMessages("Operation executed successfully");
 
         TESTER.clickLink("body:toggle:container:content:togglePanelContainer:container:actions:provision");
 
         TESTER.clickLink("body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:"
                 + "content:group:beans:0:actions:actionRepeater:0:action:action");
+
+        formTester = TESTER.newFormTester(
+                "body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:content:wizard:form");
+        formTester.submit("buttons:next");
 
         formTester = TESTER.newFormTester(
                 "body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:content:wizard:form");
