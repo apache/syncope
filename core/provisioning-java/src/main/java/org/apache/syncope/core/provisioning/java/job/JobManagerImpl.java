@@ -30,7 +30,6 @@ import java.util.Set;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.TaskType;
@@ -307,16 +306,16 @@ public class JobManagerImpl implements JobManager, SyncopeLoader {
             public Pair<String, Long> exec() {
                 String notificationJobCronExpression = StringUtils.EMPTY;
 
-                CPlainAttr notificationJobCronExp =
-                        confDAO.find("notificationjob.cronExpression", NotificationJob.DEFAULT_CRON_EXP);
-                if (!notificationJobCronExp.getValuesAsStrings().isEmpty()) {
+                CPlainAttr notificationJobCronExp = confDAO.find("notificationjob.cronExpression");
+                if (notificationJobCronExp == null) {
+                    notificationJobCronExpression = NotificationJob.DEFAULT_CRON_EXP;
+                } else if (!notificationJobCronExp.getValuesAsStrings().isEmpty()) {
                     notificationJobCronExpression = notificationJobCronExp.getValuesAsStrings().get(0);
                 }
 
-                long interruptMaxRetries =
-                        confDAO.find("tasks.interruptMaxRetries", "1").getValues().get(0).getLongValue();
+                long interruptMaxRetries = confDAO.find("tasks.interruptMaxRetries", 1L);
 
-                return ImmutablePair.of(notificationJobCronExpression, interruptMaxRetries);
+                return Pair.of(notificationJobCronExpression, interruptMaxRetries);
             }
         });
 

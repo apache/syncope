@@ -19,17 +19,9 @@
 package org.apache.syncope.core.persistence.jpa.dao;
 
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
-import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
-import org.apache.syncope.core.persistence.api.entity.PlainAttrUniqueValue;
-import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.conf.Conf;
-import org.apache.syncope.core.persistence.jpa.entity.conf.JPACPlainAttr;
-import org.apache.syncope.core.persistence.jpa.entity.conf.JPACPlainAttrUniqueValue;
-import org.apache.syncope.core.persistence.jpa.entity.conf.JPACPlainAttrValue;
 import org.apache.syncope.core.persistence.jpa.entity.conf.JPAConf;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,17 +29,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class JPAConfDAO extends AbstractDAO<Conf> implements ConfDAO {
 
     private static final String KEY = "cd64d66f-6fff-4008-b966-a06b1cc1436d";
-
-    private PlainSchemaDAO schemaDAO;
-
-    private PlainSchemaDAO schemaDAO() {
-        synchronized (this) {
-            if (schemaDAO == null) {
-                schemaDAO = ApplicationContextProvider.getApplicationContext().getBean(PlainSchemaDAO.class);
-            }
-        }
-        return schemaDAO;
-    }
 
     @Override
     public Conf get() {
@@ -70,28 +51,17 @@ public class JPAConfDAO extends AbstractDAO<Conf> implements ConfDAO {
 
     @Transactional(readOnly = true)
     @Override
-    public CPlainAttr find(final String key, final String defaultValue) {
+    public <T> T find(final String key, final T defaultValue) {
         CPlainAttr result = find(key);
         if (result == null) {
-            PlainSchema schema = schemaDAO().find(key);
-            if (schema != null) {
-                JPACPlainAttr newAttr = new JPACPlainAttr();
-                newAttr.setSchema(schema);
-
-                PlainAttrValue attrValue;
-                if (newAttr.getSchema().isUniqueConstraint()) {
-                    attrValue = new JPACPlainAttrUniqueValue();
-                    ((PlainAttrUniqueValue) attrValue).setSchema(newAttr.getSchema());
-                } else {
-                    attrValue = new JPACPlainAttrValue();
-                }
-                newAttr.add(defaultValue, attrValue);
-
-                result = newAttr;
-            }
+            return defaultValue;
         }
 
-        return result;
+        return result.getUniqueValue() == null
+                ? result.getValues().isEmpty()
+                ? null
+                : result.getValues().get(0).<T>getValue()
+                : result.getUniqueValue().<T>getValue();
     }
 
     @Override

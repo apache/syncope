@@ -181,15 +181,15 @@ public class SyncopeLogic extends AbstractLogic<AbstractBaseBean> {
     private ImplementationLookup implLookup;
 
     public boolean isSelfRegAllowed() {
-        return confDAO.find("selfRegistration.allowed", "false").getValues().get(0).getBooleanValue();
+        return confDAO.find("selfRegistration.allowed", false);
     }
 
     public boolean isPwdResetAllowed() {
-        return confDAO.find("passwordReset.allowed", "false").getValues().get(0).getBooleanValue();
+        return confDAO.find("passwordReset.allowed", false);
     }
 
     public boolean isPwdResetRequiringSecurityQuestions() {
-        return confDAO.find("passwordReset.securityQuestion", "true").getValues().get(0).getBooleanValue();
+        return confDAO.find("passwordReset.securityQuestion", true);
     }
 
     @PreAuthorize("isAuthenticated()")

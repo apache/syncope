@@ -162,7 +162,7 @@ public class NotificationManagerImpl implements NotificationManager {
     @Transactional(readOnly = true)
     @Override
     public long getMaxRetries() {
-        return confDAO.find("notification.maxRetries", "0").getValues().get(0).getLongValue();
+        return confDAO.find("notification.maxRetries", 0L);
     }
 
     /**

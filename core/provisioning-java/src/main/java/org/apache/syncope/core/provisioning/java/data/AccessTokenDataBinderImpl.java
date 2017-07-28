@@ -38,7 +38,6 @@ import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttr;
 import org.apache.syncope.core.provisioning.api.data.AccessTokenDataBinder;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.BeanUtils;
@@ -84,7 +83,7 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
 
     @Override
     public Triple<String, String, Date> generateJWT(
-            final String subject, final int duration, final Map<String, Object> claims) {
+            final String subject, final long duration, final Map<String, Object> claims) {
 
         credentialChecker.checkIsDefaultJWSKeyInUse();
 
@@ -125,17 +124,9 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
         }
 
         if (replaceExisting || body == null) {
-            int duration = 120;
-            CPlainAttr jwtLifetimeMins = confDAO.find("jwt.lifetime.minutes", "120");
-            if (jwtLifetimeMins != null) {
-                duration = jwtLifetimeMins.getValues().get(0).getLongValue().intValue();
-            } else {
-                LOG.warn("No schema found for 'jwt.lifetime.minutes'. Using default value of '120'");
-            }
-
             Triple<String, String, Date> created = generateJWT(
                     subject,
-                    duration,
+                    confDAO.find("jwt.lifetime.minutes", 120L),
                     claims);
 
             body = created.getMiddle();
@@ -174,7 +165,7 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
         credentialChecker.checkIsDefaultJWSKeyInUse();
 
         Date now = new Date();
-        int duration = confDAO.find("jwt.lifetime.minutes", "120").getValues().get(0).getLongValue().intValue();
+        long duration = confDAO.find("jwt.lifetime.minutes", 120L);
         Date expiry = new Date(now.getTime() + 60L * 1000L * duration);
         consumer.getJwtClaims().setExpiryTime(expiry.getTime());
 

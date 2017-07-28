@@ -25,7 +25,7 @@ public interface ConfDAO extends DAO<Conf> {
 
     CPlainAttr find(String key);
 
-    CPlainAttr find(String key, String defaultValue);
+    <T> T find(String key, T defaultValue);
 
     Conf get();
 
