@@ -87,16 +87,16 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
 
         credentialChecker.checkIsDefaultJWSKeyInUse();
 
-        Date now = new Date();
-        Date expiry = new Date(now.getTime() + 60L * 1000L * duration);
+        long currentTime = new Date().getTime() / 1000L;
+        long expiryTime = currentTime + 60L * duration;
 
         JwtClaims jwtClaims = new JwtClaims();
         jwtClaims.setTokenId(UUID_GENERATOR.generate().toString());
         jwtClaims.setSubject(subject);
-        jwtClaims.setIssuedAt(now.getTime());
+        jwtClaims.setIssuedAt(currentTime);
         jwtClaims.setIssuer(jwtIssuer);
-        jwtClaims.setExpiryTime(expiry.getTime());
-        jwtClaims.setNotBefore(now.getTime());
+        jwtClaims.setExpiryTime(expiryTime);
+        jwtClaims.setNotBefore(currentTime);
         for (Map.Entry<String, Object> entry : claims.entrySet()) {
             jwtClaims.setClaim(entry.getKey(), entry.getValue());
         }
@@ -107,7 +107,7 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
 
         String signed = producer.signWith(jwsSignatureProvider);
 
-        return Triple.of(jwtClaims.getTokenId(), signed, expiry);
+        return Triple.of(jwtClaims.getTokenId(), signed, new Date(expiryTime * 1000L));
     }
 
     @Override
@@ -164,10 +164,11 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
 
         credentialChecker.checkIsDefaultJWSKeyInUse();
 
-        Date now = new Date();
         long duration = confDAO.find("jwt.lifetime.minutes", 120L);
-        Date expiry = new Date(now.getTime() + 60L * 1000L * duration);
-        consumer.getJwtClaims().setExpiryTime(expiry.getTime());
+        long currentTime = new Date().getTime() / 1000L;
+        long expiry = currentTime + 60L * duration;
+        consumer.getJwtClaims().setExpiryTime(expiry);
+        Date expiryDate = new Date(expiry * 1000L);
 
         JwsHeaders jwsHeaders = new JwsHeaders(JoseType.JWT, jwsSignatureProvider.getAlgorithm());
         JwtToken token = new JwtToken(jwsHeaders, consumer.getJwtClaims());
@@ -176,7 +177,8 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
         String body = producer.signWith(jwsSignatureProvider);
 
         accessToken.setBody(body);
-        accessToken.setExpiryTime(expiry);
+        // AccessToken stores expiry time in milliseconds, as opposed to seconds for the JWT tokens.
+        accessToken.setExpiryTime(expiryDate);
 
         if (!adminUser.equals(accessToken.getOwner())) {
             try {
@@ -190,7 +192,7 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
 
         accessTokenDAO.save(accessToken);
 
-        return Pair.of(body, expiry);
+        return Pair.of(body, expiryDate);
     }
 
     @Override
