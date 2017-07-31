@@ -18,8 +18,8 @@
 //
 ==== E-mail Configuration
 
-The `mail.properties` holds the configuration options to enable the effective delivery of <<notifications,notification>>
-e-mails:
+The `mail.properties` file holds the configuration options to enable the effective delivery of
+<<notifications,notification>> e-mails:
 
 * `smtpHost` - the mail server host, typically an SMTP host;
 * `smtpPort` - the mail server port;
@@ -27,9 +27,59 @@ e-mails:
 * `smtpPassword` - (optional) the password for the account at the mail host;
 * `smtpProtocol` - the mail protocol;
 * `smtpEncoding` - the default encoding to use for MIME messages;
-* `smtpConnectionTimeout` - the connection timeout value in milliseconds, to the mail host;
-* `mailDebug` - when `true`, enable the debugging of email, including the handshake, authentication, delivery and
-disconnection.
+* `mail.smtp.starttls.enable` - when `true`, enable the use of the `STARTTLS` command to switch the connection to a
+TLS-protected connection before issuing any login commands;
+* `mail.smtp.connectiontimeout` - the connection timeout value in milliseconds, to the mail host;
+* `mail.debug` - when `true`, enable the debugging of email processing including the handshake, authentication, delivery
+ and disconnection; in order for this setting to be effective, it is also required to add the following elements to the
+`log4j2.xml` configuration file:
+[source,xml]
+<asyncLogger name="org.apache.syncope.core.provisioning.java.job.notification"
+             additivity="false" level="DEBUG">
+  <appender-ref ref="mainFile"/>
+  <appender-ref ref="main"/>
+</asyncLogger>
+<asyncLogger name="javax.mail" additivity="false" level="DEBUG">
+  <appender-ref ref="mainFile"/>
+  <appender-ref ref="main"/>
+</asyncLogger>
+
+All the https://javaee.github.io/javamail/docs/api/com/sun/mail/smtp/package-summary.html#properties[JavaMail(TM) properties^]
+are available for usage.
+
+.Basic configuration, no authentication
+====
+....
+conf.directory=${conf.directory}
+
+smtpHost=your.local.smtp.server
+smtpPort=25
+smtpUser=
+smtpPassword=
+smtpProtocol=smtp
+smtpEncoding=UTF-8
+mail.debug=false
+mail.smtp.connectiontimeout=3000
+mail.smtp.starttls.enable=false
+....
+====
+
+.STARTTLS configuration, with authentication
+====
+....
+conf.directory=${conf.directory}
+
+smtpHost=smtp.gmail.com
+smtpPort=587
+smtpUser=your_username@gmail.com
+smtpPassword=your_password
+smtpProtocol=smtp
+smtpEncoding=UTF-8
+mail.debug=false
+mail.smtp.connectiontimeout=3000
+mail.smtp.starttls.enable=true
+....
+====
 
 [NOTE]
 In order to make the changes to `mail.properties` effective, the Java EE container needs to be restarted.

@@ -18,16 +18,14 @@
  */
 package org.apache.syncope.ext.saml2lsp.agent;
 
-import java.io.File;
-import java.io.InputStream;
 import java.util.Properties;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
+import org.apache.syncope.common.lib.PropertyUtils;
 
 @WebListener
 public class SAML2SPAgentSetup implements ServletContextListener {
@@ -44,20 +42,7 @@ public class SAML2SPAgentSetup implements ServletContextListener {
     @Override
     public void contextInitialized(final ServletContextEvent sce) {
         // read saml2spagent.properties
-        Properties props = new Properties();
-        try (InputStream is = getClass().getResourceAsStream("/" + SAML2SP_AGENT_PROPERTIES)) {
-            props.load(is);
-            File confDir = new File(props.getProperty("conf.directory"));
-            if (confDir.exists() && confDir.canRead() && confDir.isDirectory()) {
-                File consoleDirProps = FileUtils.getFile(confDir, SAML2SP_AGENT_PROPERTIES);
-                if (consoleDirProps.exists() && consoleDirProps.canRead() && consoleDirProps.isFile()) {
-                    props.clear();
-                    props.load(FileUtils.openInputStream(consoleDirProps));
-                }
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Could not read " + SAML2SP_AGENT_PROPERTIES, e);
-        }
+        Properties props = PropertyUtils.read(getClass(), SAML2SP_AGENT_PROPERTIES, "conf.directory").getLeft();
 
         String anonymousUser = props.getProperty("anonymousUser");
         assertNotNull(anonymousUser, "<anonymousUser>");

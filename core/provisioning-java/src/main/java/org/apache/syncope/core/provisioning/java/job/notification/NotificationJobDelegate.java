@@ -18,10 +18,16 @@
  */
 package org.apache.syncope.core.provisioning.java.job.notification;
 
+import java.io.PrintStream;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.Properties;
+import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.LogOutputStream;
+import org.apache.syncope.common.lib.PropertyUtils;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.types.TraceLevel;
@@ -32,9 +38,11 @@ import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
 import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
+import org.apache.syncope.core.spring.security.Encryptor;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
@@ -43,7 +51,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-public class NotificationJobDelegate {
+public class NotificationJobDelegate implements InitializingBean {
 
     private static final Logger LOG = LoggerFactory.getLogger(NotificationJobDelegate.class);
 
@@ -62,24 +70,38 @@ public class NotificationJobDelegate {
     @Autowired
     private NotificationManager notificationManager;
 
-    private long maxRetries;
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        if (mailSender instanceof JavaMailSenderImpl) {
+            JavaMailSenderImpl javaMailSender = (JavaMailSenderImpl) mailSender;
 
-    private void init() {
-        maxRetries = notificationManager.getMaxRetries();
+            Properties javaMailProperties = javaMailSender.getJavaMailProperties();
 
-        if (mailSender instanceof JavaMailSenderImpl
-                && StringUtils.isNotBlank(((JavaMailSenderImpl) mailSender).getUsername())) {
+            Properties props = PropertyUtils.read(Encryptor.class, "mail.properties", "conf.directory").getLeft();
+            for (Enumeration<?> e = props.propertyNames(); e.hasMoreElements();) {
+                String prop = (String) e.nextElement();
+                if (prop.startsWith("mail.smtp.")) {
+                    javaMailProperties.setProperty(prop, props.getProperty(prop));
+                }
+            }
 
-            Properties javaMailProperties = ((JavaMailSenderImpl) mailSender).getJavaMailProperties();
-            javaMailProperties.setProperty("mail.smtp.auth", "true");
-            ((JavaMailSenderImpl) mailSender).setJavaMailProperties(javaMailProperties);
+            if (StringUtils.isNotBlank(javaMailSender.getUsername())) {
+                javaMailProperties.setProperty("mail.smtp.auth", "true");
+            }
+
+            javaMailSender.setJavaMailProperties(javaMailProperties);
+
+            String mailDebug = props.getProperty("mail.debug", "false");
+            if (BooleanUtils.toBoolean(mailDebug)) {
+                Session session = javaMailSender.getSession();
+                session.setDebug(true);
+                session.setDebugOut(new PrintStream(new LogOutputStream(LOG)));
+            }
         }
     }
 
     @Transactional
     public TaskExec executeSingle(final NotificationTask task) {
-        init();
-
         TaskExec execution = entityFactory.newEntity(TaskExec.class);
         execution.setTask(task);
         execution.setStart(new Date());
@@ -216,16 +238,16 @@ public class NotificationJobDelegate {
     }
 
     private void handleRetries(final TaskExec execution) {
-        if (maxRetries <= 0) {
+        if (notificationManager.getMaxRetries() <= 0) {
             return;
         }
 
         long failedExecutionsCount = notificationManager.countExecutionsWithStatus(
                 execution.getTask().getKey(), NotificationJob.Status.NOT_SENT.name());
 
-        if (failedExecutionsCount <= maxRetries) {
+        if (failedExecutionsCount <= notificationManager.getMaxRetries()) {
             LOG.debug("Execution of notification task {} will be retried [{}/{}]",
-                    execution.getTask(), failedExecutionsCount, maxRetries);
+                    execution.getTask(), failedExecutionsCount, notificationManager.getMaxRetries());
             notificationManager.setTaskExecuted(execution.getTask().getKey(), false);
 
             auditManager.audit(

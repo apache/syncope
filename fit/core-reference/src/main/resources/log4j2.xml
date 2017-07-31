@@ -189,6 +189,16 @@ under the License.
       <appender-ref ref="main"/>
     </asyncLogger>
     
+    <!-- To enable when setting 'mail.debug=true' in mail.properties -->
+    <!--<asyncLogger name="org.apache.syncope.core.provisioning.java.job.notification" additivity="false" level="DEBUG">
+      <appender-ref ref="mainFile"/>
+      <appender-ref ref="main"/>
+    </asyncLogger>
+    <asyncLogger name="javax.mail" additivity="false" level="DEBUG">
+      <appender-ref ref="mainFile"/>
+      <appender-ref ref="main"/>
+    </asyncLogger>-->
+    
     <root level="INFO">
       <appender-ref ref="mainFile"/>
       <appender-ref ref="main"/>
