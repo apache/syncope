@@ -20,6 +20,8 @@ package org.apache.syncope.client.console.wizards.any;
 
 import java.io.Serializable;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.cxf.common.util.CollectionUtils;
 import org.apache.syncope.client.console.layout.GroupForm;
 import org.apache.syncope.client.console.layout.GroupFormLayoutInfo;
 import org.apache.syncope.client.console.rest.GroupRestClient;
@@ -71,8 +73,21 @@ public class GroupWizardBuilder extends AnyWizardBuilder<GroupTO> implements Gro
             actual = groupRestClient.create(inner);
         } else {
             GroupPatch patch = AnyOperations.diff(inner, getOriginalItem().getInnerObject(), false);
+            GroupTO originaObj = getOriginalItem().getInnerObject();
+
+            // SYNCOPE-1170
+            boolean othersNotEqualsOrBlanks =
+                    !inner.getADynMembershipConds().equals(originaObj.getADynMembershipConds())
+                    || (StringUtils.isNotBlank(originaObj.getUDynMembershipCond()) && StringUtils.isBlank(inner.
+                    getUDynMembershipCond()))
+                    || (StringUtils.isBlank(originaObj.getUDynMembershipCond()) && StringUtils.isNotBlank(inner.
+                    getUDynMembershipCond()))
+                    || StringUtils.isAllBlank(originaObj.getUDynMembershipCond(), inner.getUDynMembershipCond())
+                    || !inner.getUDynMembershipCond().equals(originaObj.getUDynMembershipCond())
+                    || !CollectionUtils.diff(inner.getTypeExtensions(), originaObj.getTypeExtensions()).isEmpty();
+
             // update just if it is changed
-            if (patch.isEmpty()) {
+            if (patch.isEmpty() && !othersNotEqualsOrBlanks) {
                 actual = new ProvisioningResult<>();
                 actual.setEntity(inner);
             } else {
