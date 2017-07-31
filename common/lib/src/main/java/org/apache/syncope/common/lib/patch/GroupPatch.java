@@ -112,8 +112,7 @@ public class GroupPatch extends AnyPatch {
     @Override
     public boolean isEmpty() {
         return super.isEmpty()
-                && name == null && userOwner == null && groupOwner == null
-                && udynMembershipCond == null && adynMembershipConds.isEmpty() && typeExtensions.isEmpty();
+                && name == null && userOwner == null && groupOwner == null;
     }
 
 }
