@@ -22,8 +22,6 @@ import de.agilecoders.wicket.core.Bootstrap;
 import de.agilecoders.wicket.core.settings.BootstrapSettings;
 import de.agilecoders.wicket.core.settings.IBootstrapSettings;
 import de.agilecoders.wicket.core.settings.SingleThemeProvider;
-import java.io.File;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -35,7 +33,6 @@ import java.util.Map;
 import java.util.Properties;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -53,12 +50,12 @@ import org.apache.syncope.client.console.themes.AdminLTE;
 import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
 import org.apache.syncope.common.lib.EntityTOUtils;
+import org.apache.syncope.common.lib.PropertyUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.DomainTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.rest.api.service.DomainService;
 import org.apache.wicket.Page;
-import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.authroles.authentication.AbstractAuthenticatedWebSession;
 import org.apache.wicket.authroles.authentication.AuthenticatedWebApplication;
 import org.apache.wicket.authroles.authentication.AuthenticatedWebSession;
@@ -142,20 +139,8 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
         super.init();
 
         // read console.properties
-        Properties props = new Properties();
-        try (InputStream is = getClass().getResourceAsStream("/" + CONSOLE_PROPERTIES)) {
-            props.load(is);
-            File consoleDir = new File(props.getProperty("console.directory"));
-            if (consoleDir.exists() && consoleDir.canRead() && consoleDir.isDirectory()) {
-                File consoleDirProps = FileUtils.getFile(consoleDir, CONSOLE_PROPERTIES);
-                if (consoleDirProps.exists() && consoleDirProps.canRead() && consoleDirProps.isFile()) {
-                    props.clear();
-                    props.load(FileUtils.openInputStream(consoleDirProps));
-                }
-            }
-        } catch (Exception e) {
-            throw new WicketRuntimeException("Could not read " + CONSOLE_PROPERTIES, e);
-        }
+        Properties props = PropertyUtils.read(getClass(), CONSOLE_PROPERTIES, "console.directory").getLeft();
+
         version = props.getProperty("version");
         Args.notNull(version, "<version>");
         site = props.getProperty("site");

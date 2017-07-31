@@ -42,6 +42,7 @@ import org.apache.syncope.client.enduser.init.EnduserInitializer;
 import org.apache.syncope.client.enduser.model.CustomAttributesInfo;
 import org.apache.syncope.client.enduser.resources.CaptchaResource;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
+import org.apache.syncope.common.lib.PropertyUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.wicket.Page;
 import org.apache.wicket.Session;
@@ -99,20 +100,8 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
         super.init();
 
         // read enduser.properties
-        Properties props = new Properties();
-        try (InputStream is = getClass().getResourceAsStream("/" + ENDUSER_PROPERTIES)) {
-            props.load(is);
-            File enduserDir = new File(props.getProperty("enduser.directory"));
-            if (enduserDir.exists() && enduserDir.canRead() && enduserDir.isDirectory()) {
-                File enduserDirProps = FileUtils.getFile(enduserDir, ENDUSER_PROPERTIES);
-                if (enduserDirProps.exists() && enduserDirProps.canRead() && enduserDirProps.isFile()) {
-                    props.clear();
-                    props.load(FileUtils.openInputStream(enduserDirProps));
-                }
-            }
-        } catch (Exception e) {
-            throw new WicketRuntimeException("Could not read " + ENDUSER_PROPERTIES, e);
-        }
+        Properties props = PropertyUtils.read(getClass(), ENDUSER_PROPERTIES, "enduser.directory").getLeft();
+
         version = props.getProperty("version");
         Args.notNull(version, "<version>");
         site = props.getProperty("site");

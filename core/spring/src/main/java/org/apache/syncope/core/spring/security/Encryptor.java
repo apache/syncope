@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.spring.security;
 
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
@@ -31,9 +30,9 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.PropertyUtils;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.jasypt.commons.CommonUtils;
 import org.jasypt.digest.StandardStringDigester;
@@ -88,11 +87,8 @@ public final class Encryptor {
     private static Boolean ULSSC;
 
     static {
-        InputStream propStream = null;
         try {
-            propStream = Encryptor.class.getResourceAsStream("/security.properties");
-            Properties props = new Properties();
-            props.load(propStream);
+            Properties props = PropertyUtils.read(Encryptor.class, "security.properties", "conf.directory").getLeft();
 
             SECRET_KEY = props.getProperty("secretKey");
             SALT_ITERATIONS = Integer.valueOf(props.getProperty("digester.saltIterations"));
@@ -102,8 +98,6 @@ public final class Encryptor {
             ULSSC = Boolean.valueOf(props.getProperty("digester.useLenientSaltSizeCheck"));
         } catch (Exception e) {
             LOG.error("Could not read security parameters", e);
-        } finally {
-            IOUtils.closeQuietly(propStream);
         }
 
         if (SECRET_KEY == null) {
@@ -160,8 +154,8 @@ public final class Encryptor {
             actualKeyPadding.append(randomChars);
             actualKey = actualKeyPadding.toString();
             LOG.warn("The secret key is too short (< 16), adding some random characters. "
-                     + "Passwords encrypted with AES and this key will not be recoverable "
-                     + "as a result if the container is restarted.");
+                    + "Passwords encrypted with AES and this key will not be recoverable "
+                    + "as a result if the container is restarted.");
         }
 
         try {

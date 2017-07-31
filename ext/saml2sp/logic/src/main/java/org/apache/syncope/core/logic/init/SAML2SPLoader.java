@@ -18,15 +18,15 @@
  */
 package org.apache.syncope.core.logic.init;
 
-import java.io.File;
 import java.io.InputStream;
 import java.security.KeyStore;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import net.shibboleth.utilities.java.support.resolver.CriteriaSet;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.apache.syncope.common.lib.PropertyUtils;
 import org.apache.syncope.core.persistence.api.SyncopeLoader;
 import org.apache.syncope.core.provisioning.api.EntitlementsHolder;
 import org.apache.syncope.common.lib.types.SAML2SPEntitlement;
@@ -80,25 +80,9 @@ public class SAML2SPLoader implements SyncopeLoader {
     public void load() {
         EntitlementsHolder.getInstance().init(SAML2SPEntitlement.values());
 
-        String confDirectory = null;
-
-        Properties props = new Properties();
-        try (InputStream is = getClass().getResourceAsStream("/" + SAML2SP_LOGIC_PROPERTIES)) {
-            props.load(is);
-            confDirectory = props.getProperty("conf.directory");
-
-            File confDir = new File(confDirectory);
-            if (confDir.exists() && confDir.canRead() && confDir.isDirectory()) {
-                File confDirProps = FileUtils.getFile(confDir, SAML2SP_LOGIC_PROPERTIES);
-                if (confDirProps.exists() && confDirProps.canRead() && confDirProps.isFile()) {
-                    props.clear();
-                    props.load(FileUtils.openInputStream(confDirProps));
-                    confDirectory = props.getProperty("conf.directory");
-                }
-            }
-        } catch (Exception e) {
-            throw new RuntimeException("Could not read " + SAML2SP_LOGIC_PROPERTIES, e);
-        }
+        Pair<Properties, String> init = PropertyUtils.read(getClass(), SAML2SP_LOGIC_PROPERTIES, "conf.directory");
+        Properties props = init.getLeft();
+        String confDirectory = init.getRight();
 
         assertNotNull(confDirectory, "<conf.directory>");
 

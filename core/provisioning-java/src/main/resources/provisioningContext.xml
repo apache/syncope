@@ -104,13 +104,6 @@ under the License.
     <property name="username" value="${smtpUser}"/>
     <property name="password" value="${smtpPassword}"/>
     <property name="protocol" value="${smtpProtocol}"/>
-
-    <property name="javaMailProperties">
-      <props>
-        <prop key="mail.smtp.connectiontimeout">${smtpConnectionTimeout}</prop>
-        <prop key="mail.debug">${mailDebug}</prop>
-      </props>
-    </property>
   </bean>
 
   <bean class="org.apache.syncope.core.provisioning.java.propagation.PropagationManagerImpl"/>
