@@ -21,10 +21,10 @@ package org.apache.syncope.core.provisioning.java.pushpull;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.patch.StringPatchItem;
@@ -45,6 +45,7 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
+import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.provisioning.api.AuditManager;
@@ -58,9 +59,9 @@ import org.apache.syncope.core.provisioning.api.pushpull.SyncopePushResultHandle
 import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.apache.syncope.core.provisioning.java.job.AfterHandlingJob;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
+import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
-import org.identityconnectors.framework.common.objects.Uid;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
@@ -198,19 +199,23 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         provision(any, enabled, result);
     }
 
-    protected ConnectorObject getRemoteObject(final String connObjectKey, final ObjectClass objectClass) {
+    protected ConnectorObject getRemoteObject(
+            final ObjectClass objectClass,
+            final String connObjectKey,
+            final String connObjectKeyValue,
+            final Iterator<? extends Item> iterator) {
+
         ConnectorObject obj = null;
         try {
-            Uid uid = new Uid(connObjectKey);
-
-            obj = profile.getConnector().getObject(objectClass,
-                    uid,
-                    MappingUtils.buildOperationOptions(IteratorUtils.<MappingItem>emptyIterator()));
+            obj = profile.getConnector().getObject(
+                    objectClass,
+                    AttributeBuilder.build(connObjectKey, connObjectKeyValue),
+                    MappingUtils.buildOperationOptions(iterator));
         } catch (TimeoutException toe) {
             LOG.debug("Request timeout", toe);
             throw toe;
         } catch (RuntimeException ignore) {
-            LOG.debug("While resolving {}", connObjectKey, ignore);
+            LOG.debug("While resolving {}", connObjectKeyValue, ignore);
         }
 
         return obj;
@@ -262,9 +267,14 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
 
         // Try to read remote object BEFORE any actual operation
         Provision provision = profile.getTask().getResource().getProvision(any.getType());
-        String connObjecKey = mappingManager.getConnObjectKeyValue(any, provision);
+        MappingItem connObjectKey = MappingUtils.getConnObjectKeyItem(provision);
+        String connObjecKeyValue = mappingManager.getConnObjectKeyValue(any, provision);
 
-        ConnectorObject beforeObj = getRemoteObject(connObjecKey, provision.getObjectClass());
+        ConnectorObject beforeObj = getRemoteObject(
+                provision.getObjectClass(),
+                connObjectKey.getExtAttrName(),
+                connObjecKeyValue,
+                provision.getMapping().getItems().iterator());
 
         Boolean status = profile.getTask().isSyncStatus() ? enabled : null;
 
@@ -429,7 +439,11 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                     result.setStatus(ProvisioningReport.Status.SUCCESS);
                 }
                 resultStatus = AuditElements.Result.SUCCESS;
-                output = getRemoteObject(connObjecKey, provision.getObjectClass());
+                output = getRemoteObject(
+                        provision.getObjectClass(),
+                        connObjectKey.getExtAttrName(),
+                        connObjecKeyValue,
+                        provision.getMapping().getItems().iterator());
             } catch (IgnoreProvisionException e) {
                 throw e;
             } catch (Exception e) {

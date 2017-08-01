@@ -20,9 +20,9 @@ package org.apache.syncope.core.provisioning.java.pushpull;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.AuditElements;
@@ -33,8 +33,9 @@ import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
+import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
+import org.apache.syncope.core.persistence.api.entity.resource.OrgUnitItem;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.TimeoutException;
@@ -46,9 +47,9 @@ import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePushResultHandler;
 import org.apache.syncope.core.provisioning.java.job.AfterHandlingJob;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
+import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
-import org.identityconnectors.framework.common.objects.Uid;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
@@ -157,19 +158,23 @@ public class RealmPushResultHandlerImpl
         provision(update(realmTO, result), result);
     }
 
-    protected ConnectorObject getRemoteObject(final String connObjectKey, final ObjectClass objectClass) {
+    protected ConnectorObject getRemoteObject(
+            final ObjectClass objectClass,
+            final String connObjectKey,
+            final String connObjectKeyValue,
+            final Iterator<? extends Item> iterator) {
+
         ConnectorObject obj = null;
         try {
-            Uid uid = new Uid(connObjectKey);
-
-            obj = profile.getConnector().getObject(objectClass,
-                    uid,
-                    MappingUtils.buildOperationOptions(IteratorUtils.<MappingItem>emptyIterator()));
+            obj = profile.getConnector().getObject(
+                    objectClass,
+                    AttributeBuilder.build(connObjectKey, connObjectKeyValue),
+                    MappingUtils.buildOperationOptions(iterator));
         } catch (TimeoutException toe) {
             LOG.debug("Request timeout", toe);
             throw toe;
         } catch (RuntimeException ignore) {
-            LOG.debug("While resolving {}", connObjectKey, ignore);
+            LOG.debug("While resolving {}", connObjectKeyValue, ignore);
         }
 
         return obj;
@@ -190,9 +195,14 @@ public class RealmPushResultHandlerImpl
 
         // Try to read remote object BEFORE any actual operation
         OrgUnit orgUnit = profile.getTask().getResource().getOrgUnit();
-        String connObjecKey = mappingManager.getConnObjectKeyValue(realm, orgUnit);
+        OrgUnitItem connObjectKey = orgUnit.getConnObjectKeyItem();
+        String connObjecKeyValue = mappingManager.getConnObjectKeyValue(realm, orgUnit);
 
-        ConnectorObject beforeObj = getRemoteObject(connObjecKey, orgUnit.getObjectClass());
+        ConnectorObject beforeObj = getRemoteObject(
+                orgUnit.getObjectClass(),
+                connObjectKey.getExtAttrName(),
+                connObjecKeyValue,
+                orgUnit.getItems().iterator());
 
         if (profile.isDryRun()) {
             if (beforeObj == null) {
@@ -362,7 +372,11 @@ public class RealmPushResultHandlerImpl
                     result.setStatus(ProvisioningReport.Status.SUCCESS);
                 }
                 resultStatus = AuditElements.Result.SUCCESS;
-                output = getRemoteObject(connObjecKey, orgUnit.getObjectClass());
+                output = getRemoteObject(
+                        orgUnit.getObjectClass(),
+                        connObjectKey.getExtAttrName(),
+                        connObjecKeyValue,
+                        orgUnit.getItems().iterator());
             } catch (IgnoreProvisionException e) {
                 throw e;
             } catch (Exception e) {
