@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.collections4.ListUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.Membership;
@@ -41,8 +40,8 @@ import org.apache.syncope.core.provisioning.api.cache.VirAttrCache;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCacheValue;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.identityconnectors.framework.common.objects.Attribute;
+import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
-import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,25 +98,29 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
         for (Map.Entry<Provision, Set<VirSchema>> entry : toRead.entrySet()) {
             LOG.debug("About to read from {}: {}", entry.getKey(), entry.getValue());
 
-            String connObjectKey = MappingUtils.getConnObjectKeyItem(entry.getKey()) == null
+            MappingItem connObjectKeyItem = MappingUtils.getConnObjectKeyItem(entry.getKey());
+            String connObjectKeyValue = connObjectKeyItem == null
                     ? null
                     : mappingManager.getConnObjectKeyValue(any, entry.getKey());
-            if (StringUtils.isBlank(connObjectKey)) {
+            if (connObjectKeyItem == null) {
                 LOG.error("No ConnObjectKey found for {}, ignoring...", entry.getKey());
             } else {
                 Set<MappingItem> linkingMappingItems = new HashSet<>();
+                linkingMappingItems.add(connObjectKeyItem);
                 for (VirSchema schema : entry.getValue()) {
                     linkingMappingItems.add(schema.asLinkingMappingItem());
                 }
 
                 Connector connector = connFactory.getConnector(entry.getKey().getResource());
                 try {
-                    ConnectorObject connectorObject = connector.getObject(entry.getKey().getObjectClass(),
-                            new Uid(connObjectKey),
+                    ConnectorObject connectorObject = connector.getObject(
+                            entry.getKey().getObjectClass(),
+                            AttributeBuilder.build(connObjectKeyItem.getExtAttrName(), connObjectKeyValue),
                             MappingUtils.buildOperationOptions(linkingMappingItems.iterator()));
 
                     if (connectorObject == null) {
-                        LOG.debug("No read from {} about {}", entry.getKey(), connObjectKey);
+                        LOG.debug("No read from {} with filter '{} == {}'",
+                                entry.getKey(), connObjectKeyItem.getExtAttrName(), connObjectKeyValue);
                     } else {
                         for (VirSchema schema : entry.getValue()) {
                             Attribute attr = connectorObject.getAttributeByName(schema.getExtAttrName());

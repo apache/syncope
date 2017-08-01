@@ -28,8 +28,10 @@ import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.ObjectClassInfo;
 import org.identityconnectors.framework.common.objects.OperationOptions;
+import org.identityconnectors.framework.common.objects.ResultsHandler;
 import org.identityconnectors.framework.common.objects.SyncToken;
 import org.identityconnectors.framework.common.objects.Uid;
+import org.identityconnectors.framework.common.objects.filter.FilterBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
@@ -98,10 +100,20 @@ public class AsyncConnectorFacade {
     public Future<ConnectorObject> getObject(
             final ConnectorFacade connector,
             final ObjectClass objectClass,
-            final Uid uid,
+            final Attribute connObjectKey,
             final OperationOptions options) {
 
-        return new AsyncResult<>(connector.getObject(objectClass, uid, options));
+        final ConnectorObject[] objects = new ConnectorObject[1];
+        connector.search(objectClass, FilterBuilder.equalTo(connObjectKey), new ResultsHandler() {
+
+            @Override
+            public boolean handle(final ConnectorObject connectorObject) {
+                objects[0] = connectorObject;
+                return false;
+            }
+        }, options);
+
+        return new AsyncResult<>(objects[0]);
     }
 
     @Async

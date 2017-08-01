@@ -67,6 +67,7 @@ import org.apache.syncope.core.provisioning.api.propagation.PropagationException
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.Attribute;
+import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ConnectorObjectBuilder;
@@ -607,8 +608,10 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
         ConnectorObject obj = null;
         try {
-            obj = connector.getObject(new ObjectClass(task.getObjectClassName()),
-                    new Uid(connObjectKey),
+            obj = connector.getObject(
+                    new ObjectClass(task.getObjectClassName()),
+                    AttributeBuilder.build(
+                            MappingUtils.getConnObjectKeyItem(provision).getExtAttrName(), connObjectKey),
                     MappingUtils.buildOperationOptions(IteratorUtils.chainedIterator(
                             MappingUtils.getPropagationItems(provision).iterator(),
                             linkingMappingItems.iterator())));
@@ -655,7 +658,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         ConnectorObject obj = null;
         try {
             obj = connector.getObject(new ObjectClass(task.getObjectClassName()),
-                    new Uid(connObjectKey),
+                    AttributeBuilder.build(orgUnit.getConnObjectKeyItem().getExtAttrName(), connObjectKey),
                     MappingUtils.buildOperationOptions(MappingUtils.getPropagationItems(orgUnit).iterator()));
         } catch (TimeoutException toe) {
             LOG.debug("Request timeout", toe);

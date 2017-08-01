@@ -69,6 +69,7 @@ import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.identityconnectors.framework.common.objects.Attribute;
+import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.Name;
@@ -344,8 +345,9 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
         // 4. read from the underlying connector
         Connector connector = connFactory.getConnector(init.getLeft());
-        ConnectorObject connectorObject = connector.getObject(init.getRight().getObjectClass(),
-                new Uid(connObjectKeyValue),
+        ConnectorObject connectorObject = connector.getObject(
+                init.getRight().getObjectClass(),
+                AttributeBuilder.build(connObjectKeyItem.getExtAttrName(), connObjectKeyValue),
                 MappingUtils.buildOperationOptions(mapItems));
         if (connectorObject == null) {
             throw new NotFoundException(

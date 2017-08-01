@@ -296,8 +296,9 @@ public class ReconciliationReportlet extends AbstractReportlet {
                 if (provision != null && connObjectKeyItem != null && StringUtils.isNotBlank(connObjectKeyValue)) {
                     // 1. read from the underlying connector
                     Connector connector = connFactory.getConnector(resource);
-                    ConnectorObject connectorObject = connector.getObject(provision.getObjectClass(),
-                            new Uid(connObjectKeyValue),
+                    ConnectorObject connectorObject = connector.getObject(
+                            provision.getObjectClass(),
+                            AttributeBuilder.build(connObjectKeyItem.getExtAttrName(), connObjectKeyValue),
                             MappingUtils.buildOperationOptions(provision.getMapping().getItems().iterator()));
 
                     if (connectorObject == null) {

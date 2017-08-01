@@ -140,11 +140,11 @@ public interface Connector {
      * Get remote object.
      *
      * @param objectClass ConnId's object class
-     * @param uid ConnId's Uid
+     * @param connObjectKey ConnId's key attribute
      * @param options ConnId's OperationOptions
      * @return ConnId's connector object for given uid
      */
-    ConnectorObject getObject(ObjectClass objectClass, Uid uid, OperationOptions options);
+    ConnectorObject getObject(ObjectClass objectClass, Attribute connObjectKey, OperationOptions options);
 
     /**
      * Search for remote objects.

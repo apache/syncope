@@ -303,32 +303,6 @@ public class ConnectorFacadeProxy implements Connector {
         return result;
     }
 
-    @Override
-    public ConnectorObject getObject(final ObjectClass objectClass, final Uid uid, final OperationOptions options) {
-        Future<ConnectorObject> future = null;
-
-        if (connInstance.getCapabilities().contains(ConnectorCapability.SEARCH)) {
-            future = asyncFacade.getObject(connector, objectClass, uid, options);
-        } else {
-            LOG.info("Search was attempted, although the connector only has these capabilities: {}. No action.",
-                    connInstance.getCapabilities());
-        }
-
-        try {
-            return future == null ? null : future.get(connInstance.getConnRequestTimeout(), TimeUnit.SECONDS);
-        } catch (java.util.concurrent.TimeoutException e) {
-            future.cancel(true);
-            throw new TimeoutException("Request timeout");
-        } catch (Exception e) {
-            LOG.error("Connector request execution failure", e);
-            if (e.getCause() instanceof RuntimeException) {
-                throw (RuntimeException) e.getCause();
-            } else {
-                throw new IllegalArgumentException(e.getCause());
-            }
-        }
-    }
-
     @Transactional
     @Override
     public void fullReconciliation(
@@ -403,6 +377,36 @@ public class ConnectorFacadeProxy implements Connector {
         Future<String> future = asyncFacade.test(connector);
         try {
             future.get(connInstance.getConnRequestTimeout(), TimeUnit.SECONDS);
+        } catch (java.util.concurrent.TimeoutException e) {
+            future.cancel(true);
+            throw new TimeoutException("Request timeout");
+        } catch (Exception e) {
+            LOG.error("Connector request execution failure", e);
+            if (e.getCause() instanceof RuntimeException) {
+                throw (RuntimeException) e.getCause();
+            } else {
+                throw new IllegalArgumentException(e.getCause());
+            }
+        }
+    }
+
+    @Override
+    public ConnectorObject getObject(
+            final ObjectClass objectClass,
+            final Attribute connObjectKey,
+            final OperationOptions options) {
+
+        Future<ConnectorObject> future = null;
+
+        if (connInstance.getCapabilities().contains(ConnectorCapability.SEARCH)) {
+            future = asyncFacade.getObject(connector, objectClass, connObjectKey, options);
+        } else {
+            LOG.info("Search was attempted, although the connector only has these capabilities: {}. No action.",
+                    connInstance.getCapabilities());
+        }
+
+        try {
+            return future == null ? null : future.get(connInstance.getConnRequestTimeout(), TimeUnit.SECONDS);
         } catch (java.util.concurrent.TimeoutException e) {
             future.cancel(true);
             throw new TimeoutException("Request timeout");
