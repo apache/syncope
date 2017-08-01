@@ -18,9 +18,6 @@
  */
 package org.apache.syncope.core.rest.cxf.service;
 
-import java.io.IOException;
-import java.io.OutputStream;
-
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -42,13 +39,8 @@ public class SAML2SPServiceImpl extends AbstractServiceImpl implements SAML2SPSe
 
     @Override
     public Response getMetadata(final String spEntityID, final String urlContext) {
-        StreamingOutput sout = new StreamingOutput() {
+        StreamingOutput sout = (os) -> logic.getMetadata(StringUtils.appendIfMissing(spEntityID, "/"), urlContext, os);
 
-            @Override
-            public void write(final OutputStream os) throws IOException {
-                logic.getMetadata(StringUtils.appendIfMissing(spEntityID, "/"), urlContext, os);
-            }
-        };
         return Response.ok(sout).
                 type(MediaType.APPLICATION_XML).
                 build();

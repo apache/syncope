@@ -28,11 +28,11 @@ import static org.junit.Assert.fail;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
+
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
@@ -135,13 +135,11 @@ public class SAML2ITCase extends AbstractITCase {
     public void setIdPMapping() {
         Assume.assumeTrue(SAML2SPDetector.isSAML2SPAvailable());
 
-        SAML2IdPTO ssoCircle = IterableUtils.find(saml2IdPService.list(), new Predicate<SAML2IdPTO>() {
+        Optional<SAML2IdPTO> ssoCircleOpt =
+            saml2IdPService.list().stream().filter(o -> "https://idp.ssocircle.com".equals(o.getEntityID())).findFirst();
+        assertTrue(ssoCircleOpt.isPresent());
 
-            @Override
-            public boolean evaluate(final SAML2IdPTO object) {
-                return "https://idp.ssocircle.com".equals(object.getEntityID());
-            }
-        });
+        SAML2IdPTO ssoCircle = ssoCircleOpt.get();
         assertNotNull(ssoCircle);
         assertFalse(ssoCircle.getMappingItems().isEmpty());
         assertNotNull(ssoCircle.getConnObjectKeyItem());
