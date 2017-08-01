@@ -165,7 +165,7 @@ public class SAML2IdPLogic extends AbstractSAML2Logic<SAML2IdPTO> {
             } else if (idp.getSSOLocation(SAML2BindingType.REDIRECT) != null) {
                 idpTO.setBindingType(SAML2BindingType.REDIRECT);
             } else {
-                throw new IllegalArgumentException("Not POST nor REDIRECT artifacts supported by " + idp.getId());
+                throw new IllegalArgumentException("Neither POST nor REDIRECT artifacts supported by " + idp.getId());
             }
 
             result.add(idpTO);
