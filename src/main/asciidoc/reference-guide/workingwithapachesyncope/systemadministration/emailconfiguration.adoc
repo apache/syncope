@@ -25,7 +25,7 @@ The `mail.properties` file holds the configuration options to enable the effecti
 * `smtpPort` - the mail server port;
 * `smtpUser` - (optional) the username for the account at the mail host;
 * `smtpPassword` - (optional) the password for the account at the mail host;
-* `smtpProtocol` - the mail protocol;
+* `smtpProtocol` - the message transport protocol: `smtp` (default) and `smtps` are supported;
 * `smtpEncoding` - the default encoding to use for MIME messages;
 * `mail.smtp.starttls.enable` - when `true`, enable the use of the `STARTTLS` command to switch the connection to a
 TLS-protected connection before issuing any login commands;
