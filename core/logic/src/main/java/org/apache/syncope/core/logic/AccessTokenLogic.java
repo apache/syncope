@@ -54,7 +54,7 @@ public class AccessTokenLogic extends AbstractTransactionalLogic<AccessTokenTO> 
     @PreAuthorize("isAuthenticated()")
     public Pair<String, Date> login() {
         if (anonymousUser.equals(AuthContextUtils.getUsername())) {
-            throw new IllegalArgumentException(anonymousUser + " cannot be granted for an access token");
+            throw new IllegalArgumentException(anonymousUser + " cannot be granted an access token");
         }
 
         return binder.create(AuthContextUtils.getUsername(), Collections.<String, Object>emptyMap(), false);
