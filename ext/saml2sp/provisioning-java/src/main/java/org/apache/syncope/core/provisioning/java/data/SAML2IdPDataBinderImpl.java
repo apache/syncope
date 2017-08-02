@@ -32,12 +32,11 @@ import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.SAML2IdPDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
-import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.SAML2EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.SAML2IdP;
+import org.apache.syncope.core.persistence.api.entity.SAML2IdPItem;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
-import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
 import org.apache.syncope.core.provisioning.api.data.SAML2IdPDataBinder;
 import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
@@ -55,7 +54,7 @@ public class SAML2IdPDataBinderImpl implements SAML2IdPDataBinder {
 
     private static final Logger LOG = LoggerFactory.getLogger(SAML2IdPDataBinder.class);
 
-    private static final String[] MAPPINGITEM_IGNORE_PROPERTIES = { "key", "mapping", "purpose" };
+    private static final String[] ITEM_IGNORE_PROPERTIES = { "key", "purpose" };
 
     @Autowired
     private AnyTypeDAO anyTypeDAO;
@@ -64,20 +63,17 @@ public class SAML2IdPDataBinderImpl implements SAML2IdPDataBinder {
     private SAML2IdPDAO saml2IdPDAO;
 
     @Autowired
-    private EntityFactory entityFactory;
-
-    @Autowired
-    private SAML2EntityFactory saml2EntityFactory;
+    private SAML2EntityFactory entityFactory;
 
     @Autowired
     private IntAttrNameParser intAttrNameParser;
 
     @Override
     public SAML2IdP create(final SAML2IdPTO idpTO) {
-        return update(saml2EntityFactory.newEntity(SAML2IdP.class), idpTO);
+        return update(entityFactory.newEntity(SAML2IdP.class), idpTO);
     }
 
-    private void populateMapping(
+    private void populateItems(
             final SAML2IdPTO idpTO,
             final SAML2IdP idp,
             final AnyTypeClassTO allowedSchemas) {
@@ -87,7 +83,7 @@ public class SAML2IdPDataBinderImpl implements SAML2IdPDataBinder {
         SyncopeClientException requiredValuesMissing = SyncopeClientException.build(
                 ClientExceptionType.RequiredValuesMissing);
 
-        for (ItemTO itemTO : idpTO.getMappingItems()) {
+        for (ItemTO itemTO : idpTO.getItems()) {
             if (itemTO == null) {
                 LOG.error("Null {}", ItemTO.class.getSimpleName());
                 invalidMapping.getElements().add("Null " + ItemTO.class.getSimpleName());
@@ -133,8 +129,9 @@ public class SAML2IdPDataBinderImpl implements SAML2IdPDataBinder {
                             scce.addException(invalidMandatoryCondition);
                         }
 
-                        MappingItem item = entityFactory.newEntity(MappingItem.class);
-                        BeanUtils.copyProperties(itemTO, item, MAPPINGITEM_IGNORE_PROPERTIES);
+                        SAML2IdPItem item = entityFactory.newEntity(SAML2IdPItem.class);
+                        BeanUtils.copyProperties(itemTO, item, ITEM_IGNORE_PROPERTIES);
+                        item.setIdP(idp);
                         item.setPurpose(MappingPurpose.NONE);
                         if (item.isConnObjectKey()) {
                             if (intAttrName.getSchemaType() == SchemaType.VIRTUAL) {
@@ -174,7 +171,7 @@ public class SAML2IdPDataBinderImpl implements SAML2IdPDataBinder {
         idp.setUseDeflateEncoding(idpTO.isUseDeflateEncoding());
         idp.setBindingType(idpTO.getBindingType());
 
-        idp.getMappingItems().clear();
+        idp.getItems().clear();
         AnyTypeClassTO allowedSchemas = new AnyTypeClassTO();
         for (AnyTypeClass anyTypeClass : anyTypeDAO.findUser().getClasses()) {
             allowedSchemas.getPlainSchemas().addAll(
@@ -187,16 +184,16 @@ public class SAML2IdPDataBinderImpl implements SAML2IdPDataBinder {
                     CollectionUtils.collect(anyTypeClass.getVirSchemas(),
                             EntityUtils.<VirSchema>keyTransformer()));
         }
-        populateMapping(idpTO, idp, allowedSchemas);
+        populateItems(idpTO, idp, allowedSchemas);
 
         return saml2IdPDAO.save(idp);
     }
 
-    private void populateMappingTO(final SAML2IdP idp, final SAML2IdPTO idpTO) {
-        for (MappingItem item : idp.getMappingItems()) {
+    private void populateItems(final SAML2IdP idp, final SAML2IdPTO idpTO) {
+        for (SAML2IdPItem item : idp.getItems()) {
             ItemTO itemTO = new ItemTO();
             itemTO.setKey(item.getKey());
-            BeanUtils.copyProperties(item, itemTO, MAPPINGITEM_IGNORE_PROPERTIES);
+            BeanUtils.copyProperties(item, itemTO, ITEM_IGNORE_PROPERTIES);
             itemTO.setPurpose(MappingPurpose.NONE);
 
             if (itemTO.isConnObjectKey()) {
@@ -218,7 +215,7 @@ public class SAML2IdPDataBinderImpl implements SAML2IdPDataBinder {
         idpTO.setBindingType(idp.getBindingType());
         idpTO.setMetadata(Base64.encode(idp.getMetadata()));
 
-        populateMappingTO(idp, idpTO);
+        populateItems(idp, idpTO);
 
         return idpTO;
     }

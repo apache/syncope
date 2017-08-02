@@ -33,28 +33,18 @@ import org.apache.cxf.rs.security.jose.jws.JwsSignatureProvider;
 import org.apache.cxf.rs.security.jose.jwt.JwtClaims;
 import org.apache.cxf.rs.security.jose.jwt.JwtToken;
 import org.apache.syncope.common.lib.to.AccessTokenTO;
-import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.provisioning.api.data.AccessTokenDataBinder;
-import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.BeanUtils;
-import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DefaultCredentialChecker;
-import org.apache.syncope.core.spring.security.Encryptor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
-
-    private static final Logger LOG = LoggerFactory.getLogger(AccessTokenDataBinder.class);
-
-    private static final Encryptor ENCRYPTOR = Encryptor.getInstance();
 
     private static final String[] IGNORE_PROPERTIES = { "owner" };
 
@@ -112,7 +102,10 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
 
     @Override
     public Pair<String, Date> create(
-            final String subject, final Map<String, Object> claims, final boolean replaceExisting) {
+            final String subject,
+            final Map<String, Object> claims,
+            final byte[] authorities,
+            final boolean replaceExisting) {
 
         String body = null;
         Date expiryTime = null;
@@ -139,13 +132,7 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
             accessToken.setOwner(subject);
 
             if (!adminUser.equals(accessToken.getOwner())) {
-                try {
-                    accessToken.setAuthorities(ENCRYPTOR.encode(
-                            POJOHelper.serialize(AuthContextUtils.getAuthorities()), CipherAlgorithm.AES).
-                            getBytes());
-                } catch (Exception e) {
-                    LOG.error("Could not store authorities", e);
-                }
+                accessToken.setAuthorities(authorities);
             }
 
             accessTokenDAO.save(accessToken);
@@ -159,7 +146,7 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
     }
 
     @Override
-    public Pair<String, Date> update(final AccessToken accessToken) {
+    public Pair<String, Date> update(final AccessToken accessToken, final byte[] authorities) {
         JwsJwtCompactConsumer consumer = new JwsJwtCompactConsumer(accessToken.getBody());
 
         credentialChecker.checkIsDefaultJWSKeyInUse();
@@ -181,13 +168,7 @@ public class AccessTokenDataBinderImpl implements AccessTokenDataBinder {
         accessToken.setExpiryTime(expiryDate);
 
         if (!adminUser.equals(accessToken.getOwner())) {
-            try {
-                accessToken.setAuthorities(ENCRYPTOR.encode(
-                        POJOHelper.serialize(AuthContextUtils.getAuthorities()), CipherAlgorithm.AES).
-                        getBytes());
-            } catch (Exception e) {
-                LOG.error("Could not store authorities", e);
-            }
+            accessToken.setAuthorities(authorities);
         }
 
         accessTokenDAO.save(accessToken);

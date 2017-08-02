@@ -143,12 +143,12 @@ public class SAML2ITCase extends AbstractITCase {
             }
         });
         assertNotNull(ssoCircle);
-        assertFalse(ssoCircle.getMappingItems().isEmpty());
+        assertFalse(ssoCircle.getItems().isEmpty());
         assertNotNull(ssoCircle.getConnObjectKeyItem());
         assertNotEquals("email", ssoCircle.getConnObjectKeyItem().getIntAttrName());
         assertNotEquals("EmailAddress", ssoCircle.getConnObjectKeyItem().getExtAttrName());
 
-        ssoCircle.getMappingItems().clear();
+        ssoCircle.getItems().clear();
 
         ItemTO keyMapping = new ItemTO();
         keyMapping.setIntAttrName("email");

@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.persistence.jpa.entity.resource;
+package org.apache.syncope.core.persistence.jpa.entity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,20 +29,21 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
-import org.apache.syncope.core.persistence.api.entity.resource.OrgUnitItem;
+import org.apache.syncope.core.persistence.api.entity.SAML2IdP;
+import org.apache.syncope.core.persistence.api.entity.SAML2IdPItem;
+import org.apache.syncope.core.persistence.jpa.entity.resource.AbstractItem;
 
 @Entity
-@Table(name = JPAOrgUnitItem.TABLE)
+@Table(name = JPASAML2IdPItem.TABLE)
 @Cacheable
-public class JPAOrgUnitItem extends AbstractItem implements OrgUnitItem {
+public class JPASAML2IdPItem extends AbstractItem implements SAML2IdPItem {
 
-    private static final long serialVersionUID = 7872073846646341777L;
+    public static final String TABLE = "SAML2IdPItem";
 
-    public static final String TABLE = "OrgUnitItem";
+    private static final long serialVersionUID = -597417734910639991L;
 
     @ManyToOne
-    private JPAOrgUnit orgUnit;
+    private JPASAML2IdP idp;
 
     /**
      * (Optional) classes for Item transformation.
@@ -51,18 +52,18 @@ public class JPAOrgUnitItem extends AbstractItem implements OrgUnitItem {
     @Column(name = "transformerClassName")
     @CollectionTable(name = TABLE + "_Transformer",
             joinColumns =
-            @JoinColumn(name = "orgUnitItem_id", referencedColumnName = "id"))
+            @JoinColumn(name = "saml2IdPItemItem_id", referencedColumnName = "id"))
     private List<String> transformerClassNames = new ArrayList<>();
 
     @Override
-    public OrgUnit getOrgUnit() {
-        return orgUnit;
+    public SAML2IdP getIdP() {
+        return idp;
     }
 
     @Override
-    public void setOrgUnit(final OrgUnit mapping) {
-        checkType(mapping, JPAOrgUnit.class);
-        this.orgUnit = (JPAOrgUnit) mapping;
+    public void setIdP(final SAML2IdP idp) {
+        checkType(idp, JPASAML2IdP.class);
+        this.idp = (JPASAML2IdP) idp;
     }
 
     @Override

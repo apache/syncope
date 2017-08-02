@@ -84,17 +84,18 @@ public class SyncopeJWTSSOProvider implements JWTSSOProvider {
     @Override
     public Pair<User, Set<SyncopeGrantedAuthority>> resolve(final JwtClaims jwtClaims) {
         User user = userDAO.findByUsername(jwtClaims.getSubject());
-        Set<SyncopeGrantedAuthority> authorities = null;
+        Set<SyncopeGrantedAuthority> authorities = Collections.emptySet();
         if (user != null) {
             AccessToken accessToken = accessTokenDAO.find(jwtClaims.getTokenId());
-            try {
-                authorities = POJOHelper.deserialize(
-                        ENCRYPTOR.decode(new String(accessToken.getAuthorities()), CipherAlgorithm.AES),
-                        new TypeReference<Set<SyncopeGrantedAuthority>>() {
-                });
-            } catch (Throwable t) {
-                LOG.error("Could not read stored authorities", t);
-                authorities = Collections.emptySet();
+            if (accessToken.getAuthorities() != null) {
+                try {
+                    authorities = POJOHelper.deserialize(
+                            ENCRYPTOR.decode(new String(accessToken.getAuthorities()), CipherAlgorithm.AES),
+                            new TypeReference<Set<SyncopeGrantedAuthority>>() {
+                    });
+                } catch (Throwable t) {
+                    LOG.error("Could not read stored authorities", t);
+                }
             }
         }
 

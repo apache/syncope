@@ -36,8 +36,7 @@ import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.types.SAML2BindingType;
 import org.apache.syncope.core.persistence.api.entity.SAML2IdP;
-import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
-import org.apache.syncope.core.persistence.jpa.entity.resource.JPAMappingItem;
+import org.apache.syncope.core.persistence.api.entity.SAML2IdPItem;
 import org.apache.syncope.core.persistence.jpa.validation.entity.SAML2IdPCheck;
 
 @Entity
@@ -60,8 +59,8 @@ public class JPASAML2IdP extends AbstractGeneratedKeyEntity implements SAML2IdP 
     @Basic(fetch = FetchType.EAGER)
     private Byte[] metadata;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    private List<JPAMappingItem> mappingItems = new ArrayList<>();
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "idp")
+    private List<JPASAML2IdPItem> items = new ArrayList<>();
 
     @Min(0)
     @Max(1)
@@ -122,29 +121,29 @@ public class JPASAML2IdP extends AbstractGeneratedKeyEntity implements SAML2IdP 
     }
 
     @Override
-    public boolean add(final MappingItem item) {
-        checkType(item, JPAMappingItem.class);
-        return mappingItems.contains((JPAMappingItem) item) || mappingItems.add((JPAMappingItem) item);
+    public boolean add(final SAML2IdPItem item) {
+        checkType(item, JPASAML2IdPItem.class);
+        return items.contains((JPASAML2IdPItem) item) || items.add((JPASAML2IdPItem) item);
     }
 
     @Override
-    public List<? extends MappingItem> getMappingItems() {
-        return mappingItems;
+    public List<? extends SAML2IdPItem> getItems() {
+        return items;
     }
 
     @Override
-    public MappingItem getConnObjectKeyItem() {
-        return IterableUtils.find(getMappingItems(), new Predicate<MappingItem>() {
+    public SAML2IdPItem getConnObjectKeyItem() {
+        return IterableUtils.find(getItems(), new Predicate<SAML2IdPItem>() {
 
             @Override
-            public boolean evaluate(final MappingItem item) {
+            public boolean evaluate(final SAML2IdPItem item) {
                 return item.isConnObjectKey();
             }
         });
     }
 
     @Override
-    public void setConnObjectKeyItem(final MappingItem item) {
+    public void setConnObjectKeyItem(final SAML2IdPItem item) {
         item.setConnObjectKey(true);
         this.add(item);
     }

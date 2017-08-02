@@ -45,11 +45,11 @@ public class MappingTO extends AbstractBaseBean implements ItemContainerTO {
         return connObjectLink;
     }
 
-    @Override
     public void setConnObjectLink(final String connObjectLink) {
         this.connObjectLink = connObjectLink;
     }
 
+    @Override
     public ItemTO getConnObjectKeyItem() {
         return IterableUtils.find(getItems(), new Predicate<ItemTO>() {
 

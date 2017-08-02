@@ -132,8 +132,7 @@ public class SAML2IdPWizardBuilder extends AjaxWizardBuilder<SAML2IdPTO> {
 
     @Override
     protected Serializable onApplyInternal(final SAML2IdPTO modelObject) {
-        long connObjectKeyCount = IterableUtils.countMatches(
-                modelObject.getMappingItems(), new Predicate<ItemTO>() {
+        long connObjectKeyCount = IterableUtils.countMatches(modelObject.getItems(), new Predicate<ItemTO>() {
 
             @Override
             public boolean evaluate(final ItemTO item) {

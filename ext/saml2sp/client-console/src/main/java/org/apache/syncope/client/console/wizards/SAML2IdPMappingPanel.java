@@ -46,7 +46,7 @@ public class SAML2IdPMappingPanel extends AbstractMappingPanel {
         super(id,
                 mapItemTransformers,
                 jexlTransformers,
-                new ListModel<ItemTO>(idpTO.getMappingItems()),
+                new ListModel<ItemTO>(idpTO.getItems()),
                 true,
                 true,
                 MappingPurpose.NONE);
