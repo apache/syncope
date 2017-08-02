@@ -26,7 +26,7 @@ angular.module('login')
             var authService = {};
             authService.login = function (credentials) {
               return $http
-                      .post('/syncope-enduser/api/login', credentials)
+                      .post('../api/login', credentials)
                       .then(function (response) {
                         return response.data;
                       }, function (response) {
@@ -37,7 +37,7 @@ angular.module('login')
 
             authService.islogged = function () {
               return $http
-                      .get('/syncope-enduser/api/self/islogged')
+                      .get('../api/self/islogged')
                       .then(function (response) {
                         return response.data;
                       }, function (response) {

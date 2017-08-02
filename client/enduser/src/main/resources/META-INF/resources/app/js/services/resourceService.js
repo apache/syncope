@@ -27,7 +27,7 @@ angular.module('self')
 
             resourceService.getResources = function () {
 
-              return  $http.get("/syncope-enduser/api/resources")
+              return  $http.get("../api/resources")
                       .then(function (response) {
                         return response.data;
                       }, function (response) {

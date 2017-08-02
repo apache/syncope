@@ -26,7 +26,7 @@ angular.module('self')
             var saml2IdPService = {};
 
             saml2IdPService.getAvailableSAML2IdPs = function () {
-              return $http.get("/syncope-enduser/api/saml2IdPs")
+              return $http.get("../api/saml2IdPs")
                       .then(function (response) {
                         return response.data;
                       }, function (response) {
