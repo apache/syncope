@@ -156,7 +156,7 @@ public class Relationships extends WizardStep {
                                                 removeRelationships(relationships, modelObject);
                                                 send(Relationships.this, Broadcast.DEPTH, new ListViewReload<>(target));
                                             }
-                                        }, ActionType.DELETE, AnyEntitlement.UPDATE.getFor(anyTO.getType())).
+                                        }, ActionType.DELETE, AnyEntitlement.UPDATE.getFor(anyTO.getType()), true).
                                         build(panelId);
                             }
                         };
