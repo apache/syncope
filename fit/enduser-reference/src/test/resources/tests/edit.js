@@ -36,7 +36,8 @@ describe('syncope enduser user edit', function () {
     element(by.id('login-btn')).click();
 
     //credential
-    browser.wait(element(by.id('user.username')).isPresent());
+    abstract.waitSpinner();
+    browser.wait(element(by.model('user.username')).isPresent());
     element(by.model('user.username')).clear();
     element(by.model('user.username')).sendKeys('bellini');
     element(by.model('user.password')).clear();

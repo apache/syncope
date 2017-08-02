@@ -77,7 +77,7 @@ public class SchemaResource extends BaseResource {
                             getService(SyncopeService.class).readUserTypeExtension(group);
                     classes = typeExt.getAuxClasses();
                 } catch (Exception e) {
-                    LOG.error("Could not read User type extension for Group {}", group, e);
+                    LOG.error("Could not read User type extension for Group {}", group);
                 }
             } else {
                 String anyTypeClass = attributes.getParameters().get("anyTypeClass").toString();
