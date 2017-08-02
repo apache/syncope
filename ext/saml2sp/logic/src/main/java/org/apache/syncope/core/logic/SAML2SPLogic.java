@@ -421,6 +421,9 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
         check();
 
         // 1. first checks for the provided relay state
+        if (response.getRelayState() == null) {
+            throw new IllegalArgumentException("No Relay State was provided");
+        }
         JwsJwtCompactConsumer relayState = new JwsJwtCompactConsumer(response.getRelayState());
         if (!relayState.verifySignatureWith(jwsSignatureVerifier)) {
             throw new IllegalArgumentException("Invalid signature found in Relay State");
@@ -429,6 +432,9 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
                 relayState.getJwtClaims().getClaim(JWT_CLAIM_IDP_DEFLATE).toString());
 
         // 2. parse the provided SAML response
+        if (response.getSamlResponse() == null) {
+            throw new IllegalArgumentException("No SAML Response was provided");
+        }
         Response samlResponse;
         try {
             XMLObject responseObject = saml2rw.read(useDeflateEncoding, response.getSamlResponse());
