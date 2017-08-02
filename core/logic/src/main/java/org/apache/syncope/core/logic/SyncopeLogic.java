@@ -245,29 +245,29 @@ public class SyncopeLogic extends AbstractLogic<AbstractBaseBean> {
             PLATFORM_INFO.getEntitlements().clear();
             PLATFORM_INFO.getEntitlements().addAll(EntitlementsHolder.getInstance().getValues());
 
-            PLATFORM_INFO.getAnyTypes().clear();
-            PLATFORM_INFO.getUserClasses().clear();
-            PLATFORM_INFO.getAnyTypeClasses().clear();
-            PLATFORM_INFO.getResources().clear();
             AuthContextUtils.execWithAuthContext(AuthContextUtils.getDomain(), new AuthContextUtils.Executable<Void>() {
 
                 @Override
                 public Void exec() {
+                    PLATFORM_INFO.getAnyTypes().clear();
                     CollectionUtils.collect(
                             anyTypeDAO.findAll(),
                             EntityUtils.keyTransformer(),
                             PLATFORM_INFO.getAnyTypes());
 
+                    PLATFORM_INFO.getUserClasses().clear();
                     CollectionUtils.collect(
                             anyTypeDAO.findUser().getClasses(),
                             EntityUtils.keyTransformer(),
                             PLATFORM_INFO.getUserClasses());
 
+                    PLATFORM_INFO.getAnyTypeClasses().clear();
                     CollectionUtils.collect(
                             anyTypeClassDAO.findAll(),
                             EntityUtils.keyTransformer(),
                             PLATFORM_INFO.getAnyTypeClasses());
 
+                    PLATFORM_INFO.getResources().clear();
                     CollectionUtils.collect(
                             resourceDAO.findAll(),
                             EntityUtils.keyTransformer(),
