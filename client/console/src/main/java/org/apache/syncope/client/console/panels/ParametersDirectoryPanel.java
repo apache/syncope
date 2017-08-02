@@ -175,7 +175,7 @@ public class ParametersDirectoryPanel
                 }
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             }
-        }, ActionLink.ActionType.DELETE, StandardEntitlement.CONFIGURATION_DELETE);
+        }, ActionLink.ActionType.DELETE, StandardEntitlement.CONFIGURATION_DELETE, true);
 
         return panel;
     }

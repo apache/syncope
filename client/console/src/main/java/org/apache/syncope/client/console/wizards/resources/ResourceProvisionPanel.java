@@ -220,7 +220,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                         checkAddButton();
                         send(ResourceProvisionPanel.this, Broadcast.DEPTH, new ListViewReload<>(target));
                     }
-                }, ActionLink.ActionType.DELETE, StandardEntitlement.RESOURCE_UPDATE);
+                }, ActionLink.ActionType.DELETE, StandardEntitlement.RESOURCE_UPDATE, true);
 
         builder.addNewItemPanelBuilder(wizard);
 
