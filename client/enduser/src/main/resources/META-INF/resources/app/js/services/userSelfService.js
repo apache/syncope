@@ -25,7 +25,7 @@ angular.module('login')
             var userSelfService = {};
             userSelfService.read = function () {
               return $http
-                      .get('/syncope-enduser/api/self/read')
+                      .get('../api/self/read')
                       .then(function (response) {
                         return response.data;
                       }, function (response) {
@@ -35,7 +35,7 @@ angular.module('login')
             };
             userSelfService.create = function (user, captcha) {
               return $http
-                      .post('/syncope-enduser/api/self/create', user,
+                      .post('../api/self/create', user,
                               {
                                 headers: {'captcha': captcha}
                               })
@@ -48,7 +48,7 @@ angular.module('login')
             };
             userSelfService.update = function (user, captcha) {
               return $http
-                      .post('/syncope-enduser/api/self/update', user,
+                      .post('../api/self/update', user,
                               {
                                 headers: {'captcha': captcha}
                               })
@@ -61,7 +61,7 @@ angular.module('login')
             };
             userSelfService.passwordReset = function (user, captcha) {
               return $http
-                      .post('/syncope-enduser/api/self/requestPasswordReset', user,
+                      .post('../api/self/requestPasswordReset', user,
                               {
                                 headers: {
                                   'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8',
@@ -82,7 +82,7 @@ angular.module('login')
             };
             userSelfService.confirmPasswordReset = function (body) {
               return $http
-                      .post('/syncope-enduser/api/self/confirmPasswordReset', body,
+                      .post('../api/self/confirmPasswordReset', body,
                               {
                                 headers: {
                                   'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'
@@ -102,7 +102,7 @@ angular.module('login')
             };
             userSelfService.changePassword = function (body) {
               return $http
-                      .post('/syncope-enduser/api/self/changePassword', body,
+                      .post('../api/self/changePassword', body,
                               {
                                 headers: {
                                   'Content-Type': 'application/x-www-form-urlencoded;charset=utf-8'

@@ -32,7 +32,7 @@ angular.module('self')
 
               //initialize captcha
               $scope.refreshCaptcha = function () {
-                $scope.captchaUrl = '/syncope-enduser/api/captcha' + '?' + new Date();
+                $scope.captchaUrl = '../api/captcha' + '?' + new Date();
               };
 
               // initialize captcha

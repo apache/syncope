@@ -26,7 +26,7 @@ angular.module('self')
             var realmService = {};
 
             realmService.getAvailableRealms = function () {
-              return $http.get("/syncope-enduser/api/realms")
+              return $http.get("../api/realms")
                       .then(function (response) {
                         return response.data;
                       }, function (response) {

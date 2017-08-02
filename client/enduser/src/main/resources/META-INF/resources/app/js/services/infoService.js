@@ -27,7 +27,7 @@ angular.module('SyncopeEnduserApp')
 
             infoService.getInfo = function () {
               return $http
-                      .get('/syncope-enduser/api/info')
+                      .get('../api/info')
                       .then(function (response) {
                         return response.data;
                       }, function (response) {

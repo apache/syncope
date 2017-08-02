@@ -27,7 +27,7 @@ angular.module('self')
 
             schemaService.getUserSchemas = function (anyTypeClass, sortingFunction) {
               var classParam = anyTypeClass ? "?anyTypeClass=" + encodeURI(anyTypeClass) : "";
-              return  $http.get("/syncope-enduser/api/schemas" + classParam)
+              return  $http.get("../api/schemas" + classParam)
                       .then(function (response) {
                         var schemas = response.data;
                         if (sortingFunction) {
@@ -44,7 +44,7 @@ angular.module('self')
 
             schemaService.getTypeExtSchemas = function (group) {
               var param = group ? "?group=" + encodeURI(group) : "";
-              return  $http.get("/syncope-enduser/api/schemas" + param)
+              return  $http.get("../api/schemas" + param)
                       .then(function (response) {
                         return response.data;
                       }, function (response) {
