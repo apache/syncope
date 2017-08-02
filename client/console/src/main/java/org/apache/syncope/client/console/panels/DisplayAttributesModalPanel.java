@@ -113,12 +113,12 @@ public abstract class DisplayAttributesModalPanel<T extends Serializable> extend
             }
         };
 
-        selectedDetails
-                = prefMan.getList(getRequest(), DisplayAttributesModalPanel.getPrefDetailView(type));
-        selectedPlainSchemas
-                = prefMan.getList(getRequest(), DisplayAttributesModalPanel.getPrefPlainAttributeView(type));
-        selectedDerSchemas
-                = prefMan.getList(getRequest(), DisplayAttributesModalPanel.getPrefDerivedAttributeView(type));
+        selectedDetails =
+                prefMan.getList(getRequest(), DisplayAttributesModalPanel.getPrefDetailView(type));
+        selectedPlainSchemas =
+                prefMan.getList(getRequest(), DisplayAttributesModalPanel.getPrefPlainAttributeView(type));
+        selectedDerSchemas =
+                prefMan.getList(getRequest(), DisplayAttributesModalPanel.getPrefDerivedAttributeView(type));
 
         final WebMarkupContainer container = new WebMarkupContainer("container");
         container.setOutputMarkupId(true);
