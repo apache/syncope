@@ -16,24 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.api.data;
+package org.apache.syncope.core.persistence.api.entity;
 
-import java.util.Date;
-import java.util.Map;
-import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.lang3.tuple.Triple;
-import org.apache.syncope.common.lib.to.AccessTokenTO;
-import org.apache.syncope.core.persistence.api.entity.AccessToken;
+import org.apache.syncope.core.persistence.api.entity.resource.Item;
 
-public interface AccessTokenDataBinder {
+public interface SAML2IdPItem extends Item {
 
-    Triple<String, String, Date> generateJWT(String subject, long duration, Map<String, Object> claims);
+    SAML2IdP getIdP();
 
-    Pair<String, Date> create(
-            String subject, Map<String, Object> claims, byte[] authorities, boolean replaceExisting);
-
-    Pair<String, Date> update(AccessToken accessToken, byte[] authorities);
-
-    AccessTokenTO getAccessTokenTO(AccessToken accessToken);
-
+    void setIdP(SAML2IdP idp);
 }

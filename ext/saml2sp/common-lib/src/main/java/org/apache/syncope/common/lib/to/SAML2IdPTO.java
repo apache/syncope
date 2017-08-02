@@ -33,7 +33,7 @@ import org.apache.syncope.common.lib.types.SAML2BindingType;
 
 @XmlRootElement(name = "saml2idp")
 @XmlType
-public class SAML2IdPTO extends AbstractBaseBean implements EntityTO {
+public class SAML2IdPTO extends AbstractBaseBean implements EntityTO, ItemContainerTO {
 
     private static final long serialVersionUID = 4426527052873779881L;
 
@@ -51,7 +51,7 @@ public class SAML2IdPTO extends AbstractBaseBean implements EntityTO {
 
     private boolean logoutSupported;
 
-    private final List<ItemTO> mappingItems = new ArrayList<>();
+    private final List<ItemTO> items = new ArrayList<>();
 
     @Override
     public String getKey() {
@@ -112,8 +112,9 @@ public class SAML2IdPTO extends AbstractBaseBean implements EntityTO {
         this.logoutSupported = logoutSupported;
     }
 
+    @Override
     public ItemTO getConnObjectKeyItem() {
-        return IterableUtils.find(getMappingItems(), new Predicate<ItemTO>() {
+        return IterableUtils.find(getItems(), new Predicate<ItemTO>() {
 
             @Override
             public boolean evaluate(final ItemTO item) {
@@ -129,25 +130,28 @@ public class SAML2IdPTO extends AbstractBaseBean implements EntityTO {
         return this.add(connObjectItem);
     }
 
+    @Override
     public boolean setConnObjectKeyItem(final ItemTO connObjectKeyItem) {
         return connObjectKeyItem == null
                 ? remove(getConnObjectKeyItem())
                 : addConnObjectKeyItem(connObjectKeyItem);
     }
 
-    @XmlElementWrapper(name = "mappingItems")
-    @XmlElement(name = "mappingItem")
-    @JsonProperty("mappingItems")
-    public List<ItemTO> getMappingItems() {
-        return mappingItems;
+    @XmlElementWrapper(name = "items")
+    @XmlElement(name = "item")
+    @JsonProperty("items")
+    @Override
+    public List<ItemTO> getItems() {
+        return items;
     }
 
+    @Override
     public boolean add(final ItemTO item) {
-        return item == null ? false : this.mappingItems.contains(item) || this.mappingItems.add(item);
+        return item == null ? false : this.items.contains(item) || this.items.add(item);
     }
 
     public boolean remove(final ItemTO item) {
-        return this.mappingItems.remove(item);
+        return this.items.remove(item);
     }
 
 }

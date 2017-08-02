@@ -37,6 +37,7 @@ import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.KeyPropertyColumn;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksTogglePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.XMLEditorPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
@@ -92,6 +93,25 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
                 modal.show(false);
             }
         });
+
+        // need to override to change the menu header
+        actionTogglePanel = new ActionLinksTogglePanel<SAML2IdPTO>("outer", pageRef) {
+
+            private static final long serialVersionUID = -7688359318035249200L;
+
+            @Override
+            public void toggleWithContent(
+                    final AjaxRequestTarget target,
+                    final ActionsPanel<SAML2IdPTO> actionsPanel,
+                    final SAML2IdPTO modelObject) {
+
+                super.toggleWithContent(target, actionsPanel, modelObject);
+                setHeader(target, StringUtils.abbreviate(modelObject.getName(), 25));
+                this.toggle(target, true);
+            }
+
+        };
+        addOuterObject(actionTogglePanel);
 
         addOuterObject(metadataModal);
         setWindowClosedReloadCallback(metadataModal);

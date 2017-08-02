@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.logic;
 
+import static org.apache.syncope.core.logic.AbstractLogic.LOG;
+
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,19 +30,24 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.AccessTokenTO;
+import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.provisioning.api.data.AccessTokenDataBinder;
+import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.apache.syncope.core.spring.security.Encryptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 
 @Component
 public class AccessTokenLogic extends AbstractTransactionalLogic<AccessTokenTO> {
+
+    private static final Encryptor ENCRYPTOR = Encryptor.getInstance();
 
     @Resource(name = "anonymousUser")
     private String anonymousUser;
@@ -51,13 +58,30 @@ public class AccessTokenLogic extends AbstractTransactionalLogic<AccessTokenTO> 
     @Autowired
     private AccessTokenDAO accessTokenDAO;
 
+    private byte[] getAuthorities() {
+        byte[] authorities = null;
+        try {
+            authorities = ENCRYPTOR.encode(POJOHelper.serialize(
+                    AuthContextUtils.getAuthorities()), CipherAlgorithm.AES).
+                    getBytes();
+        } catch (Exception e) {
+            LOG.error("Could not fetch authorities", e);
+        }
+
+        return authorities;
+    }
+
     @PreAuthorize("isAuthenticated()")
     public Pair<String, Date> login() {
         if (anonymousUser.equals(AuthContextUtils.getUsername())) {
             throw new IllegalArgumentException(anonymousUser + " cannot be granted an access token");
         }
 
-        return binder.create(AuthContextUtils.getUsername(), Collections.<String, Object>emptyMap(), false);
+        return binder.create(
+                AuthContextUtils.getUsername(),
+                Collections.<String, Object>emptyMap(),
+                getAuthorities(),
+                false);
     }
 
     @PreAuthorize("isAuthenticated()")
@@ -67,7 +91,7 @@ public class AccessTokenLogic extends AbstractTransactionalLogic<AccessTokenTO> 
             throw new NotFoundException("AccessToken for " + AuthContextUtils.getUsername());
         }
 
-        return binder.update(accessToken);
+        return binder.update(accessToken, getAuthorities());
     }
 
     @PreAuthorize("isAuthenticated()")

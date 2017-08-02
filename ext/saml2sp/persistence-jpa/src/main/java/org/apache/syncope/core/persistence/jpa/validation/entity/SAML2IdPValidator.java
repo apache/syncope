@@ -23,21 +23,21 @@ import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.entity.SAML2IdP;
-import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
+import org.apache.syncope.core.persistence.api.entity.SAML2IdPItem;
 import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
 
 public class SAML2IdPValidator extends AbstractValidator<SAML2IdPCheck, SAML2IdP> {
 
     @Override
     public boolean isValid(final SAML2IdP value, final ConstraintValidatorContext context) {
-        long connObjectKeys = IterableUtils.countMatches(value.getMappingItems(), new Predicate<MappingItem>() {
+        long connObjectKeys = IterableUtils.countMatches(value.getItems(), new Predicate<SAML2IdPItem>() {
 
             @Override
-            public boolean evaluate(final MappingItem item) {
+            public boolean evaluate(final SAML2IdPItem item) {
                 return item.isConnObjectKey();
             }
         });
-        if (!value.getMappingItems().isEmpty() && connObjectKeys != 1) {
+        if (!value.getItems().isEmpty() && connObjectKeys != 1) {
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.InvalidMapping, "Single ConnObjectKey mapping is required")).
                     addPropertyNode("connObjectKey.size").addConstraintViolation();
@@ -46,10 +46,10 @@ public class SAML2IdPValidator extends AbstractValidator<SAML2IdPCheck, SAML2IdP
 
         boolean isValid = true;
 
-        long passwords = IterableUtils.countMatches(value.getMappingItems(), new Predicate<MappingItem>() {
+        long passwords = IterableUtils.countMatches(value.getItems(), new Predicate<SAML2IdPItem>() {
 
             @Override
-            public boolean evaluate(final MappingItem item) {
+            public boolean evaluate(final SAML2IdPItem item) {
                 return item.isPassword();
             }
         });
@@ -60,7 +60,7 @@ public class SAML2IdPValidator extends AbstractValidator<SAML2IdPCheck, SAML2IdP
             isValid = false;
         }
 
-        for (MappingItem item : value.getMappingItems()) {
+        for (SAML2IdPItem item : value.getItems()) {
             for (String className : item.getTransformerClassNames()) {
                 Class<?> actionsClass = null;
                 boolean isAssignable = false;

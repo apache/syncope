@@ -46,6 +46,7 @@ import org.apache.syncope.common.lib.to.SAML2LoginResponseTO;
 import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.SAML2ReceivedResponseTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.SAML2BindingType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
@@ -119,6 +120,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Component;
 import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
+import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import org.apache.syncope.core.spring.security.AuthDataAccessor;
+import org.apache.syncope.core.spring.security.Encryptor;
 
 @Component
 public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
@@ -136,6 +140,8 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
     private static final String JWT_CLAIM_SESSIONINDEX = "SESSIONINDEX";
 
     private static final RandomBasedGenerator UUID_GENERATOR = Generators.randomBasedGenerator();
+
+    private static final Encryptor ENCRYPTOR = Encryptor.getInstance();
 
     @Autowired
     private AccessTokenDataBinder accessTokenDataBinder;
@@ -157,6 +163,9 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
 
     @Autowired
     private IntAttrNameParser intAttrNameParser;
+
+    @Autowired
+    private AuthDataAccessor authDataAccessor;
 
     @Autowired
     private EntityFactory entityFactory;
@@ -532,7 +541,18 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
         claims.put(JWT_CLAIM_NAMEID_FORMAT, nameID.getFormat());
         claims.put(JWT_CLAIM_NAMEID_VALUE, nameID.getValue());
         claims.put(JWT_CLAIM_SESSIONINDEX, responseTO.getSessionIndex());
-        Pair<String, Date> accessTokenInfo = accessTokenDataBinder.create(responseTO.getUsername(), claims, true);
+
+        byte[] authorities = null;
+        try {
+            authorities = ENCRYPTOR.encode(POJOHelper.serialize(
+                    authDataAccessor.getAuthorities(responseTO.getUsername())), CipherAlgorithm.AES).
+                    getBytes();
+        } catch (Exception e) {
+            LOG.error("Could not fetch authorities", e);
+        }
+
+        Pair<String, Date> accessTokenInfo =
+                accessTokenDataBinder.create(responseTO.getUsername(), claims, authorities, true);
         responseTO.setAccessToken(accessTokenInfo.getLeft());
         responseTO.setAccessTokenExpiryTime(accessTokenInfo.getRight());
 

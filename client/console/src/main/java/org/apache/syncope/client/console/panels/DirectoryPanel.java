@@ -105,7 +105,7 @@ public abstract class DirectoryPanel<
 
     protected final BaseModal<W> displayAttributeModal = new BaseModal<>("outer");
 
-    private ActionLinksTogglePanel<T> actionTogglePanel;
+    protected ActionLinksTogglePanel<T> actionTogglePanel;
 
     /**
      * Create simple unfiltered search result panel.
@@ -139,7 +139,7 @@ public abstract class DirectoryPanel<
         super(id, wizardInModal);
         setOutputMarkupId(true);
 
-        actionTogglePanel = new ActionLinksTogglePanel<T>("outer", builder.getPageRef());
+        actionTogglePanel = new ActionLinksTogglePanel<>("outer", builder.getPageRef());
         addOuterObject(actionTogglePanel);
 
         addOuterObject(altDefaultModal);

@@ -22,7 +22,7 @@ import java.util.List;
 
 public interface ItemContainerTO {
 
-    void setConnObjectLink(String connObjectLink);
+    ItemTO getConnObjectKeyItem();
 
     boolean setConnObjectKeyItem(ItemTO connObjectKeyItem);
 

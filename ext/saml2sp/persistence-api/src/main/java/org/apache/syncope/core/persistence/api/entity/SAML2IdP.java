@@ -20,7 +20,6 @@ package org.apache.syncope.core.persistence.api.entity;
 
 import java.util.List;
 import org.apache.syncope.common.lib.types.SAML2BindingType;
-import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 
 public interface SAML2IdP extends Entity {
 
@@ -44,12 +43,12 @@ public interface SAML2IdP extends Entity {
 
     void setBindingType(SAML2BindingType bindingType);
 
-    MappingItem getConnObjectKeyItem();
+    SAML2IdPItem getConnObjectKeyItem();
 
-    void setConnObjectKeyItem(MappingItem item);
+    void setConnObjectKeyItem(SAML2IdPItem item);
 
-    boolean add(MappingItem item);
+    boolean add(SAML2IdPItem item);
 
-    List<? extends MappingItem> getMappingItems();
+    List<? extends SAML2IdPItem> getItems();
 
 }
