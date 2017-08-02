@@ -20,7 +20,6 @@ package org.apache.syncope.core.rest.cxf.service;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -68,14 +67,9 @@ public class MailTemplateServiceImpl extends AbstractServiceImpl implements Mail
 
     @Override
     public Response getFormat(final String key, final MailTemplateFormat format) {
-        final String template = logic.getFormat(key, format);
-        StreamingOutput sout = new StreamingOutput() {
+        String template = logic.getFormat(key, format);
+        StreamingOutput sout = (os) -> os.write(template.getBytes());
 
-            @Override
-            public void write(final OutputStream os) throws IOException {
-                os.write(template.getBytes());
-            }
-        };
         return Response.ok(sout).
                 type(format.getMediaType()).
                 build();

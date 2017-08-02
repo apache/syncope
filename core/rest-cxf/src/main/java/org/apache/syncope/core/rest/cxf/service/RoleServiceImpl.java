@@ -20,7 +20,6 @@ package org.apache.syncope.core.rest.cxf.service;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -73,14 +72,9 @@ public class RoleServiceImpl extends AbstractServiceImpl implements RoleService 
 
     @Override
     public Response getConsoleLayoutInfo(final String key) {
-        final String template = logic.getConsoleLayoutInfo(key);
-        StreamingOutput sout = new StreamingOutput() {
+        String template = logic.getConsoleLayoutInfo(key);
+        StreamingOutput sout = (os) -> os.write(template.getBytes());
 
-            @Override
-            public void write(final OutputStream os) throws IOException {
-                os.write(template.getBytes());
-            }
-        };
         return Response.ok(sout).
                 type(MediaType.APPLICATION_JSON_TYPE).
                 build();

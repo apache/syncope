@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.rest.cxf.service;
 
-import java.io.IOException;
-import java.io.OutputStream;
 import java.util.List;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
@@ -42,17 +40,11 @@ public class ConfigurationServiceImpl extends AbstractServiceImpl implements Con
 
     @Override
     public Response export() {
-        StreamingOutput sout = new StreamingOutput() {
+        StreamingOutput sout = (os) -> logic.export(os);
 
-            @Override
-            public void write(final OutputStream os) throws IOException {
-                logic.export(os);
-            }
-        };
         return Response.ok(sout).
                 type(MediaType.TEXT_XML).
-                header(
-                        HttpHeaders.CONTENT_DISPOSITION,
+                header(HttpHeaders.CONTENT_DISPOSITION,
                         "attachment; filename=" + AuthContextUtils.getDomain() + CONTENT_XML).
                 build();
     }

@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.rest.cxf.service;
 
-import java.io.IOException;
-import java.io.OutputStream;
 import java.util.List;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -45,18 +43,12 @@ public class WorkflowServiceImpl extends AbstractServiceImpl implements Workflow
 
     @Override
     public Response get(final String anyType, final String key) {
-        final WorkflowDefinitionFormat format =
+        WorkflowDefinitionFormat format =
                 messageContext.getHttpHeaders().getAcceptableMediaTypes().contains(MediaType.APPLICATION_JSON_TYPE)
                 ? WorkflowDefinitionFormat.JSON
                 : WorkflowDefinitionFormat.XML;
 
-        StreamingOutput sout = new StreamingOutput() {
-
-            @Override
-            public void write(final OutputStream os) throws IOException {
-                logic.exportDefinition(anyType, key, format, os);
-            }
-        };
+        StreamingOutput sout = (os) -> logic.exportDefinition(anyType, key, format, os);
 
         return Response.ok(sout).
                 type(format == WorkflowDefinitionFormat.JSON
@@ -66,13 +58,7 @@ public class WorkflowServiceImpl extends AbstractServiceImpl implements Workflow
 
     @Override
     public Response exportDiagram(final String anyType, final String key) {
-        StreamingOutput sout = new StreamingOutput() {
-
-            @Override
-            public void write(final OutputStream os) throws IOException {
-                logic.exportDiagram(anyType, key, os);
-            }
-        };
+        StreamingOutput sout = (os) -> logic.exportDiagram(anyType, key, os);
 
         return Response.ok(sout).
                 type(RESTHeaders.MEDIATYPE_IMAGE_PNG).
