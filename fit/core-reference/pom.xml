@@ -363,6 +363,7 @@ under the License.
         <filtering>true</filtering>
         <excludes>
           <exclude>keystore</exclude>
+          <exclude>**/*.jks</exclude>
         </excludes>
       </testResource>
       <testResource>
@@ -370,6 +371,7 @@ under the License.
         <filtering>false</filtering>
         <includes>
           <include>keystore</include>
+          <include>**/*.jks</include>
         </includes>
       </testResource>
       <testResource>

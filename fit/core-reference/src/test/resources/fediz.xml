@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+<EntityDescriptor entityID="urn:org:apache:cxf:fediz:idp:realm-A" xmlns="urn:oasis:names:tc:SAML:2.0:metadata">
+    <IDPSSODescriptor WantAuthnRequestsSigned="true" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
+        <KeyDescriptor use="signing">
+            <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+                <ds:X509Data>
+                    <ds:X509Certificate>
+MIICwTCCAamgAwIBAgIEINqJ9TANBgkqhkiG9w0BAQsFADARMQ8wDQYDVQQDEwZSRUFMTUEwHhcN
+MTUwNjEwMTU0NDE3WhcNMjUwNDE4MTU0NDE3WjARMQ8wDQYDVQQDEwZSRUFMTUEwggEiMA0GCSqG
+SIb3DQEBAQUAA4IBDwAwggEKAoIBAQCJDSXn2lDR+JM+AsJarFG3/XGH7K+9AfAbQIz2IgB9MCpO
+KVWTUPCvuo1I+Fp5nEGreuHYLEwgIiam3o+C9tvpLgtDDaDkmXjDzkWpk8z6+im72HZ/ODF93Rqw
+jIiY5ZCzgDumFyPzdKiGwChThamidy+rd6oheSoi6qRVSMMcnwiEUmvkfFvV3izXRqeT5nGQwsin
+y9mCEiGx8jkfxP++H0RQjVjhOwzfQ7epsR7dTQNf2ZhkBR3o6wKV9QnF2IBWHZpA9EK58rWU9H6j
+G7b631rYvwsbOUF9HcZ8DI2BFh+4p18jDN/fnjNGSLr9rYOExpsIiF1cHBK7Tr7WwCmDAgMBAAGj
+ITAfMB0GA1UdDgQWBBRHy0qYoLm9jx/1L6r61NznHKun2jANBgkqhkiG9w0BAQsFAAOCAQEAR9rU
+5Sp1FsOErdvKNFqeaKl0oq6Fuz7BWcGm2kK6+1ZbWE8IOv6Vh+BlLuOe5hF7aLUbm8UIjhKsmg0M
+Ey5MBwkBZktT1qhQteMuiKgYR7CxayCxO0f125RYvvwntJa5rI7bUrzOqX29VQD1qQ/Tb+08fULT
+L7oURP+g88Ff99dn3IpO4VZxZdsbl4+KZRtqQvPAdXNYjOajJtPzS489+/DtfWJ6wPm/7YZ4did4
+1fYcrdwyEZ15L0/5i931z7sztNickm5WhO40qEVDKN6KrlV2Eyea0+933v2Pwe4resTlko9G2T5h
+dEaSbvht2Q/JOMMmT91daeto2oS8HTKhTA==
+                   </ds:X509Certificate>
+                </ds:X509Data>
+            </ds:KeyInfo>
+        </KeyDescriptor>
+        <NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</NameIDFormat>
+        <SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://localhost:8443/fediz-idp/saml/up"/>
+        <SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://localhost:8443/fediz-idp/saml/up"/>
+    </IDPSSODescriptor>
+</EntityDescriptor>
