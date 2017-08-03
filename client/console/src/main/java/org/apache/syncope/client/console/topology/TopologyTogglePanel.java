@@ -40,9 +40,12 @@ import org.apache.syncope.client.console.tasks.PullTasks;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.IndicatingOnConfirmAjaxLink;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
+import org.apache.syncope.client.console.wizards.resources.AbstractResourceWizardBuilder;
 import org.apache.syncope.client.console.wizards.resources.ResourceProvisionPanel;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
+import org.apache.syncope.common.lib.to.ItemTO;
+import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
@@ -582,6 +585,57 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
         };
         MetaDataRoleAuthorizationStrategy.authorize(history, RENDER, StandardEntitlement.RESOURCE_HISTORY_LIST);
         fragment.add(history);
+
+        // [SYNCOPE-1161] - Option to clone a resource
+        AjaxLink<String> clone = new IndicatingOnConfirmAjaxLink<String>("clone", "confirmClone", true) {
+
+            private static final long serialVersionUID = -7978723352517770644L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target) {
+                try {
+                    ResourceTO resource = resourceRestClient.read(node.getKey());
+                    resource.setKey("Copy of " + resource.getKey());
+                    // reset some resource objects keys
+                    if (resource.getOrgUnit() != null) {
+                        resource.getOrgUnit().setKey(null);
+                        for (ItemTO item : resource.getOrgUnit().getItems()) {
+                            item.setKey(null);
+                        }
+                    }
+                    for (ProvisionTO provision : resource.getProvisions()) {
+                        provision.setKey(null);
+                        if (provision.getMapping() != null) {
+                            for (ItemTO item : provision.getMapping().getItems()) {
+                                item.setKey(null);
+                            }
+                            provision.getMapping().getLinkingItems().clear();
+                        }
+                        provision.getVirSchemas().clear();
+                    }
+                    resourceRestClient.create(resource);
+
+                    // refresh Topology
+                    send(pageRef.getPage(), Broadcast.DEPTH, new AbstractResourceWizardBuilder.CreateEvent(
+                            resource.getKey(),
+                            resource.getKey(),
+                            TopologyNode.Kind.RESOURCE,
+                            resource.getConnector(),
+                            target));
+
+                    SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+                    toggle(target, false);
+                } catch (SyncopeClientException e) {
+                    LOG.error("While cloning resource {}", node.getKey(), e);
+                    SyncopeConsoleSession.get().error(StringUtils.isBlank(e.getMessage())
+                            ? e.getClass().getName() : e.getMessage());
+                }
+                ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
+            }
+
+        };
+        MetaDataRoleAuthorizationStrategy.authorize(clone, RENDER, StandardEntitlement.RESOURCE_CREATE);
+        fragment.add(clone);
 
         return fragment;
     }
