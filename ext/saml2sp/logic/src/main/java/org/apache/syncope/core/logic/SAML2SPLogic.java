@@ -117,7 +117,6 @@ import org.opensaml.xmlsec.keyinfo.KeyInfoGenerator;
 import org.opensaml.xmlsec.keyinfo.impl.X509KeyInfoGeneratorFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Component;
 import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
@@ -176,6 +175,10 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
     @Resource(name = "syncopeJWTSSOProviderDelegate")
     private JwsSignatureVerifier jwsSignatureVerifier;
 
+    private String getAssertionConsumerURL(final String spEntityID, final String urlContext) {
+        return spEntityID + urlContext + "/assertion-consumer";
+    }
+
     @PreAuthorize("hasRole('" + StandardEntitlement.ANONYMOUS + "')")
     public void getMetadata(final String spEntityID, final String urlContext, final OutputStream os) {
         check();
@@ -209,7 +212,7 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
                 AssertionConsumerService assertionConsumerService = new AssertionConsumerServiceBuilder().buildObject();
                 assertionConsumerService.setIndex(bindingType.ordinal());
                 assertionConsumerService.setBinding(bindingType.getUri());
-                assertionConsumerService.setLocation(spEntityID + urlContext + "/assertion-consumer");
+                assertionConsumerService.setLocation(getAssertionConsumerURL(spEntityID, urlContext));
                 spSSODescriptor.getAssertionConsumerServices().add(assertionConsumerService);
                 spEntityDescriptor.getRoleDescriptors().add(spSSODescriptor);
 
@@ -450,24 +453,19 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
             throw sce;
         }
 
-        // 3. further checks:
-        //   3a. the SAML Reponse's InResponseTo
-        if (!relayState.getJwtClaims().getSubject().equals(samlResponse.getInResponseTo())) {
-            throw new IllegalArgumentException("Unmatching request ID: " + samlResponse.getInResponseTo());
-        }
-        //   3b. the SAML Response status
-        if (!StatusCode.SUCCESS.equals(samlResponse.getStatus().getStatusCode().getValue())) {
-            throw new BadCredentialsException("The SAML IdP replied with "
-                    + samlResponse.getStatus().getStatusCode().getValue());
-        }
-
-        // 4. validate the SAML response and, if needed, decrypt the provided assertion(s)
+        // 3. validate the SAML response and, if needed, decrypt the provided assertion(s)
         SAML2IdPEntity idp = getIdP(samlResponse.getIssuer().getValue());
         if (idp.getConnObjectKeyItem() == null) {
             throw new IllegalArgumentException("No mapping provided for SAML 2.0 IdP '" + idp.getId() + "'");
         }
         try {
-            saml2rw.validate(samlResponse, idp.getTrustStore());
+            saml2rw.validate(
+                    samlResponse,
+                    idp,
+                    getAssertionConsumerURL(response.getSpEntityID(), response.getUrlContext()),
+                    response.getClientAddress(),
+                    relayState.getJwtClaims().getSubject(),
+                    response.getSpEntityID());
         } catch (Exception e) {
             LOG.error("While validating AuthnResponse", e);
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Unknown);
@@ -475,7 +473,7 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
             throw sce;
         }
 
-        // 5. prepare the result: find matching user (if any) and return the received attributes
+        // 4. prepare the result: find matching user (if any) and return the received attributes
         SAML2LoginResponseTO responseTO = new SAML2LoginResponseTO();
         responseTO.setIdp(idp.getId());
         responseTO.setSloSupported(idp.getSLOLocation(idp.getBindingType()) != null);
@@ -541,7 +539,8 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
         responseTO.setUsername(userDAO.find(matchingUsers.get(0)).getUsername());
 
         responseTO.setNameID(nameID.getValue());
-        // 6. generate JWT for further access
+
+        // 5. generate JWT for further access
         Map<String, Object> claims = new HashMap<>();
         claims.put(JWT_CLAIM_IDP_ENTITYID, idp.getId());
         claims.put(JWT_CLAIM_NAMEID_FORMAT, nameID.getFormat());

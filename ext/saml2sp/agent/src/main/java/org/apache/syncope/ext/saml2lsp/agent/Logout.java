@@ -125,7 +125,11 @@ public class Logout extends AbstractSAML2SPServlet {
             throws ServletException, IOException {
 
         // process POST binding logout response
-        SAML2ReceivedResponseTO receivedResponse = extract(request.getInputStream());
+        SAML2ReceivedResponseTO receivedResponse = extract(
+                StringUtils.substringBefore(request.getRequestURL().toString(), "/saml2sp"),
+                "saml2sp",
+                request.getRemoteAddr(),
+                request.getInputStream());
         doLogout(receivedResponse, request, response);
     }
 

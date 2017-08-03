@@ -76,7 +76,12 @@ public abstract class AbstractSAML2SPServlet extends HttpServlet {
         }
     }
 
-    protected SAML2ReceivedResponseTO extract(final InputStream response) throws IOException {
+    protected SAML2ReceivedResponseTO extract(
+            final String spEntityID,
+            final String urlContext,
+            final String clientAddress,
+            final InputStream response) throws IOException {
+
         String strForm = IOUtils.toString(response);
         MultivaluedMap<String, String> params = JAXRSUtils.getStructuredParams(strForm, "&", false, false);
 
@@ -90,6 +95,9 @@ public abstract class AbstractSAML2SPServlet extends HttpServlet {
         LOG.debug("Received Relay State: {}", relayState);
 
         SAML2ReceivedResponseTO receivedResponseTO = new SAML2ReceivedResponseTO();
+        receivedResponseTO.setSpEntityID(spEntityID);
+        receivedResponseTO.setUrlContext(urlContext);
+        receivedResponseTO.setClientAddress(clientAddress);
         receivedResponseTO.setSamlResponse(samlResponse);
         receivedResponseTO.setRelayState(relayState);
         return receivedResponseTO;

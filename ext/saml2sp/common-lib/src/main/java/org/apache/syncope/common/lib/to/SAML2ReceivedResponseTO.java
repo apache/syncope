@@ -20,6 +20,7 @@ package org.apache.syncope.common.lib.to;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 
 @XmlRootElement(name = "saml2ReceivedResponse")
@@ -28,9 +29,39 @@ public class SAML2ReceivedResponseTO extends AbstractBaseBean {
 
     private static final long serialVersionUID = 6102419133516694822L;
 
+    private String spEntityID;
+
+    private String urlContext;
+
+    private String clientAddress;
+
     private String samlResponse;
 
     private String relayState;
+
+    public String getSpEntityID() {
+        return spEntityID;
+    }
+
+    public void setSpEntityID(final String spEntityID) {
+        this.spEntityID = StringUtils.appendIfMissing(spEntityID, "/");
+    }
+
+    public String getUrlContext() {
+        return urlContext;
+    }
+
+    public void setUrlContext(final String urlContext) {
+        this.urlContext = urlContext;
+    }
+
+    public String getClientAddress() {
+        return clientAddress;
+    }
+
+    public void setClientAddress(final String clientAddress) {
+        this.clientAddress = clientAddress;
+    }
 
     public String getSamlResponse() {
         return samlResponse;

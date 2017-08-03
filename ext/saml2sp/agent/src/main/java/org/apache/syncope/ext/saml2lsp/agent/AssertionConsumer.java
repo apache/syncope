@@ -25,6 +25,7 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.to.SAML2LoginResponseTO;
 import org.apache.syncope.common.rest.api.service.SAML2SPService;
@@ -42,7 +43,11 @@ public class AssertionConsumer extends AbstractSAML2SPServlet {
                 getAttribute(Constants.SYNCOPE_ANONYMOUS_CLIENT);
         try {
             SAML2LoginResponseTO responseTO = anonymous.getService(SAML2SPService.class).
-                    validateLoginResponse(extract(request.getInputStream()));
+                    validateLoginResponse(extract(
+                            StringUtils.substringBefore(request.getRequestURL().toString(), "/saml2sp"),
+                            "saml2sp",
+                            request.getRemoteAddr(),
+                            request.getInputStream()));
 
             request.getSession(true).setAttribute(Constants.SAML2SPJWT, responseTO.getAccessToken());
             request.getSession(true).setAttribute(Constants.SAML2SPJWT_EXPIRE, responseTO.getAccessTokenExpiryTime());

@@ -28,7 +28,6 @@ import java.io.Writer;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
-import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.SignatureException;
@@ -44,8 +43,10 @@ import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.cxf.rs.security.saml.DeflateEncoderDecoder;
 import org.apache.cxf.rs.security.saml.sso.SAMLProtocolResponseValidator;
+import org.apache.cxf.rs.security.saml.sso.SAMLSSOResponseValidator;
 import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.syncope.common.lib.SSOConstants;
+import org.apache.syncope.common.lib.types.SAML2BindingType;
 import org.apache.syncope.core.logic.init.SAML2SPLoader;
 import org.apache.wss4j.common.crypto.Merlin;
 import org.apache.wss4j.common.ext.WSSecurityException;
@@ -91,6 +92,8 @@ public class SAML2ReaderWriter {
 
     private SAMLProtocolResponseValidator protocolValidator;
 
+    private SAMLSSOResponseValidator ssoResponseValidator;
+
     private SAMLSPCallbackHandler callbackHandler;
 
     public void init() {
@@ -108,6 +111,8 @@ public class SAML2ReaderWriter {
 
         protocolValidator = new SAMLProtocolResponseValidator();
         protocolValidator.setKeyInfoMustBeAvailable(true);
+
+        ssoResponseValidator = new SAMLSSOResponseValidator();
 
         callbackHandler = new SAMLSPCallbackHandler(loader.getKeyPass());
     }
@@ -205,13 +210,27 @@ public class SAML2ReaderWriter {
         return Base64.encodeBase64String(deflatedBytes);
     }
 
-    public void validate(final Response samlResponse, final KeyStore idpTrustStore) throws WSSecurityException {
+    public void validate(
+            final Response samlResponse,
+            final SAML2IdPEntity idp,
+            final String assertionConsumerURL,
+            final String clientAddress,
+            final String requestId,
+            final String spEntityID)
+            throws WSSecurityException {
+
         // validate the SAML response and, if needed, decrypt the provided assertion(s)
         Merlin crypto = new Merlin();
         crypto.setKeyStore(loader.getKeyStore());
-        crypto.setTrustStore(idpTrustStore);
+        crypto.setTrustStore(idp.getTrustStore());
 
         protocolValidator.validateSamlResponse(samlResponse, crypto, callbackHandler);
+
+        ssoResponseValidator.setAssertionConsumerURL(assertionConsumerURL);
+        ssoResponseValidator.setIssuerIDP(idp.getId());
+        ssoResponseValidator.setRequestId(requestId);
+        ssoResponseValidator.setSpIdentifier(spEntityID);
+        ssoResponseValidator.validateSamlResponse(samlResponse, idp.getBindingType() == SAML2BindingType.POST);
 
         if (LOG.isDebugEnabled()) {
             try {
