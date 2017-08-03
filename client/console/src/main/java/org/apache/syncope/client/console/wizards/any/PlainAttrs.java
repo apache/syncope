@@ -67,9 +67,9 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
     private static final long serialVersionUID = 552437609667518888L;
 
-    private final AjaxWizard.Mode mode;
+    protected final AjaxWizard.Mode mode;
 
-    private final AnyTO previousObject;
+    protected final AnyTO previousObject;
 
     public <T extends AnyTO> PlainAttrs(
             final AnyWrapper<T> modelObject,
