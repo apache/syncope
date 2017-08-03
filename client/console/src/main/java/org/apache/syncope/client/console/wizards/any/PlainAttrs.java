@@ -202,7 +202,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    private FieldPanel getFieldPanel(final PlainSchemaTO schemaTO) {
+    protected FieldPanel getFieldPanel(final PlainSchemaTO schemaTO) {
         final boolean required;
         final boolean readOnly;
         final AttrSchemaType type;
