@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -69,6 +70,7 @@ import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.extensions.wizard.IWizard;
+import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
@@ -82,7 +84,7 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.util.ListModel;
 
-public class Relationships extends WizardStep {
+public class Relationships extends WizardStep implements WizardModel.ICondition {
 
     private static final long serialVersionUID = 855618618337931784L;
 
@@ -93,6 +95,8 @@ public class Relationships extends WizardStep {
     private final AnyTypeClassRestClient anyTypeClassRestClient = new AnyTypeClassRestClient();
 
     private final AnyTO anyTO;
+    
+    private final RelationshipTypeRestClient relationshipTypeRestClient = new RelationshipTypeRestClient();
 
     public Relationships(final AnyWrapper<?> modelObject, final PageReference pageRef) {
         super();
@@ -233,6 +237,12 @@ public class Relationships extends WizardStep {
         }
     }
 
+    @Override
+    public boolean evaluate() {
+        // [SYNCOPE-1171] - skip current step when the are no relationships types in Syncope
+        return !relationshipTypeRestClient.list().isEmpty();
+    }
+
     public class Specification extends Panel {
 
         private static final long serialVersionUID = 6199050589175839467L;
@@ -242,8 +252,6 @@ public class Relationships extends WizardStep {
         private AnyObjectSearchPanel anyObjectSearchPanel;
 
         private WizardMgtPanel<AnyWrapper<AnyObjectTO>> anyObjectDirectoryPanel;
-
-        private final RelationshipTypeRestClient relationshipTypeRestClient = new RelationshipTypeRestClient();
 
         public Specification() {
             super("specification");
