@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.logic;
 
+import org.apache.syncope.core.logic.saml2.SAML2UserManager;
 import com.fasterxml.uuid.Generators;
 import com.fasterxml.uuid.impl.RandomBasedGenerator;
 import java.io.OutputStream;
@@ -25,14 +26,12 @@ import java.io.OutputStreamWriter;
 import java.lang.reflect.Method;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Resource;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
@@ -43,9 +42,7 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.SAML2RequestTO;
 import org.apache.syncope.common.lib.to.SAML2LoginResponseTO;
-import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.SAML2ReceivedResponseTO;
-import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.SAML2BindingType;
@@ -53,23 +50,11 @@ import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.logic.saml2.SAML2ReaderWriter;
 import org.apache.syncope.core.logic.saml2.SAML2IdPCache;
 import org.apache.syncope.core.logic.saml2.SAML2IdPEntity;
-import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
-import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.SAML2IdPDAO;
-import org.apache.syncope.core.persistence.api.dao.UserDAO;
-import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.SAML2IdP;
-import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.provisioning.api.IntAttrName;
 import org.apache.syncope.core.provisioning.api.data.AccessTokenDataBinder;
-import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
-import org.apache.syncope.core.provisioning.java.IntAttrNameParser;
-import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.joda.time.DateTime;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.schema.XSString;
@@ -118,8 +103,8 @@ import org.opensaml.xmlsec.keyinfo.impl.X509KeyInfoGeneratorFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
-import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
+import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.AuthDataAccessor;
 import org.apache.syncope.core.spring.security.Encryptor;
 
@@ -149,25 +134,16 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
     private SAML2IdPCache cache;
 
     @Autowired
-    private UserDAO userDAO;
+    private SAML2UserManager userManager;
 
     @Autowired
     private SAML2IdPDAO saml2IdPDAO;
 
     @Autowired
-    private PlainSchemaDAO plainSchemaDAO;
-
-    @Autowired
     private AccessTokenDAO accessTokenDAO;
 
     @Autowired
-    private IntAttrNameParser intAttrNameParser;
-
-    @Autowired
     private AuthDataAccessor authDataAccessor;
-
-    @Autowired
-    private EntityFactory entityFactory;
 
     @Autowired
     private SAML2ReaderWriter saml2rw;
@@ -352,73 +328,6 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
         return requestTO;
     }
 
-    private List<String> findMatchingUser(final String keyValue, final ItemTO connObjectKeyItem) {
-        List<String> result = new ArrayList<>();
-
-        String transformed = keyValue;
-        for (ItemTransformer transformer : MappingUtils.getItemTransformers(connObjectKeyItem)) {
-            List<Object> output = transformer.beforePull(
-                    null,
-                    null,
-                    Collections.<Object>singletonList(transformed));
-            if (output != null && !output.isEmpty()) {
-                transformed = output.get(0).toString();
-            }
-        }
-
-        IntAttrName intAttrName = intAttrNameParser.parse(connObjectKeyItem.getIntAttrName(), AnyTypeKind.USER);
-
-        if (intAttrName.getField() != null) {
-            switch (intAttrName.getField()) {
-                case "key":
-                    User byKey = userDAO.find(transformed);
-                    if (byKey != null) {
-                        result.add(byKey.getKey());
-                    }
-                    break;
-
-                case "username":
-                    User byUsername = userDAO.findByUsername(transformed);
-                    if (byUsername != null) {
-                        result.add(byUsername.getKey());
-                    }
-                    break;
-
-                default:
-            }
-        } else if (intAttrName.getSchemaType() != null) {
-            switch (intAttrName.getSchemaType()) {
-                case PLAIN:
-                    PlainAttrValue value = entityFactory.newEntity(UPlainAttrValue.class);
-
-                    PlainSchema schema = plainSchemaDAO.find(intAttrName.getSchemaName());
-                    if (schema == null) {
-                        value.setStringValue(transformed);
-                    } else {
-                        try {
-                            value.parseValue(schema, transformed);
-                        } catch (ParsingValidationException e) {
-                            LOG.error("While parsing provided key value {}", transformed, e);
-                            value.setStringValue(transformed);
-                        }
-                    }
-
-                    CollectionUtils.collect(userDAO.findByAttrValue(intAttrName.getSchemaName(), value),
-                            EntityUtils.keyTransformer(), result);
-                    break;
-
-                case DERIVED:
-                    CollectionUtils.collect(userDAO.findByDerAttrValue(intAttrName.getSchemaName(), transformed),
-                            EntityUtils.keyTransformer(), result);
-                    break;
-
-                default:
-            }
-        }
-
-        return result;
-    }
-
     @PreAuthorize("hasRole('" + StandardEntitlement.ANONYMOUS + "')")
     public SAML2LoginResponseTO validateLoginResponse(final SAML2ReceivedResponseTO response) {
         check();
@@ -454,7 +363,7 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
         }
 
         // 3. validate the SAML response and, if needed, decrypt the provided assertion(s)
-        SAML2IdPEntity idp = getIdP(samlResponse.getIssuer().getValue());
+        final SAML2IdPEntity idp = getIdP(samlResponse.getIssuer().getValue());
         if (idp.getConnObjectKeyItem() == null) {
             throw new IllegalArgumentException("No mapping provided for SAML 2.0 IdP '" + idp.getId() + "'");
         }
@@ -463,7 +372,6 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
                     samlResponse,
                     idp,
                     getAssertionConsumerURL(response.getSpEntityID(), response.getUrlContext()),
-                    response.getClientAddress(),
                     relayState.getJwtClaims().getSubject(),
                     response.getSpEntityID());
         } catch (Exception e) {
@@ -474,7 +382,7 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
         }
 
         // 4. prepare the result: find matching user (if any) and return the received attributes
-        SAML2LoginResponseTO responseTO = new SAML2LoginResponseTO();
+        final SAML2LoginResponseTO responseTO = new SAML2LoginResponseTO();
         responseTO.setIdp(idp.getId());
         responseTO.setSloSupported(idp.getSLOLocation(idp.getBindingType()) != null);
 
@@ -525,19 +433,49 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
         if (nameID == null) {
             throw new IllegalArgumentException("NameID not found");
         }
+        final String nameIDValue = nameID.getValue();
 
-        List<String> matchingUsers = keyValue == null
+        final List<String> matchingUsers = keyValue == null
                 ? Collections.<String>emptyList()
-                : findMatchingUser(keyValue, idp.getConnObjectKeyItem());
+                : userManager.findMatchingUser(keyValue, idp.getConnObjectKeyItem());
         LOG.debug("Found {} matching users for NameID {}", matchingUsers.size(), nameID.getValue());
 
+        String username;
         if (matchingUsers.isEmpty()) {
-            throw new NotFoundException("User matching the provided NameID value " + nameID.getValue());
+            if (idp.isCreateUnmatching()) {
+                LOG.debug("No user matching NameID {}, about to create", nameID.getValue());
+
+                username = AuthContextUtils.execWithAuthContext(
+                        AuthContextUtils.getDomain(), new AuthContextUtils.Executable<String>() {
+
+                    @Override
+                    public String exec() {
+                        return userManager.create(idp, responseTO, nameIDValue);
+                    }
+                });
+            } else {
+                throw new NotFoundException("User matching the provided NameID value " + nameID.getValue());
+            }
         } else if (matchingUsers.size() > 1) {
             throw new IllegalArgumentException("Several users match the provided NameID value " + nameID.getValue());
-        }
-        responseTO.setUsername(userDAO.find(matchingUsers.get(0)).getUsername());
+        } else {
+            if (idp.isUpdateMatching()) {
+                LOG.debug("About to update {} for NameID {}", matchingUsers.get(0), nameID.getValue());
 
+                username = AuthContextUtils.execWithAuthContext(
+                        AuthContextUtils.getDomain(), new AuthContextUtils.Executable<String>() {
+
+                    @Override
+                    public String exec() {
+                        return userManager.update(matchingUsers.get(0), idp, responseTO);
+                    }
+                });
+            } else {
+                username = matchingUsers.get(0);
+            }
+        }
+
+        responseTO.setUsername(username);
         responseTO.setNameID(nameID.getValue());
 
         // 5. generate JWT for further access

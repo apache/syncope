@@ -126,48 +126,52 @@ public class TemplateUtils {
     @Transactional(readOnly = true)
     public <T extends AnyTO> void apply(final T anyTO, final AnyTemplate anyTemplate) {
         if (anyTemplate != null) {
-            AnyTO template = anyTemplate.get();
-            fill(anyTO, template);
+            apply(anyTO, anyTemplate.get());
+        }
+    }
 
-            if (template instanceof AnyObjectTO) {
-                fillRelationships((GroupableRelatableTO) anyTO, ((GroupableRelatableTO) template));
-                fillMemberships((GroupableRelatableTO) anyTO, ((GroupableRelatableTO) template));
-            } else if (template instanceof UserTO) {
-                if (StringUtils.isNotBlank(((UserTO) template).getUsername())) {
-                    String evaluated = JexlUtils.evaluate(((UserTO) template).getUsername(), anyTO, new MapContext());
-                    if (StringUtils.isNotBlank(evaluated)) {
-                        ((UserTO) anyTO).setUsername(evaluated);
-                    }
-                }
+    @Transactional(readOnly = true)
+    public <T extends AnyTO> void apply(final T anyTO, final AnyTO template) {
+        fill(anyTO, template);
 
-                if (StringUtils.isNotBlank(((UserTO) template).getPassword())) {
-                    String evaluated = JexlUtils.evaluate(((UserTO) template).getPassword(), anyTO, new MapContext());
-                    if (StringUtils.isNotBlank(evaluated)) {
-                        ((UserTO) anyTO).setPassword(evaluated);
-                    }
+        if (template instanceof AnyObjectTO) {
+            fillRelationships((GroupableRelatableTO) anyTO, ((GroupableRelatableTO) template));
+            fillMemberships((GroupableRelatableTO) anyTO, ((GroupableRelatableTO) template));
+        } else if (template instanceof UserTO) {
+            if (StringUtils.isNotBlank(((UserTO) template).getUsername())) {
+                String evaluated = JexlUtils.evaluate(((UserTO) template).getUsername(), anyTO, new MapContext());
+                if (StringUtils.isNotBlank(evaluated)) {
+                    ((UserTO) anyTO).setUsername(evaluated);
                 }
+            }
 
-                fillRelationships((GroupableRelatableTO) anyTO, ((GroupableRelatableTO) template));
-                fillMemberships((GroupableRelatableTO) anyTO, ((GroupableRelatableTO) template));
-            } else if (template instanceof GroupTO) {
-                if (StringUtils.isNotBlank(((GroupTO) template).getName())) {
-                    String evaluated = JexlUtils.evaluate(((GroupTO) template).getName(), anyTO, new MapContext());
-                    if (StringUtils.isNotBlank(evaluated)) {
-                        ((GroupTO) anyTO).setName(evaluated);
-                    }
+            if (StringUtils.isNotBlank(((UserTO) template).getPassword())) {
+                String evaluated = JexlUtils.evaluate(((UserTO) template).getPassword(), anyTO, new MapContext());
+                if (StringUtils.isNotBlank(evaluated)) {
+                    ((UserTO) anyTO).setPassword(evaluated);
                 }
+            }
 
-                if (((GroupTO) template).getUserOwner() != null) {
-                    final User userOwner = userDAO.find(((GroupTO) template).getUserOwner());
-                    if (userOwner != null) {
-                        ((GroupTO) anyTO).setUserOwner(userOwner.getKey());
-                    }
+            fillRelationships((GroupableRelatableTO) anyTO, ((GroupableRelatableTO) template));
+            fillMemberships((GroupableRelatableTO) anyTO, ((GroupableRelatableTO) template));
+        } else if (template instanceof GroupTO) {
+            if (StringUtils.isNotBlank(((GroupTO) template).getName())) {
+                String evaluated = JexlUtils.evaluate(((GroupTO) template).getName(), anyTO, new MapContext());
+                if (StringUtils.isNotBlank(evaluated)) {
+                    ((GroupTO) anyTO).setName(evaluated);
                 }
-                if (((GroupTO) template).getGroupOwner() != null) {
-                    final Group groupOwner = groupDAO.find(((GroupTO) template).getGroupOwner());
-                    if (groupOwner != null) {
-                        ((GroupTO) anyTO).setGroupOwner(groupOwner.getKey());
-                    }
+            }
+
+            if (((GroupTO) template).getUserOwner() != null) {
+                final User userOwner = userDAO.find(((GroupTO) template).getUserOwner());
+                if (userOwner != null) {
+                    ((GroupTO) anyTO).setUserOwner(userOwner.getKey());
+                }
+            }
+            if (((GroupTO) template).getGroupOwner() != null) {
+                final Group groupOwner = groupDAO.find(((GroupTO) template).getGroupOwner());
+                if (groupOwner != null) {
+                    ((GroupTO) anyTO).setGroupOwner(groupOwner.getKey());
                 }
             }
         }

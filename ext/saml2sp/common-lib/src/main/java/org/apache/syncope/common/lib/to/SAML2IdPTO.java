@@ -20,7 +20,9 @@ package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javax.ws.rs.PathParam;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
@@ -45,13 +47,21 @@ public class SAML2IdPTO extends AbstractBaseBean implements EntityTO, ItemContai
 
     private String metadata;
 
+    private boolean createUnmatching;
+
+    private boolean updateMatching;
+
     private boolean useDeflateEncoding;
 
     private SAML2BindingType bindingType;
 
     private boolean logoutSupported;
 
+    private UserTO userTemplate;
+
     private final List<ItemTO> items = new ArrayList<>();
+
+    private final Set<String> actionsClassNames = new HashSet<>();
 
     @Override
     public String getKey() {
@@ -88,6 +98,22 @@ public class SAML2IdPTO extends AbstractBaseBean implements EntityTO, ItemContai
         this.metadata = metadata;
     }
 
+    public boolean isCreateUnmatching() {
+        return createUnmatching;
+    }
+
+    public void setCreateUnmatching(final boolean createUnmatching) {
+        this.createUnmatching = createUnmatching;
+    }
+
+    public boolean isUpdateMatching() {
+        return updateMatching;
+    }
+
+    public void setUpdateMatching(final boolean updateMatching) {
+        this.updateMatching = updateMatching;
+    }
+
     public boolean isUseDeflateEncoding() {
         return useDeflateEncoding;
     }
@@ -110,6 +136,14 @@ public class SAML2IdPTO extends AbstractBaseBean implements EntityTO, ItemContai
 
     public void setLogoutSupported(final boolean logoutSupported) {
         this.logoutSupported = logoutSupported;
+    }
+
+    public UserTO getUserTemplate() {
+        return userTemplate;
+    }
+
+    public void setUserTemplate(final UserTO userTemplate) {
+        this.userTemplate = userTemplate;
     }
 
     @Override
@@ -152,6 +186,13 @@ public class SAML2IdPTO extends AbstractBaseBean implements EntityTO, ItemContai
 
     public boolean remove(final ItemTO item) {
         return this.items.remove(item);
+    }
+
+    @XmlElementWrapper(name = "actionsClassNames")
+    @XmlElement(name = "actionsClassName")
+    @JsonProperty("actionsClassNames")
+    public Set<String> getActionsClassNames() {
+        return actionsClassNames;
     }
 
 }

@@ -72,8 +72,8 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
 
     private static final long serialVersionUID = 4984337552918213290L;
 
-    private static final String GROUP_MEMBER_PROVISION_TASKJOB
-            = "org.apache.syncope.core.provisioning.java.job.GroupMemberProvisionTaskJobDelegate";
+    private static final String GROUP_MEMBER_PROVISION_TASKJOB =
+            "org.apache.syncope.core.provisioning.java.job.GroupMemberProvisionTaskJobDelegate";
 
     protected final Class<T> reference;
 
@@ -116,6 +116,7 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
             @Override
             protected Serializable onApplyInternal(
                     final TemplatableTO targetObject, final String type, final AnyTO anyTO) {
+
                 targetObject.getTemplates().put(type, anyTO);
                 new TaskRestClient().update(SchedTaskTO.class.cast(targetObject));
                 return targetObject;

@@ -97,7 +97,6 @@ public abstract class AbstractSAML2SPServlet extends HttpServlet {
         SAML2ReceivedResponseTO receivedResponseTO = new SAML2ReceivedResponseTO();
         receivedResponseTO.setSpEntityID(spEntityID);
         receivedResponseTO.setUrlContext(urlContext);
-        receivedResponseTO.setClientAddress(clientAddress);
         receivedResponseTO.setSamlResponse(samlResponse);
         receivedResponseTO.setRelayState(relayState);
         return receivedResponseTO;

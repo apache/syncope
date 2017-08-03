@@ -214,7 +214,6 @@ public class SAML2ReaderWriter {
             final Response samlResponse,
             final SAML2IdPEntity idp,
             final String assertionConsumerURL,
-            final String clientAddress,
             final String requestId,
             final String spEntityID)
             throws WSSecurityException {

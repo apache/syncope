@@ -22,6 +22,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -49,6 +50,7 @@ import org.apache.syncope.common.lib.to.SAML2IdPTO;
 import org.apache.syncope.common.lib.to.SAML2LoginResponseTO;
 import org.apache.syncope.common.lib.to.SAML2ReceivedResponseTO;
 import org.apache.syncope.common.lib.to.SAML2RequestTO;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.rest.api.service.SAML2SPService;
 import org.apache.syncope.fit.AbstractITCase;
 import org.apache.syncope.fit.SAML2SPDetector;
@@ -173,13 +175,20 @@ public class SAML2ITCase extends AbstractITCase {
             }
         });
         assertNotNull(ssoCircle);
+        assertFalse(ssoCircle.isCreateUnmatching());
+        assertNull(ssoCircle.getUserTemplate());
         assertFalse(ssoCircle.getItems().isEmpty());
         assertNotNull(ssoCircle.getConnObjectKeyItem());
         assertNotEquals("email", ssoCircle.getConnObjectKeyItem().getIntAttrName());
         assertNotEquals("EmailAddress", ssoCircle.getConnObjectKeyItem().getExtAttrName());
 
-        ssoCircle.getItems().clear();
+        ssoCircle.setCreateUnmatching(true);
 
+        UserTO userTemplate = new UserTO();
+        userTemplate.setRealm("'/'");
+        ssoCircle.setUserTemplate(userTemplate);
+
+        ssoCircle.getItems().clear();
         ItemTO keyMapping = new ItemTO();
         keyMapping.setIntAttrName("email");
         keyMapping.setExtAttrName("EmailAddress");
@@ -188,6 +197,8 @@ public class SAML2ITCase extends AbstractITCase {
         saml2IdPService.update(ssoCircle);
 
         ssoCircle = saml2IdPService.read(ssoCircle.getKey());
+        assertTrue(ssoCircle.isCreateUnmatching());
+        assertEquals(userTemplate, ssoCircle.getUserTemplate());
         assertEquals("email", ssoCircle.getConnObjectKeyItem().getIntAttrName());
         assertEquals("EmailAddress", ssoCircle.getConnObjectKeyItem().getExtAttrName());
     }

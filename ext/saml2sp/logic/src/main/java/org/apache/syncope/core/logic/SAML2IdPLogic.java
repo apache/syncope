@@ -25,6 +25,7 @@ import java.io.OutputStreamWriter;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
@@ -35,6 +36,7 @@ import org.apache.syncope.common.lib.to.SAML2IdPTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.SAML2BindingType;
 import org.apache.syncope.common.lib.types.SAML2SPEntitlement;
+import org.apache.syncope.core.logic.init.SAML2SPClassPathScanImplementationLookup;
 import org.apache.syncope.core.logic.saml2.SAML2ReaderWriter;
 import org.apache.syncope.core.logic.saml2.SAML2IdPCache;
 import org.apache.syncope.core.logic.saml2.SAML2IdPEntity;
@@ -68,7 +70,15 @@ public class SAML2IdPLogic extends AbstractSAML2Logic<SAML2IdPTO> {
     private SAML2IdPDAO idpDAO;
 
     @Autowired
+    private SAML2SPClassPathScanImplementationLookup implLookup;
+
+    @Autowired
     private SAML2ReaderWriter saml2rw;
+
+    @PreAuthorize("isAuthenticated()")
+    public Set<String> getActionsClasses() {
+        return implLookup.getActionsClasses();
+    }
 
     private SAML2IdPTO complete(final SAML2IdP idp, final SAML2IdPTO idpTO) {
         SAML2IdPEntity idpEntity = cache.get(idpTO.getEntityID());
@@ -159,7 +169,7 @@ public class SAML2IdPLogic extends AbstractSAML2Logic<SAML2IdPTO> {
             connObjectKeyItem.setExtAttrName("NameID");
             idpTO.setConnObjectKeyItem(connObjectKeyItem);
 
-            SAML2IdPEntity idp = cache.put(idpEntityDescriptor, connObjectKeyItem, false, SAML2BindingType.POST);
+            SAML2IdPEntity idp = cache.put(idpEntityDescriptor, idpTO);
             if (idp.getSSOLocation(SAML2BindingType.POST) != null) {
                 idpTO.setBindingType(SAML2BindingType.POST);
             } else if (idp.getSSOLocation(SAML2BindingType.REDIRECT) != null) {
@@ -225,9 +235,7 @@ public class SAML2IdPLogic extends AbstractSAML2Logic<SAML2IdPTO> {
 
         saml2Idp = idpDAO.save(binder.update(saml2Idp, saml2IdpTO));
 
-        idpEntity.setUseDeflateEncoding(saml2Idp.isUseDeflateEncoding());
-        idpEntity.setBindingType(saml2Idp.getBindingType());
-        idpEntity.setConnObjectKeyItem(binder.getIdPTO(saml2Idp).getConnObjectKeyItem());
+        idpEntity.setIdpTO(binder.getIdPTO(saml2Idp));
     }
 
     @PreAuthorize("hasRole('" + SAML2SPEntitlement.IDP_DELETE + "')")

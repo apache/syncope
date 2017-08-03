@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.api.entity;
 
 import java.util.List;
+import java.util.Set;
 import org.apache.syncope.common.lib.types.SAML2BindingType;
 
 public interface SAML2IdP extends Entity {
@@ -35,6 +36,14 @@ public interface SAML2IdP extends Entity {
 
     void setMetadata(byte[] metadata);
 
+    boolean isCreateUnmatching();
+
+    void setCreateUnmatching(boolean createUnmatching);
+
+    boolean isUpdateMatching();
+
+    void setUpdateMatching(boolean updateMatching);
+
     boolean isUseDeflateEncoding();
 
     void setUseDeflateEncoding(boolean useDeflateEncoding);
@@ -43,6 +52,10 @@ public interface SAML2IdP extends Entity {
 
     void setBindingType(SAML2BindingType bindingType);
 
+    SAML2UserTemplate getUserTemplate();
+
+    void setUserTemplate(SAML2UserTemplate userTemplate);
+
     SAML2IdPItem getConnObjectKeyItem();
 
     void setConnObjectKeyItem(SAML2IdPItem item);
@@ -50,5 +63,7 @@ public interface SAML2IdP extends Entity {
     boolean add(SAML2IdPItem item);
 
     List<? extends SAML2IdPItem> getItems();
+
+    Set<String> getActionsClassNames();
 
 }

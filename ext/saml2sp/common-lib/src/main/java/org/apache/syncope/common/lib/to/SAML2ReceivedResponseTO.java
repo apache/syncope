@@ -33,8 +33,6 @@ public class SAML2ReceivedResponseTO extends AbstractBaseBean {
 
     private String urlContext;
 
-    private String clientAddress;
-
     private String samlResponse;
 
     private String relayState;
@@ -53,14 +51,6 @@ public class SAML2ReceivedResponseTO extends AbstractBaseBean {
 
     public void setUrlContext(final String urlContext) {
         this.urlContext = urlContext;
-    }
-
-    public String getClientAddress() {
-        return clientAddress;
-    }
-
-    public void setClientAddress(final String clientAddress) {
-        this.clientAddress = clientAddress;
     }
 
     public String getSamlResponse() {

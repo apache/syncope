@@ -29,6 +29,7 @@ import org.apache.syncope.client.console.panels.SAML2IdPsDirectoryPanel;
 import org.apache.syncope.client.console.rest.SAML2IdPsRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.client.console.wizards.resources.JEXLTransformersTogglePanel;
@@ -42,9 +43,12 @@ import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.model.util.ListModel;
 
 public class SAML2IdPWizardBuilder extends AjaxWizardBuilder<SAML2IdPTO> {
 
@@ -53,6 +57,16 @@ public class SAML2IdPWizardBuilder extends AjaxWizardBuilder<SAML2IdPTO> {
     private final SAML2IdPsRestClient restClient = new SAML2IdPsRestClient();
 
     private final SAML2IdPsDirectoryPanel directoryPanel;
+
+    private final IModel<List<String>> actionsClasses = new LoadableDetachableModel<List<String>>() {
+
+        private static final long serialVersionUID = 5275935387613157437L;
+
+        @Override
+        protected List<String> load() {
+            return new ArrayList<>(restClient.getActionsClasses());
+        }
+    };
 
     public SAML2IdPWizardBuilder(
             final SAML2IdPsDirectoryPanel directoryPanel, final SAML2IdPTO idpTO, final PageReference pageRef) {
@@ -68,8 +82,7 @@ public class SAML2IdPWizardBuilder extends AjaxWizardBuilder<SAML2IdPTO> {
         Mapping mapping = new Mapping(modelObject);
         mapping.setOutputMarkupId(true);
 
-        ItemTransformersTogglePanel mapItemTransformers =
-                new ItemTransformersTogglePanel(mapping, pageRef);
+        ItemTransformersTogglePanel mapItemTransformers = new ItemTransformersTogglePanel(mapping, pageRef);
         addOuterObject(mapItemTransformers);
         JEXLTransformersTogglePanel jexlTransformers = new JEXLTransformersTogglePanel(mapping, pageRef);
         addOuterObject(jexlTransformers);
@@ -80,7 +93,7 @@ public class SAML2IdPWizardBuilder extends AjaxWizardBuilder<SAML2IdPTO> {
         return wizardModel;
     }
 
-    private static final class IdP extends WizardStep {
+    private final class IdP extends WizardStep {
 
         private static final long serialVersionUID = 854012593185195024L;
 
@@ -94,6 +107,14 @@ public class SAML2IdPWizardBuilder extends AjaxWizardBuilder<SAML2IdPTO> {
             name.setRequired(true);
             fields.add(name);
 
+            AjaxCheckBoxPanel createUnmatching = new AjaxCheckBoxPanel(
+                    "field", "createUnmatching", new PropertyModel<Boolean>(idpTO, "createUnmatching"), false);
+            fields.add(createUnmatching);
+
+            AjaxCheckBoxPanel updateMatching = new AjaxCheckBoxPanel(
+                    "field", "updateMatching", new PropertyModel<Boolean>(idpTO, "updateMatching"), false);
+            fields.add(updateMatching);
+
             AjaxCheckBoxPanel useDeflateEncoding = new AjaxCheckBoxPanel(
                     "field", "useDeflateEncoding", new PropertyModel<Boolean>(idpTO, "useDeflateEncoding"), false);
             fields.add(useDeflateEncoding);
@@ -103,6 +124,15 @@ public class SAML2IdPWizardBuilder extends AjaxWizardBuilder<SAML2IdPTO> {
                             new PropertyModel<SAML2BindingType>(idpTO, "bindingType"), false);
             bindingType.setChoices(Arrays.asList(SAML2BindingType.values()));
             fields.add(bindingType);
+
+            AjaxPalettePanel<String> actionsClassNames = new AjaxPalettePanel.Builder<String>().
+                    setAllowMoveAll(true).setAllowOrder(true).
+                    setName(new StringResourceModel("actionsClassNames", directoryPanel).getString()).
+                    build("field",
+                            new PropertyModel<List<String>>(idpTO, "actionsClassNames"),
+                            new ListModel<>(actionsClasses.getObject()));
+            actionsClassNames.setOutputMarkupId(true);
+            fields.add(actionsClassNames);
 
             add(new ListView<Component>("fields", fields) {
 
