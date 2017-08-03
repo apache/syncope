@@ -35,7 +35,6 @@ import java.util.Set;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 import javax.ws.rs.core.GenericType;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.tuple.Pair;
