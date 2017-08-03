@@ -31,7 +31,10 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.apache.syncope.common.lib.to.ItemTO;
+import org.apache.syncope.common.lib.to.SAML2IdPTO;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.SAML2BindingType;
 import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.metadata.Endpoint;
@@ -51,11 +54,7 @@ public class SAML2IdPEntity {
 
     private final String id;
 
-    private boolean useDeflateEncoding;
-
-    private SAML2BindingType bindingType;
-
-    private ItemTO connObjectKeyItem;
+    private SAML2IdPTO idpTO;
 
     private final Map<String, Endpoint> ssoBindings = new HashMap<>();
 
@@ -67,16 +66,12 @@ public class SAML2IdPEntity {
 
     public SAML2IdPEntity(
             final EntityDescriptor entityDescriptor,
-            final ItemTO connObjectKeyItem,
-            final boolean useDeflateEncoding,
-            final SAML2BindingType bindingType,
+            final SAML2IdPTO idpTO,
             final String keyPass)
             throws CertificateException, IOException, KeyStoreException, NoSuchAlgorithmException {
 
         this.id = entityDescriptor.getEntityID();
-        this.connObjectKeyItem = connObjectKeyItem;
-        this.useDeflateEncoding = useDeflateEncoding;
-        this.bindingType = bindingType;
+        this.idpTO = idpTO;
 
         IDPSSODescriptor idpdescriptor = entityDescriptor.getIDPSSODescriptor(SAMLConstants.SAML20P_NS);
 
@@ -122,32 +117,44 @@ public class SAML2IdPEntity {
         }
     }
 
+    public void setIdpTO(final SAML2IdPTO idpTO) {
+        this.idpTO = idpTO;
+    }
+
     public String getId() {
         return id;
     }
 
-    public boolean isUseDeflateEncoding() {
-        return useDeflateEncoding;
+    public boolean isCreateUnmatching() {
+        return idpTO.isCreateUnmatching();
     }
 
-    public void setUseDeflateEncoding(final boolean useDeflateEncoding) {
-        this.useDeflateEncoding = useDeflateEncoding;
+    public boolean isUpdateMatching() {
+        return idpTO.isUpdateMatching();
+    }
+
+    public boolean isUseDeflateEncoding() {
+        return idpTO.isUseDeflateEncoding();
     }
 
     public SAML2BindingType getBindingType() {
-        return bindingType;
-    }
-
-    public void setBindingType(final SAML2BindingType bindingType) {
-        this.bindingType = bindingType;
+        return idpTO.getBindingType();
     }
 
     public ItemTO getConnObjectKeyItem() {
-        return connObjectKeyItem;
+        return idpTO.getConnObjectKeyItem();
     }
 
-    public void setConnObjectKeyItem(final ItemTO connObjectKeyItem) {
-        this.connObjectKeyItem = connObjectKeyItem;
+    public List<ItemTO> getItems() {
+        return idpTO.getItems();
+    }
+
+    public UserTO getUserTemplate() {
+        return idpTO.getUserTemplate();
+    }
+
+    public Set<String> getActionsClassNames() {
+        return idpTO.getActionsClassNames();
     }
 
     public Endpoint getSSOLocation(final SAML2BindingType bindingType) {

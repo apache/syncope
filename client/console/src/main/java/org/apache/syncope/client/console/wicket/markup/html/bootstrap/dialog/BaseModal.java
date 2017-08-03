@@ -164,8 +164,8 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
 
     private BaseModal<T> setInternalContent(final Panel component) {
         if (!component.getId().equals(getContentId())) {
-            throw new WicketRuntimeException(
-                    "Modal content id is wrong. Component ID:" + component.getId() + "; content ID: " + getContentId());
+            throw new WicketRuntimeException("Modal content id is wrong. "
+                    + "Component ID: " + component.getId() + "; content ID: " + getContentId());
         }
 
         content.replaceWith(component);

@@ -22,6 +22,7 @@ import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.SAML2EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.SAML2IdP;
 import org.apache.syncope.core.persistence.api.entity.SAML2IdPItem;
+import org.apache.syncope.core.persistence.api.entity.SAML2UserTemplate;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -36,6 +37,8 @@ public class JPASAML2EntityFactory implements SAML2EntityFactory {
             result = (E) new JPASAML2IdP();
         } else if (reference.equals(SAML2IdPItem.class)) {
             result = (E) new JPASAML2IdPItem();
+        } else if (reference.equals(SAML2UserTemplate.class)) {
+            result = (E) new JPASAML2UserTemplate();
         } else {
             throw new IllegalArgumentException("Could not find a JPA implementation of " + reference.getName());
         }

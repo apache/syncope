@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.common.lib.to;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Date;
 import java.util.HashSet;
@@ -26,6 +27,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 
 @XmlRootElement(name = "saml2LoginResponse")
@@ -122,6 +125,17 @@ public class SAML2LoginResponseTO extends AbstractBaseBean {
 
     public void setUsername(final String username) {
         this.username = username;
+    }
+
+    @JsonIgnore
+    public AttrTO getAttr(final String schema) {
+        return IterableUtils.find(attrs, new Predicate<AttrTO>() {
+
+            @Override
+            public boolean evaluate(final AttrTO object) {
+                return object.getSchema().equals(schema);
+            }
+        });
     }
 
     @XmlElementWrapper(name = "attrs")

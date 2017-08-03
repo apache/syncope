@@ -34,6 +34,23 @@ public class UserTemplateWizardBuilder extends UserWizardBuilder implements Temp
     private final TemplatableTO templatable;
 
     public UserTemplateWizardBuilder(
+            final UserTO template,
+            final List<String> anyTypeClasses,
+            final UserFormLayoutInfo formLayoutInfo,
+            final PageReference pageRef) {
+
+        super(anyTypeClasses, formLayoutInfo, pageRef);
+        templatable = null;
+
+        if (template == null) {
+            setItem(new UserWrapper(new UserTO()));
+        } else {
+            setItem(new UserWrapper(template));
+        }
+
+    }
+
+    public UserTemplateWizardBuilder(
             final TemplatableTO templatable,
             final List<String> anyTypeClasses,
             final UserFormLayoutInfo formLayoutInfo,

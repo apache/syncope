@@ -20,6 +20,7 @@ package org.apache.syncope.core.rest.cxf.service;
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.Set;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.to.SAML2IdPTO;
 import org.apache.syncope.common.rest.api.RESTHeaders;
@@ -33,6 +34,11 @@ public class SAML2IdPServiceImpl extends AbstractServiceImpl implements SAML2IdP
 
     @Autowired
     private SAML2IdPLogic logic;
+
+    @Override
+    public Set<String> getActionsClasses() {
+        return logic.getActionsClasses();
+    }
 
     @Override
     public List<SAML2IdPTO> list() {

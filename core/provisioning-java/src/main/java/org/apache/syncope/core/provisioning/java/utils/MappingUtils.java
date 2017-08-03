@@ -189,7 +189,7 @@ public final class MappingUtils {
         return evaluateNAME(evalConnObjectLink, connObjectKey);
     }
 
-    private static List<ItemTransformer> getMappingItemTransformers(
+    private static List<ItemTransformer> getItemTransformers(
             final String propagationJEXLTransformer,
             final String pullJEXLTransformer,
             final List<String> mappingItemTransformerClassNames) {
@@ -224,14 +224,14 @@ public final class MappingUtils {
     }
 
     public static List<ItemTransformer> getItemTransformers(final ItemTO item) {
-        return getMappingItemTransformers(
+        return getItemTransformers(
                 item.getPropagationJEXLTransformer(),
                 item.getPullJEXLTransformer(),
                 item.getTransformerClassNames());
     }
 
     public static List<ItemTransformer> getItemTransformers(final Item item) {
-        return getMappingItemTransformers(
+        return getItemTransformers(
                 item.getPropagationJEXLTransformer(),
                 item.getPullJEXLTransformer(),
                 item.getTransformerClassNames());

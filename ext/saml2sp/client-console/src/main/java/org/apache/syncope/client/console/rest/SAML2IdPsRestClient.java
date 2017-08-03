@@ -20,6 +20,7 @@ package org.apache.syncope.client.console.rest;
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.Set;
 import javax.ws.rs.core.MediaType;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.common.lib.to.SAML2IdPTO;
@@ -31,6 +32,10 @@ public class SAML2IdPsRestClient extends BaseRestClient {
 
     public List<SAML2IdPTO> list() {
         return getService(SAML2IdPService.class).list();
+    }
+
+    public Set<String> getActionsClasses() {
+        return getService(SAML2IdPService.class).getActionsClasses();
     }
 
     public void importIdPs(final InputStream input) {

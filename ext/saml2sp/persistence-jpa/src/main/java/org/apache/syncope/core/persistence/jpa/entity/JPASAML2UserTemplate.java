@@ -22,31 +22,31 @@ import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import org.apache.syncope.core.persistence.api.entity.AnyTemplateRealm;
-import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.entity.SAML2IdP;
+import org.apache.syncope.core.persistence.api.entity.SAML2UserTemplate;
 import org.apache.syncope.core.persistence.jpa.entity.resource.AbstractAnyTemplate;
 
 @Entity
-@Table(name = JPAAnyTemplateRealm.TABLE, uniqueConstraints =
-        @UniqueConstraint(columnNames = { "realm_id", "anyType_id" }))
-public class JPAAnyTemplateRealm extends AbstractAnyTemplate implements AnyTemplateRealm {
+@Table(name = JPASAML2UserTemplate.TABLE, uniqueConstraints =
+        @UniqueConstraint(columnNames = { "idp_id" }))
+public class JPASAML2UserTemplate extends AbstractAnyTemplate implements SAML2UserTemplate {
 
-    private static final long serialVersionUID = 1863029633568957907L;
+    private static final long serialVersionUID = -4575039890434426856L;
 
-    public static final String TABLE = "AnyTemplateRealm";
+    public static final String TABLE = "SAML2UserTemplate";
 
     @ManyToOne
-    private JPARealm realm;
+    private JPASAML2IdP idp;
 
     @Override
-    public Realm getRealm() {
-        return realm;
+    public SAML2IdP getIdP() {
+        return idp;
     }
 
     @Override
-    public void setRealm(final Realm realm) {
-        checkType(realm, JPARealm.class);
-        this.realm = (JPARealm) realm;
+    public void setIdP(final SAML2IdP idp) {
+        checkType(idp, JPASAML2IdP.class);
+        this.idp = (JPASAML2IdP) idp;
     }
 
 }
