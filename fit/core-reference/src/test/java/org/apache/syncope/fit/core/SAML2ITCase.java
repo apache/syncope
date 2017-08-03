@@ -31,10 +31,8 @@ import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
 import java.util.Collections;
 import java.util.Optional;
-
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
 import org.apache.commons.codec.binary.Base64;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
@@ -82,13 +80,13 @@ public class SAML2ITCase extends AbstractITCase {
     private static SyncopeClient anonymous;
 
     @BeforeClass
-    public static void setupAnonymousClient() {
+    public static void setup() {
         anonymous = new SyncopeClientFactoryBean().
                 setAddress(ADDRESS).
                 create(new AnonymousAuthenticationHandler(ANONYMOUS_UNAME, ANONYMOUS_KEY));
 
         WSSConfig.init();
-        OpenSAMLUtil.initSamlEngine();
+        OpenSAMLUtil.initSamlEngine(false);
     }
 
     @BeforeClass
@@ -198,7 +196,7 @@ public class SAML2ITCase extends AbstractITCase {
         // Get a valid login request for the Fediz realm
         SAML2SPService saml2Service = anonymous.getService(SAML2SPService.class);
         SAML2RequestTO loginRequest =
-            saml2Service.createLoginRequest(ADDRESS, "urn:org:apache:cxf:fediz:idp:realm-A");
+                saml2Service.createLoginRequest(ADDRESS, "urn:org:apache:cxf:fediz:idp:realm-A");
         assertNotNull(loginRequest);
 
         assertEquals("https://localhost:8443/fediz-idp/saml/up", loginRequest.getIdpServiceAddress());
@@ -229,7 +227,7 @@ public class SAML2ITCase extends AbstractITCase {
         JwsJwtCompactConsumer relayState = new JwsJwtCompactConsumer(response.getRelayState());
         String inResponseTo = relayState.getJwtClaims().getSubject();
 
-        org.opensaml.saml.saml2.core.Response samlResponse = createResponse(doc, inResponseTo);
+        org.opensaml.saml.saml2.core.Response samlResponse = createResponse(inResponseTo);
         Element responseElement = OpenSAMLUtil.toDom(samlResponse, doc);
         String responseStr = DOM2Writer.nodeToString(responseElement);
 
@@ -248,7 +246,7 @@ public class SAML2ITCase extends AbstractITCase {
         // Get a valid login request for the Fediz realm
         SAML2SPService saml2Service = anonymous.getService(SAML2SPService.class);
         SAML2RequestTO loginRequest =
-            saml2Service.createLoginRequest(ADDRESS, "urn:org:apache:cxf:fediz:idp:realm-A");
+                saml2Service.createLoginRequest(ADDRESS, "urn:org:apache:cxf:fediz:idp:realm-A");
         assertNotNull(loginRequest);
 
         SAML2ReceivedResponseTO response = new SAML2ReceivedResponseTO();
@@ -260,7 +258,7 @@ public class SAML2ITCase extends AbstractITCase {
         String inResponseTo = relayState.getJwtClaims().getSubject();
 
         org.opensaml.saml.saml2.core.Response samlResponse =
-            createResponse(doc, inResponseTo, false, SAML2Constants.CONF_SENDER_VOUCHES);
+                createResponse(inResponseTo, false, SAML2Constants.CONF_SENDER_VOUCHES);
         Element responseElement = OpenSAMLUtil.toDom(samlResponse, doc);
         String responseStr = DOM2Writer.nodeToString(responseElement);
 
@@ -282,7 +280,7 @@ public class SAML2ITCase extends AbstractITCase {
         // Get a valid login request for the Fediz realm
         SAML2SPService saml2Service = anonymous.getService(SAML2SPService.class);
         SAML2RequestTO loginRequest =
-            saml2Service.createLoginRequest(ADDRESS, "urn:org:apache:cxf:fediz:idp:realm-A");
+                saml2Service.createLoginRequest(ADDRESS, "urn:org:apache:cxf:fediz:idp:realm-A");
         assertNotNull(loginRequest);
 
         SAML2ReceivedResponseTO response = new SAML2ReceivedResponseTO();
@@ -293,7 +291,7 @@ public class SAML2ITCase extends AbstractITCase {
         JwsJwtCompactConsumer relayState = new JwsJwtCompactConsumer(response.getRelayState());
         String inResponseTo = relayState.getJwtClaims().getSubject();
 
-        org.opensaml.saml.saml2.core.Response samlResponse = createResponse(doc, inResponseTo);
+        org.opensaml.saml.saml2.core.Response samlResponse = createResponse(inResponseTo);
         Element responseElement = OpenSAMLUtil.toDom(samlResponse, doc);
 
         doc.appendChild(responseElement);
@@ -301,24 +299,24 @@ public class SAML2ITCase extends AbstractITCase {
 
         // Get Assertion Element
         Element assertionElement =
-            (Element)responseElement.getElementsByTagNameNS(SAMLConstants.SAML20_NS, "Assertion").item(0);
+                (Element) responseElement.getElementsByTagNameNS(SAMLConstants.SAML20_NS, "Assertion").item(0);
         assertNotNull(assertionElement);
 
         // Clone it, strip the Signature, modify the Subject, change Subj Conf
-        Element clonedAssertion = (Element)assertionElement.cloneNode(true);
+        Element clonedAssertion = (Element) assertionElement.cloneNode(true);
         clonedAssertion.setAttributeNS(null, "ID", "_12345623562");
         Element sigElement =
-            (Element)clonedAssertion.getElementsByTagNameNS(WSConstants.SIG_NS, "Signature").item(0);
+                (Element) clonedAssertion.getElementsByTagNameNS(WSConstants.SIG_NS, "Signature").item(0);
         clonedAssertion.removeChild(sigElement);
 
         Element subjElement =
-            (Element)clonedAssertion.getElementsByTagNameNS(SAMLConstants.SAML20_NS, "Subject").item(0);
+                (Element) clonedAssertion.getElementsByTagNameNS(SAMLConstants.SAML20_NS, "Subject").item(0);
         Element subjNameIdElement =
-            (Element)subjElement.getElementsByTagNameNS(SAMLConstants.SAML20_NS, "NameID").item(0);
+                (Element) subjElement.getElementsByTagNameNS(SAMLConstants.SAML20_NS, "NameID").item(0);
         subjNameIdElement.setTextContent("verdi");
 
         Element subjConfElement =
-            (Element)subjElement.getElementsByTagNameNS(SAMLConstants.SAML20_NS, "SubjectConfirmation").item(0);
+                (Element) subjElement.getElementsByTagNameNS(SAMLConstants.SAML20_NS, "SubjectConfirmation").item(0);
         subjConfElement.setAttributeNS(null, "Method", SAML2Constants.CONF_SENDER_VOUCHES);
 
         // Now insert the modified cloned Assertion into the Response after the other assertion
@@ -333,20 +331,18 @@ public class SAML2ITCase extends AbstractITCase {
         assertEquals("puccini", loginResponse.getNameID());
     }
 
-    private org.opensaml.saml.saml2.core.Response createResponse(Document doc, String inResponseTo) throws Exception {
-        return createResponse(doc, inResponseTo, true, SAML2Constants.CONF_BEARER);
+    private org.opensaml.saml.saml2.core.Response createResponse(final String inResponseTo) throws Exception {
+        return createResponse(inResponseTo, true, SAML2Constants.CONF_BEARER);
     }
 
-    private org.opensaml.saml.saml2.core.Response createResponse(Document doc, String inResponseTo,
-                                                                 boolean signAssertion, String subjectConfMethod) throws Exception {
-        Status status =
-            SAML2PResponseComponentBuilder.createStatus(
-                SAMLProtocolResponseValidator.SAML2_STATUSCODE_SUCCESS, null
-            );
+    private org.opensaml.saml.saml2.core.Response createResponse(
+            final String inResponseTo, final boolean signAssertion, final String subjectConfMethod) throws Exception {
+
+        Status status = SAML2PResponseComponentBuilder.createStatus(
+                SAMLProtocolResponseValidator.SAML2_STATUSCODE_SUCCESS, null);
         org.opensaml.saml.saml2.core.Response response =
-            SAML2PResponseComponentBuilder.createSAMLResponse(
-                inResponseTo, "urn:org:apache:cxf:fediz:idp:realm-A", status
-            );
+                SAML2PResponseComponentBuilder.createSAMLResponse(
+                        inResponseTo, "urn:org:apache:cxf:fediz:idp:realm-A", status);
         response.setDestination("http://recipient.apache.org");
 
         // Create an AuthenticationAssertion
@@ -381,7 +377,7 @@ public class SAML2ITCase extends AbstractITCase {
             ClassLoader loader = Loader.getClassLoader(SAML2ITCase.class);
             InputStream input = Merlin.loadInputStream(loader, "stsrealm_a.jks");
             keyStore.load(input, "storepass".toCharArray());
-            ((Merlin)issuerCrypto).setKeyStore(keyStore);
+            ((Merlin) issuerCrypto).setKeyStore(keyStore);
 
             assertion.signAssertion("realma", "realma", issuerCrypto, false);
         }
@@ -390,6 +386,4 @@ public class SAML2ITCase extends AbstractITCase {
 
         return response;
     }
-
-
 }
