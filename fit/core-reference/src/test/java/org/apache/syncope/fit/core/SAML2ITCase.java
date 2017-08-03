@@ -165,7 +165,8 @@ public class SAML2ITCase extends AbstractITCase {
         Assume.assumeTrue(SAML2SPDetector.isSAML2SPAvailable());
 
         Optional<SAML2IdPTO> ssoCircleOpt =
-            saml2IdPService.list().stream().filter(o -> "https://idp.ssocircle.com".equals(o.getEntityID())).findFirst();
+                saml2IdPService.list().stream().filter(o -> "https://idp.ssocircle.com".equals(o.getEntityID())).
+                        findFirst();
         assertTrue(ssoCircleOpt.isPresent());
 
         SAML2IdPTO ssoCircle = ssoCircleOpt.get();
@@ -195,8 +196,7 @@ public class SAML2ITCase extends AbstractITCase {
 
         // Get a valid login request for the Fediz realm
         SAML2SPService saml2Service = anonymous.getService(SAML2SPService.class);
-        SAML2RequestTO loginRequest =
-                saml2Service.createLoginRequest(ADDRESS, "urn:org:apache:cxf:fediz:idp:realm-A");
+        SAML2RequestTO loginRequest = saml2Service.createLoginRequest(ADDRESS, "urn:org:apache:cxf:fediz:idp:realm-A");
         assertNotNull(loginRequest);
 
         assertEquals("https://localhost:8443/fediz-idp/saml/up", loginRequest.getIdpServiceAddress());
@@ -206,11 +206,13 @@ public class SAML2ITCase extends AbstractITCase {
 
         // Check a null relaystate
         SAML2ReceivedResponseTO response = new SAML2ReceivedResponseTO();
+        response.setSpEntityID("http://recipient.apache.org/");
+        response.setUrlContext("saml2sp");
         try {
             saml2Service.validateLoginResponse(response);
             fail("Failure expected on no Relay State");
-        } catch (SyncopeClientException ex) {
-            assertTrue(ex.getMessage().contains("No Relay State was provided"));
+        } catch (SyncopeClientException e) {
+            assertTrue(e.getMessage().contains("No Relay State was provided"));
         }
 
         // Check a null Response
@@ -218,16 +220,17 @@ public class SAML2ITCase extends AbstractITCase {
         try {
             saml2Service.validateLoginResponse(response);
             fail("Failure expected on no SAML Response");
-        } catch (SyncopeClientException ex) {
-            assertTrue(ex.getMessage().contains("No SAML Response was provided"));
+        } catch (SyncopeClientException e) {
+            assertTrue(e.getMessage().contains("No SAML Response was provided"));
         }
 
         // Create a SAML Response using WSS4J
-        Document doc = DOMUtils.newDocument();
         JwsJwtCompactConsumer relayState = new JwsJwtCompactConsumer(response.getRelayState());
         String inResponseTo = relayState.getJwtClaims().getSubject();
 
         org.opensaml.saml.saml2.core.Response samlResponse = createResponse(inResponseTo);
+
+        Document doc = DOMUtils.newDocument();
         Element responseElement = OpenSAMLUtil.toDom(samlResponse, doc);
         String responseStr = DOM2Writer.nodeToString(responseElement);
 
@@ -239,26 +242,27 @@ public class SAML2ITCase extends AbstractITCase {
     }
 
     @Test
-    @org.junit.Ignore
-    public void testUnsignedAssertionInLoginResponse() throws Exception {
+    public void unsignedAssertionInLoginResponse() throws Exception {
         Assume.assumeTrue(SAML2SPDetector.isSAML2SPAvailable());
 
         // Get a valid login request for the Fediz realm
         SAML2SPService saml2Service = anonymous.getService(SAML2SPService.class);
-        SAML2RequestTO loginRequest =
-                saml2Service.createLoginRequest(ADDRESS, "urn:org:apache:cxf:fediz:idp:realm-A");
+        SAML2RequestTO loginRequest = saml2Service.createLoginRequest(ADDRESS, "urn:org:apache:cxf:fediz:idp:realm-A");
         assertNotNull(loginRequest);
 
         SAML2ReceivedResponseTO response = new SAML2ReceivedResponseTO();
+        response.setSpEntityID("http://recipient.apache.org/");
+        response.setUrlContext("saml2sp");
         response.setRelayState(loginRequest.getRelayState());
 
         // Create a SAML Response using WSS4J
-        Document doc = DOMUtils.newDocument();
         JwsJwtCompactConsumer relayState = new JwsJwtCompactConsumer(response.getRelayState());
         String inResponseTo = relayState.getJwtClaims().getSubject();
 
         org.opensaml.saml.saml2.core.Response samlResponse =
                 createResponse(inResponseTo, false, SAML2Constants.CONF_SENDER_VOUCHES);
+
+        Document doc = DOMUtils.newDocument();
         Element responseElement = OpenSAMLUtil.toDom(samlResponse, doc);
         String responseStr = DOM2Writer.nodeToString(responseElement);
 
@@ -267,35 +271,35 @@ public class SAML2ITCase extends AbstractITCase {
         try {
             saml2Service.validateLoginResponse(response);
             fail("Failure expected on an unsigned Assertion");
-        } catch (SyncopeClientException ex) {
-            // expected
+        } catch (SyncopeClientException e) {
+            assertNotNull(e);
         }
     }
 
     @Test
-    @org.junit.Ignore
-    public void testLoginResponseWrappingAttack() throws Exception {
+    public void loginResponseWrappingAttack() throws Exception {
         Assume.assumeTrue(SAML2SPDetector.isSAML2SPAvailable());
 
         // Get a valid login request for the Fediz realm
         SAML2SPService saml2Service = anonymous.getService(SAML2SPService.class);
-        SAML2RequestTO loginRequest =
-                saml2Service.createLoginRequest(ADDRESS, "urn:org:apache:cxf:fediz:idp:realm-A");
+        SAML2RequestTO loginRequest = saml2Service.createLoginRequest(ADDRESS, "urn:org:apache:cxf:fediz:idp:realm-A");
         assertNotNull(loginRequest);
 
         SAML2ReceivedResponseTO response = new SAML2ReceivedResponseTO();
+        response.setSpEntityID("http://recipient.apache.org/");
+        response.setUrlContext("saml2sp");
         response.setRelayState(loginRequest.getRelayState());
 
         // Create a SAML Response using WSS4J
-        Document doc = DOMUtils.newDocument();
         JwsJwtCompactConsumer relayState = new JwsJwtCompactConsumer(response.getRelayState());
         String inResponseTo = relayState.getJwtClaims().getSubject();
 
         org.opensaml.saml.saml2.core.Response samlResponse = createResponse(inResponseTo);
-        Element responseElement = OpenSAMLUtil.toDom(samlResponse, doc);
 
-        doc.appendChild(responseElement);
+        Document doc = DOMUtils.newDocument();
+        Element responseElement = OpenSAMLUtil.toDom(samlResponse, doc);
         assertNotNull(responseElement);
+        doc.appendChild(responseElement);
 
         // Get Assertion Element
         Element assertionElement =
@@ -326,9 +330,12 @@ public class SAML2ITCase extends AbstractITCase {
 
         // Validate the SAML Response
         response.setSamlResponse(java.util.Base64.getEncoder().encodeToString(responseStr.getBytes()));
-        SAML2LoginResponseTO loginResponse = saml2Service.validateLoginResponse(response);
-        assertNotNull(loginResponse.getAccessToken());
-        assertEquals("puccini", loginResponse.getNameID());
+        try {
+            saml2Service.validateLoginResponse(response);
+            fail("Failure expected on an unsigned Assertion");
+        } catch (SyncopeClientException e) {
+            assertNotNull(e);
+        }
     }
 
     private org.opensaml.saml.saml2.core.Response createResponse(final String inResponseTo) throws Exception {
@@ -340,9 +347,8 @@ public class SAML2ITCase extends AbstractITCase {
 
         Status status = SAML2PResponseComponentBuilder.createStatus(
                 SAMLProtocolResponseValidator.SAML2_STATUSCODE_SUCCESS, null);
-        org.opensaml.saml.saml2.core.Response response =
-                SAML2PResponseComponentBuilder.createSAMLResponse(
-                        inResponseTo, "urn:org:apache:cxf:fediz:idp:realm-A", status);
+        org.opensaml.saml.saml2.core.Response response = SAML2PResponseComponentBuilder.createSAMLResponse(
+                inResponseTo, "urn:org:apache:cxf:fediz:idp:realm-A", status);
         response.setDestination("http://recipient.apache.org");
 
         // Create an AuthenticationAssertion
@@ -353,9 +359,9 @@ public class SAML2ITCase extends AbstractITCase {
 
         SubjectConfirmationDataBean subjectConfirmationData = new SubjectConfirmationDataBean();
         subjectConfirmationData.setAddress("http://apache.org");
-        subjectConfirmationData.setInResponseTo("12345");
+        subjectConfirmationData.setInResponseTo(inResponseTo);
         subjectConfirmationData.setNotAfter(new DateTime().plusMinutes(5));
-        subjectConfirmationData.setRecipient("http://recipient.apache.org");
+        subjectConfirmationData.setRecipient("http://recipient.apache.org/saml2sp/assertion-consumer");
         callbackHandler.setSubjectConfirmationData(subjectConfirmationData);
 
         ConditionsBean conditions = new ConditionsBean();
@@ -363,7 +369,7 @@ public class SAML2ITCase extends AbstractITCase {
         conditions.setNotAfter(new DateTime().plusMinutes(5));
 
         AudienceRestrictionBean audienceRestriction = new AudienceRestrictionBean();
-        audienceRestriction.setAudienceURIs(Collections.singletonList("http://service.apache.org"));
+        audienceRestriction.setAudienceURIs(Collections.singletonList("http://recipient.apache.org/"));
         conditions.setAudienceRestrictions(Collections.singletonList(audienceRestriction));
         callbackHandler.setConditions(conditions);
 
@@ -374,12 +380,12 @@ public class SAML2ITCase extends AbstractITCase {
         if (signAssertion) {
             Crypto issuerCrypto = new Merlin();
             KeyStore keyStore = KeyStore.getInstance("JKS");
-            ClassLoader loader = Loader.getClassLoader(SAML2ITCase.class);
-            InputStream input = Merlin.loadInputStream(loader, "stsrealm_a.jks");
-            keyStore.load(input, "storepass".toCharArray());
+            ClassLoader loader = Loader.getClassLoader(getClass());
+            InputStream input = Merlin.loadInputStream(loader, "keystore");
+            keyStore.load(input, "changeit".toCharArray());
             ((Merlin) issuerCrypto).setKeyStore(keyStore);
 
-            assertion.signAssertion("realma", "realma", issuerCrypto, false);
+            assertion.signAssertion("sp", "changeit", issuerCrypto, false);
         }
 
         response.getAssertions().add(assertion.getSaml2());
