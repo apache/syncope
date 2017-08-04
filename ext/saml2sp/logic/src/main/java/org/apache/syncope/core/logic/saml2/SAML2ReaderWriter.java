@@ -90,10 +90,6 @@ public class SAML2ReaderWriter {
 
     private String jceSigAlgo;
 
-    private SAMLProtocolResponseValidator protocolValidator;
-
-    private SAMLSSOResponseValidator ssoResponseValidator;
-
     private SAMLSPCallbackHandler callbackHandler;
 
     public void init() {
@@ -108,11 +104,6 @@ public class SAML2ReaderWriter {
             sigAlgo = SignatureConstants.ALGO_ID_SIGNATURE_DSA_SHA1;
             jceSigAlgo = "SHA1withDSA";
         }
-
-        protocolValidator = new SAMLProtocolResponseValidator();
-        protocolValidator.setKeyInfoMustBeAvailable(true);
-
-        ssoResponseValidator = new SAMLSSOResponseValidator();
 
         callbackHandler = new SAMLSPCallbackHandler(loader.getKeyPass());
     }
@@ -223,8 +214,11 @@ public class SAML2ReaderWriter {
         crypto.setKeyStore(loader.getKeyStore());
         crypto.setTrustStore(idp.getTrustStore());
 
+        SAMLProtocolResponseValidator protocolValidator = new SAMLProtocolResponseValidator();
+        protocolValidator.setKeyInfoMustBeAvailable(true);
         protocolValidator.validateSamlResponse(samlResponse, crypto, callbackHandler);
 
+        SAMLSSOResponseValidator ssoResponseValidator = new SAMLSSOResponseValidator();
         ssoResponseValidator.setAssertionConsumerURL(assertionConsumerURL);
         ssoResponseValidator.setIssuerIDP(idp.getId());
         ssoResponseValidator.setRequestId(requestId);
