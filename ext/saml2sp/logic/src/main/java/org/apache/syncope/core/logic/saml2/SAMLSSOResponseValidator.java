@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.cxf.rs.security.saml.sso;
+package org.apache.syncope.core.logic.saml2;
 
 import java.util.Date;
 import java.util.List;
@@ -25,6 +25,8 @@ import java.util.logging.Logger;
 import org.w3c.dom.Element;
 
 import org.apache.cxf.common.logging.LogUtils;
+import org.apache.cxf.rs.security.saml.sso.SSOValidatorResponse;
+import org.apache.cxf.rs.security.saml.sso.TokenReplayCache;
 import org.apache.wss4j.common.ext.WSSecurityException;
 import org.apache.wss4j.common.saml.builder.SAML2Constants;
 import org.apache.wss4j.common.util.DOM2Writer;

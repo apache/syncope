@@ -43,7 +43,6 @@ import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.cxf.rs.security.saml.DeflateEncoderDecoder;
 import org.apache.cxf.rs.security.saml.sso.SAMLProtocolResponseValidator;
-import org.apache.cxf.rs.security.saml.sso.SAMLSSOResponseValidator;
 import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.syncope.common.lib.SSOConstants;
 import org.apache.syncope.common.lib.types.SAML2BindingType;
@@ -90,10 +89,6 @@ public class SAML2ReaderWriter {
 
     private String jceSigAlgo;
 
-    private SAMLProtocolResponseValidator protocolValidator;
-
-    private SAMLSSOResponseValidator ssoResponseValidator;
-
     private SAMLSPCallbackHandler callbackHandler;
 
     public void init() {
@@ -108,11 +103,6 @@ public class SAML2ReaderWriter {
             sigAlgo = SignatureConstants.ALGO_ID_SIGNATURE_DSA_SHA1;
             jceSigAlgo = "SHA1withDSA";
         }
-
-        protocolValidator = new SAMLProtocolResponseValidator();
-        protocolValidator.setKeyInfoMustBeAvailable(true);
-
-        ssoResponseValidator = new SAMLSSOResponseValidator();
 
         callbackHandler = new SAMLSPCallbackHandler(loader.getKeyPass());
     }
@@ -223,8 +213,11 @@ public class SAML2ReaderWriter {
         crypto.setKeyStore(loader.getKeyStore());
         crypto.setTrustStore(idp.getTrustStore());
 
+        SAMLProtocolResponseValidator protocolValidator = new SAMLProtocolResponseValidator();
+        protocolValidator.setKeyInfoMustBeAvailable(true);
         protocolValidator.validateSamlResponse(samlResponse, crypto, callbackHandler);
 
+        SAMLSSOResponseValidator ssoResponseValidator = new SAMLSSOResponseValidator();
         ssoResponseValidator.setAssertionConsumerURL(assertionConsumerURL);
         ssoResponseValidator.setIssuerIDP(idp.getId());
         ssoResponseValidator.setRequestId(requestId);
