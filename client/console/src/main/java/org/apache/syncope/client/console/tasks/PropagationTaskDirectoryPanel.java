@@ -127,7 +127,19 @@ public abstract class PropagationTaskDirectoryPanel
                 PropagationTaskDirectoryPanel.this.getTogglePanel().close(target);
                 viewTask(taskTO, target);
             }
-        }, ActionLink.ActionType.VIEW, StandardEntitlement.TASK_READ);
+        }, ActionLink.ActionType.VIEW_EXECUTIONS, StandardEntitlement.TASK_READ);
+
+        // [SYNCOPE-1115] - Display attributes for propagation tasks
+        panel.add(new ActionLink<PropagationTaskTO>() {
+
+            private static final long serialVersionUID = 9206257220553949594L;
+
+            @Override
+            public void onClick(final AjaxRequestTarget target, final PropagationTaskTO modelObject) {
+                PropagationTaskDirectoryPanel.this.getTogglePanel().close(target);
+                viewTaskDetails(modelObject, target);
+            }
+        }, ActionLink.ActionType.VIEW_DETAILS, StandardEntitlement.TASK_READ);
 
         panel.add(new ActionLink<PropagationTaskTO>() {
 
@@ -208,4 +220,6 @@ public abstract class PropagationTaskDirectoryPanel
             return tasks.iterator();
         }
     }
+
+    protected abstract void viewTaskDetails(PropagationTaskTO taskTO, AjaxRequestTarget target);
 }
