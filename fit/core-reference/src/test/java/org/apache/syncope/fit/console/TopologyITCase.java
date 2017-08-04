@@ -356,7 +356,7 @@ public class TopologyITCase extends AbstractConsoleITCase {
         TESTER.executeAjaxEvent(component.getPageRelativePath(), Constants.ON_CLICK);
         TESTER.clickLink("body:toggle:outerObjectsRepeater:1:outer:form:content:tasks:firstLevelContainer:first:"
                 + "outerObjectsRepeater:1:outer:container:content:togglePanelContainer:container:"
-                + "actions:actions:actionRepeater:1:action:action");
+                + "actions:actions:actionRepeater:2:action:action");
 
         TESTER.clickLink("body:topologyLI:topology");
 

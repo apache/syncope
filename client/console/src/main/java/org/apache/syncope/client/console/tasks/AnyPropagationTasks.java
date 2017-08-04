@@ -32,7 +32,7 @@ import org.apache.wicket.model.StringResourceModel;
 public class AnyPropagationTasks extends AbstractPropagationTasks {
 
     private static final long serialVersionUID = -4013796607157549641L;
-
+    
     public <T extends AnyTO> AnyPropagationTasks(
             final BaseModal<?> baseModal,
             final AnyTypeKind anyTypeKind,
@@ -51,6 +51,15 @@ public class AnyPropagationTasks extends AbstractPropagationTasks {
                 mlp.next(
                         new StringResourceModel("task.view", this, new Model<>(Pair.of(null, taskTO))).getObject(),
                         new TaskExecutionDetails<>(baseModal, taskTO, pageReference),
+                        target);
+            }
+
+            @Override
+            protected void viewTaskDetails(final PropagationTaskTO taskTO, final AjaxRequestTarget target) {
+                mlp.next(
+                        new StringResourceModel("task.view.details", this, new Model<>(Pair.of(null, taskTO))).
+                                getObject(),
+                        new TaskAttributesDetailsView(baseModal, taskTO, pageReference),
                         target);
             }
         });
