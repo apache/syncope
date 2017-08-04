@@ -599,25 +599,6 @@ under the License.
             <groupId>org.opensaml</groupId>
             <artifactId>opensaml-xacml-saml-impl</artifactId>
           </exclusion>
-          <exclusion>
-            <groupId>org.apache.wss4j</groupId>
-            <artifactId>wss4j-ws-security-dom</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.wss4j</groupId>
-        <artifactId>wss4j-ws-security-dom</artifactId>
-        <version>2.2.0-SNAPSHOT</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.jasypt</groupId>
-            <artifactId>jasypt</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.apache.geronimo.specs</groupId>
-            <artifactId>geronimo-javamail_1.4_spec</artifactId>
-          </exclusion>
         </exclusions>
       </dependency>
       <!-- /CXF -->
