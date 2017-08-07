@@ -366,7 +366,7 @@ under the License.
 
     <cxf.version>3.2.0-SNAPSHOT</cxf.version>
 
-    <jackson.version>2.9.0</jackson.version>
+    <jackson.version>2.8.9</jackson.version>
 
     <spring.version>4.3.10.RELEASE</spring.version>
     <spring-security.version>4.2.3.RELEASE</spring-security.version>
