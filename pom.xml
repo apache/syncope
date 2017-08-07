@@ -366,7 +366,7 @@ under the License.
 
     <cxf.version>3.2.0-SNAPSHOT</cxf.version>
 
-    <jackson.version>2.8.9</jackson.version>
+    <jackson.version>2.9.0</jackson.version>
 
     <spring.version>4.3.10.RELEASE</spring.version>
     <spring-security.version>4.2.3.RELEASE</spring-security.version>
@@ -385,18 +385,18 @@ under the License.
 
     <activiti.version>5.22.0</activiti.version>
 
-    <camel.version>2.19.1</camel.version>	
+    <camel.version>2.19.2</camel.version>	
 
     <slf4j.version>1.7.25</slf4j.version>
     <opensaml.version>3.3.0</opensaml.version>
 
-    <elasticsearch.version>5.5.0</elasticsearch.version>
+    <elasticsearch.version>5.5.1</elasticsearch.version>
 
     <log4j.version>2.8.2</log4j.version>
     <disruptor.version>3.3.6</disruptor.version>
 
     <commons-io.version>2.5</commons-io.version>
-    <commons-email.version>1.4</commons-email.version>
+    <commons-email.version>1.5</commons-email.version>
     <commons-codec.version>1.10</commons-codec.version>
     <commons-jexl.version>3.1</commons-jexl.version>
     <commons-lang.version>3.6</commons-lang.version>
@@ -1061,12 +1061,12 @@ under the License.
       <dependency>
         <groupId>org.apache.xmlgraphics</groupId>
         <artifactId>batik-i18n</artifactId>
-        <version>1.9</version>
+        <version>1.9.1</version>
       </dependency>
       <dependency>
         <groupId>org.apache.xmlgraphics</groupId>
         <artifactId>batik-constants</artifactId>
-        <version>1.9</version>
+        <version>1.9.1</version>
       </dependency>
 
       <!-- Activiti -->
@@ -1642,7 +1642,7 @@ under the License.
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
-          <version>3.6.1</version> 
+          <version>3.6.2</version> 
           <configuration>
             <source>${targetJdk}</source>
             <target>${targetJdk}</target>
@@ -2178,7 +2178,7 @@ under the License.
             <link>http://www.flowable.org/docs/javadocs/</link>
             <link>https://build.shibboleth.net/nexus/service/local/repositories/releases/archive/org/opensaml/opensaml-saml-api/3.3.0/opensaml-saml-api-3.3.0-javadoc.jar/!/index.html</link>
             <link>https://build.shibboleth.net/nexus/service/local/repositories/releases/archive/org/opensaml/opensaml-core/3.3.0/opensaml-core-3.3.0-javadoc.jar/!/index.html</link>
-            <link>https://www.javadoc.io/doc/org.elasticsearch/elasticsearch/5.4.0</link>
+            <link>https://www.javadoc.io/doc/org.elasticsearch/elasticsearch/5.5.1</link>
           </links>
         </configuration>
         <reportSets>
@@ -2257,7 +2257,7 @@ under the License.
           <plugin>
             <groupId>org.asciidoctor</groupId>
             <artifactId>asciidoctor-maven-plugin</artifactId>
-            <version>1.5.5</version>
+            <version>1.5.6</version>
             <dependencies>
               <dependency>
                 <groupId>org.asciidoctor</groupId>
