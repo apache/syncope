@@ -32,6 +32,7 @@ import javax.persistence.TypedQuery;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
+import org.apache.commons.collections4.SetUtils;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -170,7 +171,8 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
 
     @Override
     protected void securityChecks(final Group group) {
-        Set<String> authRealms = AuthContextUtils.getAuthorizations().get(StandardEntitlement.GROUP_READ);
+        Set<String> authRealms = SetUtils.emptyIfNull(
+                AuthContextUtils.getAuthorizations().get(StandardEntitlement.GROUP_READ));
         boolean authorized = IterableUtils.matchesAny(authRealms, new Predicate<String>() {
 
             @Override
@@ -183,7 +185,7 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
             authorized = !CollectionUtils.intersection(findDynRealms(group.getKey()), authRealms).isEmpty();
         }
 
-        if (authRealms == null || authRealms.isEmpty() || !authorized) {
+        if (authRealms.isEmpty() || !authorized) {
             throw new DelegatedAdministrationException(
                     group.getRealm().getFullPath(), AnyTypeKind.GROUP.name(), group.getKey());
         }
@@ -541,6 +543,6 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     @Transactional(readOnly = true)
     @Override
     public Collection<String> findAllResourceKeys(final String key) {
-        return CollectionUtils.collect(authFind(key).getResources(), EntityUtils.keyTransformer());
+        return CollectionUtils.collect(find(key).getResources(), EntityUtils.keyTransformer());
     }
 }

@@ -34,6 +34,7 @@ import javax.persistence.TypedQuery;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
+import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.common.lib.types.AnyEntitlement;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -134,8 +135,8 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
 
     @Override
     protected void securityChecks(final AnyObject anyObject) {
-        Set<String> authRealms = AuthContextUtils.getAuthorizations().get(
-                AnyEntitlement.READ.getFor(anyObject.getType().getKey()));
+        Set<String> authRealms = SetUtils.emptyIfNull(
+                AuthContextUtils.getAuthorizations().get(AnyEntitlement.READ.getFor(anyObject.getType().getKey())));
         boolean authorized = IterableUtils.matchesAny(authRealms, new Predicate<String>() {
 
             @Override
@@ -146,7 +147,7 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
         if (!authorized) {
             authorized = !CollectionUtils.intersection(findDynRealms(anyObject.getKey()), authRealms).isEmpty();
         }
-        if (authRealms == null || authRealms.isEmpty() || !authorized) {
+        if (authRealms.isEmpty() || !authorized) {
             throw new DelegatedAdministrationException(
                     anyObject.getRealm().getFullPath(), AnyTypeKind.ANY_OBJECT.name(), anyObject.getKey());
         }
