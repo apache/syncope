@@ -80,6 +80,10 @@ public class BinaryFieldPanel extends FieldPanel<String> {
 
     private final AbstractBinaryPreviewer previewer;
 
+    private final Label previewLabel;
+
+    private final IndicatingAjaxLink<Void> resetLink;
+
     public BinaryFieldPanel(final String id, final String name, final IModel<String> model, final String mimeType) {
         super(id, name, model);
         this.mimeType = mimeType;
@@ -125,7 +129,8 @@ public class BinaryFieldPanel extends FieldPanel<String> {
         field = new TextField<>("textField", model);
         add(field.setLabel(new Model<>(name)).setOutputMarkupId(true));
 
-        uploadForm.add(new Label("preview", StringUtils.isBlank(mimeType) ? StringUtils.EMPTY : "(" + mimeType + ")"));
+        previewLabel = new Label("preview", StringUtils.isBlank(mimeType) ? StringUtils.EMPTY : "(" + mimeType + ")");
+        uploadForm.add(previewLabel);
 
         fileDownload = new AjaxDownload(name, true) {
 
@@ -187,15 +192,16 @@ public class BinaryFieldPanel extends FieldPanel<String> {
                         uploadForm.addOrReplace(fileUpload);
                     }
 
+                    setVisiblePhotoButtons(StringUtils.isNotBlank(uploaded));
                     downloadLink.setEnabled(StringUtils.isNotBlank(uploaded));
 
-                    target.add(container);
+                    target.add(uploadForm);
                 }
             }
         });
         uploadForm.add(fileUpload);
 
-        IndicatingAjaxLink<Void> resetLink = new IndicatingAjaxLink<Void>("resetLink") {
+        resetLink = new IndicatingAjaxLink<Void>("resetLink") {
 
             private static final long serialVersionUID = -7978723352517770644L;
 
@@ -205,7 +211,7 @@ public class BinaryFieldPanel extends FieldPanel<String> {
                 target.add(field);
                 downloadLink.setEnabled(false);
                 container.addOrReplace(emptyFragment);
-                uploadForm.addOrReplace(container);
+                setVisiblePhotoButtons(false);
                 target.add(uploadForm);
             }
 
@@ -230,6 +236,12 @@ public class BinaryFieldPanel extends FieldPanel<String> {
         uploadForm.addOrReplace(container);
     }
 
+    private void setVisiblePhotoButtons(final boolean visible) {
+        previewLabel.setVisible(visible);
+        resetLink.setVisible(visible);
+        downloadLink.setVisible(visible);
+    }
+
     @Override
     public BinaryFieldPanel clone() {
         return (BinaryFieldPanel) super.clone();
@@ -238,13 +250,14 @@ public class BinaryFieldPanel extends FieldPanel<String> {
     @Override
     public FieldPanel<String> setNewModel(final IModel<String> model) {
         field.setModel(model);
+        String modelObj = model.getObject();
 
-        if (StringUtils.isNotBlank(model.getObject())) {
+        if (StringUtils.isNotBlank(modelObj)) {
             final Component panelPreview;
             if (previewer == null) {
                 panelPreview = PREVIEW_UTILS.getDefaultPreviewer(mimeType);
             } else {
-                panelPreview = previewer.preview(model.getObject());
+                panelPreview = previewer.preview(modelObj);
             }
 
             if (panelPreview != null) {
@@ -252,8 +265,8 @@ public class BinaryFieldPanel extends FieldPanel<String> {
             }
         }
 
-        downloadLink.setEnabled(StringUtils.isNotBlank(model.getObject()));
-        uploadForm.addOrReplace(downloadLink);
+        downloadLink.setEnabled(StringUtils.isNotBlank(modelObj));
+        setVisiblePhotoButtons(StringUtils.isNotBlank(modelObj));
         return this;
     }
 }
