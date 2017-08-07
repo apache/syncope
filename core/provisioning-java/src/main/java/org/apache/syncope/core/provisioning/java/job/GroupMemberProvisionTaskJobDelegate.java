@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.job;
 
+import java.util.Collection;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.PropagationStatus;
@@ -84,10 +85,11 @@ public class GroupMemberProvisionTaskJobDelegate extends AbstractSchedTaskJobDel
         MembershipCond membershipCond = new MembershipCond();
         membershipCond.setGroup(groupKey);
         List<User> users = searchDAO.search(SearchCond.getLeafCond(membershipCond), AnyTypeKind.USER);
+        Collection<String> groupResourceKeys = groupDAO.findAllResourceKeys(groupKey);
         for (User user : users) {
             List<PropagationStatus> statuses = actionType == BulkMembersActionType.DEPROVISION
-                    ? userProvisioningManager.deprovision(user.getKey(), group.getResourceKeys(), false)
-                    : userProvisioningManager.provision(user.getKey(), true, null, group.getResourceKeys(), false);
+                    ? userProvisioningManager.deprovision(user.getKey(), groupResourceKeys, false)
+                    : userProvisioningManager.provision(user.getKey(), true, null, groupResourceKeys, false);
             for (PropagationStatus status : statuses) {
                 result.append("User ").append(user.getKey()).append('\t').
                         append("Resource ").append(status.getResource()).append('\t').
@@ -105,8 +107,8 @@ public class GroupMemberProvisionTaskJobDelegate extends AbstractSchedTaskJobDel
         List<AnyObject> anyObjects = searchDAO.search(SearchCond.getLeafCond(membershipCond), AnyTypeKind.ANY_OBJECT);
         for (AnyObject anyObject : anyObjects) {
             List<PropagationStatus> statuses = actionType == BulkMembersActionType.DEPROVISION
-                    ? anyObjectProvisioningManager.deprovision(anyObject.getKey(), group.getResourceKeys(), false)
-                    : anyObjectProvisioningManager.provision(anyObject.getKey(), group.getResourceKeys(), false);
+                    ? anyObjectProvisioningManager.deprovision(anyObject.getKey(), groupResourceKeys, false)
+                    : anyObjectProvisioningManager.provision(anyObject.getKey(), groupResourceKeys, false);
 
             for (PropagationStatus status : statuses) {
                 result.append(anyObject.getType().getKey()).append(' ').append(anyObject.getKey()).append('\t').

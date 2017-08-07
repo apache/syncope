@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.patch.StringPatchItem;
@@ -44,7 +43,6 @@ import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
-import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
@@ -56,7 +54,6 @@ import org.apache.syncope.core.provisioning.api.notification.NotificationManager
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionException;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePushResultHandler;
-import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.apache.syncope.core.provisioning.java.job.AfterHandlingJob;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
@@ -103,15 +100,13 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         Collection<String> resourceKeys;
         if (any instanceof User) {
             changepwd = true;
-            resourceKeys = CollectionUtils.collect(
-                    userDAO.findAllResources((User) any), EntityUtils.keyTransformer());
+            resourceKeys = userDAO.findAllResourceKeys(any.getKey());
         } else if (any instanceof AnyObject) {
             changepwd = false;
-            resourceKeys = CollectionUtils.collect(
-                    anyObjectDAO.findAllResources((AnyObject) any), EntityUtils.keyTransformer());
+            resourceKeys = anyObjectDAO.findAllResourceKeys(any.getKey());
         } else {
             changepwd = false;
-            resourceKeys = ((Group) any).getResourceKeys();
+            resourceKeys = groupDAO.findAllResourceKeys(any.getKey());
         }
 
         List<String> noPropResources = new ArrayList<>(resourceKeys);

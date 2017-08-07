@@ -53,15 +53,11 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
-import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
-import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
-import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.MappingManager;
-import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
@@ -118,7 +114,7 @@ public class PropagationManagerImpl implements PropagationManager {
     @Autowired
     protected AnyUtilsFactory anyUtilsFactory;
 
-    protected Any<?> find(final AnyTypeKind kind, final String key) {
+    protected AnyDAO<? extends Any<?>> dao(final AnyTypeKind kind) {
         AnyDAO<? extends Any<?>> dao;
         switch (kind) {
             case ANY_OBJECT:
@@ -134,7 +130,7 @@ public class PropagationManagerImpl implements PropagationManager {
                 dao = userDAO;
         }
 
-        return dao.authFind(key);
+        return dao;
     }
 
     @Override
@@ -145,7 +141,7 @@ public class PropagationManagerImpl implements PropagationManager {
             final Collection<AttrTO> vAttrs,
             final Collection<String> noPropResourceKeys) {
 
-        return getCreateTasks(find(kind, key), null, null, propByRes, vAttrs, noPropResourceKeys);
+        return getCreateTasks(dao(kind).authFind(key), null, null, propByRes, vAttrs, noPropResourceKeys);
     }
 
     @Override
@@ -189,7 +185,7 @@ public class PropagationManagerImpl implements PropagationManager {
             final Collection<AttrTO> vAttrs,
             final Collection<String> noPropResourceKeys) {
 
-        return getUpdateTasks(find(kind, key), null, changePwd, enable, propByRes, vAttrs, noPropResourceKeys);
+        return getUpdateTasks(dao(kind).authFind(key), null, changePwd, enable, propByRes, vAttrs, noPropResourceKeys);
     }
 
     @Override
@@ -288,12 +284,12 @@ public class PropagationManagerImpl implements PropagationManager {
             final PropagationByResource propByRes,
             final Collection<String> noPropResourceKeys) {
 
-        Any<?> any = find(kind, key);
+        Any<?> any = dao(kind).authFind(key);
 
         PropagationByResource localPropByRes = new PropagationByResource();
 
         if (propByRes == null || propByRes.isEmpty()) {
-            localPropByRes.addAll(ResourceOperation.DELETE, any.getResourceKeys());
+            localPropByRes.addAll(ResourceOperation.DELETE, dao(kind).findAllResourceKeys(key));
         } else {
             localPropByRes.merge(propByRes);
         }
@@ -340,15 +336,7 @@ public class PropagationManagerImpl implements PropagationManager {
         Set<String> virtualResources = new HashSet<>();
         virtualResources.addAll(propByRes.get(ResourceOperation.CREATE));
         virtualResources.addAll(propByRes.get(ResourceOperation.UPDATE));
-        if (any instanceof User) {
-            virtualResources.addAll(CollectionUtils.collect(
-                    userDAO.findAllResources((User) any), EntityUtils.keyTransformer()));
-        } else if (any instanceof AnyObject) {
-            virtualResources.addAll(CollectionUtils.collect(
-                    anyObjectDAO.findAllResources((AnyObject) any), EntityUtils.keyTransformer()));
-        } else {
-            virtualResources.addAll(((Group) any).getResourceKeys());
-        }
+        virtualResources.addAll(dao(any.getType().getKind()).findAllResourceKeys(any.getKey()));
 
         Map<String, Set<Attribute>> vAttrMap = new HashMap<>();
         for (AttrTO vAttr : CollectionUtils.emptyIfNull(vAttrs)) {

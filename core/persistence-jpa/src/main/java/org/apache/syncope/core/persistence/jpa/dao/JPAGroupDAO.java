@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -68,6 +69,7 @@ import org.apache.syncope.core.persistence.jpa.entity.user.JPAUDynGroupMembershi
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUMembership;
 import org.apache.syncope.core.provisioning.api.event.AnyCreatedUpdatedEvent;
 import org.apache.syncope.core.provisioning.api.event.AnyDeletedEvent;
+import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -536,4 +538,9 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         }
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public Collection<String> findAllResourceKeys(final String key) {
+        return CollectionUtils.collect(authFind(key).getResources(), EntityUtils.keyTransformer());
+    }
 }

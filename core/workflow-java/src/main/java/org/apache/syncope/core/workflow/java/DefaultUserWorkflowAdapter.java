@@ -21,7 +21,6 @@ package org.apache.syncope.core.workflow.java;
 import java.io.OutputStream;
 import java.util.Collections;
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.PasswordPatch;
@@ -34,7 +33,6 @@ import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
-import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.apache.syncope.core.workflow.api.WorkflowDefinitionFormat;
 import org.apache.syncope.core.workflow.api.WorkflowException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -146,7 +144,7 @@ public class DefaultUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         userPatch.setKey(user.getKey());
         userPatch.setPassword(new PasswordPatch.Builder().
                 onSyncope(true).
-                resources(CollectionUtils.collect(userDAO.findAllResources(user), EntityUtils.keyTransformer())).
+                resources(userDAO.findAllResourceKeys(user.getKey())).
                 value(password).build());
 
         return doUpdate(user, userPatch);

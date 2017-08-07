@@ -86,11 +86,6 @@ public class JPAConf extends AbstractProvidedKeyEntity implements Conf {
     }
 
     @Override
-    public List<String> getResourceKeys() {
-        return Collections.emptyList();
-    }
-
-    @Override
     public List<? extends ExternalResource> getResources() {
         return Collections.emptyList();
     }

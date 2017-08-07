@@ -315,8 +315,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
 
-        Collection<String> currentResources = CollectionUtils.collect(
-                userDAO.findAllResources(user), EntityUtils.keyTransformer());
+        Collection<String> currentResources = userDAO.findAllResourceKeys(user.getKey());
 
         // fetch connObjectKeys before update
         Map<String, String> oldConnObjectKeys = getConnObjectKeys(user);
@@ -413,7 +412,8 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                         user.getRelationships().remove(relationship);
                         relationship.setLeftEnd(null);
 
-                        toBeDeprovisioned.addAll(relationship.getRightEnd().getResourceKeys());
+                        toBeDeprovisioned.addAll(
+                                anyObjectDAO.findAllResourceKeys(relationship.getRightEnd().getKey()));
                     }
 
                     if (patch.getOperation() == PatchOperation.ADD_REPLACE) {
@@ -428,7 +428,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
                             user.add(relationship);
 
-                            toBeProvisioned.addAll(otherEnd.getResourceKeys());
+                            toBeProvisioned.addAll(anyObjectDAO.findAllResourceKeys(otherEnd.getKey()));
                         } else {
                             LOG.error("{} cannot be assigned to {}", otherEnd, user);
 
@@ -462,7 +462,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                         attr.setMembership(null);
                     }
 
-                    toBeDeprovisioned.addAll(membership.getRightEnd().getResourceKeys());
+                    toBeDeprovisioned.addAll(groupDAO.findAllResourceKeys(membership.getRightEnd().getKey()));
                 }
 
                 if (membPatch.getOperation() == PatchOperation.ADD_REPLACE) {
@@ -504,7 +504,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                             scce.addException(invalidValues);
                         }
 
-                        toBeProvisioned.addAll(group.getResourceKeys());
+                        toBeProvisioned.addAll(groupDAO.findAllResourceKeys(group.getKey()));
 
                         // SYNCOPE-686: if password is invertible and we are adding resources with password mapping,
                         // ensure that they are counted for password propagation

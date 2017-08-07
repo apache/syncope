@@ -220,7 +220,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                 AnyTypeKind.GROUP,
                 key,
                 propByRes,
-                CollectionUtils.removeAll(groupDAO.authFind(key).getResourceKeys(), resources));
+                CollectionUtils.removeAll(groupDAO.findAllResourceKeys(key), resources));
         PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
 
         return propagationReporter.getStatuses();

@@ -73,7 +73,6 @@ import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValid
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.WorkflowResult;
-import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.apache.syncope.core.workflow.activiti.spring.DomainProcessEngine;
 import org.apache.syncope.core.workflow.api.WorkflowDefinitionFormat;
 import org.apache.syncope.core.workflow.api.WorkflowException;
@@ -413,9 +412,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         doExecuteTask(user, "delete", null);
 
         PropagationByResource propByRes = new PropagationByResource();
-        propByRes.set(
-                ResourceOperation.DELETE,
-                CollectionUtils.collect(userDAO.findAllResources(user), EntityUtils.keyTransformer()));
+        propByRes.set(ResourceOperation.DELETE, userDAO.findAllResourceKeys(user.getKey()));
 
         saveForFormSubmit(user, null, propByRes);
 
