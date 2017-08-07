@@ -323,7 +323,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
                     case GROUP:
                         try {
-                            resources = groupDAO.authFind(task.getEntityKey()).getResourceKeys();
+                            resources = groupDAO.findAllResourceKeys(task.getEntityKey());
                         } catch (Exception e) {
                             LOG.error("Could not read group {}", task.getEntityKey(), e);
                         }

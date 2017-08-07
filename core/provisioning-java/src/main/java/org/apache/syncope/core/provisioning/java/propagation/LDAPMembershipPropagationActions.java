@@ -86,7 +86,7 @@ public class LDAPMembershipPropagationActions extends DefaultPropagationActions 
                 List<String> groupConnObjectLinks = new ArrayList<>();
                 for (String groupKey : userDAO.findAllGroupKeys(user)) {
                     Group group = groupDAO.find(groupKey);
-                    if (group != null && group.getResourceKeys().contains(task.getResource().getKey())) {
+                    if (group != null && groupDAO.findAllResourceKeys(groupKey).contains(task.getResource().getKey())) {
                         LOG.debug("Evaluating connObjectLink for {}", group);
 
                         JexlContext jexlContext = new MapContext();

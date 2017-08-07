@@ -271,8 +271,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
 
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
 
-        Collection<String> currentResources = CollectionUtils.collect(
-                anyObjectDAO.findAllResources(anyObject), EntityUtils.keyTransformer());
+        Collection<String> currentResources = anyObjectDAO.findAllResourceKeys(anyObject.getKey());
 
         // fetch connObjectKeys before update
         Map<String, String> oldConnObjectKeys = getConnObjectKeys(anyObject);
@@ -282,7 +281,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
 
         // name
         if (anyObjectPatch.getName() != null && StringUtils.isNotBlank(anyObjectPatch.getName().getValue())) {
-            propByRes.addAll(ResourceOperation.UPDATE, anyObject.getResourceKeys());
+            propByRes.addAll(ResourceOperation.UPDATE, anyObjectDAO.findAllResourceKeys(anyObject.getKey()));
 
             anyObject.setName(anyObjectPatch.getName().getValue());
         }
@@ -311,7 +310,8 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                         anyObject.getRelationships().remove(relationship);
                         relationship.setLeftEnd(null);
 
-                        toBeDeprovisioned.addAll(relationship.getRightEnd().getResourceKeys());
+                        toBeDeprovisioned.addAll(
+                                anyObjectDAO.findAllResourceKeys(relationship.getRightEnd().getKey()));
                     }
 
                     if (patch.getOperation() == PatchOperation.ADD_REPLACE) {
@@ -336,7 +336,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
 
                                 anyObject.add(relationship);
 
-                                toBeProvisioned.addAll(otherEnd.getResourceKeys());
+                                toBeProvisioned.addAll(anyObjectDAO.findAllResourceKeys(otherEnd.getKey()));
                             } else {
                                 LOG.error("{} cannot be assigned to {}", otherEnd, anyObject);
 
@@ -370,7 +370,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                         attr.setOwner(null);
                     }
 
-                    toBeDeprovisioned.addAll(membership.getRightEnd().getResourceKeys());
+                    toBeDeprovisioned.addAll(groupDAO.findAllResourceKeys(membership.getRightEnd().getKey()));
                 }
 
                 if (membPatch.getOperation() == PatchOperation.ADD_REPLACE) {
@@ -412,7 +412,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                             scce.addException(invalidValues);
                         }
 
-                        toBeProvisioned.addAll(group.getResourceKeys());
+                        toBeProvisioned.addAll(groupDAO.findAllResourceKeys(group.getKey()));
                     } else {
                         LOG.error("{} cannot be assigned to {}", group, anyObject);
 

@@ -82,7 +82,7 @@ public class DeprovisionProducer extends AbstractProducer {
                             AnyTypeKind.GROUP,
                             key,
                             propByRes,
-                            CollectionUtils.removeAll(groupDAO.authFind(key).getResourceKeys(), resources));
+                            CollectionUtils.removeAll(groupDAO.findAllResourceKeys(key), resources));
                     propagationReporter = getPropagationTaskExecutor().execute(tasks, nullPriorityAsync);
                     exchange.getOut().setBody(propagationReporter.getStatuses());
                     break;

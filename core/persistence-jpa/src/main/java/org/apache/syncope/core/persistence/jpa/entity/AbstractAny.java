@@ -18,18 +18,13 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
-import java.util.ArrayList;
-import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.jpa.validation.entity.AnyCheck;
 
 @AnyCheck
@@ -75,11 +70,5 @@ public abstract class AbstractAny<P extends PlainAttr<?>> extends AbstractAnnota
     @Override
     public void setStatus(final String status) {
         this.status = status;
-    }
-
-    @Override
-    public List<String> getResourceKeys() {
-        return CollectionUtils.collect(
-                getResources(), EntityUtils.<ExternalResource>keyTransformer(), new ArrayList<String>());
     }
 }

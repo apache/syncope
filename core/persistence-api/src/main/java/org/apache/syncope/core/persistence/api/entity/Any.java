@@ -49,8 +49,6 @@ public interface Any<P extends PlainAttr<?>> extends AnnotatedEntity {
 
     boolean add(ExternalResource resource);
 
-    List<String> getResourceKeys();
-
     List<? extends ExternalResource> getResources();
 
     boolean add(AnyTypeClass auxClass);

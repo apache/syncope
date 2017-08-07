@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.dao;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
@@ -84,4 +85,6 @@ public interface AnyDAO<A extends Any<?>> extends DAO<A> {
     void delete(A any);
 
     List<String> findDynRealms(String key);
+
+    Collection<String> findAllResourceKeys(String key);
 }
