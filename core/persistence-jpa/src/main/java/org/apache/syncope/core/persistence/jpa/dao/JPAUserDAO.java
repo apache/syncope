@@ -35,6 +35,7 @@ import javax.persistence.TypedQuery;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
+import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -178,7 +179,8 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
         if (!AuthContextUtils.getUsername().equals(anonymousUser)
                 && !AuthContextUtils.getUsername().equals(user.getUsername())) {
 
-            Set<String> authRealms = AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_READ);
+            Set<String> authRealms = SetUtils.emptyIfNull(
+                    AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_READ));
             boolean authorized = IterableUtils.matchesAny(authRealms, new Predicate<String>() {
 
                 @Override
@@ -189,7 +191,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
             if (!authorized) {
                 authorized = !CollectionUtils.intersection(findDynRealms(user.getKey()), authRealms).isEmpty();
             }
-            if (authRealms == null || authRealms.isEmpty() || !authorized) {
+            if (authRealms.isEmpty() || !authorized) {
                 throw new DelegatedAdministrationException(
                         user.getRealm().getFullPath(), AnyTypeKind.USER.name(), user.getKey());
             }
