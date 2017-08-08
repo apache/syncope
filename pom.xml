@@ -2331,7 +2331,7 @@ under the License.
           <plugin>
             <groupId>org.asciidoctor</groupId>
             <artifactId>asciidoctor-maven-plugin</artifactId>
-            <version>1.5.6</version>
+            <version>1.5.5</version>
             <dependencies>
               <dependency>
                 <groupId>org.asciidoctor</groupId>
@@ -2341,7 +2341,7 @@ under the License.
               <dependency>
                 <groupId>org.asciidoctor</groupId>
                 <artifactId>asciidoctorj</artifactId>
-                <version>1.5.5</version>
+                <version>1.5.6</version>
               </dependency>
             </dependencies>
             <configuration>
