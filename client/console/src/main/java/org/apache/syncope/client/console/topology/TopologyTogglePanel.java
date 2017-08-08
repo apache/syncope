@@ -106,7 +106,9 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
         provisionModal = new BaseModal<>("outer");
         provisionModal.size(Modal.Size.Large);
-        provisionModal.addSubmitButton();
+        if (SyncopeConsoleSession.get().owns(StandardEntitlement.RESOURCE_UPDATE)) {
+            provisionModal.addSubmitButton();
+        }
         addOuterObject(provisionModal);
 
         historyModal = new BaseModal<>("outer");
@@ -227,10 +229,6 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                         build(BaseModal.CONTENT_ID, AjaxWizard.Mode.CREATE)));
 
                 modal.header(new Model<>(MessageFormat.format(getString("connector.new"), node.getKey())));
-
-                MetaDataRoleAuthorizationStrategy.
-                        authorize(modal.getForm(), RENDER, StandardEntitlement.CONNECTOR_CREATE);
-
                 modal.show(true);
             }
 
@@ -288,10 +286,6 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                         build(BaseModal.CONTENT_ID, AjaxWizard.Mode.CREATE)));
 
                 modal.header(new Model<>(MessageFormat.format(getString("resource.new"), node.getKey())));
-
-                MetaDataRoleAuthorizationStrategy.
-                        authorize(modal.getForm(), RENDER, StandardEntitlement.RESOURCE_CREATE);
-
                 modal.show(true);
             }
 
@@ -316,14 +310,13 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 modal.setFormModel(model);
 
                 target.add(modal.setContent(new ConnectorWizardBuilder(modelObject, pageRef).
-                        build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT)));
+                        build(BaseModal.CONTENT_ID,
+                                SyncopeConsoleSession.get().owns(StandardEntitlement.CONNECTOR_UPDATE)
+                                ? AjaxWizard.Mode.EDIT
+                                : AjaxWizard.Mode.READONLY)));
 
                 modal.header(
                         new Model<>(MessageFormat.format(getString("connector.edit"), modelObject.getDisplayName())));
-
-                MetaDataRoleAuthorizationStrategy.
-                        authorize(modal.getForm(), RENDER, StandardEntitlement.CONNECTOR_UPDATE);
-
                 modal.show(true);
             }
 
@@ -333,7 +326,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             }
 
         };
-        MetaDataRoleAuthorizationStrategy.authorize(edit, RENDER, StandardEntitlement.CONNECTOR_UPDATE);
+        MetaDataRoleAuthorizationStrategy.authorize(edit, RENDER, StandardEntitlement.CONNECTOR_READ);
         fragment.add(edit);
 
         AjaxLink<String> history = new IndicatingAjaxLink<String>("history") {
@@ -402,13 +395,12 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 modal.setFormModel(model);
 
                 target.add(modal.setContent(new ResourceWizardBuilder(modelObject, pageRef).
-                        build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT)));
+                        build(BaseModal.CONTENT_ID,
+                                SyncopeConsoleSession.get().owns(StandardEntitlement.RESOURCE_UPDATE)
+                                ? AjaxWizard.Mode.EDIT
+                                : AjaxWizard.Mode.READONLY)));
 
                 modal.header(new Model<>(MessageFormat.format(getString("resource.edit"), node.getKey())));
-
-                MetaDataRoleAuthorizationStrategy.authorize(
-                        modal.getForm(), RENDER, StandardEntitlement.RESOURCE_UPDATE);
-
                 modal.show(true);
             }
 
@@ -418,7 +410,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             }
 
         };
-        MetaDataRoleAuthorizationStrategy.authorize(edit, RENDER, StandardEntitlement.RESOURCE_UPDATE);
+        MetaDataRoleAuthorizationStrategy.authorize(edit, RENDER, StandardEntitlement.RESOURCE_READ);
         fragment.add(edit);
 
         AjaxLink<String> status = new IndicatingAjaxLink<String>("status") {
@@ -458,10 +450,6 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
                 target.add(provisionModal.setContent(new ResourceProvisionPanel(provisionModal, resource, pageRef)));
 
                 provisionModal.header(new Model<>(MessageFormat.format(getString("resource.edit"), node.getKey())));
-
-                MetaDataRoleAuthorizationStrategy.
-                        authorize(provisionModal.getForm(), RENDER, StandardEntitlement.RESOURCE_UPDATE);
-
                 provisionModal.show(true);
             }
 
@@ -471,7 +459,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             }
 
         };
-        MetaDataRoleAuthorizationStrategy.authorize(edit, RENDER, StandardEntitlement.RESOURCE_UPDATE);
+        MetaDataRoleAuthorizationStrategy.authorize(edit, RENDER, StandardEntitlement.RESOURCE_READ);
         fragment.add(provision);
 
         AjaxLink<String> explore = new IndicatingAjaxLink<String>("explore") {

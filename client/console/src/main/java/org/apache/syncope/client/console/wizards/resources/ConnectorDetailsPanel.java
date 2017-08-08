@@ -113,7 +113,7 @@ public class ConnectorDetailsPanel extends WizardStep {
                 new PropertyModel<String>(connInstanceTO, "bundleName"), false);
         ((DropDownChoice<String>) bundleName.getField()).setNullValid(true);
 
-        List<String> bundleNames = new ArrayList<String>();
+        List<String> bundleNames = new ArrayList<>();
         for (ConnBundleTO bundle : bundles) {
             if (!bundleNames.contains(bundle.getBundleName())) {
                 bundleNames.add(bundle.getBundleName());

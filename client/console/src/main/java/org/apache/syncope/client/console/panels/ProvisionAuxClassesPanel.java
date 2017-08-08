@@ -31,18 +31,22 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.util.ListModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ProvisionAuxClassesPanel extends Panel {
 
     private static final long serialVersionUID = -3962956154520358784L;
 
-    private final ProvisionTO provisionTO;
+    private static final Logger LOG = LoggerFactory.getLogger(ProvisionAuxClassesPanel.class);
 
-    public ProvisionAuxClassesPanel(final String id, final ProvisionTO provisionTO) {
+    private final ProvisionTO provision;
+
+    public ProvisionAuxClassesPanel(final String id, final ProvisionTO provision) {
         super(id);
         setOutputMarkupId(true);
 
-        this.provisionTO = provisionTO;
+        this.provision = provision;
     }
 
     @Override
@@ -51,17 +55,24 @@ public class ProvisionAuxClassesPanel extends Panel {
 
         IModel<List<String>> model;
         List<String> choices;
-        if (provisionTO == null) {
+        if (provision == null) {
             model = new ListModel<>(Collections.<String>emptyList());
             choices = Collections.emptyList();
         } else {
-            model = new PropertyModel<>(provisionTO, "auxClasses");
-
-            AnyTypeTO anyType = new AnyTypeRestClient().read(provisionTO.getAnyType());
+            model = new PropertyModel<>(provision, "auxClasses");
             choices = new ArrayList<>();
-            for (AnyTypeClassTO aux : new AnyTypeClassRestClient().list()) {
-                if (!anyType.getClasses().contains(aux.getKey())) {
-                    choices.add(aux.getKey());
+
+            AnyTypeTO anyType = null;
+            try {
+                anyType = new AnyTypeRestClient().read(provision.getAnyType());
+            } catch (Exception e) {
+                LOG.error("Could not read AnyType {}", provision.getAnyType(), e);
+            }
+            if (anyType != null) {
+                for (AnyTypeClassTO aux : new AnyTypeClassRestClient().list()) {
+                    if (!anyType.getClasses().contains(aux.getKey())) {
+                        choices.add(aux.getKey());
+                    }
                 }
             }
         }
@@ -69,7 +80,7 @@ public class ProvisionAuxClassesPanel extends Panel {
                 new AjaxPalettePanel.Builder<String>().build("auxClasses", model, new ListModel<>(choices)).
                         hideLabel().
                         setOutputMarkupId(true).
-                        setEnabled(provisionTO != null));
+                        setEnabled(provision != null));
     }
 
 }
