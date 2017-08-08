@@ -71,12 +71,6 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
         return (SyncopeEnduserApplication) WebApplication.get();
     }
 
-    private String version;
-
-    private String site;
-
-    private String license;
-
     private String domain;
 
     private String adminUser;
@@ -102,12 +96,6 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
         // read enduser.properties
         Properties props = PropertyUtils.read(getClass(), ENDUSER_PROPERTIES, "enduser.directory").getLeft();
 
-        version = props.getProperty("version");
-        Args.notNull(version, "<version>");
-        site = props.getProperty("site");
-        Args.notNull(site, "<site>");
-        license = props.getProperty("license");
-        Args.notNull(license, "<license>");
         domain = props.getProperty("domain", SyncopeConstants.MASTER_DOMAIN);
         adminUser = props.getProperty("adminUser");
         Args.notNull(adminUser, "<adminUser>");
@@ -260,18 +248,6 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
     @Override
     public Session newSession(final Request request, final Response response) {
         return new SyncopeEnduserSession(request);
-    }
-
-    public String getVersion() {
-        return version;
-    }
-
-    public String getSite() {
-        return site;
-    }
-
-    public String getLicense() {
-        return license;
     }
 
     public String getDomain() {

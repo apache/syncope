@@ -136,9 +136,6 @@ under the License.
       </div>
 
       <footer class="main-footer">
-        <div class="pull-right hidden-xs">
-          <b>Version</b> <label wicket:id="version"/>
-        </div>
         <strong>Copyright &copy; 2010&#45;<span id="spanYear"></span> 
           <a href="http://www.apache.org/" target="_blank">The Apache Software Foundation</a>.</strong>
         All rights reserved.
@@ -148,6 +145,17 @@ under the License.
         <div class="tab-content tab-pane">
           <h3 class="control-sidebar-heading"><wicket:message key="systemInfo"/></h3>
           <ul class="control-sidebar-menu">
+            <li>
+              <a href="#">
+                <i class="menu-icon fa fa-code-fork bg-gray"></i>
+
+                <div class="menu-info">
+                  <h4 class="control-sidebar-subheading"><wicket:message key="version"/></h4>
+
+                  <p><span wicket:id="version" style="text-decoration: underline;"/></p>
+                </div>
+              </a>
+            </li>
             <li>
               <a href="#">
                 <i class="menu-icon fa fa-desktop bg-aqua"></i>

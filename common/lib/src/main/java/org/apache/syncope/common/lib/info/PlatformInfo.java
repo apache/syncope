@@ -37,6 +37,8 @@ public class PlatformInfo extends AbstractBaseBean {
 
     private String version;
 
+    private String buildNumber;
+
     private boolean selfRegAllowed;
 
     private boolean pwdResetAllowed;
@@ -105,6 +107,10 @@ public class PlatformInfo extends AbstractBaseBean {
 
     public String getVersion() {
         return version;
+    }
+
+    public String getBuildNumber() {
+        return buildNumber;
     }
 
     public boolean isSelfRegAllowed() {
@@ -312,6 +318,10 @@ public class PlatformInfo extends AbstractBaseBean {
 
     public void setVersion(final String version) {
         this.version = version;
+    }
+
+    public void setBuildNumber(final String buildNumber) {
+        this.buildNumber = buildNumber;
     }
 
     public void setSelfRegAllowed(final boolean selfRegAllowed) {
