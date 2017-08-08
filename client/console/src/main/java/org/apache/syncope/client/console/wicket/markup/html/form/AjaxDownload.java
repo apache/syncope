@@ -18,7 +18,11 @@
  */
 package org.apache.syncope.client.console.wicket.markup.html.form;
 
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.commons.HttpResourceStream;
+import org.apache.syncope.client.console.init.MIMETypesLoader;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.AbstractAjaxBehavior;
 import org.apache.wicket.request.handler.resource.ResourceStreamRequestHandler;
@@ -30,12 +34,25 @@ public abstract class AjaxDownload extends AbstractAjaxBehavior {
 
     private final String name;
 
+    private static final MIMETypesLoader MIME_TYPES_INITIALIZER = (MIMETypesLoader) SyncopeConsoleApplication.get().
+            getServletContext().getAttribute("MIMETYPES_LOADER");
+
+    private String fileKey;
+
+    private String mimeType;
+
     private final boolean addAntiCache;
 
     public AjaxDownload(final String name, final boolean addAntiCache) {
         super();
         this.name = name;
         this.addAntiCache = addAntiCache;
+    }
+
+    public AjaxDownload(final String name, final String fileKey, final String mimeType, final boolean addAntiCache) {
+        this(name, addAntiCache);
+        this.fileKey = fileKey;
+        this.mimeType = mimeType;
     }
 
     public void initiate(final AjaxRequestTarget target) {
@@ -52,7 +69,15 @@ public abstract class AjaxDownload extends AbstractAjaxBehavior {
     public void onRequest() {
         HttpResourceStream stream = getResourceStream();
         ResourceStreamRequestHandler handler = new ResourceStreamRequestHandler(stream);
-        handler.setFileName(stream.getFilename() == null ? name : stream.getFilename());
+        String key = StringUtils.isNotBlank(fileKey) ? fileKey + "_" : "";
+        String ext = "";
+        if (StringUtils.isNotBlank(mimeType)) {
+            String extByMimeType = MIME_TYPES_INITIALIZER.getExtensionByMimeType(mimeType);
+            ext = !extByMimeType.isEmpty() ? ("." + extByMimeType) : ".bin";
+        }
+        String fileName = key + (stream.getFilename() == null ? name : stream.getFilename()) + ext;
+
+        handler.setFileName(fileName);
         handler.setContentDisposition(ContentDisposition.ATTACHMENT);
         getComponent().getRequestCycle().scheduleRequestHandlerAfterCurrent(handler);
     }

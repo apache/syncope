@@ -18,13 +18,13 @@
  */
 package org.apache.syncope.client.console.init;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
+import java.util.Map;
 import org.apache.wicket.util.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,21 +33,23 @@ public class MIMETypesLoader {
 
     private static final Logger LOG = LoggerFactory.getLogger(MIMETypesLoader.class);
 
-    private List<String> mimeTypes;
+    private Map<String, String> mimeTypes;
+
+    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     public void load() {
-        if (CollectionUtils.isEmpty(mimeTypes)) {
-            Set<String> mediaTypes = new HashSet<>();
-            this.mimeTypes = new ArrayList<>();
+        if (mimeTypes == null || mimeTypes.isEmpty()) {
+            mimeTypes = new HashMap<>();
             try {
-                final String mimeTypesFile = IOUtils.toString(getClass().getResourceAsStream("/MIMETypes"));
-                for (String fileRow : mimeTypesFile.split("\n")) {
-                    if (StringUtils.isNotBlank(fileRow) && !fileRow.startsWith("#")) {
-                        mediaTypes.add(fileRow);
+                JsonNode jsonNode = MAPPER.readTree(
+                        IOUtils.toString(getClass().getResourceAsStream("/MIMETypes.json")));
+                for (JsonNode node : jsonNode) {
+                    JsonNode type = node.path("name");
+                    JsonNode ext = node.path("extension");
+                    if (!type.isMissingNode()) {
+                        mimeTypes.put(type.asText(), !ext.isMissingNode() ? ext.asText() : "");
                     }
                 }
-                this.mimeTypes.addAll(mediaTypes);
-                Collections.sort(this.mimeTypes);
             } catch (Exception e) {
                 LOG.error("Error reading file MIMETypes from resources", e);
             }
@@ -56,6 +58,12 @@ public class MIMETypesLoader {
 
     public List<String> getMimeTypes() {
         LOG.debug("Returning loaded MIME types list {}", mimeTypes);
-        return mimeTypes;
+        List<String> list = new ArrayList<>(mimeTypes.keySet());
+        Collections.sort(list);
+        return list;
+    }
+
+    public String getExtensionByMimeType(final String mimeType) {
+        return mimeTypes.get(mimeType);
     }
 }
