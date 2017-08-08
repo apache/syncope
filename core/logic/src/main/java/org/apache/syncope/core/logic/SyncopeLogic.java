@@ -147,6 +147,9 @@ public class SyncopeLogic extends AbstractLogic<AbstractBaseBean> {
     @Resource(name = "version")
     private String version;
 
+    @Resource(name = "buildNumber")
+    private String buildNumber;
+
     @Autowired
     private ConnIdBundleManager bundleManager;
 
@@ -198,6 +201,7 @@ public class SyncopeLogic extends AbstractLogic<AbstractBaseBean> {
             if (PLATFORM_INFO == null) {
                 PLATFORM_INFO = new PlatformInfo();
                 PLATFORM_INFO.setVersion(version);
+                PLATFORM_INFO.setBuildNumber(buildNumber);
 
                 if (bundleManager.getLocations() != null) {
                     for (URI location : bundleManager.getLocations()) {

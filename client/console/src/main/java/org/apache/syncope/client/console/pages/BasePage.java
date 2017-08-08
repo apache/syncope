@@ -35,6 +35,7 @@ import org.apache.syncope.client.console.topology.Topology;
 import org.apache.syncope.client.console.wicket.markup.head.MetaHeaderItem;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.widgets.ApprovalsWidget;
+import org.apache.syncope.common.lib.info.PlatformInfo;
 import org.apache.syncope.common.lib.info.SystemInfo;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.AttributeModifier;
@@ -98,13 +99,20 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
         body.addOrReplace(notificationPanel.setOutputMarkupId(true));
 
         // header, footer
-        body.add(new Label("version", SyncopeConsoleApplication.get().getVersion()));
         body.add(new Label("username", SyncopeConsoleSession.get().getSelfTO().getUsername()));
 
         approvalsWidget = new ApprovalsWidget("approvalsWidget", getPageReference());
         body.add(approvalsWidget.setRenderBodyOnly(true));
 
         // right sidebar
+        PlatformInfo platformInfo = SyncopeConsoleSession.get().getPlatformInfo();
+        Label version = new Label("version", platformInfo.getVersion());
+        String versionLink = platformInfo.getVersion().endsWith("-SNAPSHOT")
+                ? "https://git-wip-us.apache.org/repos/asf?p=syncope.git;a=commit;h=" + platformInfo.getBuildNumber()
+                : "https://cwiki.apache.org/confluence/display/SYNCOPE/Jazz";
+        version.add(new AttributeModifier("onclick", "window.open('" + versionLink + "', '_blank')"));
+        body.add(version);
+
         SystemInfo systemInfo = SyncopeConsoleSession.get().getSystemInfo();
         body.add(new Label("hostname", systemInfo.getHostname()));
         body.add(new Label("processors", systemInfo.getAvailableProcessors()));
@@ -169,7 +177,7 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
 
         liContainer = new WebMarkupContainer(getLIContainerId("workflow"));
         liContainer.setOutputMarkupPlaceholderTag(true);
-        liContainer.setVisible(SyncopeConsoleSession.get().getPlatformInfo().isUserWorkflowAdapterSupportEdit());
+        liContainer.setVisible(platformInfo.isUserWorkflowAdapterSupportEdit());
         confULContainer.add(liContainer);
         link = BookmarkablePageLinkBuilder.build("workflow", Workflow.class);
         MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, StandardEntitlement.WORKFLOW_DEF_GET);
