@@ -31,8 +31,10 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
 import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
@@ -74,7 +76,9 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             if (realmPath.startsWith("/")) {
                 Realm realm = realmDAO.findByFullPath(realmPath);
                 if (realm == null) {
-                    LOG.warn("Ignoring invalid realm {}", realmPath);
+                    SyncopeClientException noRealm = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
+                    noRealm.getElements().add("Invalid realm specified: " + realmPath);
+                    throw noRealm;
                 } else {
                     CollectionUtils.collect(
                             realmDAO.findDescendants(realm), EntityUtils.<Realm>keyTransformer(), realmKeys);
