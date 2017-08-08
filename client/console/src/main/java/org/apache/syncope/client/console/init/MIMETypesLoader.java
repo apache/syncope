@@ -33,37 +33,40 @@ public class MIMETypesLoader {
 
     private static final Logger LOG = LoggerFactory.getLogger(MIMETypesLoader.class);
 
-    private Map<String, String> mimeTypes;
-
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
+    private Map<String, String> mimeTypesMap;
+
+    private List<String> mimeTypes;
+
     public void load() {
-        if (mimeTypes == null || mimeTypes.isEmpty()) {
-            mimeTypes = new HashMap<>();
-            try {
-                JsonNode jsonNode = MAPPER.readTree(
-                        IOUtils.toString(getClass().getResourceAsStream("/MIMETypes.json")));
-                for (JsonNode node : jsonNode) {
-                    JsonNode type = node.path("name");
-                    JsonNode ext = node.path("extension");
-                    if (!type.isMissingNode()) {
-                        mimeTypes.put(type.asText(), !ext.isMissingNode() ? ext.asText() : "");
-                    }
+        mimeTypesMap = new HashMap<>();
+        try {
+            JsonNode jsonNode = MAPPER.readTree(IOUtils.toString(getClass().getResourceAsStream("/MIMETypes.json")));
+            for (JsonNode node : jsonNode) {
+                JsonNode type = node.path("name");
+                JsonNode ext = node.path("extension");
+                if (!type.isMissingNode()) {
+                    mimeTypesMap.put(type.asText(), ext.isMissingNode() ? "" : ext.asText());
                 }
-            } catch (Exception e) {
-                LOG.error("Error reading file MIMETypes from resources", e);
             }
+
+            mimeTypesMap = Collections.unmodifiableMap(mimeTypesMap);
+            LOG.debug("MIME types loaded: {}", mimeTypesMap);
+
+            mimeTypes = new ArrayList<>(mimeTypesMap.keySet());
+            Collections.sort(mimeTypes);
+            mimeTypes = Collections.unmodifiableList(mimeTypes);
+        } catch (Exception e) {
+            LOG.error("Error reading file MIMETypes from resources", e);
         }
     }
 
     public List<String> getMimeTypes() {
-        LOG.debug("Returning loaded MIME types list {}", mimeTypes);
-        List<String> list = new ArrayList<>(mimeTypes.keySet());
-        Collections.sort(list);
-        return list;
+        return mimeTypes;
     }
 
-    public String getExtensionByMimeType(final String mimeType) {
-        return mimeTypes.get(mimeType);
+    public String getFileExt(final String mimeType) {
+        return mimeTypesMap.get(mimeType);
     }
 }

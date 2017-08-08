@@ -29,6 +29,7 @@ import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.PropertyList;
+import org.apache.syncope.client.console.init.ConsoleInitializer;
 import org.apache.syncope.client.console.init.MIMETypesLoader;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
@@ -54,8 +55,8 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
 
     private static final long serialVersionUID = 5378100729213456451L;
 
-    private static final MIMETypesLoader MIME_TYPES_INITIALIZER = (MIMETypesLoader) SyncopeConsoleApplication.get().
-            getServletContext().getAttribute("MIMETYPES_LOADER");
+    private static final MIMETypesLoader MIME_TYPES_LOADER = (MIMETypesLoader) SyncopeConsoleApplication.get().
+            getServletContext().getAttribute(ConsoleInitializer.MIMETYPES_LOADER);
 
     private final MultiFieldPanel<String> enumerationValues;
 
@@ -393,7 +394,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
             cipherAlgorithm.setModelObject(null);
 
             binaryParams.setVisible(true);
-            mimeType.setChoices(MIME_TYPES_INITIALIZER.getMimeTypes());
+            mimeType.setChoices(MIME_TYPES_LOADER.getMimeTypes());
         } else {
             conversionParams.setVisible(false);
             conversionPattern.setModelObject(null);
