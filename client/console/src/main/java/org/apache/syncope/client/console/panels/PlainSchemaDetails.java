@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.PropertyList;
@@ -53,7 +54,8 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
 
     private static final long serialVersionUID = 5378100729213456451L;
 
-    private static final MIMETypesLoader MIME_TYPES_INITIALIZER = new MIMETypesLoader();
+    private static final MIMETypesLoader MIME_TYPES_INITIALIZER = (MIMETypesLoader) SyncopeConsoleApplication.get().
+            getServletContext().getAttribute("MIMETYPES_LOADER");
 
     private final MultiFieldPanel<String> enumerationValues;
 
@@ -391,7 +393,6 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
             cipherAlgorithm.setModelObject(null);
 
             binaryParams.setVisible(true);
-            MIME_TYPES_INITIALIZER.load();
             mimeType.setChoices(MIME_TYPES_INITIALIZER.getMimeTypes());
         } else {
             conversionParams.setVisible(false);

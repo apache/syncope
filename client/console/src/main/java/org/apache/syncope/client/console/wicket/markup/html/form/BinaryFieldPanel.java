@@ -80,11 +80,10 @@ public class BinaryFieldPanel extends FieldPanel<String> {
 
     private final AbstractBinaryPreviewer previewer;
 
-    private final Label previewLabel;
-
     private final IndicatingAjaxLink<Void> resetLink;
 
-    public BinaryFieldPanel(final String id, final String name, final IModel<String> model, final String mimeType) {
+    public BinaryFieldPanel(final String id, final String name, final IModel<String> model, final String mimeType,
+            final String fileKey) {
         super(id, name, model);
         this.mimeType = mimeType;
 
@@ -129,10 +128,9 @@ public class BinaryFieldPanel extends FieldPanel<String> {
         field = new TextField<>("textField", model);
         add(field.setLabel(new Model<>(name)).setOutputMarkupId(true));
 
-        previewLabel = new Label("preview", StringUtils.isBlank(mimeType) ? StringUtils.EMPTY : "(" + mimeType + ")");
-        uploadForm.add(previewLabel);
+        uploadForm.add(new Label("preview", StringUtils.isBlank(mimeType) ? StringUtils.EMPTY : "(" + mimeType + ")"));
 
-        fileDownload = new AjaxDownload(name, true) {
+        fileDownload = new AjaxDownload(name, fileKey, mimeType, true) {
 
             private static final long serialVersionUID = 7203445884857810583L;
 
@@ -192,7 +190,7 @@ public class BinaryFieldPanel extends FieldPanel<String> {
                         uploadForm.addOrReplace(fileUpload);
                     }
 
-                    setVisiblePhotoButtons(StringUtils.isNotBlank(uploaded));
+                    setVisibleFileButtons(StringUtils.isNotBlank(uploaded));
                     downloadLink.setEnabled(StringUtils.isNotBlank(uploaded));
 
                     target.add(uploadForm);
@@ -211,7 +209,7 @@ public class BinaryFieldPanel extends FieldPanel<String> {
                 target.add(field);
                 downloadLink.setEnabled(false);
                 container.addOrReplace(emptyFragment);
-                setVisiblePhotoButtons(false);
+                setVisibleFileButtons(false);
                 target.add(uploadForm);
             }
 
@@ -236,8 +234,7 @@ public class BinaryFieldPanel extends FieldPanel<String> {
         uploadForm.addOrReplace(container);
     }
 
-    private void setVisiblePhotoButtons(final boolean visible) {
-        previewLabel.setVisible(visible);
+    private void setVisibleFileButtons(final boolean visible) {
         resetLink.setVisible(visible);
         downloadLink.setVisible(visible);
     }
@@ -266,7 +263,7 @@ public class BinaryFieldPanel extends FieldPanel<String> {
         }
 
         downloadLink.setEnabled(StringUtils.isNotBlank(modelObj));
-        setVisiblePhotoButtons(StringUtils.isNotBlank(modelObj));
+        setVisibleFileButtons(StringUtils.isNotBlank(modelObj));
         return this;
     }
 }

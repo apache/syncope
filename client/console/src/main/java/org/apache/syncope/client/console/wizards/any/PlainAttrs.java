@@ -43,10 +43,13 @@ import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
@@ -71,6 +74,8 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
     protected final AnyTO previousObject;
 
+    protected String fileKey = "";
+
     public <T extends AnyTO> PlainAttrs(
             final AnyWrapper<T> modelObject,
             final Form<?> form,
@@ -80,6 +85,14 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
         super(modelObject, anyTypeClasses, whichPlainAttrs);
         this.mode = mode;
+
+        if (modelObject.getInnerObject() instanceof UserTO) {
+            fileKey = UserTO.class.cast(modelObject.getInnerObject()).getUsername();
+        } else if (modelObject.getInnerObject() instanceof GroupTO) {
+            fileKey = GroupTO.class.cast(modelObject.getInnerObject()).getName();
+        } else if (modelObject.getInnerObject() instanceof AnyObjectTO) {
+            fileKey = AnyObjectTO.class.cast(modelObject.getInnerObject()).getName();
+        }
 
         if (modelObject instanceof UserWrapper) {
             previousObject = UserWrapper.class.cast(modelObject).getPreviousUserTO();
@@ -298,7 +311,8 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                 break;
 
             case Binary:
-                panel = new BinaryFieldPanel("panel", schemaTO.getKey(), new Model<String>(), schemaTO.getMimeType());
+                panel = new BinaryFieldPanel("panel", schemaTO.getKey(), new Model<String>(), schemaTO.getMimeType(),
+                        fileKey);
 
                 if (required) {
                     panel.addRequiredLabel();
