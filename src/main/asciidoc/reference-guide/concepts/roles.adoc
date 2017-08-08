@@ -81,3 +81,25 @@ The practical consequence of this setting is that Users owning a Group (either b
 or members of the owning group) is that they are entitled to perform all operations (create, update, delete, ...) on the
 owned group, regardless of the Realm.
 ====
+
+[[delegated-administration-console]]
+[TIP]
+.Delegated Administration via Admin Console
+====
+When administering via <<REST>>, the entitlements to be granted to delegated administrators are straightforward:
+`USER_CREATE` for certain <<Realms>> will allow to create users under such Realms.
+
+When using the <<Admin Console>>, instead, more entitlements are generally required: this because the underlying
+implementation takes care of simplifying the UX as much as possible. +
+For example, the following entitlements are normally required to be granted for user administration, besides the actual
+`USER_CREATE`, `USER_UPDATE` and `USER_DELETE`:
+
+. `USER_SEARCH`
+. `USER_LIST`
+. `ANYTYPECLASS_READ`
+. `ANYTYPE_LIST`
+. `ANYTYPECLASS_LIST`
+. `USER_READ`
+. `ANYTYPE_READ`
+. `REALM_LIST`
+====
