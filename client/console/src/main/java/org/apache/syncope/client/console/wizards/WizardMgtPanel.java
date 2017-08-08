@@ -296,7 +296,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
     public MarkupContainer addInnerObject(final Component... childs) {
         return initialFragment.add(childs);
     }
-    
+
     /**
      * Add or replace object inside the main container.
      *
@@ -402,7 +402,7 @@ public abstract class WizardMgtPanel<T extends Serializable> extends Panel imple
      */
     public abstract static class Builder<T extends Serializable> implements Serializable {
 
-        private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = 1908836274665387084L;
 
         protected final PageReference pageRef;
 

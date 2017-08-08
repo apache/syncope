@@ -168,7 +168,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                     ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
                 }
             }
-        }, ActionLink.ActionType.MAPPING, StandardEntitlement.RESOURCE_UPDATE).
+        }, ActionLink.ActionType.MAPPING, StandardEntitlement.RESOURCE_READ).
                 addAction(new ActionLink<ResourceProvision>() {
 
                     private static final long serialVersionUID = -7780999687733432439L;
@@ -225,6 +225,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
         builder.addNewItemPanelBuilder(wizard);
 
         list = builder.build("provision");
+        list.setReadOnly(!SyncopeConsoleSession.get().owns(StandardEntitlement.RESOURCE_UPDATE));
 
         addAjaxLink = new AjaxLink<ResourceProvision>("add") {
 
@@ -243,14 +244,12 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
         // toggle panel, used to choose 'type' before starting wizard - SYNCOPE-1167
         final ResourceProvision provision = new ResourceProvision();
         provision.setAnyType("");
-        objectTypeTogglePanel =
-                new ObjectTypeTogglePanel("objectTypeToggle", provision, getAnyTypes(), pageRef) {
+        objectTypeTogglePanel = new ObjectTypeTogglePanel("objectTypeToggle", provision, getAnyTypes(), pageRef) {
 
             private static final long serialVersionUID = 7878063325027015067L;
 
             @Override
             protected void onSubmit(final String type, final AjaxRequestTarget target) {
-
                 provision.setAnyType(type);
 
                 send(list, Broadcast.BREADTH,
@@ -348,8 +347,10 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
     }
 
     private void checkAddButton() {
-        boolean test = !getAnyTypes().getObject().isEmpty();
-        addAjaxLink.setVisible(test);
-        objectTypeTogglePanel.setEnabled(test);
+        boolean enabled =
+                SyncopeConsoleSession.get().owns(StandardEntitlement.RESOURCE_UPDATE)
+                && !getAnyTypes().getObject().isEmpty();
+        addAjaxLink.setVisible(enabled);
+        objectTypeTogglePanel.setEnabled(enabled);
     }
 }

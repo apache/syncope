@@ -36,6 +36,8 @@ import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.util.ListModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Resource mapping panel.
@@ -43,6 +45,8 @@ import org.apache.wicket.model.util.ListModel;
 public class ResourceMappingPanel extends AbstractMappingPanel {
 
     private static final long serialVersionUID = -7982691107029848579L;
+
+    private static final Logger LOG = LoggerFactory.getLogger(ResourceMappingPanel.class);
 
     /**
      * External resource provisioning configuration instance to be updated.
@@ -120,12 +124,27 @@ public class ResourceMappingPanel extends AbstractMappingPanel {
             choices.add("name");
             choices.add("fullpath");
         } else {
-            AnyTypeTO anyTypeTO = anyTypeRestClient.read(provision.getAnyType());
+            AnyTypeTO anyType = null;
+            try {
+                anyType = anyTypeRestClient.read(provision.getAnyType());
+            } catch (Exception e) {
+                LOG.error("Could not read AnyType {}", provision.getAnyType(), e);
+            }
 
             List<AnyTypeClassTO> anyTypeClassTOs = new ArrayList<>();
-            anyTypeClassTOs.addAll(anyTypeClassRestClient.list(anyTypeTO.getClasses()));
+            if (anyType != null) {
+                try {
+                    anyTypeClassTOs.addAll(anyTypeClassRestClient.list(anyType.getClasses()));
+                } catch (Exception e) {
+                    LOG.error("Could not read AnyType classes for {}", anyType.getClasses(), e);
+                }
+            }
             for (String auxClass : provision.getAuxClasses()) {
-                anyTypeClassTOs.add(anyTypeClassRestClient.read(auxClass));
+                try {
+                    anyTypeClassTOs.add(anyTypeClassRestClient.read(auxClass));
+                } catch (Exception e) {
+                    LOG.error("Could not read AnyTypeClass for {}", auxClass, e);
+                }
             }
 
             switch (provision.getAnyType()) {
