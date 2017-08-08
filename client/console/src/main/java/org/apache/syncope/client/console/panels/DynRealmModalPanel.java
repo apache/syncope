@@ -65,6 +65,7 @@ public class DynRealmModalPanel extends AbstractModalPanel<DynRealmWrapper> {
         AjaxTextFieldPanel key = new AjaxTextFieldPanel(
                 "key", "key", new PropertyModel<String>(dynRealmWrapper.getInnerObject(), "key"), false);
         key.setReadOnly(!create);
+        key.setRequired(true);
         add(key);
 
         add(new Accordion("cond", Collections.<ITab>singletonList(
