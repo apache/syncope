@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.client.console.wicket.markup.html.form;
 
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.commons.HttpResourceStream;
+import org.apache.syncope.client.console.init.ConsoleInitializer;
 import org.apache.syncope.client.console.init.MIMETypesLoader;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.AbstractAjaxBehavior;
@@ -32,10 +32,10 @@ public abstract class AjaxDownload extends AbstractAjaxBehavior {
 
     private static final long serialVersionUID = 7203445884857810583L;
 
-    private final String name;
+    private static final MIMETypesLoader MIME_TYPES_LOADER = (MIMETypesLoader) SyncopeConsoleApplication.get().
+            getServletContext().getAttribute(ConsoleInitializer.MIMETYPES_LOADER);
 
-    private static final MIMETypesLoader MIME_TYPES_INITIALIZER = (MIMETypesLoader) SyncopeConsoleApplication.get().
-            getServletContext().getAttribute("MIMETYPES_LOADER");
+    private final String name;
 
     private String fileKey;
 
@@ -72,8 +72,8 @@ public abstract class AjaxDownload extends AbstractAjaxBehavior {
         String key = StringUtils.isNotBlank(fileKey) ? fileKey + "_" : "";
         String ext = "";
         if (StringUtils.isNotBlank(mimeType)) {
-            String extByMimeType = MIME_TYPES_INITIALIZER.getExtensionByMimeType(mimeType);
-            ext = !extByMimeType.isEmpty() ? ("." + extByMimeType) : ".bin";
+            String extByMimeType = MIME_TYPES_LOADER.getFileExt(mimeType);
+            ext = StringUtils.isBlank(extByMimeType) ? ".bin" : ("." + extByMimeType);
         }
         String fileName = key + (stream.getFilename() == null ? name : stream.getFilename()) + ext;
 
