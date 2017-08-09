@@ -28,9 +28,11 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
+import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
+import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AnyTypeCond;
 import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
@@ -86,7 +88,9 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
             if (realmPath.startsWith("/")) {
                 Realm realm = realmDAO.findByFullPath(realmPath);
                 if (realm == null) {
-                    LOG.warn("Ignoring invalid realm {}", realmPath);
+                    SyncopeClientException noRealm = SyncopeClientException.build(ClientExceptionType.InvalidRealm);
+                    noRealm.getElements().add("Invalid realm specified: " + realmPath);
+                    throw noRealm;
                 } else {
                     for (Realm descendant : realmDAO.findDescendants(realm)) {
                         builder.add(QueryBuilders.termQuery("realm", descendant.getFullPath()));
