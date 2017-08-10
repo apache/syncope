@@ -363,6 +363,9 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
         }
 
         // 3. validate the SAML response and, if needed, decrypt the provided assertion(s)
+        if (samlResponse.getIssuer() == null || samlResponse.getIssuer().getValue() == null) {
+            throw new IllegalArgumentException("The SAML Response must contain an Issuer");
+        }
         final SAML2IdPEntity idp = getIdP(samlResponse.getIssuer().getValue());
         if (idp.getConnObjectKeyItem() == null) {
             throw new IllegalArgumentException("No mapping provided for SAML 2.0 IdP '" + idp.getId() + "'");
