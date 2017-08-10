@@ -102,6 +102,9 @@ public class SAML2ReaderWriter {
         if (pubKeyAlgo.equalsIgnoreCase("DSA")) {
             sigAlgo = SignatureConstants.ALGO_ID_SIGNATURE_DSA_SHA1;
             jceSigAlgo = "SHA1withDSA";
+        } else if (pubKeyAlgo.equalsIgnoreCase("EC")) {
+            sigAlgo = SignatureConstants.ALGO_ID_SIGNATURE_ECDSA_SHA1;
+            jceSigAlgo = "SHA1withECDSA";
         }
 
         callbackHandler = new SAMLSPCallbackHandler(loader.getKeyPass());
