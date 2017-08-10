@@ -74,6 +74,7 @@ public abstract class AbstractLogsPanel<T extends AbstractBaseBean> extends Pane
 
                     loggerTOs.hideLabel();
                     loggerTOs.setChoices(Arrays.asList(LoggerLevel.values()));
+                    loggerTOs.setNullValid(false);
                     loggerTOs.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
                         private static final long serialVersionUID = -1107858522700306810L;

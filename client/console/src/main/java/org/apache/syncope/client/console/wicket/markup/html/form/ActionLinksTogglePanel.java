@@ -22,31 +22,13 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.dialog.Modal;
 import java.io.Serializable;
 import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.panels.TogglePanel;
-import org.apache.syncope.client.console.policies.PolicyRuleDirectoryPanel.PolicyRuleWrapper;
-import org.apache.syncope.client.console.reports.ReportletDirectoryPanel.ReportletWrapper;
-import org.apache.syncope.common.lib.to.AnyObjectTO;
-import org.apache.syncope.common.lib.to.EntityTO;
-import org.apache.syncope.common.lib.to.GroupTO;
-import org.apache.syncope.common.lib.to.ReportTO;
-import org.apache.syncope.common.lib.to.UserTO;
-import org.apache.syncope.common.lib.to.AttrTO;
-import org.apache.syncope.common.lib.to.SecurityQuestionTO;
-import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
-import org.apache.syncope.common.lib.to.AccessTokenTO;
-import org.apache.syncope.common.lib.to.ExecTO;
-import org.apache.syncope.common.lib.to.JobTO;
-import org.apache.syncope.common.lib.to.SchedTaskTO;
-import org.apache.syncope.common.lib.to.WorkflowDefinitionTO;
-import org.apache.syncope.common.lib.to.WorkflowFormTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.panel.Fragment;
-import org.apache.wicket.model.ResourceModel;
 
 public class ActionLinksTogglePanel<T extends Serializable> extends TogglePanel<Serializable> {
 
@@ -69,50 +51,8 @@ public class ActionLinksTogglePanel<T extends Serializable> extends TogglePanel<
 
     public void toggleWithContent(
             final AjaxRequestTarget target, final ActionsPanel<T> actionsPanel, final T modelObject) {
-        final String header;
-        if (modelObject == null) {
-            header = new ResourceModel("actions", StringUtils.EMPTY).getObject();
-        } else if (modelObject instanceof UserTO) {
-            header = ((UserTO) modelObject).getUsername();
-        } else if (modelObject instanceof GroupTO) {
-            header = ((GroupTO) modelObject).getName();
-        } else if (modelObject instanceof ReportTO) {
-            header = ((ReportTO) modelObject).getName();
-        } else if (modelObject instanceof AnyObjectTO) {
-            header = ((AnyObjectTO) modelObject).getName();
-        } else if (modelObject instanceof AttrTO) {
-            header = ((AttrTO) modelObject).getSchema();
-        } else if (modelObject instanceof AbstractPolicyTO) {
-            header = ((AbstractPolicyTO) modelObject).getDescription();
-        } else if (modelObject instanceof SecurityQuestionTO) {
-            header = ((SecurityQuestionTO) modelObject).getContent();
-        } else if (modelObject instanceof AccessTokenTO) {
-            header = ((AccessTokenTO) modelObject).getOwner();
-        } else if (modelObject instanceof ExecTO) {
-            header = ((ExecTO) modelObject).getKey();
-        } else if (modelObject instanceof WorkflowDefinitionTO) {
-            header = ((WorkflowDefinitionTO) modelObject).getName();
-        } else if (modelObject instanceof SchedTaskTO) {
-            header = ((SchedTaskTO) modelObject).getName();
-        } else if (modelObject instanceof WorkflowFormTO) {
-            header = ((WorkflowFormTO) modelObject).getKey();
-        } else if (modelObject instanceof EntityTO) {
-            header = ((EntityTO) modelObject).getKey();
-        } else if (modelObject instanceof StatusBean) {
-            header = ((StatusBean) modelObject).getResource();
-        } else if (modelObject instanceof PolicyRuleWrapper) {
-            header = ((PolicyRuleWrapper) modelObject).getName();
-        } else if (modelObject instanceof PolicyRuleWrapper) {
-            header = ((PolicyRuleWrapper) modelObject).getName();
-        } else if (modelObject instanceof ReportletWrapper) {
-            header = ((ReportletWrapper) modelObject).getName();
-        } else if (modelObject instanceof JobTO) {
-            header = ((JobTO) modelObject).getRefKey() == null
-                    ? ((JobTO) modelObject).getRefDesc() : ((JobTO) modelObject).getRefKey();
-        } else {
-            header = new ResourceModel("actions", StringUtils.EMPTY).getObject();
-        }
-        setHeader(target, StringUtils.abbreviate(header, 25));
+
+        setHeader(target, StringUtils.abbreviate(getHeader(modelObject), 25));
 
         modal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 
@@ -139,9 +79,17 @@ public class ActionLinksTogglePanel<T extends Serializable> extends TogglePanel<
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public void onEvent(final IEvent<?> event) {
         if (event.getPayload() instanceof ActionLinkToggleCloseEventPayload) {
             close(ActionLinkToggleCloseEventPayload.class.cast(event.getPayload()).getTarget());
+        } else if (event.getPayload() instanceof ActionLinkToggleUpdateEventPayload) {
+            String header = getHeader((T) ActionLinkToggleUpdateEventPayload.class.cast(event.
+                    getPayload()).getModelObj());
+            if (StringUtils.isNotBlank(header)) {
+                setHeader(ActionLinkToggleUpdateEventPayload.class.cast(event.getPayload()).getTarget(),
+                        StringUtils.abbreviate(header, 25));
+            }
         }
     }
 

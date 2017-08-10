@@ -21,7 +21,29 @@ package org.apache.syncope.client.console.panels;
 import java.io.Serializable;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.Constants;
+import org.apache.syncope.client.console.commons.status.StatusBean;
+import org.apache.syncope.client.console.policies.PolicyRuleDirectoryPanel;
+import org.apache.syncope.client.console.reports.ReportletDirectoryPanel;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
+import org.apache.syncope.client.console.wizards.any.AnyWrapper;
+import org.apache.syncope.client.console.wizards.any.GroupWrapper;
+import org.apache.syncope.client.console.wizards.any.UserWrapper;
+import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
+import org.apache.syncope.common.lib.to.AccessTokenTO;
+import org.apache.syncope.common.lib.to.AnyObjectTO;
+import org.apache.syncope.common.lib.to.AnyTO;
+import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.to.ConnInstanceTO;
+import org.apache.syncope.common.lib.to.EntityTO;
+import org.apache.syncope.common.lib.to.ExecTO;
+import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.JobTO;
+import org.apache.syncope.common.lib.to.ReportTO;
+import org.apache.syncope.common.lib.to.SchedTaskTO;
+import org.apache.syncope.common.lib.to.SecurityQuestionTO;
+import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.to.WorkflowDefinitionTO;
+import org.apache.syncope.common.lib.to.WorkflowFormTO;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxEventBehavior;
@@ -29,6 +51,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.model.ResourceModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -151,5 +174,87 @@ public abstract class TogglePanel<T extends Serializable> extends WizardMgtPanel
                     + selector + ".attr(\"class\", \"toggle-menu inactive-toggle-menu\");");
             status = Status.INACTIVE;
         }
+    }
+
+    protected String getHeader(final T modelObject) {
+        final String headerValue;
+        if (modelObject == null) {
+            headerValue = new ResourceModel("actions", StringUtils.EMPTY).getObject();
+        } else if (modelObject instanceof UserTO) {
+            headerValue = ((UserTO) modelObject).getUsername();
+        } else if (modelObject instanceof GroupTO) {
+            headerValue = ((GroupTO) modelObject).getName();
+        } else if (modelObject instanceof UserWrapper) {
+            headerValue = UserWrapper.class.cast(modelObject).getInnerObject().getUsername();
+        } else if (modelObject instanceof GroupWrapper) {
+            headerValue = GroupWrapper.class.cast(modelObject).getInnerObject().getName();
+        } else if (modelObject instanceof AnyWrapper) {
+            AnyTO anyWrapper = AnyWrapper.class.cast(modelObject).getInnerObject();
+            if (anyWrapper instanceof AnyObjectTO) {
+                headerValue = ((AnyObjectTO) anyWrapper).getName();
+            } else {
+                headerValue = new ResourceModel("actions", StringUtils.EMPTY).getObject();
+            }
+        } else if (modelObject instanceof ConnInstanceTO) {
+            headerValue = ConnInstanceTO.class.cast(modelObject).getDisplayName();
+        } else if (modelObject instanceof ReportTO) {
+            headerValue = ((ReportTO) modelObject).getName();
+        } else if (modelObject instanceof AnyObjectTO) {
+            headerValue = ((AnyObjectTO) modelObject).getName();
+        } else if (modelObject instanceof AttrTO) {
+            headerValue = ((AttrTO) modelObject).getSchema();
+        } else if (modelObject instanceof AbstractPolicyTO) {
+            headerValue = ((AbstractPolicyTO) modelObject).getDescription();
+        } else if (modelObject instanceof SecurityQuestionTO) {
+            headerValue = ((SecurityQuestionTO) modelObject).getContent();
+        } else if (modelObject instanceof AccessTokenTO) {
+            headerValue = ((AccessTokenTO) modelObject).getOwner();
+        } else if (modelObject instanceof ExecTO) {
+            headerValue = ((ExecTO) modelObject).getKey();
+        } else if (modelObject instanceof WorkflowDefinitionTO) {
+            headerValue = ((WorkflowDefinitionTO) modelObject).getName();
+        } else if (modelObject instanceof SchedTaskTO) {
+            headerValue = ((SchedTaskTO) modelObject).getName();
+        } else if (modelObject instanceof WorkflowFormTO) {
+            headerValue = ((WorkflowFormTO) modelObject).getKey();
+        } else if (modelObject instanceof EntityTO) {
+            headerValue = ((EntityTO) modelObject).getKey();
+        } else if (modelObject instanceof StatusBean) {
+            headerValue = ((StatusBean) modelObject).getResource();
+        } else if (modelObject instanceof PolicyRuleDirectoryPanel.PolicyRuleWrapper) {
+            headerValue = ((PolicyRuleDirectoryPanel.PolicyRuleWrapper) modelObject).getName();
+        } else if (modelObject instanceof PolicyRuleDirectoryPanel.PolicyRuleWrapper) {
+            headerValue = ((PolicyRuleDirectoryPanel.PolicyRuleWrapper) modelObject).getName();
+        } else if (modelObject instanceof ReportletDirectoryPanel.ReportletWrapper) {
+            headerValue = ((ReportletDirectoryPanel.ReportletWrapper) modelObject).getName();
+        } else if (modelObject instanceof JobTO) {
+            headerValue = ((JobTO) modelObject).getRefKey() == null
+                    ? ((JobTO) modelObject).getRefDesc() : ((JobTO) modelObject).getRefKey();
+        } else {
+            headerValue = new ResourceModel("actions", StringUtils.EMPTY).getObject();
+        }
+
+        return headerValue;
+    }
+
+    public static class ActionLinkToggleUpdateEventPayload<T> {
+
+        private final AjaxRequestTarget target;
+
+        private final T modelObj;
+
+        public ActionLinkToggleUpdateEventPayload(final AjaxRequestTarget target, final T modelObj) {
+            this.target = target;
+            this.modelObj = modelObj;
+        }
+
+        public AjaxRequestTarget getTarget() {
+            return target;
+        }
+
+        public T getModelObj() {
+            return modelObj;
+        }
+
     }
 }
