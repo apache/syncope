@@ -27,6 +27,7 @@ import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.AbstractModalPanel;
+import org.apache.syncope.client.console.panels.TogglePanel;
 import org.apache.syncope.client.console.panels.WizardModalPanel;
 import org.apache.syncope.client.console.rest.PolicyRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
@@ -45,6 +46,7 @@ import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
@@ -161,6 +163,11 @@ public class PolicyModalPanelBuilder<T extends AbstractPolicyTO> extends Abstrac
                     restClient.updatePolicy(policyTO);
                 }
                 SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
+
+                // [SYNCOPE-1190] - refresh toggle panel after update
+                send(pageRef.getPage(), Broadcast.BREADTH,
+                        new TogglePanel.ActionLinkToggleUpdateEventPayload<>(target, policyTO));
+
                 Profile.this.modal.close(target);
             } catch (Exception e) {
                 LOG.error("While creating/updating policy", e);
