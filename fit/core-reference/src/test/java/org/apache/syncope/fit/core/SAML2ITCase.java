@@ -41,13 +41,13 @@ import java.security.KeyStore;
 import java.security.SecureRandom;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Optional;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.namespace.QName;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.cxf.rs.security.jose.jws.JwsJwtCompactConsumer;
@@ -203,7 +203,7 @@ public class SAML2ITCase extends AbstractITCase {
 
         assertEquals("https://idp.testshib.org/idp/profile/SAML2/POST/SSO", loginRequest.getIdpServiceAddress());
         assertNotNull(loginRequest.getContent());
-        assertTrue(Base64.isBase64(loginRequest.getContent()));
+        assertTrue(org.apache.commons.codec.binary.Base64.isBase64(loginRequest.getContent()));
         assertNotNull(loginRequest.getRelayState());
     }
 
@@ -257,7 +257,7 @@ public class SAML2ITCase extends AbstractITCase {
 
         assertEquals("https://localhost:8443/fediz-idp/saml/up", loginRequest.getIdpServiceAddress());
         assertNotNull(loginRequest.getContent());
-        assertTrue(Base64.isBase64(loginRequest.getContent()));
+        assertTrue(org.apache.commons.codec.binary.Base64.isBase64(loginRequest.getContent()));
         assertNotNull(loginRequest.getRelayState());
 
         // Check a null relaystate
@@ -291,7 +291,7 @@ public class SAML2ITCase extends AbstractITCase {
         String responseStr = DOM2Writer.nodeToString(responseElement);
 
         // Validate the SAML Response
-        response.setSamlResponse(java.util.Base64.getEncoder().encodeToString(responseStr.getBytes()));
+        response.setSamlResponse(Base64.getEncoder().encodeToString(responseStr.getBytes()));
         SAML2LoginResponseTO loginResponse = saml2Service.validateLoginResponse(response);
         assertNotNull(loginResponse.getAccessToken());
         assertEquals("puccini", loginResponse.getNameID());
@@ -323,7 +323,7 @@ public class SAML2ITCase extends AbstractITCase {
         String responseStr = DOM2Writer.nodeToString(responseElement);
 
         // Validate the SAML Response
-        response.setSamlResponse(java.util.Base64.getEncoder().encodeToString(responseStr.getBytes()));
+        response.setSamlResponse(Base64.getEncoder().encodeToString(responseStr.getBytes()));
         try {
             saml2Service.validateLoginResponse(response);
             fail("Failure expected on an unsigned Assertion");
@@ -385,7 +385,7 @@ public class SAML2ITCase extends AbstractITCase {
         String responseStr = DOM2Writer.nodeToString(responseElement);
 
         // Validate the SAML Response
-        response.setSamlResponse(java.util.Base64.getEncoder().encodeToString(responseStr.getBytes()));
+        response.setSamlResponse(Base64.getEncoder().encodeToString(responseStr.getBytes()));
         try {
             saml2Service.validateLoginResponse(response);
             fail("Failure expected on an unsigned Assertion");
@@ -500,7 +500,7 @@ public class SAML2ITCase extends AbstractITCase {
         InputStream input = Files.newInputStream(truststorePath);
         keyStore.load(input, "security".toCharArray());
         X509Certificate cert = (X509Certificate) keyStore.getCertificate("subject");
-        String certEncoded = java.util.Base64.getMimeEncoder().encodeToString(cert.getEncoded());
+        String certEncoded = Base64.getMimeEncoder().encodeToString(cert.getEncoded());
 
         // Replace the "cert-placeholder" string in the metadata with the actual cert
         String basedir = System.getProperty("basedir");
