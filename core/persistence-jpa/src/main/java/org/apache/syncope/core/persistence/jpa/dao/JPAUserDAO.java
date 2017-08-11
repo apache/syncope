@@ -55,7 +55,6 @@ import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntit
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AccountRule;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.PasswordRule;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.RoleDAO;
@@ -130,6 +129,13 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
         return new JPAAnyUtilsFactory().getInstance(AnyTypeKind.USER);
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public String findKey(final String username) {
+        return findKey(username, JPAUser.TABLE);
+    }
+
+    @Transactional(readOnly = true)
     @Override
     public Date findLastChange(final String key) {
         return findLastChange(key, JPAUser.TABLE);
@@ -196,23 +202,6 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
                         user.getRealm().getFullPath(), AnyTypeKind.USER.name(), user.getKey());
             }
         }
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public User authFindByUsername(final String username) {
-        if (username == null) {
-            throw new NotFoundException("Null username");
-        }
-
-        User user = findByUsername(username);
-        if (user == null) {
-            throw new NotFoundException("User " + username);
-        }
-
-        securityChecks(user);
-
-        return user;
     }
 
     @Override

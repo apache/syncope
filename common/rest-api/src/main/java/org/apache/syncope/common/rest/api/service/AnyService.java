@@ -50,7 +50,7 @@ public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSS
      * Note that for the UserService, GroupService and AnyObjectService subclasses, if the key parameter
      * looks like a UUID then it is interpreted as as key, otherwise as a (user)name.
      *
-     * @param key any object key
+     * @param key any object key or name
      * @param schemaType schema type
      * @return list of attributes, owned by the given any object, for the given schema type
      */
@@ -65,7 +65,7 @@ public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSS
      * Note that for the UserService, GroupService and AnyObjectService subclasses, if the key parameter
      * looks like a UUID then it is interpreted as as key, otherwise as a (user)name.
      *
-     * @param key any object key
+     * @param key any object key or name
      * @param schemaType schema type
      * @param schema schema
      * @return attribute, owned by the given any object, for the given schema type and schema
@@ -84,7 +84,7 @@ public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSS
      * Note that for the UserService, GroupService and AnyObjectService subclasses, if the key parameter
      * looks like a UUID then it is interpreted as as key, otherwise as a (user)name.
      *
-     * @param key key of any object to be read
+     * @param key any object key or name
      * @return any object with matching key
      */
     @GET
@@ -130,7 +130,7 @@ public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSS
     /**
      * Adds or replaces the attribute, owned by the given any object, for the given schema type and schema.
      *
-     * @param key any object key
+     * @param key any object key or name
      * @param schemaType schema type
      * @param attrTO attribute
      * @return Response object featuring the updated any object attribute - as Entity
@@ -160,7 +160,7 @@ public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSS
     /**
      * Deletes the attribute, owned by the given any object, for the given schema type and schema.
      *
-     * @param key any object key
+     * @param key any object key or name
      * @param schemaType schema type
      * @param schema schema
      */
@@ -176,7 +176,7 @@ public interface AnyService<TO extends AnyTO, P extends AnyPatch> extends JAXRSS
     /**
      * Deletes any object matching provided key.
      *
-     * @param key key of any object to be deleted
+     * @param key any object key or name
      * @return Response object featuring the deleted any object enriched with propagation status information
      * - ProvisioningResult as Entity
      */

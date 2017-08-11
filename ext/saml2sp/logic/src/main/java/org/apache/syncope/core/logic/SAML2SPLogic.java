@@ -397,7 +397,7 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
         NameID nameID = assertion.getSubject().getNameID();
         String keyValue = null;
         if (StringUtils.isNotBlank(nameID.getValue())
-            && idp.getConnObjectKeyItem().getExtAttrName().equals("NameID")) {
+                && idp.getConnObjectKeyItem().getExtAttrName().equals("NameID")) {
 
             keyValue = nameID.getValue();
         }
@@ -419,7 +419,7 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
                 if (!attr.getAttributeValues().isEmpty()) {
                     String attrName = attr.getFriendlyName() == null ? attr.getName() : attr.getFriendlyName();
                     if (attrName.equals(idp.getConnObjectKeyItem().getExtAttrName())
-                        && attr.getAttributeValues().get(0) instanceof XSString) {
+                            && attr.getAttributeValues().get(0) instanceof XSString) {
 
                         keyValue = ((XSString) attr.getAttributeValues().get(0)).getValue();
                     }

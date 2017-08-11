@@ -33,7 +33,6 @@ import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.patch.AttrPatch;
 import org.apache.syncope.common.lib.patch.MembershipPatch;
 import org.apache.syncope.common.lib.patch.PasswordPatch;
@@ -142,12 +141,6 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         }
 
         return authUserTO;
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public boolean verifyPassword(final String username, final String password) {
-        return verifyPassword(userDAO.authFindByUsername(username), password);
     }
 
     @Transactional(readOnly = true)
@@ -636,9 +629,7 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
     @Transactional(readOnly = true)
     @Override
     public UserTO getUserTO(final String key) {
-        return SyncopeConstants.UUID_PATTERN.matcher(key).matches()
-                ? getUserTO(userDAO.authFind(key), true)
-                : getUserTO(userDAO.authFindByUsername(key), true);
+        return getUserTO(userDAO.authFind(key), true);
     }
 
 }

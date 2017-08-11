@@ -45,7 +45,5 @@ public interface UserDataBinder {
      */
     PropagationByResource update(User toBeUpdated, UserPatch userPatch);
 
-    boolean verifyPassword(String username, String password);
-
     boolean verifyPassword(User user, String password);
 }

@@ -227,7 +227,7 @@ public class SAML2ReaderWriter {
         ssoResponseValidator.setRequestId(requestId);
         ssoResponseValidator.setSpIdentifier(spEntityID);
         SSOValidatorResponse validatorResponse =
-            ssoResponseValidator.validateSamlResponse(samlResponse, idp.getBindingType() == SAML2BindingType.POST);
+                ssoResponseValidator.validateSamlResponse(samlResponse, idp.getBindingType() == SAML2BindingType.POST);
 
         if (LOG.isDebugEnabled()) {
             try {

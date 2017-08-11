@@ -47,7 +47,6 @@ import java.util.Optional;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.namespace.QName;
-
 import org.apache.commons.codec.binary.Base64;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
@@ -103,7 +102,9 @@ import org.w3c.dom.Element;
 public class SAML2ITCase extends AbstractITCase {
 
     private static SyncopeClient anonymous;
+
     private static Path keystorePath;
+
     private static Path truststorePath;
 
     @BeforeClass
@@ -178,15 +179,14 @@ public class SAML2ITCase extends AbstractITCase {
             // Get the signature
             QName signatureQName = new QName(SignatureConstants.XMLSIG_NS, "Signature");
             Element signatureElement =
-                DOMUtils.getFirstChildWithName(responseDoc.getDocumentElement(), signatureQName);
+                    DOMUtils.getFirstChildWithName(responseDoc.getDocumentElement(), signatureQName);
             assertNotNull(signatureElement);
 
             // Validate the signature
             XMLSignature signature = new XMLSignature(signatureElement, null);
             KeyStore keystore = KeyStore.getInstance("JKS");
             keystore.load(Loader.getResourceAsStream("keystore"), "changeit".toCharArray());
-            assertTrue(signature.checkSignatureValue((X509Certificate)keystore.getCertificate("sp")));
-
+            assertTrue(signature.checkSignatureValue((X509Certificate) keystore.getCertificate("sp")));
         } catch (Exception e) {
             LOG.error("During SAML 2.0 SP metadata parsing", e);
             fail(e.getMessage());
@@ -462,16 +462,18 @@ public class SAML2ITCase extends AbstractITCase {
         String subjectName = "CN=Subject";
         BigInteger serial = new BigInteger("123456");
         X509v3CertificateBuilder certBuilder =
-                        new X509v3CertificateBuilder(new X500Name(RFC4519Style.INSTANCE, issuerName), serial, currentDate, expiryDate,
-                                        new X500Name(RFC4519Style.INSTANCE, subjectName),
-                                        SubjectPublicKeyInfo.getInstance(keyPair.getPublic().getEncoded()));
+                new X509v3CertificateBuilder(new X500Name(RFC4519Style.INSTANCE, issuerName), serial, currentDate,
+                        expiryDate,
+                        new X500Name(RFC4519Style.INSTANCE, subjectName),
+                        SubjectPublicKeyInfo.getInstance(keyPair.getPublic().getEncoded()));
         ContentSigner contentSigner = new JcaContentSignerBuilder("SHA256WithRSAEncryption").build(keyPair.getPrivate());
         X509Certificate certificate = new JcaX509CertificateConverter().getCertificate(certBuilder.build(contentSigner));
 
         // Store Private Key + Certificate in Keystore
         KeyStore keystore = KeyStore.getInstance("JKS");
         keystore.load(null, "security".toCharArray());
-        keystore.setKeyEntry("subject", keyPair.getPrivate(), "security".toCharArray(), new Certificate[] {certificate});
+        keystore.setKeyEntry("subject", keyPair.getPrivate(), "security".toCharArray(),
+                new Certificate[] { certificate });
 
         File keystoreFile = File.createTempFile("samlkeystore", ".jks");
         try (OutputStream output = Files.newOutputStream(keystoreFile.toPath())) {
@@ -497,7 +499,7 @@ public class SAML2ITCase extends AbstractITCase {
         KeyStore keyStore = KeyStore.getInstance("JKS");
         InputStream input = Files.newInputStream(truststorePath);
         keyStore.load(input, "security".toCharArray());
-        X509Certificate cert = (X509Certificate)keyStore.getCertificate("subject");
+        X509Certificate cert = (X509Certificate) keyStore.getCertificate("subject");
         String certEncoded = java.util.Base64.getMimeEncoder().encodeToString(cert.getEncoded());
 
         // Replace the "cert-placeholder" string in the metadata with the actual cert

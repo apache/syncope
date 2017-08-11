@@ -34,8 +34,6 @@ public interface UserDAO extends AnyDAO<User> {
 
     Map<String, Integer> countByStatus();
 
-    User authFindByUsername(String username);
-
     User findByUsername(String username);
 
     User findByToken(String token);
