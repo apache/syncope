@@ -41,8 +41,6 @@ public interface AnyObjectDAO extends AnyDAO<AnyObject> {
 
     AnyObject findByName(String name);
 
-    AnyObject authFindByName(String name);
-
     List<Group> findDynGroups(String key);
 
     List<ARelationship> findAllRelationships(AnyObject anyObject);

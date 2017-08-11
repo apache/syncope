@@ -51,6 +51,7 @@ import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.AnyService;
 import org.apache.syncope.core.logic.AbstractAnyLogic;
 import org.apache.syncope.core.logic.UserLogic;
+import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 
@@ -58,9 +59,23 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
         extends AbstractServiceImpl
         implements AnyService<TO, P> {
 
+    protected abstract AnyDAO<?> getAnyDAO();
+
     protected abstract AbstractAnyLogic<TO, P> getAnyLogic();
 
     protected abstract P newPatch(String key);
+
+    private String getActualKey(final String key) {
+        String actualKey = key;
+        if (!SyncopeConstants.UUID_PATTERN.matcher(key).matches()) {
+            actualKey = getAnyDAO().findKey(key);
+            if (actualKey == null) {
+                throw new NotFoundException("User, Group or Any Object for " + key);
+            }
+        }
+
+        return actualKey;
+    }
 
     @Override
     public Set<AttrTO> read(final String key, final SchemaType schemaType) {
@@ -110,7 +125,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
 
     @Override
     public TO read(final String key) {
-        return getAnyLogic().read(key);
+        return getAnyLogic().read(getActualKey(key));
     }
 
     @Override
@@ -143,9 +158,19 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
         return createResponse(created);
     }
 
+    protected Date findLastChange(final String key) {
+        Date lastChange = getAnyDAO().findLastChange(key);
+        if (lastChange == null) {
+            throw new NotFoundException("User, Group or Any Object for " + key);
+        }
+
+        return lastChange;
+    }
+
     @Override
     public Response update(final P anyPatch) {
-        Date etagDate = getAnyLogic().findLastChange(anyPatch.getKey());
+        anyPatch.setKey(getActualKey(anyPatch.getKey()));
+        Date etagDate = findLastChange(anyPatch.getKey());
         checkETag(String.valueOf(etagDate.getTime()));
 
         ProvisioningResult<TO> updated = getAnyLogic().update(anyPatch, isNullPriorityAsync());
@@ -179,12 +204,14 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
 
     @Override
     public Response update(final String key, final SchemaType schemaType, final AttrTO attrTO) {
-        addUpdateOrReplaceAttr(key, schemaType, attrTO, PatchOperation.ADD_REPLACE);
-        return modificationResponse(read(key, schemaType, attrTO.getSchema()));
+        String actualKey = getActualKey(key);
+        addUpdateOrReplaceAttr(actualKey, schemaType, attrTO, PatchOperation.ADD_REPLACE);
+        return modificationResponse(read(actualKey, schemaType, attrTO.getSchema()));
     }
 
     @Override
     public Response update(final TO anyTO) {
+        anyTO.setKey(getActualKey(anyTO.getKey()));
         TO before = getAnyLogic().read(anyTO.getKey());
 
         checkETag(before.getETagValue());
@@ -196,21 +223,25 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
 
     @Override
     public void delete(final String key, final SchemaType schemaType, final String schema) {
-        addUpdateOrReplaceAttr(key, schemaType, new AttrTO.Builder().schema(schema).build(), PatchOperation.DELETE);
+        String actualKey = getActualKey(key);
+        addUpdateOrReplaceAttr(
+                actualKey, schemaType, new AttrTO.Builder().schema(schema).build(), PatchOperation.DELETE);
     }
 
     @Override
     public Response delete(final String key) {
-        Date etagDate = getAnyLogic().findLastChange(key);
+        String actualKey = getActualKey(key);
+
+        Date etagDate = findLastChange(actualKey);
         checkETag(String.valueOf(etagDate.getTime()));
 
-        ProvisioningResult<TO> deleted = getAnyLogic().delete(key, isNullPriorityAsync());
+        ProvisioningResult<TO> deleted = getAnyLogic().delete(actualKey, isNullPriorityAsync());
         return modificationResponse(deleted);
     }
 
     @Override
     public Response deassociate(final DeassociationPatch patch) {
-        Date etagDate = getAnyLogic().findLastChange(patch.getKey());
+        Date etagDate = findLastChange(patch.getKey());
         checkETag(String.valueOf(etagDate.getTime()));
 
         ProvisioningResult<TO> updated;
@@ -254,7 +285,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
 
     @Override
     public Response associate(final AssociationPatch patch) {
-        Date etagDate = getAnyLogic().findLastChange(patch.getKey());
+        Date etagDate = findLastChange(patch.getKey());
         checkETag(String.valueOf(etagDate.getTime()));
 
         ProvisioningResult<TO> updated;

@@ -26,6 +26,8 @@ import org.apache.syncope.common.lib.types.BulkMembersActionType;
 import org.apache.syncope.common.rest.api.service.GroupService;
 import org.apache.syncope.core.logic.AbstractAnyLogic;
 import org.apache.syncope.core.logic.GroupLogic;
+import org.apache.syncope.core.persistence.api.dao.AnyDAO;
+import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,7 +35,15 @@ import org.springframework.stereotype.Service;
 public class GroupServiceImpl extends AbstractAnyService<GroupTO, GroupPatch> implements GroupService {
 
     @Autowired
+    private GroupDAO groupDAO;
+
+    @Autowired
     private GroupLogic logic;
+
+    @Override
+    protected AnyDAO<?> getAnyDAO() {
+        return groupDAO;
+    }
 
     @Override
     protected AbstractAnyLogic<GroupTO, GroupPatch> getAnyLogic() {

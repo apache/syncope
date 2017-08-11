@@ -34,8 +34,6 @@ public interface GroupDAO extends AnyDAO<Group> {
 
     Group findByName(String name);
 
-    Group authFindByName(String name);
-
     List<Group> findOwnedByUser(String userKey);
 
     List<Group> findOwnedByGroup(String groupKey);

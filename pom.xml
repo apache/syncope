@@ -356,8 +356,6 @@ under the License.
   <properties>
     <syncope.version>${project.version}</syncope.version>
 
-    <bouncycastle.version>1.57</bouncycastle.version>
-
     <connid.version>1.4.3.0</connid.version>
     <connid.soap.version>1.4.1</connid.soap.version>
     <connid.rest.version>1.0.1</connid.rest.version>
@@ -1668,6 +1666,12 @@ under the License.
         <groupId>com.icegreen</groupId>
         <artifactId>greenmail</artifactId>
         <version>1.5.5</version>
+        <scope>test</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.bouncycastle</groupId>
+        <artifactId>bcpkix-jdk15on</artifactId>
+        <version>1.57</version>
         <scope>test</scope>
       </dependency>
       <dependency>

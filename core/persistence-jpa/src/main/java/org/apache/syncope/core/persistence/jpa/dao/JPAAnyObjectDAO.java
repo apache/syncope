@@ -43,7 +43,6 @@ import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
-import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
@@ -95,6 +94,13 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
         return new JPAAnyUtilsFactory().getInstance(AnyTypeKind.ANY_OBJECT);
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public String findKey(final String username) {
+        return findKey(username, JPAAnyObject.TABLE);
+    }
+
+    @Transactional(readOnly = true)
     @Override
     public Date findLastChange(final String key) {
         return findLastChange(key, JPAAnyObject.TABLE);
@@ -167,22 +173,6 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
         }
 
         return result;
-    }
-
-    @Override
-    public AnyObject authFindByName(final String name) {
-        if (name == null) {
-            throw new NotFoundException("Null name");
-        }
-
-        AnyObject anyObject = findByName(name);
-        if (anyObject == null) {
-            throw new NotFoundException("Any Object " + name);
-        }
-
-        securityChecks(anyObject);
-
-        return anyObject;
     }
 
     @Override

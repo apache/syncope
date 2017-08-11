@@ -46,7 +46,6 @@ import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
-import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.PlainAttrDAO;
 import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
@@ -142,6 +141,13 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         return new JPAAnyUtilsFactory().getInstance(AnyTypeKind.GROUP);
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public String findKey(final String username) {
+        return findKey(username, JPAGroup.TABLE);
+    }
+
+    @Transactional(readOnly = true)
     @Override
     public Date findLastChange(final String key) {
         return findLastChange(key, JPAGroup.TABLE);
@@ -205,22 +211,6 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         }
 
         return result;
-    }
-
-    @Override
-    public Group authFindByName(final String name) {
-        if (name == null) {
-            throw new NotFoundException("Null name");
-        }
-
-        Group group = findByName(name);
-        if (group == null) {
-            throw new NotFoundException("Group " + name);
-        }
-
-        securityChecks(group);
-
-        return group;
     }
 
     @Transactional(readOnly = true)

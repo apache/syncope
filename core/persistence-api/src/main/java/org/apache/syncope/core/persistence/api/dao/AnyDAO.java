@@ -31,6 +31,8 @@ public interface AnyDAO<A extends Any<?>> extends DAO<A> {
 
     int DEFAULT_PAGE_SIZE = 10;
 
+    String findKey(String name);
+
     Date findLastChange(String key);
 
     A authFind(String key);

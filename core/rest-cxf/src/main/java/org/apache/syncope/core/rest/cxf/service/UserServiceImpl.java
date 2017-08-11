@@ -27,6 +27,8 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.core.logic.AbstractAnyLogic;
 import org.apache.syncope.core.logic.UserLogic;
+import org.apache.syncope.core.persistence.api.dao.AnyDAO;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,7 +36,15 @@ import org.springframework.stereotype.Service;
 public class UserServiceImpl extends AbstractAnyService<UserTO, UserPatch> implements UserService {
 
     @Autowired
+    private UserDAO userDAO;
+
+    @Autowired
     private UserLogic logic;
+
+    @Override
+    protected AnyDAO<?> getAnyDAO() {
+        return userDAO;
+    }
 
     @Override
     protected AbstractAnyLogic<UserTO, UserPatch> getAnyLogic() {
@@ -56,7 +66,7 @@ public class UserServiceImpl extends AbstractAnyService<UserTO, UserPatch> imple
 
     @Override
     public Response status(final StatusPatch statusPatch) {
-        Date etagDate = getAnyLogic().findLastChange(statusPatch.getKey());
+        Date etagDate = findLastChange(statusPatch.getKey());
         checkETag(String.valueOf(etagDate.getTime()));
 
         ProvisioningResult<UserTO> updated = logic.status(statusPatch, isNullPriorityAsync());

@@ -29,6 +29,8 @@ import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.service.AnyObjectService;
 import org.apache.syncope.core.logic.AbstractAnyLogic;
 import org.apache.syncope.core.logic.AnyObjectLogic;
+import org.apache.syncope.core.persistence.api.dao.AnyDAO;
+import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,7 +38,15 @@ import org.springframework.stereotype.Service;
 public class AnyObjectServiceImpl extends AbstractAnyService<AnyObjectTO, AnyObjectPatch> implements AnyObjectService {
 
     @Autowired
+    private AnyObjectDAO anyObjectDAO;
+
+    @Autowired
     private AnyObjectLogic logic;
+
+    @Override
+    protected AnyDAO<?> getAnyDAO() {
+        return anyObjectDAO;
+    }
 
     @Override
     protected AbstractAnyLogic<AnyObjectTO, AnyObjectPatch> getAnyLogic() {

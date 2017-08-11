@@ -127,17 +127,6 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
         return IterableUtils.matchesAny(effectiveRealms, new RealmUtils.DynRealmsPredicate());
     }
 
-    @Transactional(readOnly = true)
-    @Override
-    public Date findLastChange(final String key) {
-        Date etag = groupDAO.findLastChange(key);
-        if (etag == null) {
-            throw new NotFoundException("Group " + key);
-        }
-
-        return etag;
-    }
-
     @PreAuthorize("hasRole('" + StandardEntitlement.GROUP_READ + "')")
     @Transactional(readOnly = true)
     @Override

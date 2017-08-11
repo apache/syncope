@@ -63,6 +63,7 @@ import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractPlainAttrValue;
+import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -118,6 +119,22 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
             }
         }
         return anyUtils;
+    }
+
+    protected String findKey(final String name, final String table) {
+        Query query = entityManager().createNativeQuery(
+                "SELECT id FROM " + table + " WHERE " + (JPAUser.TABLE.equals(table) ? "username" : "name") + "=?");
+        query.setParameter(1, name);
+
+        String key = null;
+
+        for (Object resultKey : query.getResultList()) {
+            key = resultKey instanceof Object[]
+                    ? (String) ((Object[]) resultKey)[0]
+                    : ((String) resultKey);
+        }
+
+        return key;
     }
 
     protected Date findLastChange(final String key, final String table) {

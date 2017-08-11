@@ -50,6 +50,7 @@ import org.apache.syncope.common.lib.patch.DeassociationPatch;
 import org.apache.syncope.common.lib.patch.MembershipPatch;
 import org.apache.syncope.common.lib.patch.PasswordPatch;
 import org.apache.syncope.common.lib.patch.StatusPatch;
+import org.apache.syncope.common.lib.patch.StringReplacePatchItem;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.policy.AccountPolicyTO;
 import org.apache.syncope.common.lib.policy.PasswordPolicyTO;
@@ -567,6 +568,16 @@ public class UserITCase extends AbstractITCase {
 
         AttrTO fullNameAttr = userTO.getPlainAttr("fullname");
         assertEquals(Collections.singletonList(newFullName), fullNameAttr.getValues());
+
+        // update by username
+        userPatch = new UserPatch();
+        userPatch.setKey(userTO.getUsername());
+        String newUsername = UUID.randomUUID().toString();
+        userPatch.setUsername(new StringReplacePatchItem.Builder().value(newUsername).build());
+
+        userTO = updateUser(userPatch).getEntity();
+        assertNotNull(userTO);
+        assertEquals(newUsername, userTO.getUsername());
     }
 
     @Test

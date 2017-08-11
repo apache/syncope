@@ -19,7 +19,6 @@
 package org.apache.syncope.core.logic;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -258,8 +257,6 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch> ext
 
         return IterableUtils.matchesAny(effectiveRealms, new RealmUtils.DynRealmsPredicate());
     }
-
-    public abstract Date findLastChange(String key);
 
     public abstract TO read(String key);
 

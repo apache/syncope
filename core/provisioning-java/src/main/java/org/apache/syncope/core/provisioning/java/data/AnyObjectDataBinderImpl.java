@@ -29,7 +29,6 @@ import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.patch.AttrPatch;
 import org.apache.syncope.common.lib.patch.MembershipPatch;
@@ -78,9 +77,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
     @Transactional(readOnly = true)
     @Override
     public AnyObjectTO getAnyObjectTO(final String key) {
-        return SyncopeConstants.UUID_PATTERN.matcher(key).matches()
-                ? getAnyObjectTO(anyObjectDAO.authFind(key), true)
-                : getAnyObjectTO(anyObjectDAO.authFindByName(key), true);
+        return getAnyObjectTO(anyObjectDAO.authFind(key), true);
     }
 
     @Override
