@@ -25,6 +25,7 @@ import org.apache.syncope.client.console.BookmarkablePageLinkBuilder;
 import org.apache.syncope.client.console.annotations.ExtPage;
 import org.apache.syncope.client.console.panels.SAML2IdPsDirectoryPanel;
 import org.apache.syncope.client.console.panels.SAML2SPPanel;
+import org.apache.syncope.common.lib.types.SAML2SPEntitlement;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -32,7 +33,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
-@ExtPage(label = "SAML 2.0 SP", icon = "fa-sign-in", listEntitlement = "", priority = 100)
+@ExtPage(label = "SAML 2.0 SP", icon = "fa-sign-in", listEntitlement = SAML2SPEntitlement.IDP_READ, priority = 100)
 public class SAML2SP extends BaseExtPage {
 
     private static final long serialVersionUID = -4837201407211278956L;
