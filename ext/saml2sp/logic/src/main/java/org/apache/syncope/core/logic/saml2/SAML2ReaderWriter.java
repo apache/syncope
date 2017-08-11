@@ -44,6 +44,7 @@ import javax.xml.transform.stream.StreamResult;
 import org.apache.cxf.rs.security.saml.DeflateEncoderDecoder;
 import org.apache.cxf.rs.security.saml.sso.SAMLProtocolResponseValidator;
 import org.apache.cxf.rs.security.saml.sso.SAMLSSOResponseValidator;
+import org.apache.cxf.rs.security.saml.sso.SSOValidatorResponse;
 import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.syncope.common.lib.SSOConstants;
 import org.apache.syncope.common.lib.types.SAML2BindingType;
@@ -203,7 +204,7 @@ public class SAML2ReaderWriter {
         return Base64.getEncoder().encodeToString(deflatedBytes);
     }
 
-    public void validate(
+    public SSOValidatorResponse validate(
             final Response samlResponse,
             final SAML2IdPEntity idp,
             final String assertionConsumerURL,
@@ -225,7 +226,8 @@ public class SAML2ReaderWriter {
         ssoResponseValidator.setIssuerIDP(idp.getId());
         ssoResponseValidator.setRequestId(requestId);
         ssoResponseValidator.setSpIdentifier(spEntityID);
-        ssoResponseValidator.validateSamlResponse(samlResponse, idp.getBindingType() == SAML2BindingType.POST);
+        SSOValidatorResponse validatorResponse =
+            ssoResponseValidator.validateSamlResponse(samlResponse, idp.getBindingType() == SAML2BindingType.POST);
 
         if (LOG.isDebugEnabled()) {
             try {
@@ -238,5 +240,7 @@ public class SAML2ReaderWriter {
                 LOG.error("Could not log the SAML response with decrypted assertions", e);
             }
         }
+
+        return validatorResponse;
     }
 }
