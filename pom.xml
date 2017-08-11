@@ -356,6 +356,8 @@ under the License.
   <properties>
     <syncope.version>${project.version}</syncope.version>
 
+    <bouncycastle.version>1.57</bouncycastle.version>
+
     <connid.version>1.4.3.0</connid.version>
     <connid.soap.version>1.4.2-SNAPSHOT</connid.soap.version>
     <connid.rest.version>1.0.1</connid.rest.version>

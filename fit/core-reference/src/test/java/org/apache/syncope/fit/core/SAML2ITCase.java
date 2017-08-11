@@ -26,12 +26,23 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.security.KeyStore;
+import java.security.SecureRandom;
+import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Optional;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -71,6 +82,13 @@ import org.apache.wss4j.common.util.Loader;
 import org.apache.wss4j.dom.WSConstants;
 import org.apache.wss4j.dom.engine.WSSConfig;
 import org.apache.xml.security.signature.XMLSignature;
+import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.asn1.x500.style.RFC4519Style;
+import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
+import org.bouncycastle.cert.X509v3CertificateBuilder;
+import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
+import org.bouncycastle.operator.ContentSigner;
+import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.joda.time.DateTime;
 import org.junit.AfterClass;
 import org.junit.Assume;
@@ -85,6 +103,8 @@ import org.w3c.dom.Element;
 public class SAML2ITCase extends AbstractITCase {
 
     private static SyncopeClient anonymous;
+    private static Path keystorePath;
+    private static Path truststorePath;
 
     @BeforeClass
     public static void setup() {
@@ -97,12 +117,16 @@ public class SAML2ITCase extends AbstractITCase {
     }
 
     @BeforeClass
-    public static void importFromIdPMetadata() {
+    public static void importFromIdPMetadata() throws Exception {
         if (!SAML2SPDetector.isSAML2SPAvailable()) {
             return;
         }
 
         assertTrue(saml2IdPService.list().isEmpty());
+
+        createKeystores();
+
+        updateMetadataWithCert();
 
         WebClient.client(saml2IdPService).
                 accept(MediaType.APPLICATION_XML_TYPE).
@@ -123,7 +147,7 @@ public class SAML2ITCase extends AbstractITCase {
     }
 
     @AfterClass
-    public static void clearIdPs() {
+    public static void clearIdPs() throws Exception {
         if (!SAML2SPDetector.isSAML2SPAvailable()) {
             return;
         }
@@ -131,6 +155,9 @@ public class SAML2ITCase extends AbstractITCase {
         for (SAML2IdPTO idp : saml2IdPService.list()) {
             saml2IdPService.delete(idp.getKey());
         }
+
+        Files.delete(keystorePath);
+        Files.delete(truststorePath);
     }
 
     @Test
@@ -409,16 +436,81 @@ public class SAML2ITCase extends AbstractITCase {
         if (signAssertion) {
             Crypto issuerCrypto = new Merlin();
             KeyStore keyStore = KeyStore.getInstance("JKS");
-            ClassLoader loader = Loader.getClassLoader(getClass());
-            InputStream input = Merlin.loadInputStream(loader, "keystore");
-            keyStore.load(input, "changeit".toCharArray());
+            InputStream input = Files.newInputStream(keystorePath);
+            keyStore.load(input, "security".toCharArray());
             ((Merlin) issuerCrypto).setKeyStore(keyStore);
 
-            assertion.signAssertion("sp", "changeit", issuerCrypto, false);
+            assertion.signAssertion("subject", "security", issuerCrypto, false);
         }
 
         response.getAssertions().add(assertion.getSaml2());
 
         return response;
     }
+
+    private static void createKeystores() throws Exception {
+        // Create KeyPair
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+        keyPairGenerator.initialize(1024, new SecureRandom());
+        KeyPair keyPair = keyPairGenerator.generateKeyPair();
+
+        Date currentDate = new Date();
+        Date expiryDate = new Date(currentDate.getTime() + 365L * 24L * 60L * 60L * 1000L);
+
+        // Create X509Certificate
+        String issuerName = "CN=Issuer";
+        String subjectName = "CN=Subject";
+        BigInteger serial = new BigInteger("123456");
+        X509v3CertificateBuilder certBuilder =
+                        new X509v3CertificateBuilder(new X500Name(RFC4519Style.INSTANCE, issuerName), serial, currentDate, expiryDate,
+                                        new X500Name(RFC4519Style.INSTANCE, subjectName),
+                                        SubjectPublicKeyInfo.getInstance(keyPair.getPublic().getEncoded()));
+        ContentSigner contentSigner = new JcaContentSignerBuilder("SHA256WithRSAEncryption").build(keyPair.getPrivate());
+        X509Certificate certificate = new JcaX509CertificateConverter().getCertificate(certBuilder.build(contentSigner));
+
+        // Store Private Key + Certificate in Keystore
+        KeyStore keystore = KeyStore.getInstance("JKS");
+        keystore.load(null, "security".toCharArray());
+        keystore.setKeyEntry("subject", keyPair.getPrivate(), "security".toCharArray(), new Certificate[] {certificate});
+
+        File keystoreFile = File.createTempFile("samlkeystore", ".jks");
+        try (OutputStream output = Files.newOutputStream(keystoreFile.toPath())) {
+            keystore.store(output, "security".toCharArray());
+        }
+        keystorePath = keystoreFile.toPath();
+
+        // Now store the Certificate in the truststore
+        KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
+        trustStore.load(null, "security".toCharArray());
+
+        trustStore.setCertificateEntry("subject", certificate);
+
+        File truststoreFile = File.createTempFile("samltruststore", ".jks");
+        try (OutputStream output = Files.newOutputStream(truststoreFile.toPath())) {
+            trustStore.store(output, "security".toCharArray());
+        }
+        truststorePath = truststoreFile.toPath();
+    }
+
+    private static void updateMetadataWithCert() throws Exception {
+        // Get encoded truststore cert
+        KeyStore keyStore = KeyStore.getInstance("JKS");
+        InputStream input = Files.newInputStream(truststorePath);
+        keyStore.load(input, "security".toCharArray());
+        X509Certificate cert = (X509Certificate)keyStore.getCertificate("subject");
+        String certEncoded = java.util.Base64.getMimeEncoder().encodeToString(cert.getEncoded());
+
+        // Replace the "cert-placeholder" string in the metadata with the actual cert
+        String basedir = System.getProperty("basedir");
+        if (basedir == null) {
+            basedir = new File(".").getCanonicalPath();
+        }
+        Path path = FileSystems.getDefault().getPath(basedir, "/src/test/resources/fediz.xml");
+        String content = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
+        content = content.replaceAll("cert-placeholder", certEncoded);
+
+        Path path2 = FileSystems.getDefault().getPath(basedir, "/target/test-classes/fediz.xml");
+        Files.write(path2, content.getBytes());
+    }
+
 }
