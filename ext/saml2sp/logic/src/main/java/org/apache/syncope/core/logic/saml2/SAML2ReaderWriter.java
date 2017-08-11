@@ -49,7 +49,6 @@ import org.apache.syncope.common.lib.types.SAML2BindingType;
 import org.apache.syncope.core.logic.init.SAML2SPLoader;
 import org.apache.wss4j.common.crypto.Merlin;
 import org.apache.wss4j.common.ext.WSSecurityException;
-import org.apache.wss4j.common.saml.OpenSAMLUtil;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.saml.common.SignableSAMLObject;
 import org.opensaml.saml.saml2.core.RequestAbstractType;
@@ -134,7 +133,7 @@ public class SAML2ReaderWriter {
 
         // parse the provided SAML response
         Document responseDoc = StaxUtils.read(new InputStreamReader(tokenStream, StandardCharsets.UTF_8));
-        XMLObject responseObject = OpenSAMLUtil.fromDom(responseDoc.getDocumentElement());
+        XMLObject responseObject = org.apache.wss4j.common.saml.OpenSAMLUtil.fromDom(responseDoc.getDocumentElement());
 
         if (LOG.isDebugEnabled()) {
             try {
@@ -152,7 +151,7 @@ public class SAML2ReaderWriter {
     }
 
     public void sign(final SignableSAMLObject signableObject) throws SecurityException {
-        org.opensaml.xmlsec.signature.Signature signature = OpenSAMLUtil.buildSignature();
+        org.opensaml.xmlsec.signature.Signature signature = org.apache.wss4j.common.saml.OpenSAMLUtil.buildSignature();
         signature.setCanonicalizationAlgorithm(SignatureConstants.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
         signature.setSignatureAlgorithm(sigAlgo);
         signature.setSigningCredential(loader.getCredential());
