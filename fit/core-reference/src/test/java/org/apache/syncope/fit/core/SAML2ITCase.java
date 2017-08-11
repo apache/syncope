@@ -30,10 +30,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
+import java.security.cert.X509Certificate;
 import java.util.Collections;
 import java.util.Optional;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.xml.namespace.QName;
+
 import org.apache.commons.codec.binary.Base64;
 import org.apache.cxf.helpers.DOMUtils;
 import org.apache.cxf.jaxrs.client.WebClient;
@@ -67,6 +70,7 @@ import org.apache.wss4j.common.util.DOM2Writer;
 import org.apache.wss4j.common.util.Loader;
 import org.apache.wss4j.dom.WSConstants;
 import org.apache.wss4j.dom.engine.WSSConfig;
+import org.apache.xml.security.signature.XMLSignature;
 import org.joda.time.DateTime;
 import org.junit.AfterClass;
 import org.junit.Assume;
@@ -74,6 +78,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.core.Status;
+import org.opensaml.xmlsec.signature.support.SignatureConstants;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -142,6 +147,19 @@ public class SAML2ITCase extends AbstractITCase {
                     new InputStreamReader((InputStream) response.getEntity(), StandardCharsets.UTF_8));
             assertEquals("EntityDescriptor", responseDoc.getDocumentElement().getLocalName());
             assertEquals("urn:oasis:names:tc:SAML:2.0:metadata", responseDoc.getDocumentElement().getNamespaceURI());
+
+            // Get the signature
+            QName signatureQName = new QName(SignatureConstants.XMLSIG_NS, "Signature");
+            Element signatureElement =
+                DOMUtils.getFirstChildWithName(responseDoc.getDocumentElement(), signatureQName);
+            assertNotNull(signatureElement);
+
+            // Validate the signature
+            XMLSignature signature = new XMLSignature(signatureElement, null);
+            KeyStore keystore = KeyStore.getInstance("JKS");
+            keystore.load(Loader.getResourceAsStream("keystore"), "changeit".toCharArray());
+            assertTrue(signature.checkSignatureValue((X509Certificate)keystore.getCertificate("sp")));
+
         } catch (Exception e) {
             LOG.error("During SAML 2.0 SP metadata parsing", e);
             fail(e.getMessage());

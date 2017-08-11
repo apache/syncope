@@ -152,14 +152,13 @@ public class SAML2ReaderWriter {
         return responseObject;
     }
 
-    public void sign(final RequestAbstractType request) throws SecurityException {
+    public void sign(final SignableSAMLObject signableObject) throws SecurityException {
         org.opensaml.xmlsec.signature.Signature signature = OpenSAMLUtil.buildSignature();
         signature.setCanonicalizationAlgorithm(SignatureConstants.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
         signature.setSignatureAlgorithm(sigAlgo);
         signature.setSigningCredential(loader.getCredential());
         signature.setKeyInfo(keyInfoGenerator.generate(loader.getCredential()));
 
-        SignableSAMLObject signableObject = (SignableSAMLObject) request;
         signableObject.setSignature(signature);
         signableObject.releaseDOM();
         signableObject.releaseChildrenDOM(true);

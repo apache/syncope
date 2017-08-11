@@ -200,6 +200,7 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
             }
 
             spEntityDescriptor.getRoleDescriptors().add(spSSODescriptor);
+            saml2rw.sign(spEntityDescriptor);
 
             saml2rw.write(new OutputStreamWriter(os), spEntityDescriptor, true);
         } catch (Exception e) {
