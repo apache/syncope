@@ -80,7 +80,7 @@ public class DynamicMemberships extends WizardStep {
             @Override
             public Panel getPanel(final String panelId) {
                 return new UserSearchPanel.Builder(new PropertyModel<List<SearchClause>>(groupWrapper, "uDynClauses")).
-                        required(false).build(panelId);
+                        required(true).build(panelId);
             }
         }), Model.of(StringUtils.isBlank(groupWrapper.getUDynMembershipCond()) ? -1 : 0)).setOutputMarkupId(true));
         // ------------------------ 
