@@ -176,6 +176,13 @@ under the License.
       <artifactId>junit</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.bouncycastle</groupId>
+      <artifactId>bcpkix-jdk15on</artifactId>
+      <version>${bouncycastle.version}</version>
+      <scope>test</scope>
+    </dependency>
+
   </dependencies>
 
   <build>
