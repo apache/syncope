@@ -120,7 +120,7 @@ public class RoleWizardBuilder extends AjaxWizardBuilder<RoleWrapper> {
                 public Panel getPanel(final String panelId) {
                     return new UserSearchPanel.Builder(
                             new PropertyModel<List<SearchClause>>(modelObject, "dynClauses")).
-                            required(false).build(panelId);
+                            required(true).build(panelId);
                 }
             }), Model.of(StringUtils.isBlank(modelObject.getDynMembershipCond()) ? -1 : 0)).setOutputMarkupId(true));
             // ------------------------

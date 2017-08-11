@@ -201,7 +201,7 @@ public class AnyPanel extends Panel implements ModalPanel {
                 clause.setProperty("username");
 
                 panel = new UserSearchPanel.Builder(
-                        new ListModel<>(clauses)).required(false).enableSearch().build(id);
+                        new ListModel<>(clauses)).required(true).enableSearch().build(id);
                 break;
             case GROUP:
                 clause.setComparator(SearchClause.Comparator.EQUALS);
@@ -209,7 +209,7 @@ public class AnyPanel extends Panel implements ModalPanel {
                 clause.setProperty("name");
 
                 panel = new GroupSearchPanel.Builder(
-                        new ListModel<>(clauses)).required(false).enableSearch().build(id);
+                        new ListModel<>(clauses)).required(true).enableSearch().build(id);
                 break;
             case ANY_OBJECT:
                 clause.setComparator(SearchClause.Comparator.EQUALS);
@@ -217,7 +217,7 @@ public class AnyPanel extends Panel implements ModalPanel {
                 clause.setProperty("name");
 
                 panel = new AnyObjectSearchPanel.Builder(anyTypeTO.getKey(),
-                        new ListModel<>(clauses)).required(false).enableSearch().build(id);
+                        new ListModel<>(clauses)).required(true).enableSearch().build(id);
                 break;
             default:
                 panel = null;
