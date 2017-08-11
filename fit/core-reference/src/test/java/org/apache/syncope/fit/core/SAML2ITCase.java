@@ -502,7 +502,7 @@ public class SAML2ITCase extends AbstractITCase {
         InputStream input = Files.newInputStream(truststorePath);
         keyStore.load(input, "security".toCharArray());
         X509Certificate cert = (X509Certificate) keyStore.getCertificate("subject");
-        String certEncoded = java.util.Base64.getMimeEncoder().encodeToString(cert.getEncoded());
+        String certEncoded = Base64.encodeBase64String(cert.getEncoded());
 
         // Replace the "cert-placeholder" string in the metadata with the actual cert
         String basedir = System.getProperty("basedir");
