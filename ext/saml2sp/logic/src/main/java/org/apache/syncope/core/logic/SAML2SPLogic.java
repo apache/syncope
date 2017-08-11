@@ -19,6 +19,8 @@
 package org.apache.syncope.core.logic;
 
 import org.apache.syncope.core.logic.saml2.SAML2UserManager;
+import org.apache.syncope.core.logic.saml2.SSOValidatorResponse;
+
 import com.fasterxml.uuid.Generators;
 import com.fasterxml.uuid.impl.RandomBasedGenerator;
 import java.io.OutputStream;
@@ -37,7 +39,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.cxf.rs.security.jose.jws.JwsJwtCompactConsumer;
 import org.apache.cxf.rs.security.jose.jws.JwsSignatureVerifier;
-import org.apache.cxf.rs.security.saml.sso.SSOValidatorResponse;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AttrTO;

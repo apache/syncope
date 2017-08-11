@@ -43,7 +43,6 @@ import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.cxf.rs.security.saml.DeflateEncoderDecoder;
 import org.apache.cxf.rs.security.saml.sso.SAMLProtocolResponseValidator;
-import org.apache.cxf.rs.security.saml.sso.SSOValidatorResponse;
 import org.apache.cxf.staxutils.StaxUtils;
 import org.apache.syncope.common.lib.SSOConstants;
 import org.apache.syncope.common.lib.types.SAML2BindingType;
