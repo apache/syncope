@@ -53,7 +53,6 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.event.Broadcast;
-import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -64,7 +63,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 
-public class TopologyTogglePanel<T extends Serializable> extends TogglePanel<Serializable> {
+public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
     private static final long serialVersionUID = -2025535531121434056L;
 
@@ -648,20 +647,5 @@ public class TopologyTogglePanel<T extends Serializable> extends TogglePanel<Ser
             return key;
         }
 
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public void onEvent(final IEvent<?> event) {
-        if (event.getPayload() instanceof ActionLinkToggleUpdateEventPayload) {
-            String header = getHeader((T) ActionLinkToggleUpdateEventPayload.class.cast(event.
-                    getPayload()).getModelObj());
-            if (StringUtils.isNotBlank(header)) {
-                setHeader(ActionLinkToggleUpdateEventPayload.class.cast(event.getPayload()).
-                        getTarget(), StringUtils.abbreviate(header, 25));
-            }
-        }
-
-        super.onEvent(event);
     }
 }
