@@ -22,7 +22,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.apache.syncope.client.console.panels.TogglePanel;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -120,10 +119,6 @@ public abstract class AjaxWizardBuilder<T extends Serializable> extends Abstract
                 if (payload != null) {
                     send(pageRef.getPage(), Broadcast.BUBBLE, payload);
                 }
-
-                // [SYNCOPE-1190] - refresh toggle panel after update
-                send(pageRef.getPage(), Broadcast.BREADTH,
-                        new TogglePanel.ActionLinkToggleUpdateEventPayload<>(target, modelObject));
 
                 return res;
             }

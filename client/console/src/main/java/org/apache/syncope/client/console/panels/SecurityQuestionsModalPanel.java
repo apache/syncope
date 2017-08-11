@@ -27,7 +27,6 @@ import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.Bas
 import org.apache.syncope.common.lib.to.SecurityQuestionTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.markup.html.form.Form;
 
 public class SecurityQuestionsModalPanel extends AbstractModalPanel<SecurityQuestionTO> {
@@ -63,11 +62,6 @@ public class SecurityQuestionsModalPanel extends AbstractModalPanel<SecurityQues
             }
 
             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
-
-            // [SYNCOPE-1190] - refresh toggle panel after update
-            send(pageRef.getPage(), Broadcast.BREADTH,
-                    new TogglePanel.ActionLinkToggleUpdateEventPayload<>(target, securityQuestionTO));
-
             modal.close(target);
         } catch (Exception e) {
             LOG.error("While creating or updating {}", securityQuestionTO, e);
