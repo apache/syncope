@@ -37,6 +37,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.cxf.rs.security.jose.jws.JwsJwtCompactConsumer;
 import org.apache.cxf.rs.security.jose.jws.JwsSignatureVerifier;
+import org.apache.cxf.rs.security.saml.sso.SSOValidatorResponse;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AttrTO;
@@ -371,8 +372,10 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
         if (idp.getConnObjectKeyItem() == null) {
             throw new IllegalArgumentException("No mapping provided for SAML 2.0 IdP '" + idp.getId() + "'");
         }
+
+        SSOValidatorResponse validatorResponse = null;
         try {
-            saml2rw.validate(
+            validatorResponse = saml2rw.validate(
                     samlResponse,
                     idp,
                     getAssertionConsumerURL(response.getSpEntityID(), response.getUrlContext()),
@@ -390,47 +393,45 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
         responseTO.setIdp(idp.getId());
         responseTO.setSloSupported(idp.getSLOLocation(idp.getBindingType()) != null);
 
-        NameID nameID = null;
+        Assertion assertion = validatorResponse.getOpensamlAssertion();
+        NameID nameID = assertion.getSubject().getNameID();
         String keyValue = null;
-        for (Assertion assertion : samlResponse.getAssertions()) {
-            nameID = assertion.getSubject().getNameID();
-            if (StringUtils.isNotBlank(nameID.getValue())
-                    && idp.getConnObjectKeyItem().getExtAttrName().equals("NameID")) {
+        if (StringUtils.isNotBlank(nameID.getValue())
+            && idp.getConnObjectKeyItem().getExtAttrName().equals("NameID")) {
 
-                keyValue = nameID.getValue();
+            keyValue = nameID.getValue();
+        }
+
+        if (assertion.getConditions().getNotOnOrAfter() != null) {
+            responseTO.setNotOnOrAfter(assertion.getConditions().getNotOnOrAfter().toDate());
+        }
+        for (AuthnStatement authnStmt : assertion.getAuthnStatements()) {
+            responseTO.setSessionIndex(authnStmt.getSessionIndex());
+
+            responseTO.setAuthInstant(authnStmt.getAuthnInstant().toDate());
+            if (authnStmt.getSessionNotOnOrAfter() != null) {
+                responseTO.setNotOnOrAfter(authnStmt.getSessionNotOnOrAfter().toDate());
             }
+        }
 
-            if (assertion.getConditions().getNotOnOrAfter() != null) {
-                responseTO.setNotOnOrAfter(assertion.getConditions().getNotOnOrAfter().toDate());
-            }
-            for (AuthnStatement authnStmt : assertion.getAuthnStatements()) {
-                responseTO.setSessionIndex(authnStmt.getSessionIndex());
+        for (AttributeStatement attrStmt : assertion.getAttributeStatements()) {
+            for (Attribute attr : attrStmt.getAttributes()) {
+                if (!attr.getAttributeValues().isEmpty()) {
+                    String attrName = attr.getFriendlyName() == null ? attr.getName() : attr.getFriendlyName();
+                    if (attrName.equals(idp.getConnObjectKeyItem().getExtAttrName())
+                        && attr.getAttributeValues().get(0) instanceof XSString) {
 
-                responseTO.setAuthInstant(authnStmt.getAuthnInstant().toDate());
-                if (authnStmt.getSessionNotOnOrAfter() != null) {
-                    responseTO.setNotOnOrAfter(authnStmt.getSessionNotOnOrAfter().toDate());
-                }
-            }
-
-            for (AttributeStatement attrStmt : assertion.getAttributeStatements()) {
-                for (Attribute attr : attrStmt.getAttributes()) {
-                    if (!attr.getAttributeValues().isEmpty()) {
-                        String attrName = attr.getFriendlyName() == null ? attr.getName() : attr.getFriendlyName();
-                        if (attrName.equals(idp.getConnObjectKeyItem().getExtAttrName())
-                                && attr.getAttributeValues().get(0) instanceof XSString) {
-
-                            keyValue = ((XSString) attr.getAttributeValues().get(0)).getValue();
-                        }
-
-                        AttrTO attrTO = new AttrTO();
-                        attrTO.setSchema(attrName);
-                        for (XMLObject value : attr.getAttributeValues()) {
-                            if (value.getDOM() != null) {
-                                attrTO.getValues().add(value.getDOM().getTextContent());
-                            }
-                        }
-                        responseTO.getAttrs().add(attrTO);
+                        keyValue = ((XSString) attr.getAttributeValues().get(0)).getValue();
                     }
+
+                    AttrTO attrTO = new AttrTO();
+                    attrTO.setSchema(attrName);
+                    for (XMLObject value : attr.getAttributeValues()) {
+                        if (value.getDOM() != null) {
+                            attrTO.getValues().add(value.getDOM().getTextContent());
+                        }
+                    }
+                    responseTO.getAttrs().add(attrTO);
                 }
             }
         }
