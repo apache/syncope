@@ -35,6 +35,7 @@ import javax.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
+import org.apache.commons.validator.routines.UrlValidator;
 import org.apache.cxf.rs.security.jose.jws.JwsJwtCompactConsumer;
 import org.apache.cxf.rs.security.jose.jws.JwsSignatureVerifier;
 import org.apache.cxf.rs.security.saml.sso.SSOValidatorResponse;
@@ -128,6 +129,8 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
 
     private static final Encryptor ENCRYPTOR = Encryptor.getInstance();
 
+    private static final UrlValidator URL_VALIDATOR = new UrlValidator(new String[] { "http", "https" });
+
     @Autowired
     private AccessTokenDataBinder accessTokenDataBinder;
 
@@ -152,11 +155,29 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
     @Resource(name = "syncopeJWTSSOProviderDelegate")
     private JwsSignatureVerifier jwsSignatureVerifier;
 
-    private String getAssertionConsumerURL(final String spEntityID, final String urlContext) {
-        return spEntityID + urlContext + "/assertion-consumer";
+    private void validateUrl(final String url) {
+        boolean isValid = true;
+        if (url.contains("..")) {
+            isValid = false;
+        }
+        if (isValid) {
+            isValid = URL_VALIDATOR.isValid(url);
+        }
+
+        if (!isValid) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.Unknown);
+            sce.getElements().add("Invalid URL: " + url);
+            throw sce;
+        }
     }
 
-    @PreAuthorize("hasRole('" + StandardEntitlement.ANONYMOUS + "')")
+    private String getAssertionConsumerURL(final String spEntityID, final String urlContext) {
+        String assertionConsumerUrl = spEntityID + urlContext + "/assertion-consumer";
+        validateUrl(assertionConsumerUrl);
+        return assertionConsumerUrl;
+    }
+
+    @PreAuthorize("isAuthenticated()")
     public void getMetadata(final String spEntityID, final String urlContext, final OutputStream os) {
         check();
 
@@ -193,10 +214,13 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
                 spSSODescriptor.getAssertionConsumerServices().add(assertionConsumerService);
                 spEntityDescriptor.getRoleDescriptors().add(spSSODescriptor);
 
+                String sloUrl = spEntityID + urlContext + "/logout";
+                validateUrl(sloUrl);
+
                 SingleLogoutService singleLogoutService = new SingleLogoutServiceBuilder().buildObject();
                 singleLogoutService.setBinding(bindingType.getUri());
-                singleLogoutService.setLocation(spEntityID + urlContext + "/logout");
-                singleLogoutService.setResponseLocation(spEntityID + urlContext + "/logout");
+                singleLogoutService.setLocation(sloUrl);
+                singleLogoutService.setResponseLocation(sloUrl);
                 spSSODescriptor.getSingleLogoutServices().add(singleLogoutService);
             }
 

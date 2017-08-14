@@ -43,7 +43,7 @@ under the License.
       <artifactId>syncope-core-logic</artifactId>
       <version>${project.version}</version>
     </dependency>
-    
+      
     <dependency>
       <groupId>org.apache.syncope.ext.saml2sp</groupId>
       <artifactId>syncope-ext-saml2sp-provisioning-java</artifactId>
@@ -58,6 +58,11 @@ under the License.
     <dependency>
       <groupId>org.opensaml</groupId>
       <artifactId>opensaml-saml-impl</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>commons-validator</groupId>
+      <artifactId>commons-validator</artifactId>
     </dependency>
   </dependencies>
 
