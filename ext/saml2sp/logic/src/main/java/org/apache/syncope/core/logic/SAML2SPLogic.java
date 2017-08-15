@@ -129,7 +129,8 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
 
     private static final Encryptor ENCRYPTOR = Encryptor.getInstance();
 
-    private static final UrlValidator URL_VALIDATOR = new UrlValidator(new String[] { "http", "https" });
+    private static final UrlValidator URL_VALIDATOR = new UrlValidator(
+            new String[] { "http", "https" }, UrlValidator.ALLOW_LOCAL_URLS);
 
     @Autowired
     private AccessTokenDataBinder accessTokenDataBinder;
