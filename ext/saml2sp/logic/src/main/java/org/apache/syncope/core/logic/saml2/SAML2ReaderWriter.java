@@ -49,6 +49,7 @@ import org.apache.syncope.common.lib.types.SAML2BindingType;
 import org.apache.syncope.core.logic.init.SAML2SPLoader;
 import org.apache.wss4j.common.crypto.Merlin;
 import org.apache.wss4j.common.ext.WSSecurityException;
+import org.apache.xml.security.algorithms.JCEMapper;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.saml.common.SignableSAMLObject;
 import org.opensaml.saml.saml2.core.RequestAbstractType;
@@ -96,15 +97,13 @@ public class SAML2ReaderWriter {
         keyInfoGenerator = keyInfoGeneratorFactory.newInstance();
 
         sigAlgo = SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA1;
-        jceSigAlgo = "SHA1withRSA";
         String pubKeyAlgo = loader.getCredential().getPublicKey().getAlgorithm();
         if (pubKeyAlgo.equalsIgnoreCase("DSA")) {
             sigAlgo = SignatureConstants.ALGO_ID_SIGNATURE_DSA_SHA1;
-            jceSigAlgo = "SHA1withDSA";
         } else if (pubKeyAlgo.equalsIgnoreCase("EC")) {
             sigAlgo = SignatureConstants.ALGO_ID_SIGNATURE_ECDSA_SHA1;
-            jceSigAlgo = "SHA1withECDSA";
         }
+        jceSigAlgo = JCEMapper.translateURItoJCEID(sigAlgo);
 
         callbackHandler = new SAMLSPCallbackHandler(loader.getKeyPass());
     }
