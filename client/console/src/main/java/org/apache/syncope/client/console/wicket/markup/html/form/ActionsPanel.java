@@ -82,6 +82,20 @@ public final class ActionsPanel<T extends Serializable> extends Panel {
         return panel;
     }
 
+    /**
+     * Use this with toggle panels.
+     * @param componentId Component Id.
+     * @param model Model.
+     * @return Actions panel.
+     */
+    public ActionsPanel<T> cloneWithLabels(final String componentId, final IModel<T> model) {
+        final ActionsPanel<T> panel = new ActionsPanel<>(componentId, model);
+        for (Action<T> action : actions) {
+            panel.actions.add(action.showLabel());
+        }
+        return panel;
+    }
+
     public boolean isEmpty() {
         return this.actions.isEmpty();
     }

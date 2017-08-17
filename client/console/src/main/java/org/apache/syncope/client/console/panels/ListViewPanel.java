@@ -29,13 +29,17 @@ import java.util.List;
 import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormChoiceComponentUpdatingBehavior;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
+import org.apache.syncope.client.console.wicket.markup.html.form.ActionLinksTogglePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
+import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.core.util.lang.PropertyResolver;
 import org.apache.wicket.event.IEvent;
@@ -57,6 +61,8 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
     private static final long serialVersionUID = -7982691107029848579L;
 
     private static final Logger LOG = LoggerFactory.getLogger(ListViewPanel.class);
+
+    private ActionLinksTogglePanel<T> togglePanel;
 
     public enum CheckAvailability {
 
@@ -104,6 +110,8 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
             final IModel<? extends Collection<T>> model) {
         super(id, wizardInModal);
         setOutputMarkupId(true);
+
+        togglePanel = getTogglePanel();
 
         this.check = Model.of(check);
 
@@ -176,10 +184,36 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
                     @Override
                     protected void populateItem(final ListItem<String> fieldItem) {
                         fieldItem.add(getValueComponent(fieldItem.getModelObject(), bean));
+                        if (togglePanel != null) {
+                            fieldItem.add(new AttributeModifier("style", "cursor: pointer;"));
+                            fieldItem.add(new AjaxEventBehavior(Constants.ON_CLICK) {
+
+                                private static final long serialVersionUID = -9027652037484739586L;
+
+                                @Override
+                                protected String findIndicatorId() {
+                                    return StringUtils.EMPTY;
+                                }
+
+                                @Override
+                                protected void onEvent(final AjaxRequestTarget target) {
+                                    togglePanel.toggleWithContent(
+                                            target,
+                                            actions.cloneWithLabels("actions", new Model<>(bean)),
+                                            bean);
+                                }
+                            });
+                        }
                     }
                 };
+
                 beanItem.add(fields);
-                beanItem.add(actions.clone("actions", new Model<>(bean)));
+
+                if (togglePanel == null) {
+                    beanItem.add(actions.clone("actions", new Model<>(bean)));
+                } else {
+                    beanItem.add(new ActionsPanel<>("actions", new Model<>(bean)).setVisible(false).setEnabled(false));
+                }
             }
         };
         beans.setOutputMarkupId(true);
@@ -402,7 +436,16 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
                 protected void customActionOnCancelCallback(final AjaxRequestTarget target) {
                     Builder.this.customActionOnCancelCallback(target);
                 }
+
+                @Override
+                protected ActionLinksTogglePanel<T> getTogglePanel() {
+                    return Builder.this.getTogglePanel();
+                }
             };
+        }
+
+        protected ActionLinksTogglePanel<T> getTogglePanel() {
+            return null;
         }
 
         protected void customActionCallback(final AjaxRequestTarget target) {
@@ -477,5 +520,9 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
         public List<T> getItems() {
             return items;
         }
+    }
+
+    protected ActionLinksTogglePanel<T> getTogglePanel() {
+        return null;
     }
 }

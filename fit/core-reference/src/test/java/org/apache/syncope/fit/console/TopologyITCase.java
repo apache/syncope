@@ -112,8 +112,11 @@ public class TopologyITCase extends AbstractConsoleITCase {
         TESTER.executeAjaxEvent(component.getPageRelativePath() + ":res", Constants.ON_CLICK);
         TESTER.clickLink("body:toggle:container:content:togglePanelContainer:container:actions:provision");
 
-        TESTER.clickLink("body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:"
-                + "content:group:beans:0:actions:actionRepeater:0:action:action");
+        TESTER.executeAjaxEvent("body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:"
+                + "content:group:beans:0:fields:0", Constants.ON_CLICK);
+        
+        TESTER.clickLink("body:toggle:outerObjectsRepeater:3:outer:form:content:toggle:container:content:"
+                + "togglePanelContainer:container:actions:actions:actionRepeater:0:action:action");
 
         FormTester formTester = TESTER.newFormTester(
                 "body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:content:wizard:form");
@@ -232,11 +235,12 @@ public class TopologyITCase extends AbstractConsoleITCase {
         TESTER.assertNoErrorMessage();
         TESTER.assertInfoMessages("Operation executed successfully");
 
-        TESTER.clickLink("body:toggle:container:content:togglePanelContainer:container:actions:provision");
-
-        TESTER.clickLink("body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:"
-                + "content:group:beans:0:actions:actionRepeater:0:action:action");
-
+        TESTER.executeAjaxEvent("body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:"
+                + "content:group:beans:0:fields:0", Constants.ON_CLICK);
+        
+        TESTER.clickLink("body:toggle:outerObjectsRepeater:3:outer:form:content:toggle:container:content:"
+                + "togglePanelContainer:container:actions:actions:actionRepeater:0:action:action");
+        
         formTester = TESTER.newFormTester(
                 "body:toggle:outerObjectsRepeater:3:outer:form:content:provision:container:content:wizard:form");
         formTester.submit("buttons:next");
