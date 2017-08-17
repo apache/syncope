@@ -30,7 +30,7 @@ import javax.ws.rs.core.MediaType;
 import org.apache.syncope.common.lib.to.ConnInstanceHistoryConfTO;
 
 /**
- * REST operations for connector instance configuration versioning.
+ * REST operations for connector configuration versioning.
  */
 @Path("connectorsHistory")
 public interface ConnectorHistoryService extends JAXRSService {
@@ -48,7 +48,7 @@ public interface ConnectorHistoryService extends JAXRSService {
 
     /**
      * Restores the connector configuration history instance matching the provided key.
-     * 
+     *
      * @param key connector configuration history instance key to be restored
      */
     @POST

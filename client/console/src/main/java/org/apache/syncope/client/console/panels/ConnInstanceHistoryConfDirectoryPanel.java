@@ -65,18 +65,19 @@ public abstract class ConnInstanceHistoryConfDirectoryPanel extends DirectoryPan
 
     private final String entityKey;
 
-    protected ConnInstanceHistoryConfDirectoryPanel(
+    public ConnInstanceHistoryConfDirectoryPanel(
             final BaseModal<?> baseModal,
             final MultilevelPanel multiLevelPanelRef,
             final String entityKey,
             final PageReference pageRef) {
 
-        super(MultilevelPanel.FIRST_LEVEL_ID, pageRef, false);
+        super(MultilevelPanel.FIRST_LEVEL_ID, pageRef, false, false);
 
         this.baseModal = baseModal;
         this.multiLevelPanelRef = multiLevelPanelRef;
         restClient = new ConnectorHistoryRestClient();
         setShowResultPage(false);
+        disableCheckBoxes();
 
         this.entityKey = entityKey;
         initResultTable();

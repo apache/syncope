@@ -21,7 +21,7 @@ package org.apache.syncope.client.console.panels;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
@@ -150,25 +150,23 @@ public class HistoryConfDetails<T extends AbstractHistoryConf> extends Multileve
         return Pair.of(key, json);
     }
 
-    private Map<String, String> getDropdownNamesMap(final List<T> historyConfTOs) {
-        Map<String, String> historyConfMap = new HashMap<>();
-        if (selectedHistoryConfTO instanceof ConnInstanceHistoryConfTO) {
-            for (T historyConfValue : historyConfTOs) {
-                ConnInstanceHistoryConfTO historyConf = ConnInstanceHistoryConfTO.class.cast(historyConfValue);
-                historyConfMap.put(historyConf.getKey(),
-                        historyConf.getCreation() != null ? historyConf.getCreator() + " - " + SyncopeConsoleSession.
-                        get().getDateFormat().format(
-                                historyConf.getCreation()) + " - " + historyConf.getKey() : getString("current"));
-            }
-        } else if (selectedHistoryConfTO instanceof ResourceHistoryConfTO) {
-            for (T historyConfValue : historyConfTOs) {
-                ResourceHistoryConfTO historyConf = ResourceHistoryConfTO.class.cast(historyConfValue);
-                historyConfMap.put(historyConf.getKey(),
-                        historyConf.getCreation() != null ? historyConf.getCreator() + " - " + SyncopeConsoleSession.
-                        get().getDateFormat().format(
-                                historyConf.getCreation()) + " - " + historyConf.getKey() : getString("current"));
+    private <T extends AbstractHistoryConf> Map<String, String> getDropdownNamesMap(final List<T> historyConfTOs) {
+        Map<String, String> historyConfMap = new LinkedHashMap<>();
+
+        String current = null;
+        for (T historyConf : historyConfTOs) {
+            if (historyConf.getCreation() == null) {
+                current = historyConf.getKey();
+            } else {
+                historyConfMap.put(historyConf.getKey(), historyConf.getCreator() + " - "
+                        + SyncopeConsoleSession.get().getDateFormat().format(
+                                historyConf.getCreation()) + " - " + historyConf.getKey());
             }
         }
+        if (current != null) {
+            historyConfMap.put(current, getString("current"));
+        }
+
         return historyConfMap;
     }
 
@@ -250,10 +248,10 @@ public class HistoryConfDetails<T extends AbstractHistoryConf> extends Multileve
             conf = (T) new ConnInstanceHistoryConfTO();
             ((ConnInstanceHistoryConfTO) conf).setConnInstanceTO(current);
         } else if (selectedHistoryConfTO instanceof ResourceHistoryConfTO) {
-            ResourceTO currentRes = new ResourceRestClient().read(
+            ResourceTO current = new ResourceRestClient().read(
                     ResourceHistoryConfTO.class.cast(selectedHistoryConfTO).getResourceTO().getKey());
             conf = (T) new ResourceHistoryConfTO();
-            ((ResourceHistoryConfTO) conf).setResourceTO(currentRes);
+            ((ResourceHistoryConfTO) conf).setResourceTO(current);
         }
 
         if (conf != null) {

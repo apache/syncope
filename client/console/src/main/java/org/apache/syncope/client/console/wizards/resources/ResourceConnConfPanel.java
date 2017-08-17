@@ -24,7 +24,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
@@ -49,7 +48,7 @@ public abstract class ResourceConnConfPanel extends AbstractConnConfPanel<Resour
 
             @Override
             protected List<ConnConfProperty> load() {
-                final List<ConnConfProperty> confOverride = getConnProperties(resourceTO);
+                List<ConnConfProperty> confOverride = getConnProperties(resourceTO);
                 resourceTO.getConfOverride().clear();
                 resourceTO.getConfOverride().addAll(confOverride);
 
@@ -59,7 +58,7 @@ public abstract class ResourceConnConfPanel extends AbstractConnConfPanel<Resour
 
                     @Override
                     public List<ConnConfProperty> getObject() {
-                        final List<ConnConfProperty> res = new ArrayList<>((Set<ConnConfProperty>) super.getObject());
+                        List<ConnConfProperty> res = new ArrayList<>(super.getObject());
 
                         // re-order properties
                         Collections.sort(res, new Comparator<ConnConfProperty>() {

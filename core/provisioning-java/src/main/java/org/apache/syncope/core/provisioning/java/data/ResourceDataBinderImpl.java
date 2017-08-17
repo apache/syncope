@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -116,22 +117,25 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
     @Override
     public ExternalResource update(final ExternalResource resource, final ResourceTO resourceTO) {
         if (resource.getKey() != null) {
-            // 1. save the current configuration, before update
-            ExternalResourceHistoryConf resourceHistoryConf =
-                    entityFactory.newEntity(ExternalResourceHistoryConf.class);
-            resourceHistoryConf.setCreator(AuthContextUtils.getUsername());
-            resourceHistoryConf.setCreation(new Date());
-            resourceHistoryConf.setEntity(resource);
-            resourceHistoryConf.setConf(getResourceTO(resource));
-            resourceHistoryConfDAO.save(resourceHistoryConf);
+            ResourceTO current = getResourceTO(resource);
+            if (!current.equals(resourceTO)) {
+                // 1. save the current configuration, before update
+                ExternalResourceHistoryConf resourceHistoryConf =
+                        entityFactory.newEntity(ExternalResourceHistoryConf.class);
+                resourceHistoryConf.setCreator(AuthContextUtils.getUsername());
+                resourceHistoryConf.setCreation(new Date());
+                resourceHistoryConf.setEntity(resource);
+                resourceHistoryConf.setConf(current);
+                resourceHistoryConfDAO.save(resourceHistoryConf);
 
-            // 2. ensure the maximum history size is not exceeded
-            List<ExternalResourceHistoryConf> history = resourceHistoryConfDAO.findByEntity(resource);
-            long maxHistorySize = confDAO.find("resource.conf.history.size", 10L);
-            if (maxHistorySize < history.size()) {
-                // always remove the last item since history was obtained  by a query with ORDER BY creation DESC
-                for (int i = 0; i < history.size() - maxHistorySize; i++) {
-                    resourceHistoryConfDAO.delete(history.get(history.size() - 1).getKey());
+                // 2. ensure the maximum history size is not exceeded
+                List<ExternalResourceHistoryConf> history = resourceHistoryConfDAO.findByEntity(resource);
+                long maxHistorySize = confDAO.find("resource.conf.history.size", 10L);
+                if (maxHistorySize < history.size()) {
+                    // always remove the last item since history was obtained  by a query with ORDER BY creation DESC
+                    for (int i = 0; i < history.size() - maxHistorySize; i++) {
+                        resourceHistoryConfDAO.delete(history.get(history.size() - 1).getKey());
+                    }
                 }
             }
         }
@@ -579,6 +583,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                 ? null : resource.getPullPolicy().getKey());
 
         resourceTO.getConfOverride().addAll(resource.getConfOverride());
+        Collections.sort(resourceTO.getConfOverride());
 
         resourceTO.setOverrideCapabilities(resource.isOverrideCapabilities());
         resourceTO.getCapabilitiesOverride().addAll(resource.getCapabilitiesOverride());

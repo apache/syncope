@@ -21,6 +21,7 @@ package org.apache.syncope.common.lib.types;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -117,7 +118,46 @@ public class ConnConfPropSchema extends AbstractBaseBean implements Comparable<C
         return this.getOrder() > other.getOrder()
                 ? 1
                 : this.getOrder() < other.getOrder()
-                        ? -1
-                        : 0;
+                ? -1
+                : 0;
     }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 53 * hash + Objects.hashCode(this.name);
+        hash = 53 * hash + Objects.hashCode(this.type);
+        hash = 53 * hash + (this.required ? 1 : 0);
+        hash = 53 * hash + this.order;
+        hash = 53 * hash + (this.confidential ? 1 : 0);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final ConnConfPropSchema other = (ConnConfPropSchema) obj;
+        if (this.required != other.required) {
+            return false;
+        }
+        if (this.order != other.order) {
+            return false;
+        }
+        if (this.confidential != other.confidential) {
+            return false;
+        }
+        if (!Objects.equals(this.name, other.name)) {
+            return false;
+        }
+        return Objects.equals(this.type, other.type);
+    }
+
 }

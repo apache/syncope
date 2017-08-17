@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.client.cli.commands.connector;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -91,7 +92,7 @@ public class ConnectorResultManager extends CommonsResultManager {
         }
     }
 
-    public void printConfigurationProperties(final Set<ConnConfProperty> connConfPropertys) {
+    public void printConfigurationProperties(final Collection<ConnConfProperty> connConfPropertys) {
         printConfiguration(connConfPropertys);
 
     }

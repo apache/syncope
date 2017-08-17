@@ -19,10 +19,9 @@
 package org.apache.syncope.client.console.rest;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import javax.ws.rs.core.Response;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
@@ -56,7 +55,7 @@ public class ConnectorRestClient extends BaseRestClient {
     }
 
     public ConnInstanceTO create(final ConnInstanceTO connectorTO) {
-        Set<ConnConfProperty> filteredConf = filterProperties(connectorTO.getConf());
+        List<ConnConfProperty> filteredConf = filterProperties(connectorTO.getConf());
         connectorTO.getConf().clear();
         connectorTO.getConf().addAll(filteredConf);
 
@@ -86,7 +85,7 @@ public class ConnectorRestClient extends BaseRestClient {
     }
 
     public List<String> getExtAttrNames(
-            final String objectClass, final String connectorKey, final Set<ConnConfProperty> conf) {
+            final String objectClass, final String connectorKey, final Collection<ConnConfProperty> conf) {
 
         ConnInstanceTO connInstanceTO = new ConnInstanceTO();
         connInstanceTO.setKey(connectorKey);
@@ -125,7 +124,7 @@ public class ConnectorRestClient extends BaseRestClient {
     }
 
     public void update(final ConnInstanceTO connectorTO) {
-        Set<ConnConfProperty> filteredConf = filterProperties(connectorTO.getConf());
+        List<ConnConfProperty> filteredConf = filterProperties(connectorTO.getConf());
         connectorTO.getConf().clear();
         connectorTO.getConf().addAll(filteredConf);
         getService(ConnectorService.class).update(connectorTO);
@@ -150,8 +149,8 @@ public class ConnectorRestClient extends BaseRestClient {
         return bundles;
     }
 
-    private Set<ConnConfProperty> filterProperties(final Set<ConnConfProperty> properties) {
-        Set<ConnConfProperty> newProperties = new HashSet<>();
+    private List<ConnConfProperty> filterProperties(final Collection<ConnConfProperty> properties) {
+        List<ConnConfProperty> newProperties = new ArrayList<>();
 
         for (ConnConfProperty property : properties) {
             ConnConfProperty prop = new ConnConfProperty();

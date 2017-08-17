@@ -127,20 +127,40 @@ public class VirSchemaDetails extends AbstractSchemaDetailsPanel {
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                if (selectedResource != null && SyncopeConsoleSession.get().owns(StandardEntitlement.CONNECTOR_READ)) {
-                    extAttrName.setChoices(getExtAttrNames());
-                    target.add(extAttrName);
+                if (selectedResource != null) {
+                    String adminRealm = getAdminRealm(selectedResource.getKey());
+
+                    if (SyncopeConsoleSession.get().owns(StandardEntitlement.CONNECTOR_READ, adminRealm)) {
+                        extAttrName.setChoices(getExtAttrNames());
+                        target.add(extAttrName);
+                    }
                 }
             }
         });
     }
 
+    private String getAdminRealm(final String connectorKey) {
+        String adminRealm = null;
+        try {
+            adminRealm = new ConnectorRestClient().read(connectorKey).getAdminRealm();
+        } catch (Exception e) {
+            LOG.error("Could not read Admin Realm for External Resource {}", selectedResource.getKey());
+        }
+
+        return adminRealm;
+    }
+
     private void populateAnyTypes(final String resourceKey) {
         anyTypes.clear();
-        if (resourceKey != null && SyncopeConsoleSession.get().owns(StandardEntitlement.RESOURCE_READ)) {
-            selectedResource = resourceRestClient.read(resourceKey);
-            for (ProvisionTO provisionTO : selectedResource.getProvisions()) {
-                anyTypes.put(provisionTO.getAnyType(), provisionTO.getObjectClass());
+        if (resourceKey != null) {
+            ResourceTO resource = resourceRestClient.read(resourceKey);
+            String adminRealm = getAdminRealm(resource.getConnector());
+
+            if (SyncopeConsoleSession.get().owns(StandardEntitlement.RESOURCE_READ, adminRealm)) {
+                selectedResource = resource;
+                for (ProvisionTO provisionTO : selectedResource.getProvisions()) {
+                    anyTypes.put(provisionTO.getAnyType(), provisionTO.getObjectClass());
+                }
             }
         }
     }

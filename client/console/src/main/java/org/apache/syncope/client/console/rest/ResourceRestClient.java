@@ -92,14 +92,20 @@ public class ResourceRestClient extends BaseRestClient {
     }
 
     public List<ResourceTO> list() {
-        List<ResourceTO> resources = getService(ResourceService.class).list();
-        Collections.sort(resources, new Comparator<ResourceTO>() {
+        List<ResourceTO> resources = Collections.emptyList();
+        try {
+            resources = getService(ResourceService.class).list();
+            Collections.sort(resources, new Comparator<ResourceTO>() {
 
-            @Override
-            public int compare(final ResourceTO o1, final ResourceTO o2) {
-                return ComparatorUtils.<String>naturalComparator().compare(o1.getKey(), o2.getKey());
-            }
-        });
+                @Override
+                public int compare(final ResourceTO o1, final ResourceTO o2) {
+                    return ComparatorUtils.<String>naturalComparator().compare(o1.getKey(), o2.getKey());
+                }
+            });
+        } catch (Exception e) {
+            LOG.error("Could not fetch the Resource list", e);
+        }
+
         return resources;
     }
 

@@ -409,7 +409,7 @@ public class Topology extends BasePage {
                 final ListView<TopologyNode> innerListView = new ListView<TopologyNode>("resources",
                         new ArrayList<>(connections.get(connectorKey).values())) {
 
-                    private static final long serialVersionUID = 1L;
+                    private static final long serialVersionUID = -3447760771863754342L;
 
                     private final int size = getModelObject().size() + 1;
 
@@ -505,7 +505,7 @@ public class Topology extends BasePage {
 
         newlyCreated = new ListView<TopologyNode>("newlyCreated", new ArrayList<TopologyNode>()) {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = 4949588177564901031L;
 
             @Override
             protected void populateItem(final ListItem<TopologyNode> item) {
@@ -542,7 +542,7 @@ public class Topology extends BasePage {
 
         behaviors.add(new Behavior() {
 
-            private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = 2661717818979056044L;
 
             @Override
             public void renderHead(final Component component, final IHeaderResponse response) {
