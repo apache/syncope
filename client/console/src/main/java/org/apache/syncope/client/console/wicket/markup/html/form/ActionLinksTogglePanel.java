@@ -26,6 +26,9 @@ import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.panels.TogglePanel;
 import org.apache.syncope.client.console.policies.PolicyRuleDirectoryPanel.PolicyRuleWrapper;
 import org.apache.syncope.client.console.reports.ReportletDirectoryPanel.ReportletWrapper;
+import org.apache.syncope.client.console.wizards.any.AnyWrapper;
+import org.apache.syncope.client.console.wizards.any.GroupWrapper;
+import org.apache.syncope.client.console.wizards.any.UserWrapper;
 import org.apache.syncope.client.console.wizards.resources.ResourceProvision;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.EntityTO;
@@ -68,19 +71,26 @@ public class ActionLinksTogglePanel<T extends Serializable> extends TogglePanel<
         container.add(getEmptyFragment());
     }
 
-    public void toggleWithContent(
-            final AjaxRequestTarget target, final ActionsPanel<T> actionsPanel, final T modelObject) {
+    public void updateHeader(
+            final AjaxRequestTarget target, final Serializable modelObject) {
         final String header;
         if (modelObject == null) {
             header = new ResourceModel("actions", StringUtils.EMPTY).getObject();
         } else if (modelObject instanceof UserTO) {
             header = ((UserTO) modelObject).getUsername();
+        } else if (modelObject instanceof UserWrapper) {
+            header = ((UserWrapper) modelObject).getInnerObject().getUsername();
         } else if (modelObject instanceof GroupTO) {
             header = ((GroupTO) modelObject).getName();
-        } else if (modelObject instanceof ReportTO) {
-            header = ((ReportTO) modelObject).getName();
+        } else if (modelObject instanceof GroupWrapper) {
+            header = ((GroupWrapper) modelObject).getInnerObject().getName();
         } else if (modelObject instanceof AnyObjectTO) {
             header = ((AnyObjectTO) modelObject).getName();
+        } else if (modelObject instanceof AnyWrapper
+                && AnyWrapper.class.cast(modelObject).getInnerObject() instanceof AnyObjectTO) {
+            header = ((AnyObjectTO) ((AnyWrapper) modelObject).getInnerObject()).getName();
+        } else if (modelObject instanceof ReportTO) {
+            header = ((ReportTO) modelObject).getName();
         } else if (modelObject instanceof AttrTO) {
             header = ((AttrTO) modelObject).getSchema();
         } else if (modelObject instanceof AbstractPolicyTO) {
@@ -116,7 +126,11 @@ public class ActionLinksTogglePanel<T extends Serializable> extends TogglePanel<
             header = new ResourceModel("actions", StringUtils.EMPTY).getObject();
         }
         setHeader(target, StringUtils.abbreviate(header, 25));
+    }
 
+    public void toggleWithContent(
+            final AjaxRequestTarget target, final ActionsPanel<T> actionsPanel, final T modelObject) {
+        updateHeader(target, modelObject);
         modal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 
             private static final long serialVersionUID = 8804221891699487139L;
