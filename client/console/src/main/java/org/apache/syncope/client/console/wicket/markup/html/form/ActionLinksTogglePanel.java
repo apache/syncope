@@ -26,6 +26,7 @@ import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.panels.TogglePanel;
 import org.apache.syncope.client.console.policies.PolicyRuleDirectoryPanel.PolicyRuleWrapper;
 import org.apache.syncope.client.console.reports.ReportletDirectoryPanel.ReportletWrapper;
+import org.apache.syncope.client.console.wizards.resources.ResourceProvision;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -109,6 +110,8 @@ public class ActionLinksTogglePanel<T extends Serializable> extends TogglePanel<
         } else if (modelObject instanceof JobTO) {
             header = ((JobTO) modelObject).getRefKey() == null
                     ? ((JobTO) modelObject).getRefDesc() : ((JobTO) modelObject).getRefKey();
+        } else if (modelObject instanceof ResourceProvision) {
+            header = ((ResourceProvision) modelObject).getAnyType();
         } else {
             header = new ResourceModel("actions", StringUtils.EMPTY).getObject();
         }

@@ -76,6 +76,8 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
 
     private final AjaxLink<ResourceProvision> addAjaxLink;
 
+    protected ActionLinksTogglePanel<ResourceProvision> actionTogglePanel;
+
     public ResourceProvisionPanel(
             final BaseModal<Serializable> modal,
             final ResourceTO resourceTO,
@@ -86,6 +88,9 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
         this.resourceTO = resourceTO;
 
         setOutputMarkupId(true);
+
+        actionTogglePanel = new ActionLinksTogglePanel<>("toggle", pageRef);
+        add(actionTogglePanel);
 
         wizard = new ProvisionWizardBuilder(resourceTO, pageRef);
 
@@ -133,6 +138,11 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
 
                 // change modal footer visibility
                 send(ResourceProvisionPanel.this, Broadcast.BUBBLE, new BaseModal.ChangeFooterVisibilityEvent(target));
+            }
+
+            @Override
+            protected ActionLinksTogglePanel<ResourceProvision> getTogglePanel() {
+                return actionTogglePanel;
             }
         };
 
@@ -234,6 +244,8 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
+                send(ResourceProvisionPanel.this, Broadcast.BREADTH,
+                        new ActionLinksTogglePanel.ActionLinkToggleCloseEventPayload(target));
                 objectTypeTogglePanel.setHeaderLabel(target);
                 objectTypeTogglePanel.toggle(target, true);
             }
@@ -348,8 +360,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
     }
 
     private void checkAddButton(final String adminRealm) {
-        boolean enabled =
-                SyncopeConsoleSession.get().owns(StandardEntitlement.RESOURCE_UPDATE, adminRealm)
+        boolean enabled = SyncopeConsoleSession.get().owns(StandardEntitlement.RESOURCE_UPDATE, adminRealm)
                 && !getAnyTypes().getObject().isEmpty();
         addAjaxLink.setVisible(enabled);
         objectTypeTogglePanel.setEnabled(enabled);

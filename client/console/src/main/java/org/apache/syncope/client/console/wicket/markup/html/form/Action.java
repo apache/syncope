@@ -104,6 +104,11 @@ public final class Action<T extends Serializable> implements Serializable {
         this.visibleLabel = false;
         return this;
     }
+    
+    public Action<T> showLabel() {
+        this.visibleLabel = true;
+        return this;
+    }
 
     public boolean isVisibleLabel() {
         return visibleLabel;

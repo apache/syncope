@@ -185,6 +185,9 @@ public final class ActionPanel<T extends Serializable> extends Panel {
             case DELETE:
             case CREATE:
             case MEMBERS:
+            case MAPPING:
+            case SET_LATEST_SYNC_TOKEN:
+            case REMOVE_SYNC_TOKEN:
             case CLAIM:
                 send(this, Broadcast.BUBBLE, new ActionLinksTogglePanel.ActionLinkToggleCloseEventPayload(target));
                 break;
