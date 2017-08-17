@@ -79,6 +79,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
     public ResourceProvisionPanel(
             final BaseModal<Serializable> modal,
             final ResourceTO resourceTO,
+            final String adminRealm,
             final PageReference pageRef) {
 
         super(modal, pageRef);
@@ -125,7 +126,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
 
             @Override
             protected void customActionOnFinishCallback(final AjaxRequestTarget target) {
-                checkAddButton();
+                checkAddButton(adminRealm);
 
                 // keep list ordered - SYNCOPE-1154
                 sortProvisions();
@@ -217,7 +218,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                             resourceTO.getProvisions().remove(provision.getProvisionTO());
                         }
                         provisions.remove(provision);
-                        checkAddButton();
+                        checkAddButton(adminRealm);
                         send(ResourceProvisionPanel.this, Broadcast.DEPTH, new ListViewReload<>(target));
                     }
                 }, ActionLink.ActionType.DELETE, StandardEntitlement.RESOURCE_UPDATE, true);
@@ -225,7 +226,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
         builder.addNewItemPanelBuilder(wizard);
 
         list = builder.build("provision");
-        list.setReadOnly(!SyncopeConsoleSession.get().owns(StandardEntitlement.RESOURCE_UPDATE));
+        list.setReadOnly(!SyncopeConsoleSession.get().owns(StandardEntitlement.RESOURCE_UPDATE, adminRealm));
 
         addAjaxLink = new AjaxLink<ResourceProvision>("add") {
 
@@ -261,7 +262,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
             }
 
         };
-        checkAddButton();
+        checkAddButton(adminRealm);
         add(objectTypeTogglePanel);
     }
 
@@ -346,9 +347,9 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
         };
     }
 
-    private void checkAddButton() {
+    private void checkAddButton(final String adminRealm) {
         boolean enabled =
-                SyncopeConsoleSession.get().owns(StandardEntitlement.RESOURCE_UPDATE)
+                SyncopeConsoleSession.get().owns(StandardEntitlement.RESOURCE_UPDATE, adminRealm)
                 && !getAnyTypes().getObject().isEmpty();
         addAjaxLink.setVisible(enabled);
         objectTypeTogglePanel.setEnabled(enabled);

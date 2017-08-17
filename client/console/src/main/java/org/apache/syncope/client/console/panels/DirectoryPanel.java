@@ -109,7 +109,7 @@ public abstract class DirectoryPanel<
 
     /**
      * Create simple unfiltered search result panel.
-     * Use the available builder for powerfull configuration options.
+     * Use the available builder for powerful configuration options.
      *
      * @param id panel id.
      * @param pageRef page reference.
@@ -119,6 +119,12 @@ public abstract class DirectoryPanel<
     }
 
     public DirectoryPanel(final String id, final PageReference pageRef, final boolean wizardInModal) {
+        this(id, pageRef, true, wizardInModal);
+    }
+
+    public DirectoryPanel(
+            final String id, final PageReference pageRef, final boolean showPaginator, final boolean wizardInModal) {
+
         this(id, new Builder<T, W, E>(null, pageRef) {
 
             private static final long serialVersionUID = -8424727765826509309L;
@@ -129,6 +135,7 @@ public abstract class DirectoryPanel<
             }
         }.setFiltered(false), wizardInModal);
         setPageRef(pageRef);
+        this.showPaginator = showPaginator;
     }
 
     protected DirectoryPanel(final String id, final Builder<T, W, E> builder) {
@@ -202,14 +209,13 @@ public abstract class DirectoryPanel<
         // ---------------------------
         // Rows-per-page selector
         // ---------------------------
-        final Form<?> paginatorForm = new Form<>("paginator");
+        Form<?> paginatorForm = new Form<>("paginator");
         paginatorForm.setOutputMarkupPlaceholderTag(true);
         paginatorForm.setVisible(showPaginator);
         container.add(paginatorForm);
 
-        final DropDownChoice<Integer> rowsChooser = new DropDownChoice<>(
+        DropDownChoice<Integer> rowsChooser = new DropDownChoice<>(
                 "rowsChooser", new PropertyModel<Integer>(this, "rows"), prefMan.getPaginatorChoices());
-
         rowsChooser.add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
@@ -218,7 +224,7 @@ public abstract class DirectoryPanel<
             protected void onUpdate(final AjaxRequestTarget target) {
                 prefMan.set(getRequest(), getResponse(), paginatorRowsKey(), String.valueOf(rows));
 
-                final EventDataWrapper data = new EventDataWrapper();
+                EventDataWrapper data = new EventDataWrapper();
                 data.setTarget(target);
                 data.setRows(rows);
 

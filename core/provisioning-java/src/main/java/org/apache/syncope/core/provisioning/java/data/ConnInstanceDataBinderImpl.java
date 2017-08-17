@@ -22,6 +22,7 @@ import java.net.URI;
 import org.apache.syncope.core.provisioning.api.data.ConnInstanceDataBinder;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
@@ -54,7 +55,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
 
-    private static final String[] IGNORE_PROPERTIES = { "poolConf", "location", "adminRealm" };
+    private static final String[] IGNORE_PROPERTIES = { "poolConf", "location", "adminRealm", "conf" };
 
     @Autowired
     private ConnIdBundleManager connIdBundleManager;
@@ -110,6 +111,7 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
         if (connInstanceTO.getLocation() != null) {
             connInstance.setLocation(connInstanceTO.getLocation());
         }
+        connInstance.setConf(connInstanceTO.getConf());
         if (connInstanceTO.getPoolConf() != null) {
             connInstance.setPoolConf(
                     ConnPoolConfUtils.getConnPoolConf(connInstanceTO.getPoolConf(), entityFactory.newConnPoolConf()));
@@ -130,21 +132,24 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
             throw new NotFoundException("Connector '" + connInstanceTO.getKey() + "'");
         }
 
-        // 1. save the current configuration, before update
-        ConnInstanceHistoryConf connInstanceHistoryConf = entityFactory.newEntity(ConnInstanceHistoryConf.class);
-        connInstanceHistoryConf.setCreator(AuthContextUtils.getUsername());
-        connInstanceHistoryConf.setCreation(new Date());
-        connInstanceHistoryConf.setEntity(connInstance);
-        connInstanceHistoryConf.setConf(getConnInstanceTO(connInstance));
-        connInstanceHistoryConfDAO.save(connInstanceHistoryConf);
+        ConnInstanceTO current = getConnInstanceTO(connInstance);
+        if (!current.equals(connInstanceTO)) {
+            // 1. save the current configuration, before update
+            ConnInstanceHistoryConf connInstanceHistoryConf = entityFactory.newEntity(ConnInstanceHistoryConf.class);
+            connInstanceHistoryConf.setCreator(AuthContextUtils.getUsername());
+            connInstanceHistoryConf.setCreation(new Date());
+            connInstanceHistoryConf.setEntity(connInstance);
+            connInstanceHistoryConf.setConf(current);
+            connInstanceHistoryConfDAO.save(connInstanceHistoryConf);
 
-        // 2. ensure the maximum history size is not exceeded
-        List<ConnInstanceHistoryConf> history = connInstanceHistoryConfDAO.findByEntity(connInstance);
-        long maxHistorySize = confDAO.find("connector.conf.history.size", 10L);
-        if (maxHistorySize < history.size()) {
-            // always remove the last item since history was obtained  by a query with ORDER BY creation DESC
-            for (int i = 0; i < history.size() - maxHistorySize; i++) {
-                connInstanceHistoryConfDAO.delete(history.get(history.size() - 1).getKey());
+            // 2. ensure the maximum history size is not exceeded
+            List<ConnInstanceHistoryConf> history = connInstanceHistoryConfDAO.findByEntity(connInstance);
+            long maxHistorySize = confDAO.find("connector.conf.history.size", 10L);
+            if (maxHistorySize < history.size()) {
+                // always remove the last item since history was obtained  by a query with ORDER BY creation DESC
+                for (int i = 0; i < history.size() - maxHistorySize; i++) {
+                    connInstanceHistoryConfDAO.delete(history.get(history.size() - 1).getKey());
+                }
             }
         }
 
@@ -241,9 +246,10 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
         BeanUtils.copyProperties(connInstance, connInstanceTO, IGNORE_PROPERTIES);
         connInstanceTO.setAdminRealm(connInstance.getAdminRealm().getFullPath());
         connInstanceTO.setLocation(info.getLeft().toASCIIString());
+        connInstanceTO.getConf().addAll(connInstance.getConf());
         // refresh stored properties in the given connInstance with direct information from underlying connector
         ConfigurationProperties properties = connIdBundleManager.getConfigurationProperties(info.getRight());
-        for (final String propName : properties.getPropertyNames()) {
+        for (String propName : properties.getPropertyNames()) {
             ConnConfPropSchema schema = build(properties.getProperty(propName));
 
             ConnConfProperty property = connInstanceTO.getConf(propName);
@@ -253,9 +259,16 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
             }
             property.setSchema(schema);
         }
+        Collections.sort(connInstanceTO.getConf());
 
         // pool configuration
-        if (connInstance.getPoolConf() != null) {
+        if (connInstance.getPoolConf() != null
+                && (connInstance.getPoolConf().getMaxIdle() != null
+                || connInstance.getPoolConf().getMaxObjects() != null
+                || connInstance.getPoolConf().getMaxWait() != null
+                || connInstance.getPoolConf().getMinEvictableIdleTimeMillis() != null
+                || connInstance.getPoolConf().getMinIdle() != null)) {
+
             ConnPoolConfTO poolConf = new ConnPoolConfTO();
             BeanUtils.copyProperties(connInstance.getPoolConf(), poolConf);
             connInstanceTO.setPoolConf(poolConf);

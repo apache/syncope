@@ -19,9 +19,9 @@
 package org.apache.syncope.client.cli.commands;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import org.apache.syncope.client.cli.Command;
 import org.apache.syncope.client.cli.view.Messages;
 import org.apache.syncope.client.cli.view.Table;
@@ -73,7 +73,7 @@ public abstract class CommonsResultManager {
         return Messages.commandHelpMessage(name.getAnnotation(Command.class).name());
     }
 
-    protected void printConfiguration(final Set<ConnConfProperty> configurationPropertys) {
+    protected void printConfiguration(final Collection<ConnConfProperty> configurationPropertys) {
         for (final ConnConfProperty configuration : configurationPropertys) {
             System.out.println("       name: " + configuration.getSchema().getName());
             System.out.println("       values: " + configuration.getValues());

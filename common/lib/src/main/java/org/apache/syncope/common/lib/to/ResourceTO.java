@@ -22,7 +22,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.ws.rs.PathParam;
@@ -79,7 +78,7 @@ public class ResourceTO extends AbstractBaseBean implements EntityTO {
 
     private String pullPolicy;
 
-    private final Set<ConnConfProperty> confOverride = new HashSet<>();
+    private final List<ConnConfProperty> confOverride = new ArrayList<>();
 
     private boolean overrideCapabilities = false;
 
@@ -215,7 +214,7 @@ public class ResourceTO extends AbstractBaseBean implements EntityTO {
     @XmlElementWrapper(name = "confOverride")
     @XmlElement(name = "property")
     @JsonProperty("confOverride")
-    public Set<ConnConfProperty> getConfOverride() {
+    public List<ConnConfProperty> getConfOverride() {
         return confOverride;
     }
 

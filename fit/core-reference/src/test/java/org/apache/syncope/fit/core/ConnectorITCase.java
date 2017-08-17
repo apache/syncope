@@ -319,7 +319,7 @@ public class ConnectorITCase extends AbstractITCase {
 
     @Test
     public void getConnectorConfiguration() {
-        Set<ConnConfProperty> props = connectorService.read(
+        List<ConnConfProperty> props = connectorService.read(
                 "6c2acf1b-b052-46f0-8c56-7a8ad6905edf", Locale.ENGLISH.getLanguage()).getConf();
         assertNotNull(props);
         assertFalse(props.isEmpty());

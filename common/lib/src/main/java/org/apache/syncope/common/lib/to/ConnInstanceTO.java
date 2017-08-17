@@ -20,8 +20,9 @@ package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import javax.ws.rs.PathParam;
 import javax.xml.bind.annotation.XmlElement;
@@ -52,7 +53,7 @@ public class ConnInstanceTO extends AbstractBaseBean implements EntityTO {
 
     private String version;
 
-    private final Set<ConnConfProperty> conf = new HashSet<>();
+    private final List<ConnConfProperty> conf = new ArrayList<>();
 
     private final Set<ConnectorCapability> capabilities = EnumSet.noneOf(ConnectorCapability.class);
 
@@ -116,7 +117,7 @@ public class ConnInstanceTO extends AbstractBaseBean implements EntityTO {
     @XmlElementWrapper(name = "conf")
     @XmlElement(name = "property")
     @JsonProperty("conf")
-    public Set<ConnConfProperty> getConf() {
+    public List<ConnConfProperty> getConf() {
         return this.conf;
     }
 

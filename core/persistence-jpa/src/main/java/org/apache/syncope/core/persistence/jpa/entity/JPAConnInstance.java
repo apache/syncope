@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.jpa.entity;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -191,7 +192,7 @@ public class JPAConnInstance extends AbstractGeneratedKeyEntity implements ConnI
     }
 
     @Override
-    public void setConf(final Set<ConnConfProperty> conf) {
+    public void setConf(final Collection<ConnConfProperty> conf) {
         jsonConf = POJOHelper.serialize(new HashSet<>(conf));
     }
 
@@ -227,7 +228,7 @@ public class JPAConnInstance extends AbstractGeneratedKeyEntity implements ConnI
         // DEFAULT_TIMEOUT will be returned in case of null timeout:
         // * instances created by the content loader
         // * or with a timeout nullified explicitely
-        return connRequestTimeout == null ? Integer.valueOf(DEFAULT_TIMEOUT) : connRequestTimeout;
+        return connRequestTimeout == null ? DEFAULT_TIMEOUT : connRequestTimeout;
     }
 
     @Override

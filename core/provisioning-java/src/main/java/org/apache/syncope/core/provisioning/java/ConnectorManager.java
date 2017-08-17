@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
@@ -80,8 +81,8 @@ public class ConnectorManager implements ConnectorRegistry, ConnectorFactory, Sy
     @Override
     public ConnInstance buildConnInstanceOverride(
             final ConnInstance connInstance,
-            final Set<ConnConfProperty> confOverride,
-            final Set<ConnectorCapability> capabilitiesOverride) {
+            final Collection<ConnConfProperty> confOverride,
+            final Collection<ConnectorCapability> capabilitiesOverride) {
 
         synchronized (this) {
             if (entityFactory == null) {

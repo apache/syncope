@@ -106,9 +106,7 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
         provisionModal = new BaseModal<>("outer");
         provisionModal.size(Modal.Size.Large);
-        if (SyncopeConsoleSession.get().owns(StandardEntitlement.RESOURCE_UPDATE)) {
-            provisionModal.addSubmitButton();
-        }
+        provisionModal.addSubmitButton();
         addOuterObject(provisionModal);
 
         historyModal = new BaseModal<>("outer");
@@ -304,19 +302,20 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                final ConnInstanceTO modelObject = connectorRestClient.read(String.class.cast(node.getKey()));
+                ConnInstanceTO connInstance = connectorRestClient.read(String.class.cast(node.getKey()));
 
-                final IModel<ConnInstanceTO> model = new CompoundPropertyModel<>(modelObject);
+                final IModel<ConnInstanceTO> model = new CompoundPropertyModel<>(connInstance);
                 modal.setFormModel(model);
 
-                target.add(modal.setContent(new ConnectorWizardBuilder(modelObject, pageRef).
+                target.add(modal.setContent(new ConnectorWizardBuilder(connInstance, pageRef).
                         build(BaseModal.CONTENT_ID,
-                                SyncopeConsoleSession.get().owns(StandardEntitlement.CONNECTOR_UPDATE)
+                                SyncopeConsoleSession.get().
+                                        owns(StandardEntitlement.CONNECTOR_UPDATE, connInstance.getAdminRealm())
                                 ? AjaxWizard.Mode.EDIT
                                 : AjaxWizard.Mode.READONLY)));
 
                 modal.header(
-                        new Model<>(MessageFormat.format(getString("connector.edit"), modelObject.getDisplayName())));
+                        new Model<>(MessageFormat.format(getString("connector.edit"), connInstance.getDisplayName())));
                 modal.show(true);
             }
 
@@ -336,9 +335,10 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 String connKey = String.class.cast(node.getKey());
-                final ConnInstanceTO modelObject = connectorRestClient.read(String.class.cast(node.getKey()));
+                ConnInstanceTO connInstance = connectorRestClient.read(connKey);
 
-                target.add(historyModal.setContent(new HistoryConfList<>(historyModal, connKey, pageRef, modelObject)));
+                target.add(historyModal.setContent(
+                        new HistoryConfList<>(historyModal, connKey, pageRef, connInstance)));
 
                 historyModal.header(
                         new Model<>(MessageFormat.format(getString("connector.menu.history"), node.getDisplayName())));
@@ -389,14 +389,16 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                ResourceTO modelObject = resourceRestClient.read(node.getKey());
+                ResourceTO resource = resourceRestClient.read(node.getKey());
+                ConnInstanceTO connInstance = connectorRestClient.read(resource.getConnector());
 
-                IModel<ResourceTO> model = new CompoundPropertyModel<>(modelObject);
+                IModel<ResourceTO> model = new CompoundPropertyModel<>(resource);
                 modal.setFormModel(model);
 
-                target.add(modal.setContent(new ResourceWizardBuilder(modelObject, pageRef).
+                target.add(modal.setContent(new ResourceWizardBuilder(resource, pageRef).
                         build(BaseModal.CONTENT_ID,
-                                SyncopeConsoleSession.get().owns(StandardEntitlement.RESOURCE_UPDATE)
+                                SyncopeConsoleSession.get().
+                                        owns(StandardEntitlement.RESOURCE_UPDATE, connInstance.getAdminRealm())
                                 ? AjaxWizard.Mode.EDIT
                                 : AjaxWizard.Mode.READONLY)));
 
@@ -443,11 +445,21 @@ public class TopologyTogglePanel extends TogglePanel<Serializable> {
             @Override
             public void onClick(final AjaxRequestTarget target) {
                 ResourceTO resource = resourceRestClient.read(node.getKey());
+                ConnInstanceTO connInstance = connectorRestClient.read(resource.getConnector());
+
+                if (SyncopeConsoleSession.get().
+                        owns(StandardEntitlement.RESOURCE_UPDATE, connInstance.getAdminRealm())) {
+
+                    provisionModal.addSubmitButton();
+                } else {
+                    provisionModal.removeSubmitButton();
+                }
 
                 IModel<ResourceTO> model = new CompoundPropertyModel<>(resource);
                 provisionModal.setFormModel(model);
 
-                target.add(provisionModal.setContent(new ResourceProvisionPanel(provisionModal, resource, pageRef)));
+                target.add(provisionModal.setContent(
+                        new ResourceProvisionPanel(provisionModal, resource, connInstance.getAdminRealm(), pageRef)));
 
                 provisionModal.header(new Model<>(MessageFormat.format(getString("resource.edit"), node.getKey())));
                 provisionModal.show(true);
