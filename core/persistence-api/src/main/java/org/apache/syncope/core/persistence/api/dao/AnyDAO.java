@@ -41,9 +41,9 @@ public interface AnyDAO<A extends Any<?>> extends DAO<A> {
 
     A findByWorkflowId(String workflowId);
 
-    List<A> findByAttrValue(String schemaName, PlainAttrValue attrValue);
+    List<A> findByPlainAttrValue(String schemaName, PlainAttrValue attrValue);
 
-    A findByAttrUniqueValue(String schemaName, PlainAttrValue attrUniqueValue);
+    A findByPlainAttrUniqueValue(String schemaName, PlainAttrValue attrUniqueValue);
 
     /**
      * Find any objects by derived attribute value. This method could fail if one or more string literals contained

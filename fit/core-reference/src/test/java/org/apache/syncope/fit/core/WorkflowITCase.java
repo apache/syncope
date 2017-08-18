@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.fit.core;
 
-import org.apache.syncope.fit.ActivitiDetector;
-
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertFalse;
@@ -34,6 +32,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.lib.to.WorkflowDefinitionTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.fit.AbstractITCase;
+import org.apache.syncope.fit.ActivitiDetector;
 import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;

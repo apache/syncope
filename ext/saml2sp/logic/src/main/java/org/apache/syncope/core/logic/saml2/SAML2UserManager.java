@@ -138,7 +138,7 @@ public class SAML2UserManager {
                     }
 
                     CollectionUtils.collect(
-                            userDAO.findByAttrValue(intAttrName.getSchemaName(), value),
+                            userDAO.findByPlainAttrValue(intAttrName.getSchemaName(), value),
                             new Transformer<User, String>() {
 
                         @Override
