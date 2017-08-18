@@ -375,7 +375,7 @@ under the License.
     
     <httpclient.version>4.3.6</httpclient.version>
 
-    <tomcat.version>7.0.79</tomcat.version>
+    <tomcat.version>7.0.81</tomcat.version>
 
     <jasypt.version>1.9.2</jasypt.version>
  
