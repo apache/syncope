@@ -47,18 +47,18 @@ under the License.
                            id="language" style="width: 100%; text-align: left;" class="btn dropdown-toggle btn-default" 
                            ng-options="language.name for language in languages.availableLanguages track by language.id" 
                            ng-model="languages.selectedLanguage"></select>
-                </div>                
+                </div>                 
                 <div class="form-group">
+                  <button type="submit" id="login-btn" class="btn btn-default btn-signin login-btn" 
+                          ng-click="login(credentials)">Login</button>
+                </div>
+                <div class="form-group">
+                  <span>SAML 2.0</span>
                   <select id="saml2sp" style="width: 100%; text-align: left;" class="btn dropdown-toggle btn-default"
                           ng-if="$root.saml2spExtAvailable()"
                           ng-options="idp.name for idp in saml2idps.available track by idp.entityID"
                           ng-model="saml2idps.selected" ng-change="saml2login()">
-                    <option value="" disabled="disabled" selected="selected" hidden="hidden">SAML 2.0</option>
                   </select>
-                </div>
-                <div class="form-group">
-                  <button type="submit" id="login-btn" class="btn btn-default btn-signin login-btn" 
-                          ng-click="login(credentials)">Login</button>
                 </div>
               </fieldset>
             </form>
