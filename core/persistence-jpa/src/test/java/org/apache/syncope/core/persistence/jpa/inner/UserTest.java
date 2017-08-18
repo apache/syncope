@@ -103,7 +103,7 @@ public class UserTest extends AbstractTest {
         final UPlainAttrValue fullnameValue = entityFactory.newEntity(UPlainAttrValue.class);
         fullnameValue.setStringValue("Gioacchino Rossini");
 
-        final List<User> list = userDAO.findByAttrValue("fullname", fullnameValue);
+        final List<User> list = userDAO.findByPlainAttrValue("fullname", fullnameValue);
         assertEquals("did not get expected number of users", 1, list.size());
     }
 
@@ -112,7 +112,7 @@ public class UserTest extends AbstractTest {
         final UPlainAttrValue coolValue = entityFactory.newEntity(UPlainAttrValue.class);
         coolValue.setBooleanValue(true);
 
-        final List<User> list = userDAO.findByAttrValue("cool", coolValue);
+        final List<User> list = userDAO.findByPlainAttrValue("cool", coolValue);
         assertEquals("did not get expected number of users", 1, list.size());
     }
 

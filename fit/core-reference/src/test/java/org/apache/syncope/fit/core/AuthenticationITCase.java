@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.fit.core;
 
-import org.apache.syncope.fit.ActivitiDetector;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -77,6 +75,7 @@ import org.apache.syncope.common.rest.api.service.SchemaService;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.fit.AbstractITCase;
+import org.apache.syncope.fit.ActivitiDetector;
 import org.junit.Assume;
 import org.junit.Test;
 import org.junit.runner.RunWith;

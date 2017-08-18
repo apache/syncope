@@ -246,7 +246,7 @@ public class PullUtils {
                     }
 
                     List<? extends Any<?>> anys = getAnyDAO(provision.getAnyType().getKind()).
-                            findByAttrValue(intAttrName.getSchemaName(), value);
+                            findByPlainAttrValue(intAttrName.getSchemaName(), value);
                     for (Any<?> any : anys) {
                         result.add(any.getKey());
                     }

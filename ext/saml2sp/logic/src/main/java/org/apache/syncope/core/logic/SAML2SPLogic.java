@@ -37,7 +37,6 @@ import javax.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
-import org.apache.commons.validator.routines.UrlValidator;
 import org.apache.cxf.rs.security.jose.jws.JwsJwtCompactConsumer;
 import org.apache.cxf.rs.security.jose.jws.JwsSignatureVerifier;
 import org.apache.syncope.common.lib.AbstractBaseBean;
@@ -110,6 +109,7 @@ import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.AuthDataAccessor;
 import org.apache.syncope.core.spring.security.Encryptor;
+import org.springframework.util.ResourceUtils;
 
 @Component
 public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
@@ -129,9 +129,6 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
     private static final RandomBasedGenerator UUID_GENERATOR = Generators.randomBasedGenerator();
 
     private static final Encryptor ENCRYPTOR = Encryptor.getInstance();
-
-    private static final UrlValidator URL_VALIDATOR = new UrlValidator(
-            new String[] { "http", "https" }, UrlValidator.ALLOW_LOCAL_URLS);
 
     @Autowired
     private AccessTokenDataBinder accessTokenDataBinder;
@@ -163,7 +160,7 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
             isValid = false;
         }
         if (isValid) {
-            isValid = URL_VALIDATOR.isValid(url);
+            isValid = ResourceUtils.isUrl(url);
         }
 
         if (!isValid) {
