@@ -27,7 +27,7 @@ import org.identityconnectors.framework.impl.api.local.operations.FilteredResult
  */
 public interface ReconciliationFilterBuilder {
 
-    static final FilteredResultsHandler.PassThroughFilter PASS_THROUGH = new FilteredResultsHandler.PassThroughFilter();
+    FilteredResultsHandler.PassThroughFilter PASS_THROUGH = new FilteredResultsHandler.PassThroughFilter();
 
     default Filter build() {
         return PASS_THROUGH;
