@@ -28,14 +28,14 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.core.provisioning.api.pushpull.IgnoreProvisionException;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
-import org.apache.syncope.core.provisioning.java.pushpull.DefaultPullActions;
+import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.quartz.JobExecutionException;
 
 /**
  * Test pull action.
  */
-public class TestPullActions extends DefaultPullActions {
+public class TestPullActions implements PullActions {
 
     private int counter;
 

@@ -24,12 +24,12 @@ import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.patch.AttrPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
-import org.apache.syncope.core.provisioning.java.DefaultLogicActions;
+import org.apache.syncope.core.provisioning.api.LogicActions;
 
 /**
  * Class for integration tests: transform (by making it double) any attribute value for defined schema.
  */
-public class DoubleValueLogicActions extends DefaultLogicActions {
+public class DoubleValueLogicActions implements LogicActions {
 
     private static final String NAME = "makeItDouble";
 

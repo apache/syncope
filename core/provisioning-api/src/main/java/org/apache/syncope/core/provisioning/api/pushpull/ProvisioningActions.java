@@ -28,7 +28,9 @@ public interface ProvisioningActions {
      * @param profile provisioning profile
      * @throws JobExecutionException in case of generic failure
      */
-    void beforeAll(final ProvisioningProfile<?, ?> profile) throws JobExecutionException;
+    default void beforeAll(final ProvisioningProfile<?, ?> profile) throws JobExecutionException {
+        // do nothing
+    }
 
     /**
      * Action to be executed after the provisioning (push / pull) task completion.
@@ -36,5 +38,7 @@ public interface ProvisioningActions {
      * @param profile provisioning profile
      * @throws JobExecutionException in case of generic failure
      */
-    void afterAll(final ProvisioningProfile<?, ?> profile) throws JobExecutionException;
+    default void afterAll(final ProvisioningProfile<?, ?> profile) throws JobExecutionException {
+        // do nothing        
+    }
 }

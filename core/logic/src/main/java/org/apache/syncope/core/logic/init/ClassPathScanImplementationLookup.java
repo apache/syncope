@@ -99,7 +99,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
     public void load() {
         classNames = new EnumMap<>(Type.class);
         for (Type type : Type.values()) {
-            classNames.put(type, new HashSet<String>());
+            classNames.put(type, new HashSet<>());
         }
 
         jwtSSOProviderClasses = new HashSet<>();

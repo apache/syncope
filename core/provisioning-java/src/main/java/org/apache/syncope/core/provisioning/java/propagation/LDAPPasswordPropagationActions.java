@@ -29,6 +29,7 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -46,7 +47,7 @@ import org.springframework.transaction.annotation.Transactional;
  * added a password. The CipherAlgorithm associated with the password must match the password
  * hash algorithm property of the LDAP Connector.
  */
-public class LDAPPasswordPropagationActions extends DefaultPropagationActions {
+public class LDAPPasswordPropagationActions implements PropagationActions {
 
     private static final String CLEARTEXT = "CLEARTEXT";
 
@@ -56,8 +57,6 @@ public class LDAPPasswordPropagationActions extends DefaultPropagationActions {
     @Transactional(readOnly = true)
     @Override
     public void before(final PropagationTask task, final ConnectorObject beforeObj) {
-        super.before(task, beforeObj);
-
         if (AnyTypeKind.USER == task.getAnyTypeKind()) {
             User user = userDAO.find(task.getEntityKey());
 
@@ -99,7 +98,7 @@ public class LDAPPasswordPropagationActions extends DefaultPropagationActions {
                     @Override
                     public boolean evaluate(final ConnConfProperty property) {
                         return "passwordHashAlgorithm".equals(property.getSchema().getName())
-                        && property.getValues() != null && !property.getValues().isEmpty();
+                                && property.getValues() != null && !property.getValues().isEmpty();
                     }
                 });
 

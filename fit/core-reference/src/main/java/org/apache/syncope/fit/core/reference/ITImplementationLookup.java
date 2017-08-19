@@ -52,8 +52,6 @@ import org.apache.syncope.core.persistence.jpa.attrvalue.validation.BasicValidat
 import org.apache.syncope.core.persistence.jpa.attrvalue.validation.EmailAddressValidator;
 import org.apache.syncope.core.persistence.jpa.dao.DefaultAccountRule;
 import org.apache.syncope.core.persistence.jpa.dao.DefaultPasswordRule;
-import org.apache.syncope.core.provisioning.java.DefaultLogicActions;
-import org.apache.syncope.core.provisioning.java.data.DefaultItemTransformer;
 import org.apache.syncope.core.provisioning.java.propagation.DBPasswordPropagationActions;
 import org.apache.syncope.core.provisioning.java.propagation.LDAPMembershipPropagationActions;
 import org.apache.syncope.core.provisioning.java.propagation.LDAPPasswordPropagationActions;
@@ -100,7 +98,6 @@ public class ITImplementationLookup implements ImplementationLookup {
 
             classNames = new HashSet<>();
             classNames.add(PrefixItemTransformer.class.getName());
-            classNames.add(DefaultItemTransformer.class.getName());
             put(Type.ITEM_TRANSFORMER, classNames);
 
             classNames = new HashSet<>();
@@ -113,7 +110,6 @@ public class ITImplementationLookup implements ImplementationLookup {
 
             classNames = new HashSet<>();
             classNames.add(DoubleValueLogicActions.class.getName());
-            classNames.add(DefaultLogicActions.class.getName());
             put(Type.LOGIC_ACTIONS, classNames);
 
             classNames = new HashSet<>();

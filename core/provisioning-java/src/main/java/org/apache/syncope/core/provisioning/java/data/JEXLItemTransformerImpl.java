@@ -32,7 +32,7 @@ import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
 import org.apache.syncope.core.provisioning.api.data.JEXLItemTransformer;
 
-public class JEXLItemTransformerImpl extends DefaultItemTransformer implements JEXLItemTransformer {
+public class JEXLItemTransformerImpl implements JEXLItemTransformer {
 
     private String propagationJEXL;
 
@@ -55,7 +55,7 @@ public class JEXLItemTransformerImpl extends DefaultItemTransformer implements J
             final List<PlainAttrValue> values) {
 
         if (StringUtils.isNotBlank(propagationJEXL) && values != null) {
-            for (PlainAttrValue value : values) {
+            values.forEach(value -> {
                 JexlContext jexlContext = new MapContext();
                 if (entity != null) {
                     JexlUtils.addFieldsToContext(entity, jexlContext);
@@ -67,12 +67,12 @@ public class JEXLItemTransformerImpl extends DefaultItemTransformer implements J
                 jexlContext.set("value", value.getValueAsString());
 
                 value.setStringValue(JexlUtils.evaluate(propagationJEXL, jexlContext));
-            }
+            });
 
             return values;
         }
 
-        return super.beforePropagation(item, entity, values);
+        return values;
     }
 
     @Override
@@ -83,7 +83,7 @@ public class JEXLItemTransformerImpl extends DefaultItemTransformer implements J
 
         if (StringUtils.isNotBlank(pullJEXL) && values != null) {
             List<Object> newValues = new ArrayList<>(values.size());
-            for (Object value : values) {
+            values.forEach(value -> {
                 JexlContext jexlContext = new MapContext();
                 jexlContext.set("value", value);
                 if (entityTO instanceof AnyTO) {
@@ -91,12 +91,12 @@ public class JEXLItemTransformerImpl extends DefaultItemTransformer implements J
                 } else {
                     newValues.add(JexlUtils.evaluate(pullJEXL, jexlContext));
                 }
-            }
+            });
 
             return newValues;
         }
 
-        return super.beforePull(item, entityTO, values);
+        return values;
     }
 
 }

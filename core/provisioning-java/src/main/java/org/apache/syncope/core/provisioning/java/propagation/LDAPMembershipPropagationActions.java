@@ -34,6 +34,7 @@ import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
+import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.AttributeUtil;
@@ -49,7 +50,7 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * @see org.apache.syncope.core.provisioning.java.pushpull.LDAPMembershipPullActions
  */
-public class LDAPMembershipPropagationActions extends DefaultPropagationActions {
+public class LDAPMembershipPropagationActions implements PropagationActions {
 
     protected static final Logger LOG = LoggerFactory.getLogger(LDAPMembershipPropagationActions.class);
 
@@ -74,8 +75,6 @@ public class LDAPMembershipPropagationActions extends DefaultPropagationActions 
     @Transactional(readOnly = true)
     @Override
     public void before(final PropagationTask task, final ConnectorObject beforeObj) {
-        super.before(task, beforeObj);
-
         Provision provision = task.getResource().getProvision(anyTypeDAO.findGroup());
         if (AnyTypeKind.USER == task.getAnyTypeKind()
                 && provision != null && provision.getMapping() != null

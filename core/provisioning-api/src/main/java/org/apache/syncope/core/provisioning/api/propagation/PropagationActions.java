@@ -24,9 +24,15 @@ import org.identityconnectors.framework.common.objects.ConnectorObject;
 
 public interface PropagationActions {
 
-    void before(PropagationTask task, ConnectorObject beforeObj);
+    default void before(PropagationTask task, ConnectorObject beforeObj) {
+        // do nothing
+    }
 
-    void onError(PropagationTask task, TaskExec execution, Exception error);
+    default void onError(PropagationTask task, TaskExec execution, Exception error) {
+        // do nothing
+    }
 
-    void after(PropagationTask task, TaskExec execution, ConnectorObject afterObj);
+    default void after(PropagationTask task, TaskExec execution, ConnectorObject afterObj) {
+        // do nothing
+    }
 }

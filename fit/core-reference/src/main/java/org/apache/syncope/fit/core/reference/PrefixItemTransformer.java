@@ -25,9 +25,9 @@ import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.resource.Item;
-import org.apache.syncope.core.provisioning.java.data.DefaultItemTransformer;
+import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
 
-public class PrefixItemTransformer extends DefaultItemTransformer {
+public class PrefixItemTransformer implements ItemTransformer {
 
     public static final String PREFIX = "PREFIX_";
 
@@ -38,7 +38,7 @@ public class PrefixItemTransformer extends DefaultItemTransformer {
             final List<PlainAttrValue> values) {
 
         if (values == null || values.isEmpty() || values.get(0).getStringValue() == null) {
-            return super.beforePropagation(item, entity, values);
+            return values;
         } else {
             String value = values.get(0).getStringValue();
             values.get(0).setStringValue(PREFIX + value);
@@ -54,7 +54,7 @@ public class PrefixItemTransformer extends DefaultItemTransformer {
             final List<Object> values) {
 
         if (values == null || values.isEmpty() || values.get(0) == null) {
-            return super.beforePull(item, entityTO, values);
+            return values;
         } else {
             List<Object> newValues = new ArrayList<>(values);
             newValues.set(0, StringUtils.substringAfter(values.get(0).toString(), PREFIX));

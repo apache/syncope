@@ -24,11 +24,19 @@ import org.apache.syncope.common.lib.to.UserTO;
 
 public interface SAML2IdPActions {
 
-    UserTO beforeCreate(UserTO input, SAML2LoginResponseTO loginResponse);
+    default UserTO beforeCreate(UserTO input, SAML2LoginResponseTO loginResponse) {
+        return input;
+    }
 
-    UserTO afterCreate(UserTO input, SAML2LoginResponseTO loginResponse);
+    default UserTO afterCreate(UserTO input, SAML2LoginResponseTO loginResponse) {
+        return input;
+    }
 
-    UserPatch beforeUpdate(UserPatch input, SAML2LoginResponseTO loginResponse);
+    default UserPatch beforeUpdate(UserPatch input, SAML2LoginResponseTO loginResponse) {
+        return input;
+    }
 
-    UserTO afterUpdate(UserTO input, SAML2LoginResponseTO loginResponse);
+    default UserTO afterUpdate(UserTO input, SAML2LoginResponseTO loginResponse) {
+        return input;
+    }
 }

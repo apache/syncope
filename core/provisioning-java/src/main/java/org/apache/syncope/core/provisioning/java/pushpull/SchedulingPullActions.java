@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.UUID;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
 import org.apache.syncope.core.provisioning.api.job.JobNamer;
+import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.quartz.Job;
@@ -40,7 +41,7 @@ import org.springframework.scheduling.quartz.SchedulerFactoryBean;
  *
  * @see LDAPMembershipPullActions for a concrete example
  */
-public abstract class SchedulingPullActions extends DefaultPullActions {
+public abstract class SchedulingPullActions implements PullActions {
 
     @Autowired
     protected SchedulerFactoryBean scheduler;

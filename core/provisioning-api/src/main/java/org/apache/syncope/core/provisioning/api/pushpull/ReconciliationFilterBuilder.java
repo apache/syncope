@@ -19,6 +19,7 @@
 package org.apache.syncope.core.provisioning.api.pushpull;
 
 import org.identityconnectors.framework.common.objects.filter.Filter;
+import org.identityconnectors.framework.impl.api.local.operations.FilteredResultsHandler;
 
 /**
  * Interface to be implemented for performing filtered reconciliation of a
@@ -26,5 +27,9 @@ import org.identityconnectors.framework.common.objects.filter.Filter;
  */
 public interface ReconciliationFilterBuilder {
 
-    Filter build();
+    static final FilteredResultsHandler.PassThroughFilter PASS_THROUGH = new FilteredResultsHandler.PassThroughFilter();
+
+    default Filter build() {
+        return PASS_THROUGH;
+    }
 }

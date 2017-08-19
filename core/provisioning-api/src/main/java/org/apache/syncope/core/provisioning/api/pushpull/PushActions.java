@@ -35,9 +35,12 @@ public interface PushActions extends ProvisioningActions {
      * @return entity.
      * @throws JobExecutionException in case of generic failure
      */
-    Entity beforeAssign(
+    default Entity beforeAssign(
             ProvisioningProfile<?, ?> profile,
-            Entity entity) throws JobExecutionException;
+            Entity entity) throws JobExecutionException {
+
+        return entity;
+    }
 
     /**
      * Action to be executed before to provision a pushed entity to the resource.
@@ -47,9 +50,12 @@ public interface PushActions extends ProvisioningActions {
      * @return entity.
      * @throws JobExecutionException in case of generic failure
      */
-    Entity beforeProvision(
+    default Entity beforeProvision(
             ProvisioningProfile<?, ?> profile,
-            Entity entity) throws JobExecutionException;
+            Entity entity) throws JobExecutionException {
+
+        return entity;
+    }
 
     /**
      * Action to be executed before to update a pushed entity on the resource.
@@ -59,9 +65,12 @@ public interface PushActions extends ProvisioningActions {
      * @return entity.
      * @throws JobExecutionException in case of generic failure
      */
-    Entity beforeUpdate(
+    default Entity beforeUpdate(
             ProvisioningProfile<?, ?> profile,
-            Entity entity) throws JobExecutionException;
+            Entity entity) throws JobExecutionException {
+
+        return entity;
+    }
 
     /**
      * Action to be executed before to link a pushed entity to the resource.
@@ -71,9 +80,12 @@ public interface PushActions extends ProvisioningActions {
      * @return entity.
      * @throws JobExecutionException in case of generic failure
      */
-    Entity beforeLink(
+    default Entity beforeLink(
             ProvisioningProfile<?, ?> profile,
-            Entity entity) throws JobExecutionException;
+            Entity entity) throws JobExecutionException {
+
+        return entity;
+    }
 
     /**
      * Action to be executed before to unlink a pushed entity from the resource.
@@ -83,9 +95,12 @@ public interface PushActions extends ProvisioningActions {
      * @return entity.
      * @throws JobExecutionException in case of generic failure
      */
-    Entity beforeUnlink(
+    default Entity beforeUnlink(
             ProvisioningProfile<?, ?> profile,
-            Entity entity) throws JobExecutionException;
+            Entity entity) throws JobExecutionException {
+
+        return entity;
+    }
 
     /**
      * Action to be executed before to unassign a pushed entity from the resource.
@@ -95,9 +110,12 @@ public interface PushActions extends ProvisioningActions {
      * @return entity.
      * @throws JobExecutionException in case of generic failure
      */
-    Entity beforeUnassign(
+    default Entity beforeUnassign(
             ProvisioningProfile<?, ?> profile,
-            Entity entity) throws JobExecutionException;
+            Entity entity) throws JobExecutionException {
+
+        return entity;
+    }
 
     /**
      * Action to be executed before to unassign a pushed entity from the resource.
@@ -107,9 +125,12 @@ public interface PushActions extends ProvisioningActions {
      * @return entity.
      * @throws JobExecutionException in case of generic failure
      */
-    Entity beforeDeprovision(
+    default Entity beforeDeprovision(
             ProvisioningProfile<?, ?> profile,
-            Entity entity) throws JobExecutionException;
+            Entity entity) throws JobExecutionException {
+
+        return entity;
+    }
 
     /**
      * Action to be executed before delete a pushed entity locally and from the resource.
@@ -119,9 +140,12 @@ public interface PushActions extends ProvisioningActions {
      * @return entity.
      * @throws JobExecutionException in case of generic failure
      */
-    Entity beforeDelete(
+    default Entity beforeDelete(
             ProvisioningProfile<?, ?> profile,
-            Entity entity) throws JobExecutionException;
+            Entity entity) throws JobExecutionException {
+
+        return entity;
+    }
 
     /**
      * Action to be executed after entity push goes on error.
@@ -132,11 +156,14 @@ public interface PushActions extends ProvisioningActions {
      * @param error error being reported
      * @throws JobExecutionException in case of generic failure
      */
-    void onError(
+    default void onError(
             ProvisioningProfile<?, ?> profile,
             Entity entity,
             ProvisioningReport result,
-            Exception error) throws JobExecutionException;
+            Exception error) throws JobExecutionException {
+
+        // do nothing
+    }
 
     /**
      * Action to be executed after each local entity push.
@@ -146,8 +173,11 @@ public interface PushActions extends ProvisioningActions {
      * @param result operation result.
      * @throws JobExecutionException in case of generic failure
      */
-    void after(
+    default void after(
             ProvisioningProfile<?, ?> profile,
             Entity entity,
-            ProvisioningReport result) throws JobExecutionException;
+            ProvisioningReport result) throws JobExecutionException {
+
+        // do nothing
+    }
 }

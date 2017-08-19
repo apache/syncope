@@ -26,15 +26,27 @@ import org.apache.syncope.common.lib.to.AnyTO;
  */
 public interface LogicActions {
 
-    <A extends AnyTO> A beforeCreate(A input);
+    default <A extends AnyTO> A beforeCreate(A input) {
+        return input;
+    }
 
-    <A extends AnyTO> A afterCreate(A input);
+    default <A extends AnyTO> A afterCreate(A input) {
+        return input;
+    }
 
-    <P extends AnyPatch> P beforeUpdate(P input);
+    default <P extends AnyPatch> P beforeUpdate(P input) {
+        return input;
+    }
 
-    <A extends AnyTO> A afterUpdate(A input);
+    default <A extends AnyTO> A afterUpdate(A input) {
+        return input;
+    }
 
-    <A extends AnyTO> A beforeDelete(A input);
+    default <A extends AnyTO> A beforeDelete(A input) {
+        return input;
+    }
 
-    <A extends AnyTO> A afterDelete(A input);
+    default <A extends AnyTO> A afterDelete(A input) {
+        return input;
+    }
 }

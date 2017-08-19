@@ -29,6 +29,7 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
 import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.objects.Attribute;
@@ -44,7 +45,7 @@ import org.springframework.transaction.annotation.Transactional;
  * added a password. The CipherAlgorithm associated with the password must match the password
  * cipher algorithm property of the DB Connector.
  */
-public class DBPasswordPropagationActions extends DefaultPropagationActions {
+public class DBPasswordPropagationActions implements PropagationActions {
 
     private static final String CLEARTEXT = "CLEARTEXT";
 
@@ -54,8 +55,6 @@ public class DBPasswordPropagationActions extends DefaultPropagationActions {
     @Transactional(readOnly = true)
     @Override
     public void before(final PropagationTask task, final ConnectorObject beforeObj) {
-        super.before(task, beforeObj);
-
         if (AnyTypeKind.USER == task.getAnyTypeKind()) {
             User user = userDAO.find(task.getEntityKey());
 
@@ -93,7 +92,7 @@ public class DBPasswordPropagationActions extends DefaultPropagationActions {
                     @Override
                     public boolean evaluate(final ConnConfProperty property) {
                         return "cipherAlgorithm".equals(property.getSchema().getName())
-                        && property.getValues() != null && !property.getValues().isEmpty();
+                                && property.getValues() != null && !property.getValues().isEmpty();
                     }
                 });
 

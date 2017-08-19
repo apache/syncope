@@ -40,10 +40,13 @@ public interface ItemTransformer {
      * @param values original values
      * @return transformed values
      */
-    List<PlainAttrValue> beforePropagation(
+    default List<PlainAttrValue> beforePropagation(
             Item item,
             Entity entity,
-            List<PlainAttrValue> values);
+            List<PlainAttrValue> values) {
+
+        return values;
+    }
 
     /**
      * Invoked while reading attribute values from external resource during pull.
@@ -53,8 +56,11 @@ public interface ItemTransformer {
      * @param values original values
      * @return transformed values
      */
-    List<Object> beforePull(
+    default List<Object> beforePull(
             Item item,
             EntityTO entityTO,
-            List<Object> values);
+            List<Object> values) {
+
+        return values;
+    }
 }

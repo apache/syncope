@@ -33,6 +33,7 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningReport;
+import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
 import org.identityconnectors.framework.common.objects.SyncDelta;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
@@ -45,7 +46,7 @@ import org.springframework.transaction.annotation.Transactional;
  * import passwords from a Database backend, where the passwords are hashed according to the password cipher algorithm
  * property of the (DB) Connector and HEX-encoded.
  */
-public class DBPasswordPullActions extends DefaultPullActions {
+public class DBPasswordPullActions implements PullActions {
 
     private static final Logger LOG = LoggerFactory.getLogger(DBPasswordPullActions.class);
 

@@ -41,10 +41,13 @@ public interface PullActions extends ProvisioningActions {
      * @return pull information, possibly altered.
      * @throws JobExecutionException in case of generic failure
      */
-    SyncDelta beforeProvision(
+    default SyncDelta beforeProvision(
             ProvisioningProfile<?, ?> profile,
             SyncDelta delta,
-            EntityTO entity) throws JobExecutionException;
+            EntityTO entity) throws JobExecutionException {
+
+        return delta;
+    }
 
     /**
      * Action to be executed before creating (and linking to the resource) a pulled entity locally.
@@ -57,10 +60,13 @@ public interface PullActions extends ProvisioningActions {
      * @return pull information, possibly altered.
      * @throws JobExecutionException in case of generic failure
      */
-    SyncDelta beforeAssign(
+    default SyncDelta beforeAssign(
             ProvisioningProfile<?, ?> profile,
             SyncDelta delta,
-            EntityTO entity) throws JobExecutionException;
+            EntityTO entity) throws JobExecutionException {
+
+        return delta;
+    }
 
     /**
      * Action to be executed before unlinking resource from the pulled entity and de-provisioning.
@@ -73,10 +79,13 @@ public interface PullActions extends ProvisioningActions {
      * @return pull information, possibly altered.
      * @throws JobExecutionException in case of generic failure
      */
-    SyncDelta beforeUnassign(
+    default SyncDelta beforeUnassign(
             ProvisioningProfile<?, ?> profile,
             SyncDelta delta,
-            EntityTO entity) throws JobExecutionException;
+            EntityTO entity) throws JobExecutionException {
+
+        return delta;
+    }
 
     /**
      * Action to be executed before de-provisioning action only.
@@ -89,10 +98,13 @@ public interface PullActions extends ProvisioningActions {
      * @return pull information, possibly altered.
      * @throws JobExecutionException in case of generic failure
      */
-    SyncDelta beforeDeprovision(
+    default SyncDelta beforeDeprovision(
             ProvisioningProfile<?, ?> profile,
             SyncDelta delta,
-            EntityTO entity) throws JobExecutionException;
+            EntityTO entity) throws JobExecutionException {
+
+        return delta;
+    }
 
     /**
      * Action to be executed before unlinking resource from the pulled entity.
@@ -105,10 +117,13 @@ public interface PullActions extends ProvisioningActions {
      * @return pull information, possibly altered.
      * @throws JobExecutionException in case of generic failure
      */
-    SyncDelta beforeUnlink(
+    default SyncDelta beforeUnlink(
             ProvisioningProfile<?, ?> profile,
             SyncDelta delta,
-            EntityTO entity) throws JobExecutionException;
+            EntityTO entity) throws JobExecutionException {
+
+        return delta;
+    }
 
     /**
      * Action to be executed before linking resource to the pulled entity.
@@ -121,10 +136,13 @@ public interface PullActions extends ProvisioningActions {
      * @return pull information, possibly altered.
      * @throws JobExecutionException in case of generic failure
      */
-    SyncDelta beforeLink(
+    default SyncDelta beforeLink(
             ProvisioningProfile<?, ?> profile,
             SyncDelta delta,
-            EntityTO entity) throws JobExecutionException;
+            EntityTO entity) throws JobExecutionException {
+
+        return delta;
+    }
 
     /**
      * Action to be executed before to update a pulled entity locally.
@@ -139,12 +157,14 @@ public interface PullActions extends ProvisioningActions {
      * @return pull information used for logging and to be passed to the 'after' method.
      * @throws JobExecutionException in case of generic failure.
      */
-    <P extends AnyPatch> SyncDelta beforeUpdate(
+    default <P extends AnyPatch> SyncDelta beforeUpdate(
             ProvisioningProfile<?, ?> profile,
             SyncDelta delta,
             EntityTO entityTO,
-            P anyPatch)
-            throws JobExecutionException;
+            P anyPatch) throws JobExecutionException {
+
+        return delta;
+    }
 
     /**
      * Action to be executed before to delete a pulled entity locally.
@@ -155,10 +175,13 @@ public interface PullActions extends ProvisioningActions {
      * @return pull information used for logging and to be passed to the 'after' method.
      * @throws JobExecutionException in case of generic failure
      */
-    SyncDelta beforeDelete(
+    default SyncDelta beforeDelete(
             ProvisioningProfile<?, ?> profile,
             SyncDelta delta,
-            EntityTO entity) throws JobExecutionException;
+            EntityTO entity) throws JobExecutionException {
+
+        return delta;
+    }
 
     /**
      * Action to be executed after each local entity pull.
@@ -170,11 +193,14 @@ public interface PullActions extends ProvisioningActions {
      * @param result global pull results at the current pull step
      * @throws JobExecutionException in case of generic failure
      */
-    void after(
+    default void after(
             ProvisioningProfile<?, ?> profile,
             SyncDelta delta,
             EntityTO entity,
-            ProvisioningReport result) throws JobExecutionException;
+            ProvisioningReport result) throws JobExecutionException {
+
+        // do nothing
+    }
 
     /**
      * Action to be executed in case an exception is thrown during pull.
@@ -186,8 +212,11 @@ public interface PullActions extends ProvisioningActions {
      * @return an instance of the given exception type is that is to be thrown; {@code NULL} otherwise
      * @throws JobExecutionException in case of generic failure
      */
-    IgnoreProvisionException onError(
+    default IgnoreProvisionException onError(
             ProvisioningProfile<?, ?> profile,
             SyncDelta delta,
-            Exception e) throws JobExecutionException;
+            Exception e) throws JobExecutionException {
+
+        return null;
+    }
 }
