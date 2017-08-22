@@ -28,9 +28,7 @@ public class GenericMapType<K, V> {
     }
 
     public GenericMapType(final Map<K, V> map) {
-        for (Map.Entry<K, V> e : map.entrySet()) {
-            entry.add(new GenericMapEntryType<>(e));
-        }
+        map.entrySet().forEach(e -> entry.add(new GenericMapEntryType<>(e)));
     }
 
     public List<GenericMapEntryType<K, V>> getEntry() {

@@ -27,7 +27,6 @@ import java.util.Comparator;
 import java.util.List;
 import org.apache.camel.component.metrics.routepolicy.MetricsRegistryService;
 import java.util.Map;
-import org.apache.commons.collections4.ComparatorUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.CamelMetrics;
@@ -122,14 +121,9 @@ public class CamelRouteLogic extends AbstractTransactionalLogic<CamelRouteTO> {
                 metrics.getResponseMeanRates().add(meanRate);
             }
 
-            Collections.sort(metrics.getResponseMeanRates(), new Comparator<CamelMetrics.MeanRate>() {
-
-                @Override
-                public int compare(final CamelMetrics.MeanRate o1, final CamelMetrics.MeanRate o2) {
-                    return ComparatorUtils.reversedComparator(ComparatorUtils.<Double>naturalComparator()).
-                            compare(o1.getValue(), o2.getValue());
-                }
-            });
+            Collections.sort(metrics.getResponseMeanRates(),
+                    (o1, o2) -> Collections.reverseOrder(Comparator.<Double>naturalOrder()).
+                            compare(o1.getValue(), o2.getValue()));
         }
 
         return metrics;

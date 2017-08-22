@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.api.entity;
 
 import java.util.List;
+import java.util.Optional;
 import org.apache.syncope.common.lib.types.TraceLevel;
 
 public interface Notification extends Entity {
@@ -45,7 +46,7 @@ public interface Notification extends Entity {
 
     boolean add(AnyAbout about);
 
-    AnyAbout getAbout(AnyType anyType);
+    Optional<? extends AnyAbout> getAbout(AnyType anyType);
 
     List<? extends AnyAbout> getAbouts();
 

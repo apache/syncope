@@ -19,7 +19,6 @@
 package org.apache.syncope.core.provisioning.java.propagation;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -32,9 +31,8 @@ import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import javax.annotation.Resource;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.entity.task.PropagationTask;
@@ -84,21 +82,17 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
             final PropagationReporter reporter,
             final boolean nullPriorityAsync) {
 
-        List<PropagationTask> prioritizedTasks = CollectionUtils.select(tasks, new Predicate<PropagationTask>() {
-
-            @Override
-            public boolean evaluate(final PropagationTask task) {
-                return task.getResource().getPropagationPriority() != null;
-            }
-        }, new ArrayList<PropagationTask>());
+        List<PropagationTask> prioritizedTasks = tasks.stream().
+                filter(task -> task.getResource().getPropagationPriority() != null).collect(Collectors.toList());
         Collections.sort(prioritizedTasks, new PriorityComparator());
         LOG.debug("Propagation tasks sorted by priority, for serial execution: {}", prioritizedTasks);
 
-        Collection<PropagationTask> concurrentTasks = CollectionUtils.subtract(tasks, prioritizedTasks);
+        Collection<PropagationTask> concurrentTasks = tasks.stream().
+                filter(task -> !prioritizedTasks.contains(task)).collect(Collectors.toSet());
         LOG.debug("Propagation tasks for concurrent execution: {}", concurrentTasks);
 
         // first process priority resources sequentially and fail as soon as any propagation failure is reported
-        for (PropagationTask task : prioritizedTasks) {
+        prioritizedTasks.forEach(task -> {
             TaskExec execution = null;
             PropagationTaskExecStatus execStatus;
             try {
@@ -112,12 +106,12 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
                 throw new PropagationException(
                         task.getResource().getKey(), execution == null ? null : execution.getMessage());
             }
-        }
+        });
 
         // then process non-priority resources concurrently...
         final CompletionService<TaskExec> completionService = new ExecutorCompletionService<>(executor);
         Map<PropagationTask, Future<TaskExec>> nullPriority = new HashMap<>(concurrentTasks.size());
-        for (PropagationTask task : concurrentTasks) {
+        concurrentTasks.forEach(task -> {
             try {
                 nullPriority.put(
                         task,
@@ -125,36 +119,32 @@ public class PriorityPropagationTaskExecutor extends AbstractPropagationTaskExec
             } catch (Exception e) {
                 LOG.error("Unexpected exception", e);
             }
-        }
+        });
         // ...waiting for all callables to complete, if async processing was not required
         if (!nullPriority.isEmpty()) {
             if (nullPriorityAsync) {
-                for (Map.Entry<PropagationTask, Future<TaskExec>> entry : nullPriority.entrySet()) {
+                nullPriority.entrySet().forEach(entry -> {
                     reporter.onSuccessOrNonPriorityResourceFailures(
                             entry.getKey(), PropagationTaskExecStatus.CREATED, null, null, null);
-                }
+                });
             } else {
                 final Set<Future<TaskExec>> nullPriorityFutures = new HashSet<>(nullPriority.values());
                 try {
-                    executor.submit(new Runnable() {
-
-                        @Override
-                        public void run() {
-                            while (!nullPriorityFutures.isEmpty()) {
-                                try {
-                                    nullPriorityFutures.remove(completionService.take());
-                                } catch (Exception e) {
-                                    LOG.error("Unexpected exception", e);
-                                }
+                    executor.submit(() -> {
+                        while (!nullPriorityFutures.isEmpty()) {
+                            try {
+                                nullPriorityFutures.remove(completionService.take());
+                            } catch (Exception e) {
+                                LOG.error("Unexpected exception", e);
                             }
                         }
                     }).get(60, TimeUnit.SECONDS);
                 } catch (Exception e) {
                     LOG.error("Unexpected exception", e);
                 } finally {
-                    for (Future<TaskExec> future : nullPriorityFutures) {
+                    nullPriorityFutures.forEach(future -> {
                         future.cancel(true);
-                    }
+                    });
                     nullPriorityFutures.clear();
                     nullPriority.clear();
                 }

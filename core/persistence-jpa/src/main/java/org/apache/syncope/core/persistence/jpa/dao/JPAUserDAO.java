@@ -28,20 +28,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
-import org.apache.commons.collections4.SetUtils;
-import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.policy.AccountRuleConf;
-import org.apache.syncope.common.lib.policy.PasswordRuleConf;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
@@ -61,6 +55,7 @@ import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
@@ -68,13 +63,11 @@ import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.user.SecurityQuestion;
-import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyUtilsFactory;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.apache.syncope.core.provisioning.api.event.AnyCreatedUpdatedEvent;
 import org.apache.syncope.core.provisioning.api.event.AnyDeletedEvent;
-import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.stereotype.Repository;
@@ -185,17 +178,16 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
         if (!AuthContextUtils.getUsername().equals(anonymousUser)
                 && !AuthContextUtils.getUsername().equals(user.getUsername())) {
 
-            Set<String> authRealms = SetUtils.emptyIfNull(
-                    AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_READ));
-            boolean authorized = IterableUtils.matchesAny(authRealms, new Predicate<String>() {
-
-                @Override
-                public boolean evaluate(final String realm) {
-                    return user.getRealm().getFullPath().startsWith(realm);
-                }
-            });
+            Map<String, Set<String>> authorizations = AuthContextUtils.getAuthorizations();
+            Set<String> authRealms = authorizations.containsKey(StandardEntitlement.USER_READ)
+                    ? authorizations.get(StandardEntitlement.USER_READ)
+                    : Collections.emptySet();
+            boolean authorized = authRealms.stream().
+                    anyMatch(realm -> user.getRealm().getFullPath().startsWith(realm));
             if (!authorized) {
-                authorized = !CollectionUtils.intersection(findDynRealms(user.getKey()), authRealms).isEmpty();
+                authorized = findDynRealms(user.getKey()).stream().
+                        filter(dynRealm -> authRealms.contains(dynRealm)).
+                        count() > 0;
             }
             if (authRealms.isEmpty() || !authorized) {
                 throw new DelegatedAdministrationException(
@@ -282,21 +274,17 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
     private List<AccountPolicy> getAccountPolicies(final User user) {
         List<AccountPolicy> policies = new ArrayList<>();
 
-        // add resource policies        
-        for (ExternalResource resource : findAllResources(user)) {
-            AccountPolicy policy = resource.getAccountPolicy();
-            if (policy != null) {
-                policies.add(policy);
-            }
-        }
+        // add resource policies
+        findAllResources(user).stream().
+                map(resource -> resource.getAccountPolicy()).
+                filter(policy -> policy != null).
+                forEachOrdered(policy -> policies.add(policy));
 
         // add realm policies
-        for (Realm realm : realmDAO().findAncestors(user.getRealm())) {
-            AccountPolicy policy = realm.getAccountPolicy();
-            if (policy != null) {
-                policies.add(policy);
-            }
-        }
+        realmDAO().findAncestors(user.getRealm()).stream().
+                map(realm -> realm.getAccountPolicy()).
+                filter(policy -> policy != null).
+                forEachOrdered(policy -> policies.add(policy));
 
         return policies;
     }
@@ -316,7 +304,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
                     throw new PasswordPolicyException("Password mandatory");
                 }
 
-                for (PasswordRuleConf ruleConf : policy.getRuleConfs()) {
+                policy.getRuleConfs().forEach(ruleConf -> {
                     Class<? extends PasswordRule> ruleClass =
                             implementationLookup.getPasswordRuleClass(ruleConf.getClass());
                     if (ruleClass == null) {
@@ -337,7 +325,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
                         // enforce rule
                         rule.enforce(ruleConf, user);
                     }
-                }
+                });
 
                 if (user.verifyPasswordHistory(user.getClearPassword(), policy.getHistoryLength())) {
                     throw new PasswordPolicyException("Password value was used in the past: not allowed");
@@ -384,7 +372,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
             }
 
             for (AccountPolicy policy : getAccountPolicies(user)) {
-                for (AccountRuleConf ruleConf : policy.getRuleConfs()) {
+                policy.getRuleConfs().forEach(ruleConf -> {
                     Class<? extends AccountRule> ruleClass =
                             implementationLookup.getAccountRuleClass(ruleConf.getClass());
                     if (ruleClass == null) {
@@ -405,7 +393,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
                         // enforce rule
                         rule.enforce(ruleConf, user);
                     }
-                }
+                });
 
                 suspend |= user.getFailedLogins() != null && policy.getMaxAuthenticationAttempts() > 0
                         && user.getFailedLogins() > policy.getMaxAuthenticationAttempts() && !user.isSuspended();
@@ -467,85 +455,82 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
     public Collection<Role> findAllRoles(final User user) {
-        return CollectionUtils.union(user.getRoles(), findDynRoles(user.getKey()));
+        Set<Role> result = new HashSet<>();
+        result.addAll(user.getRoles());
+        result.addAll(findDynRoles(user.getKey()));
+
+        return result;
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
+    @SuppressWarnings("unchecked")
     public List<Role> findDynRoles(final String key) {
         Query query = entityManager().createNativeQuery(
                 "SELECT role_id FROM " + JPARoleDAO.DYNMEMB_TABLE + " WHERE any_id=?");
         query.setParameter(1, key);
 
         List<Role> result = new ArrayList<>();
-        for (Object resultKey : query.getResultList()) {
-            String actualKey = resultKey instanceof Object[]
-                    ? (String) ((Object[]) resultKey)[0]
-                    : ((String) resultKey);
-
-            Role role = roleDAO.find(actualKey);
-            if (role == null) {
-                LOG.error("Could not find role with id {}, even though returned by the native query", actualKey);
-            } else if (!result.contains(role)) {
-                result.add(role);
-            }
-        }
+        query.getResultList().stream().map(resultKey -> resultKey instanceof Object[]
+                ? (String) ((Object[]) resultKey)[0]
+                : ((String) resultKey)).
+                forEachOrdered(actualKey -> {
+                    Role role = roleDAO.find(actualKey.toString());
+                    if (role == null) {
+                        LOG.error("Could not find role with id {}, even though returned by the native query",
+                                actualKey);
+                    } else if (!result.contains(role)) {
+                        result.add(role);
+                    }
+                });
         return result;
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
+    @SuppressWarnings("unchecked")
     public List<Group> findDynGroups(final String key) {
         Query query = entityManager().createNativeQuery(
                 "SELECT group_id FROM " + JPAGroupDAO.UDYNMEMB_TABLE + " WHERE any_id=?");
         query.setParameter(1, key);
 
         List<Group> result = new ArrayList<>();
-        for (Object resultKey : query.getResultList()) {
-            String actualKey = resultKey instanceof Object[]
-                    ? (String) ((Object[]) resultKey)[0]
-                    : ((String) resultKey);
-
-            Group group = groupDAO().find(actualKey);
-            if (group == null) {
-                LOG.error("Could not find group with id {}, even though returned by the native query", actualKey);
-            } else if (!result.contains(group)) {
-                result.add(group);
-            }
-        }
+        query.getResultList().stream().map(resultKey -> resultKey instanceof Object[]
+                ? (String) ((Object[]) resultKey)[0]
+                : ((String) resultKey)).
+                forEachOrdered(actualKey -> {
+                    Group group = groupDAO().find(actualKey.toString());
+                    if (group == null) {
+                        LOG.error("Could not find group with id {}, even though returned by the native query",
+                                actualKey);
+                    } else if (!result.contains(group)) {
+                        result.add(group);
+                    }
+                });
         return result;
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
     public Collection<Group> findAllGroups(final User user) {
-        return CollectionUtils.union(
-                CollectionUtils.collect(user.getMemberships(), new Transformer<UMembership, Group>() {
+        Set<Group> result = new HashSet<>();
+        result.addAll(user.getMemberships().stream().
+                map(membership -> membership.getRightEnd()).collect(Collectors.toSet()));
+        result.addAll(findDynGroups(user.getKey()));
 
-                    @Override
-                    public Group transform(final UMembership input) {
-                        return input.getRightEnd();
-                    }
-                }, new ArrayList<Group>()),
-                findDynGroups(user.getKey()));
+        return result;
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
     public Collection<String> findAllGroupKeys(final User user) {
-        return CollectionUtils.collect(findAllGroups(user), EntityUtils.<Group>keyTransformer());
+        return findAllGroups(user).stream().map(Entity::getKey).collect(Collectors.toList());
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
     public Collection<String> findAllGroupNames(final User user) {
-        return CollectionUtils.collect(findAllGroups(user), new Transformer<Group, String>() {
-
-            @Override
-            public String transform(final Group input) {
-                return input.getName();
-            }
-        });
+        return findAllGroups(user).stream().map(Group::getName).collect(Collectors.toList());
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
@@ -553,9 +538,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
     public Collection<ExternalResource> findAllResources(final User user) {
         Set<ExternalResource> result = new HashSet<>();
         result.addAll(user.getResources());
-        for (Group group : findAllGroups(user)) {
-            result.addAll(group.getResources());
-        }
+        findAllGroups(user).forEach(group -> result.addAll(group.getResources()));
 
         return result;
     }
@@ -563,7 +546,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
     @Transactional(readOnly = true)
     @Override
     public Collection<String> findAllResourceKeys(final String key) {
-        return CollectionUtils.collect(findAllResources(authFind(key)), EntityUtils.keyTransformer());
+        return findAllResources(authFind(key)).stream().map(resource -> resource.getKey()).collect(Collectors.toList());
     }
 
 }

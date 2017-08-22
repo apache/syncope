@@ -23,8 +23,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
-import org.apache.commons.collections4.ListUtils;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.Membership;
@@ -98,15 +98,15 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
         for (Map.Entry<Provision, Set<VirSchema>> entry : toRead.entrySet()) {
             LOG.debug("About to read from {}: {}", entry.getKey(), entry.getValue());
 
-            MappingItem connObjectKeyItem = MappingUtils.getConnObjectKeyItem(entry.getKey());
-            String connObjectKeyValue = connObjectKeyItem == null
-                    ? null
-                    : mappingManager.getConnObjectKeyValue(any, entry.getKey());
-            if (connObjectKeyItem == null) {
+            Optional<MappingItem> connObjectKeyItem = MappingUtils.getConnObjectKeyItem(entry.getKey());
+            String connObjectKeyValue = connObjectKeyItem.isPresent()
+                    ? mappingManager.getConnObjectKeyValue(any, entry.getKey()).orElse(null)
+                    : null;
+            if (!connObjectKeyItem.isPresent()) {
                 LOG.error("No ConnObjectKey found for {}, ignoring...", entry.getKey());
             } else {
                 Set<MappingItem> linkingMappingItems = new HashSet<>();
-                linkingMappingItems.add(connObjectKeyItem);
+                linkingMappingItems.add(connObjectKeyItem.get());
                 for (VirSchema schema : entry.getValue()) {
                     linkingMappingItems.add(schema.asLinkingMappingItem());
                 }
@@ -115,14 +115,14 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
                 try {
                     ConnectorObject connectorObject = connector.getObject(
                             entry.getKey().getObjectClass(),
-                            AttributeBuilder.build(connObjectKeyItem.getExtAttrName(), connObjectKeyValue),
+                            AttributeBuilder.build(connObjectKeyItem.get().getExtAttrName(), connObjectKeyValue),
                             MappingUtils.buildOperationOptions(linkingMappingItems.iterator()));
 
                     if (connectorObject == null) {
                         LOG.debug("No read from {} with filter '{} == {}'",
-                                entry.getKey(), connObjectKeyItem.getExtAttrName(), connObjectKeyValue);
+                                entry.getKey(), connObjectKeyItem.get().getExtAttrName(), connObjectKeyValue);
                     } else {
-                        for (VirSchema schema : entry.getValue()) {
+                        entry.getValue().forEach(schema -> {
                             Attribute attr = connectorObject.getAttributeByName(schema.getExtAttrName());
                             if (attr != null) {
                                 VirAttrCacheValue virAttrCacheValue = new VirAttrCacheValue();
@@ -134,7 +134,7 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
 
                                 result.put(schema, virAttrCacheValue.getValues());
                             }
-                        }
+                        });
                     }
                 } catch (Exception e) {
                     LOG.error("Error reading from {}", entry.getKey(), e);
@@ -154,7 +154,8 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
             return Collections.emptyList();
         }
 
-        return ListUtils.emptyIfNull(getValues(any, Collections.singleton(schema)).get(schema));
+        List<String> result = getValues(any, Collections.singleton(schema)).get(schema);
+        return result == null ? Collections.emptyList() : result;
     }
 
     @Override
@@ -166,7 +167,8 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
             return Collections.emptyList();
         }
 
-        return ListUtils.emptyIfNull(getValues(any, Collections.singleton(schema)).get(schema));
+        List<String> result = getValues(any, Collections.singleton(schema)).get(schema);
+        return result == null ? Collections.emptyList() : result;
     }
 
     @Override

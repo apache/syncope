@@ -21,13 +21,12 @@ package org.apache.syncope.common.lib.to;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 
 @XmlRootElement(name = "membership")
@@ -111,14 +110,8 @@ public class MembershipTO extends RelationshipTO implements AttributableTO {
 
     @JsonIgnore
     @Override
-    public AttrTO getPlainAttr(final String schema) {
-        return IterableUtils.find(plainAttrs, new Predicate<AttrTO>() {
-
-            @Override
-            public boolean evaluate(final AttrTO object) {
-                return object.getSchema().equals(schema);
-            }
-        });
+    public Optional<AttrTO> getPlainAttr(final String schema) {
+        return plainAttrs.stream().filter(attr -> attr.getSchema().equals(schema)).findFirst();
     }
 
     @XmlElementWrapper(name = "derAttrs")
@@ -131,14 +124,8 @@ public class MembershipTO extends RelationshipTO implements AttributableTO {
 
     @JsonIgnore
     @Override
-    public AttrTO getDerAttr(final String schema) {
-        return IterableUtils.find(derAttrs, new Predicate<AttrTO>() {
-
-            @Override
-            public boolean evaluate(final AttrTO object) {
-                return object.getSchema().equals(schema);
-            }
-        });
+    public Optional<AttrTO> getDerAttr(final String schema) {
+        return derAttrs.stream().filter(attr -> attr.getSchema().equals(schema)).findFirst();
     }
 
     @XmlElementWrapper(name = "virAttrs")
@@ -151,13 +138,7 @@ public class MembershipTO extends RelationshipTO implements AttributableTO {
 
     @JsonIgnore
     @Override
-    public AttrTO getVirAttr(final String schema) {
-        return IterableUtils.find(virAttrs, new Predicate<AttrTO>() {
-
-            @Override
-            public boolean evaluate(final AttrTO object) {
-                return object.getSchema().equals(schema);
-            }
-        });
+    public Optional<AttrTO> getVirAttr(final String schema) {
+        return virAttrs.stream().filter(attr -> attr.getSchema().equals(schema)).findFirst();
     }
 }

@@ -52,10 +52,10 @@ public class NotificationWrapper implements Serializable {
     public List<Pair<String, List<SearchClause>>> getAboutClauses() {
         if (this.aboutClauses == null) {
             this.aboutClauses = new ArrayList<>();
-            for (Map.Entry<String, List<SearchClause>> entry
-                    : SearchUtils.getSearchClauses(this.notificationTO.getAbouts()).entrySet()) {
-                this.aboutClauses.add(Pair.of(entry.getKey(), (entry.getValue())));
-            }
+            SearchUtils.getSearchClauses(this.notificationTO.getAbouts()).entrySet().
+                    forEach(entry -> {
+                        this.aboutClauses.add(Pair.of(entry.getKey(), (entry.getValue())));
+                    });
         }
 
         return this.aboutClauses;

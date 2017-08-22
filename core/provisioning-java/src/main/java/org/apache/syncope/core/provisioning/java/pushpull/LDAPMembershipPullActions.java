@@ -23,9 +23,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
@@ -78,19 +77,13 @@ public class LDAPMembershipPullActions extends SchedulingPullActions {
      * @return the name of the attribute used to keep track of group memberships
      */
     protected String getGroupMembershipAttrName(final Connector connector) {
-        ConnConfProperty groupMembership = IterableUtils.find(connector.getConnInstance().getConf(),
-                new Predicate<ConnConfProperty>() {
+        Optional<ConnConfProperty> groupMembership = connector.getConnInstance().getConf().stream().
+                filter(property -> "groupMemberAttribute".equals(property.getSchema().getName())
+                && property.getValues() != null && !property.getValues().isEmpty()).findFirst();
 
-            @Override
-            public boolean evaluate(final ConnConfProperty property) {
-                return "groupMemberAttribute".equals(property.getSchema().getName())
-                        && property.getValues() != null && !property.getValues().isEmpty();
-            }
-        });
-
-        return groupMembership == null
-                ? "uniquemember"
-                : (String) groupMembership.getValues().get(0);
+        return groupMembership.isPresent()
+                ? (String) groupMembership.get().getValues().get(0)
+                : "uniquemember";
     }
 
     /**
@@ -139,14 +132,16 @@ public class LDAPMembershipPullActions extends SchedulingPullActions {
             throws JobExecutionException {
 
         Connector connector = profile.getConnector();
-        for (Object membValue : getMembAttrValues(delta, connector)) {
+        getMembAttrValues(delta, connector).stream().map(membValue -> {
             Set<String> memb = memberships.get(membValue.toString());
             if (memb == null) {
                 memb = new HashSet<>();
                 memberships.put(membValue.toString(), memb);
             }
+            return memb;
+        }).forEachOrdered(memb -> {
             memb.add(groupTO.getKey());
-        }
+        });
     }
 
     /**
@@ -165,8 +160,8 @@ public class LDAPMembershipPullActions extends SchedulingPullActions {
         }
 
         if (!(entity instanceof GroupTO)
-                || profile.getTask().getResource().getProvision(anyTypeDAO.findUser()) == null
-                || profile.getTask().getResource().getProvision(anyTypeDAO.findUser()).getMapping() == null) {
+                || !profile.getTask().getResource().getProvision(anyTypeDAO.findUser()).isPresent()
+                || profile.getTask().getResource().getProvision(anyTypeDAO.findUser()).get().getMapping() == null) {
 
             super.after(profile, delta, entity, result);
         } else {
@@ -177,18 +172,18 @@ public class LDAPMembershipPullActions extends SchedulingPullActions {
     @Override
     public void afterAll(final ProvisioningProfile<?, ?> profile) throws JobExecutionException {
         Map<String, Set<String>> resolvedMemberships = new HashMap<>();
-        for (Map.Entry<String, Set<String>> entry : this.memberships.entrySet()) {
-            String userKey = pullUtils.findMatchingAnyKey(
+        this.memberships.entrySet().forEach(entry -> {
+            Optional<String> userKey = pullUtils.findMatchingAnyKey(
                     anyTypeDAO.findUser(),
                     entry.getKey(),
                     profile.getTask().getResource(),
                     profile.getConnector());
-            if (userKey == null) {
-                LOG.warn("Could not find matching user for {}", entry.getKey());
+            if (userKey.isPresent()) {
+                resolvedMemberships.put(userKey.get(), entry.getValue());
             } else {
-                resolvedMemberships.put(userKey, entry.getValue());
+                LOG.warn("Could not find matching user for {}", entry.getKey());
             }
-        }
+        });
 
         Map<String, Object> jobMap = new HashMap<>();
         jobMap.put(SetUMembershipsJob.MEMBERSHIPS_KEY, resolvedMemberships);

@@ -20,12 +20,8 @@ package org.apache.syncope.client.console.wizards.resources;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
-import org.apache.commons.collections4.Transformer;
+import java.util.stream.Collectors;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.rest.RealmRestClient;
@@ -61,47 +57,31 @@ public class ConnectorDetailsPanel extends WizardStep {
             @Override
             protected List<String> load() {
                 List<RealmTO> allRealms = new RealmRestClient().list();
-                CollectionUtils.filter(allRealms, new Predicate<RealmTO>() {
+                allRealms.removeAll(allRealms.stream().filter(realm
+                        -> authRealms.stream().anyMatch(fullpath -> realm.getFullPath().startsWith(fullpath))).
+                        collect(Collectors.toList()));
 
-                    @Override
-                    public boolean evaluate(final RealmTO realm) {
-                        return IterableUtils.matchesAny(authRealms, new Predicate<String>() {
-
-                            @Override
-                            public boolean evaluate(final String fullpath) {
-                                return realm.getFullPath().startsWith(fullpath);
-                            }
-                        });
-                    }
-                });
-
-                List<String> result = CollectionUtils.collect(allRealms, new Transformer<RealmTO, String>() {
-
-                    @Override
-                    public String transform(final RealmTO realm) {
-                        return realm.getFullPath();
-                    }
-                }, new ArrayList<String>());
+                List<String> result = allRealms.stream().map(RealmTO::getFullPath).collect(Collectors.toList());
                 Collections.sort(result);
                 return result;
             }
         };
 
         AjaxDropDownChoicePanel<String> realm = new AjaxDropDownChoicePanel<>(
-                "adminRealm", "adminRealm", new PropertyModel<String>(connInstanceTO, "adminRealm"), false);
+                "adminRealm", "adminRealm", new PropertyModel<>(connInstanceTO, "adminRealm"), false);
         realm.setChoices(realms);
         realm.setOutputMarkupId(true);
         realm.addRequiredLabel();
         add(realm);
 
         AjaxTextFieldPanel displayName = new AjaxTextFieldPanel(
-                "displayName", "displayName", new PropertyModel<String>(connInstanceTO, "displayName"), false);
+                "displayName", "displayName", new PropertyModel<>(connInstanceTO, "displayName"), false);
         displayName.setOutputMarkupId(true);
         displayName.addRequiredLabel();
         add(displayName);
 
         AjaxTextFieldPanel location = new AjaxTextFieldPanel(
-                "location", "location", new PropertyModel<String>(connInstanceTO, "location"), false);
+                "location", "location", new PropertyModel<>(connInstanceTO, "location"), false);
         location.addRequiredLabel();
         location.setOutputMarkupId(true);
         location.setEnabled(false);
@@ -110,15 +90,15 @@ public class ConnectorDetailsPanel extends WizardStep {
         final AjaxDropDownChoicePanel<String> bundleName = new AjaxDropDownChoicePanel<>(
                 "bundleName",
                 "bundleName",
-                new PropertyModel<String>(connInstanceTO, "bundleName"), false);
+                new PropertyModel<>(connInstanceTO, "bundleName"), false);
         ((DropDownChoice<String>) bundleName.getField()).setNullValid(true);
 
         List<String> bundleNames = new ArrayList<>();
-        for (ConnBundleTO bundle : bundles) {
-            if (!bundleNames.contains(bundle.getBundleName())) {
-                bundleNames.add(bundle.getBundleName());
-            }
-        }
+        bundles.stream().
+                filter(bundle -> (!bundleNames.contains(bundle.getBundleName()))).
+                forEachOrdered(bundle -> {
+                    bundleNames.add(bundle.getBundleName());
+                });
 
         bundleName.setChoices(bundleNames);
         bundleName.addRequiredLabel();
@@ -128,7 +108,7 @@ public class ConnectorDetailsPanel extends WizardStep {
         add(bundleName);
 
         final AjaxDropDownChoicePanel<String> version = new AjaxDropDownChoicePanel<>(
-                "version", "version", new PropertyModel<String>(connInstanceTO, "version"), false);
+                "version", "version", new PropertyModel<>(connInstanceTO, "version"), false);
         version.setChoices(getVersions(connInstanceTO, bundles));
         version.addRequiredLabel();
         version.setEnabled(connInstanceTO.getBundleName() != null);
@@ -186,20 +166,9 @@ public class ConnectorDetailsPanel extends WizardStep {
     }
 
     private List<String> getVersions(final ConnInstanceTO connInstanceTO, final List<ConnBundleTO> bundles) {
-        return new ArrayList<>(CollectionUtils.collect(
-                CollectionUtils.select(bundles, new Predicate<ConnBundleTO>() {
-
-                    @Override
-                    public boolean evaluate(final ConnBundleTO object) {
-                        return object.getLocation().equals(connInstanceTO.getLocation())
-                                && object.getBundleName().equals(connInstanceTO.getBundleName());
-                    }
-                }), new Transformer<ConnBundleTO, String>() {
-
-            @Override
-            public String transform(final ConnBundleTO input) {
-                return input.getVersion();
-            }
-        }, new HashSet<String>()));
+        return bundles.stream().filter(object
+                -> object.getLocation().equals(connInstanceTO.getLocation())
+                && object.getBundleName().equals(connInstanceTO.getBundleName())).
+                map(ConnBundleTO::getVersion).collect(Collectors.toList());
     }
 }

@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.status.StatusBean;
@@ -124,13 +123,13 @@ public class BulkContent<T extends Serializable, S> extends MultilevelPanel.Seco
 
                 @Override
                 protected boolean statusCondition(final Serializable modelObject) {
-                    return CollectionUtils.isNotEmpty(items);
+                    return items != null && !items.isEmpty();
                 }
 
                 @Override
                 public void onClick(final AjaxRequestTarget target, final Serializable ignore) {
                     try {
-                        if (CollectionUtils.isEmpty(items)) {
+                        if (items == null || items.isEmpty()) {
                             throw new IllegalArgumentException("Invalid items");
                         }
 
@@ -144,16 +143,16 @@ public class BulkContent<T extends Serializable, S> extends MultilevelPanel.Seco
 
                             final BulkAction bulkAction = new BulkAction();
                             bulkAction.setType(BulkAction.Type.valueOf(actionToBeAddresed.name()));
-                            for (T item : items) {
+                            items.forEach(item -> {
                                 try {
                                     bulkAction.getTargets().add(getTargetId(item, keyFieldName).toString());
                                 } catch (IllegalAccessException | InvocationTargetException e) {
                                     LOG.error("Error retrieving item id {}", keyFieldName, e);
                                 }
-                            }
+                            });
                             res = BulkActionResult.class.cast(
                                     bulkActionExecutor.getClass().getMethod("bulkAction", BulkAction.class).invoke(
-                                    bulkActionExecutor, bulkAction));
+                                            bulkActionExecutor, bulkAction));
                         } catch (IllegalArgumentException biae) {
                             if (!(items.iterator().next() instanceof StatusBean)) {
                                 throw new IllegalArgumentException("Invalid items");
@@ -168,17 +167,17 @@ public class BulkContent<T extends Serializable, S> extends MultilevelPanel.Seco
 
                             // Group bean information by anyKey
                             final Map<String, List<StatusBean>> beans = new HashMap<>();
-                            for (T bean : items) {
-                                final StatusBean sb = StatusBean.class.cast(bean);
-                                final List<StatusBean> sblist;
-                                if (beans.containsKey(sb.getKey())) {
-                                    sblist = beans.get(sb.getKey());
-                                } else {
-                                    sblist = new ArrayList<>();
-                                    beans.put(sb.getKey(), sblist);
-                                }
-                                sblist.add(sb);
-                            }
+                            items.stream().map(bean -> StatusBean.class.cast(bean)).
+                                    forEachOrdered(sb -> {
+                                        final List<StatusBean> sblist;
+                                        if (beans.containsKey(sb.getKey())) {
+                                            sblist = beans.get(sb.getKey());
+                                        } else {
+                                            sblist = new ArrayList<>();
+                                            beans.put(sb.getKey(), sblist);
+                                        }
+                                        sblist.add(sb);
+                                    });
 
                             for (Map.Entry<String, List<StatusBean>> entry : beans.entrySet()) {
                                 final String etag = anyRestClient.read(entry.getKey()).getETagValue();
@@ -222,7 +221,7 @@ public class BulkContent<T extends Serializable, S> extends MultilevelPanel.Seco
                         }
 
                         final List<IColumn<T, S>> newColumnList = new ArrayList<>(columns);
-                        newColumnList.add(newColumnList.size(), new BulkActionResultColumn<T, S>(res, fieldName));
+                        newColumnList.add(newColumnList.size(), new BulkActionResultColumn<>(res, fieldName));
 
                         container.addOrReplace(new AjaxFallbackDefaultDataTable<>(
                                 "selectedObjects",

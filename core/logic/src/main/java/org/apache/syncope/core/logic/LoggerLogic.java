@@ -24,13 +24,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.IteratorUtils;
-import org.apache.commons.collections4.Predicate;
-import org.apache.commons.collections4.PredicateUtils;
-import org.apache.commons.collections4.Transformer;
-import org.apache.commons.collections4.TransformerUtils;
+import java.util.stream.Collectors;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
@@ -60,7 +54,6 @@ import org.apache.syncope.core.persistence.api.dao.LoggerDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.Logger;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.spring.BeanUtils;
@@ -99,31 +92,21 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
     private EntityFactory entityFactory;
 
     private List<LoggerTO> list(final LoggerType type) {
-        return CollectionUtils.collect(loggerDAO.findAll(type), new Transformer<Logger, LoggerTO>() {
-
-            @Override
-            public LoggerTO transform(final Logger logger) {
-                LoggerTO loggerTO = new LoggerTO();
-                BeanUtils.copyProperties(logger, loggerTO);
-                return loggerTO;
-            }
-        }, new ArrayList<LoggerTO>());
+        return loggerDAO.findAll(type).stream().map(logger -> {
+            LoggerTO loggerTO = new LoggerTO();
+            BeanUtils.copyProperties(logger, loggerTO);
+            return loggerTO;
+        }).collect(Collectors.toList());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.LOG_LIST + "') and authentication.details.domain == "
             + "T(org.apache.syncope.common.lib.SyncopeConstants).MASTER_DOMAIN")
     public List<LogAppender> memoryAppenders() {
-        return CollectionUtils.collect(
-                loggerLoader.getMemoryAppenders().keySet(),
-                new Transformer<String, LogAppender>() {
-
-            @Override
-            public LogAppender transform(final String input) {
-                LogAppender logAppender = new LogAppender();
-                logAppender.setName(input);
-                return logAppender;
-            }
-        }, new ArrayList<LogAppender>());
+        return loggerLoader.getMemoryAppenders().keySet().stream().map(appender -> {
+            LogAppender logAppender = new LogAppender();
+            logAppender.setName(appender);
+            return logAppender;
+        }).collect(Collectors.toList());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.LOG_READ + "') and authentication.details.domain == "
@@ -134,10 +117,7 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
             throw new NotFoundException("Appender " + memoryAppender);
         }
 
-        return CollectionUtils.collect(
-                appender.getStatements(),
-                TransformerUtils.<LogStatementTO>nopTransformer(),
-                new ArrayList<LogStatementTO>());
+        return appender.getStatements().stream().collect(Collectors.toList());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.LOG_LIST + "') and authentication.details.domain == "
@@ -150,22 +130,18 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
     @PreAuthorize("hasRole('" + StandardEntitlement.AUDIT_LIST + "')")
     @Transactional(readOnly = true)
     public List<AuditLoggerName> listAudits() {
-        return CollectionUtils.collect(
-                IteratorUtils.filteredIterator(list(LoggerType.AUDIT).iterator(), PredicateUtils.notNullPredicate()),
-                new Transformer<LoggerTO, AuditLoggerName>() {
+        return list(LoggerType.AUDIT).stream().
+                filter(logger -> logger != null).
+                map(logger -> {
+                    AuditLoggerName result = null;
+                    try {
+                        result = AuditLoggerName.fromLoggerName(logger.getKey());
+                    } catch (Exception e) {
+                        LOG.warn("Unexpected audit logger name: {}", logger.getKey(), e);
+                    }
 
-            @Override
-            public AuditLoggerName transform(final LoggerTO logger) {
-                AuditLoggerName result = null;
-                try {
-                    result = AuditLoggerName.fromLoggerName(logger.getKey());
-                } catch (Exception e) {
-                    LOG.warn("Unexpected audit logger name: {}", logger.getKey(), e);
-                }
-
-                return result;
-            }
-        }, new ArrayList<AuditLoggerName>());
+                    return result;
+                }).collect(Collectors.toList());
     }
 
     private void throwInvalidLogger(final LoggerType type) {
@@ -235,14 +211,7 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
                 logConf = new LoggerConfig(auditLoggerName, null, false);
             }
             for (AuditAppender auditAppender : loggerLoader.auditAppenders(AuthContextUtils.getDomain())) {
-                if (IterableUtils.matchesAny(auditAppender.getEvents(), new Predicate<AuditLoggerName>() {
-
-                    @Override
-                    public boolean evaluate(final AuditLoggerName auditLoggerName) {
-                        return name.equalsIgnoreCase(auditLoggerName.toLoggerName());
-                    }
-                })) {
-
+                if (auditAppender.getEvents().stream().anyMatch(event -> name.equalsIgnoreCase(event.toLoggerName()))) {
                     loggerLoader.addAppenderToContext(ctx, auditAppender, logConf);
                 }
             }
@@ -380,7 +349,7 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
             events.add(new EventCategoryTO(EventCategoryType.PUSH));
 
             for (AnyTypeKind anyTypeKind : AnyTypeKind.values()) {
-                for (ExternalResource resource : resourceDAO.findAll()) {
+                resourceDAO.findAll().forEach(resource -> {
                     EventCategoryTO propEventCategoryTO = new EventCategoryTO(EventCategoryType.PROPAGATION);
                     EventCategoryTO syncEventCategoryTO = new EventCategoryTO(EventCategoryType.PULL);
                     EventCategoryTO pushEventCategoryTO = new EventCategoryTO(EventCategoryType.PUSH);
@@ -414,7 +383,7 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
                     events.add(propEventCategoryTO);
                     events.add(syncEventCategoryTO);
                     events.add(pushEventCategoryTO);
-                }
+                });
             }
 
             for (SchedTask task : taskDAO.<SchedTask>findAll(TaskType.SCHEDULED)) {

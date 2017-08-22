@@ -21,8 +21,8 @@ package org.apache.syncope.core.logic.saml2;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.AnyOperations;
@@ -137,27 +137,13 @@ public class SAML2UserManager {
                         }
                     }
 
-                    CollectionUtils.collect(
-                            userDAO.findByPlainAttrValue(intAttrName.getSchemaName(), value),
-                            new Transformer<User, String>() {
-
-                        @Override
-                        public String transform(final User input) {
-                            return input.getUsername();
-                        }
-                    }, result);
+                    result.addAll(userDAO.findByPlainAttrValue(intAttrName.getSchemaName(), value).stream().
+                            map(user -> user.getUsername()).collect(Collectors.toList()));
                     break;
 
                 case DERIVED:
-                    CollectionUtils.collect(
-                            userDAO.findByDerAttrValue(intAttrName.getSchemaName(), transformed),
-                            new Transformer<User, String>() {
-
-                        @Override
-                        public String transform(final User input) {
-                            return input.getUsername();
-                        }
-                    }, result);
+                    result.addAll(userDAO.findByDerAttrValue(intAttrName.getSchemaName(), transformed).stream().
+                            map(user -> user.getUsername()).collect(Collectors.toList()));
                     break;
 
                 default:
@@ -170,7 +156,7 @@ public class SAML2UserManager {
     private List<SAML2IdPActions> getActions(final SAML2IdPEntity idp) {
         List<SAML2IdPActions> actions = new ArrayList<>();
 
-        for (String className : idp.getActionsClassNames()) {
+        idp.getActionsClassNames().forEach((className) -> {
             try {
                 Class<?> actionsClass = Class.forName(className);
                 SAML2IdPActions idpActions = (SAML2IdPActions) ApplicationContextProvider.getBeanFactory().
@@ -180,7 +166,7 @@ public class SAML2UserManager {
             } catch (Exception e) {
                 LOG.warn("Class '{}' not found", className, e);
             }
-        }
+        });
 
         return actions;
     }
@@ -190,11 +176,11 @@ public class SAML2UserManager {
             IntAttrName intAttrName = intAttrNameParser.parse(item.getIntAttrName(), AnyTypeKind.USER);
 
             List<String> values = Collections.emptyList();
-            AttrTO samlAttr = responseTO.getAttr(item.getExtAttrName());
-            if (samlAttr != null && !samlAttr.getValues().isEmpty()) {
-                values = samlAttr.getValues();
+            Optional<AttrTO> samlAttr = responseTO.getAttr(item.getExtAttrName());
+            if (samlAttr.isPresent() && !samlAttr.get().getValues().isEmpty()) {
+                values = samlAttr.get().getValues();
 
-                List<Object> transformed = new ArrayList<Object>(values);
+                List<Object> transformed = new ArrayList<>(values);
                 for (ItemTransformer transformer : MappingUtils.getItemTransformers(item)) {
                     transformed = transformer.beforePull(null, userTO, transformed);
                 }
@@ -218,13 +204,14 @@ public class SAML2UserManager {
             } else if (intAttrName.getSchemaType() != null) {
                 switch (intAttrName.getSchemaType()) {
                     case PLAIN:
-                        AttrTO attr = userTO.getPlainAttr(intAttrName.getSchemaName());
-                        if (attr == null) {
-                            attr = new AttrTO.Builder().schema(intAttrName.getSchemaName()).build();
-                            userTO.getPlainAttrs().add(attr);
+                        Optional<AttrTO> attr = userTO.getPlainAttr(intAttrName.getSchemaName());
+                        if (!attr.isPresent()) {
+                            attr = Optional.of(new AttrTO.Builder().schema(intAttrName.getSchemaName()).build());
+                            userTO.getPlainAttrs().add(attr.get());
+                        } else {
+                            attr.get().getValues().clear();
                         }
-                        attr.getValues().clear();
-                        attr.getValues().addAll(values);
+                        attr.get().getValues().addAll(values);
                         break;
 
                     default:

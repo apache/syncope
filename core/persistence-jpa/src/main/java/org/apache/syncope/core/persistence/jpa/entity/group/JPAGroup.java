@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.jpa.entity.group;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -34,8 +35,6 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
@@ -169,15 +168,10 @@ public class JPAGroup extends AbstractAny<GPlainAttr> implements Group {
     }
 
     @Override
-    public GPlainAttr getPlainAttr(final String plainSchemaName) {
-        return IterableUtils.find(getPlainAttrs(), new Predicate<GPlainAttr>() {
-
-            @Override
-            public boolean evaluate(final GPlainAttr plainAttr) {
-                return plainAttr != null && plainAttr.getSchema() != null
-                        && plainSchemaName.equals(plainAttr.getSchema().getKey());
-            }
-        });
+    public Optional<? extends GPlainAttr> getPlainAttr(final String plainSchema) {
+        return getPlainAttrs().stream().filter(plainAttr
+                -> plainAttr != null && plainAttr.getSchema() != null
+                && plainSchema.equals(plainAttr.getSchema().getKey())).findFirst();
     }
 
     @Override
@@ -214,14 +208,9 @@ public class JPAGroup extends AbstractAny<GPlainAttr> implements Group {
     }
 
     @Override
-    public ADynGroupMembership getADynMembership(final AnyType anyType) {
-        return IterableUtils.find(aDynMemberships, new Predicate<ADynGroupMembership>() {
-
-            @Override
-            public boolean evaluate(final ADynGroupMembership dynGroupMembership) {
-                return anyType != null && anyType.equals(dynGroupMembership.getAnyType());
-            }
-        });
+    public Optional<? extends ADynGroupMembership> getADynMembership(final AnyType anyType) {
+        return aDynMemberships.stream().filter(dynGroupMembership
+                -> anyType != null && anyType.equals(dynGroupMembership.getAnyType())).findFirst();
     }
 
     @Override
@@ -236,14 +225,9 @@ public class JPAGroup extends AbstractAny<GPlainAttr> implements Group {
     }
 
     @Override
-    public TypeExtension getTypeExtension(final AnyType anyType) {
-        return IterableUtils.find(typeExtensions, new Predicate<TypeExtension>() {
-
-            @Override
-            public boolean evaluate(final TypeExtension typeExtension) {
-                return typeExtension.getAnyType().equals(anyType);
-            }
-        });
+    public Optional<? extends TypeExtension> getTypeExtension(final AnyType anyType) {
+        return typeExtensions.stream().filter(typeExtension
+                -> typeExtension.getAnyType().equals(anyType)).findFirst();
     }
 
     @Override

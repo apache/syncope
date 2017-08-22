@@ -25,8 +25,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
+import java.util.Optional;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
@@ -98,9 +97,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
 
         BulkAction bulkAction = new BulkAction();
         bulkAction.setType(BulkAction.Type.DELETE);
-        for (PropagationTaskTO taskTO : tasks) {
-            bulkAction.getTargets().add(taskTO.getKey());
-        }
+        tasks.forEach(taskTO -> bulkAction.getTargets().add(taskTO.getKey()));
 
         taskService.bulk(bulkAction);
 
@@ -113,29 +110,23 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         // 0. Set propagation JEXL MappingItemTransformer
         ResourceTO resource = resourceService.read(RESOURCE_NAME_DBSCRIPTED);
         ResourceTO originalResource = SerializationUtils.clone(resource);
-        ProvisionTO provision = resource.getProvision("PRINTER");
+        ProvisionTO provision = resource.getProvision("PRINTER").get();
         assertNotNull(provision);
 
-        ItemTO mappingItem = IterableUtils.find(
-                provision.getMapping().getItems(), new Predicate<ItemTO>() {
-
-            @Override
-            public boolean evaluate(final ItemTO object) {
-                return "location".equals(object.getIntAttrName());
-            }
-        });
-        assertNotNull(mappingItem);
-        assertTrue(mappingItem.getTransformerClassNames().isEmpty());
+        Optional<ItemTO> mappingItem = provision.getMapping().getItems().stream().
+                filter(item -> "location".equals(item.getIntAttrName())).findFirst();
+        assertTrue(mappingItem.isPresent());
+        assertTrue(mappingItem.get().getTransformerClassNames().isEmpty());
 
         String suffix = getUUIDString();
-        mappingItem.setPropagationJEXLTransformer("value + '" + suffix + "'");
+        mappingItem.get().setPropagationJEXLTransformer("value + '" + suffix + "'");
 
         try {
             resourceService.update(resource);
 
             // 1. create printer on external resource
             AnyObjectTO anyObjectTO = AnyObjectITCase.getSampleTO("propagationJEXLTransformer");
-            String originalLocation = anyObjectTO.getPlainAttr("location").getValues().get(0);
+            String originalLocation = anyObjectTO.getPlainAttr("location").get().getValues().get(0);
             assertFalse(originalLocation.endsWith(suffix));
 
             anyObjectTO = createAnyObject(anyObjectTO).getEntity();
@@ -145,8 +136,8 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
             // (location ends with given suffix on external resource)
             ConnObjectTO connObjectTO = resourceService.
                     readConnObject(RESOURCE_NAME_DBSCRIPTED, anyObjectTO.getType(), anyObjectTO.getKey());
-            assertFalse(anyObjectTO.getPlainAttr("location").getValues().get(0).endsWith(suffix));
-            assertTrue(connObjectTO.getAttr("LOCATION").getValues().get(0).endsWith(suffix));
+            assertFalse(anyObjectTO.getPlainAttr("location").get().getValues().get(0).endsWith(suffix));
+            assertTrue(connObjectTO.getAttr("LOCATION").get().getValues().get(0).endsWith(suffix));
         } finally {
             resourceService.update(originalResource);
         }

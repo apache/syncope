@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
@@ -249,16 +250,16 @@ public class ConnInstanceDataBinderImpl implements ConnInstanceDataBinder {
         connInstanceTO.getConf().addAll(connInstance.getConf());
         // refresh stored properties in the given connInstance with direct information from underlying connector
         ConfigurationProperties properties = connIdBundleManager.getConfigurationProperties(info.getRight());
-        for (String propName : properties.getPropertyNames()) {
+        properties.getPropertyNames().forEach(propName -> {
             ConnConfPropSchema schema = build(properties.getProperty(propName));
 
-            ConnConfProperty property = connInstanceTO.getConf(propName);
-            if (property == null) {
-                property = new ConnConfProperty();
-                connInstanceTO.getConf().add(property);
+            Optional<ConnConfProperty> property = connInstanceTO.getConf(propName);
+            if (!property.isPresent()) {
+                property = Optional.of(new ConnConfProperty());
+                connInstanceTO.getConf().add(property.get());
             }
-            property.setSchema(schema);
-        }
+            property.get().setSchema(schema);
+        });
         Collections.sort(connInstanceTO.getConf());
 
         // pool configuration

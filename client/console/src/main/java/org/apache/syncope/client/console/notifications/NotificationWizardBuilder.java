@@ -24,8 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
@@ -44,9 +43,8 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPa
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
-import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
-import org.apache.syncope.common.lib.to.MailTemplateTO;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.NotificationTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.VirSchemaTO;
@@ -122,40 +120,34 @@ public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationWra
             boolean createFlag = notificationTO.getKey() == null;
 
             AjaxTextFieldPanel sender = new AjaxTextFieldPanel("sender", getString("sender"),
-                    new PropertyModel<String>(notificationTO, "sender"));
+                    new PropertyModel<>(notificationTO, "sender"));
             sender.addRequiredLabel();
             sender.addValidator(EmailAddressValidator.getInstance());
             add(sender);
 
             AjaxTextFieldPanel subject = new AjaxTextFieldPanel("subject", getString("subject"),
-                    new PropertyModel<String>(notificationTO, "subject"));
+                    new PropertyModel<>(notificationTO, "subject"));
             subject.addRequiredLabel();
             add(subject);
 
             AjaxDropDownChoicePanel<String> template = new AjaxDropDownChoicePanel<>(
                     "template", getString("template"),
-                    new PropertyModel<String>(notificationTO, "template"));
-            template.setChoices(CollectionUtils.collect(
-                    restClient.listTemplates(), new Transformer<MailTemplateTO, String>() {
-
-                @Override
-                public String transform(final MailTemplateTO input) {
-                    return input.getKey();
-                }
-            }, new ArrayList<String>()));
+                    new PropertyModel<>(notificationTO, "template"));
+            template.setChoices(restClient.listTemplates().stream().
+                    map(EntityTO::getKey).collect(Collectors.toList()));
 
             template.addRequiredLabel();
             add(template);
 
             AjaxDropDownChoicePanel<TraceLevel> traceLevel = new AjaxDropDownChoicePanel<>(
                     "traceLevel", getString("traceLevel"),
-                    new PropertyModel<TraceLevel>(notificationTO, "traceLevel"));
+                    new PropertyModel<>(notificationTO, "traceLevel"));
             traceLevel.setChoices(Arrays.asList(TraceLevel.values()));
             traceLevel.addRequiredLabel();
             add(traceLevel);
 
             final AjaxCheckBoxPanel isActive = new AjaxCheckBoxPanel("isActive",
-                    getString("isActive"), new PropertyModel<Boolean>(notificationTO, "active"));
+                    getString("isActive"), new PropertyModel<>(notificationTO, "active"));
             if (createFlag) {
                 isActive.getField().setDefaultModelObject(Boolean.TRUE);
             }
@@ -297,7 +289,7 @@ public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationWra
 
                 @Override
                 protected Pair<String, List<SearchClause>> newModelObject() {
-                    return Pair.<String, List<SearchClause>>of(AnyTypeKind.USER.name(), new ArrayList<SearchClause>());
+                    return Pair.<String, List<SearchClause>>of(AnyTypeKind.USER.name(), new ArrayList<>());
                 }
 
                 @Override
@@ -349,7 +341,7 @@ public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationWra
 
             AjaxTextFieldPanel recipientAttrName = new AjaxTextFieldPanel(
                     "recipientAttrName", new ResourceModel("recipientAttrName", "recipientAttrName").getObject(),
-                    new PropertyModel<String>(notificationTO, "recipientAttrName"));
+                    new PropertyModel<>(notificationTO, "recipientAttrName"));
             recipientAttrName.setChoices(getSchemaNames());
             recipientAttrName.addRequiredLabel();
             recipientAttrName.setTitle(getString("intAttrNameInfo.help")
@@ -361,24 +353,24 @@ public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationWra
             add(recipientAttrName);
 
             AjaxTextFieldPanel staticRecipientsFieldPanel =
-                    new AjaxTextFieldPanel("panel", "staticRecipients", new Model<String>());
+                    new AjaxTextFieldPanel("panel", "staticRecipients", new Model<>());
             staticRecipientsFieldPanel.addValidator(EmailAddressValidator.getInstance());
             add(new MultiFieldPanel.Builder<>(
                     new PropertyModel<List<String>>(notificationTO, "staticRecipients")).
                     build("staticRecipients", "staticRecipients", staticRecipientsFieldPanel).hideLabel());
 
             add(new UserSearchPanel.Builder(
-                    new PropertyModel<List<SearchClause>>(modelObject, "recipientClauses")).
+                    new PropertyModel<>(modelObject, "recipientClauses")).
                     required(false).build("recipients"));
 
             AjaxDropDownChoicePanel<String> recipientsProviderClassName = new AjaxDropDownChoicePanel<>(
                     "recipientsProviderClassName", "recipientsProviderClassName",
-                    new PropertyModel<String>(notificationTO, "recipientsProviderClassName"), false);
+                    new PropertyModel<>(notificationTO, "recipientsProviderClassName"), false);
             recipientsProviderClassName.setChoices(recipientProviders.getObject());
             add(recipientsProviderClassName);
 
             AjaxCheckBoxPanel selfAsRecipient = new AjaxCheckBoxPanel("selfAsRecipient",
-                    getString("selfAsRecipient"), new PropertyModel<Boolean>(notificationTO, "selfAsRecipient"));
+                    getString("selfAsRecipient"), new PropertyModel<>(notificationTO, "selfAsRecipient"));
             if (notificationTO.getKey() == null) {
                 selfAsRecipient.getField().setDefaultModelObject(Boolean.FALSE);
             }
@@ -390,15 +382,12 @@ public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationWra
         List<String> result = new ArrayList<>();
         result.add("username");
 
-        CollectionUtils.collect(
-                schemaRestClient.<PlainSchemaTO>getSchemas(SchemaType.PLAIN, AnyTypeKind.USER.name()),
-                EntityTOUtils.<PlainSchemaTO>keyTransformer(), result);
-        CollectionUtils.collect(
-                schemaRestClient.<DerSchemaTO>getSchemas(SchemaType.DERIVED, AnyTypeKind.USER.name()),
-                EntityTOUtils.<DerSchemaTO>keyTransformer(), result);
-        CollectionUtils.collect(
-                schemaRestClient.<VirSchemaTO>getSchemas(SchemaType.VIRTUAL, AnyTypeKind.USER.name()),
-                EntityTOUtils.<VirSchemaTO>keyTransformer(), result);
+        result.addAll(schemaRestClient.<PlainSchemaTO>getSchemas(SchemaType.PLAIN, AnyTypeKind.USER.name()).
+                stream().map(EntityTO::getKey).collect(Collectors.toList()));
+        result.addAll(schemaRestClient.<DerSchemaTO>getSchemas(SchemaType.DERIVED, AnyTypeKind.USER.name()).
+                stream().map(EntityTO::getKey).collect(Collectors.toList()));
+        result.addAll(schemaRestClient.<VirSchemaTO>getSchemas(SchemaType.VIRTUAL, AnyTypeKind.USER.name()).
+                stream().map(EntityTO::getKey).collect(Collectors.toList()));
 
         Collections.sort(result);
         return result;

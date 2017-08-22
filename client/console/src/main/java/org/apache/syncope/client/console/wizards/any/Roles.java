@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -28,9 +28,8 @@ import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.rest.RoleRestClient;
 import org.apache.syncope.client.console.wicket.ajax.markup.html.LabelInfo;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
-import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.RoleTO;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.ActionPermissions;
@@ -75,8 +74,9 @@ public class Roles extends WizardStep implements ICondition {
         this.setOutputMarkupId(true);
 
         allRoles = SyncopeConsoleApplication.get().getSecuritySettings().getAuthorizationStrategy().
-                isActionAuthorized(this, RENDER) ? CollectionUtils.collect(new RoleRestClient().list(),
-                EntityTOUtils.<RoleTO>keyTransformer(), new ArrayList<String>()) : Collections.<String>emptyList();
+                isActionAuthorized(this, RENDER)
+                ? new RoleRestClient().list().stream().map(EntityTO::getKey).collect(Collectors.toList())
+                : Collections.<String>emptyList();
         Collections.sort(allRoles);
 
         add(new AjaxPalettePanel.Builder<String>().build("roles",
@@ -92,6 +92,6 @@ public class Roles extends WizardStep implements ICondition {
     public final boolean evaluate() {
         return CollectionUtils.isNotEmpty(allRoles)
                 && SyncopeConsoleApplication.get().getSecuritySettings().getAuthorizationStrategy().
-                isActionAuthorized(this, RENDER);
+                        isActionAuthorized(this, RENDER);
     }
 }

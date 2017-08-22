@@ -48,7 +48,7 @@ public class VirSchemaTest extends AbstractTest {
 
     @Test
     public void deal() {
-        Provision provision = resourceDAO.find("ws-target-resource-1").getProvision(anyTypeDAO.findUser());
+        Provision provision = resourceDAO.find("ws-target-resource-1").getProvision(anyTypeDAO.findUser()).get();
         assertNotNull(provision);
         assertTrue(virSchemaDAO.findByProvision(provision).isEmpty());
 
@@ -66,7 +66,7 @@ public class VirSchemaTest extends AbstractTest {
         assertTrue(virSchema.isReadonly());
         assertEquals("EXT_ATTR", virSchema.getExtAttrName());
 
-        provision = resourceDAO.find("ws-target-resource-1").getProvision(anyTypeDAO.findUser());
+        provision = resourceDAO.find("ws-target-resource-1").getProvision(anyTypeDAO.findUser()).get();
         assertNotNull(provision);
         assertFalse(virSchemaDAO.findByProvision(provision).isEmpty());
         assertTrue(virSchemaDAO.findByProvision(provision).contains(virSchema));

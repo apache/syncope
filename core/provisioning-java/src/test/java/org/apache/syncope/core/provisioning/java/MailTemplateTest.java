@@ -59,7 +59,7 @@ public class MailTemplateTest extends AbstractTest {
     public void confirmPasswordReset() throws IOException {
         String htmlBody = evaluate(
                 mailTemplateDAO.find("confirmPasswordReset").getHTMLTemplate(),
-                new HashMap<String, Object>());
+                new HashMap<>());
 
         assertNotNull(htmlBody);
     }
@@ -111,7 +111,7 @@ public class MailTemplateTest extends AbstractTest {
         ctx.put("input", input);
 
         UserTO recipient = SerializationUtils.clone(user);
-        recipient.getPlainAttr("email").getValues().set(0, "another@syncope.apache.org");
+        recipient.getPlainAttr("email").get().getValues().set(0, "another@syncope.apache.org");
         ctx.put("recipients", Collections.singletonList(recipient));
 
         String htmlBody = evaluate(

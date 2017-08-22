@@ -19,13 +19,14 @@
 package org.apache.syncope.client.console.rest;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
+import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.VirSchemaTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -99,11 +100,10 @@ public class SchemaRestClient extends BaseRestClient {
     }
 
     public List<String> getSchemaNames(final SchemaType schemaType) {
-        List<String> schemaNames = new ArrayList<>();
+        List<String> schemaNames = Collections.emptyList();
 
         try {
-            CollectionUtils.collect(getSchemas(schemaType),
-                    EntityTOUtils.<AbstractSchemaTO>keyTransformer(), schemaNames);
+            schemaNames = getSchemas(schemaType).stream().map(EntityTO::getKey).collect(Collectors.toList());
         } catch (SyncopeClientException e) {
             LOG.error("While getting all user schema names", e);
         }

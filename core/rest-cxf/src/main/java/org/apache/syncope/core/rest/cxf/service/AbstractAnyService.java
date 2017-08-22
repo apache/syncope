@@ -20,6 +20,7 @@ package org.apache.syncope.core.rest.cxf.service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.Response;
@@ -40,7 +41,6 @@ import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.PagedResult;
-import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.ResourceAssociationAction;
@@ -101,7 +101,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
     @Override
     public AttrTO read(final String key, final SchemaType schemaType, final String schema) {
         TO any = read(key);
-        AttrTO result;
+        Optional<AttrTO> result;
         switch (schemaType) {
             case DERIVED:
                 result = any.getDerAttr(schema);
@@ -116,11 +116,11 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
                 result = any.getPlainAttr(schema);
         }
 
-        if (result == null) {
+        if (!result.isPresent()) {
             throw new NotFoundException("Attribute for type " + schemaType + " and schema " + schema);
         }
 
-        return result;
+        return result.get();
     }
 
     @Override
@@ -267,17 +267,18 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
         BulkActionResult result = new BulkActionResult();
 
         if (patch.getAction() == ResourceDeassociationAction.UNLINK) {
-            for (String resource : patch.getResources()) {
-                result.getResults().put(resource,
+            patch.getResources().forEach(resource -> {
+                result.getResults().put(
+                        resource,
                         updated.getEntity().getResources().contains(resource)
                         ? BulkActionResult.Status.FAILURE
                         : BulkActionResult.Status.SUCCESS);
-            }
+            });
         } else {
-            for (PropagationStatus propagationStatusTO : updated.getPropagationStatuses()) {
-                result.getResults().put(propagationStatusTO.getResource(),
-                        BulkActionResult.Status.valueOf(propagationStatusTO.getStatus().toString()));
-            }
+            updated.getPropagationStatuses().forEach(propagationStatusTO
+                    -> result.getResults().put(
+                            propagationStatusTO.getResource(),
+                            BulkActionResult.Status.valueOf(propagationStatusTO.getStatus().toString())));
         }
 
         return modificationResponse(result);
@@ -323,17 +324,18 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
         BulkActionResult result = new BulkActionResult();
 
         if (patch.getAction() == ResourceAssociationAction.LINK) {
-            for (String resource : patch.getResources()) {
-                result.getResults().put(resource,
+            patch.getResources().forEach(resource -> {
+                result.getResults().put(
+                        resource,
                         updated.getEntity().getResources().contains(resource)
                         ? BulkActionResult.Status.SUCCESS
                         : BulkActionResult.Status.FAILURE);
-            }
+            });
         } else {
-            for (PropagationStatus propagationStatusTO : updated.getPropagationStatuses()) {
-                result.getResults().put(propagationStatusTO.getResource(),
-                        BulkActionResult.Status.valueOf(propagationStatusTO.getStatus().toString()));
-            }
+            updated.getPropagationStatuses().forEach(propagationStatusTO
+                    -> result.getResults().put(
+                            propagationStatusTO.getResource(),
+                            BulkActionResult.Status.valueOf(propagationStatusTO.getStatus().toString())));
         }
 
         return modificationResponse(result);
@@ -348,7 +350,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
         switch (bulkAction.getType()) {
             case MUSTCHANGEPASSWORD:
                 if (logic instanceof UserLogic) {
-                    for (String key : bulkAction.getTargets()) {
+                    bulkAction.getTargets().forEach(key -> {
                         try {
                             final UserPatch userPatch = new UserPatch();
                             userPatch.setKey(key);
@@ -361,14 +363,14 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
                             LOG.error("Error performing delete for user {}", key, e);
                             result.getResults().put(key, BulkActionResult.Status.FAILURE);
                         }
-                    }
+                    });
                 } else {
                     throw new BadRequestException();
                 }
                 break;
 
             case DELETE:
-                for (String key : bulkAction.getTargets()) {
+                bulkAction.getTargets().forEach(key -> {
                     try {
                         result.getResults().put(
                                 logic.delete(key, isNullPriorityAsync()).getEntity().getKey(),
@@ -377,12 +379,12 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
                         LOG.error("Error performing delete for user {}", key, e);
                         result.getResults().put(key, BulkActionResult.Status.FAILURE);
                     }
-                }
+                });
                 break;
 
             case SUSPEND:
                 if (logic instanceof UserLogic) {
-                    for (String key : bulkAction.getTargets()) {
+                    bulkAction.getTargets().forEach(key -> {
                         StatusPatch statusPatch = new StatusPatch();
                         statusPatch.setKey(key);
                         statusPatch.setType(StatusPatchType.SUSPEND);
@@ -397,7 +399,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
                             LOG.error("Error performing suspend for user {}", key, e);
                             result.getResults().put(key, BulkActionResult.Status.FAILURE);
                         }
-                    }
+                    });
                 } else {
                     throw new BadRequestException();
                 }
@@ -405,7 +407,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
 
             case REACTIVATE:
                 if (logic instanceof UserLogic) {
-                    for (String key : bulkAction.getTargets()) {
+                    bulkAction.getTargets().forEach(key -> {
                         StatusPatch statusPatch = new StatusPatch();
                         statusPatch.setKey(key);
                         statusPatch.setType(StatusPatchType.REACTIVATE);
@@ -420,7 +422,7 @@ public abstract class AbstractAnyService<TO extends AnyTO, P extends AnyPatch>
                             LOG.error("Error performing reactivate for user {}", key, e);
                             result.getResults().put(key, BulkActionResult.Status.FAILURE);
                         }
-                    }
+                    });
                 } else {
                     throw new BadRequestException();
                 }

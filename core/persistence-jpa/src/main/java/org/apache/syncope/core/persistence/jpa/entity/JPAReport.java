@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.jpa.entity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -32,8 +33,6 @@ import javax.persistence.Table;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
@@ -111,13 +110,7 @@ public class JPAReport extends AbstractGeneratedKeyEntity implements Report {
 
     @Override
     public List<ReportletConf> getReportletConfs() {
-        return CollectionUtils.collect(reportletConfs, new Transformer<JPAReportletConfInstance, ReportletConf>() {
-
-            @Override
-            public ReportletConf transform(final JPAReportletConfInstance input) {
-                return input.getInstance();
-            }
-        }, new ArrayList<ReportletConf>());
+        return reportletConfs.stream().map(input -> input.getInstance()).collect(Collectors.toList());
     }
 
     @Override

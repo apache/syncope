@@ -22,7 +22,7 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import org.apache.commons.collections4.ComparatorUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
@@ -94,7 +94,7 @@ public class AnyTypeRestClient extends BaseRestClient {
             if (o2.getKind() == AnyTypeKind.GROUP) {
                 return 1;
             }
-            return ComparatorUtils.<String>naturalComparator().compare(o1.getKey(), o2.getKey());
+            return ObjectUtils.compare(o1.getKey(), o2.getKey());
         }
     }
 
@@ -122,7 +122,7 @@ public class AnyTypeRestClient extends BaseRestClient {
             if (AnyTypeKind.GROUP.name().equals(2)) {
                 return 1;
             }
-            return ComparatorUtils.<String>naturalComparator().compare(o1, o2);
+            return ObjectUtils.compare(o1, o2);
         }
     }
 }

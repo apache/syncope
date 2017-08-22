@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.api.entity.task;
 
 import java.util.List;
+import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 
@@ -30,7 +31,7 @@ public interface PushTask extends ProvisioningTask {
 
     boolean add(PushTaskAnyFilter filter);
 
-    PushTaskAnyFilter getFilter(AnyType anyType);
+    Optional<? extends PushTaskAnyFilter> getFilter(AnyType anyType);
 
     List<? extends PushTaskAnyFilter> getFilters();
 }

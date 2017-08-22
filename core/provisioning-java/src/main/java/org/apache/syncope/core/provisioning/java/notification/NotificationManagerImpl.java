@@ -25,9 +25,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -63,7 +62,6 @@ import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
-import org.apache.syncope.core.persistence.api.entity.AnyAbout;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
@@ -196,7 +194,7 @@ public class NotificationManagerImpl implements NotificationManager {
 
         Set<String> recipientEmails = new HashSet<>();
         List<UserTO> recipientTOs = new ArrayList<>(recipients.size());
-        for (User recipient : recipients) {
+        recipients.forEach(recipient -> {
             virAttrHander.getValues(recipient);
 
             String email = getRecipientEmail(notification.getRecipientAttrName(), recipient);
@@ -206,7 +204,7 @@ public class NotificationManagerImpl implements NotificationManager {
                 recipientEmails.add(email);
                 recipientTOs.add(userDataBinder.getUserTO(recipient, true));
             }
-        }
+        });
 
         if (notification.getStaticRecipients() != null) {
             recipientEmails.addAll(notification.getStaticRecipients());
@@ -266,15 +264,10 @@ public class NotificationManagerImpl implements NotificationManager {
 
         final String successEvent = AuditLoggerName.buildEvent(type, category, subcategory, event, Result.SUCCESS);
         final String failureEvent = AuditLoggerName.buildEvent(type, category, subcategory, event, Result.FAILURE);
-        return IterableUtils.matchesAny(notificationDAO.findAll(), new Predicate<Notification>() {
-
-            @Override
-            public boolean evaluate(final Notification notification) {
-                return notification.isActive()
-                        && (notification.getEvents().contains(successEvent)
-                        || notification.getEvents().contains(failureEvent));
-            }
-        });
+        return notificationDAO.findAll().stream().
+                anyMatch(notification -> notification.isActive()
+                && (notification.getEvents().contains(successEvent)
+                || notification.getEvents().contains(failureEvent)));
     }
 
     @Override
@@ -339,9 +332,9 @@ public class NotificationManagerImpl implements NotificationManager {
         List<NotificationTask> notifications = new ArrayList<>();
         for (Notification notification : notificationDAO.findAll()) {
             if (LOG.isDebugEnabled()) {
-                for (AnyAbout about : notification.getAbouts()) {
+                notification.getAbouts().forEach(about -> {
                     LOG.debug("Notification about {} defined: {}", about.getAnyType(), about.get());
-                }
+                });
             }
 
             if (notification.isActive()) {
@@ -349,8 +342,9 @@ public class NotificationManagerImpl implements NotificationManager {
                 if (!notification.getEvents().contains(currentEvent)) {
                     LOG.debug("No events found about {}", any);
                 } else if (anyType == null || any == null
-                        || notification.getAbout(anyType) == null
-                        || searchDAO.matches(any, SearchCondConverter.convert(notification.getAbout(anyType).get()))) {
+                        || !notification.getAbout(anyType).isPresent()
+                        || searchDAO.matches(
+                                any, SearchCondConverter.convert(notification.getAbout(anyType).get().get()))) {
 
                     LOG.debug("Creating notification task for event {} about {}", currentEvent, any);
 
@@ -395,17 +389,19 @@ public class NotificationManagerImpl implements NotificationManager {
             if (intAttrName.getMembershipOfGroup() != null) {
                 Group group = groupDAO.findByName(intAttrName.getMembershipOfGroup());
                 if (group != null) {
-                    membership = user.getMembership(group.getKey());
+                    membership = user.getMembership(group.getKey()).orElse(null);
                 }
             }
 
             switch (intAttrName.getSchemaType()) {
                 case PLAIN:
-                    UPlainAttr attr = membership == null
+                    Optional<? extends UPlainAttr> attr = membership == null
                             ? user.getPlainAttr(recipientAttrName)
                             : user.getPlainAttr(recipientAttrName, membership);
-                    if (attr != null) {
-                        email = attr.getValuesAsStrings().isEmpty() ? null : attr.getValuesAsStrings().get(0);
+                    if (attr.isPresent()) {
+                        email = attr.get().getValuesAsStrings().isEmpty()
+                                ? null
+                                : attr.get().getValuesAsStrings().get(0);
                     }
                     break;
 

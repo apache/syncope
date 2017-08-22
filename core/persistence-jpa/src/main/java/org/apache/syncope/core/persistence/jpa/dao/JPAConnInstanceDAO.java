@@ -18,23 +18,18 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 import javax.persistence.TypedQuery;
-import org.apache.commons.collections4.Closure;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
 import org.apache.syncope.core.persistence.api.dao.ConnInstanceHistoryConfDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.jpa.entity.JPAConnInstance;
 import org.apache.syncope.core.provisioning.api.ConnectorRegistry;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
@@ -61,20 +56,15 @@ public class JPAConnInstanceDAO extends AbstractDAO<ConnInstance> implements Con
 
     @Override
     public ConnInstance authFind(final String key) {
-        final ConnInstance connInstance = find(key);
+        ConnInstance connInstance = find(key);
         if (connInstance == null) {
             return null;
         }
 
-        final Set<String> authRealms = AuthContextUtils.getAuthorizations().get(StandardEntitlement.CONNECTOR_READ);
+        Set<String> authRealms = AuthContextUtils.getAuthorizations().get(StandardEntitlement.CONNECTOR_READ);
         if (authRealms == null || authRealms.isEmpty()
-                || !IterableUtils.matchesAny(authRealms, new Predicate<String>() {
-
-                    @Override
-                    public boolean evaluate(final String realm) {
-                        return connInstance.getAdminRealm().getFullPath().startsWith(realm);
-                    }
-                })) {
+                || !authRealms.stream().anyMatch(
+                        realm -> connInstance.getAdminRealm().getFullPath().startsWith(realm))) {
 
             throw new DelegatedAdministrationException(
                     connInstance.getAdminRealm().getFullPath(),
@@ -95,32 +85,22 @@ public class JPAConnInstanceDAO extends AbstractDAO<ConnInstance> implements Con
         TypedQuery<ConnInstance> query = entityManager().createQuery(
                 "SELECT e FROM " + JPAConnInstance.class.getSimpleName() + " e", ConnInstance.class);
 
-        return CollectionUtils.select(query.getResultList(), new Predicate<ConnInstance>() {
-
-            @Override
-            public boolean evaluate(final ConnInstance connInstance) {
-                return IterableUtils.matchesAny(authRealms, new Predicate<String>() {
-
-                    @Override
-                    public boolean evaluate(final String realm) {
-                        return connInstance.getAdminRealm().getFullPath().startsWith(realm);
-                    }
-                });
-            }
-        }, new ArrayList<ConnInstance>());
+        return query.getResultList().stream().filter(connInstance -> authRealms.stream().
+                anyMatch(realm -> connInstance.getAdminRealm().getFullPath().startsWith(realm))).
+                collect(Collectors.toList());
     }
 
     @Override
     public ConnInstance save(final ConnInstance connector) {
         final ConnInstance merged = entityManager().merge(connector);
 
-        for (ExternalResource resource : merged.getResources()) {
+        merged.getResources().forEach(resource -> {
             try {
                 connRegistry.registerConnector(resource);
             } catch (NotFoundException e) {
                 LOG.error("While registering connector for resource", e);
             }
-        }
+        });
 
         return merged;
     }
@@ -132,14 +112,9 @@ public class JPAConnInstanceDAO extends AbstractDAO<ConnInstance> implements Con
             return;
         }
 
-        IterableUtils.forEach(new CopyOnWriteArrayList<>(connInstance.getResources()), new Closure<ExternalResource>() {
-
-            @Override
-            public void execute(final ExternalResource input) {
-                resourceDAO.delete(input.getKey());
-            }
-
-        });
+        connInstance.getResources().stream().
+                map(Entity::getKey).collect(Collectors.toList()).
+                forEach(resource -> resourceDAO.delete(resource));
 
         connInstanceHistoryConfDAO.deleteByEntity(connInstance);
 

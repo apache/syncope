@@ -28,26 +28,20 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
-import org.apache.commons.collections4.SetUtils;
-import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.common.lib.types.AnyEntitlement;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
-import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
@@ -141,17 +135,16 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
 
     @Override
     protected void securityChecks(final AnyObject anyObject) {
-        Set<String> authRealms = SetUtils.emptyIfNull(
-                AuthContextUtils.getAuthorizations().get(AnyEntitlement.READ.getFor(anyObject.getType().getKey())));
-        boolean authorized = IterableUtils.matchesAny(authRealms, new Predicate<String>() {
-
-            @Override
-            public boolean evaluate(final String realm) {
-                return anyObject.getRealm().getFullPath().startsWith(realm);
-            }
-        });
+        Map<String, Set<String>> authorizations = AuthContextUtils.getAuthorizations();
+        Set<String> authRealms = authorizations.containsKey(AnyEntitlement.READ.getFor(anyObject.getType().getKey()))
+                ? authorizations.get(AnyEntitlement.READ.getFor(anyObject.getType().getKey()))
+                : Collections.emptySet();
+        boolean authorized = authRealms.stream().
+                anyMatch(realm -> anyObject.getRealm().getFullPath().startsWith(realm));
         if (!authorized) {
-            authorized = !CollectionUtils.intersection(findDynRealms(anyObject.getKey()), authRealms).isEmpty();
+            authorized = findDynRealms(anyObject.getKey()).stream().
+                    filter(dynRealm -> authRealms.contains(dynRealm)).
+                    count() > 0;
         }
         if (authRealms.isEmpty() || !authorized) {
             throw new DelegatedAdministrationException(
@@ -236,18 +229,21 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
         groupDAO().removeDynMemberships(anyObject);
         dynRealmDAO().removeDynMemberships(anyObject.getKey());
 
-        for (ARelationship relationship : findARelationships(anyObject)) {
+        findARelationships(anyObject).stream().map(relationship -> {
             relationship.getLeftEnd().getRelationships().remove(relationship);
+            return relationship;
+        }).map(relationship -> {
             save(relationship.getLeftEnd());
+            return relationship;
+        }).forEachOrdered(relationship -> entityManager().remove(relationship));
 
-            entityManager().remove(relationship);
-        }
-        for (URelationship relationship : findURelationships(anyObject)) {
+        findURelationships(anyObject).stream().map(relationship -> {
             relationship.getLeftEnd().getRelationships().remove(relationship);
+            return relationship;
+        }).map(relationship -> {
             userDAO().save(relationship.getLeftEnd());
-
-            entityManager().remove(relationship);
-        }
+            return relationship;
+        }).forEachOrdered(relationship -> entityManager().remove(relationship));
 
         entityManager().remove(anyObject);
         publisher.publishEvent(
@@ -256,45 +252,43 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
+    @SuppressWarnings("unchecked")
     public List<Group> findDynGroups(final String key) {
         Query query = entityManager().createNativeQuery(
                 "SELECT group_id FROM " + JPAGroupDAO.ADYNMEMB_TABLE + " WHERE any_id=?");
         query.setParameter(1, key);
 
         List<Group> result = new ArrayList<>();
-        for (Object resultKey : query.getResultList()) {
-            String actualKey = resultKey instanceof Object[]
-                    ? (String) ((Object[]) resultKey)[0]
-                    : ((String) resultKey);
-
-            Group group = groupDAO().find(actualKey);
-            if (group == null) {
-                LOG.error("Could not find group with id {}, even though returned by the native query", actualKey);
-            } else if (!result.contains(group)) {
-                result.add(group);
-            }
-        }
+        query.getResultList().stream().map(resultKey -> resultKey instanceof Object[]
+                ? (String) ((Object[]) resultKey)[0]
+                : ((String) resultKey)).
+                forEachOrdered(actualKey -> {
+                    Group group = groupDAO().find(actualKey.toString());
+                    if (group == null) {
+                        LOG.error("Could not find group with id {}, even though returned by the native query",
+                                actualKey);
+                    } else if (!result.contains(group)) {
+                        result.add(group);
+                    }
+                });
         return result;
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
     public Collection<Group> findAllGroups(final AnyObject anyObject) {
-        return CollectionUtils.union(
-                CollectionUtils.collect(anyObject.getMemberships(), new Transformer<AMembership, Group>() {
+        Set<Group> result = new HashSet<>();
+        result.addAll(anyObject.getMemberships().stream().
+                map(membership -> membership.getRightEnd()).collect(Collectors.toSet()));
+        result.addAll(findDynGroups(anyObject.getKey()));
 
-                    @Override
-                    public Group transform(final AMembership input) {
-                        return input.getRightEnd();
-                    }
-                }, new ArrayList<Group>()),
-                findDynGroups(anyObject.getKey()));
+        return result;
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     @Override
     public Collection<String> findAllGroupKeys(final AnyObject anyObject) {
-        return CollectionUtils.collect(findAllGroups(anyObject), EntityUtils.<Group>keyTransformer());
+        return findAllGroups(anyObject).stream().map(group -> group.getKey()).collect(Collectors.toList());
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
@@ -302,9 +296,7 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
     public Collection<ExternalResource> findAllResources(final AnyObject anyObject) {
         Set<ExternalResource> result = new HashSet<>();
         result.addAll(anyObject.getResources());
-        for (Group group : findAllGroups(anyObject)) {
-            result.addAll(group.getResources());
-        }
+        findAllGroups(anyObject).forEach(group -> result.addAll(group.getResources()));
 
         return result;
     }
@@ -312,7 +304,7 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
     @Transactional(readOnly = true)
     @Override
     public Collection<String> findAllResourceKeys(final String key) {
-        return CollectionUtils.collect(findAllResources(authFind(key)), EntityUtils.<ExternalResource>keyTransformer());
+        return findAllResources(authFind(key)).stream().map(resource -> resource.getKey()).collect(Collectors.toList());
     }
 
 }

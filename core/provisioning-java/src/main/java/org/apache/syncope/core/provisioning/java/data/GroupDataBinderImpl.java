@@ -23,8 +23,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -46,14 +45,12 @@ import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.DynGroupMembership;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
-import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
-import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -74,7 +71,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         }
 
         DynGroupMembership<?> dynMembership;
-        if (anyType.getKind() == AnyTypeKind.ANY_OBJECT && group.getADynMembership(anyType) == null) {
+        if (anyType.getKind() == AnyTypeKind.ANY_OBJECT && !group.getADynMembership(anyType).isPresent()) {
             dynMembership = entityFactory.newEntity(ADynGroupMembership.class);
             dynMembership.setGroup(group);
             group.add((ADynGroupMembership) dynMembership);
@@ -85,7 +82,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
             group.setUDynMembership((UDynGroupMembership) dynMembership);
         } else {
             dynMembership = anyType.getKind() == AnyTypeKind.ANY_OBJECT
-                    ? group.getADynMembership(anyType)
+                    ? group.getADynMembership(anyType).get()
                     : group.getUDynMembership();
         }
         dynMembership.setFIQLCond(dynMembershipFIQL);
@@ -139,17 +136,17 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         if (groupTO.getUDynMembershipCond() != null) {
             setDynMembership(group, anyTypeDAO.findUser(), groupTO.getUDynMembershipCond());
         }
-        for (Map.Entry<String, String> entry : groupTO.getADynMembershipConds().entrySet()) {
+        groupTO.getADynMembershipConds().entrySet().forEach(entry -> {
             AnyType anyType = anyTypeDAO.find(entry.getKey());
             if (anyType == null) {
                 LOG.warn("Ignoring invalid {}: {}", AnyType.class.getSimpleName(), entry.getKey());
             } else {
                 setDynMembership(group, anyType, entry.getValue());
             }
-        }
+        });
 
         // type extensions
-        for (TypeExtensionTO typeExtTO : groupTO.getTypeExtensions()) {
+        groupTO.getTypeExtensions().forEach(typeExtTO -> {
             AnyType anyType = anyTypeDAO.find(typeExtTO.getAnyType());
             if (anyType == null) {
                 LOG.warn("Ignoring invalid {}: {}", AnyType.class.getSimpleName(), typeExtTO.getAnyType());
@@ -159,21 +156,21 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
                 typeExt.setGroup(group);
                 group.add(typeExt);
 
-                for (String name : typeExtTO.getAuxClasses()) {
+                typeExtTO.getAuxClasses().forEach(name -> {
                     AnyTypeClass anyTypeClass = anyTypeClassDAO.find(name);
                     if (anyTypeClass == null) {
                         LOG.warn("Ignoring invalid {}: {}", AnyTypeClass.class.getSimpleName(), name);
                     } else {
                         typeExt.add(anyTypeClass);
                     }
-                }
+                });
 
                 if (typeExt.getAuxClasses().isEmpty()) {
                     group.getTypeExtensions().remove(typeExt);
                     typeExt.setGroup(null);
                 }
             }
-        }
+        });
 
         // Throw composite exception if there is at least one element set in the composing exceptions
         if (scce.hasExceptions()) {
@@ -220,14 +217,14 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
 
         // check if some connObjectKey was changed by the update above
         Map<String, String> newConnObjectKeys = getConnObjectKeys(group);
-        for (Map.Entry<String, String> entry : oldConnObjectKeys.entrySet()) {
-            if (newConnObjectKeys.containsKey(entry.getKey())
-                    && !entry.getValue().equals(newConnObjectKeys.get(entry.getKey()))) {
+        oldConnObjectKeys.entrySet().stream().
+                filter(entry -> newConnObjectKeys.containsKey(entry.getKey())
+                && !entry.getValue().equals(newConnObjectKeys.get(entry.getKey()))).
+                forEach(entry -> {
 
-                propByRes.addOldConnObjectKey(entry.getKey(), entry.getValue());
-                propByRes.add(ResourceOperation.UPDATE, entry.getKey());
-            }
-        }
+                    propByRes.addOldConnObjectKey(entry.getKey(), entry.getValue());
+                    propByRes.add(ResourceOperation.UPDATE, entry.getKey());
+                });
 
         group = groupDAO.save(group);
 
@@ -262,7 +259,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
             if (anyType == null) {
                 LOG.warn("Ignoring invalid {}: {}", AnyType.class.getSimpleName(), typeExtTO.getAnyType());
             } else {
-                TypeExtension typeExt = group.getTypeExtension(anyType);
+                TypeExtension typeExt = group.getTypeExtension(anyType).orElse(null);
                 if (typeExt == null) {
                     typeExt = entityFactory.newEntity(TypeExtension.class);
                     typeExt.setAnyType(anyType);
@@ -297,7 +294,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         // remove all type extensions not contained in the TO
         for (Iterator<? extends TypeExtension> itor = group.getTypeExtensions().iterator(); itor.hasNext();) {
             TypeExtension typeExt = itor.next();
-            if (groupPatch.getTypeExtension(typeExt.getAnyType().getKey()) == null) {
+            if (!groupPatch.getTypeExtension(typeExt.getAnyType().getKey()).isPresent()) {
                 itor.remove();
             }
         }
@@ -314,15 +311,8 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
     public TypeExtensionTO getTypeExtensionTO(final TypeExtension typeExt) {
         TypeExtensionTO typeExtTO = new TypeExtensionTO();
         typeExtTO.setAnyType(typeExt.getAnyType().getKey());
-        typeExtTO.getAuxClasses().addAll(CollectionUtils.collect(typeExt.getAuxClasses(),
-                new Transformer<AnyTypeClass, String>() {
-
-            @Override
-            public String transform(final AnyTypeClass clazz) {
-                return clazz.getKey();
-            }
-        }));
-
+        typeExtTO.getAuxClasses().addAll(
+                typeExt.getAuxClasses().stream().map(Entity::getKey).collect(Collectors.toList()));
         return typeExtTO;
     }
 
@@ -368,13 +358,13 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         if (group.getUDynMembership() != null) {
             groupTO.setUDynMembershipCond(group.getUDynMembership().getFIQLCond());
         }
-        for (ADynGroupMembership memb : group.getADynMemberships()) {
+        group.getADynMemberships().forEach(memb -> {
             groupTO.getADynMembershipConds().put(memb.getAnyType().getKey(), memb.getFIQLCond());
-        }
+        });
 
-        for (TypeExtension typeExt : group.getTypeExtensions()) {
+        group.getTypeExtensions().forEach(typeExt -> {
             groupTO.getTypeExtensions().add(getTypeExtensionTO(typeExt));
-        }
+        });
 
         return groupTO;
     }
@@ -389,7 +379,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
             final Group group, final Any<?> any, final Map<String, PropagationByResource> result) {
 
         PropagationByResource propByRes = new PropagationByResource();
-        for (ExternalResource resource : group.getResources()) {
+        group.getResources().forEach(resource -> {
             if (!any.getResources().contains(resource)) {
                 propByRes.add(ResourceOperation.DELETE, resource.getKey());
             }
@@ -397,7 +387,7 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
             if (!propByRes.isEmpty()) {
                 result.put(any.getKey(), propByRes);
             }
-        }
+        });
     }
 
     @Transactional(readOnly = true)
@@ -407,9 +397,9 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
 
         Map<String, PropagationByResource> result = new HashMap<>();
 
-        for (AMembership membership : groupDAO.findAMemberships(group)) {
+        groupDAO.findAMemberships(group).forEach((membership) -> {
             populateTransitiveResources(group, membership.getLeftEnd(), result);
-        }
+        });
 
         return result;
     }
@@ -421,9 +411,9 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
 
         Map<String, PropagationByResource> result = new HashMap<>();
 
-        for (UMembership membership : groupDAO.findUMemberships(group)) {
+        groupDAO.findUMemberships(group).forEach((membership) -> {
             populateTransitiveResources(group, membership.getLeftEnd(), result);
-        }
+        });
 
         return result;
     }

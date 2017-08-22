@@ -19,17 +19,13 @@
 package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
-import org.apache.commons.collections4.Transformer;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -110,21 +106,17 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
 
     @Override
     protected boolean securityChecks(final Set<String> effectiveRealms, final String realm, final String key) {
-        boolean authorized = IterableUtils.matchesAny(effectiveRealms, new Predicate<String>() {
-
-            @Override
-            public boolean evaluate(final String ownedRealm) {
-                return realm.startsWith(ownedRealm) || ownedRealm.equals(RealmUtils.getGroupOwnerRealm(realm, key));
-            }
-        });
+        boolean authorized = effectiveRealms.stream().anyMatch(ownedRealm
+                -> realm.startsWith(ownedRealm) || ownedRealm.equals(RealmUtils.getGroupOwnerRealm(realm, key)));
         if (!authorized) {
-            authorized = !CollectionUtils.intersection(groupDAO.findDynRealms(key), effectiveRealms).isEmpty();
+            authorized = groupDAO.findDynRealms(key).stream().
+                    filter(dynRealm -> effectiveRealms.contains(dynRealm)).findFirst().isPresent();
         }
         if (!authorized) {
             throw new DelegatedAdministrationException(realm, AnyTypeKind.GROUP.name(), key);
         }
 
-        return IterableUtils.matchesAny(effectiveRealms, new RealmUtils.DynRealmsPredicate());
+        return effectiveRealms.stream().anyMatch(new RealmUtils.DynRealmsPredicate());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.GROUP_READ + "')")
@@ -137,16 +129,8 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
     @PreAuthorize("isAuthenticated() and not(hasRole('" + StandardEntitlement.ANONYMOUS + "'))")
     @Transactional(readOnly = true)
     public List<GroupTO> own() {
-        return CollectionUtils.collect(
-                userDAO.findAllGroups(userDAO.findByUsername(AuthContextUtils.getUsername())),
-                new Transformer<Group, GroupTO>() {
-
-            @Transactional(readOnly = true)
-            @Override
-            public GroupTO transform(final Group input) {
-                return binder.getGroupTO(input, true);
-            }
-        }, new ArrayList<GroupTO>());
+        return userDAO.findAllGroups(userDAO.findByUsername(AuthContextUtils.getUsername())).stream().
+                map(group -> binder.getGroupTO(group, true)).collect(Collectors.toList());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.GROUP_SEARCH + "')")
@@ -166,14 +150,8 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
                 RealmUtils.getEffective(SyncopeConstants.FULL_ADMIN_REALMS, realm),
                 searchCond == null ? groupDAO.getAllMatchingCond() : searchCond,
                 page, size, orderBy, AnyTypeKind.GROUP);
-        List<GroupTO> result = CollectionUtils.collect(matching, new Transformer<Group, GroupTO>() {
-
-            @Transactional(readOnly = true)
-            @Override
-            public GroupTO transform(final Group input) {
-                return binder.getGroupTO(input, details);
-            }
-        }, new ArrayList<GroupTO>());
+        List<GroupTO> result = matching.stream().
+                map(group -> binder.getGroupTO(group, details)).collect(Collectors.toList());
 
         return Pair.of(count, result);
     }
@@ -238,14 +216,8 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
         List<Group> ownedGroups = groupDAO.findOwnedByGroup(before.getLeft().getKey());
         if (!ownedGroups.isEmpty()) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.GroupOwnership);
-            sce.getElements().addAll(CollectionUtils.collect(ownedGroups, new Transformer<Group, String>() {
-
-                @Transactional(readOnly = true)
-                @Override
-                public String transform(final Group group) {
-                    return group.getKey() + " " + group.getName();
-                }
-            }, new ArrayList<String>()));
+            sce.getElements().addAll(ownedGroups.stream().
+                    map(g -> g.getKey() + " " + g.getName()).collect(Collectors.toList()));
             throw sce;
         }
 
@@ -269,13 +241,9 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
 
         GroupPatch patch = new GroupPatch();
         patch.setKey(key);
-        patch.getResources().addAll(CollectionUtils.collect(resources, new Transformer<String, StringPatchItem>() {
-
-            @Override
-            public StringPatchItem transform(final String resource) {
-                return new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(resource).build();
-            }
-        }));
+        patch.getResources().addAll(resources.stream().
+                map(resource -> new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(resource).build()).
+                collect(Collectors.toList()));
 
         return binder.getGroupTO(provisioningManager.unlink(patch));
     }
@@ -292,13 +260,9 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
 
         GroupPatch patch = new GroupPatch();
         patch.setKey(key);
-        patch.getResources().addAll(CollectionUtils.collect(resources, new Transformer<String, StringPatchItem>() {
-
-            @Override
-            public StringPatchItem transform(final String resource) {
-                return new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(resource).build();
-            }
-        }));
+        patch.getResources().addAll(resources.stream().map(resource
+                -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(resource).build()).
+                collect(Collectors.toList()));
 
         return binder.getGroupTO(provisioningManager.link(patch));
     }
@@ -317,13 +281,9 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
 
         GroupPatch patch = new GroupPatch();
         patch.setKey(key);
-        patch.getResources().addAll(CollectionUtils.collect(resources, new Transformer<String, StringPatchItem>() {
-
-            @Override
-            public StringPatchItem transform(final String resource) {
-                return new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(resource).build();
-            }
-        }));
+        patch.getResources().addAll(resources.stream().map(resource
+                -> new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(resource).build()).
+                collect(Collectors.toList()));
 
         return update(patch, nullPriorityAsync);
     }
@@ -346,13 +306,9 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
 
         GroupPatch patch = new GroupPatch();
         patch.setKey(key);
-        patch.getResources().addAll(CollectionUtils.collect(resources, new Transformer<String, StringPatchItem>() {
-
-            @Override
-            public StringPatchItem transform(final String resource) {
-                return new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(resource).build();
-            }
-        }));
+        patch.getResources().addAll(resources.stream().map(resource
+                -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(resource).build()).
+                collect(Collectors.toList()));
 
         return update(patch, nullPriorityAsync);
     }

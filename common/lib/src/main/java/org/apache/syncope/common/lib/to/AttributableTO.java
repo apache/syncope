@@ -18,19 +18,20 @@
  */
 package org.apache.syncope.common.lib.to;
 
+import java.util.Optional;
 import java.util.Set;
 
 public interface AttributableTO {
 
     Set<AttrTO> getPlainAttrs();
 
-    AttrTO getPlainAttr(String schema);
+    Optional<AttrTO> getPlainAttr(String schema);
 
     Set<AttrTO> getDerAttrs();
 
-    AttrTO getDerAttr(String schema);
+    Optional<AttrTO> getDerAttr(String schema);
 
     Set<AttrTO> getVirAttrs();
 
-    AttrTO getVirAttr(String schema);
+    Optional<AttrTO> getVirAttr(String schema);
 }

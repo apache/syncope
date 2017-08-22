@@ -26,14 +26,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.AnyDataProvider;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.commons.SerializableTransformer;
 import org.apache.syncope.client.console.commons.status.ConnObjectWrapper;
-import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.rest.AbstractAnyRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table.AttrColumn;
@@ -50,7 +48,6 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
-import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.PageReference;
@@ -118,16 +115,16 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
         altDefaultModal.size(Modal.Size.Large);
 
         this.pSchemaNames = new ArrayList<>();
-        for (AnyTypeClassTO anyTypeClassTO : AnyDirectoryPanelBuilder.class.cast(builder).getAnyTypeClassTOs()) {
+        AnyDirectoryPanelBuilder.class.cast(builder).getAnyTypeClassTOs().forEach(anyTypeClassTO -> {
             this.pSchemaNames.addAll(anyTypeClassTO.getPlainSchemas());
-        }
+        });
         this.dSchemaNames = new ArrayList<>();
-        for (AnyTypeClassTO anyTypeClassTO : AnyDirectoryPanelBuilder.class.cast(builder).getAnyTypeClassTOs()) {
+        AnyDirectoryPanelBuilder.class.cast(builder).getAnyTypeClassTOs().forEach(anyTypeClassTO -> {
             this.dSchemaNames.addAll(anyTypeClassTO.getDerSchemas());
-        }
+        });
 
         initResultTable();
-        
+
         // cahnge close callback in order to update header after model update
         modal.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
 
@@ -149,32 +146,29 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
         final List<IColumn<A, String>> columns = new ArrayList<>();
         final List<IColumn<A, String>> prefcolumns = new ArrayList<>();
 
-        columns.add(new KeyPropertyColumn<A>(
+        columns.add(new KeyPropertyColumn<>(
                 new ResourceModel(Constants.KEY_FIELD_NAME, Constants.KEY_FIELD_NAME), Constants.KEY_FIELD_NAME));
 
-        for (String name : prefMan.getList(
-                getRequest(), DisplayAttributesModalPanel.getPrefDetailView(type))) {
-            if (!Constants.KEY_FIELD_NAME.equalsIgnoreCase(name)) {
-                addPropertyColumn(
-                        name,
-                        ReflectionUtils.findField(DisplayAttributesModalPanel.getTOClass(type), name),
-                        prefcolumns);
-            }
-        }
+        prefMan.getList(getRequest(), DisplayAttributesModalPanel.getPrefDetailView(type)).stream().
+                filter(name -> !Constants.KEY_FIELD_NAME.equalsIgnoreCase(name)).
+                forEachOrdered(name -> {
+                    addPropertyColumn(
+                            name,
+                            ReflectionUtils.findField(DisplayAttributesModalPanel.getTOClass(type), name),
+                            prefcolumns);
+                });
 
-        for (String name : prefMan.getList(
-                getRequest(), DisplayAttributesModalPanel.getPrefPlainAttributeView(type))) {
-            if (pSchemaNames.contains(name)) {
-                prefcolumns.add(new AttrColumn<A>(name, SchemaType.PLAIN));
-            }
-        }
+        prefMan.getList(getRequest(), DisplayAttributesModalPanel.getPrefPlainAttributeView(type)).stream().
+                filter(name -> pSchemaNames.contains(name)).
+                forEachOrdered(name -> {
+                    prefcolumns.add(new AttrColumn<>(name, SchemaType.PLAIN));
+                });
 
-        for (String name : prefMan.getList(
-                getRequest(), DisplayAttributesModalPanel.getPrefDerivedAttributeView(type))) {
-            if (dSchemaNames.contains(name)) {
-                prefcolumns.add(new AttrColumn<A>(name, SchemaType.DERIVED));
-            }
-        }
+        prefMan.getList(getRequest(), DisplayAttributesModalPanel.getPrefDerivedAttributeView(type)).stream().
+                filter(name -> (dSchemaNames.contains(name))).
+                forEachOrdered(name -> {
+                    prefcolumns.add(new AttrColumn<>(name, SchemaType.DERIVED));
+                });
 
         // Add defaults in case of no selection
         if (prefcolumns.isEmpty()) {
@@ -201,17 +195,17 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
             final List<IColumn<A, String>> columns) {
 
         if (Constants.KEY_FIELD_NAME.equalsIgnoreCase(name)) {
-            columns.add(new KeyPropertyColumn<A>(new ResourceModel(name, name), name, name));
+            columns.add(new KeyPropertyColumn<>(new ResourceModel(name, name), name, name));
         } else if (Constants.DEFAULT_TOKEN_FIELD_NAME.equalsIgnoreCase(name)) {
-            columns.add(new TokenColumn<A>(new ResourceModel(name, name), name));
+            columns.add(new TokenColumn<>(new ResourceModel(name, name), name));
         } else if (field != null
                 && (field.getType().equals(Boolean.class) || field.getType().equals(boolean.class))) {
 
-            columns.add(new BooleanPropertyColumn<A>(new ResourceModel(name, name), name, name));
+            columns.add(new BooleanPropertyColumn<>(new ResourceModel(name, name), name, name));
         } else if (field != null && field.getType().equals(Date.class)) {
-            columns.add(new DatePropertyColumn<A>(new ResourceModel(name, name), name, name));
+            columns.add(new DatePropertyColumn<>(new ResourceModel(name, name), name, name));
         } else {
-            columns.add(new PropertyColumn<A, String>(new ResourceModel(name, name), name, name));
+            columns.add(new PropertyColumn<>(new ResourceModel(name, name), name, name));
         }
     }
 
@@ -291,24 +285,16 @@ public abstract class AnyDirectoryPanel<A extends AnyTO, E extends AbstractAnyRe
         return new StatusPanel(
                 panelId,
                 ((ProvisioningResult<A>) result).getEntity(),
-                new ListModel<>(new ArrayList<StatusBean>()),
-                CollectionUtils.collect(
-                        ((ProvisioningResult<A>) result).getPropagationStatuses(),
-                        new SerializableTransformer<PropagationStatus, Pair<ConnObjectTO, ConnObjectWrapper>>() {
-
-                    private static final long serialVersionUID = -4931455531906427515L;
-
-                    @Override
-                    public Pair<ConnObjectTO, ConnObjectWrapper> transform(final PropagationStatus input) {
-                        ConnObjectTO before = input.getBeforeObj();
-                        ConnObjectWrapper afterObjWrapper = new ConnObjectWrapper(
-                                ((ProvisioningResult<A>) result).getEntity(),
-                                input.getResource(),
-                                input.getAfterObj());
-                        return Pair.of(before, afterObjWrapper);
-                    }
-
-                }, new ArrayList<Pair<ConnObjectTO, ConnObjectWrapper>>()),
+                new ListModel<>(new ArrayList<>()),
+                ((ProvisioningResult<A>) result).getPropagationStatuses().stream().
+                        map(input -> {
+                            ConnObjectTO before = input.getBeforeObj();
+                            ConnObjectWrapper afterObjWrapper = new ConnObjectWrapper(
+                                    ((ProvisioningResult<A>) result).getEntity(),
+                                    input.getResource(),
+                                    input.getAfterObj());
+                            return Pair.of(before, afterObjWrapper);
+                        }).collect(Collectors.toList()),
                 pageRef);
     }
 }

@@ -21,9 +21,8 @@ package org.apache.syncope.core.provisioning.api.utils;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public final class RealmUtils {
 
@@ -52,9 +51,7 @@ public final class RealmUtils {
     public static Set<String> normalize(final Collection<String> realms) {
         Set<String> normalized = new HashSet<>();
         if (realms != null) {
-            for (String realm : realms) {
-                normalizingAddTo(normalized, realm);
-            }
+            realms.forEach(realm -> normalizingAddTo(normalized, realm));
         }
 
         return normalized;
@@ -69,14 +66,8 @@ public final class RealmUtils {
         }
 
         @Override
-        public boolean evaluate(final String realm) {
-            return IterableUtils.matchesAny(targets, new Predicate<String>() {
-
-                @Override
-                public boolean evaluate(final String target) {
-                    return realm.startsWith(target);
-                }
-            });
+        public boolean test(final String realm) {
+            return targets.stream().anyMatch(target -> realm.startsWith(target));
         }
 
     }
@@ -84,7 +75,7 @@ public final class RealmUtils {
     public static class DynRealmsPredicate implements Predicate<String> {
 
         @Override
-        public boolean evaluate(final String realm) {
+        public boolean test(final String realm) {
             return !realm.startsWith("/");
         }
     }
@@ -95,11 +86,13 @@ public final class RealmUtils {
         requested.add(requestedRealm);
 
         Set<String> effective = new HashSet<>();
-        CollectionUtils.select(requested, new StartsWithPredicate(allowed), effective);
-        CollectionUtils.select(allowed, new StartsWithPredicate(requested), effective);
+        effective.addAll(requested.stream().filter(new StartsWithPredicate(allowed)).collect(Collectors.toSet()));
+        effective.addAll(allowed.stream().filter(new StartsWithPredicate(requested)).collect(Collectors.toSet()));
 
         // includes dynamic realms
-        CollectionUtils.select(allowedRealms, new DynRealmsPredicate(), effective);
+        if (allowedRealms != null) {
+            effective.addAll(allowedRealms.stream().filter(new DynRealmsPredicate()).collect(Collectors.toSet()));
+        }
 
         return effective;
     }

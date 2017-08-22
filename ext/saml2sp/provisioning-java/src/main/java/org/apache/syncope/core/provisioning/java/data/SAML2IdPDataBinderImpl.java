@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
-import org.apache.commons.collections4.CollectionUtils;
+import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
@@ -32,16 +32,12 @@ import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.SAML2IdPDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
-import org.apache.syncope.core.persistence.api.entity.DerSchema;
-import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.SAML2EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.SAML2IdP;
 import org.apache.syncope.core.persistence.api.entity.SAML2IdPItem;
 import org.apache.syncope.core.persistence.api.entity.SAML2UserTemplate;
-import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
 import org.apache.syncope.core.provisioning.api.data.SAML2IdPDataBinder;
-import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.apache.syncope.core.provisioning.java.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
 import org.apache.syncope.core.spring.BeanUtils;
@@ -191,15 +187,12 @@ public class SAML2IdPDataBinderImpl implements SAML2IdPDataBinder {
         idp.getItems().clear();
         AnyTypeClassTO allowedSchemas = new AnyTypeClassTO();
         for (AnyTypeClass anyTypeClass : anyTypeDAO.findUser().getClasses()) {
-            allowedSchemas.getPlainSchemas().addAll(
-                    CollectionUtils.collect(anyTypeClass.getPlainSchemas(),
-                            EntityUtils.<PlainSchema>keyTransformer()));
-            allowedSchemas.getDerSchemas().addAll(
-                    CollectionUtils.collect(anyTypeClass.getDerSchemas(),
-                            EntityUtils.<DerSchema>keyTransformer()));
-            allowedSchemas.getVirSchemas().addAll(
-                    CollectionUtils.collect(anyTypeClass.getVirSchemas(),
-                            EntityUtils.<VirSchema>keyTransformer()));
+            allowedSchemas.getPlainSchemas().addAll(anyTypeClass.getPlainSchemas().stream().
+                    map(s -> s.getKey()).collect(Collectors.toList()));
+            allowedSchemas.getDerSchemas().addAll(anyTypeClass.getDerSchemas().stream().
+                    map(s -> s.getKey()).collect(Collectors.toList()));
+            allowedSchemas.getVirSchemas().addAll(anyTypeClass.getVirSchemas().stream().
+                    map(s -> s.getKey()).collect(Collectors.toList()));
         }
         populateItems(idpTO, idp, allowedSchemas);
 

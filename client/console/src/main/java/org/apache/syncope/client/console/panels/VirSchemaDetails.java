@@ -23,9 +23,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
@@ -34,11 +33,10 @@ import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormCompo
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
 import org.apache.syncope.common.lib.to.ConnIdObjectClassTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
-import org.apache.syncope.common.lib.to.ProvisionTO;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
@@ -66,14 +64,13 @@ public class VirSchemaDetails extends AbstractSchemaDetailsPanel {
         super(id, pageReference, schemaTO);
 
         AjaxCheckBoxPanel readonly = new AjaxCheckBoxPanel("readonly", getString("readonly"),
-                new PropertyModel<Boolean>(schemaTO, "readonly"));
+                new PropertyModel<>(schemaTO, "readonly"));
         schemaForm.add(readonly);
 
         final AjaxDropDownChoicePanel<String> resource = new AjaxDropDownChoicePanel<>(
                 "resource", getString("resource"), new PropertyModel<String>(schemaTO, "resource"), false).
                 setNullValid(false);
-        resource.setChoices(CollectionUtils.collect(resourceRestClient.list(),
-                EntityTOUtils.<ResourceTO>keyTransformer(), new ArrayList<String>()));
+        resource.setChoices(resourceRestClient.list().stream().map(EntityTO::getKey).collect(Collectors.toList()));
         resource.setOutputMarkupId(true);
         resource.addRequiredLabel();
         if (resource.getModelObject() != null) {
@@ -94,7 +91,7 @@ public class VirSchemaDetails extends AbstractSchemaDetailsPanel {
         schemaForm.add(anyType);
 
         final AjaxTextFieldPanel extAttrName = new AjaxTextFieldPanel(
-                "extAttrName", getString("extAttrName"), new PropertyModel<String>(schemaTO, "extAttrName"));
+                "extAttrName", getString("extAttrName"), new PropertyModel<>(schemaTO, "extAttrName"));
         extAttrName.setOutputMarkupId(true);
         extAttrName.addRequiredLabel();
         if (selectedResource != null) {
@@ -158,9 +155,9 @@ public class VirSchemaDetails extends AbstractSchemaDetailsPanel {
 
             if (SyncopeConsoleSession.get().owns(StandardEntitlement.RESOURCE_READ, adminRealm)) {
                 selectedResource = resource;
-                for (ProvisionTO provisionTO : selectedResource.getProvisions()) {
+                selectedResource.getProvisions().forEach(provisionTO -> {
                     anyTypes.put(provisionTO.getAnyType(), provisionTO.getObjectClass());
-                }
+                });
             }
         }
     }
@@ -170,17 +167,12 @@ public class VirSchemaDetails extends AbstractSchemaDetailsPanel {
         connInstanceTO.setKey(selectedResource.getConnector());
         connInstanceTO.getConf().addAll(selectedResource.getConfOverride());
 
-        ConnIdObjectClassTO connIdObjectClass = IterableUtils.find(
-                connRestClient.buildObjectClassInfo(connInstanceTO, false), new Predicate<ConnIdObjectClassTO>() {
+        Optional<ConnIdObjectClassTO> connIdObjectClass = connRestClient.buildObjectClassInfo(connInstanceTO, false).
+                stream().filter(object -> object.getType().equals(anyTypes.get(anyType.getModelObject()))).
+                findAny();
 
-            @Override
-            public boolean evaluate(final ConnIdObjectClassTO object) {
-                return object.getType().equals(anyTypes.get(anyType.getModelObject()));
-            }
-        });
-
-        return connIdObjectClass == null
-                ? Collections.<String>emptyList()
-                : connIdObjectClass.getAttributes();
+        return connIdObjectClass.isPresent()
+                ? connIdObjectClass.get().getAttributes()
+                : Collections.<String>emptyList();
     }
 }

@@ -23,14 +23,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import javax.ws.rs.PathParam;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
@@ -122,14 +121,8 @@ public class ConnInstanceTO extends AbstractBaseBean implements EntityTO {
     }
 
     @JsonIgnore
-    public ConnConfProperty getConf(final String schemaName) {
-        return IterableUtils.find(conf, new Predicate<ConnConfProperty>() {
-
-            @Override
-            public boolean evaluate(final ConnConfProperty object) {
-                return object.getSchema().getName().equals(schemaName);
-            }
-        });
+    public Optional<ConnConfProperty> getConf(final String schemaName) {
+        return conf.stream().filter(property -> property.getSchema().getName().equals(schemaName)).findFirst();
     }
 
     @XmlElementWrapper(name = "capabilities")

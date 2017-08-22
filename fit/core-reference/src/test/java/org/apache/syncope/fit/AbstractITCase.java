@@ -24,6 +24,7 @@ import static org.junit.Assert.fail;
 
 import java.io.InputStream;
 import java.net.URI;
+import java.util.Arrays;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.UUID;
@@ -37,7 +38,6 @@ import javax.naming.directory.ModificationItem;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -388,7 +388,7 @@ public abstract class AbstractITCase {
         notification.setSelfAsRecipient(true);
         notification.setRecipientAttrName("email");
         if (staticRecipients != null) {
-            CollectionUtils.addAll(notification.getStaticRecipients(), staticRecipients);
+            notification.getStaticRecipients().addAll(Arrays.asList(staticRecipients));
         }
 
         notification.setSender(sender);
@@ -517,13 +517,13 @@ public abstract class AbstractITCase {
 
         Properties env = new Properties();
         env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
-        env.put(Context.PROVIDER_URL, "ldap://" + ldapConn.getConf("host").getValues().get(0)
-                + ":" + ldapConn.getConf("port").getValues().get(0) + "/");
+        env.put(Context.PROVIDER_URL, "ldap://" + ldapConn.getConf("host").get().getValues().get(0)
+                + ":" + ldapConn.getConf("port").get().getValues().get(0) + "/");
         env.put(Context.SECURITY_AUTHENTICATION, "simple");
         env.put(Context.SECURITY_PRINCIPAL,
-                bindDn == null ? ldapConn.getConf("principal").getValues().get(0) : bindDn);
+                bindDn == null ? ldapConn.getConf("principal").get().getValues().get(0) : bindDn);
         env.put(Context.SECURITY_CREDENTIALS,
-                bindPwd == null ? ldapConn.getConf("credentials").getValues().get(0) : bindPwd);
+                bindPwd == null ? ldapConn.getConf("credentials").get().getValues().get(0) : bindPwd);
 
         return new InitialDirContext(env);
     }

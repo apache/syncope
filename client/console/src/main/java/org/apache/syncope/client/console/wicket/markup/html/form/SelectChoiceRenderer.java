@@ -19,8 +19,6 @@
 package org.apache.syncope.client.console.wicket.markup.html.form;
 
 import java.util.List;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.model.IModel;
 
@@ -44,12 +42,8 @@ public class SelectChoiceRenderer<T> implements IChoiceRenderer<T> {
 
     @Override
     public T getObject(final String id, final IModel<? extends List<? extends T>> choices) {
-        return IterableUtils.find(choices.getObject(), new Predicate<T>() {
-
-            @Override
-            public boolean evaluate(final T object) {
-                return id != null && id.equals(getIdValue(object, 0));
-            }
-        });
+        return choices.getObject().stream().
+                filter(object -> id != null && id.equals(getIdValue(object, 0))).
+                findAny().orElse(null);
     }
 }

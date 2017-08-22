@@ -26,9 +26,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
-import org.apache.commons.collections4.functors.StringValueTransformer;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.search.SearchClause.Comparator;
@@ -110,7 +108,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
 
         super(id, name, clause);
 
-        this.clause = clause == null ? new Model<SearchClause>(null) : clause;
+        this.clause = clause == null ? new Model<>(null) : clause;
 
         this.required = required;
         this.types = types;
@@ -201,9 +199,8 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                         return names;
 
                     case GROUP_MEMBERSHIP:
-                        final List<String> groups = CollectionUtils.collect(groupNames.getObject().keySet(),
-                                StringValueTransformer.<String>stringValueTransformer(), new ArrayList<String>());
-
+                        final List<String> groups = groupNames.getObject().keySet().
+                                stream().collect(Collectors.toList());
                         Collections.sort(groups);
                         return groups;
 
@@ -218,14 +215,8 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
                         return resources;
 
                     case RELATIONSHIP:
-                        final List<String> relations = CollectionUtils.collect(
-                                new RelationshipTypeRestClient().list(), new Transformer<RelationshipTypeTO, String>() {
-
-                            @Override
-                            public String transform(final RelationshipTypeTO input) {
-                                return input.getKey();
-                            }
-                        }, new ArrayList<String>());
+                        final List<String> relations = new RelationshipTypeRestClient().list().stream().
+                                map(RelationshipTypeTO::getKey).collect(Collectors.toList());
                         return relations;
 
                     default:
@@ -364,7 +355,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
         }
 
         final AjaxDropDownChoicePanel<String> property = new AjaxDropDownChoicePanel<>(
-                "property", "property", new PropertyModel<String>(searchClause, "property"));
+                "property", "property", new PropertyModel<>(searchClause, "property"));
         property.hideLabel().setRequired(required).setOutputMarkupId(true);
         property.setChoices(properties);
         property.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
@@ -378,7 +369,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
         field.add(property);
 
         final AjaxDropDownChoicePanel<SearchClause.Comparator> comparator = new AjaxDropDownChoicePanel<>(
-                "comparator", "comparator", new PropertyModel<SearchClause.Comparator>(searchClause, "comparator"));
+                "comparator", "comparator", new PropertyModel<>(searchClause, "comparator"));
         comparator.setChoices(comparators);
         comparator.setNullValid(false).hideLabel().setOutputMarkupId(true);
         comparator.setRequired(required);
@@ -386,7 +377,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
         field.add(comparator);
 
         final AjaxTextFieldPanel value = new AjaxTextFieldPanel(
-                "value", "value", new PropertyModel<String>(searchClause, "value"), false);
+                "value", "value", new PropertyModel<>(searchClause, "value"), false);
         value.hideLabel().setOutputMarkupId(true);
         field.add(value);
 
@@ -426,7 +417,7 @@ public class SearchClausePanel extends FieldPanel<SearchClause> {
         });
 
         final AjaxDropDownChoicePanel<SearchClause.Type> type = new AjaxDropDownChoicePanel<>(
-                "type", "type", new PropertyModel<SearchClause.Type>(searchClause, "type"));
+                "type", "type", new PropertyModel<>(searchClause, "type"));
         type.setChoices(types).hideLabel().setRequired(required).setOutputMarkupId(true);
         type.setNullValid(false);
         type.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {

@@ -25,12 +25,8 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
-import org.apache.commons.collections4.Transformer;
+import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
@@ -75,16 +71,11 @@ public class ResourceTest extends AbstractTest {
                 "net.tirasa.connid.bundles.soap.WebServiceConnector", connector.getConnectorName());
         assertEquals("invalid bundle name", "net.tirasa.connid.bundles.soap", connector.getBundleName());
 
-        Mapping mapping = resource.getProvision(anyTypeDAO.findUser()).getMapping();
+        Mapping mapping = resource.getProvision(anyTypeDAO.findUser()).get().getMapping();
         assertFalse("no mapping specified", mapping.getItems().isEmpty());
 
-        assertTrue(IterableUtils.matchesAny(mapping.getItems(), new Predicate<MappingItem>() {
-
-            @Override
-            public boolean evaluate(final MappingItem item) {
-                return "7f55b09c-b573-41dc-a9eb-ccd80bd3ea7a".equals(item.getKey());
-            }
-        }));
+        assertTrue(mapping.getItems().stream().
+                anyMatch(item -> "7f55b09c-b573-41dc-a9eb-ccd80bd3ea7a".equals(item.getKey())));
 
         try {
             resourceDAO.authFind("ws-target-resource-1");
@@ -103,14 +94,9 @@ public class ResourceTest extends AbstractTest {
 
     @Test
     public void findAll() {
-        List<GrantedAuthority> authorities = CollectionUtils.collect(StandardEntitlement.values(),
-                new Transformer<String, GrantedAuthority>() {
-
-            @Override
-            public GrantedAuthority transform(final String entitlement) {
-                return new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM);
-            }
-        }, new ArrayList<GrantedAuthority>());
+        List<GrantedAuthority> authorities = StandardEntitlement.values().stream().
+                map(entitlement -> new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM)).
+                collect(Collectors.toList());
 
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                 new org.springframework.security.core.userdetails.User(
@@ -131,8 +117,8 @@ public class ResourceTest extends AbstractTest {
     public void getConnObjectKey() {
         ExternalResource resource = resourceDAO.find("ws-target-resource-2");
         assertNotNull(resource);
-        assertEquals("fullname",
-                resource.getProvision(anyTypeDAO.findUser()).getMapping().getConnObjectKeyItem().getIntAttrName());
+        assertEquals("fullname", resource.getProvision(anyTypeDAO.findUser()).get().
+                getMapping().getConnObjectKeyItem().get().getIntAttrName());
     }
 
     @Test
@@ -165,8 +151,8 @@ public class ResourceTest extends AbstractTest {
 
         assertNotNull(actual);
         assertNotNull(actual.getConnector());
-        assertNotNull(actual.getProvision(anyTypeDAO.findUser()).getMapping());
-        assertFalse(actual.getProvision(anyTypeDAO.findUser()).getMapping().getItems().isEmpty());
+        assertNotNull(actual.getProvision(anyTypeDAO.findUser()).get().getMapping());
+        assertFalse(actual.getProvision(anyTypeDAO.findUser()).get().getMapping().getItems().isEmpty());
         assertEquals(Integer.valueOf(2), actual.getPropagationPriority());
     }
 
@@ -335,7 +321,7 @@ public class ResourceTest extends AbstractTest {
         ExternalResource actual = resourceDAO.save(resource);
         assertNotNull(actual);
 
-        assertEquals(3, actual.getProvision(anyTypeDAO.findUser()).getMapping().getItems().size());
+        assertEquals(3, actual.getProvision(anyTypeDAO.findUser()).get().getMapping().getItems().size());
     }
 
     @Test

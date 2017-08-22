@@ -26,8 +26,6 @@ import static org.junit.Assert.fail;
 
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.patch.AttrPatch;
@@ -141,22 +139,11 @@ public class DynRealmITCase extends AbstractITCase {
             // 5. verify that the new user and group are found when searching by dynamic realm
             PagedResult<UserTO> matchingUsers = userService.search(new AnyQuery.Builder().realm("/").fiql(
                     SyncopeClient.getUserSearchConditionBuilder().inDynRealms(dynRealm.getKey()).query()).build());
-            assertTrue(IterableUtils.matchesAny(matchingUsers.getResult(), new Predicate<UserTO>() {
+            assertTrue(matchingUsers.getResult().stream().anyMatch(object -> object.getKey().equals(userKey)));
 
-                @Override
-                public boolean evaluate(final UserTO object) {
-                    return object.getKey().equals(userKey);
-                }
-            }));
             PagedResult<GroupTO> matchingGroups = groupService.search(new AnyQuery.Builder().realm("/").fiql(
                     SyncopeClient.getGroupSearchConditionBuilder().inDynRealms(dynRealm.getKey()).query()).build());
-            assertTrue(IterableUtils.matchesAny(matchingGroups.getResult(), new Predicate<GroupTO>() {
-
-                @Override
-                public boolean evaluate(final GroupTO object) {
-                    return object.getKey().equals(groupKey);
-                }
-            }));
+            assertTrue(matchingGroups.getResult().stream().anyMatch(object -> object.getKey().equals(groupKey)));
 
             // 6. prepare to act as delegated admin
             SyncopeClient delegatedClient = clientFactory.create(dynRealmAdmin.getUsername(), "password123");
@@ -172,13 +159,7 @@ public class DynRealmITCase extends AbstractITCase {
 
             // USER_SEARCH
             matchingUsers = delegatedUserService.search(new AnyQuery.Builder().realm("/").build());
-            assertTrue(IterableUtils.matchesAny(matchingUsers.getResult(), new Predicate<UserTO>() {
-
-                @Override
-                public boolean evaluate(final UserTO object) {
-                    return object.getKey().equals(userKey);
-                }
-            }));
+            assertTrue(matchingUsers.getResult().stream().anyMatch(object -> object.getKey().equals(userKey)));
 
             // USER_UPDATE
             UserPatch userPatch = new UserPatch();
@@ -209,7 +190,7 @@ public class DynRealmITCase extends AbstractITCase {
                     readEntity(new GenericType<ProvisioningResult<GroupTO>>() {
                     }).getEntity();
             assertNotNull(group);
-            assertEquals("modified", group.getPlainAttr("icon").getValues().get(0));
+            assertEquals("modified", group.getPlainAttr("icon").get().getValues().get(0));
         } finally {
             if (role != null) {
                 roleService.delete(role.getKey());

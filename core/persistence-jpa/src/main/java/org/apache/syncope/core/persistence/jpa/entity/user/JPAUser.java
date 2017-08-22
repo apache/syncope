@@ -374,7 +374,7 @@ public class JPAUser
 
     @Override
     public Integer getFailedLogins() {
-        return failedLogins == null ? Integer.valueOf(0) : failedLogins;
+        return failedLogins == null ? 0 : failedLogins;
     }
 
     @Override

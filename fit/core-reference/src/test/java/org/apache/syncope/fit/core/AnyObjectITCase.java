@@ -69,8 +69,8 @@ public class AnyObjectITCase extends AbstractITCase {
         assertNotNull(connObjectTO);
         assertNotNull(connObjectTO.getAttr("LOCATION"));
         assertEquals(
-                anyObjectTO.getPlainAttr("location").getValues(),
-                connObjectTO.getAttr("LOCATION").getValues());
+                anyObjectTO.getPlainAttr("location").get().getValues(),
+                connObjectTO.getAttr("LOCATION").get().getValues());
     }
 
     @Test
@@ -127,9 +127,7 @@ public class AnyObjectITCase extends AbstractITCase {
                         build());
         assertNotNull(anyObjectTOs);
         assertTrue(anyObjectTOs.getResult().size() >= 2);
-        for (AnyObjectTO anyObjectTO : anyObjectTOs.getResult()) {
-            assertNotNull(anyObjectTO);
-        }
+        anyObjectTOs.getResult().forEach(anyObjectTO -> assertNotNull(anyObjectTO));
     }
 
     @Test
@@ -154,7 +152,7 @@ public class AnyObjectITCase extends AbstractITCase {
 
         anyObjectTO = updateAnyObject(anyObjectPatch).getEntity();
 
-        assertEquals(newLocation, anyObjectTO.getPlainAttr("location").getValues().get(0));
+        assertEquals(newLocation, anyObjectTO.getPlainAttr("location").get().getValues().get(0));
     }
 
     @Test
@@ -167,7 +165,7 @@ public class AnyObjectITCase extends AbstractITCase {
         assertEquals(anyObjectTO.getPlainAttrs(), attrs);
 
         AttrTO location = anyObjectService.read(anyObjectTO.getKey(), SchemaType.PLAIN, "location");
-        assertEquals(anyObjectTO.getPlainAttr("location"), location);
+        assertEquals(anyObjectTO.getPlainAttr("location").get(), location);
     }
 
     @Test

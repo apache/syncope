@@ -19,10 +19,8 @@
 package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -34,6 +32,7 @@ import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.DuplicateException;
 import org.apache.syncope.core.persistence.api.dao.MailTemplateDAO;
 import org.apache.syncope.core.persistence.api.dao.NotificationDAO;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.MailTemplate;
 import org.apache.syncope.core.persistence.api.entity.Notification;
@@ -73,13 +72,8 @@ public class MailTemplateLogic extends AbstractTransactionalLogic<MailTemplateTO
 
     @PreAuthorize("hasRole('" + StandardEntitlement.MAIL_TEMPLATE_LIST + "')")
     public List<MailTemplateTO> list() {
-        return CollectionUtils.collect(mailTemplateDAO.findAll(), new Transformer<MailTemplate, MailTemplateTO>() {
-
-            @Override
-            public MailTemplateTO transform(final MailTemplate input) {
-                return getMailTemplateTO(input.getKey());
-            }
-        }, new ArrayList<MailTemplateTO>());
+        return mailTemplateDAO.findAll().stream().
+                map(template -> getMailTemplateTO(template.getKey())).collect(Collectors.toList());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.MAIL_TEMPLATE_CREATE + "')")
@@ -145,13 +139,7 @@ public class MailTemplateLogic extends AbstractTransactionalLogic<MailTemplateTO
         List<Notification> notifications = notificationDAO.findByTemplate(mailTemplate);
         if (!notifications.isEmpty()) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InUseByNotifications);
-            sce.getElements().addAll(CollectionUtils.collect(notifications, new Transformer<Notification, String>() {
-
-                @Override
-                public String transform(final Notification notification) {
-                    return String.valueOf(notification.getKey());
-                }
-            }, new ArrayList<String>()));
+            sce.getElements().addAll(notifications.stream().map(Entity::getKey).collect(Collectors.toList()));
             throw sce;
         }
 
@@ -169,7 +157,7 @@ public class MailTemplateLogic extends AbstractTransactionalLogic<MailTemplateTO
         if (ArrayUtils.isNotEmpty(args)) {
             for (int i = 0; key == null && i < args.length; i++) {
                 if (args[i] instanceof String) {
-                    key = ((String) args[i]).toString();
+                    key = ((String) args[i]);
                 } else if (args[i] instanceof MailTemplateTO) {
                     key = ((MailTemplateTO) args[i]).getKey();
                 }

@@ -23,8 +23,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import javax.annotation.Resource;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
@@ -311,13 +309,8 @@ public abstract class AbstractProvisioningJobDelegate<T extends ProvisioningTask
         // Summary, also to be included for FAILURE and ALL, so create it anyway.
         boolean includeUser = resource.getProvision(anyTypeDAO.findUser()) != null;
         boolean includeGroup = resource.getProvision(anyTypeDAO.findGroup()) != null;
-        boolean includeAnyObject = IterableUtils.matchesAny(resource.getProvisions(), new Predicate<Provision>() {
-
-            @Override
-            public boolean evaluate(final Provision object) {
-                return object.getAnyType().getKind() == AnyTypeKind.ANY_OBJECT;
-            }
-        });
+        boolean includeAnyObject = resource.getProvisions().stream().anyMatch(
+                provision -> provision.getAnyType().getKind() == AnyTypeKind.ANY_OBJECT);
         boolean includeRealm = resource.getOrgUnit() != null;
 
         if (includeUser) {

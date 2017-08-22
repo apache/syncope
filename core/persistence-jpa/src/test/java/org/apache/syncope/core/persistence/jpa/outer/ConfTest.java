@@ -53,7 +53,7 @@ public class ConfTest extends AbstractTest {
 
     @Test
     public void update() {
-        CPlainAttr expireTime = confDAO.find("token.expireTime");
+        CPlainAttr expireTime = confDAO.find("token.expireTime").get();
         assertNotNull(expireTime);
         long value = expireTime.getValues().get(0).getLongValue();
         value++;
@@ -65,7 +65,7 @@ public class ConfTest extends AbstractTest {
         confDAO.save(expireTime);
         confDAO.flush();
 
-        CPlainAttr actual = confDAO.find("token.expireTime");
+        CPlainAttr actual = confDAO.find("token.expireTime").get();
         assertEquals(expireTime, actual);
     }
 

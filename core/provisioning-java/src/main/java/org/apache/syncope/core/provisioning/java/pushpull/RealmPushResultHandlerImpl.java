@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.AuditElements;
@@ -195,12 +196,12 @@ public class RealmPushResultHandlerImpl
 
         // Try to read remote object BEFORE any actual operation
         OrgUnit orgUnit = profile.getTask().getResource().getOrgUnit();
-        OrgUnitItem connObjectKey = orgUnit.getConnObjectKeyItem();
+        Optional<? extends OrgUnitItem> connObjectKey = orgUnit.getConnObjectKeyItem();
         String connObjecKeyValue = mappingManager.getConnObjectKeyValue(realm, orgUnit);
 
         ConnectorObject beforeObj = getRemoteObject(
                 orgUnit.getObjectClass(),
-                connObjectKey.getExtAttrName(),
+                connObjectKey.get().getExtAttrName(),
                 connObjecKeyValue,
                 orgUnit.getItems().iterator());
 
@@ -374,7 +375,7 @@ public class RealmPushResultHandlerImpl
                 resultStatus = AuditElements.Result.SUCCESS;
                 output = getRemoteObject(
                         orgUnit.getObjectClass(),
-                        connObjectKey.getExtAttrName(),
+                        connObjectKey.get().getExtAttrName(),
                         connObjecKeyValue,
                         orgUnit.getItems().iterator());
             } catch (IgnoreProvisionException e) {

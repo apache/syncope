@@ -23,12 +23,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 
 public final class ReconciliationReportParser {
@@ -96,13 +95,12 @@ public final class ReconciliationReportParser {
                         anyObject.setType(lastAnyType);
                         anyObject.setKey(streamReader.getAttributeValue("", "key"));
                         final String anyType = lastAnyType;
-                        IterableUtils.find(report.getAnyObjects(), new Predicate<Anys>() {
-
-                            @Override
-                            public boolean evaluate(final Anys anys) {
-                                return anyType.equals(anys.getAnyType());
-                            }
-                        }).getAnys().add(anyObject);
+                        Optional<Anys> anyReport = report.getAnyObjects().stream().
+                                filter(anys -> anyType.equals(anys.getAnyType())).
+                                findFirst();
+                        if (anyReport.isPresent()) {
+                            anyReport.get().getAnys().add(anyObject);
+                        }
                         break;
 
                     case "missing":

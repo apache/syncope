@@ -25,9 +25,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.ComparatorUtils;
-import org.apache.commons.collections4.Transformer;
+import java.util.stream.Collectors;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.syncope.common.lib.log.EventCategoryTO;
 import org.apache.syncope.common.lib.log.LogAppender;
 import org.apache.syncope.common.lib.log.LogStatementTO;
@@ -43,37 +42,25 @@ public class LoggerRestClient extends BaseRestClient {
     private static final long serialVersionUID = 4579786978763032240L;
 
     public List<String> listMemoryAppenders() {
-        return CollectionUtils.collect(getService(LoggerService.class).memoryAppenders(),
-                new Transformer<LogAppender, String>() {
-
-            @Override
-            public String transform(final LogAppender input) {
-                return input.getName();
-            }
-        }, new ArrayList<String>());
+        return getService(LoggerService.class).memoryAppenders().stream().
+                map(LogAppender::getName).collect(Collectors.toList());
     }
 
     public List<LogStatementTO> getLastLogStatements(final String appender, final long lastStatementTime) {
         List<LogStatementTO> result = new ArrayList<>();
-        for (LogStatementTO statement : getService(LoggerService.class).getLastLogStatements(appender)) {
-            if (statement.getTimeMillis() > lastStatementTime) {
-                result.add(statement);
-            }
-        }
+        getService(LoggerService.class).getLastLogStatements(appender).stream().
+                filter(statement -> statement.getTimeMillis() > lastStatementTime).
+                forEachOrdered(statement -> {
+                    result.add(statement);
+                });
 
         return result;
     }
 
     public List<LoggerTO> listLogs() {
         List<LoggerTO> logs = getService(LoggerService.class).list(LoggerType.LOG);
-        Collections.sort(logs, ComparatorUtils.transformedComparator(
-                ComparatorUtils.<String>naturalComparator(), new Transformer<LoggerTO, String>() {
+        Collections.sort(logs, (o1, o2) -> ObjectUtils.compare(o1.getKey(), o2.getKey()));
 
-            @Override
-            public String transform(final LoggerTO input) {
-                return input.getKey();
-            }
-        }));
         return logs;
     }
 
@@ -83,13 +70,13 @@ public class LoggerRestClient extends BaseRestClient {
 
     public Map<String, Set<AuditLoggerName>> listAuditsByCategory() {
         Map<String, Set<AuditLoggerName>> result = new HashMap<>();
-        for (AuditLoggerName audit : listAudits()) {
+        listAudits().forEach(audit -> {
             if (!result.containsKey(audit.getCategory())) {
-                result.put(audit.getCategory(), new HashSet<AuditLoggerName>());
+                result.put(audit.getCategory(), new HashSet<>());
             }
 
             result.get(audit.getCategory()).add(audit);
-        }
+        });
 
         return result;
     }

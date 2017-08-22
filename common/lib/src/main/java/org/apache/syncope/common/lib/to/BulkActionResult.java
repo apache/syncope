@@ -69,11 +69,9 @@ public class BulkActionResult extends AbstractBaseBean {
     public List<String> getResultByStatus(final Status status) {
         final List<String> result = new ArrayList<>();
 
-        for (Map.Entry<String, Status> entry : results.entrySet()) {
-            if (entry.getValue() == status) {
-                result.add(entry.getKey());
-            }
-        }
+        results.entrySet().stream().
+                filter((entry) -> (entry.getValue() == status)).
+                forEachOrdered(entry -> result.add(entry.getKey()));
 
         return Collections.unmodifiableList(result);
     }

@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.api.entity;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 public interface GroupableRelatable<
         L extends Any<P>, 
@@ -29,31 +30,30 @@ public interface GroupableRelatable<
         REL extends Relationship<L, R>> extends Any<P> {
 
     @Override
-    boolean add(final P attr);
+    boolean add(P attr);
 
     @Override
-    boolean remove(final P attr);
+    boolean remove(P attr);
 
     /**
      * Returns the plain attribute for this instance and the given schema name - if found, {@code NULL} otherwise.
      * <b>IMPORTANT:</b> This method won't return any attribute related to memberships.
      *
-     * @param plainSchemaName plain schema name
-     * @return plain attribute for this instance and the given schema name - if found, {@code NULL} otherwise
+     * @param plainSchema plain schema name
+     * @return plain attribute for this instance and the given schema name
      */
     @Override
-    P getPlainAttr(String plainSchemaName);
+    Optional<? extends P> getPlainAttr(String plainSchema);
 
     /**
      * Returns the plain attribute for this instance, the given schema name and the given membership -
      * if found, {@code NULL} otherwise.
      *
-     * @param plainSchemaName plain schema name
+     * @param plainSchema plain schema name
      * @param membership membership
-     * @return plain attribute for this instance, the given schema name and the given membership -
-     * if found, {@code NULL} otherwise
+     * @return plain attribute for this instance, the given schema name and the given membership
      */
-    P getPlainAttr(String plainSchemaName, Membership<?> membership);
+    Optional<? extends P> getPlainAttr(String plainSchema, Membership<?> membership);
 
     /**
      * Returns the plain attributes for this instance.
@@ -68,10 +68,10 @@ public interface GroupableRelatable<
      * Returns the list of plain attributes for this instance and the given schema name (including membeship attributes,
      * as opposite to {@link Any#getPlainAttr(java.lang.String)}).
      *
-     * @param plainSchemaName plain schema name
+     * @param plainSchema plain schema name
      * @return list of plain attributes for this instance and the given schema name (including membeship attributes)
      */
-    Collection<? extends P> getPlainAttrs(String plainSchemaName);
+    Collection<? extends P> getPlainAttrs(String plainSchema);
 
     /**
      * Returns the list of plain attributes for this instance and the given membership.
@@ -83,13 +83,13 @@ public interface GroupableRelatable<
 
     boolean add(M membership);
 
-    M getMembership(String groupKey);
+    Optional<? extends M> getMembership(String groupKey);
 
     List<? extends M> getMemberships();
 
     boolean add(REL relationship);
 
-    REL getRelationship(RelationshipType relationshipType, String otherEndKey);
+    Optional<? extends REL> getRelationship(RelationshipType relationshipType, String otherEndKey);
 
     Collection<? extends REL> getRelationships(String otherEndKey);
 

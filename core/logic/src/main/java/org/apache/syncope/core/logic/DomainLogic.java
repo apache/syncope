@@ -19,10 +19,8 @@
 package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.DomainTO;
@@ -63,13 +61,7 @@ public class DomainLogic extends AbstractTransactionalLogic<DomainTO> {
 
     @PreAuthorize("isAuthenticated()")
     public List<DomainTO> list() {
-        return CollectionUtils.collect(domainDAO.findAll(), new Transformer<Domain, DomainTO>() {
-
-            @Override
-            public DomainTO transform(final Domain input) {
-                return binder.getDomainTO(input);
-            }
-        }, new ArrayList<DomainTO>());
+        return domainDAO.findAll().stream().map(domain -> binder.getDomainTO(domain)).collect(Collectors.toList());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.DOMAIN_CREATE + "') and authentication.details.domain == "

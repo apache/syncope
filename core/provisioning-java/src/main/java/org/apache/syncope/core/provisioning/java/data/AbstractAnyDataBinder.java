@@ -24,8 +24,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
-import org.apache.commons.collections4.CollectionUtils;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -81,7 +82,6 @@ import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.api.data.SchemaDataBinder;
-import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.apache.syncope.core.provisioning.java.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
@@ -193,7 +193,7 @@ abstract class AbstractAnyDataBinder {
                 ? Collections.<String>emptyList()
                 : Collections.singletonList(values.iterator().next()));
 
-        for (String value : valuesProvided) {
+        valuesProvided.forEach(value -> {
             if (StringUtils.isBlank(value)) {
                 LOG.debug("Null value for {}, ignoring", schema.getKey());
             } else {
@@ -205,22 +205,22 @@ abstract class AbstractAnyDataBinder {
                     invalidValues.getElements().add(schema.getKey() + ": " + value + " - " + e.getMessage());
                 }
             }
-        }
+        });
     }
 
     private List<String> evaluateMandatoryCondition(final Provision provision, final Any<?> any) {
         List<String> missingAttrNames = new ArrayList<>();
 
-        for (MappingItem mapItem : MappingUtils.getPropagationItems(provision)) {
-            IntAttrName intAttrName =
-                    intAttrNameParser.parse(mapItem.getIntAttrName(), provision.getAnyType().getKind());
+        MappingUtils.getPropagationItems(provision).forEach(mapItem -> {
+            IntAttrName intAttrName = intAttrNameParser.
+                    parse(mapItem.getIntAttrName(), provision.getAnyType().getKind());
             if (intAttrName.getSchemaType() != null) {
                 List<PlainAttrValue> values = mappingManager.getIntValues(provision, mapItem, intAttrName, any);
                 if (values.isEmpty() && JexlUtils.evaluateMandatoryCondition(mapItem.getMandatoryCondition(), any)) {
                     missingAttrNames.add(mapItem.getIntAttrName());
                 }
             }
-        }
+        });
 
         return missingAttrNames;
     }
@@ -228,17 +228,17 @@ abstract class AbstractAnyDataBinder {
     private SyncopeClientException checkMandatoryOnResources(final Any<?> any, final Set<ExternalResource> resources) {
         SyncopeClientException reqValMissing = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
 
-        for (ExternalResource resource : resources) {
-            Provision provision = resource.getProvision(any.getType());
-            if (resource.isEnforceMandatoryCondition() && provision != null) {
-                List<String> missingAttrNames = evaluateMandatoryCondition(provision, any);
+        resources.forEach(resource -> {
+            Optional<? extends Provision> provision = resource.getProvision(any.getType());
+            if (resource.isEnforceMandatoryCondition() && provision.isPresent()) {
+                List<String> missingAttrNames = evaluateMandatoryCondition(provision.get(), any);
                 if (!missingAttrNames.isEmpty()) {
                     LOG.error("Mandatory schemas {} not provided with values", missingAttrNames);
 
                     reqValMissing.getElements().addAll(missingAttrNames);
                 }
             }
-        }
+        });
 
         return reqValMissing;
     }
@@ -264,18 +264,20 @@ abstract class AbstractAnyDataBinder {
 
         // Check if there is some mandatory schema defined for which no value has been provided
         AllowedSchemas<PlainSchema> allowedPlainSchemas = anyUtils.getAllowedSchemas(any, PlainSchema.class);
-        for (PlainSchema schema : allowedPlainSchemas.getForSelf()) {
-            checkMandatory(schema, any.getPlainAttr(schema.getKey()), any, reqValMissing);
-        }
-        for (Map.Entry<Group, Set<PlainSchema>> entry : allowedPlainSchemas.getForMemberships().entrySet()) {
-            if (any instanceof GroupableRelatable) {
-                GroupableRelatable<?, ?, ?, ?, ?> groupable = GroupableRelatable.class.cast(any);
-                Membership<?> membership = groupable.getMembership(entry.getKey().getKey());
-                for (PlainSchema schema : entry.getValue()) {
-                    checkMandatory(schema, groupable.getPlainAttr(schema.getKey(), membership), any, reqValMissing);
-                }
-            }
-        }
+        allowedPlainSchemas.getForSelf().
+                forEach(schema -> {
+                    checkMandatory(schema, any.getPlainAttr(schema.getKey()).orElse(null), any, reqValMissing);
+                });
+        allowedPlainSchemas.getForMemberships().entrySet().stream().
+                filter(entry -> any instanceof GroupableRelatable).
+                forEachOrdered(entry -> {
+                    GroupableRelatable<?, ?, ?, ?, ?> groupable = GroupableRelatable.class.cast(any);
+                    Membership<?> membership = groupable.getMembership(entry.getKey().getKey()).orElse(null);
+                    entry.getValue().forEach(schema -> {
+                        checkMandatory(schema, groupable.getPlainAttr(schema.getKey(), membership).orElse(null),
+                                any, reqValMissing);
+                    });
+                });
 
         return reqValMissing;
     }
@@ -302,11 +304,11 @@ abstract class AbstractAnyDataBinder {
                         plainAttrValueDAO.delete(attr.getUniqueValue().getKey(), anyUtils.plainAttrUniqueValueClass());
                     }
                 } else {
-                    Collection<String> valuesToBeRemoved =
-                            CollectionUtils.collect(attr.getValues(), EntityUtils.keyTransformer());
-                    for (String attrValueKey : valuesToBeRemoved) {
+                    Collection<String> valuesToBeRemoved = attr.getValues().stream().
+                            map(value -> value.getKey()).collect(Collectors.toSet());
+                    valuesToBeRemoved.forEach(attrValueKey -> {
                         plainAttrValueDAO.delete(attrValueKey, anyUtils.plainAttrValueClass());
-                    }
+                    });
                 }
 
                 // 1.2 add values
@@ -330,17 +332,16 @@ abstract class AbstractAnyDataBinder {
                 plainAttrDAO.delete(attr.getKey(), anyUtils.plainAttrClass());
         }
 
-        for (ExternalResource resource : resources) {
-            for (MappingItem item : MappingUtils.getPropagationItems(resource.getProvision(any.getType()))) {
-                if (schema.getKey().equals(item.getIntAttrName())) {
-                    propByRes.add(ResourceOperation.UPDATE, resource.getKey());
-
-                    if (item.isConnObjectKey() && !attr.getValuesAsStrings().isEmpty()) {
-                        propByRes.addOldConnObjectKey(resource.getKey(), attr.getValuesAsStrings().get(0));
-                    }
-                }
-            }
-        }
+        resources.forEach(resource -> {
+            MappingUtils.getPropagationItems(resource.getProvision(any.getType()).get()).stream().
+                    filter(item -> (schema.getKey().equals(item.getIntAttrName()))).
+                    forEachOrdered(item -> {
+                        propByRes.add(ResourceOperation.UPDATE, resource.getKey());
+                        if (item.isConnObjectKey() && !attr.getValuesAsStrings().isEmpty()) {
+                            propByRes.addOldConnObjectKey(resource.getKey(), attr.getValuesAsStrings().get(0));
+                        }
+                    });
+        });
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -394,31 +395,30 @@ abstract class AbstractAnyDataBinder {
         SyncopeClientException invalidValues = SyncopeClientException.build(ClientExceptionType.InvalidValues);
 
         // 3. plain attributes
-        for (AttrPatch patch : anyPatch.getPlainAttrs()) {
-            if (patch.getAttrTO() != null) {
-                PlainSchema schema = getPlainSchema(patch.getAttrTO().getSchema());
-                if (schema == null) {
-                    LOG.debug("Invalid " + PlainSchema.class.getSimpleName()
-                            + "{}, ignoring...", patch.getAttrTO().getSchema());
-                } else {
-                    PlainAttr<?> attr = any.getPlainAttr(schema.getKey());
-                    if (attr == null) {
-                        LOG.debug("No plain attribute found for schema {}", schema);
+        anyPatch.getPlainAttrs().stream().
+                filter(patch -> patch.getAttrTO() != null).forEach(patch -> {
+            PlainSchema schema = getPlainSchema(patch.getAttrTO().getSchema());
+            if (schema == null) {
+                LOG.debug("Invalid " + PlainSchema.class.getSimpleName()
+                        + "{}, ignoring...", patch.getAttrTO().getSchema());
+            } else {
+                PlainAttr<?> attr = (PlainAttr<?>) any.getPlainAttr(schema.getKey()).orElse(null);
+                if (attr == null) {
+                    LOG.debug("No plain attribute found for schema {}", schema);
 
-                        if (patch.getOperation() == PatchOperation.ADD_REPLACE) {
-                            attr = anyUtils.newPlainAttr();
-                            ((PlainAttr) attr).setOwner(any);
-                            attr.setSchema(schema);
-                            any.add(attr);
+                    if (patch.getOperation() == PatchOperation.ADD_REPLACE) {
+                        attr = anyUtils.newPlainAttr();
+                        ((PlainAttr) attr).setOwner(any);
+                        attr.setSchema(schema);
+                        any.add(attr);
 
-                        }
-                    }
-                    if (attr != null) {
-                        processAttrPatch(any, patch, schema, attr, anyUtils, resources, propByRes, invalidValues);
                     }
                 }
+                if (attr != null) {
+                    processAttrPatch(any, patch, schema, attr, anyUtils, resources, propByRes, invalidValues);
+                }
             }
-        }
+        });
         if (!invalidValues.isEmpty()) {
             scce.addException(invalidValues);
         }
@@ -444,39 +444,39 @@ abstract class AbstractAnyDataBinder {
 
         // 0. aux classes
         any.getAuxClasses().clear();
-        for (String className : anyTO.getAuxClasses()) {
-            AnyTypeClass auxClass = anyTypeClassDAO.find(className);
-            if (auxClass == null) {
-                LOG.debug("Invalid " + AnyTypeClass.class.getSimpleName() + "{}, ignoring...", auxClass);
-            } else {
-                any.add(auxClass);
-            }
-        }
+        anyTO.getAuxClasses().stream().
+                map(className -> anyTypeClassDAO.find(className)).
+                forEachOrdered(auxClass -> {
+                    if (auxClass == null) {
+                        LOG.debug("Invalid " + AnyTypeClass.class.getSimpleName() + "{}, ignoring...", auxClass);
+                    } else {
+                        any.add(auxClass);
+                    }
+                });
 
         // 1. attributes
         SyncopeClientException invalidValues = SyncopeClientException.build(ClientExceptionType.InvalidValues);
 
-        for (AttrTO attrTO : anyTO.getPlainAttrs()) {
-            // Only consider attributeTO with values
-            if (!attrTO.getValues().isEmpty()) {
-                PlainSchema schema = getPlainSchema(attrTO.getSchema());
-                if (schema != null) {
-                    PlainAttr attr = any.getPlainAttr(schema.getKey());
-                    if (attr == null) {
-                        attr = anyUtils.newPlainAttr();
-                        attr.setOwner(any);
-                        attr.setSchema(schema);
-                    }
-                    fillAttr(attrTO.getValues(), anyUtils, schema, attr, invalidValues);
+        anyTO.getPlainAttrs().stream().
+                filter(attrTO -> !attrTO.getValues().isEmpty()).
+                forEach(attrTO -> {
+                    PlainSchema schema = getPlainSchema(attrTO.getSchema());
+                    if (schema != null) {
+                        PlainAttr<?> attr = (PlainAttr<?>) any.getPlainAttr(schema.getKey()).orElse(null);
+                        if (attr == null) {
+                            attr = anyUtils.newPlainAttr();
+                            ((PlainAttr) attr).setOwner(any);
+                            attr.setSchema(schema);
+                        }
+                        fillAttr(attrTO.getValues(), anyUtils, schema, attr, invalidValues);
 
-                    if (attr.getValuesAsStrings().isEmpty()) {
-                        attr.setOwner(null);
-                    } else {
-                        any.add(attr);
+                        if (attr.getValuesAsStrings().isEmpty()) {
+                            attr.setOwner(null);
+                        } else {
+                            any.add(attr);
+                        }
                     }
-                }
-            }
-        }
+                });
 
         if (!invalidValues.isEmpty()) {
             scce.addException(invalidValues);
@@ -488,14 +488,14 @@ abstract class AbstractAnyDataBinder {
         }
 
         // 2. resources
-        for (String resourceKey : anyTO.getResources()) {
+        anyTO.getResources().forEach(resourceKey -> {
             ExternalResource resource = resourceDAO.find(resourceKey);
             if (resource == null) {
                 LOG.debug("Invalid " + ExternalResource.class.getSimpleName() + "{}, ignoring...", resourceKey);
             } else {
                 any.add(resource);
             }
-        }
+        });
 
         requiredValuesMissing = checkMandatoryOnResources(any, anyUtils.getAllResources(any));
         if (!requiredValuesMissing.isEmpty()) {
@@ -513,28 +513,28 @@ abstract class AbstractAnyDataBinder {
 
         SyncopeClientException invalidValues = SyncopeClientException.build(ClientExceptionType.InvalidValues);
 
-        for (AttrTO attrTO : membershipTO.getPlainAttrs()) {
-            if (!attrTO.getValues().isEmpty()) {
-                PlainSchema schema = getPlainSchema(attrTO.getSchema());
-                if (schema != null) {
-                    GroupablePlainAttr attr = GroupableRelatable.class.cast(any).
-                            getPlainAttr(schema.getKey(), membership);
-                    if (attr == null) {
-                        attr = anyUtils.newPlainAttr();
-                        attr.setOwner(any);
-                        attr.setMembership(membership);
-                        attr.setSchema(schema);
-                    }
-                    fillAttr(attrTO.getValues(), anyUtils, schema, attr, invalidValues);
+        membershipTO.getPlainAttrs().stream().
+                filter(attrTO -> !attrTO.getValues().isEmpty()).
+                forEach(attrTO -> {
+                    PlainSchema schema = getPlainSchema(attrTO.getSchema());
+                    if (schema != null) {
+                        GroupablePlainAttr attr = (GroupablePlainAttr) GroupableRelatable.class.cast(any).
+                                getPlainAttr(schema.getKey(), membership).orElse(null);
+                        if (attr == null) {
+                            attr = anyUtils.newPlainAttr();
+                            attr.setOwner(any);
+                            attr.setMembership(membership);
+                            attr.setSchema(schema);
+                        }
+                        fillAttr(attrTO.getValues(), anyUtils, schema, attr, invalidValues);
 
-                    if (attr.getValuesAsStrings().isEmpty()) {
-                        attr.setOwner(null);
-                    } else {
-                        any.add(attr);
+                        if (attr.getValuesAsStrings().isEmpty()) {
+                            attr.setOwner(null);
+                        } else {
+                            any.add(attr);
+                        }
                     }
-                }
-            }
-        }
+                });
 
         if (!invalidValues.isEmpty()) {
             scce.addException(invalidValues);
@@ -553,41 +553,47 @@ abstract class AbstractAnyDataBinder {
 
         anyTO.setRealm(realmFullPath);
 
-        CollectionUtils.collect(auxClasses, EntityUtils.<AnyTypeClass>keyTransformer(), anyTO.getAuxClasses());
+        anyTO.getAuxClasses().addAll(auxClasses.stream().map(cls -> cls.getKey()).collect(Collectors.toList()));
 
-        for (PlainAttr<?> plainAttr : plainAttrs) {
+        plainAttrs.stream().map(plainAttr -> {
             AttrTO.Builder attrTOBuilder = new AttrTO.Builder().
                     schema(plainAttr.getSchema().getKey()).
                     values(plainAttr.getValuesAsStrings());
             if (details) {
                 attrTOBuilder.schemaInfo(schemaDataBinder.getPlainSchemaTO(plainAttr.getSchema()));
             }
+            return attrTOBuilder;
+        }).forEachOrdered(attrTOBuilder -> {
             anyTO.getPlainAttrs().add(attrTOBuilder.build());
-        }
+        });
 
-        for (Map.Entry<DerSchema, String> entry : derAttrs.entrySet()) {
+        derAttrs.entrySet().stream().map(entry -> {
             AttrTO.Builder attrTOBuilder = new AttrTO.Builder().
                     schema(entry.getKey().getKey()).
                     value(entry.getValue());
             if (details) {
                 attrTOBuilder.schemaInfo(schemaDataBinder.getDerSchemaTO(entry.getKey()));
             }
+            return attrTOBuilder;
+        }).forEachOrdered(attrTOBuilder -> {
             anyTO.getDerAttrs().add(attrTOBuilder.build());
-        }
+        });
 
-        for (Map.Entry<VirSchema, List<String>> entry : virAttrs.entrySet()) {
+        virAttrs.entrySet().stream().map(entry -> {
             AttrTO.Builder attrTOBuilder = new AttrTO.Builder().
                     schema(entry.getKey().getKey()).
                     values(entry.getValue());
             if (details) {
                 attrTOBuilder.schemaInfo(schemaDataBinder.getVirSchemaTO(entry.getKey()));
             }
+            return attrTOBuilder;
+        }).forEachOrdered(attrTOBuilder -> {
             anyTO.getVirAttrs().add(attrTOBuilder.build());
-        }
+        });
 
-        for (ExternalResource resource : resources) {
+        resources.forEach(resource -> {
             anyTO.getResources().add(resource.getKey());
-        }
+        });
     }
 
     protected RelationshipTO getRelationshipTO(final Relationship<? extends Any<?>, AnyObject> relationship) {
@@ -607,29 +613,29 @@ abstract class AbstractAnyDataBinder {
                 group(membership.getRightEnd().getKey(), membership.getRightEnd().getName()).
                 build();
 
-        for (PlainAttr<?> plainAttr : plainAttrs) {
+        plainAttrs.forEach(plainAttr -> {
             membershipTO.getPlainAttrs().add(new AttrTO.Builder().
                     schema(plainAttr.getSchema().getKey()).
                     values(plainAttr.getValuesAsStrings()).
                     schemaInfo(schemaDataBinder.getPlainSchemaTO(plainAttr.getSchema())).
                     build());
-        }
+        });
 
-        for (Map.Entry<DerSchema, String> entry : derAttrs.entrySet()) {
+        derAttrs.entrySet().forEach(entry -> {
             membershipTO.getDerAttrs().add(new AttrTO.Builder().
                     schema(entry.getKey().getKey()).
                     value(entry.getValue()).
                     schemaInfo(schemaDataBinder.getDerSchemaTO(entry.getKey())).
                     build());
-        }
+        });
 
-        for (Map.Entry<VirSchema, List<String>> entry : virAttrs.entrySet()) {
+        virAttrs.entrySet().forEach(entry -> {
             membershipTO.getVirAttrs().add(new AttrTO.Builder().
                     schema(entry.getKey().getKey()).
                     values(entry.getValue()).
                     schemaInfo(schemaDataBinder.getVirSchemaTO(entry.getKey())).
                     build());
-        }
+        });
 
         return membershipTO;
     }
@@ -643,18 +649,18 @@ abstract class AbstractAnyDataBinder {
                         ? anyObjectDAO.findAllResources((AnyObject) any)
                         : ((Group) any).getResources();
         for (ExternalResource resource : iterable) {
-            Provision provision = resource.getProvision(any.getType());
-            if (provision != null && provision.getMapping() != null) {
-                MappingItem connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
-                if (connObjectKeyItem == null) {
+            Optional<? extends Provision> provision = resource.getProvision(any.getType());
+            if (provision.isPresent() && provision.get().getMapping() != null) {
+                Optional<MappingItem> connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision.get());
+                if (!connObjectKeyItem.isPresent()) {
                     throw new NotFoundException(
                             "ConnObjectKey mapping for " + any.getType().getKey() + " " + any.getKey()
                             + " on resource '" + resource.getKey() + "'");
                 }
 
-                String connObjectKey = mappingManager.getConnObjectKeyValue(any, provision);
-                if (connObjectKey != null) {
-                    connObjectKeys.put(resource.getKey(), connObjectKey);
+                Optional<String> connObjectKey = mappingManager.getConnObjectKeyValue(any, provision.get());
+                if (connObjectKey.isPresent()) {
+                    connObjectKeys.put(resource.getKey(), connObjectKey.get());
                 }
             }
         }

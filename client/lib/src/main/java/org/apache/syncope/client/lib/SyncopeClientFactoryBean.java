@@ -114,7 +114,7 @@ public class SyncopeClientFactoryBean {
 
     protected JAXRSClientFactoryBean defaultRestClientFactoryBean() {
         JAXRSClientFactoryBean defaultRestClientFactoryBean = new JAXRSClientFactoryBean();
-        defaultRestClientFactoryBean.setHeaders(new HashMap<String, String>());
+        defaultRestClientFactoryBean.setHeaders(new HashMap<>());
 
         if (StringUtils.isBlank(address)) {
             throw new IllegalArgumentException("Property 'address' is missing");
@@ -263,7 +263,7 @@ public class SyncopeClientFactoryBean {
      *
      * @param jwt value received after login, in the {@link RESTHeaders#TOKEN} response header
      * @return client instance which will be passing the provided value in the
-     *         {@link javax.ws.rs.core.HttpHeaders#AUTHORIZATION}
+     * {@link javax.ws.rs.core.HttpHeaders#AUTHORIZATION}
      * request header
      */
     public SyncopeClient create(final String jwt) {

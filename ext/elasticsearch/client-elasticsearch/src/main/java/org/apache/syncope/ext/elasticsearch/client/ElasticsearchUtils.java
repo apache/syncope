@@ -23,23 +23,15 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
+import java.util.stream.Collectors;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
-import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.Role;
-import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
-import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
-import org.apache.syncope.core.persistence.api.entity.user.UMembership;
-import org.apache.syncope.core.persistence.api.entity.user.URelationship;
 import org.apache.syncope.core.persistence.api.entity.user.User;
-import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -115,15 +107,18 @@ public class ElasticsearchUtils {
             AnyObject anyObject = ((AnyObject) any);
             builder = builder.field("name", anyObject.getName());
 
-            List<Object> memberships = new ArrayList<Object>(anyObjectDAO.findAllGroupKeys(anyObject));
+            List<Object> memberships = new ArrayList<>(anyObjectDAO.findAllGroupKeys(anyObject));
             builder = builder.field("memberships", memberships);
 
             List<Object> relationships = new ArrayList<>();
             List<Object> relationshipTypes = new ArrayList<>();
-            for (ARelationship relationship : anyObjectDAO.findAllRelationships(anyObject)) {
-                relationships.add(relationship.getRightEnd().getKey());
+            anyObjectDAO.findAllRelationships(anyObject).stream().
+                    map(relationship -> {
+                        relationships.add(relationship.getRightEnd().getKey());
+                        return relationship;
+                    }).forEachOrdered(relationship -> {
                 relationshipTypes.add(relationship.getType().getKey());
-            }
+            });
             builder = builder.field("relationships", relationships);
             builder = builder.field("relationshipTypes", relationshipTypes);
         } else if (any instanceof Group) {
@@ -136,23 +131,11 @@ public class ElasticsearchUtils {
                 builder = builder.field("groupOwner", group.getGroupOwner().getKey());
             }
 
-            List<Object> members = CollectionUtils.collect(groupDAO.findUMemberships(group),
-                    new Transformer<UMembership, Object>() {
-
-                @Override
-                public Object transform(final UMembership input) {
-                    return input.getLeftEnd().getKey();
-                }
-            }, new ArrayList<>());
+            List<Object> members = groupDAO.findUMemberships(group).stream().
+                    map(membership -> membership.getLeftEnd().getKey()).collect(Collectors.toList());
             members.add(groupDAO.findUDynMembers(group));
-            CollectionUtils.collect(groupDAO.findAMemberships(group),
-                    new Transformer<AMembership, Object>() {
-
-                @Override
-                public Object transform(final AMembership input) {
-                    return input.getLeftEnd().getKey();
-                }
-            }, members);
+            members.addAll(groupDAO.findAMemberships(group).stream().
+                    map(membership -> membership.getLeftEnd().getKey()).collect(Collectors.toList()));
             members.add(groupDAO.findADynMembers(group));
             builder = builder.field("members", members);
         } else if (any instanceof User) {
@@ -163,33 +146,30 @@ public class ElasticsearchUtils {
                     field("lastRecertification", user.getLastRecertification()).
                     field("lastRecertificator", user.getLastRecertificator());
 
-            List<Object> roles = CollectionUtils.collect(userDAO.findAllRoles(user),
-                    EntityUtils.<Role>keyTransformer(), new ArrayList<>());
+            List<Object> roles = userDAO.findAllRoles(user).stream().
+                    map(r -> r.getKey()).collect(Collectors.toList());
             builder = builder.field("roles", roles);
 
-            List<Object> memberships = new ArrayList<Object>(userDAO.findAllGroupKeys(user));
+            List<Object> memberships = new ArrayList<>(userDAO.findAllGroupKeys(user));
             builder = builder.field("memberships", memberships);
 
             List<Object> relationships = new ArrayList<>();
             Set<Object> relationshipTypes = new HashSet<>();
-            for (URelationship relationship : user.getRelationships()) {
+            user.getRelationships().stream().map(relationship -> {
                 relationships.add(relationship.getRightEnd().getKey());
+                return relationship;
+            }).forEachOrdered(relationship -> {
                 relationshipTypes.add(relationship.getType().getKey());
-            }
+            });
             builder = builder.field("relationships", relationships);
             builder = builder.field("relationshipTypes", relationshipTypes);
         }
 
         if (any.getPlainAttrs() != null) {
             for (PlainAttr<?> plainAttr : any.getPlainAttrs()) {
-                List<Object> values = CollectionUtils.collect(plainAttr.getValues(),
-                        new Transformer<PlainAttrValue, Object>() {
+                List<Object> values = plainAttr.getValues().stream().
+                        map(value -> value.getValue()).collect(Collectors.toList());
 
-                    @Override
-                    public Object transform(final PlainAttrValue input) {
-                        return input.getValue();
-                    }
-                }, new ArrayList<>(plainAttr.getValues().size()));
                 if (plainAttr.getUniqueValue() != null) {
                     values.add(plainAttr.getUniqueValue().getValue());
                 }

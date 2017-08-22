@@ -59,7 +59,7 @@ public class GroupTest extends AbstractTest {
         group = groupDAO.findByName("additional");
         assertNotNull(group);
         assertEquals(1, group.getTypeExtensions().size());
-        assertEquals(2, group.getTypeExtension(anyTypeDAO.findUser()).getAuxClasses().size());
+        assertEquals(2, group.getTypeExtension(anyTypeDAO.findUser()).get().getAuxClasses().size());
     }
 
     @Test

@@ -18,9 +18,6 @@
  */
 package org.apache.syncope.core.workflow.activiti;
 
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
-import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,12 +25,7 @@ public class ActivitiUtils {
 
     @Transactional(readOnly = true)
     public boolean isUserIngroup(final User user, final String groupName) {
-        return IterableUtils.matchesAny(user.getMemberships(), new Predicate<UMembership>() {
-
-            @Override
-            public boolean evaluate(final UMembership membership) {
-                return groupName != null && groupName.equals(membership.getRightEnd().getName());
-            }
-        });
+        return user.getMemberships().stream().
+                anyMatch(membership -> groupName != null && groupName.equals(membership.getRightEnd().getName()));
     }
 }

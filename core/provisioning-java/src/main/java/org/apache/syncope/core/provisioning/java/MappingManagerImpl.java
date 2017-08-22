@@ -22,9 +22,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -159,26 +158,26 @@ public class MappingManagerImpl implements MappingManager {
             try {
                 Pair<String, Attribute> preparedAttr = prepareAttr(provision, mapItem, any, password);
                 if (preparedAttr != null) {
-                    if (preparedAttr.getKey() != null) {
-                        connObjectKey = preparedAttr.getKey();
+                    if (preparedAttr.getLeft() != null) {
+                        connObjectKey = preparedAttr.getLeft();
                     }
 
-                    if (preparedAttr.getValue() != null) {
-                        Attribute alreadyAdded = AttributeUtil.find(preparedAttr.getValue().getName(), attributes);
+                    if (preparedAttr.getRight() != null) {
+                        Attribute alreadyAdded = AttributeUtil.find(preparedAttr.getRight().getName(), attributes);
 
                         if (alreadyAdded == null) {
-                            attributes.add(preparedAttr.getValue());
+                            attributes.add(preparedAttr.getRight());
                         } else {
                             attributes.remove(alreadyAdded);
 
                             Set<Object> values = new HashSet<>();
-                            if (CollectionUtils.isNotEmpty(alreadyAdded.getValue())) {
+                            if (alreadyAdded.getValue() != null && !alreadyAdded.getValue().isEmpty()) {
                                 values.addAll(alreadyAdded.getValue());
                             }
 
-                            values.addAll(preparedAttr.getValue().getValue());
+                            values.addAll(preparedAttr.getRight().getValue());
 
-                            attributes.add(AttributeBuilder.build(preparedAttr.getValue().getName(), values));
+                            attributes.add(AttributeBuilder.build(preparedAttr.getRight().getName(), values));
                         }
                     }
                 }
@@ -188,11 +187,11 @@ public class MappingManagerImpl implements MappingManager {
         }
 
         Attribute connObjectKeyExtAttr =
-                AttributeUtil.find(MappingUtils.getConnObjectKeyItem(provision).getExtAttrName(), attributes);
+                AttributeUtil.find(MappingUtils.getConnObjectKeyItem(provision).get().getExtAttrName(), attributes);
         if (connObjectKeyExtAttr != null) {
             attributes.remove(connObjectKeyExtAttr);
             attributes.add(AttributeBuilder.build(
-                    MappingUtils.getConnObjectKeyItem(provision).getExtAttrName(), connObjectKey));
+                    MappingUtils.getConnObjectKeyItem(provision).get().getExtAttrName(), connObjectKey));
         }
         attributes.add(MappingUtils.evaluateNAME(any, provision, connObjectKey));
 
@@ -257,7 +256,7 @@ public class MappingManagerImpl implements MappingManager {
                 attributes.remove(alreadyAdded);
 
                 Set<Object> values = new HashSet<>();
-                if (CollectionUtils.isNotEmpty(alreadyAdded.getValue())) {
+                if (alreadyAdded.getValue() != null && !alreadyAdded.getValue().isEmpty()) {
                     values.addAll(alreadyAdded.getValue());
                 }
                 values.add(value);
@@ -267,10 +266,11 @@ public class MappingManagerImpl implements MappingManager {
         }
 
         Attribute connObjectKeyExtAttr =
-                AttributeUtil.find(orgUnit.getConnObjectKeyItem().getExtAttrName(), attributes);
+                AttributeUtil.find(orgUnit.getConnObjectKeyItem().get().getExtAttrName(), attributes);
         if (connObjectKeyExtAttr != null) {
             attributes.remove(connObjectKeyExtAttr);
-            attributes.add(AttributeBuilder.build(orgUnit.getConnObjectKeyItem().getExtAttrName(), connObjectKey));
+            attributes.add(
+                    AttributeBuilder.build(orgUnit.getConnObjectKeyItem().get().getExtAttrName(), connObjectKey));
         }
         attributes.add(MappingUtils.evaluateNAME(realm, orgUnit, connObjectKey));
 
@@ -412,7 +412,7 @@ public class MappingManagerImpl implements MappingManager {
                 }
             } else if (intAttrName.getMembershipOfGroup() != null) {
                 Group group = groupDAO.findByName(intAttrName.getMembershipOfGroup());
-                membership = groupableRelatable.getMembership(group.getKey());
+                membership = groupableRelatable.getMembership(group.getKey()).orElse(null);
             }
         }
         if (reference == null) {
@@ -498,18 +498,16 @@ public class MappingManagerImpl implements MappingManager {
                 case PLAIN:
                     PlainAttr<?> attr;
                     if (membership == null) {
-                        attr = reference.getPlainAttr(intAttrName.getSchemaName());
+                        attr = reference.getPlainAttr(intAttrName.getSchemaName()).orElse(null);
                     } else {
                         attr = ((GroupableRelatable<?, ?, ?, ?, ?>) reference).getPlainAttr(
-                                intAttrName.getSchemaName(), membership);
+                                intAttrName.getSchemaName(), membership).orElse(null);
                     }
                     if (attr != null) {
                         if (attr.getUniqueValue() != null) {
                             values.add(anyUtils.clonePlainAttrValue(attr.getUniqueValue()));
                         } else if (attr.getValues() != null) {
-                            for (PlainAttrValue value : attr.getValues()) {
-                                values.add(anyUtils.clonePlainAttrValue(value));
-                            }
+                            attr.getValues().forEach(value -> values.add(anyUtils.clonePlainAttrValue(value)));
                         }
                     }
                     break;
@@ -541,11 +539,13 @@ public class MappingManagerImpl implements MappingManager {
                         List<String> virValues = membership == null
                                 ? virAttrHandler.getValues(reference, virSchema)
                                 : virAttrHandler.getValues(reference, membership, virSchema);
-                        for (String value : virValues) {
-                            PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
-                            attrValue.setStringValue(value);
-                            values.add(attrValue);
-                        }
+                        virValues.stream().
+                                map(value -> {
+                                    PlainAttrValue attrValue = anyUtils.newPlainAttrValue();
+                                    attrValue.setStringValue(value);
+                                    return attrValue;
+                                }).
+                                forEachOrdered(attrValue -> values.add(attrValue));
                     }
                     break;
 
@@ -570,7 +570,7 @@ public class MappingManagerImpl implements MappingManager {
 
     private String getGroupOwnerValue(final Provision provision, final Any<?> any) {
         Pair<String, Attribute> preparedAttr =
-                prepareAttr(provision, MappingUtils.getConnObjectKeyItem(provision), any, null);
+                prepareAttr(provision, MappingUtils.getConnObjectKeyItem(provision).get(), any, null);
         String connObjectKey = preparedAttr.getKey();
 
         return MappingUtils.evaluateNAME(any, provision, connObjectKey).getNameValue();
@@ -578,22 +578,22 @@ public class MappingManagerImpl implements MappingManager {
 
     @Transactional(readOnly = true)
     @Override
-    public String getConnObjectKeyValue(final Any<?> any, final Provision provision) {
-        MappingItem mapItem = provision.getMapping().getConnObjectKeyItem();
+    public Optional<String> getConnObjectKeyValue(final Any<?> any, final Provision provision) {
+        MappingItem mapItem = provision.getMapping().getConnObjectKeyItem().get();
         List<PlainAttrValue> values = getIntValues(
                 provision,
                 mapItem,
                 intAttrNameParser.parse(mapItem.getIntAttrName(), provision.getAnyType().getKind()),
                 any);
-        return values.isEmpty()
+        return Optional.ofNullable(values.isEmpty()
                 ? null
-                : values.get(0).getValueAsString();
+                : values.get(0).getValueAsString());
     }
 
     @Transactional(readOnly = true)
     @Override
     public String getConnObjectKeyValue(final Realm realm, final OrgUnit orgUnit) {
-        OrgUnitItem orgUnitItem = orgUnit.getConnObjectKeyItem();
+        OrgUnitItem orgUnitItem = orgUnit.getConnObjectKeyItem().get();
 
         return getIntValue(realm, orgUnitItem);
     }
@@ -610,7 +610,7 @@ public class MappingManagerImpl implements MappingManager {
                 values = transformer.beforePull(mapItem, anyTO, values);
             }
         }
-        values = ListUtils.emptyIfNull(values);
+        values = values == null ? Collections.emptyList() : values;
 
         IntAttrName intAttrName =
                 intAttrNameParser.parse(mapItem.getIntAttrName(), anyUtils.getAnyTypeKind());
@@ -707,12 +707,13 @@ public class MappingManagerImpl implements MappingManager {
                     if (groupableTO == null || group == null) {
                         anyTO.getPlainAttrs().add(attrTO);
                     } else {
-                        MembershipTO membership = groupableTO.getMembership(group.getKey());
-                        if (membership == null) {
-                            membership = new MembershipTO.Builder().group(group.getKey(), group.getName()).build();
-                            groupableTO.getMemberships().add(membership);
+                        Optional<MembershipTO> membership = groupableTO.getMembership(group.getKey());
+                        if (!membership.isPresent()) {
+                            membership = Optional.of(
+                                    new MembershipTO.Builder().group(group.getKey(), group.getName()).build());
+                            groupableTO.getMemberships().add(membership.get());
                         }
-                        membership.getPlainAttrs().add(attrTO);
+                        membership.get().getPlainAttrs().add(attrTO);
                     }
                     break;
 
@@ -722,12 +723,13 @@ public class MappingManagerImpl implements MappingManager {
                     if (groupableTO == null || group == null) {
                         anyTO.getDerAttrs().add(attrTO);
                     } else {
-                        MembershipTO membership = groupableTO.getMembership(group.getKey());
-                        if (membership == null) {
-                            membership = new MembershipTO.Builder().group(group.getKey(), group.getName()).build();
-                            groupableTO.getMemberships().add(membership);
+                        Optional<MembershipTO> membership = groupableTO.getMembership(group.getKey());
+                        if (!membership.isPresent()) {
+                            membership = Optional.of(
+                                    new MembershipTO.Builder().group(group.getKey(), group.getName()).build());
+                            groupableTO.getMemberships().add(membership.get());
                         }
-                        membership.getDerAttrs().add(attrTO);
+                        membership.get().getDerAttrs().add(attrTO);
                     }
                     break;
 
@@ -736,23 +738,22 @@ public class MappingManagerImpl implements MappingManager {
                     attrTO.setSchema(intAttrName.getSchemaName());
 
                     // virtual attributes don't get transformed, iterate over original attr.getValue()
-                    for (Object value : (attr == null || attr.getValue() == null)
-                            ? Collections.emptyList() : attr.getValue()) {
-
-                        if (value != null) {
-                            attrTO.getValues().add(value.toString());
-                        }
+                    if (attr != null && attr.getValue() != null && !attr.getValue().isEmpty()) {
+                        attr.getValue().stream().
+                                filter(value -> value != null).
+                                forEachOrdered(value -> attrTO.getValues().add(value.toString()));
                     }
 
                     if (groupableTO == null || group == null) {
                         anyTO.getVirAttrs().add(attrTO);
                     } else {
-                        MembershipTO membership = groupableTO.getMembership(group.getKey());
-                        if (membership == null) {
-                            membership = new MembershipTO.Builder().group(group.getKey(), group.getName()).build();
-                            groupableTO.getMemberships().add(membership);
+                        Optional<MembershipTO> membership = groupableTO.getMembership(group.getKey());
+                        if (!membership.isPresent()) {
+                            membership = Optional.of(
+                                    new MembershipTO.Builder().group(group.getKey(), group.getName()).build());
+                            groupableTO.getMemberships().add(membership.get());
                         }
-                        membership.getVirAttrs().add(attrTO);
+                        membership.get().getVirAttrs().add(attrTO);
                     }
                     break;
 

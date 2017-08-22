@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.client.cli.commands.role;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.collections4.map.LinkedMap;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.RoleTO;
@@ -42,7 +42,7 @@ public class RoleDetails extends AbstractRoleCommand {
     public void details() {
         if (input.parameterNumber() == 0) {
             try {
-                final Map<String, String> details = new LinkedMap<>();
+                final Map<String, String> details = new LinkedHashMap<>();
                 final List<RoleTO> roleTOs = roleSyncopeOperations.list();
                 int withoutEntitlements = 0;
                 for (final RoleTO roleTO : roleTOs) {

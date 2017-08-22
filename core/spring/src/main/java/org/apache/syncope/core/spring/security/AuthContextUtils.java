@@ -18,16 +18,13 @@
  */
 package org.apache.syncope.core.spring.security;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.collections4.Transformer;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.provisioning.api.EntitlementsHolder;
@@ -69,11 +66,9 @@ public final class AuthContextUtils {
         SecurityContext ctx = SecurityContextHolder.getContext();
         if (ctx != null && ctx.getAuthentication() != null && ctx.getAuthentication().getAuthorities() != null) {
             Set<SyncopeGrantedAuthority> result = new HashSet<>();
-            for (GrantedAuthority authority : ctx.getAuthentication().getAuthorities()) {
-                if (authority instanceof SyncopeGrantedAuthority) {
-                    result.add(SyncopeGrantedAuthority.class.cast(authority));
-                }
-            }
+            ctx.getAuthentication().getAuthorities().stream().
+                    filter(authority -> (authority instanceof SyncopeGrantedAuthority)).
+                    forEachOrdered(authority -> result.add(SyncopeGrantedAuthority.class.cast(authority)));
 
             return result;
         }
@@ -96,7 +91,7 @@ public final class AuthContextUtils {
             }
         }
 
-        return MapUtils.emptyIfNull(result);
+        return result == null ? Collections.emptyMap() : result;
     }
 
     public static String getDomain() {
@@ -113,14 +108,9 @@ public final class AuthContextUtils {
     }
 
     private static void setFakeAuth(final String domain) {
-        List<GrantedAuthority> authorities = CollectionUtils.collect(EntitlementsHolder.getInstance().getValues(),
-                new Transformer<String, GrantedAuthority>() {
-
-            @Override
-            public GrantedAuthority transform(final String entitlement) {
-                return new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM);
-            }
-        }, new ArrayList<GrantedAuthority>());
+        List<GrantedAuthority> authorities = EntitlementsHolder.getInstance().getValues().stream().
+                map(entitlement -> new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM)).
+                collect(Collectors.toList());
 
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                 new User(ApplicationContextProvider.getBeanFactory().getBean("adminUser", String.class),

@@ -29,9 +29,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.persistence.Query;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
@@ -146,7 +145,7 @@ public class GroupTest extends AbstractTest {
         group = groupDAO.findByName("new");
         assertNotNull(group);
         assertEquals(1, group.getTypeExtensions().size());
-        assertEquals(2, group.getTypeExtension(anyTypeDAO.findUser()).getAuxClasses().size());
+        assertEquals(2, group.getTypeExtension(anyTypeDAO.findUser()).get().getAuxClasses().size());
     }
 
     @Test
@@ -179,22 +178,23 @@ public class GroupTest extends AbstractTest {
      * required for avoiding creating of a new transaction - good for general use case but bad for the way how
      * this test class is architected.
      */
-    private List<Group> findDynGroups(final User user) {
+    @SuppressWarnings("unchecked")
+    public List<Group> findDynGroups(final User user) {
         Query query = entityManager().createNativeQuery(
                 "SELECT group_id FROM " + JPAGroupDAO.UDYNMEMB_TABLE + " WHERE any_id=?");
         query.setParameter(1, user.getKey());
 
         List<Group> result = new ArrayList<>();
-        for (Object key : query.getResultList()) {
-            String actualKey = key instanceof Object[]
-                    ? (String) ((Object[]) key)[0]
-                    : ((String) key);
-
-            Group group = groupDAO.find(actualKey);
-            if (group != null && !result.contains(group)) {
-                result.add(group);
-            }
-        }
+        query.getResultList().stream().map(resultKey -> resultKey instanceof Object[]
+                ? (String) ((Object[]) resultKey)[0]
+                : ((String) resultKey)).
+                forEachOrdered(actualKey -> {
+                    Group group = groupDAO.find(actualKey.toString());
+                    if (group == null) {
+                    } else if (!result.contains(group)) {
+                        result.add(group);
+                    }
+                });
         return result;
     }
 
@@ -279,22 +279,23 @@ public class GroupTest extends AbstractTest {
      * required for avoiding creating of a new transaction - good for general use case but bad for the way how
      * this test class is architected.
      */
-    private List<Group> findDynGroups(final AnyObject anyObject) {
+    @SuppressWarnings("unchecked")
+    public List<Group> findDynGroups(final AnyObject anyObject) {
         Query query = entityManager().createNativeQuery(
                 "SELECT group_id FROM " + JPAGroupDAO.ADYNMEMB_TABLE + " WHERE any_id=?");
         query.setParameter(1, anyObject.getKey());
 
         List<Group> result = new ArrayList<>();
-        for (Object key : query.getResultList()) {
-            String actualKey = key instanceof Object[]
-                    ? (String) ((Object[]) key)[0]
-                    : ((String) key);
-
-            Group group = groupDAO.find(actualKey);
-            if (group != null && !result.contains(group)) {
-                result.add(group);
-            }
-        }
+        query.getResultList().stream().map(resultKey -> resultKey instanceof Object[]
+                ? (String) ((Object[]) resultKey)[0]
+                : ((String) resultKey)).
+                forEachOrdered(actualKey -> {
+                    Group group = groupDAO.find(actualKey.toString());
+                    if (group == null) {
+                    } else if (!result.contains(group)) {
+                        result.add(group);
+                    }
+                });
         return result;
     }
 
@@ -336,18 +337,13 @@ public class GroupTest extends AbstractTest {
         // 2. verify that dynamic membership is there
         actual = groupDAO.find(actual.getKey());
         assertNotNull(actual);
-        assertNotNull(actual.getADynMembership(anyTypeDAO.find("PRINTER")));
-        assertNotNull(actual.getADynMembership(anyTypeDAO.find("PRINTER")).getKey());
-        assertEquals(actual, actual.getADynMembership(anyTypeDAO.find("PRINTER")).getGroup());
+        assertNotNull(actual.getADynMembership(anyTypeDAO.find("PRINTER")).get());
+        assertNotNull(actual.getADynMembership(anyTypeDAO.find("PRINTER")).get().getKey());
+        assertEquals(actual, actual.getADynMembership(anyTypeDAO.find("PRINTER")).get().getGroup());
 
         // 3. verify that expected any objects have the created group dynamically assigned
-        List<String> members = CollectionUtils.select(groupDAO.findADynMembers(actual), new Predicate<String>() {
-
-            @Override
-            public boolean evaluate(final String object) {
-                return "PRINTER".equals(anyObjectDAO.find(object).getType().getKey());
-            }
-        }, new ArrayList<String>());
+        List<String> members = groupDAO.findADynMembers(actual).stream().filter(object
+                -> "PRINTER".equals(anyObjectDAO.find(object).getType().getKey())).collect(Collectors.toList());
         assertEquals(2, members.size());
         assertEquals(
                 new HashSet<>(Arrays.asList("fc6dbc3a-6c07-4965-8781-921e7401a4a5", newAnyObjectKey)),
@@ -357,7 +353,7 @@ public class GroupTest extends AbstractTest {
         assertNotNull(anyObject);
         Collection<Group> dynGroupMemberships = findDynGroups(anyObject);
         assertEquals(1, dynGroupMemberships.size());
-        assertTrue(dynGroupMemberships.contains(actual.getADynMembership(anyTypeDAO.find("PRINTER")).getGroup()));
+        assertTrue(dynGroupMemberships.contains(actual.getADynMembership(anyTypeDAO.find("PRINTER")).get().getGroup()));
 
         // 4. delete the new any object and verify that dynamic membership was updated
         anyObjectDAO.delete(newAnyObjectKey);
@@ -365,18 +361,13 @@ public class GroupTest extends AbstractTest {
         anyObjectDAO.flush();
 
         actual = groupDAO.find(actual.getKey());
-        members = CollectionUtils.select(groupDAO.findADynMembers(actual), new Predicate<String>() {
-
-            @Override
-            public boolean evaluate(final String object) {
-                return "PRINTER".equals(anyObjectDAO.find(object).getType().getKey());
-            }
-        }, new ArrayList<String>());
+        members = groupDAO.findADynMembers(actual).stream().filter(object
+                -> "PRINTER".equals(anyObjectDAO.find(object).getType().getKey())).collect(Collectors.toList());
         assertEquals(1, members.size());
         assertEquals("fc6dbc3a-6c07-4965-8781-921e7401a4a5", members.get(0));
 
         // 5. delete group and verify that dynamic membership was also removed
-        String dynMembershipKey = actual.getADynMembership(anyTypeDAO.find("PRINTER")).getKey();
+        String dynMembershipKey = actual.getADynMembership(anyTypeDAO.find("PRINTER")).get().getKey();
 
         groupDAO.delete(actual);
 

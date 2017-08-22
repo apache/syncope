@@ -18,13 +18,11 @@
  */
 package org.apache.syncope.client.console.status;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
+import java.util.stream.Collectors;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
-import org.apache.syncope.client.console.commons.SerializableTransformer;
 import org.apache.syncope.client.console.commons.status.StatusBean;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.panels.MultilevelPanel;
@@ -52,14 +50,8 @@ public class ResourceStatusModal extends StatusModal<ResourceTO> {
 
         super(baseModal, pageReference, resource, null, false);
 
-        List<String> availableAnyTypes = CollectionUtils.collect(
-                resource.getProvisions(), new SerializableTransformer<ProvisionTO, String>() {
-
-            @Override
-            public String transform(final ProvisionTO provision) {
-                return provision.getAnyType();
-            }
-        }, new ArrayList<String>());
+        List<String> availableAnyTypes = resource.getProvisions().stream().
+                map(ProvisionTO::getAnyType).collect(Collectors.toList());
         Collections.sort(availableAnyTypes, new AnyTypeRestClient.AnyTypeKeyComparator());
 
         AjaxDropDownChoicePanel<String> anyTypes =

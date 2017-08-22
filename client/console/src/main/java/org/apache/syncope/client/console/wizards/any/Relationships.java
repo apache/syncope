@@ -18,27 +18,22 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.IterableUtils;
+import java.util.stream.Collectors;
 import org.apache.commons.collections4.ListUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.commons.SerializableTransformer;
 import org.apache.syncope.client.console.panels.AnyDirectoryPanel;
 import org.apache.syncope.client.console.panels.ListViewPanel;
 import org.apache.syncope.client.console.panels.ListViewPanel.ListViewReload;
 import org.apache.syncope.client.console.panels.search.AnyObjectSearchPanel;
 import org.apache.syncope.client.console.panels.search.AnyObjectSelectionDirectoryPanel;
 import org.apache.syncope.client.console.panels.search.AnySelectionDirectoryPanel;
-import org.apache.syncope.client.console.panels.search.SearchClause;
 import org.apache.syncope.client.console.panels.search.SearchClausePanel;
 import org.apache.syncope.client.console.panels.search.SearchUtils;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
@@ -53,13 +48,12 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.lib.SyncopeClient;
-import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.GroupableRelatableTO;
 import org.apache.syncope.common.lib.to.RelationshipTO;
-import org.apache.syncope.common.lib.to.RelationshipTypeTO;
 import org.apache.syncope.common.lib.types.AnyEntitlement;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.Component;
@@ -68,7 +62,6 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
-import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.extensions.wizard.IWizard;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.extensions.wizard.WizardStep;
@@ -95,7 +88,7 @@ public class Relationships extends WizardStep implements WizardModel.ICondition 
     private final AnyTypeClassRestClient anyTypeClassRestClient = new AnyTypeClassRestClient();
 
     private final AnyTO anyTO;
-    
+
     private final RelationshipTypeRestClient relationshipTypeRestClient = new RelationshipTypeRestClient();
 
     public Relationships(final AnyWrapper<?> modelObject, final PageReference pageRef) {
@@ -134,38 +127,31 @@ public class Relationships extends WizardStep implements WizardModel.ICondition 
         final Fragment viewFragment = new Fragment("relationships", "viewFragment", this);
         viewFragment.setOutputMarkupId(true);
 
-        viewFragment.add(new Accordion("relationships",
-                CollectionUtils.collect(relationships.keySet(), new SerializableTransformer<String, ITab>() {
+        viewFragment.add(new Accordion("relationships", relationships.keySet().stream().map(relationship -> {
+            return new AbstractTab(new ResourceModel("relationship", relationship)) {
 
-                    private static final long serialVersionUID = 3514912643300593122L;
+                private static final long serialVersionUID = 1037272333056449378L;
 
-                    @Override
-                    public ITab transform(final String input) {
-                        return new AbstractTab(new ResourceModel("relationship", input)) {
+                @Override
+                public Panel getPanel(final String panelId) {
+                    return new ListViewPanel.Builder<>(RelationshipTO.class, pageRef).
+                            setItems(relationships.get(relationship)).
+                            includes("rightType", "rightKey").
+                            addAction(new ActionLink<RelationshipTO>() {
 
-                            private static final long serialVersionUID = 1037272333056449378L;
+                                private static final long serialVersionUID = -6847033126124401556L;
 
-                            @Override
-                            public Panel getPanel(final String panelId) {
-                                return new ListViewPanel.Builder<>(RelationshipTO.class, pageRef).
-                                        setItems(relationships.get(input)).
-                                        includes("rightType", "rightKey").
-                                        addAction(new ActionLink<RelationshipTO>() {
-
-                                            private static final long serialVersionUID = -6847033126124401556L;
-
-                                            @Override
-                                            public void onClick(
-                                                    final AjaxRequestTarget target, final RelationshipTO modelObject) {
-                                                removeRelationships(relationships, modelObject);
-                                                send(Relationships.this, Broadcast.DEPTH, new ListViewReload<>(target));
-                                            }
-                                        }, ActionType.DELETE, AnyEntitlement.UPDATE.getFor(anyTO.getType()), true).
-                                        build(panelId);
-                            }
-                        };
-                    }
-                }, new ArrayList<ITab>())) {
+                                @Override
+                                public void onClick(
+                                        final AjaxRequestTarget target, final RelationshipTO modelObject) {
+                                    removeRelationships(relationships, modelObject);
+                                    send(Relationships.this, Broadcast.DEPTH, new ListViewReload<>(target));
+                                }
+                            }, ActionType.DELETE, AnyEntitlement.UPDATE.getFor(anyTO.getType()), true).
+                            build(panelId);
+                }
+            };
+        }).collect(Collectors.toList())) {
 
             private static final long serialVersionUID = 1037272333056449379L;
 
@@ -257,23 +243,17 @@ public class Relationships extends WizardStep implements WizardModel.ICondition 
             super("specification");
             rel = new RelationshipTO();
 
-            final ArrayList<String> availableRels = CollectionUtils.collect(
-                    relationshipTypeRestClient.list(),
-                    EntityTOUtils.<RelationshipTypeTO>keyTransformer(), new ArrayList<String>());
+            final List<String> availableRels = relationshipTypeRestClient.list().stream().
+                    map(EntityTO::getKey).collect(Collectors.toList());
 
             final AjaxDropDownChoicePanel<String> type = new AjaxDropDownChoicePanel<>(
-                    "type", "type", new PropertyModel<String>(rel, "type"));
+                    "type", "type", new PropertyModel<>(rel, "type"));
             type.setChoices(availableRels);
             add(type.setRenderBodyOnly(true));
 
-            final List<AnyTypeTO> availableTypes = ListUtils.select(anyTypeRestClient.listAnyTypes(),
-                    new Predicate<AnyTypeTO>() {
-
-                @Override
-                public boolean evaluate(final AnyTypeTO object) {
-                    return object.getKind() != AnyTypeKind.GROUP && object.getKind() != AnyTypeKind.USER;
-                }
-            });
+            final List<AnyTypeTO> availableTypes = anyTypeRestClient.listAnyTypes().stream().
+                    filter(anyType -> anyType.getKind() != AnyTypeKind.GROUP
+                    && anyType.getKind() != AnyTypeKind.USER).collect(Collectors.toList());
 
             final AjaxDropDownChoicePanel<AnyTypeTO> rightType = new AjaxDropDownChoicePanel<>(
                     "rightType", "rightType", new PropertyModel<AnyTypeTO>(rel, "rightType") {
@@ -312,13 +292,8 @@ public class Relationships extends WizardStep implements WizardModel.ICondition 
 
                 @Override
                 public AnyTypeTO getObject(final String id, final IModel<? extends List<? extends AnyTypeTO>> choices) {
-                    return IterableUtils.find(choices.getObject(), new Predicate<AnyTypeTO>() {
-
-                        @Override
-                        public boolean evaluate(final AnyTypeTO object) {
-                            return id.equals(object.getKey());
-                        }
-                    });
+                    return choices.getObject().stream().
+                            filter(anyTypeTO -> id.equals(anyTypeTO.getKey())).findAny().orElse(null);
                 }
             });
             // enable "rightType" dropdown only if "type" option is selected - SYNCOPE-1140
@@ -364,7 +339,7 @@ public class Relationships extends WizardStep implements WizardModel.ICondition 
 
                         anyObjectSearchPanel = new AnyObjectSearchPanel.Builder(
                                 anyType.getKey(),
-                                new ListModel<>(new ArrayList<SearchClause>())).
+                                new ListModel<>(new ArrayList<>())).
                                 enableSearch(Specification.this).
                                 build("searchPanel");
                         fragment.add(anyObjectSearchPanel.setRenderBodyOnly(true));

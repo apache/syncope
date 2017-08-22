@@ -22,10 +22,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.client.console.panels.search.SearchClause;
 import org.apache.syncope.client.console.panels.search.UserSearchPanel;
 import org.apache.syncope.client.console.rest.DynRealmRestClient;
 import org.apache.syncope.client.console.rest.RealmRestClient;
@@ -34,7 +32,7 @@ import org.apache.syncope.client.console.wicket.markup.html.bootstrap.tabs.Accor
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
-import org.apache.syncope.common.lib.EntityTOUtils;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.wicket.PageReference;
@@ -105,7 +103,7 @@ public class RoleWizardBuilder extends AjaxWizardBuilder<RoleWrapper> {
 
         public Details(final RoleWrapper modelObject) {
             add(new AjaxTextFieldPanel(
-                    "key", "key", new PropertyModel<String>(modelObject.getInnerObject(), "key"), false).
+                    "key", "key", new PropertyModel<>(modelObject.getInnerObject(), "key"), false).
                     setEnabled(StringUtils.isEmpty(modelObject.getInnerObject().getKey())));
 
             // ------------------------
@@ -119,7 +117,7 @@ public class RoleWizardBuilder extends AjaxWizardBuilder<RoleWrapper> {
                 @Override
                 public Panel getPanel(final String panelId) {
                     return new UserSearchPanel.Builder(
-                            new PropertyModel<List<SearchClause>>(modelObject, "dynClauses")).
+                            new PropertyModel<>(modelObject, "dynClauses")).
                             required(true).build(panelId);
                 }
             }), Model.of(StringUtils.isBlank(modelObject.getDynMembershipCond()) ? -1 : 0)).setOutputMarkupId(true));
@@ -159,16 +157,11 @@ public class RoleWizardBuilder extends AjaxWizardBuilder<RoleWrapper> {
 
         public Realms(final RoleTO modelObject) {
             setTitleModel(new ResourceModel("realms"));
-            add(new AjaxPalettePanel.Builder<String>().build("realms",
-                    new PropertyModel<List<String>>(modelObject, "realms"),
-                    new ListModel<>(
-                            CollectionUtils.collect(new RealmRestClient().list(), new Transformer<RealmTO, String>() {
-
-                                @Override
-                                public String transform(final RealmTO input) {
-                                    return input.getFullPath();
-                                }
-                            }, new ArrayList<String>()))).hideLabel().setOutputMarkupId(true));
+            add(new AjaxPalettePanel.Builder<>().build("realms",
+                    new PropertyModel<>(modelObject, "realms"),
+                    new ListModel<>(new RealmRestClient().list().stream().
+                            map(RealmTO::getFullPath).collect(Collectors.toList()))).
+                    hideLabel().setOutputMarkupId(true));
         }
     }
 
@@ -178,12 +171,11 @@ public class RoleWizardBuilder extends AjaxWizardBuilder<RoleWrapper> {
 
         public DynRealms(final RoleTO modelObject) {
             setTitleModel(new ResourceModel("dynRealms"));
-            add(new AjaxPalettePanel.Builder<String>().build("dynRealms",
-                    new PropertyModel<List<String>>(modelObject, "dynRealms"),
-                    new ListModel<>(
-                            CollectionUtils.collect(new DynRealmRestClient().list(),
-                                    EntityTOUtils.keyTransformer(),
-                                    new ArrayList<String>()))).hideLabel().setOutputMarkupId(true));
+            add(new AjaxPalettePanel.Builder<>().build("dynRealms",
+                    new PropertyModel<>(modelObject, "dynRealms"),
+                    new ListModel<>(new DynRealmRestClient().list().stream().
+                            map(EntityTO::getKey).collect(Collectors.toList()))).
+                    hideLabel().setOutputMarkupId(true));
         }
     }
 

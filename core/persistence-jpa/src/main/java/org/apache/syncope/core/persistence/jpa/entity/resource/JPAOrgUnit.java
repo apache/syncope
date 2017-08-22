@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.jpa.entity.resource;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -29,8 +30,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnitItem;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
@@ -125,14 +124,8 @@ public class JPAOrgUnit extends AbstractGeneratedKeyEntity implements OrgUnit {
     }
 
     @Override
-    public OrgUnitItem getConnObjectKeyItem() {
-        return IterableUtils.find(getItems(), new Predicate<OrgUnitItem>() {
-
-            @Override
-            public boolean evaluate(final OrgUnitItem item) {
-                return item.isConnObjectKey();
-            }
-        });
+    public Optional<? extends OrgUnitItem> getConnObjectKeyItem() {
+        return getItems().stream().filter(OrgUnitItem::isConnObjectKey).findFirst();
     }
 
     @Override

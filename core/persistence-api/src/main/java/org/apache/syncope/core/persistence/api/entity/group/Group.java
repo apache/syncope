@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.api.entity.group;
 
 import java.util.List;
+import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
@@ -43,7 +44,7 @@ public interface Group extends Any<GPlainAttr> {
     boolean add(GPlainAttr attr);
 
     @Override
-    GPlainAttr getPlainAttr(String plainSchemaName);
+    Optional<? extends GPlainAttr> getPlainAttr(String plainSchema);
 
     @Override
     List<? extends GPlainAttr> getPlainAttrs();
@@ -54,13 +55,13 @@ public interface Group extends Any<GPlainAttr> {
 
     boolean add(ADynGroupMembership dynGroupMembership);
 
-    ADynGroupMembership getADynMembership(AnyType anyType);
+    Optional<? extends ADynGroupMembership> getADynMembership(AnyType anyType);
 
     List<? extends ADynGroupMembership> getADynMemberships();
 
     boolean add(TypeExtension typeExtension);
 
-    TypeExtension getTypeExtension(AnyType anyType);
+    Optional<? extends TypeExtension> getTypeExtension(AnyType anyType);
 
     List<? extends TypeExtension> getTypeExtensions();
 }

@@ -18,17 +18,15 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.persistence.Column;
 import javax.persistence.EntityListeners;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 import javax.validation.constraints.NotNull;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.PlainAttr;
@@ -104,13 +102,7 @@ public abstract class AbstractPlainAttr<O extends Any<?>> extends AbstractGenera
     public List<String> getValuesAsStrings() {
         List<String> result;
         if (getUniqueValue() == null) {
-            result = CollectionUtils.collect(getValues(), new Transformer<PlainAttrValue, String>() {
-
-                @Override
-                public String transform(final PlainAttrValue input) {
-                    return input.getValueAsString();
-                }
-            }, new ArrayList<String>());
+            result = getValues().stream().map(value -> value.getValueAsString()).collect(Collectors.toList());
         } else {
             result = Collections.singletonList(getUniqueValue().getValueAsString());
         }

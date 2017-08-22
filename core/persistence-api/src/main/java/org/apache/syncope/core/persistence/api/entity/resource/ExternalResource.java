@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.api.entity.resource;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
@@ -91,9 +92,9 @@ public interface ExternalResource extends ProvidedKeyEntity {
 
     boolean add(Provision provision);
 
-    Provision getProvision(AnyType anyType);
+    Optional<? extends Provision> getProvision(AnyType anyType);
 
-    Provision getProvision(ObjectClass objectClass);
+    Optional<? extends Provision> getProvision(ObjectClass objectClass);
 
     List<? extends Provision> getProvisions();
 

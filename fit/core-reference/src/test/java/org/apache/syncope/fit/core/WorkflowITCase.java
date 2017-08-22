@@ -25,9 +25,8 @@ import static org.junit.Assert.assertFalse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 import javax.ws.rs.core.Response;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.lib.to.WorkflowDefinitionTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -44,16 +43,10 @@ public class WorkflowITCase extends AbstractITCase {
     @BeforeClass
     public static void findDefault() {
         Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
-        WorkflowDefinitionTO found = IterableUtils.find(
-                workflowService.list(AnyTypeKind.USER.name()), new Predicate<WorkflowDefinitionTO>() {
-
-            @Override
-            public boolean evaluate(final WorkflowDefinitionTO object) {
-                return object.isMain();
-            }
-        });
-        if (found != null) {
-            defaultUserKey = found.getKey();
+        Optional<WorkflowDefinitionTO> found = workflowService.list(AnyTypeKind.USER.name()).stream().
+                filter(object -> object.isMain()).findAny();
+        if (found.isPresent()) {
+            defaultUserKey = found.get().getKey();
         }
         assertNotNull(defaultUserKey);
     }

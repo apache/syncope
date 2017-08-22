@@ -18,15 +18,12 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
-import java.util.Map;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Predicate;
+import java.util.stream.Collectors;
 import org.apache.syncope.core.provisioning.api.data.TaskDataBinder;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AbstractProvisioningTaskTO;
 import org.apache.syncope.common.lib.to.AbstractTaskTO;
-import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
@@ -57,7 +54,6 @@ import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.AnyTemplate;
 import org.apache.syncope.core.persistence.api.entity.task.AnyTemplatePullTask;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate;
@@ -123,12 +119,12 @@ public class TaskDataBinderImpl implements TaskDataBinder {
             pushTask.setUnmatchingRule(pushTaskTO.getUnmatchingRule() == null
                     ? UnmatchingRule.ASSIGN : pushTaskTO.getUnmatchingRule());
 
-            for (Map.Entry<String, String> entry : pushTaskTO.getFilters().entrySet()) {
+            pushTaskTO.getFilters().entrySet().forEach(entry -> {
                 AnyType type = anyTypeDAO.find(entry.getKey());
                 if (type == null) {
                     LOG.debug("Invalid AnyType {} specified, ignoring...", entry.getKey());
                 } else {
-                    PushTaskAnyFilter filter = pushTask.getFilter(type);
+                    PushTaskAnyFilter filter = pushTask.getFilter(type).orElse(null);
                     if (filter == null) {
                         filter = entityFactory.newEntity(PushTaskAnyFilter.class);
                         filter.setAnyType(anyTypeDAO.find(entry.getKey()));
@@ -137,15 +133,12 @@ public class TaskDataBinderImpl implements TaskDataBinder {
                     }
                     filter.setFIQLCond(entry.getValue());
                 }
-            }
-            // remove all filters not contained in the TO
-            CollectionUtils.filter(pushTask.getFilters(), new Predicate<PushTaskAnyFilter>() {
-
-                @Override
-                public boolean evaluate(final PushTaskAnyFilter anyFilter) {
-                    return pushTaskTO.getFilters().containsKey(anyFilter.getAnyType().getKey());
-                }
             });
+            // remove all filters not contained in the TO
+            pushTask.getFilters().removeAll(
+                    pushTask.getFilters().stream().filter(anyFilter
+                            -> !pushTaskTO.getFilters().containsKey(anyFilter.getAnyType().getKey())).
+                            collect(Collectors.toList()));
         } else if (task instanceof PullTask && taskTO instanceof PullTaskTO) {
             PullTask pullTask = (PullTask) task;
             final PullTaskTO pullTaskTO = (PullTaskTO) taskTO;
@@ -164,12 +157,12 @@ public class TaskDataBinderImpl implements TaskDataBinder {
 
             // validate JEXL expressions from templates and proceed if fine
             templateUtils.check(pullTaskTO.getTemplates(), ClientExceptionType.InvalidPullTask);
-            for (Map.Entry<String, AnyTO> entry : pullTaskTO.getTemplates().entrySet()) {
+            pullTaskTO.getTemplates().entrySet().forEach(entry -> {
                 AnyType type = anyTypeDAO.find(entry.getKey());
                 if (type == null) {
                     LOG.debug("Invalid AnyType {} specified, ignoring...", entry.getKey());
                 } else {
-                    AnyTemplatePullTask anyTemplate = pullTask.getTemplate(type);
+                    AnyTemplatePullTask anyTemplate = pullTask.getTemplate(type).orElse(null);
                     if (anyTemplate == null) {
                         anyTemplate = entityFactory.newEntity(AnyTemplatePullTask.class);
                         anyTemplate.setAnyType(type);
@@ -179,15 +172,12 @@ public class TaskDataBinderImpl implements TaskDataBinder {
                     }
                     anyTemplate.set(entry.getValue());
                 }
-            }
-            // remove all templates not contained in the TO
-            CollectionUtils.filter(pullTask.getTemplates(), new Predicate<AnyTemplate>() {
-
-                @Override
-                public boolean evaluate(final AnyTemplate anyTemplate) {
-                    return pullTaskTO.getTemplates().containsKey(anyTemplate.getAnyType().getKey());
-                }
             });
+            // remove all templates not contained in the TO
+            pullTask.getTemplates().removeAll(
+                    pullTask.getTemplates().stream().filter(anyTemplate
+                            -> !pullTaskTO.getTemplates().containsKey(anyTemplate.getAnyType().getKey())).
+                            collect(Collectors.toList()));
         }
 
         // 3. fill the remaining fields
@@ -313,11 +303,9 @@ public class TaskDataBinderImpl implements TaskDataBinder {
         }
 
         if (details) {
-            for (TaskExec execution : task.getExecs()) {
-                if (execution != null) {
-                    taskTO.getExecutions().add(getExecTO(execution));
-                }
-            }
+            task.getExecs().stream().
+                    filter(execution -> execution != null).
+                    forEachOrdered(execution -> taskTO.getExecutions().add(getExecTO(execution)));
         }
 
         switch (taskUtils.getType()) {
@@ -341,9 +329,9 @@ public class TaskDataBinderImpl implements TaskDataBinder {
                 ((PullTaskTO) taskTO).setUnmatchingRule(((PullTask) task).getUnmatchingRule() == null
                         ? UnmatchingRule.PROVISION : ((PullTask) task).getUnmatchingRule());
 
-                for (AnyTemplate template : ((PullTask) task).getTemplates()) {
+                ((PullTask) task).getTemplates().forEach(template -> {
                     ((PullTaskTO) taskTO).getTemplates().put(template.getAnyType().getKey(), template.get());
-                }
+                });
                 break;
 
             case PUSH:
@@ -355,9 +343,9 @@ public class TaskDataBinderImpl implements TaskDataBinder {
                 ((PushTaskTO) taskTO).setUnmatchingRule(((PushTask) task).getUnmatchingRule() == null
                         ? UnmatchingRule.ASSIGN : ((PushTask) task).getUnmatchingRule());
 
-                for (PushTaskAnyFilter filter : ((PushTask) task).getFilters()) {
+                ((PushTask) task).getFilters().forEach(filter -> {
                     ((PushTaskTO) taskTO).getFilters().put(filter.getAnyType().getKey(), filter.getFIQLCond());
-                }
+                });
                 break;
 
             case NOTIFICATION:

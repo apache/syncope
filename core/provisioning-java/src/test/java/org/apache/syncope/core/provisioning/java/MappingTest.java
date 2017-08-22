@@ -58,7 +58,7 @@ public class MappingTest extends AbstractTest {
         ExternalResource ldap = resourceDAO.find("resource-ldap");
         assertNotNull(ldap);
 
-        Provision provision = ldap.getProvision(anyTypeDAO.findUser());
+        Provision provision = ldap.getProvision(anyTypeDAO.findUser()).get();
         assertNotNull(provision);
         assertNotNull(provision.getMapping());
         assertNotNull(provision.getMapping().getConnObjectLink());

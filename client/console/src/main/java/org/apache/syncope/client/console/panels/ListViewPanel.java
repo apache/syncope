@@ -22,12 +22,9 @@ import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import org.apache.commons.collections4.IteratorUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormChoiceComponentUpdatingBehavior;
@@ -139,7 +136,7 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
         final List<String> toBeIncluded;
         if (includes == null || includes.isEmpty()) {
             toBeIncluded = new ArrayList<>();
-            for (Field field : Arrays.asList(reference.getDeclaredFields())) {
+            for (Field field : reference.getDeclaredFields()) {
                 toBeIncluded.add(field.getName());
             }
         } else {
@@ -155,9 +152,9 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
         } else {
             listOfItems = list;
             if (LOG.isDebugEnabled()) {
-                for (String field : toBeIncluded) {
+                toBeIncluded.forEach(field -> {
                     LOG.debug("Show field {}", field);
-                }
+                });
             }
         }
 
@@ -396,13 +393,7 @@ public abstract class ListViewPanel<T extends Serializable> extends WizardMgtPan
         protected T getActualItem(final T item, final List<T> list) {
             return item == null
                     ? null
-                    : IteratorUtils.find(list.iterator(), new Predicate<T>() {
-
-                        @Override
-                        public boolean evaluate(final T object) {
-                            return item.equals(object);
-                        }
-                    });
+                    : list.stream().filter(object -> item.equals(object)).findAny().orElse(null);
         }
 
         @Override

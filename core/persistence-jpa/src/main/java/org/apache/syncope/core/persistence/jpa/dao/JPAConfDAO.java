@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import java.util.Optional;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttr;
 import org.apache.syncope.core.persistence.api.entity.conf.Conf;
@@ -45,35 +46,35 @@ public class JPAConfDAO extends AbstractDAO<Conf> implements ConfDAO {
 
     @Transactional(readOnly = true)
     @Override
-    public CPlainAttr find(final String key) {
+    public Optional<? extends CPlainAttr> find(final String key) {
         return get().getPlainAttr(key);
     }
 
     @Transactional(readOnly = true)
     @Override
     public <T> T find(final String key, final T defaultValue) {
-        CPlainAttr result = find(key);
-        if (result == null) {
+        Optional<? extends CPlainAttr> result = find(key);
+        if (!result.isPresent()) {
             return defaultValue;
         }
 
-        return result.getUniqueValue() == null
-                ? result.getValues().isEmpty()
+        return result.get().getUniqueValue() == null
+                ? result.get().getValues().isEmpty()
                 ? null
-                : result.getValues().get(0).<T>getValue()
-                : result.getUniqueValue().<T>getValue();
+                : result.get().getValues().get(0).<T>getValue()
+                : result.get().getUniqueValue().<T>getValue();
     }
 
     @Override
     public Conf save(final CPlainAttr attr) {
         Conf instance = get();
 
-        CPlainAttr old = instance.getPlainAttr(attr.getSchema().getKey());
-        if (old != null && (!attr.getSchema().isUniqueConstraint()
-                || (!attr.getUniqueValue().getStringValue().equals(old.getUniqueValue().getStringValue())))) {
+        Optional<? extends CPlainAttr> old = instance.getPlainAttr(attr.getSchema().getKey());
+        if (old.isPresent() && (!attr.getSchema().isUniqueConstraint()
+                || (!attr.getUniqueValue().getStringValue().equals(old.get().getUniqueValue().getStringValue())))) {
 
-            old.setOwner(null);
-            instance.remove(old);
+            old.get().setOwner(null);
+            instance.remove(old.get());
         }
 
         instance.add(attr);
@@ -85,10 +86,10 @@ public class JPAConfDAO extends AbstractDAO<Conf> implements ConfDAO {
     @Override
     public Conf delete(final String key) {
         Conf instance = get();
-        CPlainAttr attr = instance.getPlainAttr(key);
-        if (attr != null) {
-            attr.setOwner(null);
-            instance.remove(attr);
+        Optional<? extends CPlainAttr> attr = instance.getPlainAttr(key);
+        if (attr.isPresent()) {
+            attr.get().setOwner(null);
+            instance.remove(attr.get());
 
             instance = entityManager().merge(instance);
         }

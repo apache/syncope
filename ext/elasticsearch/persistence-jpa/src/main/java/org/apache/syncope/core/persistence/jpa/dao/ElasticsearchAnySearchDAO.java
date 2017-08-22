@@ -19,13 +19,11 @@
 package org.apache.syncope.core.persistence.jpa.dao;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -62,7 +60,6 @@ import org.elasticsearch.index.query.DisMaxQueryBuilder;
 import org.elasticsearch.index.query.MatchNoneQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ReflectionUtils;
@@ -84,7 +81,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
         DisMaxQueryBuilder builder = QueryBuilders.disMaxQuery();
 
         Set<String> dynRealmKeys = new HashSet<>();
-        for (String realmPath : RealmUtils.normalize(adminRealms)) {
+        RealmUtils.normalize(adminRealms).forEach(realmPath -> {
             if (realmPath.startsWith("/")) {
                 Realm realm = realmDAO.findByFullPath(realmPath);
                 if (realm == null) {
@@ -92,9 +89,9 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
                     noRealm.getElements().add("Invalid realm specified: " + realmPath);
                     throw noRealm;
                 } else {
-                    for (Realm descendant : realmDAO.findDescendants(realm)) {
+                    realmDAO.findDescendants(realm).forEach(descendant -> {
                         builder.add(QueryBuilders.termQuery("realm", descendant.getFullPath()));
-                    }
+                    });
                 }
             } else {
                 DynRealm dynRealm = dynRealmDAO.find(realmPath);
@@ -105,11 +102,11 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
                     builder.add(QueryBuilders.termQuery("dynRealm", dynRealm.getKey()));
                 }
             }
-        }
+        });
         if (!dynRealmKeys.isEmpty()) {
-            for (Realm descendant : realmDAO.findAll()) {
+            realmDAO.findAll().forEach(descendant -> {
                 builder.add(QueryBuilders.termQuery("realm", descendant.getFullPath()));
-            }
+            });
         }
 
         return Pair.of(builder, dynRealmKeys);
@@ -147,7 +144,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
 
         AnyUtils attrUtils = anyUtilsFactory.getInstance(kind);
 
-        for (OrderByClause clause : orderBy) {
+        orderBy.forEach(clause -> {
             String sortName = null;
 
             // Manage difference among external key attribute and internal JPA @Id
@@ -168,7 +165,7 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
             } else {
                 builder.addSort(sortName, SortOrder.valueOf(clause.getDirection().name()));
             }
-        }
+        });
     }
 
     @Override
@@ -185,15 +182,8 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
                 setSize(itemsPerPage < 0 ? elasticsearchUtils.getIndexMaxResultWindow() : itemsPerPage);
         addSort(builder, kind, orderBy);
 
-        return buildResult(
-                CollectionUtils.collect(Arrays.asList(builder.get().getHits().getHits()),
-                        new Transformer<SearchHit, Object>() {
-
-                    @Override
-                    public Object transform(final SearchHit input) {
-                        return input.getId();
-                    }
-                }, new ArrayList<>()),
+        return buildResult(Stream.of(builder.get().getHits().getHits()).
+                map(hit -> hit.getId()).collect(Collectors.toList()),
                 kind);
     }
 
@@ -304,9 +294,9 @@ public class ElasticsearchAnySearchDAO extends AbstractAnySearchDAO {
             }
             builder.add(QueryBuilders.termQuery("realm", realmDAO.getRoot().getFullPath()));
         } else {
-            for (Realm current : realmDAO.findDescendants(realm)) {
+            realmDAO.findDescendants(realm).forEach(current -> {
                 builder.add(QueryBuilders.termQuery("realm", current.getFullPath()));
-            }
+            });
         }
 
         return builder;

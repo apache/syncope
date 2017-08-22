@@ -19,10 +19,8 @@
 package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.to.SecurityQuestionTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
@@ -52,14 +50,8 @@ public class SecurityQuestionLogic extends AbstractTransactionalLogic<SecurityQu
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public List<SecurityQuestionTO> list() {
-        return CollectionUtils.collect(securityQuestionDAO.findAll(),
-                new Transformer<SecurityQuestion, SecurityQuestionTO>() {
-
-            @Override
-            public SecurityQuestionTO transform(final SecurityQuestion input) {
-                return binder.getSecurityQuestionTO(input);
-            }
-        }, new ArrayList<SecurityQuestionTO>());
+        return securityQuestionDAO.findAll().stream().
+                map(securityQuestion -> binder.getSecurityQuestionTO(securityQuestion)).collect(Collectors.toList());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.SECURITY_QUESTION_READ + "')")

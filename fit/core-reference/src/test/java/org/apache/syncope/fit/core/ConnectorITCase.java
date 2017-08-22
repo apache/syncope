@@ -36,11 +36,8 @@ import java.util.Locale;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import javax.ws.rs.core.Response;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
-import org.apache.commons.collections4.Transformer;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -295,9 +292,7 @@ public class ConnectorITCase extends AbstractITCase {
         List<ConnInstanceTO> connectorInstanceTOs = connectorService.list(null);
         assertNotNull(connectorInstanceTOs);
         assertFalse(connectorInstanceTOs.isEmpty());
-        for (ConnInstanceTO instance : connectorInstanceTOs) {
-            assertNotNull(instance);
-        }
+        connectorInstanceTOs.forEach(instance -> assertNotNull(instance));
     }
 
     @Test
@@ -312,9 +307,7 @@ public class ConnectorITCase extends AbstractITCase {
         List<ConnBundleTO> bundles = connectorService.getBundles(Locale.ENGLISH.getLanguage());
         assertNotNull(bundles);
         assertFalse(bundles.isEmpty());
-        for (ConnBundleTO bundle : bundles) {
-            assertNotNull(bundle);
-        }
+        bundles.forEach(bundle -> assertNotNull(bundle));
     }
 
     @Test
@@ -347,7 +340,7 @@ public class ConnectorITCase extends AbstractITCase {
 
         for (ConnInstanceTO instance : connectorInstanceTOs) {
             if ("net.tirasa.connid.bundles.db.table".equals(instance.getBundleName())) {
-                assertEquals("Utente", instance.getConf("user").getSchema().getDisplayName());
+                assertEquals("Utente", instance.getConf("user").get().getSchema().getDisplayName());
             }
         }
 
@@ -356,7 +349,7 @@ public class ConnectorITCase extends AbstractITCase {
 
         for (ConnInstanceTO instance : connectorInstanceTOs) {
             if ("net.tirasa.connid.bundles.db.table".equals(instance.getBundleName())) {
-                assertEquals("User", instance.getConf("user").getSchema().getDisplayName());
+                assertEquals("User", instance.getConf("user").get().getSchema().getDisplayName());
             }
         }
     }
@@ -478,15 +471,8 @@ public class ConnectorITCase extends AbstractITCase {
         objectClassInfo = connectorService.buildObjectClassInfo(ldap, true);
         assertNotNull(objectClassInfo);
 
-        Collection<String> objectClasses = CollectionUtils.collect(objectClassInfo,
-                new Transformer<ConnIdObjectClassTO, String>() {
-
-            @Override
-            public String transform(final ConnIdObjectClassTO info) {
-                return info.getType();
-            }
-
-        });
+        Collection<String> objectClasses = objectClassInfo.stream().
+                map(info -> info.getType()).collect(Collectors.toSet());
         assertTrue(objectClasses.contains(ObjectClass.ACCOUNT_NAME));
         assertTrue(objectClasses.contains(ObjectClass.GROUP_NAME));
     }
@@ -500,13 +486,14 @@ public class ConnectorITCase extends AbstractITCase {
         ConnInstanceTO ldapConn = connectorService.read("74141a3b-0762-4720-a4aa-fc3e374ef3ef", null);
         String originalDisplayName = ldapConn.getDisplayName();
         Set<ConnectorCapability> originalCapabilities = new HashSet<>(ldapConn.getCapabilities());
-        ConnConfProperty originalConfProp = SerializationUtils.clone(ldapConn.getConf("maintainPosixGroupMembership"));
+        ConnConfProperty originalConfProp = SerializationUtils.clone(
+                ldapConn.getConf("maintainPosixGroupMembership").get());
         assertEquals(1, originalConfProp.getValues().size());
         assertEquals("false", originalConfProp.getValues().get(0));
 
         ldapConn.setDisplayName(originalDisplayName + " modified");
         ldapConn.getCapabilities().clear();
-        ldapConn.getConf("maintainPosixGroupMembership").getValues().set(0, "true");
+        ldapConn.getConf("maintainPosixGroupMembership").get().getValues().set(0, "true");
         connectorService.update(ldapConn);
 
         ldapConn = connectorService.read("74141a3b-0762-4720-a4aa-fc3e374ef3ef", null);
@@ -522,7 +509,7 @@ public class ConnectorITCase extends AbstractITCase {
         ldapConn = connectorService.read("74141a3b-0762-4720-a4aa-fc3e374ef3ef", null);
         assertEquals(originalDisplayName, ldapConn.getDisplayName());
         assertEquals(originalCapabilities, ldapConn.getCapabilities());
-        assertEquals(originalConfProp, ldapConn.getConf("maintainPosixGroupMembership"));
+        assertEquals(originalConfProp, ldapConn.getConf("maintainPosixGroupMembership").get());
     }
 
     @Test
@@ -534,14 +521,9 @@ public class ConnectorITCase extends AbstractITCase {
         List<ConnInstanceTO> connInstances = pcs.list(null);
         assertEquals(2, connInstances.size());
 
-        assertTrue(IterableUtils.matchesAll(connInstances, new Predicate<ConnInstanceTO>() {
-
-            @Override
-            public boolean evaluate(final ConnInstanceTO object) {
-                return "a6d017fd-a705-4507-bb7c-6ab6a6745997".equals(object.getKey())
-                        || "44c02549-19c3-483c-8025-4919c3283c37".equals(object.getKey());
-            }
-        }));
+        assertTrue(connInstances.stream().allMatch(connInstance
+                -> "a6d017fd-a705-4507-bb7c-6ab6a6745997".equals(connInstance.getKey())
+                || "44c02549-19c3-483c-8025-4919c3283c37".equals(connInstance.getKey())));
 
         // 2. attempt to read a connector with a different admin realm: fail
         try {
@@ -554,18 +536,18 @@ public class ConnectorITCase extends AbstractITCase {
         // 3. read and upate a connector in the realm for which entitlements are owned: succeed
         try {
             ConnInstanceTO scriptedsql = pcs.read("a6d017fd-a705-4507-bb7c-6ab6a6745997", null);
-            ConnConfProperty reloadScriptOnExecution = scriptedsql.getConf("reloadScriptOnExecution");
+            ConnConfProperty reloadScriptOnExecution = scriptedsql.getConf("reloadScriptOnExecution").get();
             assertEquals("true", reloadScriptOnExecution.getValues().get(0).toString());
 
             reloadScriptOnExecution.getValues().set(0, "false");
             pcs.update(scriptedsql);
 
             scriptedsql = pcs.read(scriptedsql.getKey(), null);
-            reloadScriptOnExecution = scriptedsql.getConf("reloadScriptOnExecution");
+            reloadScriptOnExecution = scriptedsql.getConf("reloadScriptOnExecution").get();
             assertEquals("false", reloadScriptOnExecution.getValues().get(0).toString());
         } finally {
             ConnInstanceTO scriptedsql = connectorService.read("a6d017fd-a705-4507-bb7c-6ab6a6745997", null);
-            ConnConfProperty reloadScriptOnExecution = scriptedsql.getConf("reloadScriptOnExecution");
+            ConnConfProperty reloadScriptOnExecution = scriptedsql.getConf("reloadScriptOnExecution").get();
             reloadScriptOnExecution.getValues().set(0, "true");
             connectorService.update(scriptedsql);
         }
@@ -582,17 +564,13 @@ public class ConnectorITCase extends AbstractITCase {
         assertNotNull(connInstanceTO);
 
         // check for resource
-        Collection<ResourceTO> resources = CollectionUtils.select(resourceService.list(), new Predicate<ResourceTO>() {
-
-            @Override
-            public boolean evaluate(final ResourceTO object) {
-                return "fcf9f2b0-f7d6-42c9-84a6-61b28255a42b".equals(object.getConnector());
-            }
-        });
+        List<ResourceTO> resources = resourceService.list().stream().
+                filter(resource -> "fcf9f2b0-f7d6-42c9-84a6-61b28255a42b".equals(resource.getConnector())).
+                collect(Collectors.toList());
         assertEquals(4, resources.size());
 
         // Retrieve a resource TO template.
-        ResourceTO resourceTO = resources.iterator().next();
+        ResourceTO resourceTO = resources.get(0);
 
         // Make it new.
         resourceTO.setKey("newAbout103" + getUUIDString());
@@ -628,13 +606,8 @@ public class ConnectorITCase extends AbstractITCase {
 
         assertNotNull(resourceTO);
 
-        resources = CollectionUtils.select(resourceService.list(), new Predicate<ResourceTO>() {
-
-            @Override
-            public boolean evaluate(final ResourceTO object) {
-                return connKey.equals(object.getConnector());
-            }
-        });
+        resources = resourceService.list().stream().
+                filter(resource -> connKey.equals(resource.getConnector())).collect(Collectors.toList());
         assertEquals(1, resources.size());
         // ----------------------------------
 

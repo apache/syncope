@@ -18,8 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
+import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
@@ -34,7 +33,6 @@ import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.user.DynRoleMembership;
 import org.apache.syncope.core.provisioning.api.data.RoleDataBinder;
-import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -135,15 +133,11 @@ public class RoleDataBinderImpl implements RoleDataBinder {
         roleTO.setKey(role.getKey());
         roleTO.getEntitlements().addAll(role.getEntitlements());
 
-        CollectionUtils.collect(role.getRealms(), new Transformer<Realm, String>() {
+        roleTO.getRealms().addAll(role.getRealms().stream().
+                map(r -> r.getFullPath()).collect(Collectors.toList()));
 
-            @Override
-            public String transform(final Realm input) {
-                return input.getFullPath();
-            }
-        }, roleTO.getRealms());
-
-        CollectionUtils.collect(role.getDynRealms(), EntityUtils.keyTransformer(), roleTO.getDynRealms());
+        roleTO.getDynRealms().addAll(role.getDynRealms().stream().
+                map(r -> r.getKey()).collect(Collectors.toList()));
 
         if (role.getDynMembership() != null) {
             roleTO.setDynMembershipCond(role.getDynMembership().getFIQLCond());

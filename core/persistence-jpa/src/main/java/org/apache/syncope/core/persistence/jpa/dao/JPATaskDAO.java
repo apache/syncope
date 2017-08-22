@@ -21,13 +21,12 @@ package org.apache.syncope.core.persistence.jpa.dao;
 import java.util.Collections;
 import java.util.List;
 import javax.persistence.Query;
-import org.apache.commons.collections4.Closure;
-import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.Notification;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.task.Task;
@@ -164,12 +163,12 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
 
         StringBuilder statement = new StringBuilder();
 
-        for (OrderByClause clause : orderByClauses) {
+        orderByClauses.forEach(clause -> {
             String field = clause.getField().trim();
             if (ReflectionUtils.findField(beanClass, field) != null) {
                 statement.append("t.").append(field).append(' ').append(clause.getDirection().name());
             }
-        }
+        });
 
         if (statement.length() == 0) {
             statement.append("ORDER BY t.id DESC");
@@ -264,14 +263,7 @@ public class JPATaskDAO extends AbstractDAO<Task> implements TaskDAO {
 
     @Override
     public void deleteAll(final ExternalResource resource, final TaskType type) {
-        IterableUtils.forEach(
-                findAll(type, resource, null, null, null, -1, -1, Collections.<OrderByClause>emptyList()),
-                new Closure<Task>() {
-
-            @Override
-            public void execute(final Task input) {
-                delete(input.getKey());
-            }
-        });
+        findAll(type, resource, null, null, null, -1, -1, Collections.<OrderByClause>emptyList()).
+                stream().map(Entity::getKey).forEach(task -> delete(task));
     }
 }

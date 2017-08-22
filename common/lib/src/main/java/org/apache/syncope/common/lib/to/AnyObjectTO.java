@@ -22,12 +22,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 
 @XmlRootElement(name = "anyObject")
 @XmlType
@@ -53,14 +52,10 @@ public class AnyObjectTO extends AnyTO implements GroupableRelatableTO {
 
     @JsonIgnore
     @Override
-    public RelationshipTO getRelationship(final String type, final String rightKey) {
-        return IterableUtils.find(relationships, new Predicate<RelationshipTO>() {
-
-            @Override
-            public boolean evaluate(final RelationshipTO object) {
-                return type.equals(object.getType()) && rightKey.equals(object.getRightKey());
-            }
-        });
+    public Optional<RelationshipTO> getRelationship(final String type, final String rightKey) {
+        return relationships.stream().filter(
+                relationship -> type.equals(relationship.getType()) && rightKey.equals(relationship.getRightKey())).
+                findFirst();
     }
 
     @XmlElementWrapper(name = "relationships")
@@ -73,14 +68,8 @@ public class AnyObjectTO extends AnyTO implements GroupableRelatableTO {
 
     @JsonIgnore
     @Override
-    public MembershipTO getMembership(final String groupKey) {
-        return IterableUtils.find(memberships, new Predicate<MembershipTO>() {
-
-            @Override
-            public boolean evaluate(final MembershipTO object) {
-                return groupKey.equals(object.getGroupKey());
-            }
-        });
+    public Optional<MembershipTO> getMembership(final String groupKey) {
+        return memberships.stream().filter(membership -> groupKey.equals(membership.getGroupKey())).findFirst();
     }
 
     @XmlElementWrapper(name = "memberships")

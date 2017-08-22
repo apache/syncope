@@ -27,12 +27,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 import javax.ws.rs.core.Response;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.BulkAction;
@@ -40,7 +37,6 @@ import org.apache.syncope.common.lib.to.ConnInstanceTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.MappingTO;
-import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
@@ -428,13 +424,12 @@ public class MigrationITCase extends AbstractTaskITCase {
     public void migrateFromSyncope12() throws InterruptedException {
         // 1. cleanup
         try {
-            for (AbstractTaskTO task : taskService.list(
-                    new TaskQuery.Builder(TaskType.PULL).resource(RESOURCE_KEY).build()).getResult()) {
-
-                if (PULL_TASK_NAME.equals(PullTaskTO.class.cast(task).getName())) {
-                    taskService.delete(task.getKey());
-                }
-            }
+            taskService.list(
+                    new TaskQuery.Builder(TaskType.PULL).resource(RESOURCE_KEY).build()).getResult().stream().
+                    filter(task -> PULL_TASK_NAME.equals(PullTaskTO.class.cast(task).getName())).
+                    forEachOrdered(task -> {
+                        taskService.delete(task.getKey());
+                    });
         } catch (Exception e) {
             // ignore
         }
@@ -444,11 +439,11 @@ public class MigrationITCase extends AbstractTaskITCase {
             // ignore
         }
         try {
-            for (ConnInstanceTO connInstance : connectorService.list(null)) {
-                if (CONNINSTANCE_DISPLAY_NAME.equals(connInstance.getDisplayName())) {
-                    connectorService.delete(connInstance.getKey());
-                }
-            }
+            connectorService.list(null).stream().
+                    filter(connInstance -> CONNINSTANCE_DISPLAY_NAME.equals(connInstance.getDisplayName())).
+                    forEachOrdered(connInstance -> {
+                        connectorService.delete(connInstance.getKey());
+                    });
         } catch (Exception e) {
             // ignore
         }
@@ -464,15 +459,17 @@ public class MigrationITCase extends AbstractTaskITCase {
         BulkAction bulkAction = new BulkAction();
         bulkAction.setType(BulkAction.Type.DELETE);
 
-        for (UserTO user : userService.search(new AnyQuery.Builder().fiql("username==*12").build()).getResult()) {
-            bulkAction.getTargets().add(user.getKey());
-        }
+        userService.search(new AnyQuery.Builder().fiql("username==*12").build()).getResult().
+                forEach(user -> {
+                    bulkAction.getTargets().add(user.getKey());
+                });
         userService.bulk(bulkAction);
 
         bulkAction.getTargets().clear();
-        for (GroupTO group : groupService.search(new AnyQuery.Builder().fiql("name==*12").build()).getResult()) {
-            bulkAction.getTargets().add(group.getKey());
-        }
+        groupService.search(new AnyQuery.Builder().fiql("name==*12").build()).getResult().
+                forEach(group -> {
+                    bulkAction.getTargets().add(group.getKey());
+                });
         groupService.bulk(bulkAction);
 
         // 2. setup
@@ -498,13 +495,8 @@ public class MigrationITCase extends AbstractTaskITCase {
                 user = userService.read("rossini12");
                 assertNotNull(user);
 
-                membershipFound = IterableUtils.matchesAny(user.getMemberships(), new Predicate<MembershipTO>() {
-
-                    @Override
-                    public boolean evaluate(final MembershipTO object) {
-                        return "1 root12".equals(object.getGroupName());
-                    }
-                });
+                membershipFound = user.getMemberships().stream().
+                        anyMatch(object -> "1 root12".equals(object.getGroupName()));
             } catch (Exception e) {
                 // ignore
             }
@@ -520,8 +512,8 @@ public class MigrationITCase extends AbstractTaskITCase {
         assertEquals("/" + MIGRATION_REALM, group.getRealm());
 
         // 4a. user plain attrs
-        assertEquals("Gioacchino", user.getPlainAttr("firstname").getValues().get(0));
-        assertEquals("Rossini", user.getPlainAttr("surname").getValues().get(0));
+        assertEquals("Gioacchino", user.getPlainAttr("firstname").get().getValues().get(0));
+        assertEquals("Rossini", user.getPlainAttr("surname").get().getValues().get(0));
 
         // 4b. user resources
         assertTrue(user.getResources().contains(RESOURCE_NAME_TESTDB2));
@@ -530,7 +522,7 @@ public class MigrationITCase extends AbstractTaskITCase {
         assertNotNull(clientFactory.create("bellini12", ADMIN_PWD).self());
 
         // 4d. group plain attrs
-        assertEquals("r12", group.getPlainAttr("title").getValues().get(0));
+        assertEquals("r12", group.getPlainAttr("title").get().getValues().get(0));
 
         // 4e. group resources
         assertTrue(group.getResources().contains(RESOURCE_NAME_CSV));

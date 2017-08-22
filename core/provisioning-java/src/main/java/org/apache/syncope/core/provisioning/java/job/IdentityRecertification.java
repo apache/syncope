@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.job;
 
+import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
@@ -47,15 +48,16 @@ public class IdentityRecertification extends AbstractSchedTaskJobDelegate {
     protected void init() {
         synchronized (this) {
             if (recertificationTime == -1) {
-                CPlainAttr recertificationTimeAttr = confDAO.find(RECERTIFICATION_TIME);
-                if (recertificationTimeAttr == null
-                        || recertificationTimeAttr.getValues().get(0).getLongValue() == null) {
+                Optional<? extends CPlainAttr> recertificationTimeAttr = confDAO.find(RECERTIFICATION_TIME);
+                if (!recertificationTimeAttr.isPresent()
+                        || recertificationTimeAttr.get().getValues().get(0).getLongValue() == null) {
 
                     recertificationTime = -1;
                     return;
                 }
 
-                recertificationTime = recertificationTimeAttr.getValues().get(0).getLongValue() * 1000 * 60 * 60 * 24;
+                recertificationTime = recertificationTimeAttr.get().getValues().
+                        get(0).getLongValue() * 1000 * 60 * 60 * 24;
             }
         }
     }

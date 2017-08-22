@@ -22,7 +22,6 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -55,12 +54,9 @@ import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Schema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
-import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
-import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.user.UMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractPlainAttrValue;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
@@ -236,12 +232,12 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
         query.setParameter("doubleValue", attrValue.getDoubleValue());
 
         List<A> result = new ArrayList<>();
-        for (PlainAttrValue value : (List<PlainAttrValue>) query.getResultList()) {
+        ((List<PlainAttrValue>) query.getResultList()).stream().forEach(value -> {
             A any = (A) value.getAttr().getOwner();
             if (!result.contains(any)) {
                 result.add(any);
             }
-        }
+        });
 
         return result;
     }
@@ -318,23 +314,19 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
         }
 
         // Sort literals in order to process later literals included into others
-        Collections.sort(literals, new Comparator<String>() {
-
-            @Override
-            public int compare(final String t, final String t1) {
-                if (t == null && t1 == null) {
-                    return 0;
-                } else if (t != null && t1 == null) {
-                    return -1;
-                } else if (t == null && t1 != null) {
-                    return 1;
-                } else if (t.length() == t1.length()) {
-                    return 0;
-                } else if (t.length() > t1.length()) {
-                    return -1;
-                } else {
-                    return 1;
-                }
+        Collections.sort(literals, (final String t, final String t1) -> {
+            if (t == null && t1 == null) {
+                return 0;
+            } else if (t != null && t1 == null) {
+                return -1;
+            } else if (t == null && t1 != null) {
+                return 1;
+            } else if (t.length() == t1.length()) {
+                return 0;
+            } else if (t.length() > t1.length()) {
+                return -1;
+            } else {
+                return 1;
             }
         });
 
@@ -483,7 +475,7 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
         typeOwnClasses.addAll(any.getType().getClasses());
         typeOwnClasses.addAll(any.getAuxClasses());
 
-        for (AnyTypeClass typeClass : typeOwnClasses) {
+        typeOwnClasses.forEach(typeClass -> {
             if (reference.equals(PlainSchema.class)) {
                 result.getForSelf().addAll((Collection<? extends S>) typeClass.getPlainSchemas());
             } else if (reference.equals(DerSchema.class)) {
@@ -491,29 +483,31 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
             } else if (reference.equals(VirSchema.class)) {
                 result.getForSelf().addAll((Collection<? extends S>) typeClass.getVirSchemas());
             }
-        }
+        });
 
         // schemas given by type extensions
         Map<Group, List<? extends AnyTypeClass>> typeExtensionClasses = new HashMap<>();
         if (any instanceof User) {
-            for (UMembership memb : ((User) any).getMemberships()) {
-                for (TypeExtension typeExtension : memb.getRightEnd().getTypeExtensions()) {
+            ((User) any).getMemberships().forEach(memb -> {
+                memb.getRightEnd().getTypeExtensions().forEach(typeExtension -> {
                     typeExtensionClasses.put(memb.getRightEnd(), typeExtension.getAuxClasses());
-                }
-            }
+                });
+            });
         } else if (any instanceof AnyObject) {
-            for (AMembership memb : ((AnyObject) any).getMemberships()) {
-                for (TypeExtension typeExtension : memb.getRightEnd().getTypeExtensions()) {
-                    if (any.getType().equals(typeExtension.getAnyType())) {
-                        typeExtensionClasses.put(memb.getRightEnd(), typeExtension.getAuxClasses());
-                    }
-                }
-            }
+            ((AnyObject) any).getMemberships().forEach(memb -> {
+                memb.getRightEnd().getTypeExtensions().stream().
+                        filter(typeExtension -> any.getType().equals(typeExtension.getAnyType())).
+                        forEachOrdered((typeExtension) -> {
+                            typeExtensionClasses.put(memb.getRightEnd(), typeExtension.getAuxClasses());
+                        });
+            });
         }
 
-        for (Map.Entry<Group, List<? extends AnyTypeClass>> entry : typeExtensionClasses.entrySet()) {
-            result.getForMemberships().put(entry.getKey(), new HashSet<S>());
-            for (AnyTypeClass typeClass : entry.getValue()) {
+        typeExtensionClasses.entrySet().stream().map(entry -> {
+            result.getForMemberships().put(entry.getKey(), new HashSet<>());
+            return entry;
+        }).forEachOrdered((entry) -> {
+            entry.getValue().forEach(typeClass -> {
                 if (reference.equals(PlainSchema.class)) {
                     result.getForMemberships().get(entry.getKey()).
                             addAll((Collection<? extends S>) typeClass.getPlainSchemas());
@@ -524,8 +518,8 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
                     result.getForMemberships().get(entry.getKey()).
                             addAll((Collection<? extends S>) typeClass.getVirSchemas());
                 }
-            }
-        }
+            });
+        });
 
         return result;
     }
@@ -547,24 +541,25 @@ public abstract class AbstractAnyDAO<A extends Any<?>> extends AbstractDAO<A> im
 
     @Transactional(readOnly = true)
     @Override
+    @SuppressWarnings("unchecked")
     public List<String> findDynRealms(final String key) {
         Query query = entityManager().createNativeQuery(
                 "SELECT dynRealm_id FROM " + JPADynRealmDAO.DYNMEMB_TABLE + " WHERE any_id=?");
         query.setParameter(1, key);
 
         List<String> result = new ArrayList<>();
-        for (Object resultKey : query.getResultList()) {
-            String actualKey = resultKey instanceof Object[]
-                    ? (String) ((Object[]) resultKey)[0]
-                    : ((String) resultKey);
-
-            DynRealm dynRealm = dynRealmDAO().find(actualKey);
-            if (dynRealm == null) {
-                LOG.error("Could not find dynRealm with id {}, even though returned by the native query", actualKey);
-            } else if (!result.contains(actualKey)) {
-                result.add(actualKey);
-            }
-        }
+        query.getResultList().stream().map(resultKey -> resultKey instanceof Object[]
+                ? (String) ((Object[]) resultKey)[0]
+                : ((String) resultKey)).
+                forEachOrdered((actualKey) -> {
+                    DynRealm dynRealm = dynRealmDAO().find(actualKey.toString());
+                    if (dynRealm == null) {
+                        LOG.error("Could not find dynRealm with id {}, even though returned by the native query",
+                                actualKey);
+                    } else if (!result.contains(actualKey.toString())) {
+                        result.add(actualKey.toString());
+                    }
+                });
         return result;
     }
 

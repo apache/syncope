@@ -21,10 +21,9 @@ package org.apache.syncope.core.persistence.jpa.dao;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import javax.persistence.NoResultException;
 import javax.persistence.TypedQuery;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.dao.MalformedPathException;
@@ -33,7 +32,6 @@ import org.apache.syncope.core.persistence.api.dao.RoleDAO;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.Policy;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
@@ -87,14 +85,11 @@ public class JPARealmDAO extends AbstractDAO<Realm> implements RealmDAO {
 
         Realm current = root;
         for (final String pathElement : fullPath.substring(1).split("/")) {
-            current = IterableUtils.find(findChildren(current), new Predicate<Realm>() {
-
-                @Override
-                public boolean evaluate(final Realm realm) {
-                    return pathElement.equals(realm.getName());
-                }
-            });
-            if (current == null) {
+            Optional<Realm> first = findChildren(current).stream().
+                    filter(realm -> pathElement.equals(realm.getName())).findFirst();
+            if (first.isPresent()) {
+                current = first.get();
+            } else {
                 return null;
             }
         }
@@ -148,10 +143,11 @@ public class JPARealmDAO extends AbstractDAO<Realm> implements RealmDAO {
         query.setParameter("policy", policy);
 
         List<Realm> result = new ArrayList<>();
-        for (Realm realm : query.getResultList()) {
+        query.getResultList().stream().map(realm -> {
             result.add(realm);
-            result.addAll(findSamePolicyChildren(realm, policy));
-        }
+            return realm;
+        }).forEachOrdered(realm -> result.addAll(findSamePolicyChildren(realm, policy)));
+
         return result;
     }
 
@@ -209,15 +205,13 @@ public class JPARealmDAO extends AbstractDAO<Realm> implements RealmDAO {
 
     @Override
     public void delete(final Realm realm) {
-        for (Realm toBeDeleted : findDescendants(realm)) {
-            for (Role role : roleDAO.findByRealm(toBeDeleted)) {
-                role.getRealms().remove(toBeDeleted);
-            }
-
+        findDescendants(realm).stream().map(toBeDeleted -> {
+            roleDAO.findByRealm(toBeDeleted).forEach(role -> role.getRealms().remove(toBeDeleted));
+            return toBeDeleted;
+        }).map(toBeDeleted -> {
             toBeDeleted.setParent(null);
-
-            entityManager().remove(toBeDeleted);
-        }
+            return toBeDeleted;
+        }).forEachOrdered(toBeDeleted -> entityManager().remove(toBeDeleted));
     }
 
     @Override

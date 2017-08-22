@@ -46,9 +46,7 @@ public class CamelRouteITCase extends AbstractITCase {
         List<CamelRouteTO> userRoutes = camelRouteService.list(AnyTypeKind.USER);
         assertNotNull(userRoutes);
         assertEquals(16, userRoutes.size());
-        for (CamelRouteTO route : userRoutes) {
-            assertNotNull(route.getContent());
-        }
+        userRoutes.forEach(route -> assertNotNull(route.getContent()));
     }
 
     @Test
@@ -58,9 +56,7 @@ public class CamelRouteITCase extends AbstractITCase {
         List<CamelRouteTO> groupRoutes = camelRouteService.list(AnyTypeKind.GROUP);
         assertNotNull(groupRoutes);
         assertEquals(8, groupRoutes.size());
-        for (CamelRouteTO route : groupRoutes) {
-            assertNotNull(route.getContent());
-        }
+        groupRoutes.forEach(route -> assertNotNull(route.getContent()));
     }
 
     private CamelRouteTO doUpdate(final String key, final String content) {
@@ -120,7 +116,7 @@ public class CamelRouteITCase extends AbstractITCase {
                 + "    </setProperty>\n"
                 + "    <setBody>\n"
                 + "     <groovy>\n"
-                + "request.body.getPlainAttr(\"camelAttribute\").getValues().set(0,\"true\")\n"
+                + "request.body.getPlainAttr(\"camelAttribute\").get().getValues().set(0,\"true\")\n"
                 + "       return request.body\n"
                 + "     </groovy>\n"
                 + "    </setBody>\n"
@@ -165,7 +161,7 @@ public class CamelRouteITCase extends AbstractITCase {
 
             userTO = createUser(userTO).getEntity();
             assertNotNull(userTO);
-            assertEquals("true", userTO.getPlainAttr("camelAttribute").getValues().get(0));
+            assertEquals("true", userTO.getPlainAttr("camelAttribute").get().getValues().get(0));
         } finally {
             doUpdate(oldRoute.getKey(), oldRoute.getContent());
         }

@@ -24,13 +24,12 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 
 @XmlType
 @XmlSeeAlso({ UserTO.class, GroupTO.class, AnyObjectTO.class })
@@ -117,14 +116,8 @@ public abstract class AnyTO extends AbstractAnnotatedBean implements EntityTO, A
 
     @JsonIgnore
     @Override
-    public AttrTO getPlainAttr(final String schema) {
-        return IterableUtils.find(plainAttrs, new Predicate<AttrTO>() {
-
-            @Override
-            public boolean evaluate(final AttrTO object) {
-                return object.getSchema().equals(schema);
-            }
-        });
+    public Optional<AttrTO> getPlainAttr(final String schema) {
+        return plainAttrs.stream().filter(attr -> attr.getSchema().equals(schema)).findFirst();
     }
 
     @XmlElementWrapper(name = "derAttrs")
@@ -137,14 +130,8 @@ public abstract class AnyTO extends AbstractAnnotatedBean implements EntityTO, A
 
     @JsonIgnore
     @Override
-    public AttrTO getDerAttr(final String schema) {
-        return IterableUtils.find(derAttrs, new Predicate<AttrTO>() {
-
-            @Override
-            public boolean evaluate(final AttrTO object) {
-                return object.getSchema().equals(schema);
-            }
-        });
+    public Optional<AttrTO> getDerAttr(final String schema) {
+        return derAttrs.stream().filter(attr -> attr.getSchema().equals(schema)).findFirst();
     }
 
     @XmlElementWrapper(name = "virAttrs")
@@ -157,14 +144,8 @@ public abstract class AnyTO extends AbstractAnnotatedBean implements EntityTO, A
 
     @JsonIgnore
     @Override
-    public AttrTO getVirAttr(final String schema) {
-        return IterableUtils.find(virAttrs, new Predicate<AttrTO>() {
-
-            @Override
-            public boolean evaluate(final AttrTO object) {
-                return object.getSchema().equals(schema);
-            }
-        });
+    public Optional<AttrTO> getVirAttr(final String schema) {
+        return virAttrs.stream().filter(attr -> attr.getSchema().equals(schema)).findFirst();
     }
 
     @XmlElementWrapper(name = "resources")

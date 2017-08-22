@@ -22,8 +22,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Predicate;
+import java.util.stream.Collectors;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.panels.BeanPanel;
 import org.apache.syncope.client.console.rest.PolicyRestClient;
@@ -80,13 +79,8 @@ public class PolicyRuleWizardBuilder
         if (modelObject.isNew()) {
             composable.getRuleConfs().add(modelObject.getConf());
         } else {
-            CollectionUtils.filter(composable.getRuleConfs(), new Predicate<RuleConf>() {
-
-                @Override
-                public boolean evaluate(final RuleConf object) {
-                    return !object.getName().equals(modelObject.getOldName());
-                }
-            });
+            composable.getRuleConfs().removeAll(composable.getRuleConfs().stream().
+                    filter(conf -> conf.getName().equals(modelObject.getOldName())).collect(Collectors.toList()));
             composable.getRuleConfs().add(modelObject.getConf());
         }
 
@@ -109,7 +103,7 @@ public class PolicyRuleWizardBuilder
         public Profile(final PolicyRuleDirectoryPanel.PolicyRuleWrapper rule) {
 
             final AjaxTextFieldPanel name = new AjaxTextFieldPanel(
-                    "name", "rule", new PropertyModel<String>(rule, "name"), false);
+                    "name", "rule", new PropertyModel<>(rule, "name"), false);
             name.addRequiredLabel();
             add(name);
 

@@ -28,11 +28,9 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
-import org.apache.commons.collections4.Transformer;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleApplication;
@@ -124,15 +122,10 @@ public class ReconciliationWidget extends BaseWidget {
             protected void onTimer(final AjaxRequestTarget target) {
                 if (isCheckReconciliationJob()) {
                     try {
-                        JobTO reportJobTO = IterableUtils.find(restClient.listJobs(), new Predicate<JobTO>() {
-
-                            @Override
-                            public boolean evaluate(final JobTO jobTO) {
-                                return SyncopeConsoleApplication.get().
-                                        getReconciliationReportKey().equals(jobTO.getRefKey());
-                            }
-                        });
-                        if (reportJobTO != null && !reportJobTO.isRunning()) {
+                        Optional<JobTO> reportJobTO = restClient.listJobs().stream().
+                                filter(jobTO -> SyncopeConsoleApplication.get().
+                                getReconciliationReportKey().equals(jobTO.getRefKey())).findAny();
+                        if (reportJobTO.isPresent() && !reportJobTO.get().isRunning()) {
                             LOG.debug("Report {} is not running",
                                     SyncopeConsoleApplication.get().getReconciliationReportKey());
 
@@ -271,23 +264,19 @@ public class ReconciliationWidget extends BaseWidget {
         List<ProgressBean> beans = Collections.emptyList();
         ReconciliationReport report = null;
 
-        ExecTO exec = null;
+        Optional<ExecTO> exec = Optional.empty();
         if (SyncopeConsoleSession.get().owns(StandardEntitlement.REPORT_LIST)) {
-            exec = IterableUtils.find(restClient.listRecentExecutions(ROWS), new Predicate<ExecTO>() {
-
-                @Override
-                public boolean evaluate(final ExecTO exec) {
-                    return reconciliationReportKey.equals(exec.getRefKey());
-                }
-            });
+            exec = restClient.listRecentExecutions(ROWS).stream().
+                    filter(e -> reconciliationReportKey.equals(e.getRefKey())).findAny();
         }
-        if (exec == null) {
+        if (!exec.isPresent()) {
             LOG.error("Could not find the last execution of reconciliation report");
         } else {
-            Object entity = restClient.exportExecutionResult(exec.getKey(), ReportExecExportFormat.XML).getEntity();
+            Object entity = restClient.exportExecutionResult(
+                    exec.get().getKey(), ReportExecExportFormat.XML).getEntity();
             if (entity instanceof InputStream) {
                 try {
-                    report = ReconciliationReportParser.parse(exec.getEnd(), (InputStream) entity);
+                    report = ReconciliationReportParser.parse(exec.get().getEnd(), (InputStream) entity);
 
                     beans = new ArrayList<>();
 
@@ -385,22 +374,12 @@ public class ReconciliationWidget extends BaseWidget {
             });
 
             final Set<String> resources = new HashSet<>();
-            for (Any any : anys.getAnys()) {
-                resources.addAll(CollectionUtils.collect(any.getMissing(), new Transformer<Missing, String>() {
-
-                    @Override
-                    public String transform(final Missing input) {
-                        return input.getResource();
-                    }
-                }));
-                resources.addAll(CollectionUtils.collect(any.getMisaligned(), new Transformer<Misaligned, String>() {
-
-                    @Override
-                    public String transform(final Misaligned input) {
-                        return input.getResource();
-                    }
-                }));
-            }
+            anys.getAnys().forEach(any -> {
+                resources.addAll(any.getMissing().stream().
+                        map(Missing::getResource).collect(Collectors.toList()));
+                resources.addAll(any.getMisaligned().stream().
+                        map(Misaligned::getResource).collect(Collectors.toList()));
+            });
             for (final String resource : resources) {
                 columns.add(new AbstractColumn<Any, String>(Model.of(resource)) {
 
@@ -414,24 +393,14 @@ public class ReconciliationWidget extends BaseWidget {
 
                         final Any any = rowModel.getObject();
 
-                        Missing missing = IterableUtils.find(any.getMissing(), new Predicate<Missing>() {
+                        Optional<Missing> missing =
+                                any.getMissing().stream().
+                                        filter(object -> resource.equals(object.getResource())).findAny();
+                        List<Misaligned> misaligned = any.getMisaligned().stream().
+                                filter(object -> resource.equals(object.getResource())).collect(Collectors.toList());
 
-                            @Override
-                            public boolean evaluate(final Missing object) {
-                                return resource.equals(object.getResource());
-                            }
-                        });
-                        final List<Misaligned> misaligned = CollectionUtils.select(
-                                any.getMisaligned(), new Predicate<Misaligned>() {
-
-                            @Override
-                            public boolean evaluate(final Misaligned object) {
-                                return resource.equals(object.getResource());
-                            }
-                        }, new ArrayList<Misaligned>());
                         Component content;
-
-                        if (missing == null) {
+                        if (!missing.isPresent()) {
                             if (misaligned == null || misaligned.isEmpty()) {
                                 content = new Label(componentId, StringUtils.EMPTY);
                             } else {

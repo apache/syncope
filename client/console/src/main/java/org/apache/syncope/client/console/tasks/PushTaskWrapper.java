@@ -22,7 +22,6 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.syncope.client.console.panels.search.SearchClause;
 import org.apache.syncope.client.console.panels.search.SearchUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
@@ -57,7 +56,7 @@ public class PushTaskWrapper implements Serializable {
         Map<String, String> filters = new HashMap<>();
 
         for (Map.Entry<String, List<SearchClause>> entry : getFilterClauses().entrySet()) {
-            if (CollectionUtils.isNotEmpty(entry.getValue())) {
+            if (!entry.getValue().isEmpty()) {
                 AbstractFiqlSearchConditionBuilder bld;
                 switch (entry.getKey()) {
                     case "USER":

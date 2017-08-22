@@ -27,11 +27,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.syncope.client.cli.Command;
@@ -96,7 +94,7 @@ public class CLIITCase extends AbstractITCase {
             command.add(SCRIPT_FILENAME + ".sh");
         }
 
-        CollectionUtils.addAll(command, arguments);
+        command.addAll(Arrays.asList(arguments));
 
         return command.toArray(new String[command.size()]);
     }
@@ -137,15 +135,8 @@ public class CLIITCase extends AbstractITCase {
                     EntitlementCommand.EntitlementOptions.LIST.getOptionName()));
             process = PROCESS_BUILDER.start();
 
-            long entitlements = IterableUtils.countMatches(
-                    IOUtils.readLines(process.getInputStream(), StandardCharsets.UTF_8),
-                    new Predicate<String>() {
-
-                @Override
-                public boolean evaluate(final String line) {
-                    return line.startsWith("-");
-                }
-            });
+            long entitlements = IOUtils.readLines(process.getInputStream(), StandardCharsets.UTF_8).
+                    stream().filter(line -> line.startsWith("-")).count();
             assertEquals(syncopeService.platform().getEntitlements().size(), entitlements);
         } catch (IOException e) {
             fail(e.getMessage());
@@ -165,15 +156,8 @@ public class CLIITCase extends AbstractITCase {
                     ConnectorCommand.ConnectorOptions.LIST_BUNDLES.getOptionName()));
             process = PROCESS_BUILDER.start();
 
-            long bundles = IterableUtils.countMatches(
-                    IOUtils.readLines(process.getInputStream(), StandardCharsets.UTF_8),
-                    new Predicate<String>() {
-
-                @Override
-                public boolean evaluate(final String line) {
-                    return line.startsWith(" > BUNDLE NAME:");
-                }
-            });
+            long bundles = IOUtils.readLines(process.getInputStream(), StandardCharsets.UTF_8).
+                    stream().filter(line -> line.startsWith(" > BUNDLE NAME:")).count();
             assertEquals(connectorService.getBundles(null).size(), bundles);
         } catch (IOException e) {
             fail(e.getMessage());
@@ -209,15 +193,8 @@ public class CLIITCase extends AbstractITCase {
                     String.valueOf(userKey1), String.valueOf(userKey2),
                     String.valueOf(userKey3), String.valueOf(userKey4), String.valueOf(userKey5)));
             process2 = PROCESS_BUILDER.start();
-            long users = IterableUtils.countMatches(
-                    IOUtils.readLines(process2.getInputStream(), StandardCharsets.UTF_8),
-                    new Predicate<String>() {
-
-                @Override
-                public boolean evaluate(final String line) {
-                    return line.startsWith(" > USER KEY:");
-                }
-            });
+            long users = IOUtils.readLines(process2.getInputStream(), StandardCharsets.UTF_8).
+                    stream().filter(line -> line.startsWith(" > USER KEY:")).count();
             assertEquals(5, users);
 
             PROCESS_BUILDER.command(getCommand(

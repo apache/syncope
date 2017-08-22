@@ -26,13 +26,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
-import org.apache.commons.collections4.SetUtils;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -52,15 +49,14 @@ import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ADynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
-import org.apache.syncope.core.persistence.api.entity.anyobject.APlainAttr;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.TypeExtension;
 import org.apache.syncope.core.persistence.api.entity.user.UDynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
-import org.apache.syncope.core.persistence.api.entity.user.UPlainAttr;
 import org.apache.syncope.core.persistence.jpa.entity.JPAAnyUtilsFactory;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAADynGroupMembership;
 import org.apache.syncope.core.persistence.jpa.entity.anyobject.JPAAMembership;
@@ -69,7 +65,6 @@ import org.apache.syncope.core.persistence.jpa.entity.user.JPAUDynGroupMembershi
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUMembership;
 import org.apache.syncope.core.provisioning.api.event.AnyCreatedUpdatedEvent;
 import org.apache.syncope.core.provisioning.api.event.AnyDeletedEvent;
-import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -177,20 +172,18 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
 
     @Override
     protected void securityChecks(final Group group) {
-        Set<String> authRealms = SetUtils.emptyIfNull(
-                AuthContextUtils.getAuthorizations().get(StandardEntitlement.GROUP_READ));
-        boolean authorized = IterableUtils.matchesAny(authRealms, new Predicate<String>() {
+        Map<String, Set<String>> authorizations = AuthContextUtils.getAuthorizations();
+        Set<String> authRealms = authorizations.containsKey(StandardEntitlement.GROUP_READ)
+                ? authorizations.get(StandardEntitlement.GROUP_READ)
+                : Collections.emptySet();
 
-            @Override
-            public boolean evaluate(final String realm) {
-                return group.getRealm().getFullPath().startsWith(realm)
-                        || realm.equals(RealmUtils.getGroupOwnerRealm(group.getRealm().getFullPath(), group.getKey()));
-            }
-        });
+        boolean authorized = authRealms.stream().anyMatch(realm -> group.getRealm().getFullPath().startsWith(realm)
+                || realm.equals(RealmUtils.getGroupOwnerRealm(group.getRealm().getFullPath(), group.getKey())));
         if (!authorized) {
-            authorized = !CollectionUtils.intersection(findDynRealms(group.getKey()), authRealms).isEmpty();
+            authorized = findDynRealms(group.getKey()).stream().
+                    filter(dynRealm -> authRealms.contains(dynRealm)).
+                    count() > 0;
         }
-
         if (authRealms.isEmpty() || !authorized) {
             throw new DelegatedAdministrationException(
                     group.getRealm().getFullPath(), AnyTypeKind.GROUP.name(), group.getKey());
@@ -299,32 +292,32 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
 
             clearUDynMembers(merged);
 
-            for (User user : matching) {
+            matching.forEach(user -> {
                 Query insert = entityManager().createNativeQuery("INSERT INTO " + UDYNMEMB_TABLE + " VALUES(?, ?)");
                 insert.setParameter(1, user.getKey());
                 insert.setParameter(2, merged.getKey());
                 insert.executeUpdate();
 
                 publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, user, AuthContextUtils.getDomain()));
-            }
+            });
         }
-        for (ADynGroupMembership memb : merged.getADynMemberships()) {
-            List<AnyObject> matching = searchDAO().search(
-                    buildDynMembershipCond(memb.getFIQLCond(), merged.getRealm()),
-                    AnyTypeKind.ANY_OBJECT);
-
+        merged.getADynMemberships().stream().map(memb -> searchDAO().search(
+                buildDynMembershipCond(memb.getFIQLCond(), merged.getRealm()),
+                AnyTypeKind.ANY_OBJECT)).forEachOrdered(matching -> {
             clearADynMembers(merged);
 
-            for (AnyObject anyObject : matching) {
-                Query insert = entityManager().createNativeQuery("INSERT INTO " + ADYNMEMB_TABLE + " VALUES(?, ?, ?)");
+            matching.forEach(anyObject -> {
+                Query insert = entityManager().createNativeQuery("INSERT INTO " + ADYNMEMB_TABLE
+                        + " VALUES(?, ?, ?)");
                 insert.setParameter(1, anyObject.getType().getKey());
                 insert.setParameter(2, anyObject.getKey());
                 insert.setParameter(3, merged.getKey());
                 insert.executeUpdate();
 
-                publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, anyObject, AuthContextUtils.getDomain()));
-            }
-        }
+                publisher.publishEvent(
+                        new AnyCreatedUpdatedEvent<>(this, anyObject, AuthContextUtils.getDomain()));
+            });
+        });
 
         dynRealmDAO().refreshDynMemberships(merged);
 
@@ -335,34 +328,35 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     public void delete(final Group group) {
         dynRealmDAO().removeDynMemberships(group.getKey());
 
-        for (AMembership membership : findAMemberships(group)) {
+        findAMemberships(group).forEach(membership -> {
             AnyObject leftEnd = membership.getLeftEnd();
             leftEnd.getMemberships().remove(membership);
             membership.setRightEnd(null);
-            for (APlainAttr attr : leftEnd.getPlainAttrs(membership)) {
+            leftEnd.getPlainAttrs(membership).stream().map(attr -> {
                 leftEnd.remove(attr);
                 attr.setOwner(null);
                 attr.setMembership(null);
-                plainAttrDAO.delete(attr);
-            }
+                return attr;
+            }).forEachOrdered(attr -> plainAttrDAO.delete(attr));
 
             anyObjectDAO().save(leftEnd);
             publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, leftEnd, AuthContextUtils.getDomain()));
-        }
-        for (UMembership membership : findUMemberships(group)) {
+        });
+
+        findUMemberships(group).forEach(membership -> {
             User leftEnd = membership.getLeftEnd();
             leftEnd.getMemberships().remove(membership);
             membership.setRightEnd(null);
-            for (UPlainAttr attr : leftEnd.getPlainAttrs(membership)) {
+            leftEnd.getPlainAttrs(membership).stream().map(attr -> {
                 leftEnd.remove(attr);
                 attr.setOwner(null);
                 attr.setMembership(null);
-                plainAttrDAO.delete(attr);
-            }
+                return attr;
+            }).forEachOrdered(attr -> plainAttrDAO.delete(attr));
 
             userDAO().save(leftEnd);
             publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, leftEnd, AuthContextUtils.getDomain()));
-        }
+        });
 
         clearUDynMembers(group);
         clearADynMembers(group);
@@ -383,22 +377,22 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public List<String> findADynMembers(final Group group) {
         List<String> result = new ArrayList<>();
-        for (ADynGroupMembership memb : group.getADynMemberships()) {
+        group.getADynMemberships().stream().map(memb -> {
             Query query = entityManager().createNativeQuery(
                     "SELECT any_id FROM " + ADYNMEMB_TABLE + " WHERE group_id=? AND anyType_id=?");
             query.setParameter(1, group.getKey());
             query.setParameter(2, memb.getAnyType().getKey());
+            return query;
+        }).forEachOrdered((query) -> {
+            query.getResultList().stream().map(key -> key instanceof Object[]
+                    ? (String) ((Object[]) key)[0]
+                    : ((String) key)).
+                    forEachOrdered(actualKey -> result.add(actualKey.toString()));
+        });
 
-            for (Object key : query.getResultList()) {
-                String actualKey = key instanceof Object[]
-                        ? (String) ((Object[]) key)[0]
-                        : ((String) key);
-
-                result.add(actualKey);
-            }
-        }
         return result;
     }
 
@@ -420,13 +414,12 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     @Transactional
     @Override
     public void refreshDynMemberships(final AnyObject anyObject) {
-        for (ADynGroupMembership memb : findWithADynMemberships(anyObject.getType())) {
+        findWithADynMemberships(anyObject.getType()).stream().map(memb -> {
             Query delete = entityManager().createNativeQuery(
                     "DELETE FROM " + ADYNMEMB_TABLE + " WHERE group_id=? AND any_id=?");
             delete.setParameter(1, memb.getGroup().getKey());
             delete.setParameter(2, anyObject.getKey());
             delete.executeUpdate();
-
             if (jpaAnySearchDAO().matches(
                     anyObject,
                     buildDynMembershipCond(memb.getFIQLCond(), memb.getGroup().getRealm()))) {
@@ -438,9 +431,9 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
                 insert.setParameter(3, memb.getGroup().getKey());
                 insert.executeUpdate();
             }
-
-            publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, memb.getGroup(), AuthContextUtils.getDomain()));
-        }
+            return memb;
+        }).forEachOrdered(memb -> publisher.publishEvent(
+                new AnyCreatedUpdatedEvent<>(this, memb.getGroup(), AuthContextUtils.getDomain())));
     }
 
     @Override
@@ -451,12 +444,13 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         delete.setParameter(1, anyObject.getKey());
         delete.executeUpdate();
 
-        for (Group group : dynGroups) {
+        dynGroups.forEach(group -> {
             publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, group, AuthContextUtils.getDomain()));
-        }
+        });
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public List<String> findUDynMembers(final Group group) {
         if (group.getUDynMembership() == null) {
             return Collections.emptyList();
@@ -467,13 +461,9 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         query.setParameter(1, group.getKey());
 
         List<String> result = new ArrayList<>();
-        for (Object key : query.getResultList()) {
-            String actualKey = key instanceof Object[]
-                    ? (String) ((Object[]) key)[0]
-                    : ((String) key);
-
-            result.add(actualKey);
-        }
+        query.getResultList().stream().map(key -> key instanceof Object[]
+                ? (String) ((Object[]) key)[0]
+                : ((String) key)).forEachOrdered(actualKey -> result.add(actualKey.toString()));
         return result;
     }
 
@@ -495,13 +485,12 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     @Transactional
     @Override
     public void refreshDynMemberships(final User user) {
-        for (UDynGroupMembership memb : findWithUDynMemberships()) {
+        findWithUDynMemberships().stream().map(memb -> {
             Query delete = entityManager().createNativeQuery(
                     "DELETE FROM " + UDYNMEMB_TABLE + " WHERE group_id=? AND any_id=?");
             delete.setParameter(1, memb.getGroup().getKey());
             delete.setParameter(2, user.getKey());
             delete.executeUpdate();
-
             if (jpaAnySearchDAO().matches(
                     user,
                     buildDynMembershipCond(memb.getFIQLCond(), memb.getGroup().getRealm()))) {
@@ -512,9 +501,9 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
                 insert.setParameter(2, memb.getGroup().getKey());
                 insert.executeUpdate();
             }
-
-            publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, memb.getGroup(), AuthContextUtils.getDomain()));
-        }
+            return memb;
+        }).forEachOrdered(memb -> publisher.publishEvent(
+                new AnyCreatedUpdatedEvent<>(this, memb.getGroup(), AuthContextUtils.getDomain())));
     }
 
     @Override
@@ -525,14 +514,14 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
         delete.setParameter(1, user.getKey());
         delete.executeUpdate();
 
-        for (Group group : dynGroups) {
+        dynGroups.forEach(group -> {
             publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, group, AuthContextUtils.getDomain()));
-        }
+        });
     }
 
     @Transactional(readOnly = true)
     @Override
     public Collection<String> findAllResourceKeys(final String key) {
-        return CollectionUtils.collect(find(key).getResources(), EntityUtils.keyTransformer());
+        return find(key).getResources().stream().map(Entity::getKey).collect(Collectors.toList());
     }
 }

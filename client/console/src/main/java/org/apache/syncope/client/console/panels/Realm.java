@@ -24,7 +24,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.collections4.CollectionUtils;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
@@ -42,10 +42,10 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.client.console.wizards.any.ConnObjectPanel;
-import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RealmTO;
@@ -167,7 +167,7 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
         });
 
         final Triple<UserFormLayoutInfo, GroupFormLayoutInfo, Map<String, AnyObjectFormLayoutInfo>> formLayoutInfo =
-                FormLayoutInfoUtils.fetch(CollectionUtils.collect(anyTypes, EntityTOUtils.keyTransformer()));
+                FormLayoutInfoUtils.fetch(anyTypes.stream().map(EntityTO::getKey).collect(Collectors.toList()));
 
         for (final AnyTypeTO anyType : anyTypes) {
             tabs.add(new ITabComponent(
@@ -221,11 +221,11 @@ public abstract class Realm extends WizardMgtPanel<RealmTO> {
                     ConnObjectTO afterObj = bean.getAfterObj();
                     String remoteId = afterObj == null
                             || afterObj.getAttrs().isEmpty()
-                            || afterObj.getAttr(ConnIdSpecialName.NAME) == null
-                            || afterObj.getAttr(ConnIdSpecialName.NAME).getValues() == null
-                            || afterObj.getAttr(ConnIdSpecialName.NAME).getValues().isEmpty()
+                            || !afterObj.getAttr(ConnIdSpecialName.NAME).isPresent()
+                            || afterObj.getAttr(ConnIdSpecialName.NAME).get().getValues() == null
+                            || afterObj.getAttr(ConnIdSpecialName.NAME).get().getValues().isEmpty()
                             ? StringUtils.EMPTY
-                            : afterObj.getAttr(ConnIdSpecialName.NAME).getValues().get(0);
+                            : afterObj.getAttr(ConnIdSpecialName.NAME).get().getValues().get(0);
 
                     return new Label("field", remoteId);
                 } else if ("status".equalsIgnoreCase(key)) {

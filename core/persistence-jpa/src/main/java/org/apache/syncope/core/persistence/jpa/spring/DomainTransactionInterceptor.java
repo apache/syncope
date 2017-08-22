@@ -43,18 +43,14 @@ public class DomainTransactionInterceptor extends TransactionInterceptor {
     public TransactionAttributeSource getTransactionAttributeSource() {
         final TransactionAttributeSource origTxAttrSource = super.getTransactionAttributeSource();
 
-        return new TransactionAttributeSource() {
+        return (final Method method, final Class<?> targetClass) -> {
+            TransactionAttribute txAttr = origTxAttrSource.getTransactionAttribute(method, targetClass);
 
-            @Override
-            public TransactionAttribute getTransactionAttribute(final Method method, final Class<?> targetClass) {
-                TransactionAttribute txAttr = origTxAttrSource.getTransactionAttribute(method, targetClass);
-
-                if (txAttr instanceof DefaultTransactionAttribute) {
-                    ((DefaultTransactionAttribute) txAttr).setQualifier(AuthContextUtils.getDomain());
-                }
-
-                return txAttr;
+            if (txAttr instanceof DefaultTransactionAttribute) {
+                ((DefaultTransactionAttribute) txAttr).setQualifier(AuthContextUtils.getDomain());
             }
+
+            return txAttr;
         };
     }
 

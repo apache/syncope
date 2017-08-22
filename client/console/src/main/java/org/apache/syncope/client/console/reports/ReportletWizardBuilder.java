@@ -20,14 +20,9 @@ package org.apache.syncope.client.console.reports;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Predicate;
-import org.apache.commons.lang3.tuple.Pair;
+import java.util.stream.Collectors;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.panels.BeanPanel;
-import org.apache.syncope.client.console.panels.search.SearchClause;
 import org.apache.syncope.client.console.panels.search.SearchUtils;
 import org.apache.syncope.client.console.rest.ReportRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
@@ -41,7 +36,6 @@ import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.model.PropertyModel;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.PropertyAccessorFactory;
-import org.apache.syncope.common.lib.search.AbstractFiqlSearchConditionBuilder;
 import org.apache.wicket.model.LoadableDetachableModel;
 
 public class ReportletWizardBuilder extends AjaxWizardBuilder<ReportletDirectoryPanel.ReportletWrapper> {
@@ -69,23 +63,18 @@ public class ReportletWizardBuilder extends AjaxWizardBuilder<ReportletDirectory
         if (modelObject.isNew()) {
             reportTO.getReportletConfs().add(modelObject.getConf());
         } else {
-            CollectionUtils.filter(
-                    reportTO.getReportletConfs(), new Predicate<AbstractReportletConf>() {
-
-                @Override
-                public boolean evaluate(final AbstractReportletConf object) {
-                    return !object.getName().equals(modelObject.getOldName());
-                }
-            });
+            reportTO.getReportletConfs().removeAll(
+                    reportTO.getReportletConfs().stream().
+                            filter(object -> object.getName().equals(modelObject.getOldName())).
+                            collect(Collectors.toList()));
             reportTO.getReportletConfs().add(modelObject.getConf());
         }
 
         BeanWrapper wrapper = PropertyAccessorFactory.forBeanPropertyAccess(modelObject.getConf());
-        for (Map.Entry<String, Pair<AbstractFiqlSearchConditionBuilder, List<SearchClause>>> entry
-                : modelObject.getSCondWrapper().entrySet()) {
+        modelObject.getSCondWrapper().entrySet().forEach(entry -> {
             wrapper.setPropertyValue(entry.getKey(),
                     SearchUtils.buildFIQL(entry.getValue().getRight(), entry.getValue().getLeft()));
-        }
+        });
 
         restClient.update(reportTO);
         return modelObject;
@@ -106,7 +95,7 @@ public class ReportletWizardBuilder extends AjaxWizardBuilder<ReportletDirectory
         public Profile(final ReportletDirectoryPanel.ReportletWrapper reportlet) {
 
             final AjaxTextFieldPanel name = new AjaxTextFieldPanel(
-                    "name", "reportlet", new PropertyModel<String>(reportlet, "name"), false);
+                    "name", "reportlet", new PropertyModel<>(reportlet, "name"), false);
             name.addRequiredLabel();
             name.setEnabled(true);
             add(name);

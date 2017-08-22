@@ -25,14 +25,12 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import javax.persistence.EntityExistsException;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
@@ -81,14 +79,9 @@ public class PlainSchemaTest extends AbstractTest {
 
     @BeforeClass
     public static void setAuthContext() {
-        List<GrantedAuthority> authorities = CollectionUtils.collect(StandardEntitlement.values(),
-                new Transformer<String, GrantedAuthority>() {
-
-            @Override
-            public GrantedAuthority transform(final String entitlement) {
-                return new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM);
-            }
-        }, new ArrayList<GrantedAuthority>());
+        List<GrantedAuthority> authorities = StandardEntitlement.values().stream().
+                map(entitlement -> new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM)).
+                collect(Collectors.toList());
 
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                 new org.springframework.security.core.userdetails.User(
@@ -124,7 +117,7 @@ public class PlainSchemaTest extends AbstractTest {
         // fullname is mapped as ConnObjectKey for ws-target-resource-2, need to swap it otherwise validation errors 
         // will be raised
         for (MappingItem item : resourceDAO.find("ws-target-resource-2").
-                getProvision(anyTypeDAO.findUser()).getMapping().getItems()) {
+                getProvision(anyTypeDAO.findUser()).get().getMapping().getItems()) {
 
             if ("fullname".equals(item.getIntAttrName())) {
                 item.setConnObjectKey(false);
@@ -140,10 +133,10 @@ public class PlainSchemaTest extends AbstractTest {
         // check for associated mappings
         Set<MappingItem> mapItems = new HashSet<>();
         for (ExternalResource resource : resourceDAO.findAll()) {
-            if (resource.getProvision(anyTypeDAO.findUser()) != null
-                    && resource.getProvision(anyTypeDAO.findUser()).getMapping() != null) {
+            if (resource.getProvision(anyTypeDAO.findUser()).isPresent()
+                    && resource.getProvision(anyTypeDAO.findUser()).get().getMapping() != null) {
 
-                for (MappingItem mapItem : resource.getProvision(anyTypeDAO.findUser()).getMapping().getItems()) {
+                for (MappingItem mapItem : resource.getProvision(anyTypeDAO.findUser()).get().getMapping().getItems()) {
                     if (schema.getKey().equals(mapItem.getIntAttrName())) {
                         mapItems.add(mapItem);
                     }
@@ -166,10 +159,10 @@ public class PlainSchemaTest extends AbstractTest {
         // check for mappings deletion
         mapItems = new HashSet<>();
         for (ExternalResource resource : resourceDAO.findAll()) {
-            if (resource.getProvision(anyTypeDAO.findUser()) != null
-                    && resource.getProvision(anyTypeDAO.findUser()).getMapping() != null) {
+            if (resource.getProvision(anyTypeDAO.findUser()).isPresent()
+                    && resource.getProvision(anyTypeDAO.findUser()).get().getMapping() != null) {
 
-                for (MappingItem mapItem : resource.getProvision(anyTypeDAO.findUser()).getMapping().getItems()) {
+                for (MappingItem mapItem : resource.getProvision(anyTypeDAO.findUser()).get().getMapping().getItems()) {
                     if ("fullname".equals(mapItem.getIntAttrName())) {
                         mapItems.add(mapItem);
                     }
@@ -180,8 +173,8 @@ public class PlainSchemaTest extends AbstractTest {
 
         assertNull(plainAttrDAO.find("01f22fbd-b672-40af-b528-686d9b27ebc4", UPlainAttr.class));
         assertNull(plainAttrDAO.find(UUID.randomUUID().toString(), UPlainAttr.class));
-        assertNull(userDAO.findByUsername("rossini").getPlainAttr("fullname"));
-        assertNull(userDAO.findByUsername("vivaldi").getPlainAttr("fullname"));
+        assertFalse(userDAO.findByUsername("rossini").getPlainAttr("fullname").isPresent());
+        assertFalse(userDAO.findByUsername("vivaldi").getPlainAttr("fullname").isPresent());
     }
 
     @Test
@@ -193,10 +186,10 @@ public class PlainSchemaTest extends AbstractTest {
         // check for associated mappings
         Set<MappingItem> mappings = new HashSet<>();
         for (ExternalResource resource : resourceDAO.findAll()) {
-            if (resource.getProvision(anyTypeDAO.findUser()) != null
-                    && resource.getProvision(anyTypeDAO.findUser()).getMapping() != null) {
+            if (resource.getProvision(anyTypeDAO.findUser()).isPresent()
+                    && resource.getProvision(anyTypeDAO.findUser()).get().getMapping() != null) {
 
-                for (MappingItem mapItem : resource.getProvision(anyTypeDAO.findUser()).getMapping().getItems()) {
+                for (MappingItem mapItem : resource.getProvision(anyTypeDAO.findUser()).get().getMapping().getItems()) {
                     if (schema.getKey().equals(mapItem.getIntAttrName())) {
                         mappings.add(mapItem);
                     }
@@ -218,7 +211,7 @@ public class PlainSchemaTest extends AbstractTest {
     @Test
     public void deleteFirstname() {
         assertEquals(5, resourceDAO.find("resource-db-pull").
-                getProvision(anyTypeDAO.findUser()).getMapping().getItems().size());
+                getProvision(anyTypeDAO.findUser()).get().getMapping().getItems().size());
 
         plainSchemaDAO.delete("firstname");
         assertNull(plainSchemaDAO.find("firstname"));
@@ -226,6 +219,6 @@ public class PlainSchemaTest extends AbstractTest {
         plainSchemaDAO.flush();
 
         assertEquals(4, resourceDAO.find("resource-db-pull").
-                getProvision(anyTypeDAO.findUser()).getMapping().getItems().size());
+                getProvision(anyTypeDAO.findUser()).get().getMapping().getItems().size());
     }
 }

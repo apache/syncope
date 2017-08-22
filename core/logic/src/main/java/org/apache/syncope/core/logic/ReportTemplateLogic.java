@@ -19,10 +19,8 @@
 package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -34,6 +32,7 @@ import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.DuplicateException;
 import org.apache.syncope.core.persistence.api.dao.ReportTemplateDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportDAO;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.ReportTemplate;
 import org.apache.syncope.core.persistence.api.entity.Report;
@@ -73,14 +72,8 @@ public class ReportTemplateLogic extends AbstractTransactionalLogic<ReportTempla
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_TEMPLATE_LIST + "')")
     public List<ReportTemplateTO> list() {
-        return CollectionUtils.collect(
-                reportTemplateDAO.findAll(), new Transformer<ReportTemplate, ReportTemplateTO>() {
-
-            @Override
-            public ReportTemplateTO transform(final ReportTemplate input) {
-                return getReportTemplateTO(input.getKey());
-            }
-        }, new ArrayList<ReportTemplateTO>());
+        return reportTemplateDAO.findAll().stream().
+                map(template -> getReportTemplateTO(template.getKey())).collect(Collectors.toList());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_TEMPLATE_CREATE + "')")
@@ -158,13 +151,7 @@ public class ReportTemplateLogic extends AbstractTransactionalLogic<ReportTempla
         List<Report> reports = reportDAO.findByTemplate(reportTemplate);
         if (!reports.isEmpty()) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InUseByNotifications);
-            sce.getElements().addAll(CollectionUtils.collect(reports, new Transformer<Report, String>() {
-
-                @Override
-                public String transform(final Report report) {
-                    return String.valueOf(report.getKey());
-                }
-            }, new ArrayList<String>()));
+            sce.getElements().addAll(reports.stream().map(Entity::getKey).collect(Collectors.toList()));
             throw sce;
         }
 
@@ -182,7 +169,7 @@ public class ReportTemplateLogic extends AbstractTransactionalLogic<ReportTempla
         if (ArrayUtils.isNotEmpty(args)) {
             for (int i = 0; key == null && i < args.length; i++) {
                 if (args[i] instanceof String) {
-                    key = ((String) args[i]).toString();
+                    key = ((String) args[i]);
                 } else if (args[i] instanceof ReportTemplateTO) {
                     key = ((ReportTemplateTO) args[i]).getKey();
                 }

@@ -42,7 +42,7 @@ public interface AccountPolicy extends Policy {
 
     boolean add(ExternalResource resource);
 
-    Set<String> getResourceNames();
+    Set<String> getResourceKeys();
 
     Set<? extends ExternalResource> getResources();
 }

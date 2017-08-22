@@ -19,10 +19,8 @@
 package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.to.DynRealmTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
@@ -56,13 +54,8 @@ public class DynRealmLogic extends AbstractTransactionalLogic<DynRealmTO> {
     }
 
     public List<DynRealmTO> list() {
-        return CollectionUtils.collect(dynRealmDAO.findAll(), new Transformer<DynRealm, DynRealmTO>() {
-
-            @Override
-            public DynRealmTO transform(final DynRealm input) {
-                return binder.getDynRealmTO(input);
-            }
-        }, new ArrayList<DynRealmTO>());
+        return dynRealmDAO.findAll().stream().
+                map(dynRealm -> binder.getDynRealmTO(dynRealm)).collect(Collectors.toList());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.DYNREALM_CREATE + "')")

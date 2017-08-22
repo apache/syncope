@@ -38,8 +38,6 @@ import javax.naming.directory.SearchResult;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
@@ -121,9 +119,9 @@ public class GroupITCase extends AbstractITCase {
         groupTO = createGroup(groupTO).getEntity();
         assertNotNull(groupTO);
 
-        assertNotNull(groupTO.getVirAttr("rvirtualdata").getValues());
-        assertFalse(groupTO.getVirAttr("rvirtualdata").getValues().isEmpty());
-        assertEquals("rvirtualvalue", groupTO.getVirAttr("rvirtualdata").getValues().get(0));
+        assertNotNull(groupTO.getVirAttr("rvirtualdata").get().getValues());
+        assertFalse(groupTO.getVirAttr("rvirtualdata").get().getValues().isEmpty());
+        assertEquals("rvirtualvalue", groupTO.getVirAttr("rvirtualdata").get().getValues().get(0));
 
         assertTrue(groupTO.getResources().contains(RESOURCE_NAME_LDAP));
 
@@ -181,9 +179,7 @@ public class GroupITCase extends AbstractITCase {
                 groupService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).build());
         assertNotNull(groupTOs);
         assertTrue(groupTOs.getResult().size() >= 8);
-        for (GroupTO groupTO : groupTOs.getResult()) {
-            assertNotNull(groupTO);
-        }
+        groupTOs.getResult().forEach(groupTO -> assertNotNull(groupTO));
     }
 
     @Test
@@ -200,8 +196,8 @@ public class GroupITCase extends AbstractITCase {
         UserTO userTO = userService.read("1417acbe-cbf6-4277-9372-e75e04f97000");
         assertNotNull(userTO);
 
-        assertNotNull(userTO.getMembership("37d15e4c-cdc1-460b-a591-8505c8133806"));
-        assertNull(userTO.getMembership("29f96485-729e-4d31-88a1-6fc60e4677f3"));
+        assertTrue(userTO.getMembership("37d15e4c-cdc1-460b-a591-8505c8133806").isPresent());
+        assertFalse(userTO.getMembership("29f96485-729e-4d31-88a1-6fc60e4677f3").isPresent());
 
         GroupService groupService2 = clientFactory.create("rossini", ADMIN_PWD).getService(GroupService.class);
 
@@ -214,13 +210,7 @@ public class GroupITCase extends AbstractITCase {
 
         List<GroupTO> groups = groupService2.own();
         assertNotNull(groups);
-        assertTrue(IterableUtils.matchesAny(groups, new Predicate<GroupTO>() {
-
-            @Override
-            public boolean evaluate(final GroupTO group) {
-                return "37d15e4c-cdc1-460b-a591-8505c8133806".equals(group.getKey());
-            }
-        }));
+        assertTrue(groups.stream().anyMatch(group -> "37d15e4c-cdc1-460b-a591-8505c8133806".equals(group.getKey())));
     }
 
     @Test
@@ -241,12 +231,12 @@ public class GroupITCase extends AbstractITCase {
         assertEquals(modName, groupTO.getName());
         assertEquals(2, groupTO.getPlainAttrs().size());
 
-        groupTO.getPlainAttr("show").getValues().clear();
+        groupTO.getPlainAttr("show").get().getValues().clear();
 
         groupTO = groupService.update(groupTO).readEntity(new GenericType<ProvisioningResult<GroupTO>>() {
         }).getEntity();
 
-        assertNull(groupTO.getPlainAttr("show"));
+        assertFalse(groupTO.getPlainAttr("show").isPresent());
     }
 
     @Test
@@ -575,10 +565,10 @@ public class GroupITCase extends AbstractITCase {
 
         // 2. create a group *without* an attribute for that schema: it works
         GroupTO groupTO = getSampleTO("lastGroup");
-        assertNull(groupTO.getPlainAttr(badge.getKey()));
+        assertFalse(groupTO.getPlainAttr(badge.getKey()).isPresent());
         groupTO = createGroup(groupTO).getEntity();
         assertNotNull(groupTO);
-        assertNull(groupTO.getPlainAttr(badge.getKey()));
+        assertFalse(groupTO.getPlainAttr(badge.getKey()).isPresent());
 
         // 3. add the new mandatory schema to the default group type
         AnyTypeTO type = anyTypeService.read(AnyTypeKind.GROUP.name());
@@ -651,7 +641,7 @@ public class GroupITCase extends AbstractITCase {
         final String groupKey = group.getKey();
 
         List<MembershipTO> memberships = userService.read(
-            "c9b2dec2-00a7-4855-97c0-d854842b4b24").getDynMemberships();
+                "c9b2dec2-00a7-4855-97c0-d854842b4b24").getDynMemberships();
         assertTrue(memberships.stream().anyMatch(m -> m.getGroupKey().equals(groupKey)));
 
         GroupPatch patch = new GroupPatch();
@@ -682,11 +672,11 @@ public class GroupITCase extends AbstractITCase {
         newAny = createAnyObject(newAny).getEntity();
         assertNotNull(newAny.getPlainAttr("location"));
         List<MembershipTO> memberships = anyObjectService.read(
-            "fc6dbc3a-6c07-4965-8781-921e7401a4a5").getDynMemberships();
+                "fc6dbc3a-6c07-4965-8781-921e7401a4a5").getDynMemberships();
         assertTrue(memberships.stream().anyMatch(m -> m.getGroupKey().equals(groupKey)));
 
         memberships = anyObjectService.read(
-            "8559d14d-58c2-46eb-a2d4-a7d35161e8f8").getDynMemberships();
+                "8559d14d-58c2-46eb-a2d4-a7d35161e8f8").getDynMemberships();
         assertTrue(memberships.stream().anyMatch(m -> m.getGroupKey().equals(groupKey)));
 
         memberships = anyObjectService.read(newAny.getKey()).getDynMemberships();
@@ -713,13 +703,13 @@ public class GroupITCase extends AbstractITCase {
                 attrTO(new AttrTO.Builder().schema("location").build()).
                 build());
         newAny = updateAnyObject(anyPatch).getEntity();
-        assertNull(newAny.getPlainAttr("location"));
+        assertFalse(newAny.getPlainAttr("location").isPresent());
 
         memberships = anyObjectService.read(
-            "fc6dbc3a-6c07-4965-8781-921e7401a4a5").getDynMemberships();
+                "fc6dbc3a-6c07-4965-8781-921e7401a4a5").getDynMemberships();
         assertFalse(memberships.stream().anyMatch(m -> m.getGroupKey().equals(groupKey)));
         memberships = anyObjectService.read(
-            "8559d14d-58c2-46eb-a2d4-a7d35161e8f8").getDynMemberships();
+                "8559d14d-58c2-46eb-a2d4-a7d35161e8f8").getDynMemberships();
         assertFalse(memberships.stream().anyMatch(m -> m.getGroupKey().equals(groupKey)));
         memberships = anyObjectService.read(newAny.getKey()).getDynMemberships();
         assertTrue(memberships.stream().anyMatch(m -> m.getGroupKey().equals(groupKey)));
@@ -826,8 +816,8 @@ public class GroupITCase extends AbstractITCase {
         groupTO = createGroup(groupTO).getEntity();
         assertNotNull(groupTO);
         assertEquals(1, groupTO.getTypeExtensions().size());
-        assertEquals(1, groupTO.getTypeExtension(AnyTypeKind.USER.name()).getAuxClasses().size());
-        assertTrue(groupTO.getTypeExtension(AnyTypeKind.USER.name()).getAuxClasses().contains("csv"));
+        assertEquals(1, groupTO.getTypeExtension(AnyTypeKind.USER.name()).get().getAuxClasses().size());
+        assertTrue(groupTO.getTypeExtension(AnyTypeKind.USER.name()).get().getAuxClasses().contains("csv"));
 
         typeExtension = new TypeExtensionTO();
         typeExtension.setAnyType(AnyTypeKind.USER.name());
@@ -841,9 +831,9 @@ public class GroupITCase extends AbstractITCase {
         groupTO = updateGroup(groupPatch).getEntity();
         assertNotNull(groupTO);
         assertEquals(1, groupTO.getTypeExtensions().size());
-        assertEquals(2, groupTO.getTypeExtension(AnyTypeKind.USER.name()).getAuxClasses().size());
-        assertTrue(groupTO.getTypeExtension(AnyTypeKind.USER.name()).getAuxClasses().contains("csv"));
-        assertTrue(groupTO.getTypeExtension(AnyTypeKind.USER.name()).getAuxClasses().contains("other"));
+        assertEquals(2, groupTO.getTypeExtension(AnyTypeKind.USER.name()).get().getAuxClasses().size());
+        assertTrue(groupTO.getTypeExtension(AnyTypeKind.USER.name()).get().getAuxClasses().contains("csv"));
+        assertTrue(groupTO.getTypeExtension(AnyTypeKind.USER.name()).get().getAuxClasses().contains("other"));
     }
 
     @Test
@@ -958,7 +948,7 @@ public class GroupITCase extends AbstractITCase {
                 provision.getVirSchemas().clear();
             }
 
-            MappingTO mapping = newLDAP.getProvision(AnyTypeKind.GROUP.name()).getMapping();
+            MappingTO mapping = newLDAP.getProvision(AnyTypeKind.GROUP.name()).get().getMapping();
 
             ItemTO connObjectKey = mapping.getConnObjectKeyItem();
             connObjectKey.setIntAttrName("displayProperty");
@@ -1055,7 +1045,7 @@ public class GroupITCase extends AbstractITCase {
 
         groupTO = createGroup(groupTO).getEntity();
         assertNotNull(groupTO);
-        assertEquals("11.23", groupTO.getPlainAttr(doubleSchemaName).getValues().get(0));
+        assertEquals("11.23", groupTO.getPlainAttr(doubleSchemaName).get().getValues().get(0));
 
         // 3. update schema, set conversion pattern
         schema = schemaService.read(SchemaType.PLAIN, schema.getKey());
@@ -1065,7 +1055,7 @@ public class GroupITCase extends AbstractITCase {
         // 4. re-read group, verify that pattern was applied
         groupTO = groupService.read(groupTO.getKey());
         assertNotNull(groupTO);
-        assertEquals("11.230", groupTO.getPlainAttr(doubleSchemaName).getValues().get(0));
+        assertEquals("11.230", groupTO.getPlainAttr(doubleSchemaName).get().getValues().get(0));
 
         // 5. modify group with new double value
         GroupPatch patch = new GroupPatch();
@@ -1074,7 +1064,7 @@ public class GroupITCase extends AbstractITCase {
 
         groupTO = updateGroup(patch).getEntity();
         assertNotNull(groupTO);
-        assertEquals("11.257", groupTO.getPlainAttr(doubleSchemaName).getValues().get(0));
+        assertEquals("11.257", groupTO.getPlainAttr(doubleSchemaName).get().getValues().get(0));
 
         // 6. update schema, unset conversion pattern
         schema.setConversionPattern(null);
@@ -1087,6 +1077,6 @@ public class GroupITCase extends AbstractITCase {
 
         groupTO = updateGroup(patch).getEntity();
         assertNotNull(groupTO);
-        assertEquals("11.23", groupTO.getPlainAttr(doubleSchemaName).getValues().get(0));
+        assertEquals("11.23", groupTO.getPlainAttr(doubleSchemaName).get().getValues().get(0));
     }
 }

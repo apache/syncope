@@ -19,10 +19,8 @@
 package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -64,13 +62,7 @@ public class AnyTypeLogic extends AbstractTransactionalLogic<AnyTypeTO> {
     @PreAuthorize("hasRole('" + StandardEntitlement.ANYTYPE_LIST + "')")
     @Transactional(readOnly = true)
     public List<AnyTypeTO> list() {
-        return CollectionUtils.collect(anyTypeDAO.findAll(), new Transformer<AnyType, AnyTypeTO>() {
-
-            @Override
-            public AnyTypeTO transform(final AnyType input) {
-                return binder.getAnyTypeTO(input);
-            }
-        }, new ArrayList<AnyTypeTO>());
+        return anyTypeDAO.findAll().stream().map(anyType -> binder.getAnyTypeTO(anyType)).collect(Collectors.toList());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.ANYTYPE_CREATE + "')")

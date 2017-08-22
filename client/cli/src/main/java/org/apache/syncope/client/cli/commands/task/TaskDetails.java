@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.client.cli.commands.task;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.collections4.map.LinkedMap;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.client.cli.util.CommandUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -51,7 +51,7 @@ public class TaskDetails extends AbstractTaskCommand {
     public void details() {
         if (input.parameterNumber() == 0) {
             try {
-                final Map<String, String> details = new LinkedMap<>();
+                final Map<String, String> details = new LinkedHashMap<>();
                 final List<AbstractTaskTO> notificationTaskTOs =
                         taskSyncopeOperations.list(TaskType.NOTIFICATION.name());
                 final List<AbstractTaskTO> propagationTaskTOs = taskSyncopeOperations.list(TaskType.PROPAGATION.name());

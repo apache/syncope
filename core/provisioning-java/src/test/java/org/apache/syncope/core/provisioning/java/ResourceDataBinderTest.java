@@ -21,12 +21,10 @@ package org.apache.syncope.core.provisioning.java;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
+import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.MappingTO;
@@ -71,14 +69,9 @@ public class ResourceDataBinderTest extends AbstractTest {
 
     @BeforeClass
     public static void setAuthContext() {
-        List<GrantedAuthority> authorities = CollectionUtils.collect(StandardEntitlement.values(),
-                new Transformer<String, GrantedAuthority>() {
-
-            @Override
-            public GrantedAuthority transform(final String entitlement) {
-                return new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM);
-            }
-        }, new ArrayList<GrantedAuthority>());
+        List<GrantedAuthority> authorities = StandardEntitlement.values().stream().
+                map(entitlement -> new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM)).
+                collect(Collectors.toList());
 
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                 new org.springframework.security.core.userdetails.User(
@@ -98,10 +91,10 @@ public class ResourceDataBinderTest extends AbstractTest {
 
         Set<MappingItem> beforeUserIdMappings = new HashSet<>();
         for (ExternalResource res : resourceDAO.findAll()) {
-            if (res.getProvision(anyTypeDAO.findUser()) != null
-                    && res.getProvision(anyTypeDAO.findUser()).getMapping() != null) {
+            if (res.getProvision(anyTypeDAO.findUser()).isPresent()
+                    && res.getProvision(anyTypeDAO.findUser()).get().getMapping() != null) {
 
-                for (MappingItem mapItem : res.getProvision(anyTypeDAO.findUser()).getMapping().getItems()) {
+                for (MappingItem mapItem : res.getProvision(anyTypeDAO.findUser()).get().getMapping().getItems()) {
                     if (userId.getKey().equals(mapItem.getIntAttrName())) {
                         beforeUserIdMappings.add(mapItem);
                     }
@@ -133,8 +126,8 @@ public class ResourceDataBinderTest extends AbstractTest {
         ExternalResource resource = resourceDataBinder.create(resourceTO);
         resource = resourceDAO.save(resource);
         assertNotNull(resource);
-        assertNotNull(resource.getProvision(anyTypeDAO.findUser()).getMapping());
-        assertEquals(1, resource.getProvision(anyTypeDAO.findUser()).getMapping().getItems().size());
+        assertNotNull(resource.getProvision(anyTypeDAO.findUser()).get().getMapping());
+        assertEquals(1, resource.getProvision(anyTypeDAO.findUser()).get().getMapping().getItems().size());
 
         resourceDAO.flush();
 
@@ -146,10 +139,10 @@ public class ResourceDataBinderTest extends AbstractTest {
 
         Set<MappingItem> afterUserIdMappings = new HashSet<>();
         for (ExternalResource res : resourceDAO.findAll()) {
-            if (res.getProvision(anyTypeDAO.findUser()) != null
-                    && res.getProvision(anyTypeDAO.findUser()).getMapping() != null) {
+            if (res.getProvision(anyTypeDAO.findUser()).isPresent()
+                    && res.getProvision(anyTypeDAO.findUser()).get().getMapping() != null) {
 
-                for (MappingItem mapItem : res.getProvision(anyTypeDAO.findUser()).getMapping().getItems()) {
+                for (MappingItem mapItem : res.getProvision(anyTypeDAO.findUser()).get().getMapping().getItems()) {
                     if (userId.getKey().equals(mapItem.getIntAttrName())) {
                         afterUserIdMappings.add(mapItem);
                     }

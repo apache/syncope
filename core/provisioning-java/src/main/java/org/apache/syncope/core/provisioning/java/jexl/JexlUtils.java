@@ -37,7 +37,6 @@ import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
 import org.apache.syncope.core.persistence.api.entity.Any;
@@ -168,27 +167,25 @@ public final class JexlUtils {
     public static void addPlainAttrsToContext(
             final Collection<? extends PlainAttr<?>> attrs, final JexlContext jexlContext) {
 
-        for (PlainAttr<?> attr : attrs) {
-            if (attr.getSchema() != null) {
-                List<String> attrValues = attr.getValuesAsStrings();
-                String expressionValue = attrValues.isEmpty()
-                        ? StringUtils.EMPTY
-                        : attrValues.get(0);
+        attrs.stream().filter(attr -> attr.getSchema() != null).forEachOrdered((attr) -> {
+            List<String> attrValues = attr.getValuesAsStrings();
+            String expressionValue = attrValues.isEmpty()
+                    ? StringUtils.EMPTY
+                    : attrValues.get(0);
 
-                LOG.debug("Add attribute {} with value {}", attr.getSchema().getKey(), expressionValue);
+            LOG.debug("Add attribute {} with value {}", attr.getSchema().getKey(), expressionValue);
 
-                jexlContext.set(attr.getSchema().getKey(), expressionValue);
-            }
-        }
+            jexlContext.set(attr.getSchema().getKey(), expressionValue);
+        });
     }
 
     public static void addDerAttrsToContext(final Any<?> any, final JexlContext jexlContext) {
         Map<DerSchema, String> derAttrs =
                 ApplicationContextProvider.getBeanFactory().getBean(DerAttrHandler.class).getValues(any);
 
-        for (Map.Entry<DerSchema, String> entry : derAttrs.entrySet()) {
+        derAttrs.entrySet().forEach(entry -> {
             jexlContext.set(entry.getKey().getKey(), entry.getValue());
-        }
+        });
     }
 
     public static boolean evaluateMandatoryCondition(final String mandatoryCondition, final Any<?> any) {
@@ -202,7 +199,7 @@ public final class JexlUtils {
     public static String evaluate(final String expression, final AnyTO anyTO, final JexlContext context) {
         addFieldsToContext(anyTO, context);
 
-        for (AttrTO plainAttr : anyTO.getPlainAttrs()) {
+        anyTO.getPlainAttrs().forEach(plainAttr -> {
             List<String> values = plainAttr.getValues();
             String expressionValue = values.isEmpty()
                     ? StringUtils.EMPTY
@@ -211,8 +208,8 @@ public final class JexlUtils {
             LOG.debug("Add plain attribute {} with value {}", plainAttr.getSchema(), expressionValue);
 
             context.set(plainAttr.getSchema(), expressionValue);
-        }
-        for (AttrTO derAttr : anyTO.getDerAttrs()) {
+        });
+        anyTO.getDerAttrs().forEach(derAttr -> {
             List<String> values = derAttr.getValues();
             String expressionValue = values.isEmpty()
                     ? StringUtils.EMPTY
@@ -221,8 +218,8 @@ public final class JexlUtils {
             LOG.debug("Add derived attribute {} with value {}", derAttr.getSchema(), expressionValue);
 
             context.set(derAttr.getSchema(), expressionValue);
-        }
-        for (AttrTO virAttr : anyTO.getVirAttrs()) {
+        });
+        anyTO.getVirAttrs().forEach(virAttr -> {
             List<String> values = virAttr.getValues();
             String expressionValue = values.isEmpty()
                     ? StringUtils.EMPTY
@@ -231,7 +228,7 @@ public final class JexlUtils {
             LOG.debug("Add virtual attribute {} with value {}", virAttr.getSchema(), expressionValue);
 
             context.set(virAttr.getSchema(), expressionValue);
-        }
+        });
 
         // Evaluate expression using the context prepared before
         return evaluate(expression, context);

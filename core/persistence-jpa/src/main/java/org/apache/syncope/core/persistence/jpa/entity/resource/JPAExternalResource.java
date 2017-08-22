@@ -19,8 +19,10 @@
 package org.apache.syncope.core.persistence.jpa.entity.resource;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
@@ -40,9 +42,6 @@ import javax.persistence.Table;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
@@ -208,25 +207,13 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
     }
 
     @Override
-    public Provision getProvision(final ObjectClass objectClass) {
-        return IterableUtils.find(provisions, new Predicate<Provision>() {
-
-            @Override
-            public boolean evaluate(final Provision provision) {
-                return provision.getObjectClass().equals(objectClass);
-            }
-        });
+    public Optional<? extends Provision> getProvision(final ObjectClass objectClass) {
+        return provisions.stream().filter(provision -> provision.getObjectClass().equals(objectClass)).findFirst();
     }
 
     @Override
-    public Provision getProvision(final AnyType anyType) {
-        return IterableUtils.find(provisions, new Predicate<Provision>() {
-
-            @Override
-            public boolean evaluate(final Provision provision) {
-                return provision.getAnyType().equals(anyType);
-            }
-        });
+    public Optional<? extends Provision> getProvision(final AnyType anyType) {
+        return provisions.stream().filter(provision -> provision.getAnyType().equals(anyType)).findFirst();
     }
 
     @Override
@@ -343,7 +330,7 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
     public Set<ConnConfProperty> getConfOverride() {
         Set<ConnConfProperty> confOverride = new HashSet<>();
         if (!StringUtils.isBlank(jsonConf)) {
-            CollectionUtils.addAll(confOverride, POJOHelper.deserialize(jsonConf, ConnConfProperty[].class));
+            confOverride.addAll(Arrays.asList(POJOHelper.deserialize(jsonConf, ConnConfProperty[].class)));
         }
 
         return confOverride;

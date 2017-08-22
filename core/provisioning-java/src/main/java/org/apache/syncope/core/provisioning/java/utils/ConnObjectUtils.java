@@ -34,8 +34,6 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.core.spring.security.PasswordGenerator;
@@ -43,7 +41,6 @@ import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
-import org.apache.syncope.core.persistence.api.entity.resource.OrgUnitItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.provisioning.api.MappingManager;
@@ -52,7 +49,6 @@ import org.identityconnectors.common.Base64;
 import org.identityconnectors.common.security.GuardedByteArray;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.common.security.SecurityUtil;
-import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -134,19 +130,18 @@ public class ConnObjectUtils {
 
             Realm realm = realmDAO.findByFullPath(userTO.getRealm());
             if (realm != null) {
-                for (Realm ancestor : realmDAO.findAncestors(realm)) {
-                    if (ancestor.getPasswordPolicy() != null) {
-                        ruleConfs.addAll(ancestor.getPasswordPolicy().getRuleConfs());
-                    }
-                }
+                realmDAO.findAncestors(realm).stream().
+                        filter(ancestor -> (ancestor.getPasswordPolicy() != null)).
+                        forEachOrdered(ancestor -> {
+                            ruleConfs.addAll(ancestor.getPasswordPolicy().getRuleConfs());
+                        });
             }
 
-            for (String resName : userTO.getResources()) {
-                ExternalResource resource = resourceDAO.find(resName);
-                if (resource != null && resource.getPasswordPolicy() != null) {
-                    ruleConfs.addAll(resource.getPasswordPolicy().getRuleConfs());
-                }
-            }
+            userTO.getResources().stream().map(resName -> resourceDAO.find(resName)).
+                    filter(resource -> (resource != null && resource.getPasswordPolicy() != null)).
+                    forEachOrdered(resource -> {
+                        ruleConfs.addAll(resource.getPasswordPolicy().getRuleConfs());
+                    });
 
             String password;
             try {
@@ -165,9 +160,9 @@ public class ConnObjectUtils {
     public RealmTO getRealmTO(final ConnectorObject obj, final PullTask task, final OrgUnit orgUnit) {
         RealmTO realmTO = new RealmTO();
 
-        for (OrgUnitItem item : MappingUtils.getPullItems(orgUnit)) {
+        MappingUtils.getPullItems(orgUnit).forEach(item -> {
             mappingManager.setIntValues(item, obj.getAttributeByName(item.getExtAttrName()), realmTO);
-        }
+        });
 
         return realmTO;
     }
@@ -268,9 +263,9 @@ public class ConnObjectUtils {
 
         // 1. fill with data from connector object
         anyTO.setRealm(pullTask.getDestinatioRealm().getFullPath());
-        for (MappingItem item : MappingUtils.getPullItems(provision)) {
+        MappingUtils.getPullItems(provision).forEach(item -> {
             mappingManager.setIntValues(item, obj.getAttributeByName(item.getExtAttrName()), anyTO, anyUtils);
-        }
+        });
 
         // 2. add data from defined template (if any)
         templateUtils.apply(anyTO, pullTask.getTemplate(provision.getAnyType()));
@@ -288,26 +283,24 @@ public class ConnObjectUtils {
         final ConnObjectTO connObjectTO = new ConnObjectTO();
 
         if (connObject != null) {
-            for (Attribute attr : connObject.getAttributes()) {
+            connObject.getAttributes().stream().map(attr -> {
                 AttrTO attrTO = new AttrTO();
                 attrTO.setSchema(attr.getName());
-
                 if (attr.getValue() != null) {
-                    for (Object value : attr.getValue()) {
-                        if (value != null) {
-                            if (value instanceof GuardedString || value instanceof GuardedByteArray) {
-                                attrTO.getValues().add(getPassword(value));
-                            } else if (value instanceof byte[]) {
-                                attrTO.getValues().add(Base64.encode((byte[]) value));
-                            } else {
-                                attrTO.getValues().add(value.toString());
-                            }
+                    attr.getValue().stream().filter(value -> value != null).forEachOrdered(value -> {
+                        if (value instanceof GuardedString || value instanceof GuardedByteArray) {
+                            attrTO.getValues().add(getPassword(value));
+                        } else if (value instanceof byte[]) {
+                            attrTO.getValues().add(Base64.encode((byte[]) value));
+                        } else {
+                            attrTO.getValues().add(value.toString());
                         }
-                    }
+                    });
                 }
-
+                return attrTO;
+            }).forEachOrdered((attrTO) -> {
                 connObjectTO.getAttrs().add(attrTO);
-            }
+            });
         }
 
         return connObjectTO;

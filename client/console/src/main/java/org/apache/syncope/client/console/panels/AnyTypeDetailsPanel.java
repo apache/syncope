@@ -18,17 +18,15 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
+import java.util.stream.Collectors;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
-import org.apache.syncope.common.lib.EntityTOUtils;
-import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
@@ -74,7 +72,6 @@ public class AnyTypeDetailsPanel extends Panel {
     }
 
     private List<String> getAvailableAnyTypeClasses() {
-        return CollectionUtils.collect(new AnyTypeClassRestClient().list(),
-                EntityTOUtils.<AnyTypeClassTO>keyTransformer(), new ArrayList<String>());
+        return new AnyTypeClassRestClient().list().stream().map(EntityTO::getKey).collect(Collectors.toList());
     }
 }

@@ -190,7 +190,7 @@ public class PlainAttrTest extends AbstractTest {
 
         userDAO.save(user);
 
-        UPlainAttr obscure = user.getPlainAttr("obscure");
+        UPlainAttr obscure = user.getPlainAttr("obscure").get();
         assertNotNull(obscure);
         assertEquals(1, obscure.getValues().size());
         assertEquals(Encryptor.getInstance(obscureSchema.getSecretKey()).
@@ -217,10 +217,10 @@ public class PlainAttrTest extends AbstractTest {
 
         userDAO.save(user);
 
-        UPlainAttr obscure = user.getPlainAttr("photo");
-        assertNotNull(obscure);
-        assertEquals(1, obscure.getValues().size());
-        assertTrue(Arrays.equals(bytes, obscure.getValues().get(0).getBinaryValue()));
+        UPlainAttr photo = user.getPlainAttr("photo").get();
+        assertNotNull(photo);
+        assertEquals(1, photo.getValues().size());
+        assertTrue(Arrays.equals(bytes, photo.getValues().get(0).getBinaryValue()));
     }
 
     @Test

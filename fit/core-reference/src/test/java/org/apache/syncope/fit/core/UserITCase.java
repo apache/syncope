@@ -36,8 +36,6 @@ import java.util.UUID;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
@@ -91,7 +89,7 @@ import org.junit.Test;
 public class UserITCase extends AbstractITCase {
 
     private boolean getBooleanAttribute(final ConnObjectTO connObjectTO, final String attrName) {
-        return Boolean.parseBoolean(connObjectTO.getAttr(attrName).getValues().get(0));
+        return Boolean.parseBoolean(connObjectTO.getAttr(attrName).get().getValues().get(0));
     }
 
     public static UserTO getUniqueSampleTO(final String email) {
@@ -333,7 +331,7 @@ public class UserITCase extends AbstractITCase {
 
         // 4. try (and fail) to create another user with same (unique) values
         userTO = getSampleTO(userTO.getUsername());
-        AttrTO userIdAttr = userTO.getPlainAttr("userId");
+        AttrTO userIdAttr = userTO.getPlainAttr("userId").get();
         userIdAttr.getValues().clear();
         userIdAttr.getValues().add("a.b@c.com");
 
@@ -349,7 +347,7 @@ public class UserITCase extends AbstractITCase {
     public void createWithRequiredValueMissing() {
         UserTO userTO = getUniqueSampleTO("a.b@c.it");
 
-        AttrTO type = userTO.getPlainAttr("ctype");
+        AttrTO type = userTO.getPlainAttr("ctype").get();
         userTO.getPlainAttrs().remove(type);
 
         userTO.getMemberships().add(new MembershipTO.Builder().
@@ -365,7 +363,7 @@ public class UserITCase extends AbstractITCase {
 
         userTO.getPlainAttrs().add(attrTO("ctype", "F"));
 
-        AttrTO surname = userTO.getPlainAttr("surname");
+        AttrTO surname = userTO.getPlainAttr("surname").get();
         userTO.getPlainAttrs().remove(surname);
 
         // 2. create user without surname (mandatory when type == 'F')
@@ -491,7 +489,7 @@ public class UserITCase extends AbstractITCase {
         userTO = updateUser(userPatch).getEntity();
 
         assertNotNull(userTO);
-        assertNull(userTO.getPlainAttr("ctype"));
+        assertFalse(userTO.getPlainAttr("ctype").isPresent());
     }
 
     @Test(expected = SyncopeClientException.class)
@@ -563,10 +561,10 @@ public class UserITCase extends AbstractITCase {
         assertEquals(1, userTO.getMemberships().size());
         assertFalse(userTO.getDerAttrs().isEmpty());
 
-        AttrTO userIdAttr = userTO.getPlainAttr("userId");
+        AttrTO userIdAttr = userTO.getPlainAttr("userId").get();
         assertEquals(Collections.singletonList(newUserId), userIdAttr.getValues());
 
-        AttrTO fullNameAttr = userTO.getPlainAttr("fullname");
+        AttrTO fullNameAttr = userTO.getPlainAttr("fullname").get();
         assertEquals(Collections.singletonList(newFullName), fullNameAttr.getValues());
 
         // update by username
@@ -825,7 +823,7 @@ public class UserITCase extends AbstractITCase {
         userTO = createUser(userTO).getEntity();
         assertNotNull(userTO);
 
-        AttrTO loginDate = userTO.getPlainAttr("loginDate");
+        AttrTO loginDate = userTO.getPlainAttr("loginDate").get();
         assertNotNull(loginDate);
         assertEquals(1, loginDate.getValues().size());
 
@@ -839,7 +837,7 @@ public class UserITCase extends AbstractITCase {
         userTO = updateUser(userPatch).getEntity();
         assertNotNull(userTO);
 
-        loginDate = userTO.getPlainAttr("loginDate");
+        loginDate = userTO.getPlainAttr("loginDate").get();
         assertNotNull(loginDate);
         assertEquals(2, loginDate.getValues().size());
     }
@@ -848,12 +846,8 @@ public class UserITCase extends AbstractITCase {
         assertEquals(3, statuses.size());
 
         Map<String, PropagationStatus> byResource = new HashMap<>(3);
-        MapUtils.populateMap(byResource, statuses, new Transformer<PropagationStatus, String>() {
-
-            @Override
-            public String transform(final PropagationStatus status) {
-                return status.getResource();
-            }
+        statuses.forEach(status -> {
+            byResource.put(status.getResource(), status);
         });
         assertEquals(PropagationTaskExecStatus.SUCCESS, byResource.get(RESOURCE_NAME_LDAP).getStatus());
         assertTrue(byResource.get(RESOURCE_NAME_TESTDB).getStatus() == PropagationTaskExecStatus.CREATED
@@ -918,7 +912,7 @@ public class UserITCase extends AbstractITCase {
         ConnObjectTO connObjectTO =
                 resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), actual.getKey());
         assertNotNull(connObjectTO);
-        assertEquals("sx-dx", connObjectTO.getAttr("THEIRGROUP").getValues().get(0));
+        assertEquals("sx-dx", connObjectTO.getAttr("THEIRGROUP").get().getValues().get(0));
     }
 
     @Test
@@ -994,7 +988,7 @@ public class UserITCase extends AbstractITCase {
 
         ConnObjectTO connObjectTO =
                 resourceService.readConnObject(RESOURCE_NAME_CSV, AnyTypeKind.USER.name(), userTO.getKey());
-        assertNull(connObjectTO.getAttr("email"));
+        assertFalse(connObjectTO.getAttr("email").isPresent());
     }
 
     @Test
@@ -1288,7 +1282,7 @@ public class UserITCase extends AbstractITCase {
         assertEquals(1, result.getPropagationStatuses().size());
         assertEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
         assertEquals("rest-target-resource", result.getPropagationStatuses().get(0).getResource());
-        assertEquals("surname", userTO.getPlainAttr("surname").getValues().get(0));
+        assertEquals("surname", userTO.getPlainAttr("surname").get().getValues().get(0));
 
         // verify user exists on the backend REST service
         WebClient webClient = WebClient.create(
@@ -1308,7 +1302,7 @@ public class UserITCase extends AbstractITCase {
         assertEquals(1, result.getPropagationStatuses().size());
         assertEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
         assertEquals("rest-target-resource", result.getPropagationStatuses().get(0).getResource());
-        assertEquals("surname2", result.getEntity().getPlainAttr("surname").getValues().get(0));
+        assertEquals("surname2", result.getEntity().getPlainAttr("surname").get().getValues().get(0));
 
         // verify user still exists on the backend REST service
         response = webClient.get();

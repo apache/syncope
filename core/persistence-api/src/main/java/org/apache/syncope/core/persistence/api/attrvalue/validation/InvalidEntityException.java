@@ -25,8 +25,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import javax.validation.ConstraintViolation;
 import javax.validation.ValidationException;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 
 /**
@@ -73,7 +71,7 @@ public class InvalidEntityException extends ValidationException {
 
         this.entityClassSimpleName = entityClassSimpleName;
 
-        for (ConstraintViolation<Object> violation : violations) {
+        violations.forEach((violation) -> {
             int firstComma = violation.getMessageTemplate().indexOf(';');
 
             final String key = violation.getMessageTemplate().substring(
@@ -96,17 +94,11 @@ public class InvalidEntityException extends ValidationException {
             }
 
             this.violations.get(violation.getLeafBean().getClass()).add(entityViolationType);
-        }
+        });
     }
 
     public final boolean hasViolation(final EntityViolationType type) {
-        return IterableUtils.matchesAny(violations.keySet(), new Predicate<Class<?>>() {
-
-            @Override
-            public boolean evaluate(final Class<?> entity) {
-                return violations.get(entity).contains(type);
-            }
-        });
+        return violations.keySet().stream().anyMatch(entity -> violations.get(entity).contains(type));
     }
 
     public String getEntityClassSimpleName() {

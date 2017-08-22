@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.api.entity.resource;
 
 import java.util.List;
+import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 
 public interface Mapping extends Entity {
@@ -33,7 +34,7 @@ public interface Mapping extends Entity {
 
     boolean add(MappingItem item);
 
-    MappingItem getConnObjectKeyItem();
+    Optional<? extends MappingItem> getConnObjectKeyItem();
 
     void setConnObjectKeyItem(MappingItem item);
 

@@ -287,7 +287,7 @@ public class UserReportlet extends AbstractReportlet {
                     handler.startElement("", "", "membership", atts);
 
                     if (conf.getFeatures().contains(Feature.resources)) {
-                        UMembership actualMemb = user.getMembership(memb.getRightKey());
+                        UMembership actualMemb = user.getMembership(memb.getRightKey()).orElse(null);
                         if (actualMemb == null) {
                             LOG.warn("Unexpected: cannot find membership for group {} for user {}",
                                     memb.getRightKey(), user);

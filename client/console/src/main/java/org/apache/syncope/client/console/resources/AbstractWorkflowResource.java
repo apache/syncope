@@ -19,8 +19,6 @@
 package org.apache.syncope.client.console.resources;
 
 import javax.ws.rs.NotFoundException;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.rest.WorkflowRestClient;
 import org.apache.syncope.common.lib.to.WorkflowDefinitionTO;
@@ -42,13 +40,8 @@ abstract class AbstractWorkflowResource extends AbstractResource {
                 attributes.getRequest().getQueryParameters().getParameterValue(Constants.MODEL_ID_PARAM);
 
         WorkflowDefinitionTO workflowDefinition = modelId == null || modelId.isNull() ? null
-                : IterableUtils.find(restClient.getDefinitions(), new Predicate<WorkflowDefinitionTO>() {
-
-                    @Override
-                    public boolean evaluate(final WorkflowDefinitionTO object) {
-                        return modelId.toString().equals(object.getModelId());
-                    }
-                });
+                : restClient.getDefinitions().stream().
+                        filter(object -> modelId.toString().equals(object.getModelId())).findAny().orElse(null);
         if (workflowDefinition == null) {
             throw new NotFoundException("Workflow definition with modelId " + modelId);
         }

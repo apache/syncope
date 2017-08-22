@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.api.entity;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
@@ -48,7 +49,7 @@ public interface Realm extends Entity {
 
     boolean add(AnyTemplateRealm template);
 
-    AnyTemplateRealm getTemplate(AnyType anyType);
+    Optional<? extends AnyTemplateRealm> getTemplate(AnyType anyType);
 
     List<? extends AnyTemplateRealm> getTemplates();
 

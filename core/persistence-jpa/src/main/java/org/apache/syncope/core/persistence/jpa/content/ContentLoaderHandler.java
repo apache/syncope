@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.jpa.content;
 
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Types;
 import java.text.ParseException;
 import java.util.HashMap;
@@ -32,7 +31,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.ResultSetExtractor;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -59,20 +57,16 @@ public class ContentLoaderHandler extends DefaultHandler {
     private Object[] getParameters(final String tableName, final Attributes attrs) {
         JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
-        Map<String, Integer> colTypes = jdbcTemplate.query("SELECT * FROM " + tableName + " WHERE 0=1",
-                new ResultSetExtractor<Map<String, Integer>>() {
-
-            @Override
-            public Map<String, Integer> extractData(final ResultSet rs) throws SQLException {
-                Map<String, Integer> colTypes = new HashMap<>();
-                for (int i = 1; i <= rs.getMetaData().getColumnCount(); i++) {
-                    colTypes.put(
-                            rs.getMetaData().getColumnName(i).toUpperCase(),
-                            rs.getMetaData().getColumnType(i));
-                }
-                return colTypes;
-            }
-        });
+        Map<String, Integer> colTypes = jdbcTemplate.query(
+                "SELECT * FROM " + tableName + " WHERE 0=1", (final ResultSet rs) -> {
+                    Map<String, Integer> colTypes1 = new HashMap<>();
+                    for (int i = 1; i <= rs.getMetaData().getColumnCount();
+                    i++) {
+                        colTypes1.
+                                put(rs.getMetaData().getColumnName(i).toUpperCase(), rs.getMetaData().getColumnType(i));
+                    }
+                    return colTypes1;
+                });
 
         Object[] parameters = new Object[attrs.getLength()];
         for (int i = 0; i < attrs.getLength(); i++) {

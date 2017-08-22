@@ -126,7 +126,7 @@ public class UserSelfITCase extends AbstractITCase {
         // now approve and verify that propagation has happened
         WorkflowFormTO form = userWorkflowService.getFormForUser(userTO.getKey());
         form = userWorkflowService.claimForm(form.getTaskId());
-        form.getProperty("approve").setValue(Boolean.TRUE.toString());
+        form.getProperty("approve").get().setValue(Boolean.TRUE.toString());
         userTO = userWorkflowService.submitForm(form);
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
@@ -152,7 +152,7 @@ public class UserSelfITCase extends AbstractITCase {
     public void authenticateByPlainAttribute() {
         UserTO rossini = userService.read("rossini");
         assertNotNull(rossini);
-        String userId = rossini.getPlainAttr("userId").getValues().get(0);
+        String userId = rossini.getPlainAttr("userId").get().getValues().get(0);
         assertNotNull(userId);
 
         Pair<Map<String, Set<String>>, UserTO> self = clientFactory.create(userId, ADMIN_PWD).self();
@@ -224,7 +224,7 @@ public class UserSelfITCase extends AbstractITCase {
         // 3. approve self-update as admin
         WorkflowFormTO form = userWorkflowService.getFormForUser(updated.getKey());
         form = userWorkflowService.claimForm(form.getTaskId());
-        form.getProperty("approve").setValue(Boolean.TRUE.toString());
+        form.getProperty("approve").get().setValue(Boolean.TRUE.toString());
         updated = userWorkflowService.submitForm(form);
         assertNotNull(updated);
         assertEquals("active", updated.getStatus());

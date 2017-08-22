@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.jpa.entity;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import javax.persistence.Basic;
 import javax.persistence.Cacheable;
@@ -37,8 +38,6 @@ import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.types.SAML2BindingType;
 import org.apache.syncope.core.persistence.api.entity.SAML2IdP;
@@ -190,14 +189,8 @@ public class JPASAML2IdP extends AbstractGeneratedKeyEntity implements SAML2IdP 
     }
 
     @Override
-    public SAML2IdPItem getConnObjectKeyItem() {
-        return IterableUtils.find(getItems(), new Predicate<SAML2IdPItem>() {
-
-            @Override
-            public boolean evaluate(final SAML2IdPItem item) {
-                return item.isConnObjectKey();
-            }
-        });
+    public Optional<? extends SAML2IdPItem> getConnObjectKeyItem() {
+        return getItems().stream().filter(item -> item.isConnObjectKey()).findFirst();
     }
 
     @Override

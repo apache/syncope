@@ -36,7 +36,7 @@ under the License.
   </properties>
 
   <modules>
-    <module>eclipse</module>
+    <!--<module>eclipse</module>-->
     <module>netbeans</module>
   </modules>
 

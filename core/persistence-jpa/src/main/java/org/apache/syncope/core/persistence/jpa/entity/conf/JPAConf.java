@@ -22,14 +22,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.Valid;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.Realm;
@@ -64,15 +63,10 @@ public class JPAConf extends AbstractProvidedKeyEntity implements Conf {
     }
 
     @Override
-    public CPlainAttr getPlainAttr(final String plainSchemaName) {
-        return IterableUtils.find(plainAttrs, new Predicate<CPlainAttr>() {
-
-            @Override
-            public boolean evaluate(final CPlainAttr plainAttr) {
-                return plainAttr != null && plainAttr.getSchema() != null
-                        && plainSchemaName.equals(plainAttr.getSchema().getKey());
-            }
-        });
+    public Optional<? extends CPlainAttr> getPlainAttr(final String plainSchema) {
+        return plainAttrs.stream().filter(plainAttr
+                -> plainAttr != null && plainAttr.getSchema() != null
+                && plainSchema.equals(plainAttr.getSchema().getKey())).findFirst();
     }
 
     @Override

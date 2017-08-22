@@ -54,15 +54,15 @@ public class AttrColumn<T extends AttributableTO> extends AbstractColumn<T, Stri
         AttrTO attr = null;
         switch (schemaType) {
             case PLAIN:
-                attr = rowModel.getObject().getPlainAttr(name);
+                attr = rowModel.getObject().getPlainAttr(name).get();
                 break;
 
             case DERIVED:
-                attr = rowModel.getObject().getDerAttr(name);
+                attr = rowModel.getObject().getDerAttr(name).get();
                 break;
 
             case VIRTUAL:
-                attr = rowModel.getObject().getVirAttr(name);
+                attr = rowModel.getObject().getVirAttr(name).get();
                 break;
 
             default:

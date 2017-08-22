@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.collections4.CollectionUtils;
+import java.util.stream.Collectors;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.rest.PolicyRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
@@ -32,11 +32,10 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePane
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.PolicyRenderer;
-import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.RealmTO;
-import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
@@ -119,19 +118,19 @@ public class RealmDetails extends Panel {
         container.add(generics.setVisible(unwrapped));
 
         FieldPanel<String> name = new AjaxTextFieldPanel(
-                "name", "name", new PropertyModel<String>(realmTO, "name"), false);
+                "name", "name", new PropertyModel<>(realmTO, "name"), false);
         name.addRequiredLabel();
         generics.add(name);
 
         FieldPanel<String> fullPath = new AjaxTextFieldPanel(
-                "fullPath", "fullPath", new PropertyModel<String>(realmTO, "fullPath"), false);
+                "fullPath", "fullPath", new PropertyModel<>(realmTO, "fullPath"), false);
         fullPath.setEnabled(false);
         generics.add(fullPath);
 
         AjaxDropDownChoicePanel<String> accountPolicy = new AjaxDropDownChoicePanel<>(
                 "accountPolicy",
                 new ResourceModel("accountPolicy", "accountPolicy").getObject(),
-                new PropertyModel<String>(realmTO, "accountPolicy"),
+                new PropertyModel<>(realmTO, "accountPolicy"),
                 false);
         accountPolicy.setChoiceRenderer(new PolicyRenderer(accountPolicies));
         accountPolicy.setChoices(new ArrayList<>(accountPolicies.getObject().keySet()));
@@ -141,7 +140,7 @@ public class RealmDetails extends Panel {
         AjaxDropDownChoicePanel<String> passwordPolicy = new AjaxDropDownChoicePanel<>(
                 "passwordPolicy",
                 new ResourceModel("passwordPolicy", "passwordPolicy").getObject(),
-                new PropertyModel<String>(realmTO, "passwordPolicy"),
+                new PropertyModel<>(realmTO, "passwordPolicy"),
                 false);
         passwordPolicy.setChoiceRenderer(new PolicyRenderer(passwordPolicies));
         passwordPolicy.setChoices(new ArrayList<>(passwordPolicies.getObject().keySet()));
@@ -156,10 +155,10 @@ public class RealmDetails extends Panel {
         actionsClassNames.setOutputMarkupId(true);
         container.add(actionsClassNames);
 
-        container.add(new AjaxPalettePanel.Builder<String>().build("resources",
-                new PropertyModel<List<String>>(realmTO, "resources"),
-                new ListModel<>(CollectionUtils.collect(new ResourceRestClient().list(),
-                        EntityTOUtils.<ResourceTO>keyTransformer(), new ArrayList<String>()))).
+        container.add(new AjaxPalettePanel.Builder<>().build("resources",
+                new PropertyModel<>(realmTO, "resources"),
+                new ListModel<>(new ResourceRestClient().list().stream().
+                        map(EntityTO::getKey).collect(Collectors.toList()))).
                 setOutputMarkupId(true).
                 setEnabled(!SyncopeConstants.ROOT_REALM.equals(realmTO.getName())).
                 setVisible(!SyncopeConstants.ROOT_REALM.equals(realmTO.getName())));

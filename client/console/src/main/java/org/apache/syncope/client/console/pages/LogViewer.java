@@ -39,12 +39,8 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.util.ListModel;
 import org.apache.wicket.util.time.Duration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class LogViewer extends WebPage {
-
-    private static final Logger LOG = LoggerFactory.getLogger(LogViewer.class);
 
     private static final int MAX_STATEMENTS_PER_APPENDER = 50;
 
@@ -58,7 +54,7 @@ public class LogViewer extends WebPage {
         add(viewer);
 
         final AjaxDropDownChoicePanel<String> appenders = new AjaxDropDownChoicePanel<>(
-                "appenders", "Appender", new Model<String>(), false);
+                "appenders", "Appender", new Model<>(), false);
         MetaDataRoleAuthorizationStrategy.authorize(appenders, ENABLE, StandardEntitlement.LOG_READ);
         appenders.setChoices(restClient.listMemoryAppenders());
         viewer.add(appenders);
@@ -68,7 +64,7 @@ public class LogViewer extends WebPage {
         viewer.add(stContainer);
 
         final Model<Long> lastTimeInMillis = Model.of(0L);
-        final IModel<List<LogStatementTO>> statementViewModel = new ListModel<>(new ArrayList<LogStatementTO>());
+        final IModel<List<LogStatementTO>> statementViewModel = new ListModel<>(new ArrayList<>());
         final ListView<LogStatementTO> statementView = new ListView<LogStatementTO>("statements", statementViewModel) {
 
             private static final long serialVersionUID = -9180479401817023838L;
@@ -93,7 +89,7 @@ public class LogViewer extends WebPage {
                         String.format("window.scrollTop = $('#%s').scrollTop();", stContainer.getMarkupId()));
 
                 List<LogStatementTO> recentLogStatements = appenders.getModelObject() == null
-                        ? new ArrayList<LogStatementTO>()
+                        ? new ArrayList<>()
                         : restClient.getLastLogStatements(appenders.getModelObject(), lastTimeInMillis.getObject());
                 if (!recentLogStatements.isEmpty()) {
                     lastTimeInMillis.setObject(recentLogStatements.get(recentLogStatements.size() - 1).getTimeMillis());
@@ -102,7 +98,7 @@ public class LogViewer extends WebPage {
                     int recentSize = recentLogStatements.size();
 
                     List<LogStatementTO> newModelObject = SetUniqueList.<LogStatementTO>setUniqueList(
-                            new ArrayList<LogStatementTO>(MAX_STATEMENTS_PER_APPENDER));
+                            new ArrayList<>(MAX_STATEMENTS_PER_APPENDER));
                     if (currentSize <= MAX_STATEMENTS_PER_APPENDER - recentSize) {
                         newModelObject.addAll(statementView.getModelObject());
                     } else {
@@ -129,7 +125,7 @@ public class LogViewer extends WebPage {
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
                 List<LogStatementTO> lastStatements = appenders.getModelObject() == null
-                        ? new ArrayList<LogStatementTO>()
+                        ? new ArrayList<>()
                         : restClient.getLastLogStatements(appenders.getModelObject(), 0);
                 statementViewModel.setObject(lastStatements);
                 target.add(stContainer);

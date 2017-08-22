@@ -23,11 +23,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.Set;
-import org.apache.commons.collections4.CollectionUtils;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.GroupPatch;
 import org.apache.syncope.common.lib.to.AttrTO;
@@ -81,7 +81,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                 Collections.<String>emptySet());
         PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
 
-        return new ImmutablePair<>(created.getResult(), propagationReporter.getStatuses());
+        return Pair.of(created.getResult(), propagationReporter.getStatuses());
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -95,9 +95,9 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
         WorkflowResult<String> created = gwfAdapter.create(groupTO);
 
         // see ConnObjectUtils#getAnyTOFromConnObject for GroupOwnerSchema
-        AttrTO groupOwner = groupTO.getPlainAttr(StringUtils.EMPTY);
-        if (groupOwner != null) {
-            groupOwnerMap.put(created.getResult(), groupOwner.getValues().iterator().next());
+        Optional<AttrTO> groupOwner = groupTO.getPlainAttr(StringUtils.EMPTY);
+        if (groupOwner.isPresent()) {
+            groupOwnerMap.put(created.getResult(), groupOwner.get().getValues().iterator().next());
         }
 
         List<PropagationTask> tasks = propagationManager.getCreateTasks(
@@ -108,7 +108,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                 excludedResources);
         PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
 
-        return new ImmutablePair<>(created.getResult(), propagationReporter.getStatuses());
+        return Pair.of(created.getResult(), propagationReporter.getStatuses());
     }
 
     @Override
@@ -133,7 +133,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                 excludedResources);
         PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
 
-        return new ImmutablePair<>(updated.getResult(), propagationReporter.getStatuses());
+        return Pair.of(updated.getResult(), propagationReporter.getStatuses());
     }
 
     @Override
@@ -150,24 +150,22 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
 
         // Generate propagation tasks for deleting users and any objects from group resources, 
         // if they are on those resources only because of the reason being deleted (see SYNCOPE-357)
-        for (Map.Entry<String, PropagationByResource> entry
-                : groupDataBinder.findUsersWithTransitiveResources(key).entrySet()) {
-
-            tasks.addAll(propagationManager.getDeleteTasks(
-                    AnyTypeKind.USER,
-                    entry.getKey(),
-                    entry.getValue(),
-                    excludedResources));
-        }
-        for (Map.Entry<String, PropagationByResource> entry
-                : groupDataBinder.findAnyObjectsWithTransitiveResources(key).entrySet()) {
-
-            tasks.addAll(propagationManager.getDeleteTasks(
-                    AnyTypeKind.ANY_OBJECT,
-                    entry.getKey(),
-                    entry.getValue(),
-                    excludedResources));
-        }
+        groupDataBinder.findUsersWithTransitiveResources(key).entrySet().
+                forEach(entry -> {
+                    tasks.addAll(propagationManager.getDeleteTasks(
+                            AnyTypeKind.USER,
+                            entry.getKey(),
+                            entry.getValue(),
+                            excludedResources));
+                });
+        groupDataBinder.findAnyObjectsWithTransitiveResources(key).entrySet().
+                forEach(entry -> {
+                    tasks.addAll(propagationManager.getDeleteTasks(
+                            AnyTypeKind.ANY_OBJECT,
+                            entry.getKey(),
+                            entry.getValue(),
+                            excludedResources));
+                });
 
         // Generate propagation tasks for deleting this group from resources
         tasks.addAll(propagationManager.getDeleteTasks(
@@ -220,7 +218,9 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                 AnyTypeKind.GROUP,
                 key,
                 propByRes,
-                CollectionUtils.removeAll(groupDAO.findAllResourceKeys(key), resources));
+                groupDAO.findAllResourceKeys(key).stream().
+                        filter(resource -> !resources.contains(resource)).
+                        collect(Collectors.toList()));
         PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
 
         return propagationReporter.getStatuses();

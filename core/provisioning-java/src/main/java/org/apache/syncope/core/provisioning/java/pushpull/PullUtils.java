@@ -21,7 +21,8 @@ package org.apache.syncope.core.provisioning.java.pushpull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.policy.PullPolicySpec;
@@ -58,7 +59,6 @@ import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.Name;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
-import org.identityconnectors.framework.common.objects.ResultsHandler;
 import org.identityconnectors.framework.common.objects.filter.EqualsFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,7 +66,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.core.provisioning.api.pushpull.PullCorrelationRule;
-import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
 
@@ -115,43 +114,37 @@ public class PullUtils {
     @Autowired
     private IntAttrNameParser intAttrNameParser;
 
-    public String findMatchingAnyKey(
+    public Optional<String> findMatchingAnyKey(
             final AnyType anyType,
             final String name,
             final ExternalResource resource,
             final Connector connector) {
 
-        Provision provision = resource.getProvision(anyType);
-        if (provision == null) {
-            return null;
+        Optional<? extends Provision> provision = resource.getProvision(anyType);
+        if (!provision.isPresent()) {
+            return Optional.empty();
         }
 
-        String result = null;
+        Optional<String> result = Optional.empty();
 
         AnyUtils anyUtils = anyUtilsFactory.getInstance(anyType.getKind());
 
         final List<ConnectorObject> found = new ArrayList<>();
-        connector.search(provision.getObjectClass(),
-                new EqualsFilter(new Name(name)),
-                new ResultsHandler() {
-
-            @Override
-            public boolean handle(final ConnectorObject obj) {
-                return found.add(obj);
-            }
-        }, MappingUtils.buildOperationOptions(MappingUtils.getPullItems(provision).iterator()));
+        connector.search(provision.get().getObjectClass(),
+                new EqualsFilter(new Name(name)), obj -> found.add(obj),
+                MappingUtils.buildOperationOptions(MappingUtils.getPullItems(provision.get()).iterator()));
 
         if (found.isEmpty()) {
-            LOG.debug("No {} found on {} with __NAME__ {}", provision.getObjectClass(), resource, name);
+            LOG.debug("No {} found on {} with __NAME__ {}", provision.get().getObjectClass(), resource, name);
         } else {
             if (found.size() > 1) {
                 LOG.warn("More than one {} found on {} with __NAME__ {} - taking first only",
-                        provision.getObjectClass(), resource, name);
+                        provision.get().getObjectClass(), resource, name);
             }
 
             ConnectorObject connObj = found.iterator().next();
             try {
-                List<String> anyKeys = findExisting(connObj.getUid().getUidValue(), connObj, provision, anyUtils);
+                List<String> anyKeys = findExisting(connObj.getUid().getUidValue(), connObj, provision.get(), anyUtils);
                 if (anyKeys.isEmpty()) {
                     LOG.debug("No matching {} found for {}, aborting", anyUtils.getAnyTypeKind(), connObj);
                 } else {
@@ -159,7 +152,7 @@ public class PullUtils {
                         LOG.warn("More than one {} found {} - taking first only", anyUtils.getAnyTypeKind(), anyKeys);
                     }
 
-                    result = anyKeys.iterator().next();
+                    result = Optional.ofNullable(anyKeys.iterator().next());
                 }
             } catch (IllegalArgumentException e) {
                 LOG.warn(e.getMessage());
@@ -180,12 +173,12 @@ public class PullUtils {
     private List<String> findByConnObjectKeyItem(
             final String uid, final Provision provision, final AnyUtils anyUtils) {
 
-        MappingItem connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
+        Optional<MappingItem> connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
 
         String transfUid = uid;
-        for (ItemTransformer transformer : MappingUtils.getItemTransformers(connObjectKeyItem)) {
+        for (ItemTransformer transformer : MappingUtils.getItemTransformers(connObjectKeyItem.get())) {
             List<Object> output = transformer.beforePull(
-                    connObjectKeyItem,
+                    connObjectKeyItem.get(),
                     null,
                     Collections.<Object>singletonList(transfUid));
             if (output != null && !output.isEmpty()) {
@@ -196,7 +189,7 @@ public class PullUtils {
         List<String> result = new ArrayList<>();
 
         IntAttrName intAttrName = intAttrNameParser.parse(
-                connObjectKeyItem.getIntAttrName(),
+                connObjectKeyItem.get().getIntAttrName(),
                 provision.getAnyType().getKind());
 
         if (intAttrName.getField() != null) {
@@ -247,17 +240,17 @@ public class PullUtils {
 
                     List<? extends Any<?>> anys = getAnyDAO(provision.getAnyType().getKind()).
                             findByPlainAttrValue(intAttrName.getSchemaName(), value);
-                    for (Any<?> any : anys) {
+                    anys.forEach(any -> {
                         result.add(any.getKey());
-                    }
+                    });
                     break;
 
                 case DERIVED:
                     anys = getAnyDAO(provision.getAnyType().getKind()).
                             findByDerAttrValue(intAttrName.getSchemaName(), transfUid);
-                    for (Any<?> any : anys) {
+                    anys.forEach(any -> {
                         result.add(any.getKey());
-                    }
+                    });
                     break;
 
                 default:
@@ -271,9 +264,9 @@ public class PullUtils {
             final ConnectorObject connObj, final PullCorrelationRule rule, final AnyTypeKind type) {
 
         List<String> result = new ArrayList<>();
-        for (Any<?> any : searchDAO.search(rule.getSearchCond(connObj), type)) {
+        searchDAO.search(rule.getSearchCond(connObj), type).forEach(any -> {
             result.add(any.getKey());
-        }
+        });
 
         return result;
     }
@@ -337,12 +330,12 @@ public class PullUtils {
             final ConnectorObject connObj,
             final OrgUnit orgUnit) {
 
-        OrgUnitItem connObjectKeyItem = orgUnit.getConnObjectKeyItem();
+        Optional<? extends OrgUnitItem> connObjectKeyItem = orgUnit.getConnObjectKeyItem();
 
         String transfUid = uid;
-        for (ItemTransformer transformer : MappingUtils.getItemTransformers(connObjectKeyItem)) {
+        for (ItemTransformer transformer : MappingUtils.getItemTransformers(connObjectKeyItem.get())) {
             List<Object> output = transformer.beforePull(
-                    connObjectKeyItem,
+                    connObjectKeyItem.get(),
                     null,
                     Collections.<Object>singletonList(transfUid));
             if (output != null && !output.isEmpty()) {
@@ -353,7 +346,7 @@ public class PullUtils {
         List<String> result = new ArrayList<>();
 
         Realm realm;
-        switch (connObjectKeyItem.getIntAttrName()) {
+        switch (connObjectKeyItem.get().getIntAttrName()) {
             case "key":
                 realm = realmDAO.find(transfUid);
                 if (realm != null) {
@@ -362,7 +355,8 @@ public class PullUtils {
                 break;
 
             case "name":
-                CollectionUtils.collect(realmDAO.findByName(transfUid), EntityUtils.keyTransformer(), result);
+                result.addAll(realmDAO.findByName(transfUid).stream().
+                        map(r -> r.getKey()).collect(Collectors.toList()));
                 break;
 
             case "fullpath":

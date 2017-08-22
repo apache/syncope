@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.jpa.entity.task;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
@@ -35,12 +36,9 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.api.entity.AnyTemplate;
 import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.persistence.api.entity.task.AnyTemplatePullTask;
@@ -113,14 +111,10 @@ public class JPAPullTask extends AbstractProvisioningTask implements PullTask {
     }
 
     @Override
-    public AnyTemplatePullTask getTemplate(final AnyType anyType) {
-        return IterableUtils.find(templates, new Predicate<AnyTemplate>() {
-
-            @Override
-            public boolean evaluate(final AnyTemplate template) {
-                return anyType != null && anyType.equals(template.getAnyType());
-            }
-        });
+    public Optional<? extends AnyTemplatePullTask> getTemplate(final AnyType anyType) {
+        return templates.stream().
+                filter(template -> anyType != null && anyType.equals(template.getAnyType())).
+                findFirst();
     }
 
     @Override

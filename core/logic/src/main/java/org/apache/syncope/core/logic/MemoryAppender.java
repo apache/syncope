@@ -19,7 +19,6 @@
 package org.apache.syncope.core.logic;
 
 import java.util.Queue;
-import org.apache.commons.collections4.queue.CircularFifoQueue;
 import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.Filter;
 import org.apache.logging.log4j.core.LogEvent;
@@ -30,6 +29,7 @@ import org.apache.logging.log4j.core.config.plugins.PluginElement;
 import org.apache.logging.log4j.core.config.plugins.PluginFactory;
 import org.apache.logging.log4j.message.Message;
 import org.apache.logging.log4j.message.ReusableMessage;
+import org.apache.syncope.common.lib.collections.CircularFifoQueue;
 import org.apache.syncope.common.lib.log.LogStatementTO;
 import org.apache.syncope.common.lib.types.LoggerLevel;
 import org.apache.syncope.core.provisioning.api.utils.ExceptionUtils2;

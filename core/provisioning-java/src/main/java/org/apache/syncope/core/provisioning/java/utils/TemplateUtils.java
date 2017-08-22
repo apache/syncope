@@ -19,6 +19,7 @@
 package org.apache.syncope.core.provisioning.java.utils;
 
 import java.util.Map;
+import java.util.Optional;
 import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.EntityTOUtils;
@@ -28,8 +29,6 @@ import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.GroupableRelatableTO;
-import org.apache.syncope.common.lib.to.MembershipTO;
-import org.apache.syncope.common.lib.to.RelationshipTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
@@ -56,12 +55,12 @@ public class TemplateUtils {
         result.setSchema(template.getSchema());
 
         if (template.getValues() != null && !template.getValues().isEmpty()) {
-            for (String value : template.getValues()) {
+            template.getValues().forEach(value -> {
                 String evaluated = JexlUtils.evaluate(value, anyTO, new MapContext());
                 if (StringUtils.isNotBlank(evaluated)) {
                     result.getValues().add(evaluated);
                 }
-            }
+            });
         }
 
         return result;
@@ -108,25 +107,26 @@ public class TemplateUtils {
     }
 
     private void fillRelationships(final GroupableRelatableTO any, final GroupableRelatableTO template) {
-        for (RelationshipTO relationship : template.getRelationships()) {
-            if (any.getRelationship(relationship.getRightKey(), relationship.getRightKey()) == null) {
-                any.getRelationships().add(relationship);
-            }
-        }
+        template.getRelationships().stream().
+                filter(relationship
+                        -> !any.getRelationship(relationship.getRightKey(), relationship.getRightKey()).isPresent()).
+                forEachOrdered(relationship -> {
+                    any.getRelationships().add(relationship);
+                });
     }
 
     private void fillMemberships(final GroupableRelatableTO any, final GroupableRelatableTO template) {
-        for (MembershipTO membership : template.getMemberships()) {
-            if (any.getMembership(membership.getGroupKey()) == null) {
-                any.getMemberships().add(membership);
-            }
-        }
+        template.getMemberships().stream().
+                filter(membership -> !any.getMembership(membership.getGroupKey()).isPresent()).
+                forEachOrdered(membership -> {
+                    any.getMemberships().add(membership);
+                });
     }
 
     @Transactional(readOnly = true)
-    public <T extends AnyTO> void apply(final T anyTO, final AnyTemplate anyTemplate) {
-        if (anyTemplate != null) {
-            apply(anyTO, anyTemplate.get());
+    public <T extends AnyTO> void apply(final T anyTO, final Optional<? extends AnyTemplate> anyTemplate) {
+        if (anyTemplate.isPresent()) {
+            apply(anyTO, anyTemplate.get().get());
         }
     }
 
@@ -180,18 +180,20 @@ public class TemplateUtils {
     public void check(final Map<String, AnyTO> templates, final ClientExceptionType clientExceptionType) {
         SyncopeClientException sce = SyncopeClientException.build(clientExceptionType);
 
-        for (Map.Entry<String, AnyTO> entry : templates.entrySet()) {
-            for (AttrTO attrTO : entry.getValue().getPlainAttrs()) {
-                if (!attrTO.getValues().isEmpty() && !JexlUtils.isExpressionValid(attrTO.getValues().get(0))) {
-                    sce.getElements().add("Invalid JEXL: " + attrTO.getValues().get(0));
-                }
-            }
+        templates.entrySet().forEach(entry -> {
+            entry.getValue().getPlainAttrs().stream().
+                    filter(attrTO -> !attrTO.getValues().isEmpty()
+                    && !JexlUtils.isExpressionValid(attrTO.getValues().get(0))).
+                    forEachOrdered(attrTO -> {
+                        sce.getElements().add("Invalid JEXL: " + attrTO.getValues().get(0));
+                    });
 
-            for (AttrTO attrTO : entry.getValue().getVirAttrs()) {
-                if (!attrTO.getValues().isEmpty() && !JexlUtils.isExpressionValid(attrTO.getValues().get(0))) {
-                    sce.getElements().add("Invalid JEXL: " + attrTO.getValues().get(0));
-                }
-            }
+            entry.getValue().getVirAttrs().stream().
+                    filter(attrTO -> !attrTO.getValues().isEmpty()
+                    && !JexlUtils.isExpressionValid(attrTO.getValues().get(0))).
+                    forEachOrdered((attrTO) -> {
+                        sce.getElements().add("Invalid JEXL: " + attrTO.getValues().get(0));
+                    });
 
             if (entry.getValue() instanceof UserTO) {
                 UserTO template = (UserTO) entry.getValue();
@@ -213,7 +215,7 @@ public class TemplateUtils {
                     sce.getElements().add("Invalid JEXL: " + template.getName());
                 }
             }
-        }
+        });
 
         if (!sce.isEmpty()) {
             throw sce;

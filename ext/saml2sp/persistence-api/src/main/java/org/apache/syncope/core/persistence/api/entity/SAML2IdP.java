@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.api.entity;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.apache.syncope.common.lib.types.SAML2BindingType;
 
@@ -56,7 +57,7 @@ public interface SAML2IdP extends Entity {
 
     void setUserTemplate(SAML2UserTemplate userTemplate);
 
-    SAML2IdPItem getConnObjectKeyItem();
+    Optional<? extends SAML2IdPItem> getConnObjectKeyItem();
 
     void setConnObjectKeyItem(SAML2IdPItem item);
 

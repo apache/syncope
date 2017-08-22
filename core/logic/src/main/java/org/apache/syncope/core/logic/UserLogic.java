@@ -19,14 +19,12 @@
 package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -112,14 +110,9 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
                 AuthContextUtils.getAuthorizations().get(StandardEntitlement.USER_SEARCH), realm),
                 searchCond == null ? userDAO.getAllMatchingCond() : searchCond,
                 page, size, orderBy, AnyTypeKind.USER);
-        List<UserTO> result = CollectionUtils.collect(matching, new Transformer<User, UserTO>() {
-
-            @Transactional(readOnly = true)
-            @Override
-            public UserTO transform(final User input) {
-                return binder.returnUserTO(binder.getUserTO(input, details));
-            }
-        }, new ArrayList<UserTO>());
+        List<UserTO> result = matching.stream().
+                map(user -> binder.returnUserTO(binder.getUserTO(user, details))).
+                collect(Collectors.toList());
 
         return Pair.of(count, result);
     }
@@ -325,13 +318,8 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
         List<Group> ownedGroups = groupDAO.findOwnedByUser(before.getLeft().getKey());
         if (!ownedGroups.isEmpty()) {
             SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.GroupOwnership);
-            sce.getElements().addAll(CollectionUtils.collect(ownedGroups, new Transformer<Group, String>() {
-
-                @Override
-                public String transform(final Group group) {
-                    return group.getKey() + " " + group.getName();
-                }
-            }, new ArrayList<String>()));
+            sce.getElements().addAll(ownedGroups.stream().
+                    map(group -> group.getKey() + " " + group.getName()).collect(Collectors.toList()));
             throw sce;
         }
 
@@ -360,13 +348,9 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
 
         UserPatch patch = new UserPatch();
         patch.setKey(key);
-        patch.getResources().addAll(CollectionUtils.collect(resources, new Transformer<String, StringPatchItem>() {
-
-            @Override
-            public StringPatchItem transform(final String resource) {
-                return new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(resource).build();
-            }
-        }));
+        patch.getResources().addAll(resources.stream().map(resource
+                -> new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(resource).build()).
+                collect(Collectors.toList()));
 
         return binder.returnUserTO(binder.getUserTO(provisioningManager.unlink(patch)));
     }
@@ -383,13 +367,9 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
 
         UserPatch patch = new UserPatch();
         patch.setKey(key);
-        patch.getResources().addAll(CollectionUtils.collect(resources, new Transformer<String, StringPatchItem>() {
-
-            @Override
-            public StringPatchItem transform(final String resource) {
-                return new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(resource).build();
-            }
-        }));
+        patch.getResources().addAll(resources.stream().map(resource
+                -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(resource).build()).
+                collect(Collectors.toList()));
 
         return binder.returnUserTO(binder.getUserTO(provisioningManager.link(patch)));
     }
@@ -408,13 +388,9 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
 
         UserPatch patch = new UserPatch();
         patch.setKey(key);
-        patch.getResources().addAll(CollectionUtils.collect(resources, new Transformer<String, StringPatchItem>() {
-
-            @Override
-            public StringPatchItem transform(final String resource) {
-                return new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(resource).build();
-            }
-        }));
+        patch.getResources().addAll(resources.stream().map(resource
+                -> new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(resource).build()).
+                collect(Collectors.toList()));
 
         return update(patch, nullPriorityAsync);
     }
@@ -437,13 +413,9 @@ public class UserLogic extends AbstractAnyLogic<UserTO, UserPatch> {
 
         UserPatch patch = new UserPatch();
         patch.setKey(key);
-        patch.getResources().addAll(CollectionUtils.collect(resources, new Transformer<String, StringPatchItem>() {
-
-            @Override
-            public StringPatchItem transform(final String resource) {
-                return new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(resource).build();
-            }
-        }));
+        patch.getResources().addAll(resources.stream().map(resource
+                -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(resource).build()).
+                collect(Collectors.toList()));
 
         if (changepwd) {
             patch.setPassword(new PasswordPatch.Builder().

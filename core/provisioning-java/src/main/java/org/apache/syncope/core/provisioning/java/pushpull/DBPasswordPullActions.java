@@ -18,8 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.pushpull;
 
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
+import java.util.Optional;
 import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.patch.PasswordPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
@@ -108,19 +107,13 @@ public class DBPasswordPullActions implements PullActions {
     }
 
     private String getCipherAlgorithm(final ConnInstance connInstance) {
-        ConnConfProperty cipherAlgorithm =
-                IterableUtils.find(connInstance.getConf(), new Predicate<ConnConfProperty>() {
+        Optional<ConnConfProperty> cipherAlgorithm = connInstance.getConf().stream().
+                filter(property -> "cipherAlgorithm".equals(property.getSchema().getName())
+                && property.getValues() != null && !property.getValues().isEmpty()).findFirst();
 
-                    @Override
-                    public boolean evaluate(final ConnConfProperty property) {
-                        return "cipherAlgorithm".equals(property.getSchema().getName())
-                                && property.getValues() != null && !property.getValues().isEmpty();
-                    }
-                });
-
-        return cipherAlgorithm == null
-                ? CLEARTEXT
-                : (String) cipherAlgorithm.getValues().get(0);
+        return cipherAlgorithm.isPresent()
+                ? (String) cipherAlgorithm.get().getValues().get(0)
+                : CLEARTEXT;
     }
 
     @Transactional

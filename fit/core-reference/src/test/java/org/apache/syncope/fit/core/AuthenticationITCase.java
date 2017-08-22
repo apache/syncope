@@ -25,21 +25,17 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.security.AccessControlException;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.sql.DataSource;
 import javax.ws.rs.ForbiddenException;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.BasicAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClient;
-import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.patch.DeassociationPatch;
@@ -210,8 +206,8 @@ public class AuthenticationITCase extends AbstractITCase {
                 fiql(SyncopeClient.getUserSearchConditionBuilder().isNotNull("key").query()).build());
         assertNotNull(matchingUsers);
         assertFalse(matchingUsers.getResult().isEmpty());
-        Set<String> matchingUserKeys = CollectionUtils.collect(matchingUsers.getResult(),
-                EntityTOUtils.<UserTO>keyTransformer(), new HashSet<String>());
+        Set<String> matchingUserKeys = matchingUsers.getResult().stream().
+                map(user -> user.getKey()).collect(Collectors.toSet());
         assertTrue(matchingUserKeys.contains("1417acbe-cbf6-4277-9372-e75e04f97000"));
         assertFalse(matchingUserKeys.contains("74cd8ece-715a-44a4-a736-e17b46c4e7e6"));
         assertFalse(matchingUserKeys.contains("823074dc-d280-436d-a7dd-07399fae48ec"));
@@ -222,13 +218,7 @@ public class AuthenticationITCase extends AbstractITCase {
         matchingUsers = userService3.search(new AnyQuery.Builder().realm("/even/two").
                 fiql(SyncopeClient.getUserSearchConditionBuilder().isNotNull("loginDate").query()).build());
         assertNotNull(matchingUsers);
-        assertTrue(IterableUtils.matchesAll(matchingUsers.getResult(), new Predicate<UserTO>() {
-
-            @Override
-            public boolean evaluate(final UserTO matched) {
-                return "/even/two".equals(matched.getRealm());
-            }
-        }));
+        assertTrue(matchingUsers.getResult().stream().allMatch(matching -> "/even/two".equals(matching.getRealm())));
     }
 
     @Test
@@ -276,7 +266,7 @@ public class AuthenticationITCase extends AbstractITCase {
 
             user = response.readEntity(new GenericType<ProvisioningResult<UserTO>>() {
             }).getEntity();
-            assertEquals("surname", user.getPlainAttr("surname").getValues().get(0));
+            assertEquals("surname", user.getPlainAttr("surname").get().getValues().get(0));
 
             // 5. as delegated, update user attempting to move under realm / -> fail
             UserPatch userPatch = new UserPatch();
@@ -299,7 +289,7 @@ public class AuthenticationITCase extends AbstractITCase {
 
             user = response.readEntity(new GenericType<ProvisioningResult<UserTO>>() {
             }).getEntity();
-            assertEquals("surname2", user.getPlainAttr("surname").getValues().get(0));
+            assertEquals("surname2", user.getPlainAttr("surname").get().getValues().get(0));
 
             // 7. as delegated, delete user
             delegatedUserService.delete(user.getKey());
@@ -426,13 +416,8 @@ public class AuthenticationITCase extends AbstractITCase {
         final String anyTypeKey = "FOLDER " + getUUIDString();
 
         // 1. no entitlement exists (yet) for the any type to be created
-        assertFalse(IterableUtils.matchesAny(syncopeService.platform().getEntitlements(), new Predicate<String>() {
-
-            @Override
-            public boolean evaluate(final String entitlement) {
-                return entitlement.contains(anyTypeKey);
-            }
-        }));
+        assertFalse(syncopeService.platform().getEntitlements().stream().
+                anyMatch(entitlement -> entitlement.contains(anyTypeKey)));
 
         // 2. create plain schema, any type class and any type
         PlainSchemaTO path = new PlainSchemaTO();
@@ -452,13 +437,8 @@ public class AuthenticationITCase extends AbstractITCase {
         anyTypeService.create(anyTypeTO);
 
         // 2. now entitlement exists for the any type just created
-        assertTrue(IterableUtils.matchesAny(syncopeService.platform().getEntitlements(), new Predicate<String>() {
-
-            @Override
-            public boolean evaluate(final String entitlement) {
-                return entitlement.contains(anyTypeKey);
-            }
-        }));
+        assertTrue(syncopeService.platform().getEntitlements().stream().
+                anyMatch(entitlement -> entitlement.contains(anyTypeKey)));
 
         // 3. attempt to create an instance of the type above: fail because no entitlement was assigned
         AnyObjectTO folder = new AnyObjectTO();
@@ -522,7 +502,7 @@ public class AuthenticationITCase extends AbstractITCase {
         // 3. approve user
         WorkflowFormTO form = userWorkflowService.getFormForUser(userTO.getKey());
         form = userWorkflowService.claimForm(form.getTaskId());
-        form.getProperty("approve").setValue(Boolean.TRUE.toString());
+        form.getProperty("approve").get().setValue(Boolean.TRUE.toString());
         userTO = userWorkflowService.submitForm(form);
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());

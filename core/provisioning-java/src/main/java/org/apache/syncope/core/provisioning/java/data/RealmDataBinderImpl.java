@@ -18,11 +18,8 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
-import java.util.Map;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Predicate;
+import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
@@ -73,12 +70,12 @@ public class RealmDataBinderImpl implements RealmDataBinder {
     private void setTemplates(final RealmTO realmTO, final Realm realm) {
         // validate JEXL expressions from templates and proceed if fine
         templateUtils.check(realmTO.getTemplates(), ClientExceptionType.InvalidPullTask);
-        for (Map.Entry<String, AnyTO> entry : realmTO.getTemplates().entrySet()) {
+        realmTO.getTemplates().entrySet().forEach(entry -> {
             AnyType type = anyTypeDAO.find(entry.getKey());
             if (type == null) {
                 LOG.debug("Invalid AnyType {} specified, ignoring...", entry.getKey());
             } else {
-                AnyTemplateRealm anyTemplate = realm.getTemplate(type);
+                AnyTemplateRealm anyTemplate = realm.getTemplate(type).orElse(null);
                 if (anyTemplate == null) {
                     anyTemplate = entityFactory.newEntity(AnyTemplateRealm.class);
                     anyTemplate.setAnyType(type);
@@ -88,15 +85,12 @@ public class RealmDataBinderImpl implements RealmDataBinder {
                 }
                 anyTemplate.set(entry.getValue());
             }
-        }
-        // remove all templates not contained in the TO
-        CollectionUtils.filter(realm.getTemplates(), new Predicate<AnyTemplate>() {
-
-            @Override
-            public boolean evaluate(final AnyTemplate anyTemplate) {
-                return realmTO.getTemplates().containsKey(anyTemplate.getAnyType().getKey());
-            }
         });
+        // remove all templates not contained in the TO
+        realm.getTemplates().removeAll(
+                realm.getTemplates().stream().
+                        filter(anyTemplate -> !realmTO.getTemplates().containsKey(anyTemplate.getAnyType().getKey())).
+                        collect(Collectors.toList()));
     }
 
     @Override
@@ -133,14 +127,14 @@ public class RealmDataBinderImpl implements RealmDataBinder {
 
         setTemplates(realmTO, realm);
 
-        for (String resourceKey : realmTO.getResources()) {
+        realmTO.getResources().forEach(resourceKey -> {
             ExternalResource resource = resourceDAO.find(resourceKey);
             if (resource == null) {
                 LOG.debug("Invalid " + ExternalResource.class.getSimpleName() + "{}, ignoring...", resourceKey);
             } else {
                 realm.add(resource);
             }
-        }
+        });
 
         return realm;
     }
@@ -184,7 +178,7 @@ public class RealmDataBinderImpl implements RealmDataBinder {
         setTemplates(realmTO, realm);
 
         final PropagationByResource propByRes = new PropagationByResource();
-        for (String resourceKey : realmTO.getResources()) {
+        realmTO.getResources().forEach(resourceKey -> {
             ExternalResource resource = resourceDAO.find(resourceKey);
             if (resource == null) {
                 LOG.debug("Invalid " + ExternalResource.class.getSimpleName() + "{}, ignoring...", resourceKey);
@@ -192,19 +186,16 @@ public class RealmDataBinderImpl implements RealmDataBinder {
                 realm.add(resource);
                 propByRes.add(ResourceOperation.CREATE, resource.getKey());
             }
-        }
-        // remove all resources not contained in the TO
-        CollectionUtils.filter(realm.getResources(), new Predicate<ExternalResource>() {
-
-            @Override
-            public boolean evaluate(final ExternalResource resource) {
-                boolean contained = realmTO.getResources().contains(resource.getKey());
-                if (!contained) {
-                    propByRes.add(ResourceOperation.DELETE, resource.getKey());
-                }
-                return contained;
-            }
         });
+        // remove all resources not contained in the TO
+        realm.getResources().removeAll(
+                realm.getResources().stream().filter(resource -> {
+                    boolean contained = realmTO.getResources().contains(resource.getKey());
+                    if (!contained) {
+                        propByRes.add(ResourceOperation.DELETE, resource.getKey());
+                    }
+                    return !contained;
+                }).collect(Collectors.toList()));
 
         return propByRes;
     }

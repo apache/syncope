@@ -18,16 +18,15 @@
  */
 package org.apache.syncope.core.provisioning.java.job.report;
 
+import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
-import org.apache.commons.collections4.Closure;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -52,7 +51,6 @@ import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
-import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.user.User;
@@ -60,7 +58,6 @@ import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.ConnectorFactory;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
-import org.identityconnectors.common.Base64;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
@@ -266,9 +263,9 @@ public class ReconciliationReportlet extends AbstractReportlet {
             values = Collections.emptySet();
         } else if (attr.getValue().get(0) instanceof byte[]) {
             values = new HashSet<>(attr.getValue().size());
-            for (Object single : attr.getValue()) {
-                values.add(Base64.encode((byte[]) single));
-            }
+            attr.getValue().forEach(single -> {
+                values.add(Base64.getMimeEncoder().encode((byte[]) single));
+            });
         } else {
             values = new HashSet<>(attr.getValue());
         }
@@ -287,18 +284,18 @@ public class ReconciliationReportlet extends AbstractReportlet {
             misaligned.clear();
 
             AnyUtils anyUtils = anyUtilsFactory.getInstance(any);
-            for (final ExternalResource resource : anyUtils.getAllResources(any)) {
-                Provision provision = resource.getProvision(any.getType());
-                MappingItem connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
-                final String connObjectKeyValue = connObjectKeyItem == null
-                        ? StringUtils.EMPTY
-                        : mappingManager.getConnObjectKeyValue(any, provision);
-                if (provision != null && connObjectKeyItem != null && StringUtils.isNotBlank(connObjectKeyValue)) {
+            anyUtils.getAllResources(any).forEach(resource -> {
+                Provision provision = resource.getProvision(any.getType()).orElse(null);
+                Optional<MappingItem> connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision);
+                final String connObjectKeyValue = connObjectKeyItem.isPresent()
+                        ? mappingManager.getConnObjectKeyValue(any, provision).get()
+                        : StringUtils.EMPTY;
+                if (provision != null && connObjectKeyItem.isPresent() && StringUtils.isNotBlank(connObjectKeyValue)) {
                     // 1. read from the underlying connector
                     Connector connector = connFactory.getConnector(resource);
                     ConnectorObject connectorObject = connector.getObject(
                             provision.getObjectClass(),
-                            AttributeBuilder.build(connObjectKeyItem.getExtAttrName(), connObjectKeyValue),
+                            AttributeBuilder.build(connObjectKeyItem.get().getExtAttrName(), connObjectKeyValue),
                             MappingUtils.buildOperationOptions(provision.getMapping().getItems().iterator()));
 
                     if (connectorObject == null) {
@@ -314,37 +311,33 @@ public class ReconciliationReportlet extends AbstractReportlet {
                         preparedAttrs.getRight().add(AttributeBuilder.build(
                                 Uid.NAME, preparedAttrs.getLeft()));
                         preparedAttrs.getRight().add(AttributeBuilder.build(
-                                connObjectKeyItem.getExtAttrName(), preparedAttrs.getLeft()));
+                                connObjectKeyItem.get().getExtAttrName(), preparedAttrs.getLeft()));
 
                         final Map<String, Set<Object>> syncopeAttrs = new HashMap<>();
-                        for (Attribute attr : preparedAttrs.getRight()) {
+                        preparedAttrs.getRight().forEach(attr -> {
                             syncopeAttrs.put(attr.getName(), getValues(attr));
-                        }
-
-                        final Map<String, Set<Object>> resourceAttrs = new HashMap<>();
-                        for (Attribute attr : connectorObject.getAttributes()) {
-                            if (!OperationalAttributes.PASSWORD_NAME.equals(attr.getName())
-                                    && !OperationalAttributes.ENABLE_NAME.equals(attr.getName())) {
-
-                                resourceAttrs.put(attr.getName(), getValues(attr));
-                            }
-                        }
-
-                        IterableUtils.forEach(CollectionUtils.subtract(syncopeAttrs.keySet(), resourceAttrs.keySet()),
-                                new Closure<String>() {
-
-                            @Override
-                            public void execute(final String name) {
-                                misaligned.add(new Misaligned(
-                                        resource.getKey(),
-                                        connObjectKeyValue,
-                                        name,
-                                        syncopeAttrs.get(name),
-                                        Collections.emptySet()));
-                            }
                         });
 
-                        for (Map.Entry<String, Set<Object>> entry : resourceAttrs.entrySet()) {
+                        final Map<String, Set<Object>> resourceAttrs = new HashMap<>();
+                        connectorObject.getAttributes().stream().
+                                filter(attr -> (!OperationalAttributes.PASSWORD_NAME.equals(attr.getName())
+                                && !OperationalAttributes.ENABLE_NAME.equals(attr.getName()))).
+                                forEachOrdered(attr -> {
+                                    resourceAttrs.put(attr.getName(), getValues(attr));
+                                });
+
+                        syncopeAttrs.keySet().stream().
+                                filter(syncopeAttr -> !resourceAttrs.containsKey(syncopeAttr)).
+                                forEach(name -> {
+                                    misaligned.add(new Misaligned(
+                                            resource.getKey(),
+                                            connObjectKeyValue,
+                                            name,
+                                            syncopeAttrs.get(name),
+                                            Collections.emptySet()));
+                                });
+
+                        resourceAttrs.entrySet().forEach(entry -> {
                             if (syncopeAttrs.containsKey(entry.getKey())) {
                                 if (!Objects.equals(syncopeAttrs.get(entry.getKey()), entry.getValue())) {
                                     misaligned.add(new Misaligned(
@@ -362,10 +355,10 @@ public class ReconciliationReportlet extends AbstractReportlet {
                                         Collections.emptySet(),
                                         entry.getValue()));
                             }
-                        }
+                        });
                     }
                 }
-            }
+            });
 
             if (!missing.isEmpty() || !misaligned.isEmpty()) {
                 doExtract(handler, any, missing, misaligned);

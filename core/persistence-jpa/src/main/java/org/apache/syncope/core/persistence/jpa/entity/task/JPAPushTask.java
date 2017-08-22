@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.jpa.entity.task;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
@@ -32,8 +33,6 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
@@ -82,14 +81,8 @@ public class JPAPushTask extends AbstractProvisioningTask implements PushTask {
     }
 
     @Override
-    public PushTaskAnyFilter getFilter(final AnyType anyType) {
-        return IterableUtils.find(filters, new Predicate<PushTaskAnyFilter>() {
-
-            @Override
-            public boolean evaluate(final PushTaskAnyFilter filter) {
-                return anyType != null && anyType.equals(filter.getAnyType());
-            }
-        });
+    public Optional<? extends PushTaskAnyFilter> getFilter(final AnyType anyType) {
+        return filters.stream().filter(filter -> anyType != null && anyType.equals(filter.getAnyType())).findFirst();
     }
 
     @Override

@@ -22,9 +22,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
-import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.commons.ConnIdSpecialName;
 import org.apache.syncope.common.lib.to.AttrTO;
@@ -66,20 +66,8 @@ public class ConnObjectPanel extends Panel {
                         : connObjectTOs.getLeft().getAttrs());
 
                 final List<String> schemas = ListUtils.sum(
-                        CollectionUtils.collect(right, new Transformer<AttrTO, String>() {
-
-                            @Override
-                            public String transform(final AttrTO input) {
-                                return input.getSchema();
-                            }
-                        }, new ArrayList<String>()),
-                        CollectionUtils.collect(left, new Transformer<AttrTO, String>() {
-
-                            @Override
-                            public String transform(final AttrTO input) {
-                                return input.getSchema();
-                            }
-                        }, new ArrayList<String>()));
+                        right.stream().map(AttrTO::getSchema).collect(Collectors.toList()),
+                        left.stream().map(AttrTO::getSchema).collect(Collectors.toList()));
 
                 Collections.sort(schemas);
 
@@ -126,6 +114,7 @@ public class ConnObjectPanel extends Panel {
                         || (CollectionUtils.isNotEmpty(after.getValues())
                         && CollectionUtils.isNotEmpty(before.getValues())
                         && !after.getValues().equals(before.getValues()))) {
+
                     valueFragment.add(new Behavior() {
 
                         private static final long serialVersionUID = 3109256773218160485L;
@@ -152,9 +141,9 @@ public class ConnObjectPanel extends Panel {
     private Panel getValuePanel(final String id, final String schemaName, final AttrTO attrTO) {
         Panel field;
         if (attrTO == null) {
-            field = new AjaxTextFieldPanel(id, schemaName, new Model<String>());
+            field = new AjaxTextFieldPanel(id, schemaName, new Model<>());
         } else if (CollectionUtils.isEmpty(attrTO.getValues())) {
-            field = new AjaxTextFieldPanel(id, schemaName, new Model<String>());
+            field = new AjaxTextFieldPanel(id, schemaName, new Model<>());
         } else if (ConnIdSpecialName.PASSWORD.equals(schemaName)) {
             field = new AjaxTextFieldPanel(id, schemaName, new Model<>("********"));
         } else if (attrTO.getValues().size() == 1) {
@@ -163,7 +152,7 @@ public class ConnObjectPanel extends Panel {
             field = new MultiFieldPanel.Builder<>(new ListModel<>(attrTO.getValues())).build(
                     id,
                     schemaName,
-                    new AjaxTextFieldPanel("panel", schemaName, new Model<String>()));
+                    new AjaxTextFieldPanel("panel", schemaName, new Model<>()));
         }
 
         field.setEnabled(false);

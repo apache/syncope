@@ -112,7 +112,7 @@ public class RestClientExceptionMapper implements ResponseExceptionMapper<Except
             List<String> exInfos = response.getStringHeaders().get(RESTHeaders.ERROR_INFO);
 
             Set<String> handledExceptions = new HashSet<>();
-            for (String exTypeAsString : exTypesInHeaders) {
+            exTypesInHeaders.forEach(exTypeAsString -> {
                 ClientExceptionType exceptionType = null;
                 try {
                     exceptionType = ClientExceptionType.fromHeaderValue(exTypeAsString);
@@ -132,7 +132,7 @@ public class RestClientExceptionMapper implements ResponseExceptionMapper<Except
                     }
                     compException.addException(clientException);
                 }
-            }
+            });
 
             exTypesInHeaders.removeAll(handledExceptions);
             if (!exTypesInHeaders.isEmpty()) {

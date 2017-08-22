@@ -23,12 +23,11 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.patch.UserPatch;
 
@@ -135,14 +134,8 @@ public class WorkflowFormTO extends AbstractBaseBean {
     }
 
     @JsonIgnore
-    public WorkflowFormPropertyTO getProperty(final String id) {
-        return IterableUtils.find(properties, new Predicate<WorkflowFormPropertyTO>() {
-
-            @Override
-            public boolean evaluate(final WorkflowFormPropertyTO object) {
-                return id.equals(object.getId());
-            }
-        });
+    public Optional<WorkflowFormPropertyTO> getProperty(final String id) {
+        return properties.stream().filter(property -> id.equals(property.getId())).findFirst();
     }
 
     @XmlElementWrapper(name = "workflowFormProperties")

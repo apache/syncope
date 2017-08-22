@@ -19,19 +19,17 @@
 package org.apache.syncope.client.console.panels.search;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.collections4.CollectionUtils;
+import java.util.stream.Collectors;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
-import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.search.SearchableFields;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
-import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.event.IEventSink;
@@ -192,8 +190,7 @@ public abstract class AbstractSearchPanel extends Panel {
 
             @Override
             protected List<String> load() {
-                return CollectionUtils.collect(resourceRestClient.list(),
-                        EntityTOUtils.<ResourceTO>keyTransformer(), new ArrayList<String>());
+                return resourceRestClient.list().stream().map(EntityTO::getKey).collect(Collectors.toList());
             }
         };
     }

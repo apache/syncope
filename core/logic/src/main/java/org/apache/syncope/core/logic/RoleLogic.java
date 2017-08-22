@@ -19,10 +19,8 @@
 package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.RoleTO;
@@ -61,13 +59,7 @@ public class RoleLogic extends AbstractTransactionalLogic<RoleTO> {
     @PreAuthorize("hasRole('" + StandardEntitlement.ROLE_LIST + "')")
     @Transactional(readOnly = true)
     public List<RoleTO> list() {
-        return CollectionUtils.collect(roleDAO.findAll(), new Transformer<Role, RoleTO>() {
-
-            @Override
-            public RoleTO transform(final Role input) {
-                return binder.getRoleTO(input);
-            }
-        }, new ArrayList<RoleTO>());
+        return roleDAO.findAll().stream().map(role -> binder.getRoleTO(role)).collect(Collectors.toList());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.ROLE_CREATE + "')")

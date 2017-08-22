@@ -24,9 +24,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Predicate;
-import org.apache.commons.collections4.Transformer;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
@@ -102,7 +100,7 @@ public class PolicyRuleDirectoryPanel<T extends AbstractPolicyTO> extends Direct
     protected List<IColumn<PolicyRuleWrapper, String>> getColumns() {
         final List<IColumn<PolicyRuleWrapper, String>> columns = new ArrayList<>();
 
-        columns.add(new PropertyColumn<PolicyRuleWrapper, String>(
+        columns.add(new PropertyColumn<>(
                 new StringResourceModel("ruleConf", this), "name", "name"));
 
         columns.add(new AbstractColumn<PolicyRuleWrapper, String>(
@@ -160,13 +158,9 @@ public class PolicyRuleDirectoryPanel<T extends AbstractPolicyTO> extends Direct
                 final RuleConf rule = model.getObject().getConf();
                 try {
                     final T actual = restClient.getPolicy(policy);
-                    CollectionUtils.filter(getRuleConf(actual), new Predicate<RuleConf>() {
-
-                        @Override
-                        public boolean evaluate(final RuleConf object) {
-                            return !object.getName().equals(rule.getName());
-                        }
-                    });
+                    List<RuleConf> conf = getRuleConf(actual);
+                    conf.removeAll(conf.stream().
+                            filter(object -> object.getName().equals(rule.getName())).collect(Collectors.toList()));
                     restClient.updatePolicy(actual);
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     customActionOnFinishCallback(target);
@@ -235,14 +229,9 @@ public class PolicyRuleDirectoryPanel<T extends AbstractPolicyTO> extends Direct
         public Iterator<PolicyRuleWrapper> iterator(final long first, final long count) {
             final T actual = restClient.getPolicy(policy);
 
-            final ArrayList<PolicyRuleWrapper> rules = CollectionUtils.collect(getRuleConf(actual),
-                    new Transformer<RuleConf, PolicyRuleWrapper>() {
-
-                @Override
-                public PolicyRuleWrapper transform(final RuleConf input) {
-                    return new PolicyRuleWrapper(input.getName()).setName(input.getName()).setConf(input);
-                }
-            }, new ArrayList<PolicyRuleWrapper>());
+            final List<PolicyRuleWrapper> rules = getRuleConf(actual).stream().map(input
+                    -> new PolicyRuleWrapper(input.getName()).setName(input.getName()).setConf(input)).
+                    collect(Collectors.toList());
 
             Collections.sort(rules, comparator);
             return rules.subList((int) first, (int) (first + count)).iterator();

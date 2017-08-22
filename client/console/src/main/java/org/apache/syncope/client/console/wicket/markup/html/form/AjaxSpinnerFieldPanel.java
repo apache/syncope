@@ -25,7 +25,6 @@ import com.googlecode.wicket.jquery.ui.form.spinner.SpinnerAdapter;
 import com.googlecode.wicket.jquery.ui.form.spinner.SpinnerBehavior;
 import java.io.Serializable;
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.syncope.client.console.commons.Constants;
@@ -98,8 +97,9 @@ public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T>
             public T getObject() {
                 T value = null;
 
-                if (CollectionUtils.isNotEmpty(list)
+                if (list != null && !list.isEmpty()
                         && list.get(0) != null && StringUtils.isNotBlank(list.get(0).toString())) {
+
                     value = reference.equals(Integer.class)
                             ? reference.cast(NumberUtils.toInt(list.get(0).toString()))
                             : reference.equals(Long.class)
@@ -175,8 +175,7 @@ public final class AjaxSpinnerFieldPanel<T extends Number> extends FieldPanel<T>
 
     @Override
     public AjaxSpinnerFieldPanel<T> clone() {
-        final AjaxSpinnerFieldPanel<T> panel
-                = new AjaxSpinnerFieldPanel<>(getId(), name, reference, model, options, false);
+        AjaxSpinnerFieldPanel<T> panel = new AjaxSpinnerFieldPanel<>(getId(), name, reference, model, options, false);
 
         panel.setRequired(isRequired());
         panel.setReadOnly(isReadOnly());

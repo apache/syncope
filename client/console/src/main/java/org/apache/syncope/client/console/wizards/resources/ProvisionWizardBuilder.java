@@ -20,8 +20,7 @@ package org.apache.syncope.client.console.wizards.resources;
 
 import java.io.Serializable;
 import java.util.List;
-import org.apache.commons.collections4.ListUtils;
-import org.apache.commons.collections4.Predicate;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.ConnIdSpecialName;
 import org.apache.syncope.client.console.commons.Constants;
@@ -71,7 +70,7 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ResourceProvision>
             add(container);
 
             clazz = new AjaxTextFieldPanel(
-                    "clazz", "clazz", new PropertyModel<String>(item, "objectClass"));
+                    "clazz", "clazz", new PropertyModel<>(item, "objectClass"));
             clazz.setRequired(true);
             clazz.setChoices(connectorRestClient.getObjectClasses(resourceTO.getConnector()));
             container.add(clazz);
@@ -158,7 +157,7 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ResourceProvision>
             final AjaxTextFieldPanel connObjectLink = new AjaxTextFieldPanel(
                     "connObjectLink",
                     new ResourceModel("connObjectLink", "connObjectLink").getObject(),
-                    new PropertyModel<String>(item, "connObjectLink"),
+                    new PropertyModel<>(item, "connObjectLink"),
                     false);
             connObjectLink.enableJexlHelp();
             connObjectLink.setEnabled(connObjectLinkEnabled);
@@ -224,21 +223,13 @@ public class ProvisionWizardBuilder extends AjaxWizardBuilder<ResourceProvision>
         } else if (modelObject.getProvisionTO() != null) {
             final List<ProvisionTO> provisions;
             if (modelObject.getKey() == null) {
-                provisions = ListUtils.select(this.resourceTO.getProvisions(), new Predicate<ProvisionTO>() {
-
-                    @Override
-                    public boolean evaluate(final ProvisionTO object) {
-                        return !modelObject.getAnyType().equals(object.getAnyType());
-                    }
-                });
+                provisions = this.resourceTO.getProvisions().stream().
+                        filter(object -> !modelObject.getAnyType().equals(object.getAnyType())).
+                        collect(Collectors.toList());
             } else {
-                provisions = ListUtils.select(this.resourceTO.getProvisions(), new Predicate<ProvisionTO>() {
-
-                    @Override
-                    public boolean evaluate(final ProvisionTO object) {
-                        return !modelObject.getKey().equals(object.getKey());
-                    }
-                });
+                provisions = this.resourceTO.getProvisions().stream().
+                        filter(object -> !modelObject.getKey().equals(object.getKey())).
+                        collect(Collectors.toList());
             }
 
             ProvisionTO provisionTO = modelObject.getProvisionTO();

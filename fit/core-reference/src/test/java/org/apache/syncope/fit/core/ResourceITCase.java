@@ -31,16 +31,15 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.ws.rs.core.Response;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.console.commons.ConnIdSpecialName;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
-import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.MappingTO;
@@ -218,14 +217,14 @@ public class ResourceITCase extends AbstractITCase {
         ResourceTO actual = getObject(response.getLocation(), ResourceService.class, ResourceTO.class);
 
         assertNotNull(actual);
-        assertNotNull(actual.getProvision(AnyTypeKind.USER.name()).getMapping());
-        assertNotNull(actual.getProvision(AnyTypeKind.USER.name()).getMapping().getItems());
-        assertNotNull(actual.getProvision(AnyTypeKind.GROUP.name()).getMapping());
-        assertNotNull(actual.getProvision(AnyTypeKind.GROUP.name()).getMapping().getItems());
+        assertNotNull(actual.getProvision(AnyTypeKind.USER.name()).get().getMapping());
+        assertNotNull(actual.getProvision(AnyTypeKind.USER.name()).get().getMapping().getItems());
+        assertNotNull(actual.getProvision(AnyTypeKind.GROUP.name()).get().getMapping());
+        assertNotNull(actual.getProvision(AnyTypeKind.GROUP.name()).get().getMapping().getItems());
         assertEquals(MappingPurpose.PULL,
-                actual.getProvision(AnyTypeKind.GROUP.name()).getMapping().getConnObjectKeyItem().getPurpose());
+                actual.getProvision(AnyTypeKind.GROUP.name()).get().getMapping().getConnObjectKeyItem().getPurpose());
         assertEquals(MappingPurpose.PROPAGATION,
-                actual.getProvision(AnyTypeKind.USER.name()).getMapping().getConnObjectKeyItem().getPurpose());
+                actual.getProvision(AnyTypeKind.USER.name()).get().getMapping().getConnObjectKeyItem().getPurpose());
     }
 
     @Test
@@ -382,7 +381,7 @@ public class ResourceITCase extends AbstractITCase {
         assertNotNull(actual);
 
         // check for existence
-        Collection<ItemTO> mapItems = actual.getProvision(AnyTypeKind.USER.name()).getMapping().getItems();
+        Collection<ItemTO> mapItems = actual.getProvision(AnyTypeKind.USER.name()).get().getMapping().getItems();
         assertNotNull(mapItems);
         assertEquals(4, mapItems.size());
     }
@@ -408,7 +407,7 @@ public class ResourceITCase extends AbstractITCase {
         try {
             // create a new resource
             resource = createResource(resource);
-            assertNull(resource.getProvision("PRINTER").getSyncToken());
+            assertNull(resource.getProvision("PRINTER").get().getSyncToken());
 
             // create some object on the new resource
             anyObject = createAnyObject(anyObject).getEntity();
@@ -417,13 +416,13 @@ public class ResourceITCase extends AbstractITCase {
             resourceService.setLatestSyncToken(resource.getKey(), "PRINTER");
 
             resource = resourceService.read(resource.getKey());
-            assertNotNull(resource.getProvision("PRINTER").getSyncToken());
+            assertNotNull(resource.getProvision("PRINTER").get().getSyncToken());
 
             // remove sync token
             resourceService.removeSyncToken(resource.getKey(), "PRINTER");
 
             resource = resourceService.read(resource.getKey());
-            assertNull(resource.getProvision("PRINTER").getSyncToken());
+            assertNull(resource.getProvision("PRINTER").get().getSyncToken());
         } finally {
             if (anyObject.getKey() != null) {
                 anyObjectService.delete(anyObject.getKey());
@@ -495,9 +494,7 @@ public class ResourceITCase extends AbstractITCase {
         List<ResourceTO> actuals = resourceService.list();
         assertNotNull(actuals);
         assertFalse(actuals.isEmpty());
-        for (ResourceTO resourceTO : actuals) {
-            assertNotNull(resourceTO);
-        }
+        actuals.forEach(resourceTO -> assertNotNull(resourceTO));
     }
 
     @Test
@@ -505,10 +502,10 @@ public class ResourceITCase extends AbstractITCase {
         ResourceTO resource = resourceService.read(RESOURCE_NAME_DBVIRATTR);
         assertNotNull(resource);
 
-        ProvisionTO provision = resource.getProvision(AnyTypeKind.USER.name());
-        assertNotNull(provision);
-        assertFalse(provision.getMapping().getItems().isEmpty());
-        assertFalse(provision.getMapping().getLinkingItems().isEmpty());
+        Optional<ProvisionTO> provision = resource.getProvision(AnyTypeKind.USER.name());
+        assertTrue(provision.isPresent());
+        assertFalse(provision.get().getMapping().getItems().isEmpty());
+        assertFalse(provision.get().getMapping().getLinkingItems().isEmpty());
     }
 
     @Test
@@ -545,13 +542,9 @@ public class ResourceITCase extends AbstractITCase {
                 assertNotNull(list);
 
                 totalRead += list.getResult().size();
-                CollectionUtils.collect(list.getResult(), new Transformer<ConnObjectTO, String>() {
-
-                    @Override
-                    public String transform(final ConnObjectTO input) {
-                        return input.getAttr(ConnIdSpecialName.NAME).getValues().get(0);
-                    }
-                }, read);
+                read.addAll(list.getResult().stream().
+                        map(input -> input.getAttr(ConnIdSpecialName.NAME).get().getValues().get(0)).
+                        collect(Collectors.toList()));
 
                 if (list.getPagedResultsCookie() != null) {
                     builder.pagedResultsCookie(list.getPagedResultsCookie());
@@ -561,9 +554,9 @@ public class ResourceITCase extends AbstractITCase {
             assertEquals(totalRead, read.size());
             assertTrue(totalRead >= 10);
         } finally {
-            for (String key : groupKeys) {
+            groupKeys.forEach(key -> {
                 groupService.delete(key);
-            }
+            });
         }
     }
 
@@ -576,20 +569,20 @@ public class ResourceITCase extends AbstractITCase {
         ResourceTO ldap = resourceService.read(RESOURCE_NAME_LDAP);
         TraceLevel originalTraceLevel = SerializationUtils.clone(ldap.getUpdateTraceLevel());
         assertEquals(TraceLevel.ALL, originalTraceLevel);
-        ProvisionTO originalProvision = SerializationUtils.clone(ldap.getProvision(AnyTypeKind.USER.name()));
+        ProvisionTO originalProvision = SerializationUtils.clone(ldap.getProvision(AnyTypeKind.USER.name()).get());
         assertEquals(ObjectClass.ACCOUNT_NAME, originalProvision.getObjectClass());
         boolean originalFlag = ldap.isRandomPwdIfNotProvided();
         assertTrue(originalFlag);
 
         ldap.setUpdateTraceLevel(TraceLevel.FAILURES);
-        ldap.getProvision(AnyTypeKind.USER.name()).setObjectClass("ANOTHER");
+        ldap.getProvision(AnyTypeKind.USER.name()).get().setObjectClass("ANOTHER");
         ldap.setRandomPwdIfNotProvided(false);
         resourceService.update(ldap);
 
         ldap = resourceService.read(RESOURCE_NAME_LDAP);
         assertNotEquals(originalTraceLevel, ldap.getUpdateTraceLevel());
         assertNotEquals(
-                originalProvision.getObjectClass(), ldap.getProvision(AnyTypeKind.USER.name()).getObjectClass());
+                originalProvision.getObjectClass(), ldap.getProvision(AnyTypeKind.USER.name()).get().getObjectClass());
         assertNotEquals(originalFlag, ldap.isRandomPwdIfNotProvided());
 
         history = resourceHistoryService.list(RESOURCE_NAME_LDAP);
@@ -599,7 +592,9 @@ public class ResourceITCase extends AbstractITCase {
 
         ldap = resourceService.read(RESOURCE_NAME_LDAP);
         assertEquals(originalTraceLevel, ldap.getUpdateTraceLevel());
-        assertEquals(originalProvision.getObjectClass(), ldap.getProvision(AnyTypeKind.USER.name()).getObjectClass());
+        assertEquals(
+                originalProvision.getObjectClass(),
+                ldap.getProvision(AnyTypeKind.USER.name()).get().getObjectClass());
         assertEquals(originalFlag, ldap.isRandomPwdIfNotProvided());
     }
 
@@ -663,14 +658,14 @@ public class ResourceITCase extends AbstractITCase {
 
         ResourceTO resource = resourceService.read(name);
         assertNotNull(resource);
-        assertNotNull(resource.getProvision(AnyTypeKind.USER.name()).getMapping());
+        assertNotNull(resource.getProvision(AnyTypeKind.USER.name()).get().getMapping());
 
-        resource.getProvision(AnyTypeKind.USER.name()).setMapping(null);
+        resource.getProvision(AnyTypeKind.USER.name()).get().setMapping(null);
         resourceService.update(resource);
 
         resource = resourceService.read(name);
         assertNotNull(resource);
-        assertNull(resource.getProvision(AnyTypeKind.USER.name()).getMapping());
+        assertNull(resource.getProvision(AnyTypeKind.USER.name()).get().getMapping());
     }
 
     @Test
@@ -704,7 +699,7 @@ public class ResourceITCase extends AbstractITCase {
 
         resourceTO = createResource(resourceTO);
         assertNotNull(resourceTO);
-        assertEquals(2, resourceTO.getProvision(AnyTypeKind.GROUP.name()).getMapping().getItems().size());
+        assertEquals(2, resourceTO.getProvision(AnyTypeKind.GROUP.name()).get().getMapping().getItems().size());
     }
 
     @Test
@@ -753,15 +748,13 @@ public class ResourceITCase extends AbstractITCase {
         ResourceTO actual = getObject(response.getLocation(), ResourceService.class, ResourceTO.class);
 
         assertNotNull(actual);
-        assertNotNull(actual.getProvision(AnyTypeKind.USER.name()).getMapping());
-        assertNotNull(actual.getProvision(AnyTypeKind.USER.name()).getMapping().getItems());
+        assertNotNull(actual.getProvision(AnyTypeKind.USER.name()).get().getMapping());
+        assertNotNull(actual.getProvision(AnyTypeKind.USER.name()).get().getMapping().getItems());
         assertEquals(MappingPurpose.PROPAGATION,
-                actual.getProvision(AnyTypeKind.USER.name()).getMapping().getConnObjectKeyItem().getPurpose());
-        for (ItemTO itemTO : actual.getProvision(AnyTypeKind.USER.name()).getMapping().getItems()) {
-            if ("gender".equals(itemTO.getIntAttrName())) {
-                assertEquals(MappingPurpose.NONE, itemTO.getPurpose());
-            }
-        }
+                actual.getProvision(AnyTypeKind.USER.name()).get().getMapping().getConnObjectKeyItem().getPurpose());
+        actual.getProvision(AnyTypeKind.USER.name()).get().getMapping().getItems().stream().
+                filter(itemTO -> ("gender".equals(itemTO.getIntAttrName()))).
+                forEach(itemTO -> assertEquals(MappingPurpose.NONE, itemTO.getPurpose()));
     }
 
     public void issueSYNCOPE645() {

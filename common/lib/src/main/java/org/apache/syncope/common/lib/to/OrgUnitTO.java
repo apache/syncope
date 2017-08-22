@@ -25,8 +25,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 
 @XmlRootElement(name = "orgUnit")
@@ -81,13 +79,7 @@ public class OrgUnitTO extends AbstractBaseBean implements EntityTO, ItemContain
 
     @Override
     public ItemTO getConnObjectKeyItem() {
-        return IterableUtils.find(getItems(), new Predicate<ItemTO>() {
-
-            @Override
-            public boolean evaluate(final ItemTO item) {
-                return item.isConnObjectKey();
-            }
-        });
+        return getItems().stream().filter(item -> item.isConnObjectKey()).findFirst().get();
     }
 
     protected boolean addConnObjectKeyItem(final ItemTO connObjectItem) {

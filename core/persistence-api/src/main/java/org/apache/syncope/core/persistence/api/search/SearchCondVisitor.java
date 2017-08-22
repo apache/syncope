@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.api.search;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.apache.cxf.jaxrs.ext.search.ConditionType;
 import org.apache.cxf.jaxrs.ext.search.SearchBean;
 import org.apache.cxf.jaxrs.ext.search.SearchCondition;
@@ -69,11 +70,11 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
 
     private SearchCond visitPrimitive(final SearchCondition<SearchBean> sc) {
         String name = getRealPropertyName(sc.getStatement().getProperty());
-        SpecialAttr specialAttrName = SpecialAttr.fromString(name);
+        Optional<SpecialAttr> specialAttrName = SpecialAttr.fromString(name);
 
         String value = SearchUtils.toSqlWildcardString(sc.getStatement().getValue().toString(), false).
                 replaceAll("\\\\_", "_");
-        SpecialAttr specialAttrValue = SpecialAttr.fromString(value);
+        Optional<SpecialAttr> specialAttrValue = SpecialAttr.fromString(value);
 
         AttributeCond attributeCond = createAttributeCond(name);
         attributeCond.setExpression(value);
@@ -95,8 +96,8 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
         switch (ct) {
             case EQUALS:
             case NOT_EQUALS:
-                if (specialAttrName == null) {
-                    if (specialAttrValue != null && specialAttrValue == SpecialAttr.NULL) {
+                if (!specialAttrName.isPresent()) {
+                    if (specialAttrValue.isPresent() && specialAttrValue.get() == SpecialAttr.NULL) {
                         attributeCond.setType(AttributeCond.Type.ISNULL);
                         attributeCond.setExpression(null);
                     } else if (value.indexOf('%') == -1) {
@@ -111,7 +112,7 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
 
                     leaf = SearchCond.getLeafCond(attributeCond);
                 } else {
-                    switch (specialAttrName) {
+                    switch (specialAttrName.get()) {
                         case TYPE:
                             AnyTypeCond typeCond = new AnyTypeCond();
                             typeCond.setAnyTypeKey(value);
@@ -213,11 +214,11 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
 
     private SearchCond visitCompount(final SearchCondition<SearchBean> sc) {
         List<SearchCond> searchConds = new ArrayList<>();
-        for (SearchCondition<SearchBean> searchCondition : sc.getSearchConditions()) {
+        sc.getSearchConditions().forEach(searchCondition -> {
             searchConds.add(searchCondition.getStatement() == null
                     ? visitCompount(searchCondition)
                     : visitPrimitive(searchCondition));
-        }
+        });
 
         SearchCond compound;
         switch (sc.getConditionType()) {

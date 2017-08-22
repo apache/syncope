@@ -25,12 +25,9 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestWrapper;
 
@@ -55,15 +52,9 @@ public class MustChangePasswordFilter implements Filter {
             throws IOException, ServletException {
 
         if (request instanceof SecurityContextHolderAwareRequestWrapper) {
-            boolean isMustChangePassword = IterableUtils.matchesAny(
-                    SecurityContextHolder.getContext().getAuthentication().getAuthorities(),
-                    new Predicate<GrantedAuthority>() {
-
-                @Override
-                public boolean evaluate(final GrantedAuthority authority) {
-                    return StandardEntitlement.MUST_CHANGE_PASSWORD.equals(authority.getAuthority());
-                }
-            });
+            boolean isMustChangePassword =
+                    SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().anyMatch(
+                            authority -> StandardEntitlement.MUST_CHANGE_PASSWORD.equals(authority.getAuthority()));
 
             SecurityContextHolderAwareRequestWrapper wrapper =
                     SecurityContextHolderAwareRequestWrapper.class.cast(request);

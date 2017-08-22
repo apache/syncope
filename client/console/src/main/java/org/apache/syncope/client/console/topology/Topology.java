@@ -28,7 +28,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import org.apache.commons.collections4.CollectionUtils;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
@@ -42,8 +42,8 @@ import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
-import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.Component;
@@ -372,7 +372,7 @@ public class Topology extends BasePage {
         // -----------------------------------------
         final Collection<String> administrableConns = new HashSet<>();
         for (List<ConnInstanceTO> connInstances : connModel.getObject().values()) {
-            administrableConns.addAll(CollectionUtils.collect(connInstances, EntityTOUtils.keyTransformer()));
+            administrableConns.addAll(connInstances.stream().map(EntityTO::getKey).collect(Collectors.toList()));
         }
 
         final List<String> connToBeProcessed = new ArrayList<>();

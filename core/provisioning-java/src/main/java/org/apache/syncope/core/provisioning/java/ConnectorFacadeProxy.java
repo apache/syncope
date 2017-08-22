@@ -20,14 +20,11 @@ package org.apache.syncope.core.provisioning.java;
 
 import java.io.File;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
-import org.apache.syncope.common.lib.types.ConnConfProperty;
+import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
 import org.apache.syncope.core.provisioning.api.ConnIdBundleManager;
@@ -108,12 +105,12 @@ public class ConnectorFacadeProxy implements Connector {
 
         // set connector configuration according to conninstance's
         ConfigurationProperties properties = apiConfig.getConfigurationProperties();
-        for (ConnConfProperty property : connInstance.getConf()) {
-            if (property.getValues() != null && !property.getValues().isEmpty()) {
-                properties.setPropertyValue(property.getSchema().getName(),
-                        getPropertyValue(property.getSchema().getType(), property.getValues()));
-            }
-        }
+        connInstance.getConf().stream().
+                filter(property -> (property.getValues() != null && !property.getValues().isEmpty())).
+                forEachOrdered(property -> {
+                    properties.setPropertyValue(property.getSchema().getName(),
+                            getPropertyValue(property.getSchema().getType(), property.getValues()));
+                });
 
         // set pooling configuration (if supported) according to conninstance's
         if (connInstance.getPoolConf() != null) {
@@ -476,13 +473,9 @@ public class ConnectorFacadeProxy implements Connector {
         if (pagedResultsCookie != null) {
             builder.setPagedResultsCookie(pagedResultsCookie);
         }
-        builder.setSortKeys(CollectionUtils.collect(orderBy, new Transformer<OrderByClause, SortKey>() {
-
-            @Override
-            public SortKey transform(final OrderByClause clause) {
-                return new SortKey(clause.getField(), clause.getDirection() == OrderByClause.Direction.ASC);
-            }
-        }, new ArrayList<SortKey>(orderBy.size())));
+        builder.setSortKeys(orderBy.stream().map(clause
+                -> new SortKey(clause.getField(), clause.getDirection() == OrderByClause.Direction.ASC)).
+                collect(Collectors.toList()));
 
         builder.setAttributesToGet(options.getAttributesToGet());
 

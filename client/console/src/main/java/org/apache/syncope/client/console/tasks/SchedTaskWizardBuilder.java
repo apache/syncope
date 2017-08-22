@@ -23,8 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
+import java.util.stream.Collectors;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.rest.RealmRestClient;
@@ -69,15 +68,8 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
 
         @Override
         protected List<String> load() {
-            List<String> result = CollectionUtils.collect(
-                    new RealmRestClient().list(), new Transformer<RealmTO, String>() {
-
-                @Override
-                public String transform(final RealmTO realm) {
-                    return realm.getFullPath();
-                }
-            }, new ArrayList<String>());
-
+            List<String> result = new RealmRestClient().list().stream().
+                    map(RealmTO::getFullPath).collect(Collectors.toList());
             Collections.sort(result);
 
             return result;
@@ -160,24 +152,24 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
         };
 
         public Profile(final SchedTaskTO taskTO) {
-            AjaxTextFieldPanel name = new AjaxTextFieldPanel("name", "name", new PropertyModel<String>(taskTO, "name"),
+            AjaxTextFieldPanel name = new AjaxTextFieldPanel("name", "name", new PropertyModel<>(taskTO, "name"),
                     false);
             name.addRequiredLabel();
             name.setEnabled(true);
             add(name);
 
             AjaxTextFieldPanel description = new AjaxTextFieldPanel(
-                    "description", "description", new PropertyModel<String>(taskTO, "description"), false);
+                    "description", "description", new PropertyModel<>(taskTO, "description"), false);
             description.setEnabled(true);
             add(description);
 
-            AjaxCheckBoxPanel active = new AjaxCheckBoxPanel("active", "active", new PropertyModel<Boolean>(taskTO,
-                    "active"), false);
+            AjaxCheckBoxPanel active = new AjaxCheckBoxPanel("active", "active", new PropertyModel<>(taskTO, "active"),
+                    false);
             add(active);
 
             AjaxDropDownChoicePanel<String> jobDelegateClassName = new AjaxDropDownChoicePanel<>(
                     "jobDelegateClassName", "jobDelegateClassName",
-                    new PropertyModel<String>(taskTO, "jobDelegateClassName"), false);
+                    new PropertyModel<>(taskTO, "jobDelegateClassName"), false);
             jobDelegateClassName.setChoices(taskJobClasses.getObject());
             jobDelegateClassName.addRequiredLabel();
             jobDelegateClassName.setEnabled(taskTO.getKey() == null);
@@ -198,7 +190,7 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
             }
 
             final AjaxDropDownChoicePanel<PullMode> pullMode = new AjaxDropDownChoicePanel<>(
-                    "pullMode", "pullMode", new PropertyModel<PullMode>(taskTO, "pullMode"), false);
+                    "pullMode", "pullMode", new PropertyModel<>(taskTO, "pullMode"), false);
             pullMode.setChoices(Arrays.asList(PullMode.values()));
             if (taskTO instanceof PullTaskTO) {
                 pullMode.addRequiredLabel();
@@ -208,7 +200,7 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
 
             final AjaxDropDownChoicePanel<String> reconciliationFilterBuilderClassName = new AjaxDropDownChoicePanel<>(
                     "reconciliationFilterBuilderClassName", "reconciliationFilterBuilderClassName",
-                    new PropertyModel<String>(taskTO, "reconciliationFilterBuilderClassName"), false);
+                    new PropertyModel<>(taskTO, "reconciliationFilterBuilderClassName"), false);
             reconciliationFilterBuilderClassName.setChoices(reconciliationFilterBuilderClasses.getObject());
             reconciliationFilterBuilderClassName.setStyleSheet("ui-widget-content ui-corner-all long_dynamicsize");
             reconciliationFilterBuilderClassName.setEnabled(isFiltered);
@@ -281,30 +273,30 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
             provisioningTaskSpecifics.add(actionsClassNames);
 
             AjaxDropDownChoicePanel<MatchingRule> matchingRule = new AjaxDropDownChoicePanel<>(
-                    "matchingRule", "matchingRule", new PropertyModel<MatchingRule>(taskTO, "matchingRule"), false);
+                    "matchingRule", "matchingRule", new PropertyModel<>(taskTO, "matchingRule"), false);
             matchingRule.setChoices(Arrays.asList(MatchingRule.values()));
             provisioningTaskSpecifics.add(matchingRule);
 
             AjaxDropDownChoicePanel<UnmatchingRule> unmatchingRule = new AjaxDropDownChoicePanel<>(
-                    "unmatchingRule", "unmatchingRule", new PropertyModel<UnmatchingRule>(taskTO, "unmatchingRule"),
+                    "unmatchingRule", "unmatchingRule", new PropertyModel<>(taskTO, "unmatchingRule"),
                     false);
             unmatchingRule.setChoices(Arrays.asList(UnmatchingRule.values()));
             provisioningTaskSpecifics.add(unmatchingRule);
 
             AjaxCheckBoxPanel performCreate = new AjaxCheckBoxPanel(
-                    "performCreate", "performCreate", new PropertyModel<Boolean>(taskTO, "performCreate"), false);
+                    "performCreate", "performCreate", new PropertyModel<>(taskTO, "performCreate"), false);
             provisioningTaskSpecifics.add(performCreate);
 
             AjaxCheckBoxPanel performUpdate = new AjaxCheckBoxPanel(
-                    "performUpdate", "performUpdate", new PropertyModel<Boolean>(taskTO, "performUpdate"), false);
+                    "performUpdate", "performUpdate", new PropertyModel<>(taskTO, "performUpdate"), false);
             provisioningTaskSpecifics.add(performUpdate);
 
             AjaxCheckBoxPanel performDelete = new AjaxCheckBoxPanel(
-                    "performDelete", "performDelete", new PropertyModel<Boolean>(taskTO, "performDelete"), false);
+                    "performDelete", "performDelete", new PropertyModel<>(taskTO, "performDelete"), false);
             provisioningTaskSpecifics.add(performDelete);
 
             AjaxCheckBoxPanel syncStatus = new AjaxCheckBoxPanel(
-                    "syncStatus", "syncStatus", new PropertyModel<Boolean>(taskTO, "syncStatus"), false);
+                    "syncStatus", "syncStatus", new PropertyModel<>(taskTO, "syncStatus"), false);
             provisioningTaskSpecifics.add(syncStatus);
         }
     }
@@ -315,7 +307,7 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
 
         public Schedule(final SchedTaskTO taskTO) {
             crontabPanel = new CrontabPanel(
-                    "schedule", new PropertyModel<String>(taskTO, "cronExpression"), taskTO.getCronExpression());
+                    "schedule", new PropertyModel<>(taskTO, "cronExpression"), taskTO.getCronExpression());
             add(crontabPanel);
         }
     }

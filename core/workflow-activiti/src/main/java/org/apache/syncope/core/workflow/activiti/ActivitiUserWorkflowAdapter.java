@@ -31,6 +31,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import org.activiti.bpmn.converter.BpmnXMLConverter;
 import org.activiti.bpmn.model.BpmnModel;
@@ -41,7 +42,6 @@ import org.activiti.engine.form.FormProperty;
 import org.activiti.engine.form.FormType;
 import org.activiti.engine.form.TaskFormData;
 import org.activiti.engine.history.HistoricActivityInstance;
-import org.activiti.engine.history.HistoricDetail;
 import org.activiti.engine.history.HistoricTaskInstance;
 import org.activiti.engine.impl.persistence.entity.HistoricFormPropertyEntity;
 import org.activiti.engine.query.Query;
@@ -50,8 +50,6 @@ import org.activiti.engine.repository.Model;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -182,11 +180,9 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     protected Set<String> getPerformedTasks(final User user) {
         final Set<String> result = new HashSet<>();
 
-        for (HistoricActivityInstance task : engine.getHistoryService().createHistoricActivityInstanceQuery().
-                executionId(user.getWorkflowId()).list()) {
-
-            result.add(task.getActivityId());
-        }
+        engine.getHistoryService().createHistoricActivityInstanceQuery().
+                executionId(user.getWorkflowId()).list().
+                forEach(task -> result.add(task.getActivityId()));
 
         return result;
     }
@@ -263,8 +259,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
         Set<String> tasks = getPerformedTasks(user);
 
-        return new WorkflowResult<Pair<String, Boolean>>(
-                new ImmutablePair<>(user.getKey(), propagateEnable), propByRes, tasks);
+        return new WorkflowResult<>(new ImmutablePair<>(user.getKey(), propagateEnable), propByRes, tasks);
     }
 
     protected Set<String> doExecuteTask(final User user, final String task, final Map<String, Object> moreVariables) {
@@ -333,8 +328,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         Boolean propagateEnable = engine.getRuntimeService().getVariable(
                 user.getWorkflowId(), PROPAGATE_ENABLE, Boolean.class);
 
-        return new WorkflowResult<Pair<UserPatch, Boolean>>(
-                new ImmutablePair<>(updatedPatch, propagateEnable), propByRes, tasks);
+        return new WorkflowResult<>(new ImmutablePair<>(updatedPatch, propagateEnable), propByRes, tasks);
     }
 
     @Override
@@ -403,8 +397,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         Boolean propagateEnable = engine.getRuntimeService().getVariable(
                 user.getWorkflowId(), PROPAGATE_ENABLE, Boolean.class);
 
-        return new WorkflowResult<Pair<UserPatch, Boolean>>(
-                new ImmutablePair<>(updatedPatch, propagateEnable), propByRes, tasks);
+        return new WorkflowResult<>(new ImmutablePair<>(updatedPatch, propagateEnable), propByRes, tasks);
     }
 
     @Override
@@ -483,13 +476,9 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     protected WorkflowFormTO getFormTO(final HistoricTaskInstance task) {
         final List<HistoricFormPropertyEntity> props = new ArrayList<>();
 
-        for (HistoricDetail historicDetail
-                : engine.getHistoryService().createHistoricDetailQuery().taskId(task.getId()).list()) {
-
-            if (historicDetail instanceof HistoricFormPropertyEntity) {
-                props.add((HistoricFormPropertyEntity) historicDetail);
-            }
-        }
+        engine.getHistoryService().createHistoricDetailQuery().taskId(task.getId()).list().stream().
+                filter(historicDetail -> (historicDetail instanceof HistoricFormPropertyEntity)).
+                forEachOrdered(historicDetail -> props.add((HistoricFormPropertyEntity) historicDetail));
 
         WorkflowFormTO formTO = getHistoricFormTO(
                 task.getProcessInstanceId(), task.getId(), task.getFormKey(), props);
@@ -527,13 +516,13 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         formTO.setUserTO(engine.getRuntimeService().getVariable(processInstanceId, USER_TO, UserTO.class));
         formTO.setUserPatch(engine.getRuntimeService().getVariable(processInstanceId, USER_PATCH, UserPatch.class));
 
-        for (HistoricFormPropertyEntity prop : props) {
+        props.stream().map(prop -> {
             WorkflowFormPropertyTO propertyTO = new WorkflowFormPropertyTO();
             propertyTO.setId(prop.getPropertyId());
             propertyTO.setName(prop.getPropertyId());
             propertyTO.setValue(prop.getPropertyValue());
-            formTO.getProperties().add(propertyTO);
-        }
+            return propertyTO;
+        }).forEachOrdered(propertyTO -> formTO.getProperties().add(propertyTO));
 
         return formTO;
     }
@@ -559,20 +548,18 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         formTO.setUserTO(engine.getRuntimeService().getVariable(processInstanceId, USER_TO, UserTO.class));
         formTO.setUserPatch(engine.getRuntimeService().getVariable(processInstanceId, USER_PATCH, UserPatch.class));
 
-        for (FormProperty fProp : properties) {
+        properties.stream().map(fProp -> {
             WorkflowFormPropertyTO propertyTO = new WorkflowFormPropertyTO();
             BeanUtils.copyProperties(fProp, propertyTO, PROPERTY_IGNORE_PROPS);
             propertyTO.setType(fromActivitiFormType(fProp.getType()));
-
             if (propertyTO.getType() == WorkflowFormPropertyType.Date) {
                 propertyTO.setDatePattern((String) fProp.getType().getInformation("datePattern"));
             }
             if (propertyTO.getType() == WorkflowFormPropertyType.Enum) {
                 propertyTO.getEnumValues().putAll((Map<String, String>) fProp.getType().getInformation("values"));
             }
-
-            formTO.getProperties().add(propertyTO);
-        }
+            return propertyTO;
+        }).forEachOrdered(propertyTO -> formTO.getProperties().add(propertyTO));
 
         return formTO;
     }
@@ -597,9 +584,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
                     taskCandidateOrAssigned(user.getKey())));
 
             List<String> candidateGroups = new ArrayList<>();
-            for (String groupName : userDAO.findAllGroupNames(user)) {
-                candidateGroups.add(groupName);
-            }
+            userDAO.findAllGroupNames(user).forEach(groupName -> candidateGroups.add(groupName));
             if (!candidateGroups.isEmpty()) {
                 forms.addAll(getForms(engine.getTaskService().createTaskQuery().
                         taskVariableValueEquals(TASK_IS_FORM, Boolean.TRUE).
@@ -613,7 +598,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     protected <T extends Query<?, ?>, U extends Object> List<WorkflowFormTO> getForms(final Query<T, U> query) {
         List<WorkflowFormTO> forms = new ArrayList<>();
 
-        for (U obj : query.list()) {
+        query.list().forEach(obj -> {
             try {
                 if (obj instanceof HistoricTaskInstance) {
                     forms.add(getFormTO((HistoricTaskInstance) obj));
@@ -626,7 +611,7 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
             } catch (ActivitiException e) {
                 LOG.debug("No form found for task {}", obj, e);
             }
-        }
+        });
 
         return forms;
     }
@@ -711,11 +696,9 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
     private Map<String, String> getPropertiesForSubmit(final WorkflowFormTO form) {
         Map<String, String> props = new HashMap<>();
-        for (WorkflowFormPropertyTO prop : form.getProperties()) {
-            if (prop.isWritable()) {
-                props.put(prop.getId(), prop.getValue());
-            }
-        }
+        form.getProperties().stream().
+                filter(prop -> (prop.isWritable())).
+                forEachOrdered(prop -> props.put(prop.getId(), prop.getValue()));
 
         return Collections.unmodifiableMap(props);
     }
@@ -794,27 +777,22 @@ public class ActivitiUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     @Override
     public List<WorkflowDefinitionTO> getDefinitions() {
         try {
-            return CollectionUtils.collect(
-                    engine.getRepositoryService().createProcessDefinitionQuery().latestVersion().list(),
-                    new Transformer<ProcessDefinition, WorkflowDefinitionTO>() {
+            return engine.getRepositoryService().createProcessDefinitionQuery().latestVersion().list().stream().
+                    map(procDef -> {
+                        WorkflowDefinitionTO defTO = new WorkflowDefinitionTO();
+                        defTO.setKey(procDef.getKey());
+                        defTO.setName(procDef.getName());
 
-                @Override
-                public WorkflowDefinitionTO transform(final ProcessDefinition procDef) {
-                    WorkflowDefinitionTO defTO = new WorkflowDefinitionTO();
-                    defTO.setKey(procDef.getKey());
-                    defTO.setName(procDef.getName());
+                        try {
+                            defTO.setModelId(getModel(procDef).getId());
+                        } catch (NotFoundException e) {
+                            LOG.warn("No model found for definition {}, ignoring", procDef.getDeploymentId(), e);
+                        }
 
-                    try {
-                        defTO.setModelId(getModel(procDef).getId());
-                    } catch (NotFoundException e) {
-                        LOG.warn("No model found for definition {}, ignoring", procDef.getDeploymentId(), e);
-                    }
+                        defTO.setMain(WF_PROCESS_ID.equals(procDef.getKey()));
 
-                    defTO.setMain(WF_PROCESS_ID.equals(procDef.getKey()));
-
-                    return defTO;
-                }
-            }, new ArrayList<WorkflowDefinitionTO>());
+                        return defTO;
+                    }).collect(Collectors.toList());
         } catch (ActivitiException e) {
             throw new WorkflowException("While listing available process definitions", e);
         }

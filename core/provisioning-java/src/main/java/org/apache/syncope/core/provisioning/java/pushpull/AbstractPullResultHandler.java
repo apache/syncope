@@ -122,7 +122,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
     public boolean handle(final SyncDelta delta) {
         Provision provision = null;
         try {
-            provision = profile.getTask().getResource().getProvision(delta.getObject().getObjectClass());
+            provision = profile.getTask().getResource().getProvision(delta.getObject().getObjectClass()).orElse(null);
             if (provision == null) {
                 throw new JobExecutionException("No provision found on " + profile.getTask().getResource() + " for "
                         + delta.getObject().getObjectClass());

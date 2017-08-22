@@ -19,10 +19,8 @@
 package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
+import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.to.ConnInstanceHistoryConfTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.persistence.api.dao.ConnInstanceDAO;
@@ -64,15 +62,8 @@ public class ConnectorHistoryLogic extends AbstractTransactionalLogic<ConnInstan
             throw new NotFoundException("Connector '" + key + "'");
         }
 
-        return CollectionUtils.collect(connInstanceHistoryConfDAO.findByEntity(connInstance),
-                new Transformer<ConnInstanceHistoryConf, ConnInstanceHistoryConfTO>() {
-
-            @Override
-            public ConnInstanceHistoryConfTO transform(final ConnInstanceHistoryConf input) {
-                return getConnInstanceHistoryConfTO(input);
-            }
-
-        }, new ArrayList<ConnInstanceHistoryConfTO>());
+        return connInstanceHistoryConfDAO.findByEntity(connInstance).stream().
+                map(historyConf -> getConnInstanceHistoryConfTO(historyConf)).collect(Collectors.toList());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.CONNECTOR_HISTORY_RESTORE + "')")

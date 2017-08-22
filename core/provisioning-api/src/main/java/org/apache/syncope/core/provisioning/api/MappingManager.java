@@ -19,6 +19,7 @@
 package org.apache.syncope.core.provisioning.api;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -42,7 +43,7 @@ public interface MappingManager {
      * @param provision provision information
      * @return connObjectKey internal value
      */
-    String getConnObjectKeyValue(Any<?> any, Provision provision);
+    Optional<String> getConnObjectKeyValue(Any<?> any, Provision provision);
 
     /**
      * Get connObjectKey internal value.

@@ -24,8 +24,7 @@ import de.agilecoders.wicket.extensions.markup.html.bootstrap.behavior.Draggable
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Predicate;
+import java.util.Optional;
 import org.apache.syncope.client.console.panels.AbstractModalPanel;
 import org.apache.syncope.client.console.panels.ModalPanel;
 import org.apache.syncope.client.console.panels.NotificationPanel;
@@ -230,13 +229,11 @@ public class BaseModal<T extends Serializable> extends Modal<T> {
             throw new IllegalStateException();
         }
 
-        CollectionUtils.filterInverse(this.components, new Predicate<Component>() {
-
-            @Override
-            public boolean evaluate(final Component component) {
-                return SUBMIT.equals(component.getId());
-            }
-        });
+        Optional<Component> button =
+                this.components.stream().filter(component -> SUBMIT.equals(component.getId())).findAny();
+        if (button.isPresent()) {
+            this.components.remove(button.get());
+        }
 
         submitButton = null;
     }

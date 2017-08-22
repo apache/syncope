@@ -20,6 +20,7 @@ package org.apache.syncope.core.provisioning.camel.producer;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.apache.camel.Endpoint;
@@ -72,9 +73,9 @@ public class CreateProducer extends AbstractProducer {
 
                 if (actual instanceof GroupTO && isPull()) {
                     Map<String, String> groupOwnerMap = exchange.getProperty("groupOwnerMap", Map.class);
-                    AttrTO groupOwner = ((GroupTO) actual).getPlainAttr(StringUtils.EMPTY);
-                    if (groupOwner != null) {
-                        groupOwnerMap.put(created.getResult(), groupOwner.getValues().iterator().next());
+                    Optional<AttrTO> groupOwner = ((GroupTO) actual).getPlainAttr(StringUtils.EMPTY);
+                    if (groupOwner.isPresent()) {
+                        groupOwnerMap.put(created.getResult(), groupOwner.get().getValues().iterator().next());
                     }
 
                     List<PropagationTask> tasks = getPropagationManager().getCreateTasks(

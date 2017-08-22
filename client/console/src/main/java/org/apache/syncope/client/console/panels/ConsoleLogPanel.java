@@ -22,8 +22,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.apache.commons.collections4.ComparatorUtils;
-import org.apache.commons.collections4.Transformer;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.LoggerConfig;
@@ -55,7 +54,7 @@ public class ConsoleLogPanel extends AbstractLogsPanel<LoggerTO> {
             LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
 
             List<LoggerTO> result = new ArrayList<>();
-            for (final LoggerConfig logger : ctx.getConfiguration().getLoggers().values()) {
+            ctx.getConfiguration().getLoggers().values().forEach(logger -> {
                 String loggerName = LogManager.ROOT_LOGGER_NAME.equals(logger.getName())
                         ? SyncopeConstants.ROOT_LOGGER : logger.getName();
                 if (logger.getLevel() != null) {
@@ -64,15 +63,8 @@ public class ConsoleLogPanel extends AbstractLogsPanel<LoggerTO> {
                     loggerTO.setLevel(LoggerLevel.fromLevel(logger.getLevel()));
                     result.add(loggerTO);
                 }
-            }
-            Collections.sort(result, ComparatorUtils.transformedComparator(
-                    ComparatorUtils.<String>naturalComparator(), new Transformer<LoggerTO, String>() {
-
-                @Override
-                public String transform(final LoggerTO input) {
-                    return input.getKey();
-                }
-            }));
+            });
+            Collections.sort(result, (o1, o2) -> ObjectUtils.compare(o1.getKey(), o2.getKey()));
 
             return result;
         }

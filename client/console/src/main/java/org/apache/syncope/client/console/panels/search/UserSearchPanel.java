@@ -20,10 +20,9 @@ package org.apache.syncope.client.console.panels.search;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
+import java.util.stream.Collectors;
 import org.apache.syncope.client.console.rest.RoleRestClient;
-import org.apache.syncope.common.lib.to.RoleTO;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.LoadableDetachableModel;
@@ -62,13 +61,7 @@ public final class UserSearchPanel extends AnyObjectSearchPanel {
 
             @Override
             protected List<String> load() {
-                return CollectionUtils.collect(roleRestClient.list(), new Transformer<RoleTO, String>() {
-
-                    @Override
-                    public String transform(final RoleTO input) {
-                        return input.getKey();
-                    }
-                }, new ArrayList<String>());
+                return roleRestClient.list().stream().map(EntityTO::getKey).collect(Collectors.toList());
             }
         };
     }

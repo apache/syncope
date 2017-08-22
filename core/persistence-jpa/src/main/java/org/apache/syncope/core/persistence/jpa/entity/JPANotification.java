@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.jpa.entity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
@@ -36,8 +37,6 @@ import javax.persistence.Table;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.core.persistence.api.entity.AnyAbout;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
@@ -153,14 +152,8 @@ public class JPANotification extends AbstractGeneratedKeyEntity implements Notif
     }
 
     @Override
-    public AnyAbout getAbout(final AnyType anyType) {
-        return IterableUtils.find(abouts, new Predicate<AnyAbout>() {
-
-            @Override
-            public boolean evaluate(final AnyAbout about) {
-                return anyType != null && anyType.equals(about.getAnyType());
-            }
-        });
+    public Optional<? extends AnyAbout> getAbout(final AnyType anyType) {
+        return abouts.stream().filter(about -> anyType != null && anyType.equals(about.getAnyType())).findFirst();
     }
 
     @Override

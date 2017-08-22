@@ -20,9 +20,8 @@ package org.apache.syncope.common.lib;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Optional;
 import java.util.Set;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 
 public class SyncopeClientCompositeException extends SyncopeClientException {
@@ -68,17 +67,12 @@ public class SyncopeClientCompositeException extends SyncopeClientException {
                     + ClientExceptionType.class.getName() + " set");
         }
 
-        SyncopeClientException alreadyAdded = IterableUtils.find(exceptions, new Predicate<SyncopeClientException>() {
+        Optional<SyncopeClientException> alreadyAdded =
+                exceptions.stream().filter(ex -> ex.getType() == exception.getType()).findFirst();
 
-            @Override
-            public boolean evaluate(final SyncopeClientException ex) {
-                return ex.getType() == exception.getType();
-            }
-        });
-
-        return alreadyAdded == null
-                ? exceptions.add(exception)
-                : alreadyAdded.getElements().addAll(exception.getElements());
+        return alreadyAdded.isPresent()
+                ? alreadyAdded.get().getElements().addAll(exception.getElements())
+                : exceptions.add(exception);
     }
 
     @Override

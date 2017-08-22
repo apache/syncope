@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.patch.StringPatchItem;
@@ -261,15 +262,15 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
         Result resultStatus = null;
 
         // Try to read remote object BEFORE any actual operation
-        Provision provision = profile.getTask().getResource().getProvision(any.getType());
-        MappingItem connObjectKey = MappingUtils.getConnObjectKeyItem(provision);
-        String connObjecKeyValue = mappingManager.getConnObjectKeyValue(any, provision);
+        Optional<? extends Provision> provision = profile.getTask().getResource().getProvision(any.getType());
+        Optional<MappingItem> connObjectKey = MappingUtils.getConnObjectKeyItem(provision.get());
+        Optional<String> connObjecKeyValue = mappingManager.getConnObjectKeyValue(any, provision.get());
 
         ConnectorObject beforeObj = getRemoteObject(
-                provision.getObjectClass(),
-                connObjectKey.getExtAttrName(),
-                connObjecKeyValue,
-                provision.getMapping().getItems().iterator());
+                provision.get().getObjectClass(),
+                connObjectKey.get().getExtAttrName(),
+                connObjecKeyValue.get(),
+                provision.get().getMapping().getItems().iterator());
 
         Boolean status = profile.getTask().isSyncStatus() ? enabled : null;
 
@@ -435,10 +436,10 @@ public abstract class AbstractPushResultHandler extends AbstractSyncopeResultHan
                 }
                 resultStatus = AuditElements.Result.SUCCESS;
                 output = getRemoteObject(
-                        provision.getObjectClass(),
-                        connObjectKey.getExtAttrName(),
-                        connObjecKeyValue,
-                        provision.getMapping().getItems().iterator());
+                        provision.get().getObjectClass(),
+                        connObjectKey.get().getExtAttrName(),
+                        connObjecKeyValue.get(),
+                        provision.get().getMapping().getItems().iterator());
             } catch (IgnoreProvisionException e) {
                 throw e;
             } catch (Exception e) {

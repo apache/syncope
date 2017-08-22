@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import java.util.List;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
@@ -26,7 +25,6 @@ import org.apache.syncope.common.lib.policy.DefaultAccountRuleConf;
 import org.apache.syncope.core.provisioning.api.utils.policy.AccountPolicyException;
 import org.apache.syncope.core.persistence.api.dao.AccountRule;
 import org.apache.syncope.core.persistence.api.dao.AccountRuleConfClass;
-import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,15 +45,12 @@ public class DefaultAccountRule implements AccountRule {
                     AccountRuleConf.class.getName() + " expected, got " + conf.getClass().getName());
         }
 
-        for (String schema : this.conf.getSchemasNotPermitted()) {
-            PlainAttr<?> attr = user.getPlainAttr(schema);
-            if (attr != null) {
-                List<String> values = attr.getValuesAsStrings();
-                if (values != null && !values.isEmpty()) {
-                    this.conf.getWordsNotPermitted().add(values.get(0));
-                }
-            }
-        }
+        this.conf.getSchemasNotPermitted().stream().
+                map(schema -> user.getPlainAttr(schema)).
+                filter(attr -> attr.isPresent()).
+                map(attr -> attr.get().getValuesAsStrings()).
+                filter(values -> (values != null && !values.isEmpty())).
+                forEachOrdered(values -> this.conf.getWordsNotPermitted().add(values.get(0)));
 
         if (user.getUsername() == null) {
             throw new AccountPolicyException("Invalid account");
@@ -72,11 +67,11 @@ public class DefaultAccountRule implements AccountRule {
         }
 
         // check words not permitted
-        for (String word : this.conf.getWordsNotPermitted()) {
-            if (StringUtils.containsIgnoreCase(user.getUsername(), word)) {
-                throw new AccountPolicyException("Used word(s) not permitted");
-            }
-        }
+        this.conf.getWordsNotPermitted().stream().
+                filter(word -> StringUtils.containsIgnoreCase(user.getUsername(), word)).
+                forEachOrdered(item -> {
+                    throw new AccountPolicyException("Used word(s) not permitted");
+                });
 
         // check case
         if (this.conf.isAllUpperCase() && !user.getUsername().equals(user.getUsername().toUpperCase())) {
@@ -93,18 +88,18 @@ public class DefaultAccountRule implements AccountRule {
         }
 
         // check prefix
-        for (String prefix : this.conf.getPrefixesNotPermitted()) {
-            if (user.getUsername().startsWith(prefix)) {
-                throw new AccountPolicyException("Prefix not permitted");
-            }
-        }
+        this.conf.getPrefixesNotPermitted().stream().
+                filter(prefix -> user.getUsername().startsWith(prefix)).
+                forEachOrdered(item -> {
+                    throw new AccountPolicyException("Prefix not permitted");
+                });
 
         // check suffix
-        for (String suffix : this.conf.getSuffixesNotPermitted()) {
-            if (user.getUsername().endsWith(suffix)) {
-                throw new AccountPolicyException("Suffix not permitted");
-            }
-        }
+        this.conf.getSuffixesNotPermitted().stream().
+                filter(suffix -> user.getUsername().endsWith(suffix)).
+                forEachOrdered(item -> {
+                    throw new AccountPolicyException("Suffix not permitted");
+                });
     }
 
 }

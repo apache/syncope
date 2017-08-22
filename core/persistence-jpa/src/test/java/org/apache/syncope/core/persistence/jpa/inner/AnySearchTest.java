@@ -25,11 +25,9 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
+import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -50,8 +48,8 @@ import org.apache.syncope.core.persistence.api.dao.search.AssignableCond;
 import org.apache.syncope.core.persistence.api.dao.search.MemberCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipCond;
 import org.apache.syncope.core.persistence.api.dao.search.RelationshipTypeCond;
-import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
@@ -203,10 +201,7 @@ public class AnySearchTest extends AbstractTest {
         assertNotNull(users);
         assertEquals(4, users.size());
 
-        Set<String> ids = new HashSet<>(users.size());
-        for (User user : users) {
-            ids.add(user.getKey());
-        }
+        Set<String> ids = users.stream().map(Entity::getKey).collect(Collectors.toSet());
         assertTrue(ids.contains("1417acbe-cbf6-4277-9372-e75e04f97000"));
         assertTrue(ids.contains("b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee"));
     }
@@ -224,10 +219,7 @@ public class AnySearchTest extends AbstractTest {
         assertNotNull(users);
         assertEquals(4, users.size());
 
-        Set<String> ids = new HashSet<>(users.size());
-        for (User user : users) {
-            ids.add(user.getKey());
-        }
+        Set<String> ids = users.stream().map(Entity::getKey).collect(Collectors.toSet());
         assertTrue(ids.contains("1417acbe-cbf6-4277-9372-e75e04f97000"));
         assertTrue(ids.contains("b3cbc78d-32e6-4bd4-92e0-bbe07566a2ee"));
     }
@@ -484,36 +476,18 @@ public class AnySearchTest extends AbstractTest {
                 SearchCond.getLeafCond(relationshipTypeCond), SearchCond.getLeafCond(tcond));
         assertTrue(searchCondition.isValid());
 
-        List<AnyObject> matching = searchDAO.search(searchCondition, AnyTypeKind.ANY_OBJECT);
-        assertNotNull(matching);
-        assertEquals(2, matching.size());
-        assertTrue(IterableUtils.matchesAny(matching, new Predicate<AnyObject>() {
-
-            @Override
-            public boolean evaluate(final AnyObject any) {
-                return "fc6dbc3a-6c07-4965-8781-921e7401a4a5".equals(any.getKey());
-            }
-        }));
-        assertTrue(IterableUtils.matchesAny(matching, new Predicate<AnyObject>() {
-
-            @Override
-            public boolean evaluate(final AnyObject any) {
-                return "8559d14d-58c2-46eb-a2d4-a7d35161e8f8".equals(any.getKey());
-            }
-        }));
+        List<AnyObject> anyObjects = searchDAO.search(searchCondition, AnyTypeKind.ANY_OBJECT);
+        assertNotNull(anyObjects);
+        assertEquals(2, anyObjects.size());
+        assertTrue(anyObjects.stream().anyMatch(any -> "fc6dbc3a-6c07-4965-8781-921e7401a4a5".equals(any.getKey())));
+        assertTrue(anyObjects.stream().anyMatch(any -> "8559d14d-58c2-46eb-a2d4-a7d35161e8f8".equals(any.getKey())));
 
         // 2. search for users involved in "neighborhood" relationship
         searchCondition = SearchCond.getLeafCond(relationshipTypeCond);
-        matching = searchDAO.search(searchCondition, AnyTypeKind.USER);
-        assertNotNull(matching);
-        assertEquals(1, matching.size());
-        assertTrue(IterableUtils.matchesAny(matching, new Predicate<Any<?>>() {
-
-            @Override
-            public boolean evaluate(final Any<?> any) {
-                return "c9b2dec2-00a7-4855-97c0-d854842b4b24".equals(any.getKey());
-            }
-        }));
+        List<User> users = searchDAO.search(searchCondition, AnyTypeKind.USER);
+        assertNotNull(users);
+        assertEquals(1, users.size());
+        assertTrue(users.stream().anyMatch(any -> "c9b2dec2-00a7-4855-97c0-d854842b4b24".equals(any.getKey())));
     }
 
     @Test
@@ -569,20 +543,8 @@ public class AnySearchTest extends AbstractTest {
         assertTrue(searchCondition.isValid());
 
         List<Group> groups = searchDAO.search(searchCondition, AnyTypeKind.GROUP);
-        assertTrue(IterableUtils.matchesAny(groups, new Predicate<Group>() {
-
-            @Override
-            public boolean evaluate(final Group group) {
-                return "additional".equals(group.getName());
-            }
-        }));
-        assertFalse(IterableUtils.matchesAny(groups, new Predicate<Group>() {
-
-            @Override
-            public boolean evaluate(final Group group) {
-                return "fake".equals(group.getName());
-            }
-        }));
+        assertTrue(groups.stream().anyMatch(group -> "additional".equals(group.getName())));
+        assertFalse(groups.stream().anyMatch(group -> "fake".equals(group.getName())));
 
         assignableCond = new AssignableCond();
         assignableCond.setRealmFullPath("/odd");
@@ -590,13 +552,8 @@ public class AnySearchTest extends AbstractTest {
         assertTrue(searchCondition.isValid());
 
         List<AnyObject> anyObjects = searchDAO.search(searchCondition, AnyTypeKind.ANY_OBJECT);
-        assertFalse(IterableUtils.matchesAny(anyObjects, new Predicate<AnyObject>() {
-
-            @Override
-            public boolean evaluate(final AnyObject anyObject) {
-                return "9e1d130c-d6a3-48b1-98b3-182477ed0688".equals(anyObject.getKey());
-            }
-        }));
+        assertFalse(anyObjects.stream().
+                anyMatch(anyObject -> "9e1d130c-d6a3-48b1-98b3-182477ed0688".equals(anyObject.getKey())));
     }
 
     @Test
@@ -627,13 +584,7 @@ public class AnySearchTest extends AbstractTest {
         List<User> users = searchDAO.search(searchCondition, AnyTypeKind.USER);
         assertNotNull(users);
         assertEquals(2, users.size());
-        assertTrue(IterableUtils.matchesAny(users, new Predicate<User>() {
-
-            @Override
-            public boolean evaluate(final User user) {
-                return "c9b2dec2-00a7-4855-97c0-d854842b4b24".equals(user.getKey());
-            }
-        }));
+        assertTrue(users.stream().anyMatch(user -> "c9b2dec2-00a7-4855-97c0-d854842b4b24".equals(user.getKey())));
     }
 
     @Test

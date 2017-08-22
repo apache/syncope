@@ -19,12 +19,13 @@
 package org.apache.syncope.core.provisioning.java.utils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
-import org.apache.commons.collections4.ListUtils;
-import org.apache.commons.collections4.Predicate;
+import java.util.stream.Collectors;
 import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.ClassUtils;
@@ -57,55 +58,43 @@ public final class MappingUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(MappingUtils.class);
 
-    public static MappingItem getConnObjectKeyItem(final Provision provision) {
+    public static Optional<MappingItem> getConnObjectKeyItem(final Provision provision) {
         Mapping mapping = null;
         if (provision != null) {
             mapping = provision.getMapping();
         }
 
-        return mapping == null
+        return Optional.ofNullable(mapping == null
                 ? null
-                : mapping.getConnObjectKeyItem();
+                : mapping.getConnObjectKeyItem().get());
     }
 
     public static List<? extends MappingItem> getPropagationItems(final Provision provision) {
-        return ListUtils.select(provision.getMapping().getItems(), new Predicate<MappingItem>() {
-
-            @Override
-            public boolean evaluate(final MappingItem item) {
-                return item.getPurpose() == MappingPurpose.PROPAGATION || item.getPurpose() == MappingPurpose.BOTH;
-            }
-        });
+        return provision == null
+                ? Collections.emptyList()
+                : provision.getMapping().getItems().stream().
+                        filter(item -> item.getPurpose() == MappingPurpose.PROPAGATION
+                        || item.getPurpose() == MappingPurpose.BOTH).collect(Collectors.toList());
     }
 
     public static List<? extends MappingItem> getPullItems(final Provision provision) {
-        return ListUtils.select(provision.getMapping().getItems(), new Predicate<MappingItem>() {
-
-            @Override
-            public boolean evaluate(final MappingItem item) {
-                return item.getPurpose() == MappingPurpose.PULL || item.getPurpose() == MappingPurpose.BOTH;
-            }
-        });
+        return provision == null
+                ? Collections.emptyList()
+                : provision.getMapping().getItems().stream().
+                        filter(item -> item.getPurpose() == MappingPurpose.PULL
+                        || item.getPurpose() == MappingPurpose.BOTH).collect(Collectors.toList());
     }
 
     public static List<? extends OrgUnitItem> getPropagationItems(final OrgUnit orgUnit) {
-        return ListUtils.select(orgUnit.getItems(), new Predicate<OrgUnitItem>() {
-
-            @Override
-            public boolean evaluate(final OrgUnitItem item) {
-                return item.getPurpose() == MappingPurpose.PROPAGATION || item.getPurpose() == MappingPurpose.BOTH;
-            }
-        });
+        return orgUnit.getItems().stream().
+                filter(item -> item.getPurpose() == MappingPurpose.PROPAGATION
+                || item.getPurpose() == MappingPurpose.BOTH).collect(Collectors.toList());
     }
 
     public static List<? extends OrgUnitItem> getPullItems(final OrgUnit orgUnit) {
-        return ListUtils.select(orgUnit.getItems(), new Predicate<OrgUnitItem>() {
-
-            @Override
-            public boolean evaluate(final OrgUnitItem item) {
-                return item.getPurpose() == MappingPurpose.PULL || item.getPurpose() == MappingPurpose.BOTH;
-            }
-        });
+        return orgUnit.getItems().stream().
+                filter(item -> item.getPurpose() == MappingPurpose.PULL
+                || item.getPurpose() == MappingPurpose.BOTH).collect(Collectors.toList());
     }
 
     private static Name evaluateNAME(final String evalConnObjectLink, final String connObjectKey) {
@@ -209,7 +198,7 @@ public final class MappingUtils {
         }
 
         // Then other custom tranaformers
-        for (String className : mappingItemTransformerClassNames) {
+        mappingItemTransformerClassNames.forEach(className -> {
             try {
                 Class<?> transformerClass = ClassUtils.getClass(className);
 
@@ -218,7 +207,7 @@ public final class MappingUtils {
             } catch (Exception e) {
                 LOG.error("Could not instantiate {}, ignoring...", className, e);
             }
-        }
+        });
 
         return result;
     }

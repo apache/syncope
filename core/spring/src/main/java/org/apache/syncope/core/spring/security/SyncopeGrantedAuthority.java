@@ -23,11 +23,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
-import org.apache.commons.collections4.Closure;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.SetUtils;
+import java.util.TreeSet;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
@@ -42,7 +39,7 @@ public class SyncopeGrantedAuthority implements GrantedAuthority {
     @JsonProperty
     private final String entitlement;
 
-    private final Set<String> realms = SetUtils.orderedSet(new HashSet<String>());
+    private final Set<String> realms = new TreeSet<>();
 
     @JsonCreator
     public SyncopeGrantedAuthority(@JsonProperty("entitlement") final String entitlement) {
@@ -59,13 +56,7 @@ public class SyncopeGrantedAuthority implements GrantedAuthority {
     }
 
     public void addRealms(final Collection<String> newRealms) {
-        IterableUtils.forEach(newRealms, new Closure<String>() {
-
-            @Override
-            public void execute(final String newRealm) {
-                addRealm(newRealm);
-            }
-        });
+        newRealms.forEach(newRealm -> addRealm(newRealm));
     }
 
     public Set<String> getRealms() {

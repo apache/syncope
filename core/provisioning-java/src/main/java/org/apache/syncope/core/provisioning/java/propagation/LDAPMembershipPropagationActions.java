@@ -21,6 +21,7 @@ package org.apache.syncope.core.provisioning.java.propagation;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.MapContext;
@@ -75,32 +76,30 @@ public class LDAPMembershipPropagationActions implements PropagationActions {
     @Transactional(readOnly = true)
     @Override
     public void before(final PropagationTask task, final ConnectorObject beforeObj) {
-        Provision provision = task.getResource().getProvision(anyTypeDAO.findGroup());
+        Optional<? extends Provision> provision = task.getResource().getProvision(anyTypeDAO.findGroup());
         if (AnyTypeKind.USER == task.getAnyTypeKind()
-                && provision != null && provision.getMapping() != null
-                && StringUtils.isNotBlank(provision.getMapping().getConnObjectLink())) {
+                && provision.isPresent() && provision.get().getMapping() != null
+                && StringUtils.isNotBlank(provision.get().getMapping().getConnObjectLink())) {
 
             User user = userDAO.find(task.getEntityKey());
             if (user != null) {
                 List<String> groupConnObjectLinks = new ArrayList<>();
-                for (String groupKey : userDAO.findAllGroupKeys(user)) {
+                userDAO.findAllGroupKeys(user).forEach(groupKey -> {
                     Group group = groupDAO.find(groupKey);
                     if (group != null && groupDAO.findAllResourceKeys(groupKey).contains(task.getResource().getKey())) {
                         LOG.debug("Evaluating connObjectLink for {}", group);
-
                         JexlContext jexlContext = new MapContext();
                         JexlUtils.addFieldsToContext(group, jexlContext);
                         JexlUtils.addPlainAttrsToContext(group.getPlainAttrs(), jexlContext);
                         JexlUtils.addDerAttrsToContext(group, jexlContext);
-
                         String groupConnObjectLinkLink =
-                                JexlUtils.evaluate(provision.getMapping().getConnObjectLink(), jexlContext);
+                                JexlUtils.evaluate(provision.get().getMapping().getConnObjectLink(), jexlContext);
                         LOG.debug("ConnObjectLink for {} is '{}'", group, groupConnObjectLinkLink);
                         if (StringUtils.isNotBlank(groupConnObjectLinkLink)) {
                             groupConnObjectLinks.add(groupConnObjectLinkLink);
                         }
                     }
-                }
+                });
                 LOG.debug("Group connObjectLinks to propagate for membership: {}", groupConnObjectLinks);
 
                 Set<Attribute> attributes = new HashSet<>(task.getAttributes());
@@ -108,9 +107,9 @@ public class LDAPMembershipPropagationActions implements PropagationActions {
                 Set<String> groups = new HashSet<>(groupConnObjectLinks);
                 Attribute ldapGroups = AttributeUtil.find(getGroupMembershipAttrName(), attributes);
                 if (ldapGroups != null) {
-                    for (Object obj : ldapGroups.getValue()) {
+                    ldapGroups.getValue().forEach(obj -> {
                         groups.add(obj.toString());
-                    }
+                    });
                     attributes.remove(ldapGroups);
                 }
                 attributes.add(AttributeBuilder.build(getGroupMembershipAttrName(), groups));

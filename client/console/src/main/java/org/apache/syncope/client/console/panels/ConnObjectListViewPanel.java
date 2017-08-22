@@ -20,9 +20,7 @@ package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
+import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.commons.ConnIdSpecialName;
@@ -68,17 +66,12 @@ public abstract class ConnObjectListViewPanel extends Panel {
 
             @Override
             protected Component getValueComponent(final String key, final ConnObjectTO bean) {
-                final AttrTO attrTO = IterableUtils.find(bean.getAttrs(), new Predicate<AttrTO>() {
+                Optional<AttrTO> attrTO =
+                        bean.getAttrs().stream().filter(object -> object.getSchema().equals(key)).findAny();
 
-                    @Override
-                    public boolean evaluate(final AttrTO object) {
-                        return object.getSchema().equals(key);
-                    }
-                });
-
-                return attrTO == null || CollectionUtils.isEmpty(attrTO.getValues())
+                return !attrTO.isPresent() || attrTO.get().getValues().isEmpty()
                         ? new Label("field", StringUtils.EMPTY)
-                        : new CollectionPanel("field", attrTO.getValues());
+                        : new CollectionPanel("field", attrTO.get().getValues());
             }
 
         };

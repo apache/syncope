@@ -22,9 +22,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -77,7 +74,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch> ext
     private List<LogicActions> getActions(final Realm realm) {
         List<LogicActions> actions = new ArrayList<>();
 
-        for (String className : realm.getActionsClassNames()) {
+        realm.getActionsClassNames().forEach(className -> {
             try {
                 Class<?> actionsClass = Class.forName(className);
                 LogicActions logicActions = (LogicActions) ApplicationContextProvider.getBeanFactory().
@@ -87,7 +84,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch> ext
             } catch (Exception e) {
                 LOG.warn("Class '{}' not found", className, e);
             }
-        }
+        });
 
         return actions;
     }
@@ -229,20 +226,15 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch> ext
     }
 
     protected boolean securityChecks(final Set<String> effectiveRealms, final String realm, final String key) {
-        boolean authorized = IterableUtils.matchesAny(effectiveRealms, new Predicate<String>() {
-
-            @Override
-            public boolean evaluate(final String ownedRealm) {
-                return realm.startsWith(ownedRealm);
-            }
-        });
+        boolean authorized = effectiveRealms.stream().anyMatch(ownedRealm -> realm.startsWith(ownedRealm));
         if (!authorized) {
             AnyDAO<?> anyDAO = this instanceof UserLogic
                     ? userDAO
                     : this instanceof GroupLogic
                             ? groupDAO
                             : anyObjectDAO;
-            authorized = !CollectionUtils.intersection(anyDAO.findDynRealms(key), effectiveRealms).isEmpty();
+            authorized = anyDAO.findDynRealms(key).stream().
+                    filter(dynRealm -> effectiveRealms.contains(dynRealm)).findFirst().isPresent();
         }
         if (!authorized) {
             throw new DelegatedAdministrationException(
@@ -255,7 +247,7 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch> ext
                     key);
         }
 
-        return IterableUtils.matchesAny(effectiveRealms, new RealmUtils.DynRealmsPredicate());
+        return effectiveRealms.stream().anyMatch(new RealmUtils.DynRealmsPredicate());
     }
 
     public abstract TO read(String key);

@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.wizards.resources;
 
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
@@ -90,6 +89,6 @@ public abstract class AbstractConnConfPanel<T extends AbstractBaseBean>
 
     @Override
     public boolean evaluate() {
-        return model != null && CollectionUtils.isNotEmpty(model.getObject());
+        return model != null && model.getObject() != null && !model.getObject().isEmpty();
     }
 }

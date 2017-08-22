@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.wicket.extensions.markup.html.repeater.data.table;
 
 import java.util.List;
+import java.util.Optional;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
@@ -48,8 +49,8 @@ public class ConnObjectAttrColumn extends AbstractColumn<ConnObjectTO, String> {
             final String componentId,
             final IModel<ConnObjectTO> rowModel) {
 
-        AttrTO attr = rowModel.getObject().getAttr(name);
-        List<String> values = attr == null ? null : attr.getValues();
+        Optional<AttrTO> attr = rowModel.getObject().getAttr(name);
+        List<String> values = attr.isPresent() ? attr.get().getValues() : null;
 
         if (values == null || values.isEmpty()) {
             cellItem.add(new Label(componentId, ""));

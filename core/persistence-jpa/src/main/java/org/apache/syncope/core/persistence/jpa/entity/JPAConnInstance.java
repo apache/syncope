@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.jpa.entity;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -37,7 +38,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
@@ -185,7 +185,7 @@ public class JPAConnInstance extends AbstractGeneratedKeyEntity implements ConnI
     public Set<ConnConfProperty> getConf() {
         Set<ConnConfProperty> configuration = new HashSet<>();
         if (!StringUtils.isBlank(jsonConf)) {
-            CollectionUtils.addAll(configuration, POJOHelper.deserialize(jsonConf, ConnConfProperty[].class));
+            configuration.addAll(Arrays.asList(POJOHelper.deserialize(jsonConf, ConnConfProperty[].class)));
         }
 
         return configuration;

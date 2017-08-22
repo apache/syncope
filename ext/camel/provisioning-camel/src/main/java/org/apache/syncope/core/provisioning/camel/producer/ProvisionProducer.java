@@ -19,11 +19,10 @@
 package org.apache.syncope.core.provisioning.camel.producer;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.PasswordPatch;
@@ -56,14 +55,9 @@ public class ProvisionProducer extends AbstractProducer {
 
             UserPatch userPatch = new UserPatch();
             userPatch.setKey(key);
-            userPatch.getResources().addAll(CollectionUtils.collect(resources,
-                    new Transformer<String, StringPatchItem>() {
-
-                @Override
-                public StringPatchItem transform(final String resource) {
-                    return new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(resource).build();
-                }
-            }));
+            userPatch.getResources().addAll(resources.stream().map(resource
+                    -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(resource).build()).
+                    collect(Collectors.toList()));
 
             if (changePwd) {
                 userPatch.setPassword(
@@ -73,7 +67,7 @@ public class ProvisionProducer extends AbstractProducer {
             PropagationByResource propByRes = new PropagationByResource();
             propByRes.addAll(ResourceOperation.UPDATE, resources);
 
-            WorkflowResult<Pair<UserPatch, Boolean>> wfResult = new WorkflowResult<Pair<UserPatch, Boolean>>(
+            WorkflowResult<Pair<UserPatch, Boolean>> wfResult = new WorkflowResult<>(
                     ImmutablePair.of(userPatch, (Boolean) null), propByRes, "update");
 
             List<PropagationTask> tasks = getPropagationManager().getUserUpdateTasks(wfResult, changePwd, null);

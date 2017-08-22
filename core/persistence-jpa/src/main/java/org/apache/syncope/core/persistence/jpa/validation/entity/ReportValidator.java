@@ -19,11 +19,9 @@
 package org.apache.syncope.core.persistence.jpa.validation.entity;
 
 import java.text.ParseException;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.validation.ConstraintValidatorContext;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.entity.Report;
@@ -50,14 +48,8 @@ public class ReportValidator extends AbstractValidator<ReportCheck, Report> {
             }
         }
 
-        Set<String> reportletNames = CollectionUtils.collect(object.getReportletConfs(),
-                new Transformer<ReportletConf, String>() {
-
-                    @Override
-                    public String transform(final ReportletConf input) {
-                        return input.getName();
-                    }
-                }, new HashSet<String>());
+        Set<String> reportletNames = object.getReportletConfs().stream().
+                map(ReportletConf::getName).collect(Collectors.toSet());
         if (reportletNames.size() != object.getReportletConfs().size()) {
             LOG.error("Reportlet name must be unique");
             isValid = false;

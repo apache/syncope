@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -33,10 +34,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
-import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResource;
@@ -109,13 +107,7 @@ public class JPAAccountPolicy extends AbstractPolicy implements AccountPolicy {
 
     @Override
     public List<AccountRuleConf> getRuleConfs() {
-        return CollectionUtils.collect(ruleConfs, new Transformer<JPAAccountRuleConfInstance, AccountRuleConf>() {
-
-            @Override
-            public AccountRuleConf transform(final JPAAccountRuleConfInstance input) {
-                return input.getInstance();
-            }
-        }, new ArrayList<AccountRuleConf>());
+        return ruleConfs.stream().map(input -> input.getInstance()).collect(Collectors.toList());
     }
 
     @Override
@@ -130,8 +122,7 @@ public class JPAAccountPolicy extends AbstractPolicy implements AccountPolicy {
     }
 
     @Override
-    public Set<String> getResourceNames() {
-        return CollectionUtils.collect(
-                getResources(), EntityUtils.<ExternalResource>keyTransformer(), new HashSet<String>());
+    public Set<String> getResourceKeys() {
+        return getResources().stream().map(resource -> resource.getKey()).collect(Collectors.toSet());
     }
 }

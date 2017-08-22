@@ -27,7 +27,6 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.commons.collections4.CollectionUtils;
 
 @XmlRootElement(name = "passwordPatch")
 @XmlType
@@ -56,7 +55,9 @@ public class PasswordPatch extends StringReplacePatchItem {
         }
 
         public Builder resources(final String... resources) {
-            CollectionUtils.addAll(getInstance().getResources(), resources);
+            for (String resource : resources) {
+                getInstance().getResources().add(resource);
+            }
             return this;
         }
 

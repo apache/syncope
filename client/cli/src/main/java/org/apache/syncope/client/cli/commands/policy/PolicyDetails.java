@@ -18,8 +18,8 @@
  */
 package org.apache.syncope.client.cli.commands.policy;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
-import org.apache.commons.collections4.map.LinkedMap;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.slf4j.Logger;
@@ -40,7 +40,7 @@ public class PolicyDetails extends AbstractPolicyCommand {
     public void details() {
         if (input.parameterNumber() == 0) {
             try {
-                final Map<String, String> details = new LinkedMap<>();
+                final Map<String, String> details = new LinkedHashMap<>();
                 final int accountPolicySize = policySyncopeOperations.list(PolicyType.ACCOUNT.name()).size();
                 final int passwordPolicySize = policySyncopeOperations.list(PolicyType.PASSWORD.name()).size();
                 final int pullPolicySize = policySyncopeOperations.list(PolicyType.PULL.name()).size();

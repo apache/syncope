@@ -76,7 +76,7 @@ public class SyncopeClient {
         this.mediaType = mediaType;
         this.restClientFactory = restClientFactory;
         if (this.restClientFactory.getHeaders() == null) {
-            this.restClientFactory.setHeaders(new HashMap<String, String>());
+            this.restClientFactory.setHeaders(new HashMap<>());
         }
         this.exceptionMapper = exceptionMapper;
         init(handler);

@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.api.entity;
 
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import java.util.List;
+import java.util.Optional;
 
 public interface Any<P extends PlainAttr<?>> extends AnnotatedEntity {
 
@@ -43,7 +44,7 @@ public interface Any<P extends PlainAttr<?>> extends AnnotatedEntity {
 
     boolean remove(P attr);
 
-    P getPlainAttr(String plainSchemaName);
+    Optional<? extends P> getPlainAttr(String plainSchema);
 
     List<? extends P> getPlainAttrs();
 

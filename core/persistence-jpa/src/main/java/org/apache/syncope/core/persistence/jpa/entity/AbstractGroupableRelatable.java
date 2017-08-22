@@ -18,12 +18,10 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.GroupablePlainAttr;
 import org.apache.syncope.core.persistence.api.entity.Membership;
@@ -49,110 +47,68 @@ public abstract class AbstractGroupableRelatable<
     }
 
     @Override
-    public P getPlainAttr(final String plainSchemaName) {
-        return IterableUtils.find(internalGetPlainAttrs(), new Predicate<P>() {
-
-            @Override
-            public boolean evaluate(final P plainAttr) {
-                return plainAttr != null && plainAttr.getSchema() != null
-                        && plainAttr.getMembership() == null
-                        && plainSchemaName.equals(plainAttr.getSchema().getKey());
-            }
-        });
+    public Optional<? extends P> getPlainAttr(final String plainSchema) {
+        return internalGetPlainAttrs().stream().filter(plainAttr
+                -> plainAttr != null && plainAttr.getSchema() != null && plainAttr.getMembership() == null
+                && plainSchema.equals(plainAttr.getSchema().getKey())).findFirst();
     }
 
     @Override
-    public P getPlainAttr(final String plainSchemaName, final Membership<?> membership) {
-        return IterableUtils.find(internalGetPlainAttrs(), new Predicate<P>() {
-
-            @Override
-            public boolean evaluate(final P plainAttr) {
-                return plainAttr != null && plainAttr.getSchema() != null
-                        && plainAttr.getMembership() != null && plainAttr.getMembership().equals(membership)
-                        && plainSchemaName.equals(plainAttr.getSchema().getKey());
-            }
-        });
+    public Optional<? extends P> getPlainAttr(final String plainSchema, final Membership<?> membership) {
+        return internalGetPlainAttrs().stream().filter(plainAttr
+                -> plainAttr != null && plainAttr.getSchema() != null
+                && plainAttr.getMembership() != null && plainAttr.getMembership().equals(membership)
+                && plainSchema.equals(plainAttr.getSchema().getKey())).findFirst();
     }
 
     @Override
     public List<? extends P> getPlainAttrs() {
-        return CollectionUtils.select(internalGetPlainAttrs(), new Predicate<P>() {
-
-            @Override
-            public boolean evaluate(final P plainAttr) {
-                return plainAttr != null && plainAttr.getSchema() != null
-                        && plainAttr.getMembership() == null;
-            }
-        }, new ArrayList<P>());
+        return internalGetPlainAttrs().stream().filter(plainAttr
+                -> plainAttr != null && plainAttr.getSchema() != null && plainAttr.getMembership() == null).
+                collect(Collectors.toList());
     }
 
     @Override
-    public Collection<? extends P> getPlainAttrs(final String plainSchemaName) {
-        return CollectionUtils.select(internalGetPlainAttrs(), new Predicate<P>() {
-
-            @Override
-            public boolean evaluate(final P plainAttr) {
-                return plainAttr != null && plainAttr.getSchema() != null
-                        && plainSchemaName.equals(plainAttr.getSchema().getKey());
-            }
-        });
+    public Collection<? extends P> getPlainAttrs(final String plainSchema) {
+        return internalGetPlainAttrs().stream().filter(plainAttr
+                -> plainAttr != null && plainAttr.getSchema() != null
+                && plainSchema.equals(plainAttr.getSchema().getKey())).
+                collect(Collectors.toList());
     }
 
     @Override
     public Collection<? extends P> getPlainAttrs(final Membership<?> membership) {
-        return CollectionUtils.select(internalGetPlainAttrs(), new Predicate<P>() {
-
-            @Override
-            public boolean evaluate(final P plainAttr) {
-                return plainAttr != null && plainAttr.getSchema() != null
-                        && membership.equals(plainAttr.getMembership());
-            }
-        });
+        return internalGetPlainAttrs().stream().filter(plainAttr
+                -> plainAttr != null && plainAttr.getSchema() != null
+                && membership.equals(plainAttr.getMembership())).
+                collect(Collectors.toList());
     }
 
     @Override
-    public M getMembership(final String groupKey) {
-        return IterableUtils.find(getMemberships(), new Predicate<M>() {
-
-            @Override
-            public boolean evaluate(final M membership) {
-                return groupKey != null && groupKey.equals(membership.getRightEnd().getKey());
-            }
-        });
+    public Optional<? extends M> getMembership(final String groupKey) {
+        return getMemberships().stream().filter(membership
+                -> groupKey != null && groupKey.equals(membership.getRightEnd().getKey())).findFirst();
     }
 
     @Override
-    public REL getRelationship(final RelationshipType relationshipType, final String otherEndKey) {
-        return IterableUtils.find(getRelationships(), new Predicate<REL>() {
-
-            @Override
-            public boolean evaluate(final REL relationship) {
-                return otherEndKey != null && otherEndKey.equals(relationship.getRightEnd().getKey())
-                        && ((relationshipType == null && relationship.getType() == null)
-                        || (relationshipType != null && relationshipType.equals(relationship.getType())));
-            }
-        });
+    public Optional<? extends REL> getRelationship(final RelationshipType relationshipType, final String otherEndKey) {
+        return getRelationships().stream().filter(relationship
+                -> otherEndKey != null && otherEndKey.equals(relationship.getRightEnd().getKey())
+                && ((relationshipType == null && relationship.getType() == null)
+                || (relationshipType != null && relationshipType.equals(relationship.getType())))).findFirst();
     }
 
     @Override
     public Collection<? extends REL> getRelationships(final RelationshipType relationshipType) {
-        return CollectionUtils.select(getRelationships(), new Predicate<REL>() {
-
-            @Override
-            public boolean evaluate(final REL relationship) {
-                return relationshipType != null && relationshipType.equals(relationship.getType());
-            }
-        });
+        return getRelationships().stream().filter(relationship
+                -> relationshipType != null && relationshipType.equals(relationship.getType())).
+                collect(Collectors.toList());
     }
 
     @Override
     public Collection<? extends REL> getRelationships(final String otherEndKey) {
-        return CollectionUtils.select(getRelationships(), new Predicate<REL>() {
-
-            @Override
-            public boolean evaluate(final REL relationship) {
-                return otherEndKey != null && otherEndKey.equals(relationship.getRightEnd().getKey());
-            }
-        });
+        return getRelationships().stream().filter(relationship
+                -> otherEndKey != null && otherEndKey.equals(relationship.getRightEnd().getKey())).
+                collect(Collectors.toList());
     }
 }

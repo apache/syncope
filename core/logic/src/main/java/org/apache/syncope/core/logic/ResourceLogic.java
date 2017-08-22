@@ -23,18 +23,16 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.IteratorUtils;
-import org.apache.commons.collections4.Predicate;
-import org.apache.commons.collections4.Transformer;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
+import org.apache.syncope.common.lib.collections.IteratorChain;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
@@ -61,7 +59,6 @@ import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
-import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.provisioning.api.MappingManager;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
@@ -120,13 +117,8 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
     private ConnectorFactory connFactory;
 
     protected void securityChecks(final Set<String> effectiveRealms, final String realm, final String key) {
-        boolean authorized = IterableUtils.matchesAny(effectiveRealms, new Predicate<String>() {
-
-            @Override
-            public boolean evaluate(final String ownedRealm) {
-                return realm.startsWith(ownedRealm);
-            }
-        });
+        effectiveRealms.stream().anyMatch(ownedRealm -> realm.startsWith(ownedRealm));
+        boolean authorized = effectiveRealms.stream().anyMatch(ownedRealm -> realm.startsWith(ownedRealm));
         if (!authorized) {
             throw new DelegatedAdministrationException(realm, ExternalResource.class.getSimpleName(), key);
         }
@@ -201,12 +193,12 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
             if (anyType == null) {
                 throw new NotFoundException("AnyType '" + anyTypeKey + "'");
             }
-            Provision provision = resource.getProvision(anyType);
-            if (provision == null) {
+            Optional<? extends Provision> provision = resource.getProvision(anyType);
+            if (!provision.isPresent()) {
                 throw new NotFoundException("Provision for AnyType '" + anyTypeKey + "' in Resource '" + key + "'");
             }
 
-            provision.setSyncToken(connector.getLatestSyncToken(provision.getObjectClass()));
+            provision.get().setSyncToken(connector.getLatestSyncToken(provision.get().getObjectClass()));
         }
 
         Set<String> effectiveRealms = RealmUtils.getEffective(
@@ -234,12 +226,12 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
             if (anyType == null) {
                 throw new NotFoundException("AnyType '" + anyTypeKey + "'");
             }
-            Provision provision = resource.getProvision(anyType);
-            if (provision == null) {
+            Optional<? extends Provision> provision = resource.getProvision(anyType);
+            if (!provision.isPresent()) {
                 throw new NotFoundException("Provision for AnyType '" + anyTypeKey + "' in Resource '" + key + "'");
             }
 
-            provision.setSyncToken(null);
+            provision.get().setSyncToken(null);
         }
 
         Set<String> effectiveRealms = RealmUtils.getEffective(
@@ -283,13 +275,8 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
     @PreAuthorize("hasRole('" + StandardEntitlement.RESOURCE_LIST + "')")
     @Transactional(readOnly = true)
     public List<ResourceTO> list() {
-        return CollectionUtils.collect(resourceDAO.findAll(), new Transformer<ExternalResource, ResourceTO>() {
-
-            @Override
-            public ResourceTO transform(final ExternalResource input) {
-                return binder.getResourceTO(input);
-            }
-        }, new ArrayList<ResourceTO>());
+        return resourceDAO.findAll().stream().
+                map(resource -> binder.getResourceTO(resource)).collect(Collectors.toList());
     }
 
     private Triple<ExternalResource, AnyType, Provision> connObjectInit(
@@ -303,12 +290,12 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         if (anyType == null) {
             throw new NotFoundException("AnyType '" + anyTypeKey + "'");
         }
-        Provision provision = resource.getProvision(anyType);
-        if (provision == null) {
+        Optional<? extends Provision> provision = resource.getProvision(anyType);
+        if (!provision.isPresent()) {
             throw new NotFoundException("Provision on resource '" + resourceKey + "' for type '" + anyTypeKey + "'");
         }
 
-        return ImmutableTriple.of(resource, anyType, provision);
+        return ImmutableTriple.of(resource, anyType, provision.get());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.RESOURCE_GET_CONNOBJECT + "')")
@@ -327,19 +314,19 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         }
 
         // 2. build connObjectKeyItem
-        MappingItem connObjectKeyItem = MappingUtils.getConnObjectKeyItem(init.getRight());
-        if (connObjectKeyItem == null) {
+        Optional<MappingItem> connObjectKeyItem = MappingUtils.getConnObjectKeyItem(init.getRight());
+        if (!connObjectKeyItem.isPresent()) {
             throw new NotFoundException(
                     "ConnObjectKey mapping for " + init.getMiddle() + " " + anyKey + " on resource '" + key + "'");
         }
-        String connObjectKeyValue = mappingManager.getConnObjectKeyValue(any, init.getRight());
+        Optional<String> connObjectKeyValue = mappingManager.getConnObjectKeyValue(any, init.getRight());
 
         // 3. determine attributes to query
         Set<MappingItem> linkinMappingItems = new HashSet<>();
-        for (VirSchema virSchema : virSchemaDAO.findByProvision(init.getRight())) {
+        virSchemaDAO.findByProvision(init.getRight()).forEach(virSchema -> {
             linkinMappingItems.add(virSchema.asLinkingMappingItem());
-        }
-        Iterator<MappingItem> mapItems = IteratorUtils.chainedIterator(
+        });
+        Iterator<MappingItem> mapItems = new IteratorChain<>(
                 init.getRight().getMapping().getItems().iterator(),
                 linkinMappingItems.iterator());
 
@@ -347,11 +334,11 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
         Connector connector = connFactory.getConnector(init.getLeft());
         ConnectorObject connectorObject = connector.getObject(
                 init.getRight().getObjectClass(),
-                AttributeBuilder.build(connObjectKeyItem.getExtAttrName(), connObjectKeyValue),
+                AttributeBuilder.build(connObjectKeyItem.get().getExtAttrName(), connObjectKeyValue.get()),
                 MappingUtils.buildOperationOptions(mapItems));
         if (connectorObject == null) {
             throw new NotFoundException(
-                    "Object " + connObjectKeyValue + " with class " + init.getRight().getObjectClass()
+                    "Object " + connObjectKeyValue.get() + " with class " + init.getRight().getObjectClass()
                     + " not found on resource " + key);
         }
 
@@ -394,10 +381,10 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
             init.getRight().getMapping().getItems();
 
             Set<MappingItem> linkinMappingItems = new HashSet<>();
-            for (VirSchema virSchema : virSchemaDAO.findByProvision(init.getRight())) {
+            virSchemaDAO.findByProvision(init.getRight()).forEach(virSchema -> {
                 linkinMappingItems.add(virSchema.asLinkingMappingItem());
-            }
-            Iterator<MappingItem> mapItems = IteratorUtils.chainedIterator(
+            });
+            Iterator<MappingItem> mapItems = new IteratorChain<>(
                     init.getRight().getMapping().getItems().iterator(),
                     linkinMappingItems.iterator());
             options = MappingUtils.buildOperationOptions(mapItems);

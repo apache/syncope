@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.api.dao;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
@@ -45,6 +46,8 @@ public interface GroupDAO extends AnyDAO<Group> {
     List<TypeExtension> findTypeExtensions(AnyTypeClass anyTypeClass);
 
     List<String> findADynMembers(Group group);
+
+    Collection<String> findAllResourceKeys(final String key);
 
     void clearADynMembers(Group group);
 

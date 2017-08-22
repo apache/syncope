@@ -21,8 +21,8 @@ package org.apache.syncope.core.logic;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -145,7 +145,7 @@ public class SchemaLogic extends AbstractTransactionalLogic<AbstractSchemaTO> {
     }
 
     @PreAuthorize("isAuthenticated()")
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "Convert2Lambda" })
     public <T extends AbstractSchemaTO> List<T> list(
             final SchemaType schemaType, final List<String> anyTypeClasses) {
 
@@ -153,53 +153,50 @@ public class SchemaLogic extends AbstractTransactionalLogic<AbstractSchemaTO> {
         if (anyTypeClasses != null) {
             anyTypeClasses.remove(AnyTypeKind.USER.name());
             anyTypeClasses.remove(AnyTypeKind.GROUP.name());
-            for (String anyTypeClass : anyTypeClasses) {
+            anyTypeClasses.forEach(anyTypeClass -> {
                 AnyTypeClass clazz = anyTypeClassDAO.find(anyTypeClass);
                 if (clazz == null) {
                     LOG.warn("Ignoring invalid {}: {}", AnyTypeClass.class.getSimpleName(), anyTypeClass);
                 } else {
                     classes.add(clazz);
                 }
-            }
+            });
         }
 
         List<T> result;
         switch (schemaType) {
             case VIRTUAL:
-                result = CollectionUtils.collect(
-                        classes.isEmpty() ? virSchemaDAO.findAll() : virSchemaDAO.findByAnyTypeClasses(classes),
-                        new Transformer<VirSchema, T>() {
+                result = (classes.isEmpty() ? virSchemaDAO.findAll() : virSchemaDAO.findByAnyTypeClasses(classes)).
+                        stream().map(new Function<VirSchema, T>() {
 
-                    @Override
-                    public T transform(final VirSchema input) {
-                        return (T) binder.getVirSchemaTO(input);
-                    }
-                }, new ArrayList<T>());
+                            @Override
+                            public T apply(final VirSchema schema) {
+                                return (T) binder.getVirSchemaTO(schema);
+                            }
+                        }).collect(Collectors.toList());
                 break;
 
             case DERIVED:
-                result = CollectionUtils.collect(
-                        classes.isEmpty() ? derSchemaDAO.findAll() : derSchemaDAO.findByAnyTypeClasses(classes),
-                        new Transformer<DerSchema, T>() {
+                result = (classes.isEmpty() ? derSchemaDAO.findAll() : derSchemaDAO.findByAnyTypeClasses(classes)).
+                        stream().map(new Function<DerSchema, T>() {
 
-                    @Override
-                    public T transform(final DerSchema input) {
-                        return (T) binder.getDerSchemaTO(input);
-                    }
-                }, new ArrayList<T>());
+                            @Override
+                            public T apply(final DerSchema schema) {
+                                return (T) binder.getDerSchemaTO(schema);
+                            }
+                        }).collect(Collectors.toList());
                 break;
 
             case PLAIN:
             default:
-                result = CollectionUtils.collect(
-                        classes.isEmpty() ? plainSchemaDAO.findAll() : plainSchemaDAO.findByAnyTypeClasses(classes),
-                        new Transformer<PlainSchema, T>() {
+                result = (classes.isEmpty() ? plainSchemaDAO.findAll() : plainSchemaDAO.findByAnyTypeClasses(classes)).
+                        stream().map(new Function<PlainSchema, T>() {
 
-                    @Override
-                    public T transform(final PlainSchema input) {
-                        return (T) binder.getPlainSchemaTO(input);
-                    }
-                }, new ArrayList<T>());
+                            @Override
+                            public T apply(final PlainSchema schema) {
+                                return (T) binder.getPlainSchemaTO(schema);
+                            }
+                        }).collect(Collectors.toList());
         }
 
         return result;

@@ -19,12 +19,10 @@
 package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -81,13 +79,8 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
         }
 
         final boolean admin = AuthContextUtils.getAuthorizations().keySet().contains(StandardEntitlement.REALM_LIST);
-        return CollectionUtils.collect(realmDAO.findDescendants(realm), new Transformer<Realm, RealmTO>() {
-
-            @Override
-            public RealmTO transform(final Realm input) {
-                return binder.getRealmTO(input, admin);
-            }
-        }, new ArrayList<RealmTO>());
+        return realmDAO.findDescendants(realm).stream().
+                map(descendant -> binder.getRealmTO(descendant, admin)).collect(Collectors.toList());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REALM_CREATE + "')")
@@ -100,9 +93,9 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
         Realm realm = realmDAO.save(binder.create(parentPath, realmTO));
 
         PropagationByResource propByRes = new PropagationByResource();
-        for (String resource : realm.getResourceKeys()) {
+        realm.getResourceKeys().forEach(resource -> {
             propByRes.add(ResourceOperation.CREATE, resource);
-        }
+        });
         List<PropagationTask> tasks = propagationManager.createTasks(realm, propByRes, null);
         PropagationReporter propagationReporter = taskExecutor.execute(tasks, false);
 
@@ -165,9 +158,9 @@ public class RealmLogic extends AbstractTransactionalLogic<RealmTO> {
         }
 
         PropagationByResource propByRes = new PropagationByResource();
-        for (String resource : realm.getResourceKeys()) {
+        realm.getResourceKeys().forEach(resource -> {
             propByRes.add(ResourceOperation.DELETE, resource);
-        }
+        });
         List<PropagationTask> tasks = propagationManager.createTasks(realm, propByRes, null);
         PropagationReporter propagationReporter = taskExecutor.execute(tasks, false);
 

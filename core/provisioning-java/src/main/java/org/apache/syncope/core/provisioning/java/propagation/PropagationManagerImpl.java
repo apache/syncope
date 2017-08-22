@@ -26,11 +26,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.syncope.common.lib.patch.StringPatchItem;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -228,13 +226,8 @@ public class PropagationManagerImpl implements PropagationManager {
             pwdWFResult.getPropByRes().addAll(ResourceOperation.UPDATE, pwdResourceNames);
             if (!pwdWFResult.getPropByRes().isEmpty()) {
                 Set<String> toBeExcluded = new HashSet<>(allResourceNames);
-                CollectionUtils.collect(userPatch.getResources(), new Transformer<StringPatchItem, String>() {
-
-                    @Override
-                    public String transform(final StringPatchItem input) {
-                        return input.getValue();
-                    }
-                }, toBeExcluded);
+                toBeExcluded.addAll(userPatch.getResources().stream().
+                        map(patchItem -> patchItem.getValue()).collect(Collectors.toList()));
                 toBeExcluded.removeAll(pwdResourceNames);
 
                 tasks.addAll(getUserUpdateTasks(pwdWFResult, true, toBeExcluded));
@@ -339,27 +332,29 @@ public class PropagationManagerImpl implements PropagationManager {
         virtualResources.addAll(dao(any.getType().getKind()).findAllResourceKeys(any.getKey()));
 
         Map<String, Set<Attribute>> vAttrMap = new HashMap<>();
-        for (AttrTO vAttr : CollectionUtils.emptyIfNull(vAttrs)) {
-            VirSchema schema = virSchemaDAO.find(vAttr.getSchema());
-            if (schema == null) {
-                LOG.warn("Ignoring invalid {} {}", VirSchema.class.getSimpleName(), vAttr.getSchema());
-            } else if (schema.isReadonly()) {
-                LOG.warn("Ignoring read-only {} {}", VirSchema.class.getSimpleName(), vAttr.getSchema());
-            } else if (anyUtilsFactory.getInstance(any).getAllowedSchemas(any, VirSchema.class).contains(schema)
-                    && virtualResources.contains(schema.getProvision().getResource().getKey())) {
+        if (vAttrs != null) {
+            vAttrs.forEach(vAttr -> {
+                VirSchema schema = virSchemaDAO.find(vAttr.getSchema());
+                if (schema == null) {
+                    LOG.warn("Ignoring invalid {} {}", VirSchema.class.getSimpleName(), vAttr.getSchema());
+                } else if (schema.isReadonly()) {
+                    LOG.warn("Ignoring read-only {} {}", VirSchema.class.getSimpleName(), vAttr.getSchema());
+                } else if (anyUtilsFactory.getInstance(any).getAllowedSchemas(any, VirSchema.class).contains(schema)
+                        && virtualResources.contains(schema.getProvision().getResource().getKey())) {
 
-                Set<Attribute> values = vAttrMap.get(schema.getProvision().getResource().getKey());
-                if (values == null) {
-                    values = new HashSet<>();
-                    vAttrMap.put(schema.getProvision().getResource().getKey(), values);
+                    Set<Attribute> values = vAttrMap.get(schema.getProvision().getResource().getKey());
+                    if (values == null) {
+                        values = new HashSet<>();
+                        vAttrMap.put(schema.getProvision().getResource().getKey(), values);
+                    }
+                    values.add(AttributeBuilder.build(schema.getExtAttrName(), vAttr.getValues()));
+
+                    propByRes.add(ResourceOperation.UPDATE, schema.getProvision().getResource().getKey());
+                } else {
+                    LOG.warn("{} not owned by or {} not allowed for {}",
+                            schema.getProvision().getResource(), schema, any);
                 }
-                values.add(AttributeBuilder.build(schema.getExtAttrName(), vAttr.getValues()));
-
-                propByRes.add(ResourceOperation.UPDATE, schema.getProvision().getResource().getKey());
-            } else {
-                LOG.warn("{} not owned by or {} not allowed for {}",
-                        schema.getProvision().getResource(), schema, any);
-            }
+            });
         }
         LOG.debug("With virtual attributes {}:\n{}\n{}", any, propByRes, vAttrMap);
 
@@ -367,7 +362,7 @@ public class PropagationManagerImpl implements PropagationManager {
 
         for (Map.Entry<String, ResourceOperation> entry : propByRes.asMap().entrySet()) {
             ExternalResource resource = resourceDAO.find(entry.getKey());
-            Provision provision = resource == null ? null : resource.getProvision(any.getType());
+            Provision provision = resource == null ? null : resource.getProvision(any.getType()).orElse(null);
             List<? extends MappingItem> mappingItems = provision == null
                     ? Collections.<MappingItem>emptyList()
                     : MappingUtils.getPropagationItems(provision);
@@ -400,18 +395,16 @@ public class PropagationManagerImpl implements PropagationManager {
                 // if so, add special attributes that will be evaluated by PropagationTaskExecutor
                 List<String> mandatoryMissing = new ArrayList<>();
                 List<String> mandatoryNullOrEmpty = new ArrayList<>();
-                for (MappingItem item : mappingItems) {
-                    if (!item.isConnObjectKey()
-                            && JexlUtils.evaluateMandatoryCondition(item.getMandatoryCondition(), any)) {
-
-                        Attribute attr = AttributeUtil.find(item.getExtAttrName(), preparedAttrs.getValue());
-                        if (attr == null) {
-                            mandatoryMissing.add(item.getExtAttrName());
-                        } else if (attr.getValue() == null || attr.getValue().isEmpty()) {
-                            mandatoryNullOrEmpty.add(item.getExtAttrName());
-                        }
-                    }
-                }
+                mappingItems.stream().filter(item -> (!item.isConnObjectKey()
+                        && JexlUtils.evaluateMandatoryCondition(item.getMandatoryCondition(), any))).
+                        forEachOrdered(item -> {
+                            Attribute attr = AttributeUtil.find(item.getExtAttrName(), preparedAttrs.getValue());
+                            if (attr == null) {
+                                mandatoryMissing.add(item.getExtAttrName());
+                            } else if (attr.getValue() == null || attr.getValue().isEmpty()) {
+                                mandatoryNullOrEmpty.add(item.getExtAttrName());
+                            }
+                        });
                 if (!mandatoryMissing.isEmpty()) {
                     preparedAttrs.getValue().add(AttributeBuilder.build(
                             PropagationTaskExecutor.MANDATORY_MISSING_ATTR_NAME, mandatoryMissing));
@@ -454,7 +447,7 @@ public class PropagationManagerImpl implements PropagationManager {
 
         List<PropagationTask> tasks = new ArrayList<>();
 
-        for (Map.Entry<String, ResourceOperation> entry : propByRes.asMap().entrySet()) {
+        propByRes.asMap().entrySet().forEach(entry -> {
             ExternalResource resource = resourceDAO.find(entry.getKey());
             OrgUnit orgUnit = resource == null ? null : resource.getOrgUnit();
 
@@ -481,7 +474,7 @@ public class PropagationManagerImpl implements PropagationManager {
 
                 LOG.debug("PropagationTask created: {}", task);
             }
-        }
+        });
 
         return tasks;
     }

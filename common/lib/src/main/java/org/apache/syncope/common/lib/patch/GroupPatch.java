@@ -24,13 +24,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.jaxb.XmlGenericMapAdapter;
 import org.apache.syncope.common.lib.to.TypeExtensionTO;
 
@@ -92,14 +91,9 @@ public class GroupPatch extends AnyPatch {
     }
 
     @JsonIgnore
-    public TypeExtensionTO getTypeExtension(final String anyType) {
-        return IterableUtils.find(typeExtensions, new Predicate<TypeExtensionTO>() {
-
-            @Override
-            public boolean evaluate(final TypeExtensionTO typeExtension) {
-                return anyType != null && anyType.equals(typeExtension.getAnyType());
-            }
-        });
+    public Optional<TypeExtensionTO> getTypeExtension(final String anyType) {
+        return typeExtensions.stream().filter(
+                typeExtension -> anyType != null && anyType.equals(typeExtension.getAnyType())).findFirst();
     }
 
     @XmlElementWrapper(name = "typeExtensions")

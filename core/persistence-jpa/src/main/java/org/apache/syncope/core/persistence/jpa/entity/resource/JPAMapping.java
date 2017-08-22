@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.jpa.entity.resource;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -27,8 +28,6 @@ import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
@@ -77,14 +76,8 @@ public class JPAMapping extends AbstractGeneratedKeyEntity implements Mapping {
     }
 
     @Override
-    public MappingItem getConnObjectKeyItem() {
-        return IterableUtils.find(getItems(), new Predicate<MappingItem>() {
-
-            @Override
-            public boolean evaluate(final MappingItem item) {
-                return item.isConnObjectKey();
-            }
-        });
+    public Optional<? extends MappingItem> getConnObjectKeyItem() {
+        return getItems().stream().filter(MappingItem::isConnObjectKey).findFirst();
     }
 
     @Override

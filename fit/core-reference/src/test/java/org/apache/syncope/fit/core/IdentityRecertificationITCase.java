@@ -39,7 +39,7 @@ public class IdentityRecertificationITCase extends AbstractTaskITCase {
         assertFalse(forms.isEmpty());
         for (WorkflowFormTO form : forms) {
             userWorkflowService.claimForm(form.getTaskId());
-            WorkflowFormPropertyTO approve = form.getProperty("approve");
+            WorkflowFormPropertyTO approve = form.getProperty("approve").get();
             approve.setValue("true");
             userWorkflowService.submitForm(form);
         }

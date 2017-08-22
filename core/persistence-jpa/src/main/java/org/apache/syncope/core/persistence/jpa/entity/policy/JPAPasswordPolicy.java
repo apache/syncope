@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.jpa.entity.policy;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -28,8 +29,6 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 
@@ -91,12 +90,6 @@ public class JPAPasswordPolicy extends AbstractPolicy implements PasswordPolicy 
 
     @Override
     public List<PasswordRuleConf> getRuleConfs() {
-        return CollectionUtils.collect(ruleConfs, new Transformer<JPAPasswordRuleConfInstance, PasswordRuleConf>() {
-
-            @Override
-            public PasswordRuleConf transform(final JPAPasswordRuleConfInstance input) {
-                return input.getInstance();
-            }
-        }, new ArrayList<PasswordRuleConf>());
+        return ruleConfs.stream().map(input -> input.getInstance()).collect(Collectors.toList());
     }
 }

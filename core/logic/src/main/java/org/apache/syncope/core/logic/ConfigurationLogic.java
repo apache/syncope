@@ -21,6 +21,7 @@ package org.apache.syncope.core.logic;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Optional;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
@@ -65,8 +66,8 @@ public class ConfigurationLogic extends AbstractTransactionalLogic<AttrTO> {
 
     @PreAuthorize("hasRole('" + StandardEntitlement.CONFIGURATION_DELETE + "')")
     public void delete(final String schema) {
-        CPlainAttr conf = confDAO.find(schema);
-        if (conf == null) {
+        Optional<? extends CPlainAttr> conf = confDAO.find(schema);
+        if (!conf.isPresent()) {
             PlainSchema plainSchema = plainSchemaDAO.find(schema);
             if (plainSchema == null) {
                 throw new NotFoundException("Configuration schema " + schema);
@@ -86,8 +87,10 @@ public class ConfigurationLogic extends AbstractTransactionalLogic<AttrTO> {
     public AttrTO get(final String schema) {
         AttrTO result;
 
-        CPlainAttr conf = confDAO.find(schema);
-        if (conf == null) {
+        Optional<? extends CPlainAttr> conf = confDAO.find(schema);
+        if (conf.isPresent()) {
+            result = binder.getAttrTO(conf.get());
+        } else {
             PlainSchema plainSchema = plainSchemaDAO.find(schema);
             if (plainSchema == null) {
                 throw new NotFoundException("Configuration schema " + schema);
@@ -95,8 +98,6 @@ public class ConfigurationLogic extends AbstractTransactionalLogic<AttrTO> {
 
             result = new AttrTO();
             result.setSchema(schema);
-        } else {
-            result = binder.getAttrTO(conf);
         }
 
         return result;

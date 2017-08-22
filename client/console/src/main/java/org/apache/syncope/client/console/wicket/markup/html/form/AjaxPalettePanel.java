@@ -120,13 +120,12 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
                         final List<T> unselected = new ArrayList<>(choices.size());
                         final List<String> ids = Arrays.asList(getValue().split(","));
 
-                        for (final T choice : choices) {
+                        choices.forEach(choice -> {
                             final String choiceId = renderer.getIdValue(choice, 0);
-
                             if (!ids.contains(choiceId)) {
                                 unselected.add(choice);
                             }
-                        }
+                        });
 
                         return unselected;
                     }
@@ -139,9 +138,9 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
 
                         // reduce number of method calls by building a lookup table
                         final Map<T, String> idForChoice = new HashMap<>(choices.size());
-                        for (final T choice : choices) {
+                        choices.forEach(choice -> {
                             idForChoice.put(choice, renderer.getIdValue(choice, 0));
-                        }
+                        });
 
                         final String value = getValue();
                         int start = value.indexOf(';') + 1;
@@ -320,9 +319,9 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
             final List<T> selected = new ArrayList<>();
 
             final Map<T, String> idForChoice = new HashMap<>();
-            for (final T choice : choices) {
+            choices.forEach(choice -> {
                 idForChoice.put(choice, renderer.getIdValue(choice, 0));
-            }
+            });
 
             for (final String id : Strings.split(selection, ',')) {
                 final Iterator<T> iter = choices.iterator();
@@ -345,18 +344,18 @@ public class AjaxPalettePanel<T extends Serializable> extends AbstractFieldPanel
             final List<T> selected = new ArrayList<>(choices.size());
 
             final Map<T, String> idForChoice = new HashMap<>();
-            for (final T choice : choices) {
+            choices.forEach(choice -> {
                 idForChoice.put(choice, renderer.getIdValue(choice, 0));
-            }
+            });
 
             final Pattern pattern = Pattern.compile(filter, Pattern.CASE_INSENSITIVE);
 
-            for (T choice : choices) {
+            choices.forEach(choice -> {
                 final String idValue = idForChoice.get(choice);
                 if (pattern.matcher(idValue).matches()) {
                     selected.add(choice);
                 }
-            }
+            });
 
             return selected;
         }

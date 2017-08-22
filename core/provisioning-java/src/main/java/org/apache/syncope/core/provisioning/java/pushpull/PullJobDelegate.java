@@ -24,16 +24,16 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
-import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.syncope.common.lib.collections.IteratorChain;
 import org.apache.syncope.common.lib.policy.PullPolicySpec;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
-import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
@@ -79,39 +79,39 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
     }
 
     private void setGroupOwners(final GroupPullResultHandler ghandler) {
-        for (Map.Entry<String, String> entry : ghandler.getGroupOwnerMap().entrySet()) {
+        ghandler.getGroupOwnerMap().entrySet().stream().map(entry -> {
             Group group = groupDAO.find(entry.getKey());
             if (group == null) {
                 throw new NotFoundException("Group " + entry.getKey());
             }
-
             if (StringUtils.isBlank(entry.getValue())) {
                 group.setGroupOwner(null);
                 group.setUserOwner(null);
             } else {
-                String userKey = pullUtils.findMatchingAnyKey(
+                Optional<String> userKey = pullUtils.findMatchingAnyKey(
                         anyTypeDAO.findUser(),
                         entry.getValue(),
                         ghandler.getProfile().getTask().getResource(),
                         ghandler.getProfile().getConnector());
 
-                if (userKey == null) {
-                    String groupKey = pullUtils.findMatchingAnyKey(
+                if (userKey.isPresent()) {
+                    group.setUserOwner(userDAO.find(userKey.get()));
+                } else {
+                    Optional<String> groupKey = pullUtils.findMatchingAnyKey(
                             anyTypeDAO.findGroup(),
                             entry.getValue(),
                             ghandler.getProfile().getTask().getResource(),
                             ghandler.getProfile().getConnector());
 
-                    if (groupKey != null) {
-                        group.setGroupOwner(groupDAO.find(groupKey));
+                    if (groupKey.isPresent()) {
+                        group.setGroupOwner(groupDAO.find(groupKey.get()));
                     }
-                } else {
-                    group.setUserOwner(userDAO.find(userKey));
                 }
             }
-
+            return group;
+        }).forEachOrdered(group -> {
             groupDAO.save(group);
-        }
+        });
     }
 
     @Override
@@ -123,7 +123,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
         LOG.debug("Executing pull on {}", pullTask.getResource());
 
         List<PullActions> actions = new ArrayList<>();
-        for (String className : pullTask.getActionsClassNames()) {
+        pullTask.getActionsClassNames().forEach(className -> {
             try {
                 Class<?> actionsClass = Class.forName(className);
                 PullActions pullActions = (PullActions) ApplicationContextProvider.getBeanFactory().
@@ -133,7 +133,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
             } catch (Exception e) {
                 LOG.warn("Class '{}' not found", className, e);
             }
-        }
+        });
 
         ProvisioningProfile<PullTask, PullActions> profile = new ProvisioningProfile<>(connector, pullTask);
         profile.getActions().addAll(actions);
@@ -236,10 +236,10 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
 
                 try {
                     Set<MappingItem> linkinMappingItems = new HashSet<>();
-                    for (VirSchema virSchema : virSchemaDAO.findByProvision(provision)) {
+                    virSchemaDAO.findByProvision(provision).forEach(virSchema -> {
                         linkinMappingItems.add(virSchema.asLinkingMappingItem());
-                    }
-                    Iterator<MappingItem> mapItems = IteratorUtils.chainedIterator(
+                    });
+                    Iterator<MappingItem> mapItems = new IteratorChain<>(
                             provision.getMapping().getItems().iterator(),
                             linkinMappingItems.iterator());
                     OperationOptions options = MappingUtils.buildOperationOptions(mapItems);

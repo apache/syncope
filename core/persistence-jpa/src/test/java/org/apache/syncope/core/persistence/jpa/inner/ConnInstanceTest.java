@@ -26,12 +26,10 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
+import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.ConnConfPropSchema;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
@@ -57,14 +55,9 @@ public class ConnInstanceTest extends AbstractTest {
 
     @Test
     public void findAll() {
-        List<GrantedAuthority> authorities = CollectionUtils.collect(StandardEntitlement.values(),
-                new Transformer<String, GrantedAuthority>() {
-
-            @Override
-            public GrantedAuthority transform(final String entitlement) {
-                return new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM);
-            }
-        }, new ArrayList<GrantedAuthority>());
+        List<GrantedAuthority> authorities = StandardEntitlement.values().stream().
+                map(entitlement -> new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM)).
+                collect(Collectors.toList());
 
         UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                 new org.springframework.security.core.userdetails.User(

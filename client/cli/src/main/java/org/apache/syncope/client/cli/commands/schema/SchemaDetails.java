@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.client.cli.commands.schema;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.xml.ws.WebServiceException;
-import org.apache.commons.collections4.map.LinkedMap;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.slf4j.Logger;
@@ -41,7 +41,7 @@ public class SchemaDetails extends AbstractSchemaCommand {
     public void details() {
         if (input.parameterNumber() == 0) {
             try {
-                final Map<String, String> details = new LinkedMap<>();
+                final Map<String, String> details = new LinkedHashMap<>();
                 final int plainSchemaSize = schemaSyncopeOperations.listPlain().size();
                 final int derivedSchemaSize = schemaSyncopeOperations.listDerived().size();
                 final int virtualSchemaSize = schemaSyncopeOperations.listVirtual().size();

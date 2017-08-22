@@ -31,7 +31,6 @@ import javax.sql.DataSource;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PushTaskTO;
@@ -90,11 +89,9 @@ public class PushTaskITCase extends AbstractTaskITCase {
     public void list() {
         PagedResult<PushTaskTO> tasks = taskService.list(new TaskQuery.Builder(TaskType.PUSH).build());
         assertFalse(tasks.getResult().isEmpty());
-        for (AbstractTaskTO task : tasks.getResult()) {
-            if (!(task instanceof PushTaskTO)) {
-                fail();
-            }
-        }
+        tasks.getResult().stream().
+                filter((task) -> (!(task instanceof PushTaskTO))).
+                forEach(item -> fail());
     }
 
     @Test
@@ -358,8 +355,8 @@ public class PushTaskITCase extends AbstractTaskITCase {
             Response response = resourceService.create(resourceTO);
             newResourceTO = getObject(response.getLocation(), ResourceService.class, ResourceTO.class);
             assertNotNull(newResourceTO);
-            assertNull(newResourceTO.getProvision(AnyTypeKind.USER.name()));
-            assertNotNull(newResourceTO.getProvision(AnyTypeKind.GROUP.name()).getMapping());
+            assertFalse(newResourceTO.getProvision(AnyTypeKind.USER.name()).isPresent());
+            assertNotNull(newResourceTO.getProvision(AnyTypeKind.GROUP.name()).get().getMapping());
 
             // create push task ad-hoc
             PushTaskTO task = new PushTaskTO();

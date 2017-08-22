@@ -26,9 +26,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -53,7 +52,6 @@ import org.quartz.CronScheduleBuilder;
 import org.quartz.Job;
 import org.quartz.JobBuilder;
 import org.quartz.JobDataMap;
-import org.quartz.JobExecutionContext;
 import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
@@ -100,14 +98,8 @@ public class JobManagerImpl implements JobManager, SyncopeLoader {
     }
 
     private boolean isRunningHere(final JobKey jobKey) throws SchedulerException {
-        return IterableUtils.matchesAny(scheduler.getScheduler().getCurrentlyExecutingJobs(),
-                new Predicate<JobExecutionContext>() {
-
-            @Override
-            public boolean evaluate(final JobExecutionContext jec) {
-                return jobKey.equals(jec.getJobDetail().getKey());
-            }
-        });
+        return scheduler.getScheduler().getCurrentlyExecutingJobs().stream().
+                anyMatch(jec -> jobKey.equals(jec.getJobDetail().getKey()));
     }
 
     private boolean isRunningElsewhere(final JobKey jobKey) throws SchedulerException {
@@ -299,54 +291,45 @@ public class JobManagerImpl implements JobManager, SyncopeLoader {
             }
         }
 
-        final Pair<String, Long> conf = AuthContextUtils.execWithAuthContext(
-                SyncopeConstants.MASTER_DOMAIN, new AuthContextUtils.Executable<Pair<String, Long>>() {
+        final Pair<String, Long> conf = AuthContextUtils.execWithAuthContext(SyncopeConstants.MASTER_DOMAIN, () -> {
+            String notificationJobCronExpression = StringUtils.EMPTY;
 
-            @Override
-            public Pair<String, Long> exec() {
-                String notificationJobCronExpression = StringUtils.EMPTY;
-
-                CPlainAttr notificationJobCronExp = confDAO.find("notificationjob.cronExpression");
-                if (notificationJobCronExp == null) {
-                    notificationJobCronExpression = NotificationJob.DEFAULT_CRON_EXP;
-                } else if (!notificationJobCronExp.getValuesAsStrings().isEmpty()) {
-                    notificationJobCronExpression = notificationJobCronExp.getValuesAsStrings().get(0);
-                }
-
-                long interruptMaxRetries = confDAO.find("tasks.interruptMaxRetries", 1L);
-
-                return Pair.of(notificationJobCronExpression, interruptMaxRetries);
+            Optional<? extends CPlainAttr> notificationJobCronExp = confDAO.find("notificationjob.cronExpression");
+            if (!notificationJobCronExp.isPresent()) {
+                notificationJobCronExpression = NotificationJob.DEFAULT_CRON_EXP;
+            } else if (!notificationJobCronExp.get().getValuesAsStrings().isEmpty()) {
+                notificationJobCronExpression = notificationJobCronExp.get().getValuesAsStrings().get(0);
             }
+
+            long interruptMaxRetries = confDAO.find("tasks.interruptMaxRetries", 1L);
+
+            return Pair.of(notificationJobCronExpression, interruptMaxRetries);
         });
 
         for (String domain : domainsHolder.getDomains().keySet()) {
-            AuthContextUtils.execWithAuthContext(domain, new AuthContextUtils.Executable<Void>() {
-
-                @Override
-                public Void exec() {
-                    // 1. jobs for SchedTasks
-                    Set<SchedTask> tasks = new HashSet<>(taskDAO.<SchedTask>findAll(TaskType.SCHEDULED));
-                    tasks.addAll(taskDAO.<PullTask>findAll(TaskType.PULL));
-                    tasks.addAll(taskDAO.<PushTask>findAll(TaskType.PUSH));
-                    for (SchedTask task : tasks) {
-                        try {
-                            register(task, task.getStartAt(), conf.getRight());
-                        } catch (Exception e) {
-                            LOG.error("While loading job instance for task " + task.getKey(), e);
-                        }
+            AuthContextUtils.execWithAuthContext(domain, () -> {
+                // 1. jobs for SchedTasks
+                Set<SchedTask> tasks = new HashSet<>(taskDAO.<SchedTask>findAll(TaskType.SCHEDULED));
+                tasks.addAll(taskDAO.<PullTask>findAll(TaskType.PULL));
+                tasks.addAll(taskDAO.<PushTask>findAll(TaskType.PUSH));
+                tasks.forEach(task -> {
+                    try {
+                        register(task, task.getStartAt(), conf.getRight());
+                    } catch (Exception e) {
+                        LOG.error("While loading job instance for task " + task.getKey(), e);
                     }
+                });
 
-                    // 2. jobs for Reports
-                    for (Report report : reportDAO.findAll()) {
-                        try {
-                            register(report, null, conf.getRight());
-                        } catch (Exception e) {
-                            LOG.error("While loading job instance for report " + report.getName(), e);
-                        }
+                // 2. jobs for Reports
+                reportDAO.findAll().forEach(report -> {
+                    try {
+                        register(report, null, conf.getRight());
+                    } catch (Exception e) {
+                        LOG.error("While loading job instance for report " + report.getName(), e);
                     }
+                });
 
-                    return null;
-                }
+                return null;
             });
         }
 

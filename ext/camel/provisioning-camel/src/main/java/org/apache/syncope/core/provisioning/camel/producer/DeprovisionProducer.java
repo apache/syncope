@@ -19,10 +19,10 @@
 package org.apache.syncope.core.provisioning.camel.producer;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -71,7 +71,8 @@ public class DeprovisionProducer extends AbstractProducer {
                             AnyTypeKind.USER,
                             key,
                             propByRes,
-                            CollectionUtils.removeAll(userDAO.findAllResourceKeys(key), resources));
+                            userDAO.findAllResourceKeys(key).stream().
+                                    filter(resource -> !resources.contains(resource)).collect(Collectors.toList()));
                     propagationReporter = getPropagationTaskExecutor().execute(tasks, nullPriorityAsync);
                     exchange.getOut().setBody(propagationReporter.getStatuses());
                     break;
@@ -82,7 +83,8 @@ public class DeprovisionProducer extends AbstractProducer {
                             AnyTypeKind.GROUP,
                             key,
                             propByRes,
-                            CollectionUtils.removeAll(groupDAO.findAllResourceKeys(key), resources));
+                            groupDAO.findAllResourceKeys(key).stream().
+                                    filter(resource -> !resources.contains(resource)).collect(Collectors.toList()));
                     propagationReporter = getPropagationTaskExecutor().execute(tasks, nullPriorityAsync);
                     exchange.getOut().setBody(propagationReporter.getStatuses());
                     break;
@@ -93,7 +95,8 @@ public class DeprovisionProducer extends AbstractProducer {
                             AnyTypeKind.ANY_OBJECT,
                             key,
                             propByRes,
-                            CollectionUtils.removeAll(anyObjectDAO.findAllResourceKeys(key), resources));
+                            anyObjectDAO.findAllResourceKeys(key).stream().
+                                    filter(resource -> !resources.contains(resource)).collect(Collectors.toList()));
                     propagationReporter = getPropagationTaskExecutor().execute(tasks, nullPriorityAsync);
                     exchange.getOut().setBody(propagationReporter.getStatuses());
                     break;

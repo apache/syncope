@@ -62,7 +62,7 @@ public class VirSchemaTest extends AbstractTest {
     @Test
     public void save() {
         ExternalResource csv = resourceDAO.find("resource-csv");
-        Provision provision = csv.getProvision(ObjectClass.ACCOUNT);
+        Provision provision = csv.getProvision(ObjectClass.ACCOUNT).get();
         assertNotNull(provision);
 
         VirSchema virSchema = entityFactory.newEntity(VirSchema.class);

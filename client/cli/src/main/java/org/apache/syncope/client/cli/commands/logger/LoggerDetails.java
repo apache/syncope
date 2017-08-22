@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.client.cli.commands.logger;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.collections4.map.LinkedMap;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.log.LoggerTO;
@@ -42,7 +42,7 @@ public class LoggerDetails extends AbstractLoggerCommand {
     public void details() {
         if (input.parameterNumber() == 0) {
             try {
-                final Map<String, String> details = new LinkedMap<>();
+                final Map<String, String> details = new LinkedHashMap<>();
                 final List<LoggerTO> loggerTOs = loggerSyncopeOperations.list();
                 int debugLevel = 0;
                 int errorLevel = 0;

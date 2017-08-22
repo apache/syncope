@@ -26,8 +26,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.commons.Constants;
@@ -108,7 +106,7 @@ public abstract class EventCategoryPanel extends Panel {
         type = new AjaxDropDownChoicePanel<>(
                 "type",
                 "type",
-                new PropertyModel<EventCategoryType>(eventCategoryTO, "type"),
+                new PropertyModel<>(eventCategoryTO, "type"),
                 false);
         type.setChoices(Arrays.asList(EventCategoryType.values()));
         type.setStyleSheet("ui-widget-content ui-corner-all");
@@ -129,13 +127,7 @@ public abstract class EventCategoryPanel extends Panel {
             @Override
             public EventCategoryType getObject(
                     final String id, final IModel<? extends List<? extends EventCategoryType>> choices) {
-                return IterableUtils.find(choices.getObject(), new Predicate<EventCategoryType>() {
-
-                    @Override
-                    public boolean evaluate(final EventCategoryType object) {
-                        return object.name().equals(id);
-                    }
-                });
+                return choices.getObject().stream().filter(object -> object.name().equals(id)).findAny().orElse(null);
             }
         });
         categoryContainer.add(type);
@@ -153,7 +145,7 @@ public abstract class EventCategoryPanel extends Panel {
         category = new AjaxDropDownChoicePanel<>(
                 "category",
                 "category",
-                new PropertyModel<String>(eventCategoryTO, "category"),
+                new PropertyModel<>(eventCategoryTO, "category"),
                 false);
         category.setChoices(filter(eventCategoryTOs, type.getModelObject()));
         categoryContainer.add(category);
@@ -171,7 +163,7 @@ public abstract class EventCategoryPanel extends Panel {
         subcategory = new AjaxDropDownChoicePanel<>(
                 "subcategory",
                 "subcategory",
-                new PropertyModel<String>(eventCategoryTO, "subcategory"),
+                new PropertyModel<>(eventCategoryTO, "subcategory"),
                 false);
         subcategory.setChoices(filter(eventCategoryTOs, type.getModelObject(), category.getModelObject()));
         categoryContainer.add(subcategory);
@@ -188,13 +180,13 @@ public abstract class EventCategoryPanel extends Panel {
 
         categoryContainer.add(new Label("customLabel", new ResourceModel("custom", "custom")).setVisible(false));
 
-        custom = new AjaxTextFieldPanel("custom", "custom", new Model<String>(null));
+        custom = new AjaxTextFieldPanel("custom", "custom", new Model<>(null));
         custom.setVisible(false);
         custom.setEnabled(false);
 
         categoryContainer.add(custom.hideLabel());
 
-        actionsPanel = new ActionsPanel<EventCategoryTO>("customActions", null);
+        actionsPanel = new ActionsPanel<>("customActions", null);
         actionsPanel.add(new ActionLink<EventCategoryTO>() {
 
             private static final long serialVersionUID = -3722207913631435501L;
@@ -210,7 +202,7 @@ public abstract class EventCategoryPanel extends Panel {
                             null,
                             null,
                             parsed.getKey().getEvents().isEmpty()
-                                    ? StringUtils.EMPTY : parsed.getKey().getEvents().iterator().next(),
+                            ? StringUtils.EMPTY : parsed.getKey().getEvents().iterator().next(),
                             parsed.getValue());
 
                     custom.setModelObject(StringUtils.EMPTY);
@@ -237,7 +229,7 @@ public abstract class EventCategoryPanel extends Panel {
                             null,
                             null,
                             parsed.getKey().getEvents().isEmpty()
-                                    ? StringUtils.EMPTY : parsed.getKey().getEvents().iterator().next(),
+                            ? StringUtils.EMPTY : parsed.getKey().getEvents().iterator().next(),
                             parsed.getValue());
 
                     custom.setModelObject(StringUtils.EMPTY);
@@ -270,11 +262,11 @@ public abstract class EventCategoryPanel extends Panel {
     private List<String> filter(final List<EventCategoryTO> eventCategoryTOs, final EventCategoryType type) {
         Set<String> res = new HashSet<>();
 
-        for (EventCategoryTO eventCategory : eventCategoryTOs) {
-            if (type == eventCategory.getType() && StringUtils.isNotEmpty(eventCategory.getCategory())) {
-                res.add(eventCategory.getCategory());
-            }
-        }
+        eventCategoryTOs.stream().filter(eventCategory
+                -> type == eventCategory.getType() && StringUtils.isNotEmpty(eventCategory.getCategory())).
+                forEachOrdered(eventCategory -> {
+                    res.add(eventCategory.getCategory());
+                });
 
         List<String> filtered = new ArrayList<>(res);
         Collections.sort(filtered);
@@ -286,12 +278,12 @@ public abstract class EventCategoryPanel extends Panel {
 
         Set<String> res = new HashSet<>();
 
-        for (EventCategoryTO eventCategory : eventCategoryTOs) {
-            if (type == eventCategory.getType() && StringUtils.equals(category, eventCategory.getCategory())
-                    && StringUtils.isNotEmpty(eventCategory.getSubcategory())) {
-                res.add(eventCategory.getSubcategory());
-            }
-        }
+        eventCategoryTOs.stream().filter(eventCategory
+                -> type == eventCategory.getType() && StringUtils.equals(category, eventCategory.getCategory())
+                && StringUtils.isNotEmpty(eventCategory.getSubcategory())).
+                forEachOrdered(eventCategory -> {
+                    res.add(eventCategory.getSubcategory());
+                });
 
         List<String> filtered = new ArrayList<>(res);
         Collections.sort(filtered);
@@ -373,7 +365,7 @@ public abstract class EventCategoryPanel extends Panel {
                         categoryEvent.getKey().getCategory(),
                         categoryEvent.getKey().getSubcategory(),
                         categoryEvent.getKey().getEvents().isEmpty()
-                                ? StringUtils.EMPTY : categoryEvent.getKey().getEvents().iterator().next(),
+                        ? StringUtils.EMPTY : categoryEvent.getKey().getEvents().iterator().next(),
                         categoryEvent.getValue()));
 
                 category.setEnabled(false);
@@ -439,16 +431,16 @@ public abstract class EventCategoryPanel extends Panel {
     }
 
     private void authorizeList() {
-        for (String role : getListAuthRoles()) {
+        getListAuthRoles().forEach(role -> {
             MetaDataRoleAuthorizationStrategy.authorize(selectedEventsPanel, RENDER, role);
-        }
+        });
     }
 
     private void authorizeChanges() {
-        for (String role : getChangeAuthRoles()) {
+        getChangeAuthRoles().forEach(role -> {
             MetaDataRoleAuthorizationStrategy.authorize(categoryContainer, RENDER, role);
             MetaDataRoleAuthorizationStrategy.authorize(eventsContainer, RENDER, role);
-        }
+        });
     }
 
     private void updateEventsContainer(final AjaxRequestTarget target) {

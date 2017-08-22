@@ -28,8 +28,6 @@ import static org.junit.Assert.fail;
 import java.util.List;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.AnyTypeClassTO;
@@ -163,9 +161,9 @@ public class PlainSchemaITCase extends AbstractITCase {
     public void list() {
         List<PlainSchemaTO> schemas = schemaService.list(new SchemaQuery.Builder().type(SchemaType.PLAIN).build());
         assertFalse(schemas.isEmpty());
-        for (PlainSchemaTO schemaTO : schemas) {
+        schemas.forEach(schemaTO -> {
             assertNotNull(schemaTO);
-        }
+        });
     }
 
     @Test
@@ -173,24 +171,14 @@ public class PlainSchemaITCase extends AbstractITCase {
         List<PlainSchemaTO> userSchemas = schemaService.list(
                 new SchemaQuery.Builder().type(SchemaType.PLAIN).anyTypeClass("minimal user").build());
 
-        assertTrue(IterableUtils.matchesAny(userSchemas, new Predicate<PlainSchemaTO>() {
+        assertTrue(userSchemas.stream().anyMatch(object -> "fullname".equals(object.getKey())));
 
-            @Override
-            public boolean evaluate(final PlainSchemaTO object) {
-                return "fullname".equals(object.getKey());
-            }
-        }));
-
-        assertFalse(IterableUtils.matchesAny(userSchemas, new Predicate<PlainSchemaTO>() {
-
-            @Override
-            public boolean evaluate(final PlainSchemaTO object) {
-                return "password.cipher.algorithm".equals(object.getKey())
-                        || "rderived_dx".equals(object.getKey())
-                        || "icon".equals(object.getKey())
-                        || "mderived_sx".equals(object.getKey())
-                        || "self.membership.layout".equals(object.getKey());
-            }
+        assertFalse(userSchemas.stream().anyMatch(object -> {
+            return "password.cipher.algorithm".equals(object.getKey())
+                    || "rderived_dx".equals(object.getKey())
+                    || "icon".equals(object.getKey())
+                    || "mderived_sx".equals(object.getKey())
+                    || "self.membership.layout".equals(object.getKey());
         }));
     }
 

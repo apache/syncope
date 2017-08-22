@@ -26,17 +26,15 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Predicate;
+import java.util.stream.Collectors;
 import org.apache.cxf.common.util.StringUtils;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.GroupRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
-import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.AnyTypeClassTO;
 import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.types.SchemaType;
@@ -90,8 +88,10 @@ public abstract class AbstractAttrs<S extends AbstractSchemaTO> extends WizardSt
     }
 
     private List<AttrTO> loadAttrTOs() {
-        setSchemas(CollectionUtils.collect(anyTypeClassRestClient.list(anyTO.getAuxClasses()),
-                EntityTOUtils.<AnyTypeClassTO>keyTransformer(), new ArrayList<>(anyTypeClasses)));
+        List<String> classes = new ArrayList<>(anyTypeClasses);
+        classes.addAll(anyTypeClassRestClient.list(anyTO.getAuxClasses()).stream().
+                map(EntityTO::getKey).collect(Collectors.toList()));
+        setSchemas(classes);
         setAttrs();
         return AbstractAttrs.this.getAttrsFromTO();
     }
@@ -104,10 +104,9 @@ public abstract class AbstractAttrs<S extends AbstractSchemaTO> extends WizardSt
 
             for (MembershipTO membership : (List<MembershipTO>) PropertyResolver.getPropertyField(
                     "memberships", anyTO).get(anyTO)) {
-                setSchemas(membership.getGroupKey(), CollectionUtils.collect(
-                        anyTypeClassRestClient.list(getMembershipAuxClasses(membership, anyTO.getType())),
-                        EntityTOUtils.<AnyTypeClassTO>keyTransformer(),
-                        new ArrayList<String>()));
+                setSchemas(membership.getGroupKey(),
+                        anyTypeClassRestClient.list(getMembershipAuxClasses(membership, anyTO.getType())).
+                                stream().map(EntityTO::getKey).collect(Collectors.toList()));
                 setAttrs(membership);
 
                 if (AbstractAttrs.this instanceof PlainAttrs && !membership.getPlainAttrs().isEmpty()) {
@@ -159,38 +158,29 @@ public abstract class AbstractAttrs<S extends AbstractSchemaTO> extends WizardSt
 
         if (reoderSchemas()) {
             // 1. remove attributes not selected for display
-            CollectionUtils.filter(allSchemas, new Predicate<S>() {
-
-                @Override
-                public boolean evaluate(final S schemaTO) {
-                    return whichAttrs.contains(schemaTO.getKey());
-                }
-            });
+            allSchemas.removeAll(allSchemas.stream().
+                    filter(schemaTO -> !whichAttrs.contains(schemaTO.getKey())).collect(Collectors.toSet()));
 
             // 2. sort remainig attributes according to configuration, e.g. attrLayout
             final Map<String, Integer> attrLayoutMap = new HashMap<>(whichAttrs.size());
             for (int i = 0; i < whichAttrs.size(); i++) {
                 attrLayoutMap.put(whichAttrs.get(i), i);
             }
-            Collections.sort(allSchemas, new Comparator<S>() {
+            Collections.sort(allSchemas, (schema1, schema2) -> {
+                int value = 0;
 
-                @Override
-                public int compare(final S schema1, final S schema2) {
-                    int value = 0;
-
-                    if (attrLayoutMap.get(schema1.getKey()) > attrLayoutMap.get(schema2.getKey())) {
-                        value = 1;
-                    } else if (attrLayoutMap.get(schema1.getKey()) < attrLayoutMap.get(schema2.getKey())) {
-                        value = -1;
-                    }
-
-                    return value;
+                if (attrLayoutMap.get(schema1.getKey()) > attrLayoutMap.get(schema2.getKey())) {
+                    value = 1;
+                } else if (attrLayoutMap.get(schema1.getKey()) < attrLayoutMap.get(schema2.getKey())) {
+                    value = -1;
                 }
+
+                return value;
             });
         }
-        for (S schemaTO : allSchemas) {
+        allSchemas.forEach(schemaTO -> {
             scs.put(schemaTO.getKey(), schemaTO);
-        }
+        });
     }
 
     @Override
@@ -215,7 +205,7 @@ public abstract class AbstractAttrs<S extends AbstractSchemaTO> extends WizardSt
     protected List<String> getMembershipAuxClasses(final MembershipTO membershipTO, final String anyType) {
         try {
             final GroupTO groupTO = groupRestClient.read(membershipTO.getRightKey());
-            return groupTO.getTypeExtension(anyType).getAuxClasses();
+            return groupTO.getTypeExtension(anyType).get().getAuxClasses();
         } catch (Exception e) {
             return Collections.emptyList();
         }
@@ -225,14 +215,11 @@ public abstract class AbstractAttrs<S extends AbstractSchemaTO> extends WizardSt
     public boolean evaluate() {
         this.attrTOs.setObject(loadAttrTOs());
         this.membershipTOs.setObject(loadMembershipAttrTOs());
-        return CollectionUtils.isNotEmpty(attrTOs.getObject()) || CollectionUtils.isNotEmpty(membershipTOs.getObject());
+        return !attrTOs.getObject().isEmpty() || !membershipTOs.getObject().isEmpty();
     }
 
     protected static class AttrComparator implements Comparator<AttrTO>, Serializable {
 
-        /**
-         *
-         */
         private static final long serialVersionUID = -5105030477767941060L;
 
         @Override

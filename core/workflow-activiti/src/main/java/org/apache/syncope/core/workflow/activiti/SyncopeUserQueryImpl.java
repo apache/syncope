@@ -21,12 +21,11 @@ package org.apache.syncope.core.workflow.activiti;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.activiti.engine.ActivitiException;
 import org.activiti.engine.identity.User;
 import org.activiti.engine.identity.UserQuery;
 import org.activiti.engine.impl.persistence.entity.UserEntity;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
 import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
@@ -147,26 +146,19 @@ public class SyncopeUserQueryImpl implements UserQuery {
             } else {
                 result = new ArrayList<>();
                 List<UMembership> memberships = groupDAO.findUMemberships(group);
-                for (UMembership membership : memberships) {
-                    User user = fromSyncopeUser(membership.getLeftEnd());
-                    if (!result.contains(user)) {
-                        result.add(user);
-                    }
-                }
+                memberships.stream().map(membership -> fromSyncopeUser(membership.getLeftEnd())).
+                        filter((user) -> (!result.contains(user))).
+                        forEachOrdered((user) -> {
+                            result.add(user);
+                        });
             }
         }
         // THIS CAN BE *VERY* DANGEROUS
         if (result == null) {
             result = new ArrayList<>();
             for (int page = 1; page <= (userDAO.count() / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
-                CollectionUtils.collect(userDAO.findAll(page, AnyDAO.DEFAULT_PAGE_SIZE),
-                        new Transformer<org.apache.syncope.core.persistence.api.entity.user.User, User>() {
-
-                    @Override
-                    public User transform(final org.apache.syncope.core.persistence.api.entity.user.User user) {
-                        return fromSyncopeUser(user);
-                    }
-                }, result);
+                result.addAll(userDAO.findAll(page, AnyDAO.DEFAULT_PAGE_SIZE).stream().
+                        map(user -> fromSyncopeUser(user)).collect(Collectors.toList()));
             }
         }
     }

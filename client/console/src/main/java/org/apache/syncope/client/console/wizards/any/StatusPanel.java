@@ -22,10 +22,10 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.collections4.CollectionUtils;
+import java.util.stream.Collectors;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.commons.Constants;
-import org.apache.syncope.client.console.commons.SerializableTransformer;
 import org.apache.syncope.client.console.commons.status.ConnObjectWrapper;
 import org.apache.syncope.client.console.commons.status.Status;
 import org.apache.syncope.client.console.commons.status.StatusBean;
@@ -64,20 +64,12 @@ public class StatusPanel extends Panel {
             final T any,
             final IModel<List<StatusBean>> model,
             final PageReference pageRef) {
+
         super(id);
         statusUtils = new StatusUtils();
-        init(any, model,
-                CollectionUtils.collect(statusUtils.getConnectorObjects(any),
-                        new SerializableTransformer<ConnObjectWrapper, Pair<ConnObjectTO, ConnObjectWrapper>>() {
-
-                    private static final long serialVersionUID = 2658691884036294287L;
-
-                    @Override
-                    public Pair<ConnObjectTO, ConnObjectWrapper> transform(final ConnObjectWrapper input) {
-                        return Pair.of(null, input);
-                    }
-
-                }, new ArrayList<Pair<ConnObjectTO, ConnObjectWrapper>>()), pageRef, false);
+        init(any, model, statusUtils.getConnectorObjects(any).stream().
+                map(input -> new ImmutablePair<ConnObjectTO, ConnObjectWrapper>(null, input)).
+                collect(Collectors.toList()), pageRef, false);
     }
 
     public <T extends AnyTO> StatusPanel(
@@ -123,7 +115,7 @@ public class StatusPanel extends Panel {
         statusBeans.add(syncope);
         initialStatusBeanMap.put(syncope.getResource(), syncope);
 
-        for (Pair<ConnObjectTO, ConnObjectWrapper> pair : connObjects) {
+        connObjects.forEach(pair -> {
             ConnObjectWrapper entry = pair.getRight();
             final StatusBean statusBean = statusUtils.getStatusBean(entry.getAny(),
                     entry.getResourceName(),
@@ -132,7 +124,7 @@ public class StatusPanel extends Panel {
 
             initialStatusBeanMap.put(entry.getResourceName(), statusBean);
             statusBeans.add(statusBean);
-        }
+        });
 
         final MultilevelPanel mlp = new MultilevelPanel("resources");
         add(mlp);
@@ -163,8 +155,8 @@ public class StatusPanel extends Panel {
 
             @Override
             protected boolean statusCondition(final StatusBean bean) {
-                final Pair<ConnObjectTO, ConnObjectTO> pair
-                        = getConnObjectTO(bean.getKey(), bean.getResource(), connObjects);
+                final Pair<ConnObjectTO, ConnObjectTO> pair =
+                        getConnObjectTO(bean.getKey(), bean.getResource(), connObjects);
 
                 return pair != null && pair.getRight() != null;
             }

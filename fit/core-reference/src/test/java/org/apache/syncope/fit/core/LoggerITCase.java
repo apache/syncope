@@ -33,8 +33,6 @@ import java.util.List;
 import java.util.Properties;
 import javax.ws.rs.core.Response;
 import javax.xml.ws.WebServiceException;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -69,10 +67,10 @@ public class LoggerITCase extends AbstractITCase {
         List<LogAppender> memoryAppenders = loggerService.memoryAppenders();
         assertNotNull(memoryAppenders);
         assertFalse(memoryAppenders.isEmpty());
-        for (LogAppender appender : memoryAppenders) {
+        memoryAppenders.forEach(appender -> {
             assertNotNull(appender);
             assertNotNull(appender.getName());
-        }
+        });
     }
 
     @Test
@@ -94,9 +92,9 @@ public class LoggerITCase extends AbstractITCase {
         List<LoggerTO> loggers = loggerService.list(LoggerType.LOG);
         assertNotNull(loggers);
         assertFalse(loggers.isEmpty());
-        for (LoggerTO logger : loggers) {
+        loggers.forEach(logger -> {
             assertNotNull(logger);
-        }
+        });
     }
 
     @Test
@@ -354,14 +352,9 @@ public class LoggerITCase extends AbstractITCase {
         List<EventCategoryTO> events = loggerService.events();
         assertNotNull(events);
 
-        EventCategoryTO userLogic = IterableUtils.find(events, new Predicate<EventCategoryTO>() {
-
-            @Override
-            public boolean evaluate(final EventCategoryTO object) {
-                return "UserLogic".equals(object.getCategory());
-            }
-        });
+        EventCategoryTO userLogic = events.stream().
+                filter(object -> "UserLogic".equals(object.getCategory())).findAny().get();
         assertNotNull(userLogic);
-        assertEquals(1, IterableUtils.frequency(userLogic.getEvents(), "create"));
+        assertEquals(1, userLogic.getEvents().stream().filter(event -> "create".equals(event)).count());
     }
 }

@@ -21,9 +21,8 @@ package org.apache.syncope.core.provisioning.java.data;
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Resource;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
@@ -85,9 +84,9 @@ public class AnyTypeDataBinderImpl implements AnyTypeDataBinder {
                         new TypeReference<Set<SyncopeGrantedAuthority>>() {
                 }));
 
-                for (String entitlement : added) {
+                added.forEach(entitlement -> {
                     authorities.add(new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM));
-                }
+                });
 
                 accessToken.setAuthorities(ENCRYPTOR.encode(
                         POJOHelper.serialize(authorities), CipherAlgorithm.AES).
@@ -117,14 +116,14 @@ public class AnyTypeDataBinderImpl implements AnyTypeDataBinder {
         }
 
         anyType.getClasses().clear();
-        for (String anyTypeClassName : anyTypeTO.getClasses()) {
+        anyTypeTO.getClasses().forEach(anyTypeClassName -> {
             AnyTypeClass anyTypeClass = anyTypeClassDAO.find(anyTypeClassName);
             if (anyTypeClass == null) {
                 LOG.debug("Invalid " + AnyTypeClass.class.getSimpleName() + "{}, ignoring...", anyTypeClassName);
             } else {
                 anyType.add(anyTypeClass);
             }
-        }
+        });
     }
 
     @Override
@@ -143,13 +142,8 @@ public class AnyTypeDataBinderImpl implements AnyTypeDataBinder {
                         new TypeReference<Set<SyncopeGrantedAuthority>>() {
                 }));
 
-                CollectionUtils.filterInverse(authorities, new Predicate<SyncopeGrantedAuthority>() {
-
-                    @Override
-                    public boolean evaluate(final SyncopeGrantedAuthority authority) {
-                        return removed.contains(authority.getAuthority());
-                    }
-                });
+                authorities.removeAll(authorities.stream().
+                        filter(authority -> removed.contains(authority.getAuthority())).collect(Collectors.toList()));
 
                 accessToken.setAuthorities(ENCRYPTOR.encode(
                         POJOHelper.serialize(authorities), CipherAlgorithm.AES).
@@ -170,9 +164,9 @@ public class AnyTypeDataBinderImpl implements AnyTypeDataBinder {
 
         anyTypeTO.setKey(anyType.getKey());
         anyTypeTO.setKind(anyType.getKind());
-        for (AnyTypeClass anyTypeClass : anyType.getClasses()) {
+        anyType.getClasses().forEach(anyTypeClass -> {
             anyTypeTO.getClasses().add(anyTypeClass.getKey());
-        }
+        });
 
         return anyTypeTO;
     }

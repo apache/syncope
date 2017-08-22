@@ -20,18 +20,14 @@ package org.apache.syncope.client.console.wizards.resources;
 
 import java.io.Serializable;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
 import org.apache.syncope.client.console.topology.TopologyNode;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.to.ConnBundleTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
-import org.apache.syncope.common.lib.types.ConnectorCapability;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.wizard.WizardModel;
@@ -51,13 +47,8 @@ public class ConnectorWizardBuilder extends AbstractResourceWizardBuilder<ConnIn
 
     public ConnectorWizardBuilder(final ConnInstanceTO defaultItem, final PageReference pageRef) {
         super(defaultItem, pageRef);
-        this.bundles = CollectionUtils.select(connectorRestClient.getAllBundles(), new Predicate<ConnBundleTO>() {
-
-            @Override
-            public boolean evaluate(final ConnBundleTO object) {
-                return object.getLocation().equals(defaultItem.getLocation());
-            }
-        }, new ArrayList<ConnBundleTO>());
+        this.bundles = connectorRestClient.getAllBundles().stream().
+                filter(object -> object.getLocation().equals(defaultItem.getLocation())).collect(Collectors.toList());
     }
 
     @Override
@@ -86,8 +77,7 @@ public class ConnectorWizardBuilder extends AbstractResourceWizardBuilder<ConnIn
             }
 
         });
-        wizardModel.add(new ConnCapabilitiesPanel(
-                new PropertyModel<List<ConnectorCapability>>(connInstanceTO, "capabilities")));
+        wizardModel.add(new ConnCapabilitiesPanel(new PropertyModel<>(connInstanceTO, "capabilities")));
         return wizardModel;
     }
 
@@ -134,13 +124,9 @@ public class ConnectorWizardBuilder extends AbstractResourceWizardBuilder<ConnIn
     }
 
     protected static ConnBundleTO getBundle(final ConnInstanceTO connInstanceTO, final List<ConnBundleTO> bundles) {
-        return IterableUtils.find(bundles, new Predicate<ConnBundleTO>() {
-
-            @Override
-            public boolean evaluate(final ConnBundleTO bundle) {
-                return bundle.getBundleName().equals(connInstanceTO.getBundleName())
-                        && bundle.getVersion().equals(connInstanceTO.getVersion());
-            }
-        });
+        return bundles.stream().filter(bundle
+                -> bundle.getBundleName().equals(connInstanceTO.getBundleName())
+                && bundle.getVersion().equals(connInstanceTO.getVersion())).
+                findFirst().orElse(null);
     }
 }

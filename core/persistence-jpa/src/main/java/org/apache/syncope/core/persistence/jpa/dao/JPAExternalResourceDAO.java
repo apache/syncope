@@ -18,16 +18,13 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -45,14 +42,9 @@ import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.Policy;
-import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.api.entity.VirSchema;
-import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
-import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
-import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAMappingItem;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResource;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAMapping;
@@ -174,21 +166,15 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implem
 
     @Override
     public ExternalResource authFind(final String key) {
-        final ExternalResource resource = find(key);
+        ExternalResource resource = find(key);
         if (resource == null) {
             return null;
         }
 
-        final Set<String> authRealms = AuthContextUtils.getAuthorizations().get(StandardEntitlement.RESOURCE_READ);
+        Set<String> authRealms = AuthContextUtils.getAuthorizations().get(StandardEntitlement.RESOURCE_READ);
         if (authRealms == null || authRealms.isEmpty()
-                || !IterableUtils.matchesAny(authRealms, new Predicate<String>() {
-
-                    @Override
-                    public boolean evaluate(final String realm) {
-                        return resource.getConnector() != null
-                                && resource.getConnector().getAdminRealm().getFullPath().startsWith(realm);
-                    }
-                })) {
+                || !authRealms.stream().anyMatch(realm -> resource.getConnector() != null
+                && resource.getConnector().getAdminRealm().getFullPath().startsWith(realm))) {
 
             throw new DelegatedAdministrationException(
                     resource.getConnector().getAdminRealm().getFullPath(),
@@ -243,20 +229,10 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implem
         TypedQuery<ExternalResource> query = entityManager().createQuery(
                 "SELECT e FROM  " + JPAExternalResource.class.getSimpleName() + " e", ExternalResource.class);
 
-        return CollectionUtils.select(query.getResultList(), new Predicate<ExternalResource>() {
-
-            @Override
-            public boolean evaluate(final ExternalResource resource) {
-                return IterableUtils.matchesAny(authRealms, new Predicate<String>() {
-
-                    @Override
-                    public boolean evaluate(final String realm) {
-                        return resource.getConnector() != null
-                                && resource.getConnector().getAdminRealm().getFullPath().startsWith(realm);
-                    }
-                });
-            }
-        }, new ArrayList<ExternalResource>());
+        return query.getResultList().stream().filter(resource -> authRealms.stream().
+                anyMatch(realm -> resource.getConnector() != null
+                && resource.getConnector().getAdminRealm().getFullPath().startsWith(realm))).
+                collect(Collectors.toList());
     }
 
     @Override
@@ -280,18 +256,15 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implem
         query.setParameter("intAttrName", intAttrName);
 
         Set<String> itemKeys = new HashSet<>();
-        for (MappingItem item : query.getResultList()) {
-            itemKeys.add(item.getKey());
-        }
-        for (String itemKey : itemKeys) {
-            MappingItem item = entityManager().find(JPAMappingItem.class, itemKey);
-            if (item != null) {
-                item.getMapping().getItems().remove(item);
-                item.setMapping(null);
-
-                entityManager().remove(item);
-            }
-        }
+        query.getResultList().forEach(item -> itemKeys.add(item.getKey()));
+        itemKeys.stream().map(itemKey -> entityManager().find(JPAMappingItem.class, itemKey)).
+                filter(item -> item != null).map(item -> {
+            item.getMapping().getItems().remove(item);
+            return item;
+        }).map(item -> {
+            item.setMapping(null);
+            return item;
+        }).forEachOrdered(item -> entityManager().remove(item));
 
         // Make empty query cache for *MappingItem and related *Mapping
         entityManager().getEntityManagerFactory().getCache().evict(JPAMappingItem.class);
@@ -309,34 +282,27 @@ public class JPAExternalResourceDAO extends AbstractDAO<ExternalResource> implem
         taskDAO().deleteAll(resource, TaskType.PULL);
         taskDAO().deleteAll(resource, TaskType.PUSH);
 
-        for (Realm realm : realmDAO().findByResource(resource)) {
-            realm.getResources().remove(resource);
-        }
-        for (AnyObject anyObject : anyObjectDAO().findByResource(resource)) {
-            anyObject.getResources().remove(resource);
-        }
-        for (User user : userDAO().findByResource(resource)) {
-            user.getResources().remove(resource);
-        }
-        for (Group group : groupDAO().findByResource(resource)) {
-            group.getResources().remove(resource);
-        }
-        for (AccountPolicy policy : policyDAO().findByResource(resource)) {
-            policy.getResources().remove(resource);
-        }
+        realmDAO().findByResource(resource).
+                forEach(realm -> realm.getResources().remove(resource));
+        anyObjectDAO().findByResource(resource).
+                forEach(anyObject -> anyObject.getResources().remove(resource));
+        userDAO().findByResource(resource).
+                forEach(user -> user.getResources().remove(resource));
+        groupDAO().findByResource(resource).
+                forEach(group -> group.getResources().remove(resource));
+        policyDAO().findByResource(resource).
+                forEach(policy -> policy.getResources().remove(resource));
 
-        for (Provision provision : resource.getProvisions()) {
-            for (MappingItem item : provision.getMapping().getItems()) {
-                item.setMapping(null);
-            }
+        resource.getProvisions().stream().map(provision -> {
+            provision.getMapping().getItems().forEach(item -> item.setMapping(null));
+            return provision;
+        }).map(provision -> {
             provision.getMapping().getItems().clear();
             provision.setMapping(null);
             provision.setResource(null);
-
-            for (VirSchema schema : virSchemaDAO().findByProvision(provision)) {
-                virSchemaDAO().delete(schema.getKey());
-            }
-        }
+            return provision;
+        }).forEachOrdered(provision -> virSchemaDAO().findByProvision(provision).
+                forEach(schema -> virSchemaDAO().delete(schema.getKey())));
 
         externalResourceHistoryConfDAO().deleteByEntity(resource);
 

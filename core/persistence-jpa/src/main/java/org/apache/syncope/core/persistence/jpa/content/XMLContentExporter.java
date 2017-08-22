@@ -48,8 +48,6 @@ import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
@@ -97,13 +95,8 @@ public class XMLContentExporter extends AbstractContentDealer implements Content
             Collections.singletonMap("SYNCOPEGROUP", Collections.singleton("USEROWNER_ID"));
 
     private boolean isTableAllowed(final String tableName) {
-        return IterableUtils.matchesAll(TABLE_PREFIXES_TO_BE_EXCLUDED, new Predicate<String>() {
-
-            @Override
-            public boolean evaluate(final String prefix) {
-                return !tableName.toUpperCase().startsWith(prefix.toUpperCase());
-            }
-        });
+        return TABLE_PREFIXES_TO_BE_EXCLUDED.stream().
+                allMatch(prefix -> !tableName.toUpperCase().startsWith(prefix.toUpperCase()));
     }
 
     private List<String> sortByForeignKeys(final String dbSchema, final Connection conn, final Set<String> tableNames)

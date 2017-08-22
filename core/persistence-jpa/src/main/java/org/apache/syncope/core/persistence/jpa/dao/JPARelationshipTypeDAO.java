@@ -18,10 +18,10 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import javax.persistence.TypedQuery;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.syncope.core.persistence.api.dao.RelationshipTypeDAO;
 import org.apache.syncope.core.persistence.api.entity.Relationship;
 import org.apache.syncope.core.persistence.api.entity.RelationshipType;
@@ -64,7 +64,11 @@ public class JPARelationshipTypeDAO extends AbstractDAO<RelationshipType> implem
                 URelationship.class);
         uquery.setParameter("type", type);
 
-        return CollectionUtils.union(aquery.getResultList(), uquery.getResultList());
+        List<Relationship<?, ?>> result = new ArrayList<>();
+        result.addAll(aquery.getResultList());
+        result.addAll(uquery.getResultList());
+
+        return result;
     }
 
     @Override
@@ -74,7 +78,7 @@ public class JPARelationshipTypeDAO extends AbstractDAO<RelationshipType> implem
             return;
         }
 
-        for (Relationship<?, ?> relationship : findRelationshipsByType(type)) {
+        findRelationshipsByType(type).stream().map(relationship -> {
             if (relationship instanceof URelationship) {
                 ((URelationship) relationship).getLeftEnd().getRelationships().remove((URelationship) relationship);
             } else if (relationship instanceof UMembership) {
@@ -84,10 +88,9 @@ public class JPARelationshipTypeDAO extends AbstractDAO<RelationshipType> implem
             } else if (relationship instanceof AMembership) {
                 ((AMembership) relationship).getLeftEnd().getMemberships().remove((AMembership) relationship);
             }
-
             relationship.setLeftEnd(null);
-            entityManager().remove(relationship);
-        }
+            return relationship;
+        }).forEachOrdered(relationship -> entityManager().remove(relationship));
 
         entityManager().remove(type);
     }

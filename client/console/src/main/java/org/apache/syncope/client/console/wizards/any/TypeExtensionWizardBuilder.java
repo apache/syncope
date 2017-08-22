@@ -19,18 +19,15 @@
 package org.apache.syncope.client.console.wizards.any;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.ListUtils;
-import org.apache.commons.collections4.Predicate;
+import java.util.stream.Collectors;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
-import org.apache.syncope.common.lib.EntityTOUtils;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.TypeExtensionTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -73,14 +70,8 @@ public class TypeExtensionWizardBuilder extends AjaxWizardBuilder<TypeExtensionT
 
     @Override
     protected Serializable onApplyInternal(final TypeExtensionTO modelObject) {
-        final List<TypeExtensionTO> typeExtensions =
-                ListUtils.select(groupTO.getTypeExtensions(), new Predicate<TypeExtensionTO>() {
-
-                    @Override
-                    public boolean evaluate(final TypeExtensionTO object) {
-                        return !object.getAnyType().equals(modelObject.getAnyType());
-                    }
-                });
+        List<TypeExtensionTO> typeExtensions = groupTO.getTypeExtensions().stream().
+                filter(typeExt -> !typeExt.getAnyType().equals(modelObject.getAnyType())).collect(Collectors.toList());
         typeExtensions.add(modelObject);
         groupTO.getTypeExtensions().clear();
         groupTO.getTypeExtensions().addAll(typeExtensions);
@@ -100,30 +91,25 @@ public class TypeExtensionWizardBuilder extends AjaxWizardBuilder<TypeExtensionT
             if (typeExtensionTO.getAnyType() == null) {
                 List<String> anyTypes = new AnyTypeRestClient().list();
                 anyTypes.remove(AnyTypeKind.GROUP.name());
-                CollectionUtils.filter(anyTypes, new Predicate<String>() {
-
-                    @Override
-                    public boolean evaluate(final String anyType) {
-                        return groupTO.getTypeExtension(anyType) == null;
-                    }
-                });
+                anyTypes.removeAll(anyTypes.stream().
+                        filter(anyType -> groupTO.getTypeExtension(anyType).isPresent()).collect(Collectors.toList()));
 
                 AjaxDropDownChoicePanel<String> anyTypeComponent = new AjaxDropDownChoicePanel<>(
-                        "anyType.component", "anyType", new PropertyModel<String>(typeExtensionTO, "anyType"));
+                        "anyType.component", "anyType", new PropertyModel<>(typeExtensionTO, "anyType"));
                 anyTypeComponent.setChoices(anyTypes);
                 anyTypeComponent.addRequiredLabel();
                 add(anyTypeComponent.hideLabel().setOutputMarkupId(true));
             } else {
                 AjaxTextFieldPanel anyTypeComponent = new AjaxTextFieldPanel(
-                        "anyType.component", "anyType", new PropertyModel<String>(typeExtensionTO, "anyType"));
+                        "anyType.component", "anyType", new PropertyModel<>(typeExtensionTO, "anyType"));
                 anyTypeComponent.setEnabled(false);
                 add(anyTypeComponent.hideLabel());
             }
 
             add(new Label("auxClasses.label", auxClassesLabel));
 
-            List<String> anyTypeClasses = CollectionUtils.collect(new AnyTypeClassRestClient().list(),
-                    EntityTOUtils.keyTransformer(), new ArrayList<String>());
+            List<String> anyTypeClasses = new AnyTypeClassRestClient().list().stream().
+                    map(EntityTO::getKey).collect(Collectors.toList());
             AjaxPalettePanel<String> auxClassesPalette = new AjaxPalettePanel.Builder<String>().build(
                     "auxClasses.palette",
                     new PropertyModel<List<String>>(typeExtensionTO, "auxClasses"),

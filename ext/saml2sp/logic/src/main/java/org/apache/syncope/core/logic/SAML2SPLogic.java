@@ -472,14 +472,8 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
             if (idp.isCreateUnmatching()) {
                 LOG.debug("No user matching NameID {}, about to create", nameID.getValue());
 
-                username = AuthContextUtils.execWithAuthContext(
-                        AuthContextUtils.getDomain(), new AuthContextUtils.Executable<String>() {
-
-                    @Override
-                    public String exec() {
-                        return userManager.create(idp, responseTO, nameIDValue);
-                    }
-                });
+                username = AuthContextUtils.execWithAuthContext(AuthContextUtils.getDomain(), ()
+                        -> userManager.create(idp, responseTO, nameIDValue));
             } else {
                 throw new NotFoundException("User matching the provided NameID value " + nameID.getValue());
             }
@@ -489,14 +483,8 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
             if (idp.isUpdateMatching()) {
                 LOG.debug("About to update {} for NameID {}", matchingUsers.get(0), nameID.getValue());
 
-                username = AuthContextUtils.execWithAuthContext(
-                        AuthContextUtils.getDomain(), new AuthContextUtils.Executable<String>() {
-
-                    @Override
-                    public String exec() {
-                        return userManager.update(matchingUsers.get(0), idp, responseTO);
-                    }
-                });
+                username = AuthContextUtils.execWithAuthContext(AuthContextUtils.getDomain(), ()
+                        -> userManager.update(matchingUsers.get(0), idp, responseTO));
             } else {
                 username = matchingUsers.get(0);
             }

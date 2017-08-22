@@ -20,8 +20,7 @@ package org.apache.syncope.client.console.panels;
 
 import java.io.Serializable;
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Predicate;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.pages.BasePage;
@@ -54,15 +53,8 @@ public abstract class MembersTogglePanel extends TogglePanel<Serializable> {
 
         @Override
         protected List<String> load() {
-            List<String> result = new AnyTypeRestClient().list();
-            CollectionUtils.filter(result, new Predicate<String>() {
-
-                @Override
-                public boolean evaluate(final String anyType) {
-                    return !AnyTypeKind.GROUP.name().equals(anyType);
-                }
-            });
-            return result;
+            return new AnyTypeRestClient().list().stream().
+                    filter(anyType -> !AnyTypeKind.GROUP.name().equals(anyType)).collect(Collectors.toList());
         }
     };
 

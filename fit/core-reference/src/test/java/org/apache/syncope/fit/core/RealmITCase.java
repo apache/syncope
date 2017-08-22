@@ -26,10 +26,9 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.List;
+import java.util.Optional;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.policy.AccountPolicyTO;
@@ -44,14 +43,8 @@ import org.junit.Test;
 
 public class RealmITCase extends AbstractITCase {
 
-    private RealmTO getRealm(final String fullPath) {
-        return IterableUtils.find(realmService.list(fullPath), new Predicate<RealmTO>() {
-
-            @Override
-            public boolean evaluate(final RealmTO object) {
-                return fullPath.equals(object.getFullPath());
-            }
-        });
+    private Optional<RealmTO> getRealm(final String fullPath) {
+        return realmService.list(fullPath).stream().filter(realm -> fullPath.equals(realm.getFullPath())).findFirst();
     }
 
     @Test
@@ -59,9 +52,9 @@ public class RealmITCase extends AbstractITCase {
         List<RealmTO> realms = realmService.list();
         assertNotNull(realms);
         assertFalse(realms.isEmpty());
-        for (RealmTO realm : realms) {
+        realms.forEach(realm -> {
             assertNotNull(realm);
-        }
+        });
 
         try {
             realmService.list("a name");
@@ -85,7 +78,7 @@ public class RealmITCase extends AbstractITCase {
         assertNotNull(actual.getKey());
         assertEquals("last", actual.getName());
         assertEquals("/even/two/last", actual.getFullPath());
-        assertEquals(actual.getParent(), getRealm("/even/two").getKey());
+        assertEquals(actual.getParent(), getRealm("/even/two").get().getKey());
         assertNull(realm.getAccountPolicy());
         assertNull(realm.getPasswordPolicy());
 
@@ -94,25 +87,20 @@ public class RealmITCase extends AbstractITCase {
         actual.setPasswordPolicy("986d1236-3ac5-4a19-810c-5ab21d79cba1");
         realmService.update(actual);
 
-        actual = getRealm(actual.getFullPath());
+        actual = getRealm(actual.getFullPath()).get();
         assertNotNull(actual.getAccountPolicy());
         assertNotNull(actual.getPasswordPolicy());
 
         // 3. update changing parent
-        actual.setParent(getRealm("/odd").getKey());
+        actual.setParent(getRealm("/odd").get().getKey());
         realmService.update(actual);
 
-        actual = getRealm("/odd/last");
+        actual = getRealm("/odd/last").get();
         assertNotNull(actual);
         assertEquals("/odd/last", actual.getFullPath());
 
-        assertEquals(1, IterableUtils.countMatches(realmService.list(), new Predicate<RealmTO>() {
-
-            @Override
-            public boolean evaluate(final RealmTO object) {
-                return realm.getName().equals(object.getName());
-            }
-        }));
+        assertEquals(1, realmService.list().stream().
+                filter(object -> realm.getName().equals(object.getName())).count());
 
         // 4. create under invalid path
         try {
@@ -161,7 +149,7 @@ public class RealmITCase extends AbstractITCase {
         policyService.delete(policy.getKey());
 
         // 4. verify
-        actual = getRealm(actual.getFullPath());
+        actual = getRealm(actual.getFullPath()).get();
         assertNull(actual.getAccountPolicy());
     }
 

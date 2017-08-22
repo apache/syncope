@@ -21,15 +21,11 @@ package org.apache.syncope.fit.core;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import javax.sql.DataSource;
 import javax.ws.rs.core.Response;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.patch.AttrPatch;
@@ -75,7 +71,7 @@ public class MembershipITCase extends AbstractITCase {
         UserTO user = UserITCase.getUniqueSampleTO("memb@apache.org");
         user.setRealm("/even/two");
         user.getPlainAttrs().add(new AttrTO.Builder().schema("aLong").value("1976").build());
-        user.getPlainAttrs().remove(user.getPlainAttr("ctype"));
+        user.getPlainAttrs().remove(user.getPlainAttr("ctype").get());
 
         // the group 034740a9-fa10-453b-af37-dc7897e98fb1 has USER type extensions for 'csv' and 'other' 
         // any type classes
@@ -97,30 +93,24 @@ public class MembershipITCase extends AbstractITCase {
         }
 
         // remove fullname and try again
-        CollectionUtils.filterInverse(membership.getPlainAttrs(), new Predicate<AttrTO>() {
-
-            @Override
-            public boolean evaluate(final AttrTO object) {
-                return "fullname".equals(object.getSchema());
-            }
-        });
+        membership.getPlainAttrs().remove(membership.getPlainAttr("fullname").get());
         try {
             user = createUser(user).getEntity();
 
             // 1. verify that 'aLong' is correctly populated for user
-            assertEquals(1, user.getPlainAttr("aLong").getValues().size());
-            assertEquals("1976", user.getPlainAttr("aLong").getValues().get(0));
+            assertEquals(1, user.getPlainAttr("aLong").get().getValues().size());
+            assertEquals("1976", user.getPlainAttr("aLong").get().getValues().get(0));
 
             // 2. verify that 'aLong' is correctly populated for user's membership
             assertEquals(1, user.getMemberships().size());
-            membership = user.getMembership("034740a9-fa10-453b-af37-dc7897e98fb1");
+            membership = user.getMembership("034740a9-fa10-453b-af37-dc7897e98fb1").get();
             assertNotNull(membership);
-            assertEquals(1, membership.getPlainAttr("aLong").getValues().size());
-            assertEquals("1977", membership.getPlainAttr("aLong").getValues().get(0));
+            assertEquals(1, membership.getPlainAttr("aLong").get().getValues().size());
+            assertEquals("1977", membership.getPlainAttr("aLong").get().getValues().get(0));
 
             // 3. verify that derived attrbutes from 'csv' and 'other' are also populated for user's membership
-            assertFalse(membership.getDerAttr("csvuserid").getValues().isEmpty());
-            assertFalse(membership.getDerAttr("noschema").getValues().isEmpty());
+            assertFalse(membership.getDerAttr("csvuserid").get().getValues().isEmpty());
+            assertFalse(membership.getDerAttr("noschema").get().getValues().isEmpty());
 
             // update user - change some values and add new membership attribute
             UserPatch userPatch = new UserPatch();
@@ -139,19 +129,19 @@ public class MembershipITCase extends AbstractITCase {
             user = updateUser(userPatch).getEntity();
 
             // 4. verify that 'aLong' is correctly populated for user
-            assertEquals(1, user.getPlainAttr("aLong").getValues().size());
-            assertEquals("1977", user.getPlainAttr("aLong").getValues().get(0));
-            assertNull(user.getPlainAttr("ctype"));
+            assertEquals(1, user.getPlainAttr("aLong").get().getValues().size());
+            assertEquals("1977", user.getPlainAttr("aLong").get().getValues().get(0));
+            assertFalse(user.getPlainAttr("ctype").isPresent());
 
             // 5. verify that 'aLong' is correctly populated for user's membership
             assertEquals(1, user.getMemberships().size());
-            membership = user.getMembership("034740a9-fa10-453b-af37-dc7897e98fb1");
+            membership = user.getMembership("034740a9-fa10-453b-af37-dc7897e98fb1").get();
             assertNotNull(membership);
-            assertEquals(1, membership.getPlainAttr("aLong").getValues().size());
-            assertEquals("1976", membership.getPlainAttr("aLong").getValues().get(0));
+            assertEquals(1, membership.getPlainAttr("aLong").get().getValues().size());
+            assertEquals("1976", membership.getPlainAttr("aLong").get().getValues().get(0));
 
             // 6. verify that 'ctype' is correctly populated for user's membership
-            assertEquals("membership type", membership.getPlainAttr("ctype").getValues().get(0));
+            assertEquals("membership type", membership.getPlainAttr("ctype").get().getValues().get(0));
 
             // finally remove membership
             userPatch = new UserPatch();
@@ -211,14 +201,14 @@ public class MembershipITCase extends AbstractITCase {
 
         // verify that 'aLong' is correctly populated for user's membership
         assertEquals(1, user.getMemberships().size());
-        membership = user.getMembership(groupTO.getKey());
+        membership = user.getMembership(groupTO.getKey()).get();
         assertNotNull(membership);
-        assertEquals(1, membership.getPlainAttr("aLong").getValues().size());
-        assertEquals("1454", membership.getPlainAttr("aLong").getValues().get(0));
+        assertEquals(1, membership.getPlainAttr("aLong").get().getValues().size());
+        assertEquals("1454", membership.getPlainAttr("aLong").get().getValues().get(0));
 
         // verify that derived attrbutes from 'csv' and 'other' are also populated for user's membership
-        assertFalse(membership.getDerAttr("csvuserid").getValues().isEmpty());
-        assertFalse(membership.getDerAttr("noschema").getValues().isEmpty());
+        assertFalse(membership.getDerAttr("csvuserid").get().getValues().isEmpty());
+        assertFalse(membership.getDerAttr("noschema").get().getValues().isEmpty());
 
         // now remove the group -> all related memberships should have been removed as well
         groupService.delete(groupTO.getKey());
@@ -234,27 +224,15 @@ public class MembershipITCase extends AbstractITCase {
         ResourceTO newResource = resourceService.read(RESOURCE_NAME_DBPULL);
         newResource.setKey(getUUIDString());
 
-        ItemTO item = IterableUtils.find(newResource.getProvision("USER").getMapping().getItems(),
-                new Predicate<ItemTO>() {
-
-            @Override
-            public boolean evaluate(final ItemTO object) {
-                return "firstname".equals(object.getIntAttrName());
-            }
-        });
+        ItemTO item = newResource.getProvision("USER").get().getMapping().getItems().stream().
+                filter(object -> "firstname".equals(object.getIntAttrName())).findFirst().get();
         assertNotNull(item);
         assertEquals("ID", item.getExtAttrName());
         item.setIntAttrName("memberships[additional].aLong");
         item.setPurpose(MappingPurpose.BOTH);
 
-        item = IterableUtils.find(newResource.getProvision("USER").getMapping().getItems(),
-                new Predicate<ItemTO>() {
-
-            @Override
-            public boolean evaluate(final ItemTO object) {
-                return "fullname".equals(object.getIntAttrName());
-            }
-        });
+        item = newResource.getProvision("USER").get().getMapping().getItems().stream().
+                filter(object -> "fullname".equals(object.getIntAttrName())).findFirst().get();
         item.setPurpose(MappingPurpose.PULL);
 
         PullTaskTO newTask = null;
@@ -265,7 +243,7 @@ public class MembershipITCase extends AbstractITCase {
             // 1. create user with new resource assigned
             UserTO user = UserITCase.getUniqueSampleTO("memb@apache.org");
             user.setRealm("/even/two");
-            user.getPlainAttrs().remove(user.getPlainAttr("ctype"));
+            user.getPlainAttrs().remove(user.getPlainAttr("ctype").get());
             user.getResources().clear();
             user.getResources().add(newResource.getKey());
 
@@ -311,7 +289,7 @@ public class MembershipITCase extends AbstractITCase {
             assertEquals(1, users.getTotalCount());
             assertEquals(1, users.getResult().get(0).getMemberships().size());
             assertEquals("5432", users.getResult().get(0).getMemberships().get(0).
-                    getPlainAttr("aLong").getValues().get(0));
+                    getPlainAttr("aLong").get().getValues().get(0));
         } catch (Exception e) {
             LOG.error("Unexpected error", e);
             fail(e.getMessage());

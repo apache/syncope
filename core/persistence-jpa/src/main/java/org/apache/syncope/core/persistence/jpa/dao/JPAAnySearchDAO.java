@@ -25,9 +25,9 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.persistence.Query;
 import javax.persistence.TemporalType;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
@@ -36,7 +36,6 @@ import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
-import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
 import org.apache.syncope.core.persistence.api.dao.search.MembershipCond;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
@@ -80,8 +79,8 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
                     noRealm.getElements().add("Invalid realm specified: " + realmPath);
                     throw noRealm;
                 } else {
-                    CollectionUtils.collect(
-                            realmDAO.findDescendants(realm), EntityUtils.<Realm>keyTransformer(), realmKeys);
+                    realmKeys.addAll(realmDAO.findDescendants(realm).stream().
+                            map(r -> r.getKey()).collect(Collectors.toSet()));
                 }
             } else {
                 DynRealm dynRealm = dynRealmDAO.find(realmPath);
@@ -93,7 +92,8 @@ public class JPAAnySearchDAO extends AbstractAnySearchDAO {
             }
         }
         if (!dynRealmKeys.isEmpty()) {
-            CollectionUtils.collect(realmDAO.findAll(), EntityUtils.keyTransformer(), realmKeys);
+            realmKeys.addAll(realmDAO.findAll().stream().
+                    map(r -> r.getKey()).collect(Collectors.toSet()));
         }
 
         StringBuilder adminRealmFilter = new StringBuilder("u.any_id IN (").

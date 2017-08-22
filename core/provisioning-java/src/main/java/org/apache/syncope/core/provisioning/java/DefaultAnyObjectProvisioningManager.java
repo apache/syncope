@@ -22,8 +22,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.AnyObjectPatch;
 import org.apache.syncope.common.lib.to.PropagationStatus;
@@ -84,7 +83,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
                 excludedResources);
         PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
 
-        return new ImmutablePair<>(created.getResult(), propagationReporter.getStatuses());
+        return Pair.of(created.getResult(), propagationReporter.getStatuses());
     }
 
     @Override
@@ -111,7 +110,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
                 excludedResources);
         PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
 
-        return new ImmutablePair<>(updated.getResult(), propagationReporter.getStatuses());
+        return Pair.of(updated.getResult(), propagationReporter.getStatuses());
     }
 
     @Override
@@ -189,7 +188,9 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
                 AnyTypeKind.ANY_OBJECT,
                 key,
                 propByRes,
-                CollectionUtils.removeAll(anyObjectDAO.findAllResourceKeys(key), resources));
+                anyObjectDAO.findAllResourceKeys(key).stream().
+                        filter(resource -> !resources.contains(resource)).
+                        collect(Collectors.toList()));
         PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
 
         return propagationReporter.getStatuses();

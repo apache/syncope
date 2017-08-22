@@ -19,17 +19,15 @@
 package org.apache.syncope.client.console.reports;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
+import java.util.stream.Collectors;
 import org.apache.syncope.client.console.rest.ReportRestClient;
 import org.apache.syncope.client.console.tasks.CrontabPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.ReportTO;
-import org.apache.syncope.common.lib.to.ReportTemplateTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.extensions.wizard.WizardStep;
@@ -72,28 +70,22 @@ public class ReportWizardBuilder extends AjaxWizardBuilder<ReportTO> {
         public Profile(final ReportTO reportTO) {
 
             AjaxTextFieldPanel name = new AjaxTextFieldPanel(
-                    "name", "name", new PropertyModel<String>(reportTO, "name"), false);
+                    "name", "name", new PropertyModel<>(reportTO, "name"), false);
             name.addRequiredLabel();
             name.setEnabled(true);
             add(name);
 
             final AjaxDropDownChoicePanel<String> template = new AjaxDropDownChoicePanel<>(
                     "template", getString("template"),
-                    new PropertyModel<String>(reportTO, "template"));
-            template.setChoices(CollectionUtils.collect(
-                    restClient.listTemplates(), new Transformer<ReportTemplateTO, String>() {
-
-                @Override
-                public String transform(final ReportTemplateTO input) {
-                    return input.getKey();
-                }
-            }, new ArrayList<String>()));
+                    new PropertyModel<>(reportTO, "template"));
+            template.setChoices(restClient.listTemplates().stream().
+                    map(EntityTO::getKey).collect(Collectors.toList()));
 
             template.addRequiredLabel();
             add(template);
 
             AjaxCheckBoxPanel active = new AjaxCheckBoxPanel(
-                    "active", "active", new PropertyModel<Boolean>(reportTO, "active"), false);
+                    "active", "active", new PropertyModel<>(reportTO, "active"), false);
             add(active);
         }
     }
@@ -104,7 +96,7 @@ public class ReportWizardBuilder extends AjaxWizardBuilder<ReportTO> {
 
         public Schedule(final ReportTO reportTO) {
             crontabPanel = new CrontabPanel(
-                    "schedule", new PropertyModel<String>(reportTO, "cronExpression"), reportTO.getCronExpression());
+                    "schedule", new PropertyModel<>(reportTO, "cronExpression"), reportTO.getCronExpression());
             add(crontabPanel);
         }
 

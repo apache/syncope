@@ -24,14 +24,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
 import org.apache.camel.component.metrics.routepolicy.MetricsRoutePolicyFactory;
 import org.apache.camel.model.Constants;
 import org.apache.camel.model.RouteDefinition;
 import org.apache.camel.spring.SpringCamelContext;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
 import org.apache.commons.io.IOUtils;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.CamelRouteDAO;
@@ -71,13 +70,7 @@ public class SyncopeCamelContext {
         if (camelContext.getRouteDefinitions().isEmpty()) {
             List<CamelRoute> routes = routeDAO.findAll();
             LOG.debug("{} route(s) are going to be loaded ", routes.size());
-            loadContext(CollectionUtils.collect(routes, new Transformer<CamelRoute, String>() {
-
-                @Override
-                public String transform(final CamelRoute input) {
-                    return input.getContent();
-                }
-            }));
+            loadContext(routes.stream().map(input -> input.getContent()).collect(Collectors.toList()));
             try {
                 camelContext.start();
             } catch (Exception e) {

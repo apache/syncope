@@ -25,11 +25,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Resource;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.SetUtils;
-import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -52,16 +51,13 @@ import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.api.entity.Domain;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.conf.CPlainAttr;
-import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.AuditManager;
 import org.apache.syncope.core.provisioning.api.ConnectorFactory;
 import org.apache.syncope.core.provisioning.api.EntitlementsHolder;
 import org.apache.syncope.core.provisioning.api.MappingManager;
-import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
@@ -144,11 +140,12 @@ public class AuthDataAccessor {
             if (jwtSSOProviders == null) {
                 jwtSSOProviders = new HashMap<>();
 
-                for (Class<?> clazz : implementationLookup.getJWTSSOProviderClasses()) {
-                    JWTSSOProvider jwtSSOProvider = (JWTSSOProvider) ApplicationContextProvider.getBeanFactory().
-                            createBean(clazz, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
-                    jwtSSOProviders.put(jwtSSOProvider.getIssuer(), jwtSSOProvider);
-                }
+                implementationLookup.getJWTSSOProviderClasses().stream().
+                        map((clazz) -> (JWTSSOProvider) ApplicationContextProvider.getBeanFactory().
+                        createBean(clazz, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true)).
+                        forEachOrdered(jwtSSOProvider -> {
+                            jwtSSOProviders.put(jwtSSOProvider.getIssuer(), jwtSSOProvider);
+                        });
             }
         }
 
@@ -184,10 +181,10 @@ public class AuthDataAccessor {
     public Pair<User, Boolean> authenticate(final Authentication authentication) {
         User user = null;
 
-        CPlainAttr authAttrs = confDAO.find("authentication.attributes");
-        List<String> authAttrValues = authAttrs == null
-                ? Collections.singletonList("username")
-                : authAttrs.getValuesAsStrings();
+        Optional<? extends CPlainAttr> authAttrs = confDAO.find("authentication.attributes");
+        List<String> authAttrValues = authAttrs.isPresent()
+                ? authAttrs.get().getValuesAsStrings()
+                : Collections.singletonList("username");
         for (int i = 0; user == null && i < authAttrValues.size(); i++) {
             if ("username".equals(authAttrValues.get(i))) {
                 user = userDAO.findByUsername(authentication.getName());
@@ -213,8 +210,8 @@ public class AuthDataAccessor {
                 throw new DisabledException("User " + user.getUsername() + " is suspended");
             }
 
-            CPlainAttr authStatuses = confDAO.find("authentication.statuses");
-            if (authStatuses != null && !authStatuses.getValuesAsStrings().contains(user.getStatus())) {
+            Optional<? extends CPlainAttr> authStatuses = confDAO.find("authentication.statuses");
+            if (authStatuses.isPresent() && !authStatuses.get().getValuesAsStrings().contains(user.getStatus())) {
                 throw new DisabledException("User " + user.getUsername() + " not allowed to authenticate");
             }
 
@@ -255,7 +252,7 @@ public class AuthDataAccessor {
             String connObjectKey = null;
             try {
                 connObjectKey = mappingManager.getConnObjectKeyValue(
-                        user, resource.getProvision(anyTypeDAO.findUser()));
+                        user, resource.getProvision(anyTypeDAO.findUser()).get()).get();
                 Uid uid = connFactory.getConnector(resource).authenticate(connObjectKey, password, null);
                 if (uid != null) {
                     authenticated = true;
@@ -295,18 +292,13 @@ public class AuthDataAccessor {
             }
         }
 
-        return SetUtils.emptyIfNull(result);
+        return result == null ? Collections.emptySet() : result;
     }
 
     protected Set<SyncopeGrantedAuthority> getAdminAuthorities() {
-        return CollectionUtils.collect(EntitlementsHolder.getInstance().getValues(),
-                new Transformer<String, SyncopeGrantedAuthority>() {
-
-            @Override
-            public SyncopeGrantedAuthority transform(final String entitlement) {
-                return new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM);
-            }
-        }, new HashSet<SyncopeGrantedAuthority>());
+        return EntitlementsHolder.getInstance().getValues().stream().
+                map(entitlement -> new SyncopeGrantedAuthority(entitlement, SyncopeConstants.ROOT_REALM)).
+                collect(Collectors.toSet());
     }
 
     protected Set<SyncopeGrantedAuthority> getUserAuthorities(final User user) {
@@ -319,30 +311,23 @@ public class AuthDataAccessor {
 
             // Give entitlements as assigned by roles (with static or dynamic realms, where applicable) - assigned
             // either statically and dynamically
-            for (Role role : userDAO.findAllRoles(user)) {
-                for (String entitlement : role.getEntitlements()) {
+            userDAO.findAllRoles(user).forEach(role -> {
+                role.getEntitlements().forEach(entitlement -> {
                     Set<String> realms = entForRealms.get(entitlement);
                     if (realms == null) {
                         realms = new HashSet<>();
                         entForRealms.put(entitlement, realms);
                     }
-
-                    CollectionUtils.collect(role.getRealms(), new Transformer<Realm, String>() {
-
-                        @Override
-                        public String transform(final Realm realm) {
-                            return realm.getFullPath();
-                        }
-                    }, realms);
-
+                    realms.addAll(role.getRealms().stream().
+                            map(realm -> realm.getFullPath()).collect(Collectors.toSet()));
                     if (!entitlement.endsWith("_CREATE") && !entitlement.endsWith("_DELETE")) {
-                        CollectionUtils.collect(role.getDynRealms(), EntityUtils.keyTransformer(), realms);
+                        realms.addAll(role.getDynRealms().stream().map(r -> r.getKey()).collect(Collectors.toList()));
                     }
-                }
-            }
+                });
+            });
 
             // Give group entitlements for owned groups
-            for (Group group : groupDAO.findOwnedByUser(user.getKey())) {
+            groupDAO.findOwnedByUser(user.getKey()).forEach((group) -> {
                 for (String entitlement : GROUP_OWNER_ENTITLEMENTS) {
                     Set<String> realms = entForRealms.get(entitlement);
                     if (realms == null) {
@@ -352,14 +337,14 @@ public class AuthDataAccessor {
 
                     realms.add(RealmUtils.getGroupOwnerRealm(group.getRealm().getFullPath(), group.getKey()));
                 }
-            }
+            });
 
             // Finally normalize realms for each given entitlement and generate authorities
-            for (Map.Entry<String, Set<String>> entry : entForRealms.entrySet()) {
+            entForRealms.entrySet().stream().map(entry -> {
                 SyncopeGrantedAuthority authority = new SyncopeGrantedAuthority(entry.getKey());
                 authority.addRealms(RealmUtils.normalize(entry.getValue()));
-                authorities.add(authority);
-            }
+                return authority;
+            }).forEachOrdered(authority -> authorities.add(authority));
         }
 
         return authorities;
@@ -410,7 +395,7 @@ public class AuthDataAccessor {
 
             User user = resolved.getLeft();
             username = user.getUsername();
-            authorities = SetUtils.emptyIfNull(resolved.getRight());
+            authorities = resolved.getRight() == null ? Collections.emptySet() : resolved.getRight();
             LOG.debug("JWT {} issued by {} resolved to User {} with authorities {}",
                     authentication.getClaims().getTokenId(),
                     authentication.getClaims().getIssuer(),
@@ -420,8 +405,8 @@ public class AuthDataAccessor {
                 throw new DisabledException("User " + username + " is suspended");
             }
 
-            CPlainAttr authStatuses = confDAO.find("authentication.statuses");
-            if (authStatuses != null && !authStatuses.getValuesAsStrings().contains(user.getStatus())) {
+            Optional<? extends CPlainAttr> authStatuses = confDAO.find("authentication.statuses");
+            if (authStatuses.isPresent() && !authStatuses.get().getValuesAsStrings().contains(user.getStatus())) {
                 throw new DisabledException("User " + username + " not allowed to authenticate");
             }
 

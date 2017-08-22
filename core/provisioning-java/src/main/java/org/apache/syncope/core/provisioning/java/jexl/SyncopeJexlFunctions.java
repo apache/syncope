@@ -19,8 +19,8 @@
 package org.apache.syncope.core.provisioning.java.jexl;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -61,7 +61,8 @@ public class SyncopeJexlFunctions {
         }
 
         List<String> headless = Arrays.asList(fullPathSplitted).subList(1, fullPathSplitted.length);
-        return prefix + attr + "=" + StringUtils.join(IterableUtils.reversedIterable(headless), "," + attr + "=");
+        Collections.reverse(headless);
+        return prefix + attr + "=" + StringUtils.join(headless, "," + attr + "=");
     }
 
 }

@@ -26,9 +26,7 @@ public class XmlGenericMapAdapter<K, V> extends XmlAdapter<GenericMapType<K, V>,
     public Map<K, V> unmarshal(final GenericMapType<K, V> v) throws Exception {
         Map<K, V> map = new HashMap<>();
 
-        for (GenericMapEntryType<K, V> mapEntryType : v.getEntry()) {
-            map.put(mapEntryType.getKey(), mapEntryType.getValue());
-        }
+        v.getEntry().forEach(mapEntryType -> map.put(mapEntryType.getKey(), mapEntryType.getValue()));
 
         return map;
     }
@@ -37,12 +35,12 @@ public class XmlGenericMapAdapter<K, V> extends XmlAdapter<GenericMapType<K, V>,
     public GenericMapType<K, V> marshal(final Map<K, V> v) throws Exception {
         GenericMapType<K, V> mapType = new GenericMapType<>();
 
-        for (Map.Entry<K, V> entry : v.entrySet()) {
+        v.entrySet().stream().map(entry -> {
             GenericMapEntryType<K, V> mapEntryType = new GenericMapEntryType<>();
             mapEntryType.setKey(entry.getKey());
             mapEntryType.setValue(entry.getValue());
-            mapType.getEntry().add(mapEntryType);
-        }
+            return mapEntryType;
+        }).forEachOrdered(mapEntryType -> mapType.getEntry().add(mapEntryType));
 
         return mapType;
     }

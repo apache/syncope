@@ -21,14 +21,8 @@ package org.apache.syncope.client.console.wizards.resources;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.IteratorUtils;
-import org.apache.commons.collections4.ListUtils;
-import org.apache.commons.collections4.Predicate;
-import org.apache.commons.collections4.Transformer;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
@@ -105,16 +99,11 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
 
                 return item == null
                         ? null
-                        : IteratorUtils.find(list.iterator(), new Predicate<ResourceProvision>() {
-
-                            @Override
-                            public boolean evaluate(final ResourceProvision in) {
-                                return ((item.getKey() == null && in.getKey() == null)
-                                        || (in.getKey() != null && in.getKey().equals(item.getKey())))
-                                        && ((item.getAnyType() == null && in.getAnyType() == null)
-                                        || (in.getAnyType() != null && in.getAnyType().equals(item.getAnyType())));
-                            }
-                        });
+                        : list.stream().filter(in -> ((item.getKey() == null && in.getKey() == null)
+                        || (in.getKey() != null && in.getKey().equals(item.getKey())))
+                        && ((item.getAnyType() == null && in.getAnyType() == null)
+                        || (in.getAnyType() != null && in.getAnyType().equals(item.getAnyType())))).
+                                findAny().orElse(null);
             }
 
             @Override
@@ -150,9 +139,9 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
         if (resourceTO.getOrgUnit() != null) {
             provisions.add(new ResourceProvision(resourceTO.getOrgUnit()));
         }
-        for (ProvisionTO provision : resourceTO.getProvisions()) {
+        resourceTO.getProvisions().forEach(provision -> {
             provisions.add(new ResourceProvision(provision));
-        }
+        });
         // keep list ordered - SYNCOPE-1154
         sortProvisions();
 
@@ -279,13 +268,7 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
     }
 
     private void checkConnObjectKeyCount(final String anyType, final List<ItemTO> items) {
-        long connObjectKeyCount = IterableUtils.countMatches(items, new Predicate<ItemTO>() {
-
-            @Override
-            public boolean evaluate(final ItemTO item) {
-                return item.isConnObjectKey();
-            }
-        });
+        long connObjectKeyCount = items.stream().filter(ItemTO::isConnObjectKey).count();
 
         if (connObjectKeyCount != 1) {
             throw new IllegalArgumentException(anyType + ": "
@@ -300,15 +283,15 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
                 checkConnObjectKeyCount(SyncopeConstants.REALM_ANYTYPE, resourceTO.getOrgUnit().getItems());
             }
 
-            for (ProvisionTO provision : new ArrayList<>(resourceTO.getProvisions())) {
-                if (provision != null) {
-                    if (provision.getMapping() == null || provision.getMapping().getItems().isEmpty()) {
-                        resourceTO.getProvisions().remove(provision);
-                    } else {
-                        checkConnObjectKeyCount(provision.getAnyType(), provision.getMapping().getItems());
-                    }
-                }
-            }
+            new ArrayList<>(resourceTO.getProvisions()).stream().
+                    filter(provision -> provision != null).
+                    forEachOrdered(provision -> {
+                        if (provision.getMapping() == null || provision.getMapping().getItems().isEmpty()) {
+                            resourceTO.getProvisions().remove(provision);
+                        } else {
+                            checkConnObjectKeyCount(provision.getAnyType(), provision.getMapping().getItems());
+                        }
+                    });
 
             resourceRestClient.update(resourceTO);
             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
@@ -322,13 +305,8 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
     }
 
     private void sortProvisions() {
-        Collections.sort(provisions, new Comparator<ResourceProvision>() {
-
-            @Override
-            public int compare(final ResourceProvision o1, final ResourceProvision o2) {
-                return new AnyTypeRestClient.AnyTypeKeyComparator().compare(o1.getAnyType(), o2.getAnyType());
-            }
-        });
+        Collections.sort(provisions, (o1, o2)
+                -> new AnyTypeRestClient.AnyTypeKeyComparator().compare(o1.getAnyType(), o2.getAnyType()));
     }
 
     private LoadableDetachableModel<List<String>> getAnyTypes() {
@@ -340,21 +318,11 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
             protected List<String> load() {
                 final List<String> currentlyAdded = new ArrayList<>();
 
-                CollectionUtils.collect(resourceTO.getProvisions(), new Transformer<ProvisionTO, String>() {
+                currentlyAdded.addAll(resourceTO.getProvisions().stream().
+                        map(ProvisionTO::getAnyType).collect(Collectors.toList()));
 
-                    @Override
-                    public String transform(final ProvisionTO provisionTO) {
-                        return provisionTO.getAnyType();
-                    }
-                }, currentlyAdded);
-
-                return ListUtils.select(new AnyTypeRestClient().list(), new Predicate<String>() {
-
-                    @Override
-                    public boolean evaluate(final String key) {
-                        return !currentlyAdded.contains(key);
-                    }
-                });
+                return new AnyTypeRestClient().list().stream().
+                        filter(anyType -> !currentlyAdded.contains(anyType)).collect(Collectors.toList());
             }
         };
     }

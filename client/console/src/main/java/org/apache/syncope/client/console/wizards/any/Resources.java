@@ -21,16 +21,14 @@ package org.apache.syncope.client.console.wizards.any;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.ListUtils;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.rest.ResourceRestClient;
 import org.apache.syncope.client.console.wicket.ajax.markup.html.LabelInfo;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
-import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.ResourceTO;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.ActionPermissions;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
@@ -51,9 +49,9 @@ public class Resources extends WizardStep implements WizardModel.ICondition {
 
         if (modelObject instanceof UserWrapper
                 && UserWrapper.class.cast(modelObject).getPreviousUserTO() != null
-                && !ListUtils.isEqualList(
-                        modelObject.getInnerObject().getResources(),
+                && !modelObject.getInnerObject().getResources().equals(
                         UserWrapper.class.cast(modelObject).getPreviousUserTO().getResources())) {
+
             add(new LabelInfo("changed", StringUtils.EMPTY));
         } else {
             add(new Label("changed", StringUtils.EMPTY));
@@ -93,9 +91,9 @@ public class Resources extends WizardStep implements WizardModel.ICondition {
     public boolean evaluate() {
         if (SyncopeConsoleApplication.get().getSecuritySettings().getAuthorizationStrategy().
                 isActionAuthorized(this, RENDER)) {
-            available.setObject(CollectionUtils.collect(new ResourceRestClient().list(),
-                    EntityTOUtils.<ResourceTO>keyTransformer(), new ArrayList<String>()));
-            return CollectionUtils.isNotEmpty(available.getObject());
+            available.setObject(new ResourceRestClient().list().stream().
+                    map(EntityTO::getKey).collect(Collectors.toList()));
+            return !available.getObject().isEmpty();
         } else {
             return false;
         }

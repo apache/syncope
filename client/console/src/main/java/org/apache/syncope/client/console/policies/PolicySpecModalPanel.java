@@ -26,8 +26,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
@@ -42,7 +41,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownCho
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiPanel;
 import org.apache.syncope.common.lib.policy.PullPolicyTO;
-import org.apache.syncope.common.lib.to.AbstractSchemaTO;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
 import org.apache.syncope.common.lib.types.SchemaType;
@@ -74,25 +73,20 @@ public class PolicySpecModalPanel extends AbstractModalPanel<PullPolicyTO> {
         add(new AjaxDropDownChoicePanel<>(
                 "conflictResolutionAction",
                 "conflictResolutionAction",
-                new PropertyModel<ConflictResolutionAction>(policyTO.getSpecification(), "conflictResolutionAction")).
-                setChoices(Arrays.asList(ConflictResolutionAction.values())));
+                new PropertyModel<>(policyTO.getSpecification(), "conflictResolutionAction")).
+                setChoices(Arrays.asList((Serializable[]) ConflictResolutionAction.values())));
 
         model = new PropertyModel<List<CorrelationRule>>(policyTO.getSpecification(), "correlationRules") {
 
             private static final long serialVersionUID = -8168676563540297301L;
 
-            private List<CorrelationRule> rules = CollectionUtils.collect(
-                    policyTO.getSpecification().getCorrelationRules() == null
-                    ? Collections.<String>emptySet()
-                    : policyTO.getSpecification().getCorrelationRules().keySet(),
-                    new Transformer<String, CorrelationRule>() {
-
-                @Override
-                public CorrelationRule transform(final String input) {
-                    return new CorrelationRule(
-                            input, policyTO.getSpecification().getCorrelationRules().get(input));
-                }
-            }, new ArrayList<CorrelationRule>());
+            private List<CorrelationRule> rules =
+                    (policyTO.getSpecification().getCorrelationRules() == null
+                            ? Collections.<String>emptySet()
+                            : policyTO.getSpecification().getCorrelationRules().keySet()).stream().
+                            map(rule -> new CorrelationRule(
+                            rule, policyTO.getSpecification().getCorrelationRules().get(rule))).
+                            collect(Collectors.toList());
 
             @Override
             public List<CorrelationRule> getObject() {
@@ -129,9 +123,9 @@ public class PolicySpecModalPanel extends AbstractModalPanel<PullPolicyTO> {
     public void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
         try {
             getItem().getSpecification().getCorrelationRules().clear();
-            for (CorrelationRule rule : model.getObject()) {
+            model.getObject().forEach(rule -> {
                 getItem().getSpecification().getCorrelationRules().put(rule.getAny(), rule.getRule());
-            }
+            });
             restClient.updatePolicy(getItem());
             SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
             this.modal.close(target);
@@ -276,20 +270,14 @@ public class PolicySpecModalPanel extends AbstractModalPanel<PullPolicyTO> {
 
         private static List<String> getPlainSchemas(final CorrelationRule rule) {
             final List<String> choices = StringUtils.isEmpty(rule.getAny())
-                    ? new ArrayList<String>()
-                    : CollectionUtils.collect(
-                            new SchemaRestClient().getSchemas(SchemaType.PLAIN,
-                                    rule.getAny().equals(AnyTypeKind.USER.name())
-                                    ? AnyTypeKind.USER
-                                    : rule.getAny().equals(AnyTypeKind.GROUP.name())
-                                    ? AnyTypeKind.GROUP
-                                    : AnyTypeKind.ANY_OBJECT), new Transformer<AbstractSchemaTO, String>() {
-
-                        @Override
-                        public String transform(final AbstractSchemaTO input) {
-                            return input.getKey();
-                        }
-                    }, new ArrayList<String>());
+                    ? new ArrayList<>()
+                    : new SchemaRestClient().getSchemas(SchemaType.PLAIN,
+                            rule.getAny().equals(AnyTypeKind.USER.name())
+                            ? AnyTypeKind.USER
+                            : rule.getAny().equals(AnyTypeKind.GROUP.name())
+                            ? AnyTypeKind.GROUP
+                            : AnyTypeKind.ANY_OBJECT).stream().map(EntityTO::getKey).
+                            collect(Collectors.toList());
 
             Collections.sort(choices);
             return choices;

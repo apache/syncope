@@ -21,6 +21,7 @@ package org.apache.syncope.core.provisioning.java.pushpull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
@@ -38,6 +39,7 @@ import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
+import org.apache.syncope.core.persistence.api.entity.task.PushTaskAnyFilter;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.pushpull.AnyObjectPushResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.GroupPushResultHandler;
@@ -119,7 +121,7 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
         LOG.debug("Executing push on {}", pushTask.getResource());
 
         List<PushActions> actions = new ArrayList<>();
-        for (String className : pushTask.getActionsClassNames()) {
+        pushTask.getActionsClassNames().forEach(className -> {
             try {
                 Class<?> actionsClass = Class.forName(className);
 
@@ -129,7 +131,7 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
             } catch (Exception e) {
                 LOG.info("Class '{}' not found", className, e);
             }
-        }
+        });
 
         ProvisioningProfile<PushTask, PushActions> profile = new ProvisioningProfile<>(connector, pushTask);
         profile.getActions().addAll(actions);
@@ -195,9 +197,10 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
                         handler = ahandler;
                 }
 
-                String filter = pushTask.getFilter(provision.getAnyType()) == null
-                        ? null
-                        : pushTask.getFilter(provision.getAnyType()).getFIQLCond();
+                Optional<? extends PushTaskAnyFilter> anyFilter = pushTask.getFilter(provision.getAnyType());
+                String filter = anyFilter.isPresent()
+                        ? anyFilter.get().getFIQLCond()
+                        : null;
                 SearchCond cond = StringUtils.isBlank(filter)
                         ? anyDAO.getAllMatchingCond()
                         : SearchCondConverter.convert(filter);

@@ -18,15 +18,12 @@
  */
 package org.apache.syncope.client.console.wizards.resources;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.to.ConnBundleTO;
 import org.apache.syncope.common.lib.to.ConnInstanceTO;
-import org.apache.syncope.common.lib.types.ConnConfPropSchema;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.wicket.model.LoadableDetachableModel;
 
@@ -50,15 +47,11 @@ public abstract class ConnectorConfPanel extends AbstractConnConfPanel<ConnInsta
                 ConnectorConfPanel.this.modelObject.getConf().clear();
 
                 // re-order properties
-                Collections.sort(properties, new Comparator<ConnConfProperty>() {
-
-                    @Override
-                    public int compare(final ConnConfProperty left, final ConnConfProperty right) {
-                        if (left == null) {
-                            return -1;
-                        } else {
-                            return left.compareTo(right);
-                        }
+                Collections.sort(properties, (o1, o2) -> {
+                    if (o1 == null) {
+                        return -1;
+                    } else {
+                        return o1.compareTo(o2);
                     }
                 });
 
@@ -78,25 +71,21 @@ public abstract class ConnectorConfPanel extends AbstractConnConfPanel<ConnInsta
      */
     @Override
     protected final List<ConnConfProperty> getConnProperties(final ConnInstanceTO instance) {
-        return CollectionUtils.collect(
-                ConnectorWizardBuilder.getBundle(instance, bundles).getProperties(),
-                new Transformer<ConnConfPropSchema, ConnConfProperty>() {
+        return ConnectorWizardBuilder.getBundle(instance, bundles).getProperties().stream().
+                map(key -> {
+                    ConnConfProperty property = new ConnConfProperty();
+                    property.setSchema(key);
 
-            @Override
-            public ConnConfProperty transform(final ConnConfPropSchema key) {
-                final ConnConfProperty property = new ConnConfProperty();
-                property.setSchema(key);
+                    Optional<ConnConfProperty> conf = instance.getConf(key.getName());
+                    if (conf.isPresent() && conf.get().getValues() != null) {
+                        property.getValues().addAll(conf.get().getValues());
+                        property.setOverridable(conf.get().isOverridable());
+                    }
 
-                if (instance.getConf(key.getName()) != null && instance.getConf(key.getName()).getValues() != null) {
-                    property.getValues().addAll(instance.getConf(key.getName()).getValues());
-                    property.setOverridable(instance.getConf(key.getName()).isOverridable());
-                }
-
-                if (property.getValues().isEmpty() && !key.getDefaultValues().isEmpty()) {
-                    property.getValues().addAll(key.getDefaultValues());
-                }
-                return property;
-            }
-        }, new ArrayList<ConnConfProperty>());
+                    if (property.getValues().isEmpty() && !key.getDefaultValues().isEmpty()) {
+                        property.getValues().addAll(key.getDefaultValues());
+                    }
+                    return property;
+                }).collect(Collectors.toList());
     }
 }

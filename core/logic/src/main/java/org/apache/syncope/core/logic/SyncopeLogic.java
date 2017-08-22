@@ -23,16 +23,14 @@ import java.lang.management.OperatingSystemMXBean;
 import java.lang.management.RuntimeMXBean;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
-import java.net.URI;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.annotation.Resource;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -76,7 +74,6 @@ import org.apache.syncope.core.provisioning.api.GroupProvisioningManager;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
 import org.apache.syncope.core.provisioning.api.cache.VirAttrCache;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
-import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.workflow.api.AnyObjectWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.GroupWorkflowAdapter;
@@ -204,9 +201,8 @@ public class SyncopeLogic extends AbstractLogic<AbstractBaseBean> {
                 PLATFORM_INFO.setBuildNumber(buildNumber);
 
                 if (bundleManager.getLocations() != null) {
-                    for (URI location : bundleManager.getLocations()) {
-                        PLATFORM_INFO.getConnIdLocations().add(location.toASCIIString());
-                    }
+                    bundleManager.getLocations().
+                            forEach(location -> PLATFORM_INFO.getConnIdLocations().add(location.toASCIIString()));
                 }
 
                 PLATFORM_INFO.setAnyObjectWorkflowAdapter(AopUtils.getTargetClass(awfAdapter).getName());
@@ -246,35 +242,23 @@ public class SyncopeLogic extends AbstractLogic<AbstractBaseBean> {
             PLATFORM_INFO.getEntitlements().clear();
             PLATFORM_INFO.getEntitlements().addAll(EntitlementsHolder.getInstance().getValues());
 
-            AuthContextUtils.execWithAuthContext(AuthContextUtils.getDomain(), new AuthContextUtils.Executable<Void>() {
+            AuthContextUtils.execWithAuthContext(AuthContextUtils.getDomain(), () -> {
+                PLATFORM_INFO.getAnyTypes().clear();
+                PLATFORM_INFO.getAnyTypes().addAll(anyTypeDAO.findAll().stream().
+                        map(type -> type.getKey()).collect(Collectors.toList()));
 
-                @Override
-                public Void exec() {
-                    PLATFORM_INFO.getAnyTypes().clear();
-                    CollectionUtils.collect(
-                            anyTypeDAO.findAll(),
-                            EntityUtils.keyTransformer(),
-                            PLATFORM_INFO.getAnyTypes());
+                PLATFORM_INFO.getUserClasses().clear();
+                PLATFORM_INFO.getUserClasses().addAll(anyTypeDAO.findUser().getClasses().stream().
+                        map(cls -> cls.getKey()).collect(Collectors.toList()));
 
-                    PLATFORM_INFO.getUserClasses().clear();
-                    CollectionUtils.collect(
-                            anyTypeDAO.findUser().getClasses(),
-                            EntityUtils.keyTransformer(),
-                            PLATFORM_INFO.getUserClasses());
+                PLATFORM_INFO.getAnyTypeClasses().clear();
+                PLATFORM_INFO.getAnyTypeClasses().addAll(anyTypeClassDAO.findAll().stream().
+                        map(cls -> cls.getKey()).collect(Collectors.toList()));
 
-                    PLATFORM_INFO.getAnyTypeClasses().clear();
-                    CollectionUtils.collect(
-                            anyTypeClassDAO.findAll(),
-                            EntityUtils.keyTransformer(),
-                            PLATFORM_INFO.getAnyTypeClasses());
-
-                    PLATFORM_INFO.getResources().clear();
-                    CollectionUtils.collect(
-                            resourceDAO.findAll(),
-                            EntityUtils.keyTransformer(),
-                            PLATFORM_INFO.getResources());
-                    return null;
-                }
+                PLATFORM_INFO.getResources().clear();
+                PLATFORM_INFO.getResources().addAll(resourceDAO.findAll().stream().
+                        map(resource -> resource.getKey()).collect(Collectors.toList()));
+                return null;
             });
         }
 
@@ -394,14 +378,8 @@ public class SyncopeLogic extends AbstractLogic<AbstractBaseBean> {
                 searchCond,
                 page, size,
                 Collections.singletonList(orderByClause), AnyTypeKind.GROUP);
-        List<GroupTO> result = CollectionUtils.collect(matching, new Transformer<Group, GroupTO>() {
-
-            @Transactional(readOnly = true)
-            @Override
-            public GroupTO transform(final Group input) {
-                return groupDataBinder.getGroupTO(input, false);
-            }
-        }, new ArrayList<GroupTO>());
+        List<GroupTO> result = matching.stream().
+                map(group -> groupDataBinder.getGroupTO(group, false)).collect(Collectors.toList());
 
         return Pair.of(count, result);
     }
@@ -412,12 +390,12 @@ public class SyncopeLogic extends AbstractLogic<AbstractBaseBean> {
         if (group == null) {
             throw new NotFoundException("Group " + groupName);
         }
-        TypeExtension typeExt = group.getTypeExtension(anyTypeDAO.findUser());
-        if (typeExt == null) {
+        Optional<? extends TypeExtension> typeExt = group.getTypeExtension(anyTypeDAO.findUser());
+        if (!typeExt.isPresent()) {
             throw new NotFoundException("TypeExtension in " + groupName + " for users");
         }
 
-        return groupDataBinder.getTypeExtensionTO(typeExt);
+        return groupDataBinder.getTypeExtensionTO(typeExt.get());
     }
 
     @Override

@@ -28,8 +28,6 @@ import static org.junit.Assert.fail;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -181,8 +179,8 @@ public class UserTest extends AbstractTest {
 
         // replace 'artDirector' with 'additional', which defines type extension with class 'other' and 'csv':
         // now it works
-        membership = user.getMembership(groupDAO.findByName("artDirector").getKey());
-        user.remove(user.getPlainAttr("obscure", membership));
+        membership = user.getMembership(groupDAO.findByName("artDirector").getKey()).get();
+        user.remove(user.getPlainAttr("obscure", membership).get());
         user.getMemberships().remove(membership);
         membership.setLeftEnd(null);
 
@@ -204,26 +202,14 @@ public class UserTest extends AbstractTest {
         user = userDAO.findByUsername("vivaldi");
         assertEquals(1, user.getMemberships().size());
 
-        final UMembership newM = user.getMembership(groupDAO.findByName("additional").getKey());
+        final UMembership newM = user.getMembership(groupDAO.findByName("additional").getKey()).get();
         assertEquals(1, user.getPlainAttrs(newM).size());
 
-        assertNull(user.getPlainAttr("obscure").getMembership());
+        assertNull(user.getPlainAttr("obscure").get().getMembership());
         assertEquals(2, user.getPlainAttrs("obscure").size());
-        assertTrue(user.getPlainAttrs("obscure").contains(user.getPlainAttr("obscure")));
-        assertTrue(IterableUtils.matchesAny(user.getPlainAttrs("obscure"), new Predicate<UPlainAttr>() {
-
-            @Override
-            public boolean evaluate(final UPlainAttr object) {
-                return object.getMembership() == null;
-            }
-        }));
-        assertTrue(IterableUtils.matchesAny(user.getPlainAttrs("obscure"), new Predicate<UPlainAttr>() {
-
-            @Override
-            public boolean evaluate(final UPlainAttr object) {
-                return newM.equals(object.getMembership());
-            }
-        }));
+        assertTrue(user.getPlainAttrs("obscure").contains(user.getPlainAttr("obscure").get()));
+        assertTrue(user.getPlainAttrs("obscure").stream().anyMatch(plainAttr -> plainAttr.getMembership() == null));
+        assertTrue(user.getPlainAttrs("obscure").stream().anyMatch(plainAttr -> newM.equals(plainAttr.getMembership())));
     }
 
     /**
@@ -251,7 +237,7 @@ public class UserTest extends AbstractTest {
         User owner = userDAO.findByUsername("vivaldi");
         assertNotNull("did not get expected user", owner);
 
-        String firstname = owner.getPlainAttr("firstname").getValuesAsStrings().iterator().next();
+        String firstname = owner.getPlainAttr("firstname").get().getValuesAsStrings().iterator().next();
         assertNotNull(firstname);
 
         // search by ksuffix derived attribute

@@ -20,11 +20,9 @@ package org.apache.syncope.client.console.wizards.any;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.collections4.ListUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.SchemaUtils;
 import org.apache.syncope.client.console.wicket.ajax.markup.html.LabelInfo;
@@ -170,10 +168,9 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
         Map<String, AttrTO> attrMap = EntityTOUtils.buildAttrMap(anyTO.getPlainAttrs());
 
-        for (PlainSchemaTO schema : schemas.values()) {
+        schemas.values().stream().map(schema -> {
             AttrTO attrTO = new AttrTO();
             attrTO.setSchema(schema.getKey());
-
             if (attrMap.get(schema.getKey()) == null || attrMap.get(schema.getKey()).getValues().isEmpty()) {
                 attrTO.getValues().add("");
 
@@ -182,8 +179,10 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
             } else {
                 attrTO.getValues().addAll(attrMap.get(schema.getKey()).getValues());
             }
+            return attrTO;
+        }).forEachOrdered(attrTO -> {
             attrs.add(attrTO);
-        }
+        });
 
         anyTO.getPlainAttrs().clear();
         anyTO.getPlainAttrs().addAll(attrs);
@@ -195,20 +194,22 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
 
         Map<String, AttrTO> attrMap = EntityTOUtils.buildAttrMap(membershipTO.getPlainAttrs());
 
-        for (PlainSchemaTO schema : membershipSchemas.get(membershipTO.getGroupKey()).values()) {
-            AttrTO attrTO = new AttrTO();
-            attrTO.setSchema(schema.getKey());
+        membershipSchemas.get(membershipTO.getGroupKey()).values().stream().
+                map(schema -> {
+                    AttrTO attrTO = new AttrTO();
+                    attrTO.setSchema(schema.getKey());
+                    if (attrMap.get(schema.getKey()) == null || attrMap.get(schema.getKey()).getValues().isEmpty()) {
+                        attrTO.getValues().add("");
 
-            if (attrMap.get(schema.getKey()) == null || attrMap.get(schema.getKey()).getValues().isEmpty()) {
-                attrTO.getValues().add("");
-
-                // is important to set the schema info only after values setting
-                attrTO.setSchemaInfo(schema);
-            } else {
-                attrTO.getValues().addAll(attrMap.get(schema.getKey()).getValues());
-            }
+                        // is important to set the schema info only after values setting
+                        attrTO.setSchemaInfo(schema);
+                    } else {
+                        attrTO.getValues().addAll(attrMap.get(schema.getKey()).getValues());
+                    }
+                    return attrTO;
+                }).forEachOrdered(attrTO -> {
             attrs.add(attrTO);
-        }
+        });
 
         membershipTO.getPlainAttrs().clear();
         membershipTO.getPlainAttrs().addAll(attrs);
@@ -237,7 +238,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
         FieldPanel panel;
         switch (type) {
             case Boolean:
-                panel = new AjaxCheckBoxPanel("panel", schemaTO.getKey(), new Model<Boolean>(), true);
+                panel = new AjaxCheckBoxPanel("panel", schemaTO.getKey(), new Model<>(), true);
                 panel.setRequired(required);
                 break;
 
@@ -247,9 +248,9 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                         : schemaTO.getConversionPattern();
 
                 if (dataPattern.contains("H")) {
-                    panel = new AjaxDateTimeFieldPanel("panel", schemaTO.getKey(), new Model<Date>(), dataPattern);
+                    panel = new AjaxDateTimeFieldPanel("panel", schemaTO.getKey(), new Model<>(), dataPattern);
                 } else {
-                    panel = new AjaxDateFieldPanel("panel", schemaTO.getKey(), new Model<Date>(), dataPattern);
+                    panel = new AjaxDateFieldPanel("panel", schemaTO.getKey(), new Model<>(), dataPattern);
                 }
 
                 if (required) {
@@ -311,7 +312,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                 break;
 
             case Binary:
-                panel = new BinaryFieldPanel("panel", schemaTO.getKey(), new Model<String>(), schemaTO.getMimeType(),
+                panel = new BinaryFieldPanel("panel", schemaTO.getKey(), new Model<>(), schemaTO.getMimeType(),
                         fileKey);
 
                 if (required) {
@@ -320,7 +321,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                 break;
 
             case Encrypted:
-                panel = new EncryptedFieldPanel("panel", schemaTO.getKey(), new Model<String>(), true);
+                panel = new EncryptedFieldPanel("panel", schemaTO.getKey(), new Model<>(), true);
 
                 if (required) {
                     panel.addRequiredLabel();
@@ -328,7 +329,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                 break;
 
             default:
-                panel = new AjaxTextFieldPanel("panel", schemaTO.getKey(), new Model<String>(), true);
+                panel = new AjaxTextFieldPanel("panel", schemaTO.getKey(), new Model<>(), true);
 
                 if (jexlHelp) {
                     AjaxTextFieldPanel.class.cast(panel).enableJexlHelp();
@@ -369,7 +370,7 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                         FieldPanel.class.cast(panel).setNewModel(attrTO.getValues());
                     } else {
                         panel = new MultiFieldPanel.Builder<>(
-                                new PropertyModel<List<String>>(attrTO, "values")).build(
+                                new PropertyModel<>(attrTO, "values")).build(
                                 "panel",
                                 attrTO.getSchema(),
                                 FieldPanel.class.cast(panel));
@@ -379,24 +380,13 @@ public class PlainAttrs extends AbstractAttrs<PlainSchemaTO> {
                     if (previousObject != null
                             && (previousObject.getPlainAttr(attrTO.getSchema()) == null
                             || !ListUtils.isEqualList(
-                                    ListUtils.select(previousObject.getPlainAttr(attrTO.getSchema()).getValues(),
-                                            new Predicate<String>() {
+                                    ListUtils.select(previousObject.getPlainAttr(attrTO.getSchema()).get().getValues(),
+                                            object -> StringUtils.isNotEmpty(object)),
+                                    ListUtils.select(attrTO.getValues(), object -> StringUtils.isNotEmpty(object))))) {
 
-                                        @Override
-                                        public boolean evaluate(final String object) {
-                                            return StringUtils.isNotEmpty(object);
-                                        }
-                                    }), ListUtils.select(attrTO.getValues(),
-                                            new Predicate<String>() {
-
-                                        @Override
-                                        public boolean evaluate(final String object) {
-                                            return StringUtils.isNotEmpty(object);
-                                        }
-                                    })))) {
                         List<String> oldValues = previousObject.getPlainAttr(attrTO.getSchema()) == null
                                 ? Collections.<String>emptyList()
-                                : previousObject.getPlainAttr(attrTO.getSchema()).getValues();
+                                : previousObject.getPlainAttr(attrTO.getSchema()).get().getValues();
                         panel.showExternAction(new LabelInfo("externalAction", oldValues));
                     }
                 }

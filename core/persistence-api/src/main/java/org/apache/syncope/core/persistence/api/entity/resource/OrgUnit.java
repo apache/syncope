@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.api.entity.resource;
 
 import java.util.List;
+import java.util.Optional;
 import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.SyncToken;
@@ -45,7 +46,7 @@ public interface OrgUnit extends Entity {
 
     boolean add(OrgUnitItem item);
 
-    OrgUnitItem getConnObjectKeyItem();
+    Optional<? extends OrgUnitItem> getConnObjectKeyItem();
 
     void setConnObjectKeyItem(OrgUnitItem item);
 

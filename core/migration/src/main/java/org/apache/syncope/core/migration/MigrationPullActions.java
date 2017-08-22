@@ -22,8 +22,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.TransformerUtils;
+import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.GroupTO;
@@ -73,7 +72,7 @@ public class MigrationPullActions extends SchedulingPullActions {
                 && resourcesAttr.getValue() != null && !resourcesAttr.getValue().isEmpty()) {
 
             ((AnyTO) entity).getResources().addAll(
-                    CollectionUtils.collect(resourcesAttr.getValue(), TransformerUtils.stringValueTransformer()));
+                    resourcesAttr.getValue().stream().map(Object::toString).collect(Collectors.toList()));
         }
 
         return delta;

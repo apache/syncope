@@ -26,7 +26,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
@@ -90,12 +89,6 @@ public class RealmTest extends AbstractTest {
 
         children = realmDAO.findChildren(realmDAO.findByFullPath("/odd"));
         assertTrue(children.isEmpty());
-    }
-
-    @Test
-    public void findDescendants() {
-        assertTrue(CollectionUtils.disjunction(realmDAO.findAll(), realmDAO.findDescendants(realmDAO.getRoot())).
-                isEmpty());
     }
 
     @Test

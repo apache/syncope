@@ -22,8 +22,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.validation.ConstraintValidatorContext;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
@@ -31,7 +29,6 @@ import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
-import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
@@ -39,13 +36,7 @@ import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
 public class ExternalResourceValidator extends AbstractValidator<ExternalResourceCheck, ExternalResource> {
 
     private boolean isValid(final List<? extends Item> items, final ConstraintValidatorContext context) {
-        long connObjectKeys = IterableUtils.countMatches(items, new Predicate<Item>() {
-
-            @Override
-            public boolean evaluate(final Item item) {
-                return item.isConnObjectKey();
-            }
-        });
+        long connObjectKeys = items.stream().filter(Item::isConnObjectKey).count();
         if (connObjectKeys != 1) {
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.InvalidMapping, "Single ConnObjectKey mapping is required")).
@@ -94,13 +85,7 @@ public class ExternalResourceValidator extends AbstractValidator<ExternalResourc
 
         boolean isValid = true;
 
-        long passwords = IterableUtils.countMatches(mapping.getItems(), new Predicate<MappingItem>() {
-
-            @Override
-            public boolean evaluate(final MappingItem item) {
-                return item.isPassword();
-            }
-        });
+        long passwords = mapping.getItems().stream().filter(MappingItem::isPassword).count();
         if (passwords > 1) {
             context.buildConstraintViolationWithTemplate(
                     getTemplate(EntityViolationType.InvalidMapping, "One password mapping is allowed at most")).
@@ -144,16 +129,12 @@ public class ExternalResourceValidator extends AbstractValidator<ExternalResourc
 
         final Set<AnyType> anyTypes = new HashSet<>();
         final Set<String> objectClasses = new HashSet<>();
-        boolean validMappings = IterableUtils.matchesAll(resource.getProvisions(), new Predicate<Provision>() {
-
-            @Override
-            public boolean evaluate(final Provision provision) {
-                anyTypes.add(provision.getAnyType());
-                if (provision.getObjectClass() != null) {
-                    objectClasses.add(provision.getObjectClass().getObjectClassValue());
-                }
-                return isValid(provision.getMapping(), context);
+        boolean validMappings = resource.getProvisions().stream().allMatch(provision -> {
+            anyTypes.add(provision.getAnyType());
+            if (provision.getObjectClass() != null) {
+                objectClasses.add(provision.getObjectClass().getObjectClassValue());
             }
+            return isValid(provision.getMapping(), context);
         });
         validMappings &= isValid(resource.getOrgUnit(), context);
 

@@ -19,11 +19,11 @@
 package org.apache.syncope.core.persistence.jpa.inner;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.Optional;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
@@ -49,16 +49,16 @@ public class ConfTest extends AbstractTest {
 
     @Test
     public void read() {
-        CPlainAttr conf = confDAO.find("selfRegistration.allowed");
-        assertNotNull(conf);
-        assertTrue(conf.getValues().get(0).getBooleanValue());
+        Optional<? extends CPlainAttr> conf = confDAO.find("selfRegistration.allowed");
+        assertTrue(conf.isPresent());
+        assertTrue(conf.get().getValues().get(0).getBooleanValue());
 
         conf = confDAO.find("authentication.statuses");
-        assertNotNull(conf);
-        assertEquals(2, conf.getValues().size());
+        assertTrue(conf.isPresent());
+        assertEquals(2, conf.get().getValues().size());
 
         conf = confDAO.find("non.existing");
-        assertNull(conf);
+        assertFalse(conf.isPresent());
     }
 
     private void add(final CPlainAttr newAttr, final String value) {
@@ -88,8 +88,8 @@ public class ConfTest extends AbstractTest {
         add(newConf, "2014-06-20");
         confDAO.save(newConf);
 
-        CPlainAttr actual = confDAO.find("useless");
-        assertEquals(actual.getValuesAsStrings(), newConf.getValuesAsStrings());
+        Optional<? extends CPlainAttr> actual = confDAO.find("useless");
+        assertEquals(actual.get().getValuesAsStrings(), newConf.getValuesAsStrings());
 
         // 3. update conf
         newConf.getValues().clear();
@@ -97,11 +97,11 @@ public class ConfTest extends AbstractTest {
         confDAO.save(newConf);
 
         actual = confDAO.find("useless");
-        assertEquals(actual.getValuesAsStrings(), newConf.getValuesAsStrings());
+        assertEquals(actual.get().getValuesAsStrings(), newConf.getValuesAsStrings());
 
         // 4. delete conf
         confDAO.delete("useless");
-        assertNull(confDAO.find("useless"));
+        assertFalse(confDAO.find("useless").isPresent());
     }
 
     @Test

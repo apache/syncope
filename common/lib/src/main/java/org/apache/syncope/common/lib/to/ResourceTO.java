@@ -23,14 +23,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import javax.ws.rs.PathParam;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
@@ -186,14 +185,10 @@ public class ResourceTO extends AbstractBaseBean implements EntityTO {
     }
 
     @JsonIgnore
-    public ProvisionTO getProvision(final String anyType) {
-        return IterableUtils.find(provisions, new Predicate<ProvisionTO>() {
-
-            @Override
-            public boolean evaluate(final ProvisionTO provisionTO) {
-                return anyType != null && anyType.equals(provisionTO.getAnyType());
-            }
-        });
+    public Optional<ProvisionTO> getProvision(final String anyType) {
+        return provisions.stream().filter(
+                provision -> anyType != null && anyType.equals(provision.getAnyType())).
+                findFirst();
     }
 
     @XmlElementWrapper(name = "provisions")

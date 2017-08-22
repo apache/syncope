@@ -18,12 +18,10 @@
  */
 package org.apache.syncope.client.console.commons;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.status.ConnObjectWrapper;
 import org.apache.syncope.client.console.commons.status.StatusBean;
@@ -109,23 +107,19 @@ public class ResourceStatusDataProvider extends DirectoryDataProvider<StatusBean
         List<? extends AnyTO> result =
                 restClient.search(realm, fiql, (page < 0 ? 0 : page) + 1, paginatorRows, getSort(), type);
 
-        List<StatusBean> res = CollectionUtils.collect(result, new Transformer<AnyTO, StatusBean>() {
+        List<StatusBean> statuses = result.stream().map(any -> {
+            List<ConnObjectWrapper> connObjects =
+                    statusUtils.getConnectorObjects(any, Collections.singletonList(resource));
 
-            @Override
-            public StatusBean transform(final AnyTO input) {
-                final List<ConnObjectWrapper> connObjects =
-                        statusUtils.getConnectorObjects(input, Collections.singletonList(resource));
+            return statusUtils.getStatusBean(
+                    any,
+                    resource,
+                    connObjects.isEmpty() ? null : connObjects.iterator().next().getConnObjectTO(),
+                    any instanceof GroupTO);
+        }).collect(Collectors.toList());
 
-                return statusUtils.getStatusBean(
-                        input,
-                        resource,
-                        connObjects.isEmpty() ? null : connObjects.iterator().next().getConnObjectTO(),
-                        input instanceof GroupTO);
-            }
-        }, new ArrayList<StatusBean>());
-
-        Collections.sort(res, comparator);
-        return res.iterator();
+        Collections.sort(statuses, comparator);
+        return statuses.iterator();
     }
 
     @Override

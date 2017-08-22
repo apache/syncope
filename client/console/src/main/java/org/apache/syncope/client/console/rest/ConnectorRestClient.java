@@ -22,11 +22,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.ws.rs.core.Response;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
-import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -71,14 +69,8 @@ public class ConnectorRestClient extends BaseRestClient {
         ConnectorService service = getService(ConnectorService.class);
         ConnInstanceTO connInstance = service.read(connectorKey, SyncopeConsoleSession.get().getLocale().getLanguage());
         if (connInstance != null) {
-            CollectionUtils.collect(service.buildObjectClassInfo(connInstance, true),
-                    new Transformer<ConnIdObjectClassTO, String>() {
-
-                @Override
-                public String transform(final ConnIdObjectClassTO input) {
-                    return input.getType();
-                }
-            }, result);
+            result.addAll(service.buildObjectClassInfo(connInstance, true).stream().
+                    map(input -> input.getType()).collect(Collectors.toList()));
         }
 
         return result;
@@ -92,16 +84,11 @@ public class ConnectorRestClient extends BaseRestClient {
         connInstanceTO.getConf().addAll(conf);
 
         // SYNCOPE-156: use provided info to give schema names (and type!) by ObjectClass
-        ConnIdObjectClassTO connIdObjectClass = IterableUtils.find(
-                buildObjectClassInfo(connInstanceTO, false), new Predicate<ConnIdObjectClassTO>() {
+        Optional<ConnIdObjectClassTO> connIdObjectClass = buildObjectClassInfo(connInstanceTO, false).stream().
+                filter(object -> object.getType().equalsIgnoreCase(objectClass)).
+                findAny();
 
-            @Override
-            public boolean evaluate(final ConnIdObjectClassTO object) {
-                return object.getType().equalsIgnoreCase(objectClass);
-            }
-        });
-
-        return connIdObjectClass == null ? new ArrayList<String>() : connIdObjectClass.getAttributes();
+        return connIdObjectClass.isPresent() ? connIdObjectClass.get().getAttributes() : new ArrayList<>();
     }
 
     /**
@@ -152,22 +139,23 @@ public class ConnectorRestClient extends BaseRestClient {
     private List<ConnConfProperty> filterProperties(final Collection<ConnConfProperty> properties) {
         List<ConnConfProperty> newProperties = new ArrayList<>();
 
-        for (ConnConfProperty property : properties) {
+        properties.stream().map(property -> {
             ConnConfProperty prop = new ConnConfProperty();
             prop.setSchema(property.getSchema());
             prop.setOverridable(property.isOverridable());
-
             final List<Object> parsed = new ArrayList<>();
             if (property.getValues() != null) {
-                for (Object obj : property.getValues()) {
-                    if (obj != null && !obj.toString().isEmpty()) {
-                        parsed.add(obj);
-                    }
-                }
+                property.getValues().stream().
+                        filter(obj -> (obj != null && !obj.toString().isEmpty())).
+                        forEachOrdered((obj) -> {
+                            parsed.add(obj);
+                        });
             }
             prop.getValues().addAll(parsed);
+            return prop;
+        }).forEachOrdered(prop -> {
             newProperties.add(prop);
-        }
+        });
         return newProperties;
     }
 

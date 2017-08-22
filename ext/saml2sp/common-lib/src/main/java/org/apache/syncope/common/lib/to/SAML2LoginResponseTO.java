@@ -22,13 +22,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.AbstractBaseBean;
 
 @XmlRootElement(name = "saml2LoginResponse")
@@ -128,14 +127,8 @@ public class SAML2LoginResponseTO extends AbstractBaseBean {
     }
 
     @JsonIgnore
-    public AttrTO getAttr(final String schema) {
-        return IterableUtils.find(attrs, new Predicate<AttrTO>() {
-
-            @Override
-            public boolean evaluate(final AttrTO object) {
-                return object.getSchema().equals(schema);
-            }
-        });
+    public Optional<AttrTO> getAttr(final String schema) {
+        return attrs.stream().filter(attr -> attr.getSchema().equals(schema)).findFirst();
     }
 
     @XmlElementWrapper(name = "attrs")

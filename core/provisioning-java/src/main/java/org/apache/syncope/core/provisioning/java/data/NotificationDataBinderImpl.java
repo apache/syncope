@@ -18,10 +18,8 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
-import java.util.Map;
 import java.util.regex.Matcher;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Predicate;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -70,9 +68,9 @@ public class NotificationDataBinderImpl implements NotificationDataBinder {
 
         BeanUtils.copyProperties(notification, result, IGNORE_PROPERTIES);
 
-        for (AnyAbout about : notification.getAbouts()) {
+        notification.getAbouts().forEach(about -> {
             result.getAbouts().put(about.getAnyType().getKey(), about.get());
-        }
+        });
 
         return result;
     }
@@ -101,13 +99,13 @@ public class NotificationDataBinderImpl implements NotificationDataBinder {
         }
 
         if (!notification.getStaticRecipients().isEmpty()) {
-            for (String mail : notification.getStaticRecipients()) {
+            notification.getStaticRecipients().forEach(mail -> {
                 Matcher matcher = SyncopeConstants.EMAIL_PATTERN.matcher(mail);
                 if (!matcher.matches()) {
                     LOG.error("Invalid mail address: {}", mail);
                     sce.getElements().add("staticRecipients: " + mail);
                 }
-            }
+            });
         }
 
         if (!sce.isEmpty()) {
@@ -115,33 +113,30 @@ public class NotificationDataBinderImpl implements NotificationDataBinder {
         }
 
         // 1. add or update all (valid) abouts from TO
-        for (Map.Entry<String, String> entry : notificationTO.getAbouts().entrySet()) {
-            if (StringUtils.isNotBlank(entry.getValue())) {
-                AnyType anyType = anyTypeDAO.find(entry.getKey());
-                if (anyType == null) {
-                    LOG.debug("Invalid AnyType {} specified, ignoring...", entry.getKey());
-                } else {
-                    AnyAbout about = notification.getAbout(anyType);
-                    if (about == null) {
-                        about = entityFactory.newEntity(AnyAbout.class);
-                        about.setAnyType(anyType);
-                        about.setNotification(notification);
+        notificationTO.getAbouts().entrySet().stream().
+                filter(entry -> StringUtils.isNotBlank(entry.getValue())).
+                forEachOrdered((entry) -> {
 
-                        notification.add(about);
+                    AnyType anyType = anyTypeDAO.find(entry.getKey());
+                    if (anyType == null) {
+                        LOG.debug("Invalid AnyType {} specified, ignoring...", entry.getKey());
+                    } else {
+                        AnyAbout about = notification.getAbout(anyType).orElse(null);
+                        if (about == null) {
+                            about = entityFactory.newEntity(AnyAbout.class);
+                            about.setAnyType(anyType);
+                            about.setNotification(notification);
+
+                            notification.add(about);
+                        }
+                        about.set(entry.getValue());
                     }
-                    about.set(entry.getValue());
-                }
-            }
-        }
+                });
 
         // 2. remove all abouts not contained in the TO
-        CollectionUtils.filter(notification.getAbouts(), new Predicate<AnyAbout>() {
-
-            @Override
-            public boolean evaluate(final AnyAbout anyAbout) {
-                return notificationTO.getAbouts().containsKey(anyAbout.getAnyType().getKey());
-            }
-        });
+        notification.getAbouts().removeAll(notification.getAbouts().stream().
+                filter(anyAbout -> !notificationTO.getAbouts().containsKey(anyAbout.getAnyType().getKey())).
+                collect(Collectors.toList()));
 
         // 3. verify recipientAttrName
         intAttrNameParser.parse(notification.getRecipientAttrName(), AnyTypeKind.USER);

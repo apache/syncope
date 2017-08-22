@@ -27,8 +27,7 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Set;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.ItemTO;
@@ -100,13 +99,7 @@ public class SAML2IdPLogic extends AbstractSAML2Logic<SAML2IdPTO> {
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public List<SAML2IdPTO> list() {
-        return CollectionUtils.collect(idpDAO.findAll(), new Transformer<SAML2IdP, SAML2IdPTO>() {
-
-            @Override
-            public SAML2IdPTO transform(final SAML2IdP input) {
-                return complete(input, binder.getIdPTO(input));
-            }
-        }, new ArrayList<SAML2IdPTO>());
+        return idpDAO.findAll().stream().map(idp -> complete(idp, binder.getIdPTO(idp))).collect(Collectors.toList());
     }
 
     @PreAuthorize("hasRole('" + SAML2SPEntitlement.IDP_READ + "')")

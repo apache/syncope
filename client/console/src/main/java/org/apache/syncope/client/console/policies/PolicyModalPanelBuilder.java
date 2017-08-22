@@ -20,8 +20,7 @@ package org.apache.syncope.client.console.policies;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
@@ -41,7 +40,7 @@ import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
 import org.apache.syncope.common.lib.policy.AccountPolicyTO;
 import org.apache.syncope.common.lib.policy.PasswordPolicyTO;
-import org.apache.syncope.common.lib.to.ResourceTO;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.wicket.Component;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -82,15 +81,7 @@ public class PolicyModalPanelBuilder<T extends AbstractPolicyTO> extends Abstrac
 
             @Override
             protected List<String> load() {
-                return CollectionUtils.collect(
-                        new ResourceRestClient().list(),
-                        new Transformer<ResourceTO, String>() {
-
-                    @Override
-                    public String transform(final ResourceTO input) {
-                        return input.getKey();
-                    }
-                }, new ArrayList<String>());
+                return new ResourceRestClient().list().stream().map(EntityTO::getKey).collect(Collectors.toList());
             }
         };
 
@@ -103,7 +94,7 @@ public class PolicyModalPanelBuilder<T extends AbstractPolicyTO> extends Abstrac
             final List<Component> fields = new ArrayList<>();
 
             FieldPanel<String> description = new AjaxTextFieldPanel("field", "description",
-                    new PropertyModel<String>(policyTO, "description"), false);
+                    new PropertyModel<>(policyTO, "description"), false);
             description.setRequired(true);
             fields.add(description);
 
@@ -117,7 +108,7 @@ public class PolicyModalPanelBuilder<T extends AbstractPolicyTO> extends Abstrac
                 fields.add(new AjaxCheckBoxPanel(
                         "field",
                         "propagateSuspension",
-                        new PropertyModel<Boolean>(policyTO, "propagateSuspension"),
+                        new PropertyModel<>(policyTO, "propagateSuspension"),
                         false));
 
                 fields.add(new AjaxPalettePanel.Builder<String>().setName("passthroughResources").build(
@@ -136,7 +127,7 @@ public class PolicyModalPanelBuilder<T extends AbstractPolicyTO> extends Abstrac
                 fields.add(new AjaxCheckBoxPanel(
                         "field",
                         "allowNullPassword",
-                        new PropertyModel<Boolean>(policyTO, "allowNullPassword"),
+                        new PropertyModel<>(policyTO, "allowNullPassword"),
                         false));
             }
 

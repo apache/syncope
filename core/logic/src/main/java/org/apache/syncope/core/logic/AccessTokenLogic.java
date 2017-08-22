@@ -21,13 +21,11 @@ package org.apache.syncope.core.logic;
 import static org.apache.syncope.core.logic.AbstractLogic.LOG;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.annotation.Resource;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.AccessTokenTO;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
@@ -115,14 +113,8 @@ public class AccessTokenLogic extends AbstractTransactionalLogic<AccessTokenTO> 
             final int size,
             final List<OrderByClause> orderByClauses) {
 
-        return CollectionUtils.collect(accessTokenDAO.findAll(page, size, orderByClauses),
-                new Transformer<AccessToken, AccessTokenTO>() {
-
-            @Override
-            public AccessTokenTO transform(final AccessToken input) {
-                return binder.getAccessTokenTO(input);
-            }
-        }, new ArrayList<AccessTokenTO>());
+        return accessTokenDAO.findAll(page, size, orderByClauses).stream().
+                map(accessToken -> binder.getAccessTokenTO(accessToken)).collect(Collectors.toList());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.ACCESS_TOKEN_DELETE + "')")

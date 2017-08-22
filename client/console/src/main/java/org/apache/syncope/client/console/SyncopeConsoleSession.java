@@ -30,8 +30,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MediaType;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.commons.collections4.list.SetUniqueList;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.FastDateFormat;
@@ -81,7 +79,7 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
 
     private String domain;
 
-    private final Map<Class<?>, Object> services = Collections.synchronizedMap(new HashMap<Class<?>, Object>());
+    private final Map<Class<?>, Object> services = Collections.synchronizedMap(new HashMap<>());
 
     private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(5, THREAD_POOL_FACTORY);
 
@@ -221,9 +219,9 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
     public List<String> getAuthRealms() {
         List<String> sortable = new ArrayList<>();
         List<String> available = SetUniqueList.setUniqueList(sortable);
-        for (Map.Entry<String, Set<String>> entitlement : auth.entrySet()) {
+        auth.entrySet().forEach(entitlement -> {
             available.addAll(entitlement.getValue());
-        }
+        });
         Collections.sort(sortable);
         return sortable;
     }
@@ -238,14 +236,8 @@ public class SyncopeConsoleSession extends AuthenticatedWebSession {
         }
 
         for (String entitlement : entitlements.split(",")) {
-            if (auth != null && auth.containsKey(entitlement)
-                    && (realm == null || IterableUtils.matchesAny(auth.get(entitlement), new Predicate<String>() {
-
-                        @Override
-                        public boolean evaluate(final String ownedRealm) {
-                            return realm.startsWith(ownedRealm);
-                        }
-                    }))) {
+            if (auth != null && auth.containsKey(entitlement) && (realm == null
+                    || auth.get(entitlement).stream().anyMatch(ownedRealm -> realm.startsWith(ownedRealm)))) {
                 return true;
             }
         }

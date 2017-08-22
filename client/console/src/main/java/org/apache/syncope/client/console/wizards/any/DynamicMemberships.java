@@ -18,15 +18,12 @@
  */
 package org.apache.syncope.client.console.wizards.any;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Predicate;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.panels.search.AnyObjectSearchPanel;
 import org.apache.syncope.client.console.panels.search.MapOfListModel;
-import org.apache.syncope.client.console.panels.search.SearchClause;
 import org.apache.syncope.client.console.panels.search.UserSearchPanel;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.tabs.Accordion;
@@ -59,13 +56,9 @@ public class DynamicMemberships extends WizardStep {
 
             @Override
             protected List<AnyTypeTO> load() {
-                return CollectionUtils.select(anyTypeRestClient.listAnyTypes(), new Predicate<AnyTypeTO>() {
-
-                    @Override
-                    public boolean evaluate(final AnyTypeTO t) {
-                        return AnyTypeKind.USER != t.getKind() && AnyTypeKind.GROUP != t.getKind();
-                    }
-                }, new ArrayList<AnyTypeTO>());
+                return anyTypeRestClient.listAnyTypes().stream().
+                        filter(type -> AnyTypeKind.USER != type.getKind() && AnyTypeKind.GROUP != type.getKind()).
+                        collect(Collectors.toList());
             }
         };
 
@@ -79,7 +72,7 @@ public class DynamicMemberships extends WizardStep {
 
             @Override
             public Panel getPanel(final String panelId) {
-                return new UserSearchPanel.Builder(new PropertyModel<List<SearchClause>>(groupWrapper, "uDynClauses")).
+                return new UserSearchPanel.Builder(new PropertyModel<>(groupWrapper, "uDynClauses")).
                         required(true).build(panelId);
             }
         }), Model.of(StringUtils.isBlank(groupWrapper.getUDynMembershipCond()) ? -1 : 0)).setOutputMarkupId(true));
@@ -104,7 +97,7 @@ public class DynamicMemberships extends WizardStep {
                     @Override
                     public Panel getPanel(final String panelId) {
                         return new AnyObjectSearchPanel.Builder(
-                                key, new MapOfListModel<SearchClause>(groupWrapper, "aDynClauses", key)).
+                                key, new MapOfListModel<>(groupWrapper, "aDynClauses", key)).
                                 required(false).build(panelId);
                     }
                 }), Model.of(StringUtils.isBlank(groupWrapper.getADynMembershipConds().get(key)) ? -1 : 0))

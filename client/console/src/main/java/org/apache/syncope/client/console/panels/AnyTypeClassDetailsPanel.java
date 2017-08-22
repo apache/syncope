@@ -18,11 +18,9 @@
  */
 package org.apache.syncope.client.console.panels;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
+import java.util.stream.Collectors;
 import org.apache.syncope.client.console.rest.AnyTypeClassRestClient;
 import org.apache.syncope.client.console.rest.ConfRestClient;
 import org.apache.syncope.client.console.rest.SchemaRestClient;
@@ -66,7 +64,7 @@ public class AnyTypeClassDetailsPanel extends Panel {
         antTypeClassForm.setOutputMarkupId(true);
         add(antTypeClassForm);
 
-        final AjaxTextFieldPanel key = new AjaxTextFieldPanel("key", getString("key"), new PropertyModel<String>(
+        final AjaxTextFieldPanel key = new AjaxTextFieldPanel("key", getString("key"), new PropertyModel<>(
                 this.anyTypeClassTO, "key"));
         key.addRequiredLabel();
         key.setEnabled(anyTypeClassTO.getKey() == null || this.anyTypeClassTO.getKey().isEmpty());
@@ -109,22 +107,16 @@ public class AnyTypeClassDetailsPanel extends Panel {
 
     private void buildAvailableSchemas(final String key) {
 
-        List<String> configurationSchemas = new ArrayList<>();
-        CollectionUtils.collect(new ConfRestClient().list(), new Transformer<AttrTO, String>() {
+        List<String> configurationSchemas = new ConfRestClient().list().stream().
+                map(AttrTO::getSchema).collect(Collectors.toList());
 
-            @Override
-            public String transform(final AttrTO attrTO) {
-                return attrTO.getSchema();
-            }
-        }, configurationSchemas);
-
-        for (AnyTypeClassTO item : new AnyTypeClassRestClient().list()) {
-            if (key == null || !item.getKey().equals(key)) {
-                availablePlainSchemas.removeAll(item.getPlainSchemas());
-                availableDerSchemas.removeAll(item.getDerSchemas());
-                availableVirSchemas.removeAll(item.getVirSchemas());
-            }
-        }
+        new AnyTypeClassRestClient().list().stream().
+                filter(item -> key == null || !item.getKey().equals(key)).
+                forEach(item -> {
+                    availablePlainSchemas.removeAll(item.getPlainSchemas());
+                    availableDerSchemas.removeAll(item.getDerSchemas());
+                    availableVirSchemas.removeAll(item.getVirSchemas());
+                });
 
         availablePlainSchemas.removeAll(configurationSchemas);
         availablePlainSchemas.removeAll(LAYOUT_PARAMETERS);

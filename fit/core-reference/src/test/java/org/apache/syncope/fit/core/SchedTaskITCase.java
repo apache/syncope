@@ -28,11 +28,9 @@ import static org.junit.Assert.fail;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.ws.rs.core.Response;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.time.DateUtils;
-import org.apache.syncope.common.lib.to.AbstractTaskTO;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PushTaskTO;
@@ -62,11 +60,11 @@ public class SchedTaskITCase extends AbstractTaskITCase {
         PagedResult<SchedTaskTO> tasks =
                 taskService.list(new TaskQuery.Builder(TaskType.SCHEDULED).build());
         assertFalse(tasks.getResult().isEmpty());
-        for (AbstractTaskTO task : tasks.getResult()) {
-            if (!(task instanceof SchedTaskTO) || task instanceof PullTaskTO || task instanceof PushTaskTO) {
-                fail();
-            }
-        }
+        tasks.getResult().stream().filter(
+                task -> !(task instanceof SchedTaskTO) || task instanceof PullTaskTO || task instanceof PushTaskTO).
+                forEachOrdered(item -> {
+                    fail();
+                });
     }
 
     @Test
@@ -183,14 +181,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
                 // ignore
             }
 
-            jobs = taskService.listJobs();
-            CollectionUtils.filter(jobs, new Predicate<JobTO>() {
-
-                @Override
-                public boolean evaluate(final JobTO job) {
-                    return job.isRunning();
-                }
-            });
+            jobs = taskService.listJobs().stream().filter(job -> job.isRunning()).collect(Collectors.toList());
             i++;
         } while (jobs.size() < 1 && i < maxit);
 
@@ -208,14 +199,7 @@ public class SchedTaskITCase extends AbstractTaskITCase {
                 // ignore
             }
 
-            jobs = taskService.listJobs();
-            CollectionUtils.filter(jobs, new Predicate<JobTO>() {
-
-                @Override
-                public boolean evaluate(final JobTO job) {
-                    return job.isRunning();
-                }
-            });
+            jobs = taskService.listJobs().stream().filter(job -> job.isRunning()).collect(Collectors.toList());
             i++;
         } while (jobs.size() >= 1 && i < maxit);
 

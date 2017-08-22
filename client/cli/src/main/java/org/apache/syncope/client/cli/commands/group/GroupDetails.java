@@ -18,9 +18,9 @@
  */
 package org.apache.syncope.client.cli.commands.group;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.collections4.map.LinkedMap;
 import org.apache.syncope.client.cli.Input;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -43,7 +43,7 @@ public class GroupDetails extends AbstractGroupCommand {
     public void details() {
         if (input.parameterNumber() == 0) {
             try {
-                final Map<String, String> details = new LinkedMap<>();
+                final Map<String, String> details = new LinkedHashMap<>();
                 final List<GroupTO> groupTOs = groupSyncopeOperations.list();
                 int withoudResources = 0;
                 int withoudAttributes = 0;

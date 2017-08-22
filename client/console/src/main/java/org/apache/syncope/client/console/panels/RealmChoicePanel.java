@@ -33,8 +33,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
@@ -100,10 +98,10 @@ public class RealmChoicePanel extends Panel {
 
                 if (tree.containsKey(key)) {
                     Pair<RealmTO, List<RealmTO>> subtree = tree.get(key);
-                    for (RealmTO child : subtree.getValue()) {
+                    subtree.getValue().forEach(child -> {
                         full.add(Pair.of(indent + child.getName(), child));
                         getChildren(full, child.getKey(), tree, "     " + indent + (indent.isEmpty() ? "|--- " : ""));
-                    }
+                    });
                 }
             }
 
@@ -124,20 +122,17 @@ public class RealmChoicePanel extends Panel {
 
             @Override
             protected List<DynRealmTO> load() {
-                final List<DynRealmTO> dynRealms = realmRestClient.listDynReams();
-                dynRealms.sort(new Comparator<DynRealmTO>() {
-
-                    @Override
-                    public int compare(final DynRealmTO left, final DynRealmTO right) {
-                        if (left == null) {
-                            return -1;
-                        } else if (right == null) {
-                            return 1;
-                        } else {
-                            return left.getKey().compareTo(right.getKey());
-                        }
+                List<DynRealmTO> dynRealms = realmRestClient.listDynReams();
+                dynRealms.sort((left, right) -> {
+                    if (left == null) {
+                        return -1;
+                    } else if (right == null) {
+                        return 1;
+                    } else {
+                        return left.getKey().compareTo(right.getKey());
                     }
                 });
+
                 return dynRealms;
             }
         };
@@ -221,13 +216,8 @@ public class RealmChoicePanel extends Panel {
 
                         @Override
                         public boolean isEnabled() {
-                            return IterableUtils.matchesAny(availableRealms, new Predicate<String>() {
-
-                                @Override
-                                public boolean evaluate(final String availableRealm) {
-                                    return realmTO.getFullPath().startsWith(availableRealm);
-                                }
-                            });
+                            return availableRealms.stream().
+                                    anyMatch(availableRealm -> realmTO.getFullPath().startsWith(availableRealm));
                         }
                     });
                 }
@@ -283,13 +273,9 @@ public class RealmChoicePanel extends Panel {
 
                             @Override
                             public boolean isEnabled() {
-                                return IterableUtils.matchesAny(availableRealms, new Predicate<String>() {
-
-                                    @Override
-                                    public boolean evaluate(final String availableRealm) {
-                                        return SyncopeConstants.ROOT_REALM.equals(availableRealm)
-                                                || realmTO.getKey().equals(availableRealm);
-                                    }
+                                return availableRealms.stream().anyMatch(availableRealm -> {
+                                    return SyncopeConstants.ROOT_REALM.equals(availableRealm)
+                                            || realmTO.getKey().equals(availableRealm);
                                 });
                             }
                         });
@@ -328,11 +314,11 @@ public class RealmChoicePanel extends Panel {
 
     private Map<String, Pair<RealmTO, List<RealmTO>>> reloadRealmParentMap(final List<RealmTO> realms) {
         tree.clear();
-        tree.put(null, Pair.<RealmTO, List<RealmTO>>of(realms.get(0), new ArrayList<RealmTO>()));
+        tree.put(null, Pair.<RealmTO, List<RealmTO>>of(realms.get(0), new ArrayList<>()));
 
         final Map<String, List<RealmTO>> cache = new HashMap<>();
 
-        for (RealmTO realm : realms) {
+        realms.forEach(realm -> {
             final List<RealmTO> children = new ArrayList<>();
             tree.put(realm.getKey(), Pair.<RealmTO, List<RealmTO>>of(realm, children));
 
@@ -348,7 +334,7 @@ public class RealmChoicePanel extends Panel {
             } else {
                 cache.put(realm.getParent(), new ArrayList<>(Collections.singleton(realm)));
             }
-        }
+        });
 
         return tree;
     }

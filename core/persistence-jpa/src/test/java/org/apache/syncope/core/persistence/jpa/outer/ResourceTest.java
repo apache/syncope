@@ -24,11 +24,10 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
@@ -40,7 +39,7 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
-import org.apache.syncope.core.persistence.api.entity.VirSchema;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
@@ -156,7 +155,7 @@ public class ResourceTest extends AbstractTest {
         // save the resource
         ExternalResource actual = resourceDAO.save(resource);
         assertNotNull(actual);
-        assertNotNull(actual.getProvision(anyTypeDAO.findUser()).getMapping());
+        assertNotNull(actual.getProvision(anyTypeDAO.findUser()).get().getMapping());
 
         resourceDAO.flush();
         resourceDAO.detach(actual);
@@ -184,7 +183,7 @@ public class ResourceTest extends AbstractTest {
         assertTrue(resource.getConnector().equals(connector));
 
         // check mappings
-        List<? extends MappingItem> items = resource.getProvision(anyTypeDAO.findUser()).getMapping().getItems();
+        List<? extends MappingItem> items = resource.getProvision(anyTypeDAO.findUser()).get().getMapping().getItems();
         assertNotNull(items);
         assertEquals(5, items.size());
 
@@ -213,10 +212,7 @@ public class ResourceTest extends AbstractTest {
         List<User> users = userDAO.findByResource(resource);
         assertNotNull(users);
 
-        Set<String> userKeys = new HashSet<>();
-        for (User user : users) {
-            userKeys.add(user.getKey());
-        }
+        Set<String> userKeys = users.stream().map(Entity::getKey).collect(Collectors.toSet());
         // -------------------------------------
 
         // Get tasks
@@ -235,57 +231,50 @@ public class ResourceTest extends AbstractTest {
         assertNull("delete did not work", actual);
 
         // resource must be not referenced any more from users
-        for (String key : userKeys) {
-            User actualUser = userDAO.find(key);
-            assertNotNull(actualUser);
-            for (ExternalResource res : userDAO.findAllResources(actualUser)) {
-                assertFalse(res.getKey().equalsIgnoreCase(resource.getKey()));
-            }
-        }
+        userKeys.stream().
+                map(key -> userDAO.find(key)).
+                map(actualUser -> {
+                    assertNotNull(actualUser);
+                    return actualUser;
+                }).forEachOrdered((actualUser) -> {
+            userDAO.findAllResources(actualUser).
+                    forEach(res -> assertFalse(res.getKey().equalsIgnoreCase(resource.getKey())));
+        });
 
         // resource must be not referenced any more from the connector
         ConnInstance actualConnector = connInstanceDAO.find(connector.getKey());
         assertNotNull(actualConnector);
-        for (ExternalResource res : actualConnector.getResources()) {
-            assertFalse(res.getKey().equalsIgnoreCase(resource.getKey()));
-        }
+        actualConnector.getResources().
+                forEach(res -> assertFalse(res.getKey().equalsIgnoreCase(resource.getKey())));
 
         // there must be no tasks
-        for (PropagationTask task : propagationTasks) {
-            assertNull(taskDAO.find(task.getKey()));
-        }
+        propagationTasks.forEach(task -> assertNull(taskDAO.find(task.getKey())));
     }
 
     @Test
     public void emptyMapping() {
         ExternalResource ldap = resourceDAO.find("resource-ldap");
         assertNotNull(ldap);
-        assertNotNull(ldap.getProvision(anyTypeDAO.findUser()).getMapping());
-        assertNotNull(ldap.getProvision(anyTypeDAO.findGroup()).getMapping());
+        assertNotNull(ldap.getProvision(anyTypeDAO.findUser()).get().getMapping());
+        assertNotNull(ldap.getProvision(anyTypeDAO.findGroup()).get().getMapping());
 
         // need to avoid any class not defined in this Maven module
         ldap.getPropagationActionsClassNames().clear();
 
-        List<? extends MappingItem> items = ldap.getProvision(anyTypeDAO.findGroup()).getMapping().getItems();
+        List<? extends MappingItem> items = ldap.getProvision(anyTypeDAO.findGroup()).get().getMapping().getItems();
         assertNotNull(items);
         assertFalse(items.isEmpty());
-        List<String> itemKeys = new ArrayList<>(items.size());
-        for (MappingItem item : items) {
-            itemKeys.add(item.getKey());
-        }
+        List<String> itemKeys = items.stream().map(Entity::getKey).collect(Collectors.toList());
 
-        Provision groupProvision = ldap.getProvision(anyTypeDAO.findGroup());
-        for (VirSchema schema : virSchemaDAO.findByProvision(groupProvision)) {
-            virSchemaDAO.delete(schema.getKey());
-        }
+        Provision groupProvision = ldap.getProvision(anyTypeDAO.findGroup()).get();
+        virSchemaDAO.findByProvision(groupProvision).
+                forEach(schema -> virSchemaDAO.delete(schema.getKey()));
         ldap.getProvisions().remove(groupProvision);
 
         resourceDAO.save(ldap);
         resourceDAO.flush();
 
-        for (String itemKey : itemKeys) {
-            assertNull(entityManager().find(JPAMappingItem.class, itemKey));
-        }
+        itemKeys.forEach(itemKey -> assertNull(entityManager().find(JPAMappingItem.class, itemKey)));
     }
 
     @Test
@@ -314,19 +303,19 @@ public class ResourceTest extends AbstractTest {
         ExternalResource csv = resourceDAO.find("resource-csv");
         assertNotNull(csv);
 
-        int origMapItems = csv.getProvision(anyTypeDAO.findUser()).getMapping().getItems().size();
+        int origMapItems = csv.getProvision(anyTypeDAO.findUser()).get().getMapping().getItems().size();
 
         MappingItem newMapItem = entityFactory.newEntity(MappingItem.class);
         newMapItem.setIntAttrName("TEST");
         newMapItem.setExtAttrName("TEST");
         newMapItem.setPurpose(MappingPurpose.PROPAGATION);
-        csv.getProvision(anyTypeDAO.findUser()).getMapping().add(newMapItem);
+        csv.getProvision(anyTypeDAO.findUser()).get().getMapping().add(newMapItem);
 
         resourceDAO.save(csv);
         resourceDAO.flush();
 
         csv = resourceDAO.find("resource-csv");
         assertNotNull(csv);
-        assertEquals(origMapItems + 1, csv.getProvision(anyTypeDAO.findUser()).getMapping().getItems().size());
+        assertEquals(origMapItems + 1, csv.getProvision(anyTypeDAO.findUser()).get().getMapping().getItems().size());
     }
 }

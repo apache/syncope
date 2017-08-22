@@ -152,7 +152,7 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
                 accountPolicyTO.getRuleConfs().add((AbstractAccountRuleConf) ruleConf);
             }
 
-            accountPolicyTO.getPassthroughResources().addAll(accountPolicy.getResourceNames());
+            accountPolicyTO.getPassthroughResources().addAll(accountPolicy.getResourceKeys());
         } else if (policy instanceof PullPolicy) {
             policyTO = (T) new PullPolicyTO();
             ((PullPolicyTO) policyTO).setSpecification(((PullPolicy) policy).getSpecification());

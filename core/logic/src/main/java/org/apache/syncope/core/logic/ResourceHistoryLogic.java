@@ -19,10 +19,8 @@
 package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
+import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.to.ResourceHistoryConfTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
@@ -64,14 +62,8 @@ public class ResourceHistoryLogic extends AbstractTransactionalLogic<ResourceHis
             throw new NotFoundException("Resource '" + key + "'");
         }
 
-        return CollectionUtils.collect(resourceHistoryConfDAO.findByEntity(resource),
-                new Transformer<ExternalResourceHistoryConf, ResourceHistoryConfTO>() {
-
-            @Override
-            public ResourceHistoryConfTO transform(final ExternalResourceHistoryConf input) {
-                return getResourceHistoryConfTO(input);
-            }
-        }, new ArrayList<ResourceHistoryConfTO>());
+        return resourceHistoryConfDAO.findByEntity(resource).stream().
+                map(historyConf -> getResourceHistoryConfTO(historyConf)).collect(Collectors.toList());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.RESOURCE_HISTORY_RESTORE + "')")

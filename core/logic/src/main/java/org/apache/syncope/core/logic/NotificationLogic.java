@@ -19,10 +19,8 @@
 package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.to.JobTO;
@@ -64,13 +62,8 @@ public class NotificationLogic extends AbstractJobLogic<NotificationTO> {
 
     @PreAuthorize("hasRole('" + StandardEntitlement.NOTIFICATION_LIST + "')")
     public List<NotificationTO> list() {
-        return CollectionUtils.collect(notificationDAO.findAll(), new Transformer<Notification, NotificationTO>() {
-
-            @Override
-            public NotificationTO transform(final Notification input) {
-                return binder.getNotificationTO(input);
-            }
-        }, new ArrayList<NotificationTO>());
+        return notificationDAO.findAll().stream().
+                map(notification -> binder.getNotificationTO(notification)).collect(Collectors.toList());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.NOTIFICATION_CREATE + "')")

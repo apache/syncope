@@ -27,8 +27,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
@@ -156,7 +155,7 @@ public class SchemaTypePanel extends TypesDirectoryPanel<AbstractSchemaTO, Schem
 
             if (clazzField != null) {
                 if (clazzField.getType().equals(Boolean.class) || clazzField.getType().equals(boolean.class)) {
-                    columns.add(new BooleanPropertyColumn<AbstractSchemaTO>(new ResourceModel(field), field, field));
+                    columns.add(new BooleanPropertyColumn<>(new ResourceModel(field), field, field));
                 } else {
                     final IColumn<AbstractSchemaTO, String> column = new PropertyColumn<AbstractSchemaTO, String>(
                             new ResourceModel(field), field, field) {
@@ -254,22 +253,15 @@ public class SchemaTypePanel extends TypesDirectoryPanel<AbstractSchemaTO, Schem
             Collections.sort(list, comparator);
 
             if (SchemaType.PLAIN == this.schemaType) {
-                final List<String> configurations = new ArrayList<>();
-
-                CollectionUtils.collect(confRestClient.list(), new Transformer<AttrTO, String>() {
-
-                    @Override
-                    public String transform(final AttrTO attrTO) {
-                        return attrTO.getSchema();
-                    }
-                }, configurations);
+                final List<String> configurations = confRestClient.list().stream().
+                        map(AttrTO::getSchema).collect(Collectors.toList());
 
                 final List<AbstractSchemaTO> res = new ArrayList<>();
-                for (AbstractSchemaTO item : list) {
-                    if (!configurations.contains(item.getKey())) {
-                        res.add(item);
-                    }
-                }
+                list.stream().
+                        filter(item -> !configurations.contains(item.getKey())).
+                        forEachOrdered(item -> {
+                            res.add(item);
+                        });
                 return res.subList((int) first, (int) first + (int) count).iterator();
             } else {
                 return list.subList((int) first, (int) first + (int) count).iterator();

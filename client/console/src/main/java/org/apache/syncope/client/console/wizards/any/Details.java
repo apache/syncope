@@ -20,8 +20,7 @@ package org.apache.syncope.client.console.wizards.any;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
+import java.util.stream.Collectors;
 import org.apache.syncope.client.console.pages.Realms;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
@@ -57,29 +56,23 @@ public class Details<T extends AnyTO> extends WizardStep {
 
         if (templateMode) {
             realm = new AjaxTextFieldPanel(
-                    "destinationRealm", "destinationRealm", new PropertyModel<String>(inner, "realm"), false);
+                    "destinationRealm", "destinationRealm", new PropertyModel<>(inner, "realm"), false);
             AjaxTextFieldPanel.class.cast(realm).enableJexlHelp();
         } else {
             final List<AbstractLink> realmLinks = Realms.class.cast(pageRef.getPage()).getRealmChoicePanel().getLinks();
             final List<RealmTO> realms = new ArrayList<>();
-            for (AbstractLink link : realmLinks) {
-                Object obj = link.getDefaultModelObject();
-                if (obj instanceof RealmTO) {
-                    realms.add((RealmTO) obj);
-                }
-            }
+            realmLinks.stream().
+                    map(link -> link.getDefaultModelObject()).
+                    filter(obj -> (obj instanceof RealmTO)).
+                    forEachOrdered(obj -> {
+                        realms.add((RealmTO) obj);
+                    });
 
             realm = new AjaxDropDownChoicePanel<>(
-                    "destinationRealm", "destinationRealm", new PropertyModel<String>(inner, "realm"), false);
+                    "destinationRealm", "destinationRealm", new PropertyModel<>(inner, "realm"), false);
 
-            ((AjaxDropDownChoicePanel<String>) realm).setChoices(CollectionUtils.collect(
-                    realms, new Transformer<RealmTO, String>() {
-
-                @Override
-                public String transform(final RealmTO input) {
-                    return input.getFullPath();
-                }
-            }, new ArrayList<String>()));
+            ((AjaxDropDownChoicePanel<String>) realm).setChoices(
+                    realms.stream().map(RealmTO::getFullPath).collect(Collectors.toList()));
         }
         add(realm);
         add(getGeneralStatusInformation("generalStatusInformation", inner).

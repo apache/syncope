@@ -19,8 +19,7 @@
 package org.apache.syncope.common.lib.search;
 
 import java.util.Arrays;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
+import java.util.Optional;
 
 public enum SpecialAttr {
 
@@ -79,14 +78,8 @@ public enum SpecialAttr {
         return literal;
     }
 
-    public static SpecialAttr fromString(final String value) {
-        return IterableUtils.find(Arrays.asList(values()), new Predicate<SpecialAttr>() {
-
-            @Override
-            public boolean evaluate(final SpecialAttr specialAttr) {
-                return specialAttr.literal.equals(value);
-            }
-        });
+    public static Optional<SpecialAttr> fromString(final String value) {
+        return Arrays.stream(values()).filter(specialAttr -> specialAttr.literal.equals(value)).findFirst();
     }
 
 }

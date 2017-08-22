@@ -61,11 +61,11 @@ public class UserRequestValidatorTest {
         assertTrue(UserRequestValidator.compliant(userTO, customForm, true));
 
         // firstname must have only one defaultValue
-        userTO.getPlainAttr("firstname").getValues().add("notAllowedFirstnameValue");
+        userTO.getPlainAttr("firstname").get().getValues().add("notAllowedFirstnameValue");
         assertFalse(UserRequestValidator.compliant(userTO, customForm, true));
         assertTrue(UserRequestValidator.compliant(userTO, customForm, false));
         // clean
-        userTO.getPlainAttr("firstname").getValues().remove("notAllowedFirstnameValue");
+        userTO.getPlainAttr("firstname").get().getValues().remove("notAllowedFirstnameValue");
 
         // derived must not be present
         AttrTO derivedNotAllowed = attrTO("derivedNotAllowed");
@@ -80,7 +80,7 @@ public class UserRequestValidatorTest {
         assertTrue(UserRequestValidator.compliant(userTO, customForm, true));
 
         // with empty form is compliant by definition
-        assertTrue(UserRequestValidator.compliant(userTO, new HashMap<String, CustomAttributesInfo>(), true));
+        assertTrue(UserRequestValidator.compliant(userTO, new HashMap<>(), true));
     }
 
 }

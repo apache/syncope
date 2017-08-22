@@ -19,10 +19,8 @@
 package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.RelationshipTypeTO;
@@ -58,14 +56,8 @@ public class RelationshipTypeLogic extends AbstractTransactionalLogic<Relationsh
 
     @PreAuthorize("hasRole('" + StandardEntitlement.RELATIONSHIPTYPE_LIST + "')")
     public List<RelationshipTypeTO> list() {
-        return CollectionUtils.collect(relationshipTypeDAO.findAll(),
-                new Transformer<RelationshipType, RelationshipTypeTO>() {
-
-            @Override
-            public RelationshipTypeTO transform(final RelationshipType input) {
-                return binder.getRelationshipTypeTO(input);
-            }
-        }, new ArrayList<RelationshipTypeTO>());
+        return relationshipTypeDAO.findAll().stream().
+                map(relationshipType -> binder.getRelationshipTypeTO(relationshipType)).collect(Collectors.toList());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.RELATIONSHIPTYPE_CREATE + "')")

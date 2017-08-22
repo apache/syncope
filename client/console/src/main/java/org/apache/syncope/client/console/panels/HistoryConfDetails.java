@@ -24,9 +24,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.rest.ConnectorRestClient;
@@ -66,14 +64,8 @@ public class HistoryConfDetails<T extends AbstractHistoryConf> extends Multileve
         super();
 
         // remove selected conf from list
-        CollectionUtils.filter(availableHistoryConfTOs, new Predicate<T>() {
-
-            @Override
-            public boolean evaluate(final T object) {
-                return !object.getKey().equals(selectedHistoryConfTO.getKey());
-            }
-        });
-        this.availableHistoryConfTOs = availableHistoryConfTOs;
+        this.availableHistoryConfTOs = availableHistoryConfTOs.stream().
+                filter(object -> object.getKey().equals(selectedHistoryConfTO.getKey())).collect(Collectors.toList());
         this.selectedHistoryConfTO = selectedHistoryConfTO;
 
         // add current conf to list
@@ -81,11 +73,7 @@ public class HistoryConfDetails<T extends AbstractHistoryConf> extends Multileve
 
         Form<?> form = initDropdownDiffConfForm();
         add(form);
-        if (availableHistoryConfTOs.isEmpty()) {
-            form.setVisible(false);
-        } else {
-            form.setVisible(true);
-        }
+        form.setVisible(!availableHistoryConfTOs.isEmpty());
 
         showConfigurationSinglePanel();
     }
@@ -109,9 +97,9 @@ public class HistoryConfDetails<T extends AbstractHistoryConf> extends Multileve
 
     private void showConfigurationDiffPanel(final List<T> historyConfTOs) {
         List<Pair<String, String>> infos = new ArrayList<>();
-        for (T historyConfTO : historyConfTOs) {
+        historyConfTOs.forEach(historyConfTO -> {
             infos.add(getJSONInfo(historyConfTO));
-        }
+        });
 
         jsonPanel = new JsonDiffPanel(null, new PropertyModel<String>(infos.get(0), "value"),
                 new PropertyModel<String>(infos.get(1), "value"), null) {
@@ -170,7 +158,7 @@ public class HistoryConfDetails<T extends AbstractHistoryConf> extends Multileve
         return historyConfMap;
     }
 
-    private Form initDropdownDiffConfForm() {
+    private Form<?> initDropdownDiffConfForm() {
         final Form<T> form = new Form<>("form");
         form.setModel(new CompoundPropertyModel<>(selectedHistoryConfTO));
         form.setOutputMarkupId(true);
@@ -181,7 +169,7 @@ public class HistoryConfDetails<T extends AbstractHistoryConf> extends Multileve
         final AjaxDropDownChoicePanel<String> dropdownElem = new AjaxDropDownChoicePanel<>(
                 "compareDropdown",
                 getString("compare"),
-                new PropertyModel<String>(selectedHistoryConfTO, "key"),
+                new PropertyModel<>(selectedHistoryConfTO, "key"),
                 false);
         dropdownElem.setChoices(keys);
         dropdownElem.setChoiceRenderer(new IChoiceRenderer<String>() {
@@ -217,13 +205,8 @@ public class HistoryConfDetails<T extends AbstractHistoryConf> extends Multileve
                 final String selectedKey = dropdownElem.getModelObject();
                 if (selectedKey != null) {
                     if (!selectedKey.isEmpty()) {
-                        T confToCompare = IterableUtils.find(availableHistoryConfTOs, new Predicate<T>() {
-
-                            @Override
-                            public boolean evaluate(final T object) {
-                                return object.getKey().equals(selectedKey);
-                            }
-                        });
+                        T confToCompare = availableHistoryConfTOs.stream().
+                                filter(object -> object.getKey().equals(selectedKey)).findAny().orElse(null);
                         elemsToCompare.add(confToCompare);
                         showConfigurationDiffPanel(elemsToCompare);
                     } else {

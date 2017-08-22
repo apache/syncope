@@ -24,10 +24,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import javax.ws.rs.Path;
 import javax.ws.rs.container.ContainerRequestContext;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.cxf.BusFactory;
 import org.apache.cxf.common.util.ClasspathScanner;
 import org.apache.cxf.jaxrs.model.ClassResourceInfo;
@@ -84,27 +83,22 @@ public class WadlGenerator extends org.apache.cxf.jaxrs.model.wadl.WadlGenerator
 
                 List<ClassResourceInfo> classResourceInfos = new ArrayList<>();
                 for (final Class<?> beanClass : resourceClasses) {
-                    ClassResourceInfo cri = IterableUtils.find(classResourceInfos, new Predicate<ClassResourceInfo>() {
-
-                        @Override
-                        public boolean evaluate(final ClassResourceInfo cri) {
-                            return cri.isCreatedFromModel() && cri.isRoot()
-                                    && cri.getServiceClass().isAssignableFrom(beanClass);
+                    Optional<ClassResourceInfo> cri = classResourceInfos.stream().filter(c
+                            -> c.isCreatedFromModel() && c.isRoot() && c.getServiceClass().isAssignableFrom(beanClass)).
+                            findFirst();
+                    if (cri.isPresent()) {
+                        if (!InjectionUtils.isConcreteClass(cri.get().getServiceClass())) {
+                            cri = Optional.of(new ClassResourceInfo(cri.get()));
+                            classResourceInfos.add(cri.get());
                         }
-                    });
-                    if (cri != null) {
-                        if (!InjectionUtils.isConcreteClass(cri.getServiceClass())) {
-                            cri = new ClassResourceInfo(cri);
-                            classResourceInfos.add(cri);
-                        }
-                        cri.setResourceClass(beanClass);
+                        cri.get().setResourceClass(beanClass);
                         continue;
                     }
 
-                    cri = ResourceUtils.createClassResourceInfo(
-                            beanClass, beanClass, true, true, BusFactory.getDefaultBus());
-                    if (cri != null) {
-                        classResourceInfos.add(cri);
+                    cri = Optional.ofNullable(ResourceUtils.createClassResourceInfo(
+                            beanClass, beanClass, true, true, BusFactory.getDefaultBus()));
+                    if (cri.isPresent()) {
+                        classResourceInfos.add(cri.get());
                     }
                 }
 

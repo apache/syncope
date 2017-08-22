@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.persistence.jpa.dao;
 
-import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
@@ -26,7 +25,6 @@ import org.apache.syncope.core.provisioning.api.utils.policy.PasswordPolicyExcep
 import org.apache.syncope.core.provisioning.api.utils.policy.PolicyPattern;
 import org.apache.syncope.core.persistence.api.dao.PasswordRule;
 import org.apache.syncope.core.persistence.api.dao.PasswordRuleConfClass;
-import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -45,15 +43,12 @@ public class DefaultPasswordRule implements PasswordRule {
                     PasswordRuleConf.class.getName() + " expected, got " + conf.getClass().getName());
         }
 
-        for (String schema : this.conf.getSchemasNotPermitted()) {
-            PlainAttr<?> attr = user.getPlainAttr(schema);
-            if (attr != null) {
-                List<String> values = attr.getValuesAsStrings();
-                if (values != null && !values.isEmpty()) {
-                    this.conf.getWordsNotPermitted().add(values.get(0));
-                }
-            }
-        }
+        this.conf.getSchemasNotPermitted().stream().
+                map(schema -> user.getPlainAttr(schema)).
+                filter(attr -> attr.isPresent()).
+                map(attr -> attr.get().getValuesAsStrings()).
+                filter(values -> (values != null && !values.isEmpty())).
+                forEachOrdered(values -> this.conf.getWordsNotPermitted().add(values.get(0)));
 
         String clearPassword = user.getClearPassword();
         String password = user.getPassword();
@@ -69,11 +64,11 @@ public class DefaultPasswordRule implements PasswordRule {
             }
 
             // check words not permitted
-            for (String word : this.conf.getWordsNotPermitted()) {
-                if (StringUtils.containsIgnoreCase(clearPassword, word)) {
-                    throw new PasswordPolicyException("Used word(s) not permitted");
-                }
-            }
+            this.conf.getWordsNotPermitted().stream().
+                    filter(word -> StringUtils.containsIgnoreCase(clearPassword, word)).
+                    forEachOrdered(item -> {
+                        throw new PasswordPolicyException("Used word(s) not permitted");
+                    });
 
             // check digits occurrence
             if (this.conf.isDigitRequired() && !checkDigit(clearPassword)) {
@@ -91,18 +86,18 @@ public class DefaultPasswordRule implements PasswordRule {
             }
 
             // check prefix
-            for (String prefix : this.conf.getPrefixesNotPermitted()) {
-                if (clearPassword.startsWith(prefix)) {
-                    throw new PasswordPolicyException("Prefix not permitted");
-                }
-            }
+            this.conf.getPrefixesNotPermitted().stream().
+                    filter(prefix -> clearPassword.startsWith(prefix)).
+                    forEachOrdered(item -> {
+                        throw new PasswordPolicyException("Prefix not permitted");
+                    });
 
             // check suffix
-            for (String suffix : this.conf.getSuffixesNotPermitted()) {
-                if (clearPassword.endsWith(suffix)) {
-                    throw new PasswordPolicyException("Suffix not permitted");
-                }
-            }
+            this.conf.getSuffixesNotPermitted().stream().
+                    filter(suffix -> clearPassword.endsWith(suffix)).
+                    forEachOrdered(item -> {
+                        throw new PasswordPolicyException("Suffix not permitted");
+                    });
 
             // check digit first occurrence
             if (this.conf.isMustStartWithDigit() && !checkFirstDigit(clearPassword)) {

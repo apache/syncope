@@ -19,12 +19,10 @@
 package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -170,15 +168,11 @@ public class TaskLogic extends AbstractExecutableLogic<AbstractTaskTO> {
             final List<OrderByClause> orderByClauses,
             final boolean details) {
 
-        return CollectionUtils.collect(taskDAO.findAll(
+        return taskDAO.findAll(
                 type, resourceDAO.find(resource), notificationDAO.find(notification), anyTypeKind, entityKey,
-                page, size, orderByClauses), new Transformer<Task, T>() {
-
-            @Override
-            public T transform(final Task task) {
-                return (T) binder.getTaskTO(task, taskUtilsFactory.getInstance(type), details);
-            }
-        }, new ArrayList<T>());
+                page, size, orderByClauses).stream().
+                <T>map(task -> binder.getTaskTO(task, taskUtilsFactory.getInstance(type), details)).
+                collect(Collectors.toList());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_READ + "')")
@@ -297,26 +291,15 @@ public class TaskLogic extends AbstractExecutableLogic<AbstractTaskTO> {
             throw new NotFoundException("Task " + key);
         }
 
-        return CollectionUtils.collect(taskExecDAO.findAll(task, page, size, orderByClauses),
-                new Transformer<TaskExec, ExecTO>() {
-
-            @Override
-            public ExecTO transform(final TaskExec taskExec) {
-                return binder.getExecTO(taskExec);
-            }
-        }, new ArrayList<ExecTO>());
+        return taskExecDAO.findAll(task, page, size, orderByClauses).stream().
+                map(taskExec -> binder.getExecTO(taskExec)).collect(Collectors.toList());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_LIST + "')")
     @Override
     public List<ExecTO> listRecentExecutions(final int max) {
-        return CollectionUtils.collect(taskExecDAO.findRecent(max), new Transformer<TaskExec, ExecTO>() {
-
-            @Override
-            public ExecTO transform(final TaskExec taskExec) {
-                return binder.getExecTO(taskExec);
-            }
-        }, new ArrayList<ExecTO>());
+        return taskExecDAO.findRecent(max).stream().
+                map(taskExec -> binder.getExecTO(taskExec)).collect(Collectors.toList());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.TASK_DELETE + "')")
@@ -345,7 +328,7 @@ public class TaskLogic extends AbstractExecutableLogic<AbstractTaskTO> {
 
         BulkActionResult result = new BulkActionResult();
 
-        for (TaskExec exec : taskExecDAO.findAll(task, startedBefore, startedAfter, endedBefore, endedAfter)) {
+        taskExecDAO.findAll(task, startedBefore, startedAfter, endedBefore, endedAfter).forEach(exec -> {
             try {
                 taskExecDAO.delete(exec);
                 result.getResults().put(String.valueOf(exec.getKey()), BulkActionResult.Status.SUCCESS);
@@ -353,7 +336,7 @@ public class TaskLogic extends AbstractExecutableLogic<AbstractTaskTO> {
                 LOG.error("Error deleting execution {} of task {}", exec.getKey(), key, e);
                 result.getResults().put(String.valueOf(exec.getKey()), BulkActionResult.Status.FAILURE);
             }
-        }
+        });
 
         return result;
     }

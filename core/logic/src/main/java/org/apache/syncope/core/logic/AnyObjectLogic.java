@@ -19,13 +19,11 @@
 package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -95,14 +93,8 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
 
         List<AnyObject> matching = searchDAO.search(
                 effectiveRealms, searchCond, page, size, orderBy, AnyTypeKind.ANY_OBJECT);
-        List<AnyObjectTO> result = CollectionUtils.collect(matching, new Transformer<AnyObject, AnyObjectTO>() {
-
-            @Transactional(readOnly = true)
-            @Override
-            public AnyObjectTO transform(final AnyObject input) {
-                return binder.getAnyObjectTO(input, details);
-            }
-        }, new ArrayList<AnyObjectTO>());
+        List<AnyObjectTO> result = matching.stream().
+                map(anyObject -> binder.getAnyObjectTO(anyObject, details)).collect(Collectors.toList());
 
         return Pair.of(count, result);
     }
@@ -184,13 +176,9 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
 
         AnyObjectPatch patch = new AnyObjectPatch();
         patch.setKey(key);
-        patch.getResources().addAll(CollectionUtils.collect(resources, new Transformer<String, StringPatchItem>() {
-
-            @Override
-            public StringPatchItem transform(final String resource) {
-                return new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(resource).build();
-            }
-        }));
+        patch.getResources().addAll(resources.stream().map(resource
+                -> new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(resource).build()).
+                collect(Collectors.toList()));
 
         return binder.getAnyObjectTO(provisioningManager.unlink(patch));
     }
@@ -206,13 +194,9 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
 
         AnyObjectPatch patch = new AnyObjectPatch();
         patch.setKey(key);
-        patch.getResources().addAll(CollectionUtils.collect(resources, new Transformer<String, StringPatchItem>() {
-
-            @Override
-            public StringPatchItem transform(final String resource) {
-                return new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(resource).build();
-            }
-        }));
+        patch.getResources().addAll(resources.stream().map(resource
+                -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(resource).build()).
+                collect(Collectors.toList()));
 
         return binder.getAnyObjectTO(provisioningManager.link(patch));
     }
@@ -230,13 +214,9 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
 
         AnyObjectPatch patch = new AnyObjectPatch();
         patch.setKey(key);
-        patch.getResources().addAll(CollectionUtils.collect(resources, new Transformer<String, StringPatchItem>() {
-
-            @Override
-            public StringPatchItem transform(final String resource) {
-                return new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(resource).build();
-            }
-        }));
+        patch.getResources().addAll(resources.stream().map(resource
+                -> new StringPatchItem.Builder().operation(PatchOperation.DELETE).value(resource).build()).
+                collect(Collectors.toList()));
 
         return update(patch, nullPriorityAsync);
     }
@@ -258,13 +238,9 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
 
         AnyObjectPatch patch = new AnyObjectPatch();
         patch.setKey(key);
-        patch.getResources().addAll(CollectionUtils.collect(resources, new Transformer<String, StringPatchItem>() {
-
-            @Override
-            public StringPatchItem transform(final String resource) {
-                return new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(resource).build();
-            }
-        }));
+        patch.getResources().addAll(resources.stream().map(resource
+                -> new StringPatchItem.Builder().operation(PatchOperation.ADD_REPLACE).value(resource).build()).
+                collect(Collectors.toList()));
 
         return update(patch, nullPriorityAsync);
     }

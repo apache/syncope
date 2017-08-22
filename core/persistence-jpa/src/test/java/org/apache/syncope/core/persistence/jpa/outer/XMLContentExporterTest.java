@@ -22,10 +22,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Predicate;
+import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.commons.lang3.StringUtils;
@@ -50,15 +48,9 @@ public class XMLContentExporterTest extends AbstractTest {
         String exported = baos.toString(Charset.defaultCharset());
         assertTrue(StringUtils.isNotBlank(exported));
 
-        List<String> realms = CollectionUtils.select(
-                IOUtils.readLines(IOUtils.toInputStream(exported, Charset.defaultCharset()), Charset.defaultCharset()),
-                new Predicate<String>() {
-
-            @Override
-            public boolean evaluate(final String row) {
-                return row.startsWith("<REALM");
-            }
-        }, new ArrayList<String>());
+        List<String> realms = IOUtils.readLines(
+                IOUtils.toInputStream(exported, Charset.defaultCharset()), Charset.defaultCharset()).stream().
+                filter(row -> row.startsWith("<REALM")).collect(Collectors.toList());
         assertEquals(4, realms.size());
         assertTrue(realms.get(0).contains("NAME=\"/\""));
         assertTrue(realms.get(1).contains("NAME=\"two\""));

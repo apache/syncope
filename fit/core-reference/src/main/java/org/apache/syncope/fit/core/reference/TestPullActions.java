@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.fit.core.reference;
 
-import org.apache.commons.collections4.IterableUtils;
+import java.util.Optional;
 import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.patch.AttrPatch;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -47,20 +47,14 @@ public class TestPullActions implements PullActions {
         if (entity instanceof AnyTO) {
             AnyTO any = (AnyTO) entity;
 
-            AttrTO attrTO = null;
-            for (int i = 0; i < any.getPlainAttrs().size(); i++) {
-                AttrTO plainAttr = IterableUtils.get(any.getPlainAttrs(), i);
-                if ("fullname".equals(plainAttr.getSchema())) {
-                    attrTO = plainAttr;
-                }
+            Optional<AttrTO> attrTO = any.getPlainAttr("fullname");
+            if (!attrTO.isPresent()) {
+                attrTO = Optional.of(new AttrTO());
+                attrTO.get().setSchema("fullname");
+                any.getPlainAttrs().add(attrTO.get());
             }
-            if (attrTO == null) {
-                attrTO = new AttrTO();
-                attrTO.setSchema("fullname");
-                any.getPlainAttrs().add(attrTO);
-            }
-            attrTO.getValues().clear();
-            attrTO.getValues().add(String.valueOf(counter++));
+            attrTO.get().getValues().clear();
+            attrTO.get().getValues().add(String.valueOf(counter++));
         }
 
         return delta;

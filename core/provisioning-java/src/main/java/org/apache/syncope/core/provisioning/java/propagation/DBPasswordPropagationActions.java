@@ -19,9 +19,8 @@
 package org.apache.syncope.core.provisioning.java.propagation;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
@@ -86,19 +85,13 @@ public class DBPasswordPropagationActions implements PropagationActions {
     }
 
     private String getCipherAlgorithm(final ConnInstance connInstance) {
-        ConnConfProperty cipherAlgorithm =
-                IterableUtils.find(connInstance.getConf(), new Predicate<ConnConfProperty>() {
+        Optional<ConnConfProperty> cipherAlgorithm = connInstance.getConf().stream().
+                filter(property -> "cipherAlgorithm".equals(property.getSchema().getName())
+                && property.getValues() != null && !property.getValues().isEmpty()).findFirst();
 
-                    @Override
-                    public boolean evaluate(final ConnConfProperty property) {
-                        return "cipherAlgorithm".equals(property.getSchema().getName())
-                                && property.getValues() != null && !property.getValues().isEmpty();
-                    }
-                });
-
-        return cipherAlgorithm == null
-                ? CLEARTEXT
-                : (String) cipherAlgorithm.getValues().get(0);
+        return cipherAlgorithm.isPresent()
+                ? (String) cipherAlgorithm.get().getValues().get(0)
+                : CLEARTEXT;
     }
 
     private boolean cipherAlgorithmMatches(final String connectorAlgorithm, final CipherAlgorithm userAlgorithm) {
@@ -111,11 +104,7 @@ public class DBPasswordPropagationActions implements PropagationActions {
         }
 
         // Special check for "SHA" (user sync'd from LDAP)
-        if ("SHA1".equals(connectorAlgorithm) && "SHA".equals(userAlgorithm.name())) {
-            return true;
-        }
-
-        return false;
+        return "SHA1".equals(connectorAlgorithm) && "SHA".equals(userAlgorithm.name());
     }
 
 }

@@ -22,7 +22,6 @@ import de.agilecoders.wicket.core.Bootstrap;
 import de.agilecoders.wicket.core.settings.BootstrapSettings;
 import de.agilecoders.wicket.core.settings.IBootstrapSettings;
 import de.agilecoders.wicket.core.settings.SingleThemeProvider;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -31,7 +30,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
-import org.apache.commons.collections4.CollectionUtils;
+import java.util.stream.Collectors;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.ClassUtils;
@@ -48,10 +47,9 @@ import org.apache.syncope.client.console.resources.WorkflowDefPUTResource;
 import org.apache.syncope.client.console.themes.AdminLTE;
 import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
 import org.apache.syncope.client.lib.SyncopeClientFactoryBean;
-import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.PropertyUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.to.DomainTO;
+import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.rest.api.service.DomainService;
 import org.apache.wicket.Page;
@@ -182,9 +180,8 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
 
         ClassPathScanImplementationLookup lookup = (ClassPathScanImplementationLookup) getServletContext().
                 getAttribute(ConsoleInitializer.CLASSPATH_LOOKUP);
-        for (Class<? extends BasePage> clazz : lookup.getPageClasses()) {
-            MetaDataRoleAuthorizationStrategy.authorize(clazz, SyncopeConsoleSession.AUTHENTICATED);
-        }
+        lookup.getPageClasses().
+                forEach(cls -> MetaDataRoleAuthorizationStrategy.authorize(cls, SyncopeConsoleSession.AUTHENTICATED));
 
         getMarkupSettings().setStripWicketTags(true);
         getMarkupSettings().setCompressWhitespace(true);
@@ -292,12 +289,11 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
     public List<String> getDomains() {
         synchronized (LOG) {
             if (domains == null) {
-                domains = new ArrayList<>();
-                domains.add(SyncopeConstants.MASTER_DOMAIN);
-                CollectionUtils.collect(newClientFactory().create(
+                domains = newClientFactory().create(
                         new AnonymousAuthenticationHandler(anonymousUser, anonymousKey)).
-                        getService(DomainService.class).list(),
-                        EntityTOUtils.<DomainTO>keyTransformer(), domains);
+                        getService(DomainService.class).list().stream().map(EntityTO::getKey).
+                        collect(Collectors.toList());
+                domains.add(0, SyncopeConstants.MASTER_DOMAIN);
                 domains = ListUtils.unmodifiableList(domains);
             }
         }

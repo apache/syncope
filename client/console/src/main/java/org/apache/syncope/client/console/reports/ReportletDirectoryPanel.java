@@ -26,9 +26,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Predicate;
-import org.apache.commons.collections4.Transformer;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -104,7 +102,7 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
     protected List<IColumn<ReportletWrapper, String>> getColumns() {
         final List<IColumn<ReportletWrapper, String>> columns = new ArrayList<>();
 
-        columns.add(new PropertyColumn<ReportletWrapper, String>(
+        columns.add(new PropertyColumn<>(
                 new StringResourceModel("reportlet", this), "name", "name"));
 
         columns.add(new AbstractColumn<ReportletWrapper, String>(
@@ -117,6 +115,7 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
                     final Item<ICellPopulator<ReportletWrapper>> cellItem,
                     final String componentId,
                     final IModel<ReportletWrapper> rowModel) {
+
                 cellItem.add(new Label(componentId, rowModel.getObject().getConf().getClass().getName()));
             }
         });
@@ -164,13 +163,8 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
                 final ReportletConf reportlet = model.getObject().getConf();
                 try {
                     final ReportTO actual = restClient.read(report);
-                    CollectionUtils.filter(actual.getReportletConfs(), new Predicate<ReportletConf>() {
-
-                        @Override
-                        public boolean evaluate(final ReportletConf object) {
-                            return !object.getName().equals(reportlet.getName());
-                        }
-                    });
+                    actual.getReportletConfs().removeAll(actual.getReportletConfs().stream().
+                            filter(conf -> conf.getName().equals(reportlet.getName())).collect(Collectors.toList()));
                     restClient.update(actual);
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     customActionOnFinishCallback(target);
@@ -239,15 +233,9 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
         public Iterator<ReportletWrapper> iterator(final long first, final long count) {
             final ReportTO actual = restClient.read(report);
 
-            final ArrayList<ReportletWrapper> reportlets = CollectionUtils.collect(
-                    actual.getReportletConfs(),
-                    new Transformer<AbstractReportletConf, ReportletWrapper>() {
-
-                @Override
-                public ReportletWrapper transform(final AbstractReportletConf input) {
-                    return new ReportletWrapper(input.getName()).setName(input.getName()).setConf(input);
-                }
-            }, new ArrayList<ReportletWrapper>());
+            final List<ReportletWrapper> reportlets = actual.getReportletConfs().stream().
+                    map(conf -> new ReportletWrapper(conf.getName()).setName(conf.getName()).setConf(conf)).
+                    collect(Collectors.toList());
 
             Collections.sort(reportlets, comparator);
             return reportlets.subList((int) first, (int) (first + count)).iterator();

@@ -25,12 +25,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.persistence.Entity;
 import javax.validation.ValidationException;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -100,15 +99,11 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
     }
 
     protected SearchCond buildEffectiveCond(final SearchCond cond, final Set<String> dynRealmKeys) {
-        List<SearchCond> effectiveConds = CollectionUtils.collect(dynRealmKeys, new Transformer<String, SearchCond>() {
-
-            @Override
-            public SearchCond transform(final String input) {
-                DynRealmCond dynRealmCond = new DynRealmCond();
-                dynRealmCond.setDynRealm(input);
-                return SearchCond.getLeafCond(dynRealmCond);
-            }
-        }, new ArrayList<SearchCond>());
+        List<SearchCond> effectiveConds = dynRealmKeys.stream().map(dynRealmKey -> {
+            DynRealmCond dynRealmCond = new DynRealmCond();
+            dynRealmCond.setDynRealm(dynRealmKey);
+            return SearchCond.getLeafCond(dynRealmCond);
+        }).collect(Collectors.toList());
         effectiveConds.add(cond);
 
         return SearchCond.getAndCond(effectiveConds);
@@ -314,23 +309,22 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
     protected <T extends Any<?>> List<T> buildResult(final List<Object> raw, final AnyTypeKind kind) {
         List<T> result = new ArrayList<>();
 
-        for (Object anyKey : raw) {
-            String actualKey = anyKey instanceof Object[]
-                    ? (String) ((Object[]) anyKey)[0]
-                    : ((String) anyKey);
-
-            @SuppressWarnings("unchecked")
-            T any = kind == AnyTypeKind.USER
-                    ? (T) userDAO.find(actualKey)
-                    : kind == AnyTypeKind.GROUP
-                            ? (T) groupDAO.find(actualKey)
-                            : (T) anyObjectDAO.find(actualKey);
-            if (any == null) {
-                LOG.error("Could not find {} with id {}, even if returned by native query", kind, actualKey);
-            } else if (!result.contains(any)) {
-                result.add(any);
-            }
-        }
+        raw.stream().map(anyKey -> anyKey instanceof Object[]
+                ? (String) ((Object[]) anyKey)[0]
+                : ((String) anyKey)).
+                forEachOrdered((actualKey) -> {
+                    @SuppressWarnings("unchecked")
+                    T any = kind == AnyTypeKind.USER
+                            ? (T) userDAO.find(actualKey)
+                            : kind == AnyTypeKind.GROUP
+                                    ? (T) groupDAO.find(actualKey)
+                                    : (T) anyObjectDAO.find(actualKey);
+                    if (any == null) {
+                        LOG.error("Could not find {} with id {}, even if returned by native query", kind, actualKey);
+                    } else if (!result.contains(any)) {
+                        result.add(any);
+                    }
+                });
 
         return result;
     }

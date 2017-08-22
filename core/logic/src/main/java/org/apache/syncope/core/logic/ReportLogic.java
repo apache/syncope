@@ -22,11 +22,11 @@ import java.io.ByteArrayInputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.zip.ZipInputStream;
 import javax.xml.transform.stream.StreamSource;
 import org.apache.cocoon.pipeline.NonCachingPipeline;
@@ -34,8 +34,6 @@ import org.apache.cocoon.pipeline.Pipeline;
 import org.apache.cocoon.sax.SAXPipelineComponent;
 import org.apache.cocoon.sax.component.XMLGenerator;
 import org.apache.cocoon.sax.component.XMLSerializer;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Triple;
@@ -137,13 +135,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_LIST + "')")
     public List<ReportTO> list() {
-        return CollectionUtils.collect(reportDAO.findAll(), new Transformer<Report, ReportTO>() {
-
-            @Override
-            public ReportTO transform(final Report input) {
-                return binder.getReportTO(input);
-            }
-        }, new ArrayList<ReportTO>());
+        return reportDAO.findAll().stream().map(report -> binder.getReportTO(report)).collect(Collectors.toList());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_READ + "')")
@@ -314,26 +306,15 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
             throw new NotFoundException("Report " + key);
         }
 
-        return CollectionUtils.collect(reportExecDAO.findAll(report, page, size, orderByClauses),
-                new Transformer<ReportExec, ExecTO>() {
-
-            @Override
-            public ExecTO transform(final ReportExec reportExec) {
-                return binder.getExecTO(reportExec);
-            }
-        }, new ArrayList<ExecTO>());
+        return reportExecDAO.findAll(report, page, size, orderByClauses).stream().
+                map(reportExec -> binder.getExecTO(reportExec)).collect(Collectors.toList());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_LIST + "')")
     @Override
     public List<ExecTO> listRecentExecutions(final int max) {
-        return CollectionUtils.collect(reportExecDAO.findRecent(max), new Transformer<ReportExec, ExecTO>() {
-
-            @Override
-            public ExecTO transform(final ReportExec reportExec) {
-                return binder.getExecTO(reportExec);
-            }
-        }, new ArrayList<ExecTO>());
+        return reportExecDAO.findRecent(max).stream().
+                map(reportExec -> binder.getExecTO(reportExec)).collect(Collectors.toList());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.REPORT_DELETE + "')")
@@ -362,7 +343,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
 
         BulkActionResult result = new BulkActionResult();
 
-        for (ReportExec exec : reportExecDAO.findAll(report, startedBefore, startedAfter, endedBefore, endedAfter)) {
+        reportExecDAO.findAll(report, startedBefore, startedAfter, endedBefore, endedAfter).forEach(exec -> {
             try {
                 reportExecDAO.delete(exec);
                 result.getResults().put(String.valueOf(exec.getKey()), BulkActionResult.Status.SUCCESS);
@@ -370,7 +351,7 @@ public class ReportLogic extends AbstractExecutableLogic<ReportTO> {
                 LOG.error("Error deleting execution {} of report {}", exec.getKey(), key, e);
                 result.getResults().put(String.valueOf(exec.getKey()), BulkActionResult.Status.FAILURE);
             }
-        }
+        });
 
         return result;
     }

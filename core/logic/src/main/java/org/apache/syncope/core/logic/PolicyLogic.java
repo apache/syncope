@@ -19,10 +19,8 @@
 package org.apache.syncope.core.logic;
 
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
 import org.apache.syncope.common.lib.types.PolicyType;
@@ -78,13 +76,8 @@ public class PolicyLogic extends AbstractTransactionalLogic<AbstractPolicyTO> {
 
     @PreAuthorize("hasRole('" + StandardEntitlement.POLICY_LIST + "')")
     public <T extends AbstractPolicyTO> List<T> list(final PolicyType type) {
-        return CollectionUtils.collect(policyDAO.find(getPolicyClass(type)), new Transformer<Policy, T>() {
-
-            @Override
-            public T transform(final Policy input) {
-                return binder.getPolicyTO(input);
-            }
-        }, new ArrayList<T>());
+        return policyDAO.find(getPolicyClass(type)).stream().
+                <T>map(policy -> binder.getPolicyTO(policy)).collect(Collectors.toList());
     }
 
     @PreAuthorize("hasRole('" + StandardEntitlement.POLICY_READ + "')")
