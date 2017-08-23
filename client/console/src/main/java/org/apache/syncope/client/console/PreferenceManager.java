@@ -25,6 +25,7 @@ import java.io.Serializable;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +35,6 @@ import org.apache.wicket.request.Request;
 import org.apache.wicket.request.Response;
 import org.apache.wicket.util.cookies.CookieDefaults;
 import org.apache.wicket.util.cookies.CookieUtils;
-import org.apache.wicket.util.crypt.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,7 +95,7 @@ public class PreferenceManager implements Serializable {
 
         String prefString = COOKIE_UTILS.load(COOKIE_NAME);
         if (prefString != null) {
-            final Map<String, String> prefs = getPrefs(new String(Base64.decodeBase64(prefString.getBytes())));
+            Map<String, String> prefs = getPrefs(new String(Base64.getDecoder().decode(prefString.getBytes())));
             result = prefs.get(key);
         }
 
@@ -131,16 +131,16 @@ public class PreferenceManager implements Serializable {
 
         String prefString = COOKIE_UTILS.load(COOKIE_NAME);
         if (prefString != null) {
-            current.putAll(getPrefs(new String(Base64.decodeBase64(prefString.getBytes()))));
+            current.putAll(getPrefs(new String(Base64.getDecoder().decode(prefString.getBytes()))));
         }
 
         // after retrieved previous setting in order to overwrite the key ...
-        for (Map.Entry<String, List<String>> entry : prefs.entrySet()) {
+        prefs.entrySet().forEach(entry -> {
             current.put(entry.getKey(), StringUtils.join(entry.getValue(), ";"));
-        }
+        });
 
         try {
-            COOKIE_UTILS.save(COOKIE_NAME, new String(Base64.encodeBase64(setPrefs(current).getBytes())));
+            COOKIE_UTILS.save(COOKIE_NAME, Base64.getEncoder().encodeToString(setPrefs(current).getBytes()));
         } catch (IOException e) {
             LOG.error("Could not save {} info: {}", getClass().getSimpleName(), current, e);
         }
@@ -151,14 +151,14 @@ public class PreferenceManager implements Serializable {
 
         final Map<String, String> current = new HashMap<>();
         if (prefString != null) {
-            current.putAll(getPrefs(new String(Base64.decodeBase64(prefString.getBytes()))));
+            current.putAll(getPrefs(new String(Base64.getDecoder().decode(prefString.getBytes()))));
         }
 
         // after retrieved previous setting in order to overwrite the key ...
         current.put(key, value);
 
         try {
-            COOKIE_UTILS.save(COOKIE_NAME, new String(Base64.encodeBase64(setPrefs(current).getBytes())));
+            COOKIE_UTILS.save(COOKIE_NAME, Base64.getEncoder().encodeToString(setPrefs(current).getBytes()));
         } catch (IOException e) {
             LOG.error("Could not save {} info: {}", getClass().getSimpleName(), current, e);
         }
