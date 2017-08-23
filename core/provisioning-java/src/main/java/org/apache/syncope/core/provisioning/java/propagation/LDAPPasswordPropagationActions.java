@@ -72,10 +72,9 @@ public class LDAPPasswordPropagationActions implements PropagationActions {
 
                     String password = user.getPassword().toLowerCase();
                     byte[] decodedPassword = DatatypeConverter.parseHexBinary(password);
-                    byte[] base64EncodedPassword = Base64.getMimeEncoder().encode(decodedPassword);
+                    String base64EncodedPassword = Base64.getMimeEncoder().encodeToString(decodedPassword);
 
-                    String cipherPlusPassword =
-                            ("{" + cipherAlgorithm.toLowerCase() + "}" + new String(base64EncodedPassword));
+                    String cipherPlusPassword = ("{" + cipherAlgorithm.toLowerCase() + "}" + base64EncodedPassword);
 
                     Attribute passwordAttribute = AttributeBuilder.buildPassword(
                             new GuardedString(cipherPlusPassword.toCharArray()));

@@ -261,7 +261,7 @@ public abstract class AbstractPlainAttrValue extends AbstractGeneratedKeyEntity 
                 break;
 
             case Binary:
-                result = new String(Base64.getMimeEncoder().encode(getBinaryValue()));
+                result = Base64.getMimeEncoder().encodeToString(getBinaryValue());
                 break;
 
             case String:

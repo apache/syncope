@@ -25,7 +25,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Random;
@@ -207,7 +206,7 @@ public class PlainAttrTest extends AbstractTest {
 
         byte[] bytes = new byte[20];
         new Random().nextBytes(bytes);
-        String photoB64Value = new String(Base64.getMimeEncoder().encode(bytes), StandardCharsets.UTF_8);
+        String photoB64Value = Base64.getMimeEncoder().encodeToString(bytes);
 
         UPlainAttr attr = entityFactory.newEntity(UPlainAttr.class);
         attr.setOwner(user);
