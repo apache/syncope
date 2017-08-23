@@ -21,11 +21,13 @@ package org.apache.syncope.core.logic;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Resource;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.Predicate;
@@ -80,6 +82,9 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Component
 public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
+
+    @Resource(name = "adminUser")
+    protected String adminUser;
 
     @Autowired
     protected AnySearchDAO searchDAO;
@@ -137,6 +142,10 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
     @PreAuthorize("isAuthenticated() and not(hasRole('" + StandardEntitlement.ANONYMOUS + "'))")
     @Transactional(readOnly = true)
     public List<GroupTO> own() {
+        if (adminUser.equals(AuthContextUtils.getUsername())) {
+            return Collections.emptyList();
+        }
+
         return CollectionUtils.collect(
                 userDAO.findAllGroups(userDAO.findByUsername(AuthContextUtils.getUsername())),
                 new Transformer<Group, GroupTO>() {
