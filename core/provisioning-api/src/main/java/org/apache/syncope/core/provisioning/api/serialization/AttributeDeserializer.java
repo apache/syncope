@@ -25,10 +25,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Base64;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
-import org.identityconnectors.common.Base64;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
@@ -46,8 +45,7 @@ class AttributeDeserializer extends JsonDeserializer<Attribute> {
         String name = tree.get("name").asText();
 
         List<Object> values = new ArrayList<>();
-        for (Iterator<JsonNode> itor = tree.get("value").iterator(); itor.hasNext();) {
-            JsonNode node = itor.next();
+        for (JsonNode node : tree.get("value")) {
             if (node.isNull()) {
                 values.add(null);
             } else if (node.isObject()) {
@@ -65,7 +63,7 @@ class AttributeDeserializer extends JsonDeserializer<Attribute> {
                 if (text.startsWith(AttributeSerializer.BYTE_ARRAY_PREFIX)
                         && text.endsWith(AttributeSerializer.BYTE_ARRAY_SUFFIX)) {
 
-                    values.add(Base64.decode(StringUtils.substringBetween(
+                    values.add(Base64.getMimeDecoder().decode(StringUtils.substringBetween(
                             text, AttributeSerializer.BYTE_ARRAY_PREFIX, AttributeSerializer.BYTE_ARRAY_SUFFIX)));
                 } else {
                     values.add(text);

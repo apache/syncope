@@ -18,9 +18,11 @@
  */
 package org.apache.syncope.core.provisioning.java.propagation;
 
+import java.util.Base64;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import javax.xml.bind.DatatypeConverter;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
@@ -37,8 +39,6 @@ import org.identityconnectors.framework.common.objects.AttributeUtil;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.codec.Base64;
-import org.springframework.security.crypto.codec.Hex;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -71,8 +71,8 @@ public class LDAPPasswordPropagationActions implements PropagationActions {
                         && cipherAlgorithmMatches(getCipherAlgorithm(connInstance), user.getCipherAlgorithm())) {
 
                     String password = user.getPassword().toLowerCase();
-                    byte[] decodedPassword = Hex.decode(password);
-                    byte[] base64EncodedPassword = Base64.encode(decodedPassword);
+                    byte[] decodedPassword = DatatypeConverter.parseHexBinary(password);
+                    byte[] base64EncodedPassword = Base64.getMimeEncoder().encode(decodedPassword);
 
                     String cipherPlusPassword =
                             ("{" + cipherAlgorithm.toLowerCase() + "}" + new String(base64EncodedPassword));

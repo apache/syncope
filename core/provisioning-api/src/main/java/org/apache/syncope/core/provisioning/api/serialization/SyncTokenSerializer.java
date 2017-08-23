@@ -22,7 +22,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import java.io.IOException;
-import org.identityconnectors.common.Base64;
+import java.util.Base64;
 import org.identityconnectors.framework.common.objects.SyncToken;
 
 class SyncTokenSerializer extends JsonSerializer<SyncToken> {
@@ -46,7 +46,7 @@ class SyncTokenSerializer extends JsonSerializer<SyncToken> {
         } else if (source.getValue() instanceof Integer) {
             jgen.writeNumber((Integer) source.getValue());
         } else if (source.getValue() instanceof byte[]) {
-            jgen.writeString(Base64.encode((byte[]) source.getValue()));
+            jgen.writeString(Base64.getMimeEncoder().encodeToString((byte[]) source.getValue()));
         } else {
             jgen.writeString(source.getValue().toString());
         }

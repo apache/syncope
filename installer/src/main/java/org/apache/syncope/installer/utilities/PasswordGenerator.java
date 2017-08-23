@@ -22,7 +22,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.commons.codec.binary.Hex;
+import javax.xml.bind.DatatypeConverter;
 
 public final class PasswordGenerator {
 
@@ -30,7 +30,7 @@ public final class PasswordGenerator {
         String pwd = "";
         try {
             final MessageDigest cript = MessageDigest.getInstance("SHA-1");
-            pwd = new String(Hex.encodeHex(cript.digest()));
+            pwd = DatatypeConverter.printHexBinary(cript.digest());
         } catch (final NoSuchAlgorithmException ex) {
             Logger.getLogger(PasswordGenerator.class.getName()).log(Level.SEVERE, "NoSuchAlgorithmException", ex);
 

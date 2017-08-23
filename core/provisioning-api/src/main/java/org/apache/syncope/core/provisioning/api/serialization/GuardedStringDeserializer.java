@@ -24,7 +24,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import org.identityconnectors.common.Base64;
+import java.util.Base64;
 import org.identityconnectors.common.security.EncryptorFactory;
 import org.identityconnectors.common.security.GuardedString;
 import org.slf4j.Logger;
@@ -50,7 +50,7 @@ class GuardedStringDeserializer extends JsonDeserializer<GuardedString> {
         }
         byte[] encryptedBytes = null;
         if (tree.has("encryptedBytes")) {
-            encryptedBytes = Base64.decode(tree.get("encryptedBytes").asText());
+            encryptedBytes = Base64.getMimeDecoder().decode(tree.get("encryptedBytes").asText());
         }
         String base64SHA1Hash = null;
         if (tree.has("base64SHA1Hash")) {

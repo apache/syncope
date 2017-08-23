@@ -53,8 +53,8 @@ public class InfoResource extends BaseResource {
                             sessionCookieUtils.getCookie(SyncopeEnduserConstants.XSRF_COOKIE).getValue()))) {
                 LOG.debug("Set XSRF-TOKEN cookie");
                 SyncopeEnduserSession.get().setXsrfTokenGenerated(true);
-                sessionCookieUtils.save(SyncopeEnduserConstants.XSRF_COOKIE, SaltGenerator.generate(
-                        SyncopeEnduserSession.get().getId()));
+                sessionCookieUtils.save(SyncopeEnduserConstants.XSRF_COOKIE,
+                        SaltGenerator.generate(SyncopeEnduserSession.get().getId()));
             }
             response.setTextEncoding(StandardCharsets.UTF_8.name());
             response.setWriteCallback(new WriteCallback() {

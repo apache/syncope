@@ -27,6 +27,7 @@ import static org.junit.Assert.fail;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Random;
 import javax.validation.ValidationException;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -43,7 +44,6 @@ import org.apache.syncope.core.spring.security.Encryptor;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.codec.Base64;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional("Master")
@@ -207,7 +207,7 @@ public class PlainAttrTest extends AbstractTest {
 
         byte[] bytes = new byte[20];
         new Random().nextBytes(bytes);
-        String photoB64Value = new String(Base64.encode(bytes), StandardCharsets.UTF_8);
+        String photoB64Value = new String(Base64.getMimeEncoder().encode(bytes), StandardCharsets.UTF_8);
 
         UPlainAttr attr = entityFactory.newEntity(UPlainAttr.class);
         attr.setOwner(user);

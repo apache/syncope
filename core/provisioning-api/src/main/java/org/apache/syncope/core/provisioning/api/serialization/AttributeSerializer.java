@@ -22,7 +22,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import java.io.IOException;
-import org.identityconnectors.common.Base64;
+import java.util.Base64;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.framework.common.objects.Attribute;
 
@@ -59,7 +59,10 @@ class AttributeSerializer extends JsonSerializer<Attribute> {
                 } else if (value instanceof Boolean) {
                     jgen.writeBoolean((Boolean) value);
                 } else if (value instanceof byte[]) {
-                    jgen.writeString(BYTE_ARRAY_PREFIX + Base64.encode((byte[]) value) + BYTE_ARRAY_SUFFIX);
+                    jgen.writeString(
+                            BYTE_ARRAY_PREFIX
+                            + Base64.getMimeEncoder().encodeToString((byte[]) value)
+                            + BYTE_ARRAY_SUFFIX);
                 } else {
                     jgen.writeString(value.toString());
                 }

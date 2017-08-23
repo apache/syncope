@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import org.identityconnectors.common.Base64;
+import java.util.Base64;
 import org.identityconnectors.common.security.EncryptorFactory;
 import org.identityconnectors.common.security.GuardedString;
 import org.identityconnectors.common.security.SecurityUtil;
@@ -62,7 +62,7 @@ class GuardedStringSerializer extends JsonSerializer<GuardedString> {
 
         byte[] encryptedBytes =
                 EncryptorFactory.getInstance().getDefaultEncryptor().encrypt(SecurityUtil.decrypt(source).getBytes());
-        jgen.writeStringField("encryptedBytes", Base64.encode(encryptedBytes));
+        jgen.writeStringField("encryptedBytes", Base64.getMimeEncoder().encodeToString(encryptedBytes));
 
         String base64SHA1Hash = null;
         try {

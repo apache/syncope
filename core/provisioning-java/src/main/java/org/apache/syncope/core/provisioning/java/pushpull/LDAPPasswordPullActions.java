@@ -18,6 +18,8 @@
  */
 package org.apache.syncope.core.provisioning.java.pushpull;
 
+import java.util.Base64;
+import javax.xml.bind.DatatypeConverter;
 import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.patch.PasswordPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
@@ -34,8 +36,6 @@ import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.codec.Base64;
-import org.springframework.security.crypto.codec.Hex;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -112,9 +112,8 @@ public class LDAPPasswordPullActions implements PullActions {
         if (entity instanceof UserTO && encodedPassword != null && cipher != null) {
             User user = userDAO.find(entity.getKey());
             if (user != null) {
-                byte[] encodedPasswordBytes = Base64.decode(encodedPassword.getBytes());
-                char[] encodedHex = Hex.encode(encodedPasswordBytes);
-                String encodedHexStr = new String(encodedHex).toUpperCase();
+                byte[] encodedPasswordBytes = Base64.getMimeDecoder().decode(encodedPassword.getBytes());
+                String encodedHexStr = DatatypeConverter.printHexBinary(encodedPasswordBytes).toUpperCase();
 
                 user.setEncodedPassword(encodedHexStr, cipher);
             }

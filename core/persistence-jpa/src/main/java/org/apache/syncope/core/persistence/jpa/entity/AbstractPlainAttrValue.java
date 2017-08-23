@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
+import java.util.Base64;
 import java.util.Date;
 import javax.persistence.Basic;
 import javax.persistence.Lob;
@@ -26,7 +27,6 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
@@ -188,7 +188,7 @@ public abstract class AbstractPlainAttrValue extends AbstractGeneratedKeyEntity 
                 break;
 
             case Binary:
-                this.setBinaryValue(Base64.decodeBase64(value));
+                this.setBinaryValue(Base64.getMimeDecoder().decode(value));
                 break;
 
             case String:
@@ -223,8 +223,8 @@ public abstract class AbstractPlainAttrValue extends AbstractGeneratedKeyEntity 
     public String getValueAsString() {
         final AttrSchemaType type = getAttr() == null || getAttr().getSchema() == null
                 || getAttr().getSchema().getType() == null
-                        ? AttrSchemaType.String
-                        : getAttr().getSchema().getType();
+                ? AttrSchemaType.String
+                : getAttr().getSchema().getType();
 
         return getValueAsString(type);
     }
@@ -241,27 +241,27 @@ public abstract class AbstractPlainAttrValue extends AbstractGeneratedKeyEntity 
             case Long:
                 result = getAttr() == null || getAttr().getSchema() == null
                         || getAttr().getSchema().getConversionPattern() == null
-                                ? getLongValue().toString()
-                                : FormatUtils.format(getLongValue(), getAttr().getSchema().getConversionPattern());
+                        ? getLongValue().toString()
+                        : FormatUtils.format(getLongValue(), getAttr().getSchema().getConversionPattern());
                 break;
 
             case Double:
                 result = getAttr() == null || getAttr().getSchema() == null
                         || getAttr().getSchema().getConversionPattern() == null
-                                ? getDoubleValue().toString()
-                                : FormatUtils.format(getDoubleValue(), getAttr().getSchema().getConversionPattern());
+                        ? getDoubleValue().toString()
+                        : FormatUtils.format(getDoubleValue(), getAttr().getSchema().getConversionPattern());
                 break;
 
             case Date:
                 result = getAttr() == null || getAttr().getSchema() == null
                         || getAttr().getSchema().getConversionPattern() == null
-                                ? FormatUtils.format(getDateValue())
-                                : FormatUtils.format(
-                                        getDateValue(), false, getAttr().getSchema().getConversionPattern());
+                        ? FormatUtils.format(getDateValue())
+                        : FormatUtils.format(
+                                getDateValue(), false, getAttr().getSchema().getConversionPattern());
                 break;
 
             case Binary:
-                result = Base64.encodeBase64String(getBinaryValue());
+                result = new String(Base64.getMimeEncoder().encode(getBinaryValue()));
                 break;
 
             case String:

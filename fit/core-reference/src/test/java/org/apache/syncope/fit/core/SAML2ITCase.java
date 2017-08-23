@@ -45,6 +45,7 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.namespace.QName;
@@ -101,6 +102,9 @@ import org.w3c.dom.Element;
 
 public class SAML2ITCase extends AbstractITCase {
 
+    private static final Pattern BASE64 = Pattern.compile(
+            "^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{4})$");
+
     private static SyncopeClient anonymous;
 
     private static Path keystorePath;
@@ -153,9 +157,9 @@ public class SAML2ITCase extends AbstractITCase {
             return;
         }
 
-        for (SAML2IdPTO idp : saml2IdPService.list()) {
+        saml2IdPService.list().forEach(idp -> {
             saml2IdPService.delete(idp.getKey());
-        }
+        });
 
         Files.delete(keystorePath);
         Files.delete(truststorePath);
@@ -203,7 +207,7 @@ public class SAML2ITCase extends AbstractITCase {
 
         assertEquals("https://idp.testshib.org/idp/profile/SAML2/POST/SSO", loginRequest.getIdpServiceAddress());
         assertNotNull(loginRequest.getContent());
-        assertTrue(org.apache.commons.codec.binary.Base64.isBase64(loginRequest.getContent()));
+        assertTrue(BASE64.matcher(loginRequest.getContent()).matches());
         assertNotNull(loginRequest.getRelayState());
     }
 
@@ -257,7 +261,7 @@ public class SAML2ITCase extends AbstractITCase {
 
         assertEquals("https://localhost:8443/fediz-idp/saml/up", loginRequest.getIdpServiceAddress());
         assertNotNull(loginRequest.getContent());
-        assertTrue(org.apache.commons.codec.binary.Base64.isBase64(loginRequest.getContent()));
+        assertTrue(BASE64.matcher(loginRequest.getContent()).matches());
         assertNotNull(loginRequest.getRelayState());
 
         // Check a null relaystate

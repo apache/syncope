@@ -18,9 +18,11 @@
  */
 package org.apache.syncope.client.enduser.util;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import javax.xml.bind.DatatypeConverter;
 import org.apache.wicket.util.crypt.Base64;
-import org.apache.commons.codec.digest.DigestUtils;
 
 public final class SaltGenerator {
 
@@ -29,8 +31,15 @@ public final class SaltGenerator {
         byte[] salt = new byte[16];
         // fill array with random bytes
         new SecureRandom().nextBytes(salt);
-        // create digest with MD5
-        return DigestUtils.md2Hex(input + Base64.encodeBase64String(salt));
+        // create digest with MD2
+        MessageDigest md;
+        try {
+            md = MessageDigest.getInstance("MD2");
+            return DatatypeConverter.printHexBinary(
+                    md.digest((input + Base64.encodeBase64String(salt)).getBytes()));
+        } catch (final NoSuchAlgorithmException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 
     private SaltGenerator() {

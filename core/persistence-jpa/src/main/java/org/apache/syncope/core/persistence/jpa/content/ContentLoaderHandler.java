@@ -24,8 +24,7 @@ import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 import javax.sql.DataSource;
-import org.apache.commons.codec.DecoderException;
-import org.apache.commons.codec.binary.Hex;
+import javax.xml.bind.DatatypeConverter;
 import org.apache.syncope.core.provisioning.api.utils.FormatUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -138,16 +137,16 @@ public class ContentLoaderHandler extends DefaultHandler {
                 case Types.VARBINARY:
                 case Types.LONGVARBINARY:
                     try {
-                        parameters[i] = Hex.decodeHex(attrs.getValue(i).toCharArray());
-                    } catch (DecoderException | IllegalArgumentException e) {
+                        parameters[i] = DatatypeConverter.parseHexBinary(attrs.getValue(i));
+                    } catch (IllegalArgumentException e) {
                         parameters[i] = attrs.getValue(i);
                     }
                     break;
 
                 case Types.BLOB:
                     try {
-                        parameters[i] = Hex.decodeHex(attrs.getValue(i).toCharArray());
-                    } catch (DecoderException | IllegalArgumentException e) {
+                        parameters[i] = DatatypeConverter.parseHexBinary(attrs.getValue(i));
+                    } catch (IllegalArgumentException e) {
                         LOG.warn("Error decoding hex string to specify a blob parameter", e);
                         parameters[i] = attrs.getValue(i);
                     } catch (Exception e) {

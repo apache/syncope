@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
+import java.util.Base64;
 import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -31,7 +32,6 @@ import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.SAML2IdPDAO;
-import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.SAML2EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.SAML2IdP;
 import org.apache.syncope.core.persistence.api.entity.SAML2IdPItem;
@@ -41,7 +41,6 @@ import org.apache.syncope.core.provisioning.api.data.SAML2IdPDataBinder;
 import org.apache.syncope.core.provisioning.java.IntAttrNameParser;
 import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
 import org.apache.syncope.core.spring.BeanUtils;
-import org.identityconnectors.common.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -165,7 +164,7 @@ public class SAML2IdPDataBinderImpl implements SAML2IdPDataBinder {
     public SAML2IdP update(final SAML2IdP idp, final SAML2IdPTO idpTO) {
         idp.setEntityID(idpTO.getEntityID());
         idp.setName(idpTO.getName());
-        idp.setMetadata(Base64.decode(idpTO.getMetadata()));
+        idp.setMetadata(Base64.getMimeDecoder().decode(idpTO.getMetadata()));
         idp.setCreateUnmatching(idpTO.isCreateUnmatching());
         idp.setUpdateMatching(idpTO.isUpdateMatching());
         idp.setUseDeflateEncoding(idpTO.isUseDeflateEncoding());
@@ -186,14 +185,14 @@ public class SAML2IdPDataBinderImpl implements SAML2IdPDataBinder {
 
         idp.getItems().clear();
         AnyTypeClassTO allowedSchemas = new AnyTypeClassTO();
-        for (AnyTypeClass anyTypeClass : anyTypeDAO.findUser().getClasses()) {
+        anyTypeDAO.findUser().getClasses().forEach(anyTypeClass -> {
             allowedSchemas.getPlainSchemas().addAll(anyTypeClass.getPlainSchemas().stream().
                     map(s -> s.getKey()).collect(Collectors.toList()));
             allowedSchemas.getDerSchemas().addAll(anyTypeClass.getDerSchemas().stream().
                     map(s -> s.getKey()).collect(Collectors.toList()));
             allowedSchemas.getVirSchemas().addAll(anyTypeClass.getVirSchemas().stream().
                     map(s -> s.getKey()).collect(Collectors.toList()));
-        }
+        });
         populateItems(idpTO, idp, allowedSchemas);
 
         idp.getActionsClassNames().clear();
@@ -203,7 +202,7 @@ public class SAML2IdPDataBinderImpl implements SAML2IdPDataBinder {
     }
 
     private void populateItems(final SAML2IdP idp, final SAML2IdPTO idpTO) {
-        for (SAML2IdPItem item : idp.getItems()) {
+        idp.getItems().forEach(item -> {
             ItemTO itemTO = new ItemTO();
             itemTO.setKey(item.getKey());
             BeanUtils.copyProperties(item, itemTO, ITEM_IGNORE_PROPERTIES);
@@ -214,7 +213,7 @@ public class SAML2IdPDataBinderImpl implements SAML2IdPDataBinder {
             } else {
                 idpTO.add(itemTO);
             }
-        }
+        });
     }
 
     @Override
@@ -228,7 +227,7 @@ public class SAML2IdPDataBinderImpl implements SAML2IdPDataBinder {
         idpTO.setBindingType(idp.getBindingType());
         idpTO.setCreateUnmatching(idp.isCreateUnmatching());
         idpTO.setUpdateMatching(idp.isUpdateMatching());
-        idpTO.setMetadata(Base64.encode(idp.getMetadata()));
+        idpTO.setMetadata(Base64.getMimeEncoder().encodeToString(idp.getMetadata()));
 
         if (idp.getUserTemplate() != null) {
             idpTO.setUserTemplate((UserTO) idp.getUserTemplate().get());

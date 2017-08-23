@@ -397,7 +397,6 @@ under the License.
 
     <commons-io.version>2.5</commons-io.version>
     <commons-email.version>1.5</commons-email.version>
-    <commons-codec.version>1.10</commons-codec.version>
     <commons-jexl.version>3.1</commons-jexl.version>
     <commons-lang.version>3.6</commons-lang.version>
     <commons-text.version>1.1</commons-text.version>
@@ -948,11 +947,6 @@ under the License.
             <artifactId>activation</artifactId>
           </exclusion>
         </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>commons-codec</groupId>
-        <artifactId>commons-codec</artifactId>
-        <version>${commons-codec.version}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.commons</groupId>

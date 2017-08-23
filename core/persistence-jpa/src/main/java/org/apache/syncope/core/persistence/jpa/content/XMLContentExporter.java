@@ -42,6 +42,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import javax.sql.DataSource;
+import javax.xml.bind.DatatypeConverter;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -69,7 +70,6 @@ import org.apache.syncope.core.persistence.jpa.entity.user.JPAUPlainAttrValue;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAURelationship;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.springframework.jdbc.datasource.DataSourceUtils;
-import org.springframework.security.crypto.codec.Hex;
 import org.springframework.stereotype.Component;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
@@ -181,14 +181,14 @@ public class XMLContentExporter extends AbstractContentDealer implements Content
                 case Types.LONGVARBINARY:
                     final InputStream is = rs.getBinaryStream(columnName);
                     if (is != null) {
-                        res = new String(Hex.encode(IOUtils.toByteArray(is)));
+                        res = DatatypeConverter.printHexBinary(IOUtils.toByteArray(is));
                     }
                     break;
 
                 case Types.BLOB:
                     final Blob blob = rs.getBlob(columnName);
                     if (blob != null) {
-                        res = new String(Hex.encode(IOUtils.toByteArray(blob.getBinaryStream())));
+                        res = DatatypeConverter.printHexBinary(IOUtils.toByteArray(blob.getBinaryStream()));
                     }
                     break;
 

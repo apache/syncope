@@ -27,16 +27,17 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 import javax.ws.rs.core.GenericType;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -611,11 +612,11 @@ public class UserIssuesITCase extends AbstractITCase {
     public void issueSYNCOPE354() {
         // change resource-ldap group mapping for including uniqueMember (need for assertions below)
         ResourceTO ldap = resourceService.read(RESOURCE_NAME_LDAP);
-        for (ItemTO item : ldap.getProvision(AnyTypeKind.GROUP.name()).get().getMapping().getItems()) {
-            if ("description".equals(item.getExtAttrName())) {
-                item.setExtAttrName("uniqueMember");
-            }
-        }
+        ldap.getProvision(AnyTypeKind.GROUP.name()).get().getMapping().getItems().stream().
+                filter(item -> ("description".equals(item.getExtAttrName()))).
+                forEachOrdered(item -> {
+                    item.setExtAttrName("uniqueMember");
+                });
         resourceService.update(ldap);
 
         // 1. create group with LDAP resource
@@ -658,11 +659,11 @@ public class UserIssuesITCase extends AbstractITCase {
                 contains("uid=" + userTO.getUsername() + ",ou=people,o=isp"));
 
         // 6. restore original resource-ldap group mapping
-        for (ItemTO item : ldap.getProvision(AnyTypeKind.GROUP.name()).get().getMapping().getItems()) {
-            if ("uniqueMember".equals(item.getExtAttrName())) {
-                item.setExtAttrName("description");
-            }
-        }
+        ldap.getProvision(AnyTypeKind.GROUP.name()).get().getMapping().getItems().stream().
+                filter(item -> ("uniqueMember".equals(item.getExtAttrName()))).
+                forEachOrdered(item -> {
+                    item.setExtAttrName("description");
+                });
         resourceService.update(ldap);
     }
 
@@ -680,8 +681,8 @@ public class UserIssuesITCase extends AbstractITCase {
         // 2. create user with membership of the above group
         UserTO userTO = UserITCase.getUniqueSampleTO("syncope357@syncope.apache.org");
         userTO.getPlainAttrs().add(attrTO("obscure", "valueToBeObscured"));
-        userTO.getPlainAttrs().add(attrTO("photo",
-                Base64Utility.encode(IOUtils.readBytesFromStream(getClass().getResourceAsStream("/favicon.jpg")))));
+        userTO.getPlainAttrs().add(attrTO("photo", Base64.getMimeEncoder().encodeToString(
+                IOUtils.readBytesFromStream(getClass().getResourceAsStream("/favicon.jpg")))));
         userTO.getMemberships().add(new MembershipTO.Builder().group(groupTO.getKey()).build());
 
         userTO = createUser(userTO).getEntity();
@@ -696,9 +697,12 @@ public class UserIssuesITCase extends AbstractITCase {
         AttrTO registeredAddress = connObj.getAttr("registeredAddress").get();
         assertNotNull(registeredAddress);
         assertEquals(userTO.getPlainAttr("obscure").get().getValues(), registeredAddress.getValues());
-        AttrTO jpegPhoto = connObj.getAttr("jpegPhoto").get();
-        assertNotNull(jpegPhoto);
-        assertEquals(userTO.getPlainAttr("photo").get().getValues(), jpegPhoto.getValues());
+        Optional<AttrTO> jpegPhoto = connObj.getAttr("jpegPhoto");
+        assertTrue(jpegPhoto.isPresent());
+        // difference between java.util.Base64 encoding and ConnId's
+        assertEquals(
+                userTO.getPlainAttr("photo").get().getValues().get(0).replace("\n", "").replace("\r", ""),
+                jpegPhoto.get().getValues().get(0));
 
         // 4. remove group
         groupService.delete(groupTO.getKey());

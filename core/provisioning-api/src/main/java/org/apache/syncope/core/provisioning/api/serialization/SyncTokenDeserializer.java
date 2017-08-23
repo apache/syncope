@@ -24,7 +24,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
-import org.identityconnectors.common.Base64;
+import java.util.Base64;
 import org.identityconnectors.framework.common.objects.SyncToken;
 
 class SyncTokenDeserializer extends JsonDeserializer<SyncToken> {
@@ -41,19 +41,19 @@ class SyncTokenDeserializer extends JsonDeserializer<SyncToken> {
             value = node.isNull()
                     ? null
                     : node.isBoolean()
-                            ? node.asBoolean()
-                            : node.isDouble()
-                                    ? node.asDouble()
-                                    : node.isLong()
-                                            ? node.asLong()
-                                            : node.isInt()
-                                                    ? node.asInt()
-                                                    : node.asText();
+                    ? node.asBoolean()
+                    : node.isDouble()
+                    ? node.asDouble()
+                    : node.isLong()
+                    ? node.asLong()
+                    : node.isInt()
+                    ? node.asInt()
+                    : node.asText();
 
             if (value instanceof String) {
                 String base64 = (String) value;
                 try {
-                    value = Base64.decode(base64);
+                    value = Base64.getMimeDecoder().decode(base64);
                 } catch (RuntimeException e) {
                     value = base64;
                 }

@@ -18,6 +18,7 @@
  */
 package org.apache.syncope.core.workflow.java;
 
+import java.util.Base64;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.UserPatch;
@@ -29,7 +30,6 @@ import org.apache.syncope.core.provisioning.api.WorkflowResult;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.workflow.api.UserWorkflowAdapter;
 import org.apache.syncope.core.workflow.api.UserWorkflowDefinitionAdapter;
-import org.identityconnectors.common.Base64;
 import org.identityconnectors.common.security.EncryptorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,13 +52,14 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
     protected EntityFactory entityFactory;
 
     protected String encrypt(final String clear) {
-        byte[] encryptedBytes = EncryptorFactory.getInstance().getDefaultEncryptor().encrypt(clear.getBytes());
-        return Base64.encode(encryptedBytes);
+        byte[] encrypted = EncryptorFactory.getInstance().getDefaultEncryptor().encrypt(clear.getBytes());
+        return Base64.getMimeEncoder().encodeToString(encrypted);
     }
 
     protected String decrypt(final String crypted) {
-        byte[] decryptedBytes = EncryptorFactory.getInstance().getDefaultEncryptor().decrypt(Base64.decode(crypted));
-        return new String(decryptedBytes);
+        byte[] decrypted = EncryptorFactory.getInstance().getDefaultEncryptor().
+                decrypt(Base64.getMimeDecoder().decode(crypted));
+        return new String(decrypted);
     }
 
     @Override

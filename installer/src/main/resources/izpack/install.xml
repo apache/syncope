@@ -131,7 +131,6 @@ under the License.
   
   <jar src="../syncope-installer-@{syncope.version}.jar" stage="install"/>
   <jar src="lib/commons-logging-@{commons-logging.version}.jar"/>
-  <jar src="lib/commons-codec-@{commons-codec.version}.jar"/>
   <jar src="lib/commons-io-@{commons-io.version}.jar"/>
   <jar src="lib/commons-lang3-@{commons-lang.version}.jar"/>
   <jar src="lib/httpclient-@{httpclient.version}.jar"/>
