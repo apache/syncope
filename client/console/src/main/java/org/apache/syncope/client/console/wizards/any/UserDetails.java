@@ -43,6 +43,10 @@ public class UserDetails extends Details<UserTO> {
 
     private static final String PASSWORD_CONTENT_PATH = "body:content";
 
+    protected final AjaxTextFieldPanel username;
+
+    protected final UserTO userTO;
+
     public UserDetails(
             final UserWrapper wrapper,
             final boolean templateMode,
@@ -51,11 +55,11 @@ public class UserDetails extends Details<UserTO> {
             final PageReference pageRef) {
         super(wrapper, templateMode, includeStatusPanel, pageRef);
 
-        final UserTO userTO = wrapper.getInnerObject();
+        userTO = wrapper.getInnerObject();
         // ------------------------
         // Username
         // ------------------------
-        final AjaxTextFieldPanel username = new AjaxTextFieldPanel(
+        username = new AjaxTextFieldPanel(
                 "username", "username", new PropertyModel<String>(userTO, "username"), false);
 
         if (wrapper.getPreviousUserTO() != null && StringUtils.
