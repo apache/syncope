@@ -158,8 +158,9 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
         AnyUtils anyUtils = anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT);
         if (anyObject.getRealm() != null) {
             // relationships
-            Collection<String> assignableAnyObjects =
-                    searchDAO.searchAssignable(anyObject.getRealm().getFullPath(), AnyTypeKind.ANY_OBJECT).stream().
+            Collection<String> assignableAnyObjects = anyObjectTO.getRelationships().isEmpty()
+                    ? Collections.<String>emptyList()
+                    : searchDAO.searchAssignable(anyObject.getRealm().getFullPath(), AnyTypeKind.ANY_OBJECT).stream().
                             map(a -> a.getKey()).collect(Collectors.toList());
 
             anyObjectTO.getRelationships().forEach(relationshipTO -> {
@@ -200,8 +201,9 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
             });
 
             // memberships
-            Collection<String> assignableGroups =
-                    searchDAO.searchAssignable(anyObject.getRealm().getFullPath(), AnyTypeKind.GROUP).stream().
+            Collection<String> assignableGroups = anyObjectTO.getMemberships().isEmpty()
+                    ? Collections.<String>emptyList()
+                    : searchDAO.searchAssignable(anyObject.getRealm().getFullPath(), AnyTypeKind.GROUP).stream().
                             map(g -> g.getKey()).collect(Collectors.toList());
 
             anyObjectTO.getMemberships().forEach(membershipTO -> {

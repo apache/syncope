@@ -36,6 +36,7 @@ import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.patch.MembershipPatch;
 import org.apache.syncope.common.lib.patch.PasswordPatch;
 import org.apache.syncope.common.lib.patch.StringPatchItem;
+import org.apache.syncope.common.lib.patch.StringReplacePatchItem;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
@@ -221,6 +222,8 @@ public class UserWorkflowITCase extends AbstractITCase {
 
         UserTO created = createUser(UserITCase.getUniqueSampleTO("updateApproval@syncope.apache.org")).getEntity();
         assertNotNull(created);
+        assertEquals("/", created.getRealm());
+        assertEquals(0, created.getMemberships().size());
 
         UserPatch patch = new UserPatch();
         patch.setKey(created.getKey());
@@ -229,6 +232,7 @@ public class UserWorkflowITCase extends AbstractITCase {
         SyncopeClient client = clientFactory.create(created.getUsername(), "password123");
         Response response = client.getService(UserSelfService.class).update(patch);
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        assertEquals("updateApproval", userService.read(created.getKey()).getStatus());
 
         forms = userWorkflowService.getForms();
         assertNotNull(forms);
@@ -241,6 +245,28 @@ public class UserWorkflowITCase extends AbstractITCase {
         assertNotNull(form.getUserTO());
         assertNotNull(form.getUserPatch());
         assertEquals(patch, form.getUserPatch());
+
+        // as admin, request for more changes: still pending approval
+        patch.setRealm(new StringReplacePatchItem.Builder().value("/even/two").build());
+        response = userService.update(patch);
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        assertEquals("updateApproval", userService.read(created.getKey()).getStatus());
+
+        // the patch is updated in the approval form
+        form = userWorkflowService.getFormForUser(created.getKey());
+        assertEquals(patch, form.getUserPatch());
+
+        // approve the user
+        form = userWorkflowService.claimForm(form.getTaskId());
+        form.getProperty("approve").setValue(Boolean.TRUE.toString());
+        userWorkflowService.submitForm(form);
+
+        // verify that the approved user bears both original and further changes
+        UserTO approved = userService.read(created.getKey());
+        assertNotNull(approved);
+        assertEquals("/even/two", approved.getRealm());
+        assertEquals(1, approved.getMemberships().size());
+        assertNotNull(approved.getMembership("b1f7c12d-ec83-441f-a50e-1691daaedf3b"));
     }
 
     @Test

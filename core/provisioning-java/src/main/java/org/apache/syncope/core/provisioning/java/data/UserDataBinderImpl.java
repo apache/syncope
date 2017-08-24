@@ -203,8 +203,9 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         AnyUtils anyUtils = anyUtilsFactory.getInstance(AnyTypeKind.USER);
         if (user.getRealm() != null) {
             // relationships
-            Collection<String> assignableAnyObjects =
-                    searchDAO.searchAssignable(user.getRealm().getFullPath(), AnyTypeKind.ANY_OBJECT).stream().
+            Collection<String> assignableAnyObjects = userTO.getRelationships().isEmpty()
+                    ? Collections.<String>emptyList()
+                    : searchDAO.searchAssignable(user.getRealm().getFullPath(), AnyTypeKind.ANY_OBJECT).stream().
                             map(a -> a.getKey()).collect(Collectors.toList());
 
             userTO.getRelationships().forEach(relationshipTO -> {
@@ -216,7 +217,6 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                     if (relationshipType == null) {
                         LOG.debug("Ignoring invalid relationship type {}", relationshipTO.getType());
                     } else {
-
                         URelationship relationship = entityFactory.newEntity(URelationship.class);
                         relationship.setType(relationshipType);
                         relationship.setRightEnd(otherEnd);
@@ -235,8 +235,9 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             });
 
             // memberships
-            Collection<String> assignableGroups =
-                    searchDAO.searchAssignable(user.getRealm().getFullPath(), AnyTypeKind.GROUP).stream().
+            Collection<String> assignableGroups = userTO.getMemberships().isEmpty()
+                    ? Collections.<String>emptyList()
+                    : searchDAO.searchAssignable(user.getRealm().getFullPath(), AnyTypeKind.GROUP).stream().
                             map(g -> g.getKey()).collect(Collectors.toList());
 
             userTO.getMemberships().forEach(membershipTO -> {
