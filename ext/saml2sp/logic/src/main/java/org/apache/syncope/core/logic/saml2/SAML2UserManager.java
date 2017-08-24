@@ -268,7 +268,7 @@ public class SAML2UserManager {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public String update(final String username, final SAML2IdPEntity idp, final SAML2LoginResponseTO responseTO) {
-        UserTO userTO = binder.getUserTO(username);
+        UserTO userTO = binder.getUserTO(userDAO.findKey(username));
         UserTO original = SerializationUtils.clone(userTO);
 
         fill(idp, responseTO, userTO);
