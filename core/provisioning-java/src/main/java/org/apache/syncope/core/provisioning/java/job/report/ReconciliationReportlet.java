@@ -264,7 +264,7 @@ public class ReconciliationReportlet extends AbstractReportlet {
         } else if (attr.getValue().get(0) instanceof byte[]) {
             values = new HashSet<>(attr.getValue().size());
             attr.getValue().forEach(single -> {
-                values.add(Base64.getMimeEncoder().encode((byte[]) single));
+                values.add(Base64.getEncoder().encode((byte[]) single));
             });
         } else {
             values = new HashSet<>(attr.getValue());

@@ -46,7 +46,7 @@ class SyncTokenSerializer extends JsonSerializer<SyncToken> {
         } else if (source.getValue() instanceof Integer) {
             jgen.writeNumber((Integer) source.getValue());
         } else if (source.getValue() instanceof byte[]) {
-            jgen.writeString(Base64.getMimeEncoder().encodeToString((byte[]) source.getValue()));
+            jgen.writeString(Base64.getEncoder().encodeToString((byte[]) source.getValue()));
         } else {
             jgen.writeString(source.getValue().toString());
         }

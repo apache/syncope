@@ -50,7 +50,7 @@ class GuardedStringDeserializer extends JsonDeserializer<GuardedString> {
         }
         byte[] encryptedBytes = null;
         if (tree.has("encryptedBytes")) {
-            encryptedBytes = Base64.getMimeDecoder().decode(tree.get("encryptedBytes").asText());
+            encryptedBytes = Base64.getDecoder().decode(tree.get("encryptedBytes").asText());
         }
         String base64SHA1Hash = null;
         if (tree.has("base64SHA1Hash")) {

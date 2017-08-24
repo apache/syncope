@@ -53,12 +53,12 @@ public abstract class AbstractUserWorkflowAdapter implements UserWorkflowAdapter
 
     protected String encrypt(final String clear) {
         byte[] encrypted = EncryptorFactory.getInstance().getDefaultEncryptor().encrypt(clear.getBytes());
-        return Base64.getMimeEncoder().encodeToString(encrypted);
+        return Base64.getEncoder().encodeToString(encrypted);
     }
 
     protected String decrypt(final String crypted) {
         byte[] decrypted = EncryptorFactory.getInstance().getDefaultEncryptor().
-                decrypt(Base64.getMimeDecoder().decode(crypted));
+                decrypt(Base64.getDecoder().decode(crypted));
         return new String(decrypted);
     }
 

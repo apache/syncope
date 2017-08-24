@@ -180,7 +180,7 @@ public final class Encryptor {
                 final Cipher cipher = Cipher.getInstance(CipherAlgorithm.AES.getAlgorithm());
                 cipher.init(Cipher.ENCRYPT_MODE, keySpec);
 
-                encodedValue = new String(Base64.getMimeEncoder().encode(cipher.doFinal(cleartext)));
+                encodedValue = new String(Base64.getEncoder().encode(cipher.doFinal(cleartext)));
             } else if (cipherAlgorithm == CipherAlgorithm.BCRYPT) {
                 encodedValue = BCrypt.hashpw(value, BCrypt.gensalt());
             } else {
@@ -223,7 +223,7 @@ public final class Encryptor {
             final Cipher cipher = Cipher.getInstance(CipherAlgorithm.AES.getAlgorithm());
             cipher.init(Cipher.DECRYPT_MODE, keySpec);
 
-            value = new String(cipher.doFinal(Base64.getMimeDecoder().decode(encoded)), StandardCharsets.UTF_8);
+            value = new String(cipher.doFinal(Base64.getDecoder().decode(encoded)), StandardCharsets.UTF_8);
         }
 
         return value;

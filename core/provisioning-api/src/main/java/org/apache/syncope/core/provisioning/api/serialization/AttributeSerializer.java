@@ -61,7 +61,7 @@ class AttributeSerializer extends JsonSerializer<Attribute> {
                 } else if (value instanceof byte[]) {
                     jgen.writeString(
                             BYTE_ARRAY_PREFIX
-                            + Base64.getMimeEncoder().encodeToString((byte[]) value)
+                            + Base64.getEncoder().encodeToString((byte[]) value)
                             + BYTE_ARRAY_SUFFIX);
                 } else {
                     jgen.writeString(value.toString());

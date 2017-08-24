@@ -63,7 +63,7 @@ class AttributeDeserializer extends JsonDeserializer<Attribute> {
                 if (text.startsWith(AttributeSerializer.BYTE_ARRAY_PREFIX)
                         && text.endsWith(AttributeSerializer.BYTE_ARRAY_SUFFIX)) {
 
-                    values.add(Base64.getMimeDecoder().decode(StringUtils.substringBetween(
+                    values.add(Base64.getDecoder().decode(StringUtils.substringBetween(
                             text, AttributeSerializer.BYTE_ARRAY_PREFIX, AttributeSerializer.BYTE_ARRAY_SUFFIX)));
                 } else {
                     values.add(text);

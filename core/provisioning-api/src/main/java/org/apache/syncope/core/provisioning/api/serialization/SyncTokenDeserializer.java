@@ -53,7 +53,7 @@ class SyncTokenDeserializer extends JsonDeserializer<SyncToken> {
             if (value instanceof String) {
                 String base64 = (String) value;
                 try {
-                    value = Base64.getMimeDecoder().decode(base64);
+                    value = Base64.getDecoder().decode(base64);
                 } catch (RuntimeException e) {
                     value = base64;
                 }

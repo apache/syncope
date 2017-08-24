@@ -112,7 +112,7 @@ public class LDAPPasswordPullActions implements PullActions {
         if (entity instanceof UserTO && encodedPassword != null && cipher != null) {
             User user = userDAO.find(entity.getKey());
             if (user != null) {
-                byte[] encodedPasswordBytes = Base64.getMimeDecoder().decode(encodedPassword.getBytes());
+                byte[] encodedPasswordBytes = Base64.getDecoder().decode(encodedPassword.getBytes());
                 String encodedHexStr = DatatypeConverter.printHexBinary(encodedPasswordBytes).toUpperCase();
 
                 user.setEncodedPassword(encodedHexStr, cipher);

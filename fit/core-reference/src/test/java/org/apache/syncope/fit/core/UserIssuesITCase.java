@@ -681,7 +681,7 @@ public class UserIssuesITCase extends AbstractITCase {
         // 2. create user with membership of the above group
         UserTO userTO = UserITCase.getUniqueSampleTO("syncope357@syncope.apache.org");
         userTO.getPlainAttrs().add(attrTO("obscure", "valueToBeObscured"));
-        userTO.getPlainAttrs().add(attrTO("photo", Base64.getMimeEncoder().encodeToString(
+        userTO.getPlainAttrs().add(attrTO("photo", Base64.getEncoder().encodeToString(
                 IOUtils.readBytesFromStream(getClass().getResourceAsStream("/favicon.jpg")))));
         userTO.getMemberships().add(new MembershipTO.Builder().group(groupTO.getKey()).build());
 
@@ -699,10 +699,7 @@ public class UserIssuesITCase extends AbstractITCase {
         assertEquals(userTO.getPlainAttr("obscure").get().getValues(), registeredAddress.getValues());
         Optional<AttrTO> jpegPhoto = connObj.getAttr("jpegPhoto");
         assertTrue(jpegPhoto.isPresent());
-        // difference between java.util.Base64 encoding and ConnId's
-        assertEquals(
-                userTO.getPlainAttr("photo").get().getValues().get(0).replace("\n", "").replace("\r", ""),
-                jpegPhoto.get().getValues().get(0));
+        assertEquals(userTO.getPlainAttr("photo").get().getValues().get(0), jpegPhoto.get().getValues().get(0));
 
         // 4. remove group
         groupService.delete(groupTO.getKey());

@@ -62,7 +62,7 @@ class GuardedStringSerializer extends JsonSerializer<GuardedString> {
 
         byte[] encryptedBytes =
                 EncryptorFactory.getInstance().getDefaultEncryptor().encrypt(SecurityUtil.decrypt(source).getBytes());
-        jgen.writeStringField("encryptedBytes", Base64.getMimeEncoder().encodeToString(encryptedBytes));
+        jgen.writeStringField("encryptedBytes", Base64.getEncoder().encodeToString(encryptedBytes));
 
         String base64SHA1Hash = null;
         try {

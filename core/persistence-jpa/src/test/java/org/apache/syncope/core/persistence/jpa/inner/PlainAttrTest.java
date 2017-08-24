@@ -206,7 +206,7 @@ public class PlainAttrTest extends AbstractTest {
 
         byte[] bytes = new byte[20];
         new Random().nextBytes(bytes);
-        String photoB64Value = Base64.getMimeEncoder().encodeToString(bytes);
+        String photoB64Value = Base64.getEncoder().encodeToString(bytes);
 
         UPlainAttr attr = entityFactory.newEntity(UPlainAttr.class);
         attr.setOwner(user);
