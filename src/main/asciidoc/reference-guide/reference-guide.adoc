@@ -81,3 +81,5 @@ include::architecture/architecture.adoc[]
 include::concepts/concepts.adoc[]
 
 include::workingwithapachesyncope/workingwithapachesyncope.adoc[]
+
+include::tutorials/tutorials.adoc[]

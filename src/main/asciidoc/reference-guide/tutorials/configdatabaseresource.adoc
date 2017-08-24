@@ -1,0 +1,160 @@
+=== Configure a Database resource
+:hardbreaks:
+
+For Syncope 2.0.x
+
+* Introduction
+* Pre-requisites
+* Configure Database Table connector instance
+* Configure Database Table resource
+* Configure Resource Provision rules
+
+==== Introduction
+
+This tutorial shows all the steps needed to configure an external Database Table resource identified by the following connection parameters:
+
+[cols="2*"]
+|===
+|Host
+|localhost
+
+|Port
+|3306
+
+|User
+|root
+
+|User password
+|password
+
+|JDBC connection URL
+|jdbc:mysql://localhost:3306/demo
+
+|Database
+|demo
+
+|Table
+|test
+|===
+
+==== Pre-requisites
+
+. Download JDBC driver (MySQL JDBC driver in this case) and include it into your JEE container classpath.
+
+. Verify that the bundle exists or https://cwiki.apache.org/confluence/display/SYNCOPE/Install+connector+bundles[Install ConnId Database Table connector bundle]
+
+==== Configure Database Table connector instance
+
+The list of all configurable parameters is available at https://connid.atlassian.net/wiki/display/BASE/Database+Table[Database Table Connector Configuration].
+Use this tutorial as reference for your configuration.
+
+. Open browser and access to the Syncope administration console http://host:port/syncope-console
+. Log in with following credentials:
+    Username: admin
+    Password: password
+. Click on Topology side menu. Notice the Syncope node, and the Connector Bundles node connected to the Syncope node.
+. Click on Connector Bundles node. Notice context menu Add new connector.
+
++
+[.text-center]
+image::configdatabaseresource01.jpg[title="Add new connector menu",alt="Add new connector menu"]
+
+. Select Add new connector. New connector modal dialog appears.
+
++
+[.text-center]
+image::configdatabaseresource02.jpg[title="Add new connector dialog",alt="Add new connector dialog"]
+
++
+Provide Display name.
+Location may be different on your environment
+Bundle: net.tirasa.connid.bundles.db.table
+Version may be different on your environment
+
+. Select Next.
+
++
+[.text-center]
+image::configdatabaseresource03.jpg[title="Add new connector continue",alt="Add new connector continue"]
+
++
+Host: localhost
+Port: 3306
+User: root
+User Password: password
+Database: demo
+Table: test
+Key Column: id
+Password Column: password
+JDBC Driver: com.mysql.jdbc.Driver
+JDBC Connection URL: jdbc:mysql://localhost:3306/demo
+Retrieve password: (yes)
+
+. Select Next.
+
++
+[.text-center]
+image::configdatabaseresource04.jpg[title="Add new connector continue",alt="Add new connector continue"]
+
++
+Select needed Capabilities. Refer to https://cwiki.apache.org/confluence/display/SYNCOPE/Connector+instances#Connectorinstances-Create_new_Connector[Connector instance configuration]
+
+. Select Finish.
+
+==== Configure Database Table resource
+
+. Click on newly created Connector. Notice context menu Add new resource / Edit connector / Remove connector.
+. Select Add new resource. New resource modal dialog appears.
+
++
+[.text-center]
+image::configdatabaseresource05.jpg[title="Add new resource dialog",alt="Add new resource dialog"]
+
++
+Provide Key (Unique name to identify a resource)
+Select needed Propagation actions. Refer to http://syncope.apache.org/docs/reference-guide.html#propagationactions[Propagation Actions]
+
+. Select Next.
+
++
+[.text-center]
+image::configdatabaseresource06.jpg[title="Add new resource continue",alt="Add new resource continue"]
+
++
+Keep the inherited Capabilities.
+
+. Select Next.
+
++
+[.text-center]
+image::configdatabaseresource07.jpg[title="Add new resource continue",alt="Add new resource continue"]
+
++
+Keep default selections.
+
+. Select Finish.
+
+==== Configure Resource Provision rules
+
+. Click on newly created Resource. Notice context menu Edit resource / Edit provision rules / Explore resource / etc.
+. Select Edit provision rules. Click on + icon to add new Provisioning object.
+    Select Type: User
+    Select Next.
+. Do not select any Auxiliary classes.
+    Select Next.
+. A sample mapping.
+
++
+[.text-center]
+image::configdatabaseresource08.jpg[title="Sample mapping",alt="Sample mapping"]
+
+. Select Finish.
+. Use Explore resource to verify that configuration works.
+
++
+[.text-center]
+image::configdatabaseresource09.jpg[title="Explore resource",alt="Explore resource"]
+
++
+[.text-center]
+image::configdatabaseresource10.jpg[title="Explore resource details",alt="Explore resource details"]
