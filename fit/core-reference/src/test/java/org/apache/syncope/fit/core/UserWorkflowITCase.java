@@ -258,7 +258,7 @@ public class UserWorkflowITCase extends AbstractITCase {
 
         // approve the user
         form = userWorkflowService.claimForm(form.getTaskId());
-        form.getProperty("approve").setValue(Boolean.TRUE.toString());
+        form.getProperty("approve").get().setValue(Boolean.TRUE.toString());
         userWorkflowService.submitForm(form);
 
         // verify that the approved user bears both original and further changes
@@ -266,7 +266,7 @@ public class UserWorkflowITCase extends AbstractITCase {
         assertNotNull(approved);
         assertEquals("/even/two", approved.getRealm());
         assertEquals(1, approved.getMemberships().size());
-        assertNotNull(approved.getMembership("b1f7c12d-ec83-441f-a50e-1691daaedf3b"));
+        assertNotNull(approved.getMembership("b1f7c12d-ec83-441f-a50e-1691daaedf3b").get());
     }
 
     @Test
