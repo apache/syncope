@@ -62,7 +62,6 @@ public class JPAAnyObject
     @NotNull
     private String name;
 
-    @NotNull
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     private JPAAnyType type;
 

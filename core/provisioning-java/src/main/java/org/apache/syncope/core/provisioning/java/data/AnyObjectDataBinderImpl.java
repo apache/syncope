@@ -177,10 +177,11 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
         AnyUtils anyUtils = anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT);
         if (anyObject.getRealm() != null) {
             // relationships
-            Collection<String> assignableAnyObjects = CollectionUtils.collect(
-                    searchDAO.searchAssignable(anyObject.getRealm().getFullPath(), AnyTypeKind.ANY_OBJECT),
-                    EntityUtils.keyTransformer());
-
+            Collection<String> assignableAnyObjects = anyObjectTO.getRelationships().isEmpty()
+                    ? Collections.<String>emptyList()
+                    : CollectionUtils.collect(
+                            searchDAO.searchAssignable(anyObject.getRealm().getFullPath(), AnyTypeKind.ANY_OBJECT),
+                            EntityUtils.keyTransformer());
             for (RelationshipTO relationshipTO : anyObjectTO.getRelationships()) {
                 if (StringUtils.isBlank(relationshipTO.getRightType())
                         || AnyTypeKind.USER.name().equals(relationshipTO.getRightType())
@@ -219,10 +220,11 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
             }
 
             // memberships
-            Collection<String> assignableGroups = CollectionUtils.collect(
-                    searchDAO.searchAssignable(anyObject.getRealm().getFullPath(), AnyTypeKind.GROUP),
-                    EntityUtils.keyTransformer());
-
+            Collection<String> assignableGroups = anyObjectTO.getMemberships().isEmpty()
+                    ? Collections.<String>emptyList()
+                    : CollectionUtils.collect(
+                            searchDAO.searchAssignable(anyObject.getRealm().getFullPath(), AnyTypeKind.GROUP),
+                            EntityUtils.keyTransformer());
             for (MembershipTO membershipTO : anyObjectTO.getMemberships()) {
                 Group group = membershipTO.getRightKey() == null
                         ? groupDAO.findByName(membershipTO.getGroupName())

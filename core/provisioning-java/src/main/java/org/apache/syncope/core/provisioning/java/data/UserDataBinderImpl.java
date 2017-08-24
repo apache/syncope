@@ -210,10 +210,11 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         AnyUtils anyUtils = anyUtilsFactory.getInstance(AnyTypeKind.USER);
         if (user.getRealm() != null) {
             // relationships
-            Collection<String> assignableAnyObjects = CollectionUtils.collect(
-                    searchDAO.searchAssignable(user.getRealm().getFullPath(), AnyTypeKind.ANY_OBJECT),
-                    EntityUtils.keyTransformer());
-
+            Collection<String> assignableAnyObjects = userTO.getRelationships().isEmpty()
+                    ? Collections.<String>emptyList()
+                    : CollectionUtils.collect(
+                            searchDAO.searchAssignable(user.getRealm().getFullPath(), AnyTypeKind.ANY_OBJECT),
+                            EntityUtils.keyTransformer());
             for (RelationshipTO relationshipTO : userTO.getRelationships()) {
                 AnyObject otherEnd = anyObjectDAO.find(relationshipTO.getRightKey());
                 if (otherEnd == null) {
@@ -223,7 +224,6 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
                     if (relationshipType == null) {
                         LOG.debug("Ignoring invalid relationship type {}", relationshipTO.getType());
                     } else {
-
                         URelationship relationship = entityFactory.newEntity(URelationship.class);
                         relationship.setType(relationshipType);
                         relationship.setRightEnd(otherEnd);
@@ -242,10 +242,11 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             }
 
             // memberships
-            Collection<String> assignableGroups = CollectionUtils.collect(
-                    searchDAO.searchAssignable(user.getRealm().getFullPath(), AnyTypeKind.GROUP),
-                    EntityUtils.keyTransformer());
-
+            Collection<String> assignableGroups = userTO.getMemberships().isEmpty()
+                    ? Collections.<String>emptyList()
+                    : CollectionUtils.collect(
+                            searchDAO.searchAssignable(user.getRealm().getFullPath(), AnyTypeKind.GROUP),
+                            EntityUtils.keyTransformer());
             for (MembershipTO membershipTO : userTO.getMemberships()) {
                 Group group = membershipTO.getRightKey() == null
                         ? groupDAO.findByName(membershipTO.getGroupName())
