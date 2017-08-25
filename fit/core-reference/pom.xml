@@ -493,7 +493,7 @@ under the License.
         <dependency>
           <groupId>org.postgresql</groupId>
           <artifactId>postgresql</artifactId>
-          <version>9.4.1208.jre7</version>
+          <version>42.1.4.jre7</version>
           <scope>test</scope>
         </dependency>
       </dependencies>
@@ -529,7 +529,7 @@ under the License.
         <dependency>
           <groupId>mysql</groupId>
           <artifactId>mysql-connector-java</artifactId>
-          <version>5.1.42</version>
+          <version>5.1.43</version>
           <scope>test</scope>
         </dependency>
       </dependencies>
