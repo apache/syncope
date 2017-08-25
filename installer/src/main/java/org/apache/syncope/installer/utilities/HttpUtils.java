@@ -141,13 +141,12 @@ public class HttpUtils {
         try {
             final HttpPost httPost = httpPost(url, new StringEntity(stringEntity));
             httPost.addHeader("Content-Type", ContentType.APPLICATION_JSON.getMimeType());
-            final CloseableHttpResponse response = httpClient.execute(
-                    targetHost, httPost, setAuth(targetHost, new DigestScheme()));
-            status = response.getStatusLine().getStatusCode();
-            handler.logOutput("Http status: " + status, true);
-            InstallLog.getInstance().info("Http status: " + status);
-
-            response.close();
+            try (CloseableHttpResponse response =
+                    httpClient.execute(targetHost, httPost, setAuth(targetHost, new DigestScheme()))) {
+                status = response.getStatusLine().getStatusCode();
+                handler.logOutput("Http status: " + status, true);
+                InstallLog.getInstance().info("Http status: " + status);
+            }
         } catch (final IOException ioe) {
             final String messageError = "Error calling " + url + ": " + ioe.getMessage();
             handler.emitError(messageError, messageError);

@@ -23,7 +23,6 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.panels.search.AnyObjectSearchPanel;
 import org.apache.syncope.client.console.panels.search.MapOfListModel;
-import org.apache.syncope.client.console.panels.search.SearchClause;
 import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.common.lib.to.AnyTypeTO;
@@ -70,7 +69,7 @@ public class PushTaskFilters extends WizardStep {
                     @Override
                     public Panel getPanel(final String panelId) {
                         return new AnyObjectSearchPanel.Builder(
-                                key, new MapOfListModel<SearchClause>(pushTaskWrapper, "filterClauses", key)).
+                                key, new MapOfListModel<>(pushTaskWrapper, "filterClauses", key)).
                                 required(false).build(panelId);
                     }
                 }), Model.of(StringUtils.isBlank(pushTaskWrapper.getFilters().get(key)) ? -1 : 0))

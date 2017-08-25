@@ -44,7 +44,7 @@ public class SecurityQuestionDetailsPanel extends Panel {
         container.add(form);
 
         final AjaxTextFieldPanel content = new AjaxTextFieldPanel(
-                "content", getString("content"), new PropertyModel<String>(securityQuestionTO, "content"));
+                "content", getString("content"), new PropertyModel<>(securityQuestionTO, "content"));
         content.addRequiredLabel();
         form.add(content);
     }

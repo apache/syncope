@@ -37,8 +37,7 @@ public class GroupDetails extends Details<GroupTO> {
 
         GroupTO groupTO = GroupWrapper.class.cast(wrapper).getInnerObject();
 
-        AjaxTextFieldPanel name = new AjaxTextFieldPanel("name", "name",
-                new PropertyModel<String>(groupTO, "name"), false);
+        AjaxTextFieldPanel name = new AjaxTextFieldPanel("name", "name", new PropertyModel<>(groupTO, "name"), false);
         if (templateMode) {
             name.enableJexlHelp();
         } else {

@@ -53,10 +53,10 @@ public class PasswordPolicyDirectoryPanel extends PolicyDirectoryPanel<PasswordP
 
     @Override
     protected void addCustomColumnFields(final List<IColumn<PasswordPolicyTO, String>> columns) {
-        columns.add(new PropertyColumn<PasswordPolicyTO, String>(new StringResourceModel(
+        columns.add(new PropertyColumn<>(new StringResourceModel(
                 "historyLength", this), "historyLength", "historyLength"));
 
-        columns.add(new BooleanPropertyColumn<PasswordPolicyTO>(new StringResourceModel(
+        columns.add(new BooleanPropertyColumn<>(new StringResourceModel(
                 "allowNullPassword", this), "allowNullPassword", "allowNullPassword"));
     }
 

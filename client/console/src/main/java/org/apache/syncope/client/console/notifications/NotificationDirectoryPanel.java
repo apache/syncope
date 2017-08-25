@@ -85,16 +85,16 @@ public class NotificationDirectoryPanel
     @Override
     protected List<IColumn<NotificationTO, String>> getColumns() {
         List<IColumn<NotificationTO, String>> columns = new ArrayList<>();
-        columns.add(new KeyPropertyColumn<NotificationTO>(new StringResourceModel("key", this), "key"));
-        columns.add(new PropertyColumn<NotificationTO, String>(
+        columns.add(new KeyPropertyColumn<>(new StringResourceModel("key", this), "key"));
+        columns.add(new PropertyColumn<>(
                 new StringResourceModel("sender", this), "sender", "sender"));
-        columns.add(new PropertyColumn<NotificationTO, String>(
+        columns.add(new PropertyColumn<>(
                 new StringResourceModel("subject", this), "subject", "subject"));
-        columns.add(new PropertyColumn<NotificationTO, String>(
+        columns.add(new PropertyColumn<>(
                 new StringResourceModel("template", this), "template", "template"));
-        columns.add(new CollectionPropertyColumn<NotificationTO>(
+        columns.add(new CollectionPropertyColumn<>(
                 new StringResourceModel("events", this), "events"));
-        columns.add(new BooleanPropertyColumn<NotificationTO>(
+        columns.add(new BooleanPropertyColumn<>(
                 new StringResourceModel("active", this), "active", "active"));
         return columns;
     }

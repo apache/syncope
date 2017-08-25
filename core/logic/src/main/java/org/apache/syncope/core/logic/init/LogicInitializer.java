@@ -20,7 +20,6 @@ package org.apache.syncope.core.logic.init;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
@@ -54,21 +53,17 @@ public class LogicInitializer implements InitializingBean, BeanFactoryAware {
         Map<String, SyncopeLoader> loaderMap = beanFactory.getBeansOfType(SyncopeLoader.class);
 
         List<SyncopeLoader> loaders = new ArrayList<>(loaderMap.values());
-        Collections.sort(loaders, new Comparator<SyncopeLoader>() {
-
-            @Override
-            public int compare(final SyncopeLoader o1, final SyncopeLoader o2) {
-                return o1.getPriority().compareTo(o2.getPriority());
-            }
-        });
+        Collections.sort(loaders, (o1, o2) -> o1.getPriority().compareTo(o2.getPriority()));
 
         ApplicationContextProvider.setBeanFactory(beanFactory);
 
         LOG.debug("Starting initialization...");
-        for (SyncopeLoader loader : loaders) {
+        loaders.stream().map(loader -> {
             LOG.debug("Invoking {} with priority {}", AopUtils.getTargetClass(loader).getName(), loader.getPriority());
+            return loader;
+        }).forEachOrdered(loader -> {
             loader.load();
-        }
+        });
         LOG.debug("Initialization completed");
     }
 }

@@ -51,37 +51,35 @@ public class SetUMembershipsJob extends AbstractInterruptableJob {
 
         try {
             AuthContextUtils.execWithAuthContext(context.getMergedJobDataMap().getString(JobManager.DOMAIN_KEY),
-                    new AuthContextUtils.Executable<Void>() {
+                    () -> {
+                        @SuppressWarnings("unchecked")
+                        Map<String, Set<String>> memberships =
+                        (Map<String, Set<String>>) context.getMergedJobDataMap().get(MEMBERSHIPS_KEY);
 
-                @Override
-                public Void exec() {
-                    @SuppressWarnings("unchecked")
-                    Map<String, Set<String>> memberships =
-                            (Map<String, Set<String>>) context.getMergedJobDataMap().get(MEMBERSHIPS_KEY);
+                        LOG.debug("About to set memberships (User -> Groups) {}", memberships);
 
-                    LOG.debug("About to set memberships (User -> Groups) {}", memberships);
+                        memberships.entrySet().stream().map(membership -> {
+                            UserPatch userPatch = new UserPatch();
+                            userPatch.setKey(membership.getKey());
+                            membership.getValue().forEach(groupKey -> {
+                                userPatch.getMemberships().add(
+                                        new MembershipPatch.Builder().
+                                                operation(PatchOperation.ADD_REPLACE).
+                                                group(groupKey).
+                                                build());
+                            });
+                            return userPatch;
+                        }).filter(userPatch -> (!userPatch.isEmpty())).
+                                map((userPatch) -> {
+                                    LOG.debug("About to update User {}", userPatch.getKey());
+                                    return userPatch;
+                                }).
+                                forEachOrdered((userPatch) -> {
+                                    userProvisioningManager.update(userPatch, true);
+                                });
 
-                    for (Map.Entry<String, Set<String>> membership : memberships.entrySet()) {
-                        UserPatch userPatch = new UserPatch();
-                        userPatch.setKey(membership.getKey());
-
-                        for (String groupKey : membership.getValue()) {
-                            userPatch.getMemberships().add(
-                                    new MembershipPatch.Builder().
-                                    operation(PatchOperation.ADD_REPLACE).
-                                    group(groupKey).
-                                    build());
-                        }
-
-                        if (!userPatch.isEmpty()) {
-                            LOG.debug("About to update User {}", userPatch.getKey());
-                            userProvisioningManager.update(userPatch, true);
-                        }
-                    }
-
-                    return null;
-                }
-            });
+                        return null;
+                    });
         } catch (RuntimeException e) {
             LOG.error("While setting memberships", e);
             throw new JobExecutionException("While executing memberships", e);

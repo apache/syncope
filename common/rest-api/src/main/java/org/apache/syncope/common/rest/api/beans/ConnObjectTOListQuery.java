@@ -68,9 +68,9 @@ public class ConnObjectTOListQuery implements Serializable {
 
     public Integer getSize() {
         return size == null
-                ? Integer.valueOf(25)
+                ? 25
                 : size > MAX_SIZE
-                        ? Integer.valueOf(MAX_SIZE)
+                        ? MAX_SIZE
                         : size;
     }
 

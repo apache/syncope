@@ -46,8 +46,7 @@ import org.w3c.dom.Element;
 @Component
 public class SAML2IdPCache {
 
-    private final Map<String, SAML2IdPEntity> cache =
-            Collections.synchronizedMap(new HashMap<String, SAML2IdPEntity>());
+    private final Map<String, SAML2IdPEntity> cache = Collections.synchronizedMap(new HashMap<>());
 
     @Autowired
     private SAML2SPLoader loader;

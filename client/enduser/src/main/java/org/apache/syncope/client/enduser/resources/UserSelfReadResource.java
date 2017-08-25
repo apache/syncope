@@ -22,11 +22,10 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserApplication;
 import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
@@ -72,23 +71,29 @@ public class UserSelfReadResource extends BaseUserSelfResource {
             // 2. membership attributes management
             for (MembershipTO membership : userTO.getMemberships()) {
                 String groupName = membership.getGroupName();
-                for (AttrTO attr : membership.getPlainAttrs()) {
-                    attr.setSchema(groupName.concat(SyncopeEnduserConstants.MEMBERSHIP_ATTR_SEPARATOR).concat(attr.
-                            getSchema()));
+                membership.getPlainAttrs().stream().map(attr -> {
+                    attr.setSchema(groupName.concat(SyncopeEnduserConstants.MEMBERSHIP_ATTR_SEPARATOR).
+                            concat(attr.getSchema()));
+                    return attr;
+                }).forEachOrdered(attr -> {
                     userTO.getPlainAttrs().add(attr);
-                }
+                });
                 membership.getPlainAttrs().clear();
-                for (AttrTO attr : membership.getDerAttrs()) {
-                    attr.setSchema(groupName.concat(SyncopeEnduserConstants.MEMBERSHIP_ATTR_SEPARATOR).concat(attr.
-                            getSchema()));
+                membership.getDerAttrs().stream().map(attr -> {
+                    attr.setSchema(groupName.concat(SyncopeEnduserConstants.MEMBERSHIP_ATTR_SEPARATOR).
+                            concat(attr.getSchema()));
+                    return attr;
+                }).forEachOrdered(attr -> {
                     userTO.getDerAttrs().add(attr);
-                }
+                });
                 membership.getDerAttrs().clear();
-                for (AttrTO attr : membership.getVirAttrs()) {
-                    attr.setSchema(groupName.concat(SyncopeEnduserConstants.MEMBERSHIP_ATTR_SEPARATOR).concat(attr.
-                            getSchema()));
+                membership.getVirAttrs().stream().map((attr) -> {
+                    attr.setSchema(groupName.concat(SyncopeEnduserConstants.MEMBERSHIP_ATTR_SEPARATOR).
+                            concat(attr.getSchema()));
+                    return attr;
+                }).forEachOrdered(attr -> {
                     userTO.getVirAttrs().add(attr);
-                }
+                });
                 membership.getVirAttrs().clear();
             }
             // USER from customization, if empty or null ignore it, use it to filter attributes otherwise
@@ -138,14 +143,9 @@ public class UserSelfReadResource extends BaseUserSelfResource {
                 && customAttributesInfo.isShow()
                 && !customAttributesInfo.getAttributes().isEmpty()) {
 
-            CollectionUtils.filter(attrs, new Predicate<AttrTO>() {
-
-                @Override
-                public boolean evaluate(final AttrTO attr) {
-                    return customAttributesInfo.getAttributes().containsKey(attr.getSchema());
-                }
-            });
-
+            attrs.removeAll(attrs.stream().
+                    filter(attr -> !customAttributesInfo.getAttributes().containsKey(attr.getSchema())).
+                    collect(Collectors.toList()));
         } else if (customAttributesInfo != null && !customAttributesInfo.isShow()) {
             attrs.clear();
         }

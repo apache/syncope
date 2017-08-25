@@ -30,7 +30,6 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.util.visit.IVisit;
-import org.apache.wicket.util.visit.IVisitor;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -98,18 +97,14 @@ public class LogsITCase extends AbstractConsoleITCase {
         Component component = TESTER.getComponentFromLastRenderedPage(searchPath);
 
         Component result = component.getPage().
-                visitChildren(ListItem.class, new IVisitor<ListItem<LoggerTO>, Component>() {
-
-                    @Override
-                    public void component(final ListItem<LoggerTO> object, final IVisit<Component> visit) {
-                        try {
-                            if (object.getModelObject() instanceof LoggerTO && PropertyResolver.getPropertyGetter(
-                                    property, object.getModelObject()).invoke(object.getModelObject()).equals(key)) {
-                                visit.stop(object);
-                            }
-                        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-                            LOG.error("Error invoke method", ex);
+                visitChildren(ListItem.class, (final ListItem<LoggerTO> object, final IVisit<Component> visit) -> {
+                    try {
+                        if (object.getModelObject() instanceof LoggerTO && PropertyResolver.getPropertyGetter(
+                                property, object.getModelObject()).invoke(object.getModelObject()).equals(key)) {
+                            visit.stop(object);
                         }
+                    } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+                        LOG.error("Error invoke method", ex);
                     }
                 });
         return result;

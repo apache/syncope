@@ -21,8 +21,6 @@ package org.apache.syncope.client.console.panels;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
@@ -71,13 +69,8 @@ public class SAMLSSOLoginFormPanel extends SSOLoginFormPanel {
 
             @Override
             public SAML2IdPTO getObject(final String id, final IModel<? extends List<? extends SAML2IdPTO>> choices) {
-                return IterableUtils.find(choices.getObject(), new Predicate<SAML2IdPTO>() {
-
-                    @Override
-                    public boolean evaluate(final SAML2IdPTO object) {
-                        return object.getEntityID().equals(id);
-                    }
-                });
+                return choices.getObject().stream().
+                        filter(idp -> idp.getEntityID().equals(id)).findFirst().orElse(null);
             }
         });
         idps.getField().add(new AjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {

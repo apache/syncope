@@ -345,9 +345,9 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
             result.setStatus(ProvisioningReport.Status.FAILURE);
             result.setMessage("Update failed, trying to pull status anyway (if configured)\n" + ex.getMessage());
 
-            WorkflowResult<Pair<UserPatch, Boolean>> updated = new WorkflowResult<Pair<UserPatch, Boolean>>(
+            WorkflowResult<Pair<UserPatch, Boolean>> updated = new WorkflowResult<>(
                     new ImmutablePair<>(userPatch, false), new PropagationByResource(),
-                    new HashSet<String>());
+                    new HashSet<>());
             sendMessage("direct:userInPull", updated, props);
             exchange = pollingConsumer.receive();
         }

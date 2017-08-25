@@ -80,25 +80,25 @@ public abstract class NotificationTaskDirectoryPanel
     protected List<IColumn<NotificationTaskTO, String>> getColumns() {
         final List<IColumn<NotificationTaskTO, String>> columns = new ArrayList<>();
 
-        columns.add(new KeyPropertyColumn<NotificationTaskTO>(
+        columns.add(new KeyPropertyColumn<>(
                 new StringResourceModel("key", this), "key"));
 
-        columns.add(new PropertyColumn<NotificationTaskTO, String>(
+        columns.add(new PropertyColumn<>(
                 new StringResourceModel("sender", this), "sender", "sender"));
 
-        columns.add(new PropertyColumn<NotificationTaskTO, String>(
+        columns.add(new PropertyColumn<>(
                 new StringResourceModel("subject", this), "subject", "subject"));
 
-        columns.add(new CollectionPropertyColumn<NotificationTaskTO>(
+        columns.add(new CollectionPropertyColumn<>(
                 new StringResourceModel("recipients", this), "recipients"));
 
-        columns.add(new DatePropertyColumn<NotificationTaskTO>(
+        columns.add(new DatePropertyColumn<>(
                 new StringResourceModel("start", this), "start", "start"));
 
-        columns.add(new DatePropertyColumn<NotificationTaskTO>(
+        columns.add(new DatePropertyColumn<>(
                 new StringResourceModel("end", this), "end", "end"));
 
-        columns.add(new PropertyColumn<NotificationTaskTO, String>(
+        columns.add(new PropertyColumn<>(
                 new StringResourceModel("latestExecStatus", this), "latestExecStatus", "latestExecStatus"));
         return columns;
     }

@@ -47,13 +47,9 @@ public class EntitlementLoader implements SyncopeLoader {
         EntitlementsHolder.getInstance().init(StandardEntitlement.values());
 
         for (Map.Entry<String, DataSource> entry : domainsHolder.getDomains().entrySet()) {
-            AuthContextUtils.execWithAuthContext(entry.getKey(), new AuthContextUtils.Executable<Void>() {
-
-                @Override
-                public Void exec() {
-                    entitlementAccessor.addEntitlementsForAnyTypes();
-                    return null;
-                }
+            AuthContextUtils.execWithAuthContext(entry.getKey(), () -> {
+                entitlementAccessor.addEntitlementsForAnyTypes();
+                return null;
             });
         }
     }

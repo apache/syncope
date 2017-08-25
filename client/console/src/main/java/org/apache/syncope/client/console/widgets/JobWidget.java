@@ -334,11 +334,11 @@ public class JobWidget extends BaseWidget {
         protected List<IColumn<JobTO, String>> getColumns() {
             List<IColumn<JobTO, String>> columns = new ArrayList<>();
 
-            columns.add(new PropertyColumn<JobTO, String>(new ResourceModel("refDesc"), "refDesc", "refDesc"));
+            columns.add(new PropertyColumn<>(new ResourceModel("refDesc"), "refDesc", "refDesc"));
 
-            columns.add(new BooleanPropertyColumn<JobTO>(new ResourceModel("scheduled"), "scheduled", "scheduled"));
+            columns.add(new BooleanPropertyColumn<>(new ResourceModel("scheduled"), "scheduled", "scheduled"));
 
-            columns.add(new DatePropertyColumn<JobTO>(new ResourceModel("start"), "start", "start"));
+            columns.add(new DatePropertyColumn<>(new ResourceModel("start"), "start", "start"));
 
             columns.add(new AbstractColumn<JobTO, String>(new Model<>(""), "running") {
 
@@ -351,8 +351,8 @@ public class JobWidget extends BaseWidget {
                         final IModel<JobTO> rowModel) {
 
                     JobTO jobTO = rowModel.getObject();
-                    JobActionPanel panel
-                            = new JobActionPanel(componentId, jobTO, JobWidget.this, pageRef);
+                    JobActionPanel panel =
+                            new JobActionPanel(componentId, jobTO, JobWidget.this, pageRef);
                     MetaDataRoleAuthorizationStrategy.authorize(panel, WebPage.ENABLE,
                             String.format("%s,%s%s,%s",
                                     StandardEntitlement.TASK_EXECUTE,
@@ -407,8 +407,8 @@ public class JobWidget extends BaseWidget {
                             SchedTaskTO schedTaskTO = new TaskRestClient().
                                     readSchedTask(SchedTaskTO.class, jobTO.getRefKey());
 
-                            SchedTaskWizardBuilder<SchedTaskTO> swb
-                                    = new SchedTaskWizardBuilder<>(schedTaskTO, pageRef);
+                            SchedTaskWizardBuilder<SchedTaskTO> swb =
+                                    new SchedTaskWizardBuilder<>(schedTaskTO, pageRef);
                             swb.setEventSink(AvailableJobsPanel.this);
 
                             target.add(jobModal.setContent(swb.build(BaseModal.CONTENT_ID, AjaxWizard.Mode.EDIT)));
@@ -567,13 +567,13 @@ public class JobWidget extends BaseWidget {
         protected List<IColumn<ExecTO, String>> getColumns() {
             List<IColumn<ExecTO, String>> columns = new ArrayList<>();
 
-            columns.add(new PropertyColumn<ExecTO, String>(new ResourceModel("refDesc"), "refDesc", "refDesc"));
+            columns.add(new PropertyColumn<>(new ResourceModel("refDesc"), "refDesc", "refDesc"));
 
-            columns.add(new DatePropertyColumn<ExecTO>(new ResourceModel("start"), "start", "start"));
+            columns.add(new DatePropertyColumn<>(new ResourceModel("start"), "start", "start"));
 
-            columns.add(new DatePropertyColumn<ExecTO>(new ResourceModel("end"), "end", "end"));
+            columns.add(new DatePropertyColumn<>(new ResourceModel("end"), "end", "end"));
 
-            columns.add(new PropertyColumn<ExecTO, String>(new ResourceModel("status"), "status", "status"));
+            columns.add(new PropertyColumn<>(new ResourceModel("status"), "status", "status"));
 
             return columns;
         }

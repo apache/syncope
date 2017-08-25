@@ -34,7 +34,7 @@ public class DerSchemaDetails extends AbstractSchemaDetailsPanel {
             final AbstractSchemaTO schemaTO) {
         super(id, pageReference, schemaTO);
 
-        TextField<String> expression = new TextField<>("expression", new PropertyModel<String>(schemaTO, "expression"));
+        TextField<String> expression = new TextField<>("expression", new PropertyModel<>(schemaTO, "expression"));
         expression.setRequired(true);
         schemaForm.add(expression);
 

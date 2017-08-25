@@ -61,19 +61,15 @@ public class NotificationJob extends AbstractInterruptableJob {
 
         for (String domain : domainsHolder.getDomains().keySet()) {
             try {
-                AuthContextUtils.execWithAuthContext(domain, new AuthContextUtils.Executable<Void>() {
-
-                    @Override
-                    public Void exec() {
-                        try {
-                            delegate.execute();
-                        } catch (Exception e) {
-                            LOG.error("While sending out notifications", e);
-                            throw new RuntimeException(e);
-                        }
-
-                        return null;
+                AuthContextUtils.execWithAuthContext(domain, () -> {
+                    try {
+                        delegate.execute();
+                    } catch (Exception e) {
+                        LOG.error("While sending out notifications", e);
+                        throw new RuntimeException(e);
                     }
+
+                    return null;
                 });
             } catch (RuntimeException e) {
                 LOG.error("While sending out notifications", e);

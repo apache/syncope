@@ -21,9 +21,8 @@ package org.apache.syncope.client.enduser.resources;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
+import java.util.ListIterator;
 import java.util.Set;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.time.FastDateFormat;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
@@ -34,45 +33,38 @@ public abstract class BaseUserSelfResource extends BaseResource {
 
     protected void dateToMillis(final Set<AttrTO> attrs, final PlainSchemaTO plainSchema)
             throws ParseException {
+
         final FastDateFormat fmt = FastDateFormat.getInstance(plainSchema.getConversionPattern());
-
-        for (AttrTO attr : attrs) {
-            if (attr.getSchema().equals(plainSchema.getKey())) {
-                CollectionUtils.transform(attr.getValues(), new Transformer<String, String>() {
-
-                    @Override
-                    public String transform(final String input) {
+        attrs.stream().
+                filter(attr -> (attr.getSchema().equals(plainSchema.getKey()))).
+                forEachOrdered(attr -> {
+                    for (ListIterator<String> itor = attr.getValues().listIterator(); itor.hasNext();) {
+                        String value = itor.next();
                         try {
-                            return String.valueOf(fmt.parse(input).getTime());
+                            itor.set(String.valueOf(fmt.parse(value).getTime()));
                         } catch (ParseException ex) {
-                            LOG.error("Unable to parse date {}", input);
-                            return input;
+                            LOG.error("Unable to parse date {}", value);
                         }
                     }
                 });
-            }
-        }
     }
 
     protected void millisToDate(final Set<AttrTO> attrs, final PlainSchemaTO plainSchema)
             throws IllegalArgumentException {
-        final FastDateFormat fmt = FastDateFormat.getInstance(plainSchema.getConversionPattern());
-        for (AttrTO attr : attrs) {
-            if (attr.getSchema().equals(plainSchema.getKey())) {
-                CollectionUtils.transform(attr.getValues(), new Transformer<String, String>() {
 
-                    @Override
-                    public String transform(final String input) {
+        final FastDateFormat fmt = FastDateFormat.getInstance(plainSchema.getConversionPattern());
+        attrs.stream().
+                filter(attr -> (attr.getSchema().equals(plainSchema.getKey()))).
+                forEachOrdered(attr -> {
+                    for (ListIterator<String> itor = attr.getValues().listIterator(); itor.hasNext();) {
+                        String value = itor.next();
                         try {
-                            return fmt.format(Long.valueOf(input));
+                            itor.set(fmt.format(Long.valueOf(value)));
                         } catch (NumberFormatException ex) {
-                            LOG.error("Invalid format value for {}", input);
-                            return input;
+                            LOG.error("Invalid format value for {}", value);
                         }
                     }
                 });
-            }
-        }
     }
 
     protected void buildResponse(final ResourceResponse response, final int statusCode, final String message) {

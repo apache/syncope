@@ -24,7 +24,6 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditElements.Result;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
-import org.apache.syncope.core.spring.security.AuthContextUtils.Executable;
 import org.apache.syncope.core.persistence.api.entity.Domain;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.UserProvisioningManager;
@@ -110,41 +109,26 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
                         adminPassword);
             } else {
                 final String domainToFind = domainKey;
-                authenticated = AuthContextUtils.execWithAuthContext(
-                        SyncopeConstants.MASTER_DOMAIN, new Executable<Boolean>() {
+                authenticated = AuthContextUtils.execWithAuthContext(SyncopeConstants.MASTER_DOMAIN, () -> {
+                    Domain domain = dataAccessor.findDomain(domainToFind);
 
-                    @Override
-                    public Boolean exec() {
-                        Domain domain = dataAccessor.findDomain(domainToFind);
-
-                        return ENCRYPTOR.verify(
-                                authentication.getCredentials().toString(),
-                                domain.getAdminCipherAlgorithm(),
-                                domain.getAdminPwd());
-                    }
+                    return ENCRYPTOR.verify(
+                            authentication.getCredentials().toString(),
+                            domain.getAdminCipherAlgorithm(),
+                            domain.getAdminPwd());
                 });
             }
         } else {
             final Pair<User, Boolean> authResult =
-                    AuthContextUtils.execWithAuthContext(domainKey, new Executable<Pair<User, Boolean>>() {
-
-                        @Override
-                        public Pair<User, Boolean> exec() {
-                            return dataAccessor.authenticate(authentication);
-                        }
-                    });
+                    AuthContextUtils.execWithAuthContext(domainKey, () -> dataAccessor.authenticate(authentication));
             authenticated = authResult.getValue();
             if (authResult.getLeft() != null && authResult.getRight() != null) {
                 username[0] = authResult.getLeft().getUsername();
 
                 if (!authResult.getRight()) {
-                    AuthContextUtils.execWithAuthContext(domainKey, new Executable<Void>() {
-
-                        @Override
-                        public Void exec() {
-                            provisioningManager.internalSuspend(authResult.getLeft().getKey());
-                            return null;
-                        }
+                    AuthContextUtils.execWithAuthContext(domainKey, () -> {
+                        provisioningManager.internalSuspend(authResult.getLeft().getKey());
+                        return null;
                     });
                 }
             }
@@ -156,48 +140,34 @@ public class UsernamePasswordAuthenticationProvider implements AuthenticationPro
         final boolean isAuthenticated = authenticated != null && authenticated;
         UsernamePasswordAuthenticationToken token;
         if (isAuthenticated) {
-            token = AuthContextUtils.execWithAuthContext(
-                    domainKey, new Executable<UsernamePasswordAuthenticationToken>() {
-
-                @Override
-                public UsernamePasswordAuthenticationToken exec() {
-                    UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-                            username[0],
-                            null,
-                            dataAccessor.getAuthorities(username[0]));
-                    token.setDetails(authentication.getDetails());
-
-                    dataAccessor.audit(AuditElements.EventCategoryType.LOGIC,
-                            AuditElements.AUTHENTICATION_CATEGORY,
-                            null,
-                            AuditElements.LOGIN_EVENT,
-                            Result.SUCCESS,
-                            null,
-                            isAuthenticated,
-                            authentication,
-                            "Successfully authenticated, with entitlements: " + token.getAuthorities());
-                    return token;
-                }
+            token = AuthContextUtils.execWithAuthContext(domainKey, () -> {
+                UsernamePasswordAuthenticationToken token1 =
+                        new UsernamePasswordAuthenticationToken(
+                                username[0],
+                                null,
+                                dataAccessor.getAuthorities(username[0]));
+                token1.setDetails(authentication.getDetails());
+                dataAccessor.audit(AuditElements.EventCategoryType.LOGIC,
+                        AuditElements.AUTHENTICATION_CATEGORY, null,
+                        AuditElements.LOGIN_EVENT, Result.SUCCESS, null, isAuthenticated, authentication,
+                        "Successfully authenticated, with entitlements: " + token1.getAuthorities());
+                return token1;
             });
 
             LOG.debug("User {} successfully authenticated, with entitlements {}",
                     username[0], token.getAuthorities());
         } else {
-            AuthContextUtils.execWithAuthContext(domainKey, new Executable<Void>() {
-
-                @Override
-                public Void exec() {
-                    dataAccessor.audit(AuditElements.EventCategoryType.LOGIC,
-                            AuditElements.AUTHENTICATION_CATEGORY,
-                            null,
-                            AuditElements.LOGIN_EVENT,
-                            Result.FAILURE,
-                            null,
-                            isAuthenticated,
-                            authentication,
-                            "User " + username[0] + " not authenticated");
-                    return null;
-                }
+            AuthContextUtils.execWithAuthContext(domainKey, () -> {
+                dataAccessor.audit(AuditElements.EventCategoryType.LOGIC,
+                        AuditElements.AUTHENTICATION_CATEGORY,
+                        null,
+                        AuditElements.LOGIN_EVENT,
+                        Result.FAILURE,
+                        null,
+                        isAuthenticated,
+                        authentication,
+                        "User " + username[0] + " not authenticated");
+                return null;
             });
 
             LOG.debug("User {} not authenticated", username[0]);

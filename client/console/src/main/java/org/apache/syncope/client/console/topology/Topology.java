@@ -105,7 +105,7 @@ public class Topology extends BasePage {
         protected Map<String, List<ConnInstanceTO>> load() {
             final Map<String, List<ConnInstanceTO>> res = new HashMap<>();
 
-            for (ConnInstanceTO conn : connectorRestClient.getAllConnectors()) {
+            connectorRestClient.getAllConnectors().forEach(conn -> {
                 final List<ConnInstanceTO> conns;
                 if (res.containsKey(conn.getLocation())) {
                     conns = res.get(conn.getLocation());
@@ -114,7 +114,7 @@ public class Topology extends BasePage {
                     res.put(conn.getLocation(), conns);
                 }
                 conns.add(conn);
-            }
+            });
 
             return res;
         }
@@ -130,13 +130,13 @@ public class Topology extends BasePage {
             final List<URI> connectorServers = new ArrayList<>();
             final List<URI> filePaths = new ArrayList<>();
 
-            for (String location : SyncopeConsoleSession.get().getPlatformInfo().getConnIdLocations()) {
+            SyncopeConsoleSession.get().getPlatformInfo().getConnIdLocations().forEach(location -> {
                 if (location.startsWith(CONNECTOR_SERVER_LOCATION_PREFIX)) {
                     connectorServers.add(URI.create(location));
                 } else {
                     filePaths.add(URI.create(location));
                 }
-            }
+            });
 
             return Pair.of(connectorServers, filePaths);
         }
@@ -248,7 +248,7 @@ public class Topology extends BasePage {
                 item.add(topologyNodePanel("cs", topologynode));
 
                 syncopeConnections.put(url, topologynode);
-                connections.put(url, new HashMap<Serializable, TopologyNode>());
+                connections.put(url, new HashMap<>());
             }
         };
 
@@ -287,7 +287,7 @@ public class Topology extends BasePage {
                 item.add(topologyNodePanel("fp", topologynode));
 
                 syncopeConnections.put(url, topologynode);
-                connections.put(url, new HashMap<Serializable, TopologyNode>());
+                connections.put(url, new HashMap<>());
             }
         };
 
@@ -371,32 +371,28 @@ public class Topology extends BasePage {
         // Add Resources
         // -----------------------------------------
         final Collection<String> administrableConns = new HashSet<>();
-        for (List<ConnInstanceTO> connInstances : connModel.getObject().values()) {
+        connModel.getObject().values().forEach(connInstances -> {
             administrableConns.addAll(connInstances.stream().map(EntityTO::getKey).collect(Collectors.toList()));
-        }
+        });
 
         final List<String> connToBeProcessed = new ArrayList<>();
-        for (final ResourceTO resourceTO : resModel.getObject()) {
-            if (administrableConns.contains(resourceTO.getConnector())) {
-                final TopologyNode topologynode = new TopologyNode(
-                        resourceTO.getKey(), resourceTO.getKey(), TopologyNode.Kind.RESOURCE);
-
-                final Map<Serializable, TopologyNode> remoteConnections;
-
-                if (connections.containsKey(resourceTO.getConnector())) {
-                    remoteConnections = connections.get(resourceTO.getConnector());
-                } else {
-                    remoteConnections = new HashMap<>();
-                    connections.put(resourceTO.getConnector(), remoteConnections);
-                }
-
-                remoteConnections.put(topologynode.getKey(), topologynode);
-
-                if (!connToBeProcessed.contains(resourceTO.getConnector())) {
-                    connToBeProcessed.add(resourceTO.getConnector());
-                }
-            }
-        }
+        resModel.getObject().stream().
+                filter((resourceTO) -> (administrableConns.contains(resourceTO.getConnector()))).
+                forEachOrdered(resourceTO -> {
+                    final TopologyNode topologynode = new TopologyNode(
+                            resourceTO.getKey(), resourceTO.getKey(), TopologyNode.Kind.RESOURCE);
+                    final Map<Serializable, TopologyNode> remoteConnections;
+                    if (connections.containsKey(resourceTO.getConnector())) {
+                        remoteConnections = connections.get(resourceTO.getConnector());
+                    } else {
+                        remoteConnections = new HashMap<>();
+                        connections.put(resourceTO.getConnector(), remoteConnections);
+                    }
+                    remoteConnections.put(topologynode.getKey(), topologynode);
+                    if (!connToBeProcessed.contains(resourceTO.getConnector())) {
+                        connToBeProcessed.add(resourceTO.getConnector());
+                    }
+                });
 
         final ListView<String> resources = new ListView<String>("resources", connToBeProcessed) {
 
@@ -466,9 +462,9 @@ public class Topology extends BasePage {
                 final StringBuilder jsPlumbConf = new StringBuilder();
                 jsPlumbConf.append(String.format(Locale.US, "activate(%.2f);", 0.68f));
 
-                for (String str : createConnections(connections)) {
+                createConnections(connections).forEach(str -> {
                     jsPlumbConf.append(str);
-                }
+                });
 
                 response.render(OnDomReadyHeaderItem.forScript(jsPlumbConf.toString()));
             }
@@ -521,14 +517,14 @@ public class Topology extends BasePage {
     private List<String> createConnections(final Map<Serializable, Map<Serializable, TopologyNode>> targets) {
         List<String> list = new ArrayList<>();
 
-        for (Map.Entry<Serializable, Map<Serializable, TopologyNode>> source : targets.entrySet()) {
-            for (Map.Entry<Serializable, TopologyNode> target : source.getValue().entrySet()) {
+        targets.entrySet().forEach(source -> {
+            source.getValue().entrySet().forEach(target -> {
                 list.add(String.format("connect('%s','%s','%s');",
                         source.getKey(),
                         target.getKey(),
                         target.getValue().getKind()));
-            }
-        }
+            });
+        });
         return list;
     }
 

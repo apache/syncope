@@ -43,8 +43,6 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.OddEvenItem;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.util.visit.IVisit;
-import org.apache.wicket.util.visit.IVisitor;
 
 public class AjaxFallbackDataTable<T extends Serializable, S> extends DataTable<T, S> {
 
@@ -142,29 +140,18 @@ public class AjaxFallbackDataTable<T extends Serializable, S> extends DataTable<
                             final AjaxDataTablePanel<?, ?> parent = findParent(AjaxDataTablePanel.class);
                             final Model<Boolean> isCheck = Model.<Boolean>of(Boolean.FALSE);
 
-                            parent.visitChildren(CheckGroupSelector.class,
-                                    new IVisitor<CheckGroupSelector, List<CheckGroupSelector>>() {
-
-                                @Override
-                                public void component(
-                                        final CheckGroupSelector t,
-                                        final IVisit<List<CheckGroupSelector>> ivisit) {
-                                    if (t.getMarkupId().equalsIgnoreCase(lastFocussedElementId)) {
-                                        isCheck.setObject(Boolean.TRUE);
-                                        ivisit.stop();
-                                    }
+                            parent.visitChildren(CheckGroupSelector.class, (selector, ivisit) -> {
+                                if (selector.getMarkupId().equalsIgnoreCase(lastFocussedElementId)) {
+                                    isCheck.setObject(Boolean.TRUE);
+                                    ivisit.stop();
                                 }
                             });
 
                             if (!isCheck.getObject()) {
-                                parent.visitChildren(Check.class, new IVisitor<Check<?>, List<Check<?>>>() {
-
-                                    @Override
-                                    public void component(final Check<?> t, final IVisit<List<Check<?>>> ivisit) {
-                                        if (t.getMarkupId().equalsIgnoreCase(lastFocussedElementId)) {
-                                            isCheck.setObject(Boolean.TRUE);
-                                            ivisit.stop();
-                                        }
+                                parent.visitChildren(Check.class, (check, ivisit) -> {
+                                    if (check.getMarkupId().equalsIgnoreCase(lastFocussedElementId)) {
+                                        isCheck.setObject(Boolean.TRUE);
+                                        ivisit.stop();
                                     }
                                 });
                             }

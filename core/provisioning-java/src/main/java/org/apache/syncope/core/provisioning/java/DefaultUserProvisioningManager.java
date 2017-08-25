@@ -286,7 +286,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
             userPatch.setKey(updated.getLeft().getResult());
 
             List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(
-                    new WorkflowResult<Pair<UserPatch, Boolean>>(
+                    new WorkflowResult<>(
                             Pair.of(userPatch, Boolean.FALSE),
                             updated.getLeft().getPropByRes(), updated.getLeft().getPerformedTasks()));
             taskExecutor.execute(tasks, false);

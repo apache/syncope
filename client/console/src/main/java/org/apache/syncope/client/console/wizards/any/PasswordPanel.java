@@ -46,7 +46,7 @@ public class PasswordPanel extends Panel {
         add(form);
 
         FieldPanel<String> confirmPasswordField = new AjaxPasswordFieldPanel(
-                "confirmPassword", "confirmPassword", new Model<String>(), false);
+                "confirmPassword", "confirmPassword", new Model<>(), false);
 
         confirmPasswordField.setMarkupId("confirmPassword");
         confirmPasswordField.setPlaceholder("confirmPassword");
@@ -58,7 +58,7 @@ public class PasswordPanel extends Panel {
             confirmPasswordField.setVisible(false);
 
             AjaxTextFieldPanel passwordField = new AjaxTextFieldPanel(
-                    "password", "password", new PropertyModel<String>(wrapper.getInnerObject(), "password"), false);
+                    "password", "password", new PropertyModel<>(wrapper.getInnerObject(), "password"), false);
             passwordField.setRequired(true);
             passwordField.setMarkupId("password");
             passwordField.setPlaceholder("password");
@@ -66,7 +66,7 @@ public class PasswordPanel extends Panel {
             passwordField.enableJexlHelp();
         } else {
             AjaxPasswordFieldPanel passwordField = new AjaxPasswordFieldPanel(
-                    "password", "password", new PropertyModel<String>(wrapper.getInnerObject(), "password"), false);
+                    "password", "password", new PropertyModel<>(wrapper.getInnerObject(), "password"), false);
             passwordField.setRequired(true);
             passwordField.setMarkupId("password");
             passwordField.setPlaceholder("password");
@@ -76,7 +76,7 @@ public class PasswordPanel extends Panel {
         }
 
         AjaxCheckBoxPanel storePasswordInSyncope = new AjaxCheckBoxPanel("storePasswordInSyncope",
-                "storePasswordInSyncope", new PropertyModel<Boolean>(wrapper, "storePasswordInSyncope"));
+                "storePasswordInSyncope", new PropertyModel<>(wrapper, "storePasswordInSyncope"));
         storePasswordInSyncope.getField().setLabel(new ResourceModel("storePasswordInSyncope"));
         storePasswordInSyncope.setOutputMarkupId(true);
         storePasswordInSyncope.setOutputMarkupPlaceholderTag(true);

@@ -129,10 +129,10 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
     protected List<IColumn<T, String>> getFieldColumns() {
         final List<IColumn<T, String>> columns = new ArrayList<>();
 
-        columns.add(new KeyPropertyColumn<T>(
+        columns.add(new KeyPropertyColumn<>(
                 new StringResourceModel("key", this), "key"));
 
-        columns.add(new PropertyColumn<T, String>(
+        columns.add(new PropertyColumn<>(
                 new StringResourceModel("name", this), "name", "name"));
 
         columns.add(new PropertyColumn<T, String>(new StringResourceModel(
@@ -158,16 +158,16 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
 
         });
 
-        columns.add(new DatePropertyColumn<T>(
+        columns.add(new DatePropertyColumn<>(
                 new StringResourceModel("lastExec", this), "lastExec", "lastExec"));
 
-        columns.add(new DatePropertyColumn<T>(
+        columns.add(new DatePropertyColumn<>(
                 new StringResourceModel("nextExec", this), "nextExec", "nextExec"));
 
-        columns.add(new PropertyColumn<T, String>(
+        columns.add(new PropertyColumn<>(
                 new StringResourceModel("latestExecStatus", this), "latestExecStatus", "latestExecStatus"));
 
-        columns.add(new BooleanPropertyColumn<T>(
+        columns.add(new BooleanPropertyColumn<>(
                 new StringResourceModel("active", this), "active", "active"));
 
         return columns;

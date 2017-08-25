@@ -215,7 +215,7 @@ public abstract class DirectoryPanel<
         container.add(paginatorForm);
 
         DropDownChoice<Integer> rowsChooser = new DropDownChoice<>(
-                "rowsChooser", new PropertyModel<Integer>(this, "rows"), prefMan.getPaginatorChoices());
+                "rowsChooser", new PropertyModel<>(this, "rows"), prefMan.getPaginatorChoices());
         rowsChooser.add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;
@@ -353,7 +353,7 @@ public abstract class DirectoryPanel<
     }
 
     protected ActionsPanel<T> getActions(final IModel<T> model) {
-        return model == null ? new ActionsPanel<>("actions", new Model<T>()) : new ActionsPanel<>("actions", model);
+        return model == null ? new ActionsPanel<>("actions", new Model<>()) : new ActionsPanel<>("actions", model);
     }
 
     protected ActionLinksTogglePanel<T> getTogglePanel() {

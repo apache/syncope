@@ -109,7 +109,7 @@ public abstract class PolicyDirectoryPanel<T extends AbstractPolicyTO>
         setFooterVisibility(true);
         modal.addSubmitButton();
         modal.size(Modal.Size.Large);
-        
+
         disableCheckBoxes();
     }
 
@@ -117,13 +117,13 @@ public abstract class PolicyDirectoryPanel<T extends AbstractPolicyTO>
     protected List<IColumn<T, String>> getColumns() {
         final List<IColumn<T, String>> columns = new ArrayList<>();
 
-        columns.add(new KeyPropertyColumn<T>(
+        columns.add(new KeyPropertyColumn<>(
                 new StringResourceModel("key", this), "key"));
-        columns.add(new PropertyColumn<T, String>(
+        columns.add(new PropertyColumn<>(
                 new StringResourceModel("description", this), "description", "description"));
-        columns.add(new CollectionPropertyColumn<T>(
+        columns.add(new CollectionPropertyColumn<>(
                 new StringResourceModel("usedByResources", this), "usedByResources"));
-        columns.add(new CollectionPropertyColumn<T>(
+        columns.add(new CollectionPropertyColumn<>(
                 new StringResourceModel("usedByRealms", this), "usedByRealms"));
 
         addCustomColumnFields(columns);

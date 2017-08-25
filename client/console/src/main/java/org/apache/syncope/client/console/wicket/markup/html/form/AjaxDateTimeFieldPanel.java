@@ -38,9 +38,7 @@ public class AjaxDateTimeFieldPanel extends DateFieldPanel {
 
     @Override
     public FieldPanel<Date> clone() {
-        final FieldPanel<Date> panel =
-                new AjaxDateTimeFieldPanel(getId(), name, new Model<Date>(null), fmt.getPattern());
-
+        FieldPanel<Date> panel = new AjaxDateTimeFieldPanel(getId(), name, new Model<>(null), fmt.getPattern());
         panel.setRequired(isRequired());
         panel.setReadOnly(isReadOnly());
         panel.setTitle(title);

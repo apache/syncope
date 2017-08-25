@@ -33,7 +33,7 @@ public class FailureMessageModal<T extends Serializable> extends Panel implement
         super(BaseModal.CONTENT_ID);
         final Label executionFailureMessage;
         if (!failureMessage.isEmpty()) {
-            executionFailureMessage = new Label("failureMessage", new Model<String>(failureMessage));
+            executionFailureMessage = new Label("failureMessage", new Model<>(failureMessage));
         } else {
             executionFailureMessage = new Label("failureMessage");
         }

@@ -47,7 +47,7 @@ public class SchemaModalPanel extends AbstractModalPanel<AbstractSchemaTO> {
         add(kindForm);
 
         final AjaxDropDownChoicePanel<SchemaType> kind = new AjaxDropDownChoicePanel<>(
-                "kind", getString("kind"), new Model<SchemaType>());
+                "kind", getString("kind"), new Model<>());
         kind.setChoices(Arrays.asList(SchemaType.values()));
         kind.setOutputMarkupId(true);
 

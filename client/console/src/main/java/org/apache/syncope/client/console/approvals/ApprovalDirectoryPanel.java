@@ -88,17 +88,17 @@ public class ApprovalDirectoryPanel
     protected List<IColumn<WorkflowFormTO, String>> getColumns() {
 
         List<IColumn<WorkflowFormTO, String>> columns = new ArrayList<>();
-        columns.add(new PropertyColumn<WorkflowFormTO, String>(
+        columns.add(new PropertyColumn<>(
                 new ResourceModel("taskId"), "taskId", "taskId"));
-        columns.add(new PropertyColumn<WorkflowFormTO, String>(
+        columns.add(new PropertyColumn<>(
                 new ResourceModel("key"), "key", "key"));
-        columns.add(new PropertyColumn<WorkflowFormTO, String>(
+        columns.add(new PropertyColumn<>(
                 new ResourceModel("username"), "username", "username"));
-        columns.add(new DatePropertyColumn<WorkflowFormTO>(
+        columns.add(new DatePropertyColumn<>(
                 new ResourceModel("createTime"), "createTime", "createTime"));
-        columns.add(new DatePropertyColumn<WorkflowFormTO>(
+        columns.add(new DatePropertyColumn<>(
                 new ResourceModel("dueDate"), "dueDate", "dueDate"));
-        columns.add(new PropertyColumn<WorkflowFormTO, String>(new ResourceModel("owner"), "owner", "owner"));
+        columns.add(new PropertyColumn<>(new ResourceModel("owner"), "owner", "owner"));
 
         return columns;
     }
@@ -150,7 +150,7 @@ public class ApprovalDirectoryPanel
                     }
 
                 }));
-                
+
                 modal.header(new Model<>(getString("approval.edit", new Model<>(model.getObject()))));
                 modal.show(true);
             }

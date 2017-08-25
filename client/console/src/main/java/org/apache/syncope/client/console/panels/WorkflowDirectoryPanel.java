@@ -154,9 +154,9 @@ public class WorkflowDirectoryPanel extends DirectoryPanel<
     protected List<IColumn<WorkflowDefinitionTO, String>> getColumns() {
         List<IColumn<WorkflowDefinitionTO, String>> columns = new ArrayList<>();
 
-        columns.add(new KeyPropertyColumn<WorkflowDefinitionTO>(new ResourceModel("key"), "key"));
-        columns.add(new PropertyColumn<WorkflowDefinitionTO, String>(new ResourceModel("name"), "name", "name"));
-        columns.add(new BooleanPropertyColumn<WorkflowDefinitionTO>(new ResourceModel("main"), null, "main"));
+        columns.add(new KeyPropertyColumn<>(new ResourceModel("key"), "key"));
+        columns.add(new PropertyColumn<>(new ResourceModel("name"), "name", "name"));
+        columns.add(new BooleanPropertyColumn<>(new ResourceModel("main"), null, "main"));
 
         return columns;
     }

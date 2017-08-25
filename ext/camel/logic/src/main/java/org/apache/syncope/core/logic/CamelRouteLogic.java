@@ -19,14 +19,12 @@
 package org.apache.syncope.core.logic;
 
 import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import org.apache.camel.component.metrics.routepolicy.MetricsRegistryService;
-import java.util.Map;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.to.CamelMetrics;
@@ -61,9 +59,9 @@ public class CamelRouteLogic extends AbstractTransactionalLogic<CamelRouteTO> {
     public List<CamelRouteTO> list(final AnyTypeKind anyTypeKind) {
         List<CamelRouteTO> routes = new ArrayList<>();
 
-        for (CamelRoute route : routeDAO.find(anyTypeKind)) {
+        routeDAO.find(anyTypeKind).forEach(route -> {
             routes.add(binder.getRouteTO(route));
-        }
+        });
         return routes;
     }
 
@@ -114,12 +112,14 @@ public class CamelRouteLogic extends AbstractTransactionalLogic<CamelRouteTO> {
             LOG.warn("Camel metrics not available");
         } else {
             MetricRegistry registry = registryService.getMetricsRegistry();
-            for (Map.Entry<String, Timer> entry : registry.getTimers().entrySet()) {
+            registry.getTimers().entrySet().stream().map(entry -> {
                 CamelMetrics.MeanRate meanRate = new CamelMetrics.MeanRate();
                 meanRate.setRouteId(StringUtils.substringBetween(entry.getKey(), ".", "."));
                 meanRate.setValue(entry.getValue().getMeanRate());
+                return meanRate;
+            }).forEachOrdered(meanRate -> {
                 metrics.getResponseMeanRates().add(meanRate);
-            }
+            });
 
             Collections.sort(metrics.getResponseMeanRates(),
                     (o1, o2) -> Collections.reverseOrder(Comparator.<Double>naturalOrder()).

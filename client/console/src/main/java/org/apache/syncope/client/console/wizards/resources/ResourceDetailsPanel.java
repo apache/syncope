@@ -64,14 +64,14 @@ public class ResourceDetailsPanel extends WizardStep {
         container.add(new AjaxTextFieldPanel(
                 "key",
                 new ResourceModel("key", "key").
-                getObject(),
-                new PropertyModel<String>(resourceTO, "key"),
+                        getObject(),
+                new PropertyModel<>(resourceTO, "key"),
                 false).addRequiredLabel().setEnabled(createFlag));
 
         container.add(new AjaxCheckBoxPanel(
                 "enforceMandatoryCondition",
                 new ResourceModel("enforceMandatoryCondition", "enforceMandatoryCondition").getObject(),
-                new PropertyModel<Boolean>(resourceTO, "enforceMandatoryCondition"),
+                new PropertyModel<>(resourceTO, "enforceMandatoryCondition"),
                 false));
 
         container.add(new AjaxSpinnerFieldPanel.Builder<Integer>().build(
@@ -82,7 +82,7 @@ public class ResourceDetailsPanel extends WizardStep {
 
         container.add(new AjaxCheckBoxPanel("randomPwdIfNotProvided",
                 new ResourceModel("randomPwdIfNotProvided", "randomPwdIfNotProvided").getObject(),
-                new PropertyModel<Boolean>(resourceTO, "randomPwdIfNotProvided"),
+                new PropertyModel<>(resourceTO, "randomPwdIfNotProvided"),
                 false));
 
         container.add(new AjaxPalettePanel.Builder<String>().
@@ -95,28 +95,28 @@ public class ResourceDetailsPanel extends WizardStep {
         container.add(new AjaxDropDownChoicePanel<>(
                 "createTraceLevel",
                 new ResourceModel("createTraceLevel", "createTraceLevel").getObject(),
-                new PropertyModel<TraceLevel>(resourceTO, "createTraceLevel"),
+                new PropertyModel<>(resourceTO, "createTraceLevel"),
                 false).
                 setChoices(Arrays.asList(TraceLevel.values())).setNullValid(false));
 
         container.add(new AjaxDropDownChoicePanel<>(
                 "updateTraceLevel",
                 new ResourceModel("updateTraceLevel", "updateTraceLevel").getObject(),
-                new PropertyModel<TraceLevel>(resourceTO, "updateTraceLevel"),
+                new PropertyModel<>(resourceTO, "updateTraceLevel"),
                 false).
                 setChoices(Arrays.asList(TraceLevel.values())).setNullValid(false));
 
         container.add(new AjaxDropDownChoicePanel<>(
                 "deleteTraceLevel",
                 new ResourceModel("deleteTraceLevel", "deleteTraceLevel").getObject(),
-                new PropertyModel<TraceLevel>(resourceTO, "deleteTraceLevel"),
+                new PropertyModel<>(resourceTO, "deleteTraceLevel"),
                 false).
                 setChoices(Arrays.asList(TraceLevel.values())).setNullValid(false));
 
         container.add(new AjaxDropDownChoicePanel<>(
                 "provisioningTraceLevel",
                 new ResourceModel("provisioningTraceLevel", "provisioningTraceLevel").getObject(),
-                new PropertyModel<TraceLevel>(resourceTO, "provisioningTraceLevel"),
+                new PropertyModel<>(resourceTO, "provisioningTraceLevel"),
                 false).
                 setChoices(Arrays.asList(TraceLevel.values())).setNullValid(false));
 

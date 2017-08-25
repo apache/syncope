@@ -87,13 +87,13 @@ public abstract class ConnInstanceHistoryConfDirectoryPanel extends DirectoryPan
     protected List<IColumn<ConnInstanceHistoryConfTO, String>> getColumns() {
         final List<IColumn<ConnInstanceHistoryConfTO, String>> columns = new ArrayList<>();
 
-        columns.add(new KeyPropertyColumn<ConnInstanceHistoryConfTO>(
+        columns.add(new KeyPropertyColumn<>(
                 new StringResourceModel("key", this), "key"));
 
-        columns.add(new PropertyColumn<ConnInstanceHistoryConfTO, String>(new StringResourceModel(
+        columns.add(new PropertyColumn<>(new StringResourceModel(
                 "creator", this), "creator", "creator"));
 
-        columns.add(new DatePropertyColumn<ConnInstanceHistoryConfTO>(
+        columns.add(new DatePropertyColumn<>(
                 new StringResourceModel("creation", this), "creation", "creation"));
 
         return columns;

@@ -68,6 +68,7 @@ public class SearchCondVisitor extends AbstractSearchConditionVisitor<SearchBean
         return attributeCond;
     }
 
+    @SuppressWarnings("ConvertToStringSwitch")
     private SearchCond visitPrimitive(final SearchCondition<SearchBean> sc) {
         String name = getRealPropertyName(sc.getStatement().getProperty());
         Optional<SpecialAttr> specialAttrName = SpecialAttr.fromString(name);

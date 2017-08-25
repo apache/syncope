@@ -49,7 +49,7 @@ public class NewWorkflowProcess extends TogglePanel<Serializable> {
         form = new Form<>("form");
         addInnerObject(form);
 
-        final TextField<String> key = new TextField<>("key", new Model<String>());
+        final TextField<String> key = new TextField<>("key", new Model<>());
         key.setRequired(true);
         form.add(key);
 

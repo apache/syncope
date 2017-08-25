@@ -69,7 +69,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
         super(id, pageReference, schemaTO);
 
         final AjaxDropDownChoicePanel<AttrSchemaType> type = new AjaxDropDownChoicePanel<>(
-                "type", getString("type"), new PropertyModel<AttrSchemaType>(schemaTO, "type"));
+                "type", getString("type"), new PropertyModel<>(schemaTO, "type"));
 
         type.setChoices(Arrays.asList(AttrSchemaType.values()));
         type.setEnabled(schemaTO == null || schemaTO.getKey() == null || schemaTO.getKey().isEmpty());
@@ -79,7 +79,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
 
         // long, double, date
         final AjaxTextFieldPanel conversionPattern = new AjaxTextFieldPanel("conversionPattern",
-                getString("conversionPattern"), new PropertyModel<String>(schemaTO, "conversionPattern"));
+                getString("conversionPattern"), new PropertyModel<>(schemaTO, "conversionPattern"));
 
         schemaForm.add(conversionPattern);
 
@@ -94,8 +94,8 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
         typeParams.setOutputMarkupPlaceholderTag(true);
 
         // enum
-        final AjaxTextFieldPanel enumerationValuesPanel = new AjaxTextFieldPanel("panel", "enumerationValues",
-                new Model<String>(null));
+        final AjaxTextFieldPanel enumerationValuesPanel = new AjaxTextFieldPanel("panel",
+                "enumerationValues", new Model<>(null));
 
         enumerationValues = new MultiFieldPanel.Builder<String>(
                 new PropertyModel<List<String>>(schemaTO, "enumerationValues") {
@@ -183,11 +183,11 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
 
         // encrypted
         final AjaxTextFieldPanel secretKey = new AjaxTextFieldPanel("secretKey",
-                getString("secretKey"), new PropertyModel<String>(schemaTO, "secretKey"));
+                getString("secretKey"), new PropertyModel<>(schemaTO, "secretKey"));
 
         final AjaxDropDownChoicePanel<CipherAlgorithm> cipherAlgorithm = new AjaxDropDownChoicePanel<>(
                 "cipherAlgorithm", getString("cipherAlgorithm"),
-                new PropertyModel<CipherAlgorithm>(schemaTO, "cipherAlgorithm"));
+                new PropertyModel<>(schemaTO, "cipherAlgorithm"));
 
         cipherAlgorithm.setChoices(Arrays.asList(CipherAlgorithm.values()));
 
@@ -200,7 +200,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
 
         // binary
         final AjaxTextFieldPanel mimeType = new AjaxTextFieldPanel("mimeType",
-                getString("mimeType"), new PropertyModel<String>(schemaTO, "mimeType"));
+                getString("mimeType"), new PropertyModel<>(schemaTO, "mimeType"));
 
         final WebMarkupContainer binaryParams = new WebMarkupContainer("binaryParams");
         binaryParams.setOutputMarkupPlaceholderTag(true);
@@ -242,7 +242,7 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
             }
         };
         final AjaxDropDownChoicePanel<String> validatorClass = new AjaxDropDownChoicePanel<>("validatorClass",
-                getString("validatorClass"), new PropertyModel<String>(schemaTO, "validatorClass"));
+                getString("validatorClass"), new PropertyModel<>(schemaTO, "validatorClass"));
         ((DropDownChoice) validatorClass.getField()).setNullValid(true);
         validatorClass.setChoices(validatorsList.getObject());
         schemaForm.add(validatorClass);
@@ -279,13 +279,13 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
         schemaForm.add(Constants.getJEXLPopover(this, TooltipConfig.Placement.right));
 
         schemaForm.add(new AjaxCheckBoxPanel(
-                "multivalue", getString("multivalue"), new PropertyModel<Boolean>(schemaTO, "multivalue")));
+                "multivalue", getString("multivalue"), new PropertyModel<>(schemaTO, "multivalue")));
 
         schemaForm.add(new AjaxCheckBoxPanel(
-                "readonly", getString("readonly"), new PropertyModel<Boolean>(schemaTO, "readonly")));
+                "readonly", getString("readonly"), new PropertyModel<>(schemaTO, "readonly")));
 
         schemaForm.add(new AjaxCheckBoxPanel("uniqueConstraint",
-                getString("uniqueConstraint"), new PropertyModel<Boolean>(schemaTO, "uniqueConstraint")));
+                getString("uniqueConstraint"), new PropertyModel<>(schemaTO, "uniqueConstraint")));
 
     }
 

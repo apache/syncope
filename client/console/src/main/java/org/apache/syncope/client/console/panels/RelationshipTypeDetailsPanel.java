@@ -43,14 +43,14 @@ public class RelationshipTypeDetailsPanel extends Panel {
         form.setModel(new CompoundPropertyModel<>(relationshipTypeTO));
         container.add(form);
 
-        final AjaxTextFieldPanel key = new AjaxTextFieldPanel("key", getString("key"), new PropertyModel<String>(
-                relationshipTypeTO, "key"));
+        final AjaxTextFieldPanel key = new AjaxTextFieldPanel("key", getString("key"),
+                new PropertyModel<>(relationshipTypeTO, "key"));
         key.addRequiredLabel();
         key.setEnabled(key.getModelObject() == null || key.getModelObject().isEmpty());
         form.add(key);
 
         final AjaxTextFieldPanel description = new AjaxTextFieldPanel("description",
-                getString("description"), new PropertyModel<String>(relationshipTypeTO, "description"));
+                getString("description"), new PropertyModel<>(relationshipTypeTO, "description"));
         description.addRequiredLabel();
         form.add(description);
     }

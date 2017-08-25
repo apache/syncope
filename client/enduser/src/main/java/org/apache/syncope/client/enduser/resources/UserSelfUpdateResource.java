@@ -20,12 +20,11 @@ package org.apache.syncope.client.enduser.resources;
 
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserApplication;
 import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
@@ -38,7 +37,6 @@ import org.apache.syncope.common.lib.EntityTOUtils;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
-import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.wicket.request.resource.AbstractResource;
@@ -75,87 +73,75 @@ public class UserSelfUpdateResource extends BaseUserSelfResource {
             if (UserRequestValidator.compliant(userTO, customForm, false)) {
                 // 1. membership attributes management
                 Set<AttrTO> membAttrs = new HashSet<>();
-                for (AttrTO attr : userTO.getPlainAttrs()) {
-                    if (attr.getSchema().contains(SyncopeEnduserConstants.MEMBERSHIP_ATTR_SEPARATOR)) {
-                        final String[] compositeSchemaKey = attr.getSchema().split(
-                                SyncopeEnduserConstants.MEMBERSHIP_ATTR_SEPARATOR);
-                        MembershipTO membership = IterableUtils.find(userTO.getMemberships(),
-                                new Predicate<MembershipTO>() {
-
-                            @Override
-                            public boolean evaluate(final MembershipTO item) {
-                                return compositeSchemaKey[0].equals(item.getGroupName());
+                userTO.getPlainAttrs().stream().
+                        filter(attr -> (attr.getSchema().contains(SyncopeEnduserConstants.MEMBERSHIP_ATTR_SEPARATOR))).
+                        forEachOrdered((attr) -> {
+                            String[] simpleAttrs = attr.getSchema().split(
+                                    SyncopeEnduserConstants.MEMBERSHIP_ATTR_SEPARATOR);
+                            MembershipTO membership = userTO.getMemberships().stream().
+                                    filter(item -> simpleAttrs[0].equals(item.getGroupName())).
+                                    findFirst().orElse(null);
+                            if (membership == null) {
+                                membership = new MembershipTO.Builder().group(null, simpleAttrs[0]).build();
+                                userTO.getMemberships().add(membership);
                             }
+                            AttrTO clone = SerializationUtils.clone(attr);
+                            clone.setSchema(simpleAttrs[1]);
+                            membership.getPlainAttrs().add(clone);
+                            membAttrs.add(attr);
                         });
-                        if (membership == null) {
-                            membership = new MembershipTO.Builder().group(null, compositeSchemaKey[0]).build();
-                            userTO.getMemberships().add(membership);
-                        }
-                        AttrTO clone = SerializationUtils.clone(attr);
-                        clone.setSchema(compositeSchemaKey[1]);
-                        membership.getPlainAttrs().add(clone);
-                        membAttrs.add(attr);
-                    }
-                }
                 userTO.getPlainAttrs().removeAll(membAttrs);
 
                 // 2. millis -> Date conversion for PLAIN attributes of USER and its MEMBERSHIPS
-                for (PlainSchemaTO plainSchema : SyncopeEnduserSession.get().getDatePlainSchemas()) {
-                    millisToDate(userTO.getPlainAttrs(), plainSchema);
-                    for (MembershipTO membership : userTO.getMemberships()) {
+                SyncopeEnduserSession.get().getDatePlainSchemas().stream().
+                        map(plainSchema -> {
+                            millisToDate(userTO.getPlainAttrs(), plainSchema);
+                            return plainSchema;
+                        }).forEachOrdered(plainSchema -> {
+                    userTO.getMemberships().forEach(membership -> {
                         millisToDate(membership.getPlainAttrs(), plainSchema);
-                    }
-                }
+                    });
+                });
 
                 membAttrs.clear();
-                for (AttrTO attr : userTO.getDerAttrs()) {
-                    if (attr.getSchema().contains(SyncopeEnduserConstants.MEMBERSHIP_ATTR_SEPARATOR)) {
-                        final String[] simpleAttrs = attr.getSchema().split(
-                                SyncopeEnduserConstants.MEMBERSHIP_ATTR_SEPARATOR);
-                        MembershipTO membership = IterableUtils.find(userTO.getMemberships(),
-                                new Predicate<MembershipTO>() {
-
-                            @Override
-                            public boolean evaluate(final MembershipTO item) {
-                                return simpleAttrs[0].equals(item.getGroupName());
+                userTO.getDerAttrs().stream().
+                        filter(attr -> (attr.getSchema().contains(SyncopeEnduserConstants.MEMBERSHIP_ATTR_SEPARATOR))).
+                        forEachOrdered(attr -> {
+                            String[] simpleAttrs = attr.getSchema().split(
+                                    SyncopeEnduserConstants.MEMBERSHIP_ATTR_SEPARATOR);
+                            MembershipTO membership = userTO.getMemberships().stream().
+                                    filter(item -> simpleAttrs[0].equals(item.getGroupName())).
+                                    findFirst().orElse(null);
+                            if (membership == null) {
+                                membership = new MembershipTO.Builder().group(null, simpleAttrs[0]).build();
+                                userTO.getMemberships().add(membership);
                             }
+                            AttrTO clone = SerializationUtils.clone(attr);
+                            clone.setSchema(simpleAttrs[1]);
+                            membership.getDerAttrs().add(clone);
+                            membAttrs.add(attr);
                         });
-                        if (membership == null) {
-                            membership = new MembershipTO.Builder().group(null, simpleAttrs[0]).build();
-                            userTO.getMemberships().add(membership);
-                        }
-                        AttrTO clone = SerializationUtils.clone(attr);
-                        clone.setSchema(simpleAttrs[1]);
-                        membership.getDerAttrs().add(clone);
-                        membAttrs.add(attr);
-                    }
-                }
                 userTO.getDerAttrs().removeAll(membAttrs);
 
                 membAttrs.clear();
-                for (AttrTO attr : userTO.getVirAttrs()) {
-                    if (attr.getSchema().contains(SyncopeEnduserConstants.MEMBERSHIP_ATTR_SEPARATOR)) {
-                        final String[] simpleAttrs = attr.getSchema().split(
-                                SyncopeEnduserConstants.MEMBERSHIP_ATTR_SEPARATOR);
-                        MembershipTO membership = IterableUtils.find(userTO.getMemberships(),
-                                new Predicate<MembershipTO>() {
+                userTO.getVirAttrs().stream().
+                        filter(attr -> (attr.getSchema().contains(SyncopeEnduserConstants.MEMBERSHIP_ATTR_SEPARATOR))).
+                        forEachOrdered((attr) -> {
+                            String[] simpleAttrs = attr.getSchema().split(
+                                    SyncopeEnduserConstants.MEMBERSHIP_ATTR_SEPARATOR);
+                            MembershipTO membership = userTO.getMemberships().stream().
+                                    filter(item -> simpleAttrs[0].equals(item.getGroupName())).
+                                    findFirst().orElse(null);
+                            if (membership == null) {
+                                membership = new MembershipTO.Builder().group(null, simpleAttrs[0]).build();
+                                userTO.getMemberships().add(membership);
 
-                            @Override
-                            public boolean evaluate(final MembershipTO item) {
-                                return simpleAttrs[0].equals(item.getGroupName());
                             }
+                            AttrTO clone = SerializationUtils.clone(attr);
+                            clone.setSchema(simpleAttrs[1]);
+                            membership.getVirAttrs().add(clone);
+                            membAttrs.add(attr);
                         });
-                        if (membership == null) {
-                            membership = new MembershipTO.Builder().group(null, simpleAttrs[0]).build();
-                            userTO.getMemberships().add(membership);
-
-                        }
-                        AttrTO clone = SerializationUtils.clone(attr);
-                        clone.setSchema(simpleAttrs[1]);
-                        membership.getVirAttrs().add(clone);
-                        membAttrs.add(attr);
-                    }
-                }
                 userTO.getVirAttrs().removeAll(membAttrs);
 
                 // get old user object from session
@@ -195,23 +181,19 @@ public class UserSelfUpdateResource extends BaseUserSelfResource {
 
     private void completeUserObject(final UserTO userTO, final UserTO selfTO) {
         // memberships plain and virtual attrs
-        for (final MembershipTO updatedTOMemb : userTO.getMemberships()) {
-            MembershipTO oldTOMatchedMemb = IterableUtils.find(selfTO.getMemberships(), new Predicate<MembershipTO>() {
-
-                @Override
-                public boolean evaluate(final MembershipTO oldTOMemb) {
-                    return updatedTOMemb.getGroupKey().equals(oldTOMemb.getGroupKey());
-                }
-            });
-            if (oldTOMatchedMemb != null) {
+        userTO.getMemberships().forEach(updatedTOMemb -> {
+            Optional<MembershipTO> oldTOMatchedMemb = selfTO.getMemberships().stream().
+                    filter(oldTOMemb -> updatedTOMemb.getGroupKey().equals(oldTOMemb.getGroupKey())).
+                    findFirst();
+            if (oldTOMatchedMemb.isPresent()) {
                 if (!updatedTOMemb.getPlainAttrs().isEmpty()) {
-                    completeAttrs(updatedTOMemb.getPlainAttrs(), oldTOMatchedMemb.getPlainAttrs());
+                    completeAttrs(updatedTOMemb.getPlainAttrs(), oldTOMatchedMemb.get().getPlainAttrs());
                 }
                 if (!updatedTOMemb.getVirAttrs().isEmpty()) {
-                    completeAttrs(updatedTOMemb.getVirAttrs(), oldTOMatchedMemb.getVirAttrs());
+                    completeAttrs(updatedTOMemb.getVirAttrs(), oldTOMatchedMemb.get().getVirAttrs());
                 }
             }
-        }
+        });
         // plain attrs
         completeAttrs(userTO.getPlainAttrs(), selfTO.getPlainAttrs());
         // virtual attrs
@@ -221,11 +203,11 @@ public class UserSelfUpdateResource extends BaseUserSelfResource {
     private void completeAttrs(final Set<AttrTO> userTOAttrs, final Set<AttrTO> selfTOAttrs) {
         Map<String, AttrTO> userTOAttrsMap =
                 EntityTOUtils.buildAttrMap(userTOAttrs);
-        for (AttrTO selfTOAttr : selfTOAttrs) {
-            if (!userTOAttrsMap.containsKey(selfTOAttr.getSchema())) {
-                userTOAttrs.add(selfTOAttr);
-            }
-        }
+        selfTOAttrs.stream().
+                filter(selfTOAttr -> (!userTOAttrsMap.containsKey(selfTOAttr.getSchema()))).
+                forEachOrdered(selfTOAttr -> {
+                    userTOAttrs.add(selfTOAttr);
+                });
     }
 
 }

@@ -171,7 +171,7 @@ public abstract class Approval extends Panel {
 
                     case String:
                     default:
-                        field = new AjaxTextFieldPanel("value", label, new PropertyModel<String>(prop, "value"), false);
+                        field = new AjaxTextFieldPanel("value", label, new PropertyModel<>(prop, "value"), false);
                         break;
                 }
 

@@ -22,8 +22,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.panels.SAML2IdPsDirectoryPanel;
 import org.apache.syncope.client.console.rest.SAML2IdPsRestClient;
@@ -103,25 +101,25 @@ public class SAML2IdPWizardBuilder extends AjaxWizardBuilder<SAML2IdPTO> {
             List<Component> fields = new ArrayList<>();
 
             FieldPanel<String> name = new AjaxTextFieldPanel(
-                    "field", "name", new PropertyModel<String>(idpTO, "name"), false);
+                    "field", "name", new PropertyModel<>(idpTO, "name"), false);
             name.setRequired(true);
             fields.add(name);
 
             AjaxCheckBoxPanel createUnmatching = new AjaxCheckBoxPanel(
-                    "field", "createUnmatching", new PropertyModel<Boolean>(idpTO, "createUnmatching"), false);
+                    "field", "createUnmatching", new PropertyModel<>(idpTO, "createUnmatching"), false);
             fields.add(createUnmatching);
 
             AjaxCheckBoxPanel updateMatching = new AjaxCheckBoxPanel(
-                    "field", "updateMatching", new PropertyModel<Boolean>(idpTO, "updateMatching"), false);
+                    "field", "updateMatching", new PropertyModel<>(idpTO, "updateMatching"), false);
             fields.add(updateMatching);
 
             AjaxCheckBoxPanel useDeflateEncoding = new AjaxCheckBoxPanel(
-                    "field", "useDeflateEncoding", new PropertyModel<Boolean>(idpTO, "useDeflateEncoding"), false);
+                    "field", "useDeflateEncoding", new PropertyModel<>(idpTO, "useDeflateEncoding"), false);
             fields.add(useDeflateEncoding);
 
             AjaxDropDownChoicePanel<SAML2BindingType> bindingType =
                     new AjaxDropDownChoicePanel<>("field", "bindingType",
-                            new PropertyModel<SAML2BindingType>(idpTO, "bindingType"), false);
+                            new PropertyModel<>(idpTO, "bindingType"), false);
             bindingType.setChoices(Arrays.asList(SAML2BindingType.values()));
             fields.add(bindingType);
 
@@ -162,13 +160,7 @@ public class SAML2IdPWizardBuilder extends AjaxWizardBuilder<SAML2IdPTO> {
 
     @Override
     protected Serializable onApplyInternal(final SAML2IdPTO modelObject) {
-        long connObjectKeyCount = IterableUtils.countMatches(modelObject.getItems(), new Predicate<ItemTO>() {
-
-            @Override
-            public boolean evaluate(final ItemTO item) {
-                return item.isConnObjectKey();
-            }
-        });
+        long connObjectKeyCount = modelObject.getItems().stream().filter(ItemTO::isConnObjectKey).count();
         if (connObjectKeyCount != 1) {
             throw new IllegalArgumentException(
                     new StringResourceModel("connObjectKeyValidation", directoryPanel).getString());

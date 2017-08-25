@@ -28,7 +28,6 @@ import org.identityconnectors.framework.common.objects.ConnectorObject;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.ObjectClassInfo;
 import org.identityconnectors.framework.common.objects.OperationOptions;
-import org.identityconnectors.framework.common.objects.ResultsHandler;
 import org.identityconnectors.framework.common.objects.SyncToken;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.identityconnectors.framework.common.objects.filter.FilterBuilder;
@@ -103,14 +102,10 @@ public class AsyncConnectorFacade {
             final Attribute connObjectKey,
             final OperationOptions options) {
 
-        final ConnectorObject[] objects = new ConnectorObject[1];
-        connector.search(objectClass, FilterBuilder.equalTo(connObjectKey), new ResultsHandler() {
-
-            @Override
-            public boolean handle(final ConnectorObject connectorObject) {
-                objects[0] = connectorObject;
-                return false;
-            }
+        ConnectorObject[] objects = new ConnectorObject[1];
+        connector.search(objectClass, FilterBuilder.equalTo(connObjectKey), connectorObject -> {
+            objects[0] = connectorObject;
+            return false;
         }, options);
 
         return new AsyncResult<>(objects[0]);

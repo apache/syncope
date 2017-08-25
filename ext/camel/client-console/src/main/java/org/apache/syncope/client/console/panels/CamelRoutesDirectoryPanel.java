@@ -101,7 +101,7 @@ public class CamelRoutesDirectoryPanel extends DirectoryPanel<
     @Override
     protected List<IColumn<CamelRouteTO, String>> getColumns() {
         final List<IColumn<CamelRouteTO, String>> columns = new ArrayList<>();
-        columns.add(new PropertyColumn<CamelRouteTO, String>(new ResourceModel("key"), "key", "key"));
+        columns.add(new PropertyColumn<>(new ResourceModel("key"), "key", "key"));
         return columns;
     }
 

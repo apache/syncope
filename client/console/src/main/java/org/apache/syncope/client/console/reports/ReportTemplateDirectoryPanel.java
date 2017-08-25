@@ -112,7 +112,7 @@ public class ReportTemplateDirectoryPanel
     @Override
     protected List<IColumn<ReportTemplateTO, String>> getColumns() {
         List<IColumn<ReportTemplateTO, String>> columns = new ArrayList<>();
-        columns.add(new PropertyColumn<ReportTemplateTO, String>(new StringResourceModel("key", this), "key", "key"));
+        columns.add(new PropertyColumn<>(new StringResourceModel("key", this), "key", "key"));
         return columns;
     }
 

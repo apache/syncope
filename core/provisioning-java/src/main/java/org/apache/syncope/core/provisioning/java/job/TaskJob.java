@@ -67,27 +67,23 @@ public class TaskJob extends AbstractInterruptableJob {
 
         try {
             AuthContextUtils.execWithAuthContext(context.getMergedJobDataMap().getString(JobManager.DOMAIN_KEY),
-                    new AuthContextUtils.Executable<Void>() {
+                    () -> {
+                        try {
+                            Class<?> delegateClass =
+                            ClassUtils.getClass(context.getMergedJobDataMap().getString(DELEGATE_CLASS_KEY));
 
-                @Override
-                public Void exec() {
-                    try {
-                        Class<?> delegateClass =
-                                ClassUtils.getClass(context.getMergedJobDataMap().getString(DELEGATE_CLASS_KEY));
+                            ((SchedTaskJobDelegate) ApplicationContextProvider.getBeanFactory().
+                                    createBean(delegateClass, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false)).
+                                    execute(taskKey,
+                                            context.getMergedJobDataMap().getBoolean(DRY_RUN_JOBDETAIL_KEY),
+                                            context);
+                        } catch (Exception e) {
+                            LOG.error("While executing task {}", taskKey, e);
+                            throw new RuntimeException(e);
+                        }
 
-                        ((SchedTaskJobDelegate) ApplicationContextProvider.getBeanFactory().
-                                createBean(delegateClass, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false)).
-                                execute(taskKey,
-                                        context.getMergedJobDataMap().getBoolean(DRY_RUN_JOBDETAIL_KEY),
-                                        context);
-                    } catch (Exception e) {
-                        LOG.error("While executing task {}", taskKey, e);
-                        throw new RuntimeException(e);
-                    }
-
-                    return null;
-                }
-            });
+                        return null;
+                    });
         } catch (RuntimeException e) {
             LOG.error("While executing task {}", taskKey, e);
             throw new JobExecutionException("While executing task " + taskKey, e);

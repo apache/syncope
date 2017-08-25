@@ -35,7 +35,7 @@ public abstract class AbstractSchemaDetailsPanel extends Panel {
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractSchemaDetailsPanel.class);
 
     protected static final String FORM = "form";
-    
+
     protected final Form<AbstractSchemaTO> schemaForm;
 
     protected final AbstractSchemaTO schemaTO;
@@ -53,7 +53,7 @@ public abstract class AbstractSchemaDetailsPanel extends Panel {
         schemaForm.setOutputMarkupId(true);
 
         final AjaxTextFieldPanel name =
-                new AjaxTextFieldPanel("key", getString("key"), new PropertyModel<String>(schemaTO, "key"));
+                new AjaxTextFieldPanel("key", getString("key"), new PropertyModel<>(schemaTO, "key"));
         name.addRequiredLabel();
         name.setEnabled(schemaTO == null || schemaTO.getKey() == null || schemaTO.getKey().isEmpty());
 

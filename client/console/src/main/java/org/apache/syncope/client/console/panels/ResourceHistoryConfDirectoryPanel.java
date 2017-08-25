@@ -90,13 +90,13 @@ public abstract class ResourceHistoryConfDirectoryPanel extends DirectoryPanel<
     protected List<IColumn<ResourceHistoryConfTO, String>> getColumns() {
         final List<IColumn<ResourceHistoryConfTO, String>> columns = new ArrayList<>();
 
-        columns.add(new KeyPropertyColumn<ResourceHistoryConfTO>(
+        columns.add(new KeyPropertyColumn<>(
                 new StringResourceModel("key", this), "key"));
 
-        columns.add(new PropertyColumn<ResourceHistoryConfTO, String>(new StringResourceModel(
+        columns.add(new PropertyColumn<>(new StringResourceModel(
                 "creator", this), "creator", "creator"));
 
-        columns.add(new DatePropertyColumn<ResourceHistoryConfTO>(
+        columns.add(new DatePropertyColumn<>(
                 new StringResourceModel("creation", this), "creation", "creation"));
 
         return columns;

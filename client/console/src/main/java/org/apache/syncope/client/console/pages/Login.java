@@ -29,7 +29,6 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.init.ClassPathScanImplementationLookup;
 import org.apache.syncope.client.console.init.ConsoleInitializer;
 import org.apache.syncope.client.console.panels.NotificationPanel;
-import org.apache.syncope.client.console.panels.SSOLoginFormPanel;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -88,11 +87,11 @@ public class Login extends WebPage {
 
         form = new StatelessForm<>("login");
 
-        usernameField = new TextField<>("username", new Model<String>());
+        usernameField = new TextField<>("username", new Model<>());
         usernameField.setMarkupId("username");
         form.add(usernameField);
 
-        passwordField = new PasswordTextField("password", new Model<String>());
+        passwordField = new PasswordTextField("password", new Model<>());
         passwordField.setMarkupId("password");
         form.add(passwordField);
 
@@ -137,15 +136,13 @@ public class Login extends WebPage {
                 (ClassPathScanImplementationLookup) SyncopeConsoleApplication.get().
                         getServletContext().getAttribute(ConsoleInitializer.CLASSPATH_LOOKUP);
         List<Panel> ssoLoginFormPanels = new ArrayList<>();
-        for (Class<? extends SSOLoginFormPanel> ssoLoginFormPanel : classPathScanImplementationLookup.
-                getSSOLoginFormPanels()) {
-
+        classPathScanImplementationLookup.getSSOLoginFormPanels().forEach(ssoLoginFormPanel -> {
             try {
                 ssoLoginFormPanels.add(ssoLoginFormPanel.getConstructor(String.class).newInstance("ssoLogin"));
             } catch (Exception e) {
                 LOG.error("Could not initialize the provided SSO login form panel", e);
             }
-        }
+        });
         ListView<Panel> ssoLogins = new ListView<Panel>("ssoLogins", ssoLoginFormPanels) {
 
             private static final long serialVersionUID = -9180479401817023838L;

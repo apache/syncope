@@ -51,8 +51,6 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.util.visit.IVisit;
-import org.apache.wicket.util.visit.IVisitor;
 
 public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTablePanel<T, S> {
 
@@ -206,21 +204,16 @@ public final class AjaxDataTablePanel<T extends Serializable, S> extends DataTab
 
             @Override
             protected void onUpdate(final AjaxRequestTarget target) {
-                group.visitChildren(
-                        CheckGroupSelector.class, new IVisitor<CheckGroupSelector, List<CheckGroupSelector>>() {
-
-                    @Override
-                    public void component(final CheckGroupSelector t, final IVisit<List<CheckGroupSelector>> ivisit) {
-                        target.focusComponent(t);
-                        ivisit.stop();
-                    }
+                group.visitChildren(CheckGroupSelector.class, (selector, ivisit) -> {
+                    target.focusComponent(selector);
+                    ivisit.stop();
                 });
             }
         });
         bulkActionForm.add(group);
 
         if (builder.checkBoxEnabled) {
-            builder.columns.add(0, new CheckGroupColumn<T, S>(group));
+            builder.columns.add(0, new CheckGroupColumn<>(group));
         }
 
         dataTable = new AjaxFallbackDataTable<T, S>(

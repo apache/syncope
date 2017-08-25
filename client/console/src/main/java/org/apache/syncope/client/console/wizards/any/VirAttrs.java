@@ -126,7 +126,7 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
 
         Map<String, AttrTO> attrMap = EntityTOUtils.buildAttrMap(anyTO.getVirAttrs());
 
-        for (VirSchemaTO schema : schemas.values()) {
+        schemas.values().stream().map(schema -> {
             AttrTO attrTO = new AttrTO();
             attrTO.setSchema(schema.getKey());
             if (attrMap.containsKey(schema.getKey())) {
@@ -134,9 +134,10 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
             } else {
                 attrTO.getValues().add(StringUtils.EMPTY);
             }
-
+            return attrTO;
+        }).forEachOrdered(attrTO -> {
             attrs.add(attrTO);
-        }
+        });
 
         anyTO.getVirAttrs().clear();
         anyTO.getVirAttrs().addAll(attrs);
@@ -148,7 +149,7 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
 
         Map<String, AttrTO> attrMap = EntityTOUtils.buildAttrMap(anyTO.getVirAttrs());
 
-        for (VirSchemaTO schema : membershipSchemas.get(membershipTO.getGroupKey()).values()) {
+        membershipSchemas.get(membershipTO.getGroupKey()).values().stream().map(schema -> {
             AttrTO attrTO = new AttrTO();
             attrTO.setSchema(schema.getKey());
             if (attrMap.containsKey(schema.getKey())) {
@@ -156,9 +157,10 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
             } else {
                 attrTO.getValues().add(StringUtils.EMPTY);
             }
-
+            return attrTO;
+        }).forEachOrdered(attrTO -> {
             attrs.add(attrTO);
-        }
+        });
 
         membershipTO.getVirAttrs().clear();
         membershipTO.getVirAttrs().addAll(attrs);
@@ -180,8 +182,8 @@ public class VirAttrs extends AbstractAttrs<VirSchemaTO> {
                 protected void populateItem(final ListItem<AttrTO> item) {
                     AttrTO attrTO = item.getModelObject();
 
-                    AbstractFieldPanel<?> panel
-                            = new AjaxTextFieldPanel("panel", attrTO.getSchema(), new Model<String>(), false);
+                    AbstractFieldPanel<?> panel =
+                            new AjaxTextFieldPanel("panel", attrTO.getSchema(), new Model<>(), false);
 
                     boolean readonly = attrTO.getSchemaInfo() == null
                             ? false

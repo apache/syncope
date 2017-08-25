@@ -43,7 +43,7 @@ public class SchemaQuery extends AbstractBaseBean {
 
         public Builder anyTypeClass(final String anyTypeClass) {
             if (instance.getAnyTypeClasses() == null) {
-                instance.setAnyTypeClasses(new ArrayList<String>());
+                instance.setAnyTypeClasses(new ArrayList<>());
             }
             instance.getAnyTypeClasses().add(anyTypeClass);
 
@@ -51,9 +51,9 @@ public class SchemaQuery extends AbstractBaseBean {
         }
 
         public Builder anyTypeClasses(final Collection<String> anyTypeClasses) {
-            for (String anyTypeClass : anyTypeClasses) {
+            anyTypeClasses.forEach(anyTypeClass -> {
                 anyTypeClass(anyTypeClass);
-            }
+            });
             return this;
         }
 

@@ -89,10 +89,10 @@ public class ResourceStatusDirectoryPanel
     protected List<IColumn<StatusBean, String>> getColumns() {
         final List<IColumn<StatusBean, String>> columns = new ArrayList<>();
 
-        columns.add(new PropertyColumn<StatusBean, String>(
+        columns.add(new PropertyColumn<>(
                 new StringResourceModel("key", this), "key", "key"));
 
-        columns.add(new PropertyColumn<StatusBean, String>(
+        columns.add(new PropertyColumn<>(
                 new StringResourceModel("connObjectLink", this), "connObjectLink", "connObjectLink"));
 
         columns.add(new AbstractColumn<StatusBean, String>(new StringResourceModel("status", this)) {

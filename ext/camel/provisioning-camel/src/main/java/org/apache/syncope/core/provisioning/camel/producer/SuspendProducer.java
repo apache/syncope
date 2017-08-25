@@ -48,7 +48,7 @@ public class SuspendProducer extends AbstractProducer {
                 userPatch.setKey(updated.getKey().getResult());
 
                 List<PropagationTask> tasks = getPropagationManager().getUserUpdateTasks(
-                        new WorkflowResult<Pair<UserPatch, Boolean>>(
+                        new WorkflowResult<>(
                                 new ImmutablePair<>(userPatch, Boolean.FALSE),
                                 updated.getKey().getPropByRes(), updated.getKey().getPerformedTasks()));
                 getPropagationTaskExecutor().execute(tasks, false);

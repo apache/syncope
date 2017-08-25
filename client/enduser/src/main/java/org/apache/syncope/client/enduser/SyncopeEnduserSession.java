@@ -22,10 +22,9 @@ import java.security.AccessControlException;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.ws.rs.core.EntityTag;
 import javax.ws.rs.core.MediaType;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.apache.syncope.client.lib.AnonymousAuthenticationHandler;
@@ -85,13 +84,8 @@ public class SyncopeEnduserSession extends WebSession {
 
         datePlainSchemas = anonymousClient.getService(SchemaService.class).
                 list(new SchemaQuery.Builder().type(SchemaType.PLAIN).build());
-        CollectionUtils.filter(datePlainSchemas, new Predicate<PlainSchemaTO>() {
-
-            @Override
-            public boolean evaluate(final PlainSchemaTO object) {
-                return object.getType() == AttrSchemaType.Date;
-            }
-        });
+        datePlainSchemas.removeAll(datePlainSchemas.stream().
+                filter(object -> object.getType() != AttrSchemaType.Date).collect(Collectors.toSet()));
     }
 
     private void afterAuthentication() {

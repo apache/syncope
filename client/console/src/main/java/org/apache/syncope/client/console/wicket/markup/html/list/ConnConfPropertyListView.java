@@ -82,7 +82,7 @@ public class ConnConfPropertyListView extends ListView<ConnConfProperty> {
                 || Constants.GUARDED_STRING.equalsIgnoreCase(property.getSchema().getType())
                 || Constants.GUARDED_BYTE_ARRAY.equalsIgnoreCase(property.getSchema().getType())) {
 
-            field = new AjaxPasswordFieldPanel("panel", label, new Model<String>(), false);
+            field = new AjaxPasswordFieldPanel("panel", label, new Model<>(), false);
             ((PasswordTextField) field.getField()).setResetPassword(false);
 
             required = property.getSchema().isRequired();
@@ -101,12 +101,12 @@ public class ConnConfPropertyListView extends ListView<ConnConfProperty> {
             if (ClassUtils.isAssignable(Number.class, propertySchemaClass)) {
                 @SuppressWarnings("unchecked")
                 Class<Number> numberClass = (Class<Number>) propertySchemaClass;
-                field = new AjaxSpinnerFieldPanel.Builder<>().build("panel", label, numberClass, new Model<Number>());
+                field = new AjaxSpinnerFieldPanel.Builder<>().build("panel", label, numberClass, new Model<>());
                 required = property.getSchema().isRequired();
             } else if (ClassUtils.isAssignable(Boolean.class, propertySchemaClass)) {
-                field = new AjaxCheckBoxPanel("panel", label, new Model<Boolean>());
+                field = new AjaxCheckBoxPanel("panel", label, new Model<>());
             } else {
-                field = new AjaxTextFieldPanel("panel", label, new Model<String>());
+                field = new AjaxTextFieldPanel("panel", label, new Model<>());
                 required = property.getSchema().isRequired();
             }
 
@@ -121,8 +121,7 @@ public class ConnConfPropertyListView extends ListView<ConnConfProperty> {
         final AbstractFieldPanel<? extends Serializable> fieldPanel;
         if (isArray) {
             final MultiFieldPanel multiFieldPanel = new MultiFieldPanel.Builder(
-                    new PropertyModel<List<String>>(property, "values")).setEventTemplate(true).build(
-                    "panel", label, field);
+                    new PropertyModel<>(property, "values")).setEventTemplate(true).build("panel", label, field);
             item.add(multiFieldPanel);
             fieldPanel = multiFieldPanel;
         } else {

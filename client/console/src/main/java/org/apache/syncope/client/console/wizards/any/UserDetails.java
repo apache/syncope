@@ -59,8 +59,7 @@ public class UserDetails extends Details<UserTO> {
         // ------------------------
         // Username
         // ------------------------
-        username = new AjaxTextFieldPanel(
-                "username", "username", new PropertyModel<String>(userTO, "username"), false);
+        username = new AjaxTextFieldPanel("username", "username", new PropertyModel<>(userTO, "username"), false);
 
         if (wrapper.getPreviousUserTO() != null && StringUtils.
                 compare(wrapper.getPreviousUserTO().getUsername(), wrapper.getInnerObject().getUsername()) != 0) {

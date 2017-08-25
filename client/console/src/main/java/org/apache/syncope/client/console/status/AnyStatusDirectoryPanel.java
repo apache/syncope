@@ -43,7 +43,6 @@ import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.Bas
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.common.lib.to.AnyTO;
-import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
@@ -137,7 +136,7 @@ public class AnyStatusDirectoryPanel
             }
         });
 
-        columns.add(new PropertyColumn<StatusBean, String>(
+        columns.add(new PropertyColumn<>(
                 new StringResourceModel("connObjectLink", this), "connObjectLink", "connObjectLink"));
 
         columns.add(new AbstractColumn<StatusBean, String>(new StringResourceModel("status", this)) {
@@ -233,15 +232,15 @@ public class AnyStatusDirectoryPanel
             final AnyTO actual = restClient.read(anyTO.getKey());
 
             final List<String> resources = new ArrayList<>();
-            for (ResourceTO resourceTO : new ResourceRestClient().list()) {
+            new ResourceRestClient().list().forEach(resourceTO -> {
                 resources.add(resourceTO.getKey());
-            }
+            });
 
             final List<ConnObjectWrapper> connObjects = statusUtils.getConnectorObjects(actual);
 
             final List<StatusBean> statusBeans = new ArrayList<>(connObjects.size() + 1);
 
-            for (ConnObjectWrapper entry : connObjects) {
+            connObjects.forEach(entry -> {
                 final StatusBean statusBean = statusUtils.getStatusBean(actual,
                         entry.getResourceName(),
                         entry.getConnObjectTO(),
@@ -249,7 +248,7 @@ public class AnyStatusDirectoryPanel
 
                 statusBeans.add(statusBean);
                 resources.remove(entry.getResourceName());
-            }
+            });
 
             if (statusOnly) {
                 final StatusBean syncope = new StatusBean(actual, "Syncope");
@@ -268,15 +267,18 @@ public class AnyStatusDirectoryPanel
 
                 statusBeans.add(syncope);
             } else {
-                for (String resource : resources) {
-                    final StatusBean statusBean = statusUtils.getStatusBean(actual,
-                            resource,
-                            null,
-                            actual instanceof GroupTO);
-
-                    statusBean.setLinked(false);
-                    statusBeans.add(statusBean);
-                }
+                resources.stream().
+                        map(resource -> statusUtils.getStatusBean(actual,
+                        resource,
+                        null,
+                        actual instanceof GroupTO)).
+                        map(statusBean -> {
+                            statusBean.setLinked(false);
+                            return statusBean;
+                        }).
+                        forEachOrdered(statusBean -> {
+                            statusBeans.add(statusBean);
+                        });
             }
 
             return statusBeans;

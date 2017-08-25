@@ -26,13 +26,11 @@ import org.apache.syncope.common.rest.api.service.SyncopeService;
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.behavior.AbstractAjaxBehavior;
-import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.core.util.lang.PropertyResolver;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.util.tester.FormTester;
 import org.apache.wicket.util.tester.WicketTester;
 import org.apache.wicket.util.visit.IVisit;
-import org.apache.wicket.util.visit.IVisitor;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.runners.MethodSorters;
@@ -82,18 +80,14 @@ public abstract class AbstractConsoleITCase {
 
         Component component = TESTER.getComponentFromLastRenderedPage(searchPath);
         return (component instanceof MarkupContainer ? MarkupContainer.class.cast(component) : component.getPage()).
-                visitChildren(ListItem.class, new IVisitor<ListItem<?>, Component>() {
-
-                    @Override
-                    public void component(final ListItem<?> object, final IVisit<Component> visit) {
-                        try {
-                            Method getter = PropertyResolver.getPropertyGetter(property, object.getModelObject());
-                            if (getter != null && getter.invoke(object.getModelObject()).equals(key)) {
-                                visit.stop(object);
-                            }
-                        } catch (Exception e) {
-                            LOG.error("Error invoke method", e);
+                visitChildren(ListItem.class, (final ListItem<?> object, final IVisit<Component> visit) -> {
+                    try {
+                        Method getter = PropertyResolver.getPropertyGetter(property, object.getModelObject());
+                        if (getter != null && getter.invoke(object.getModelObject()).equals(key)) {
+                            visit.stop(object);
                         }
+                    } catch (Exception e) {
+                        LOG.error("Error invoke method", e);
                     }
                 });
     }
@@ -101,22 +95,18 @@ public abstract class AbstractConsoleITCase {
     protected Component findComponentById(final String searchPath, final String id) {
         Component component = TESTER.getComponentFromLastRenderedPage(searchPath);
         return (component instanceof MarkupContainer ? MarkupContainer.class.cast(component) : component.getPage()).
-                visitChildren(Component.class, new IVisitor<Component, Component>() {
-
-                    @Override
-                    public void component(final Component object, final IVisit<Component> visit) {
-                        if (object.getId().equals(id)) {
-                            visit.stop(object);
-                        }
+                visitChildren(Component.class, (final Component object, final IVisit<Component> visit) -> {
+                    if (object.getId().equals(id)) {
+                        visit.stop(object);
                     }
                 });
     }
 
     protected void closeCallBack(final Component modal) {
-        for (Behavior behavior : modal.getBehaviors()) {
-            if (behavior instanceof AbstractAjaxBehavior) {
-                TESTER.executeBehavior((AbstractAjaxBehavior) behavior);
-            }
-        }
+        modal.getBehaviors().stream().
+                filter(behavior -> (behavior instanceof AbstractAjaxBehavior)).
+                forEachOrdered(behavior -> {
+                    TESTER.executeBehavior((AbstractAjaxBehavior) behavior);
+                });
     }
 }

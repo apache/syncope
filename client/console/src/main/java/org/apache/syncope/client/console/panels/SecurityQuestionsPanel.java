@@ -126,9 +126,9 @@ public class SecurityQuestionsPanel extends DirectoryPanel<
     protected List<IColumn<SecurityQuestionTO, String>> getColumns() {
         List<IColumn<SecurityQuestionTO, String>> columns = new ArrayList<>();
 
-        columns.add(new KeyPropertyColumn<SecurityQuestionTO>(
+        columns.add(new KeyPropertyColumn<>(
                 new StringResourceModel("key", this), "key"));
-        columns.add(new PropertyColumn<SecurityQuestionTO, String>(
+        columns.add(new PropertyColumn<>(
                 new StringResourceModel("content", this), "content", "content"));
 
         return columns;

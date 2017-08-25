@@ -27,7 +27,6 @@ import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -86,7 +85,7 @@ public abstract class AbstractMappingPanel extends Panel {
     private static void initFieldNames(final Class<?> entityClass, final Set<String> keys) {
         List<Class<?>> classes = ClassUtils.getAllSuperclasses(entityClass);
         classes.add(entityClass);
-        for (Class<?> clazz : classes) {
+        classes.forEach(clazz -> {
             for (Field field : clazz.getDeclaredFields()) {
                 if (!Modifier.isStatic(field.getModifiers())
                         && !Collection.class.isAssignableFrom(field.getType())
@@ -95,7 +94,7 @@ public abstract class AbstractMappingPanel extends Panel {
                     keys.add(field.getName());
                 }
             }
-        }
+        });
     }
 
     /**
@@ -169,47 +168,43 @@ public abstract class AbstractMappingPanel extends Panel {
 
         mappingContainer.add(Constants.getJEXLPopover(this, TooltipConfig.Placement.bottom));
 
-        Collections.sort(model.getObject(), new Comparator<ItemTO>() {
-
-            @Override
-            public int compare(final ItemTO left, final ItemTO right) {
-                int compared;
-                if (left == null && right == null) {
-                    compared = 0;
-                } else if (left == null) {
-                    compared = 1;
-                } else if (right == null) {
-                    compared = -1;
-                } else if (left.isConnObjectKey()) {
-                    compared = -1;
-                } else if (right.isConnObjectKey()) {
-                    compared = 1;
-                } else if (left.isPassword()) {
-                    compared = -1;
-                } else if (right.isPassword()) {
-                    compared = 1;
-                } else if (left.getPurpose() == MappingPurpose.BOTH && right.getPurpose() != MappingPurpose.BOTH) {
-                    compared = -1;
-                } else if (left.getPurpose() != MappingPurpose.BOTH && right.getPurpose() == MappingPurpose.BOTH) {
-                    compared = 1;
-                } else if (left.getPurpose() == MappingPurpose.PROPAGATION
-                        && (right.getPurpose() == MappingPurpose.PULL
-                        || right.getPurpose() == MappingPurpose.NONE)) {
-                    compared = -1;
-                } else if (left.getPurpose() == MappingPurpose.PULL
-                        && right.getPurpose() == MappingPurpose.PROPAGATION) {
-                    compared = 1;
-                } else if (left.getPurpose() == MappingPurpose.PULL
-                        && right.getPurpose() == MappingPurpose.NONE) {
-                    compared = -1;
-                } else if (left.getPurpose() == MappingPurpose.NONE
-                        && right.getPurpose() != MappingPurpose.NONE) {
-                    compared = 1;
-                } else {
-                    compared = left.getIntAttrName().compareTo(right.getIntAttrName());
-                }
-                return compared;
+        Collections.sort(model.getObject(), (left, right) -> {
+            int compared;
+            if (left == null && right == null) {
+                compared = 0;
+            } else if (left == null) {
+                compared = 1;
+            } else if (right == null) {
+                compared = -1;
+            } else if (left.isConnObjectKey()) {
+                compared = -1;
+            } else if (right.isConnObjectKey()) {
+                compared = 1;
+            } else if (left.isPassword()) {
+                compared = -1;
+            } else if (right.isPassword()) {
+                compared = 1;
+            } else if (left.getPurpose() == MappingPurpose.BOTH && right.getPurpose() != MappingPurpose.BOTH) {
+                compared = -1;
+            } else if (left.getPurpose() != MappingPurpose.BOTH && right.getPurpose() == MappingPurpose.BOTH) {
+                compared = 1;
+            } else if (left.getPurpose() == MappingPurpose.PROPAGATION
+                    && (right.getPurpose() == MappingPurpose.PULL
+                    || right.getPurpose() == MappingPurpose.NONE)) {
+                compared = -1;
+            } else if (left.getPurpose() == MappingPurpose.PULL
+                    && right.getPurpose() == MappingPurpose.PROPAGATION) {
+                compared = 1;
+            } else if (left.getPurpose() == MappingPurpose.PULL
+                    && right.getPurpose() == MappingPurpose.NONE) {
+                compared = -1;
+            } else if (left.getPurpose() == MappingPurpose.NONE
+                    && right.getPurpose() != MappingPurpose.NONE) {
+                compared = 1;
+            } else {
+                compared = left.getIntAttrName().compareTo(right.getIntAttrName());
             }
+            return compared;
         });
 
         mappings = new ListView<ItemTO>("mappings", model) {
@@ -229,7 +224,7 @@ public abstract class AbstractMappingPanel extends Panel {
                 AjaxTextFieldPanel intAttrName = new AjaxTextFieldPanel(
                         "intAttrName",
                         getString("intAttrName"),
-                        new PropertyModel<String>(itemTO, "intAttrName"),
+                        new PropertyModel<>(itemTO, "intAttrName"),
                         false);
                 intAttrName.setChoices(Collections.<String>emptyList());
                 intAttrName.setRequired(true).hideLabel();
@@ -242,7 +237,7 @@ public abstract class AbstractMappingPanel extends Panel {
                 final AjaxTextFieldPanel extAttrName = new AjaxTextFieldPanel(
                         "extAttrName",
                         getString("extAttrName"),
-                        new PropertyModel<String>(itemTO, "extAttrName"));
+                        new PropertyModel<>(itemTO, "extAttrName"));
                 extAttrName.setChoices(getExtAttrNames().getObject());
 
                 boolean required = !itemTO.isPassword();
@@ -271,7 +266,7 @@ public abstract class AbstractMappingPanel extends Panel {
                 final AjaxTextFieldPanel mandatory = new AjaxTextFieldPanel(
                         "mandatoryCondition",
                         new ResourceModel("mandatoryCondition", "mandatoryCondition").getObject(),
-                        new PropertyModel<String>(itemTO, "mandatoryCondition"));
+                        new PropertyModel<>(itemTO, "mandatoryCondition"));
                 mandatory.hideLabel();
                 mandatory.setChoices(Arrays.asList(new String[] { "true", "false" }));
                 mandatory.setEnabled(!itemTO.isConnObjectKey());
@@ -284,7 +279,7 @@ public abstract class AbstractMappingPanel extends Panel {
                 final AjaxCheckBoxPanel connObjectKey = new AjaxCheckBoxPanel(
                         "connObjectKey",
                         new ResourceModel("connObjectKey", "connObjectKey").getObject(),
-                        new PropertyModel<Boolean>(itemTO, "connObjectKey"), false);
+                        new PropertyModel<>(itemTO, "connObjectKey"), false);
                 connObjectKey.hideLabel();
                 item.add(connObjectKey);
                 // -------------------------------
@@ -295,7 +290,7 @@ public abstract class AbstractMappingPanel extends Panel {
                 final AjaxCheckBoxPanel password = new AjaxCheckBoxPanel(
                         "password",
                         new ResourceModel("password", "password").getObject(),
-                        new PropertyModel<Boolean>(itemTO, "password"), false);
+                        new PropertyModel<>(itemTO, "password"), false);
                 item.add(password.hideLabel());
                 // -------------------------------
 
@@ -306,7 +301,7 @@ public abstract class AbstractMappingPanel extends Panel {
                 purpose.setOutputMarkupId(true);
 
                 final MappingPurposePanel purposeActions = new MappingPurposePanel(
-                        "purposeActions", new PropertyModel<MappingPurpose>(itemTO, "purpose"), purpose);
+                        "purposeActions", new PropertyModel<>(itemTO, "purpose"), purpose);
                 purpose.add(purposeActions.setRenderBodyOnly(true));
                 item.add(purpose);
                 // -------------------------------

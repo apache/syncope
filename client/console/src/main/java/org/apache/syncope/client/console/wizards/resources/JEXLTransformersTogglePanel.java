@@ -70,8 +70,8 @@ public class JEXLTransformersTogglePanel extends TogglePanel<Serializable> {
     }
 
     public JEXLTransformersTogglePanel setItem(final AjaxRequestTarget target, final ItemTO item) {
-        this.propagationJEXLTransformer.setNewModel(new PropertyModel<String>(item, "propagationJEXLTransformer"));
-        this.pullJEXLTransformer.setNewModel(new PropertyModel<String>(item, "pullJEXLTransformer"));
+        this.propagationJEXLTransformer.setNewModel(new PropertyModel<>(item, "propagationJEXLTransformer"));
+        this.pullJEXLTransformer.setNewModel(new PropertyModel<>(item, "pullJEXLTransformer"));
         setHeader(target, StringUtils.EMPTY);
         return this;
     }

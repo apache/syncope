@@ -63,8 +63,7 @@ public class ConnIdBundleManagerImpl implements ConnIdBundleManager {
     /**
      * ConnectorInfoManager instances.
      */
-    private final Map<URI, ConnectorInfoManager> connInfoManagers =
-            Collections.synchronizedMap(new LinkedHashMap<URI, ConnectorInfoManager>());
+    private final Map<URI, ConnectorInfoManager> connInfoManagers = Collections.synchronizedMap(new LinkedHashMap<>());
 
     @Override
     public List<URI> getLocations() {
@@ -195,7 +194,7 @@ public class ConnIdBundleManagerImpl implements ConnIdBundleManager {
         init();
 
         if (connInfoManagers.isEmpty()) {
-            for (URI location : locations) {
+            locations.forEach(location -> {
                 try {
                     if ("file".equals(location.getScheme())) {
                         LOG.debug("Local initialization: {}", location);
@@ -209,16 +208,18 @@ public class ConnIdBundleManagerImpl implements ConnIdBundleManager {
                 } catch (Exception e) {
                     LOG.error("Could not process {}", location, e);
                 }
-            }
+            });
         }
 
         if (LOG.isDebugEnabled()) {
-            for (Map.Entry<URI, ConnectorInfoManager> entry : connInfoManagers.entrySet()) {
+            connInfoManagers.entrySet().stream().map(entry -> {
                 LOG.debug("Connector bundles found at {}", entry.getKey());
-                for (ConnectorInfo connInfo : entry.getValue().getConnectorInfos()) {
+                return entry;
+            }).forEachOrdered(entry -> {
+                entry.getValue().getConnectorInfos().forEach(connInfo -> {
                     LOG.debug("\t{}", connInfo.getConnectorDisplayName());
-                }
-            }
+                });
+            });
         }
 
         return connInfoManagers;
@@ -277,12 +278,12 @@ public class ConnIdBundleManagerImpl implements ConnIdBundleManager {
         }
 
         if (LOG.isDebugEnabled()) {
-            for (String propName : properties.getPropertyNames()) {
+            properties.getPropertyNames().forEach(propName -> {
                 LOG.debug("Property Name: {}"
                         + "\nProperty Type: {}",
                         properties.getProperty(propName).getName(),
                         properties.getProperty(propName).getType());
-            }
+            });
         }
 
         return properties;

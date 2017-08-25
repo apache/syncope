@@ -64,16 +64,14 @@ public class ProvisioningImpl implements Provisioning {
         try {
             conn = DataSourceUtils.getConnection(dataSource);
 
-            PreparedStatement statement =
-                conn.prepareStatement("DELETE FROM user WHERE userId=?");
-            statement.setString(1, accountid);
+            try (PreparedStatement statement = conn.prepareStatement("DELETE FROM user WHERE userId=?")) {
+                statement.setString(1, accountid);
 
-            String query = "DELETE FROM user WHERE userId='" + accountid + "';";
-            LOG.debug("Execute query: " + query);
+                String query = "DELETE FROM user WHERE userId='" + accountid + "';";
+                LOG.debug("Execute query: " + query);
 
-            statement.executeUpdate();
-
-            statement.close();
+                statement.executeUpdate();
+            }
 
             return accountid;
         } catch (SQLException e) {
@@ -108,9 +106,9 @@ public class ProvisioningImpl implements Provisioning {
 
         List<WSAttribute> schema = schema();
         Set<String> schemaNames = new HashSet<>();
-        for (WSAttribute attr : schema) {
+        schema.forEach(attr -> {
             schemaNames.add(attr.getName());
-        }
+        });
         schemaNames.add("__NAME__");
         schemaNames.add("__PASSWORD__");
 
@@ -159,14 +157,14 @@ public class ProvisioningImpl implements Provisioning {
             }
 
             if (set.length() > 0) {
-                PreparedStatement statement =
-                    conn.prepareStatement("UPDATE user SET " + set.toString() + " WHERE userId=?");
-                statement.setString(1, accountid);
-                String query = "UPDATE user SET " + set.toString() + " WHERE userId='" + accountid + "';";
-                LOG.debug("Execute query: " + query);
+                try (PreparedStatement statement =
+                        conn.prepareStatement("UPDATE user SET " + set.toString() + " WHERE userId=?")) {
+                    statement.setString(1, accountid);
+                    String query = "UPDATE user SET " + set.toString() + " WHERE userId='" + accountid + "';";
+                    LOG.debug("Execute query: " + query);
 
-                statement.executeUpdate();
-                statement.close();
+                    statement.executeUpdate();
+                }
             }
 
             return accountid;
@@ -200,36 +198,32 @@ public class ProvisioningImpl implements Provisioning {
             }
 
             conn = DataSourceUtils.getConnection(dataSource);
-            Statement statement = conn.createStatement();
+            try (Statement statement = conn.createStatement(); ResultSet rs = statement.executeQuery(queryString)) {
+                ResultSetMetaData metaData = rs.getMetaData();
+                LOG.debug("Metadata: {}", metaData);
 
-            ResultSet rs = statement.executeQuery(queryString);
+                while (rs.next()) {
+                    WSUser user = new WSUser();
 
-            ResultSetMetaData metaData = rs.getMetaData();
-            LOG.debug("Metadata: {}", metaData);
+                    for (int i = 0; i < metaData.getColumnCount(); i++) {
+                        WSAttributeValue attr = new WSAttributeValue();
+                        attr.setName(metaData.getColumnLabel(i + 1));
+                        if (StringUtil.isNotBlank(rs.getString(i + 1))) {
+                            attr.addValue(rs.getString(i + 1));
+                        }
+                        if ("userId".equalsIgnoreCase(metaData.getColumnName(i + 1))) {
+                            attr.setKey(true);
+                            user.setAccountid(rs.getString(i + 1));
+                        }
 
-            while (rs.next()) {
-                WSUser user = new WSUser();
-
-                for (int i = 0; i < metaData.getColumnCount(); i++) {
-                    WSAttributeValue attr = new WSAttributeValue();
-                    attr.setName(metaData.getColumnLabel(i + 1));
-                    if (StringUtil.isNotBlank(rs.getString(i + 1))) {
-                        attr.addValue(rs.getString(i + 1));
+                        user.addAttribute(attr);
                     }
-                    if ("userId".equalsIgnoreCase(metaData.getColumnName(i + 1))) {
-                        attr.setKey(true);
-                        user.setAccountid(rs.getString(i + 1));
-                    }
 
-                    user.addAttribute(attr);
+                    results.add(user);
                 }
 
-                results.add(user);
+                LOG.debug("Retrieved users: {}", results);
             }
-
-            LOG.debug("Retrieved users: {}", results);
-            rs.close();
-            statement.close();
         } catch (SQLException e) {
             LOG.error("Search operation failed", e);
         } finally {
@@ -245,9 +239,9 @@ public class ProvisioningImpl implements Provisioning {
 
         final List<WSAttribute> schema = schema();
         final Set<String> schemaNames = new HashSet<>();
-        for (WSAttribute attr : schema) {
+        schema.forEach(attr -> {
             schemaNames.add(attr.getName());
-        }
+        });
         schemaNames.add("__NAME__");
         schemaNames.add("__PASSWORD__");
 
@@ -255,64 +249,59 @@ public class ProvisioningImpl implements Provisioning {
         String query = null;
         try {
             conn = DataSourceUtils.getConnection(dataSource);
-            final Statement statement = conn.createStatement();
+            String accountid;
+            try (Statement statement = conn.createStatement()) {
+                final StringBuilder keys = new StringBuilder();
+                final StringBuilder values = new StringBuilder();
+                accountid = null;
+                String value;
+                for (WSAttributeValue attr : data) {
+                    if (schemaNames.contains(attr.getName())) {
+                        LOG.debug("Bind attribute: {}", attr);
 
-            final StringBuilder keys = new StringBuilder();
-            final StringBuilder values = new StringBuilder();
+                        if (attr.getValues() == null || attr.getValues().isEmpty()) {
+                            value = null;
+                        } else if (attr.getValues().size() == 1) {
+                            value = attr.getValues().get(0).toString();
+                        } else {
+                            value = attr.getValues().toString();
+                        }
 
-            String accountid = null;
-            String value;
-            for (WSAttributeValue attr : data) {
-                if (schemaNames.contains(attr.getName())) {
-                    LOG.debug("Bind attribute: {}", attr);
+                        if (keys.length() > 0) {
+                            keys.append(",");
+                        }
 
-                    if (attr.getValues() == null || attr.getValues().isEmpty()) {
-                        value = null;
-                    } else if (attr.getValues().size() == 1) {
-                        value = attr.getValues().get(0).toString();
-                    } else {
-                        value = attr.getValues().toString();
-                    }
+                        if (null == attr.getName()) {
+                            keys.append(attr.getName());
+                        } else {
+                            switch (attr.getName()) {
+                                case "__NAME__":
+                                    keys.append("userId");
+                                    break;
+                                case "__PASSWORD__":
+                                    keys.append("password");
+                                    break;
+                                default:
+                                    keys.append(attr.getName());
+                                    break;
+                            }
+                        }
 
-                    if (keys.length() > 0) {
-                        keys.append(",");
-                    }
+                        if (values.length() > 0) {
+                            values.append(",");
+                        }
 
-                    if (null == attr.getName()) {
-                        keys.append(attr.getName());
-                    } else {
-                        switch (attr.getName()) {
-                            case "__NAME__":
-                                keys.append("userId");
-                                break;
-                            case "__PASSWORD__":
-                                keys.append("password");
-                                break;
-                            default:
-                                keys.append(attr.getName());
-                                break;
+                        values.append(value == null ? null : "'" + value + "'");
+
+                        if (attr.isKey() && !attr.getValues().isEmpty()) {
+                            accountid = attr.getValues().get(0).toString();
                         }
                     }
-
-                    if (values.length() > 0) {
-                        values.append(",");
-                    }
-
-                    values.append(value == null ? null : "'" + value + "'");
-
-                    if (attr.isKey() && !attr.getValues().isEmpty()) {
-                        accountid = attr.getValues().get(0).toString();
-                    }
                 }
+                query = "INSERT INTO user (" + keys.toString() + ") VALUES (" + values.toString() + ")";
+                LOG.debug("Execute query: " + query);
+                statement.executeUpdate(query);
             }
-
-            query = "INSERT INTO user (" + keys.toString() + ") VALUES (" + values.toString() + ")";
-
-            LOG.debug("Execute query: " + query);
-
-            statement.executeUpdate(query);
-
-            statement.close();
 
             return accountid;
         } catch (SQLException e) {
@@ -352,7 +341,7 @@ public class ProvisioningImpl implements Provisioning {
         try {
             conn = DataSourceUtils.getConnection(dataSource);
             PreparedStatement statement =
-                conn.prepareStatement("SELECT userId FROM user WHERE userId=?");
+                    conn.prepareStatement("SELECT userId FROM user WHERE userId=?");
             statement.setString(1, username);
 
             final String query = "SELECT userId FROM user WHERE userId='" + username + "';";

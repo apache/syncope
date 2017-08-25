@@ -40,7 +40,7 @@ public final class EntitlementsHolder {
         return INSTANCE;
     }
 
-    private final Set<String> values = Collections.synchronizedSet(new HashSet<String>());
+    private final Set<String> values = Collections.synchronizedSet(new HashSet<>());
 
     private EntitlementsHolder() {
         // private constructor for singleton

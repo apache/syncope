@@ -187,14 +187,14 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
     protected List<IColumn<SAML2IdPTO, String>> getColumns() {
         List<IColumn<SAML2IdPTO, String>> columns = new ArrayList<>();
 
-        columns.add(new KeyPropertyColumn<SAML2IdPTO>(new ResourceModel("key"), "key", "key"));
-        columns.add(new PropertyColumn<SAML2IdPTO, String>(new ResourceModel("name"), "name", "name"));
-        columns.add(new PropertyColumn<SAML2IdPTO, String>(new ResourceModel("entityID"), "entityID", "entityID"));
-        columns.add(new BooleanPropertyColumn<SAML2IdPTO>(
+        columns.add(new KeyPropertyColumn<>(new ResourceModel("key"), "key", "key"));
+        columns.add(new PropertyColumn<>(new ResourceModel("name"), "name", "name"));
+        columns.add(new PropertyColumn<>(new ResourceModel("entityID"), "entityID", "entityID"));
+        columns.add(new BooleanPropertyColumn<>(
                 new ResourceModel("useDeflateEncoding"), "useDeflateEncoding", "useDeflateEncoding"));
-        columns.add(new PropertyColumn<SAML2IdPTO, String>(
+        columns.add(new PropertyColumn<>(
                 new ResourceModel("bindingType"), "bindingType", "bindingType"));
-        columns.add(new BooleanPropertyColumn<SAML2IdPTO>(
+        columns.add(new BooleanPropertyColumn<>(
                 new ResourceModel("logoutSupported"), "logoutSupported", "logoutSupported"));
 
         return columns;

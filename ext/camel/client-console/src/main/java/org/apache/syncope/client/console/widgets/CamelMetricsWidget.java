@@ -24,8 +24,7 @@ import com.pingunaut.wicket.chartjs.data.sets.BarDataSet;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Transformer;
+import java.util.stream.Collectors;
 import org.apache.syncope.client.console.annotations.ExtWidget;
 import org.apache.syncope.client.console.rest.CamelRoutesRestClient;
 import org.apache.syncope.client.console.wicket.ajax.IndicatorAjaxTimerBehavior;
@@ -94,22 +93,11 @@ public class CamelMetricsWidget extends BaseExtWidget {
         bar.getOptions().setResponsive(true);
         bar.getOptions().setMaintainAspectRatio(true);
 
-        bar.getData().setLabels(CollectionUtils.collect(meanRates, new Transformer<CamelMetrics.MeanRate, String>() {
+        bar.getData().setLabels(
+                meanRates.stream().map(input -> input.getRouteId()).collect(Collectors.toList()));
 
-            @Override
-            public String transform(final CamelMetrics.MeanRate input) {
-                return input.getRouteId();
-            }
-        }, new ArrayList<String>()));
-
-        BarDataSet dataset = new BarDataSet(CollectionUtils.collect(meanRates,
-                new Transformer<CamelMetrics.MeanRate, Double>() {
-
-            @Override
-            public Double transform(final CamelMetrics.MeanRate input) {
-                return input.getValue();
-            }
-        }, new ArrayList<Double>()));
+        BarDataSet dataset = new BarDataSet(
+                meanRates.stream().map(input -> input.getValue()).collect(Collectors.toList()));
         dataset.setFillColor("blue");
         bar.getData().setDatasets(Collections.singletonList(dataset));
 

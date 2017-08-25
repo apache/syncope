@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
@@ -125,9 +126,9 @@ public class TypeExtensionDirectoryPanel
     protected List<IColumn<TypeExtensionTO, String>> getColumns() {
         List<IColumn<TypeExtensionTO, String>> columns = new ArrayList<>();
 
-        columns.add(new PropertyColumn<TypeExtensionTO, String>(
+        columns.add(new PropertyColumn<>(
                 Model.of("Any Type"), "anyType", "anyType"));
-        columns.add(new PropertyColumn<TypeExtensionTO, String>(
+        columns.add(new PropertyColumn<>(
                 new StringResourceModel("auxClasses", this), "auxClasses", "auxClasses"));
 
         return columns;
@@ -154,9 +155,11 @@ public class TypeExtensionDirectoryPanel
 
             @Override
             public void onClick(final AjaxRequestTarget target, final TypeExtensionTO ignore) {
-                groupTO.getTypeExtensions().remove(
-                        groupTO.getTypeExtension(typeExtension.getAnyType()));
-                target.add(container);
+                Optional<TypeExtensionTO> typeExt = groupTO.getTypeExtension(typeExtension.getAnyType());
+                if (typeExt.isPresent()) {
+                    groupTO.getTypeExtensions().remove(typeExt.get());
+                    target.add(container);
+                }
             }
         }, ActionLink.ActionType.DELETE, StringUtils.EMPTY, true);
         return panel;

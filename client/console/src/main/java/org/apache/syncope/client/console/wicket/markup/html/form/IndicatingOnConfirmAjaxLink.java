@@ -69,7 +69,7 @@ public abstract class IndicatingOnConfirmAjaxLink<T> extends IndicatingAjaxLink<
                             + "  })"
                             + "} else {"
                             + "  proceed = false;"
-                            + "};", new ArrayList<CharSequence>()
+                            + "};", new ArrayList<>()
                     )).asDomReadyScript());
         }
     }

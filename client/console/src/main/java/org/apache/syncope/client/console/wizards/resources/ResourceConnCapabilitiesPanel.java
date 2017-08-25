@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.client.console.wizards.resources;
 
-import java.util.List;
 import java.util.Set;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.wicket.ajax.form.IndicatorAjaxFormComponentUpdatingBehavior;
@@ -44,14 +43,14 @@ public class ResourceConnCapabilitiesPanel extends WizardStep {
         }
 
         final CapabilitiesPanel connCapabilitiesPanel = new CapabilitiesPanel(
-                new PropertyModel<List<ConnectorCapability>>(resourceTO, "capabilitiesOverride"));
+                new PropertyModel<>(resourceTO, "capabilitiesOverride"));
         connCapabilitiesPanel.setEnabled(resourceTO.isOverrideCapabilities());
         add(connCapabilitiesPanel);
 
         final AjaxCheckBoxPanel overrideCapabilities = new AjaxCheckBoxPanel(
                 "overrideCapabilities",
                 new ResourceModel("overrideCapabilities", "overrideCapabilities").getObject(),
-                new PropertyModel<Boolean>(resourceTO, "overrideCapabilities"));
+                new PropertyModel<>(resourceTO, "overrideCapabilities"));
         overrideCapabilities.getField().add(new IndicatorAjaxFormComponentUpdatingBehavior(Constants.ON_CHANGE) {
 
             private static final long serialVersionUID = -1107858522700306810L;

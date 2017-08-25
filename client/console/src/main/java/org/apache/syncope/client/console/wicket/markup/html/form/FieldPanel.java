@@ -69,7 +69,7 @@ public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPa
                 Model.<String>of(),
                 title == null ? Model.<String>of() : Model.of(title),
                 new PopoverConfig().withHtml(html).withHoverTrigger().withPlacement(
-                index.getObject() != null && index.getObject() == 0
+                        index.getObject() != null && index.getObject() == 0
                         ? TooltipConfig.Placement.bottom
                         : this instanceof AjaxCheckBoxPanel
                                 ? TooltipConfig.Placement.right
@@ -121,7 +121,7 @@ public abstract class FieldPanel<T extends Serializable> extends AbstractFieldPa
     }
 
     public FieldPanel<T> setNewModel(final IModel<T> model) {
-        field.setModel(model == null ? new Model<T>() : model);
+        field.setModel(model == null ? new Model<>() : model);
         return this;
     }
 

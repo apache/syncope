@@ -72,11 +72,11 @@ public class LoggerLoader implements SyncopeLoader {
     public void load() {
         final LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
 
-        for (Map.Entry<String, Appender> entry : ctx.getConfiguration().getAppenders().entrySet()) {
-            if (entry.getValue() instanceof MemoryAppender) {
-                memoryAppenders.put(entry.getKey(), (MemoryAppender) entry.getValue());
-            }
-        }
+        ctx.getConfiguration().getAppenders().entrySet().stream().
+                filter(entry -> (entry.getValue() instanceof MemoryAppender)).
+                forEachOrdered(entry -> {
+                    memoryAppenders.put(entry.getKey(), (MemoryAppender) entry.getValue());
+                });
 
         // Audit table and DataSource for each configured domain
         ColumnConfig[] columnConfigs = {
@@ -116,30 +116,25 @@ public class LoggerLoader implements SyncopeLoader {
             ctx.getConfiguration().addLogger(AuditLoggerName.getAuditLoggerName(entry.getKey()), logConf);
 
             // SYNCOPE-1144 For each custom audit appender class add related appenders to log4j logger
-            for (AuditAppender auditAppender : auditAppenders(entry.getKey())) {
-                for (AuditLoggerName event : auditAppender.getEvents()) {
-                    String domainAuditLoggerName =
-                            AuditLoggerName.getAuditEventLoggerName(entry.getKey(), event.toLoggerName());
-                    LoggerConfig eventLogConf = ctx.getConfiguration().getLoggerConfig(domainAuditLoggerName);
+            auditAppenders(entry.getKey()).forEach(auditAppender -> {
+                auditAppender.getEvents().stream().
+                        map(event -> AuditLoggerName.getAuditEventLoggerName(entry.getKey(), event.toLoggerName())).
+                        forEachOrdered(domainAuditLoggerName -> {
+                            LoggerConfig eventLogConf = ctx.getConfiguration().getLoggerConfig(domainAuditLoggerName);
+                            if (LogManager.ROOT_LOGGER_NAME.equals(eventLogConf.getName())) {
+                                eventLogConf = new LoggerConfig(domainAuditLoggerName, null, false);
+                            }
+                            addAppenderToContext(ctx, auditAppender, eventLogConf);
+                            eventLogConf.setLevel(Level.DEBUG);
+                            if (LogManager.ROOT_LOGGER_NAME.equals(eventLogConf.getName())) {
+                                ctx.getConfiguration().addLogger(domainAuditLoggerName, eventLogConf);
+                            }
+                        });
+            });
 
-                    if (LogManager.ROOT_LOGGER_NAME.equals(eventLogConf.getName())) {
-                        eventLogConf = new LoggerConfig(domainAuditLoggerName, null, false);
-                    }
-                    addAppenderToContext(ctx, auditAppender, eventLogConf);
-                    eventLogConf.setLevel(Level.DEBUG);
-                    if (LogManager.ROOT_LOGGER_NAME.equals(eventLogConf.getName())) {
-                        ctx.getConfiguration().addLogger(domainAuditLoggerName, eventLogConf);
-                    }
-                }
-            }
-
-            AuthContextUtils.execWithAuthContext(entry.getKey(), new AuthContextUtils.Executable<Void>() {
-
-                @Override
-                public Void exec() {
-                    loggerAccessor.synchronizeLog4J(ctx);
-                    return null;
-                }
+            AuthContextUtils.execWithAuthContext(entry.getKey(), () -> {
+                loggerAccessor.synchronizeLog4J(ctx);
+                return null;
             });
         }
 
@@ -152,7 +147,7 @@ public class LoggerLoader implements SyncopeLoader {
 
     public List<AuditAppender> auditAppenders(final String domain) throws BeansException {
         List<AuditAppender> auditAppenders = new ArrayList<>();
-        for (Class<?> clazz : implementationLookup.getAuditAppenderClasses()) {
+        implementationLookup.getAuditAppenderClasses().stream().map(clazz -> {
             AuditAppender auditAppender;
             if (ApplicationContextProvider.getBeanFactory().containsSingleton(clazz.getName())) {
                 auditAppender = (AuditAppender) ApplicationContextProvider.getBeanFactory().
@@ -163,8 +158,10 @@ public class LoggerLoader implements SyncopeLoader {
                 auditAppender.setDomainName(domain);
                 auditAppender.init();
             }
+            return auditAppender;
+        }).forEachOrdered(auditAppender -> {
             auditAppenders.add(auditAppender);
-        }
+        });
         return auditAppenders;
     }
 

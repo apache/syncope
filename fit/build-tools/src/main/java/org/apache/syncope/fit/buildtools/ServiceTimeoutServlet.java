@@ -53,11 +53,8 @@ public class ServiceTimeoutServlet extends HttpServlet {
             // ignore
         }
 
-        final PrintWriter out = response.getWriter();
-        try {
+        try (PrintWriter out = response.getWriter()) {
             out.println("OK");
-        } finally {
-            out.close();
         }
     }
 

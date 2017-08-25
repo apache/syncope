@@ -19,8 +19,6 @@
 package org.apache.syncope.client.enduser.util;
 
 import java.util.Map;
-import org.apache.commons.collections4.IterableUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.syncope.client.enduser.model.CustomAttribute;
 import org.apache.syncope.client.enduser.model.CustomAttributesInfo;
 import org.apache.syncope.common.lib.EntityTOUtils;
@@ -57,33 +55,23 @@ public final class UserRequestValidator {
 
         return customAttrInfo == null
                 || (customAttrInfo.getAttributes().isEmpty() && customAttrInfo.isShow())
-                || IterableUtils.matchesAll(attrMap.entrySet(), new Predicate<Map.Entry<String, AttrTO>>() {
-
-                    @Override
-                    public boolean evaluate(final Map.Entry<String, AttrTO> entry) {
-                        String schemaKey = entry.getKey();
-                        AttrTO attrTO = entry.getValue();
-                        CustomAttribute customAttr = customAttrInfo.getAttributes().get(schemaKey);
-                        boolean compliant = customAttr != null && (!checkDefaultValues || isValid(attrTO, customAttr));
-                        if (!compliant) {
-                            LOG.trace("Attribute [{}] or its values [{}] are not allowed by form customization rules",
-                                    attrTO.getSchema(), attrTO.getValues());
-                        }
-                        return compliant;
+                || attrMap.entrySet().stream().allMatch(entry -> {
+                    String schemaKey = entry.getKey();
+                    AttrTO attrTO = entry.getValue();
+                    CustomAttribute customAttr = customAttrInfo.getAttributes().get(schemaKey);
+                    boolean compliant = customAttr != null && (!checkDefaultValues || isValid(attrTO, customAttr));
+                    if (!compliant) {
+                        LOG.trace("Attribute [{}] or its values [{}] are not allowed by form customization rules",
+                                attrTO.getSchema(), attrTO.getValues());
                     }
+                    return compliant;
                 });
 
     }
 
     private static boolean isValid(final AttrTO attrTO, final CustomAttribute customAttribute) {
         return customAttribute.isReadonly()
-                ? IterableUtils.matchesAll(attrTO.getValues(), new Predicate<String>() {
-
-                    @Override
-                    public boolean evaluate(final String object) {
-                        return customAttribute.getDefaultValues().contains(object);
-                    }
-                })
+                ? attrTO.getValues().stream().allMatch(value -> customAttribute.getDefaultValues().contains(value))
                 : true;
     }
 

@@ -37,8 +37,8 @@ public class AnyObjectDetails extends Details<AnyObjectTO> {
 
         AnyObjectTO anyObjectTO = wrapper.getInnerObject();
 
-        AjaxTextFieldPanel name = new AjaxTextFieldPanel("name", "name",
-                new PropertyModel<String>(anyObjectTO, "name"), false);
+        AjaxTextFieldPanel name =
+                new AjaxTextFieldPanel("name", "name", new PropertyModel<>(anyObjectTO, "name"), false);
         if (templateMode) {
             name.enableJexlHelp();
         } else {

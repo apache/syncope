@@ -29,7 +29,6 @@ import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.panels.search.AnySelectionDirectoryPanel;
 import org.apache.syncope.client.console.panels.search.GroupSearchPanel;
 import org.apache.syncope.client.console.panels.search.GroupSelectionDirectoryPanel;
-import org.apache.syncope.client.console.panels.search.SearchClause;
 import org.apache.syncope.client.console.panels.search.SearchClausePanel;
 import org.apache.syncope.client.console.panels.search.SearchUtils;
 import org.apache.syncope.client.console.panels.search.UserSearchPanel;
@@ -171,7 +170,7 @@ public class Ownership extends WizardStep implements WizardModel.ICondition {
 
         groupSearchFragment = new Fragment("search", "groupSearchFragment", this);
         groupSearchPanel = new GroupSearchPanel.Builder(
-                new ListModel<>(new ArrayList<SearchClause>())).required(false).enableSearch(Ownership.this).
+                new ListModel<>(new ArrayList<>())).required(false).enableSearch(Ownership.this).
                 build("groupsearch");
         groupSearchFragment.add(groupSearchPanel.setRenderBodyOnly(true));
 
@@ -186,7 +185,7 @@ public class Ownership extends WizardStep implements WizardModel.ICondition {
 
         userSearchFragment = new Fragment("search", "userSearchFragment", this);
         userSearchPanel = UserSearchPanel.class.cast(new UserSearchPanel.Builder(
-                new ListModel<>(new ArrayList<SearchClause>())).required(false).enableSearch(Ownership.this).
+                new ListModel<>(new ArrayList<>())).required(false).enableSearch(Ownership.this).
                 build("usersearch"));
         userSearchFragment.add(userSearchPanel.setRenderBodyOnly(true));
 
@@ -247,8 +246,7 @@ public class Ownership extends WizardStep implements WizardModel.ICondition {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                send(Ownership.this, Broadcast.EXACT,
-                        new GroupSelectionDirectoryPanel.ItemSelection<GroupTO>(target, null));
+                send(Ownership.this, Broadcast.EXACT, new GroupSelectionDirectoryPanel.ItemSelection<>(target, null));
             }
 
             @Override
@@ -301,8 +299,7 @@ public class Ownership extends WizardStep implements WizardModel.ICondition {
 
             @Override
             public void onClick(final AjaxRequestTarget target) {
-                send(Ownership.this, Broadcast.EXACT,
-                        new GroupSelectionDirectoryPanel.ItemSelection<GroupTO>(target, null));
+                send(Ownership.this, Broadcast.EXACT, new GroupSelectionDirectoryPanel.ItemSelection<>(target, null));
             }
 
             @Override

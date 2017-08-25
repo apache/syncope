@@ -21,7 +21,6 @@ package org.apache.syncope.client.enduser;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -142,21 +141,10 @@ public class SyncopeEnduserApplication extends WebApplication implements Seriali
                 }
             }
             FileAlterationObserver observer = existsEnduserDir
-                    ? new FileAlterationObserver(enduserDir, new FileFilter() {
-
-                        @Override
-                        public boolean accept(final File pathname) {
-                            return StringUtils.contains(pathname.getPath(), CUSTOM_FORM_FILE);
-                        }
-                    })
+                    ? new FileAlterationObserver(enduserDir,
+                            pathname -> StringUtils.contains(pathname.getPath(), CUSTOM_FORM_FILE))
                     : new FileAlterationObserver(getClass().getResource("/" + CUSTOM_FORM_FILE).getFile(),
-                            new FileFilter() {
-
-                        @Override
-                        public boolean accept(final File pathname) {
-                            return StringUtils.contains(pathname.getPath(), CUSTOM_FORM_FILE);
-                        }
-                    });
+                            pathname -> StringUtils.contains(pathname.getPath(), CUSTOM_FORM_FILE));
 
             FileAlterationMonitor monitor = new FileAlterationMonitor(5000);
 

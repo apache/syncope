@@ -57,20 +57,16 @@ public class ReportJob extends AbstractInterruptableJob {
 
         try {
             AuthContextUtils.execWithAuthContext(context.getMergedJobDataMap().getString(JobManager.DOMAIN_KEY),
-                    new AuthContextUtils.Executable<Void>() {
+                    () -> {
+                        try {
+                            delegate.execute(reportKey);
+                        } catch (Exception e) {
+                            LOG.error("While executing report {}", reportKey, e);
+                            throw new RuntimeException(e);
+                        }
 
-                @Override
-                public Void exec() {
-                    try {
-                        delegate.execute(reportKey);
-                    } catch (Exception e) {
-                        LOG.error("While executing report {}", reportKey, e);
-                        throw new RuntimeException(e);
-                    }
-
-                    return null;
-                }
-            });
+                        return null;
+                    });
         } catch (RuntimeException e) {
             LOG.error("While executing report {}", reportKey, e);
             throw new JobExecutionException("While executing report " + reportKey, e);

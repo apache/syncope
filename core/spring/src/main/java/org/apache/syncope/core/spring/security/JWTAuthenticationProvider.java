@@ -41,16 +41,11 @@ public class JWTAuthenticationProvider implements AuthenticationProvider {
     public Authentication authenticate(final Authentication authentication) throws AuthenticationException {
         final JWTAuthentication jwtAuthentication = (JWTAuthentication) authentication;
 
-        AuthContextUtils.execWithAuthContext(
-                jwtAuthentication.getDetails().getDomain(), new AuthContextUtils.Executable<Void>() {
-
-            @Override
-            public Void exec() {
-                Pair<String, Set<SyncopeGrantedAuthority>> authenticated = dataAccessor.authenticate(jwtAuthentication);
-                jwtAuthentication.setUsername(authenticated.getLeft());
-                jwtAuthentication.getAuthorities().addAll(authenticated.getRight());
-                return null;
-            }
+        AuthContextUtils.execWithAuthContext(jwtAuthentication.getDetails().getDomain(), () -> {
+            Pair<String, Set<SyncopeGrantedAuthority>> authenticated = dataAccessor.authenticate(jwtAuthentication);
+            jwtAuthentication.setUsername(authenticated.getLeft());
+            jwtAuthentication.getAuthorities().addAll(authenticated.getRight());
+            return null;
         });
 
         JwtClaims claims = jwtAuthentication.getClaims();

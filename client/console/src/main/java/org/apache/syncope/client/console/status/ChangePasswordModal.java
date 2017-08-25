@@ -63,7 +63,7 @@ public class ChangePasswordModal extends AbstractModalPanel<AnyWrapper<UserTO>> 
         passwordPanel.setOutputMarkupId(true);
         add(passwordPanel);
 
-        statusModel = new ListModel<>(new ArrayList<StatusBean>());
+        statusModel = new ListModel<>(new ArrayList<>());
         StatusPanel statusPanel = new StatusPanel("status", wrapper.getInnerObject(), statusModel, pageReference);
         statusPanel.setCheckAvailability(ListViewPanel.CheckAvailability.AVAILABLE);
         add(statusPanel.setRenderBodyOnly(true));
@@ -77,7 +77,7 @@ public class ChangePasswordModal extends AbstractModalPanel<AnyWrapper<UserTO>> 
             if (StringUtils.isBlank(inner.getPassword()) || statusModel.getObject().isEmpty()) {
                 SyncopeConsoleSession.get().error(getString(Constants.OPERATION_ERROR));
             } else {
-                final List<String> resources = new ArrayList<String>();
+                final List<String> resources = new ArrayList<>();
                 boolean isOnSyncope = false;
                 for (StatusBean sb : statusModel.getObject()) {
                     if (sb.getResource().equals(Constants.SYNCOPE)) {

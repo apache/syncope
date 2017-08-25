@@ -60,7 +60,7 @@ public class ImportMetadata extends TogglePanel<Serializable> {
         config.showRemove(false);
         config.showPreview(false);
         final BootstrapFileInputField fileUpload =
-                new BootstrapFileInputField("fileUpload", new ListModel<>(new ArrayList<FileUpload>()), config);
+                new BootstrapFileInputField("fileUpload", new ListModel<>(new ArrayList<>()), config);
         fileUpload.setOutputMarkupId(true);
         fileUpload.add(new AjaxFormSubmitBehavior(Constants.ON_CHANGE) {
 

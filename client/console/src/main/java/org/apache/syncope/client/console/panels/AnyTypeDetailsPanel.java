@@ -51,13 +51,13 @@ public class AnyTypeDetailsPanel extends Panel {
         container.add(form);
 
         final AjaxTextFieldPanel key =
-                new AjaxTextFieldPanel("key", getString("key"), new PropertyModel<String>(anyTypeTO, "key"));
+                new AjaxTextFieldPanel("key", getString("key"), new PropertyModel<>(anyTypeTO, "key"));
         key.addRequiredLabel();
         key.setEnabled(key.getModelObject() == null || key.getModelObject().isEmpty());
         form.add(key);
 
         final AjaxDropDownChoicePanel<AnyTypeKind> kind = new AjaxDropDownChoicePanel<>(
-                "kind", getString("kind"), new PropertyModel<AnyTypeKind>(anyTypeTO, "kind"));
+                "kind", getString("kind"), new PropertyModel<>(anyTypeTO, "kind"));
         kind.setChoices(Arrays.asList(AnyTypeKind.values()));
         kind.setOutputMarkupId(true);
         if (anyTypeTO.getKind() == null) {

@@ -111,9 +111,9 @@ public class XSLTTransformer extends AbstractSAXTransformer implements CachingPi
             transformerFactory = TRAX_FACTORY;
         } else {
             transformerFactory = createNewSAXTransformerFactory();
-            for (Map.Entry<String, Object> attribute : attributes.entrySet()) {
+            attributes.entrySet().forEach(attribute -> {
                 transformerFactory.setAttribute(attribute.getKey(), attribute.getValue());
-            }
+            });
         }
 
         try {
@@ -132,7 +132,7 @@ public class XSLTTransformer extends AbstractSAXTransformer implements CachingPi
         if (parameters == null) {
             this.parameters = null;
         } else {
-            this.parameters = new HashMap<String, Object>(parameters);
+            this.parameters = new HashMap<>(parameters);
         }
     }
 
@@ -151,14 +151,13 @@ public class XSLTTransformer extends AbstractSAXTransformer implements CachingPi
         if (this.parameters != null) {
             final Transformer transformer = transformerHandler.getTransformer();
 
-            for (Map.Entry<String, Object> entry : this.parameters.entrySet()) {
+            this.parameters.entrySet().forEach(entry -> {
                 final String name = entry.getKey();
-
                 // is valid XSLT parameter name
                 if (XSLT_PARAMETER_NAME_PATTERN.matcher(name).matches()) {
                     transformer.setParameter(name, entry.getValue());
                 }
-            }
+            });
         }
 
         final SAXResult result = new SAXResult();

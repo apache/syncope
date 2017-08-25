@@ -62,8 +62,8 @@ public class CrontabPanel extends Panel {
             new SelectOption(getString("selOpt6"), "0 0 0 ? * 2")
         };
 
-        final AjaxDropDownChoicePanel<SelectOption> cronTemplateChooser = new AjaxDropDownChoicePanel<SelectOption>(
-                "cronTemplateChooser", "cronTemplateChooser", new Model<SelectOption>());
+        final AjaxDropDownChoicePanel<SelectOption> cronTemplateChooser = new AjaxDropDownChoicePanel<>(
+                "cronTemplateChooser", "cronTemplateChooser", new Model<>());
 
         cronTemplateChooser.setNullValid(false);
         cronTemplateChooser.setPlaceholder("chooseForTemplate");
@@ -97,7 +97,7 @@ public class CrontabPanel extends Panel {
             }
         });
         cronTemplateChooser.setChoices(Arrays.asList(cronTemplates));
-        cronTemplateChooser.setChoiceRenderer(new SelectChoiceRenderer<SelectOption>());
+        cronTemplateChooser.setChoiceRenderer(new SelectChoiceRenderer<>());
         add(cronTemplateChooser);
 
         seconds = new AjaxTextFieldPanel("seconds", "seconds", new Model<>(getCronField(cronExpression, 0)));

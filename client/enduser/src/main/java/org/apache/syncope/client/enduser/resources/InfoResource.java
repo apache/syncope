@@ -67,7 +67,7 @@ public class InfoResource extends BaseResource {
                                     PlatformInfoAdapter.toPlatformInfoRequest(
                                             SyncopeEnduserSession.get().getPlatformInfo(),
                                             customForm == null
-                                                    ? new HashMap<String, CustomAttributesInfo>()
+                                                    ? new HashMap<>()
                                                     : customForm)));
                 }
             });

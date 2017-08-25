@@ -18,7 +18,6 @@
  */
 package org.apache.syncope.core.spring.security;
 
-import org.apache.commons.text.CharacterPredicate;
 import org.apache.commons.text.RandomStringGenerator;
 import org.apache.syncope.common.lib.SecureTextRandomProvider;
 
@@ -26,13 +25,7 @@ public final class SecureRandomUtils {
 
     private static final RandomStringGenerator FOR_PASSWORD = new RandomStringGenerator.Builder().
             usingRandom(new SecureTextRandomProvider()).
-            filteredBy(new CharacterPredicate() {
-
-                @Override
-                public boolean test(final int codePoint) {
-                    return (codePoint >= 'a' && codePoint <= 'z') || (codePoint >= '0' && codePoint <= '9');
-                }
-            }).
+            filteredBy(codePoint -> (codePoint >= 'a' && codePoint <= 'z') || (codePoint >= '0' && codePoint <= '9')).
             build();
 
     private static final RandomStringGenerator FOR_LETTERS = new RandomStringGenerator.Builder().
@@ -60,17 +53,13 @@ public final class SecureRandomUtils {
     public static String generateRandomSpecialCharacter(final char[] characters) {
         return new RandomStringGenerator.Builder().
                 usingRandom(new SecureTextRandomProvider()).
-                filteredBy(new CharacterPredicate() {
-
-                    @Override
-                    public boolean test(final int codePoint) {
-                        boolean found = false;
-                        for (int i = 0; i < characters.length && !found; i++) {
-                            found = codePoint == Character.codePointAt(characters, i);
-                        }
-
-                        return found;
+                filteredBy(codePoint -> {
+                    boolean found = false;
+                    for (int i = 0; i < characters.length && !found; i++) {
+                        found = codePoint == Character.codePointAt(characters, i);
                     }
+
+                    return found;
                 }).build().generate(1);
     }
 

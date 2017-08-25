@@ -20,7 +20,6 @@ package org.apache.syncope.client.console.wizards.resources;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,15 +60,11 @@ public abstract class ResourceConnConfPanel extends AbstractConnConfPanel<Resour
                         List<ConnConfProperty> res = new ArrayList<>(super.getObject());
 
                         // re-order properties
-                        Collections.sort(res, new Comparator<ConnConfProperty>() {
-
-                            @Override
-                            public int compare(final ConnConfProperty left, final ConnConfProperty right) {
-                                if (left == null) {
-                                    return -1;
-                                } else {
-                                    return left.compareTo(right);
-                                }
+                        Collections.sort(res, (left, right) -> {
+                            if (left == null) {
+                                return -1;
+                            } else {
+                                return left.compareTo(right);
                             }
                         });
 
@@ -96,19 +91,19 @@ public abstract class ResourceConnConfPanel extends AbstractConnConfPanel<Resour
         List<ConnConfProperty> props = new ArrayList<>();
 
         if (resourceTO.getConnector() != null) {
-            for (ConnConfProperty property : restClient.read(resourceTO.getConnector()).getConf()) {
-                if (property.isOverridable()) {
-                    props.add(property);
-                }
-            }
+            restClient.read(resourceTO.getConnector()).getConf().stream().
+                    filter(property -> (property.isOverridable())).
+                    forEachOrdered(property -> {
+                        props.add(property);
+                    });
         }
         if (createFlag || resourceTO.getConfOverride().isEmpty()) {
             resourceTO.getConfOverride().clear();
         } else {
             Map<String, ConnConfProperty> valuedProps = new HashMap<>();
-            for (ConnConfProperty prop : resourceTO.getConfOverride()) {
+            resourceTO.getConfOverride().forEach(prop -> {
                 valuedProps.put(prop.getSchema().getName(), prop);
-            }
+            });
 
             for (int i = 0; i < props.size(); i++) {
                 if (valuedProps.containsKey(props.get(i).getSchema().getName())) {

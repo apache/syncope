@@ -84,27 +84,25 @@ public abstract class ReportDirectoryPanel
     protected List<IColumn<ReportTO, String>> getColumns() {
         final List<IColumn<ReportTO, String>> columns = new ArrayList<>();
 
-        columns.add(new KeyPropertyColumn<ReportTO>(new StringResourceModel(
-                "key", this), "key"));
-        columns.add(new PropertyColumn<ReportTO, String>(new StringResourceModel(
-                "name", this), "name", "name"));
+        columns.add(new KeyPropertyColumn<>(new StringResourceModel("key", this), "key"));
+        columns.add(new PropertyColumn<>(new StringResourceModel("name", this), "name", "name"));
 
-        columns.add(new DatePropertyColumn<ReportTO>(
+        columns.add(new DatePropertyColumn<>(
                 new StringResourceModel("lastExec", this), "lastExec", "lastExec"));
 
-        columns.add(new DatePropertyColumn<ReportTO>(
+        columns.add(new DatePropertyColumn<>(
                 new StringResourceModel("nextExec", this), "nextExec", "nextExec"));
 
-        columns.add(new DatePropertyColumn<ReportTO>(
+        columns.add(new DatePropertyColumn<>(
                 new StringResourceModel("start", this), "start", "start"));
 
-        columns.add(new DatePropertyColumn<ReportTO>(
+        columns.add(new DatePropertyColumn<>(
                 new StringResourceModel("end", this), "end", "end"));
 
-        columns.add(new PropertyColumn<ReportTO, String>(
+        columns.add(new PropertyColumn<>(
                 new StringResourceModel("latestExecStatus", this), "latestExecStatus", "latestExecStatus"));
 
-        columns.add(new BooleanPropertyColumn<ReportTO>(
+        columns.add(new BooleanPropertyColumn<>(
                 new StringResourceModel("active", this), "active", "active"));
 
         return columns;

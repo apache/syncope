@@ -205,20 +205,16 @@ public class ITImplementationLookup implements ImplementationLookup {
         // in case the Elasticsearch extension is enabled, reinit a clean index for all available domains
         if (AopUtils.getTargetClass(anySearchDAO).getName().contains("Elasticsearch")) {
             for (Map.Entry<String, DataSource> entry : domainsHolder.getDomains().entrySet()) {
-                AuthContextUtils.execWithAuthContext(entry.getKey(), new AuthContextUtils.Executable<Void>() {
+                AuthContextUtils.execWithAuthContext(entry.getKey(), () -> {
+                    SchedTaskTO task = new SchedTaskTO();
+                    task.setJobDelegateClassName(
+                            "org.apache.syncope.core.provisioning.java.job.ElasticsearchReindex");
+                    task.setName("Elasticsearch Reindex");
+                    task = taskLogic.createSchedTask(task);
 
-                    @Override
-                    public Void exec() {
-                        SchedTaskTO task = new SchedTaskTO();
-                        task.setJobDelegateClassName(
-                                "org.apache.syncope.core.provisioning.java.job.ElasticsearchReindex");
-                        task.setName("Elasticsearch Reindex");
-                        task = taskLogic.createSchedTask(task);
+                    taskLogic.execute(task.getKey(), null, false);
 
-                        taskLogic.execute(task.getKey(), null, false);
-
-                        return null;
-                    }
+                    return null;
                 });
             }
         }

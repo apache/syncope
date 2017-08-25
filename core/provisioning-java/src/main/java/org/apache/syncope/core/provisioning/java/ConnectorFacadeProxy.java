@@ -318,19 +318,13 @@ public class ConnectorFacadeProxy implements Connector {
             final SyncResultsHandler handler,
             final OperationOptions options) {
 
-        search(objectClass, filterBuilder == null ? null : filterBuilder.build(), new ResultsHandler() {
-
-            @Transactional
-            @Override
-            public boolean handle(final ConnectorObject obj) {
-                return handler.handle(new SyncDeltaBuilder().
-                        setObject(obj).
-                        setUid(obj.getUid()).
+        search(objectClass, filterBuilder == null ? null : filterBuilder.build(), object
+                -> handler.handle(new SyncDeltaBuilder().
+                        setObject(object).
+                        setUid(object.getUid()).
                         setDeltaType(SyncDeltaType.CREATE_OR_UPDATE).
                         setToken(new SyncToken("")).
-                        build());
-            }
-        }, options);
+                        build()), options);
     }
 
     @Override

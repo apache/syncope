@@ -70,14 +70,14 @@ public abstract class PropagationTaskDirectoryPanel
     protected List<IColumn<PropagationTaskTO, String>> getColumns() {
         final List<IColumn<PropagationTaskTO, String>> columns = new ArrayList<>();
 
-        columns.add(new KeyPropertyColumn<PropagationTaskTO>(
+        columns.add(new KeyPropertyColumn<>(
                 new StringResourceModel("key", this), "key"));
 
-        columns.add(new PropertyColumn<PropagationTaskTO, String>(
+        columns.add(new PropertyColumn<>(
                 new StringResourceModel("operation", this), "operation", "operation"));
 
         if (resource == null) {
-            columns.add(new PropertyColumn<PropagationTaskTO, String>(
+            columns.add(new PropertyColumn<>(
                     new StringResourceModel("resource", this), "resource", "resource"));
         } else {
             columns.add(new PropertyColumn<PropagationTaskTO, String>(
@@ -96,19 +96,19 @@ public abstract class PropagationTaskDirectoryPanel
             });
         }
 
-        columns.add(new PropertyColumn<PropagationTaskTO, String>(
+        columns.add(new PropertyColumn<>(
                 new StringResourceModel("entityKey", this), "entityKey", "entityKey"));
 
-        columns.add(new PropertyColumn<PropagationTaskTO, String>(
+        columns.add(new PropertyColumn<>(
                 new StringResourceModel("connObjectKey", this), "connObjectKey", "connObjectKey"));
 
-        columns.add(new DatePropertyColumn<PropagationTaskTO>(
+        columns.add(new DatePropertyColumn<>(
                 new StringResourceModel("start", this), "start", "start"));
 
-        columns.add(new DatePropertyColumn<PropagationTaskTO>(
+        columns.add(new DatePropertyColumn<>(
                 new StringResourceModel("end", this), "end", "end"));
 
-        columns.add(new PropertyColumn<PropagationTaskTO, String>(
+        columns.add(new PropertyColumn<>(
                 new StringResourceModel("latestExecStatus", this), "latestExecStatus", "latestExecStatus"));
         return columns;
     }

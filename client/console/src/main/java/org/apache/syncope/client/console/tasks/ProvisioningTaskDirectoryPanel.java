@@ -72,33 +72,33 @@ public abstract class ProvisioningTaskDirectoryPanel<T extends AbstractProvision
     protected List<IColumn<T, String>> getFieldColumns() {
         List<IColumn<T, String>> columns = new ArrayList<>();
 
-        columns.add(new KeyPropertyColumn<T>(
+        columns.add(new KeyPropertyColumn<>(
                 new StringResourceModel("key", this), "key"));
 
-        columns.add(new PropertyColumn<T, String>(
+        columns.add(new PropertyColumn<>(
                 new StringResourceModel("name", this), "name", "name"));
 
-        columns.add(new PropertyColumn<T, String>(
+        columns.add(new PropertyColumn<>(
                 new StringResourceModel("description", this), "description", "description"));
 
         if (reference == PullTaskTO.class) {
-            columns.add(new PropertyColumn<T, String>(
+            columns.add(new PropertyColumn<>(
                     new StringResourceModel("destinationRealm", this), "destinationRealm", "destinationRealm"));
         } else if (reference == PushTaskTO.class) {
-            columns.add(new PropertyColumn<T, String>(
+            columns.add(new PropertyColumn<>(
                     new StringResourceModel("sourceRealm", this), "sourceRealm", "sourceRealm"));
         }
 
-        columns.add(new DatePropertyColumn<T>(
+        columns.add(new DatePropertyColumn<>(
                 new StringResourceModel("lastExec", this), "lastExec", "lastExec"));
 
-        columns.add(new DatePropertyColumn<T>(
+        columns.add(new DatePropertyColumn<>(
                 new StringResourceModel("nextExec", this), "nextExec", "nextExec"));
 
-        columns.add(new PropertyColumn<T, String>(
+        columns.add(new PropertyColumn<>(
                 new StringResourceModel("latestExecStatus", this), "latestExecStatus", "latestExecStatus"));
 
-        columns.add(new BooleanPropertyColumn<T>(
+        columns.add(new BooleanPropertyColumn<>(
                 new StringResourceModel("active", this), "active", "active"));
 
         return columns;

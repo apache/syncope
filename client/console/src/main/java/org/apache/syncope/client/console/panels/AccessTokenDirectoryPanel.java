@@ -83,12 +83,12 @@ public class AccessTokenDirectoryPanel
     @Override
     protected List<IColumn<AccessTokenTO, String>> getColumns() {
         List<IColumn<AccessTokenTO, String>> columns = new ArrayList<>();
-        columns.add(new KeyPropertyColumn<AccessTokenTO>(
+        columns.add(new KeyPropertyColumn<>(
                 new StringResourceModel(Constants.KEY_FIELD_NAME, this),
                 Constants.KEY_FIELD_NAME,
                 Constants.KEY_FIELD_NAME));
 
-        columns.add(new PropertyColumn<AccessTokenTO, String>(new ResourceModel("owner"), "owner", "owner"));
+        columns.add(new PropertyColumn<>(new ResourceModel("owner"), "owner", "owner"));
 
         columns.add(new AbstractColumn<AccessTokenTO, String>(new ResourceModel("issuedAt", "")) {
 
@@ -107,7 +107,7 @@ public class AccessTokenDirectoryPanel
             }
         });
 
-        columns.add(new DatePropertyColumn<AccessTokenTO>(new ResourceModel("expiryTime"), "expiryTime", "expiryTime"));
+        columns.add(new DatePropertyColumn<>(new ResourceModel("expiryTime"), "expiryTime", "expiryTime"));
 
         return columns;
     }

@@ -22,14 +22,12 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.enduser.SyncopeEnduserApplication;
 import org.apache.syncope.client.enduser.SyncopeEnduserConstants;
@@ -125,15 +123,15 @@ public class SchemaResource extends BaseResource {
                     : Collections.<AbstractSchemaTO>emptyList();
 
             if (group != null) {
-                for (AbstractSchemaTO schema : plainSchemas) {
+                plainSchemas.forEach(schema -> {
                     schema.setKey(compositeSchemaKey(group, schema.getKey()));
-                }
-                for (AbstractSchemaTO schema : derSchemas) {
+                });
+                derSchemas.forEach(schema -> {
                     schema.setKey(compositeSchemaKey(group, schema.getKey()));
-                }
-                for (AbstractSchemaTO schema : virSchemas) {
+                });
+                virSchemas.forEach(schema -> {
                     schema.setKey(compositeSchemaKey(group, schema.getKey()));
-                }
+                });
             }
 
             response.setTextEncoding(StandardCharsets.UTF_8.name());
@@ -160,7 +158,9 @@ public class SchemaResource extends BaseResource {
         return response;
     }
 
-    private List<AbstractSchemaTO> customizeSchemas(final List<AbstractSchemaTO> schemaTOs, final String groupParam,
+    private List<AbstractSchemaTO> customizeSchemas(
+            final List<AbstractSchemaTO> schemaTOs,
+            final String groupParam,
             final Map<String, CustomAttribute> customForm) {
 
         if (customForm.isEmpty()) {
@@ -168,28 +168,20 @@ public class SchemaResource extends BaseResource {
         }
         final boolean isGroupBlank = StringUtils.isBlank(groupParam);
 
-        CollectionUtils.filter(schemaTOs, new Predicate<AbstractSchemaTO>() {
+        schemaTOs.removeAll(schemaTOs.stream().
+                filter(schema -> !customForm.containsKey(isGroupBlank
+                ? schema.getKey()
+                : compositeSchemaKey(groupParam, schema.getKey()))).
+                collect(Collectors.toSet()));
 
-            @Override
-            public boolean evaluate(final AbstractSchemaTO object) {
-                return customForm.containsKey(isGroupBlank
-                        ? object.getKey()
-                        : compositeSchemaKey(groupParam, object.getKey()));
-            }
-        });
-
-        Collections.sort(schemaTOs, new Comparator<AbstractSchemaTO>() {
-
-            @Override
-            public int compare(final AbstractSchemaTO schemaTO1, final AbstractSchemaTO schemaTO2) {
-                List<String> order = new ArrayList<>(customForm.keySet());
-                return order.indexOf(isGroupBlank
-                        ? schemaTO1.getKey()
-                        : compositeSchemaKey(groupParam, schemaTO1.getKey()))
-                        - order.indexOf(isGroupBlank
-                                ? schemaTO2.getKey()
-                                : compositeSchemaKey(groupParam, schemaTO2.getKey()));
-            }
+        Collections.sort(schemaTOs, (schemaTO1, schemaTO2) -> {
+            List<String> order = new ArrayList<>(customForm.keySet());
+            return order.indexOf(isGroupBlank
+                    ? schemaTO1.getKey()
+                    : compositeSchemaKey(groupParam, schemaTO1.getKey()))
+                    - order.indexOf(isGroupBlank
+                            ? schemaTO2.getKey()
+                            : compositeSchemaKey(groupParam, schemaTO2.getKey()));
         });
 
         return schemaTOs;

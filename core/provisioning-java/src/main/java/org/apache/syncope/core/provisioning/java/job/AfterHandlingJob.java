@@ -86,17 +86,13 @@ public class AfterHandlingJob extends AbstractInterruptableJob {
 
         try {
             AuthContextUtils.execWithAuthContext(context.getMergedJobDataMap().getString(JobManager.DOMAIN_KEY),
-                    new AuthContextUtils.Executable<Void>() {
-
-                @Override
-                public Void exec() {
-                    notificationManager.createTasks(
-                            (AfterHandlingEvent) context.getMergedJobDataMap().get(AfterHandlingEvent.JOBMAP_KEY));
-                    auditManager.audit(
-                            (AfterHandlingEvent) context.getMergedJobDataMap().get(AfterHandlingEvent.JOBMAP_KEY));
-                    return null;
-                }
-            });
+                    () -> {
+                        notificationManager.createTasks(
+                                (AfterHandlingEvent) context.getMergedJobDataMap().get(AfterHandlingEvent.JOBMAP_KEY));
+                        auditManager.audit(
+                                (AfterHandlingEvent) context.getMergedJobDataMap().get(AfterHandlingEvent.JOBMAP_KEY));
+                        return null;
+                    });
         } catch (RuntimeException e) {
             throw new JobExecutionException("While handling notification / audit events", e);
         }
