@@ -29,6 +29,8 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxSpinnerFiel
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDateFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDateTimeFieldPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.BinaryFieldPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.EncryptedFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -50,6 +52,8 @@ public class ParametersDetailsPanel extends Panel {
 
     private final SchemaRestClient schemaRestClient = new SchemaRestClient();
 
+    private final AjaxTextFieldPanel schema;
+
     public ParametersDetailsPanel(final String id, final AttrTO attrTO) {
         super(id);
 
@@ -65,7 +69,7 @@ public class ParametersDetailsPanel extends Panel {
         form.setModel(new CompoundPropertyModel<>(attrTO));
         container.add(form);
 
-        final AjaxTextFieldPanel schema = new AjaxTextFieldPanel(
+        schema = new AjaxTextFieldPanel(
                 "schema", getString("schema"), new PropertyModel<String>(attrTO, "schema"));
         schema.setEnabled(false);
         form.add(schema);
@@ -158,6 +162,15 @@ public class ParametersDetailsPanel extends Panel {
             case Double:
                 panel = new AjaxSpinnerFieldPanel.Builder<Double>()
                         .build(id, valueHeaderName, Double.class, new Model<Double>());
+                break;
+
+            case Binary:
+                panel = new BinaryFieldPanel(id, valueHeaderName, new Model<String>(), schemaTO.getMimeType(),
+                        schema.getModelObject());
+                break;
+
+            case Encrypted:
+                panel = new EncryptedFieldPanel(id, valueHeaderName, new Model<String>(), true);
                 break;
 
             default:

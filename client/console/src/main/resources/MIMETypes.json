@@ -6,6 +6,10 @@
     "name": "application/arj"
   },
   {
+    "name": "application/json",
+    "extension": "json"
+  },
+  {
     "name": "application/base64"
   },
   {
