@@ -36,7 +36,7 @@ public class UserWizardBuilder extends AnyWizardBuilder<UserTO> implements UserF
 
     private static final long serialVersionUID = 6716803168859873877L;
 
-    private final UserRestClient userRestClient = new UserRestClient();
+    protected final UserRestClient userRestClient = new UserRestClient();
 
     /**
      * Constructor to be used for templating only.
