@@ -38,6 +38,7 @@ import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.RoleTO;
 import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
@@ -56,7 +57,7 @@ public class DynRealmITCase extends AbstractITCase {
         try {
             dynRealm = new DynRealmTO();
             dynRealm.setKey("/name" + getUUIDString());
-            dynRealm.setCond("cool==true");
+            dynRealm.getDynMembershipConds().put(AnyTypeKind.USER.name(), "cool==true");
 
             // invalid key (starts with /)
             try {
@@ -93,7 +94,8 @@ public class DynRealmITCase extends AbstractITCase {
             // 1. create dynamic realm for all users and groups having resource-ldap assigned
             dynRealm = new DynRealmTO();
             dynRealm.setKey("LDAPLovers" + getUUIDString());
-            dynRealm.setCond("$resources==resource-ldap");
+            dynRealm.getDynMembershipConds().put(AnyTypeKind.USER.name(), "$resources==resource-ldap");
+            dynRealm.getDynMembershipConds().put(AnyTypeKind.GROUP.name(), "$resources==resource-ldap");
 
             Response response = dynRealmService.create(dynRealm);
             dynRealm = getObject(response.getLocation(), DynRealmService.class, DynRealmTO.class);

@@ -18,20 +18,31 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
+import java.util.Iterator;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.to.DynRealmTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.DynRealm;
+import org.apache.syncope.core.persistence.api.entity.DynRealmMembership;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
 import org.apache.syncope.core.provisioning.api.data.DynRealmDataBinder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class DynRealmDataBinderImpl implements DynRealmDataBinder {
+
+    private static final Logger LOG = LoggerFactory.getLogger(DynRealmDataBinder.class);
+
+    @Autowired
+    private AnyTypeDAO anyTypeDAO;
 
     @Autowired
     private DynRealmDAO dynRealmDAO;
@@ -39,25 +50,51 @@ public class DynRealmDataBinderImpl implements DynRealmDataBinder {
     @Autowired
     private EntityFactory entityFactory;
 
+    private void setDynMembership(final DynRealm dynRealm, final AnyType anyType, final String dynMembershipFIQL) {
+        SearchCond dynMembershipCond = SearchCondConverter.convert(dynMembershipFIQL);
+        if (!dynMembershipCond.isValid()) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSearchExpression);
+            sce.getElements().add(dynMembershipFIQL);
+            throw sce;
+        }
+
+        DynRealmMembership dynMembership;
+        if (dynRealm.getDynMembership(anyType).isPresent()) {
+            dynMembership = dynRealm.getDynMembership(anyType).get();
+        } else {
+            dynMembership = entityFactory.newEntity(DynRealmMembership.class);
+            dynMembership.setDynRealm(dynRealm);
+            dynMembership.setAnyType(anyType);
+            dynRealm.add(dynMembership);
+        }
+        dynMembership.setFIQLCond(dynMembershipFIQL);
+    }
+
     @Override
     public DynRealm create(final DynRealmTO dynRealmTO) {
         return update(entityFactory.newEntity(DynRealm.class), dynRealmTO);
     }
 
     @Override
-    public DynRealm update(final DynRealm dynRealm, final DynRealmTO dynRealmTO) {
-        dynRealm.setKey(dynRealmTO.getKey());
+    public DynRealm update(final DynRealm toBeUpdated, final DynRealmTO dynRealmTO) {
+        toBeUpdated.setKey(dynRealmTO.getKey());
+        DynRealm dynRealm = dynRealmDAO.save(toBeUpdated);
 
-        SearchCond cond = null;
-        if (dynRealmTO.getCond() != null) {
-            cond = SearchCondConverter.convert(dynRealmTO.getCond());
+        for (Iterator<? extends DynRealmMembership> itor = dynRealm.getDynMemberships().iterator(); itor.hasNext();) {
+            DynRealmMembership memb = itor.next();
+            memb.setDynRealm(null);
+            itor.remove();
         }
-        if (cond == null || !cond.isValid()) {
-            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidSearchExpression);
-            sce.getElements().add(dynRealmTO.getCond());
-            throw sce;
-        }
-        dynRealm.setFIQLCond(dynRealmTO.getCond());
+        dynRealmDAO.clearDynMembers(dynRealm);
+
+        dynRealmTO.getDynMembershipConds().entrySet().forEach(entry -> {
+            AnyType anyType = anyTypeDAO.find(entry.getKey());
+            if (anyType == null) {
+                LOG.warn("Ignoring invalid {}: {}", AnyType.class.getSimpleName(), entry.getKey());
+            } else {
+                setDynMembership(dynRealm, anyType, entry.getValue());
+            }
+        });
 
         return dynRealmDAO.save(dynRealm);
     }
@@ -67,7 +104,10 @@ public class DynRealmDataBinderImpl implements DynRealmDataBinder {
         DynRealmTO dynRealmTO = new DynRealmTO();
 
         dynRealmTO.setKey(dynRealm.getKey());
-        dynRealmTO.setCond(dynRealm.getFIQLCond());
+
+        dynRealm.getDynMemberships().forEach(memb -> {
+            dynRealmTO.getDynMembershipConds().put(memb.getAnyType().getKey(), memb.getFIQLCond());
+        });
 
         return dynRealmTO;
     }

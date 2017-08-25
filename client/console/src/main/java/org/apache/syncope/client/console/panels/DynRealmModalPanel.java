@@ -24,26 +24,34 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.pages.BasePage;
-import org.apache.syncope.client.console.panels.search.SearchClause;
+import org.apache.syncope.client.console.panels.search.AnyObjectSearchPanel;
+import org.apache.syncope.client.console.panels.search.GroupSearchPanel;
+import org.apache.syncope.client.console.panels.search.MapOfListModel;
 import org.apache.syncope.client.console.panels.search.UserSearchPanel;
+import org.apache.syncope.client.console.rest.AnyTypeRestClient;
 import org.apache.syncope.client.console.rest.DynRealmRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.tabs.Accordion;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wizards.DynRealmWrapper;
+import org.apache.syncope.common.lib.to.AnyTypeTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.list.ListItem;
+import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
-import org.apache.wicket.model.ResourceModel;
 
 public class DynRealmModalPanel extends AbstractModalPanel<DynRealmWrapper> {
 
     private static final long serialVersionUID = -3773196441177699452L;
+
+    private final AnyTypeRestClient anyTypeRestClient = new AnyTypeRestClient();
 
     private final DynRealmRestClient restClient = new DynRealmRestClient();
 
@@ -63,23 +71,58 @@ public class DynRealmModalPanel extends AbstractModalPanel<DynRealmWrapper> {
         modal.setFormModel(dynRealmWrapper);
 
         AjaxTextFieldPanel key = new AjaxTextFieldPanel(
-                "key", "key", new PropertyModel<String>(dynRealmWrapper.getInnerObject(), "key"), false);
+                "key", "key", new PropertyModel<>(dynRealmWrapper.getInnerObject(), "key"), false);
         key.setReadOnly(!create);
         key.setRequired(true);
         add(key);
 
-        add(new Accordion("cond", Collections.<ITab>singletonList(
-                new AbstractTab(new ResourceModel("cond", "Dynamic Condition")) {
+        final LoadableDetachableModel<List<AnyTypeTO>> types = new LoadableDetachableModel<List<AnyTypeTO>>() {
 
-            private static final long serialVersionUID = 1037272333056449378L;
+            private static final long serialVersionUID = 5275935387613157437L;
 
             @Override
-            public Panel getPanel(final String panelId) {
-                return new UserSearchPanel.Builder(
-                        new PropertyModel<List<SearchClause>>(dynRealmWrapper, "dynClauses")).
-                        required(false).build(panelId);
+            protected List<AnyTypeTO> load() {
+                return anyTypeRestClient.listAnyTypes();
             }
-        }), Model.of(StringUtils.isBlank(dynRealmWrapper.getCond()) ? -1 : 0)).setOutputMarkupId(true));
+        };
+
+        add(new ListView<AnyTypeTO>("dynMembershipCond", types) {
+
+            private static final long serialVersionUID = 9101744072914090143L;
+
+            @Override
+            protected void populateItem(final ListItem<AnyTypeTO> item) {
+                final String key = item.getModelObject().getKey();
+                item.add(new Accordion("dynMembershipCond", Collections.<ITab>singletonList(
+                        new AbstractTab(Model.of(key + " Dynamic Condition")) {
+
+                    private static final long serialVersionUID = 1037272333056449378L;
+
+                    @Override
+                    public Panel getPanel(final String panelId) {
+                        switch (item.getModelObject().getKind()) {
+                            case USER:
+                                return new UserSearchPanel.Builder(
+                                        new MapOfListModel<>(dynRealmWrapper, "dynClauses", key)).
+                                        required(false).build(panelId);
+
+                            case GROUP:
+                                return new GroupSearchPanel.Builder(
+                                        new MapOfListModel<>(dynRealmWrapper, "dynClauses", key)).
+                                        required(false).build(panelId);
+
+                            case ANY_OBJECT:
+                            default:
+                                return new AnyObjectSearchPanel.Builder(
+                                        key,
+                                        new MapOfListModel<>(dynRealmWrapper, "dynClauses", key)).
+                                        required(false).build(panelId);
+                        }
+                    }
+                }), Model.of(StringUtils.isBlank(dynRealmWrapper.getDynMembershipConds().get(key)) ? -1 : 0)).
+                        setOutputMarkupId(true));
+            }
+        });
     }
 
     @Override

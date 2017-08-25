@@ -19,12 +19,16 @@
 package org.apache.syncope.client.console.wizards;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.syncope.client.console.panels.search.SearchClause;
 import org.apache.syncope.client.console.panels.search.SearchUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
+import org.apache.syncope.common.lib.search.AbstractFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.to.DynRealmTO;
+import org.apache.syncope.common.lib.types.AnyTypeKind;
 
 public class DynRealmWrapper implements Serializable {
 
@@ -32,34 +36,49 @@ public class DynRealmWrapper implements Serializable {
 
     private final DynRealmTO dynRealmTO;
 
-    private List<SearchClause> dynClauses;
+    private Map<String, List<SearchClause>> dynClauses;
 
     public DynRealmWrapper(final DynRealmTO dynRealmTO) {
         this.dynRealmTO = dynRealmTO;
         getDynClauses();
     }
 
-    public final List<SearchClause> getDynClauses() {
+    public final Map<String, List<SearchClause>> getDynClauses() {
         if (this.dynClauses == null) {
-            this.dynClauses = SearchUtils.getSearchClauses(this.dynRealmTO.getCond());
+            this.dynClauses = SearchUtils.getSearchClauses(this.dynRealmTO.getDynMembershipConds());
         }
         return this.dynClauses;
     }
 
-    public void setDynClauses(final List<SearchClause> dynClauses) {
-        this.dynClauses = dynClauses;
+    public void setDynClauses(final Map<String, List<SearchClause>> dynClauses) {
+        this.dynClauses.clear();
+        this.dynClauses.putAll(dynClauses);
     }
 
-    public String getCond() {
-        if (CollectionUtils.isEmpty(this.dynClauses)) {
-            return null;
-        } else {
-            return SearchUtils.buildFIQL(this.dynClauses, SyncopeClient.getUserSearchConditionBuilder());
+    public Map<String, String> getDynMembershipConds() {
+        final Map<String, String> res = new HashMap<>();
+        if (this.dynClauses != null && !this.dynClauses.isEmpty()) {
+            this.dynClauses.entrySet().stream().
+                    filter(entry -> (CollectionUtils.isNotEmpty(entry.getValue()))).
+                    forEachOrdered(entry -> {
+                        AbstractFiqlSearchConditionBuilder builder = AnyTypeKind.USER.name().equals(entry.getKey())
+                                ? SyncopeClient.getUserSearchConditionBuilder()
+                                : AnyTypeKind.GROUP.name().equals(entry.getKey())
+                                ? SyncopeClient.getGroupSearchConditionBuilder()
+                                : SyncopeClient.getAnyObjectSearchConditionBuilder(entry.getKey());
+                        String fiql = SearchUtils.buildFIQL(entry.getValue(), builder);
+                        if (fiql != null) {
+                            res.put(entry.getKey(), fiql);
+                        }
+                    });
         }
+
+        return res;
     }
 
     public DynRealmTO fillDynamicConditions() {
-        this.dynRealmTO.setCond(this.getCond());
+        this.dynRealmTO.getDynMembershipConds().clear();
+        this.dynRealmTO.getDynMembershipConds().putAll(this.getDynMembershipConds());
         return this.dynRealmTO;
     }
 

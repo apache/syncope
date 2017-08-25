@@ -209,8 +209,9 @@ public class JPAGroup extends AbstractAny<GPlainAttr> implements Group {
 
     @Override
     public Optional<? extends ADynGroupMembership> getADynMembership(final AnyType anyType) {
-        return aDynMemberships.stream().filter(dynGroupMembership
-                -> anyType != null && anyType.equals(dynGroupMembership.getAnyType())).findFirst();
+        return aDynMemberships.stream().
+                filter(dynGroupMembership -> anyType != null && anyType.equals(dynGroupMembership.getAnyType())).
+                findFirst();
     }
 
     @Override
@@ -226,8 +227,9 @@ public class JPAGroup extends AbstractAny<GPlainAttr> implements Group {
 
     @Override
     public Optional<? extends TypeExtension> getTypeExtension(final AnyType anyType) {
-        return typeExtensions.stream().filter(typeExtension
-                -> typeExtension.getAnyType().equals(anyType)).findFirst();
+        return typeExtensions.stream().
+                filter(typeExtension -> typeExtension.getAnyType().equals(anyType)).
+                findFirst();
     }
 
     @Override

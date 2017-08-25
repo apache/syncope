@@ -26,11 +26,13 @@ import static org.junit.Assert.fail;
 import java.util.List;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.DynRealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.DynRealmCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.DynRealm;
+import org.apache.syncope.core.persistence.api.entity.DynRealmMembership;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
 import org.junit.Test;
@@ -39,6 +41,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Transactional("Master")
 public class DynRealmTest extends AbstractTest {
+
+    @Autowired
+    private AnyTypeDAO anyTypeDAO;
 
     @Autowired
     private DynRealmDAO dynRealmDAO;
@@ -53,7 +58,14 @@ public class DynRealmTest extends AbstractTest {
     public void misc() {
         DynRealm dynRealm = entityFactory.newEntity(DynRealm.class);
         dynRealm.setKey("/name");
-        dynRealm.setFIQLCond("cool==true");
+
+        DynRealmMembership memb = entityFactory.newEntity(DynRealmMembership.class);
+        memb.setDynRealm(dynRealm);
+        memb.setAnyType(anyTypeDAO.findUser());
+        memb.setFIQLCond("cool==true");
+        
+        dynRealm.add(memb);
+        memb.setDynRealm(dynRealm);
 
         // invalid key (starts with /)
         try {
