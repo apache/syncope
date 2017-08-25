@@ -27,6 +27,8 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxSpinnerFiel
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDateFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDateTimeFieldPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.BinaryFieldPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.EncryptedFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -47,6 +49,8 @@ public class ParametersCreateWizardAttrStep extends WizardStep {
 
     private static final long serialVersionUID = -7843275202297616553L;
 
+    private final AjaxTextFieldPanel schema;
+
     public ParametersCreateWizardAttrStep(final ParametersCreateWizardPanel.ParametersForm modelObject) {
         this.setOutputMarkupId(true);
 
@@ -54,7 +58,7 @@ public class ParametersCreateWizardAttrStep extends WizardStep {
         content.setOutputMarkupId(true);
         add(content);
 
-        final AjaxTextFieldPanel schema = new AjaxTextFieldPanel(
+        schema = new AjaxTextFieldPanel(
                 "schema", getString("schema"), new PropertyModel<String>(modelObject.getAttrTO(), "schema"));
         schema.setRequired(true);
         content.add(schema);
@@ -171,6 +175,15 @@ public class ParametersCreateWizardAttrStep extends WizardStep {
             case Double:
                 panel = new AjaxSpinnerFieldPanel.Builder<Double>()
                         .build(id, valueHeaderName, Double.class, new Model<Double>());
+                break;
+
+            case Binary:
+                panel = new BinaryFieldPanel(id, valueHeaderName, new Model<String>(), plainSchemaTO.getMimeType(),
+                        schema.getModelObject());
+                break;
+
+            case Encrypted:
+                panel = new EncryptedFieldPanel(id, valueHeaderName, new Model<String>(), true);
                 break;
 
             default:
