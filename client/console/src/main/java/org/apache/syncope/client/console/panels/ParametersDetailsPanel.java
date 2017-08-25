@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.panels;
 
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.commons.SchemaUtils;
@@ -29,6 +28,8 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxSpinnerFiel
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDateFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDateTimeFieldPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.BinaryFieldPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.EncryptedFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -50,6 +51,8 @@ public class ParametersDetailsPanel extends Panel {
 
     private final SchemaRestClient schemaRestClient = new SchemaRestClient();
 
+    private final AjaxTextFieldPanel schema;
+
     public ParametersDetailsPanel(final String id, final AttrTO attrTO) {
         super(id);
 
@@ -65,8 +68,8 @@ public class ParametersDetailsPanel extends Panel {
         form.setModel(new CompoundPropertyModel<>(attrTO));
         container.add(form);
 
-        final AjaxTextFieldPanel schema = new AjaxTextFieldPanel(
-                "schema", getString("schema"), new PropertyModel<String>(attrTO, "schema"));
+        schema = new AjaxTextFieldPanel(
+                "schema", getString("schema"), new PropertyModel<>(attrTO, "schema"));
         schema.setEnabled(false);
         form.add(schema);
 
@@ -87,9 +90,9 @@ public class ParametersDetailsPanel extends Panel {
                         : schemaTO.getConversionPattern();
 
                 if (StringUtils.containsIgnoreCase(datePattern, "H")) {
-                    panel = new AjaxDateTimeFieldPanel("panel", schemaTO.getKey(), new Model<Date>(), datePattern);
+                    panel = new AjaxDateTimeFieldPanel("panel", schemaTO.getKey(), new Model<>(), datePattern);
                 } else {
-                    panel = new AjaxDateFieldPanel("panel", schemaTO.getKey(), new Model<Date>(), datePattern);
+                    panel = new AjaxDateFieldPanel("panel", schemaTO.getKey(), new Model<>(), datePattern);
                 }
                 break;
             case Boolean:
@@ -160,8 +163,17 @@ public class ParametersDetailsPanel extends Panel {
                         .build(id, valueHeaderName, Double.class, new Model<Double>());
                 break;
 
+            case Binary:
+                panel = new BinaryFieldPanel(id, valueHeaderName, new Model<>(), schemaTO.getMimeType(),
+                        schema.getModelObject());
+                break;
+
+            case Encrypted:
+                panel = new EncryptedFieldPanel(id, valueHeaderName, new Model<>(), true);
+                break;
+
             default:
-                panel = new AjaxTextFieldPanel(id, valueHeaderName, new Model<String>(), false);
+                panel = new AjaxTextFieldPanel(id, valueHeaderName, new Model<>(), false);
         }
         if (schemaTO.isMultivalue()) {
             return new MultiFieldPanel.Builder<>(

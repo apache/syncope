@@ -39,14 +39,20 @@ import org.apache.syncope.client.console.wizards.AbstractModalPanelBuilder;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.common.lib.to.AttrTO;
+import org.apache.syncope.common.lib.to.PlainSchemaTO;
+import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.authroles.authorization.strategies.role.metadata.MetaDataRoleAuthorizationStrategy;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow.WindowClosedCallback;
+import org.apache.wicket.extensions.markup.html.repeater.data.grid.ICellPopulator;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
+import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
@@ -134,8 +140,25 @@ public class ParametersDirectoryPanel
     @Override
     protected List<IColumn<AttrTO, String>> getColumns() {
         final List<IColumn<AttrTO, String>> columns = new ArrayList<>();
-        columns.add(new PropertyColumn<AttrTO, String>(new ResourceModel("schema"), "schema"));
-        columns.add(new PropertyColumn<AttrTO, String>(new ResourceModel("values"), "values"));
+        columns.add(new PropertyColumn<>(new ResourceModel("schema"), "schema"));
+        columns.add(new PropertyColumn<AttrTO, String>(new ResourceModel("values"), "values") {
+
+            private static final long serialVersionUID = -1822504503325964706L;
+
+            @Override
+            public void populateItem(final Item<ICellPopulator<AttrTO>> item,
+                    final String componentId, final IModel<AttrTO> rowModel) {
+                PlainSchemaTO modelSchemaTO = (PlainSchemaTO) rowModel.getObject().getSchemaInfo();
+                AttrSchemaType type = modelSchemaTO.getType();
+                if (type == AttrSchemaType.Binary || type == AttrSchemaType.Encrypted) {
+                    item.add(new Label(componentId, type.name()).
+                            add(new AttributeModifier("style", "font-style:italic")));
+                } else {
+                    super.populateItem(item, componentId, rowModel);
+                }
+            }
+
+        });
         return columns;
     }
 

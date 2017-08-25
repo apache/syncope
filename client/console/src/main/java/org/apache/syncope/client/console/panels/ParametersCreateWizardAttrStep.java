@@ -19,7 +19,6 @@
 package org.apache.syncope.client.console.panels;
 
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import org.apache.syncope.client.console.commons.SchemaUtils;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
@@ -27,6 +26,8 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxSpinnerFiel
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDateFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDateTimeFieldPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.BinaryFieldPanel;
+import org.apache.syncope.client.console.wicket.markup.html.form.EncryptedFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.common.lib.SyncopeConstants;
@@ -47,6 +48,8 @@ public class ParametersCreateWizardAttrStep extends WizardStep {
 
     private static final long serialVersionUID = -7843275202297616553L;
 
+    private final AjaxTextFieldPanel schema;
+
     public ParametersCreateWizardAttrStep(final ParametersCreateWizardPanel.ParametersForm modelObject) {
         this.setOutputMarkupId(true);
 
@@ -54,8 +57,8 @@ public class ParametersCreateWizardAttrStep extends WizardStep {
         content.setOutputMarkupId(true);
         add(content);
 
-        final AjaxTextFieldPanel schema = new AjaxTextFieldPanel(
-                "schema", getString("schema"), new PropertyModel<String>(modelObject.getAttrTO(), "schema"));
+        schema = new AjaxTextFieldPanel(
+                "schema", getString("schema"), new PropertyModel<>(modelObject.getAttrTO(), "schema"));
         schema.setRequired(true);
         content.add(schema);
 
@@ -87,7 +90,6 @@ public class ParametersCreateWizardAttrStep extends WizardStep {
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     private Panel getFieldPanel(final String id, final AttrTO attrTO, final PlainSchemaTO plainSchemaTO) {
-
         final String valueHeaderName = getString("values");
 
         final FieldPanel panel;
@@ -99,14 +101,15 @@ public class ParametersCreateWizardAttrStep extends WizardStep {
 
                 if (dataPattern.contains("H")) {
                     panel = new AjaxDateTimeFieldPanel(
-                            id, valueHeaderName, new Model<Date>(), dataPattern);
+                            id, valueHeaderName, new Model<>(), dataPattern);
                 } else {
                     panel = new AjaxDateFieldPanel(
-                            "panel", valueHeaderName, new Model<Date>(), dataPattern);
+                            "panel", valueHeaderName, new Model<>(), dataPattern);
                 }
                 break;
+
             case Boolean:
-                panel = new AjaxDropDownChoicePanel<>(id, valueHeaderName, new Model<String>(), false);
+                panel = new AjaxDropDownChoicePanel<>(id, valueHeaderName, new Model<>(), false);
                 ((AjaxDropDownChoicePanel<String>) panel).setChoices(Arrays.asList("true", "false"));
 
                 if (!attrTO.getValues().isEmpty()) {
@@ -133,8 +136,9 @@ public class ParametersCreateWizardAttrStep extends WizardStep {
                 }
                 ((AjaxDropDownChoicePanel<String>) panel).setNullValid(false);
                 break;
+
             case Enum:
-                panel = new AjaxDropDownChoicePanel<>(id, valueHeaderName, new Model<String>(), false);
+                panel = new AjaxDropDownChoicePanel<>(id, valueHeaderName, new Model<>(), false);
                 ((AjaxDropDownChoicePanel<String>) panel).setChoices(SchemaUtils.getEnumeratedValues(plainSchemaTO));
 
                 if (!attrTO.getValues().isEmpty()) {
@@ -173,12 +177,21 @@ public class ParametersCreateWizardAttrStep extends WizardStep {
                         .build(id, valueHeaderName, Double.class, new Model<Double>());
                 break;
 
+            case Binary:
+                panel = new BinaryFieldPanel(id, valueHeaderName, new Model<>(), plainSchemaTO.getMimeType(),
+                        schema.getModelObject());
+                break;
+
+            case Encrypted:
+                panel = new EncryptedFieldPanel(id, valueHeaderName, new Model<>(), true);
+                break;
+
             default:
-                panel = new AjaxTextFieldPanel(id, valueHeaderName, new Model<String>(), false);
+                panel = new AjaxTextFieldPanel(id, valueHeaderName, new Model<>(), false);
         }
         if (plainSchemaTO.isMultivalue()) {
             return new MultiFieldPanel.Builder<>(
-                    new PropertyModel<List<String>>(attrTO, "values")).build(id, valueHeaderName, panel);
+                    new PropertyModel<>(attrTO, "values")).build(id, valueHeaderName, panel);
         } else {
             panel.setNewModel(attrTO.getValues());
         }
