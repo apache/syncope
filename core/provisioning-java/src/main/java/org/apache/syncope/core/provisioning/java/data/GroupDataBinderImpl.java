@@ -72,13 +72,18 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
             sce.getElements().add(dynMembershipFIQL);
             throw sce;
         }
+        if (anyType.getKind() == AnyTypeKind.GROUP) {
+            SyncopeClientException sce = SyncopeClientException.build(ClientExceptionType.InvalidAnyType);
+            sce.getElements().add(anyType.getKind().name());
+            throw sce;
+        }
 
         DynGroupMembership<?> dynMembership;
         if (anyType.getKind() == AnyTypeKind.ANY_OBJECT && group.getADynMembership(anyType) == null) {
             dynMembership = entityFactory.newEntity(ADynGroupMembership.class);
             dynMembership.setGroup(group);
-            group.add((ADynGroupMembership) dynMembership);
             ((ADynGroupMembership) dynMembership).setAnyType(anyType);
+            group.add((ADynGroupMembership) dynMembership);
         } else if (anyType.getKind() == AnyTypeKind.USER && group.getUDynMembership() == null) {
             dynMembership = entityFactory.newEntity(UDynGroupMembership.class);
             dynMembership.setGroup(group);

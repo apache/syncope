@@ -18,11 +18,19 @@
  */
 package org.apache.syncope.core.persistence.jpa.entity;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.Cacheable;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
+import org.apache.commons.collections4.IterableUtils;
+import org.apache.commons.collections4.Predicate;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.DynRealm;
+import org.apache.syncope.core.persistence.api.entity.DynRealmMembership;
 import org.apache.syncope.core.persistence.jpa.validation.entity.DynRealmCheck;
 
 @Entity
@@ -35,16 +43,29 @@ public class JPADynRealm extends AbstractProvidedKeyEntity implements DynRealm {
 
     public static final String TABLE = "DynRealm";
 
-    @NotNull
-    private String fiql;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "dynRealm")
+    private List<JPADynRealmMembership> dynMemberships = new ArrayList<>();
 
     @Override
-    public String getFIQLCond() {
-        return fiql;
+    public boolean add(final DynRealmMembership dynRealmMembership) {
+        checkType(dynRealmMembership, JPADynRealmMembership.class);
+        return this.dynMemberships.add((JPADynRealmMembership) dynRealmMembership);
     }
 
     @Override
-    public void setFIQLCond(final String fiql) {
-        this.fiql = fiql;
+    public DynRealmMembership getDynMembership(final AnyType anyType) {
+        return IterableUtils.find(dynMemberships, new Predicate<DynRealmMembership>() {
+
+            @Override
+            public boolean evaluate(final DynRealmMembership dynRealmMembership) {
+                return anyType != null && anyType.equals(dynRealmMembership.getAnyType());
+            }
+        });
     }
+
+    @Override
+    public List<? extends DynRealmMembership> getDynMemberships() {
+        return dynMemberships;
+    }
+
 }

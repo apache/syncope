@@ -18,10 +18,16 @@
  */
 package org.apache.syncope.common.lib.to;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.HashMap;
+import java.util.Map;
 import javax.ws.rs.PathParam;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.apache.syncope.common.lib.AbstractBaseBean;
+import org.apache.syncope.common.lib.jaxb.XmlGenericMapAdapter;
 
 @XmlRootElement(name = "dynRealm")
 @XmlType
@@ -31,7 +37,9 @@ public class DynRealmTO extends AbstractBaseBean implements EntityTO {
 
     private String key;
 
-    private String cond;
+    @XmlJavaTypeAdapter(XmlGenericMapAdapter.class)
+    @JsonIgnore
+    private final Map<String, String> dynMembershipConds = new HashMap<>();
 
     @Override
     public String getKey() {
@@ -44,12 +52,8 @@ public class DynRealmTO extends AbstractBaseBean implements EntityTO {
         this.key = key;
     }
 
-    public String getCond() {
-        return cond;
+    @JsonProperty
+    public Map<String, String> getDynMembershipConds() {
+        return dynMembershipConds;
     }
-
-    public void setCond(final String cond) {
-        this.cond = cond;
-    }
-
 }

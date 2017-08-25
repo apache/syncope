@@ -107,8 +107,8 @@ public class DynamicMemberships extends WizardStep {
                                 key, new MapOfListModel<SearchClause>(groupWrapper, "aDynClauses", key)).
                                 required(false).build(panelId);
                     }
-                }), Model.of(StringUtils.isBlank(groupWrapper.getADynMembershipConds().get(key)) ? -1 : 0))
-                        .setOutputMarkupId(true));
+                }), Model.of(StringUtils.isBlank(groupWrapper.getADynMembershipConds().get(key)) ? -1 : 0)).
+                        setOutputMarkupId(true));
             }
         });
         // ------------------------

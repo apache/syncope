@@ -18,14 +18,14 @@
  */
 package org.apache.syncope.core.persistence.api.entity;
 
-import java.util.List;
+public interface DynRealmMembership extends DynMembership<Any<?>> {
 
-public interface DynRealm extends ProvidedKeyEntity {
+    DynRealm getDynRealm();
 
-    boolean add(DynRealmMembership dynRealmMembership);
+    void setDynRealm(DynRealm dynRealm);
 
-    DynRealmMembership getDynMembership(AnyType anyType);
+    AnyType getAnyType();
 
-    List<? extends DynRealmMembership> getDynMemberships();
+    void setAnyType(AnyType anyType);
 
 }
