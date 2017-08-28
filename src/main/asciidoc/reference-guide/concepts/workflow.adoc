@@ -75,49 +75,49 @@ Custom adapters can be provided by implementing the related interfaces, also as 
 https://camunda.org/[Camunda^] or http://jbpm.jboss.org/[jBPM^].
 ====
 
-==== Activiti User Workflow Adapter
+==== Flowable User Workflow Adapter
 
-An advanced adapter is provided for Users, based on http://www.activiti.org/[Activiti BPM^], one of reference open
+An advanced adapter is provided for Users, based on http://www.flowable.org/[Flowable^], one of reference open
 source http://www.bpmn.org/[BPMN 2.0^] implementations.
 
 The
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/workflow-activiti/src/main/java/org/apache/syncope/core/workflow/activiti/ActivitiUserWorkflowAdapter.java[ActivitiUserWorkflowAdapter^]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/workflow-flowable/src/main/java/org/apache/syncope/core/workflow/flowable/FlowableUserWorkflowAdapter.java[FlowableUserWorkflowAdapter^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/workflow-activiti/src/main/java/org/apache/syncope/core/workflow/activiti/ActivitiUserWorkflowAdapter.java[ActivitiUserWorkflowAdapter^]
+https://github.com/apache/syncope/blob/master/core/workflow-flowable/src/main/java/org/apache/syncope/core/workflow/flowable/FlowableUserWorkflowAdapter.java[FlowableUserWorkflowAdapter^]
 endif::[]
 is bootstrapped from
 ifeval::["{snapshotOrRelease}" == "release"]
-https://github.com/apache/syncope/blob/syncope-{docVersion}/core/workflow-activiti/src/main/resources/userWorkflow.bpmn20.xml[userWorkflow.bpmn20.xml^]
+https://github.com/apache/syncope/blob/syncope-{docVersion}/core/workflow-flowable/src/main/resources/userWorkflow.bpmn20.xml[userWorkflow.bpmn20.xml^]
 endif::[]
 ifeval::["{snapshotOrRelease}" == "snapshot"]
-https://github.com/apache/syncope/blob/master/core/workflow-activiti/src/main/resources/userWorkflow.bpmn20.xml[userWorkflow.bpmn20.xml^]
+https://github.com/apache/syncope/blob/master/core/workflow-flowable/src/main/resources/userWorkflow.bpmn20.xml[userWorkflow.bpmn20.xml^]
 endif::[]
 and presents several advantages and more features, if compared to the default user adapter:
 
 . Besides mandatory statuses, which are modeled as BPMN `userTask` instances, more can be freely added
 at runtime, provided that adequate transitions and conditions are also inserted; more details about available BPMN
-constructs are available in the http://www.activiti.org/userguide/index.html#bpmnConstructs[Activiti User Guide^]. +
+constructs are available in the http://www.flowable.org/docs/userguide/index.html#bpmnConstructs[Flowable User Guide^]. +
 Additional statuses and transitions allow the internal processes of Apache Syncope to better adapt to suit organizational flows.
 . Custom logic can be injected into the workflow process by providing BPMN `serviceTask` instances.
-. http://www.activiti.org/userguide/index.html#forms[Activiti forms^] are used for implementing <<approval,approval>>.
-. The http://www.activiti.org/userguide/index.html#activitiModeler[Activiti Modeler^] can be enabled in the
+. http://www.flowable.org/docs/userguide/index.html#forms[Flowable forms^] are used for implementing <<approval,approval>>.
+. The http://www.flowable.org/docs/userguide/index.html#flowableModelerApp[Flowable Modeler^] can be enabled in the
 <<admin-console,admin console>>, thus allowing web-based graphical modeling of the workflow definition.
 
 [.text-center]
-image::userWorkflow.png[title="Default Activiti user workflow",alt="Default Activiti user workflow"] 
+image::userWorkflow.png[title="Default Flowable user workflow",alt="Default Flowable user workflow"] 
 
 ===== Approval
 
-Every transition in the Activiti user workflow definition can be subjected to approval.
+Every transition in the Flowable user workflow definition can be subjected to approval.
 
 The underlying idea is that some kind of self-modifications (group memberships, external resource assignments, ...)
 might not be allowed to 'plain' Users, as there could be conditions which require management approval.
 Managers could also be asked to complete the information provided before the requested operation is finished.
 
 In order to define an approval form, a dedicated BPMN `userTask` needs to be defined, following the rules established
-for http://www.activiti.org/userguide/index.html#forms[Activiti forms^].
+for http://www.flowable.org/docs/userguide/index.html#forms[Flowable forms^].
 
 [NOTE]
 .What is required for administrators to manage approval?
@@ -132,7 +132,7 @@ The following conditions must be met, for an User `U` to act as administrator fo
 .. `USER_READ`
 . The BPMN `userTask` must either indicate `U` among `candidateUsers` or at least one of the groups assigned to `U`
 among `candidateGroups`, as required by
-http://www.activiti.org/userguide/index.html#bpmnUserTaskUserAssignmentExtension[Activiti's task assignment rules^]
+http://www.flowable.org/docs/userguide/index.html#bpmnUserTaskUserAssignmentExtension[Flowable's task assignment rules^]
 
 The special super-user `admin` is entitled to manage all approvals, even those not specifying any
 `candidateUsers` or `candidateGroups`.
@@ -142,18 +142,18 @@ The special super-user `admin` is entitled to manage all approvals, even those n
 .Approving self-registration
 ====
 The snippet below shows how to define an approval form in XML; the same operation can be performed via the
-http://www.activiti.org/userguide/index.html#activitiModeler[Activiti Modeler^].
+http://www.flowable.org/docs/userguide/index.html#flowableModelerApp[Flowable Modeler^].
 
 [source,xml]
 ----
 <userTask id="createApproval" name="Create approval"
-          activiti:candidateGroups="managingDirector" activiti:formKey="createApproval"> // <1>
+          flowable:candidateGroups="managingDirector" flowable:formKey="createApproval"> // <1>
   <extensionElements>
-    <activiti:formProperty id="username" name="Username" type="string"
+    <flowable:formProperty id="username" name="Username" type="string"
                            expression="${user.username}" writable="false"/> // <2>
-    <activiti:formProperty id="approve" name="Approve?" type="boolean"
+    <flowable:formProperty id="approve" name="Approve?" type="boolean"
                            variable="approve" required="true"/> // <3>
-    <activiti:formProperty id="rejectReason" name="Reason for rejecting" type="string"
+    <flowable:formProperty id="rejectReason" name="Reason for rejecting" type="string"
                            variable="rejectReason"/>
   </extensionElements>
 </userTask>
@@ -215,8 +215,8 @@ The delegated administrator for approving recertifications can be configured by 
 [source,xml]
 ----
 <userTask id="recertificationRequest" name="Recertification Request"
-          activiti:formKey="recertify"
-          activiti:candidateGroups="managingDirector">
+          flowable:formKey="recertify"
+          flowable:candidateGroups="managingDirector">
 ----
 ====
 
@@ -225,15 +225,7 @@ The delegated administrator for approving recertifications can be configured by 
 [source,xml]
 ----
 <userTask id="recertificationRequest" name="Recertification Request"
-          activiti:formKey="recertify"
-          activiti:candidateUser="${user.lastRecertificator}">
+          flowable:formKey="recertify"
+          flowable:candidateUser="${user.lastRecertificator}">
 ----
 ====
-
-==== Flowable User Workflow Adapter
-
-Starting with Apache Syncope 2.0.3, another advanced adapter is provided for Users, based on
-http://www.flowable.org/[Flowable^], one of reference open source http://www.bpmn.org/[BPMN 2.0^] implementations.
-
-Since Flowable was http://www.flowable.org/blog/2016/10/12/flowable-and-activiti.html[forked from Activiti BPM^],
-everything stated <<activiti-user-workflow-adapter,above>> about Activiti BPM can be applied.

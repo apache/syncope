@@ -32,7 +32,7 @@ under the License.
   <str id="archetype.mvn.conf.directory" txt="Conf directory name:"/>
   <str id="archetype.mvn.log.directory" txt="Log directory name:"/>
   <str id="archetype.mvn.bundle.directory" txt="Bundle directory name:"/>
-  <str id="archetype.mvn.modeler.directory" txt="Activity modeler directory name:"/>
+  <str id="archetype.mvn.modeler.directory" txt="Flowable modeler directory name:"/>
   <str id="mvn.syncope.version.id" txt="Syncope Version:"/>
   <str id="mvn.syncope.admin.password.id" txt="Admin Password:"/>
   <str id="mvn.proxy.id" txt="Usa un Server Proxy:"/>
@@ -44,7 +44,7 @@ under the License.
   <str id="mvn.proxy.pwd.id" txt="Proxy Password (se richiesta):"/>
   
   <str id="options.swagger.id" txt="Swagger"/>
-  <str id="options.activiti.workflow.adapter.id" txt="Activiti workflow adapter"/>
+  <str id="options.flowable.workflow.adapter.id" txt="Flowable workflow adapter"/>
   
   <str id="persistence.jdbc.url" txt="Database JDBC url:"/>
   <str id="persistence.db.user" txt="Username:"/>

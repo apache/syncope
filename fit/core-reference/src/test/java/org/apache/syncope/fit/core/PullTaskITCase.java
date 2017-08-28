@@ -80,7 +80,7 @@ import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.core.provisioning.java.pushpull.DBPasswordPullActions;
 import org.apache.syncope.core.provisioning.java.pushpull.LDAPPasswordPullActions;
 import org.apache.syncope.core.spring.security.Encryptor;
-import org.apache.syncope.fit.ActivitiDetector;
+import org.apache.syncope.fit.FlowableDetector;
 import org.apache.syncope.fit.core.reference.PrefixItemTransformer;
 import org.apache.syncope.fit.core.reference.TestReconciliationFilterBuilder;
 import org.apache.syncope.fit.core.reference.TestPullActions;
@@ -222,7 +222,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             UserTO userTO = userService.read(inUserTO.getKey());
             assertNotNull(userTO);
             assertEquals(userName, userTO.getUsername());
-            assertEquals(ActivitiDetector.isActivitiEnabledForUsers(syncopeService)
+            assertEquals(FlowableDetector.isFlowableEnabledForUsers(syncopeService)
                     ? "active" : "created", userTO.getStatus());
             assertEquals("test9@syncope.apache.org", userTO.getPlainAttr("email").get().getValues().get(0));
             assertEquals("test9@syncope.apache.org", userTO.getPlainAttr("userId").get().getValues().get(0));

@@ -45,7 +45,7 @@ under the License.
       <arg>$mvn.proxy.pwd</arg><!-- 16 -->
       <arg>$mvn.proxy.autoconf</arg><!-- 17 -->
       <arg>$options.swagger</arg><!-- 18 -->
-      <arg>$options.activiti.workflow.adapter</arg><!-- 19 -->
+      <arg>$options.flowable.workflow.adapter</arg><!-- 19 -->
       <arg>$mvn.jws.key</arg><!-- 20 -->
     </executeclass>
   </job>

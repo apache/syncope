@@ -19,40 +19,40 @@ under the License.
 -->
 <definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" 
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-             xmlns:activiti="http://activiti.org/bpmn" 
+             xmlns:flowable="http://flowable.org/bpmn"
              xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" 
              xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" 
              xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" 
              typeLanguage="http://www.w3.org/2001/XMLSchema" 
              expressionLanguage="http://www.w3.org/1999/XPath" 
-             targetNamespace="http://activiti.org/bpmn20">
-  
+             targetNamespace="http://www.flowable.org/processdef">
+ 
   <process id="userWorkflow" name="User Workflow" isExecutable="true">
     <startEvent id="theStart"/>
     <sequenceFlow id="flow1" sourceRef="theStart" targetRef="create"/>
-    <serviceTask id="create" name="Create" activiti:expression="#{create.execute(execution.processInstanceId)}"/>
+    <serviceTask id="create" name="Create" flowable:expression="#{create.execute(execution.processInstanceId)}"/>
     <sequenceFlow id="flow2" sourceRef="create" targetRef="createGW"/>
     <exclusiveGateway id="createGW"/>
     <sequenceFlow id="createAsAnonymous2Approval" sourceRef="createGW" targetRef="createApproval">
       <conditionExpression xsi:type="tFormalExpression">
-        <![CDATA[${wfExecutor == 'anonymous' || activitiUtils.isUserIngroup(user, 'groupForWorkflowApproval')}]]>
+        <![CDATA[${wfExecutor == 'anonymous' || flowableUtils.isUserIngroup(user, 'groupForWorkflowApproval')}]]>
       </conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="create2Activate" sourceRef="createGW" targetRef="enableGW">
       <conditionExpression xsi:type="tFormalExpression">
-        <![CDATA[${!activitiUtils.isUserIngroup(user, 'groupForWorkflowApproval')}]]>
+        <![CDATA[${!flowableUtils.isUserIngroup(user, 'groupForWorkflowApproval')}]]>
       </conditionExpression>
     </sequenceFlow>
     <userTask id="createApproval" name="Create approval"
-              activiti:candidateGroups="managingDirector" activiti:formKey="createApproval">
+              flowable:candidateGroups="managingDirector" flowable:formKey="createApproval">
       <extensionElements>
-        <activiti:formProperty id="username" name="Username" type="string" expression="${user.username}" writable="false"/>
-        <activiti:formProperty id="approve" name="Approve?" type="boolean" variable="approve" required="true"/>
-        <activiti:formProperty id="rejectReason" name="Reason for rejecting" type="string" variable="rejectReason"/>
+        <flowable:formProperty id="username" name="Username" type="string" expression="${user.username}" writable="false"/>
+        <flowable:formProperty id="approve" name="Approve?" type="boolean" variable="approve" required="true"/>
+        <flowable:formProperty id="rejectReason" name="Reason for rejecting" type="string" variable="rejectReason"/>
       </extensionElements>
     </userTask>
     <sequenceFlow id="flow3" sourceRef="createApproval" targetRef="CreateApprovalEvaluation"/>
-    <scriptTask id="CreateApprovalEvaluation" name="Create approval evaluation" scriptFormat="groovy" activiti:autoStoreVariables="false">
+    <scriptTask id="CreateApprovalEvaluation" name="Create approval evaluation" scriptFormat="groovy" flowable:autoStoreVariables="false">
       <script><![CDATA[
 try {
   if (approve){
@@ -85,7 +85,7 @@ try {
     <exclusiveGateway id="enableGW"/>
     <sequenceFlow id="createApprovalGW2OptIn" sourceRef="enableGW" targetRef="generateToken">
       <conditionExpression xsi:type="tFormalExpression">
-        <![CDATA[${activitiUtils.isUserIngroup(user, 'groupForWorkflowOptIn')}]]>
+        <![CDATA[${flowableUtils.isUserIngroup(user, 'groupForWorkflowOptIn')}]]>
       </conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="createApprovalGW2Activate" sourceRef="enableGW" targetRef="activate">
@@ -97,9 +97,9 @@ try {
     <sequenceFlow id="createApprovalGW2Suspended" sourceRef="enableGW" targetRef="suspend">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${!enabled}]]></conditionExpression>
     </sequenceFlow>
-    <serviceTask id="activate" name="Activate" activiti:expression="#{autoActivate.execute(execution.processInstanceId)}"/>
+    <serviceTask id="activate" name="Activate" flowable:expression="#{autoActivate.execute(execution.processInstanceId)}"/>
     <sequenceFlow id="flow4" sourceRef="activate" targetRef="active"/>
-    <serviceTask id="generateToken" name="Generate token" activiti:expression="#{generateToken.execute(execution.processInstanceId)}"/>
+    <serviceTask id="generateToken" name="Generate token" flowable:expression="#{generateToken.execute(execution.processInstanceId)}"/>
     <sequenceFlow id="flow5" sourceRef="generateToken" targetRef="created"/>
     <userTask id="created" name="Created"/>
     <sequenceFlow id="flow6" sourceRef="created" targetRef="optinGW"/>
@@ -110,7 +110,7 @@ try {
     <sequenceFlow id="created2Created" sourceRef="optinGW" targetRef="created">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${!user.checkToken(token)}]]></conditionExpression>
     </sequenceFlow>
-    <scriptTask id="removeToken" name="Remove Token and Activate" scriptFormat="groovy" activiti:autoStoreVariables="false">
+    <scriptTask id="removeToken" name="Remove Token and Activate" scriptFormat="groovy" flowable:autoStoreVariables="false">
       <script><![CDATA[
         user.removeToken()    
       ]]></script>
@@ -142,15 +142,15 @@ try {
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${task == 'confirmPasswordReset'}]]></conditionExpression>
     </sequenceFlow>
     <userTask id="updateApproval" name="Update approval"
-              activiti:candidateGroups="managingDirector" activiti:formKey="updateApproval">
+              flowable:candidateGroups="managingDirector" flowable:formKey="updateApproval">
       <extensionElements>
-        <activiti:formProperty id="username" name="Username" type="string" expression="${user.username}" writable="false"/>
-        <activiti:formProperty id="approve" name="Approve?" type="boolean" variable="approve" required="true"/>
-        <activiti:formProperty id="rejectReason" name="Reason for rejecting" type="string" variable="rejectReason"/>
+        <flowable:formProperty id="username" name="Username" type="string" expression="${user.username}" writable="false"/>
+        <flowable:formProperty id="approve" name="Approve?" type="boolean" variable="approve" required="true"/>
+        <flowable:formProperty id="rejectReason" name="Reason for rejecting" type="string" variable="rejectReason"/>
       </extensionElements>
     </userTask>
     <sequenceFlow id="sid-A2BDF803-688C-4A4D-9D33-6D859C029245" sourceRef="updateApproval" targetRef="UpdateApprovalEvaluation"/>
-    <scriptTask id="UpdateApprovalEvaluation" name="Update approval evaluation" scriptFormat="groovy" activiti:autoStoreVariables="false">
+    <scriptTask id="UpdateApprovalEvaluation" name="Update approval evaluation" scriptFormat="groovy" flowable:autoStoreVariables="false">
       <script><![CDATA[
 try {
   if (approve){
@@ -180,24 +180,24 @@ try {
     <sequenceFlow id="sid-B5FFEBCA-1FBF-457F-BC55-39FD387188B2" sourceRef="updateApprovalGW" targetRef="delete">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${task == 'delete'}]]></conditionExpression>
     </sequenceFlow>
-    <scriptTask id="rejectUpdate" name="Reject update" scriptFormat="groovy" activiti:autoStoreVariables="false">
+    <scriptTask id="rejectUpdate" name="Reject update" scriptFormat="groovy" flowable:autoStoreVariables="false">
       <script><![CDATA[
         execution.setVariable("propByResource", null);
       ]]></script>
     </scriptTask>
     <sequenceFlow id="flow8ter" sourceRef="rejectUpdate" targetRef="active"/>
-    <serviceTask id="update" name="Update" activiti:expression="#{update.execute(execution.processInstanceId)}"/>
+    <serviceTask id="update" name="Update" flowable:expression="#{update.execute(execution.processInstanceId)}"/>
     <sequenceFlow id="flow9" sourceRef="update" targetRef="active"/>
     <userTask id="recertificationRequest" name="Recertification Request"
-              activiti:candidateGroups="managingDirector" activiti:formKey="recertify">
+              flowable:candidateGroups="managingDirector" flowable:formKey="recertify">
       <extensionElements>
-        <activiti:formProperty id="username" name="Username" type="string" expression="${user.username}" writable="false"/>
-        <activiti:formProperty id="approve" name="Recertify?" type="boolean" required="true"/>
-        <activiti:formProperty id="rejectReason" name="Reason for not recertifying" type="string" variable="rejectReason"/>
+        <flowable:formProperty id="username" name="Username" type="string" expression="${user.username}" writable="false"/>
+        <flowable:formProperty id="approve" name="Recertify?" type="boolean" required="true"/>
+        <flowable:formProperty id="rejectReason" name="Reason for not recertifying" type="string" variable="rejectReason"/>
       </extensionElements>
     </userTask>
     <sequenceFlow id="recert-flow1" sourceRef="recertificationRequest" targetRef="recertify-task"/>
-    <serviceTask id="recertify-task" name="Recertify" activiti:expression="#{recertify.execute(execution.processInstanceId)}"/>
+    <serviceTask id="recertify-task" name="Recertify" flowable:expression="#{recertify.execute(execution.processInstanceId)}"/>
     <sequenceFlow id="recert-request-start-flow" sourceRef="activeGw" targetRef="recertificationRequest">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${task == 'request-certify'}]]></conditionExpression>
     </sequenceFlow>
@@ -210,7 +210,7 @@ try {
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${!approve}]]></conditionExpression>
     </sequenceFlow>
     <!-- End Recertification flow -->
-    <serviceTask id="suspend" name="Suspend" activiti:expression="#{suspend.execute(execution.processInstanceId)}"/>
+    <serviceTask id="suspend" name="Suspend" flowable:expression="#{suspend.execute(execution.processInstanceId)}"/>
     <sequenceFlow id="flow10" sourceRef="suspend" targetRef="suspended"/>
     <userTask id="suspended" name="Suspended"/>
     <sequenceFlow id="flow11" sourceRef="suspended" targetRef="suspendedGw"/>
@@ -221,9 +221,9 @@ try {
     <sequenceFlow id="suspended2Delete" sourceRef="suspendedGw" targetRef="delete">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${task == 'delete'}]]></conditionExpression>
     </sequenceFlow>
-    <serviceTask id="reactivate" name="Reactivate" activiti:expression="#{reactivate.execute(execution.processInstanceId)}"/>
+    <serviceTask id="reactivate" name="Reactivate" flowable:expression="#{reactivate.execute(execution.processInstanceId)}"/>
     <sequenceFlow id="flow12" sourceRef="reactivate" targetRef="active"/>
-    <scriptTask id="reject" name="Reject" scriptFormat="groovy" activiti:autoStoreVariables="false">
+    <scriptTask id="reject" name="Reject" scriptFormat="groovy" flowable:autoStoreVariables="false">
       <script><![CDATA[
         def scriptVar = rejectReason
         execution.setVariable("propByResource", null);
@@ -240,11 +240,11 @@ try {
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${empty task}]]></conditionExpression>
     </sequenceFlow>
     <userTask id="deleteApproval" name="Delete approval"
-              activiti:candidateGroups="managingDirector" activiti:formKey="deleteApproval">
+              flowable:candidateGroups="managingDirector" flowable:formKey="deleteApproval">
       <extensionElements>
-        <activiti:formProperty id="username" name="Username" type="string" expression="${user.username}" writable="false"/>
-        <activiti:formProperty id="approve" name="Approve?" type="boolean" variable="approve" required="true"/>
-        <activiti:formProperty id="rejectReason" name="Reason for rejecting" type="string" variable="rejectReason"/>
+        <flowable:formProperty id="username" name="Username" type="string" expression="${user.username}" writable="false"/>
+        <flowable:formProperty id="approve" name="Approve?" type="boolean" variable="approve" required="true"/>
+        <flowable:formProperty id="rejectReason" name="Reason for rejecting" type="string" variable="rejectReason"/>
       </extensionElements>
     </userTask>
     <sequenceFlow id="flow14bis" sourceRef="deleteApproval" targetRef="deleteApprovalGW"/>
@@ -255,21 +255,21 @@ try {
     <sequenceFlow id="deleteApprovalGW2Reject" sourceRef="deleteApprovalGW" targetRef="rejectDelete">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${!approve}]]></conditionExpression>
     </sequenceFlow>
-    <scriptTask id="rejectDelete" name="Reject delete" scriptFormat="groovy" activiti:autoStoreVariables="false">
+    <scriptTask id="rejectDelete" name="Reject delete" scriptFormat="groovy" flowable:autoStoreVariables="false">
       <script><![CDATA[
         execution.setVariable("propByResource", null);
       ]]></script>
     </scriptTask>
     <sequenceFlow id="flow14ter" sourceRef="rejectDelete" targetRef="active"/>
-    <serviceTask id="generateToken4PasswordReset" name="Generate token" activiti:expression="#{generateToken.execute(execution.processInstanceId)}"/>
+    <serviceTask id="generateToken4PasswordReset" name="Generate token" flowable:expression="#{generateToken.execute(execution.processInstanceId)}"/>
     <sequenceFlow id="flow15" sourceRef="generateToken4PasswordReset" targetRef="notify4RequestPasswordReset"/>
-    <serviceTask id="notify4RequestPasswordReset" name="Notification" activiti:expression="#{notify.execute(execution.processInstanceId)}"/>
+    <serviceTask id="notify4RequestPasswordReset" name="Notification" flowable:expression="#{notify.execute(execution.processInstanceId)}"/>
     <sequenceFlow id="flow16" sourceRef="notify4RequestPasswordReset" targetRef="active"/>
-    <serviceTask id="checkToken4ConfirmPasswordReset" name="Check token, remove and update password" activiti:expression="#{passwordReset.execute(execution.processInstanceId)}"/>
+    <serviceTask id="checkToken4ConfirmPasswordReset" name="Check token, remove and update password" flowable:expression="#{passwordReset.execute(execution.processInstanceId)}"/>
     <sequenceFlow id="flow17" sourceRef="checkToken4ConfirmPasswordReset" targetRef="notify4ConfirmPasswordReset"/>
-    <serviceTask id="notify4ConfirmPasswordReset" name="Notification" activiti:expression="#{notify.execute(execution.processInstanceId)}"/>
+    <serviceTask id="notify4ConfirmPasswordReset" name="Notification" flowable:expression="#{notify.execute(execution.processInstanceId)}"/>
     <sequenceFlow id="flow18" sourceRef="notify4ConfirmPasswordReset" targetRef="active"/>
-    <serviceTask id="delete" name="Delete" activiti:expression="#{delete.execute(execution.processInstanceId)}"/>
+    <serviceTask id="delete" name="Delete" flowable:expression="#{delete.execute(execution.processInstanceId)}"/>
     <sequenceFlow id="flow99" sourceRef="delete" targetRef="theEnd"/>
     <endEvent id="theEnd"/>
   </process>

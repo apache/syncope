@@ -229,7 +229,7 @@ public final class ContainerProcess extends BaseProcess {
         mvnProperties.setProperty("conf.directory", confDirectory);
         mvnProperties.setProperty("log.directory", logsDirectory);
         mvnProperties.setProperty("bundles.directory", bundlesDirectory);
-        mvnProperties.setProperty("activiti-modeler.directory", modelerDirectory);
+        mvnProperties.setProperty("flowable-modeler.directory", modelerDirectory);
         mavenUtils.mvnCleanPackageWithProperties(
                 installPath + File.separator + artifactId, mvnProperties, customMavenProxySettings);
 

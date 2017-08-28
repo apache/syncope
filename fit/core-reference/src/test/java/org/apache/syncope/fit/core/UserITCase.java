@@ -81,7 +81,7 @@ import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.fit.core.reference.TestAccountRuleConf;
 import org.apache.syncope.fit.core.reference.TestPasswordRuleConf;
 import org.apache.syncope.fit.AbstractITCase;
-import org.apache.syncope.fit.ActivitiDetector;
+import org.apache.syncope.fit.FlowableDetector;
 import org.identityconnectors.framework.common.objects.OperationalAttributes;
 import org.junit.Assume;
 import org.junit.Test;
@@ -683,7 +683,7 @@ public class UserITCase extends AbstractITCase {
 
     @Test
     public void createActivate() {
-        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
+        Assume.assumeTrue(FlowableDetector.isFlowableEnabledForUsers(syncopeService));
 
         UserTO userTO = getUniqueSampleTO("createActivate@syncope.apache.org");
 
@@ -721,7 +721,7 @@ public class UserITCase extends AbstractITCase {
         userTO = createUser(userTO).getEntity();
 
         assertNotNull(userTO);
-        assertEquals(ActivitiDetector.isActivitiEnabledForUsers(syncopeService)
+        assertEquals(FlowableDetector.isFlowableEnabledForUsers(syncopeService)
                 ? "active"
                 : "created", userTO.getStatus());
 
@@ -758,7 +758,7 @@ public class UserITCase extends AbstractITCase {
         userTO.getResources().add(RESOURCE_NAME_LDAP);
         userTO = createUser(userTO).getEntity();
         assertNotNull(userTO);
-        assertEquals(ActivitiDetector.isActivitiEnabledForUsers(syncopeService)
+        assertEquals(FlowableDetector.isFlowableEnabledForUsers(syncopeService)
                 ? "active"
                 : "created", userTO.getStatus());
         String userKey = userTO.getKey();

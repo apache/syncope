@@ -78,7 +78,7 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
                 Locale.ENGLISH, Locale.ITALIAN, new Locale("pt", "BR"), new Locale("ru")
             }));
 
-    private static final String ACTIVITI_MODELER_CONTEXT = "activiti-modeler";
+    private static final String FLOWABLE_MODELER_CONTEXT = "flowable-modeler";
 
     public static SyncopeConsoleApplication get() {
         return (SyncopeConsoleApplication) WebApplication.get();
@@ -90,7 +90,7 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
 
     private String anonymousKey;
 
-    private String activitiModelerDirectory;
+    private String flowableModelerDirectory;
 
     private String reconciliationReportKey;
 
@@ -193,8 +193,8 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
 
         mountPage("/login", getSignInPageClass());
 
-        activitiModelerDirectory = props.getProperty("activitiModelerDirectory");
-        Args.notNull(activitiModelerDirectory, "<activitiModelerDirectory>");
+        flowableModelerDirectory = props.getProperty("flowableModelerDirectory");
+        Args.notNull(flowableModelerDirectory, "<flowableModelerDirectory>");
 
         try {
             reconciliationReportKey = props.getProperty("reconciliationReportKey");
@@ -203,13 +203,13 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
         }
         Args.notNull(reconciliationReportKey, "<reconciliationReportKey>");
 
-        mountResource("/" + ACTIVITI_MODELER_CONTEXT, new ResourceReference(ACTIVITI_MODELER_CONTEXT) {
+        mountResource("/" + FLOWABLE_MODELER_CONTEXT, new ResourceReference(FLOWABLE_MODELER_CONTEXT) {
 
             private static final long serialVersionUID = -128426276529456602L;
 
             @Override
             public IResource getResource() {
-                return new FilesystemResource(ACTIVITI_MODELER_CONTEXT, activitiModelerDirectory);
+                return new FilesystemResource(FLOWABLE_MODELER_CONTEXT, flowableModelerDirectory);
             }
 
         });
@@ -272,8 +272,8 @@ public class SyncopeConsoleApplication extends AuthenticatedWebApplication {
         return anonymousKey;
     }
 
-    public String getActivitiModelerDirectory() {
-        return activitiModelerDirectory;
+    public String getFlowableModelerDirectory() {
+        return flowableModelerDirectory;
     }
 
     public String getReconciliationReportKey() {

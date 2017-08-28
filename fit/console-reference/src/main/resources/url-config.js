@@ -20,15 +20,15 @@ var KISBPM = KISBPM || {};
 
 KISBPM.URL = {
   getModel: function (modelId) {
-    return window.location.toString().substr(0, window.location.toString().indexOf('/activiti-modeler')) 
+    return window.location.toString().substr(0, window.location.toString().indexOf('/flowable-modeler')) 
             + "/workflowDefGET?modelId=" + modelId;
   },
   getStencilSet: function () {
-    return window.location.toString().substr(0, window.location.toString().indexOf('/activiti-modeler')) 
-            + "/activiti-modeler/stencilset.json";
+    return window.location.toString().substr(0, window.location.toString().indexOf('/flowable-modeler')) 
+            + "/flowable-modeler/stencilset.json";
   },
   putModel: function (modelId) {
-    return window.location.toString().substr(0, window.location.toString().indexOf('/activiti-modeler')) 
+    return window.location.toString().substr(0, window.location.toString().indexOf('/flowable-modeler')) 
             + "/workflowDefPUT?modelId=" + modelId;
   }
 };

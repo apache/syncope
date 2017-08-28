@@ -193,7 +193,7 @@ under the License.
             <inherited>true</inherited>
             <executions>
               <execution>
-                <id>addActivitiTestContent</id>
+                <id>addFlowableTestContent</id>
                 <phase>prepare-package</phase>
                 <configuration>
                   <target>
@@ -211,14 +211,14 @@ under the License.
                       </then>
                     </if>
                     <if>
-                      <available file="../core/target/syncope/WEB-INF/lib/activiti-engine-${activiti.version}.jar"/>
+                      <available file="../core/target/syncope/WEB-INF/lib/flowable-engine-${flowable.version}.jar"/>
                       <then>
                         <xslt basedir="../core/target/test-classes/backup" 
                               includes="MasterContent.xml"
                               destdir="../core/target/test-classes/domains"
                               extension=".xml"
                               force="true"
-                              style="../core/src/test/resources/addActivitiToContent.xsl"/>
+                              style="../core/src/test/resources/addFlowableToContent.xsl"/>
                       </then>
                     </if>
                   </target>

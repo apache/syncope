@@ -234,7 +234,7 @@ public class RestServiceExceptionMapper implements ExceptionMapper<Exception> {
     }
 
     private ResponseBuilder processBadRequestExceptions(final Exception ex) {
-        // This exception might be raised by Activiti (if enabled)
+        // This exception might be raised by Flowable (if enabled)
         Class<?> ibatisPersistenceException = null;
         try {
             ibatisPersistenceException = Class.forName("org.apache.ibatis.exceptions.PersistenceException");

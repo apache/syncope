@@ -383,7 +383,7 @@ under the License.
 
     <groovy.version>2.4.12</groovy.version>
 
-    <activiti.version>5.22.0</activiti.version>
+    <flowable.version>5.23.0</flowable.version>
 
     <camel.version>2.19.2</camel.version>	
 
@@ -412,7 +412,7 @@ under the License.
     <bundles.directory>${project.build.directory}/bundles</bundles.directory>
     <connid.location>file:${bundles.directory}/</connid.location>
     <log.directory>${project.build.directory}/log</log.directory>
-    <activiti-modeler.directory>${project.build.directory}/activiti-modeler</activiti-modeler.directory>
+    <flowable-modeler.directory>${project.build.directory}/flowable-modeler</flowable-modeler.directory>    
 
     <swagger-core.version>1.5.16</swagger-core.version>    
     <swagger-ui.version>2.2.10</swagger-ui.version>
@@ -1057,12 +1057,11 @@ under the License.
         <version>1.9.1</version>
       </dependency>
 
-      <!-- Activiti -->
+      <!-- Flowable -->
       <dependency>
-        <groupId>org.activiti</groupId>
-        <artifactId>activiti-engine</artifactId>
-        <version>${activiti.version}</version>
-        <!-- Using geronimo-* for this -->
+        <groupId>org.flowable</groupId>
+        <artifactId>flowable-engine</artifactId>
+        <version>${flowable.version}</version>
         <exclusions>
           <exclusion>
             <groupId>javax.activation</groupId>
@@ -1079,9 +1078,9 @@ under the License.
         </exclusions>
       </dependency>
       <dependency>
-        <groupId>org.activiti</groupId>
-        <artifactId>activiti-spring</artifactId>
-        <version>${activiti.version}</version>
+        <groupId>org.flowable</groupId>
+        <artifactId>flowable-spring</artifactId>
+        <version>${flowable.version}</version>
         <exclusions>
           <exclusion>
             <groupId>commons-dbcp</groupId>
@@ -1094,17 +1093,17 @@ under the License.
         </exclusions>
       </dependency>
       <dependency>
-        <groupId>org.activiti</groupId>
-        <artifactId>activiti-json-converter</artifactId>
-        <version>${activiti.version}</version>
+        <groupId>org.flowable</groupId>
+        <artifactId>flowable-json-converter</artifactId>
+        <version>${flowable.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.activiti</groupId>
-        <artifactId>activiti-webapp-explorer2</artifactId>
-        <version>${activiti.version}</version>
+        <groupId>org.flowable</groupId>
+        <artifactId>flowable-webapp-explorer2</artifactId>
+        <version>${flowable.version}</version>
         <type>war</type>
       </dependency>
-      <!-- /Activiti -->
+      <!-- /Flowable -->
 
       <!-- Wicket -->
       <dependency>
@@ -2172,7 +2171,7 @@ under the License.
             <link>https://commons.apache.org/proper/commons-jexl/apidocs/</link>
             <link>http://docs.spring.io/spring/docs/4.3.x/javadoc-api/</link>
             <link>http://docs.spring.io/spring-security/site/docs/4.2.x/apidocs/</link>
-            <link>http://activiti.org/javadocs/</link>
+            <link>http://www.flowable.org/docs/javadocs/</link>
             <link>http://www.flowable.org/docs/javadocs/</link>
             <link>https://build.shibboleth.net/nexus/service/local/repositories/releases/archive/org/opensaml/opensaml-saml-api/3.3.0/opensaml-saml-api-3.3.0-javadoc.jar/!/index.html</link>
             <link>https://build.shibboleth.net/nexus/service/local/repositories/releases/archive/org/opensaml/opensaml-core/3.3.0/opensaml-core-3.3.0-javadoc.jar/!/index.html</link>

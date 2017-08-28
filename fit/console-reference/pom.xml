@@ -110,8 +110,8 @@ under the License.
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.activiti</groupId>
-      <artifactId>activiti-webapp-explorer2</artifactId>            
+      <groupId>org.flowable</groupId>
+      <artifactId>flowable-webapp-explorer2</artifactId>
       <type>war</type>
       <scope>test</scope>
     </dependency>
@@ -140,28 +140,41 @@ under the License.
         <inherited>true</inherited>
         <executions>
           <execution>
-            <id>setupActivitiModeler</id>
+            <id>setupFlowableModeler</id>
             <phase>process-resources</phase>
             <configuration>
               <target>
-                <unzip src="${settings.localRepository}/org/activiti/activiti-webapp-explorer2/${activiti.version}/activiti-webapp-explorer2-${activiti.version}.war" dest="${project.build.directory}/activiti-webapp-explorer2" />
+                <unzip src="${settings.localRepository}/org/flowable/flowable-webapp-explorer2/${flowable.version}/flowable-webapp-explorer2-${flowable.version}.war" 
+                       dest="${project.build.directory}/flowable-webapp-explorer2"/>
                 
-                <mkdir dir="${activiti-modeler.directory}" />
-                <copy file="${project.build.directory}/activiti-webapp-explorer2/modeler.html" todir="${activiti-modeler.directory}" />
-                <replace file="${activiti-modeler.directory}/modeler.html" token="&lt;/head&gt;" value="&lt;script type=&quot;text/javascript&quot;&gt;window.onunload = refreshParent; function refreshParent() { window.opener.location.reload(); }&lt;/script&gt;&lt;/head&gt;" />
-                <copy file="${project.build.directory}/activiti-webapp-explorer2/WEB-INF/classes/stencilset.json" todir="${activiti-modeler.directory}" />
+                <mkdir dir="${flowable-modeler.directory}"/>
+                <copy file="${project.build.directory}/flowable-webapp-explorer2/modeler.html" 
+                      todir="${flowable-modeler.directory}"/>
+                <replace file="${flowable-modeler.directory}/modeler.html"
+                         token="&lt;/head&gt;"
+                         value="&lt;script type=&quot;text/javascript&quot;&gt;window.onunload = refreshParent; function refreshParent() { window.opener.location.reload(); }&lt;/script&gt;&lt;/head&gt;"/>
+                <copy file="${project.build.directory}/flowable-webapp-explorer2/WEB-INF/classes/stencilset.json" 
+                      todir="${flowable-modeler.directory}"/>
 
-                <mkdir dir="${activiti-modeler.directory}/editor-app" />
-                <copy todir="${activiti-modeler.directory}/editor-app">
-                  <fileset dir="${project.build.directory}/activiti-webapp-explorer2/editor-app" />                  
+                <mkdir dir="${flowable-modeler.directory}/editor-app"/>
+                <copy todir="${flowable-modeler.directory}/editor-app">
+                  <fileset dir="${project.build.directory}/flowable-webapp-explorer2/editor-app"/>                  
                 </copy>
-                <replaceregexp file="${activiti-modeler.directory}/editor-app/editor/oryx.debug.js" match="ORYX.CONFIG.ROOT_PATH =.*&quot;editor/&quot;; //TODO: Remove last slash!!" replace="BASE_PATH = window.location.toString().substr(0, window.location.toString().indexOf('/wicket')); ORYX.CONFIG.ROOT_PATH = BASE_PATH + &quot;/activiti-modeler/editor-app/editor/&quot;;" byline="true" />
-                <replace file="${activiti-modeler.directory}/editor-app/editor/oryx.debug.js" token="new Ajax.Request(ACTIVITI.CONFIG.contextRoot + '/editor/stencilset?version=' + Date.now(), {" value="new Ajax.Request(window.location.toString().substr(0, window.location.toString().indexOf('/activiti-modeler')) + &quot;/activiti-modeler/stencilset.json&quot;, {" />
-                <replace file="${activiti-modeler.directory}/editor-app/editor/oryx.debug.js" token="ORYX.Editor.createByUrl = function(modelUrl){" value="modelUrl = BASE_PATH + &quot;/workflowDefGET?modelId=&quot; + this.modelId; ORYX.Editor.createByUrl = function(modelUrl){" />                
-                <replace file="${activiti-modeler.directory}/editor-app/configuration/toolbar-default-actions.js" token="window.location.href = &quot;./&quot;;" value="window.close();" />
+                <replace file="${flowable-modeler.directory}/editor-app/editor/oryx.debug.js"
+                         token="return this.changeDifference !== 0 || (this.facade.getModelMetaData()['new'] &amp;&amp; this.facade.getCanvas().getChildShapes().size() &gt; 0);"
+                         value="return this.changeDifference !== 0 
+              || (typeof this.facade.getModelMetaData() != 'undefined' 
+              &amp;&amp; this.facade.getModelMetaData()['new'] &amp;&amp; this.facade.getCanvas().getChildShapes().size() &gt; 0);"/>
+                <replace file="${flowable-modeler.directory}/editor-app/configuration/toolbar-default-actions.js"
+                         token="window.location.href = &quot;./&quot;;"
+                         value="window.close();"/>
                                                
-                <copy file="${basedir}/src/main/resources/url-config.js" todir="${activiti-modeler.directory}/editor-app/configuration" overwrite="true" />
-                <copy file="${basedir}/src/main/resources/save-model.html" todir="${activiti-modeler.directory}/editor-app/popups" overwrite="true" />
+                <copy file="${basedir}/src/main/resources/url-config.js" 
+                      todir="${flowable-modeler.directory}/editor-app/configuration"
+                      overwrite="true"/>
+                <copy file="${basedir}/src/main/resources/save-model.html" 
+                      todir="${flowable-modeler.directory}/editor-app/popups"
+                      overwrite="true"/>
               </target>
             </configuration>
             <goals>
@@ -364,7 +377,7 @@ under the License.
                 <phase>package</phase>
                 <configuration>
                   <target>                                               
-                    <copy file="${basedir}/../core-reference/target/test-classes/rebel.xml" tofile="${basedir}/../core-reference/target/syncope-fit-core-reference-${project.version}/WEB-INF/classes/rebel.xml" overwrite="true" />
+                    <copy file="${basedir}/../core-reference/target/test-classes/rebel.xml" tofile="${basedir}/../core-reference/target/syncope-fit-core-reference-${project.version}/WEB-INF/classes/rebel.xml" overwrite="true"/>
                   </target>
                 </configuration>
                 <goals>

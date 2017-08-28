@@ -179,7 +179,7 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
 
         liContainer = new WebMarkupContainer(getLIContainerId("workflow"));
         liContainer.setOutputMarkupPlaceholderTag(true);
-        liContainer.setVisible(platformInfo.getUserWorkflowAdapter().contains("Activiti"));
+        liContainer.setVisible(platformInfo.getUserWorkflowAdapter().contains("Flowable"));
         confULContainer.add(liContainer);
         link = BookmarkablePageLinkBuilder.build("workflow", Workflow.class);
         MetaDataRoleAuthorizationStrategy.authorize(link, WebPage.RENDER, StandardEntitlement.WORKFLOW_DEF_GET);
@@ -255,7 +255,7 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
         final Class<? extends WebPage> beforeLogout = (Class<? extends WebPage>) SyncopeConsoleSession.get().
                 getAttribute(Constants.BEFORE_LOGOUT_PAGE);
         if (beforeLogout == null) {
-            body.add(new BookmarkablePageLink<Page>("logout", Logout.class));
+            body.add(new BookmarkablePageLink<>("logout", Logout.class));
         } else {
             body.add(new AjaxLink<Page>("logout") {
 

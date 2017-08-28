@@ -31,7 +31,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.syncope.common.lib.to.WorkflowDefinitionTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.fit.AbstractITCase;
-import org.apache.syncope.fit.ActivitiDetector;
+import org.apache.syncope.fit.FlowableDetector;
 import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -42,7 +42,7 @@ public class WorkflowITCase extends AbstractITCase {
 
     @BeforeClass
     public static void findDefault() {
-        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
+        Assume.assumeTrue(FlowableDetector.isFlowableEnabledForUsers(syncopeService));
         Optional<WorkflowDefinitionTO> found = workflowService.list(AnyTypeKind.USER.name()).stream().
                 filter(object -> object.isMain()).findAny();
         if (found.isPresent()) {
@@ -53,7 +53,7 @@ public class WorkflowITCase extends AbstractITCase {
 
     @Test
     public void exportUserDefinition() throws IOException {
-        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
+        Assume.assumeTrue(FlowableDetector.isFlowableEnabledForUsers(syncopeService));
         Response response = workflowService.get(AnyTypeKind.USER.name(), defaultUserKey);
         assertTrue(response.getMediaType().toString().
                 startsWith(clientFactory.getContentType().getMediaType().toString()));
@@ -65,7 +65,7 @@ public class WorkflowITCase extends AbstractITCase {
 
     @Test
     public void updateUserDefinition() throws IOException {
-        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
+        Assume.assumeTrue(FlowableDetector.isFlowableEnabledForUsers(syncopeService));
         Response response = workflowService.get(AnyTypeKind.USER.name(), defaultUserKey);
         String definition = IOUtils.toString((InputStream) response.getEntity(), StandardCharsets.UTF_8);
 

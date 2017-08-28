@@ -271,7 +271,7 @@ Please also note that the actual list of Spring context files to include might d
 ====
 
 [discrete]
-===== Select the <<activiti-user-workflow-adapter>>
+===== Select the <<flowable-user-workflow-adapter>>
 
 Add the following dependency to `core/pom.xml`:
 
@@ -279,7 +279,7 @@ Add the following dependency to `core/pom.xml`:
 ----
 <dependency>
   <groupId>org.apache.syncope.core</groupId>
-  <artifactId>syncope-core-workflow-activiti</artifactId>
+  <artifactId>syncope-core-workflow-flowable</artifactId>
   <version>${syncope.version}</version>
 </dependency>
 ----

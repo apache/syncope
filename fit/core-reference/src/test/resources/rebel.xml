@@ -53,8 +53,8 @@ under the License.
     <dir name="${basedir}/../../core/workflow-java/target/classes">
       <exclude name="workflowContext.xml"/>
     </dir>
-    <dir name="${basedir}/../../core/workflow-activiti/target/classes">
-      <exclude name="workflowActivitiContext.xml"/>
+    <dir name="${basedir}/../../core/workflow-flowable/target/classes">
+      <exclude name="workflowFlowableContext.xml"/>
     </dir>
     <dir name="${basedir}/../../core/migration/target/classes">
     </dir>

@@ -27,7 +27,7 @@ import org.apache.syncope.common.lib.to.WorkflowDefinitionTO;
 import org.apache.wicket.util.io.IOUtils;
 
 /**
- * Mirror REST resource for putting user workflow definition in JSON (used by Activiti Modeler).
+ * Mirror REST resource for putting user workflow definition in JSON (used by Flowable Modeler).
  *
  * @see org.apache.syncope.common.rest.api.service.WorkflowService#set
  */

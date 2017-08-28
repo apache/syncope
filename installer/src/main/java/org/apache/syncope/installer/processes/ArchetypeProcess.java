@@ -55,7 +55,7 @@ public class ArchetypeProcess extends BaseProcess {
         final String proxyPwd = args[16];
         final boolean mavenProxyAutoconf = Boolean.valueOf(args[17]);
         final boolean swagger = Boolean.valueOf(args[18]);
-        final boolean activiti = Boolean.valueOf(args[19]);
+        final boolean flowable = Boolean.valueOf(args[19]);
         final String jwsKey = args[20];
 
         setSyncopeInstallDir(installPath, artifactId);
@@ -124,7 +124,7 @@ public class ArchetypeProcess extends BaseProcess {
         fileSystemUtils.createDirectory(bundlesDirectory);
         fileSystemUtils.createDirectory(modelerDirectory);
 
-        if (activiti) {
+        if (flowable) {
             File pomFile = new File(
                     syncopeInstallDir
                     + File.separator
@@ -134,7 +134,7 @@ public class ArchetypeProcess extends BaseProcess {
             String contentPomFile = fileSystemUtils.readFile(pomFile);
             fileSystemUtils.writeToFile(
                     pomFile,
-                    contentPomFile.replace(CorePom.ACTIVITI_PLACEHOLDER, CorePom.ACTIVITI_CONTENT_TO_ADD));
+                    contentPomFile.replace(CorePom.FLOWABLE_PLACEHOLDER, CorePom.FLOWABLE_CONTENT_TO_ADD));
 
             fileSystemUtils.copyFileFromResources("/workflow.properties",
                     syncopeInstallDir + PROPERTIES.getProperty("workflowPropertiesFile"), handler);
@@ -148,7 +148,7 @@ public class ArchetypeProcess extends BaseProcess {
             contentPomFile = fileSystemUtils.readFile(pomFile);
             fileSystemUtils.writeToFile(
                     pomFile,
-                    contentPomFile.replace(ConsolePom.ACTIVITI_PLACEHOLDER, ConsolePom.ACTIVITI_CONTENT_TO_ADD).
+                    contentPomFile.replace(ConsolePom.FLOWABLE_PLACEHOLDER, ConsolePom.FLOWABLE_CONTENT_TO_ADD).
                             replace(ConsolePom.MODELER_PLACEHOLDER, ConsolePom.MODELER_CONTENT_TO_ADD));
         }
 
@@ -156,7 +156,7 @@ public class ArchetypeProcess extends BaseProcess {
         syncopeProperties.setProperty("conf.directory", confDirectory);
         syncopeProperties.setProperty("log.directory", logsDirectory);
         syncopeProperties.setProperty("bundles.directory", bundlesDirectory);
-        syncopeProperties.setProperty("activiti-modeler.directory", modelerDirectory);
+        syncopeProperties.setProperty("flowable-modeler.directory", modelerDirectory);
         mavenUtils.mvnCleanPackageWithProperties(
                 installPath + File.separator + artifactId, syncopeProperties, customMavenProxySettings);
     }

@@ -93,7 +93,7 @@ under the License.
               <em>Workflow</em>
             </strong> is one of the pluggable aspects of Apache Syncope: this lets every deployment choose the preferred 
             engine from a provided list - including the one based on 
-            <a target="_blank" href="http://www.activiti.org/">Activiti BPM</a>, the reference open source
+            <a target="_blank" href="http://www.flowable.org/">Flowable BPM</a>, the reference open source
             <a target="_blank" href="http://www.bpmn.org/">BPMN 2.0</a> implementation - or define new, custom ones.
           </p>
         </li>

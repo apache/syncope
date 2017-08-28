@@ -1019,7 +1019,7 @@ under the License.
       <dependencies>
         <dependency>
           <groupId>org.apache.syncope.core</groupId>
-          <artifactId>syncope-core-workflow-activiti</artifactId>
+          <artifactId>syncope-core-workflow-flowable</artifactId>
           <version>${project.version}</version>
         </dependency>
 
@@ -1059,7 +1059,7 @@ under the License.
       
       <build>
         <plugins>
-          <!-- Adds Activiti test content -->
+          <!-- Adds Flowable test content -->
           <plugin>
             <groupId>org.codehaus.mojo</groupId>
             <artifactId>xml-maven-plugin</artifactId>
@@ -1080,7 +1080,7 @@ under the License.
                     <include>domains/MasterContent.xml</include>
                   </includes>
                   <outputDir>${project.build.directory}/classes</outputDir>
-                  <stylesheet>${basedir}/src/test/resources/addActivitiToContent.xsl</stylesheet>
+                  <stylesheet>${basedir}/src/test/resources/addFlowableToContent.xsl</stylesheet>
                   <outputProperties>
                     <outputProperty>
                       <name>indent</name>

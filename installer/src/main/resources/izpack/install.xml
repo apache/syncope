@@ -70,8 +70,8 @@ under the License.
       <value>true</value>
     </condition>
     
-    <condition type="variable" id="options.choice.activiti">
-      <name>options.activiti.workflow.adapter</name>
+    <condition type="variable" id="options.choice.flowable">
+      <name>options.flowable.workflow.adapter</name>
       <value>true</value>
     </condition>
     

@@ -78,7 +78,7 @@ under the License.
   <build>
 
     <plugins>
-      <!-- Adds Activiti test content -->
+      <!-- Adds Flowable test content -->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>xml-maven-plugin</artifactId>
@@ -99,7 +99,7 @@ under the License.
                 <include>domains/MasterContent.xml</include>
               </includes>
               <outputDir>${project.build.directory}/classes/core</outputDir>
-              <stylesheet>${basedir}/../fit/core-reference/src/test/resources/addActivitiToContent.xsl</stylesheet>
+              <stylesheet>${basedir}/../fit/core-reference/src/test/resources/addFlowableToContent.xsl</stylesheet>
               <outputProperties>
                 <outputProperty>
                   <name>indent</name>

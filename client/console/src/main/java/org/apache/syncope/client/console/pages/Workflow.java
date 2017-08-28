@@ -55,7 +55,7 @@ public class Workflow extends BasePage {
 
         content.add(workflowsPanel);
 
-        if (SyncopeConsoleSession.get().getPlatformInfo().getUserWorkflowAdapter().contains("Activiti")) {
+        if (SyncopeConsoleSession.get().getPlatformInfo().getUserWorkflowAdapter().contains("Flowable")) {
             disabled.setVisible(false);
         } else {
             workflowsPanel.setVisible(false);

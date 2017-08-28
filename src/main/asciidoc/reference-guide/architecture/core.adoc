@@ -73,14 +73,14 @@ In addition, an http://camel.apache.org/[Apache Camel^]-based implementation is 
 
 The Workflow layer is responsible for managing the internal lifecycle of Users, Groups and Any Objects.
 
-Besides the default engine, another engine is available based on http://www.activiti.org/[Activiti BPM^], the 
+Besides the default engine, another engine is available based on http://www.flowable.org/[Flowable^], the 
 reference open source http://www.bpmn.org/[BPMN 2.0^] implementation. It enables advanced features such
 as approval management and new statuses definitions. An optional web-based GUI editor is also available.
 
 [.text-center]
-image::userWorkflow.png[title="Default Activiti user workflow",alt="Default Activiti user workflow"] 
+image::userWorkflow.png[title="Default Flowable user workflow",alt="Default Flowable user workflow"] 
 
-Besides Activiti, new workflow engines - possibly integrating with third-party tools as 
+Besides Flowable, new workflow engines - possibly integrating with third-party tools as 
 https://camunda.org/[Camunda^] or http://jbpm.jboss.org/[jBPM^], can be written and plugged into specific deployments.
 
 ==== Persistence

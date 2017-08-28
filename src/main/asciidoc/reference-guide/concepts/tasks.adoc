@@ -194,7 +194,7 @@ Custom tasks are ideal for implementing periodic checks or clean-up operations, 
 components; some examples:
 
 * move users from "pending delete" to "deleted" status 15 days after they reached the "pending delete" status (requires
-interaction with <<activiti-user-workflow-adapter>>)
+interaction with <<flowable-user-workflow-adapter>>)
 * send out notification e-mails to users whose password is about to expire on an Identity Store
 * disable all users not logging into the system for the past 6 months
 ====

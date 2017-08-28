@@ -118,11 +118,11 @@ under the License.
     <field type="check" variable="options.swagger">
       <spec id="options.swagger.id" true="true" false="false" set="false"/>
     </field>
-    <field type="check" variable="options.activiti.workflow.adapter">
-      <spec id="options.activiti.workflow.adapter.id" true="true" false="false" set="true"/>
+    <field type="check" variable="options.flowable.workflow.adapter">
+      <spec id="options.flowable.workflow.adapter.id" true="true" false="false" set="true"/>
     </field>
     <field type="space"/>
-    <field type="dir" variable="mvn.modeler.directory" conditionid="options.choice.activiti">
+    <field type="dir" variable="mvn.modeler.directory" conditionid="options.choice.flowable">
       <spec id="archetype.mvn.modeler.directory" size="20" set="/var/tmp/syncope/modeler" mustExist="false" create="true"/>
     </field>
   </panel>

@@ -126,13 +126,13 @@ public class WorkflowDirectoryPanel extends DirectoryPanel<
         });
         initResultTable();
 
-        // Check if Activiti or Flowable Modeler directory is found
+        // Check if Flowable Modeler directory is found
         modelerCtx = null;
         try {
-            if (SyncopeConsoleApplication.get().getActivitiModelerDirectory() != null) {
-                File baseDir = new File(SyncopeConsoleApplication.get().getActivitiModelerDirectory());
+            if (SyncopeConsoleApplication.get().getFlowableModelerDirectory() != null) {
+                File baseDir = new File(SyncopeConsoleApplication.get().getFlowableModelerDirectory());
                 if (baseDir.exists() && baseDir.canRead() && baseDir.isDirectory()) {
-                    modelerCtx = Constants.ACTIVITI_MODELER_CONTEXT;
+                    modelerCtx = Constants.FLOWABLE_MODELER_CONTEXT;
                 }
             }
         } catch (Exception e) {

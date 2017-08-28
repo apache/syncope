@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.fit.core;
 
-import org.apache.syncope.fit.ActivitiDetector;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
@@ -54,6 +52,7 @@ import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.syncope.common.rest.api.service.UserService;
 import org.apache.syncope.fit.AbstractITCase;
+import org.apache.syncope.fit.FlowableDetector;
 import org.junit.Assume;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -76,7 +75,7 @@ public class UserSelfITCase extends AbstractITCase {
 
     @Test
     public void create() {
-        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
+        Assume.assumeTrue(FlowableDetector.isFlowableEnabledForUsers(syncopeService));
 
         // 1. self-registration as admin: failure
         try {
@@ -98,7 +97,7 @@ public class UserSelfITCase extends AbstractITCase {
 
     @Test
     public void createAndApprove() {
-        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
+        Assume.assumeTrue(FlowableDetector.isFlowableEnabledForUsers(syncopeService));
 
         // self-create user with membership: goes 'createApproval' with resources and membership but no propagation
         UserTO userTO = UserITCase.getUniqueSampleTO("anonymous@syncope.apache.org");
@@ -176,14 +175,14 @@ public class UserSelfITCase extends AbstractITCase {
                 readEntity(new GenericType<ProvisioningResult<UserTO>>() {
                 }).getEntity();
         assertNotNull(updated);
-        assertEquals(ActivitiDetector.isActivitiEnabledForUsers(syncopeService)
+        assertEquals(FlowableDetector.isFlowableEnabledForUsers(syncopeService)
                 ? "active" : "created", updated.getStatus());
         assertTrue(updated.getUsername().endsWith("XX"));
     }
 
     @Test
     public void updateWithApproval() {
-        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
+        Assume.assumeTrue(FlowableDetector.isFlowableEnabledForUsers(syncopeService));
 
         // 1. create user as admin
         UserTO created = createUser(UserITCase.getUniqueSampleTO("anonymous@syncope.apache.org")).getEntity();
@@ -246,7 +245,7 @@ public class UserSelfITCase extends AbstractITCase {
                 new GenericType<ProvisioningResult<UserTO>>() {
         }).getEntity();
         assertNotNull(deleted);
-        assertEquals(ActivitiDetector.isActivitiEnabledForUsers(syncopeService)
+        assertEquals(FlowableDetector.isFlowableEnabledForUsers(syncopeService)
                 ? "deleteApproval" : null, deleted.getStatus());
     }
 

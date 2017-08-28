@@ -72,7 +72,7 @@ under the License.
     
       <dependency>
         <groupId>org.apache.syncope.core</groupId>
-        <artifactId>syncope-core-workflow-activiti</artifactId>
+        <artifactId>syncope-core-workflow-flowable</artifactId>
         <version>${syncope.version}</version>
       </dependency>
         

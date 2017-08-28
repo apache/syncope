@@ -18,7 +18,7 @@
  */
 package org.apache.syncope.fit.core;
 
-import org.apache.syncope.fit.ActivitiDetector;
+import org.apache.syncope.fit.FlowableDetector;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -65,7 +65,7 @@ public class UserWorkflowITCase extends AbstractITCase {
 
     @Test
     public void createWithReject() {
-        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
+        Assume.assumeTrue(FlowableDetector.isFlowableEnabledForUsers(syncopeService));
 
         UserTO userTO = UserITCase.getUniqueSampleTO("createWithReject@syncope.apache.org");
         userTO.getResources().add(RESOURCE_NAME_TESTDB);
@@ -139,7 +139,7 @@ public class UserWorkflowITCase extends AbstractITCase {
 
     @Test
     public void createWithApproval() {
-        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
+        Assume.assumeTrue(FlowableDetector.isFlowableEnabledForUsers(syncopeService));
 
         // read forms *before* any operation
         List<WorkflowFormTO> forms = userWorkflowService.getForms();
@@ -213,7 +213,7 @@ public class UserWorkflowITCase extends AbstractITCase {
 
     @Test
     public void updateApproval() {
-        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
+        Assume.assumeTrue(FlowableDetector.isFlowableEnabledForUsers(syncopeService));
 
         // read forms *before* any operation
         List<WorkflowFormTO> forms = userWorkflowService.getForms();
@@ -271,7 +271,7 @@ public class UserWorkflowITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE15() {
-        Assume.assumeTrue(ActivitiDetector.isActivitiEnabledForUsers(syncopeService));
+        Assume.assumeTrue(FlowableDetector.isFlowableEnabledForUsers(syncopeService));
 
         // read forms *before* any operation
         List<WorkflowFormTO> forms = userWorkflowService.getForms();

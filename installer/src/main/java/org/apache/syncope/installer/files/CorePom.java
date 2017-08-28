@@ -29,11 +29,11 @@ public final class CorePom {
             + "    </dependency>\n"
             + "  </dependencies>\n";
 
-    public static final String ACTIVITI_PLACEHOLDER = "</dependencies>";
+    public static final String FLOWABLE_PLACEHOLDER = "</dependencies>";
 
-    public static final String ACTIVITI_CONTENT_TO_ADD = "    <dependency>\n"
+    public static final String FLOWABLE_CONTENT_TO_ADD = "    <dependency>\n"
             + "      <groupId>org.apache.syncope.core</groupId>\n"
-            + "      <artifactId>syncope-core-workflow-activiti</artifactId>\n"
+            + "      <artifactId>syncope-core-workflow-flowable</artifactId>\n"
             + "    </dependency>\n"
             + "  </dependencies>\n";
 
