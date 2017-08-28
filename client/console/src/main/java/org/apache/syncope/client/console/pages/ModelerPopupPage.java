@@ -38,7 +38,7 @@ public class ModelerPopupPage extends WebPage {
         // properly parameterize ?modelId=5 with SYNCOPE-1020
         refresh.add(new AttributeModifier(
                 "content", "0; url=../../" + parameters.get(Constants.MODELER_CONTEXT)
-                + "/modeler.html?modelId=" + modelId.toString()));
+                + "/index.html#/editor/" + modelId.toString()));
         add(refresh);
     }
 

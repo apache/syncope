@@ -18,142 +18,72 @@
  */
 package org.apache.syncope.core.workflow.flowable;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.activiti.engine.ActivitiException;
-import org.activiti.engine.identity.Group;
-import org.activiti.engine.identity.GroupQuery;
-import org.activiti.engine.impl.persistence.entity.GroupEntity;
-import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.flowable.idm.api.Group;
+import org.flowable.idm.engine.impl.GroupQueryImpl;
+import org.flowable.idm.engine.impl.persistence.entity.GroupEntity;
+import org.flowable.idm.engine.impl.persistence.entity.GroupEntityImpl;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
-public class SyncopeGroupQueryImpl implements GroupQuery {
+public class SyncopeGroupQueryImpl extends GroupQueryImpl {
 
-    private final GroupDAO groupDAO;
+    private static final long serialVersionUID = -2595069675443343682L;
 
-    private String groupId;
+    @Autowired
+    private UserDAO userDAO;
+
+    @Autowired
+    private GroupDAO groupDAO;
 
     private List<Group> result;
 
-    public SyncopeGroupQueryImpl(final GroupDAO groupDAO) {
-        this.groupDAO = groupDAO;
-    }
-
-    @Override
-    public GroupQuery groupId(final String groupId) {
-        try {
-            this.groupId = groupId;
-        } catch (NumberFormatException e) {
-            // ignore
-        }
-
-        return this;
-    }
-
-    @Override
-    public GroupQuery groupName(final String groupName) {
-        return this;
-    }
-
-    @Override
-    public GroupQuery groupNameLike(final String groupNameLike) {
-        return this;
-    }
-
-    @Override
-    public GroupQuery groupType(final String groupType) {
-        return this;
-    }
-
-    @Override
-    public GroupQuery groupMember(final String groupMemberUserId) {
-        return this;
-    }
-
-    @Override
-    public GroupQuery orderByGroupId() {
-        return this;
-    }
-
-    @Override
-    public GroupQuery orderByGroupName() {
-        return this;
-    }
-
-    @Override
-    public GroupQuery orderByGroupType() {
-        return this;
-    }
-
-    @Override
-    public GroupQuery asc() {
-        return this;
-    }
-
-    @Override
-    public GroupQuery desc() {
-        return this;
-    }
-
-    private Group fromSyncopeGroup(final org.apache.syncope.core.persistence.api.entity.group.Group group) {
-        return new GroupEntity(group.getKey());
+    private Group fromSyncopeGroup(final String name) {
+        GroupEntity group = new GroupEntityImpl();
+        group.setId(name);
+        return group;
     }
 
     private void execute() {
-        if (groupId != null) {
-            org.apache.syncope.core.persistence.api.entity.group.Group syncopeGroup = groupDAO.findByName(groupId);
+        if (id != null) {
+            org.apache.syncope.core.persistence.api.entity.group.Group syncopeGroup = groupDAO.findByName(id);
             if (syncopeGroup == null) {
                 result = Collections.emptyList();
             } else {
-                result = Collections.singletonList(fromSyncopeGroup(syncopeGroup));
+                result = Collections.singletonList(fromSyncopeGroup(syncopeGroup.getName()));
             }
-        }
-        if (result == null) {
-            result = new ArrayList<>();
-            for (int page = 1; page <= (groupDAO.count() / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
-                result.addAll(groupDAO.findAll(page, AnyDAO.DEFAULT_PAGE_SIZE).stream().
-                        map(group -> fromSyncopeGroup(group)).collect(Collectors.toList()));
-            }
+        } else if (userId != null) {
+            result = userDAO.findAllGroupNames(userDAO.findByUsername(userId)).stream().
+                    map(groupName -> fromSyncopeGroup(groupName)).
+                    collect(Collectors.toList());
         }
     }
 
+    @Transactional(readOnly = true)
     @Override
     public long count() {
+        checkQueryOk();
+
+        this.resultType = ResultType.COUNT;
         if (result == null) {
             execute();
         }
         return result.size();
     }
 
-    @Override
-    public Group singleResult() {
-        if (result == null) {
-            execute();
-        }
-        if (result.isEmpty()) {
-            throw new ActivitiException("Empty result");
-        }
-
-        return result.get(0);
-    }
-
+    @Transactional(readOnly = true)
     @Override
     public List<Group> list() {
+        checkQueryOk();
+
+        this.resultType = ResultType.LIST;
         if (result == null) {
             execute();
         }
         return result;
-    }
-
-    @Override
-    public List<Group> listPage(final int firstResult, final int maxResults) {
-        return list();
-    }
-
-    @Override
-    public GroupQuery potentialStarter(final String procDefId) {
-        throw new UnsupportedOperationException();
     }
 }

@@ -142,7 +142,7 @@ under the License.
         
         <dependency>
           <groupId>org.flowable</groupId>
-          <artifactId>flowable-webapp-explorer2</artifactId>            
+          <artifactId>flowable-ui-modeler-app</artifactId>            
           <type>war</type>
           <scope>test</scope>
         </dependency>
@@ -160,33 +160,24 @@ under the License.
                 <phase>process-resources</phase>
                 <configuration>
                   <target>
-                    <unzip src="${settings.localRepository}/org/flowable/flowable-webapp-explorer2/${flowable.version}/flowable-webapp-explorer2-${flowable.version}.war" 
-                           dest="${project.build.directory}/flowable-webapp-explorer2"/>
+                    <unzip src="${settings.localRepository}/org/flowable/flowable-ui-modeler-app/${flowable.version}/flowable-ui-modeler-app-${flowable.version}.war" 
+                           dest="${flowable-modeler.directory}"/>
                 
-                    <mkdir dir="${flowable-modeler.directory}"/>
-                    <copy file="${project.build.directory}/flowable-webapp-explorer2/modeler.html" 
-                          todir="${flowable-modeler.directory}"/>
-                    <replace file="${flowable-modeler.directory}/modeler.html"
+                    <replace file="${flowable-modeler.directory}/index.html"
                              token="&lt;/head&gt;"
                              value="&lt;script type=&quot;text/javascript&quot;&gt;window.onunload = refreshParent; function refreshParent() { window.opener.location.reload(); }&lt;/script&gt;&lt;/head&gt;"/>
-                    <copy file="${project.build.directory}/flowable-webapp-explorer2/WEB-INF/classes/stencilset.json" 
-                          todir="${flowable-modeler.directory}"/>
-
-                    <mkdir dir="${flowable-modeler.directory}/editor-app"/>
-                    <copy todir="${flowable-modeler.directory}/editor-app">
-                      <fileset dir="${project.build.directory}/flowable-webapp-explorer2/editor-app"/>                  
-                    </copy>
-                    <replace file="${flowable-modeler.directory}/editor-app/editor/oryx.debug.js"
-                             token="return this.changeDifference !== 0 || (this.facade.getModelMetaData()['new'] &amp;&amp; this.facade.getCanvas().getChildShapes().size() &gt; 0);"
-                             value="return this.changeDifference !== 0 
-              || (typeof this.facade.getModelMetaData() != 'undefined' 
-              &amp;&amp; this.facade.getModelMetaData()['new'] &amp;&amp; this.facade.getCanvas().getChildShapes().size() &gt; 0);"/>
                     <replace file="${flowable-modeler.directory}/editor-app/configuration/toolbar-default-actions.js"
-                             token="window.location.href = &quot;./&quot;;"
+                             token="$location.path('/processes');"
                              value="window.close();"/>
-                                               
+
+                    <copy file="${basedir}/src/main/resources/app-cfg.js" 
+                          todir="${flowable-modeler.directory}/scripts"
+                          overwrite="true"/>
                     <copy file="${basedir}/src/main/resources/url-config.js" 
                           todir="${flowable-modeler.directory}/editor-app/configuration"
+                          overwrite="true"/>
+                    <copy file="${basedir}/src/main/resources/stencilset.json" 
+                          todir="${flowable-modeler.directory}"
                           overwrite="true"/>
                     <copy file="${basedir}/src/main/resources/save-model.html" 
                           todir="${flowable-modeler.directory}/editor-app/popups"

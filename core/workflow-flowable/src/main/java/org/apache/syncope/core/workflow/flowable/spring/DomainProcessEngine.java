@@ -21,18 +21,18 @@ package org.apache.syncope.core.workflow.flowable.spring;
 import java.util.Collections;
 import java.util.Map;
 import javax.sql.DataSource;
-import org.activiti.engine.DynamicBpmnService;
-import org.activiti.engine.FormService;
-import org.activiti.engine.HistoryService;
-import org.activiti.engine.IdentityService;
-import org.activiti.engine.ManagementService;
-import org.activiti.engine.ProcessEngine;
-import org.activiti.engine.ProcessEngineConfiguration;
-import org.activiti.engine.RepositoryService;
-import org.activiti.engine.RuntimeService;
-import org.activiti.engine.TaskService;
-import org.activiti.engine.impl.ProcessEngineImpl;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
+import org.flowable.engine.DynamicBpmnService;
+import org.flowable.engine.FormService;
+import org.flowable.engine.HistoryService;
+import org.flowable.engine.IdentityService;
+import org.flowable.engine.ManagementService;
+import org.flowable.engine.ProcessEngine;
+import org.flowable.engine.ProcessEngineConfiguration;
+import org.flowable.engine.RepositoryService;
+import org.flowable.engine.RuntimeService;
+import org.flowable.engine.TaskService;
+import org.flowable.engine.impl.ProcessEngineImpl;
 
 /**
  * {@link ProcessEngine} delegating actual method invocation to the inner map of {@link ProcessEngine} instances,
@@ -57,9 +57,9 @@ public class DomainProcessEngine implements ProcessEngine {
 
     @Override
     public void close() {
-        for (ProcessEngine engine : engines.values()) {
+        engines.values().forEach(engine -> {
             engine.close();
-        }
+        });
     }
 
     @Override

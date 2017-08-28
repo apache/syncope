@@ -16,26 +16,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
+'use strict';
+
 var FLOWABLE = FLOWABLE || {};
 
-FLOWABLE.URL = {
-
-  getModel: function (modelId) {
-    return window.location.toString().substr(0, window.location.toString().indexOf('/flowable-modeler'))
-            + "/workflowDefGET?modelId=" + modelId;
-  },
-
-  getStencilSet: function () {
-    return window.location.toString().substr(0, window.location.toString().indexOf('/flowable-modeler'))
-            + "/flowable-modeler/stencilset.json";
-  },
-
-  putModel: function (modelId) {
-    return window.location.toString().substr(0, window.location.toString().indexOf('/flowable-modeler'))
-            + "/workflowDefPUT?modelId=" + modelId;
-  },
-
-  validateModel: function () {
-    return FLOWABLE.CONFIG.contextRoot + '/app/rest/model/validate';
-  }
+FLOWABLE.CONFIG = {
+  'onPremise': true,
+  'contextRoot': window.location.toString().substr(0, window.location.toString().indexOf('/flowable-modeler')),
+  'webContextRoot': window.location.toString().substr(0, window.location.toString().indexOf('/flowable-modeler')),
+  'datesLocalization': false
 };

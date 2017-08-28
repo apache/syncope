@@ -26,17 +26,17 @@ import java.io.InputStreamReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import org.activiti.bpmn.converter.BpmnXMLConverter;
-import org.activiti.bpmn.model.BpmnModel;
-import org.activiti.editor.constants.ModelDataJsonConstants;
-import org.activiti.editor.language.json.converter.BpmnJsonConverter;
-import org.activiti.engine.ActivitiException;
-import org.activiti.engine.ProcessEngine;
-import org.activiti.engine.repository.Deployment;
-import org.activiti.engine.repository.Model;
-import org.activiti.engine.repository.ProcessDefinition;
 import org.apache.commons.io.IOUtils;
 import org.apache.syncope.core.workflow.api.WorkflowException;
+import org.flowable.bpmn.converter.BpmnXMLConverter;
+import org.flowable.bpmn.model.BpmnModel;
+import org.flowable.editor.constants.ModelDataJsonConstants;
+import org.flowable.editor.language.json.converter.BpmnJsonConverter;
+import org.flowable.engine.ProcessEngine;
+import org.flowable.engine.common.api.FlowableException;
+import org.flowable.engine.repository.Deployment;
+import org.flowable.engine.repository.Model;
+import org.flowable.engine.repository.ProcessDefinition;
 
 public final class FlowableDeployUtils {
 
@@ -48,7 +48,7 @@ public final class FlowableDeployUtils {
         try {
             return engine.getRepositoryService().createDeployment().
                     addInputStream(resourceName, new ByteArrayInputStream(definition)).deploy();
-        } catch (ActivitiException e) {
+        } catch (FlowableException e) {
             throw new WorkflowException("While importing " + resourceName, e);
         }
     }

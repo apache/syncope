@@ -21,11 +21,14 @@ package org.apache.syncope.core.workflow.flowable.spring;
 import java.util.HashMap;
 import java.util.Map;
 import javax.sql.DataSource;
-import org.activiti.engine.ProcessEngine;
-import org.activiti.engine.impl.cfg.SpringBeanFactoryProxyMap;
-import org.activiti.spring.SpringExpressionManager;
-import org.activiti.spring.SpringProcessEngineConfiguration;
 import org.apache.commons.lang3.StringUtils;
+import org.flowable.engine.ProcessEngine;
+import org.flowable.engine.common.impl.cfg.SpringBeanFactoryProxyMap;
+import org.flowable.engine.common.impl.interceptor.EngineConfigurationConstants;
+import org.flowable.engine.impl.util.EngineServiceUtil;
+import org.flowable.idm.spring.SpringIdmEngineConfiguration;
+import org.flowable.spring.SpringExpressionManager;
+import org.flowable.spring.SpringProcessEngineConfiguration;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.FactoryBean;
@@ -54,29 +57,34 @@ public class DomainProcessEngineFactoryBean
         if (engine == null) {
             Map<String, ProcessEngine> engines = new HashMap<>();
 
-            for (Map.Entry<String, DataSource> entry : ctx.getBeansOfType(DataSource.class).entrySet()) {
-                if (!entry.getKey().startsWith("local")) {
-                    String domain = StringUtils.substringBefore(entry.getKey(), DataSource.class.getSimpleName());
-                    DataSource dataSource = entry.getValue();
-                    PlatformTransactionManager transactionManager = ctx.getBean(
-                            domain + "TransactionManager", PlatformTransactionManager.class);
-                    Object entityManagerFactory = ctx.getBean(domain + "EntityManagerFactory");
+            ctx.getBeansOfType(DataSource.class).entrySet().stream().
+                    filter(entry -> (!entry.getKey().startsWith("local"))).
+                    forEachOrdered(entry -> {
+                        String domain = StringUtils.substringBefore(entry.getKey(), DataSource.class.getSimpleName());
+                        DataSource dataSource = entry.getValue();
+                        PlatformTransactionManager transactionManager = ctx.getBean(
+                                domain + "TransactionManager", PlatformTransactionManager.class);
+                        Object entityManagerFactory = ctx.getBean(domain + "EntityManagerFactory");
 
-                    SpringProcessEngineConfiguration conf = ctx.getBean(SpringProcessEngineConfiguration.class);
-                    conf.setDataSource(dataSource);
-                    conf.setTransactionManager(transactionManager);
-                    conf.setTransactionsExternallyManaged(true);
-                    conf.setJpaEntityManagerFactory(entityManagerFactory);
-                    if (conf.getBeans() == null) {
-                        conf.setBeans(new SpringBeanFactoryProxyMap(ctx));
-                    }
-                    if (conf.getExpressionManager() == null) {
-                        conf.setExpressionManager(new SpringExpressionManager(ctx, conf.getBeans()));
-                    }
+                        SpringProcessEngineConfiguration conf = ctx.getBean(SpringProcessEngineConfiguration.class);
+                        conf.setDataSource(dataSource);
+                        conf.setTransactionManager(transactionManager);
+                        conf.setTransactionsExternallyManaged(true);
+                        conf.setJpaEntityManagerFactory(entityManagerFactory);
+                        if (conf.getBeans() == null) {
+                            conf.setBeans(new SpringBeanFactoryProxyMap(ctx));
+                        }
+                        if (conf.getExpressionManager() == null) {
+                            conf.setExpressionManager(new SpringExpressionManager(ctx, conf.getBeans()));
+                        }
+                        if (EngineServiceUtil.getIdmEngineConfiguration(conf) == null) {
+                            conf.addEngineConfiguration(
+                                    EngineConfigurationConstants.KEY_IDM_ENGINE_CONFIG,
+                                    ctx.getBean(SpringIdmEngineConfiguration.class));
+                        }
 
-                    engines.put(domain, conf.buildProcessEngine());
-                }
-            }
+                        engines.put(domain, conf.buildProcessEngine());
+                    });
 
             engine = new DomainProcessEngine(engines);
         }

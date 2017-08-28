@@ -383,7 +383,7 @@ under the License.
 
     <groovy.version>2.4.12</groovy.version>
 
-    <flowable.version>5.23.0</flowable.version>
+    <flowable.version>6.1.2</flowable.version>
 
     <camel.version>2.19.2</camel.version>	
 
@@ -1099,7 +1099,7 @@ under the License.
       </dependency>
       <dependency>
         <groupId>org.flowable</groupId>
-        <artifactId>flowable-webapp-explorer2</artifactId>
+        <artifactId>flowable-ui-modeler-app</artifactId>
         <version>${flowable.version}</version>
         <type>war</type>
       </dependency>

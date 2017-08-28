@@ -21,186 +21,81 @@ package org.apache.syncope.core.workflow.flowable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
-import org.activiti.engine.ActivitiException;
-import org.activiti.engine.identity.User;
-import org.activiti.engine.identity.UserQuery;
-import org.activiti.engine.impl.persistence.entity.UserEntity;
-import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.user.UMembership;
+import org.flowable.idm.api.User;
+import org.flowable.idm.engine.impl.UserQueryImpl;
+import org.flowable.idm.engine.impl.persistence.entity.UserEntity;
+import org.flowable.idm.engine.impl.persistence.entity.UserEntityImpl;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
-public class SyncopeUserQueryImpl implements UserQuery {
+public class SyncopeUserQueryImpl extends UserQueryImpl {
 
-    private final UserDAO userDAO;
+    private static final long serialVersionUID = 4403344392227706318L;
 
-    private final GroupDAO groupDAO;
+    @Autowired
+    private UserDAO userDAO;
 
-    private String username;
-
-    private String memberOf;
+    @Autowired
+    private GroupDAO groupDAO;
 
     private List<User> result;
 
-    public SyncopeUserQueryImpl(final UserDAO userDAO, final GroupDAO groupDAO) {
-        this.userDAO = userDAO;
-        this.groupDAO = groupDAO;
-    }
-
-    @Override
-    public UserQuery userId(final String id) {
-        this.username = id;
-        return this;
-    }
-
-    @Override
-    public UserQuery userFirstName(final String firstName) {
-        return this;
-    }
-
-    @Override
-    public UserQuery userFirstNameLike(final String firstNameLike) {
-        return this;
-    }
-
-    @Override
-    public UserQuery userLastName(final String lastName) {
-        return this;
-    }
-
-    @Override
-    public UserQuery userLastNameLike(final String lastNameLike) {
-        return this;
-    }
-
-    @Override
-    public UserQuery userFullNameLike(final String fullNameLike) {
-        return this;
-    }
-
-    @Override
-    public UserQuery userEmail(final String email) {
-        return this;
-    }
-
-    @Override
-    public UserQuery userEmailLike(final String emailLike) {
-        return this;
-    }
-
-    @Override
-    public UserQuery memberOfGroup(final String groupId) {
-        memberOf = groupId;
-        return this;
-    }
-
-    @Override
-    public UserQuery orderByUserId() {
-        return this;
-    }
-
-    @Override
-    public UserQuery orderByUserFirstName() {
-        return this;
-    }
-
-    @Override
-    public UserQuery orderByUserLastName() {
-        return this;
-    }
-
-    @Override
-    public UserQuery orderByUserEmail() {
-        return this;
-    }
-
-    @Override
-    public UserQuery asc() {
-        return this;
-    }
-
-    @Override
-    public UserQuery desc() {
-        return this;
-    }
-
-    private User fromSyncopeUser(final org.apache.syncope.core.persistence.api.entity.user.User user) {
-        return new UserEntity(user.getUsername());
+    private User fromSyncopeUser(final org.apache.syncope.core.persistence.api.entity.user.User syncopeUser) {
+        UserEntity user = new UserEntityImpl();
+        user.setId(syncopeUser.getUsername());
+        return user;
     }
 
     private void execute() {
-        if (username != null) {
-            org.apache.syncope.core.persistence.api.entity.user.User user = userDAO.findByUsername(username);
+        if (id != null) {
+            org.apache.syncope.core.persistence.api.entity.user.User user = userDAO.findByUsername(id);
             if (user == null) {
                 result = Collections.<User>emptyList();
-            } else if (memberOf == null || userDAO.findAllGroupNames(user).contains(memberOf)) {
+            } else if (groupId == null || userDAO.findAllGroupNames(user).contains(groupId)) {
                 result = Collections.singletonList(fromSyncopeUser(user));
             }
-        }
-        if (memberOf != null) {
-            Group group = groupDAO.findByName(memberOf);
+        } else if (groupId != null) {
+            Group group = groupDAO.findByName(groupId);
             if (group == null) {
                 result = Collections.<User>emptyList();
             } else {
                 result = new ArrayList<>();
                 List<UMembership> memberships = groupDAO.findUMemberships(group);
                 memberships.stream().map(membership -> fromSyncopeUser(membership.getLeftEnd())).
-                        filter((user) -> (!result.contains(user))).
-                        forEachOrdered((user) -> {
+                        filter(user -> (!result.contains(user))).
+                        forEachOrdered(user -> {
                             result.add(user);
                         });
             }
         }
-        // THIS CAN BE *VERY* DANGEROUS
-        if (result == null) {
-            result = new ArrayList<>();
-            for (int page = 1; page <= (userDAO.count() / AnyDAO.DEFAULT_PAGE_SIZE) + 1; page++) {
-                result.addAll(userDAO.findAll(page, AnyDAO.DEFAULT_PAGE_SIZE).stream().
-                        map(user -> fromSyncopeUser(user)).collect(Collectors.toList()));
-            }
-        }
     }
 
+    @Transactional(readOnly = true)
     @Override
     public long count() {
+        checkQueryOk();
+
+        this.resultType = ResultType.COUNT;
         if (result == null) {
             execute();
         }
         return result.size();
     }
 
-    @Override
-    public User singleResult() {
-        if (result == null) {
-            execute();
-        }
-        if (result.isEmpty()) {
-            throw new ActivitiException("Empty result");
-        }
-
-        return result.get(0);
-    }
-
+    @Transactional(readOnly = true)
     @Override
     public List<User> list() {
+        checkQueryOk();
+
+        this.resultType = ResultType.LIST;
         if (result == null) {
             execute();
         }
         return result;
     }
 
-    @Override
-    public List<User> listPage(final int firstResult, final int maxResults) {
-        if (result == null) {
-            execute();
-        }
-        return result.subList(firstResult, firstResult + maxResults - 1);
-    }
-
-    @Override
-    public UserQuery potentialStarter(final String string) {
-        throw new UnsupportedOperationException();
-    }
 }

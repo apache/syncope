@@ -32,29 +32,23 @@ under the License.
 
   <bean id="flowableUtils" class="org.apache.syncope.core.workflow.flowable.FlowableUtils"/>
 
-  <bean id="syncopeFlowableUserManager" class="org.apache.syncope.core.workflow.flowable.SyncopeUserManager"/>
-  <bean id="syncopeFlowableGroupManager" class="org.apache.syncope.core.workflow.flowable.SyncopeGroupManager"/>
-
-  <bean class="org.activiti.spring.SpringProcessEngineConfiguration" scope="prototype">
-    <property name="transactionsExternallyManaged" value="true"/>
+  <bean id="syncopeIdmIdentityService" class="org.apache.syncope.core.workflow.flowable.SyncopeIdmIdentityService"/>
+  <bean id="syncopeIdmEngineConfiguration" class="org.flowable.idm.spring.SpringIdmEngineConfiguration">
+    <property name="idmIdentityService" ref="syncopeIdmIdentityService"/> 
+  </bean>
+  <bean id="syncopeIdmEngineConfigurator" class="org.flowable.spring.configurator.SpringIdmEngineConfigurator">
+    <property name="idmEngineConfiguration" ref="syncopeIdmEngineConfiguration"/> 
+  </bean>
+  
+  <bean class="org.flowable.spring.SpringProcessEngineConfiguration" scope="prototype">
     <property name="databaseSchemaUpdate" value="true"/>
 
     <property name="jpaHandleTransaction" value="true"/>
     <property name="jpaCloseEntityManager" value="false"/>
 
     <property name="history" value="${historyLevel}"/>
-    <property name="jobExecutorActivate" value="${jobExecutorActivate}"/>
 
-    <property name="customSessionFactories">
-      <list>
-        <bean class="org.apache.syncope.core.workflow.flowable.SyncopeSessionFactory">
-          <property name="syncopeSession" ref="syncopeFlowableUserManager"/>
-        </bean>
-        <bean class="org.apache.syncope.core.workflow.flowable.SyncopeSessionFactory">
-          <property name="syncopeSession" ref="syncopeFlowableGroupManager"/>
-        </bean>
-      </list>
-    </property>
+    <property name="idmProcessEngineConfigurator" ref="syncopeIdmEngineConfigurator"/>
     <property name="customPreVariableTypes">
       <list>
         <bean class="org.apache.syncope.core.workflow.flowable.SyncopeEntitiesVariableType"/>

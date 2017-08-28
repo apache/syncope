@@ -140,7 +140,7 @@ under the License.
       <appender-ref ref="mainFile"/>
       <appender-ref ref="main"/>
     </asyncLogger>
-    <asyncLogger name="org.activiti" additivity="false" level="ERROR">
+    <asyncLogger name="org.flowable" additivity="false" level="ERROR">
       <appender-ref ref="mainFile"/>
       <appender-ref ref="main"/>
     </asyncLogger>

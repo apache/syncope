@@ -33,23 +33,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Resource;
-import org.activiti.bpmn.converter.BpmnXMLConverter;
-import org.activiti.bpmn.model.BpmnModel;
-import org.activiti.editor.constants.ModelDataJsonConstants;
-import org.activiti.editor.language.json.converter.BpmnJsonConverter;
-import org.activiti.engine.ActivitiException;
-import org.activiti.engine.form.FormProperty;
-import org.activiti.engine.form.FormType;
-import org.activiti.engine.form.TaskFormData;
-import org.activiti.engine.history.HistoricActivityInstance;
-import org.activiti.engine.history.HistoricTaskInstance;
-import org.activiti.engine.impl.persistence.entity.HistoricFormPropertyEntity;
-import org.activiti.engine.query.Query;
-import org.activiti.engine.repository.Deployment;
-import org.activiti.engine.repository.Model;
-import org.activiti.engine.repository.ProcessDefinition;
-import org.activiti.engine.runtime.ProcessInstance;
-import org.activiti.engine.task.Task;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -75,6 +58,23 @@ import org.apache.syncope.core.workflow.flowable.spring.DomainProcessEngine;
 import org.apache.syncope.core.workflow.api.WorkflowDefinitionFormat;
 import org.apache.syncope.core.workflow.api.WorkflowException;
 import org.apache.syncope.core.workflow.java.AbstractUserWorkflowAdapter;
+import org.flowable.bpmn.converter.BpmnXMLConverter;
+import org.flowable.bpmn.model.BpmnModel;
+import org.flowable.editor.constants.ModelDataJsonConstants;
+import org.flowable.editor.language.json.converter.BpmnJsonConverter;
+import org.flowable.engine.common.api.FlowableException;
+import org.flowable.engine.common.api.query.Query;
+import org.flowable.engine.form.FormProperty;
+import org.flowable.engine.form.FormType;
+import org.flowable.engine.form.TaskFormData;
+import org.flowable.engine.history.HistoricActivityInstance;
+import org.flowable.engine.history.HistoricTaskInstance;
+import org.flowable.engine.impl.persistence.entity.HistoricFormPropertyEntity;
+import org.flowable.engine.repository.Deployment;
+import org.flowable.engine.repository.Model;
+import org.flowable.engine.repository.ProcessDefinition;
+import org.flowable.engine.runtime.ProcessInstance;
+import org.flowable.engine.task.Task;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -134,7 +134,7 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         return "ACT_";
     }
 
-    protected void throwException(final ActivitiException e, final String defaultMessage) {
+    protected void throwException(final FlowableException e, final String defaultMessage) {
         if (e.getCause() != null) {
             if (e.getCause().getCause() instanceof SyncopeClientException) {
                 throw (SyncopeClientException) e.getCause().getCause();
@@ -169,7 +169,7 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
                 if (formData != null && !formData.getFormProperties().isEmpty()) {
                     result = tasks.get(0).getId();
                 }
-            } catch (ActivitiException e) {
+            } catch (FlowableException e) {
                 LOG.warn("Could not get task form data", e);
             }
         }
@@ -227,7 +227,7 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         ProcessInstance processInstance = null;
         try {
             processInstance = engine.getRuntimeService().startProcessInstanceByKey(WF_PROCESS_ID, variables);
-        } catch (ActivitiException e) {
+        } catch (FlowableException e) {
             throwException(e, "While starting " + WF_PROCESS_ID + " instance");
         }
 
@@ -288,7 +288,7 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         if (tasks.size() == 1) {
             try {
                 engine.getTaskService().complete(tasks.get(0).getId(), variables);
-            } catch (ActivitiException e) {
+            } catch (FlowableException e) {
                 throwException(e, "While completing task '" + tasks.get(0).getName() + "' for " + user);
             }
         } else {
@@ -617,10 +617,10 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
                 } else if (obj instanceof Task) {
                     forms.add(getFormTO((Task) obj));
                 } else {
-                    throw new ActivitiException(
+                    throw new FlowableException(
                             "Failure retrieving form", new IllegalArgumentException("Invalid task type"));
                 }
-            } catch (ActivitiException e) {
+            } catch (FlowableException e) {
                 LOG.debug("No form found for task {}", obj, e);
             }
         });
@@ -633,14 +633,14 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         Task task;
         try {
             task = engine.getTaskService().createTaskQuery().processInstanceId(workflowId).singleResult();
-        } catch (ActivitiException e) {
+        } catch (FlowableException e) {
             throw new WorkflowException("While reading form for workflow instance " + workflowId, e);
         }
 
         TaskFormData formData;
         try {
             formData = engine.getFormService().getTaskFormData(task.getId());
-        } catch (ActivitiException e) {
+        } catch (FlowableException e) {
             LOG.debug("No form found for task {}", task.getId(), e);
             formData = null;
         }
@@ -658,16 +658,16 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         try {
             task = engine.getTaskService().createTaskQuery().taskId(taskId).singleResult();
             if (task == null) {
-                throw new ActivitiException("NULL result");
+                throw new FlowableException("NULL result");
             }
-        } catch (ActivitiException e) {
+        } catch (FlowableException e) {
             throw new NotFoundException("Flowable Task " + taskId, e);
         }
 
         TaskFormData formData;
         try {
             formData = engine.getFormService().getTaskFormData(task.getId());
-        } catch (ActivitiException e) {
+        } catch (FlowableException e) {
             throw new NotFoundException("Form for Flowable Task " + taskId, e);
         }
 
@@ -699,7 +699,7 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         try {
             engine.getTaskService().setOwner(taskId, authUser);
             task = engine.getTaskService().createTaskQuery().taskId(taskId).singleResult();
-        } catch (ActivitiException e) {
+        } catch (FlowableException e) {
             throw new WorkflowException("While reading task " + taskId, e);
         }
 
@@ -736,7 +736,7 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         try {
             engine.getFormService().submitTaskFormData(form.getTaskId(), getPropertiesForSubmit(form));
             engine.getRuntimeService().setVariable(user.getWorkflowId(), FORM_SUBMITTER, authUser);
-        } catch (ActivitiException e) {
+        } catch (FlowableException e) {
             throwException(e, "While submitting form for task " + form.getTaskId());
         }
 
@@ -807,7 +807,7 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
 
                         return defTO;
                     }).collect(Collectors.toList());
-        } catch (ActivitiException e) {
+        } catch (FlowableException e) {
             throw new WorkflowException("While listing available process definitions", e);
         }
     }
@@ -816,7 +816,7 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         try {
             return engine.getRepositoryService().createProcessDefinitionQuery().
                     processDefinitionKey(key).latestVersion().singleResult();
-        } catch (ActivitiException e) {
+        } catch (FlowableException e) {
             throw new WorkflowException("While accessing process " + key, e);
         }
 
@@ -826,7 +826,7 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
         try {
             return engine.getRepositoryService().createProcessDefinitionQuery().
                     deploymentId(deploymentId).latestVersion().singleResult();
-        } catch (ActivitiException e) {
+        } catch (FlowableException e) {
             throw new WorkflowException("While accessing deployment " + deploymentId, e);
         }
 

@@ -18,8 +18,9 @@
  */
 package org.apache.syncope.core.workflow.flowable;
 
-import org.activiti.engine.impl.interceptor.Session;
-import org.activiti.engine.impl.interceptor.SessionFactory;
+import org.flowable.engine.common.impl.interceptor.CommandContext;
+import org.flowable.engine.common.impl.interceptor.Session;
+import org.flowable.engine.common.impl.interceptor.SessionFactory;
 
 public class SyncopeSessionFactory implements SessionFactory {
 
@@ -31,7 +32,7 @@ public class SyncopeSessionFactory implements SessionFactory {
     }
 
     @Override
-    public Session openSession() {
+    public Session openSession(final CommandContext cc) {
         return syncopeSession;
     }
 
