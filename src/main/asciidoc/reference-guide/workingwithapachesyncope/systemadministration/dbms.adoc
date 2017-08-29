@@ -68,13 +68,16 @@ Master.url=jdbc:mysql://localhost:3306/syncope?characterEncoding=UTF-8&relaxAuto
 Master.schema=
 Master.username=syncope
 Master.password=syncope
-Master.databasePlatform=org.apache.openjpa.jdbc.sql.MySQLDictionary(blobTypeName=LONGBLOB)
+Master.databasePlatform=org.apache.openjpa.jdbc.sql.MySQLDictionary(blobTypeName=LONGBLOB,timestampTypeName=DATETIME(3))
 Master.orm=META-INF/spring-orm.xml
 Master.audit.sql=audit_mysql_innodb.sql
 ....
 
+[CAUTION]
+It is important to set the collation to `utf8_general_ci` after creation of `syncope` database.
+
 [WARNING]
-This assumes that the InnoDB engine is enabled in your MariaDB instance - if this is not the case, then change the value
+This assumes that the InnoDB engine is enabled in your MySQL instance - if this is not the case, then change the value
 for `Master.audit` to `audit.sql`.
 
 [WARNING]
@@ -102,9 +105,12 @@ Master.url=jdbc:mariadb://localhost:3306/syncope?characterEncoding=UTF-8
 Master.schema=
 Master.username=syncope
 Master.password=syncope
-Master.databasePlatform=org.apache.openjpa.jdbc.sql.MariaDBDictionary(blobTypeName=LONGBLOB)
+Master.databasePlatform=org.apache.openjpa.jdbc.sql.MariaDBDictionary(blobTypeName=LONGBLOB,timestampTypeName=DATETIME(3))
 Master.orm=META-INF/spring-orm.xml
 ....
+
+[CAUTION]
+It is important to set the collation to `utf8_general_ci` after creation of `syncope` database.
 
 [WARNING]
 This assumes that you have a MariaDB instance running on localhost, listening on its default port 3306 with a database
