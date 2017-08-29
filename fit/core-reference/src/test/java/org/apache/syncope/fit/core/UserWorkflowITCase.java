@@ -29,6 +29,7 @@ import static org.junit.Assert.fail;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 import javax.sql.DataSource;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.client.lib.SyncopeClient;
@@ -180,21 +181,33 @@ public class UserWorkflowITCase extends AbstractITCase {
         assertNotNull(forms);
         assertEquals(preForms + 1, forms.size());
 
+        // 3. as admin, request for changes: still pending approval
+        String updatedUsername = "changed-" + UUID.randomUUID().toString();
+        userTO.setUsername(updatedUsername);
+        userWorkflowService.executeTask("default", userTO);
+
         WorkflowFormTO form = userWorkflowService.getFormForUser(userTO.getKey());
         assertNotNull(form);
         assertNotNull(form.getTaskId());
+        assertNotNull(form.getUserTO());
+        assertEquals(updatedUsername, form.getUserTO().getUsername());
+        assertNull(form.getUserPatch());
         assertNull(form.getOwner());
 
-        // 4. claim task (from admin)
+        // 4. claim task (as admin)
         form = userWorkflowService.claimForm(form.getTaskId());
         assertNotNull(form);
         assertNotNull(form.getTaskId());
+        assertNotNull(form.getUserTO());
+        assertEquals(updatedUsername, form.getUserTO().getUsername());
+        assertNull(form.getUserPatch());
         assertNotNull(form.getOwner());
 
         // 5. approve user (and verify that propagation occurred)
         form.getProperty("approve").setValue(Boolean.TRUE.toString());
         userTO = userWorkflowService.submitForm(form);
         assertNotNull(userTO);
+        assertEquals(updatedUsername, userTO.getUsername());
         assertEquals("active", userTO.getStatus());
         assertEquals(Collections.singleton(RESOURCE_NAME_TESTDB), userTO.getResources());
 

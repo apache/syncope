@@ -18,14 +18,43 @@
  */
 package org.apache.syncope.core.workflow.activiti.task;
 
+import org.apache.syncope.common.lib.AnyOperations;
+import org.apache.syncope.common.lib.patch.UserPatch;
+import org.apache.syncope.common.lib.to.UserTO;
+import org.apache.syncope.core.persistence.api.dao.UserDAO;
+import org.apache.syncope.core.persistence.api.entity.user.User;
+import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.workflow.activiti.ActivitiUserWorkflowAdapter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class AutoActivate extends AbstractActivitiServiceTask {
 
+    @Autowired
+    private UserDataBinder dataBinder;
+
+    @Autowired
+    private UserDAO userDAO;
+
     @Override
     protected void doExecute(final String executionId) {
+        User user = engine.getRuntimeService().
+                getVariable(executionId, ActivitiUserWorkflowAdapter.USER, User.class);
+        UserTO userTO = engine.getRuntimeService().
+                getVariable(executionId, ActivitiUserWorkflowAdapter.USER_TO, UserTO.class);
+        if (userTO != null && userTO.getKey() != null && user.getKey() != null) {
+            user = userDAO.save(user);
+
+            UserPatch userPatch = AnyOperations.diff(userTO, dataBinder.getUserTO(user, true), false);
+            // don't mess with password, as the cleartext values was already properly saved
+            userPatch.setPassword(null);
+
+            dataBinder.update(user, userPatch);
+
+            engine.getRuntimeService().setVariable(executionId, ActivitiUserWorkflowAdapter.USER, user);
+        }
+
         engine.getRuntimeService().setVariable(executionId, ActivitiUserWorkflowAdapter.PROPAGATE_ENABLE, Boolean.TRUE);
     }
 }

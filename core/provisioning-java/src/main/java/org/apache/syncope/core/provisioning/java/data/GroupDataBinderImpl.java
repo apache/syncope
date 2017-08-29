@@ -44,6 +44,7 @@ import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
+import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.DerSchema;
 import org.apache.syncope.core.persistence.api.entity.DynGroupMembership;
 import org.apache.syncope.core.persistence.api.entity.Realm;
@@ -195,8 +196,10 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
 
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
 
+        AnyUtils anyUtils = anyUtilsFactory.getInstance(AnyTypeKind.GROUP);
+
         // fetch connObjectKeys before update
-        Map<String, String> oldConnObjectKeys = getConnObjectKeys(group);
+        Map<String, String> oldConnObjectKeys = getConnObjectKeys(group, anyUtils);
 
         // realm
         setRealm(group, groupPatch);
@@ -221,10 +224,10 @@ public class GroupDataBinderImpl extends AbstractAnyDataBinder implements GroupD
         }
 
         // attributes and resources
-        propByRes.merge(fill(group, groupPatch, anyUtilsFactory.getInstance(AnyTypeKind.GROUP), scce));
+        propByRes.merge(fill(group, groupPatch, anyUtils, scce));
 
         // check if some connObjectKey was changed by the update above
-        Map<String, String> newConnObjectKeys = getConnObjectKeys(group);
+        Map<String, String> newConnObjectKeys = getConnObjectKeys(group, anyUtils);
         for (Map.Entry<String, String> entry : oldConnObjectKeys.entrySet()) {
             if (newConnObjectKeys.containsKey(entry.getKey())
                     && !entry.getValue().equals(newConnObjectKeys.get(entry.getKey()))) {

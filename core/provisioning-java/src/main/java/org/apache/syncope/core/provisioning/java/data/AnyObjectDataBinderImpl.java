@@ -270,10 +270,12 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
 
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
 
+        AnyUtils anyUtils = anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT);
+
         Collection<String> currentResources = anyObjectDAO.findAllResourceKeys(anyObject.getKey());
 
         // fetch connObjectKeys before update
-        Map<String, String> oldConnObjectKeys = getConnObjectKeys(anyObject);
+        Map<String, String> oldConnObjectKeys = getConnObjectKeys(anyObject, anyUtils);
 
         // realm
         setRealm(anyObject, anyObjectPatch);
@@ -285,7 +287,6 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
             anyObject.setName(anyObjectPatch.getName().getValue());
         }
 
-        AnyUtils anyUtils = anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT);
         // attributes and resources
         propByRes.merge(fill(anyObject, anyObjectPatch, anyUtils, scce));
 
@@ -437,7 +438,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
         }
 
         // check if some connObjectKey was changed by the update above
-        Map<String, String> newcCnnObjectKeys = getConnObjectKeys(anyObject);
+        Map<String, String> newcCnnObjectKeys = getConnObjectKeys(anyObject, anyUtils);
         for (Map.Entry<String, String> entry : oldConnObjectKeys.entrySet()) {
             if (newcCnnObjectKeys.containsKey(entry.getKey())
                     && !entry.getValue().equals(newcCnnObjectKeys.get(entry.getKey()))) {
