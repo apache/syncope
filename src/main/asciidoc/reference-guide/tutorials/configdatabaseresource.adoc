@@ -1,13 +1,6 @@
 === Configure a Database resource
-:hardbreaks:
 
 For Syncope 2.0.x
-
-* Introduction
-* Pre-requisites
-* Configure Database Table connector instance
-* Configure Database Table resource
-* Configure Resource Provision rules
 
 ==== Introduction
 
@@ -41,14 +34,14 @@ This tutorial shows all the steps needed to configure an external Database Table
 
 . Download JDBC driver (MySQL JDBC driver in this case) and include it into your JEE container classpath.
 
-. Verify that the bundle exists or https://cwiki.apache.org/confluence/display/SYNCOPE/Install+connector+bundles[Install ConnId Database Table connector bundle]
+. Verify that the bundle exists or <<install-connector-bundles,install the ConnId Database Table connector bundle>>
 
 ==== Configure Database Table connector instance
 
 The list of all configurable parameters is available at https://connid.atlassian.net/wiki/display/BASE/Database+Table[Database Table Connector Configuration].
 Use this tutorial as reference for your configuration.
 
-. Open browser and access to the Syncope administration console http://host:port/syncope-console
+. Open browser and access to the Syncope administration console protocol://host:port/syncope-console
 . Log in with following credentials:
     Username: admin
     Password: password
@@ -97,7 +90,7 @@ Retrieve password: (yes)
 image::configdatabaseresource04.jpg[title="Add new connector continue",alt="Add new connector continue"]
 
 +
-Select needed Capabilities. Refer to https://cwiki.apache.org/confluence/display/SYNCOPE/Connector+instances#Connectorinstances-Create_new_Connector[Connector instance configuration]
+Select needed Capabilities. Refer to <<connector-instance-details,Connector instance configuration>>
 
 . Select Finish.
 
@@ -112,7 +105,7 @@ image::configdatabaseresource05.jpg[title="Add new resource dialog",alt="Add new
 
 +
 Provide Key (Unique name to identify a resource)
-Select needed Propagation actions. Refer to http://syncope.apache.org/docs/reference-guide.html#propagationactions[Propagation Actions]
+Select needed Propagation actions. Refer to <<propagationactions,Propagation Actions>>
 
 . Select Next.
 

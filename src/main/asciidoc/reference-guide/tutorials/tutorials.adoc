@@ -17,9 +17,6 @@
 // under the License.
 //
 == Tutorials
+:hardbreaks:
 
 include::configdatabaseresource.adoc[]
-
-include::configactivedirectoryresource.adoc[]
-
-include::syncactivedirectorywithdatabase.adoc[]
