@@ -75,7 +75,6 @@ import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
-import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
 import org.apache.syncope.core.provisioning.api.MappingManager;
@@ -640,14 +639,10 @@ abstract class AbstractAnyDataBinder {
         return membershipTO;
     }
 
-    protected Map<String, String> getConnObjectKeys(final Any<?> any) {
+    protected Map<String, String> getConnObjectKeys(final Any<?> any, final AnyUtils anyUtils) {
         Map<String, String> connObjectKeys = new HashMap<>();
 
-        Iterable<? extends ExternalResource> iterable = any instanceof User
-                ? userDAO.findAllResources((User) any)
-                : any instanceof AnyObject
-                        ? anyObjectDAO.findAllResources((AnyObject) any)
-                        : ((Group) any).getResources();
+        Iterable<? extends ExternalResource> iterable = anyUtils.getAllResources(any);
         for (ExternalResource resource : iterable) {
             Optional<? extends Provision> provision = resource.getProvision(any.getType());
             if (provision.isPresent() && provision.get().getMapping() != null) {

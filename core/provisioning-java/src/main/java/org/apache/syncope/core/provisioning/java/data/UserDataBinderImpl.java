@@ -296,10 +296,12 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
 
         SyncopeClientCompositeException scce = SyncopeClientException.buildComposite();
 
+        AnyUtils anyUtils = anyUtilsFactory.getInstance(AnyTypeKind.USER);
+
         Collection<String> currentResources = userDAO.findAllResourceKeys(user.getKey());
 
         // fetch connObjectKeys before update
-        Map<String, String> oldConnObjectKeys = getConnObjectKeys(user);
+        Map<String, String> oldConnObjectKeys = getConnObjectKeys(user, anyUtils);
 
         // realm
         setRealm(user, userPatch);
@@ -369,7 +371,6 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
             }
         }
 
-        AnyUtils anyUtils = anyUtilsFactory.getInstance(AnyTypeKind.USER);
         // attributes and resources
         propByRes.merge(fill(user, userPatch, anyUtils, scce));
 
@@ -519,12 +520,11 @@ public class UserDataBinderImpl extends AbstractAnyDataBinder implements UserDat
         }
 
         // check if some connObjectKey was changed by the update above
-        Map<String, String> newcCnnObjectKeys = getConnObjectKeys(user);
+        Map<String, String> newcCnnObjectKeys = getConnObjectKeys(user, anyUtils);
         oldConnObjectKeys.entrySet().stream().
                 filter(entry -> newcCnnObjectKeys.containsKey(entry.getKey())
                 && !entry.getValue().equals(newcCnnObjectKeys.get(entry.getKey()))).
                 forEach(entry -> {
-
                     propByRes.addOldConnObjectKey(entry.getKey(), entry.getValue());
                     propByRes.add(ResourceOperation.UPDATE, entry.getKey());
                 });

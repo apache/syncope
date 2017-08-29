@@ -30,30 +30,30 @@ import org.springframework.stereotype.Service;
 public class UserWorkflowServiceImpl implements UserWorkflowService {
 
     @Autowired
-    private UserWorkflowLogic lofic;
+    private UserWorkflowLogic logic;
 
     @Override
     public WorkflowFormTO claimForm(final String taskId) {
-        return lofic.claimForm(taskId);
+        return logic.claimForm(taskId);
     }
 
     @Override
     public UserTO executeTask(final String taskId, final UserTO userTO) {
-        return lofic.executeWorkflowTask(userTO, taskId);
+        return logic.executeWorkflowTask(userTO, taskId);
     }
 
     @Override
     public WorkflowFormTO getFormForUser(final String userKey) {
-        return lofic.getFormForUser(userKey);
+        return logic.getFormForUser(userKey);
     }
 
     @Override
     public List<WorkflowFormTO> getForms() {
-        return lofic.getForms();
+        return logic.getForms();
     }
 
     @Override
     public UserTO submitForm(final WorkflowFormTO form) {
-        return lofic.submitForm(form);
+        return logic.submitForm(form);
     }
 }

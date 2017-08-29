@@ -198,14 +198,33 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     protected void saveForFormSubmit(final User user, final String password, final PropagationByResource propByRes) {
         String formTaskId = getFormTask(user);
         if (formTaskId != null) {
+            UserTO userTO = engine.getRuntimeService().getVariable(user.getWorkflowId(), USER_TO, UserTO.class);
+            if (userTO != null) {
+                userTO.setKey(user.getKey());
+                userTO.setCreationDate(user.getCreationDate());
+                userTO.setLastChangeDate(user.getLastChangeDate());
+                if (password == null) {
+                    String encryptedPwd = engine.getRuntimeService().
+                            getVariable(user.getWorkflowId(), ENCRYPTED_PWD, String.class);
+                    if (encryptedPwd != null) {
+                        userTO.setPassword(decrypt(encryptedPwd));
+                    }
+                } else {
+                    userTO.setPassword(password);
+                }
+
+                engine.getRuntimeService().setVariable(user.getWorkflowId(), USER_TO, userTO);
+            }
+
             // SYNCOPE-238: This is needed to simplify the task query in this.getForms()
             engine.getTaskService().setVariableLocal(formTaskId, TASK_IS_FORM, Boolean.TRUE);
+
             engine.getRuntimeService().setVariable(user.getWorkflowId(), PROP_BY_RESOURCE, propByRes);
             if (propByRes != null) {
                 propByRes.clear();
             }
 
-            if (StringUtils.isNotBlank(password)) {
+            if (password != null) {
                 engine.getRuntimeService().setVariable(user.getWorkflowId(), ENCRYPTED_PWD, encrypt(password));
             }
         }
@@ -433,12 +452,17 @@ public class FlowableUserWorkflowAdapter extends AbstractUserWorkflowAdapter {
     public WorkflowResult<String> execute(final UserTO userTO, final String taskId) {
         User user = userDAO.authFind(userTO.getKey());
 
-        final Map<String, Object> variables = new HashMap<>();
+        Map<String, Object> variables = new HashMap<>();
         variables.put(USER_TO, userTO);
 
         Set<String> performedTasks = doExecuteTask(user, taskId, variables);
         updateStatus(user);
         User updated = userDAO.save(user);
+
+        PropagationByResource propByRes = engine.getRuntimeService().getVariable(
+                user.getWorkflowId(), PROP_BY_RESOURCE, PropagationByResource.class);
+
+        saveForFormSubmit(updated, userTO.getPassword(), propByRes);
 
         return new WorkflowResult<>(updated.getKey(), null, performedTasks);
     }
