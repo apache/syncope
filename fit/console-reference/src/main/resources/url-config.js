@@ -27,7 +27,7 @@ FLOWABLE.URL = {
 
   getStencilSet: function () {
     return window.location.toString().substr(0, window.location.toString().indexOf('/flowable-modeler'))
-            + "/flowable-modeler/stencilset.json";
+            + "/flowable-modeler/stencilset_bpmn.json";
   },
 
   putModel: function (modelId) {

@@ -422,7 +422,6 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                 filter(entry -> newcCnnObjectKeys.containsKey(entry.getKey())
                 && !entry.getValue().equals(newcCnnObjectKeys.get(entry.getKey()))).
                 forEach(entry -> {
-
                     propByRes.addOldConnObjectKey(entry.getKey(), entry.getValue());
                     propByRes.add(ResourceOperation.UPDATE, entry.getKey());
                 });

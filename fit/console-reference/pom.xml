@@ -147,6 +147,13 @@ under the License.
                 <unzip src="${settings.localRepository}/org/flowable/flowable-ui-modeler-app/${flowable.version}/flowable-ui-modeler-app-${flowable.version}.war" 
                        dest="${flowable-modeler.directory}"/>
                 
+                <unzip src="${flowable-modeler.directory}/WEB-INF/lib/flowable-ui-modeler-logic-${flowable.version}.jar"
+                       dest="${flowable-modeler.directory}">
+                  <patternset>
+                    <include name="stencilset_bpmn.json"/>
+                  </patternset>
+                </unzip>
+                
                 <replace file="${flowable-modeler.directory}/index.html"
                          token="&lt;/head&gt;"
                          value="&lt;script type=&quot;text/javascript&quot;&gt;window.onunload = refreshParent; function refreshParent() { window.opener.location.reload(); }&lt;/script&gt;&lt;/head&gt;"/>
@@ -159,9 +166,6 @@ under the License.
                       overwrite="true"/>
                 <copy file="${basedir}/src/main/resources/url-config.js" 
                       todir="${flowable-modeler.directory}/editor-app/configuration"
-                      overwrite="true"/>
-                <copy file="${basedir}/src/main/resources/stencilset.json" 
-                      todir="${flowable-modeler.directory}"
                       overwrite="true"/>
                 <copy file="${basedir}/src/main/resources/save-model.html" 
                       todir="${flowable-modeler.directory}/editor-app/popups"

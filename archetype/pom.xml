@@ -238,6 +238,7 @@ under the License.
         <includes>
           <include>log4j2.xml</include>
           <include>save-model.html</include>
+          <include>app-cfg.js</include>
           <include>url-config.js</include>
         </includes>
       </resource>

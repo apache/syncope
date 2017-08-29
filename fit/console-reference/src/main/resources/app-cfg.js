@@ -23,7 +23,7 @@ var FLOWABLE = FLOWABLE || {};
 
 FLOWABLE.CONFIG = {
   'onPremise': true,
-  'contextRoot': window.location.toString().substr(0, window.location.toString().indexOf('/flowable-modeler')),
-  'webContextRoot': window.location.toString().substr(0, window.location.toString().indexOf('/flowable-modeler')),
+  'contextRoot': window.location.toString().substr(0, window.location.toString().indexOf('/flowable-modeler')) + '/flowable-modeler',
+  'webContextRoot': window.location.toString().substr(0, window.location.toString().indexOf('/flowable-modeler') + '/flowable-modeler'),
   'datesLocalization': false
 };
