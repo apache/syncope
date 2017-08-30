@@ -71,6 +71,8 @@ public class SAML2SPLoader implements SyncopeLoader {
 
     private Credential credential;
 
+    private String signatureAlgorithm;
+
     @Override
     public Integer getPriority() {
         return 1000;
@@ -96,6 +98,7 @@ public class SAML2SPLoader implements SyncopeLoader {
         assertNotNull(keyPass, "<keystore.keypass>");
         String certAlias = props.getProperty("sp.cert.alias");
         assertNotNull(certAlias, "<sp.cert.alias>");
+        signatureAlgorithm = props.getProperty("signature.algorithm");
 
         LOG.debug("Attempting to load the provided keystore...");
         try {
@@ -140,6 +143,10 @@ public class SAML2SPLoader implements SyncopeLoader {
 
     public Credential getCredential() {
         return credential;
+    }
+
+    public String getSignatureAlgorithm() {
+        return signatureAlgorithm;
     }
 
 }
