@@ -47,7 +47,6 @@ import org.apache.syncope.core.provisioning.api.TimeoutException;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationReporter;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationTaskExecutor;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.provisioning.api.utils.ExceptionUtils2;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
@@ -65,6 +64,7 @@ import org.apache.syncope.core.provisioning.api.data.TaskDataBinder;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationException;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
+import org.apache.syncope.core.spring.ImplementationManager;
 import org.identityconnectors.framework.common.exceptions.ConnectorException;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
@@ -77,7 +77,6 @@ import org.identityconnectors.framework.common.objects.Uid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.transaction.annotation.Transactional;
 
 @Transactional(rollbackFor = { Throwable.class })
@@ -162,17 +161,13 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
     protected List<PropagationActions> getPropagationActions(final ExternalResource resource) {
         List<PropagationActions> result = new ArrayList<>();
 
-        if (!resource.getPropagationActionsClassNames().isEmpty()) {
-            resource.getPropagationActionsClassNames().forEach(className -> {
-                try {
-                    Class<?> actionsClass = Class.forName(className);
-                    result.add((PropagationActions) ApplicationContextProvider.getBeanFactory().
-                            createBean(actionsClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true));
-                } catch (ClassNotFoundException e) {
-                    LOG.error("Invalid PropagationAction class name '{}' for resource {}", resource, className, e);
-                }
-            });
-        }
+        resource.getPropagationActions().forEach(impl -> {
+            try {
+                result.add(ImplementationManager.build(impl));
+            } catch (Exception e) {
+                LOG.error("While building {}", impl, e);
+            }
+        });
 
         return result;
     }

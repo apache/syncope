@@ -31,6 +31,8 @@ import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.ImplementationEngine;
+import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.JobType;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.TaskType;
@@ -50,9 +52,12 @@ import org.apache.syncope.core.persistence.api.entity.task.TaskUtils;
 import org.apache.syncope.core.provisioning.api.job.JobNamer;
 import org.apache.syncope.core.spring.BeanUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
+import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.task.AnyTemplatePullTask;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
@@ -77,7 +82,7 @@ public class TaskDataBinderImpl implements TaskDataBinder {
 
     private static final String[] IGNORE_TASK_PROPERTIES = {
         "destinationRealm", "templates", "filters", "executions", "resource", "matchingRule", "unmatchingRule",
-        "notification" };
+        "notification", "jobDelegate", "actions" };
 
     private static final String[] IGNORE_TASK_EXECUTION_PROPERTIES = { "key", "task" };
 
@@ -94,6 +99,9 @@ public class TaskDataBinderImpl implements TaskDataBinder {
     private AnyTypeDAO anyTypeDAO;
 
     @Autowired
+    private ImplementationDAO implementationDAO;
+
+    @Autowired
     private EntityFactory entityFactory;
 
     @Autowired
@@ -108,11 +116,22 @@ public class TaskDataBinderImpl implements TaskDataBinder {
     private void fill(final ProvisioningTask task, final AbstractProvisioningTaskTO taskTO) {
         if (task instanceof PushTask && taskTO instanceof PushTaskTO) {
             PushTask pushTask = (PushTask) task;
-            final PushTaskTO pushTaskTO = (PushTaskTO) taskTO;
+            PushTaskTO pushTaskTO = (PushTaskTO) taskTO;
 
-            pushTask.setJobDelegateClassName(pushTaskTO.getJobDelegateClassName() == null
-                    ? PushJobDelegate.class.getName()
-                    : pushTaskTO.getJobDelegateClassName());
+            Implementation jobDelegate = pushTaskTO.getJobDelegate() == null
+                    ? implementationDAO.find(ImplementationType.TASKJOB_DELEGATE).stream().
+                            filter(impl -> PushJobDelegate.class.getName().equals(impl.getBody())).
+                            findFirst().orElse(null)
+                    : implementationDAO.find(pushTaskTO.getJobDelegate());
+            if (jobDelegate == null) {
+                jobDelegate = entityFactory.newEntity(Implementation.class);
+                jobDelegate.setKey(PushJobDelegate.class.getSimpleName());
+                jobDelegate.setEngine(ImplementationEngine.JAVA);
+                jobDelegate.setType(ImplementationType.TASKJOB_DELEGATE);
+                jobDelegate.setBody(PushJobDelegate.class.getName());
+                jobDelegate = implementationDAO.save(jobDelegate);
+            }
+            pushTask.setJobDelegate(jobDelegate);
 
             pushTask.setSourceRealm(realmDAO.findByFullPath(pushTaskTO.getSourceRealm()));
 
@@ -143,16 +162,38 @@ public class TaskDataBinderImpl implements TaskDataBinder {
                             collect(Collectors.toList()));
         } else if (task instanceof PullTask && taskTO instanceof PullTaskTO) {
             PullTask pullTask = (PullTask) task;
-            final PullTaskTO pullTaskTO = (PullTaskTO) taskTO;
+            PullTaskTO pullTaskTO = (PullTaskTO) taskTO;
+
+            Implementation jobDelegate = pullTaskTO.getJobDelegate() == null
+                    ? implementationDAO.find(ImplementationType.TASKJOB_DELEGATE).stream().
+                            filter(impl -> PullJobDelegate.class.getName().equals(impl.getBody())).
+                            findFirst().orElse(null)
+                    : implementationDAO.find(pullTaskTO.getJobDelegate());
+            if (jobDelegate == null) {
+                jobDelegate = entityFactory.newEntity(Implementation.class);
+                jobDelegate.setKey(PullJobDelegate.class.getSimpleName());
+                jobDelegate.setEngine(ImplementationEngine.JAVA);
+                jobDelegate.setType(ImplementationType.TASKJOB_DELEGATE);
+                jobDelegate.setBody(PullJobDelegate.class.getName());
+                jobDelegate = implementationDAO.save(jobDelegate);
+            }
+            pullTask.setJobDelegate(jobDelegate);
 
             pullTask.setPullMode(pullTaskTO.getPullMode());
-            pullTask.setReconciliationFilterBuilderClassName(pullTaskTO.getReconciliationFilterBuilderClassName());
+
+            if (pullTaskTO.getReconFilterBuilder() == null) {
+                pullTask.setReconFilterBuilder(null);
+            } else {
+                Implementation reconFilterBuilder = implementationDAO.find(pullTaskTO.getReconFilterBuilder());
+                if (reconFilterBuilder == null) {
+                    LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...",
+                            pullTaskTO.getReconFilterBuilder());
+                } else {
+                    pullTask.setReconFilterBuilder(reconFilterBuilder);
+                }
+            }
 
             pullTask.setDestinationRealm(realmDAO.findByFullPath(pullTaskTO.getDestinationRealm()));
-
-            pullTask.setJobDelegateClassName(pullTaskTO.getJobDelegateClassName() == null
-                    ? PullJobDelegate.class.getName()
-                    : pullTaskTO.getJobDelegateClassName());
 
             pullTask.setMatchingRule(pullTaskTO.getMatchingRule() == null
                     ? MatchingRule.UPDATE : pullTaskTO.getMatchingRule());
@@ -189,8 +230,19 @@ public class TaskDataBinderImpl implements TaskDataBinder {
         task.setPerformUpdate(taskTO.isPerformUpdate());
         task.setPerformDelete(taskTO.isPerformDelete());
         task.setSyncStatus(taskTO.isSyncStatus());
-        task.getActionsClassNames().clear();
-        task.getActionsClassNames().addAll(taskTO.getActionsClassNames());
+
+        taskTO.getActions().forEach(action -> {
+            Implementation implementation = implementationDAO.find(action);
+            if (implementation == null) {
+                LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...", action);
+            } else {
+                task.add(implementation);
+            }
+        });
+        // remove all implementations not contained in the TO
+        task.getActions().removeAll(task.getActions().stream().
+                filter(implementation -> !taskTO.getActions().contains(implementation.getKey())).
+                collect(Collectors.toList()));
     }
 
     @Override
@@ -208,7 +260,11 @@ public class TaskDataBinderImpl implements TaskDataBinder {
         task.setActive(taskTO.isActive());
 
         if (taskUtils.getType() == TaskType.SCHEDULED) {
-            task.setJobDelegateClassName(taskTO.getJobDelegateClassName());
+            Implementation implementation = implementationDAO.find(taskTO.getJobDelegate());
+            if (implementation == null) {
+                throw new NotFoundException("Implementation " + taskTO.getJobDelegate());
+            }
+            task.setJobDelegate(implementation);
         } else if (taskTO instanceof AbstractProvisioningTaskTO) {
             AbstractProvisioningTaskTO provisioningTaskTO = (AbstractProvisioningTaskTO) taskTO;
 
@@ -314,49 +370,80 @@ public class TaskDataBinderImpl implements TaskDataBinder {
 
         switch (taskUtils.getType()) {
             case PROPAGATION:
-                ((PropagationTaskTO) taskTO).setAnyTypeKind(((PropagationTask) task).getAnyTypeKind());
-                ((PropagationTaskTO) taskTO).setEntityKey(((PropagationTask) task).getEntityKey());
-                ((PropagationTaskTO) taskTO).setResource(((PropagationTask) task).getResource().getKey());
-                ((PropagationTaskTO) taskTO).setAttributes(((PropagationTask) task).getSerializedAttributes());
+                PropagationTask propagationTask = (PropagationTask) task;
+                PropagationTaskTO propagationTaskTO = (PropagationTaskTO) taskTO;
+
+                propagationTaskTO.setAnyTypeKind(propagationTask.getAnyTypeKind());
+                propagationTaskTO.setEntityKey(propagationTask.getEntityKey());
+                propagationTaskTO.setResource(propagationTask.getResource().getKey());
+                propagationTaskTO.setAttributes(propagationTask.getSerializedAttributes());
                 break;
 
             case SCHEDULED:
-                setExecTime((SchedTaskTO) taskTO, task);
+                SchedTask schedTask = (SchedTask) task;
+                SchedTaskTO schedTaskTO = (SchedTaskTO) taskTO;
+
+                setExecTime(schedTaskTO, task);
+
+                if (schedTask.getJobDelegate() != null) {
+                    schedTaskTO.setJobDelegate(schedTask.getJobDelegate().getKey());
+                }
                 break;
 
             case PULL:
-                setExecTime((SchedTaskTO) taskTO, task);
-                ((PullTaskTO) taskTO).setDestinationRealm(((PullTask) task).getDestinatioRealm().getFullPath());
-                ((PullTaskTO) taskTO).setResource(((PullTask) task).getResource().getKey());
-                ((PullTaskTO) taskTO).setMatchingRule(((PullTask) task).getMatchingRule() == null
-                        ? MatchingRule.UPDATE : ((PullTask) task).getMatchingRule());
-                ((PullTaskTO) taskTO).setUnmatchingRule(((PullTask) task).getUnmatchingRule() == null
-                        ? UnmatchingRule.PROVISION : ((PullTask) task).getUnmatchingRule());
+                PullTask pullTask = (PullTask) task;
+                PullTaskTO pullTaskTO = (PullTaskTO) taskTO;
 
-                ((PullTask) task).getTemplates().forEach(template -> {
-                    ((PullTaskTO) taskTO).getTemplates().put(template.getAnyType().getKey(), template.get());
+                setExecTime(pullTaskTO, task);
+
+                pullTaskTO.setDestinationRealm(pullTask.getDestinatioRealm().getFullPath());
+                pullTaskTO.setResource(pullTask.getResource().getKey());
+                pullTaskTO.setMatchingRule(pullTask.getMatchingRule() == null
+                        ? MatchingRule.UPDATE : pullTask.getMatchingRule());
+                pullTaskTO.setUnmatchingRule(pullTask.getUnmatchingRule() == null
+                        ? UnmatchingRule.PROVISION : pullTask.getUnmatchingRule());
+
+                if (pullTask.getReconFilterBuilder() != null) {
+                    pullTaskTO.setReconFilterBuilder(pullTask.getReconFilterBuilder().getKey());
+                }
+
+                pullTaskTO.getActions().addAll(
+                        pullTask.getActions().stream().map(Entity::getKey).collect(Collectors.toList()));
+
+                pullTask.getTemplates().forEach(template -> {
+                    pullTaskTO.getTemplates().put(template.getAnyType().getKey(), template.get());
                 });
                 break;
 
             case PUSH:
-                setExecTime((SchedTaskTO) taskTO, task);
-                ((PushTaskTO) taskTO).setSourceRealm(((PushTask) task).getSourceRealm().getFullPath());
-                ((PushTaskTO) taskTO).setResource(((PushTask) task).getResource().getKey());
-                ((PushTaskTO) taskTO).setMatchingRule(((PushTask) task).getMatchingRule() == null
-                        ? MatchingRule.LINK : ((PushTask) task).getMatchingRule());
-                ((PushTaskTO) taskTO).setUnmatchingRule(((PushTask) task).getUnmatchingRule() == null
-                        ? UnmatchingRule.ASSIGN : ((PushTask) task).getUnmatchingRule());
+                PushTask pushTask = (PushTask) task;
+                PushTaskTO pushTaskTO = (PushTaskTO) taskTO;
 
-                ((PushTask) task).getFilters().forEach(filter -> {
-                    ((PushTaskTO) taskTO).getFilters().put(filter.getAnyType().getKey(), filter.getFIQLCond());
+                setExecTime(pushTaskTO, task);
+
+                pushTaskTO.setSourceRealm(pushTask.getSourceRealm().getFullPath());
+                pushTaskTO.setResource(pushTask.getResource().getKey());
+                pushTaskTO.setMatchingRule(pushTask.getMatchingRule() == null
+                        ? MatchingRule.LINK : pushTask.getMatchingRule());
+                pushTaskTO.setUnmatchingRule(pushTask.getUnmatchingRule() == null
+                        ? UnmatchingRule.ASSIGN : pushTask.getUnmatchingRule());
+
+                pushTaskTO.getActions().addAll(
+                        pushTask.getActions().stream().map(Entity::getKey).collect(Collectors.toList()));
+
+                pushTask.getFilters().forEach(filter -> {
+                    pushTaskTO.getFilters().put(filter.getAnyType().getKey(), filter.getFIQLCond());
                 });
                 break;
 
             case NOTIFICATION:
-                ((NotificationTaskTO) taskTO).setNotification(((NotificationTask) task).getNotification().getKey());
-                ((NotificationTaskTO) taskTO).setAnyTypeKind(((NotificationTask) task).getAnyTypeKind());
-                ((NotificationTaskTO) taskTO).setEntityKey(((NotificationTask) task).getEntityKey());
-                if (((NotificationTask) task).isExecuted() && StringUtils.isBlank(taskTO.getLatestExecStatus())) {
+                NotificationTask notificationTask = (NotificationTask) task;
+                NotificationTaskTO notificationTaskTO = (NotificationTaskTO) taskTO;
+
+                notificationTaskTO.setNotification(notificationTask.getNotification().getKey());
+                notificationTaskTO.setAnyTypeKind(notificationTask.getAnyTypeKind());
+                notificationTaskTO.setEntityKey(notificationTask.getEntityKey());
+                if (notificationTask.isExecuted() && StringUtils.isBlank(taskTO.getLatestExecStatus())) {
                     taskTO.setLatestExecStatus("[EXECUTED]");
                 }
                 break;

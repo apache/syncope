@@ -41,8 +41,8 @@ public class JPAMailTemplateDAO extends AbstractDAO<MailTemplate> implements Mai
     }
 
     @Override
-    public MailTemplate save(final MailTemplate notification) {
-        return entityManager().merge(notification);
+    public MailTemplate save(final MailTemplate template) {
+        return entityManager().merge(template);
     }
 
     @Override

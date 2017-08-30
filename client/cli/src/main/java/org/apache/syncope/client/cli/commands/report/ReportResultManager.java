@@ -21,8 +21,6 @@ package org.apache.syncope.client.cli.commands.report;
 import java.util.List;
 import java.util.Map;
 import org.apache.syncope.client.cli.commands.CommonsResultManager;
-import org.apache.syncope.common.lib.report.AbstractReportletConf;
-import org.apache.syncope.common.lib.report.UserReportletConf;
 import org.apache.syncope.common.lib.to.JobTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.ReportTO;
@@ -31,9 +29,9 @@ public class ReportResultManager extends CommonsResultManager {
 
     public void printReports(final List<ReportTO> reportTOs) {
         System.out.println("");
-        for (final ReportTO reportTO : reportTOs) {
+        reportTOs.forEach((reportTO) -> {
             printReport(reportTO);
-        }
+        });
     }
 
     private void printReport(final ReportTO reportTO) {
@@ -44,44 +42,32 @@ public class ReportResultManager extends CommonsResultManager {
         System.out.println("    start date: " + reportTO.getStart());
         System.out.println("    end date: " + reportTO.getEnd());
         System.out.println("    CONF:");
-        for (final AbstractReportletConf reportletConf : reportTO.getReportletConfs()) {
-            printReportletConf(reportletConf);
-        }
+        reportTO.getReportlets().forEach(reportlet -> {
+            System.out.println("       name: " + reportlet);
+        });
         System.out.println("    EXECUTIONS:");
         printReportExecutions(reportTO.getExecutions());
         System.out.println("");
     }
 
-    private void printReportletConf(final AbstractReportletConf reportletConf) {
-        if (reportletConf instanceof UserReportletConf) {
-            final UserReportletConf userReportletConf = (UserReportletConf) reportletConf;
-            System.out.println("       name: " + userReportletConf.getName());
-            System.out.println("       features: " + userReportletConf.getFeatures());
-            System.out.println("       plain attributes: " + userReportletConf.getPlainAttrs());
-            System.out.println("       derived attributes: " + userReportletConf.getDerAttrs());
-            System.out.println("       virtual attributes: " + userReportletConf.getVirAttrs());
-            System.out.println("       matching condition: " + userReportletConf.getMatchingCond());
-        }
-    }
-
     public void printReportExecutions(final List<ExecTO> reportExecTOs) {
-        for (final ExecTO reportExecTO : reportExecTOs) {
+        reportExecTOs.forEach(reportExecTO -> {
             System.out.println("       REPORT EXEC KEY: " + reportExecTO.getKey());
             System.out.println("       status: " + reportExecTO.getStatus());
             System.out.println("       message: " + reportExecTO.getMessage());
             System.out.println("       start date: " + reportExecTO.getStart());
             System.out.println("       end date: " + reportExecTO.getEnd());
             System.out.println("       report: " + reportExecTO.getRefDesc());
-        }
+        });
     }
 
     public void printJobs(final List<JobTO> jobTOs) {
-        for (final JobTO jobTO : jobTOs) {
+        jobTOs.forEach(jobTO -> {
             System.out.println("       REPORT: " + jobTO.getRefDesc());
             System.out.println("       start date: " + jobTO.getStart());
             System.out.println("       running: " + jobTO.isRunning());
             System.out.println("       scheduled: " + jobTO.isScheduled());
-        }
+        });
     }
 
     public void printDetails(final Map<String, String> details) {

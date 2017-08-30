@@ -21,10 +21,10 @@ package org.apache.syncope.fit.core.reference;
 import java.util.Collections;
 import java.util.Set;
 import org.apache.syncope.core.persistence.api.entity.Notification;
-import org.apache.syncope.core.provisioning.api.notification.NotificationRecipientsProvider;
 import org.springframework.transaction.annotation.Transactional;
+import org.apache.syncope.core.provisioning.api.notification.RecipientsProvider;
 
-public class TestNotificationRecipientsProvider implements NotificationRecipientsProvider {
+public class TestNotificationRecipientsProvider implements RecipientsProvider {
 
     @Transactional(readOnly = true)
     @Override

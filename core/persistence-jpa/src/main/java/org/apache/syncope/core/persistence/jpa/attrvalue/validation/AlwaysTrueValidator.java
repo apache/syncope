@@ -20,15 +20,10 @@ package org.apache.syncope.core.persistence.jpa.attrvalue.validation;
 
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidPlainAttrValueException;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 
 public class AlwaysTrueValidator extends AbstractValidator {
 
     private static final long serialVersionUID = 872107345555773183L;
-
-    public AlwaysTrueValidator(final PlainSchema schema) {
-        super(schema);
-    }
 
     @Override
     protected void doValidate(final PlainAttrValue attrValue) {

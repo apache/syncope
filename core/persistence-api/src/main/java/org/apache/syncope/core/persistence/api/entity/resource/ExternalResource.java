@@ -27,6 +27,7 @@ import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.ProvidedKeyEntity;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
@@ -76,7 +77,9 @@ public interface ExternalResource extends ProvidedKeyEntity {
 
     void setProvisioningTraceLevel(TraceLevel provisioningTraceLevel);
 
-    List<String> getPropagationActionsClassNames();
+    boolean add(Implementation propagationAction);
+
+    List<? extends Implementation> getPropagationActions();
 
     Integer getPropagationPriority();
 

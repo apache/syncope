@@ -27,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Response;
 import org.apache.syncope.common.lib.SyncopeClientException;
@@ -34,10 +35,15 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.policy.AccountPolicyTO;
 import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.policy.DefaultAccountRuleConf;
+import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.ImplementationEngine;
+import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
+import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.service.RealmService;
+import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.Test;
 
@@ -122,13 +128,21 @@ public class RealmITCase extends AbstractITCase {
     @Test
     public void deletingAccountPolicy() {
         // 1. create account policy
-        AccountPolicyTO policy = new AccountPolicyTO();
-        policy.setDescription("deletingAccountPolicy");
-
         DefaultAccountRuleConf ruleConf = new DefaultAccountRuleConf();
         ruleConf.setMinLength(3);
         ruleConf.setMaxLength(8);
-        policy.getRuleConfs().add(ruleConf);
+
+        ImplementationTO rule = new ImplementationTO();
+        rule.setKey("DefaultAccountRuleConf" + UUID.randomUUID().toString());
+        rule.setEngine(ImplementationEngine.JAVA);
+        rule.setType(ImplementationType.ACCOUNT_RULE);
+        rule.setBody(POJOHelper.serialize(ruleConf));
+        Response response = implementationService.create(rule);
+        rule.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
+
+        AccountPolicyTO policy = new AccountPolicyTO();
+        policy.setDescription("deletingAccountPolicy");
+        policy.getRules().add(rule.getKey());
 
         policy = createPolicy(policy);
         assertNotNull(policy);
@@ -138,7 +152,7 @@ public class RealmITCase extends AbstractITCase {
         realm.setName("withppolicy");
         realm.setAccountPolicy(policy.getKey());
 
-        Response response = realmService.create(SyncopeConstants.ROOT_REALM, realm);
+        response = realmService.create(SyncopeConstants.ROOT_REALM, realm);
         RealmTO[] actuals = getObject(response.getLocation(), RealmService.class, RealmTO[].class);
         assertNotNull(actuals);
         assertTrue(actuals.length > 0);

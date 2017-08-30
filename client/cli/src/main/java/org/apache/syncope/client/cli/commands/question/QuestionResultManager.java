@@ -26,9 +26,9 @@ public class QuestionResultManager extends CommonsResultManager {
 
     public void printQuestions(final List<SecurityQuestionTO> questionTOs) {
         System.out.println("");
-        for (final SecurityQuestionTO questionTO : questionTOs) {
+        questionTOs.forEach(questionTO -> {
             printQuestion(questionTO);
-        }
+        });
     }
 
     public void printQuestion(final SecurityQuestionTO securityQuestionTO) {

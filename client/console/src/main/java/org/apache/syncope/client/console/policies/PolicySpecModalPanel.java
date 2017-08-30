@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
@@ -40,10 +41,12 @@ import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.Bas
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiPanel;
+import org.apache.syncope.common.lib.info.JavaImplInfo;
 import org.apache.syncope.common.lib.policy.PullPolicyTO;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ConflictResolutionAction;
+import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -96,11 +99,10 @@ public class PolicySpecModalPanel extends AbstractModalPanel<PullPolicyTO> {
             @Override
             public void setObject(final List<CorrelationRule> object) {
                 policyTO.getSpecification().getCorrelationRules().clear();
-                for (CorrelationRule rule : rules) {
+                rules.forEach(rule -> {
                     policyTO.getSpecification().getCorrelationRules().put(rule.getAny(), rule.getRule());
-                }
+                });
             }
-
         };
 
         add(new MultiPanel<CorrelationRule>("correlationRules", "correlationRules", model) {
@@ -159,9 +161,14 @@ public class PolicySpecModalPanel extends AbstractModalPanel<PullPolicyTO> {
             // ---------------------------------------------------------------
             // Java rule palette
             // ---------------------------------------------------------------
+            Optional<JavaImplInfo> pullCorrelationRules = SyncopeConsoleSession.get().getPlatformInfo().
+                    getJavaImplInfo(ImplementationType.PULL_CORRELATION_RULE);
+            List<String> load = pullCorrelationRules.isPresent()
+                    ? new ArrayList<>(pullCorrelationRules.get().getClasses())
+                    : new ArrayList<>();
+            Collections.sort(load);
             final AjaxDropDownChoicePanel<String> javaRule = new AjaxDropDownChoicePanel<>(
-                    "javaRule", "rule.java", new PropertyModel<String>(rule.getObject(), "rule")).setChoices(
-                    new ArrayList<>(SyncopeConsoleSession.get().getPlatformInfo().getPullCorrelationRules()));
+                    "javaRule", "rule.java", new PropertyModel<String>(rule.getObject(), "rule")).setChoices(load);
             javaRule.setOutputMarkupPlaceholderTag(true);
             add(javaRule.setVisible("JAVA".equals(rule.getObject().getType())));
             // ---------------------------------------------------------------

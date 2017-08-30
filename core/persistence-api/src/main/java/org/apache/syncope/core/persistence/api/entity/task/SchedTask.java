@@ -19,6 +19,7 @@
 package org.apache.syncope.core.persistence.api.entity.task;
 
 import java.util.Date;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 
 public interface SchedTask extends Task {
 
@@ -30,9 +31,9 @@ public interface SchedTask extends Task {
 
     String getDescription();
 
-    void setJobDelegateClassName(String jobDelegateClassName);
+    void setJobDelegate(Implementation jobDelegate);
 
-    String getJobDelegateClassName();
+    Implementation getJobDelegate();
 
     Date getStartAt();
 

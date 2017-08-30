@@ -95,13 +95,13 @@ public final class Table {
             }
         }
 
-        for (final List<String> value : values) {
+        values.forEach(value -> {
             for (int j = 0; j < columnsSize.length; j++) {
                 if (value.get(j) != null && value.get(j).length() > columnsSize[j]) {
                     columnsSize[j] = value.get(j).length();
                 }
             }
-        }
+        });
     }
 
     private void countTableWidth() {
@@ -146,7 +146,7 @@ public final class Table {
     private void printeContent() {
         printColumnSpace();
 
-        for (final List<String> value : values) {
+        values.forEach(value -> {
             for (int j = 0; j < columnsNumber; j++) {
                 if (value.get(j) == null) {
                     tmpValuesArray[j] = StringUtils.center("null", columnsSize[j]);
@@ -155,7 +155,7 @@ public final class Table {
                 }
             }
             System.out.format(tableContentFormat, tmpValuesArray);
-        }
+        });
 
         printColumnSpace();
     }

@@ -28,7 +28,7 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "passwordPolicy")
 @XmlType
-public class PasswordPolicyTO extends AbstractPolicyTO implements ComposablePolicy<AbstractPasswordRuleConf> {
+public class PasswordPolicyTO extends AbstractPolicyTO implements ComposablePolicy {
 
     private static final long serialVersionUID = -5606086441294799690L;
 
@@ -36,7 +36,7 @@ public class PasswordPolicyTO extends AbstractPolicyTO implements ComposablePoli
 
     private int historyLength;
 
-    private final List<AbstractPasswordRuleConf> ruleConfs = new ArrayList<>();
+    private final List<String> rules = new ArrayList<>();
 
     public boolean isAllowNullPassword() {
         return allowNullPassword;
@@ -54,11 +54,11 @@ public class PasswordPolicyTO extends AbstractPolicyTO implements ComposablePoli
         this.historyLength = historyLength;
     }
 
-    @XmlElementWrapper(name = "ruleConfs")
-    @XmlElement(name = "ruleConf")
-    @JsonProperty("ruleConfs")
+    @XmlElementWrapper(name = "rules")
+    @XmlElement(name = "rule")
+    @JsonProperty("rules")
     @Override
-    public List<AbstractPasswordRuleConf> getRuleConfs() {
-        return ruleConfs;
+    public List<String> getRules() {
+        return rules;
     }
 }

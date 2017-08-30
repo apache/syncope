@@ -18,8 +18,6 @@
  */
 package org.apache.syncope.core.spring.security;
 
-import org.apache.syncope.core.spring.security.Encryptor;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;

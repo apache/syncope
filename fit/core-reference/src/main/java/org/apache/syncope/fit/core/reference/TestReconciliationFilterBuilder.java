@@ -18,12 +18,12 @@
  */
 package org.apache.syncope.fit.core.reference;
 
-import org.apache.syncope.core.provisioning.api.pushpull.ReconciliationFilterBuilder;
 import org.identityconnectors.framework.common.objects.AttributeBuilder;
 import org.identityconnectors.framework.common.objects.filter.Filter;
 import org.identityconnectors.framework.common.objects.filter.FilterBuilder;
+import org.apache.syncope.core.provisioning.api.pushpull.ReconFilterBuilder;
 
-public class TestReconciliationFilterBuilder implements ReconciliationFilterBuilder {
+public class TestReconciliationFilterBuilder implements ReconFilterBuilder {
 
     private static final Filter EQUALS = FilterBuilder.equalTo(AttributeBuilder.build("SURNAME", "Rossi"));
 

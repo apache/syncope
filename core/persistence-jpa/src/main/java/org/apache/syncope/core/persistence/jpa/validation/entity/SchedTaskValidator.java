@@ -21,11 +21,8 @@ package org.apache.syncope.core.persistence.jpa.validation.entity;
 import java.text.ParseException;
 
 import javax.validation.ConstraintValidatorContext;
-import org.apache.commons.lang3.ClassUtils;
 import org.apache.syncope.common.lib.types.EntityViolationType;
-import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
-import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate;
 import org.quartz.CronExpression;
 
 public class SchedTaskValidator extends AbstractValidator<SchedTaskCheck, SchedTask> {
@@ -33,27 +30,7 @@ public class SchedTaskValidator extends AbstractValidator<SchedTaskCheck, SchedT
     @Override
     public boolean isValid(final SchedTask task, final ConstraintValidatorContext context) {
         boolean isValid = true;
-
-        if (!(task instanceof ProvisioningTask)) {
-            Class<?> jobDelegateClass = null;
-            try {
-                jobDelegateClass = ClassUtils.getClass(task.getJobDelegateClassName());
-                isValid = SchedTaskJobDelegate.class.isAssignableFrom(jobDelegateClass);
-            } catch (Exception e) {
-                LOG.error("Invalid JobDelegate class specified", e);
-                isValid = false;
-            }
-            if (jobDelegateClass == null || !isValid) {
-                isValid = false;
-
-                context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate(
-                        getTemplate(EntityViolationType.InvalidSchedTask, "Invalid job delegate class name")).
-                        addPropertyNode("jobDelegateClassName").addConstraintViolation();
-            }
-        }
-
-        if (isValid && task.getCronExpression() != null) {
+        if (task.getCronExpression() != null) {
             try {
                 new CronExpression(task.getCronExpression());
             } catch (ParseException e) {

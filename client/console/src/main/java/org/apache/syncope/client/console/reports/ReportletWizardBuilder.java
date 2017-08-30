@@ -18,29 +18,59 @@
  */
 package org.apache.syncope.client.console.reports;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.panels.BeanPanel;
-import org.apache.syncope.client.console.panels.search.SearchUtils;
+import org.apache.syncope.client.console.rest.ImplementationRestClient;
 import org.apache.syncope.client.console.rest.ReportRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
+import org.apache.syncope.common.lib.info.JavaImplInfo;
 import org.apache.syncope.common.lib.report.AbstractReportletConf;
+import org.apache.syncope.common.lib.report.ReportletConf;
+import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.ReportTO;
+import org.apache.syncope.common.lib.types.ImplementationEngine;
+import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.extensions.wizard.WizardModel;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.model.PropertyModel;
-import org.springframework.beans.BeanWrapper;
-import org.springframework.beans.PropertyAccessorFactory;
 import org.apache.wicket.model.LoadableDetachableModel;
 
-public class ReportletWizardBuilder extends AjaxWizardBuilder<ReportletDirectoryPanel.ReportletWrapper> {
+public class ReportletWizardBuilder extends AjaxWizardBuilder<ReportletWrapper> {
 
     private static final long serialVersionUID = 5945391813567245081L;
+
+    private static final ObjectMapper MAPPER = new ObjectMapper();
+
+    private static final ImplementationRestClient IMPLEMENTATION_CLIENT = new ImplementationRestClient();
+
+    public static List<ReportletWrapper> getReportletWrappers(final ReportTO reportTO) {
+        return reportTO.getReportlets().stream().map(reportlet -> {
+            ImplementationTO implementation = IMPLEMENTATION_CLIENT.read(reportlet);
+
+            ReportletWrapper wrapper = null;
+            if (implementation.getEngine() == ImplementationEngine.JAVA) {
+                try {
+                    ReportletConf reportletCOnf = MAPPER.readValue(implementation.getBody(), ReportletConf.class);
+                    wrapper = new ReportletWrapper().
+                            setImplementationKey(implementation.getKey()).
+                            setName(reportletCOnf.getName());
+                } catch (Exception e) {
+                    LOG.error("During deserialization", e);
+                }
+            }
+
+            return wrapper;
+        }).filter(wrapper -> wrapper != null).collect(Collectors.toList());
+    }
 
     private final ReportRestClient restClient = new ReportRestClient();
 
@@ -48,33 +78,36 @@ public class ReportletWizardBuilder extends AjaxWizardBuilder<ReportletDirectory
 
     public ReportletWizardBuilder(
             final String report,
-            final ReportletDirectoryPanel.ReportletWrapper reportlet,
+            final ReportletWrapper reportlet,
             final PageReference pageRef) {
         super(reportlet, pageRef);
         this.report = report;
     }
 
     @Override
-    protected Serializable onApplyInternal(final ReportletDirectoryPanel.ReportletWrapper modelObject) {
-        modelObject.getConf().setName(modelObject.getName());
+    protected Serializable onApplyInternal(final ReportletWrapper modelObject) {
+        ImplementationTO reportlet = new ImplementationTO();
+        reportlet.setKey(modelObject.getName());
+        reportlet.setEngine(ImplementationEngine.JAVA);
+        reportlet.setType(ImplementationType.REPORTLET);
+        try {
+            reportlet.setBody(MAPPER.writeValueAsString(modelObject.getConf()));
 
-        final ReportTO reportTO = restClient.read(report);
-
-        if (modelObject.isNew()) {
-            reportTO.getReportletConfs().add(modelObject.getConf());
-        } else {
-            reportTO.getReportletConfs().removeAll(
-                    reportTO.getReportletConfs().stream().
-                            filter(object -> object.getName().equals(modelObject.getOldName())).
-                            collect(Collectors.toList()));
-            reportTO.getReportletConfs().add(modelObject.getConf());
+            reportlet = IMPLEMENTATION_CLIENT.create(reportlet);
+        } catch (Exception e) {
+            throw new IllegalStateException("Could not create reportlet", e);
         }
 
-        BeanWrapper wrapper = PropertyAccessorFactory.forBeanPropertyAccess(modelObject.getConf());
-        modelObject.getSCondWrapper().entrySet().forEach(entry -> {
-            wrapper.setPropertyValue(entry.getKey(),
-                    SearchUtils.buildFIQL(entry.getValue().getRight(), entry.getValue().getLeft()));
-        });
+        ReportTO reportTO = restClient.read(report);
+        if (!modelObject.isNew()) {
+            List<ReportletWrapper> wrappers = getReportletWrappers(reportTO);
+            wrappers.removeAll(wrappers.stream().
+                    filter(wrapper -> wrapper.getName().equals(modelObject.getOldName())).collect(Collectors.toSet()));
+            reportTO.getReportlets().clear();
+            reportTO.getReportlets().addAll(wrappers.stream().
+                    map(ReportletWrapper::getImplementationKey).collect(Collectors.toSet()));
+        }
+        reportTO.getReportlets().add(reportlet.getKey());
 
         restClient.update(reportTO);
         return modelObject;
@@ -82,7 +115,7 @@ public class ReportletWizardBuilder extends AjaxWizardBuilder<ReportletDirectory
 
     @Override
     protected WizardModel buildModelSteps(
-            final ReportletDirectoryPanel.ReportletWrapper modelObject, final WizardModel wizardModel) {
+            final ReportletWrapper modelObject, final WizardModel wizardModel) {
         wizardModel.add(new Profile(modelObject));
         wizardModel.add(new Configuration(modelObject));
         return wizardModel;
@@ -92,7 +125,7 @@ public class ReportletWizardBuilder extends AjaxWizardBuilder<ReportletDirectory
 
         private static final long serialVersionUID = -3043839139187792810L;
 
-        public Profile(final ReportletDirectoryPanel.ReportletWrapper reportlet) {
+        public Profile(final ReportletWrapper reportlet) {
 
             final AjaxTextFieldPanel name = new AjaxTextFieldPanel(
                     "name", "reportlet", new PropertyModel<>(reportlet, "name"), false);
@@ -124,7 +157,12 @@ public class ReportletWizardBuilder extends AjaxWizardBuilder<ReportletDirectory
                 }
             });
 
-            conf.setChoices(new ArrayList<>(SyncopeConsoleSession.get().getPlatformInfo().getReportletConfs()));
+            Optional<JavaImplInfo> reportlets = SyncopeConsoleSession.get().getPlatformInfo().
+                    getJavaImplInfo(ImplementationType.REPORTLET);
+            List<String> choices = reportlets.isPresent()
+                    ? new ArrayList<>(reportlets.get().getClasses())
+                    : new ArrayList<>();
+            conf.setChoices(choices);
 
             conf.addRequiredLabel();
             add(conf);
@@ -135,7 +173,7 @@ public class ReportletWizardBuilder extends AjaxWizardBuilder<ReportletDirectory
 
         private static final long serialVersionUID = -785981096328637758L;
 
-        public Configuration(final ReportletDirectoryPanel.ReportletWrapper reportlet) {
+        public Configuration(final ReportletWrapper reportlet) {
             final LoadableDetachableModel<Serializable> bean = new LoadableDetachableModel<Serializable>() {
 
                 private static final long serialVersionUID = 2092144708018739371L;

@@ -19,12 +19,19 @@ under the License.
 -->
 <configuration status="WARN" shutdownHook="disable">
   <appenders>
-    <console name="main" target="SYSTEM_OUT">
+    <RollingRandomAccessFile name="main" fileName="${log.directory}/cli-test.log"
+                                 filePattern="${log.directory}/cli-test-%d{yyyy-MM-dd}.log.gz"
+                                 immediateFlush="false" append="true">
       <PatternLayout>
         <pattern>%d{HH:mm:ss.SSS} %-5level %logger - %msg%n</pattern>
       </PatternLayout>
-    </console>
+      <Policies>
+        <TimeBasedTriggeringPolicy/>
+        <SizeBasedTriggeringPolicy size="250 MB"/>
+      </Policies>
+    </RollingRandomAccessFile>
   </appenders>
+
   <loggers>    
     <root level="ERROR">
       <appenderRef ref="main"/>

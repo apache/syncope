@@ -59,6 +59,7 @@ import org.apache.syncope.common.lib.to.BulkAction;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.to.BulkActionResult.Status;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
+import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.to.PropagationStatus;
@@ -69,17 +70,21 @@ import org.apache.syncope.common.lib.to.RealmTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.ImplementationEngine;
+import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.lib.types.ResourceAssociationAction;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.lib.types.StatusPatchType;
 import org.apache.syncope.common.lib.types.TaskType;
+import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.syncope.common.rest.api.service.UserSelfService;
 import org.apache.syncope.common.rest.api.service.UserService;
+import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.fit.core.reference.TestAccountRuleConf;
 import org.apache.syncope.fit.core.reference.TestPasswordRuleConf;
 import org.apache.syncope.fit.AbstractITCase;
@@ -934,15 +939,31 @@ public class UserITCase extends AbstractITCase {
         // @XmlSeeAlso - the power of JAXB :-/
         assumeTrue(MediaType.APPLICATION_JSON_TYPE.equals(clientFactory.getContentType().getMediaType()));
 
+        ImplementationTO implementationTO = new ImplementationTO();
+        implementationTO.setKey("TestAccountRuleConf" + UUID.randomUUID().toString());
+        implementationTO.setEngine(ImplementationEngine.JAVA);
+        implementationTO.setType(ImplementationType.ACCOUNT_RULE);
+        implementationTO.setBody(POJOHelper.serialize(new TestAccountRuleConf()));
+        Response response = implementationService.create(implementationTO);
+        implementationTO.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
+
         AccountPolicyTO accountPolicy = new AccountPolicyTO();
         accountPolicy.setDescription("Account Policy with custom rules");
-        accountPolicy.getRuleConfs().add(new TestAccountRuleConf());
+        accountPolicy.getRules().add(implementationTO.getKey());
         accountPolicy = createPolicy(accountPolicy);
         assertNotNull(accountPolicy);
 
+        implementationTO = new ImplementationTO();
+        implementationTO.setKey("TestPasswordRuleConf" + UUID.randomUUID().toString());
+        implementationTO.setEngine(ImplementationEngine.JAVA);
+        implementationTO.setType(ImplementationType.PASSWORD_RULE);
+        implementationTO.setBody(POJOHelper.serialize(new TestPasswordRuleConf()));
+        response = implementationService.create(implementationTO);
+        implementationTO.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
+
         PasswordPolicyTO passwordPolicy = new PasswordPolicyTO();
         passwordPolicy.setDescription("Password Policy with custom rules");
-        passwordPolicy.getRuleConfs().add(new TestPasswordRuleConf());
+        passwordPolicy.getRules().add(implementationTO.getKey());
         passwordPolicy = createPolicy(passwordPolicy);
         assertNotNull(passwordPolicy);
 

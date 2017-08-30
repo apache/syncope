@@ -237,15 +237,6 @@ public class LoggerITCase extends AbstractITCase {
         found = false;
         for (EventCategoryTO eventCategoryTO : events) {
             if (EventCategoryType.TASK == eventCategoryTO.getType()
-                    && "TestSampleJobDelegate".equals(eventCategoryTO.getCategory())) {
-                found = true;
-            }
-        }
-        assertTrue(found);
-
-        found = false;
-        for (EventCategoryTO eventCategoryTO : events) {
-            if (EventCategoryType.TASK == eventCategoryTO.getType()
                     && "PullJobDelegate".equals(eventCategoryTO.getCategory())) {
                 found = true;
             }

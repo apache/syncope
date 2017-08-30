@@ -39,16 +39,21 @@ import org.apache.syncope.common.lib.report.UserReportletConf;
 import org.apache.syncope.common.lib.to.BulkActionResult;
 import org.apache.syncope.common.lib.log.LoggerTO;
 import org.apache.syncope.common.lib.to.ExecTO;
+import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.AuditElements;
 import org.apache.syncope.common.lib.types.AuditLoggerName;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.ImplementationEngine;
+import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.LoggerLevel;
 import org.apache.syncope.common.lib.types.LoggerType;
 import org.apache.syncope.common.lib.types.ReportExecExportFormat;
 import org.apache.syncope.common.lib.types.ReportExecStatus;
+import org.apache.syncope.common.rest.api.RESTHeaders;
 import org.apache.syncope.common.rest.api.beans.BulkExecDeleteQuery;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
+import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.fit.AbstractITCase;
 import org.junit.jupiter.api.Test;
 
@@ -56,7 +61,8 @@ public class ReportITCase extends AbstractITCase {
 
     @Test
     public void getReportletConfs() {
-        Set<String> reportletConfs = syncopeService.platform().getReportletConfs();
+        Set<String> reportletConfs = syncopeService.platform().
+                getJavaImplInfo(ImplementationType.REPORTLET).get().getClasses();
         assertNotNull(reportletConfs);
         assertFalse(reportletConfs.isEmpty());
         assertTrue(reportletConfs.contains(UserReportletConf.class.getName()));
@@ -67,9 +73,9 @@ public class ReportITCase extends AbstractITCase {
         List<ReportTO> reports = reportService.list();
         assertNotNull(reports);
         assertFalse(reports.isEmpty());
-        for (ReportTO report : reports) {
+        reports.forEach(report -> {
             assertNotNull(report);
-        }
+        });
     }
 
     @Test
@@ -83,10 +89,26 @@ public class ReportITCase extends AbstractITCase {
 
     @Test
     public void create() {
+        ImplementationTO reportlet1 = new ImplementationTO();
+        reportlet1.setKey("UserReportletConf" + getUUIDString());
+        reportlet1.setEngine(ImplementationEngine.JAVA);
+        reportlet1.setType(ImplementationType.REPORTLET);
+        reportlet1.setBody(POJOHelper.serialize(new UserReportletConf("first")));
+        Response response = implementationService.create(reportlet1);
+        reportlet1.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
+
+        ImplementationTO reportlet2 = new ImplementationTO();
+        reportlet2.setKey("UserReportletConf" + getUUIDString());
+        reportlet2.setEngine(ImplementationEngine.JAVA);
+        reportlet2.setType(ImplementationType.REPORTLET);
+        reportlet2.setBody(POJOHelper.serialize(new UserReportletConf("second")));
+        response = implementationService.create(reportlet2);
+        reportlet2.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
+
         ReportTO report = new ReportTO();
         report.setName("testReportForCreate" + getUUIDString());
-        report.getReportletConfs().add(new UserReportletConf("first"));
-        report.getReportletConfs().add(new UserReportletConf("second"));
+        report.getReportlets().add(reportlet1.getKey());
+        report.getReportlets().add(reportlet2.getKey());
         report.setTemplate("sample");
 
         report = createReport(report);
@@ -100,30 +122,70 @@ public class ReportITCase extends AbstractITCase {
 
     @Test
     public void update() {
+        ImplementationTO reportlet1 = new ImplementationTO();
+        reportlet1.setKey("UserReportletConf" + getUUIDString());
+        reportlet1.setEngine(ImplementationEngine.JAVA);
+        reportlet1.setType(ImplementationType.REPORTLET);
+        reportlet1.setBody(POJOHelper.serialize(new UserReportletConf("first")));
+        Response response = implementationService.create(reportlet1);
+        reportlet1.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
+
+        ImplementationTO reportlet2 = new ImplementationTO();
+        reportlet2.setKey("UserReportletConf" + getUUIDString());
+        reportlet2.setEngine(ImplementationEngine.JAVA);
+        reportlet2.setType(ImplementationType.REPORTLET);
+        reportlet2.setBody(POJOHelper.serialize(new UserReportletConf("second")));
+        response = implementationService.create(reportlet2);
+        reportlet2.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
+
         ReportTO report = new ReportTO();
         report.setName("testReportForUpdate" + getUUIDString());
-        report.getReportletConfs().add(new UserReportletConf("first"));
-        report.getReportletConfs().add(new UserReportletConf("second"));
+        report.getReportlets().add(reportlet1.getKey());
+        report.getReportlets().add(reportlet2.getKey());
         report.setTemplate("sample");
 
         report = createReport(report);
         assertNotNull(report);
-        assertEquals(2, report.getReportletConfs().size());
+        assertEquals(2, report.getReportlets().size());
 
-        report.getReportletConfs().add(new UserReportletConf("last"));
+        ImplementationTO reportlet3 = new ImplementationTO();
+        reportlet3.setKey("UserReportletConf" + getUUIDString());
+        reportlet3.setEngine(ImplementationEngine.JAVA);
+        reportlet3.setType(ImplementationType.REPORTLET);
+        reportlet3.setBody(POJOHelper.serialize(new UserReportletConf("last")));
+        response = implementationService.create(reportlet3);
+        reportlet3.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
+
+        report.getReportlets().add(reportlet3.getKey());
 
         reportService.update(report);
         ReportTO updated = reportService.read(report.getKey());
         assertNotNull(updated);
-        assertEquals(3, updated.getReportletConfs().size());
+        assertEquals(3, updated.getReportlets().size());
     }
 
     @Test
     public void delete() {
+        ImplementationTO reportlet1 = new ImplementationTO();
+        reportlet1.setKey("UserReportletConf" + getUUIDString());
+        reportlet1.setEngine(ImplementationEngine.JAVA);
+        reportlet1.setType(ImplementationType.REPORTLET);
+        reportlet1.setBody(POJOHelper.serialize(new UserReportletConf("first")));
+        Response response = implementationService.create(reportlet1);
+        reportlet1.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
+
+        ImplementationTO reportlet2 = new ImplementationTO();
+        reportlet2.setKey("UserReportletConf" + getUUIDString());
+        reportlet2.setEngine(ImplementationEngine.JAVA);
+        reportlet2.setType(ImplementationType.REPORTLET);
+        reportlet2.setBody(POJOHelper.serialize(new UserReportletConf("second")));
+        response = implementationService.create(reportlet2);
+        reportlet2.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
+
         ReportTO report = new ReportTO();
         report.setName("testReportForDelete" + getUUIDString());
-        report.getReportletConfs().add(new UserReportletConf("first"));
-        report.getReportletConfs().add(new UserReportletConf("second"));
+        report.getReportlets().add(reportlet1.getKey());
+        report.getReportlets().add(reportlet2.getKey());
         report.setTemplate("sample");
 
         report = createReport(report);
@@ -259,10 +321,18 @@ public class ReportITCase extends AbstractITCase {
             loggerTO.setLevel(LoggerLevel.DEBUG);
             loggerService.update(LoggerType.AUDIT, loggerTO);
 
+            ImplementationTO auditReportlet = new ImplementationTO();
+            auditReportlet.setKey("UserReportletConf" + getUUIDString());
+            auditReportlet.setEngine(ImplementationEngine.JAVA);
+            auditReportlet.setType(ImplementationType.REPORTLET);
+            auditReportlet.setBody(POJOHelper.serialize(new AuditReportletConf("auditReportlet" + getUUIDString())));
+            Response response = implementationService.create(auditReportlet);
+            auditReportlet.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
+
             ReportTO report = new ReportTO();
             report.setName("auditReport" + getUUIDString());
             report.setActive(true);
-            report.getReportletConfs().add(new AuditReportletConf("auditReportlet" + getUUIDString()));
+            report.getReportlets().add(auditReportlet.getKey());
             report.setTemplate("sample");
             report = createReport(report);
 

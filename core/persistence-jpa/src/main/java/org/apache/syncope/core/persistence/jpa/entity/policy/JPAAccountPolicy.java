@@ -22,21 +22,20 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import javax.persistence.Basic;
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import org.apache.syncope.common.lib.policy.AccountRuleConf;
+import org.apache.syncope.common.lib.types.ImplementationType;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
+import org.apache.syncope.core.persistence.jpa.entity.JPAImplementation;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResource;
 
 @Entity
@@ -54,8 +53,13 @@ public class JPAAccountPolicy extends AbstractPolicy implements AccountPolicy {
 
     private int maxAuthenticationAttempts;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "accountPolicy")
-    private List<JPAAccountRuleConfInstance> ruleConfs = new ArrayList<>();
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = TABLE + "Rule",
+            joinColumns =
+            @JoinColumn(name = "policy_id"),
+            inverseJoinColumns =
+            @JoinColumn(name = "implementation_id"))
+    private List<JPAImplementation> rules = new ArrayList<>();
 
     /**
      * Resources for alternative user authentication: if empty, only internal storage will be used.
@@ -88,26 +92,15 @@ public class JPAAccountPolicy extends AbstractPolicy implements AccountPolicy {
     }
 
     @Override
-    public boolean add(final AccountRuleConf accountRuleConf) {
-        if (accountRuleConf == null) {
-            return false;
-        }
-
-        JPAAccountRuleConfInstance instance = new JPAAccountRuleConfInstance();
-        instance.setAccountPolicy(this);
-        instance.setInstance(accountRuleConf);
-
-        return ruleConfs.add(instance);
+    public boolean add(final Implementation rule) {
+        checkType(rule, JPAImplementation.class);
+        checkImplementationType(rule, ImplementationType.ACCOUNT_RULE);
+        return rules.contains((JPAImplementation) rule) || rules.add((JPAImplementation) rule);
     }
 
     @Override
-    public void removeAllRuleConfs() {
-        ruleConfs.clear();
-    }
-
-    @Override
-    public List<AccountRuleConf> getRuleConfs() {
-        return ruleConfs.stream().map(input -> input.getInstance()).collect(Collectors.toList());
+    public List<? extends Implementation> getRules() {
+        return rules;
     }
 
     @Override
@@ -119,10 +112,5 @@ public class JPAAccountPolicy extends AbstractPolicy implements AccountPolicy {
     @Override
     public Set<? extends ExternalResource> getResources() {
         return resources;
-    }
-
-    @Override
-    public Set<String> getResourceKeys() {
-        return getResources().stream().map(resource -> resource.getKey()).collect(Collectors.toSet());
     }
 }

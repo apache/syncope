@@ -40,12 +40,12 @@ public class ConfigurationResultManager extends CommonsResultManager {
 
     private void fromCommandToView(final String title, final List<AttrTO> attrTOs) {
         final Table.TableBuilder tableBuilder = new Table.TableBuilder(title).header("attribute").header("value");
-        for (final AttrTO attrTO : attrTOs) {
+        attrTOs.forEach(attrTO -> {
             String attrValue = attrTO.getValues().toString();
             attrValue = attrValue.substring(0, attrValue.length() - 1);
             attrValue = attrValue.substring(1, attrValue.length());
             tableBuilder.rowValues(Arrays.asList(attrTO.getSchema(), attrValue));
-        }
+        });
         tableBuilder.build().print();
     }
 }

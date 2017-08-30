@@ -20,14 +20,7 @@ package org.apache.syncope.core.persistence.jpa.validation.entity;
 
 import javax.validation.ConstraintValidatorContext;
 import org.apache.syncope.common.lib.types.EntityViolationType;
-import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.core.persistence.api.entity.task.ProvisioningTask;
-import org.apache.syncope.core.persistence.jpa.entity.task.JPAPushTask;
-import org.apache.syncope.core.persistence.jpa.entity.task.JPAPullTask;
-import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
-import org.apache.syncope.core.provisioning.api.pushpull.ReconciliationFilterBuilder;
-import org.apache.syncope.core.persistence.api.entity.task.PullTask;
-import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
 
 public class ProvisioningTaskValidator extends AbstractValidator<ProvisioningTaskCheck, ProvisioningTask> {
 
@@ -52,58 +45,6 @@ public class ProvisioningTaskValidator extends AbstractValidator<ProvisioningTas
                 context.buildConstraintViolationWithTemplate(
                         getTemplate(EntityViolationType.InvalidProvisioningTask, "Resource cannot be null")).
                         addPropertyNode("resource").addConstraintViolation();
-            }
-
-            if (!task.getActionsClassNames().isEmpty()) {
-                for (String className : task.getActionsClassNames()) {
-                    Class<?> actionsClass = null;
-                    boolean isAssignable = false;
-                    try {
-                        actionsClass = Class.forName(className);
-                        isAssignable = task instanceof JPAPullTask
-                                ? PullActions.class.isAssignableFrom(actionsClass)
-                                : task instanceof JPAPushTask
-                                        ? PushActions.class.isAssignableFrom(actionsClass)
-                                        : false;
-                    } catch (Exception e) {
-                        LOG.error("Invalid {} / {} specified",
-                                PushActions.class.getName(), PullActions.class.getName(), e);
-                        isValid = false;
-                    }
-
-                    if (actionsClass == null || !isAssignable) {
-                        isValid = false;
-
-                        context.disableDefaultConstraintViolation();
-                        context.buildConstraintViolationWithTemplate(
-                                getTemplate(EntityViolationType.InvalidProvisioningTask, "Invalid class name")).
-                                addPropertyNode("actionsClassName").addConstraintViolation();
-                    }
-                }
-            }
-
-            if (isValid && task instanceof PullTask
-                    && ((PullTask) task).getPullMode() == PullMode.FILTERED_RECONCILIATION) {
-
-                Class<?> filterBuilderClass = null;
-                boolean isAssignable = false;
-                try {
-                    filterBuilderClass = Class.forName(((PullTask) task).getReconciliationFilterBuilderClassName());
-                    isAssignable = ReconciliationFilterBuilder.class.isAssignableFrom(filterBuilderClass);
-                } catch (Exception e) {
-                    LOG.error("Invalid {} specified",
-                            ReconciliationFilterBuilder.class.getName(), PullActions.class.getName(), e);
-                    isValid = false;
-                }
-
-                if (filterBuilderClass == null || !isAssignable) {
-                    isValid = false;
-
-                    context.disableDefaultConstraintViolation();
-                    context.buildConstraintViolationWithTemplate(
-                            getTemplate(EntityViolationType.InvalidProvisioningTask, "Invalid class name")).
-                            addPropertyNode("reconciliationFilterBuilderClassName").addConstraintViolation();
-                }
             }
         }
 

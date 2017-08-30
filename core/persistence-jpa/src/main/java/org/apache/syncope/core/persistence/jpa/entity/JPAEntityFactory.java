@@ -127,6 +127,7 @@ import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAOrgUnit;
 import org.apache.syncope.core.persistence.api.entity.DynRealm;
 import org.apache.syncope.core.persistence.api.entity.DynRealmMembership;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResourceHistoryConf;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnitItem;
 import org.apache.syncope.core.persistence.jpa.entity.resource.JPAExternalResourceHistoryConf;
@@ -272,6 +273,8 @@ public class JPAEntityFactory implements EntityFactory {
             result = (E) new JPAUDynGroupMembership();
         } else if (reference.equals(AccessToken.class)) {
             result = (E) new JPAAccessToken();
+        } else if (reference.equals(Implementation.class)) {
+            result = (E) new JPAImplementation();
         } else {
             throw new IllegalArgumentException("Could not find a JPA implementation of " + reference.getName());
         }

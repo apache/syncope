@@ -68,7 +68,6 @@ import org.opensaml.saml.saml2.core.AuthnContext;
 import org.opensaml.saml.saml2.core.AuthnContextClassRef;
 import org.opensaml.saml.saml2.core.AuthnContextComparisonTypeEnumeration;
 import org.opensaml.saml.saml2.core.AuthnRequest;
-import org.opensaml.saml.saml2.core.AuthnStatement;
 import org.opensaml.saml.saml2.core.Issuer;
 import org.opensaml.saml.saml2.core.LogoutRequest;
 import org.opensaml.saml.saml2.core.LogoutResponse;
@@ -448,14 +447,14 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
         if (assertion.getConditions().getNotOnOrAfter() != null) {
             responseTO.setNotOnOrAfter(assertion.getConditions().getNotOnOrAfter().toDate());
         }
-        for (AuthnStatement authnStmt : assertion.getAuthnStatements()) {
+        assertion.getAuthnStatements().forEach(authnStmt -> {
             responseTO.setSessionIndex(authnStmt.getSessionIndex());
 
             responseTO.setAuthInstant(authnStmt.getAuthnInstant().toDate());
             if (authnStmt.getSessionNotOnOrAfter() != null) {
                 responseTO.setNotOnOrAfter(authnStmt.getSessionNotOnOrAfter().toDate());
             }
-        }
+        });
 
         for (AttributeStatement attrStmt : assertion.getAttributeStatements()) {
             for (Attribute attr : attrStmt.getAttributes()) {
@@ -469,11 +468,11 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
 
                     AttrTO attrTO = new AttrTO();
                     attrTO.setSchema(attrName);
-                    for (XMLObject value : attr.getAttributeValues()) {
-                        if (value.getDOM() != null) {
-                            attrTO.getValues().add(value.getDOM().getTextContent());
-                        }
-                    }
+                    attr.getAttributeValues().stream().
+                            filter(value -> value.getDOM() != null).
+                            forEachOrdered(value -> {
+                                attrTO.getValues().add(value.getDOM().getTextContent());
+                            });
                     responseTO.getAttrs().add(attrTO);
                 }
             }
@@ -481,7 +480,7 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
 
         final List<String> matchingUsers = keyValue == null
                 ? Collections.<String>emptyList()
-                : userManager.findMatchingUser(keyValue, idp.getConnObjectKeyItem());
+                : userManager.findMatchingUser(keyValue, idp.getKey());
         LOG.debug("Found {} matching users for {}", matchingUsers.size(), keyValue);
 
         String username;

@@ -33,16 +33,24 @@ public class DefaultPasswordRule implements PasswordRule {
 
     private DefaultPasswordRuleConf conf;
 
-    @Transactional(readOnly = true)
     @Override
-    public void enforce(final PasswordRuleConf conf, final User user) {
+    public PasswordRuleConf getConf() {
+        return conf;
+    }
+
+    @Override
+    public void setConf(final PasswordRuleConf conf) {
         if (conf instanceof DefaultPasswordRuleConf) {
             this.conf = (DefaultPasswordRuleConf) conf;
         } else {
             throw new IllegalArgumentException(
-                    PasswordRuleConf.class.getName() + " expected, got " + conf.getClass().getName());
+                    DefaultPasswordRuleConf.class.getName() + " expected, got " + conf.getClass().getName());
         }
+    }
 
+    @Transactional(readOnly = true)
+    @Override
+    public void enforce(final User user) {
         this.conf.getSchemasNotPermitted().stream().
                 map(schema -> user.getPlainAttr(schema)).
                 filter(attr -> attr.isPresent()).

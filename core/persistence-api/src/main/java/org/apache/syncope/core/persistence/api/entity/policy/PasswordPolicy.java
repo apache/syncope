@@ -19,22 +19,20 @@
 package org.apache.syncope.core.persistence.api.entity.policy;
 
 import java.util.List;
-import org.apache.syncope.common.lib.policy.PasswordRuleConf;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Policy;
 
 public interface PasswordPolicy extends Policy {
 
     boolean isAllowNullPassword();
 
-    void setAllowNullPassword(final boolean allowNullPassword);
+    void setAllowNullPassword(boolean allowNullPassword);
 
     int getHistoryLength();
 
     void setHistoryLength(int historyLength);
 
-    boolean add(PasswordRuleConf passwordRuleConf);
+    boolean add(Implementation rule);
 
-    void removeAllRuleConfs();
-
-    List<PasswordRuleConf> getRuleConfs();
+    List<? extends Implementation> getRules();
 }

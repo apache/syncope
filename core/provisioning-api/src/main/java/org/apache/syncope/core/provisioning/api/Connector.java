@@ -32,7 +32,7 @@ import org.identityconnectors.framework.common.objects.SyncResultsHandler;
 import org.identityconnectors.framework.common.objects.SyncToken;
 import org.identityconnectors.framework.common.objects.Uid;
 import org.identityconnectors.framework.common.objects.filter.Filter;
-import org.apache.syncope.core.provisioning.api.pushpull.ReconciliationFilterBuilder;
+import org.apache.syncope.core.provisioning.api.pushpull.ReconFilterBuilder;
 import org.identityconnectors.framework.common.objects.SearchResult;
 
 /**
@@ -115,7 +115,7 @@ public interface Connector {
      */
     void filteredReconciliation(
             ObjectClass objectClass,
-            ReconciliationFilterBuilder filterBuilder,
+            ReconFilterBuilder filterBuilder,
             SyncResultsHandler handler,
             OperationOptions options);
 

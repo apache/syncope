@@ -173,30 +173,32 @@ under the License.
   <PullPolicy id="66691e96-285f-4464-bc19-e68384ea4c85" description="a pull policy"
               specification='{"conflictResolutionAction":"IGNORE"}'/>
   <PasswordPolicy id="ce93fcda-dc3a-4369-a7b0-a6108c261c85" description="a password policy"
-                  historyLength="1" allowNullPassword="1"/> 
-  <PasswordRuleConfInstance id="2e3fb762-d37a-46c6-a2e5-662b527dead3"
-                            passwordPolicy_id="ce93fcda-dc3a-4369-a7b0-a6108c261c85"
-                            serializedInstance='{"@class":"org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf","maxLength":0,"minLength":8,"nonAlphanumericRequired":false,"alphanumericRequired":false,"digitRequired":false,"lowercaseRequired":false,"uppercaseRequired":false,"mustStartWithDigit":false,"mustntStartWithDigit":false,"mustEndWithDigit":false,"mustntEndWithDigit":false,"mustStartWithNonAlpha":false,"mustStartWithAlpha":false,"mustntStartWithNonAlpha":false,"mustntStartWithAlpha":false,"mustEndWithNonAlpha":false,"mustEndWithAlpha":false,"mustntEndWithNonAlpha":false,"mustntEndWithAlpha":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[]}'/>
+                  historyLength="1" allowNullPassword="1"/>
+  <Implementation id="DefaultPasswordRuleConf1" type="PASSWORD_RULE" engine="JAVA"
+                  body='{"@class":"org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf","maxLength":0,"minLength":8,"nonAlphanumericRequired":false,"alphanumericRequired":false,"digitRequired":false,"lowercaseRequired":false,"uppercaseRequired":false,"mustStartWithDigit":false,"mustntStartWithDigit":false,"mustEndWithDigit":false,"mustntEndWithDigit":false,"mustStartWithNonAlpha":false,"mustStartWithAlpha":false,"mustntStartWithNonAlpha":false,"mustntStartWithAlpha":false,"mustEndWithNonAlpha":false,"mustEndWithAlpha":false,"mustntEndWithNonAlpha":false,"mustntEndWithAlpha":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[]}'/>
+  <PasswordPolicyRule policy_id="ce93fcda-dc3a-4369-a7b0-a6108c261c85" implementation_id="DefaultPasswordRuleConf1"/>
   <PullPolicy id="880f8553-069b-4aed-9930-2cd53873f544" description="another pull policy"
               specification='{"conflictResolutionAction":"ALL","correlationRules":{"USER":"[\"username\",\"firstname\"]"}}'/>
   <PasswordPolicy id="986d1236-3ac5-4a19-810c-5ab21d79cba1"
                   description="sample password policy" historyLength="0" allowNullPassword="1"/> 
-  <PasswordRuleConfInstance id="62fe25b4-9124-4f01-9bc4-0013399da893"
-                            passwordPolicy_id="986d1236-3ac5-4a19-810c-5ab21d79cba1"
-                            serializedInstance='{"@class":"org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf","maxLength":0,"minLength":10,"nonAlphanumericRequired":false,"alphanumericRequired":false,"digitRequired":true,"lowercaseRequired":false,"uppercaseRequired":false,"mustStartWithDigit":false,"mustntStartWithDigit":false,"mustEndWithDigit":false,"mustntEndWithDigit":false,"mustStartWithNonAlpha":false,"mustStartWithAlpha":false,"mustntStartWithNonAlpha":false,"mustntStartWithAlpha":false,"mustEndWithNonAlpha":false,"mustEndWithAlpha":false,"mustntEndWithNonAlpha":false,"mustntEndWithAlpha":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[]}'/>
+  <Implementation id="DefaultPasswordRuleConf2" type="PASSWORD_RULE"  engine="JAVA"
+                  body='{"@class":"org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf","maxLength":0,"minLength":10,"nonAlphanumericRequired":false,"alphanumericRequired":false,"digitRequired":true,"lowercaseRequired":false,"uppercaseRequired":false,"mustStartWithDigit":false,"mustntStartWithDigit":false,"mustEndWithDigit":false,"mustntEndWithDigit":false,"mustStartWithNonAlpha":false,"mustStartWithAlpha":false,"mustntStartWithNonAlpha":false,"mustntStartWithAlpha":false,"mustEndWithNonAlpha":false,"mustEndWithAlpha":false,"mustntEndWithNonAlpha":false,"mustntEndWithAlpha":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[]}'/>
+  <PasswordPolicyRule policy_id="986d1236-3ac5-4a19-810c-5ab21d79cba1" implementation_id="DefaultPasswordRuleConf2"/>
   <AccountPolicy id="20ab5a8c-4b0c-432c-b957-f7fb9784d9f7" description="an account policy"
                  propagateSuspension="0" maxAuthenticationAttempts="0"/>
-  <AccountRuleConfInstance id="5" accountPolicy_id="20ab5a8c-4b0c-432c-b957-f7fb9784d9f7"
-                           serializedInstance='{"@class":"org.apache.syncope.common.lib.policy.DefaultAccountRuleConf","maxLength":0,"minLength":0,"pattern":null,"allUpperCase":false,"allLowerCase":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":[],"suffixesNotPermitted":[]}'/>
+  <Implementation id="DefaultAccountRuleConf1" type="ACCOUNT_RULE" engine="JAVA"
+                  body='{"@class":"org.apache.syncope.common.lib.policy.DefaultAccountRuleConf","maxLength":0,"minLength":0,"pattern":null,"allUpperCase":false,"allLowerCase":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":[],"suffixesNotPermitted":[]}'/>
+  <AccountPolicyRule policy_id="20ab5a8c-4b0c-432c-b957-f7fb9784d9f7" implementation_id="DefaultAccountRuleConf1"/>
   <AccountPolicy id="06e2ed52-6966-44aa-a177-a0ca7434201f" description="sample account policy"
                  propagateSuspension="0" maxAuthenticationAttempts="3"/>
-  <AccountRuleConfInstance id="6" accountPolicy_id="06e2ed52-6966-44aa-a177-a0ca7434201f"
-                           serializedInstance='{"@class":"org.apache.syncope.common.lib.policy.DefaultAccountRuleConf","maxLength":0,"minLength":4,"pattern":null,"allUpperCase":false,"allLowerCase":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[]}'/>
+  <Implementation id="DefaultAccountRuleConf2" type="ACCOUNT_RULE"  engine="JAVA"
+                  body='{"@class":"org.apache.syncope.common.lib.policy.DefaultAccountRuleConf","maxLength":0,"minLength":4,"pattern":null,"allUpperCase":false,"allLowerCase":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[]}'/>
+  <AccountPolicyRule policy_id="06e2ed52-6966-44aa-a177-a0ca7434201f" implementation_id="DefaultAccountRuleConf2"/>
   <PullPolicy id="4ad10d94-e002-4b3f-b771-16089cc71da9" description="pull policy 1" specification='{"conflictResolutionAction":"IGNORE"}'/>
   <PasswordPolicy id="55e5de0b-c79c-4e66-adda-251b6fb8579a" description="sample password policy" historyLength="0" allowNullPassword="0"/> 
-  <PasswordRuleConfInstance id="69b9d9fb-b37b-48f0-adba-5080f4768a8f"
-                            passwordPolicy_id="55e5de0b-c79c-4e66-adda-251b6fb8579a"
-                            serializedInstance='{"@class":"org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf","maxLength":0,"minLength":10,"nonAlphanumericRequired":true,"alphanumericRequired":false,"digitRequired":true,"lowercaseRequired":true,"uppercaseRequired":true,"mustStartWithDigit":true,"mustntStartWithDigit":false,"mustEndWithDigit":true,"mustntEndWithDigit":false,"mustStartWithNonAlpha":false,"mustStartWithAlpha":false,"mustntStartWithNonAlpha":false,"mustntStartWithAlpha":false,"mustEndWithNonAlpha":false,"mustEndWithAlpha":false,"mustntEndWithNonAlpha":false,"mustntEndWithAlpha":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[]}'/>
+  <Implementation id="DefaultAccountRuleConf3" type="PASSWORD_RULE" engine="JAVA"
+                  body='{"@class":"org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf","maxLength":0,"minLength":10,"nonAlphanumericRequired":true,"alphanumericRequired":false,"digitRequired":true,"lowercaseRequired":true,"uppercaseRequired":true,"mustStartWithDigit":true,"mustntStartWithDigit":false,"mustEndWithDigit":true,"mustntEndWithDigit":false,"mustStartWithNonAlpha":false,"mustStartWithAlpha":false,"mustntStartWithNonAlpha":false,"mustntStartWithAlpha":false,"mustEndWithNonAlpha":false,"mustEndWithAlpha":false,"mustntEndWithNonAlpha":false,"mustntEndWithAlpha":false,"wordsNotPermitted":[],"schemasNotPermitted":[],"prefixesNotPermitted":["notpermitted1","notpermitted2"],"suffixesNotPermitted":[]}'/>
+  <PasswordPolicyRule policy_id="55e5de0b-c79c-4e66-adda-251b6fb8579a" implementation_id="DefaultAccountRuleConf3"/>
   <PullPolicy id="9454b0d7-2610-400a-be82-fc23cf553dd6" description="pull policy for java rule"
               specification='{"conflictResolutionAction":"IGNORE"}'/>
 
@@ -420,9 +422,11 @@ under the License.
   <PlainSchema id="fullname" type="String" anyTypeClass_id="minimal user"
                mandatoryCondition="true" multivalue="0" uniqueConstraint="1" readonly="0"/>
   <SyncopeSchema id="userId"/>
+  <Implementation id="EmailAddressValidator" type="VALIDATOR" engine="JAVA"
+                  body="org.apache.syncope.core.persistence.jpa.attrvalue.validation.EmailAddressValidator"/>
   <PlainSchema id="userId" type="String" anyTypeClass_id="minimal user"
                mandatoryCondition="true" multivalue="0" uniqueConstraint="1" readonly="0"
-               validatorClass="org.apache.syncope.core.persistence.jpa.attrvalue.validation.EmailAddressValidator"/>
+               validator_id="EmailAddressValidator"/>
   <SyncopeSchema id="loginDate"/>
   <PlainSchema id="loginDate" type="Date" anyTypeClass_id="other"
                mandatoryCondition="false" multivalue="1" uniqueConstraint="0" readonly="0"
@@ -439,7 +443,7 @@ under the License.
   <SyncopeSchema id="email"/>
   <PlainSchema id="email" type="String" anyTypeClass_id="minimal user"
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
-               validatorClass="org.apache.syncope.core.persistence.jpa.attrvalue.validation.EmailAddressValidator"/>
+               validator_id="EmailAddressValidator"/>
   <SyncopeSchema id="activationDate"/>
   <PlainSchema id="activationDate" type="Date" anyTypeClass_id="other"
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
@@ -793,8 +797,9 @@ under the License.
                     randomPwdIfNotProvided="1" enforceMandatoryCondition="1" overrideCapabilities="0"
                     propagationPriority="1"
                     createTraceLevel="ALL" deleteTraceLevel="ALL" updateTraceLevel="ALL" provisioningTraceLevel="ALL"/>
-  <ExternalResource_PropActions resource_id="resource-ldap"
-                                actionClassName="org.apache.syncope.core.provisioning.java.propagation.LDAPMembershipPropagationActions"/>
+  <Implementation id="LDAPMembershipPropagationActions" type="PROPAGATION_ACTIONS" engine="JAVA"
+                  body="org.apache.syncope.core.provisioning.java.propagation.LDAPMembershipPropagationActions"/>
+  <ExternalResourcePropagationAction resource_id="resource-ldap" implementation_id="LDAPMembershipPropagationActions"/>
   <ExternalResource id="resource-ldap-orgunit" connector_id="74141a3b-0762-4720-a4aa-fc3e374ef3ef"
                     randomPwdIfNotProvided="1" enforceMandatoryCondition="1" overrideCapabilities="0"
                     propagationPriority="1"
@@ -1152,6 +1157,10 @@ under the License.
                extAttrName="surname" intAttrName="surname" mandatoryCondition="true" password="0" PURPOSE="BOTH"
                mapping_id="e6b64584-94a2-4890-b645-8494a2089011"/>
 
+  <Implementation id="PullJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"
+                  body="org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate"/>
+  <Implementation id="PushJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"
+                  body="org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate"/>
   <Task DTYPE="PropagationTask" id="1e697572-b896-484c-ae7f-0c8f63fcbc6c" operation="UPDATE"
         objectClassName="__ACCOUNT__" resource_id="ws-target-resource-2" anyTypeKind="USER" entityKey="1417acbe-cbf6-4277-9372-e75e04f97000"
         attributes='[{"name":"__PASSWORD__","value":[{"readOnly":false,"disposed":false,"encryptedBytes":"m9nh2US0Sa6m+cXccCq0Xw==","base64SHA1Hash":"GFJ69qfjxEOdrmt+9q+0Cw2uz60="}]},{"name":"__NAME__","value":["userId"],"nameValue":"userId"},{"name":"fullname","value":["fullname"]},{"name":"type","value":["type"]}]'/>
@@ -1164,133 +1173,141 @@ under the License.
         attributes='[{"name":"__PASSWORD__","value":[{"readOnly":false,"disposed":false,"encryptedBytes":"m9nh2US0Sa6m+cXccCq0Xw==","base64SHA1Hash":"GFJ69qfjxEOdrmt+9q+0Cw2uz60="}]},{"name":"__NAME__","value":["userId"],"nameValue":"userId"},{"name":"type","value":["type"]}]'/>
   <Task DTYPE="PullTask" id="c41b9b71-9bfa-4f90-89f2-84787def4c5c" name="CSV (update matching; assign unmatching)" resource_id="resource-csv"
         destinationRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28" performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"
-        pullMode="INCREMENTAL" unmatchingRule="ASSIGN" matchingRule="UPDATE" active="1"/>
+        pullMode="INCREMENTAL" unmatchingRule="ASSIGN" matchingRule="UPDATE" active="1"
+        jobDelegate_id="PullJobDelegate"/>
   <AnyTemplatePullTask id="3a6173a9-8c34-4e37-b3b1-0c2ea385fac0"
                        pullTask_id="c41b9b71-9bfa-4f90-89f2-84787def4c5c" anyType_id="USER"
                        template='{"@class":"org.apache.syncope.common.lib.to.UserTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":null,"type":"USER","realm":null,"status":null,"password":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"securityQuestion":null,"securityAnswer":null,"auxClasses":["csv"],"derAttrs":[{"schema":"cn","values":[""]}],"virAttrs":[],"resources":["resource-testdb"],"relationships":[],"memberships":[{"rightType":"GROUP","rightKey":"f779c0d4-633b-4be5-8f57-32eb478a3ca5","groupName":null}],"dynMemberships":[],"roles":[],"dynRoles":[],"plainAttrs":[{"schema":"ctype","values":["email == &apos;test8@syncope.apache.org&apos;? &apos;TYPE_8&apos;: &apos;TYPE_OTHER&apos;"]}]}'/>
   <AnyTemplatePullTask id="b3772d66-ec06-4133-bf38-b3273845ac5b"
                        pullTask_id="c41b9b71-9bfa-4f90-89f2-84787def4c5c" anyType_id="GROUP"
                        template='{"@class":"org.apache.syncope.common.lib.to.GroupTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":null,"type":"GROUP","realm":null,"status":null,"name":null,"userOwner":null,"groupOwner":null,"udynMembershipCond":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":[],"plainAttrs":[]}'/>
-  <Task DTYPE="SchedTask" id="e95555d2-1b09-42c8-b25b-f4c4ec597979" name="SampleJob Task"  active="1"
-        jobDelegateClassName="org.apache.syncope.fit.core.reference.TestSampleJobDelegate" cronExpression="0 0 0 1 * ?"/>
+  <Implementation id="TestSampleJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"
+                  body="org.apache.syncope.fit.core.reference.TestSampleJobDelegate"/>
+  <Task DTYPE="SchedTask" id="e95555d2-1b09-42c8-b25b-f4c4ec597979" name="SampleJob Task" active="1"
+        jobDelegate_id="TestSampleJobDelegate" cronExpression="0 0 0 1 * ?"/>
+  <Implementation id="IdentityRecertification" type="TASKJOB_DELEGATE" engine="JAVA"
+                  body="org.apache.syncope.core.provisioning.java.job.IdentityRecertification"/>
   <Task DTYPE="SchedTask" id="e95555d2-1b09-42c8-b25b-f4c4ec598989" name="Identity Recertification Task"  active="1"
-        jobDelegateClassName="org.apache.syncope.core.provisioning.java.job.IdentityRecertification"/>
+        jobDelegate_id="IdentityRecertification"/>
+  <Implementation id="ExpiredAccessTokenCleanup" type="TASKJOB_DELEGATE" engine="JAVA"
+                  body="org.apache.syncope.core.provisioning.java.job.ExpiredAccessTokenCleanup"/>
   <Task DTYPE="SchedTask" id="89de5014-e3f5-4462-84d8-d97575740baf" name="Access Token Cleanup Task"  active="1"
-        jobDelegateClassName="org.apache.syncope.core.provisioning.java.job.ExpiredAccessTokenCleanup"
-        cronExpression="0 0/5 * * * ?"/>
+        jobDelegate_id="ExpiredAccessTokenCleanup" cronExpression="0 0/5 * * * ?"/>
   <Task DTYPE="PropagationTask" id="d6c2d6d3-6329-44c1-9187-f1469ead1cfa" operation="UPDATE"
         objectClassName="__ACCOUNT__" resource_id="ws-target-resource-nopropagation" anyTypeKind="USER" entityKey="1417acbe-cbf6-4277-9372-e75e04f97000"
         attributes='[{"name":"__PASSWORD__","value":[{"readOnly":false,"disposed":false,"encryptedBytes":"m9nh2US0Sa6m+cXccCq0Xw==","base64SHA1Hash":"GFJ69qfjxEOdrmt+9q+0Cw2uz60="}]},{"name":"__NAME__","value":["userId"],"nameValue":"userId"},{"name":"fullname","value":["fullname"]},{"name":"type","value":["type"]}]'/>
   <TaskExec id="d789462f-e395-424f-bd8e-0db44a93222f" task_id="d6c2d6d3-6329-44c1-9187-f1469ead1cfa" startDate="2015-12-17 09:40:00.506" endDate="2015-12-17 09:42:00.506" status="SUCCESS"/>
   <Task DTYPE="PullTask" id="83f7e85d-9774-43fe-adba-ccd856312994" name="TestDB Task" resource_id="resource-testdb"
         destinationRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28" performCreate="1" performUpdate="1" performDelete="0" syncStatus="1" pullMode="FULL_RECONCILIATION"
-        unmatchingRule="PROVISION" matchingRule="UPDATE" active="1"/>
+        unmatchingRule="PROVISION" matchingRule="UPDATE" active="1" jobDelegate_id="PullJobDelegate"/>
   <AnyTemplatePullTask id="6c3f578d-327b-4a7c-8037-6f5ba24eb770" pullTask_id="83f7e85d-9774-43fe-adba-ccd856312994" anyType_id="USER"
                        template='{"@class":"org.apache.syncope.common.lib.to.UserTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":null,"type":"USER","realm":null,"status":null,"password":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"securityQuestion":null,"securityAnswer":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":[],"relationships":[],"memberships":[],"dynMemberships":[],"roles":[],"dynRoles":[],"plainAttrs":[{"schema":"ctype","values":["&apos;type a&apos;"]},{"schema":"userId","values":["&apos;reconciled@syncope.apache.org&apos;"]},{"schema":"fullname","values":["&apos;reconciled fullname&apos;"]},{"schema":"surname","values":["&apos;surname&apos;"]}]}'/>
   <AnyTemplatePullTask id="45b61137-c7c3-49ee-86e0-9efffa75ae68" pullTask_id="83f7e85d-9774-43fe-adba-ccd856312994" anyType_id="GROUP"
                        template='{"@class":"org.apache.syncope.common.lib.to.GroupTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":null,"type":"GROUP","realm":null,"status":null,"name":null,"userOwner":null,"groupOwner":null,"udynMembershipCond":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":[],"plainAttrs":[]}'/>
   <Task DTYPE="PullTask" id="81d88f73-d474-4450-9031-605daa4e313f" name="TestDB2 Task" resource_id="resource-testdb2"
         destinationRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28" performCreate="1" performUpdate="1" performDelete="0" syncStatus="1" pullMode="FULL_RECONCILIATION"
-        unmatchingRule="PROVISION" matchingRule="UPDATE" active="1"/>
+        unmatchingRule="PROVISION" matchingRule="UPDATE" active="1" jobDelegate_id="PullJobDelegate"/>
   <Task DTYPE="PullTask" id="7c2242f4-14af-4ab5-af31-cdae23783655" name="TestDB Pull Task" resource_id="resource-db-pull"
         destinationRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28" pullMode="FULL_RECONCILIATION" performCreate="1" performDelete="1" performUpdate="1" syncStatus="0"
-        unmatchingRule="PROVISION" matchingRule="UPDATE" active="1"/>
+        unmatchingRule="PROVISION" matchingRule="UPDATE" active="1" jobDelegate_id="PullJobDelegate"/>
   <Task DTYPE="PullTask" id="1e419ca4-ea81-4493-a14f-28b90113686d" name="LDAP Pull Task" resource_id="resource-ldap"
         destinationRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28" pullMode="FULL_RECONCILIATION" performCreate="1" performDelete="1" performUpdate="1" syncStatus="0"
-        unmatchingRule="PROVISION" matchingRule="UPDATE" active="1"/>
+        unmatchingRule="PROVISION" matchingRule="UPDATE" active="1" jobDelegate_id="PullJobDelegate"/>
   <AnyTemplatePullTask id="df655a2a-40c0-43b1-a157-3f4988802f58" pullTask_id="1e419ca4-ea81-4493-a14f-28b90113686d" anyType_id="USER"
                        template='{"@class":"org.apache.syncope.common.lib.to.UserTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":null,"type":"USER","realm":"&apos;/&apos; + title","status":null,"password":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"securityQuestion":null,"securityAnswer":null,"auxClasses":["minimal group"],"derAttrs":[],"virAttrs":[{"schema":"virtualReadOnly","values":[""]}],"resources":["resource-ldap"],"roles":[],"dynRoles":[],"relationships":[],"memberships":[],"dynMemberships":[],"plainAttrs":[]}'/>
   <AnyTemplatePullTask id="fda22ff3-98f3-42e4-a2ae-cd9a28282d57" pullTask_id="1e419ca4-ea81-4493-a14f-28b90113686d" anyType_id="GROUP"
                        template='{"@class":"org.apache.syncope.common.lib.to.GroupTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":null,"type":"GROUP","realm":null,"status":null,"name":null,"userOwner":null,"groupOwner":null,"udynMembershipCond":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":[],"plainAttrs":[{"schema":"show","values":["true"]}]}'/>
-  <PullTask_actionsClassNames pullTask_id="1e419ca4-ea81-4493-a14f-28b90113686d" actionClassName="org.apache.syncope.core.provisioning.java.pushpull.LDAPMembershipPullActions"/>
+  <Implementation id="LDAPMembershipPullActions" type="PULL_ACTIONS"  engine="JAVA"
+                  body="org.apache.syncope.core.provisioning.java.pushpull.LDAPMembershipPullActions"/>
+  <PullTaskAction task_id="1e419ca4-ea81-4493-a14f-28b90113686d" implementation_id="LDAPMembershipPullActions"/>
   <Task DTYPE="PullTask" id="38abbf9e-a1a3-40a1-a15f-7d0ac02f47f1" name="VirAttrCache test" resource_id="resource-csv"
         destinationRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28" performCreate="0" performUpdate="1" performDelete="0" syncStatus="0" pullMode="FULL_RECONCILIATION"
-        unmatchingRule="PROVISION" matchingRule="UPDATE" active="1"/>
+        unmatchingRule="PROVISION" matchingRule="UPDATE" active="1" jobDelegate_id="PullJobDelegate"/>
   <Task DTYPE="PushTask" id="af558be4-9d2f-4359-bf85-a554e6e90be1" name="Export on resource-testdb2" resource_id="resource-testdb2"
         sourceRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"         
-        unmatchingRule="ASSIGN" matchingRule="IGNORE" active="1"/>  
+        unmatchingRule="ASSIGN" matchingRule="IGNORE" active="1" jobDelegate_id="PushJobDelegate"/>  
   <PushTaskAnyFilter id="1fdcff65-765f-4a6e-98a7-13ef7cca47e2" anyType_id="USER" pushTask_id="af558be4-9d2f-4359-bf85-a554e6e90be1" fiql="surname==Vivaldi"/>
   <PushTaskAnyFilter id="3b564c51-5d64-48b3-8da5-fd4ebc10e0a8" anyType_id="GROUP" pushTask_id="af558be4-9d2f-4359-bf85-a554e6e90be1" fiql="name==_NO_ONE_"/>
   <Task DTYPE="PushTask" id="97f327b6-2eff-4d35-85e8-d581baaab855" name="Export on resource-testdb2" resource_id="resource-testdb2"
         sourceRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"         
-        unmatchingRule="PROVISION" matchingRule="IGNORE" active="1"/>
+        unmatchingRule="PROVISION" matchingRule="IGNORE" active="1" jobDelegate_id="PushJobDelegate"/>
   <PushTaskAnyFilter id="199efd21-5e89-46ac-95de-f47e9d0569fc" anyType_id="USER" pushTask_id="97f327b6-2eff-4d35-85e8-d581baaab855" fiql="surname==Bellini"/>
   <PushTaskAnyFilter id="7672a167-77d6-4639-8b1d-0af561293c7d" anyType_id="GROUP" pushTask_id="97f327b6-2eff-4d35-85e8-d581baaab855" fiql="name==_NO_ONE_"/>
   <Task DTYPE="PushTask" id="03aa2a04-4881-4573-9117-753f81b04865" name="Export on resource-testdb2" resource_id="resource-testdb2"
         sourceRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"        
-        unmatchingRule="UNLINK" matchingRule="IGNORE" active="1"/>
+        unmatchingRule="UNLINK" matchingRule="IGNORE" active="1" jobDelegate_id="PushJobDelegate"/>
   <PushTaskAnyFilter id="39a11ba6-397a-4c94-8bfe-1f4f757d6501" anyType_id="USER" pushTask_id="03aa2a04-4881-4573-9117-753f81b04865" fiql="surname==Puccini"/>
   <PushTaskAnyFilter id="5bd7501e-8a18-4fbd-a3fe-a1e731ba95db" anyType_id="GROUP" pushTask_id="03aa2a04-4881-4573-9117-753f81b04865" fiql="name==_NO_ONE_"/>
   <Task DTYPE="PushTask" id="5e5f7c7e-9de7-4c6a-99f1-4df1af959807" name="Export on resource-testdb2" resource_id="resource-testdb2"
         sourceRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"         
-        unmatchingRule="IGNORE" matchingRule="IGNORE" active="1"/>
+        unmatchingRule="IGNORE" matchingRule="IGNORE" active="1" jobDelegate_id="PushJobDelegate"/>
   <PushTaskAnyFilter id="0d0371a3-5772-4b4c-ad14-139adf1d346a" anyType_id="USER" pushTask_id="5e5f7c7e-9de7-4c6a-99f1-4df1af959807" fiql="surname==Verdi"/>
   <PushTaskAnyFilter id="2e7488ae-a2fc-4657-a93b-159b8433c0e7" anyType_id="GROUP" pushTask_id="5e5f7c7e-9de7-4c6a-99f1-4df1af959807" fiql="name==_NO_ONE_"/>
   <Task DTYPE="PushTask" id="0bc11a19-6454-45c2-a4e3-ceef84e5d79b" name="Export on resource-testdb2" resource_id="resource-testdb2"
         sourceRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"        
-        unmatchingRule="ASSIGN" matchingRule="UPDATE" active="1"/>
+        unmatchingRule="ASSIGN" matchingRule="UPDATE" active="1" jobDelegate_id="PushJobDelegate"/>
   <PushTaskAnyFilter id="41bf22fe-a014-41af-9a75-402b987eb433" anyType_id="USER" pushTask_id="0bc11a19-6454-45c2-a4e3-ceef84e5d79b" fiql="username==_NO_ONE_"/>
   <PushTaskAnyFilter id="fa983fde-795e-4c89-a6f7-1ccd80a8adeb" anyType_id="GROUP" pushTask_id="0bc11a19-6454-45c2-a4e3-ceef84e5d79b" fiql="name==_NO_ONE_"/>
   <Task DTYPE="PushTask" id="ec674143-480a-4816-98ad-b61fa090821e" name="Export on resource-testdb2" resource_id="resource-testdb2"
         sourceRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"        
-        unmatchingRule="IGNORE" matchingRule="DEPROVISION" active="1"/>
+        unmatchingRule="IGNORE" matchingRule="DEPROVISION" active="1" jobDelegate_id="PushJobDelegate"/>
   <PushTaskAnyFilter id="e238a6dc-0b04-46cf-9bfa-be68bd9f2da0" anyType_id="USER" pushTask_id="ec674143-480a-4816-98ad-b61fa090821e" fiql="surname==Verdi"/>
   <PushTaskAnyFilter id="0eaa643e-0add-4c46-8273-539f9d6abec5" anyType_id="GROUP" pushTask_id="ec674143-480a-4816-98ad-b61fa090821e" fiql="name==_NO_ONE_"/>
   <Task DTYPE="PushTask" id="c46edc3a-a18b-4af2-b707-f4a415507496" name="Export on resource-testdb2" resource_id="resource-testdb2"
         sourceRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"        
-        unmatchingRule="IGNORE" matchingRule="UNASSIGN" active="1"/>
+        unmatchingRule="IGNORE" matchingRule="UNASSIGN" active="1" jobDelegate_id="PushJobDelegate"/>
   <PushTaskAnyFilter id="335b4f11-589a-44c5-80b0-ba94892f0c62" anyType_id="USER" pushTask_id="c46edc3a-a18b-4af2-b707-f4a415507496" fiql="surname==Rossini"/>
   <PushTaskAnyFilter id="b32eecc2-aa4f-43c6-a501-a692c3e93113" anyType_id="GROUP" pushTask_id="c46edc3a-a18b-4af2-b707-f4a415507496" fiql="name==_NO_ONE_"/>
   <Task DTYPE="PushTask" id="51318433-cce4-4f71-8f45-9534b6c9c819" name="Export on resource-testdb2" resource_id="resource-testdb2"
         sourceRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"        
-        unmatchingRule="IGNORE" matchingRule="LINK" active="1"/>
+        unmatchingRule="IGNORE" matchingRule="LINK" active="1" jobDelegate_id="PushJobDelegate"/>
   <PushTaskAnyFilter id="9f974a0d-87d8-4cae-9ea9-1fc245bc1dbf" anyType_id="USER" pushTask_id="51318433-cce4-4f71-8f45-9534b6c9c819" fiql="surname==Verdi"/>
   <PushTaskAnyFilter id="0dc46ba4-1270-4fa9-b3e1-79f940d4308f" anyType_id="GROUP" pushTask_id="51318433-cce4-4f71-8f45-9534b6c9c819" fiql="name==_NO_ONE_"/>
   <Task DTYPE="PushTask" id="24b1be9c-7e3b-443a-86c9-798ebce5eaf2" name="Export on resource-testdb2" resource_id="resource-testdb2"
         sourceRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"        
-        unmatchingRule="IGNORE" matchingRule="UNLINK" active="1"/>
+        unmatchingRule="IGNORE" matchingRule="UNLINK" active="1" jobDelegate_id="PushJobDelegate"/>
   <PushTaskAnyFilter id="3aa3b0b8-7469-4859-89d5-476ae5915101" anyType_id="USER" pushTask_id="24b1be9c-7e3b-443a-86c9-798ebce5eaf2" fiql="surname==Verdi"/>
   <PushTaskAnyFilter id="f054810e-6842-4017-8f60-5b4031fa2c72" anyType_id="GROUP" pushTask_id="24b1be9c-7e3b-443a-86c9-798ebce5eaf2" fiql="name==_NO_ONE_"/>
   <Task DTYPE="PushTask" id="375c7b7f-9e3a-4833-88c9-b7787b0a69f2" name="Export on resource-testdb2" resource_id="resource-testdb2"
         sourceRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"        
-        unmatchingRule="IGNORE" matchingRule="UPDATE"  active="1"/>
+        unmatchingRule="IGNORE" matchingRule="UPDATE"  active="1" jobDelegate_id="PushJobDelegate"/>
   <PushTaskAnyFilter id="95f047fc-1a8a-45f4-b56c-6e04d8ca5567" anyType_id="USER" pushTask_id="375c7b7f-9e3a-4833-88c9-b7787b0a69f2" fiql="surname==Verdi"/>
   <PushTaskAnyFilter id="013a4298-4b14-4f8b-9f59-191c2d53dbd8" anyType_id="GROUP" pushTask_id="375c7b7f-9e3a-4833-88c9-b7787b0a69f2" fiql="name==_NO_ONE_"/>
   <Task DTYPE="PushTask" id="fd905ba5-9d56-4f51-83e2-859096a67b75" name="Export on resource-ldap" resource_id="resource-ldap"
         sourceRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28"
         performCreate="1" performUpdate="1" performDelete="1" syncStatus="1"        
-        unmatchingRule="ASSIGN" matchingRule="UNLINK" active="1"/>
+        unmatchingRule="ASSIGN" matchingRule="UNLINK" active="1" jobDelegate_id="PushJobDelegate"/>
   <PushTaskAnyFilter id="30842acc-f2dd-4d47-b359-20db06c30803" anyType_id="USER" pushTask_id="fd905ba5-9d56-4f51-83e2-859096a67b75" fiql="username==_NO_ONE_"/>
   <PushTaskAnyFilter id="9e4c0233-440e-4b5b-9563-11ec0f55a334" anyType_id="GROUP" pushTask_id="fd905ba5-9d56-4f51-83e2-859096a67b75" fiql="name==citizen"/>
   <Task DTYPE="PullTask" id="986867e2-993b-430e-8feb-aa9abb4c1dcd" name="CSV Task (update matching; provision unmatching)" resource_id="resource-csv"
         destinationRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28" performCreate="1" performUpdate="1" performDelete="1" syncStatus="1" pullMode="INCREMENTAL"
-        unmatchingRule="PROVISION" matchingRule="UPDATE" active="1"/>
+        unmatchingRule="PROVISION" matchingRule="UPDATE" active="1" jobDelegate_id="PullJobDelegate"/>
   <AnyTemplatePullTask id="8bc41ba1-cc1d-4ee0-bb43-61cd148b414f" pullTask_id="986867e2-993b-430e-8feb-aa9abb4c1dcd" anyType_id="USER"
                        template='{"@class":"org.apache.syncope.common.lib.to.UserTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":null,"type":"USER","realm":null,"status":null,"password":null,"token":null,"tokenExpireTime":null,"username":null,"lastLoginDate":null,"changePwdDate":null,"failedLogins":null,"securityQuestion":null,"securityAnswer":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":["resource-testdb"],"roles":[],"dynRoles":[],"relationships":[],"memberships":[],"dynMemberships":[],"plainAttrs":[{"schema":"firstname","values":[""]},{"schema":"userId","values":["&apos;test&apos;"]},{"schema":"fullname","values":["&apos;test&apos;"]},{"schema":"surname","values":["&apos;test&apos;"]}]}'/>
   <AnyTemplatePullTask id="9af0e343-8a37-42d2-9bc7-6e2e3b103219" pullTask_id="986867e2-993b-430e-8feb-aa9abb4c1dcd" anyType_id="GROUP"
                        template='{"@class":"org.apache.syncope.common.lib.to.GroupTO","creator":null,"creationDate":null,"lastModifier":null,"lastChangeDate":null,"key":null,"type":"GROUP","realm":null,"status":null,"name":null,"userOwner":null,"groupOwner":null,"udynMembershipCond":null,"auxClasses":[],"derAttrs":[],"virAttrs":[],"resources":[],"plainAttrs":[]}'/>
   <Task DTYPE="PullTask" id="feae4e57-15ca-40d9-b973-8b9015efca49" name="CSV (unlink matching; ignore unmatching)" resource_id="resource-csv"
         destinationRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28" performCreate="1" performUpdate="1" performDelete="1" syncStatus="1" pullMode="FULL_RECONCILIATION"
-        unmatchingRule="IGNORE" matchingRule="UNLINK" active="1"/>
+        unmatchingRule="IGNORE" matchingRule="UNLINK" active="1" jobDelegate_id="PullJobDelegate"/>
   <Task DTYPE="PullTask" id="55d5e74b-497e-4bc0-9156-73abef4b9adc" name="CSV (ignore matching; assign unmatching)" resource_id="resource-csv"
         destinationRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28" performCreate="1" performUpdate="1" performDelete="1" syncStatus="1" pullMode="FULL_RECONCILIATION"
-        unmatchingRule="ASSIGN" matchingRule="IGNORE" active="1"/>
+        unmatchingRule="ASSIGN" matchingRule="IGNORE" active="1" jobDelegate_id="PullJobDelegate"/>
   <Task DTYPE="PropagationTask" id="0f618183-17ce-48bc-80bc-cc535f38983a" operation="CREATE"
         objectClassName="__ACCOUNT__" resource_id="resource-testdb" anyTypeKind="USER" entityKey="1417acbe-cbf6-4277-9372-e75e04f97000"
         attributes='[{"name":"__PASSWORD__","value":[{"readOnly":false,"disposed":false,"encryptedBytes":"m9nh2US0Sa6m+cXccCq0Xw==","base64SHA1Hash":"GFJ69qfjxEOdrmt+9q+0Cw2uz60="}]},{"name":"__NAME__","value":["userId"],"nameValue":"userId"},{"name":"fullname","value":["fullname"]},{"name":"type","value":["type"]}]'/>
   <Task DTYPE="PullTask" id="30cfd653-257b-495f-8665-281281dbcb3d" name="Scripted SQL" resource_id="resource-db-scripted"
         destinationRealm_id="e4c28e7a-9dbf-4ee7-9441-93812a0d4a28" performCreate="1" performUpdate="1" performDelete="0" syncStatus="0" pullMode="INCREMENTAL"
-        unmatchingRule="PROVISION" matchingRule="UPDATE" active="1"/>
+        unmatchingRule="PROVISION" matchingRule="UPDATE" active="1" jobDelegate_id="PullJobDelegate"/>
 
   <MailTemplate id="requestPasswordReset"
                 textTemplate="Hi,
@@ -2510,14 +2527,16 @@ $$ }&#10;
 &lt;/xsl:stylesheet&gt;&#10;"/>
   
   <Report id="0062ea9c-924d-4ecf-9961-4492a8cc6d1b" name="test" active="1" template_id="sample"/>
-  <ReportletConfInstance id="5874f3fa-578c-42c6-83b0-c11adafc98b2" report_id="0062ea9c-924d-4ecf-9961-4492a8cc6d1b" 
-                         serializedInstance='{"@class":"org.apache.syncope.common.lib.report.UserReportletConf","name":"testUserReportlet","matchingCond":null,"plainAttrs":["fullname","gender"],"derAttrs":["cn"],"virAttrs":["virtualdata"],"features":["key","username","workflowId","status","creationDate","lastLoginDate","changePwdDate","passwordHistorySize","failedLoginCount","memberships","resources"]}'/>
+  <Implementation id="UserReportletConf" type="REPORTLET" engine="JAVA"
+                  body='{"@class":"org.apache.syncope.common.lib.report.UserReportletConf","name":"testUserReportlet","matchingCond":null,"plainAttrs":["fullname","gender"],"derAttrs":["cn"],"virAttrs":["virtualdata"],"features":["key","username","workflowId","status","creationDate","lastLoginDate","changePwdDate","passwordHistorySize","failedLoginCount","memberships","resources"]}'/>
+  <ReportReportlet report_id="0062ea9c-924d-4ecf-9961-4492a8cc6d1b" implementation_id="UserReportletConf"/>
   <ReportExec report_id="0062ea9c-924d-4ecf-9961-4492a8cc6d1b" id="c13f39c5-0d35-4bff-ba79-3cd5de940369"
               status="SUCCESS" startDate="2012-02-26 15:40:04" endDate="2012-02-26 15:41:04"/>
 
   <Report id="c3520ad9-179f-49e7-b315-d684d216dd97" name="reconciliation" active="1" template_id="empty"/>
-  <ReportletConfInstance id="d6c2b475-4860-4eb1-8fde-618299c2a97c" report_id="c3520ad9-179f-49e7-b315-d684d216dd97" 
-                         serializedInstance='{"@class":"org.apache.syncope.common.lib.report.ReconciliationReportletConf","name":"dashboardReconciliationReportlet","userMatchingCond":null,"groupMatchingCond":null,"anyObjectMatchingCond":null,"features":["key","username","groupName"]}'/>
+  <Implementation id="ReconciliationReportletConf" type="REPORTLET" engine="JAVA"
+                  body='{"@class":"org.apache.syncope.common.lib.report.ReconciliationReportletConf","name":"dashboardReconciliationReportlet","userMatchingCond":null,"groupMatchingCond":null,"anyObjectMatchingCond":null,"features":["key","username","groupName"]}'/>
+  <ReportReportlet report_id="c3520ad9-179f-49e7-b315-d684d216dd97" implementation_id="ReconciliationReportletConf"/>
   
   <SyncopeLogger logName="syncope.audit.[LOGIC]:[SyncopeLogic]:[]:[isSelfRegAllowed]:[SUCCESS]" logLevel="DEBUG" logType="AUDIT"/>
   

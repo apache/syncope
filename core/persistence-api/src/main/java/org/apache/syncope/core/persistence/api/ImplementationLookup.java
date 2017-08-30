@@ -22,33 +22,14 @@ import java.util.Set;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
 import org.apache.syncope.common.lib.report.ReportletConf;
+import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.core.persistence.api.dao.AccountRule;
 import org.apache.syncope.core.persistence.api.dao.PasswordRule;
 import org.apache.syncope.core.persistence.api.dao.Reportlet;
 
 public interface ImplementationLookup extends SyncopeLoader {
 
-    enum Type {
-
-        JWT_SSO_PROVIDER,
-        REPORTLET_CONF,
-        ACCOUNT_RULE_CONF,
-        PASSWORD_RULE_CONF,
-        ITEM_TRANSFORMER,
-        TASKJOBDELEGATE,
-        RECONCILIATION_FILTER_BUILDER,
-        LOGIC_ACTIONS,
-        PROPAGATION_ACTIONS,
-        PULL_ACTIONS,
-        PUSH_ACTIONS,
-        PULL_CORRELATION_RULE,
-        VALIDATOR,
-        NOTIFICATION_RECIPIENTS_PROVIDER,
-        AUDIT_APPENDER;
-
-    }
-
-    Set<String> getClassNames(Type type);
+    Set<String> getClassNames(ImplementationType type);
 
     Set<Class<?>> getJWTSSOProviderClasses();
 

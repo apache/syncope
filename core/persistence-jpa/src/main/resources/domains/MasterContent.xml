@@ -178,17 +178,27 @@ under the License.
   <AnyType_AnyTypeClass anyType_id="GROUP" anyTypeClass_id="BaseGroup"/>
         
   <!-- Actual plain schemas -->
+  <Implementation id="EmailAddressValidator" type="VALIDATOR" engine="JAVA"
+                  body="org.apache.syncope.core.persistence.jpa.attrvalue.validation.EmailAddressValidator"/>
   <SyncopeSchema id="email"/>
   <PlainSchema id="email" type="String" anyTypeClass_id="BaseUser"
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
-               validatorClass="org.apache.syncope.core.persistence.jpa.attrvalue.validation.EmailAddressValidator"/>
+               validator_id="EmailAddressValidator"/>
 
-  <Task DTYPE="SchedTask" id="e95555d2-1b09-42c8-b25b-f4c4ec598989" name="Identity Recertification Task"  active="0"
-        jobDelegateClassName="org.apache.syncope.core.provisioning.java.job.IdentityRecertification"/>
-  
+  <Implementation id="PullJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"
+                  body="org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate"/>
+  <Implementation id="PushJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"
+                  body="org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate"/>
+
+  <Implementation id="IdentityRecertification" type="TASKJOB_DELEGATE" engine="JAVA"
+                  body="org.apache.syncope.core.provisioning.java.job.IdentityRecertification"/>
+  <Task DTYPE="SchedTask" id="e95555d2-1b09-42c8-b25b-f4c4ec598989" name="Identity Recertification Task"  active="1"
+        jobDelegate_id="IdentityRecertification"/>
+
+  <Implementation id="ExpiredAccessTokenCleanup" type="TASKJOB_DELEGATE" engine="JAVA"
+                  body="org.apache.syncope.core.provisioning.java.job.ExpiredAccessTokenCleanup"/>
   <Task DTYPE="SchedTask" id="89de5014-e3f5-4462-84d8-d97575740baf" name="Access Token Cleanup Task"  active="1"
-        jobDelegateClassName="org.apache.syncope.core.provisioning.java.job.ExpiredAccessTokenCleanup"
-        cronExpression="0 0/5 * * * ?"/>
+        jobDelegate_id="ExpiredAccessTokenCleanup" cronExpression="0 0/5 * * * ?"/>
 
   <!-- Password reset notifications -->
   <MailTemplate id="requestPasswordReset"
@@ -243,7 +253,8 @@ we are happy to inform you that the password request was successfully executed f
   <ReportTemplate id="empty"/>  
 
   <Report id="c3520ad9-179f-49e7-b315-d684d216dd97" name="reconciliation" active="1" template_id="empty"/>
-  <ReportletConfInstance id="d6c2b475-4860-4eb1-8fde-618299c2a97c" report_id="c3520ad9-179f-49e7-b315-d684d216dd97" 
-                         serializedInstance='{"@class":"org.apache.syncope.common.lib.report.ReconciliationReportletConf","name":"dashboardReconciliationReportlet","userMatchingCond":null,"groupMatchingCond":null,"anyObjectMatchingCond":null,"features":["key","username","groupName"]}'/>
+  <Implementation id="ReconciliationReportletConf" type="REPORTLET" engine="JAVA"
+                  body='{"@class":"org.apache.syncope.common.lib.report.ReconciliationReportletConf","name":"dashboardReconciliationReportlet","userMatchingCond":null,"groupMatchingCond":null,"anyObjectMatchingCond":null,"features":["key","username","groupName"]}'/>
+  <ReportReportlet report_id="c3520ad9-179f-49e7-b315-d684d216dd97" implementation_id="ReconciliationReportletConf"/>
 
 </dataset>

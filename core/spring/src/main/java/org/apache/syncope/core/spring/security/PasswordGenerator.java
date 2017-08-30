@@ -19,7 +19,7 @@
 package org.apache.syncope.core.spring.security;
 
 import java.util.List;
-import org.apache.syncope.common.lib.policy.PasswordRuleConf;
+import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.provisioning.api.utils.policy.InvalidPasswordRuleConf;
 
@@ -27,6 +27,6 @@ public interface PasswordGenerator {
 
     String generate(ExternalResource resource) throws InvalidPasswordRuleConf;
 
-    String generate(List<PasswordRuleConf> ruleConfs) throws InvalidPasswordRuleConf;
+    String generate(List<PasswordPolicy> policies) throws InvalidPasswordRuleConf;
 
 }

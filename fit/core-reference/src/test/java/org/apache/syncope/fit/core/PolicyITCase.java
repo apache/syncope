@@ -27,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Arrays;
 import java.util.List;
+import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.policy.AccountPolicyTO;
@@ -38,6 +39,12 @@ import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.syncope.common.lib.policy.PullPolicySpec;
+import org.apache.syncope.common.lib.to.ImplementationTO;
+import org.apache.syncope.common.lib.types.ImplementationEngine;
+import org.apache.syncope.common.lib.types.ImplementationType;
+import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.service.ImplementationService;
+import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.fit.AbstractITCase;
 import org.apache.syncope.fit.core.reference.TestPullRule;
 import org.junit.jupiter.api.Test;
@@ -45,11 +52,27 @@ import org.junit.jupiter.api.Test;
 public class PolicyITCase extends AbstractITCase {
 
     private PullPolicyTO buildPullPolicyTO() {
-        PullPolicyTO policy = new PullPolicyTO();
+        ImplementationTO corrRule = null;
+        try {
+            corrRule = implementationService.read(TestPullRule.class.getSimpleName());
+        } catch (SyncopeClientException e) {
+            if (e.getType().getResponseStatus() == Response.Status.NOT_FOUND) {
+                corrRule = new ImplementationTO();
+                corrRule.setKey(TestPullRule.class.getSimpleName());
+                corrRule.setEngine(ImplementationEngine.JAVA);
+                corrRule.setType(ImplementationType.PULL_CORRELATION_RULE);
+                corrRule.setBody(TestPullRule.class.getName());
+                Response response = implementationService.create(corrRule);
+                corrRule = getObject(response.getLocation(), ImplementationService.class, ImplementationTO.class);
+                assertNotNull(corrRule);
+            }
+        }
+        assertNotNull(corrRule);
 
         PullPolicySpec spec = new PullPolicySpec();
-        spec.getCorrelationRules().put(AnyTypeKind.USER.name(), TestPullRule.class.getName());
+        spec.getCorrelationRules().put(AnyTypeKind.USER.name(), corrRule.getKey());
 
+        PullPolicyTO policy = new PullPolicyTO();
         policy.setSpecification(spec);
         policy.setDescription("Pull policy");
 
@@ -110,7 +133,7 @@ public class PolicyITCase extends AbstractITCase {
         PullPolicyTO policyTO = createPolicy(policy);
 
         assertNotNull(policyTO);
-        assertEquals(TestPullRule.class.getName(),
+        assertEquals(TestPullRule.class.getSimpleName(),
                 policyTO.getSpecification().getCorrelationRules().get(AnyTypeKind.USER.name()));
     }
 
@@ -126,15 +149,21 @@ public class PolicyITCase extends AbstractITCase {
         assertNotNull(policy);
         assertNotEquals("ce93fcda-dc3a-4369-a7b0-a6108c261c85", policy.getKey());
 
-        ((DefaultPasswordRuleConf) policy.getRuleConfs().get(0)).setMaxLength(22);
+        ImplementationTO rule = implementationService.read(policy.getRules().get(0));
+        assertNotNull(rule);
+
+        DefaultPasswordRuleConf ruleConf = POJOHelper.deserialize(rule.getBody(), DefaultPasswordRuleConf.class);
+        ruleConf.setMaxLength(22);
+        rule.setBody(POJOHelper.serialize(ruleConf));
 
         // update new password policy
         policyService.update(policy);
         policy = policyService.read(policy.getKey());
-
         assertNotNull(policy);
-        assertEquals(22, ((DefaultPasswordRuleConf) policy.getRuleConfs().get(0)).getMaxLength());
-        assertEquals(8, ((DefaultPasswordRuleConf) policy.getRuleConfs().get(0)).getMinLength());
+
+        ruleConf = POJOHelper.deserialize(rule.getBody(), DefaultPasswordRuleConf.class);
+        assertEquals(22, ruleConf.getMaxLength());
+        assertEquals(8, ruleConf.getMinLength());
     }
 
     @Test
@@ -155,8 +184,9 @@ public class PolicyITCase extends AbstractITCase {
     }
 
     @Test
-    public void getCorrelationRules() {
-        assertEquals(1, syncopeService.platform().getPullCorrelationRules().size());
+    public void getPullCorrelationRuleJavaClasses() {
+        assertEquals(1, syncopeService.platform().
+                getJavaImplInfo(ImplementationType.PULL_CORRELATION_RULE).get().getClasses().size());
     }
 
     @Test
@@ -167,7 +197,16 @@ public class PolicyITCase extends AbstractITCase {
         DefaultAccountRuleConf ruleConf = new DefaultAccountRuleConf();
         ruleConf.setMinLength(3);
         ruleConf.setMaxLength(8);
-        policy.getRuleConfs().add(ruleConf);
+
+        ImplementationTO rule = new ImplementationTO();
+        rule.setKey("DefaultAccountRuleConf" + getUUIDString());
+        rule.setEngine(ImplementationEngine.JAVA);
+        rule.setType(ImplementationType.ACCOUNT_RULE);
+        rule.setBody(POJOHelper.serialize(ruleConf));
+        Response response = implementationService.create(rule);
+        rule.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
+
+        policy.getRules().add(rule.getKey());
 
         policy = createPolicy(policy);
         assertNotNull(policy);
@@ -182,7 +221,16 @@ public class PolicyITCase extends AbstractITCase {
         DefaultAccountRuleConf ruleConf = new DefaultAccountRuleConf();
         ruleConf.setMinLength(3);
         ruleConf.setMaxLength(8);
-        policy.getRuleConfs().add(ruleConf);
+
+        ImplementationTO rule = new ImplementationTO();
+        rule.setKey("DefaultAccountRuleConf" + getUUIDString());
+        rule.setEngine(ImplementationEngine.JAVA);
+        rule.setType(ImplementationType.ACCOUNT_RULE);
+        rule.setBody(POJOHelper.serialize(ruleConf));
+        Response response = implementationService.create(rule);
+        rule.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
+
+        policy.getRules().add(rule.getKey());
 
         policy = createPolicy(policy);
         assertNotNull(policy);

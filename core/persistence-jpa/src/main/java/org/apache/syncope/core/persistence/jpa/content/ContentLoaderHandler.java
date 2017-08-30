@@ -41,21 +41,19 @@ public class ContentLoaderHandler extends DefaultHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(ContentLoaderHandler.class);
 
-    private final DataSource dataSource;
+    private final JdbcTemplate jdbcTemplate;
 
     private final String rootElement;
 
     private final boolean continueOnError;
 
     public ContentLoaderHandler(final DataSource dataSource, final String rootElement, final boolean continueOnError) {
-        this.dataSource = dataSource;
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.rootElement = rootElement;
         this.continueOnError = continueOnError;
     }
 
     private Object[] getParameters(final String tableName, final Attributes attrs) {
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
-
         Map<String, Integer> colTypes = jdbcTemplate.query(
                 "SELECT * FROM " + tableName + " WHERE 0=1", (final ResultSet rs) -> {
                     Map<String, Integer> colTypes1 = new HashMap<>();
@@ -185,7 +183,6 @@ public class ContentLoaderHandler extends DefaultHandler {
         }
         query.append(") VALUES (").append(values).append(')');
 
-        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
         try {
             jdbcTemplate.update(query.toString(), getParameters(qName, atts));
         } catch (DataAccessException e) {

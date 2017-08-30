@@ -20,20 +20,22 @@ package org.apache.syncope.core.persistence.jpa.entity;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.persistence.Basic;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import org.apache.syncope.common.lib.report.ReportletConf;
+import org.apache.syncope.common.lib.types.ImplementationType;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
 import org.apache.syncope.core.persistence.api.entity.ReportTemplate;
@@ -51,8 +53,13 @@ public class JPAReport extends AbstractGeneratedKeyEntity implements Report {
     @Column(unique = true, nullable = false)
     private String name;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "report")
-    private List<JPAReportletConfInstance> reportletConfs = new ArrayList<>();
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = TABLE + "Reportlet",
+            joinColumns =
+            @JoinColumn(name = "report_id"),
+            inverseJoinColumns =
+            @JoinColumn(name = "implementation_id"))
+    private List<JPAImplementation> reportlets = new ArrayList<>();
 
     private String cronExpression;
 
@@ -91,26 +98,15 @@ public class JPAReport extends AbstractGeneratedKeyEntity implements Report {
     }
 
     @Override
-    public boolean add(final ReportletConf reportletConf) {
-        if (reportletConf == null) {
-            return false;
-        }
-
-        JPAReportletConfInstance instance = new JPAReportletConfInstance();
-        instance.setReport(this);
-        instance.setInstance(reportletConf);
-
-        return reportletConfs.add(instance);
+    public boolean add(final Implementation reportlet) {
+        checkType(reportlet, JPAImplementation.class);
+        checkImplementationType(reportlet, ImplementationType.REPORTLET);
+        return reportlets.contains((JPAImplementation) reportlet) || reportlets.add((JPAImplementation) reportlet);
     }
 
     @Override
-    public void removeAllReportletConfs() {
-        reportletConfs.clear();
-    }
-
-    @Override
-    public List<ReportletConf> getReportletConfs() {
-        return reportletConfs.stream().map(input -> input.getInstance()).collect(Collectors.toList());
+    public List<? extends Implementation> getReportlets() {
+        return reportlets;
     }
 
     @Override

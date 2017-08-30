@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleApplication;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
@@ -36,10 +37,12 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPan
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
+import org.apache.syncope.common.lib.info.JavaImplInfo;
 import org.apache.syncope.common.lib.to.AbstractSchemaTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
+import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.autocomplete.AutoCompleteTextField;
@@ -238,7 +241,13 @@ public class PlainSchemaDetails extends AbstractSchemaDetailsPanel {
 
             @Override
             protected List<String> load() {
-                return new ArrayList<>(SyncopeConsoleSession.get().getPlatformInfo().getValidators());
+                Optional<JavaImplInfo> validators = SyncopeConsoleSession.get().getPlatformInfo().
+                        getJavaImplInfo(ImplementationType.VALIDATOR);
+                List<String> load = validators.isPresent()
+                        ? new ArrayList<>(validators.get().getClasses())
+                        : new ArrayList<>();
+                Collections.sort(load);
+                return load;
             }
         };
         final AjaxDropDownChoicePanel<String> validatorClass = new AjaxDropDownChoicePanel<>("validatorClass",

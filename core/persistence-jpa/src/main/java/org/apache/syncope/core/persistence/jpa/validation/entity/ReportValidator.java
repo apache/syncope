@@ -22,8 +22,8 @@ import java.text.ParseException;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.validation.ConstraintValidatorContext;
-import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.common.lib.types.EntityViolationType;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.quartz.CronExpression;
 
@@ -48,10 +48,10 @@ public class ReportValidator extends AbstractValidator<ReportCheck, Report> {
             }
         }
 
-        Set<String> reportletNames = object.getReportletConfs().stream().
-                map(ReportletConf::getName).collect(Collectors.toSet());
-        if (reportletNames.size() != object.getReportletConfs().size()) {
-            LOG.error("Reportlet name must be unique");
+        Set<String> reportletKeys = object.getReportlets().stream().
+                map(Entity::getKey).collect(Collectors.toSet());
+        if (reportletKeys.size() != object.getReportlets().size()) {
+            LOG.error("Reportlet key must be unique");
             isValid = false;
 
             context.disableDefaultConstraintViolation();

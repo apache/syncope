@@ -37,7 +37,6 @@ import org.apache.syncope.core.persistence.api.dao.AnyDAO;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.provisioning.java.utils.TemplateUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
@@ -48,8 +47,8 @@ import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.provisioning.api.LogicActions;
 import org.apache.syncope.core.provisioning.api.utils.RealmUtils;
+import org.apache.syncope.core.spring.ImplementationManager;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.support.AbstractBeanDefinition;
 
 public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch> extends AbstractResourceAssociator<TO> {
 
@@ -74,15 +73,11 @@ public abstract class AbstractAnyLogic<TO extends AnyTO, P extends AnyPatch> ext
     private List<LogicActions> getActions(final Realm realm) {
         List<LogicActions> actions = new ArrayList<>();
 
-        realm.getActionsClassNames().forEach(className -> {
+        realm.getActions().forEach(impl -> {
             try {
-                Class<?> actionsClass = Class.forName(className);
-                LogicActions logicActions = (LogicActions) ApplicationContextProvider.getBeanFactory().
-                        createBean(actionsClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
-
-                actions.add(logicActions);
+                actions.add(ImplementationManager.build(impl));
             } catch (Exception e) {
-                LOG.warn("Class '{}' not found", className, e);
+                LOG.warn("While building {}", impl, e);
             }
         });
 

@@ -31,13 +31,17 @@ import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.NotificationTaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.NotificationTO;
 import org.apache.syncope.common.lib.to.PagedResult;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.ImplementationEngine;
+import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
+import org.apache.syncope.common.rest.api.service.ImplementationService;
 import org.apache.syncope.common.rest.api.service.NotificationService;
 import org.apache.syncope.core.provisioning.java.job.notification.NotificationJob;
 import org.apache.syncope.fit.core.reference.TestNotificationRecipientsProvider;
@@ -219,6 +223,15 @@ public class NotificationTaskITCase extends AbstractNotificationTaskITCase {
     @Test
     public void issueSYNCOPE446() throws Exception {
         // 1. Create notification
+        ImplementationTO recipientsProvider = new ImplementationTO();
+        recipientsProvider.setKey(TestNotificationRecipientsProvider.class.getSimpleName());
+        recipientsProvider.setEngine(ImplementationEngine.JAVA);
+        recipientsProvider.setType(ImplementationType.RECIPIENTS_PROVIDER);
+        recipientsProvider.setBody(TestNotificationRecipientsProvider.class.getName());
+        Response response = implementationService.create(recipientsProvider);
+        recipientsProvider = getObject(response.getLocation(), ImplementationService.class, ImplementationTO.class);
+        assertNotNull(recipientsProvider);
+
         NotificationTO notification = new NotificationTO();
         notification.setTraceLevel(TraceLevel.ALL);
         notification.getEvents().add("[LOGIC]:[GroupLogic]:[]:[create]:[SUCCESS]");
@@ -232,7 +245,7 @@ public class NotificationTaskITCase extends AbstractNotificationTaskITCase {
         notification.setSelfAsRecipient(false);
         notification.setRecipientAttrName("email");
         notification.getStaticRecipients().add("notificationtest@syncope.apache.org");
-        notification.setRecipientsProviderClassName(TestNotificationRecipientsProvider.class.getName());
+        notification.setRecipientsProvider(recipientsProvider.getKey());
 
         String sender = "syncopetest-" + getUUIDString() + "@syncope.apache.org";
         notification.setSender(sender);
@@ -241,10 +254,10 @@ public class NotificationTaskITCase extends AbstractNotificationTaskITCase {
         notification.setTemplate("optin");
         notification.setActive(true);
 
-        Response response = notificationService.create(notification);
+        response = notificationService.create(notification);
         notification = getObject(response.getLocation(), NotificationService.class, NotificationTO.class);
         assertNotNull(notification);
-        assertEquals(TestNotificationRecipientsProvider.class.getName(), notification.getRecipientsProviderClassName());
+        assertEquals(recipientsProvider.getKey(), notification.getRecipientsProvider());
 
         // 2. create group
         GroupTO groupTO = new GroupTO();

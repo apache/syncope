@@ -354,7 +354,7 @@ abstract class AbstractAnyDataBinder {
         for (StringPatchItem patch : anyPatch.getAuxClasses()) {
             AnyTypeClass auxClass = anyTypeClassDAO.find(patch.getValue());
             if (auxClass == null) {
-                LOG.debug("Invalid " + AnyTypeClass.class.getSimpleName() + "{}, ignoring...", patch.getValue());
+                LOG.debug("Invalid " + AnyTypeClass.class.getSimpleName() + " {}, ignoring...", patch.getValue());
             } else {
                 switch (patch.getOperation()) {
                     case ADD_REPLACE:
@@ -372,7 +372,7 @@ abstract class AbstractAnyDataBinder {
         for (StringPatchItem patch : anyPatch.getResources()) {
             ExternalResource resource = resourceDAO.find(patch.getValue());
             if (resource == null) {
-                LOG.debug("Invalid " + ExternalResource.class.getSimpleName() + "{}, ignoring...", patch.getValue());
+                LOG.debug("Invalid " + ExternalResource.class.getSimpleName() + " {}, ignoring...", patch.getValue());
             } else {
                 switch (patch.getOperation()) {
                     case ADD_REPLACE:
@@ -396,8 +396,8 @@ abstract class AbstractAnyDataBinder {
                 filter(patch -> patch.getAttrTO() != null).forEach(patch -> {
             PlainSchema schema = getPlainSchema(patch.getAttrTO().getSchema());
             if (schema == null) {
-                LOG.debug("Invalid " + PlainSchema.class.getSimpleName()
-                        + "{}, ignoring...", patch.getAttrTO().getSchema());
+                LOG.debug("Invalid " + PlainSchema.class.getSimpleName() + " {}, ignoring...",
+                        patch.getAttrTO().getSchema());
             } else {
                 PlainAttr<?> attr = (PlainAttr<?>) any.getPlainAttr(schema.getKey()).orElse(null);
                 if (attr == null) {
@@ -445,7 +445,7 @@ abstract class AbstractAnyDataBinder {
                 map(className -> anyTypeClassDAO.find(className)).
                 forEachOrdered(auxClass -> {
                     if (auxClass == null) {
-                        LOG.debug("Invalid " + AnyTypeClass.class.getSimpleName() + "{}, ignoring...", auxClass);
+                        LOG.debug("Invalid " + AnyTypeClass.class.getSimpleName() + " {}, ignoring...", auxClass);
                     } else {
                         any.add(auxClass);
                     }
@@ -488,7 +488,7 @@ abstract class AbstractAnyDataBinder {
         anyTO.getResources().forEach(resourceKey -> {
             ExternalResource resource = resourceDAO.find(resourceKey);
             if (resource == null) {
-                LOG.debug("Invalid " + ExternalResource.class.getSimpleName() + "{}, ignoring...", resourceKey);
+                LOG.debug("Invalid " + ExternalResource.class.getSimpleName() + " {}, ignoring...", resourceKey);
             } else {
                 any.add(resource);
             }

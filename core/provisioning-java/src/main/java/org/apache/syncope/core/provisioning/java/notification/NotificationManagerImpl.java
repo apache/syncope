@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.jexl3.MapContext;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -47,7 +48,6 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Notification;
-import org.apache.syncope.core.persistence.api.entity.PlainAttr;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.task.NotificationTask;
 import org.apache.syncope.core.persistence.api.entity.task.TaskExec;
@@ -56,7 +56,6 @@ import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.data.GroupDataBinder;
 import org.apache.syncope.core.provisioning.api.data.UserDataBinder;
 import org.apache.syncope.core.persistence.api.search.SearchCondConverter;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.DerSchemaDAO;
@@ -73,14 +72,14 @@ import org.apache.syncope.core.provisioning.api.IntAttrName;
 import org.apache.syncope.core.provisioning.api.VirAttrHandler;
 import org.apache.syncope.core.provisioning.api.data.AnyObjectDataBinder;
 import org.apache.syncope.core.provisioning.api.notification.NotificationManager;
-import org.apache.syncope.core.provisioning.api.notification.NotificationRecipientsProvider;
 import org.apache.syncope.core.provisioning.api.event.AfterHandlingEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.apache.syncope.core.provisioning.api.notification.RecipientsProvider;
+import org.apache.syncope.core.spring.ImplementationManager;
 
 @Component
 @Transactional(rollbackFor = { Throwable.class })
@@ -210,15 +209,13 @@ public class NotificationManagerImpl implements NotificationManager {
             recipientEmails.addAll(notification.getStaticRecipients());
         }
 
-        if (notification.getRecipientsProviderClassName() != null) {
+        if (notification.getRecipientsProvider() != null) {
             try {
-                NotificationRecipientsProvider recipientsProvider =
-                        (NotificationRecipientsProvider) ApplicationContextProvider.getBeanFactory().
-                                createBean(Class.forName(notification.getRecipientsProviderClassName()),
-                                        AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+                RecipientsProvider recipientsProvider =
+                        ImplementationManager.build(notification.getRecipientsProvider());
                 recipientEmails.addAll(recipientsProvider.provideRecipients(notification));
             } catch (Exception e) {
-                LOG.error("Could not fetch recipients from {}", notification.getRecipientsProviderClassName(), e);
+                LOG.error("While building {}", notification.getRecipientsProvider(), e);
             }
         }
 
@@ -470,10 +467,7 @@ public class NotificationManagerImpl implements NotificationManager {
     }
 
     protected Map<String, String> findAllSyncopeConfs() {
-        Map<String, String> syncopeConfMap = new HashMap<>();
-        for (PlainAttr<?> attr : confDAO.get().getPlainAttrs()) {
-            syncopeConfMap.put(attr.getSchema().getKey(), attr.getValuesAsStrings().get(0));
-        }
-        return syncopeConfMap;
+        return confDAO.get().getPlainAttrs().stream().collect(
+                Collectors.toMap(attr -> attr.getSchema().getKey(), attr -> attr.getValuesAsStrings().get(0)));
     }
 }

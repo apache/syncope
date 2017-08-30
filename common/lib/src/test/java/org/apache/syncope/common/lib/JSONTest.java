@@ -30,13 +30,11 @@ import org.apache.syncope.common.lib.patch.PasswordPatch;
 import org.apache.syncope.common.lib.patch.StringPatchItem;
 import org.apache.syncope.common.lib.patch.StringReplacePatchItem;
 import org.apache.syncope.common.lib.patch.UserPatch;
-import org.apache.syncope.common.lib.report.UserReportletConf;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.GroupTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
-import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.to.WorkflowFormPropertyTO;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.junit.jupiter.api.Test;
@@ -56,22 +54,6 @@ public class JSONTest {
 
         WorkflowFormPropertyTO unserializedProp = mapper.readValue(writer.toString(), WorkflowFormPropertyTO.class);
         assertEquals(prop, unserializedProp);
-    }
-
-    @Test
-    public void reportletConfImplementations() throws IOException {
-        ReportTO report = new ReportTO();
-        report.setName("testReportForCreate");
-        report.getReportletConfs().add(new UserReportletConf("first"));
-        report.getReportletConfs().add(new UserReportletConf("second"));
-
-        ObjectMapper mapper = new ObjectMapper();
-
-        StringWriter writer = new StringWriter();
-        mapper.writeValue(writer, report);
-
-        ReportTO actual = mapper.readValue(writer.toString(), ReportTO.class);
-        assertEquals(report, actual);
     }
 
     @Test

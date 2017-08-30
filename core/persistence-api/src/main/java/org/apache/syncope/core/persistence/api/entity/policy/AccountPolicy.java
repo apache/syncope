@@ -20,7 +20,7 @@ package org.apache.syncope.core.persistence.api.entity.policy;
 
 import java.util.List;
 import java.util.Set;
-import org.apache.syncope.common.lib.policy.AccountRuleConf;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Policy;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 
@@ -34,15 +34,11 @@ public interface AccountPolicy extends Policy {
 
     void setMaxAuthenticationAttempts(int maxAuthenticationAttempts);
 
-    boolean add(AccountRuleConf accountRuleConf);
+    boolean add(Implementation rule);
 
-    void removeAllRuleConfs();
-
-    List<AccountRuleConf> getRuleConfs();
+    List<? extends Implementation> getRules();
 
     boolean add(ExternalResource resource);
-
-    Set<String> getResourceKeys();
 
     Set<? extends ExternalResource> getResources();
 }

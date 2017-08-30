@@ -21,14 +21,15 @@ package org.apache.syncope.core.persistence.jpa.entity;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Cacheable;
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import org.apache.syncope.common.lib.types.ImplementationType;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.SAML2IdP;
 import org.apache.syncope.core.persistence.api.entity.SAML2IdPItem;
 import org.apache.syncope.core.persistence.jpa.entity.resource.AbstractItem;
@@ -45,15 +46,13 @@ public class JPASAML2IdPItem extends AbstractItem implements SAML2IdPItem {
     @ManyToOne
     private JPASAML2IdP idp;
 
-    /**
-     * (Optional) classes for Item transformation.
-     */
-    @ElementCollection(fetch = FetchType.EAGER)
-    @Column(name = "transformerClassName")
-    @CollectionTable(name = TABLE + "_Transformer",
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = TABLE + "Transformer",
             joinColumns =
-            @JoinColumn(name = "saml2IdPItemItem_id", referencedColumnName = "id"))
-    private List<String> transformerClassNames = new ArrayList<>();
+            @JoinColumn(name = "item_id"),
+            inverseJoinColumns =
+            @JoinColumn(name = "implementation_id"))
+    private List<JPAImplementation> transformers = new ArrayList<>();
 
     @Override
     public SAML2IdP getIdP() {
@@ -67,7 +66,14 @@ public class JPASAML2IdPItem extends AbstractItem implements SAML2IdPItem {
     }
 
     @Override
-    public List<String> getTransformerClassNames() {
-        return transformerClassNames;
+    public boolean add(final Implementation transformer) {
+        checkType(transformer, JPAImplementation.class);
+        checkImplementationType(transformer, ImplementationType.ITEM_TRANSFORMER);
+        return this.transformers.add((JPAImplementation) transformer);
+    }
+
+    @Override
+    public List<? extends Implementation> getTransformers() {
+        return transformers;
     }
 }

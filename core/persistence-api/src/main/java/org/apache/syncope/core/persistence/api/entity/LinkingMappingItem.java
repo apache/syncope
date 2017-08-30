@@ -133,7 +133,12 @@ public class LinkingMappingItem implements MappingItem {
     }
 
     @Override
-    public List<String> getTransformerClassNames() {
+    public boolean add(final Implementation transformer) {
+        return false;
+    }
+
+    @Override
+    public List<? extends Implementation> getTransformers() {
         return Collections.emptyList();
     }
 }

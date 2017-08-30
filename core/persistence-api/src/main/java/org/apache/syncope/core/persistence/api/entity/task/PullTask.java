@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Optional;
 import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 
 public interface PullTask extends ProvisioningTask {
@@ -30,9 +31,9 @@ public interface PullTask extends ProvisioningTask {
 
     void setPullMode(PullMode pullMode);
 
-    String getReconciliationFilterBuilderClassName();
+    Implementation getReconFilterBuilder();
 
-    void setReconciliationFilterBuilderClassName(String reconciliationFilterBuilderClassName);
+    void setReconFilterBuilder(Implementation reconFilterBuilder);
 
     Realm getDestinatioRealm();
 

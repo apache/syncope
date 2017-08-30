@@ -56,7 +56,7 @@ public class ItemTransformerWidget extends AlertWidget<String> {
 
             @Override
             public List<String> getObject() {
-                return item.getTransformerClassNames();
+                return item.getTransformers();
             }
         };
     }

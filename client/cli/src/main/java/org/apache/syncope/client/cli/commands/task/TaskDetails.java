@@ -63,45 +63,29 @@ public class TaskDetails extends AbstractTaskCommand {
                 final int propagationTaskSize = propagationTaskTOs.size();
                 final int pushTaskSize = pushTaskTOs.size();
                 final int scheduledTaskSize = scheduledTaskTOs.size();
-                int scheduledNotExecuted = 0;
                 final int pullTaskSize = pullTaskTOs.size();
                 final int jobsSize = jobTOs.size();
 
-                int notificationNotExecuted = 0;
-                for (final AbstractTaskTO notificationTaskTO : notificationTaskTOs) {
-                    if (!((NotificationTaskTO) notificationTaskTO).isExecuted()) {
-                        notificationNotExecuted++;
-                    }
-                }
+                long notificationNotExecuted = notificationTaskTOs.stream().
+                        filter(notificationTaskTO -> !((NotificationTaskTO) notificationTaskTO).isExecuted()).
+                        count();
 
-                int propagationNotExecuted = 0;
-                for (final AbstractTaskTO propagationTaskTO : propagationTaskTOs) {
-                    if (((PropagationTaskTO) propagationTaskTO).getExecutions() == null
-                            || ((PropagationTaskTO) propagationTaskTO).getExecutions().isEmpty()) {
-                        propagationNotExecuted++;
-                    }
-                }
+                long propagationNotExecuted = propagationTaskTOs.stream().
+                        filter(propagationTaskTO -> ((PropagationTaskTO) propagationTaskTO).getExecutions().isEmpty()).
+                        count();
 
-                int pushNotExecuted = 0;
-                for (final AbstractTaskTO pushTaskTO : pushTaskTOs) {
-                    if (((PushTaskTO) pushTaskTO).getExecutions() == null
-                            || ((PushTaskTO) pushTaskTO).getExecutions().isEmpty()) {
-                        pushNotExecuted++;
-                    }
-                }
+                long pushNotExecuted = pushTaskTOs.stream().
+                        filter(pushTaskTO -> ((PushTaskTO) pushTaskTO).getExecutions().isEmpty()).
+                        count();
 
-                for (final AbstractTaskTO scheduledTaskTO : scheduledTaskTOs) {
-                    if (((SchedTaskTO) scheduledTaskTO).getExecutions() == null
-                            || ((SchedTaskTO) scheduledTaskTO).getExecutions().isEmpty()) {
-                        scheduledNotExecuted++;
-                    }
-                }
+                long scheduledNotExecuted = scheduledTaskTOs.stream().
+                        filter(scheduledTaskTO -> ((SchedTaskTO) scheduledTaskTO).getExecutions().isEmpty()).
+                        count();
 
                 int pullNotExecuted = 0;
                 int pullFull = 0;
                 for (final AbstractTaskTO pullTaskTO : pullTaskTOs) {
-                    if (((PullTaskTO) pullTaskTO).getExecutions() == null
-                            || ((PullTaskTO) pullTaskTO).getExecutions().isEmpty()) {
+                    if (((PullTaskTO) pullTaskTO).getExecutions().isEmpty()) {
                         pullNotExecuted++;
                     }
                     if (((PullTaskTO) pullTaskTO).getPullMode() == PullMode.FULL_RECONCILIATION) {

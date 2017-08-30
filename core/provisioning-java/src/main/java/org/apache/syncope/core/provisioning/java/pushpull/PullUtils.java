@@ -23,7 +23,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.policy.PullPolicySpec;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
@@ -33,12 +32,15 @@ import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.dao.GroupDAO;
+import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
+import org.apache.syncope.core.persistence.api.entity.Entity;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.Realm;
@@ -68,6 +70,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.core.provisioning.api.pushpull.PullCorrelationRule;
 import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
+import org.apache.syncope.core.spring.ImplementationManager;
 
 @Transactional(readOnly = true)
 @Component
@@ -107,6 +110,9 @@ public class PullUtils {
 
     @Autowired
     private RealmDAO realmDAO;
+
+    @Autowired
+    private ImplementationDAO implementationDAO;
 
     @Autowired
     private AnyUtilsFactory anyUtilsFactory;
@@ -264,32 +270,33 @@ public class PullUtils {
     private List<String> findByCorrelationRule(
             final ConnectorObject connObj, final PullCorrelationRule rule, final AnyTypeKind type) {
 
-        List<String> result = new ArrayList<>();
-        searchDAO.search(rule.getSearchCond(connObj), type).forEach(any -> {
-            result.add(any.getKey());
-        });
-
-        return result;
+        return searchDAO.search(rule.getSearchCond(connObj), type).stream().
+                map(Entity::getKey).collect(Collectors.toList());
     }
 
     private PullCorrelationRule getCorrelationRule(final Provision provision, final PullPolicySpec policySpec) {
-        PullCorrelationRule result = null;
+        PullCorrelationRule rule = null;
 
         String pullCorrelationRule = policySpec.getCorrelationRules().get(provision.getAnyType().getKey());
-        if (StringUtils.isNotBlank(pullCorrelationRule)) {
+        if (pullCorrelationRule != null) {
             if (pullCorrelationRule.charAt(0) == '[') {
-                result = new PlainAttrsPullCorrelationRule(
+                rule = new PlainAttrsPullCorrelationRule(
                         POJOHelper.deserialize(pullCorrelationRule, String[].class), provision);
             } else {
-                try {
-                    result = (PullCorrelationRule) Class.forName(pullCorrelationRule).newInstance();
-                } catch (Exception e) {
-                    LOG.error("Failure instantiating correlation rule class '{}'", pullCorrelationRule, e);
+                Implementation impl = implementationDAO.find(pullCorrelationRule);
+                if (impl == null) {
+                    LOG.error("Could not find any Implementation matching '{}'", pullCorrelationRule);
+                } else {
+                    try {
+                        rule = ImplementationManager.build(impl);
+                    } catch (Exception e) {
+                        LOG.error("While building {}", impl, e);
+                    }
                 }
             }
         }
 
-        return result;
+        return rule;
     }
 
     /**

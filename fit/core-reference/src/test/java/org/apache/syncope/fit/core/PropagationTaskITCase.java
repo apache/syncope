@@ -116,7 +116,7 @@ public class PropagationTaskITCase extends AbstractTaskITCase {
         Optional<ItemTO> mappingItem = provision.getMapping().getItems().stream().
                 filter(item -> "location".equals(item.getIntAttrName())).findFirst();
         assertTrue(mappingItem.isPresent());
-        assertTrue(mappingItem.get().getTransformerClassNames().isEmpty());
+        assertTrue(mappingItem.get().getTransformers().isEmpty());
 
         String suffix = getUUIDString();
         mappingItem.get().setPropagationJEXLTransformer("value + '" + suffix + "'");

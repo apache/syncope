@@ -73,27 +73,27 @@ public abstract class CommonsResultManager {
         return Messages.commandHelpMessage(name.getAnnotation(Command.class).name());
     }
 
-    protected void printConfiguration(final Collection<ConnConfProperty> configurationPropertys) {
-        for (final ConnConfProperty configuration : configurationPropertys) {
-            System.out.println("       name: " + configuration.getSchema().getName());
-            System.out.println("       values: " + configuration.getValues());
-            System.out.println("       type: " + configuration.getSchema().getType());
-            System.out.println("       display name: " + configuration.getSchema().getDisplayName());
-            System.out.println("       help message: " + configuration.getSchema().getHelpMessage());
-            System.out.println("       order: " + configuration.getSchema().getOrder());
-            System.out.println("       default values: " + configuration.getSchema().getDefaultValues());
-            System.out.println("       confidential: " + configuration.getSchema().isConfidential());
-            System.out.println("       required: " + configuration.getSchema().isRequired());
-            System.out.println("       overridable: " + configuration.isOverridable());
+    protected void printConfiguration(final Collection<ConnConfProperty> props) {
+        props.forEach(prop -> {
+            System.out.println("       name: " + prop.getSchema().getName());
+            System.out.println("       values: " + prop.getValues());
+            System.out.println("       type: " + prop.getSchema().getType());
+            System.out.println("       display name: " + prop.getSchema().getDisplayName());
+            System.out.println("       help message: " + prop.getSchema().getHelpMessage());
+            System.out.println("       order: " + prop.getSchema().getOrder());
+            System.out.println("       default values: " + prop.getSchema().getDefaultValues());
+            System.out.println("       confidential: " + prop.getSchema().isConfidential());
+            System.out.println("       required: " + prop.getSchema().isRequired());
+            System.out.println("       overridable: " + prop.isOverridable());
             System.out.println("");
-        }
+        });
     }
 
     protected void printDetails(final String title, final Map<String, String> details) {
         final Table.TableBuilder tableBuilder = new Table.TableBuilder(title).header("detail").header("value");
-        for (final Map.Entry<String, String> entrySet : details.entrySet()) {
+        details.entrySet().forEach(entrySet -> {
             tableBuilder.rowValues(Arrays.asList(entrySet.getKey(), entrySet.getValue()));
-        }
+        });
         tableBuilder.build().print();
     }
 }

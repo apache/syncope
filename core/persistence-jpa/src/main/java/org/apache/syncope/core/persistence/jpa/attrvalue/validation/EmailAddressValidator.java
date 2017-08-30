@@ -22,15 +22,10 @@ import java.util.regex.Matcher;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidPlainAttrValueException;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 
 public class EmailAddressValidator extends AbstractValidator {
 
     private static final long serialVersionUID = 792457177290331518L;
-
-    public EmailAddressValidator(final PlainSchema schema) {
-        super(schema);
-    }
 
     @Override
     protected void doValidate(final PlainAttrValue attrValue) {

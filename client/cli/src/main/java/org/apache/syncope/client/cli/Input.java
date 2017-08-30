@@ -107,9 +107,9 @@ public class Input {
 
     public String printCommandFields() {
         final StringBuilder commandBuilder = new StringBuilder();
-        for (final String commandField : commandFields) {
+        commandFields.forEach(commandField -> {
             commandBuilder.append(commandField).append(" ");
-        }
+        });
         return commandBuilder.toString();
     }
 }

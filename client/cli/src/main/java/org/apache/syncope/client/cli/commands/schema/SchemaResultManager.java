@@ -49,9 +49,9 @@ public class SchemaResultManager extends CommonsResultManager {
 
     private void printPlainSchemasDetailed(final List<? extends AbstractSchemaTO> schemaTOs) {
         System.out.println("");
-        for (final AbstractSchemaTO schemaTO : schemaTOs) {
+        schemaTOs.forEach(schemaTO -> {
             printPlanSchemaDetailed((PlainSchemaTO) schemaTO);
-        }
+        });
     }
 
     private void printPlanSchemaDetailed(final PlainSchemaTO schemaTO) {
@@ -70,34 +70,34 @@ public class SchemaResultManager extends CommonsResultManager {
     public void printPlainSchemas(final List<? extends AbstractSchemaTO> schemaTOs) {
         final Table.TableBuilder tableBuilder =
                 new Table.TableBuilder("plain schemas").header("schema key").header("type").header("mandatory");
-        for (final AbstractSchemaTO schemaTO : schemaTOs) {
+        schemaTOs.forEach(schemaTO -> {
             tableBuilder.rowValues(Arrays.asList(
                     ((PlainSchemaTO) schemaTO).getKey(),
                     ((PlainSchemaTO) schemaTO).getType().toString(),
                     ((PlainSchemaTO) schemaTO).getMandatoryCondition()));
-        }
+        });
         tableBuilder.build().print();
     }
 
     public void fromListDerived(final List<? extends AbstractSchemaTO> schemaTOs) {
         final Table.TableBuilder tableBuilder =
                 new Table.TableBuilder("derived schemas").header("schema key").header("expression");
-        for (final AbstractSchemaTO schemaTO : schemaTOs) {
+        schemaTOs.forEach(schemaTO -> {
             tableBuilder.rowValues(Arrays.asList(
                     ((DerSchemaTO) schemaTO).getKey(),
                     ((DerSchemaTO) schemaTO).getExpression()));
-        }
+        });
         tableBuilder.build().print();
     }
 
     public void fromListVirtual(final List<? extends AbstractSchemaTO> schemaTOs) {
         final Table.TableBuilder tableBuilder =
                 new Table.TableBuilder("virtual schemas").header("schema key").header("readonly");
-        for (final AbstractSchemaTO schemaTO : schemaTOs) {
+        schemaTOs.forEach(schemaTO -> {
             tableBuilder.rowValues(Arrays.asList(
                     ((VirSchemaTO) schemaTO).getKey(),
                     String.valueOf(((VirSchemaTO) schemaTO).isReadonly())));
-        }
+        });
         tableBuilder.build().print();
     }
 

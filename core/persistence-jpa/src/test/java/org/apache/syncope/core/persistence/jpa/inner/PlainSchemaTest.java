@@ -31,6 +31,7 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.common.lib.types.EntityViolationType;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
+import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 import org.apache.syncope.core.persistence.api.entity.group.GPlainAttr;
@@ -44,6 +45,9 @@ public class PlainSchemaTest extends AbstractTest {
 
     @Autowired
     private PlainSchemaDAO plainSchemaDAO;
+
+    @Autowired
+    private ImplementationDAO implementationDAO;
 
     @Test
     public void findAll() {
@@ -72,7 +76,7 @@ public class PlainSchemaTest extends AbstractTest {
         PlainSchema schema = entityFactory.newEntity(PlainSchema.class);
         schema.setKey("secondaryEmail");
         schema.setType(AttrSchemaType.String);
-        schema.setValidatorClass("org.apache.syncope.core.validation.EmailAddressValidator");
+        schema.setValidator(implementationDAO.find("EmailAddressValidator"));
         schema.setMandatoryCondition("false");
         schema.setMultivalue(true);
 
@@ -89,7 +93,7 @@ public class PlainSchemaTest extends AbstractTest {
             PlainSchema schema = entityFactory.newEntity(PlainSchema.class);
             schema.setKey("secondaryEmail");
             schema.setType(AttrSchemaType.String);
-            schema.setValidatorClass("org.apache.syncope.core.validation.EmailAddressValidator");
+            schema.setValidator(implementationDAO.find("EmailAddressValidator"));
             schema.setMandatoryCondition("false");
             schema.setMultivalue(true);
             schema.setUniqueConstraint(true);

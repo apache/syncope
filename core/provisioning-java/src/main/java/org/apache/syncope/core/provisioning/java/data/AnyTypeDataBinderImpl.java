@@ -119,7 +119,7 @@ public class AnyTypeDataBinderImpl implements AnyTypeDataBinder {
         anyTypeTO.getClasses().forEach(anyTypeClassName -> {
             AnyTypeClass anyTypeClass = anyTypeClassDAO.find(anyTypeClassName);
             if (anyTypeClass == null) {
-                LOG.debug("Invalid " + AnyTypeClass.class.getSimpleName() + "{}, ignoring...", anyTypeClassName);
+                LOG.debug("Invalid " + AnyTypeClass.class.getSimpleName() + " {}, ignoring...", anyTypeClassName);
             } else {
                 anyType.add(anyTypeClass);
             }

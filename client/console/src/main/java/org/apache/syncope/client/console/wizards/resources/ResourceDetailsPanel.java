@@ -20,7 +20,9 @@ package org.apache.syncope.client.console.wizards.resources;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
@@ -28,7 +30,9 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownCho
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxSpinnerFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
+import org.apache.syncope.common.lib.info.JavaImplInfo;
 import org.apache.syncope.common.lib.to.ResourceTO;
+import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.wicket.extensions.wizard.WizardStep;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -49,7 +53,13 @@ public class ResourceDetailsPanel extends WizardStep {
 
         @Override
         protected List<String> load() {
-            return new ArrayList<>(SyncopeConsoleSession.get().getPlatformInfo().getPropagationActions());
+            Optional<JavaImplInfo> propagationActions = SyncopeConsoleSession.get().getPlatformInfo().
+                    getJavaImplInfo(ImplementationType.PROPAGATION_ACTIONS);
+            List<String> load = propagationActions.isPresent()
+                    ? new ArrayList<>(propagationActions.get().getClasses())
+                    : new ArrayList<>();
+            Collections.sort(load);
+            return load;
         }
     };
 

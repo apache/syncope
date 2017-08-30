@@ -61,14 +61,14 @@ public class InfoCommand extends AbstractCommand {
             case CONNID_LOCATION:
                 info.connidLocations();
                 break;
-            case RECONCILIATION_FILTER_BUILDERS:
-                info.reconciliationFilterBuilders();
+            case RECON_FILTER_BUILDERS:
+                info.reconFilterBuilders();
                 break;
             case LOGIC_ACTIONS:
                 info.logicActions();
                 break;
             case MAPPING_ITEM_TRANSFORMERS:
-                info.mappingItemTransformers();
+                info.itemTransformers();
                 break;
             case PASSWORD_RULES:
                 info.passwordRules();
@@ -78,9 +78,6 @@ public class InfoCommand extends AbstractCommand {
                 break;
             case PUSH_ACTIONS:
                 info.pushActions();
-                break;
-            case PUSH_CORRELATION_ACTIONS:
-                info.pushCorrelationActions();
                 break;
             case REPORTLET_CONFS:
                 info.reportletConfs();
@@ -98,7 +95,7 @@ public class InfoCommand extends AbstractCommand {
                 info.validators();
                 break;
             case PASSWORD_GENERATOR:
-                info.passwordGenerators();
+                info.passwordGenerator();
                 break;
             case VIR_ATTR_CACHE:
                 info.virAttrCache();
@@ -128,13 +125,12 @@ public class InfoCommand extends AbstractCommand {
         WORKFLOW_ADAPTER("--workflow-adapter-classes"),
         ACCOUNT_RULES("--account-rules-classes"),
         CONNID_LOCATION("--connid-locations"),
-        RECONCILIATION_FILTER_BUILDERS("--reconciliation-filter-builders"),
+        RECON_FILTER_BUILDERS("--reconciliation-filter-builders"),
         LOGIC_ACTIONS("--logic-actions"),
         MAPPING_ITEM_TRANSFORMERS("--mapping-item-transformers"),
         PASSWORD_RULES("--password-rules"),
         PROPAGATION_ACTIONS("--propagation-actions"),
         PUSH_ACTIONS("--push-actions"),
-        PUSH_CORRELATION_ACTIONS("--push-correlation-actions"),
         REPORTLET_CONFS("--reportletConfs"),
         SYNC_ACTIONS("--sync-actions"),
         SYNC_CORRELATION_RULES("--sync-correlation-rules"),

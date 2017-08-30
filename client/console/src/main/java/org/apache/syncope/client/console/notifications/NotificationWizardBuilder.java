@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
@@ -43,12 +44,14 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPa
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.MultiPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
+import org.apache.syncope.common.lib.info.JavaImplInfo;
 import org.apache.syncope.common.lib.to.DerSchemaTO;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.NotificationTO;
 import org.apache.syncope.common.lib.to.PlainSchemaTO;
 import org.apache.syncope.common.lib.to.VirSchemaTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
+import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.SchemaType;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.wicket.PageReference;
@@ -329,8 +332,13 @@ public class NotificationWizardBuilder extends AjaxWizardBuilder<NotificationWra
 
             @Override
             protected List<String> load() {
-                return new ArrayList<>(
-                        SyncopeConsoleSession.get().getPlatformInfo().getNotificationRecipientsProviders());
+                Optional<JavaImplInfo> providers = SyncopeConsoleSession.get().getPlatformInfo().
+                        getJavaImplInfo(ImplementationType.RECIPIENTS_PROVIDER);
+                List<String> load = providers.isPresent()
+                        ? new ArrayList<>(providers.get().getClasses())
+                        : new ArrayList<>();
+                Collections.sort(load);
+                return load;
             }
         };
 

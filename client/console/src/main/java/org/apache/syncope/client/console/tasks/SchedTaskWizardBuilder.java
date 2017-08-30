@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
@@ -34,11 +35,13 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownCho
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxPalettePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizardBuilder;
+import org.apache.syncope.common.lib.info.JavaImplInfo;
 import org.apache.syncope.common.lib.to.AbstractProvisioningTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.RealmTO;
+import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.PullMode;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
@@ -116,7 +119,13 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
 
             @Override
             protected List<String> load() {
-                return new ArrayList<>(SyncopeConsoleSession.get().getPlatformInfo().getTaskJobs());
+                Optional<JavaImplInfo> taskJobDelegates = SyncopeConsoleSession.get().getPlatformInfo().
+                        getJavaImplInfo(ImplementationType.TASKJOB_DELEGATE);
+                List<String> load = taskJobDelegates.isPresent()
+                        ? new ArrayList<>(taskJobDelegates.get().getClasses())
+                        : new ArrayList<>();
+                Collections.sort(load);
+                return load;
             }
         };
 
@@ -127,7 +136,13 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
 
             @Override
             protected List<String> load() {
-                return new ArrayList<>(SyncopeConsoleSession.get().getPlatformInfo().getReconciliationFilterBuilders());
+                Optional<JavaImplInfo> reconFilterBuilders = SyncopeConsoleSession.get().getPlatformInfo().
+                        getJavaImplInfo(ImplementationType.RECON_FILTER_BUILDER);
+                List<String> load = reconFilterBuilders.isPresent()
+                        ? new ArrayList<>(reconFilterBuilders.get().getClasses())
+                        : new ArrayList<>();
+                Collections.sort(load);
+                return load;
             }
         };
 
@@ -137,7 +152,13 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
 
             @Override
             protected List<String> load() {
-                return new ArrayList<>(SyncopeConsoleSession.get().getPlatformInfo().getPullActions());
+                Optional<JavaImplInfo> pullActions = SyncopeConsoleSession.get().getPlatformInfo().
+                        getJavaImplInfo(ImplementationType.PULL_ACTIONS);
+                List<String> load = pullActions.isPresent()
+                        ? new ArrayList<>(pullActions.get().getClasses())
+                        : new ArrayList<>();
+                Collections.sort(load);
+                return load;
             }
         };
 
@@ -147,7 +168,13 @@ public class SchedTaskWizardBuilder<T extends SchedTaskTO> extends AjaxWizardBui
 
             @Override
             protected List<String> load() {
-                return new ArrayList<>(SyncopeConsoleSession.get().getPlatformInfo().getPushActions());
+                Optional<JavaImplInfo> pushActions = SyncopeConsoleSession.get().getPlatformInfo().
+                        getJavaImplInfo(ImplementationType.PUSH_ACTIONS);
+                List<String> load = pushActions.isPresent()
+                        ? new ArrayList<>(pushActions.get().getClasses())
+                        : new ArrayList<>();
+                Collections.sort(load);
+                return load;
             }
         };
 

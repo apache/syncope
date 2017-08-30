@@ -73,6 +73,11 @@ under the License.
     </dependency>
 
     <dependency>
+      <groupId>org.codehaus.groovy</groupId>
+      <artifactId>groovy-all</artifactId>
+    </dependency>
+
+    <dependency>
       <groupId>org.apache.syncope.core</groupId>
       <artifactId>syncope-core-provisioning-api</artifactId>
       <version>${project.version}</version>
@@ -88,6 +93,11 @@ under the License.
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-simple</artifactId>
       <version>${slf4j.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-test</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>

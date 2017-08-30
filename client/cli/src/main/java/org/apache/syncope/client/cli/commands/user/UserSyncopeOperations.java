@@ -85,9 +85,9 @@ public class UserSyncopeOperations {
     private Map<String, BulkActionResult.Status> deleteBulk(final List<UserTO> users) {
         final BulkAction bulkAction = new BulkAction();
         bulkAction.setType(BulkAction.Type.DELETE);
-        for (UserTO user : users) {
-            bulkAction.getTargets().add(String.valueOf(user.getKey()));
-        }
+        users.forEach(user -> {
+            bulkAction.getTargets().add(user.getKey());
+        });
         final BulkActionResult bulkResult = userService.bulk(bulkAction).readEntity(BulkActionResult.class);
         return bulkResult.getResults();
     }

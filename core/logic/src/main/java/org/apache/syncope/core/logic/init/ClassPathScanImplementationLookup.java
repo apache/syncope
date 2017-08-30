@@ -28,6 +28,7 @@ import java.util.Set;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
 import org.apache.syncope.common.lib.report.ReportletConf;
+import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.core.logic.audit.AuditAppender;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.Validator;
@@ -40,12 +41,12 @@ import org.apache.syncope.core.persistence.api.dao.ReportletConfClass;
 import org.apache.syncope.core.provisioning.api.LogicActions;
 import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
 import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate;
-import org.apache.syncope.core.provisioning.api.notification.NotificationRecipientsProvider;
+import org.apache.syncope.core.provisioning.api.notification.RecipientsProvider;
 import org.apache.syncope.core.provisioning.api.propagation.PropagationActions;
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
 import org.apache.syncope.core.provisioning.api.pushpull.PullCorrelationRule;
 import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
-import org.apache.syncope.core.provisioning.api.pushpull.ReconciliationFilterBuilder;
+import org.apache.syncope.core.provisioning.api.pushpull.ReconFilterBuilder;
 import org.apache.syncope.core.provisioning.java.data.JEXLItemTransformerImpl;
 import org.apache.syncope.core.provisioning.java.job.GroupMemberProvisionTaskJobDelegate;
 import org.apache.syncope.core.provisioning.java.pushpull.PlainAttrsPullCorrelationRule;
@@ -54,7 +55,6 @@ import org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate;
 import org.apache.syncope.core.spring.security.JWTSSOProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.util.ClassUtils;
@@ -68,7 +68,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
 
     private static final String DEFAULT_BASE_PACKAGE = "org.apache.syncope.core";
 
-    private Map<Type, Set<String>> classNames;
+    private Map<ImplementationType, Set<String>> classNames;
 
     private Set<Class<?>> jwtSSOProviderClasses;
 
@@ -97,8 +97,8 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
     @Override
     @SuppressWarnings("unchecked")
     public void load() {
-        classNames = new EnumMap<>(Type.class);
-        for (Type type : Type.values()) {
+        classNames = new EnumMap<>(ImplementationType.class);
+        for (ImplementationType type : ImplementationType.values()) {
             classNames.put(type, new HashSet<>());
         }
 
@@ -115,24 +115,24 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
         scanner.addIncludeFilter(new AssignableTypeFilter(PasswordRule.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(ItemTransformer.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(SchedTaskJobDelegate.class));
-        scanner.addIncludeFilter(new AssignableTypeFilter(ReconciliationFilterBuilder.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(ReconFilterBuilder.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(LogicActions.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(PropagationActions.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(PullActions.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(PushActions.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(PullCorrelationRule.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(Validator.class));
-        scanner.addIncludeFilter(new AssignableTypeFilter(NotificationRecipientsProvider.class));
+        scanner.addIncludeFilter(new AssignableTypeFilter(RecipientsProvider.class));
         scanner.addIncludeFilter(new AssignableTypeFilter(AuditAppender.class));
 
-        for (BeanDefinition bd : scanner.findCandidateComponents(getBasePackage())) {
+        scanner.findCandidateComponents(getBasePackage()).forEach(bd -> {
             try {
                 Class<?> clazz = ClassUtils.resolveClassName(
                         bd.getBeanClassName(), ClassUtils.getDefaultClassLoader());
                 boolean isAbstractClazz = Modifier.isAbstract(clazz.getModifiers());
 
                 if (JWTSSOProvider.class.isAssignableFrom(clazz) && !isAbstractClazz) {
-                    classNames.get(Type.JWT_SSO_PROVIDER).add(clazz.getName());
+                    classNames.get(ImplementationType.JWT_SSO_PROVIDER).add(clazz.getName());
                     jwtSSOProviderClasses.add(clazz);
                 }
 
@@ -141,7 +141,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                     if (annotation == null) {
                         LOG.warn("Found Reportlet {} without declared configuration", clazz.getName());
                     } else {
-                        classNames.get(Type.REPORTLET_CONF).add(annotation.value().getName());
+                        classNames.get(ImplementationType.REPORTLET).add(clazz.getName());
                         reportletClasses.put(annotation.value(), (Class<? extends Reportlet>) clazz);
                     }
                 }
@@ -151,7 +151,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                     if (annotation == null) {
                         LOG.warn("Found account policy rule {} without declared configuration", clazz.getName());
                     } else {
-                        classNames.get(Type.ACCOUNT_RULE_CONF).add(annotation.value().getName());
+                        classNames.get(ImplementationType.ACCOUNT_RULE).add(clazz.getName());
                         accountRuleClasses.put(annotation.value(), (Class<? extends AccountRule>) clazz);
                     }
                 }
@@ -161,7 +161,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                     if (annotation == null) {
                         LOG.warn("Found password policy rule {} without declared configuration", clazz.getName());
                     } else {
-                        classNames.get(Type.PASSWORD_RULE_CONF).add(annotation.value().getName());
+                        classNames.get(ImplementationType.PASSWORD_RULE).add(clazz.getName());
                         passwordRuleClasses.put(annotation.value(), (Class<? extends PasswordRule>) clazz);
                     }
                 }
@@ -169,7 +169,7 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                 if (ItemTransformer.class.isAssignableFrom(clazz) && !isAbstractClazz
                         && !clazz.equals(JEXLItemTransformerImpl.class)) {
 
-                    classNames.get(Type.ITEM_TRANSFORMER).add(clazz.getName());
+                    classNames.get(ImplementationType.ITEM_TRANSFORMER).add(clazz.getName());
                 }
 
                 if (SchedTaskJobDelegate.class.isAssignableFrom(clazz) && !isAbstractClazz
@@ -177,60 +177,64 @@ public class ClassPathScanImplementationLookup implements ImplementationLookup {
                         && !PushJobDelegate.class.isAssignableFrom(clazz)
                         && !GroupMemberProvisionTaskJobDelegate.class.isAssignableFrom(clazz)) {
 
-                    classNames.get(Type.TASKJOBDELEGATE).add(bd.getBeanClassName());
+                    classNames.get(ImplementationType.TASKJOB_DELEGATE).add(bd.getBeanClassName());
                 }
 
-                if (ReconciliationFilterBuilder.class.isAssignableFrom(clazz) && !isAbstractClazz) {
-                    classNames.get(Type.RECONCILIATION_FILTER_BUILDER).add(bd.getBeanClassName());
+                if (ReconFilterBuilder.class.isAssignableFrom(clazz) && !isAbstractClazz) {
+                    classNames.get(ImplementationType.RECON_FILTER_BUILDER).add(bd.getBeanClassName());
                 }
 
                 if (LogicActions.class.isAssignableFrom(clazz) && !isAbstractClazz) {
-                    classNames.get(Type.LOGIC_ACTIONS).add(bd.getBeanClassName());
+                    classNames.get(ImplementationType.LOGIC_ACTIONS).add(bd.getBeanClassName());
                 }
 
                 if (PropagationActions.class.isAssignableFrom(clazz) && !isAbstractClazz) {
-                    classNames.get(Type.PROPAGATION_ACTIONS).add(bd.getBeanClassName());
+                    classNames.get(ImplementationType.PROPAGATION_ACTIONS).add(bd.getBeanClassName());
                 }
 
                 if (PullActions.class.isAssignableFrom(clazz) && !isAbstractClazz) {
-                    classNames.get(Type.PULL_ACTIONS).add(bd.getBeanClassName());
+                    classNames.get(ImplementationType.PULL_ACTIONS).add(bd.getBeanClassName());
                 }
 
                 if (PushActions.class.isAssignableFrom(clazz) && !isAbstractClazz) {
-                    classNames.get(Type.PUSH_ACTIONS).add(bd.getBeanClassName());
+                    classNames.get(ImplementationType.PUSH_ACTIONS).add(bd.getBeanClassName());
                 }
 
                 if (PullCorrelationRule.class.isAssignableFrom(clazz) && !isAbstractClazz
                         && !PlainAttrsPullCorrelationRule.class.isAssignableFrom(clazz)) {
-                    classNames.get(Type.PULL_CORRELATION_RULE).add(bd.getBeanClassName());
+
+                    classNames.get(ImplementationType.PULL_CORRELATION_RULE).add(bd.getBeanClassName());
                 }
 
                 if (Validator.class.isAssignableFrom(clazz) && !isAbstractClazz) {
-                    classNames.get(Type.VALIDATOR).add(bd.getBeanClassName());
+                    classNames.get(ImplementationType.VALIDATOR).add(bd.getBeanClassName());
                 }
 
-                if (NotificationRecipientsProvider.class.isAssignableFrom(clazz) && !isAbstractClazz) {
-                    classNames.get(Type.NOTIFICATION_RECIPIENTS_PROVIDER).add(bd.getBeanClassName());
+                if (RecipientsProvider.class.isAssignableFrom(clazz) && !isAbstractClazz) {
+                    classNames.get(ImplementationType.RECIPIENTS_PROVIDER).add(bd.getBeanClassName());
                 }
 
                 if (AuditAppender.class.isAssignableFrom(clazz) && !isAbstractClazz) {
-                    classNames.get(Type.AUDIT_APPENDER).add(clazz.getName());
+                    classNames.get(ImplementationType.AUDIT_APPENDER).add(clazz.getName());
                     auditAppenderClasses.add(clazz);
                 }
             } catch (Throwable t) {
                 LOG.warn("Could not inspect class {}", bd.getBeanClassName(), t);
             }
-        }
+        });
+
         classNames = Collections.unmodifiableMap(classNames);
+        LOG.debug("Implementation classes found: {}", classNames);
+
+        jwtSSOProviderClasses = Collections.unmodifiableSet(jwtSSOProviderClasses);
         reportletClasses = Collections.unmodifiableMap(reportletClasses);
         accountRuleClasses = Collections.unmodifiableMap(accountRuleClasses);
         passwordRuleClasses = Collections.unmodifiableMap(passwordRuleClasses);
-
-        LOG.debug("Implementation classes found: {}", classNames);
+        auditAppenderClasses = Collections.unmodifiableSet(auditAppenderClasses);
     }
 
     @Override
-    public Set<String> getClassNames(final Type type) {
+    public Set<String> getClassNames(final ImplementationType type) {
         return classNames.get(type);
     }
 

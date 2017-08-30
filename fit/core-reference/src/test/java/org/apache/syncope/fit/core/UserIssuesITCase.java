@@ -37,6 +37,7 @@ import java.util.Set;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.helpers.IOUtils;
 import org.apache.syncope.client.lib.SyncopeClient;
@@ -53,6 +54,7 @@ import org.apache.syncope.common.lib.policy.PasswordPolicyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
 import org.apache.syncope.common.lib.to.ConnObjectTO;
 import org.apache.syncope.common.lib.to.GroupTO;
+import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.MappingTO;
 import org.apache.syncope.common.lib.to.MembershipTO;
@@ -64,9 +66,14 @@ import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.ImplementationEngine;
+import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
+import org.apache.syncope.common.rest.api.RESTHeaders;
+import org.apache.syncope.common.rest.api.service.ImplementationService;
+import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.provisioning.java.propagation.DBPasswordPropagationActions;
 import org.apache.syncope.core.provisioning.java.propagation.LDAPPasswordPropagationActions;
 import org.apache.syncope.core.spring.security.Encryptor;
@@ -792,9 +799,18 @@ public class UserIssuesITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE420() {
+        ImplementationTO logicActions = new ImplementationTO();
+        logicActions.setKey(DoubleValueLogicActions.class.getSimpleName());
+        logicActions.setEngine(ImplementationEngine.JAVA);
+        logicActions.setType(ImplementationType.LOGIC_ACTIONS);
+        logicActions.setBody(DoubleValueLogicActions.class.getName());
+        Response response = implementationService.create(logicActions);
+        logicActions = getObject(response.getLocation(), ImplementationService.class, ImplementationTO.class);
+        assertNotNull(logicActions);
+
         RealmTO realm = realmService.list("/even/two").iterator().next();
         assertNotNull(realm);
-        realm.getActionsClassNames().add(DoubleValueLogicActions.class.getName());
+        realm.getActions().add(logicActions.getKey());
         realmService.update(realm);
 
         UserTO userTO = UserITCase.getUniqueSampleTO("syncope420@syncope.apache.org");
@@ -964,9 +980,18 @@ public class UserIssuesITCase extends AbstractITCase {
         assertTrue(user.getResources().isEmpty());
 
         // 2. Add DBPasswordPropagationActions
+        ImplementationTO propagationActions = new ImplementationTO();
+        propagationActions.setKey(DBPasswordPropagationActions.class.getSimpleName());
+        propagationActions.setEngine(ImplementationEngine.JAVA);
+        propagationActions.setType(ImplementationType.PROPAGATION_ACTIONS);
+        propagationActions.setBody(DBPasswordPropagationActions.class.getName());
+        Response response = implementationService.create(propagationActions);
+        propagationActions = getObject(response.getLocation(), ImplementationService.class, ImplementationTO.class);
+        assertNotNull(propagationActions);
+
         ResourceTO resourceTO = resourceService.read(RESOURCE_NAME_TESTDB);
         assertNotNull(resourceTO);
-        resourceTO.getPropagationActionsClassNames().add(DBPasswordPropagationActions.class.getName());
+        resourceTO.getPropagationActions().add(propagationActions.getKey());
         resourceService.update(resourceTO);
 
         // 3. Add a db resource to the User
@@ -990,7 +1015,7 @@ public class UserIssuesITCase extends AbstractITCase {
         // 5. Remove DBPasswordPropagationActions
         resourceTO = resourceService.read(RESOURCE_NAME_TESTDB);
         assertNotNull(resourceTO);
-        resourceTO.getPropagationActionsClassNames().remove(DBPasswordPropagationActions.class.getName());
+        resourceTO.getPropagationActions().remove(propagationActions.getKey());
         resourceService.update(resourceTO);
     }
 
@@ -1004,9 +1029,18 @@ public class UserIssuesITCase extends AbstractITCase {
         assertTrue(user.getResources().isEmpty());
 
         // 2. Add LDAPPasswordPropagationActions
+        ImplementationTO propagationActions = new ImplementationTO();
+        propagationActions.setKey(LDAPPasswordPropagationActions.class.getSimpleName());
+        propagationActions.setEngine(ImplementationEngine.JAVA);
+        propagationActions.setType(ImplementationType.PROPAGATION_ACTIONS);
+        propagationActions.setBody(LDAPPasswordPropagationActions.class.getName());
+        Response response = implementationService.create(propagationActions);
+        propagationActions = getObject(response.getLocation(), ImplementationService.class, ImplementationTO.class);
+        assertNotNull(propagationActions);
+
         ResourceTO resourceTO = resourceService.read(RESOURCE_NAME_LDAP);
         assertNotNull(resourceTO);
-        resourceTO.getPropagationActionsClassNames().add(LDAPPasswordPropagationActions.class.getName());
+        resourceTO.getPropagationActions().add(propagationActions.getKey());
         resourceTO.setRandomPwdIfNotProvided(false);
         resourceService.update(resourceTO);
 
@@ -1034,7 +1068,7 @@ public class UserIssuesITCase extends AbstractITCase {
         // 5. Remove LDAPPasswordPropagationActions
         resourceTO = resourceService.read(RESOURCE_NAME_LDAP);
         assertNotNull(resourceTO);
-        resourceTO.getPropagationActionsClassNames().remove(LDAPPasswordPropagationActions.class.getName());
+        resourceTO.getPropagationActions().remove(propagationActions.getKey());
         resourceTO.setRandomPwdIfNotProvided(true);
         resourceService.update(resourceTO);
     }
@@ -1179,12 +1213,20 @@ public class UserIssuesITCase extends AbstractITCase {
 
     @Test
     public void issueSYNCOPE626() {
-        PasswordPolicyTO passwordPolicy = new PasswordPolicyTO();
-        passwordPolicy.setDescription("Password Policy for SYNCOPE-626");
-
         DefaultPasswordRuleConf ruleConf = new DefaultPasswordRuleConf();
         ruleConf.setUsernameAllowed(false);
-        passwordPolicy.getRuleConfs().add(ruleConf);
+
+        ImplementationTO rule = new ImplementationTO();
+        rule.setKey("DefaultPasswordRuleConf" + getUUIDString());
+        rule.setEngine(ImplementationEngine.JAVA);
+        rule.setType(ImplementationType.PASSWORD_RULE);
+        rule.setBody(POJOHelper.serialize(ruleConf));
+        Response response = implementationService.create(rule);
+        rule.setKey(response.getHeaderString(RESTHeaders.RESOURCE_KEY));
+
+        PasswordPolicyTO passwordPolicy = new PasswordPolicyTO();
+        passwordPolicy.setDescription("Password Policy for SYNCOPE-626");
+        passwordPolicy.getRules().add(rule.getKey());
 
         passwordPolicy = createPolicy(passwordPolicy);
         assertNotNull(passwordPolicy);

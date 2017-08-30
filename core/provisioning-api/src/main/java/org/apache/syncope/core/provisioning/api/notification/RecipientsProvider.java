@@ -16,20 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.api.pushpull;
+package org.apache.syncope.core.provisioning.api.notification;
 
-import org.identityconnectors.framework.common.objects.filter.Filter;
-import org.identityconnectors.framework.impl.api.local.operations.FilteredResultsHandler;
+import java.util.Set;
+import org.apache.syncope.core.persistence.api.entity.Notification;
 
-/**
- * Interface to be implemented for performing filtered reconciliation of a
- * {@link org.apache.syncope.core.persistence.api.entity.task.PullTask}.
- */
-public interface ReconciliationFilterBuilder {
+public interface RecipientsProvider {
 
-    FilteredResultsHandler.PassThroughFilter PASS_THROUGH = new FilteredResultsHandler.PassThroughFilter();
-
-    default Filter build() {
-        return PASS_THROUGH;
-    }
+    Set<String> provideRecipients(Notification notification);
 }

@@ -18,21 +18,23 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.report.AbstractReportletConf;
 import org.apache.syncope.core.provisioning.api.data.ReportDataBinder;
-import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.JobType;
+import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportExecDAO;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
 import org.apache.syncope.core.provisioning.api.job.JobNamer;
 import org.apache.syncope.core.spring.BeanUtils;
 import org.apache.syncope.core.persistence.api.dao.ReportTemplateDAO;
+import org.apache.syncope.core.persistence.api.entity.Entity;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.ReportTemplate;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
@@ -60,6 +62,9 @@ public class ReportDataBinderImpl implements ReportDataBinder {
     private ReportExecDAO reportExecDAO;
 
     @Autowired
+    private ImplementationDAO implementationDAO;
+
+    @Autowired
     private SchedulerFactoryBean scheduler;
 
     @Override
@@ -74,10 +79,18 @@ public class ReportDataBinderImpl implements ReportDataBinder {
         }
         report.setTemplate(template);
 
-        report.removeAllReportletConfs();
-        for (ReportletConf conf : reportTO.getReportletConfs()) {
-            report.add(conf);
-        }
+        reportTO.getReportlets().forEach(reportletKey -> {
+            Implementation reportlet = implementationDAO.find(reportletKey);
+            if (reportlet == null) {
+                LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...", reportletKey);
+            } else {
+                report.add(reportlet);
+            }
+        });
+        // remove all implementations not contained in the TO
+        report.getReportlets().removeAll(report.getReportlets().stream().
+                filter(reportlet -> !reportTO.getReportlets().contains(reportlet.getKey())).
+                collect(Collectors.toList()));
     }
 
     @Override
@@ -88,10 +101,8 @@ public class ReportDataBinderImpl implements ReportDataBinder {
 
         BeanUtils.copyProperties(report, reportTO, IGNORE_REPORT_PROPERTIES);
 
-        reportTO.getReportletConfs().clear();
-        for (ReportletConf reportletConf : report.getReportletConfs()) {
-            reportTO.getReportletConfs().add((AbstractReportletConf) reportletConf);
-        }
+        reportTO.getReportlets().addAll(
+                report.getReportlets().stream().map(Entity::getKey).collect(Collectors.toList()));
 
         ReportExec latestExec = reportExecDAO.findLatestStarted(report);
         if (latestExec == null) {
@@ -104,9 +115,8 @@ public class ReportDataBinderImpl implements ReportDataBinder {
             reportTO.setLastExec(reportTO.getStart());
         }
 
-        for (ReportExec reportExec : report.getExecs()) {
-            reportTO.getExecutions().add(getExecTO(reportExec));
-        }
+        reportTO.getExecutions().addAll(report.getExecs().stream().
+                map(reportExec -> getExecTO(reportExec)).collect(Collectors.toList()));
 
         String triggerName = JobNamer.getTriggerName(JobNamer.getJobKey(report).getName());
         try {

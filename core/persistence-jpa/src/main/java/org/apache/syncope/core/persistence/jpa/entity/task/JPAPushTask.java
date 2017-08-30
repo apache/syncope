@@ -19,24 +19,24 @@
 package org.apache.syncope.core.persistence.jpa.entity.task;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import javax.persistence.CascadeType;
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
 import javax.persistence.DiscriminatorValue;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.task.PushTask;
 import org.apache.syncope.core.persistence.api.entity.task.PushTaskAnyFilter;
+import org.apache.syncope.core.persistence.jpa.entity.JPAImplementation;
 import org.apache.syncope.core.persistence.jpa.entity.JPARealm;
 
 @Entity
@@ -48,12 +48,13 @@ public class JPAPushTask extends AbstractProvisioningTask implements PushTask {
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     private JPARealm sourceRealm;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @Column(name = "actionClassName")
-    @CollectionTable(name = "PushTask_actionsClassNames",
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = "PushTaskAction",
             joinColumns =
-            @JoinColumn(name = "pushTask_id", referencedColumnName = "id"))
-    private Set<String> actionsClassNames = new HashSet<>();
+            @JoinColumn(name = "task_id"),
+            inverseJoinColumns =
+            @JoinColumn(name = "implementation_id"))
+    private List<JPAImplementation> actions = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "pushTask")
     private List<JPAPushTaskAnyFilter> filters = new ArrayList<>();
@@ -70,8 +71,15 @@ public class JPAPushTask extends AbstractProvisioningTask implements PushTask {
     }
 
     @Override
-    public Set<String> getActionsClassNames() {
-        return actionsClassNames;
+    public boolean add(final Implementation action) {
+        checkType(action, JPAImplementation.class);
+        checkImplementationType(action, ImplementationType.PUSH_ACTIONS);
+        return actions.contains((JPAImplementation) action) || actions.add((JPAImplementation) action);
+    }
+
+    @Override
+    public List<? extends Implementation> getActions() {
+        return actions;
     }
 
     @Override

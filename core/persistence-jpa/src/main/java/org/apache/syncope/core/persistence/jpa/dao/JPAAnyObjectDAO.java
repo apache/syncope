@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -123,15 +122,12 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
                 "SELECT e.realm, COUNT(e) FROM  " + JPAAnyObject.class.getSimpleName() + " e "
                 + "WHERE e.type=:type GROUP BY e.realm");
         query.setParameter("type", anyType);
+
         @SuppressWarnings("unchecked")
         List<Object[]> results = query.getResultList();
-
-        Map<String, Integer> countByRealm = new HashMap<>(results.size());
-        for (Object[] result : results) {
-            countByRealm.put(((Realm) result[0]).getFullPath(), ((Number) result[1]).intValue());
-        }
-
-        return Collections.unmodifiableMap(countByRealm);
+        return results.stream().collect(Collectors.toMap(
+                result -> ((Realm) result[0]).getFullPath(),
+                result -> ((Number) result[1]).intValue()));
     }
 
     @Override

@@ -18,19 +18,23 @@
  */
 package org.apache.syncope.core.provisioning.java.data;
 
+import java.util.stream.Collectors;
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.syncope.core.provisioning.api.data.PolicyDataBinder;
-import org.apache.syncope.common.lib.policy.AbstractAccountRuleConf;
-import org.apache.syncope.common.lib.policy.AbstractPasswordRuleConf;
 import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
 import org.apache.syncope.common.lib.policy.AccountPolicyTO;
-import org.apache.syncope.common.lib.policy.AccountRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordPolicyTO;
-import org.apache.syncope.common.lib.policy.PasswordRuleConf;
+import org.apache.syncope.common.lib.policy.PullPolicySpec;
 import org.apache.syncope.common.lib.policy.PullPolicyTO;
+import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
+import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
+import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.Entity;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.Policy;
@@ -53,6 +57,12 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
     private RealmDAO realmDAO;
 
     @Autowired
+    private AnyTypeDAO anyTypeDAO;
+
+    @Autowired
+    private ImplementationDAO implementationDAO;
+
+    @Autowired
     private EntityFactory entityFactory;
 
     @SuppressWarnings("unchecked")
@@ -70,10 +80,18 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
             passwordPolicy.setAllowNullPassword(passwordPolicyTO.isAllowNullPassword());
             passwordPolicy.setHistoryLength(passwordPolicyTO.getHistoryLength());
 
-            passwordPolicy.removeAllRuleConfs();
-            for (PasswordRuleConf conf : passwordPolicyTO.getRuleConfs()) {
-                passwordPolicy.add(conf);
-            }
+            passwordPolicyTO.getRules().forEach(ruleKey -> {
+                Implementation rule = implementationDAO.find(ruleKey);
+                if (rule == null) {
+                    LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...", ruleKey);
+                } else {
+                    passwordPolicy.add(rule);
+                }
+            });
+            // remove all implementations not contained in the TO
+            passwordPolicy.getRules().removeAll(passwordPolicy.getRules().stream().
+                    filter(implementation -> !passwordPolicyTO.getRules().contains(implementation.getKey())).
+                    collect(Collectors.toList()));
         } else if (policyTO instanceof AccountPolicyTO) {
             if (result == null) {
                 result = (T) entityFactory.newEntity(AccountPolicy.class);
@@ -85,26 +103,54 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
             accountPolicy.setMaxAuthenticationAttempts(accountPolicyTO.getMaxAuthenticationAttempts());
             accountPolicy.setPropagateSuspension(accountPolicyTO.isPropagateSuspension());
 
-            accountPolicy.removeAllRuleConfs();
-            for (AccountRuleConf conf : accountPolicyTO.getRuleConfs()) {
-                accountPolicy.add(conf);
-            }
+            accountPolicyTO.getRules().forEach(ruleKey -> {
+                Implementation rule = implementationDAO.find(ruleKey);
+                if (rule == null) {
+                    LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...", ruleKey);
+                } else {
+                    accountPolicy.add(rule);
+                }
+            });
+            // remove all implementations not contained in the TO
+            accountPolicy.getRules().removeAll(accountPolicy.getRules().stream().
+                    filter(implementation -> !accountPolicyTO.getRules().contains(implementation.getKey())).
+                    collect(Collectors.toList()));
 
             accountPolicy.getResources().clear();
-            for (String resourceName : accountPolicyTO.getPassthroughResources()) {
+            accountPolicyTO.getPassthroughResources().forEach(resourceName -> {
                 ExternalResource resource = resourceDAO.find(resourceName);
                 if (resource == null) {
                     LOG.debug("Ignoring invalid resource {} ", resourceName);
                 } else {
                     accountPolicy.add(resource);
                 }
-            }
+            });
         } else if (policyTO instanceof PullPolicyTO) {
             if (result == null) {
                 result = (T) entityFactory.newEntity(PullPolicy.class);
             }
 
-            ((PullPolicy) result).setSpecification(((PullPolicyTO) policyTO).getSpecification());
+            PullPolicy pullPolicy = PullPolicy.class.cast(result);
+            PullPolicyTO pullPolicyTO = PullPolicyTO.class.cast(policyTO);
+
+            PullPolicySpec pullPolicySpec = SerializationUtils.clone(pullPolicyTO.getSpecification());
+            pullPolicySpec.getCorrelationRules().clear();
+            pullPolicyTO.getSpecification().getCorrelationRules().entrySet().forEach(entry -> {
+                AnyType anyType = anyTypeDAO.find(entry.getKey());
+                if (anyType == null) {
+                    LOG.debug("Invalid " + AnyType.class.getSimpleName() + " {}, ignoring...",
+                            entry.getKey());
+                } else {
+                    Implementation rule = implementationDAO.find(entry.getValue());
+                    if (rule == null) {
+                        LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...",
+                                entry.getValue());
+                    } else {
+                        pullPolicySpec.getCorrelationRules().put(anyType.getKey(), rule.getKey());
+                    }
+                }
+            });
+            pullPolicy.setSpecification(pullPolicySpec);
         }
 
         if (result != null) {
@@ -137,9 +183,8 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
             passwordPolicyTO.setAllowNullPassword(passwordPolicy.isAllowNullPassword());
             passwordPolicyTO.setHistoryLength(passwordPolicy.getHistoryLength());
 
-            for (PasswordRuleConf ruleConf : passwordPolicy.getRuleConfs()) {
-                passwordPolicyTO.getRuleConfs().add((AbstractPasswordRuleConf) ruleConf);
-            }
+            passwordPolicyTO.getRules().addAll(
+                    passwordPolicy.getRules().stream().map(Entity::getKey).collect(Collectors.toList()));
         } else if (policy instanceof AccountPolicy) {
             AccountPolicy accountPolicy = AccountPolicy.class.cast(policy);
             AccountPolicyTO accountPolicyTO = new AccountPolicyTO();
@@ -148,11 +193,11 @@ public class PolicyDataBinderImpl implements PolicyDataBinder {
             accountPolicyTO.setMaxAuthenticationAttempts(accountPolicy.getMaxAuthenticationAttempts());
             accountPolicyTO.setPropagateSuspension(accountPolicy.isPropagateSuspension());
 
-            for (AccountRuleConf ruleConf : accountPolicy.getRuleConfs()) {
-                accountPolicyTO.getRuleConfs().add((AbstractAccountRuleConf) ruleConf);
-            }
+            accountPolicyTO.getRules().addAll(
+                    accountPolicy.getRules().stream().map(Entity::getKey).collect(Collectors.toList()));
 
-            accountPolicyTO.getPassthroughResources().addAll(accountPolicy.getResourceKeys());
+            accountPolicyTO.getPassthroughResources().addAll(
+                    accountPolicy.getResources().stream().map(Entity::getKey).collect(Collectors.toList()));
         } else if (policy instanceof PullPolicy) {
             policyTO = (T) new PullPolicyTO();
             ((PullPolicyTO) policyTO).setSpecification(((PullPolicy) policy).getSpecification());

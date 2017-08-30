@@ -19,8 +19,8 @@
 package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -50,7 +50,7 @@ public class AbstractProvisioningTaskTO extends SchedTaskTO {
 
     private MatchingRule matchingRule;
 
-    private final Set<String> actionsClassNames = new HashSet<>();
+    private final List<String> actions = new ArrayList<>();
 
     public String getResource() {
         return resource;
@@ -92,11 +92,11 @@ public class AbstractProvisioningTaskTO extends SchedTaskTO {
         this.syncStatus = syncStatus;
     }
 
-    @XmlElementWrapper(name = "actionsClassNames")
-    @XmlElement(name = "actionsClassName")
-    @JsonProperty("actionsClassNames")
-    public Set<String> getActionsClassNames() {
-        return actionsClassNames;
+    @XmlElementWrapper(name = "actions")
+    @XmlElement(name = "action")
+    @JsonProperty("actions")
+    public List<String> getActions() {
+        return actions;
     }
 
     public UnmatchingRule getUnmatchingRule() {

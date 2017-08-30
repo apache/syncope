@@ -129,10 +129,28 @@ under the License.
 
   <AnyType id="GROUP" kind="GROUP"/>
         
+  <!-- Actual plain schemas -->
+  <Implementation id="EmailAddressValidator" type="VALIDATOR" engine="JAVA"
+                  body="org.apache.syncope.core.persistence.jpa.attrvalue.validation.EmailAddressValidator"/>
   <SyncopeSchema id="email"/>
   <PlainSchema id="email" type="String" anyTypeClass_id="BaseUser"
                mandatoryCondition="false" multivalue="0" uniqueConstraint="0" readonly="0"
-               validatorClass="org.apache.syncope.core.persistence.jpa.attrvalue.validation.EmailAddressValidator"/>
+               validator_id="EmailAddressValidator"/>
+
+  <Implementation id="PullJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"
+                  body="org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate"/>
+  <Implementation id="PushJobDelegate" type="TASKJOB_DELEGATE" engine="JAVA"
+                  body="org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate"/>
+
+  <Implementation id="IdentityRecertification" type="TASKJOB_DELEGATE" engine="JAVA"
+                  body="org.apache.syncope.core.provisioning.java.job.IdentityRecertification"/>
+  <Task DTYPE="SchedTask" id="e95555d2-1b09-42c8-b25b-f4c4ec598989" name="Identity Recertification Task"  active="1"
+        jobDelegate_id="IdentityRecertification"/>
+
+  <Implementation id="ExpiredAccessTokenCleanup" type="TASKJOB_DELEGATE" engine="JAVA"
+                  body="org.apache.syncope.core.provisioning.java.job.ExpiredAccessTokenCleanup"/>
+  <Task DTYPE="SchedTask" id="89de5014-e3f5-4462-84d8-d97575740baf" name="Access Token Cleanup Task"  active="1"
+        jobDelegate_id="ExpiredAccessTokenCleanup" cronExpression="0 0/5 * * * ?"/>
   
   <!-- Password reset notifications -->
   <MailTemplate id="requestPasswordReset"

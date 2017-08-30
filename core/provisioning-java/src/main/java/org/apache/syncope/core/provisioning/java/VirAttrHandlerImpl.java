@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.Membership;
@@ -102,14 +103,13 @@ public class VirAttrHandlerImpl implements VirAttrHandler {
             String connObjectKeyValue = connObjectKeyItem.isPresent()
                     ? mappingManager.getConnObjectKeyValue(any, entry.getKey()).orElse(null)
                     : null;
-            if (!connObjectKeyItem.isPresent()) {
-                LOG.error("No ConnObjectKey found for {}, ignoring...", entry.getKey());
+            if (!connObjectKeyItem.isPresent() || connObjectKeyValue == null) {
+                LOG.error("No ConnObjectKey or value found for {}, ignoring...", entry.getKey());
             } else {
                 Set<MappingItem> linkingMappingItems = new HashSet<>();
                 linkingMappingItems.add(connObjectKeyItem.get());
-                for (VirSchema schema : entry.getValue()) {
-                    linkingMappingItems.add(schema.asLinkingMappingItem());
-                }
+                linkingMappingItems.addAll(entry.getValue().stream().
+                        map(schema -> schema.asLinkingMappingItem()).collect(Collectors.toSet()));
 
                 Connector connector = connFactory.getConnector(entry.getKey().getResource());
                 try {

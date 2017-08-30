@@ -19,9 +19,10 @@
 package org.apache.syncope.client.console.panels;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.rest.PolicyRestClient;
@@ -33,9 +34,10 @@ import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPa
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.PolicyRenderer;
 import org.apache.syncope.common.lib.SyncopeConstants;
-import org.apache.syncope.common.lib.policy.AbstractPolicyTO;
+import org.apache.syncope.common.lib.info.JavaImplInfo;
 import org.apache.syncope.common.lib.to.EntityTO;
 import org.apache.syncope.common.lib.to.RealmTO;
+import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.PolicyType;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
@@ -63,11 +65,8 @@ public class RealmDetails extends Panel {
 
         @Override
         protected Map<String, String> load() {
-            Map<String, String> res = new LinkedHashMap<>();
-            for (AbstractPolicyTO policyTO : policyRestClient.getPolicies(PolicyType.ACCOUNT)) {
-                res.put(policyTO.getKey(), policyTO.getDescription());
-            }
-            return res;
+            return policyRestClient.getPolicies(PolicyType.ACCOUNT).stream().
+                    collect(Collectors.toMap(policyTO -> policyTO.getKey(), policyTO -> policyTO.getDescription()));
         }
     };
 
@@ -77,11 +76,8 @@ public class RealmDetails extends Panel {
 
         @Override
         protected Map<String, String> load() {
-            Map<String, String> res = new LinkedHashMap<>();
-            for (AbstractPolicyTO policyTO : policyRestClient.getPolicies(PolicyType.PASSWORD)) {
-                res.put(policyTO.getKey(), policyTO.getDescription());
-            }
-            return res;
+            return policyRestClient.getPolicies(PolicyType.PASSWORD).stream().
+                    collect(Collectors.toMap(policyTO -> policyTO.getKey(), policyTO -> policyTO.getDescription()));
         }
     };
 
@@ -91,7 +87,13 @@ public class RealmDetails extends Panel {
 
         @Override
         protected List<String> load() {
-            return new ArrayList<>(SyncopeConsoleSession.get().getPlatformInfo().getLogicActions());
+            Optional<JavaImplInfo> actions = SyncopeConsoleSession.get().getPlatformInfo().
+                    getJavaImplInfo(ImplementationType.LOGIC_ACTIONS);
+            List<String> load = actions.isPresent()
+                    ? new ArrayList<>(actions.get().getClasses())
+                    : new ArrayList<>();
+            Collections.sort(load);
+            return load;
         }
     };
 

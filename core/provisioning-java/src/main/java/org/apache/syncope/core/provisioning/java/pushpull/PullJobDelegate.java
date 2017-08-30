@@ -44,7 +44,6 @@ import org.apache.syncope.core.provisioning.api.pushpull.ProvisioningProfile;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
-import org.apache.syncope.core.provisioning.api.pushpull.ReconciliationFilterBuilder;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
 import org.apache.syncope.core.provisioning.api.pushpull.AnyObjectPullResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.PullActions;
@@ -57,6 +56,8 @@ import org.apache.syncope.core.provisioning.java.utils.MappingUtils;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 import org.identityconnectors.framework.common.objects.OperationOptions;
 import org.identityconnectors.framework.common.objects.SyncToken;
+import org.apache.syncope.core.provisioning.api.pushpull.ReconFilterBuilder;
+import org.apache.syncope.core.spring.ImplementationManager;
 
 public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> implements SyncopePullExecutor {
 
@@ -170,15 +171,11 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
         LOG.debug("Executing pull on {}", pullTask.getResource());
 
         List<PullActions> actions = new ArrayList<>();
-        pullTask.getActionsClassNames().forEach(className -> {
+        pullTask.getActions().forEach(impl -> {
             try {
-                Class<?> actionsClass = Class.forName(className);
-                PullActions pullActions = (PullActions) ApplicationContextProvider.getBeanFactory().
-                        createBean(actionsClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
-
-                actions.add(pullActions);
+                actions.add(ImplementationManager.build(impl));
             } catch (Exception e) {
-                LOG.warn("Class '{}' not found", className, e);
+                LOG.warn("While building {}", impl, e);
             }
         });
 
@@ -223,10 +220,8 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
                         break;
 
                     case FILTERED_RECONCILIATION:
-                        ReconciliationFilterBuilder filterBuilder =
-                                (ReconciliationFilterBuilder) ApplicationContextProvider.getBeanFactory().
-                                        createBean(Class.forName(pullTask.getReconciliationFilterBuilderClassName()),
-                                                AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+                        ReconFilterBuilder filterBuilder =
+                                ImplementationManager.build(pullTask.getReconFilterBuilder());
                         connector.filteredReconciliation(orgUnit.getObjectClass(),
                                 filterBuilder,
                                 rhandler,
@@ -296,11 +291,8 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
                             break;
 
                         case FILTERED_RECONCILIATION:
-                            ReconciliationFilterBuilder filterBuilder =
-                                    (ReconciliationFilterBuilder) ApplicationContextProvider.getBeanFactory().
-                                            createBean(
-                                                    Class.forName(pullTask.getReconciliationFilterBuilderClassName()),
-                                                    AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+                            ReconFilterBuilder filterBuilder =
+                                    ImplementationManager.build(pullTask.getReconFilterBuilder());
                             connector.filteredReconciliation(provision.getObjectClass(),
                                     filterBuilder,
                                     handler,

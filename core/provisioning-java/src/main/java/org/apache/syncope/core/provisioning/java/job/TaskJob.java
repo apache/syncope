@@ -18,14 +18,15 @@
  */
 package org.apache.syncope.core.provisioning.java.job;
 
-import org.apache.commons.lang3.ClassUtils;
+import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.provisioning.api.job.SchedTaskJobDelegate;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.apache.syncope.core.provisioning.api.job.JobManager;
+import org.apache.syncope.core.spring.ImplementationManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +36,7 @@ public class TaskJob extends AbstractInterruptableJob {
 
     public static final String DRY_RUN_JOBDETAIL_KEY = "dryRun";
 
-    public static final String DELEGATE_CLASS_KEY = "delegateClass";
+    public static final String DELEGATE_IMPLEMENTATION = "delegateImpl";
 
     /**
      * Task execution status.
@@ -69,14 +70,19 @@ public class TaskJob extends AbstractInterruptableJob {
             AuthContextUtils.execWithAuthContext(context.getMergedJobDataMap().getString(JobManager.DOMAIN_KEY),
                     () -> {
                         try {
-                            Class<?> delegateClass =
-                            ClassUtils.getClass(context.getMergedJobDataMap().getString(DELEGATE_CLASS_KEY));
-
-                            ((SchedTaskJobDelegate) ApplicationContextProvider.getBeanFactory().
-                                    createBean(delegateClass, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false)).
-                                    execute(taskKey,
-                                            context.getMergedJobDataMap().getBoolean(DRY_RUN_JOBDETAIL_KEY),
-                                            context);
+                            ImplementationDAO implementationDAO =
+                            ApplicationContextProvider.getApplicationContext().getBean(ImplementationDAO.class);
+                            Implementation taskJobDelegate = implementationDAO.find(
+                                    context.getMergedJobDataMap().getString(DELEGATE_IMPLEMENTATION));
+                            if (taskJobDelegate == null) {
+                                LOG.error("Could not find Implementation '{}', aborting",
+                                        context.getMergedJobDataMap().getString(DELEGATE_IMPLEMENTATION));
+                            } else {
+                                ImplementationManager.<SchedTaskJobDelegate>build(taskJobDelegate).
+                                        execute(taskKey,
+                                                context.getMergedJobDataMap().getBoolean(DRY_RUN_JOBDETAIL_KEY),
+                                                context);
+                            }
                         } catch (Exception e) {
                             LOG.error("While executing task {}", taskKey, e);
                             throw new RuntimeException(e);

@@ -44,12 +44,8 @@ public class RoleDetails extends AbstractRoleCommand {
             try {
                 final Map<String, String> details = new LinkedHashMap<>();
                 final List<RoleTO> roleTOs = roleSyncopeOperations.list();
-                int withoutEntitlements = 0;
-                for (final RoleTO roleTO : roleTOs) {
-                    if (roleTO.getEntitlements() == null || roleTO.getEntitlements().isEmpty()) {
-                        withoutEntitlements++;
-                    }
-                }
+                long withoutEntitlements = roleTOs.stream().
+                        filter(roleTO -> roleTO.getEntitlements().isEmpty()).count();
                 details.put("Total number", String.valueOf(roleTOs.size()));
                 details.put("Without entitlements", String.valueOf(withoutEntitlements));
                 roleResultManager.printDetails(details);

@@ -27,16 +27,16 @@ public class RealmResultManager extends CommonsResultManager {
 
     public void printRealms(final List<RealmTO> realmTOs) {
         System.out.println("");
-        for (final RealmTO realmTO : realmTOs) {
+        realmTOs.forEach(realmTO -> {
             printRealm(realmTO);
-        }
+        });
     }
 
     private void printRealm(final RealmTO realmTO) {
         System.out.println(" > REALM KEY: " + realmTO.getKey());
         System.out.println("    name: " + realmTO.getName());
         System.out.println("    full path: " + realmTO.getFullPath());
-        System.out.println("    actions: " + realmTO.getActionsClassNames());
+        System.out.println("    actions: " + realmTO.getActions());
         System.out.println("    templates: " + realmTO.getTemplates());
         System.out.println("    parent key: " + realmTO.getParent());
         System.out.println("    account policy key: " + realmTO.getAccountPolicy());

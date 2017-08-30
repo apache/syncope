@@ -29,17 +29,20 @@ import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.to.AttrTO;
-import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.PropagationStatus;
 import org.apache.syncope.common.lib.to.SAML2LoginResponseTO;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.ParsingValidationException;
+import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.PlainSchemaDAO;
+import org.apache.syncope.core.persistence.api.dao.SAML2IdPDAO;
 import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.PlainSchema;
+import org.apache.syncope.core.persistence.api.entity.SAML2IdP;
 import org.apache.syncope.core.persistence.api.entity.user.UPlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.user.User;
 import org.apache.syncope.core.provisioning.api.IntAttrName;
@@ -65,10 +68,16 @@ public class SAML2UserManager {
     private static final Logger LOG = LoggerFactory.getLogger(SAML2UserManager.class);
 
     @Autowired
+    private SAML2IdPDAO idpDAO;
+
+    @Autowired
     private UserDAO userDAO;
 
     @Autowired
     private PlainSchemaDAO plainSchemaDAO;
+
+    @Autowired
+    private ImplementationDAO implementationDAO;
 
     @Autowired
     private IntAttrNameParser intAttrNameParser;
@@ -86,11 +95,17 @@ public class SAML2UserManager {
     private UserDataBinder binder;
 
     @Transactional(readOnly = true)
-    public List<String> findMatchingUser(final String keyValue, final ItemTO connObjectKeyItem) {
+    public List<String> findMatchingUser(final String keyValue, final String idpKey) {
         List<String> result = new ArrayList<>();
 
+        SAML2IdP idp = idpDAO.find(idpKey);
+        if (idp == null) {
+            LOG.warn("Invalid IdP: {}", idpKey);
+            return result;
+        }
+
         String transformed = keyValue;
-        for (ItemTransformer transformer : MappingUtils.getItemTransformers(connObjectKeyItem)) {
+        for (ItemTransformer transformer : MappingUtils.getItemTransformers(idp.getConnObjectKeyItem().get())) {
             List<Object> output = transformer.beforePull(
                     null,
                     null,
@@ -100,7 +115,8 @@ public class SAML2UserManager {
             }
         }
 
-        IntAttrName intAttrName = intAttrNameParser.parse(connObjectKeyItem.getIntAttrName(), AnyTypeKind.USER);
+        IntAttrName intAttrName = intAttrNameParser.parse(
+                idp.getConnObjectKeyItem().get().getIntAttrName(), AnyTypeKind.USER);
 
         if (intAttrName.getField() != null) {
             switch (intAttrName.getField()) {
@@ -156,23 +172,34 @@ public class SAML2UserManager {
     private List<SAML2IdPActions> getActions(final SAML2IdPEntity idp) {
         List<SAML2IdPActions> actions = new ArrayList<>();
 
-        idp.getActionsClassNames().forEach((className) -> {
-            try {
-                Class<?> actionsClass = Class.forName(className);
-                SAML2IdPActions idpActions = (SAML2IdPActions) ApplicationContextProvider.getBeanFactory().
-                        createBean(actionsClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
+        idp.getActions().forEach(key -> {
+            Implementation impl = implementationDAO.find(key);
+            if (impl == null) {
+                LOG.warn("Invalid implementation: {}", key);
+            } else {
+                try {
+                    Class<?> actionsClass = Class.forName(impl.getBody());
+                    SAML2IdPActions idpActions = (SAML2IdPActions) ApplicationContextProvider.getBeanFactory().
+                            createBean(actionsClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
 
-                actions.add(idpActions);
-            } catch (Exception e) {
-                LOG.warn("Class '{}' not found", className, e);
+                    actions.add(idpActions);
+                } catch (Exception e) {
+                    LOG.warn("Class '{}' not found", impl.getBody(), e);
+                }
             }
         });
 
         return actions;
     }
 
-    private void fill(final SAML2IdPEntity idp, final SAML2LoginResponseTO responseTO, final UserTO userTO) {
-        for (ItemTO item : idp.getItems()) {
+    private void fill(final String idpKey, final SAML2LoginResponseTO responseTO, final UserTO userTO) {
+        SAML2IdP idp = idpDAO.find(idpKey);
+        if (idp == null) {
+            LOG.warn("Invalid IdP: {}", idpKey);
+            return;
+        }
+
+        idp.getItems().forEach(item -> {
             IntAttrName intAttrName = intAttrNameParser.parse(item.getIntAttrName(), AnyTypeKind.USER);
 
             List<String> values = Collections.emptyList();
@@ -218,7 +245,7 @@ public class SAML2UserManager {
                         LOG.warn("Unsupported: {} {}", intAttrName.getSchemaType(), intAttrName.getSchemaName());
                 }
             }
-        }
+        });
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -234,7 +261,7 @@ public class SAML2UserManager {
             userTO = action.beforeCreate(userTO, responseTO);
         }
 
-        fill(idp, responseTO, userTO);
+        fill(idp.getKey(), responseTO, userTO);
 
         if (userTO.getRealm() == null) {
             userTO.setRealm(SyncopeConstants.ROOT_REALM);
@@ -258,7 +285,7 @@ public class SAML2UserManager {
         UserTO userTO = binder.getUserTO(userDAO.findKey(username));
         UserTO original = SerializationUtils.clone(userTO);
 
-        fill(idp, responseTO, userTO);
+        fill(idp.getKey(), responseTO, userTO);
 
         UserPatch userPatch = AnyOperations.diff(userTO, original, true);
 

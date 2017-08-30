@@ -27,11 +27,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
-import org.apache.syncope.common.lib.policy.PasswordRuleConf;
+import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
+import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.provisioning.api.utils.policy.InvalidPasswordRuleConf;
 import org.apache.syncope.core.provisioning.api.utils.policy.PolicyPattern;
 import org.junit.jupiter.api.Test;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 
+@SpringJUnitConfig(locations = { "classpath:springTest.xml" })
 public class PasswordGeneratorTest {
 
     private final DefaultPasswordGenerator passwordGenerator = new DefaultPasswordGenerator();
@@ -62,48 +65,72 @@ public class PasswordGeneratorTest {
 
     @Test
     public void startEndWithDigit() throws InvalidPasswordRuleConf {
-        DefaultPasswordRuleConf pwdRuleConf = createBaseDefaultPasswordRuleConf();
-        pwdRuleConf.setMustStartWithDigit(true);
+        DefaultPasswordRuleConf pwdRuleConf1 = createBaseDefaultPasswordRuleConf();
+        pwdRuleConf1.setMustStartWithDigit(true);
+        TestImplementation passwordRule1 = new TestImplementation();
+        passwordRule1.setBody(POJOHelper.serialize(pwdRuleConf1));
+        TestPasswordPolicy policy1 = new TestPasswordPolicy();
+        policy1.add(passwordRule1);
 
         DefaultPasswordRuleConf pwdRuleConf2 = createBaseDefaultPasswordRuleConf();
         pwdRuleConf2.setMustEndWithDigit(true);
+        TestImplementation passwordRule2 = new TestImplementation();
+        passwordRule2.setBody(POJOHelper.serialize(pwdRuleConf2));
+        TestPasswordPolicy policy2 = new TestPasswordPolicy();
+        policy2.add(passwordRule2);
 
-        List<PasswordRuleConf> ruleConfs = new ArrayList<>();
-        ruleConfs.add(pwdRuleConf);
-        ruleConfs.add(pwdRuleConf2);
-        String generatedPassword = passwordGenerator.generate(ruleConfs);
+        List<PasswordPolicy> policies = new ArrayList<>();
+        policies.add(policy1);
+        policies.add(policy2);
+        String generatedPassword = passwordGenerator.generate(policies);
         assertTrue(Character.isDigit(generatedPassword.charAt(0)));
         assertTrue(Character.isDigit(generatedPassword.charAt(generatedPassword.length() - 1)));
     }
 
     @Test
     public void startWithDigitAndWithAlpha() throws InvalidPasswordRuleConf {
-        DefaultPasswordRuleConf pwdRuleConf = createBaseDefaultPasswordRuleConf();
-        pwdRuleConf.setMustStartWithDigit(true);
+        DefaultPasswordRuleConf pwdRuleConf1 = createBaseDefaultPasswordRuleConf();
+        pwdRuleConf1.setMustStartWithDigit(true);
+        TestImplementation passwordRule1 = new TestImplementation();
+        passwordRule1.setBody(POJOHelper.serialize(pwdRuleConf1));
+        TestPasswordPolicy policy1 = new TestPasswordPolicy();
+        policy1.add(passwordRule1);
 
         DefaultPasswordRuleConf pwdRuleConf2 = createBaseDefaultPasswordRuleConf();
         pwdRuleConf2.setMustEndWithAlpha(true);
+        TestImplementation passwordRule2 = new TestImplementation();
+        passwordRule2.setBody(POJOHelper.serialize(pwdRuleConf2));
+        TestPasswordPolicy policy2 = new TestPasswordPolicy();
+        policy2.add(passwordRule2);
 
-        List<PasswordRuleConf> pwdRuleConfs = new ArrayList<>();
-        pwdRuleConfs.add(pwdRuleConf);
-        pwdRuleConfs.add(pwdRuleConf2);
-        String generatedPassword = passwordGenerator.generate(pwdRuleConfs);
+        List<PasswordPolicy> policies = new ArrayList<>();
+        policies.add(policy1);
+        policies.add(policy2);
+        String generatedPassword = passwordGenerator.generate(policies);
         assertTrue(Character.isDigit(generatedPassword.charAt(0)));
         assertTrue(Character.isLetter(generatedPassword.charAt(generatedPassword.length() - 1)));
     }
 
     @Test
     public void passwordWithNonAlpha() throws InvalidPasswordRuleConf {
-        DefaultPasswordRuleConf pwdRuleConf = createBaseDefaultPasswordRuleConf();
-        pwdRuleConf.setNonAlphanumericRequired(true);
+        DefaultPasswordRuleConf pwdRuleConf1 = createBaseDefaultPasswordRuleConf();
+        pwdRuleConf1.setNonAlphanumericRequired(true);
+        TestImplementation passwordRule1 = new TestImplementation();
+        passwordRule1.setBody(POJOHelper.serialize(pwdRuleConf1));
+        TestPasswordPolicy policy1 = new TestPasswordPolicy();
+        policy1.add(passwordRule1);
 
         DefaultPasswordRuleConf pwdRuleConf2 = createBaseDefaultPasswordRuleConf();
         pwdRuleConf2.setMustEndWithAlpha(true);
+        TestImplementation passwordRule2 = new TestImplementation();
+        passwordRule2.setBody(POJOHelper.serialize(pwdRuleConf2));
+        TestPasswordPolicy policy2 = new TestPasswordPolicy();
+        policy2.add(passwordRule2);
 
-        List<PasswordRuleConf> pwdRuleConfs = new ArrayList<>();
-        pwdRuleConfs.add(pwdRuleConf);
-        pwdRuleConfs.add(pwdRuleConf2);
-        String generatedPassword = passwordGenerator.generate(pwdRuleConfs);
+        List<PasswordPolicy> policies = new ArrayList<>();
+        policies.add(policy1);
+        policies.add(policy2);
+        String generatedPassword = passwordGenerator.generate(policies);
         assertTrue(PolicyPattern.NON_ALPHANUMERIC.matcher(generatedPassword).matches());
         assertTrue(Character.isLetter(generatedPassword.charAt(generatedPassword.length() - 1)));
     }
@@ -111,16 +138,24 @@ public class PasswordGeneratorTest {
     @Test
     public void incopatiblePolicies() {
         assertThrows(InvalidPasswordRuleConf.class, () -> {
-            DefaultPasswordRuleConf pwdRuleConf = createBaseDefaultPasswordRuleConf();
-            pwdRuleConf.setMinLength(12);
+            DefaultPasswordRuleConf pwdRuleConf1 = createBaseDefaultPasswordRuleConf();
+            pwdRuleConf1.setMinLength(12);
+            TestImplementation passwordRule1 = new TestImplementation();
+            passwordRule1.setBody(POJOHelper.serialize(pwdRuleConf1));
+            TestPasswordPolicy policy1 = new TestPasswordPolicy();
+            policy1.add(passwordRule1);
 
             DefaultPasswordRuleConf pwdRuleConf2 = createBaseDefaultPasswordRuleConf();
-            pwdRuleConf.setMaxLength(10);
+            pwdRuleConf2.setMaxLength(10);
+            TestImplementation passwordRule2 = new TestImplementation();
+            passwordRule2.setBody(POJOHelper.serialize(pwdRuleConf2));
+            TestPasswordPolicy policy2 = new TestPasswordPolicy();
+            policy2.add(passwordRule2);
 
-            List<PasswordRuleConf> pwdRuleConfs = new ArrayList<>();
-            pwdRuleConfs.add(pwdRuleConf);
-            pwdRuleConfs.add(pwdRuleConf2);
-            passwordGenerator.generate(pwdRuleConfs);
+            List<PasswordPolicy> policies = new ArrayList<>();
+            policies.add(policy1);
+            policies.add(policy2);
+            passwordGenerator.generate(policies);
         });
     }
 
@@ -128,17 +163,21 @@ public class PasswordGeneratorTest {
     public void issueSYNCOPE678() {
         String password = null;
         try {
-            password = passwordGenerator.generate(Collections.<PasswordRuleConf>emptyList());
+            password = passwordGenerator.generate(Collections.<PasswordPolicy>emptyList());
         } catch (InvalidPasswordRuleConf e) {
             fail(e.getMessage());
         }
         assertNotNull(password);
 
-        DefaultPasswordRuleConf ppSpec = createBaseDefaultPasswordRuleConf();
-        ppSpec.setMinLength(0);
+        DefaultPasswordRuleConf pwdRuleConf1 = createBaseDefaultPasswordRuleConf();
+        pwdRuleConf1.setMinLength(0);
+        TestImplementation passwordRule1 = new TestImplementation();
+        passwordRule1.setBody(POJOHelper.serialize(pwdRuleConf1));
+        TestPasswordPolicy policy1 = new TestPasswordPolicy();
+
         password = null;
         try {
-            password = passwordGenerator.generate(Collections.<PasswordRuleConf>singletonList(ppSpec));
+            password = passwordGenerator.generate(Collections.<PasswordPolicy>singletonList(policy1));
         } catch (InvalidPasswordRuleConf e) {
             fail(e.getMessage());
         }

@@ -31,7 +31,7 @@ public class PolicyResultManager extends CommonsResultManager {
 
     public void printPolicies(final List<AbstractPolicyTO> policyTOs) {
         System.out.println("");
-        for (AbstractPolicyTO policyTO : policyTOs) {
+        policyTOs.forEach(policyTO -> {
             if (policyTO instanceof AccountPolicyTO) {
                 printAccountPolicy((AccountPolicyTO) policyTO);
             } else if (policyTO instanceof PasswordPolicyTO) {
@@ -39,7 +39,7 @@ public class PolicyResultManager extends CommonsResultManager {
             } else if (policyTO instanceof PullPolicyTO) {
                 printPullPolicy((PullPolicyTO) policyTO);
             }
-        }
+        });
     }
 
     public void printPoliciesByType(final String policyTypeString, final List<AbstractPolicyTO> policyTOs) {
@@ -47,24 +47,24 @@ public class PolicyResultManager extends CommonsResultManager {
         final PolicyType policyType = PolicyType.valueOf(policyTypeString);
         switch (policyType) {
             case ACCOUNT:
-                for (final AbstractPolicyTO policyTO : policyTOs) {
+                policyTOs.forEach(policyTO -> {
                     printAccountPolicy((AccountPolicyTO) policyTO);
-                }
+                });
                 break;
             case PASSWORD:
-                for (final AbstractPolicyTO policyTO : policyTOs) {
+                policyTOs.forEach(policyTO -> {
                     printPasswordPolicy((PasswordPolicyTO) policyTO);
-                }
+                });
                 break;
             case PUSH:
-                for (final AbstractPolicyTO policyTO : policyTOs) {
+                policyTOs.forEach(policyTO -> {
                     System.out.println(policyTO);
-                }
+                });
                 break;
             case PULL:
-                for (final AbstractPolicyTO policyTO : policyTOs) {
+                policyTOs.forEach(policyTO -> {
                     printPullPolicy((PullPolicyTO) policyTO);
-                }
+                });
                 break;
             default:
                 break;
@@ -80,7 +80,7 @@ public class PolicyResultManager extends CommonsResultManager {
         System.out.println("    max authentication attempts : " + policyTO.getMaxAuthenticationAttempts());
         System.out.println("    propagation suspension : " + policyTO.isPropagateSuspension());
         System.out.println("    RULES : ");
-        System.out.println("       > class : " + policyTO.getRuleConfs());
+        System.out.println("       > class : " + policyTO.getRules());
         System.out.println("");
     }
 
@@ -93,7 +93,7 @@ public class PolicyResultManager extends CommonsResultManager {
         System.out.println("    history lenght : " + policyTO.getHistoryLength());
         System.out.println("    allow null password : " + policyTO.isAllowNullPassword());
         System.out.println("    RULES : ");
-        System.out.println("       > class : " + policyTO.getRuleConfs());
+        System.out.println("       > class : " + policyTO.getRules());
         System.out.println("");
     }
 

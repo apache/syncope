@@ -18,16 +18,19 @@
  */
 package org.apache.syncope.common.lib.info;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 import org.apache.syncope.common.lib.AbstractBaseBean;
+import org.apache.syncope.common.lib.types.ImplementationType;
 
 @XmlRootElement(name = "platformInfo")
 @XmlType
@@ -77,35 +80,7 @@ public class PlatformInfo extends AbstractBaseBean {
 
     private final Set<String> entitlements = new HashSet<>();
 
-    private final Set<String> jwtSSOProviders = new HashSet<>();
-
-    private final Set<String> reportletConfs = new HashSet<>();
-
-    private final Set<String> accountRules = new HashSet<>();
-
-    private final Set<String> passwordRules = new HashSet<>();
-
-    private final Set<String> itemTransformers = new HashSet<>();
-
-    private final Set<String> taskJobs = new HashSet<>();
-
-    private final Set<String> reconciliationFilterBuilders = new HashSet<>();
-
-    private final Set<String> logicActions = new HashSet<>();
-
-    private final Set<String> propagationActions = new HashSet<>();
-
-    private final Set<String> pullActions = new HashSet<>();
-
-    private final Set<String> pushActions = new HashSet<>();
-
-    private final Set<String> pullCorrelationRules = new HashSet<>();
-
-    private final Set<String> pushCorrelationRules = new HashSet<>();
-
-    private final Set<String> validators = new HashSet<>();
-
-    private final Set<String> notificationRecipientsProviders = new HashSet<>();
+    private final Set<JavaImplInfo> javaImplInfos = new HashSet<>();
 
     public String getVersion() {
         return version;
@@ -217,109 +192,16 @@ public class PlatformInfo extends AbstractBaseBean {
         return entitlements;
     }
 
-    @XmlElementWrapper(name = "jwtSSOProviders")
-    @XmlElement(name = "jwtSSOProvider")
-    @JsonProperty("jwtSSOProviders")
-    public Set<String> getJwtSSOProviders() {
-        return jwtSSOProviders;
+    @JsonIgnore
+    public Optional<JavaImplInfo> getJavaImplInfo(final ImplementationType type) {
+        return javaImplInfos.stream().filter(javaImplInfo -> javaImplInfo.getType() == type).findFirst();
     }
 
-    @XmlElementWrapper(name = "reportletConfs")
-    @XmlElement(name = "reportletConf")
-    @JsonProperty("reportletConfs")
-    public Set<String> getReportletConfs() {
-        return reportletConfs;
-    }
-
-    @XmlElementWrapper(name = "accountRules")
-    @XmlElement(name = "accountRule")
-    @JsonProperty("accountRules")
-    public Set<String> getAccountRules() {
-        return accountRules;
-    }
-
-    @XmlElementWrapper(name = "passwordRules")
-    @XmlElement(name = "passwordRule")
-    @JsonProperty("passwordRules")
-    public Set<String> getPasswordRules() {
-        return passwordRules;
-    }
-
-    @XmlElementWrapper(name = "itemTransformers")
-    @XmlElement(name = "itemTransformer")
-    @JsonProperty("itemTransformers")
-    public Set<String> getItemTransformers() {
-        return itemTransformers;
-    }
-
-    @XmlElementWrapper(name = "taskJobs")
-    @XmlElement(name = "taskJob")
-    @JsonProperty("taskJobs")
-    public Set<String> getTaskJobs() {
-        return taskJobs;
-    }
-
-    @XmlElementWrapper(name = "reconciliationFilterBuilders")
-    @XmlElement(name = "reconciliationFilterBuilder")
-    @JsonProperty("reconciliationFilterBuilders")
-    public Set<String> getReconciliationFilterBuilders() {
-        return reconciliationFilterBuilders;
-    }
-
-    @XmlElementWrapper(name = "logicActions")
-    @XmlElement(name = "logicAction")
-    @JsonProperty("logicActions")
-    public Set<String> getLogicActions() {
-        return logicActions;
-    }
-
-    @XmlElementWrapper(name = "propagationActions")
-    @XmlElement(name = "propagationAction")
-    @JsonProperty("propagationActions")
-    public Set<String> getPropagationActions() {
-        return propagationActions;
-    }
-
-    @XmlElementWrapper(name = "pullActions")
-    @XmlElement(name = "pullAction")
-    @JsonProperty("pullActions")
-    public Set<String> getPullActions() {
-        return pullActions;
-    }
-
-    @XmlElementWrapper(name = "pushActions")
-    @XmlElement(name = "pushAction")
-    @JsonProperty("pushActions")
-    public Set<String> getPushActions() {
-        return pushActions;
-    }
-
-    @XmlElementWrapper(name = "pullCorrelationRules")
-    @XmlElement(name = "pullCorrelationRule")
-    @JsonProperty("pullCorrelationRules")
-    public Set<String> getPullCorrelationRules() {
-        return pullCorrelationRules;
-    }
-
-    @XmlElementWrapper(name = "pushCorrelationRules")
-    @XmlElement(name = "pushCorrelationRule")
-    @JsonProperty("pushCorrelationRules")
-    public Set<String> getPushCorrelationRules() {
-        return pushCorrelationRules;
-    }
-
-    @XmlElementWrapper(name = "validators")
-    @XmlElement(name = "validator")
-    @JsonProperty("validators")
-    public Set<String> getValidators() {
-        return validators;
-    }
-
-    @XmlElementWrapper(name = "notificationRecipientsProviders")
-    @XmlElement(name = "notificationRecipientsProvider")
-    @JsonProperty("notificationRecipientsProviders")
-    public Set<String> getNotificationRecipientsProviders() {
-        return notificationRecipientsProviders;
+    @XmlElementWrapper(name = "javaImplInfos")
+    @XmlElement(name = "javaImplInfo")
+    @JsonProperty("javaImplInfos")
+    public Set<JavaImplInfo> getJavaImplInfos() {
+        return javaImplInfos;
     }
 
     public void setVersion(final String version) {

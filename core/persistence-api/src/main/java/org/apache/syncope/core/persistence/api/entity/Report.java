@@ -19,7 +19,6 @@
 package org.apache.syncope.core.persistence.api.entity;
 
 import java.util.List;
-import org.apache.syncope.common.lib.report.ReportletConf;
 
 public interface Report extends Entity {
 
@@ -31,11 +30,9 @@ public interface Report extends Entity {
 
     List<? extends ReportExec> getExecs();
 
-    boolean add(ReportletConf reportletConf);
+    boolean add(Implementation reportlet);
 
-    void removeAllReportletConfs();
-
-    List<? extends ReportletConf> getReportletConfs();
+    List<? extends Implementation> getReportlets();
 
     String getCronExpression();
 

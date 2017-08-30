@@ -35,7 +35,9 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.Lob;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -46,6 +48,7 @@ import javax.validation.constraints.NotNull;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
+import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.TraceLevel;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.ConnInstance;
@@ -53,6 +56,7 @@ import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.jpa.validation.entity.ExternalResourceCheck;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.jpa.entity.policy.JPAAccountPolicy;
@@ -62,6 +66,7 @@ import org.apache.syncope.core.persistence.jpa.entity.policy.JPAPullPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
 import org.apache.syncope.core.persistence.jpa.entity.AbstractProvidedKeyEntity;
+import org.apache.syncope.core.persistence.jpa.entity.JPAImplementation;
 import org.identityconnectors.framework.common.objects.ObjectClass;
 
 /**
@@ -156,15 +161,13 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
             @JoinColumn(name = "resource_id", referencedColumnName = "id"))
     private Set<ConnectorCapability> capabilitiesOverride = new HashSet<>();
 
-    /**
-     * (Optional) classes for PropagationAction.
-     */
-    @ElementCollection(fetch = FetchType.EAGER)
-    @Column(name = "actionClassName")
-    @CollectionTable(name = "ExternalResource_PropActions",
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = TABLE + "PropagationAction",
             joinColumns =
-            @JoinColumn(name = "resource_id", referencedColumnName = "id"))
-    private List<String> propagationActionsClassNames = new ArrayList<>();
+            @JoinColumn(name = "resource_id"),
+            inverseJoinColumns =
+            @JoinColumn(name = "implementation_id"))
+    private List<JPAImplementation> propagationActions = new ArrayList<>();
 
     public JPAExternalResource() {
         super();
@@ -357,7 +360,16 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
     }
 
     @Override
-    public List<String> getPropagationActionsClassNames() {
-        return propagationActionsClassNames;
+    public boolean add(final Implementation propagationAction) {
+        checkType(propagationAction, JPAImplementation.class);
+        checkImplementationType(propagationAction, ImplementationType.PROPAGATION_ACTIONS);
+        return propagationActions.contains((JPAImplementation) propagationAction)
+                || propagationActions.add((JPAImplementation) propagationAction);
     }
+
+    @Override
+    public List<? extends Implementation> getPropagationActions() {
+        return propagationActions;
+    }
+
 }

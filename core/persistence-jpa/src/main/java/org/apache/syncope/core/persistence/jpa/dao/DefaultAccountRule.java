@@ -35,16 +35,20 @@ public class DefaultAccountRule implements AccountRule {
 
     private DefaultAccountRuleConf conf;
 
-    @Transactional(readOnly = true)
     @Override
-    public void enforce(final AccountRuleConf conf, final User user) {
+    public void setConf(final AccountRuleConf conf) {
         if (conf instanceof DefaultAccountRuleConf) {
             this.conf = DefaultAccountRuleConf.class.cast(conf);
         } else {
             throw new IllegalArgumentException(
-                    AccountRuleConf.class.getName() + " expected, got " + conf.getClass().getName());
+                    DefaultAccountRuleConf.class.getName() + " expected, got " + conf.getClass().getName());
         }
 
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public void enforce(final User user) {
         this.conf.getSchemasNotPermitted().stream().
                 map(schema -> user.getPlainAttr(schema)).
                 filter(attr -> attr.isPresent()).

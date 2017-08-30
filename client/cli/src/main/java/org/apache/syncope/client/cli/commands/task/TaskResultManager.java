@@ -36,7 +36,7 @@ public class TaskResultManager extends CommonsResultManager {
 
     public void printTasks(final List<AbstractTaskTO> taskTOs) {
         System.out.println("");
-        for (final AbstractTaskTO taskTO : taskTOs) {
+        taskTOs.forEach(taskTO -> {
             if (taskTO instanceof NotificationTaskTO) {
                 printNotificationTask((NotificationTaskTO) taskTO);
             } else if (taskTO instanceof PropagationTaskTO) {
@@ -48,36 +48,36 @@ public class TaskResultManager extends CommonsResultManager {
             } else if (taskTO instanceof PullTaskTO) {
                 printPullTask((PullTaskTO) taskTO);
             }
-        }
+        });
     }
 
     public void printTasksType(final String taskTypeString, final List<AbstractTaskTO> taskTOs) {
         System.out.println("");
         switch (TaskType.valueOf(taskTypeString)) {
             case NOTIFICATION:
-                for (final AbstractTaskTO taskTO : taskTOs) {
+                taskTOs.forEach(taskTO -> {
                     printNotificationTask(((NotificationTaskTO) taskTO));
-                }
+                });
                 break;
             case PROPAGATION:
-                for (final AbstractTaskTO taskTO : taskTOs) {
+                taskTOs.forEach(taskTO -> {
                     printPropagationTask((PropagationTaskTO) taskTO);
-                }
+                });
                 break;
             case PUSH:
-                for (final AbstractTaskTO taskTO : taskTOs) {
+                taskTOs.forEach(taskTO -> {
                     printPushTask((PushTaskTO) taskTO);
-                }
+                });
                 break;
             case SCHEDULED:
-                for (final AbstractTaskTO taskTO : taskTOs) {
+                taskTOs.forEach(taskTO -> {
                     printScheduledTask((SchedTaskTO) taskTO);
-                }
+                });
                 break;
             case PULL:
-                for (final AbstractTaskTO taskTO : taskTOs) {
+                taskTOs.forEach(taskTO -> {
                     printPullTask((PullTaskTO) taskTO);
-                }
+                });
                 break;
             default:
                 break;
@@ -133,8 +133,8 @@ public class TaskResultManager extends CommonsResultManager {
         System.out.println("     next execution: " + pushTaskTO.getNextExec());
         System.out.println("     latest execution status: " + pushTaskTO.getLatestExecStatus());
         System.out.println("     filters: " + pushTaskTO.getFilters());
-        System.out.println("     delegate class: " + pushTaskTO.getJobDelegateClassName());
-        System.out.println("     action class: " + pushTaskTO.getActionsClassNames());
+        System.out.println("     delegate: " + pushTaskTO.getJobDelegate());
+        System.out.println("     actions: " + pushTaskTO.getActions());
         System.out.println("     matching rule: " + pushTaskTO.getMatchingRule());
         System.out.println("     not matching rule: " + pushTaskTO.getUnmatchingRule());
         printTaskExecTOs(pushTaskTO.getExecutions());
@@ -151,7 +151,7 @@ public class TaskResultManager extends CommonsResultManager {
         System.out.println("     last execution: " + schedTaskTO.getLastExec());
         System.out.println("     next execution: " + schedTaskTO.getNextExec());
         System.out.println("     latest execution status: " + schedTaskTO.getLatestExecStatus());
-        System.out.println("     job delegate class: " + schedTaskTO.getJobDelegateClassName());
+        System.out.println("     job delegate: " + schedTaskTO.getJobDelegate());
         printTaskExecTOs(schedTaskTO.getExecutions());
         System.out.println("");
     }
@@ -175,8 +175,8 @@ public class TaskResultManager extends CommonsResultManager {
         System.out.println("     next execution: " + pullTaskTO.getNextExec());
         System.out.println("     last execution: " + pullTaskTO.getLastExec());
         System.out.println("     latest execution status: " + pullTaskTO.getLatestExecStatus());
-        System.out.println("     job delegate class: " + pullTaskTO.getJobDelegateClassName());
-        System.out.println("     action class name: " + pullTaskTO.getActionsClassNames());
+        System.out.println("     job delegate: " + pullTaskTO.getJobDelegate());
+        System.out.println("     actions: " + pullTaskTO.getActions());
         System.out.println("     matching rule: " + pullTaskTO.getMatchingRule());
         System.out.println("     unmatching rule: " + pullTaskTO.getUnmatchingRule());
         printTaskExecTOs(pullTaskTO.getExecutions());
@@ -184,18 +184,16 @@ public class TaskResultManager extends CommonsResultManager {
     }
 
     private void printTemplates(final Map<String, AnyTO> templates) {
-        for (final Map.Entry<String, AnyTO> entrySet : templates.entrySet()) {
-            final String key = entrySet.getKey();
-            final AnyTO value = entrySet.getValue();
-            System.out.println("        " + key + " key: " + value.getKey()
-                    + " of realm" + value.getRealm()
-                    + " on resource " + value.getResources());
-
-        }
+        templates.entrySet().forEach(entrySet -> {
+            System.out.println("        "
+                    + entrySet.getKey() + " key: " + entrySet.getValue().getKey()
+                    + " of realm" + entrySet.getValue().getRealm()
+                    + " on resource " + entrySet.getValue().getResources());
+        });
     }
 
     public void printTaskExecTOs(final List<ExecTO> taskExecTOs) {
-        for (final ExecTO taskExecTO : taskExecTOs) {
+        taskExecTOs.forEach(taskExecTO -> {
             System.out.println("     EXECUTIONS: ");
             System.out.println("     - task execution key: " + taskExecTO.getKey());
             System.out.println("       task: " + taskExecTO.getRefDesc());
@@ -207,16 +205,16 @@ public class TaskResultManager extends CommonsResultManager {
             System.out.println("       start date: " + taskExecTO.getStart());
             System.out.println("       end date: " + taskExecTO.getEnd());
             System.out.println("");
-        }
+        });
     }
 
     public void printJobs(final List<JobTO> jobTOs) {
-        for (final JobTO jobTO : jobTOs) {
+        jobTOs.forEach(jobTO -> {
             System.out.println("       TASK: " + jobTO.getRefDesc());
             System.out.println("       start date: " + jobTO.getStart());
             System.out.println("       running: " + jobTO.isRunning());
             System.out.println("       scheduled: " + jobTO.isScheduled());
-        }
+        });
     }
 
     public void printDetails(final Map<String, String> details) {

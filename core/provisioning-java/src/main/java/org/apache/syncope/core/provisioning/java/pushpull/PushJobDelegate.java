@@ -48,6 +48,7 @@ import org.apache.syncope.core.provisioning.api.pushpull.PushActions;
 import org.apache.syncope.core.provisioning.api.pushpull.RealmPushResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.SyncopePushResultHandler;
 import org.apache.syncope.core.provisioning.api.pushpull.UserPushResultHandler;
+import org.apache.syncope.core.spring.ImplementationManager;
 import org.quartz.JobExecutionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
@@ -164,15 +165,11 @@ public class PushJobDelegate extends AbstractProvisioningJobDelegate<PushTask> {
         LOG.debug("Executing push on {}", pushTask.getResource());
 
         List<PushActions> actions = new ArrayList<>();
-        pushTask.getActionsClassNames().forEach(className -> {
+        pushTask.getActions().forEach(impl -> {
             try {
-                Class<?> actionsClass = Class.forName(className);
-
-                PushActions pushActions = (PushActions) ApplicationContextProvider.getBeanFactory().
-                        createBean(actionsClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true);
-                actions.add(pushActions);
+                actions.add(ImplementationManager.build(impl));
             } catch (Exception e) {
-                LOG.info("Class '{}' not found", className, e);
+                LOG.warn("While building {}", impl, e);
             }
         });
 

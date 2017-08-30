@@ -72,9 +72,6 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
 
     private static final long serialVersionUID = 4984337552918213290L;
 
-    private static final String GROUP_MEMBER_PROVISION_TASKJOB =
-            "org.apache.syncope.core.provisioning.java.job.GroupMemberProvisionTaskJobDelegate";
-
     protected final Class<T> reference;
 
     protected T schedTaskTO;
@@ -213,11 +210,6 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
                                         Model.of(Pair.of(
                                                 ActionLink.ActionType.EDIT, model.getObject())))));
             }
-
-            @Override
-            protected boolean statusCondition(final T modelObject) {
-                return !GROUP_MEMBER_PROVISION_TASKJOB.equals(taskTO.getJobDelegateClassName());
-            }
         }, ActionLink.ActionType.EDIT, StandardEntitlement.TASK_UPDATE);
 
         panel.add(new ActionLink<T>() {
@@ -248,11 +240,6 @@ public abstract class SchedTaskDirectoryPanel<T extends SchedTaskTO>
                 startAt.setExecutionDetail(
                         model.getObject().getKey(), model.getObject().getName(), target);
                 startAt.toggle(target, true);
-            }
-
-            @Override
-            protected boolean statusCondition(final T modelObject) {
-                return !GROUP_MEMBER_PROVISION_TASKJOB.equals(taskTO.getJobDelegateClassName());
             }
         }, ActionLink.ActionType.EXECUTE, StandardEntitlement.TASK_EXECUTE);
 

@@ -259,7 +259,7 @@ public class ResourceTest extends AbstractTest {
         assertNotNull(ldap.getProvision(anyTypeDAO.findGroup()).get().getMapping());
 
         // need to avoid any class not defined in this Maven module
-        ldap.getPropagationActionsClassNames().clear();
+        ldap.getPropagationActions().clear();
 
         List<? extends MappingItem> items = ldap.getProvision(anyTypeDAO.findGroup()).get().getMapping().getItems();
         assertNotNull(items);

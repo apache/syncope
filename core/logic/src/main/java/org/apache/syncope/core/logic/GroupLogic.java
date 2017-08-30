@@ -42,16 +42,20 @@ import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.BulkMembersActionType;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
+import org.apache.syncope.common.lib.types.ImplementationEngine;
+import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.JobType;
 import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.core.persistence.api.dao.AnySearchDAO;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
+import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
 import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.provisioning.api.GroupProvisioningManager;
@@ -84,6 +88,9 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
 
     @Autowired
     protected AnySearchDAO searchDAO;
+
+    @Autowired
+    protected ImplementationDAO implementationDAO;
 
     @Autowired
     protected TaskDAO taskDAO;
@@ -376,10 +383,22 @@ public class GroupLogic extends AbstractAnyLogic<GroupTO, GroupPatch> {
             throw new NotFoundException("Group " + key);
         }
 
+        Implementation jobDelegate = implementationDAO.find(ImplementationType.TASKJOB_DELEGATE).stream().
+                filter(impl -> GroupMemberProvisionTaskJobDelegate.class.getName().equals(impl.getBody())).
+                findFirst().orElse(null);
+        if (jobDelegate == null) {
+            jobDelegate = entityFactory.newEntity(Implementation.class);
+            jobDelegate.setKey(GroupMemberProvisionTaskJobDelegate.class.getSimpleName());
+            jobDelegate.setEngine(ImplementationEngine.JAVA);
+            jobDelegate.setType(ImplementationType.TASKJOB_DELEGATE);
+            jobDelegate.setBody(GroupMemberProvisionTaskJobDelegate.class.getName());
+            jobDelegate = implementationDAO.save(jobDelegate);
+        }
+
         SchedTask task = entityFactory.newEntity(SchedTask.class);
         task.setName("Bulk member provision for group " + group.getName());
         task.setActive(true);
-        task.setJobDelegateClassName(GroupMemberProvisionTaskJobDelegate.class.getName());
+        task.setJobDelegate(jobDelegate);
         task = taskDAO.save(task);
 
         try {

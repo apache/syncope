@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -161,15 +160,12 @@ public class JPAGroupDAO extends AbstractAnyDAO<Group> implements GroupDAO {
     public Map<String, Integer> countByRealm() {
         Query query = entityManager().createQuery(
                 "SELECT e.realm, COUNT(e) FROM  " + JPAGroup.class.getSimpleName() + " e GROUP BY e.realm");
+
         @SuppressWarnings("unchecked")
         List<Object[]> results = query.getResultList();
-
-        Map<String, Integer> countByRealm = new HashMap<>(results.size());
-        for (Object[] result : results) {
-            countByRealm.put(((Realm) result[0]).getFullPath(), ((Number) result[1]).intValue());
-        }
-
-        return Collections.unmodifiableMap(countByRealm);
+        return results.stream().collect(Collectors.toMap(
+                result -> ((Realm) result[0]).getFullPath(),
+                result -> ((Number) result[1]).intValue()));
     }
 
     @Override

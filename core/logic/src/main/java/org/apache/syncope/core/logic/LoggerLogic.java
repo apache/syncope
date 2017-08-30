@@ -42,7 +42,6 @@ import org.apache.syncope.common.lib.types.LoggerLevel;
 import org.apache.syncope.common.lib.types.LoggerType;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.ResourceOperation;
-import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.lib.types.UnmatchingRule;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AuditElements;
@@ -52,10 +51,8 @@ import org.apache.syncope.core.logic.init.LoggerLoader;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.LoggerDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
-import org.apache.syncope.core.persistence.api.dao.TaskDAO;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
 import org.apache.syncope.core.persistence.api.entity.Logger;
-import org.apache.syncope.core.persistence.api.entity.task.SchedTask;
 import org.apache.syncope.core.spring.BeanUtils;
 import org.apache.syncope.core.provisioning.java.pushpull.PushJobDelegate;
 import org.apache.syncope.core.provisioning.java.pushpull.PullJobDelegate;
@@ -84,9 +81,6 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
 
     @Autowired
     private ExternalResourceDAO resourceDAO;
-
-    @Autowired
-    private TaskDAO taskDAO;
 
     @Autowired
     private EntityFactory entityFactory;
@@ -383,12 +377,6 @@ public class LoggerLogic extends AbstractTransactionalLogic<LoggerTO> {
                     events.add(pullEventCategoryTO);
                     events.add(pushEventCategoryTO);
                 });
-            }
-
-            for (SchedTask task : taskDAO.<SchedTask>findAll(TaskType.SCHEDULED)) {
-                EventCategoryTO eventCategoryTO = new EventCategoryTO(EventCategoryType.TASK);
-                eventCategoryTO.setCategory(Class.forName(task.getJobDelegateClassName()).getSimpleName());
-                events.add(eventCategoryTO);
             }
 
             EventCategoryTO eventCategoryTO = new EventCategoryTO(EventCategoryType.TASK);

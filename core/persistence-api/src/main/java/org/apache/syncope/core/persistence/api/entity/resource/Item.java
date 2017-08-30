@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.api.entity.resource;
 import java.util.List;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.core.persistence.api.entity.Entity;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 
 public interface Item extends Entity {
 
@@ -56,5 +57,7 @@ public interface Item extends Entity {
 
     void setPullJEXLTransformer(String pullJEXLTransformer);
 
-    List<String> getTransformerClassNames();
+    boolean add(Implementation transformer);
+
+    List<? extends Implementation> getTransformers();
 }

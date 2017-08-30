@@ -56,7 +56,7 @@ public class NotificationTO extends AbstractBaseBean implements EntityTO {
 
     private boolean selfAsRecipient;
 
-    private String recipientsProviderClassName;
+    private String recipientsProvider;
 
     private String sender;
 
@@ -122,12 +122,12 @@ public class NotificationTO extends AbstractBaseBean implements EntityTO {
         this.selfAsRecipient = selfAsRecipient;
     }
 
-    public String getRecipientsProviderClassName() {
-        return recipientsProviderClassName;
+    public String getRecipientsProvider() {
+        return recipientsProvider;
     }
 
-    public void setRecipientsProviderClassName(final String recipientsProviderClassName) {
-        this.recipientsProviderClassName = recipientsProviderClassName;
+    public void setRecipientsProvider(final String recipientsProvider) {
+        this.recipientsProvider = recipientsProvider;
     }
 
     public String getSender() {

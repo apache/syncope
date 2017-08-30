@@ -141,7 +141,7 @@ public class AuthDataAccessor {
                 jwtSSOProviders = new HashMap<>();
 
                 implementationLookup.getJWTSSOProviderClasses().stream().
-                        map((clazz) -> (JWTSSOProvider) ApplicationContextProvider.getBeanFactory().
+                        map(clazz -> (JWTSSOProvider) ApplicationContextProvider.getBeanFactory().
                         createBean(clazz, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, true)).
                         forEachOrdered(jwtSSOProvider -> {
                             jwtSSOProviders.put(jwtSSOProvider.getIssuer(), jwtSSOProvider);

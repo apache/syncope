@@ -35,9 +35,9 @@ public class LoggerResultManager extends CommonsResultManager {
 
     public void fromListMemoryAppenders(final List<String> memoryAppenders) {
         final Table.TableBuilder tableBuilder = new Table.TableBuilder("list memory appenders").header("appender");
-        for (final String appender : memoryAppenders) {
+        memoryAppenders.forEach(appender -> {
             tableBuilder.rowValues(Collections.singletonList(appender));
-        }
+        });
         tableBuilder.build().print();
     }
 
@@ -76,9 +76,9 @@ public class LoggerResultManager extends CommonsResultManager {
             final List<LoggerTO> loggerTOs) {
 
         final Table.TableBuilder tableBuilder = new Table.TableBuilder(title).header("logger").header(secondHeader);
-        for (final LoggerTO loggerTO : loggerTOs) {
+        loggerTOs.forEach(loggerTO -> {
             tableBuilder.rowValues(Arrays.asList(loggerTO.getKey(), loggerTO.getLevel().getLevel().name()));
-        }
+        });
         tableBuilder.build().print();
     }
 

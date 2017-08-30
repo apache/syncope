@@ -23,6 +23,7 @@ import java.util.Set;
 import org.apache.syncope.common.lib.policy.AccountRuleConf;
 import org.apache.syncope.common.lib.policy.PasswordRuleConf;
 import org.apache.syncope.common.lib.report.ReportletConf;
+import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.api.dao.AccountRule;
 import org.apache.syncope.core.persistence.api.dao.PasswordRule;
@@ -45,7 +46,7 @@ public class DummyImplementationLookup implements ImplementationLookup {
     }
 
     @Override
-    public Set<String> getClassNames(final Type type) {
+    public Set<String> getClassNames(final ImplementationType type) {
         return Collections.emptySet();
     }
 

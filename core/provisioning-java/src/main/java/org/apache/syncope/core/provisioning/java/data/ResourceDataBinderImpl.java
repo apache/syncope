@@ -52,9 +52,12 @@ import org.apache.syncope.core.spring.BeanUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.ExternalResourceHistoryConfDAO;
+import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
+import org.apache.syncope.core.persistence.api.entity.Entity;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.policy.PullPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResourceHistoryConf;
@@ -77,7 +80,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
     private static final Logger LOG = LoggerFactory.getLogger(ResourceDataBinder.class);
 
-    private static final String[] ITEM_IGNORE_PROPERTIES = { "key", "mapping" };
+    private static final String[] ITEM_IGNORE_PROPERTIES = { "key", "mapping", "transformers" };
 
     @Autowired
     private AnyTypeDAO anyTypeDAO;
@@ -99,6 +102,9 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
 
     @Autowired
     private ConfDAO confDAO;
+
+    @Autowired
+    private ImplementationDAO implementationDAO;
 
     @Autowired
     private EntityFactory entityFactory;
@@ -321,6 +327,19 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                             orgUnit.add(item);
                         }
 
+                        itemTO.getTransformers().forEach(transformerKey -> {
+                            Implementation transformer = implementationDAO.find(transformerKey);
+                            if (transformer == null) {
+                                LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...",
+                                        transformerKey);
+                            } else {
+                                item.add(transformer);
+                            }
+                        });
+                        // remove all implementations not contained in the TO
+                        item.getTransformers().removeAll(item.getTransformers().stream().
+                                filter(implementation -> !itemTO.getTransformers().contains(implementation.getKey())).
+                                collect(Collectors.toList()));
                     }
                 }
             }
@@ -352,8 +371,18 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         resource.getCapabilitiesOverride().clear();
         resource.getCapabilitiesOverride().addAll(resourceTO.getCapabilitiesOverride());
 
-        resource.getPropagationActionsClassNames().clear();
-        resource.getPropagationActionsClassNames().addAll(resourceTO.getPropagationActionsClassNames());
+        resourceTO.getPropagationActions().forEach(propagationActionKey -> {
+            Implementation propagationAction = implementationDAO.find(propagationActionKey);
+            if (propagationAction == null) {
+                LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...", propagationActionKey);
+            } else {
+                resource.add(propagationAction);
+            }
+        });
+        // remove all implementations not contained in the TO
+        resource.getPropagationActions().removeAll(resource.getPropagationActions().stream().
+                filter(implementation -> !resourceTO.getPropagationActions().contains(implementation.getKey())).
+                collect(Collectors.toList()));
 
         return resource;
     }
@@ -421,6 +450,7 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                         MappingItem item = entityFactory.newEntity(MappingItem.class);
                         BeanUtils.copyProperties(itemTO, item, ITEM_IGNORE_PROPERTIES);
                         item.setMapping(mapping);
+
                         if (item.isConnObjectKey()) {
                             if (intAttrName.getSchemaType() == SchemaType.VIRTUAL) {
                                 invalidMapping.getElements().
@@ -435,6 +465,20 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
                         } else {
                             mapping.add(item);
                         }
+
+                        itemTO.getTransformers().forEach(transformerKey -> {
+                            Implementation transformer = implementationDAO.find(transformerKey);
+                            if (transformer == null) {
+                                LOG.debug("Invalid " + Implementation.class.getSimpleName() + " {}, ignoring...",
+                                        transformerKey);
+                            } else {
+                                item.add(transformer);
+                            }
+                        });
+                        // remove all implementations not contained in the TO
+                        item.getTransformers().removeAll(item.getTransformers().stream().
+                                filter(implementation -> !itemTO.getTransformers().contains(implementation.getKey())).
+                                collect(Collectors.toList()));
 
                         if (intAttrName.getEnclosingGroup() != null
                                 && item.getPurpose() != MappingPurpose.PROPAGATION) {
@@ -495,6 +539,10 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
             } else {
                 containerTO.add(itemTO);
             }
+
+            item.getTransformers().forEach(transformer -> {
+                itemTO.getTransformers().add(transformer.getKey());
+            });
         });
     }
 
@@ -583,7 +631,8 @@ public class ResourceDataBinderImpl implements ResourceDataBinder {
         resourceTO.setOverrideCapabilities(resource.isOverrideCapabilities());
         resourceTO.getCapabilitiesOverride().addAll(resource.getCapabilitiesOverride());
 
-        resourceTO.getPropagationActionsClassNames().addAll(resource.getPropagationActionsClassNames());
+        resourceTO.getPropagationActions().addAll(
+                resource.getPropagationActions().stream().map(Entity::getKey).collect(Collectors.toList()));
 
         return resourceTO;
     }

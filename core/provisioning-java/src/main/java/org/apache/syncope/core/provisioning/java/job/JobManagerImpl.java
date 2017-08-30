@@ -31,6 +31,7 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.core.persistence.api.dao.ConfDAO;
 import org.apache.syncope.core.persistence.api.dao.NotFoundException;
@@ -46,6 +47,8 @@ import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.persistence.api.SyncopeLoader;
 import org.apache.syncope.core.persistence.api.DomainsHolder;
+import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.quartz.CronScheduleBuilder;
 import org.quartz.Job;
 import org.quartz.JobBuilder;
@@ -91,6 +94,9 @@ public class JobManagerImpl implements JobManager, SyncopeLoader {
 
     @Autowired
     private ConfDAO confDAO;
+
+    @Autowired
+    private ImplementationDAO implementationDAO;
 
     private boolean disableQuartzInstance;
 
@@ -215,22 +221,26 @@ public class JobManagerImpl implements JobManager, SyncopeLoader {
         TaskJob job = createSpringBean(TaskJob.class);
         job.setTaskKey(task.getKey());
 
-        String jobDelegateClassName = task.getJobDelegateClassName() == null
+        Implementation jobDelegate = task.getJobDelegate() == null
                 ? task instanceof PullTask
-                        ? PullJobDelegate.class.getName()
+                        ? implementationDAO.find(ImplementationType.TASKJOB_DELEGATE).stream().
+                                filter(impl -> PullJobDelegate.class.getName().equals(impl.getBody())).
+                                findFirst().orElse(null)
                         : task instanceof PushTask
-                                ? PushJobDelegate.class.getName()
+                                ? implementationDAO.find(ImplementationType.TASKJOB_DELEGATE).stream().
+                                        filter(impl -> PushJobDelegate.class.getName().equals(impl.getBody())).
+                                        findFirst().orElse(null)
                                 : null
-                : task.getJobDelegateClassName();
-        if (jobDelegateClassName == null) {
+                : task.getJobDelegate();
+        if (jobDelegate == null) {
             throw new IllegalArgumentException("Task " + task
                     + " does not provide any " + SchedTaskJobDelegate.class.getSimpleName());
         }
 
         Map<String, Object> jobMap = new HashMap<>();
         jobMap.put(JobManager.DOMAIN_KEY, AuthContextUtils.getDomain());
-        jobMap.put(TaskJob.DELEGATE_CLASS_KEY, jobDelegateClassName);
-        jobMap.put(INTERRUPT_MAX_RETRIES_KEY, interruptMaxRetries);
+        jobMap.put(TaskJob.DELEGATE_IMPLEMENTATION, jobDelegate.getKey());
+        jobMap.put(JobManager.INTERRUPT_MAX_RETRIES_KEY, interruptMaxRetries);
 
         registerJob(
                 JobNamer.getJobKey(task).getName(),
@@ -250,7 +260,7 @@ public class JobManagerImpl implements JobManager, SyncopeLoader {
 
         Map<String, Object> jobMap = new HashMap<>();
         jobMap.put(JobManager.DOMAIN_KEY, AuthContextUtils.getDomain());
-        jobMap.put(INTERRUPT_MAX_RETRIES_KEY, interruptMaxRetries);
+        jobMap.put(JobManager.INTERRUPT_MAX_RETRIES_KEY, interruptMaxRetries);
 
         registerJob(JobNamer.getJobKey(report).getName(), job, report.getCronExpression(), startAt, jobMap);
     }
@@ -342,7 +352,7 @@ public class JobManagerImpl implements JobManager, SyncopeLoader {
 
         Map<String, Object> jobMap = new HashMap<>();
         jobMap.put(JobManager.DOMAIN_KEY, AuthContextUtils.getDomain());
-        jobMap.put(INTERRUPT_MAX_RETRIES_KEY, conf.getRight());
+        jobMap.put(JobManager.INTERRUPT_MAX_RETRIES_KEY, conf.getRight());
 
         // 3. NotificationJob
         if (StringUtils.isBlank(conf.getLeft())) {

@@ -35,7 +35,7 @@ public class SchedTaskTO extends AbstractTaskTO {
 
     private String cronExpression;
 
-    private String jobDelegateClassName;
+    private String jobDelegate;
 
     private String name;
 
@@ -63,12 +63,12 @@ public class SchedTaskTO extends AbstractTaskTO {
         this.cronExpression = cronExpression;
     }
 
-    public String getJobDelegateClassName() {
-        return jobDelegateClassName;
+    public String getJobDelegate() {
+        return jobDelegate;
     }
 
-    public void setJobDelegateClassName(final String jobDelegateClassName) {
-        this.jobDelegateClassName = jobDelegateClassName;
+    public void setJobDelegate(final String jobDelegate) {
+        this.jobDelegate = jobDelegate;
     }
 
     public Date getLastExec() {

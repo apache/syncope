@@ -27,9 +27,9 @@ public class DomainResultManager extends CommonsResultManager {
 
     public void printDomains(final List<DomainTO> domainTOs) {
         System.out.println("");
-        for (final DomainTO domainTO : domainTOs) {
+        domainTOs.forEach(domainTO -> {
             printDomain(domainTO);
-        }
+        });
     }
 
     public void printDomain(final DomainTO domainTO) {

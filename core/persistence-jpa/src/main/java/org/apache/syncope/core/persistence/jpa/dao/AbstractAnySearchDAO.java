@@ -153,7 +153,7 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
                     && cond.getType() != AttributeCond.Type.ISNULL
                     && cond.getType() != AttributeCond.Type.ISNOTNULL) {
 
-                schema.getValidator().validate(cond.getExpression(), attrValue);
+                ((JPAPlainSchema) schema).validator().validate(cond.getExpression(), attrValue);
             }
         } catch (ValidationException e) {
             LOG.error("Could not validate expression '" + cond.getExpression() + "'", e);
@@ -225,7 +225,7 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
                 && condClone.getType() != AttributeCond.Type.ISNOTNULL) {
 
             try {
-                schema.getValidator().validate(condClone.getExpression(), attrValue);
+                ((JPAPlainSchema) schema).validator().validate(condClone.getExpression(), attrValue);
             } catch (ValidationException e) {
                 LOG.error("Could not validate expression '" + condClone.getExpression() + "'", e);
                 throw new IllegalArgumentException();

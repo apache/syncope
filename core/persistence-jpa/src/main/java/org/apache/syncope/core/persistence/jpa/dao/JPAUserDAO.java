@@ -22,10 +22,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -44,7 +44,6 @@ import org.apache.syncope.core.provisioning.api.utils.policy.PasswordPolicyExcep
 import org.apache.syncope.core.spring.security.AuthContextUtils;
 import org.apache.syncope.core.spring.security.DelegatedAdministrationException;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
-import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidEntityException;
 import org.apache.syncope.core.persistence.api.dao.AccessTokenDAO;
 import org.apache.syncope.core.persistence.api.dao.AccountRule;
@@ -56,6 +55,7 @@ import org.apache.syncope.core.persistence.api.dao.UserDAO;
 import org.apache.syncope.core.persistence.api.entity.AccessToken;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.Entity;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
@@ -68,8 +68,8 @@ import org.apache.syncope.core.persistence.jpa.entity.JPAAnyUtilsFactory;
 import org.apache.syncope.core.persistence.jpa.entity.user.JPAUser;
 import org.apache.syncope.core.provisioning.api.event.AnyCreatedUpdatedEvent;
 import org.apache.syncope.core.provisioning.api.event.AnyDeletedEvent;
+import org.apache.syncope.core.spring.ImplementationManager;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -85,9 +85,6 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
 
     @Autowired
     private AccessTokenDAO accessTokenDAO;
-
-    @Autowired
-    private ImplementationLookup implementationLookup;
 
     @Resource(name = "adminUser")
     private String adminUser;
@@ -145,30 +142,24 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
     public Map<String, Integer> countByRealm() {
         Query query = entityManager().createQuery(
                 "SELECT e.realm, COUNT(e) FROM  " + JPAUser.class.getSimpleName() + " e GROUP BY e.realm");
+
         @SuppressWarnings("unchecked")
         List<Object[]> results = query.getResultList();
-
-        Map<String, Integer> countByRealm = new HashMap<>(results.size());
-        for (Object[] result : results) {
-            countByRealm.put(((Realm) result[0]).getFullPath(), ((Number) result[1]).intValue());
-        }
-
-        return Collections.unmodifiableMap(countByRealm);
+        return results.stream().collect(Collectors.toMap(
+                result -> ((Realm) result[0]).getFullPath(),
+                result -> ((Number) result[1]).intValue()));
     }
 
     @Override
     public Map<String, Integer> countByStatus() {
         Query query = entityManager().createQuery(
                 "SELECT e.status, COUNT(e) FROM  " + JPAUser.class.getSimpleName() + " e GROUP BY e.status");
+
         @SuppressWarnings("unchecked")
         List<Object[]> results = query.getResultList();
-
-        Map<String, Integer> countByStatus = new HashMap<>(results.size());
-        for (Object[] result : results) {
-            countByStatus.put(((String) result[0]), ((Number) result[1]).intValue());
-        }
-
-        return Collections.unmodifiableMap(countByStatus);
+        return results.stream().collect(Collectors.toMap(
+                result -> (String) result[0],
+                result -> ((Number) result[1]).intValue()));
     }
 
     @Override
@@ -304,28 +295,12 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
                     throw new PasswordPolicyException("Password mandatory");
                 }
 
-                policy.getRuleConfs().forEach(ruleConf -> {
-                    Class<? extends PasswordRule> ruleClass =
-                            implementationLookup.getPasswordRuleClass(ruleConf.getClass());
-                    if (ruleClass == null) {
-                        LOG.warn("Could not find matching password rule for {}", ruleConf.getClass());
-                    } else {
-                        // fetch (or create) rule
-                        PasswordRule rule;
-                        if (ApplicationContextProvider.getBeanFactory().containsSingleton(ruleClass.getName())) {
-                            rule = (PasswordRule) ApplicationContextProvider.getBeanFactory().
-                                    getSingleton(ruleClass.getName());
-                        } else {
-                            rule = (PasswordRule) ApplicationContextProvider.getBeanFactory().
-                                    createBean(ruleClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
-                            ApplicationContextProvider.getBeanFactory().
-                                    registerSingleton(ruleClass.getName(), rule);
-                        }
-
-                        // enforce rule
-                        rule.enforce(ruleConf, user);
+                for (Implementation impl : policy.getRules()) {
+                    Optional<PasswordRule> rule = ImplementationManager.buildPasswordRule(impl);
+                    if (rule.isPresent()) {
+                        rule.get().enforce(user);
                     }
-                });
+                }
 
                 if (user.verifyPasswordHistory(user.getClearPassword(), policy.getHistoryLength())) {
                     throw new PasswordPolicyException("Password value was used in the past: not allowed");
@@ -376,28 +351,12 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
             }
 
             for (AccountPolicy policy : getAccountPolicies(user)) {
-                policy.getRuleConfs().forEach(ruleConf -> {
-                    Class<? extends AccountRule> ruleClass =
-                            implementationLookup.getAccountRuleClass(ruleConf.getClass());
-                    if (ruleClass == null) {
-                        LOG.warn("Could not find matching account rule for {}", ruleConf.getClass());
-                    } else {
-                        // fetch (or create) rule
-                        AccountRule rule;
-                        if (ApplicationContextProvider.getBeanFactory().containsSingleton(ruleClass.getName())) {
-                            rule = (AccountRule) ApplicationContextProvider.getBeanFactory().
-                                    getSingleton(ruleClass.getName());
-                        } else {
-                            rule = (AccountRule) ApplicationContextProvider.getBeanFactory().
-                                    createBean(ruleClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
-                            ApplicationContextProvider.getBeanFactory().
-                                    registerSingleton(ruleClass.getName(), rule);
-                        }
-
-                        // enforce rule
-                        rule.enforce(ruleConf, user);
+                for (Implementation impl : policy.getRules()) {
+                    Optional<AccountRule> rule = ImplementationManager.buildAccountRule(impl);
+                    if (rule.isPresent()) {
+                        rule.get().enforce(user);
                     }
-                });
+                }
 
                 suspend |= user.getFailedLogins() != null && policy.getMaxAuthenticationAttempts() > 0
                         && user.getFailedLogins() > policy.getMaxAuthenticationAttempts() && !user.isSuspended();

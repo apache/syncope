@@ -45,6 +45,7 @@ import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
+import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.common.lib.types.MatchingRule;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
@@ -70,7 +71,8 @@ public class PushTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void getPushActionsClasses() {
-        Set<String> actions = syncopeService.platform().getPushActions();
+        Set<String> actions = syncopeService.platform().
+                getJavaImplInfo(ImplementationType.PUSH_ACTIONS).get().getClasses();
         assertNotNull(actions);
     }
 
@@ -110,7 +112,7 @@ public class PushTaskITCase extends AbstractTaskITCase {
         task = taskService.read(actual.getKey(), true);
         assertNotNull(task);
         assertEquals(task.getKey(), actual.getKey());
-        assertEquals(task.getJobDelegateClassName(), actual.getJobDelegateClassName());
+        assertEquals(task.getJobDelegate(), actual.getJobDelegate());
         assertEquals(task.getFilters().get(AnyTypeKind.USER.name()),
                 actual.getFilters().get(AnyTypeKind.USER.name()));
         assertEquals(task.getFilters().get(AnyTypeKind.GROUP.name()),

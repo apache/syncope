@@ -28,7 +28,7 @@ import javax.xml.bind.annotation.XmlType;
 
 @XmlRootElement(name = "accountPolicy")
 @XmlType
-public class AccountPolicyTO extends AbstractPolicyTO implements ComposablePolicy<AbstractAccountRuleConf> {
+public class AccountPolicyTO extends AbstractPolicyTO implements ComposablePolicy {
 
     private static final long serialVersionUID = -1557150042828800134L;
 
@@ -36,7 +36,7 @@ public class AccountPolicyTO extends AbstractPolicyTO implements ComposablePolic
 
     private int maxAuthenticationAttempts;
 
-    private final List<AbstractAccountRuleConf> ruleConfs = new ArrayList<>();
+    private final List<String> rules = new ArrayList<>();
 
     private final List<String> passthroughResources = new ArrayList<>();
 
@@ -56,12 +56,12 @@ public class AccountPolicyTO extends AbstractPolicyTO implements ComposablePolic
         this.maxAuthenticationAttempts = maxAuthenticationAttempts;
     }
 
-    @XmlElementWrapper(name = "ruleConfs")
-    @XmlElement(name = "ruleConf")
-    @JsonProperty("ruleConfs")
+    @XmlElementWrapper(name = "rules")
+    @XmlElement(name = "rule")
+    @JsonProperty("rules")
     @Override
-    public List<AbstractAccountRuleConf> getRuleConfs() {
-        return ruleConfs;
+    public List<String> getRules() {
+        return rules;
     }
 
     @XmlElementWrapper(name = "passthroughResources")

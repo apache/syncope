@@ -20,9 +20,7 @@ package org.apache.syncope.common.lib.to;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import javax.ws.rs.PathParam;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
@@ -61,7 +59,7 @@ public class SAML2IdPTO extends AbstractBaseBean implements EntityTO, ItemContai
 
     private final List<ItemTO> items = new ArrayList<>();
 
-    private final Set<String> actionsClassNames = new HashSet<>();
+    private final List<String> actions = new ArrayList<>();
 
     @Override
     public String getKey() {
@@ -182,11 +180,11 @@ public class SAML2IdPTO extends AbstractBaseBean implements EntityTO, ItemContai
         return this.items.remove(item);
     }
 
-    @XmlElementWrapper(name = "actionsClassNames")
-    @XmlElement(name = "actionsClassName")
-    @JsonProperty("actionsClassNames")
-    public Set<String> getActionsClassNames() {
-        return actionsClassNames;
+    @XmlElementWrapper(name = "actions")
+    @XmlElement(name = "action")
+    @JsonProperty("actions")
+    public List<String> getActions() {
+        return actions;
     }
 
     public boolean isSupportUnsolicited() {

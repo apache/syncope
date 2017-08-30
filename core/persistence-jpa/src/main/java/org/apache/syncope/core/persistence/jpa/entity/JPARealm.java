@@ -19,16 +19,11 @@
 package org.apache.syncope.core.persistence.jpa.entity;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 import javax.persistence.Cacheable;
 import javax.persistence.CascadeType;
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
@@ -41,8 +36,10 @@ import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.Size;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.core.persistence.api.entity.AnyTemplateRealm;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.policy.AccountPolicy;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.Realm;
@@ -75,12 +72,13 @@ public class JPARealm extends AbstractGeneratedKeyEntity implements Realm {
     @ManyToOne(fetch = FetchType.EAGER)
     private JPAAccountPolicy accountPolicy;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @Column(name = "actionClassName")
-    @CollectionTable(name = "Realm_actionsClassNames",
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = TABLE + "Action",
             joinColumns =
-            @JoinColumn(name = "realm_id", referencedColumnName = "id"))
-    private Set<String> actionsClassNames = new HashSet<>();
+            @JoinColumn(name = "realm_id"),
+            inverseJoinColumns =
+            @JoinColumn(name = "implementation_id"))
+    private List<JPAImplementation> actions = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "realm")
     private List<JPAAnyTemplateRealm> templates = new ArrayList<>();
@@ -143,8 +141,15 @@ public class JPARealm extends AbstractGeneratedKeyEntity implements Realm {
     }
 
     @Override
-    public Set<String> getActionsClassNames() {
-        return actionsClassNames;
+    public boolean add(final Implementation action) {
+        checkType(action, JPAImplementation.class);
+        checkImplementationType(action, ImplementationType.LOGIC_ACTIONS);
+        return actions.contains((JPAImplementation) action) || actions.add((JPAImplementation) action);
+    }
+
+    @Override
+    public List<? extends Implementation> getActions() {
+        return actions;
     }
 
     @Override

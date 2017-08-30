@@ -62,6 +62,7 @@ import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
+import org.apache.syncope.common.lib.to.ImplementationTO;
 import org.apache.syncope.common.lib.to.ProvisioningResult;
 import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -69,6 +70,8 @@ import org.apache.syncope.common.lib.types.CipherAlgorithm;
 import org.apache.syncope.common.lib.types.ClientExceptionType;
 import org.apache.syncope.common.lib.types.ConnConfProperty;
 import org.apache.syncope.common.lib.types.ConnectorCapability;
+import org.apache.syncope.common.lib.types.ImplementationEngine;
+import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.PropagationTaskExecStatus;
 import org.apache.syncope.common.lib.types.ResourceDeassociationAction;
 import org.apache.syncope.common.lib.types.PullMode;
@@ -76,6 +79,7 @@ import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.beans.AnyQuery;
 import org.apache.syncope.common.rest.api.beans.TaskQuery;
 import org.apache.syncope.common.rest.api.service.ConnectorService;
+import org.apache.syncope.common.rest.api.service.ImplementationService;
 import org.apache.syncope.common.rest.api.service.TaskService;
 import org.apache.syncope.core.provisioning.java.pushpull.DBPasswordPullActions;
 import org.apache.syncope.core.provisioning.java.pushpull.LDAPPasswordPullActions;
@@ -100,14 +104,32 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
     @BeforeAll
     public static void testPullActionsSetup() {
+        ImplementationTO pullActions = null;
+        try {
+            pullActions = implementationService.read(TestPullActions.class.getSimpleName());
+        } catch (SyncopeClientException e) {
+            if (e.getType().getResponseStatus() == Response.Status.NOT_FOUND) {
+                pullActions = new ImplementationTO();
+                pullActions.setKey(TestPullActions.class.getSimpleName());
+                pullActions.setEngine(ImplementationEngine.JAVA);
+                pullActions.setType(ImplementationType.PULL_ACTIONS);
+                pullActions.setBody(TestPullActions.class.getName());
+                Response response = implementationService.create(pullActions);
+                pullActions = getObject(response.getLocation(), ImplementationService.class, ImplementationTO.class);
+                assertNotNull(pullActions);
+            }
+        }
+        assertNotNull(pullActions);
+
         PullTaskTO pullTask = taskService.read(PULL_TASK_KEY, true);
-        pullTask.getActionsClassNames().add(TestPullActions.class.getName());
+        pullTask.getActions().add(pullActions.getKey());
         taskService.update(pullTask);
     }
 
     @Test
     public void getPullActionsClasses() {
-        Set<String> actions = syncopeService.platform().getPullActions();
+        Set<String> actions = syncopeService.platform().
+                getJavaImplInfo(ImplementationType.PULL_ACTIONS).get().getClasses();
         assertNotNull(actions);
         assertFalse(actions.isEmpty());
     }
@@ -147,7 +169,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         task = taskService.read(actual.getKey(), true);
         assertNotNull(task);
         assertEquals(actual.getKey(), task.getKey());
-        assertEquals(actual.getJobDelegateClassName(), task.getJobDelegateClassName());
+        assertEquals(actual.getJobDelegate(), task.getJobDelegate());
         assertEquals(userTemplate, task.getTemplates().get(AnyTypeKind.USER.name()));
         assertEquals(groupTemplate, task.getTemplates().get(AnyTypeKind.GROUP.name()));
     }
@@ -406,8 +428,18 @@ public class PullTaskITCase extends AbstractTaskITCase {
         ItemTO mappingItem = provision.getMapping().getItems().stream().
                 filter(object -> "location".equals(object.getIntAttrName())).findFirst().get();
         assertNotNull(mappingItem);
-        mappingItem.getTransformerClassNames().clear();
-        mappingItem.getTransformerClassNames().add(PrefixItemTransformer.class.getName());
+
+        ImplementationTO transformer = new ImplementationTO();
+        transformer.setKey(PrefixItemTransformer.class.getSimpleName());
+        transformer.setEngine(ImplementationEngine.JAVA);
+        transformer.setType(ImplementationType.ITEM_TRANSFORMER);
+        transformer.setBody(PrefixItemTransformer.class.getName());
+        Response response = implementationService.create(transformer);
+        transformer = getObject(response.getLocation(), ImplementationService.class, ImplementationTO.class);
+        assertNotNull(transformer);
+
+        mappingItem.getTransformers().clear();
+        mappingItem.getTransformers().add(transformer.getKey());
 
         try {
             resourceService.update(resource);
@@ -488,15 +520,22 @@ public class PullTaskITCase extends AbstractTaskITCase {
                     + "'" + user2OnTestPull + "', 'user2', 'Rossi', 'mail2@apache.org', NULL)");
 
             // 2. create new pull task for test-db, with reconciliation filter (surname 'Rossi') 
+            ImplementationTO reconFilterBuilder = new ImplementationTO();
+            reconFilterBuilder.setKey(TestReconciliationFilterBuilder.class.getSimpleName());
+            reconFilterBuilder.setEngine(ImplementationEngine.JAVA);
+            reconFilterBuilder.setType(ImplementationType.RECON_FILTER_BUILDER);
+            reconFilterBuilder.setBody(TestReconciliationFilterBuilder.class.getName());
+            Response response = implementationService.create(reconFilterBuilder);
+            reconFilterBuilder = getObject(response.getLocation(), ImplementationService.class, ImplementationTO.class);
+            assertNotNull(reconFilterBuilder);
+
             task = taskService.read("7c2242f4-14af-4ab5-af31-cdae23783655", true);
             task.setPullMode(PullMode.FILTERED_RECONCILIATION);
-            task.setReconciliationFilterBuilderClassName(TestReconciliationFilterBuilder.class.getName());
-            Response response = taskService.create(task);
+            task.setReconFilterBuilder(reconFilterBuilder.getKey());
+            response = taskService.create(task);
             task = getObject(response.getLocation(), TaskService.class, PullTaskTO.class);
             assertNotNull(task);
-            assertEquals(
-                    TestReconciliationFilterBuilder.class.getName(),
-                    task.getReconciliationFilterBuilderClassName());
+            assertEquals(reconFilterBuilder.getKey(), task.getReconFilterBuilder());
 
             // 3. exec task
             ExecTO execution = execProvisioningTask(taskService, task.getKey(), 50, false);
@@ -714,8 +753,25 @@ public class PullTaskITCase extends AbstractTaskITCase {
         // -----------------------------
         // Add a custom correlation rule
         // -----------------------------
+        ImplementationTO corrRule = null;
+        try {
+            corrRule = implementationService.read(TestPullRule.class.getSimpleName());
+        } catch (SyncopeClientException e) {
+            if (e.getType().getResponseStatus() == Response.Status.NOT_FOUND) {
+                corrRule = new ImplementationTO();
+                corrRule.setKey(TestPullRule.class.getSimpleName());
+                corrRule.setEngine(ImplementationEngine.JAVA);
+                corrRule.setType(ImplementationType.PULL_CORRELATION_RULE);
+                corrRule.setBody(TestPullRule.class.getName());
+                Response response = implementationService.create(corrRule);
+                corrRule = getObject(response.getLocation(), ImplementationService.class, ImplementationTO.class);
+                assertNotNull(corrRule);
+            }
+        }
+        assertNotNull(corrRule);
+
         PullPolicyTO policyTO = policyService.read("9454b0d7-2610-400a-be82-fc23cf553dd6");
-        policyTO.getSpecification().getCorrelationRules().put(AnyTypeKind.USER.name(), TestPullRule.class.getName());
+        policyTO.getSpecification().getCorrelationRules().put(AnyTypeKind.USER.name(), corrRule.getKey());
         policyService.update(policyTO);
         // -----------------------------
 
@@ -856,6 +912,15 @@ public class PullTaskITCase extends AbstractTaskITCase {
         jdbcTemplate.execute("UPDATE test set PASSWORD='" + newPassword + "' where ID='" + user.getUsername() + "'");
 
         // 4. Pull the user from the resource
+        ImplementationTO pullActions = new ImplementationTO();
+        pullActions.setKey(DBPasswordPullActions.class.getSimpleName());
+        pullActions.setEngine(ImplementationEngine.JAVA);
+        pullActions.setType(ImplementationType.PULL_ACTIONS);
+        pullActions.setBody(DBPasswordPullActions.class.getName());
+        Response response = implementationService.create(pullActions);
+        pullActions = getObject(response.getLocation(), ImplementationService.class, ImplementationTO.class);
+        assertNotNull(pullActions);
+
         PullTaskTO pullTask = new PullTaskTO();
         pullTask.setDestinationRealm(SyncopeConstants.ROOT_REALM);
         pullTask.setName("DB Pull Task");
@@ -864,7 +929,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         pullTask.setPerformUpdate(true);
         pullTask.setPullMode(PullMode.FULL_RECONCILIATION);
         pullTask.setResource(RESOURCE_NAME_TESTDB);
-        pullTask.getActionsClassNames().add(DBPasswordPullActions.class.getName());
+        pullTask.getActions().add(pullActions.getKey());
         Response taskResponse = taskService.create(pullTask);
 
         PullTaskTO actual = getObject(taskResponse.getLocation(), TaskService.class, PullTaskTO.class);
@@ -873,7 +938,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
         pullTask = taskService.read(actual.getKey(), true);
         assertNotNull(pullTask);
         assertEquals(actual.getKey(), pullTask.getKey());
-        assertEquals(actual.getJobDelegateClassName(), pullTask.getJobDelegateClassName());
+        assertEquals(actual.getJobDelegate(), pullTask.getJobDelegate());
 
         ExecTO execution = execProvisioningTask(taskService, pullTask.getKey(), 50, false);
         assertEquals(PropagationTaskExecStatus.SUCCESS, PropagationTaskExecStatus.valueOf(execution.getStatus()));
@@ -936,6 +1001,15 @@ public class PullTaskITCase extends AbstractTaskITCase {
             connectorService.update(resourceConnector);
 
             // 6. Pull the user from the resource
+            ImplementationTO pullActions = new ImplementationTO();
+            pullActions.setKey(LDAPPasswordPullActions.class.getSimpleName());
+            pullActions.setEngine(ImplementationEngine.JAVA);
+            pullActions.setType(ImplementationType.PULL_ACTIONS);
+            pullActions.setBody(LDAPPasswordPullActions.class.getName());
+            Response response = implementationService.create(pullActions);
+            pullActions = getObject(response.getLocation(), ImplementationService.class, ImplementationTO.class);
+            assertNotNull(pullActions);
+
             pullTask = new PullTaskTO();
             pullTask.setDestinationRealm(SyncopeConstants.ROOT_REALM);
             pullTask.setName("LDAP Pull Task");
@@ -944,7 +1018,7 @@ public class PullTaskITCase extends AbstractTaskITCase {
             pullTask.setPerformUpdate(true);
             pullTask.setPullMode(PullMode.FULL_RECONCILIATION);
             pullTask.setResource(RESOURCE_NAME_LDAP);
-            pullTask.getActionsClassNames().add(LDAPPasswordPullActions.class.getName());
+            pullTask.getActions().add(pullActions.getKey());
             Response taskResponse = taskService.create(pullTask);
 
             pullTask = getObject(taskResponse.getLocation(), TaskService.class, PullTaskTO.class);

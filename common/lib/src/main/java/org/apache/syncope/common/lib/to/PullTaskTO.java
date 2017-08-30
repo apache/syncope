@@ -39,7 +39,7 @@ public class PullTaskTO extends AbstractProvisioningTaskTO implements Templatabl
 
     private PullMode pullMode;
 
-    private String reconciliationFilterBuilderClassName;
+    private String reconFilterBuilder;
 
     private String destinationRealm;
 
@@ -55,12 +55,12 @@ public class PullTaskTO extends AbstractProvisioningTaskTO implements Templatabl
         this.pullMode = pullMode;
     }
 
-    public String getReconciliationFilterBuilderClassName() {
-        return reconciliationFilterBuilderClassName;
+    public String getReconFilterBuilder() {
+        return reconFilterBuilder;
     }
 
-    public void setReconciliationFilterBuilderClassName(final String reconciliationFilterBuilderClassName) {
-        this.reconciliationFilterBuilderClassName = reconciliationFilterBuilderClassName;
+    public void setReconFilterBuilder(final String reconFilterBuilder) {
+        this.reconFilterBuilder = reconFilterBuilder;
     }
 
     public String getDestinationRealm() {

@@ -32,7 +32,6 @@ import org.apache.syncope.core.provisioning.api.utils.ConnPoolConfUtils;
 import org.apache.syncope.core.provisioning.api.Connector;
 import org.apache.syncope.core.provisioning.api.TimeoutException;
 import org.apache.syncope.core.persistence.api.dao.search.OrderByClause;
-import org.apache.syncope.core.provisioning.api.pushpull.ReconciliationFilterBuilder;
 import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.identityconnectors.common.security.GuardedByteArray;
 import org.identityconnectors.common.security.GuardedString;
@@ -62,6 +61,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ClassUtils;
+import org.apache.syncope.core.provisioning.api.pushpull.ReconFilterBuilder;
 
 public class ConnectorFacadeProxy implements Connector {
 
@@ -314,7 +314,7 @@ public class ConnectorFacadeProxy implements Connector {
     @Override
     public void filteredReconciliation(
             final ObjectClass objectClass,
-            final ReconciliationFilterBuilder filterBuilder,
+            final ReconFilterBuilder filterBuilder,
             final SyncResultsHandler handler,
             final OperationOptions options) {
 

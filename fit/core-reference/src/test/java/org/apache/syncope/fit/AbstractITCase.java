@@ -81,6 +81,7 @@ import org.apache.syncope.common.rest.api.service.PolicyService;
 import org.apache.syncope.common.rest.api.service.ReportService;
 import org.apache.syncope.common.rest.api.service.ResourceService;
 import org.apache.syncope.common.rest.api.service.GroupService;
+import org.apache.syncope.common.rest.api.service.ImplementationService;
 import org.apache.syncope.common.rest.api.service.MailTemplateService;
 import org.apache.syncope.common.rest.api.service.RealmService;
 import org.apache.syncope.common.rest.api.service.RelationshipTypeService;
@@ -234,6 +235,8 @@ public abstract class AbstractITCase {
 
     protected static SecurityQuestionService securityQuestionService;
 
+    protected static ImplementationService implementationService;
+
     protected static CamelRouteService camelRouteService;
 
     protected static SAML2SPService saml2SpService;
@@ -304,6 +307,7 @@ public abstract class AbstractITCase {
         notificationService = adminClient.getService(NotificationService.class);
         schemaService = adminClient.getService(SchemaService.class);
         securityQuestionService = adminClient.getService(SecurityQuestionService.class);
+        implementationService = adminClient.getService(ImplementationService.class);
         camelRouteService = adminClient.getService(CamelRouteService.class);
         saml2SpService = adminClient.getService(SAML2SPService.class);
         saml2IdPService = adminClient.getService(SAML2IdPService.class);
@@ -321,7 +325,7 @@ public abstract class AbstractITCase {
         return new AttrPatch.Builder().operation(PatchOperation.ADD_REPLACE).attrTO(attrTO(schema, value)).build();
     }
 
-    public <T> T getObject(final URI location, final Class<?> serviceClass, final Class<T> resultClass) {
+    public static <T> T getObject(final URI location, final Class<?> serviceClass, final Class<T> resultClass) {
         WebClient webClient = WebClient.fromClient(WebClient.client(adminClient.getService(serviceClass)));
         webClient.accept(clientFactory.getContentType().getMediaType()).to(location.toASCIIString(), false);
 

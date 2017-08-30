@@ -24,7 +24,6 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.patch.AnyPatch;
-import org.apache.syncope.common.lib.policy.PasswordRuleConf;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
 import org.apache.syncope.common.lib.to.AttrTO;
@@ -41,6 +40,7 @@ import org.apache.syncope.core.spring.security.PasswordGenerator;
 import org.apache.syncope.core.spring.security.SecureRandomUtils;
 import org.apache.syncope.core.persistence.api.dao.RealmDAO;
 import org.apache.syncope.core.persistence.api.entity.Realm;
+import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.persistence.api.entity.task.PullTask;
@@ -171,26 +171,27 @@ public class ConnObjectUtils {
         if (anyTO instanceof UserTO && StringUtils.isBlank(((UserTO) anyTO).getPassword())) {
             UserTO userTO = (UserTO) anyTO;
 
-            List<PasswordRuleConf> ruleConfs = new ArrayList<>();
+            List<PasswordPolicy> passwordPolicies = new ArrayList<>();
 
             Realm realm = realmDAO.findByFullPath(userTO.getRealm());
             if (realm != null) {
                 realmDAO.findAncestors(realm).stream().
-                        filter(ancestor -> (ancestor.getPasswordPolicy() != null)).
-                        forEachOrdered(ancestor -> {
-                            ruleConfs.addAll(ancestor.getPasswordPolicy().getRuleConfs());
+                        filter(ancestor -> ancestor.getPasswordPolicy() != null).
+                        forEach(ancestor -> {
+                            passwordPolicies.add(ancestor.getPasswordPolicy());
                         });
             }
 
-            userTO.getResources().stream().map(resName -> resourceDAO.find(resName)).
-                    filter(resource -> (resource != null && resource.getPasswordPolicy() != null)).
-                    forEachOrdered(resource -> {
-                        ruleConfs.addAll(resource.getPasswordPolicy().getRuleConfs());
+            userTO.getResources().stream().
+                    map(resource -> resourceDAO.find(resource)).
+                    filter(resource -> resource != null && resource.getPasswordPolicy() != null).
+                    forEach(resource -> {
+                        passwordPolicies.add(resource.getPasswordPolicy());
                     });
 
             String password;
             try {
-                password = passwordGenerator.generate(ruleConfs);
+                password = passwordGenerator.generate(passwordPolicies);
             } catch (InvalidPasswordRuleConf e) {
                 LOG.error("Could not generate policy-compliant random password for {}", userTO, e);
 

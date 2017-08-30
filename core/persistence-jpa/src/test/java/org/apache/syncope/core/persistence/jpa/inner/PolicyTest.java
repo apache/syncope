@@ -25,13 +25,18 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
+import java.util.UUID;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.common.lib.policy.DefaultPasswordRuleConf;
 import org.apache.syncope.common.lib.policy.PullPolicySpec;
+import org.apache.syncope.common.lib.types.ImplementationEngine;
+import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.core.provisioning.api.serialization.POJOHelper;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
+import org.apache.syncope.core.persistence.api.dao.ImplementationDAO;
 import org.apache.syncope.core.persistence.api.dao.PolicyDAO;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
 import org.apache.syncope.core.persistence.api.entity.Policy;
 import org.apache.syncope.core.persistence.jpa.AbstractTest;
@@ -48,6 +53,9 @@ public class PolicyTest extends AbstractTest {
 
     @Autowired
     private PolicyDAO policyDAO;
+
+    @Autowired
+    private ImplementationDAO implementationDAO;
 
     @Test
     public void findAll() {
@@ -106,20 +114,32 @@ public class PolicyTest extends AbstractTest {
 
     @Test
     public void update() {
+        PasswordPolicy policy = policyDAO.find("ce93fcda-dc3a-4369-a7b0-a6108c261c85");
+        assertNotNull(policy);
+        assertEquals(1, policy.getRules().size());
+
         DefaultPasswordRuleConf ruleConf = new DefaultPasswordRuleConf();
         ruleConf.setMaxLength(8);
         ruleConf.setMinLength(6);
 
-        PasswordPolicy policy = policyDAO.find("ce93fcda-dc3a-4369-a7b0-a6108c261c85");
-        assertNotNull(policy);
-        assertEquals(1, policy.getRuleConfs().size());
-        policy.add(ruleConf);
+        Implementation rule = entityFactory.newEntity(Implementation.class);
+        rule.setKey("PasswordRule" + UUID.randomUUID().toString());
+        rule.setEngine(ImplementationEngine.JAVA);
+        rule.setType(ImplementationType.PASSWORD_RULE);
+        rule.setBody(POJOHelper.serialize(ruleConf));
+        rule = implementationDAO.save(rule);
+
+        policy.add(rule);
 
         policy = policyDAO.save(policy);
 
         assertNotNull(policy);
-        assertEquals(((DefaultPasswordRuleConf) policy.getRuleConfs().get(1)).getMaxLength(), 8);
-        assertEquals(((DefaultPasswordRuleConf) policy.getRuleConfs().get(1)).getMinLength(), 6);
+
+        rule = policy.getRules().get(1);
+
+        DefaultPasswordRuleConf actual = POJOHelper.deserialize(rule.getBody(), DefaultPasswordRuleConf.class);
+        assertEquals(actual.getMaxLength(), 8);
+        assertEquals(actual.getMinLength(), 6);
     }
 
     @Test

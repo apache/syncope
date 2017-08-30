@@ -29,9 +29,9 @@ public class GroupResultManager extends CommonsResultManager {
 
     public void printGroups(final List<GroupTO> groupTOs) {
         System.out.println("");
-        for (final GroupTO groupTO : groupTOs) {
+        groupTOs.forEach(groupTO -> {
             printGroup(groupTO);
-        }
+        });
     }
 
     public void printGroup(final GroupTO groupTO) {
@@ -54,15 +54,15 @@ public class GroupResultManager extends CommonsResultManager {
     }
 
     private void printResources(final Set<String> resources) {
-        for (final String resource : resources) {
+        resources.forEach(resource -> {
             System.out.println("      - " + resource);
-        }
+        });
     }
 
     public void printAttributes(final Set<AttrTO> attributes) {
-        for (final AttrTO attribute : attributes) {
+        attributes.forEach(attribute -> {
             printAttribute(attribute);
-        }
+        });
     }
 
     public void printAttribute(final AttrTO attribute) {

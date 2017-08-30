@@ -282,6 +282,16 @@ public final class StandardEntitlement {
 
     public static final String ACCESS_TOKEN_DELETE = "TASK_DELETE";
 
+    public static final String IMPLEMENTATION_LIST = "IMPLEMENTATION_LIST";
+
+    public static final String IMPLEMENTATION_READ = "IMPLEMENTATION_READ";
+
+    public static final String IMPLEMENTATION_CREATE = "IMPLEMENTATION_CREATE";
+
+    public static final String IMPLEMENTATION_UPDATE = "IMPLEMENTATION_UPDATE";
+
+    public static final String IMPLEMENTATION_DELETE = "IMPLEMENTATION_DELETE";
+
     private static final Set<String> VALUES;
 
     static {

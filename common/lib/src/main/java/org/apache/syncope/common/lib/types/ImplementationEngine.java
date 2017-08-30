@@ -16,12 +16,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.syncope.core.provisioning.api.notification;
+package org.apache.syncope.common.lib.types;
 
-import java.util.Set;
-import org.apache.syncope.core.persistence.api.entity.Notification;
+import javax.xml.bind.annotation.XmlEnum;
 
-public interface NotificationRecipientsProvider {
+@XmlEnum
+public enum ImplementationEngine {
 
-    Set<String> provideRecipients(Notification notification);
+    JAVA("application/java"),
+    GROOVY("application/x-groovy");
+
+    private final String mimeType;
+
+    ImplementationEngine(final String mimeType) {
+        this.mimeType = mimeType;
+    }
+
+    public String getMimeType() {
+        return mimeType;
+    }
+
 }

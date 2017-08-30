@@ -27,9 +27,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.jexl3.JexlContext;
 import org.apache.commons.jexl3.MapContext;
-import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.syncope.common.lib.to.ItemTO;
 import org.apache.syncope.common.lib.types.MappingPurpose;
 import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.Realm;
@@ -51,6 +49,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
 import org.apache.syncope.core.provisioning.api.data.JEXLItemTransformer;
+import org.apache.syncope.core.spring.ImplementationManager;
 
 public final class MappingUtils {
 
@@ -69,14 +68,14 @@ public final class MappingUtils {
 
     public static List<? extends Item> getPropagationItems(final List<? extends Item> items) {
         return items.stream().
-                        filter(item -> item.getPurpose() == MappingPurpose.PROPAGATION
-                        || item.getPurpose() == MappingPurpose.BOTH).collect(Collectors.toList());
+                filter(item -> item.getPurpose() == MappingPurpose.PROPAGATION
+                || item.getPurpose() == MappingPurpose.BOTH).collect(Collectors.toList());
     }
 
     public static List<? extends Item> getPullItems(final List<? extends Item> items) {
         return items.stream().
-                        filter(item -> item.getPurpose() == MappingPurpose.PULL
-                        || item.getPurpose() == MappingPurpose.BOTH).collect(Collectors.toList());
+                filter(item -> item.getPurpose() == MappingPurpose.PULL
+                || item.getPurpose() == MappingPurpose.BOTH).collect(Collectors.toList());
     }
 
     private static Name evaluateNAME(final String evalConnObjectLink, final String connObjectKey) {
@@ -160,52 +159,31 @@ public final class MappingUtils {
         return evaluateNAME(evalConnObjectLink, connObjectKey);
     }
 
-    private static List<ItemTransformer> getItemTransformers(
-            final String propagationJEXLTransformer,
-            final String pullJEXLTransformer,
-            final List<String> mappingItemTransformerClassNames) {
-
+    public static List<ItemTransformer> getItemTransformers(final Item item) {
         List<ItemTransformer> result = new ArrayList<>();
 
         // First consider the JEXL transformation expressions
-        if (StringUtils.isNotBlank(propagationJEXLTransformer) || StringUtils.isNotBlank(pullJEXLTransformer)) {
-            JEXLItemTransformer jexlTransformer =
-                    (JEXLItemTransformer) ApplicationContextProvider.getBeanFactory().
-                            createBean(JEXLItemTransformerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME,
-                                    false);
+        if (StringUtils.isNotBlank(item.getPropagationJEXLTransformer())
+                || StringUtils.isNotBlank(item.getPullJEXLTransformer())) {
 
-            jexlTransformer.setPropagationJEXL(propagationJEXLTransformer);
-            jexlTransformer.setPullJEXL(pullJEXLTransformer);
+            JEXLItemTransformer jexlTransformer = (JEXLItemTransformer) ApplicationContextProvider.getBeanFactory().
+                    createBean(JEXLItemTransformerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);
+
+            jexlTransformer.setPropagationJEXL(item.getPropagationJEXLTransformer());
+            jexlTransformer.setPullJEXL(item.getPullJEXLTransformer());
             result.add(jexlTransformer);
         }
 
-        // Then other custom tranaformers
-        mappingItemTransformerClassNames.forEach(className -> {
+        // Then other custom transformers
+        item.getTransformers().forEach(impl -> {
             try {
-                Class<?> transformerClass = ClassUtils.getClass(className);
-
-                result.add((ItemTransformer) ApplicationContextProvider.getBeanFactory().
-                        createBean(transformerClass, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false));
+                result.add(ImplementationManager.build(impl));
             } catch (Exception e) {
-                LOG.error("Could not instantiate {}, ignoring...", className, e);
+                LOG.error("While building {}", impl, e);
             }
         });
 
         return result;
-    }
-
-    public static List<ItemTransformer> getItemTransformers(final ItemTO item) {
-        return getItemTransformers(
-                item.getPropagationJEXLTransformer(),
-                item.getPullJEXLTransformer(),
-                item.getTransformerClassNames());
-    }
-
-    public static List<ItemTransformer> getItemTransformers(final Item item) {
-        return getItemTransformers(
-                item.getPropagationJEXLTransformer(),
-                item.getPullJEXLTransformer(),
-                item.getTransformerClassNames());
     }
 
     /**

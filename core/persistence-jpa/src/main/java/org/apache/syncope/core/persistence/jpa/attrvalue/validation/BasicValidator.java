@@ -22,15 +22,10 @@ import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.types.AttrSchemaType;
 import org.apache.syncope.core.persistence.api.attrvalue.validation.InvalidPlainAttrValueException;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
-import org.apache.syncope.core.persistence.api.entity.PlainSchema;
 
 public class BasicValidator extends AbstractValidator {
 
     private static final long serialVersionUID = -2606728447694223607L;
-
-    public BasicValidator(final PlainSchema schema) {
-        super(schema);
-    }
 
     @Override
     protected void doValidate(final PlainAttrValue attrValue) {

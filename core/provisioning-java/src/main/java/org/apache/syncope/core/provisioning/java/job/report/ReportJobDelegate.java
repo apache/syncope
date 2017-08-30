@@ -22,6 +22,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.Optional;
 import java.util.zip.Deflater;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -31,22 +32,20 @@ import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.io.IOUtils;
-import org.apache.syncope.common.lib.report.ReportletConf;
 import org.apache.syncope.common.lib.types.ReportExecStatus;
 import org.apache.syncope.core.provisioning.api.utils.ExceptionUtils2;
-import org.apache.syncope.core.spring.ApplicationContextProvider;
-import org.apache.syncope.core.persistence.api.ImplementationLookup;
 import org.apache.syncope.core.persistence.api.dao.ReportDAO;
 import org.apache.syncope.core.persistence.api.dao.ReportExecDAO;
 import org.apache.syncope.core.persistence.api.dao.Reportlet;
 import org.apache.syncope.core.persistence.api.entity.EntityFactory;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.Report;
 import org.apache.syncope.core.persistence.api.entity.ReportExec;
+import org.apache.syncope.core.spring.ImplementationManager;
 import org.quartz.JobExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.support.AbstractBeanDefinition;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.xml.sax.helpers.AttributesImpl;
@@ -70,9 +69,6 @@ public class ReportJobDelegate {
 
     @Autowired
     private EntityFactory entityFactory;
-
-    @Autowired
-    private ImplementationLookup implementationLookup;
 
     @Transactional
     public void execute(final String reportKey) throws JobExecutionException {
@@ -132,27 +128,11 @@ public class ReportJobDelegate {
             handler.startElement("", "", ReportXMLConst.ELEMENT_REPORT, atts);
 
             // iterate over reportlet instances defined for this report
-            for (ReportletConf reportletConf : report.getReportletConfs()) {
-                Class<? extends Reportlet> reportletClass =
-                        implementationLookup.getReportletClass(reportletConf.getClass());
-                if (reportletClass == null) {
-                    LOG.warn("Could not find matching reportlet for {}", reportletConf.getClass());
-                } else {
-                    // fetch (or create) reportlet
-                    Reportlet reportlet;
-                    if (ApplicationContextProvider.getBeanFactory().containsSingleton(reportletClass.getName())) {
-                        reportlet = (Reportlet) ApplicationContextProvider.getBeanFactory().
-                                getSingleton(reportletClass.getName());
-                    } else {
-                        reportlet = (Reportlet) ApplicationContextProvider.getBeanFactory().
-                                createBean(reportletClass, AbstractBeanDefinition.AUTOWIRE_BY_TYPE, false);
-                        ApplicationContextProvider.getBeanFactory().
-                                registerSingleton(reportletClass.getName(), reportlet);
-                    }
-
-                    // invoke reportlet
+            for (Implementation impl : report.getReportlets()) {
+                Optional<Reportlet> reportlet = ImplementationManager.buildReportlet(impl);
+                if (reportlet.isPresent()) {
                     try {
-                        reportlet.extract(reportletConf, handler);
+                        reportlet.get().extract(handler);
                     } catch (Throwable t) {
                         LOG.error("While executing reportlet {} for report {}", reportlet, reportKey, t);
 

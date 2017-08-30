@@ -22,14 +22,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
 import org.apache.syncope.client.console.commons.DirectoryDataProvider;
@@ -37,8 +33,6 @@ import org.apache.syncope.client.console.commons.SortableDataProviderComparator;
 import org.apache.syncope.client.console.pages.BasePage;
 import org.apache.syncope.client.console.panels.DirectoryPanel;
 import org.apache.syncope.client.console.panels.ModalPanel;
-import org.apache.syncope.client.console.panels.search.SearchClause;
-import org.apache.syncope.client.console.reports.ReportletDirectoryPanel.ReportletWrapper;
 import org.apache.syncope.client.console.rest.ReportRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.bootstrap.dialog.BaseModal;
 import org.apache.syncope.client.console.wicket.markup.html.form.ActionLink;
@@ -47,9 +41,7 @@ import org.apache.syncope.client.console.wicket.markup.html.form.ActionsPanel;
 import org.apache.syncope.client.console.wizards.AjaxWizard;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.syncope.common.lib.SyncopeClientException;
-import org.apache.syncope.common.lib.report.AbstractReportletConf;
 import org.apache.syncope.common.lib.report.ReportletConf;
-import org.apache.syncope.common.lib.search.AbstractFiqlSearchConditionBuilder;
 import org.apache.syncope.common.lib.to.ReportTO;
 import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -134,12 +126,11 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
             @Override
             public void onClick(final AjaxRequestTarget target, final ReportletWrapper ignore) {
                 ReportletDirectoryPanel.this.getTogglePanel().close(target);
-                AbstractReportletConf clone = SerializationUtils.clone(model.getObject().getConf());
-                clone.setName(null);
+                ReportletConf clone = SerializationUtils.clone(model.getObject().getConf());
 
                 send(ReportletDirectoryPanel.this, Broadcast.EXACT,
                         new AjaxWizard.EditItemActionEvent<>(
-                                new ReportletWrapper().setConf(clone),
+                                new ReportletWrapper().setConf(clone).setName(null),
                                 target));
             }
         }, ActionLink.ActionType.CLONE, StandardEntitlement.REPORT_CREATE);
@@ -163,9 +154,9 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
                 final ReportletConf reportlet = model.getObject().getConf();
                 try {
                     final ReportTO actual = restClient.read(report);
-                    actual.getReportletConfs().removeAll(actual.getReportletConfs().stream().
-                            filter(conf -> conf.getName().equals(reportlet.getName())).collect(Collectors.toList()));
+                    actual.getReportlets().remove(model.getObject().getImplementationKey());
                     restClient.update(actual);
+
                     SyncopeConsoleSession.get().info(getString(Constants.OPERATION_SUCCEEDED));
                     customActionOnFinishCallback(target);
                 } catch (SyncopeClientException e) {
@@ -233,9 +224,7 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
         public Iterator<ReportletWrapper> iterator(final long first, final long count) {
             final ReportTO actual = restClient.read(report);
 
-            final List<ReportletWrapper> reportlets = actual.getReportletConfs().stream().
-                    map(conf -> new ReportletWrapper(conf.getName()).setName(conf.getName()).setConf(conf)).
-                    collect(Collectors.toList());
+            List<ReportletWrapper> reportlets = ReportletWizardBuilder.getReportletWrappers(actual);
 
             Collections.sort(reportlets, comparator);
             return reportlets.subList((int) first, (int) (first + count)).iterator();
@@ -244,64 +233,12 @@ public class ReportletDirectoryPanel extends DirectoryPanel<
         @Override
         public long size() {
             final ReportTO actual = restClient.read(report);
-            return actual.getReportletConfs().size();
+            return ReportletWizardBuilder.getReportletWrappers(actual).size();
         }
 
         @Override
         public IModel<ReportletWrapper> model(final ReportletWrapper object) {
             return new CompoundPropertyModel<>(object);
-        }
-    }
-
-    public static class ReportletWrapper implements Serializable {
-
-        private static final long serialVersionUID = 2472755929742424558L;
-
-        private String oldname;
-
-        private String name;
-
-        private AbstractReportletConf conf;
-
-        private final Map<String, Pair<AbstractFiqlSearchConditionBuilder, List<SearchClause>>> scondWrapper;
-
-        public ReportletWrapper() {
-            this(null);
-        }
-
-        public ReportletWrapper(final String name) {
-            this.oldname = name;
-            this.scondWrapper = new HashMap<>();
-        }
-
-        public boolean isNew() {
-            return oldname == null;
-        }
-
-        public String getOldName() {
-            return this.oldname;
-        }
-
-        public String getName() {
-            return this.name;
-        }
-
-        public ReportletWrapper setName(final String name) {
-            this.name = name;
-            return this;
-        }
-
-        public AbstractReportletConf getConf() {
-            return conf;
-        }
-
-        public ReportletWrapper setConf(final AbstractReportletConf conf) {
-            this.conf = conf;
-            return this;
-        }
-
-        public Map<String, Pair<AbstractFiqlSearchConditionBuilder, List<SearchClause>>> getSCondWrapper() {
-            return scondWrapper;
         }
     }
 

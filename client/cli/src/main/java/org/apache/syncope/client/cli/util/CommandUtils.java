@@ -75,9 +75,9 @@ public final class CommandUtils {
     public static String helpMessage(final String command, final List<String> options) {
         final StringBuilder helpMessageBuilder = new StringBuilder(String.format("%nUsage: %s [options]%n", command));
         helpMessageBuilder.append("  Options:\n");
-        for (final String option : options) {
+        options.forEach(option -> {
             helpMessageBuilder.append("    ").append(option).append("\n");
-        }
+        });
         return helpMessageBuilder.toString();
     }
 

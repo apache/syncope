@@ -44,12 +44,8 @@ public class ReportDetails extends AbstractReportCommand {
             try {
                 final Map<String, String> details = new LinkedHashMap<>();
                 final List<ReportTO> reportTOs = reportSyncopeOperations.list();
-                int withoutExecutions = 0;
-                for (final ReportTO reportTO : reportTOs) {
-                    if (reportTO.getExecutions().isEmpty()) {
-                        withoutExecutions++;
-                    }
-                }
+                long withoutExecutions = reportTOs.stream().
+                        filter(reportTO -> (reportTO.getExecutions().isEmpty())).count();
                 details.put("Total numbers", String.valueOf(reportTOs.size()));
                 details.put("Never executed", String.valueOf(withoutExecutions));
                 reportResultManager.printDetails(details);

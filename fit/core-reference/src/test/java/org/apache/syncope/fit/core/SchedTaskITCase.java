@@ -37,6 +37,8 @@ import org.apache.syncope.common.lib.to.PushTaskTO;
 import org.apache.syncope.common.lib.to.SchedTaskTO;
 import org.apache.syncope.common.lib.to.PullTaskTO;
 import org.apache.syncope.common.lib.to.ExecTO;
+import org.apache.syncope.common.lib.to.ImplementationTO;
+import org.apache.syncope.common.lib.types.ImplementationType;
 import org.apache.syncope.common.lib.types.JobAction;
 import org.apache.syncope.common.lib.types.TaskType;
 import org.apache.syncope.common.rest.api.beans.ExecuteQuery;
@@ -50,7 +52,8 @@ public class SchedTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void getJobClasses() {
-        Set<String> jobClasses = syncopeService.platform().getTaskJobs();
+        Set<String> jobClasses = syncopeService.platform().
+                getJavaImplInfo(ImplementationType.TASKJOB_DELEGATE).get().getClasses();
         assertNotNull(jobClasses);
         assertFalse(jobClasses.isEmpty());
     }
@@ -86,10 +89,13 @@ public class SchedTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void deferred() {
+        ImplementationTO taskJobDelegate = implementationService.read(TestSampleJobDelegate.class.getSimpleName());
+        assertNotNull(taskJobDelegate);
+
         SchedTaskTO task = new SchedTaskTO();
         task.setActive(true);
         task.setName("deferred");
-        task.setJobDelegateClassName(TestSampleJobDelegate.class.getName());
+        task.setJobDelegate(taskJobDelegate.getKey());
 
         Response response = taskService.create(task);
         task = getObject(response.getLocation(), TaskService.class, SchedTaskTO.class);
@@ -128,10 +134,13 @@ public class SchedTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void issueSYNCOPE144() {
+        ImplementationTO taskJobDelegate = implementationService.read(TestSampleJobDelegate.class.getSimpleName());
+        assertNotNull(taskJobDelegate);
+
         SchedTaskTO task = new SchedTaskTO();
         task.setName("issueSYNCOPE144");
         task.setDescription("issueSYNCOPE144 Description");
-        task.setJobDelegateClassName(TestSampleJobDelegate.class.getName());
+        task.setJobDelegate(taskJobDelegate.getKey());
 
         Response response = taskService.create(task);
         task = getObject(response.getLocation(), TaskService.class, SchedTaskTO.class);
@@ -159,10 +168,13 @@ public class SchedTaskITCase extends AbstractTaskITCase {
         List<JobTO> jobs = taskService.listJobs();
         int old_size = jobs.size();
 
+        ImplementationTO taskJobDelegate = implementationService.read(TestSampleJobDelegate.class.getSimpleName());
+        assertNotNull(taskJobDelegate);
+
         SchedTaskTO task = new SchedTaskTO();
         task.setName("issueSYNCOPE660");
         task.setDescription("issueSYNCOPE660 Description");
-        task.setJobDelegateClassName(TestSampleJobDelegate.class.getName());
+        task.setJobDelegate(taskJobDelegate.getKey());
 
         Response response = taskService.create(task);
         task = getObject(response.getLocation(), TaskService.class, SchedTaskTO.class);

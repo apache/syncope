@@ -20,17 +20,19 @@ package org.apache.syncope.core.persistence.jpa.entity.policy;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.persistence.Basic;
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
-import javax.persistence.OneToMany;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import org.apache.syncope.common.lib.policy.PasswordRuleConf;
+import org.apache.syncope.common.lib.types.ImplementationType;
+import org.apache.syncope.core.persistence.api.entity.Implementation;
 import org.apache.syncope.core.persistence.api.entity.policy.PasswordPolicy;
+import org.apache.syncope.core.persistence.jpa.entity.JPAImplementation;
 
 @Entity
 @Table(name = JPAPasswordPolicy.TABLE)
@@ -47,8 +49,13 @@ public class JPAPasswordPolicy extends AbstractPolicy implements PasswordPolicy 
 
     private int historyLength;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER, mappedBy = "passwordPolicy")
-    private List<JPAPasswordRuleConfInstance> ruleConfs = new ArrayList<>();
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(name = TABLE + "Rule",
+            joinColumns =
+            @JoinColumn(name = "policy_id"),
+            inverseJoinColumns =
+            @JoinColumn(name = "implementation_id"))
+    private List<JPAImplementation> rules = new ArrayList<>();
 
     @Override
     public boolean isAllowNullPassword() {
@@ -71,25 +78,14 @@ public class JPAPasswordPolicy extends AbstractPolicy implements PasswordPolicy 
     }
 
     @Override
-    public boolean add(final PasswordRuleConf passwordRuleConf) {
-        if (passwordRuleConf == null) {
-            return false;
-        }
-
-        JPAPasswordRuleConfInstance instance = new JPAPasswordRuleConfInstance();
-        instance.setPasswordPolicy(this);
-        instance.setInstance(passwordRuleConf);
-
-        return ruleConfs.add(instance);
+    public boolean add(final Implementation rule) {
+        checkType(rule, JPAImplementation.class);
+        checkImplementationType(rule, ImplementationType.PASSWORD_RULE);
+        return rules.contains((JPAImplementation) rule) || rules.add((JPAImplementation) rule);
     }
 
     @Override
-    public void removeAllRuleConfs() {
-        ruleConfs.clear();
-    }
-
-    @Override
-    public List<PasswordRuleConf> getRuleConfs() {
-        return ruleConfs.stream().map(input -> input.getInstance()).collect(Collectors.toList());
+    public List<? extends Implementation> getRules() {
+        return rules;
     }
 }
