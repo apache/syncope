@@ -113,6 +113,8 @@ import org.springframework.util.ResourceUtils;
 @Component
 public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
 
+    private static final String IDP_INITIATED_RELAY_STATE = "idpInitiated";
+
     private static final long JWT_RELAY_STATE_DURATION = 60L;
 
     private static final String JWT_CLAIM_IDP_DEFLATE = "IDP_DEFLATE";
@@ -360,17 +362,23 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
         if (response.getRelayState() == null) {
             throw new IllegalArgumentException("No Relay State was provided");
         }
-        JwsJwtCompactConsumer relayState = new JwsJwtCompactConsumer(response.getRelayState());
-        if (!relayState.verifySignatureWith(jwsSignatureVerifier)) {
-            throw new IllegalArgumentException("Invalid signature found in Relay State");
-        }
-        Long expiryTime = relayState.getJwtClaims().getExpiryTime();
-        if (expiryTime == null || (expiryTime * 1000L) < new Date().getTime()) {
-            throw new IllegalArgumentException("Relay State is expired");
-        }
 
-        Boolean useDeflateEncoding = Boolean.valueOf(
-                relayState.getJwtClaims().getClaim(JWT_CLAIM_IDP_DEFLATE).toString());
+        Boolean useDeflateEncoding = false;
+        String requestId = null;
+        if (!IDP_INITIATED_RELAY_STATE.equals(response.getRelayState())) {
+            JwsJwtCompactConsumer relayState = new JwsJwtCompactConsumer(response.getRelayState());
+            if (!relayState.verifySignatureWith(jwsSignatureVerifier)) {
+                throw new IllegalArgumentException("Invalid signature found in Relay State");
+            }
+            useDeflateEncoding = Boolean.valueOf(
+                    relayState.getJwtClaims().getClaim(JWT_CLAIM_IDP_DEFLATE).toString());
+            requestId = relayState.getJwtClaims().getSubject();
+
+            Long expiryTime = relayState.getJwtClaims().getExpiryTime();
+            if (expiryTime == null || (expiryTime * 1000L) < new Date().getTime()) {
+                throw new IllegalArgumentException("Relay State is expired");
+            }
+        }
 
         // 2. parse the provided SAML response
         if (response.getSamlResponse() == null) {
@@ -400,13 +408,17 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
             throw new IllegalArgumentException("No mapping provided for SAML 2.0 IdP '" + idp.getId() + "'");
         }
 
+        if (IDP_INITIATED_RELAY_STATE.equals(response.getRelayState()) && !idp.isSupportUnsolicited()) {
+            throw new IllegalArgumentException("An unsolicited request is not allowed for idp: " + idp.getId());
+        }
+
         SSOValidatorResponse validatorResponse = null;
         try {
             validatorResponse = saml2rw.validate(
                     samlResponse,
                     idp,
                     getAssertionConsumerURL(response.getSpEntityID(), response.getUrlContext()),
-                    relayState.getJwtClaims().getSubject(),
+                    requestId,
                     response.getSpEntityID());
         } catch (Exception e) {
             LOG.error("While validating AuthnResponse", e);
