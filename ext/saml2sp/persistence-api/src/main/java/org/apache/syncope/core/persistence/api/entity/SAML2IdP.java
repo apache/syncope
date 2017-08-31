@@ -48,6 +48,10 @@ public interface SAML2IdP extends Entity {
 
     void setUseDeflateEncoding(boolean useDeflateEncoding);
 
+    boolean isSupportUnsolicited();
+
+    void setSupportUnsolicited(boolean supportUnsolicited);
+
     SAML2BindingType getBindingType();
 
     void setBindingType(SAML2BindingType bindingType);

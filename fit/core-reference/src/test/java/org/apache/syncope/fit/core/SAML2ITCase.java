@@ -43,6 +43,9 @@ import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Arrays;
+import java.util.List;
+import java.util.regex.Pattern;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.xml.namespace.QName;
@@ -137,6 +140,19 @@ public class SAML2ITCase extends AbstractITCase {
             saml2IdPService.importFromMetadata(SAML2ITCase.class.getResourceAsStream("/ssocircle.xml"));
             saml2IdPService.importFromMetadata(SAML2ITCase.class.getResourceAsStream("/testshib-providers.xml"));
             saml2IdPService.importFromMetadata(SAML2ITCase.class.getResourceAsStream("/fediz.xml"));
+            saml2IdPService.importFromMetadata(SAML2ITCase.class.getResourceAsStream("/fediz_realmb.xml"));
+
+            // Allow unsolicited responses for the realmb case
+            String realmBEntityId = "urn:org:apache:cxf:fediz:idp:realm-B";
+            SAML2IdPTO realmBIdP = null;
+            for (SAML2IdPTO idp : saml2IdPService.list()) {
+                if (realmBEntityId.equals(idp.getEntityID())) {
+                    realmBIdP = idp;
+                    break;
+                }
+            }
+            realmBIdP.setSupportUnsolicited(true);
+            saml2IdPService.update(realmBIdP);
         } catch (Exception e) {
             LOG.error("Unexpected error while importing SAML 2.0 IdP metadata", e);
         } finally {
@@ -145,7 +161,7 @@ public class SAML2ITCase extends AbstractITCase {
                     type(clientFactory.getContentType().getMediaType());
         }
 
-        assertEquals(3, saml2IdPService.list().size());
+        assertEquals(4, saml2IdPService.list().size());
     }
 
     @AfterClass
@@ -318,7 +334,8 @@ public class SAML2ITCase extends AbstractITCase {
         String inResponseTo = relayState.getJwtClaims().getSubject();
 
         org.opensaml.saml.saml2.core.Response samlResponse =
-                createResponse(inResponseTo, false, SAML2Constants.CONF_SENDER_VOUCHES);
+                createResponse(inResponseTo, false, SAML2Constants.CONF_SENDER_VOUCHES,
+                               "urn:org:apache:cxf:fediz:idp:realm-A");
 
         Document doc = DOMUtils.newDocument();
         Element responseElement = OpenSAMLUtil.toDom(samlResponse, doc);
@@ -396,22 +413,80 @@ public class SAML2ITCase extends AbstractITCase {
         }
     }
 
+    @Test
+    public void validateIdpInitiatedLoginResponse() throws Exception {
+        Assume.assumeTrue(SAML2SPDetector.isSAML2SPAvailable());
+
+        SAML2SPService saml2Service = anonymous.getService(SAML2SPService.class);
+
+        // Create a SAML Response using WSS4J
+        SAML2ReceivedResponseTO response = new SAML2ReceivedResponseTO();
+        response.setSpEntityID("http://recipient.apache.org/");
+        response.setUrlContext("saml2sp");
+
+        org.opensaml.saml.saml2.core.Response samlResponse =
+            createResponse(null, true, SAML2Constants.CONF_BEARER, "urn:org:apache:cxf:fediz:idp:realm-B");
+
+        Document doc = DOMUtils.newDocument();
+        Element responseElement = OpenSAMLUtil.toDom(samlResponse, doc);
+        String responseStr = DOM2Writer.nodeToString(responseElement);
+
+        // Validate the SAML Response
+        response.setSamlResponse(Base64.encodeBase64String(responseStr.getBytes()));
+        response.setRelayState("idpInitiated");
+        SAML2LoginResponseTO loginResponse =
+            saml2Service.validateLoginResponse(response);
+        assertNotNull(loginResponse.getAccessToken());
+        assertEquals("puccini", loginResponse.getNameID());
+    }
+
+    // Make sure that the IdP initiated case is only supported when "supportUnsolicited" is true for that IdP
+    @Test
+    public void validateIdpInitiatedLoginResponseFailure() throws Exception {
+        Assume.assumeTrue(SAML2SPDetector.isSAML2SPAvailable());
+
+        SAML2SPService saml2Service = anonymous.getService(SAML2SPService.class);
+
+        // Create a SAML Response using WSS4J
+        SAML2ReceivedResponseTO response = new SAML2ReceivedResponseTO();
+        response.setSpEntityID("http://recipient.apache.org/");
+        response.setUrlContext("saml2sp");
+
+        org.opensaml.saml.saml2.core.Response samlResponse =
+            createResponse(null, true, SAML2Constants.CONF_BEARER, "urn:org:apache:cxf:fediz:idp:realm-A");
+
+        Document doc = DOMUtils.newDocument();
+        Element responseElement = OpenSAMLUtil.toDom(samlResponse, doc);
+        String responseStr = DOM2Writer.nodeToString(responseElement);
+
+        // Validate the SAML Response
+        response.setSamlResponse(Base64.encodeBase64String(responseStr.getBytes()));
+        response.setRelayState("idpInitiated");
+        try {
+            saml2Service.validateLoginResponse(response);
+            fail("Failure expected on an unsolicited login");
+        } catch (SyncopeClientException e) {
+            assertNotNull(e);
+        }
+    }
+
     private org.opensaml.saml.saml2.core.Response createResponse(final String inResponseTo) throws Exception {
-        return createResponse(inResponseTo, true, SAML2Constants.CONF_BEARER);
+        return createResponse(inResponseTo, true, SAML2Constants.CONF_BEARER, "urn:org:apache:cxf:fediz:idp:realm-A");
     }
 
     private org.opensaml.saml.saml2.core.Response createResponse(
-            final String inResponseTo, final boolean signAssertion, final String subjectConfMethod) throws Exception {
+            final String inResponseTo, final boolean signAssertion, final String subjectConfMethod,
+            final String issuer) throws Exception {
 
         Status status = SAML2PResponseComponentBuilder.createStatus(
                 SAMLProtocolResponseValidator.SAML2_STATUSCODE_SUCCESS, null);
         org.opensaml.saml.saml2.core.Response response = SAML2PResponseComponentBuilder.createSAMLResponse(
-                inResponseTo, "urn:org:apache:cxf:fediz:idp:realm-A", status);
+                inResponseTo, issuer, status);
         response.setDestination("http://recipient.apache.org");
 
         // Create an AuthenticationAssertion
         SAML2CallbackHandler callbackHandler = new SAML2CallbackHandler();
-        callbackHandler.setIssuer("urn:org:apache:cxf:fediz:idp:realm-A");
+        callbackHandler.setIssuer(issuer);
         callbackHandler.setSubjectName("puccini");
         callbackHandler.setSubjectConfirmationMethod(subjectConfMethod);
 
@@ -509,12 +584,16 @@ public class SAML2ITCase extends AbstractITCase {
         if (basedir == null) {
             basedir = new File(".").getCanonicalPath();
         }
-        Path path = FileSystems.getDefault().getPath(basedir, "/src/test/resources/fediz.xml");
-        String content = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
-        content = content.replaceAll("cert-placeholder", certEncoded);
 
-        Path path2 = FileSystems.getDefault().getPath(basedir, "/target/test-classes/fediz.xml");
-        Files.write(path2, content.getBytes());
+        List<String> fileNames = Arrays.asList("fediz.xml", "fediz_realmb.xml");
+        for (String fileName : fileNames) {
+            Path path = FileSystems.getDefault().getPath(basedir, "/src/test/resources/" + fileName);
+            String content = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
+            content = content.replaceAll("cert-placeholder", certEncoded);
+
+            Path path2 = FileSystems.getDefault().getPath(basedir, "/target/test-classes/" + fileName);
+            Files.write(path2, content.getBytes());
+        }
     }
 
 }

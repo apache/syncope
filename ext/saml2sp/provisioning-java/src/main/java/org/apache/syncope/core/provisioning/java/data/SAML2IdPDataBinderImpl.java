@@ -173,6 +173,7 @@ public class SAML2IdPDataBinderImpl implements SAML2IdPDataBinder {
         idp.setCreateUnmatching(idpTO.isCreateUnmatching());
         idp.setUpdateMatching(idpTO.isUpdateMatching());
         idp.setUseDeflateEncoding(idpTO.isUseDeflateEncoding());
+        idp.setSupportUnsolicited(idpTO.isSupportUnsolicited());
         idp.setBindingType(idpTO.getBindingType());
 
         if (idpTO.getUserTemplate() == null) {
@@ -232,6 +233,7 @@ public class SAML2IdPDataBinderImpl implements SAML2IdPDataBinder {
         idpTO.setEntityID(idp.getEntityID());
         idpTO.setName(idp.getName());
         idpTO.setUseDeflateEncoding(idp.isUseDeflateEncoding());
+        idpTO.setSupportUnsolicited(idp.isSupportUnsolicited());
         idpTO.setBindingType(idp.getBindingType());
         idpTO.setCreateUnmatching(idp.isCreateUnmatching());
         idpTO.setUpdateMatching(idp.isUpdateMatching());

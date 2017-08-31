@@ -84,6 +84,11 @@ public class JPASAML2IdP extends AbstractGeneratedKeyEntity implements SAML2IdP 
     @Column(nullable = false)
     private Integer useDeflateEncoding;
 
+    @Min(0)
+    @Max(1)
+    @Column(nullable = false)
+    private Integer supportUnsolicited;
+
     @Column(nullable = false)
     private SAML2BindingType bindingType;
 
@@ -155,6 +160,16 @@ public class JPASAML2IdP extends AbstractGeneratedKeyEntity implements SAML2IdP 
     @Override
     public void setUseDeflateEncoding(final boolean useDeflateEncoding) {
         this.useDeflateEncoding = getBooleanAsInteger(useDeflateEncoding);
+    }
+
+    @Override
+    public boolean isSupportUnsolicited() {
+        return isBooleanAsInteger(supportUnsolicited);
+    }
+
+    @Override
+    public void setSupportUnsolicited(final boolean supportUnsolicited) {
+        this.supportUnsolicited = getBooleanAsInteger(supportUnsolicited);
     }
 
     @Override

@@ -136,6 +136,10 @@ public class SAML2IdPEntity {
         return idpTO.isUseDeflateEncoding();
     }
 
+    public boolean isSupportUnsolicited() {
+        return idpTO.isSupportUnsolicited();
+    }
+
     public SAML2BindingType getBindingType() {
         return idpTO.getBindingType();
     }

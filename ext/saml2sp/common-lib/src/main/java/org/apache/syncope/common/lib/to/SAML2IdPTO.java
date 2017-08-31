@@ -53,6 +53,8 @@ public class SAML2IdPTO extends AbstractBaseBean implements EntityTO, ItemContai
 
     private boolean useDeflateEncoding;
 
+    private boolean supportUnsolicited;
+
     private SAML2BindingType bindingType;
 
     private boolean logoutSupported;
@@ -193,6 +195,14 @@ public class SAML2IdPTO extends AbstractBaseBean implements EntityTO, ItemContai
     @JsonProperty("actionsClassNames")
     public Set<String> getActionsClassNames() {
         return actionsClassNames;
+    }
+
+    public boolean isSupportUnsolicited() {
+        return supportUnsolicited;
+    }
+
+    public void setSupportUnsolicited(final boolean supportUnsolicited) {
+        this.supportUnsolicited = supportUnsolicited;
     }
 
 }
