@@ -88,6 +88,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.apache.syncope.core.provisioning.api.data.ItemTransformer;
+import org.identityconnectors.framework.common.objects.Name;
 
 @Component
 public class MappingManagerImpl implements MappingManager {
@@ -194,7 +195,12 @@ public class MappingManagerImpl implements MappingManager {
             attributes.add(AttributeBuilder.build(
                     MappingUtils.getConnObjectKeyItem(provision).getExtAttrName(), connObjectKey));
         }
-        attributes.add(MappingUtils.evaluateNAME(any, provision, connObjectKey));
+        Name name = MappingUtils.evaluateNAME(any, provision, connObjectKey);
+        attributes.add(name);
+        if (connObjectKey != null && !connObjectKey.equals(name.getNameValue()) && connObjectKeyExtAttr == null) {
+            attributes.add(AttributeBuilder.build(
+                    MappingUtils.getConnObjectKeyItem(provision).getExtAttrName(), connObjectKey));
+        }
 
         if (enable != null) {
             attributes.add(AttributeBuilder.buildEnabled(enable));
