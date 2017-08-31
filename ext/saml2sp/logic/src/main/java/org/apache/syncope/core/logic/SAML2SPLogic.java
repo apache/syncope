@@ -435,6 +435,10 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
 
         Assertion assertion = validatorResponse.getOpensamlAssertion();
         NameID nameID = assertion.getSubject().getNameID();
+        if (nameID == null) {
+            throw new IllegalArgumentException("NameID not found");
+        }
+
         String keyValue = null;
         if (StringUtils.isNotBlank(nameID.getValue())
                 && idp.getConnObjectKeyItem().getExtAttrName().equals("NameID")) {
@@ -475,21 +479,18 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
                 }
             }
         }
-        if (nameID == null) {
-            throw new IllegalArgumentException("NameID not found");
-        }
-        final String nameIDValue = nameID.getValue();
 
         final List<String> matchingUsers = keyValue == null
                 ? Collections.<String>emptyList()
                 : userManager.findMatchingUser(keyValue, idp.getConnObjectKeyItem());
-        LOG.debug("Found {} matching users for NameID {}", matchingUsers.size(), nameID.getValue());
+        LOG.debug("Found {} matching users for {}", matchingUsers.size(), keyValue);
 
         String username;
         if (matchingUsers.isEmpty()) {
             if (idp.isCreateUnmatching()) {
-                LOG.debug("No user matching NameID {}, about to create", nameID.getValue());
+                LOG.debug("No user matching {}, about to create", keyValue);
 
+                final String nameIDValue = nameID.getValue();
                 username = AuthContextUtils.execWithAuthContext(
                         AuthContextUtils.getDomain(), new AuthContextUtils.Executable<String>() {
 
@@ -499,13 +500,13 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
                     }
                 });
             } else {
-                throw new NotFoundException("User matching the provided NameID value " + nameID.getValue());
+                throw new NotFoundException("User matching the provided value " + keyValue);
             }
         } else if (matchingUsers.size() > 1) {
-            throw new IllegalArgumentException("Several users match the provided NameID value " + nameID.getValue());
+            throw new IllegalArgumentException("Several users match the provided value " + keyValue);
         } else {
             if (idp.isUpdateMatching()) {
-                LOG.debug("About to update {} for NameID {}", matchingUsers.get(0), nameID.getValue());
+                LOG.debug("About to update {} for {}", matchingUsers.get(0), keyValue);
 
                 username = AuthContextUtils.execWithAuthContext(
                         AuthContextUtils.getDomain(), new AuthContextUtils.Executable<String>() {
