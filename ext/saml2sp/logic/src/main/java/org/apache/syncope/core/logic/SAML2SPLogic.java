@@ -113,7 +113,7 @@ import org.springframework.util.ResourceUtils;
 @Component
 public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
 
-    private static final long JWT_RELAY_STATE_DURATION = 5L;
+    private static final long JWT_RELAY_STATE_DURATION = 60L;
 
     private static final String JWT_CLAIM_IDP_DEFLATE = "IDP_DEFLATE";
 
@@ -364,6 +364,11 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
         if (!relayState.verifySignatureWith(jwsSignatureVerifier)) {
             throw new IllegalArgumentException("Invalid signature found in Relay State");
         }
+        Long expiryTime = relayState.getJwtClaims().getExpiryTime();
+        if (expiryTime == null || (expiryTime * 1000L) < new Date().getTime()) {
+            throw new IllegalArgumentException("Relay State is expired");
+        }
+
         Boolean useDeflateEncoding = Boolean.valueOf(
                 relayState.getJwtClaims().getClaim(JWT_CLAIM_IDP_DEFLATE).toString());
 
@@ -616,6 +621,11 @@ public class SAML2SPLogic extends AbstractSAML2Logic<AbstractBaseBean> {
             if (!relayState.verifySignatureWith(jwsSignatureVerifier)) {
                 throw new IllegalArgumentException("Invalid signature found in Relay State");
             }
+            Long expiryTime = relayState.getJwtClaims().getExpiryTime();
+            if (expiryTime == null || (expiryTime * 1000L) < new Date().getTime()) {
+                throw new IllegalArgumentException("Relay State is expired");
+            }
+
             useDeflateEncoding = Boolean.valueOf(
                     relayState.getJwtClaims().getClaim(JWT_CLAIM_IDP_DEFLATE).toString());
         }
