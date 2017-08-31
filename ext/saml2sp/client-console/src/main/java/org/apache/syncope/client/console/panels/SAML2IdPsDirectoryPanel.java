@@ -192,6 +192,8 @@ public class SAML2IdPsDirectoryPanel extends DirectoryPanel<
         columns.add(new PropertyColumn<>(new ResourceModel("entityID"), "entityID", "entityID"));
         columns.add(new BooleanPropertyColumn<>(
                 new ResourceModel("useDeflateEncoding"), "useDeflateEncoding", "useDeflateEncoding"));
+        columns.add(new BooleanPropertyColumn<>(
+            new ResourceModel("supportUnsolicited"), "supportUnsolicited", "supportUnsolicited"));
         columns.add(new PropertyColumn<>(
                 new ResourceModel("bindingType"), "bindingType", "bindingType"));
         columns.add(new BooleanPropertyColumn<>(

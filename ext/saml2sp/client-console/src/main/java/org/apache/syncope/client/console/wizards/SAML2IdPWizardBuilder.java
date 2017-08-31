@@ -117,6 +117,10 @@ public class SAML2IdPWizardBuilder extends AjaxWizardBuilder<SAML2IdPTO> {
                     "field", "useDeflateEncoding", new PropertyModel<>(idpTO, "useDeflateEncoding"), false);
             fields.add(useDeflateEncoding);
 
+            AjaxCheckBoxPanel supportUnsolicited = new AjaxCheckBoxPanel(
+                    "field", "supportUnsolicited", new PropertyModel<>(idpTO, "supportUnsolicited"), false);
+            fields.add(supportUnsolicited);
+
             AjaxDropDownChoicePanel<SAML2BindingType> bindingType =
                     new AjaxDropDownChoicePanel<>("field", "bindingType",
                             new PropertyModel<>(idpTO, "bindingType"), false);
