@@ -129,6 +129,7 @@ under the License.
         <artifactId>nbm-maven-plugin</artifactId>
         <extensions>true</extensions>
         <configuration>
+          <verifyRuntime>skip</verifyRuntime>
           <useOSGiDependencies>false</useOSGiDependencies>
         </configuration>
       </plugin>
