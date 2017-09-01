@@ -125,7 +125,7 @@ public class UserSelfITCase extends AbstractITCase {
         // now approve and verify that propagation has happened
         WorkflowFormTO form = userWorkflowService.getFormForUser(userTO.getKey());
         form = userWorkflowService.claimForm(form.getTaskId());
-        form.getProperty("approve").get().setValue(Boolean.TRUE.toString());
+        form.getProperty("approveCreate").get().setValue(Boolean.TRUE.toString());
         userTO = userWorkflowService.submitForm(form);
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());
@@ -223,8 +223,7 @@ public class UserSelfITCase extends AbstractITCase {
         // 3. approve self-update as admin
         WorkflowFormTO form = userWorkflowService.getFormForUser(updated.getKey());
         form = userWorkflowService.claimForm(form.getTaskId());
-        form.getProperty("approve").get().setValue(Boolean.TRUE.toString());
-        updated = userWorkflowService.submitForm(form);
+        form.getProperty("approveUpdate").get().setValue(Boolean.TRUE.toString());
         assertNotNull(updated);
         assertEquals("active", updated.getStatus());
         assertTrue(updated.getUsername().endsWith("XX"));

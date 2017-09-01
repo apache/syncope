@@ -19,6 +19,7 @@
 package org.apache.syncope.client.console.rest;
 
 import java.util.List;
+import org.apache.syncope.common.lib.to.UserTO;
 import org.apache.syncope.common.lib.to.WorkflowFormTO;
 import org.apache.syncope.common.rest.api.service.UserWorkflowService;
 
@@ -30,11 +31,19 @@ public class UserWorkflowRestClient extends BaseRestClient {
         return getService(UserWorkflowService.class).getForms();
     }
 
+    public WorkflowFormTO getFormForUser(final String userKey) {
+        return getService(UserWorkflowService.class).getFormForUser(userKey);
+    }
+
     public WorkflowFormTO claimForm(final String taskKey) {
         return getService(UserWorkflowService.class).claimForm(taskKey);
     }
 
     public void submitForm(final WorkflowFormTO form) {
         getService(UserWorkflowService.class).submitForm(form);
+    }
+
+    public UserTO executeTask(final String taskId, final UserTO form) {
+        return getService(UserWorkflowService.class).executeTask(taskId, form);
     }
 }

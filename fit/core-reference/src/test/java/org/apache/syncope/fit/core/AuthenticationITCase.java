@@ -502,7 +502,7 @@ public class AuthenticationITCase extends AbstractITCase {
         // 3. approve user
         WorkflowFormTO form = userWorkflowService.getFormForUser(userTO.getKey());
         form = userWorkflowService.claimForm(form.getTaskId());
-        form.getProperty("approve").get().setValue(Boolean.TRUE.toString());
+        form.getProperty("approveCreate").get().setValue(Boolean.TRUE.toString());
         userTO = userWorkflowService.submitForm(form);
         assertNotNull(userTO);
         assertEquals("active", userTO.getStatus());

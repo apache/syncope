@@ -47,7 +47,7 @@ under the License.
               flowable:candidateGroups="managingDirector" flowable:formKey="createApproval">
       <extensionElements>
         <flowable:formProperty id="username" name="Username" type="string" expression="${user.username}" writable="false"/>
-        <flowable:formProperty id="approve" name="Approve?" type="boolean" variable="approve" required="true"/>
+        <flowable:formProperty id="approveCreate" name="Approve?" type="boolean" variable="approveCreate" required="true"/>
         <flowable:formProperty id="rejectReason" name="Reason for rejecting" type="string" variable="rejectReason"/>
       </extensionElements>
     </userTask>
@@ -55,7 +55,7 @@ under the License.
     <scriptTask id="CreateApprovalEvaluation" name="Create approval evaluation" scriptFormat="groovy" flowable:autoStoreVariables="false">
       <script><![CDATA[
 try {
-  if (approve){
+  if (approveCreate){
     execution.setVariable("task", 'approve');
   } else {
     execution.setVariable("task", 'reject');
@@ -145,7 +145,7 @@ try {
               flowable:candidateGroups="managingDirector" flowable:formKey="updateApproval">
       <extensionElements>
         <flowable:formProperty id="username" name="Username" type="string" expression="${user.username}" writable="false"/>
-        <flowable:formProperty id="approve" name="Approve?" type="boolean" variable="approve" required="true"/>
+        <flowable:formProperty id="approveUpdate" name="Approve?" type="boolean" variable="approveUpdate" required="true"/>
         <flowable:formProperty id="rejectReason" name="Reason for rejecting" type="string" variable="rejectReason"/>
       </extensionElements>
     </userTask>
@@ -153,7 +153,7 @@ try {
     <scriptTask id="UpdateApprovalEvaluation" name="Update approval evaluation" scriptFormat="groovy" flowable:autoStoreVariables="false">
       <script><![CDATA[
 try {
-  if (approve){
+  if (approveUpdate){
     execution.setVariable("task", 'approve');
   } else {
     execution.setVariable("task", 'reject');
@@ -243,7 +243,7 @@ try {
               flowable:candidateGroups="managingDirector" flowable:formKey="deleteApproval">
       <extensionElements>
         <flowable:formProperty id="username" name="Username" type="string" expression="${user.username}" writable="false"/>
-        <flowable:formProperty id="approve" name="Approve?" type="boolean" variable="approve" required="true"/>
+        <flowable:formProperty id="approveDelete" name="Approve?" type="boolean" variable="approveDelete" required="true"/>
         <flowable:formProperty id="rejectReason" name="Reason for rejecting" type="string" variable="rejectReason"/>
       </extensionElements>
     </userTask>

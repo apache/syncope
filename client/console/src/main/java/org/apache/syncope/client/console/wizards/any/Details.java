@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.syncope.client.console.pages.Realms;
+import org.apache.syncope.client.console.rest.RealmRestClient;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxTextFieldPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.FieldPanel;
@@ -59,14 +60,9 @@ public class Details<T extends AnyTO> extends WizardStep {
                     "destinationRealm", "destinationRealm", new PropertyModel<>(inner, "realm"), false);
             AjaxTextFieldPanel.class.cast(realm).enableJexlHelp();
         } else {
-            final List<AbstractLink> realmLinks = Realms.class.cast(pageRef.getPage()).getRealmChoicePanel().getLinks();
-            final List<RealmTO> realms = new ArrayList<>();
-            realmLinks.stream().
-                    map(link -> link.getDefaultModelObject()).
-                    filter(obj -> (obj instanceof RealmTO)).
-                    forEachOrdered(obj -> {
-                        realms.add((RealmTO) obj);
-                    });
+            final List<RealmTO> realms = pageRef.getPage() instanceof Realms
+                    ? getRealmsFromLinks(Realms.class.cast(pageRef.getPage()).getRealmChoicePanel().getLinks())
+                    : new RealmRestClient().list();
 
             realm = new AjaxDropDownChoicePanel<>(
                     "destinationRealm", "destinationRealm", new PropertyModel<>(inner, "realm"), false);
@@ -86,5 +82,17 @@ public class Details<T extends AnyTO> extends WizardStep {
 
     protected AnnotatedBeanPanel getGeneralStatusInformation(final String id, final T anyTO) {
         return new AnnotatedBeanPanel(id, anyTO);
+    }
+
+    private List<RealmTO> getRealmsFromLinks(final List<AbstractLink> realmLinks) {
+        List<RealmTO> realms = new ArrayList<>();
+
+        realmLinks.stream().
+                map((link) -> link.getDefaultModelObject()).
+                filter((obj) -> (obj instanceof RealmTO)).
+                forEachOrdered((obj) -> {
+                    realms.add((RealmTO) obj);
+                });
+        return realms;
     }
 }
