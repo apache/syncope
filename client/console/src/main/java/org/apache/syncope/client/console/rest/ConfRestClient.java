@@ -27,6 +27,10 @@ public class ConfRestClient extends BaseRestClient {
 
     private static final long serialVersionUID = 7692363064029538722L;
 
+    public AttrTO get(final String key) {
+        return getService(ConfigurationService.class).get(key);
+    }
+    
     public List<AttrTO> list() {
         return getService(ConfigurationService.class).list();
     }
