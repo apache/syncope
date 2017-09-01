@@ -21,6 +21,7 @@ package org.apache.syncope.client.console.wizards.resources;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxCheckBoxPanel;
 import org.apache.syncope.client.console.wicket.markup.html.form.AjaxDropDownChoicePanel;
@@ -97,28 +98,28 @@ public class ResourceDetailsPanel extends WizardStep {
                 new ResourceModel("createTraceLevel", "createTraceLevel").getObject(),
                 new PropertyModel<>(resourceTO, "createTraceLevel"),
                 false).
-                setChoices(Arrays.asList(TraceLevel.values())).setNullValid(false));
+                setChoices(Arrays.stream(TraceLevel.values()).collect(Collectors.toList())).setNullValid(false));
 
         container.add(new AjaxDropDownChoicePanel<>(
                 "updateTraceLevel",
                 new ResourceModel("updateTraceLevel", "updateTraceLevel").getObject(),
                 new PropertyModel<>(resourceTO, "updateTraceLevel"),
                 false).
-                setChoices(Arrays.asList(TraceLevel.values())).setNullValid(false));
+                setChoices(Arrays.stream(TraceLevel.values()).collect(Collectors.toList())).setNullValid(false));
 
         container.add(new AjaxDropDownChoicePanel<>(
                 "deleteTraceLevel",
                 new ResourceModel("deleteTraceLevel", "deleteTraceLevel").getObject(),
                 new PropertyModel<>(resourceTO, "deleteTraceLevel"),
                 false).
-                setChoices(Arrays.asList(TraceLevel.values())).setNullValid(false));
+                setChoices(Arrays.stream(TraceLevel.values()).collect(Collectors.toList())).setNullValid(false));
 
         container.add(new AjaxDropDownChoicePanel<>(
                 "provisioningTraceLevel",
                 new ResourceModel("provisioningTraceLevel", "provisioningTraceLevel").getObject(),
                 new PropertyModel<>(resourceTO, "provisioningTraceLevel"),
                 false).
-                setChoices(Arrays.asList(TraceLevel.values())).setNullValid(false));
+                setChoices(Arrays.stream(TraceLevel.values()).collect(Collectors.toList())).setNullValid(false));
 
         container.add(new AjaxTextFieldPanel(
                 "connector",

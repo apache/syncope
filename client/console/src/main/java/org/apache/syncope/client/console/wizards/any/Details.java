@@ -88,11 +88,12 @@ public class Details<T extends AnyTO> extends WizardStep {
         List<RealmTO> realms = new ArrayList<>();
 
         realmLinks.stream().
-                map((link) -> link.getDefaultModelObject()).
-                filter((obj) -> (obj instanceof RealmTO)).
-                forEachOrdered((obj) -> {
-                    realms.add((RealmTO) obj);
+                map(link -> link.getDefaultModelObject()).
+                filter(modelObject -> modelObject instanceof RealmTO).
+                forEachOrdered(modelObject -> {
+                    realms.add((RealmTO) modelObject);
                 });
+
         return realms;
     }
 }
