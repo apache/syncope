@@ -224,6 +224,7 @@ public class UserSelfITCase extends AbstractITCase {
         WorkflowFormTO form = userWorkflowService.getFormForUser(updated.getKey());
         form = userWorkflowService.claimForm(form.getTaskId());
         form.getProperty("approveUpdate").get().setValue(Boolean.TRUE.toString());
+        updated = userWorkflowService.submitForm(form);
         assertNotNull(updated);
         assertEquals("active", updated.getStatus());
         assertTrue(updated.getUsername().endsWith("XX"));
