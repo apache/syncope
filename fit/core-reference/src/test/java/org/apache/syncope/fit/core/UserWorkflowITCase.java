@@ -120,7 +120,7 @@ public class UserWorkflowITCase extends AbstractITCase {
         assertNotNull(form.getOwner());
 
         // 5. reject user
-        form.getProperty("approve").setValue(Boolean.FALSE.toString());
+        form.getProperty("approveCreate").setValue(Boolean.FALSE.toString());
         form.getProperty("rejectReason").setValue("I don't like him.");
         userTO = userService3.submitForm(form);
         assertNotNull(userTO);
@@ -204,7 +204,7 @@ public class UserWorkflowITCase extends AbstractITCase {
         assertNotNull(form.getOwner());
 
         // 5. approve user (and verify that propagation occurred)
-        form.getProperty("approve").setValue(Boolean.TRUE.toString());
+        form.getProperty("approveCreate").setValue(Boolean.TRUE.toString());
         userTO = userWorkflowService.submitForm(form);
         assertNotNull(userTO);
         assertEquals(updatedUsername, userTO.getUsername());
@@ -271,7 +271,7 @@ public class UserWorkflowITCase extends AbstractITCase {
 
         // approve the user
         form = userWorkflowService.claimForm(form.getTaskId());
-        form.getProperty("approve").setValue(Boolean.TRUE.toString());
+        form.getProperty("approveUpdate").setValue(Boolean.TRUE.toString());
         userWorkflowService.submitForm(form);
 
         // verify that the approved user bears both original and further changes
@@ -331,7 +331,7 @@ public class UserWorkflowITCase extends AbstractITCase {
         assertNotNull(form);
 
         // 5. approve user
-        form.getProperty("approve").setValue(Boolean.TRUE.toString());
+        form.getProperty("approveCreate").setValue(Boolean.TRUE.toString());
 
         // 6. submit approve
         userTO = userWorkflowService.submitForm(form);

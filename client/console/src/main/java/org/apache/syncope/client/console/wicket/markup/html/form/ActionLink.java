@@ -97,7 +97,9 @@ public abstract class ActionLink<T extends Serializable> implements Serializable
         ZOOM_OUT("zoomout"),
         WORKFLOW_MODELER("workflowModeler"),
         VIEW_EXECUTIONS("read"),
-        VIEW_DETAILS("read");
+        VIEW_DETAILS("read"),
+        MANAGE_APPROVAL("edit"),
+        EDIT_APPROVAL("edit");
 
         private final String actionId;
 

@@ -47,7 +47,7 @@ under the License.
               activiti:candidateGroups="managingDirector" activiti:formKey="createApproval">
       <extensionElements>
         <activiti:formProperty id="username" name="Username" type="string" expression="${user.username}" writable="false"/>
-        <activiti:formProperty id="approve" name="Approve?" type="boolean" variable="approve" required="true"/>
+        <activiti:formProperty id="approveCreate" name="Approve?" type="boolean" variable="approveCreate" required="true"/>
         <activiti:formProperty id="rejectReason" name="Reason for rejecting" type="string" variable="rejectReason"/>
       </extensionElements>
     </userTask>
@@ -55,7 +55,7 @@ under the License.
     <scriptTask id="CreateApprovalEvaluation" name="Create approval evaluation" scriptFormat="groovy" activiti:autoStoreVariables="false">
       <script><![CDATA[
 try {
-  if (approve){
+  if (approveCreate){
     execution.setVariable("task", 'approve');
   } else {
     execution.setVariable("task", 'reject');
@@ -145,7 +145,7 @@ try {
               activiti:candidateGroups="managingDirector" activiti:formKey="updateApproval">
       <extensionElements>
         <activiti:formProperty id="username" name="Username" type="string" expression="${user.username}" writable="false"/>
-        <activiti:formProperty id="approve" name="Approve?" type="boolean" variable="approve" required="true"/>
+        <activiti:formProperty id="approveUpdate" name="Approve?" type="boolean" variable="approveUpdate" required="true"/>
         <activiti:formProperty id="rejectReason" name="Reason for rejecting" type="string" variable="rejectReason"/>
       </extensionElements>
     </userTask>
@@ -153,7 +153,7 @@ try {
     <scriptTask id="UpdateApprovalEvaluation" name="Update approval evaluation" scriptFormat="groovy" activiti:autoStoreVariables="false">
       <script><![CDATA[
 try {
-  if (approve){
+  if (approveUpdate){
     execution.setVariable("task", 'approve');
   } else {
     execution.setVariable("task", 'reject');
@@ -243,7 +243,7 @@ try {
               activiti:candidateGroups="managingDirector" activiti:formKey="deleteApproval">
       <extensionElements>
         <activiti:formProperty id="username" name="Username" type="string" expression="${user.username}" writable="false"/>
-        <activiti:formProperty id="approve" name="Approve?" type="boolean" variable="approve" required="true"/>
+        <activiti:formProperty id="approveDelete" name="Approve?" type="boolean" variable="approveDelete" required="true"/>
         <activiti:formProperty id="rejectReason" name="Reason for rejecting" type="string" variable="rejectReason"/>
       </extensionElements>
     </userTask>
