@@ -43,7 +43,6 @@ import org.apache.syncope.common.lib.types.PatchOperation;
 import org.apache.syncope.core.provisioning.api.PropagationByResource;
 import org.apache.syncope.common.lib.types.ResourceOperation;
 import org.apache.syncope.core.spring.BeanUtils;
-import org.apache.syncope.core.provisioning.api.utils.EntityUtils;
 import org.apache.syncope.core.persistence.api.dao.AnyTypeDAO;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
@@ -177,11 +176,6 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
         AnyUtils anyUtils = anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT);
         if (anyObject.getRealm() != null) {
             // relationships
-            Collection<String> assignableAnyObjects = anyObjectTO.getRelationships().isEmpty()
-                    ? Collections.<String>emptyList()
-                    : CollectionUtils.collect(
-                            searchDAO.searchAssignable(anyObject.getRealm().getFullPath(), AnyTypeKind.ANY_OBJECT),
-                            EntityUtils.keyTransformer());
             for (RelationshipTO relationshipTO : anyObjectTO.getRelationships()) {
                 if (StringUtils.isBlank(relationshipTO.getRightType())
                         || AnyTypeKind.USER.name().equals(relationshipTO.getRightType())
@@ -196,7 +190,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                     AnyObject otherEnd = anyObjectDAO.find(relationshipTO.getRightKey());
                     if (otherEnd == null) {
                         LOG.debug("Ignoring invalid anyObject " + relationshipTO.getRightKey());
-                    } else if (assignableAnyObjects.contains(otherEnd.getKey())) {
+                    } else if (anyObject.getRealm().getFullPath().startsWith(otherEnd.getRealm().getFullPath())) {
                         RelationshipType relationshipType = relationshipTypeDAO.find(relationshipTO.getType());
                         if (relationshipType == null) {
                             LOG.debug("Ignoring invalid relationship type {}", relationshipTO.getType());
@@ -220,11 +214,6 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
             }
 
             // memberships
-            Collection<String> assignableGroups = anyObjectTO.getMemberships().isEmpty()
-                    ? Collections.<String>emptyList()
-                    : CollectionUtils.collect(
-                            searchDAO.searchAssignable(anyObject.getRealm().getFullPath(), AnyTypeKind.GROUP),
-                            EntityUtils.keyTransformer());
             for (MembershipTO membershipTO : anyObjectTO.getMemberships()) {
                 Group group = membershipTO.getRightKey() == null
                         ? groupDAO.findByName(membershipTO.getGroupName())
@@ -232,7 +221,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                 if (group == null) {
                     LOG.debug("Ignoring invalid group "
                             + membershipTO.getRightKey() + " / " + membershipTO.getGroupName());
-                } else if (assignableGroups.contains(group.getKey())) {
+                } else if (anyObject.getRealm().getFullPath().startsWith(group.getRealm().getFullPath())) {
                     AMembership membership = entityFactory.newEntity(AMembership.class);
                     membership.setRightEnd(group);
                     membership.setLeftEnd(anyObject);
@@ -294,10 +283,6 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
         Set<String> toBeProvisioned = new HashSet<>();
 
         // relationships
-        Collection<String> assignableAnyObjects = CollectionUtils.collect(
-                searchDAO.searchAssignable(anyObject.getRealm().getFullPath(), AnyTypeKind.ANY_OBJECT),
-                EntityUtils.keyTransformer());
-
         for (RelationshipPatch patch : anyObjectPatch.getRelationships()) {
             if (patch.getRelationshipTO() != null) {
                 RelationshipType relationshipType = relationshipTypeDAO.find(patch.getRelationshipTO().getType());
@@ -328,7 +313,9 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                             AnyObject otherEnd = anyObjectDAO.find(patch.getRelationshipTO().getRightKey());
                             if (otherEnd == null) {
                                 LOG.debug("Ignoring invalid any object {}", patch.getRelationshipTO().getRightKey());
-                            } else if (assignableAnyObjects.contains(otherEnd.getKey())) {
+                            } else if (anyObject.getRealm().getFullPath().
+                                    startsWith(otherEnd.getRealm().getFullPath())) {
+
                                 relationship = entityFactory.newEntity(ARelationship.class);
                                 relationship.setType(relationshipType);
                                 relationship.setRightEnd(otherEnd);
@@ -355,10 +342,6 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
         SyncopeClientException invalidValues = SyncopeClientException.build(ClientExceptionType.InvalidValues);
 
         // memberships
-        Collection<String> assignableGroups = CollectionUtils.collect(
-                searchDAO.searchAssignable(anyObject.getRealm().getFullPath(), AnyTypeKind.GROUP),
-                EntityUtils.keyTransformer());
-
         for (MembershipPatch membPatch : anyObjectPatch.getMemberships()) {
             if (membPatch.getGroup() != null) {
                 AMembership membership = anyObject.getMembership(membPatch.getGroup());
@@ -377,7 +360,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                     Group group = groupDAO.find(membPatch.getGroup());
                     if (group == null) {
                         LOG.debug("Ignoring invalid group {}", membPatch.getGroup());
-                    } else if (assignableGroups.contains(group.getKey())) {
+                    } else if (anyObject.getRealm().getFullPath().startsWith(group.getRealm().getFullPath())) {
                         membership = entityFactory.newEntity(AMembership.class);
                         membership.setRightEnd(group);
                         membership.setLeftEnd(anyObject);
