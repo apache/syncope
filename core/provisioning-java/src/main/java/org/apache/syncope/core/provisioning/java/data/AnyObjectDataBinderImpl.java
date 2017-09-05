@@ -158,11 +158,6 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
         AnyUtils anyUtils = anyUtilsFactory.getInstance(AnyTypeKind.ANY_OBJECT);
         if (anyObject.getRealm() != null) {
             // relationships
-            Collection<String> assignableAnyObjects = anyObjectTO.getRelationships().isEmpty()
-                    ? Collections.<String>emptyList()
-                    : searchDAO.searchAssignable(anyObject.getRealm().getFullPath(), AnyTypeKind.ANY_OBJECT).stream().
-                            map(a -> a.getKey()).collect(Collectors.toList());
-
             anyObjectTO.getRelationships().forEach(relationshipTO -> {
                 if (StringUtils.isBlank(relationshipTO.getRightType())
                         || AnyTypeKind.USER.name().equals(relationshipTO.getRightType())
@@ -177,7 +172,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                     AnyObject otherEnd = anyObjectDAO.find(relationshipTO.getRightKey());
                     if (otherEnd == null) {
                         LOG.debug("Ignoring invalid anyObject " + relationshipTO.getRightKey());
-                    } else if (assignableAnyObjects.contains(otherEnd.getKey())) {
+                    } else if (anyObject.getRealm().getFullPath().startsWith(otherEnd.getRealm().getFullPath())) {
                         RelationshipType relationshipType = relationshipTypeDAO.find(relationshipTO.getType());
                         if (relationshipType == null) {
                             LOG.debug("Ignoring invalid relationship type {}", relationshipTO.getType());
@@ -201,11 +196,6 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
             });
 
             // memberships
-            Collection<String> assignableGroups = anyObjectTO.getMemberships().isEmpty()
-                    ? Collections.<String>emptyList()
-                    : searchDAO.searchAssignable(anyObject.getRealm().getFullPath(), AnyTypeKind.GROUP).stream().
-                            map(g -> g.getKey()).collect(Collectors.toList());
-
             anyObjectTO.getMemberships().forEach(membershipTO -> {
                 Group group = membershipTO.getRightKey() == null
                         ? groupDAO.findByName(membershipTO.getGroupName())
@@ -213,7 +203,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                 if (group == null) {
                     LOG.debug("Ignoring invalid group "
                             + membershipTO.getRightKey() + " / " + membershipTO.getGroupName());
-                } else if (assignableGroups.contains(group.getKey())) {
+                } else if (anyObject.getRealm().getFullPath().startsWith(group.getRealm().getFullPath())) {
                     AMembership membership = entityFactory.newEntity(AMembership.class);
                     membership.setRightEnd(group);
                     membership.setLeftEnd(anyObject);
@@ -275,10 +265,6 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
         Set<String> toBeProvisioned = new HashSet<>();
 
         // relationships
-        Collection<String> assignableAnyObjects =
-                searchDAO.searchAssignable(anyObject.getRealm().getFullPath(), AnyTypeKind.ANY_OBJECT).stream().
-                        map(a -> a.getKey()).collect(Collectors.toList());
-
         anyObjectPatch.getRelationships().stream().
                 filter(patch -> patch.getRelationshipTO() != null).forEachOrdered((patch) -> {
             RelationshipType relationshipType = relationshipTypeDAO.find(patch.getRelationshipTO().getType());
@@ -309,7 +295,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                         AnyObject otherEnd = anyObjectDAO.find(patch.getRelationshipTO().getRightKey());
                         if (otherEnd == null) {
                             LOG.debug("Ignoring invalid any object {}", patch.getRelationshipTO().getRightKey());
-                        } else if (assignableAnyObjects.contains(otherEnd.getKey())) {
+                        } else if (anyObject.getRealm().getFullPath().startsWith(otherEnd.getRealm().getFullPath())) {
                             ARelationship newRelationship = entityFactory.newEntity(ARelationship.class);
                             newRelationship.setType(relationshipType);
                             newRelationship.setRightEnd(otherEnd);
@@ -335,10 +321,6 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
         SyncopeClientException invalidValues = SyncopeClientException.build(ClientExceptionType.InvalidValues);
 
         // memberships
-        Collection<String> assignableGroups =
-                searchDAO.searchAssignable(anyObject.getRealm().getFullPath(), AnyTypeKind.GROUP).stream().
-                        map(g -> g.getKey()).collect(Collectors.toList());
-
         anyObjectPatch.getMemberships().stream().
                 filter((membPatch) -> (membPatch.getGroup() != null)).forEachOrdered(membPatch -> {
             Optional<? extends AMembership> membership = anyObject.getMembership(membPatch.getGroup());
@@ -356,7 +338,7 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                 Group group = groupDAO.find(membPatch.getGroup());
                 if (group == null) {
                     LOG.debug("Ignoring invalid group {}", membPatch.getGroup());
-                } else if (assignableGroups.contains(group.getKey())) {
+                } else if (anyObject.getRealm().getFullPath().startsWith(group.getRealm().getFullPath())) {
                     AMembership newMembership = entityFactory.newEntity(AMembership.class);
                     newMembership.setRightEnd(group);
                     newMembership.setLeftEnd(anyObject);
