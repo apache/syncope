@@ -23,12 +23,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.collections4.Predicate;
-import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.syncope.client.console.SyncopeConsoleSession;
 import org.apache.syncope.client.console.commons.Constants;
@@ -338,23 +336,19 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
 
             @Override
             protected List<String> load() {
-                final List<String> currentlyAdded = new ArrayList<>();
-
-                CollectionUtils.collect(resourceTO.getProvisions(), new Transformer<ProvisionTO, String>() {
-
-                    @Override
-                    public String transform(final ProvisionTO provisionTO) {
-                        return provisionTO.getAnyType();
-                    }
-                }, currentlyAdded);
-
-                return ListUtils.select(new AnyTypeRestClient().list(), new Predicate<String>() {
+                List<String> anyTypes = ListUtils.select(new AnyTypeRestClient().list(), new Predicate<String>() {
 
                     @Override
                     public boolean evaluate(final String key) {
-                        return !currentlyAdded.contains(key);
+                        return resourceTO.getProvision(key) == null;
                     }
                 });
+                if (resourceTO.getOrgUnit() == null) {
+                    anyTypes.add(SyncopeConstants.REALM_ANYTYPE);
+                }
+
+                Collections.sort(anyTypes, new AnyTypeRestClient.AnyTypeKeyComparator());
+                return anyTypes;
             }
         };
     }
