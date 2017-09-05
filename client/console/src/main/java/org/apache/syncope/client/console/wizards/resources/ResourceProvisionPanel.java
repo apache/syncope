@@ -40,7 +40,6 @@ import org.apache.syncope.client.console.wizards.WizardMgtPanel;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
 import org.apache.syncope.common.lib.to.ItemTO;
-import org.apache.syncope.common.lib.to.ProvisionTO;
 import org.apache.syncope.common.lib.to.ResourceTO;
 import org.apache.syncope.common.lib.types.StandardEntitlement;
 import org.apache.wicket.PageReference;
@@ -316,13 +315,15 @@ public class ResourceProvisionPanel extends AbstractModalPanel<Serializable> {
 
             @Override
             protected List<String> load() {
-                final List<String> currentlyAdded = new ArrayList<>();
+                List<String> anyTypes = new AnyTypeRestClient().list().stream().
+                        filter(anyType -> !resourceTO.getProvision(anyType).isPresent()).
+                        collect(Collectors.toList());
+                if (resourceTO.getOrgUnit() == null) {
+                    anyTypes.add(SyncopeConstants.REALM_ANYTYPE);
+                }
 
-                currentlyAdded.addAll(resourceTO.getProvisions().stream().
-                        map(ProvisionTO::getAnyType).collect(Collectors.toList()));
-
-                return new AnyTypeRestClient().list().stream().
-                        filter(anyType -> !currentlyAdded.contains(anyType)).collect(Collectors.toList());
+                Collections.sort(anyTypes, new AnyTypeRestClient.AnyTypeKeyComparator());
+                return anyTypes;
             }
         };
     }
