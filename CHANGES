@@ -29,8 +29,6 @@ Release Notes - Syncope - Version 2.0.5
     * [SYNCOPE-1189] - Realms page not accessible when user has permissions on dynamic realms
     * [SYNCOPE-1190] - Username not refreshed on toggle menu after user update
     * [SYNCOPE-1193] - Add the option to update a user via REST by using the username as key
-    * [SYNCOPE-1199] - Syncope performance: AnyObjectTO's creation time grows with it's quantity
-    * [SYNCOPE-1203] - Not possible to add provision rules for "Realm" type
 
 ** Improvement
     * [SYNCOPE-1096] - Download button should be disabled while populating for the first time a binary attribute
