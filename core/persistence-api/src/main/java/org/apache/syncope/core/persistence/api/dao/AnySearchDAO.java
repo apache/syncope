@@ -36,14 +36,6 @@ public interface AnySearchDAO extends DAO<Any<?>> {
     int count(Set<String> adminRealms, SearchCond searchCondition, AnyTypeKind kind);
 
     /**
-     * @param realmFullPath for use with {@link org.apache.syncope.core.persistence.api.dao.search.AssignableCond}
-     * @param kind any object
-     * @param <T> any
-     * @return the list of any objects matching the given search condition
-     */
-    <T extends Any<?>> List<T> searchAssignable(String realmFullPath, AnyTypeKind kind);
-
-    /**
      * @param searchCondition the search condition
      * @param kind any object
      * @param <T> any
