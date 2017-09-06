@@ -1983,6 +1983,9 @@ under the License.
                 project.properties['licenseUrl'] = project.parent.licenses[0].url
                 project.properties['site.deploymentBaseDir'] = 
                 project.properties['site.deploymentBaseUrl'] == null || !project.properties['site.deploymentBaseUrl'].startsWith('file:') ? project.properties['project.build.directory'] + "/generated-docs" : project.properties['site.deploymentBaseUrl'].substring(7)
+
+                if (!project.properties.containsKey('buildNumber'))
+                  project.properties['buildNumber'] = ""
               </source>
             </configuration>
           </execution>

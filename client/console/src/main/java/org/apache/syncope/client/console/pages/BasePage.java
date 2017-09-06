@@ -107,8 +107,10 @@ public class BasePage extends WebPage implements IAjaxIndicatorAware {
         // right sidebar
         PlatformInfo platformInfo = SyncopeConsoleSession.get().getPlatformInfo();
         Label version = new Label("version", platformInfo.getVersion());
-        String versionLink = platformInfo.getVersion().endsWith("-SNAPSHOT")
-                ? "https://git-wip-us.apache.org/repos/asf?p=syncope.git;a=commit;h=" + platformInfo.getBuildNumber()
+        String versionLink = StringUtils.isNotBlank(platformInfo.getBuildNumber())
+                && platformInfo.getVersion().endsWith("-SNAPSHOT")
+                ? "https://git-wip-us.apache.org/repos/asf?p=syncope.git;a=commit;h="
+                + platformInfo.getBuildNumber()
                 : "https://cwiki.apache.org/confluence/display/SYNCOPE/Jazz";
         version.add(new AttributeModifier("onclick", "window.open('" + versionLink + "', '_blank')"));
         body.add(version);
