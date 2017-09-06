@@ -195,7 +195,7 @@ git push]]></source>
         <ol>
           <li>
             Do a dry run of the <code>release:prepare</code> step.
-            <source>mvn -P apache-release release:prepare -DdryRun=true</source>
+            <source>mvn -P apache-release release:prepare -Darguments="-DbuildNumber=syncope-$VERSION" -DdryRun=true</source>
 
             The dry run will not commit any changes and gives you the opportunity to verify that the 
             release process will complete as expected.
@@ -248,7 +248,7 @@ gpg: Signature made ...]]></source>
           <li>
             Run the <code>release:prepare</code> step for real this time. You'll be prompted for the same version 
             information and optionally your GPG passphrase again.
-            <source>mvn -P apache-release release:prepare</source>
+            <source>mvn -P apache-release release:prepare -Darguments="-DbuildNumber=syncope-$VERSION"</source>
           </li>
           <li>
             Backup (zip or tar) your local release candidate directory in case you need to rollback the release after 
@@ -344,7 +344,7 @@ svn commit -m "Staging site for release"]]></source>
           </li>
           <li>
             From <code>$SYNCOPE_RELEASE_DIR</code> execute (this step will create a maven staging repository):
-            <source>mvn -P apache-release release:perform [-Duser.name=&lt;your_apache_uid&gt;]</source>
+            <source>mvn -P apache-release release:perform -Darguments="-DbuildNumber=syncope-$VERSION" [-Duser.name=&lt;your_apache_uid&gt;]</source>
         
             <p>
               <em>If your local OS userid doesn't match your Apache userid, then you'll have to also override the value 
