@@ -63,8 +63,6 @@ import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.jpa.entity.JPAPlainSchema;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ReflectionUtils;
 
 public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implements AnySearchDAO {
@@ -89,14 +87,6 @@ public abstract class AbstractAnySearchDAO extends AbstractDAO<Any<?>> implement
 
     @Autowired
     protected AnyUtilsFactory anyUtilsFactory;
-
-    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
-    @Override
-    public <T extends Any<?>> List<T> searchAssignable(final String realmFullPath, final AnyTypeKind kind) {
-        AssignableCond assignableCond = new AssignableCond();
-        assignableCond.setRealmFullPath(realmFullPath);
-        return search(SearchCond.getLeafCond(assignableCond), kind);
-    }
 
     protected SearchCond buildEffectiveCond(final SearchCond cond, final Set<String> dynRealmKeys) {
         List<SearchCond> effectiveConds = dynRealmKeys.stream().map(dynRealmKey -> {
