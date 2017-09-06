@@ -2,6 +2,77 @@ Apache Syncope - CHANGES
 Licensed under Apache License 2.0 - http://www.apache.org/licenses/LICENSE-2.0
 --------------------------------------------------------------------------------
 
+Release Notes - Syncope - Version 2.0.5
+================================================================================
+
+** Bug
+    * [SYNCOPE-1139] - StackOverflowError while serializing AuditEntry after propagation
+    * [SYNCOPE-1140] - Error when trying to assign a relationship
+    * [SYNCOPE-1141] - Error when getting /numbers with application/xml
+    * [SYNCOPE-1149] - Access token still required for the third party JWT SSO integration scenario
+    * [SYNCOPE-1150] - Invalid property set for propagation task modal page header
+    * [SYNCOPE-1151] -  Glinch in the root realm information
+    * [SYNCOPE-1158] - Misleading Push Task reports
+    * [SYNCOPE-1162] - Change to Connector's display name not reflected by contextual menu
+    * [SYNCOPE-1163] - External Resource priority is never NULL
+    * [SYNCOPE-1166] - No propagation task is created for resources where the password is not propagated
+    * [SYNCOPE-1168] - Encryptor pads short secret keys with "0" instead of random characters
+    * [SYNCOPE-1169] - Operation not supported error when trying to run a bulk action for users 
+    * [SYNCOPE-1170] - Can't remove a "Dynamic USER assignment"
+    * [SYNCOPE-1174] - NPE in AccessTokenDataBinderImpl if no 'jwt.lifetime.minutes' schema is present
+    * [SYNCOPE-1175] - Password Reset Token Generation Not Working After Upgrading to 2.0.4
+    * [SYNCOPE-1178] - PlainSchema page empty while self update on Enduser 
+    * [SYNCOPE-1179] - JWT "Date" claims are interpreted using milliseconds instead of seconds
+    * [SYNCOPE-1180] - No e-mail debug output
+    * [SYNCOPE-1184] - In the "Attributes to be displayed" sellection show the ones already displayed by default
+    * [SYNCOPE-1188] - NPE Message while saving Dynamic Realm with empty key
+    * [SYNCOPE-1189] - Realms page not accessible when user has permissions on dynamic realms
+    * [SYNCOPE-1190] - Username not refreshed on toggle menu after user update
+    * [SYNCOPE-1193] - Add the option to update a user via REST by using the username as key
+    * [SYNCOPE-1199] - Syncope performance: AnyObjectTO's creation time grows with it's quantity
+    * [SYNCOPE-1203] - Not possible to add provision rules for "Realm" type
+
+** Improvement
+    * [SYNCOPE-1096] - Download button should be disabled while populating for the first time a binary attribute
+    * [SYNCOPE-1097] - Downloaded file for binary attribute better naming
+    * [SYNCOPE-1115] - Display attributes for propagation tasks
+    * [SYNCOPE-1143] - Fine-grained administration rights for Connector and Resources
+    * [SYNCOPE-1146] - On-the-fly creation of unmatched users logging via SAML 2.0
+    * [SYNCOPE-1147] - Extend SAML 2.0 IdP mapping to Roles
+    * [SYNCOPE-1152] - Clear out unneeded anonymous authenticated services
+    * [SYNCOPE-1153] - Push Tasks result to show "no operation" when operation is not enabled 
+    * [SYNCOPE-1154] - Edit resource to show always in the same order in list of object provision rules
+    * [SYNCOPE-1155] - Hard-coded /syncope-enduser HTTP subcontext
+    * [SYNCOPE-1159] - Allow to set Realm for Push Tasks
+    * [SYNCOPE-1164] - Complete mapping for Realm provisioning
+    * [SYNCOPE-1167] - Preliminary AnyType selection when adding new provision rule
+    * [SYNCOPE-1171] - Skip Relationships page when no relationship types exist
+    * [SYNCOPE-1172] - Error message of "Malformed Path" could be made a little clearer
+    * [SYNCOPE-1173] - Replace List<String> dynGroups with List<MembershipTO> dynMemberships
+    * [SYNCOPE-1176] - Edit provisioning rules menu is flat and not toggle
+    * [SYNCOPE-1177] - Configuration Parameter deletion should ask for confirmation
+    * [SYNCOPE-1182] - Use Remote Key in the Mapping to fetch external entities
+    * [SYNCOPE-1183] - Realm attribute available (as a detail) to use as a column in the "realm view" object list
+    * [SYNCOPE-1185] - Further validate SAML responses with CXF's SAMLSSOResponseValidator
+    * [SYNCOPE-1192] - Provide latest GIT commit hash alongside with version number
+    * [SYNCOPE-1194] - Sign the SAML SSO Service Provider Metadata
+    * [SYNCOPE-1196] - Binary previewer also for configuration parameters
+    * [SYNCOPE-1197] - Enduser console doesn't specify "SAML 2.0" as per the admin console
+    * [SYNCOPE-1198] - Make the signature algorithm configurable for SAML SSO
+    * [SYNCOPE-1200] - Allow to update user data during approval
+    * [SYNCOPE-1201] - Allow AnyType-based conditions for DynRealms
+    * [SYNCOPE-1202] - Support IdP Initiated SAML SSO
+
+** New Feature
+    * [SYNCOPE-1144] - Customizable Audit appender
+    * [SYNCOPE-1145] - Connector and Resource configuration versioning
+
+** Task
+    * [SYNCOPE-1195] - Remove copy of OpenSAMLUtil when WSS4J 2.1.11 is out
+
+** Wish
+    * [SYNCOPE-1161] - Option to clone a resource
+
 Release Notes - Syncope - Version 2.0.4
 ================================================================================
 
