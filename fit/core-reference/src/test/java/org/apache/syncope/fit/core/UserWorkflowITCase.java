@@ -154,7 +154,7 @@ public class UserWorkflowITCase extends AbstractITCase {
         userTO.getMemberships().add(
                 new MembershipTO.Builder().group("0cbcabd2-4410-4b6b-8f05-a052b451d18f").build());
 
-        // 1. create user with group 9 (and verify that no propagation occurred)
+        // 1. create user and verify that no propagation occurred)
         ProvisioningResult<UserTO> result = createUser(userTO);
         assertNotNull(result);
         userTO = result.getEntity();
