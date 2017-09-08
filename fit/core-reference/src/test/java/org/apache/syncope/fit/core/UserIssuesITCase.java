@@ -40,8 +40,10 @@ import org.apache.commons.collections4.Predicate;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.cxf.common.util.Base64Utility;
 import org.apache.cxf.helpers.IOUtils;
+import org.apache.syncope.client.lib.SyncopeClient;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.SyncopeConstants;
+import org.apache.syncope.common.lib.patch.AttrPatch;
 import org.apache.syncope.common.lib.patch.MembershipPatch;
 import org.apache.syncope.common.lib.patch.PasswordPatch;
 import org.apache.syncope.common.lib.patch.StringPatchItem;
@@ -1393,5 +1395,41 @@ public class UserIssuesITCase extends AbstractITCase {
         assertEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(0).getStatus());
         assertEquals(RESOURCE_NAME_DBVIRATTR, result.getPropagationStatuses().get(1).getResource());
         assertEquals(PropagationTaskExecStatus.SUCCESS, result.getPropagationStatuses().get(1).getStatus());
+    }
+
+    @Test
+    public void issueSYNCOPE1206() {
+        // 1. create group with dynamic user condition 'cool==true'
+        GroupTO dynGroup = GroupITCase.getSampleTO("syncope1206");
+        dynGroup.setUDynMembershipCond(
+                SyncopeClient.getUserSearchConditionBuilder().is("cool").equalTo("true").query());
+        dynGroup = createGroup(dynGroup).getEntity();
+        assertNotNull(dynGroup);
+        assertTrue(dynGroup.getResources().contains(RESOURCE_NAME_LDAP));
+
+        // 2. create user (no value for cool, no dynamic membership, no propagation to LDAP)
+        UserTO userTO = UserITCase.getUniqueSampleTO("syncope1206@apache.org");
+        userTO.getResources().clear();
+
+        ProvisioningResult<UserTO> result = createUser(userTO);
+        assertTrue(result.getPropagationStatuses().isEmpty());
+
+        // 3. update user to match the dynamic condition: expect propagation to LDAP
+        UserPatch userPatch = new UserPatch();
+        userPatch.setKey(result.getEntity().getKey());
+        userPatch.getPlainAttrs().add(new AttrPatch.Builder().attrTO(attrTO("cool", "true")).build());
+
+        result = updateUser(userPatch);
+        assertEquals(1, result.getPropagationStatuses().size());
+        assertEquals(RESOURCE_NAME_LDAP, result.getPropagationStatuses().get(0).getResource());
+
+        // 4. update again user to not match the dynamic condition any more: expect propagation to LDAP
+        userPatch = new UserPatch();
+        userPatch.setKey(result.getEntity().getKey());
+        userPatch.getPlainAttrs().add(new AttrPatch.Builder().attrTO(attrTO("cool", "false")).build());
+
+        result = updateUser(userPatch);
+        assertEquals(1, result.getPropagationStatuses().size());
+        assertEquals(RESOURCE_NAME_LDAP, result.getPropagationStatuses().get(0).getResource());
     }
 }

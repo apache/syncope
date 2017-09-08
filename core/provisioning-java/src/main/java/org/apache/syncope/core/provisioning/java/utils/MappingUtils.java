@@ -37,7 +37,6 @@ import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
-import org.apache.syncope.core.persistence.api.entity.resource.OrgUnitItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.provisioning.java.data.JEXLItemTransformerImpl;
 import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
@@ -68,41 +67,21 @@ public final class MappingUtils {
                 : mapping.getConnObjectKeyItem();
     }
 
-    public static List<? extends MappingItem> getPropagationItems(final Provision provision) {
-        return ListUtils.select(provision.getMapping().getItems(), new Predicate<MappingItem>() {
+    public static List<? extends Item> getPropagationItems(final List<? extends Item> items) {
+        return ListUtils.select(items, new Predicate<Item>() {
 
             @Override
-            public boolean evaluate(final MappingItem item) {
+            public boolean evaluate(final Item item) {
                 return item.getPurpose() == MappingPurpose.PROPAGATION || item.getPurpose() == MappingPurpose.BOTH;
             }
         });
     }
 
-    public static List<? extends MappingItem> getPullItems(final Provision provision) {
-        return ListUtils.select(provision.getMapping().getItems(), new Predicate<MappingItem>() {
+    public static List<? extends Item> getPullItems(final List<? extends Item> items) {
+        return ListUtils.select(items, new Predicate<Item>() {
 
             @Override
-            public boolean evaluate(final MappingItem item) {
-                return item.getPurpose() == MappingPurpose.PULL || item.getPurpose() == MappingPurpose.BOTH;
-            }
-        });
-    }
-
-    public static List<? extends OrgUnitItem> getPropagationItems(final OrgUnit orgUnit) {
-        return ListUtils.select(orgUnit.getItems(), new Predicate<OrgUnitItem>() {
-
-            @Override
-            public boolean evaluate(final OrgUnitItem item) {
-                return item.getPurpose() == MappingPurpose.PROPAGATION || item.getPurpose() == MappingPurpose.BOTH;
-            }
-        });
-    }
-
-    public static List<? extends OrgUnitItem> getPullItems(final OrgUnit orgUnit) {
-        return ListUtils.select(orgUnit.getItems(), new Predicate<OrgUnitItem>() {
-
-            @Override
-            public boolean evaluate(final OrgUnitItem item) {
+            public boolean evaluate(final Item item) {
                 return item.getPurpose() == MappingPurpose.PULL || item.getPurpose() == MappingPurpose.BOTH;
             }
         });

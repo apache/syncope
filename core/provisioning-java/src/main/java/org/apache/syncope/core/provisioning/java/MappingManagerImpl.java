@@ -60,6 +60,7 @@ import org.apache.syncope.core.persistence.api.entity.Schema;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
+import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
@@ -154,7 +155,7 @@ public class MappingManagerImpl implements MappingManager {
         Set<Attribute> attributes = new HashSet<>();
         String connObjectKey = null;
 
-        for (MappingItem mapItem : MappingUtils.getPropagationItems(provision)) {
+        for (Item mapItem : MappingUtils.getPropagationItems(provision.getMapping().getItems())) {
             LOG.debug("Processing expression '{}'", mapItem.getIntAttrName());
 
             try {
@@ -215,7 +216,7 @@ public class MappingManagerImpl implements MappingManager {
         return Pair.of(connObjectKey, attributes);
     }
 
-    private String getIntValue(final Realm realm, final OrgUnitItem orgUnitItem) {
+    private String getIntValue(final Realm realm, final Item orgUnitItem) {
         String value = null;
         switch (orgUnitItem.getIntAttrName()) {
             case "key":
@@ -243,7 +244,7 @@ public class MappingManagerImpl implements MappingManager {
         Set<Attribute> attributes = new HashSet<>();
         String connObjectKey = null;
 
-        for (OrgUnitItem orgUnitItem : MappingUtils.getPropagationItems(orgUnit)) {
+        for (Item orgUnitItem : MappingUtils.getPropagationItems(orgUnit.getItems())) {
             LOG.debug("Processing expression '{}'", orgUnitItem.getIntAttrName());
 
             String value = getIntValue(realm, orgUnitItem);
@@ -293,7 +294,7 @@ public class MappingManagerImpl implements MappingManager {
      * @return connObjectKey + prepared attribute
      */
     private Pair<String, Attribute> prepareAttr(
-            final Provision provision, final MappingItem mapItem, final Any<?> any, final String password) {
+            final Provision provision, final Item mapItem, final Any<?> any, final String password) {
 
         IntAttrName intAttrName =
                 intAttrNameParser.parse(mapItem.getIntAttrName(), provision.getAnyType().getKind());
@@ -386,7 +387,7 @@ public class MappingManagerImpl implements MappingManager {
     @Override
     public List<PlainAttrValue> getIntValues(
             final Provision provision,
-            final MappingItem mapItem,
+            final Item mapItem,
             final IntAttrName intAttrName,
             final Any<?> any) {
 
@@ -606,9 +607,7 @@ public class MappingManagerImpl implements MappingManager {
 
     @Transactional(readOnly = true)
     @Override
-    public void setIntValues(
-            final MappingItem mapItem, final Attribute attr, final AnyTO anyTO, final AnyUtils anyUtils) {
-
+    public void setIntValues(final Item mapItem, final Attribute attr, final AnyTO anyTO, final AnyUtils anyUtils) {
         List<Object> values = null;
         if (attr != null) {
             values = attr.getValue();
@@ -768,7 +767,7 @@ public class MappingManagerImpl implements MappingManager {
     }
 
     @Override
-    public void setIntValues(final OrgUnitItem orgUnitItem, final Attribute attr, final RealmTO realmTO) {
+    public void setIntValues(final Item orgUnitItem, final Attribute attr, final RealmTO realmTO) {
         List<Object> values = null;
         if (attr != null) {
             values = attr.getValue();

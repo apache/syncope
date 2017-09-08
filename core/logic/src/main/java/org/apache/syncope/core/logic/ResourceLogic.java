@@ -386,7 +386,7 @@ public class ResourceLogic extends AbstractTransactionalLogic<ResourceTO> {
 
             objectClass = resource.getOrgUnit().getObjectClass();
             options = MappingUtils.buildOperationOptions(
-                    MappingUtils.getPropagationItems(resource.getOrgUnit()).iterator());
+                    MappingUtils.getPropagationItems(resource.getOrgUnit().getItems()).iterator());
         } else {
             Triple<ExternalResource, AnyType, Provision> init = connObjectInit(key, anyTypeKey);
             resource = init.getLeft();

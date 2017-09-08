@@ -423,8 +423,7 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
         return ImmutablePair.of(suspend, propagateSuspension);
     }
 
-    @Override
-    public User save(final User user) {
+    private Pair<User, Pair<Set<String>, Set<String>>> doSave(final User user) {
         // 1. save clear password value before save
         String clearPwd = user.getClearPassword();
 
@@ -446,10 +445,20 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
         publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, merged, AuthContextUtils.getDomain()));
 
         roleDAO.refreshDynMemberships(merged);
-        groupDAO().refreshDynMemberships(merged);
+        Pair<Set<String>, Set<String>> dynGroupMembs = groupDAO().refreshDynMemberships(merged);
         dynRealmDAO().refreshDynMemberships(merged);
 
-        return merged;
+        return Pair.of(merged, dynGroupMembs);
+    }
+
+    @Override
+    public User save(final User user) {
+        return doSave(user).getLeft();
+    }
+
+    @Override
+    public Pair<Set<String>, Set<String>> saveAndGetDynGroupMembs(final User user) {
+        return doSave(user).getRight();
     }
 
     @Override

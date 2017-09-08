@@ -25,8 +25,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.patch.AnyObjectPatch;
@@ -411,10 +413,8 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
         propByRes.addAll(ResourceOperation.DELETE, toBeDeprovisioned);
         propByRes.addAll(ResourceOperation.UPDATE, toBeProvisioned);
 
-        /**
-         * In case of new memberships all the current resources have to be updated in order to propagate new group and
-         * membership attribute values.
-         */
+        // In case of new memberships all current resources need to be updated in order to propagate new group
+        // attribute values.
         if (!toBeDeprovisioned.isEmpty() || !toBeProvisioned.isEmpty()) {
             currentResources.removeAll(toBeDeprovisioned);
             propByRes.addAll(ResourceOperation.UPDATE, currentResources);
@@ -431,7 +431,30 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
             }
         }
 
-        anyObjectDAO.save(anyObject);
+        Pair<Set<String>, Set<String>> dynGroupMembs = anyObjectDAO.saveAndGetDynGroupMembs(anyObject);
+
+        // finally check if any resource assignment is to be processed due to dynamic group membership change
+        for (String delete : SetUtils.difference(dynGroupMembs.getLeft(), dynGroupMembs.getRight())) {
+            for (ExternalResource resource : groupDAO.find(delete).getResources()) {
+                if (!propByRes.contains(resource.getKey())) {
+                    propByRes.add(ResourceOperation.DELETE, resource.getKey());
+                }
+            }
+        }
+        for (String update : SetUtils.intersection(dynGroupMembs.getLeft(), dynGroupMembs.getRight())) {
+            for (ExternalResource resource : groupDAO.find(update).getResources()) {
+                if (!propByRes.contains(resource.getKey())) {
+                    propByRes.add(ResourceOperation.UPDATE, resource.getKey());
+                }
+            }
+        }
+        for (String create : SetUtils.difference(dynGroupMembs.getRight(), dynGroupMembs.getLeft())) {
+            for (ExternalResource resource : groupDAO.find(create).getResources()) {
+                if (!propByRes.contains(resource.getKey())) {
+                    propByRes.add(ResourceOperation.CREATE, resource.getKey());
+                }
+            }
+        }
 
         // Throw composite exception if there is at least one element set in the composing exceptions
         if (scce.hasExceptions()) {

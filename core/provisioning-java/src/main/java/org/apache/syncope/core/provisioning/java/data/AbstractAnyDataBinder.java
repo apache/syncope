@@ -70,6 +70,7 @@ import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
+import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.provisioning.api.DerAttrHandler;
@@ -202,7 +203,7 @@ abstract class AbstractAnyDataBinder {
     private List<String> evaluateMandatoryCondition(final Provision provision, final Any<?> any) {
         List<String> missingAttrNames = new ArrayList<>();
 
-        for (MappingItem mapItem : MappingUtils.getPropagationItems(provision)) {
+        for (Item mapItem : MappingUtils.getPropagationItems(provision.getMapping().getItems())) {
             IntAttrName intAttrName =
                     intAttrNameParser.parse(mapItem.getIntAttrName(), provision.getAnyType().getKind());
             if (intAttrName.getSchemaType() != null) {
@@ -322,12 +323,18 @@ abstract class AbstractAnyDataBinder {
         }
 
         for (ExternalResource resource : resources) {
-            for (MappingItem item : MappingUtils.getPropagationItems(resource.getProvision(any.getType()))) {
-                if (schema.getKey().equals(item.getIntAttrName())) {
-                    propByRes.add(ResourceOperation.UPDATE, resource.getKey());
+            if (resource.getProvision(any.getType()) != null
+                    && resource.getProvision(any.getType()).getMapping() != null) {
 
-                    if (item.isConnObjectKey() && !attr.getValuesAsStrings().isEmpty()) {
-                        propByRes.addOldConnObjectKey(resource.getKey(), attr.getValuesAsStrings().get(0));
+                for (Item item : MappingUtils.getPropagationItems(
+                        resource.getProvision(any.getType()).getMapping().getItems())) {
+
+                    if (schema.getKey().equals(item.getIntAttrName())) {
+                        propByRes.add(ResourceOperation.UPDATE, resource.getKey());
+
+                        if (item.isConnObjectKey() && !attr.getValuesAsStrings().isEmpty()) {
+                            propByRes.addOldConnObjectKey(resource.getKey(), attr.getValuesAsStrings().get(0));
+                        }
                     }
                 }
             }

@@ -139,7 +139,7 @@ public class PullUtils {
             public boolean handle(final ConnectorObject obj) {
                 return found.add(obj);
             }
-        }, MappingUtils.buildOperationOptions(MappingUtils.getPullItems(provision).iterator()));
+        }, MappingUtils.buildOperationOptions(MappingUtils.getPullItems(provision.getMapping().getItems()).iterator()));
 
         if (found.isEmpty()) {
             LOG.debug("No {} found on {} with __NAME__ {}", provision.getObjectClass(), resource, name);

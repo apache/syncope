@@ -152,7 +152,7 @@ public class PullJobDelegate extends AbstractProvisioningJobDelegate<PullTask> i
         if (pullTask.getResource().getOrgUnit() != null) {
             OrgUnit orgUnit = pullTask.getResource().getOrgUnit();
             OperationOptions options = MappingUtils.buildOperationOptions(
-                    MappingUtils.getPullItems(orgUnit).iterator());
+                    MappingUtils.getPullItems(orgUnit.getItems()).iterator());
 
             SyncopePullResultHandler rhandler = (SyncopePullResultHandler) ApplicationContextProvider.getBeanFactory().
                     createBean(RealmPullResultHandlerImpl.class, AbstractBeanDefinition.AUTOWIRE_BY_NAME, false);

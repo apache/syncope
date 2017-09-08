@@ -27,9 +27,8 @@ import org.apache.syncope.core.persistence.api.entity.Any;
 import org.apache.syncope.core.persistence.api.entity.AnyUtils;
 import org.apache.syncope.core.persistence.api.entity.PlainAttrValue;
 import org.apache.syncope.core.persistence.api.entity.Realm;
-import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
+import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
-import org.apache.syncope.core.persistence.api.entity.resource.OrgUnitItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.identityconnectors.framework.common.objects.Attribute;
 
@@ -54,7 +53,7 @@ public interface MappingManager {
     String getConnObjectKeyValue(Realm realm, OrgUnit orgUnit);
 
     /**
-     * Get attribute values for the given {@link MappingItem} and any object.
+     * Get attribute values for the given {@link Item} and any object.
      *
      * @param provision provision information
      * @param mapItem mapping item
@@ -62,7 +61,7 @@ public interface MappingManager {
      * @param any any object
      * @return attribute values.
      */
-    List<PlainAttrValue> getIntValues(Provision provision, MappingItem mapItem, IntAttrName intAttrName, Any<?> any);
+    List<PlainAttrValue> getIntValues(Provision provision, Item mapItem, IntAttrName intAttrName, Any<?> any);
 
     /**
      * Prepare attributes for sending to a connector instance.
@@ -87,7 +86,7 @@ public interface MappingManager {
     Pair<String, Set<Attribute>> prepareAttrs(Realm realm, OrgUnit orgUnit);
 
     /**
-     * Set attribute values, according to the given {@link MappingItem}, to any object from attribute received from
+     * Set attribute values, according to the given {@link Item}, to any object from attribute received from
      * connector.
      *
      * @param <T> any object
@@ -96,16 +95,16 @@ public interface MappingManager {
      * @param anyTO any object
      * @param anyUtils any utils
      */
-    <T extends AnyTO> void setIntValues(MappingItem mapItem, Attribute attr, T anyTO, AnyUtils anyUtils);
+    <T extends AnyTO> void setIntValues(Item mapItem, Attribute attr, T anyTO, AnyUtils anyUtils);
 
     /**
-     * Set attribute values, according to the given {@link OrgUnitItem}, to realm from attribute received from
+     * Set attribute values, according to the given {@link Item}, to realm from attribute received from
      * connector.
      *
      * @param orgUnitItem mapping item
      * @param attr attribute received from connector
      * @param realmTO realm
      */
-    void setIntValues(OrgUnitItem orgUnitItem, Attribute attr, RealmTO realmTO);
+    void setIntValues(Item orgUnitItem, Attribute attr, RealmTO realmTO);
 
 }
