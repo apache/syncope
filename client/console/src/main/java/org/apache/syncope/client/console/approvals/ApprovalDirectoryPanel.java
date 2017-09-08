@@ -323,6 +323,7 @@ public class ApprovalDirectoryPanel
                 final List<String> anyTypeClasses,
                 final UserFormLayoutInfo formLayoutInfo,
                 final PageReference pageRef) {
+
             super(previousUserTO, userTO, anyTypeClasses, formLayoutInfo, pageRef);
             this.formTO = formTO;
             this.target = target;
@@ -341,7 +342,6 @@ public class ApprovalDirectoryPanel
                 claimForm(restClient.getFormForUser(actual.getEntity().getKey()).getTaskId());
                 ((BasePage) pageRef.getPage()).getNotificationPanel().refresh(target);
             } else {
-
                 UserPatch patch = AnyOperations.diff(inner, formTO.getUserTO(), false);
 
                 if (StringUtils.isNotBlank(inner.getPassword())) {
@@ -362,6 +362,7 @@ public class ApprovalDirectoryPanel
                 }
 
             }
+
             return actual;
         }
     }
