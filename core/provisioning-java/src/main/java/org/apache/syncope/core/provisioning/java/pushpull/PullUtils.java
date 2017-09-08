@@ -132,7 +132,8 @@ public class PullUtils {
         final List<ConnectorObject> found = new ArrayList<>();
         connector.search(provision.get().getObjectClass(),
                 new EqualsFilter(new Name(name)), obj -> found.add(obj),
-                MappingUtils.buildOperationOptions(MappingUtils.getPullItems(provision.get()).iterator()));
+                MappingUtils.buildOperationOptions(
+                        MappingUtils.getPullItems(provision.get().getMapping().getItems()).iterator()));
 
         if (found.isEmpty()) {
             LOG.debug("No {} found on {} with __NAME__ {}", provision.get().getObjectClass(), resource, name);

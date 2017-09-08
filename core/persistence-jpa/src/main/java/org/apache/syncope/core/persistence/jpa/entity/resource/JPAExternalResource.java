@@ -20,6 +20,7 @@ package org.apache.syncope.core.persistence.jpa.entity.resource;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -208,17 +209,17 @@ public class JPAExternalResource extends AbstractProvidedKeyEntity implements Ex
 
     @Override
     public Optional<? extends Provision> getProvision(final ObjectClass objectClass) {
-        return provisions.stream().filter(provision -> provision.getObjectClass().equals(objectClass)).findFirst();
+        return getProvisions().stream().filter(provision -> provision.getObjectClass().equals(objectClass)).findFirst();
     }
 
     @Override
     public Optional<? extends Provision> getProvision(final AnyType anyType) {
-        return provisions.stream().filter(provision -> provision.getAnyType().equals(anyType)).findFirst();
+        return getProvisions().stream().filter(provision -> provision.getAnyType().equals(anyType)).findFirst();
     }
 
     @Override
     public List<? extends Provision> getProvisions() {
-        return provisions;
+        return provisions == null ? Collections.emptyList() : provisions;
     }
 
     @Override

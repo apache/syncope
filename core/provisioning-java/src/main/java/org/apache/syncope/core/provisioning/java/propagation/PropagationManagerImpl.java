@@ -52,7 +52,7 @@ import org.apache.syncope.core.persistence.api.entity.AnyUtilsFactory;
 import org.apache.syncope.core.persistence.api.entity.Realm;
 import org.apache.syncope.core.persistence.api.entity.VirSchema;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
-import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
+import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.provisioning.api.MappingManager;
@@ -360,12 +360,12 @@ public class PropagationManagerImpl implements PropagationManager {
 
         List<PropagationTask> tasks = new ArrayList<>();
 
-        for (Map.Entry<String, ResourceOperation> entry : propByRes.asMap().entrySet()) {
+        propByRes.asMap().entrySet().forEach(entry -> {
             ExternalResource resource = resourceDAO.find(entry.getKey());
             Provision provision = resource == null ? null : resource.getProvision(any.getType()).orElse(null);
-            List<? extends MappingItem> mappingItems = provision == null
-                    ? Collections.<MappingItem>emptyList()
-                    : MappingUtils.getPropagationItems(provision);
+            List<? extends Item> mappingItems = provision == null
+                    ? Collections.<Item>emptyList()
+                    : MappingUtils.getPropagationItems(provision.getMapping().getItems());
 
             if (resource == null) {
                 LOG.error("Invalid resource name specified: {}, ignoring...", entry.getKey());
@@ -424,7 +424,7 @@ public class PropagationManagerImpl implements PropagationManager {
 
                 LOG.debug("PropagationTask created: {}", task);
             }
-        }
+        });
 
         return tasks;
     }

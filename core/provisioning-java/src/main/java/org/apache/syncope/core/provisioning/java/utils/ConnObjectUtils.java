@@ -160,7 +160,7 @@ public class ConnObjectUtils {
     public RealmTO getRealmTO(final ConnectorObject obj, final PullTask task, final OrgUnit orgUnit) {
         RealmTO realmTO = new RealmTO();
 
-        MappingUtils.getPullItems(orgUnit).forEach(item -> {
+        MappingUtils.getPullItems(orgUnit.getItems()).forEach(item -> {
             mappingManager.setIntValues(item, obj.getAttributeByName(item.getExtAttrName()), realmTO);
         });
 
@@ -263,7 +263,7 @@ public class ConnObjectUtils {
 
         // 1. fill with data from connector object
         anyTO.setRealm(pullTask.getDestinatioRealm().getFullPath());
-        MappingUtils.getPullItems(provision).forEach(item -> {
+        MappingUtils.getPullItems(provision.getMapping().getItems()).forEach(item -> {
             mappingManager.setIntValues(item, obj.getAttributeByName(item.getExtAttrName()), anyTO, anyUtils);
         });
 

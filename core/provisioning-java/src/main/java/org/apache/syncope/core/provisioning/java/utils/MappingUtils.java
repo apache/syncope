@@ -19,7 +19,6 @@
 package org.apache.syncope.core.provisioning.java.utils;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -38,7 +37,6 @@ import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.persistence.api.entity.resource.Mapping;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
 import org.apache.syncope.core.persistence.api.entity.resource.OrgUnit;
-import org.apache.syncope.core.persistence.api.entity.resource.OrgUnitItem;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.apache.syncope.core.provisioning.java.data.JEXLItemTransformerImpl;
 import org.apache.syncope.core.provisioning.java.jexl.JexlUtils;
@@ -69,32 +67,16 @@ public final class MappingUtils {
                 : mapping.getConnObjectKeyItem().get());
     }
 
-    public static List<? extends MappingItem> getPropagationItems(final Provision provision) {
-        return provision == null
-                ? Collections.emptyList()
-                : provision.getMapping().getItems().stream().
+    public static List<? extends Item> getPropagationItems(final List<? extends Item> items) {
+        return items.stream().
                         filter(item -> item.getPurpose() == MappingPurpose.PROPAGATION
                         || item.getPurpose() == MappingPurpose.BOTH).collect(Collectors.toList());
     }
 
-    public static List<? extends MappingItem> getPullItems(final Provision provision) {
-        return provision == null
-                ? Collections.emptyList()
-                : provision.getMapping().getItems().stream().
+    public static List<? extends Item> getPullItems(final List<? extends Item> items) {
+        return items.stream().
                         filter(item -> item.getPurpose() == MappingPurpose.PULL
                         || item.getPurpose() == MappingPurpose.BOTH).collect(Collectors.toList());
-    }
-
-    public static List<? extends OrgUnitItem> getPropagationItems(final OrgUnit orgUnit) {
-        return orgUnit.getItems().stream().
-                filter(item -> item.getPurpose() == MappingPurpose.PROPAGATION
-                || item.getPurpose() == MappingPurpose.BOTH).collect(Collectors.toList());
-    }
-
-    public static List<? extends OrgUnitItem> getPullItems(final OrgUnit orgUnit) {
-        return orgUnit.getItems().stream().
-                filter(item -> item.getPurpose() == MappingPurpose.PULL
-                || item.getPurpose() == MappingPurpose.BOTH).collect(Collectors.toList());
     }
 
     private static Name evaluateNAME(final String evalConnObjectLink, final String connObjectKey) {

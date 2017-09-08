@@ -201,7 +201,7 @@ abstract class AbstractAnyDataBinder {
     private List<String> evaluateMandatoryCondition(final Provision provision, final Any<?> any) {
         List<String> missingAttrNames = new ArrayList<>();
 
-        MappingUtils.getPropagationItems(provision).forEach(mapItem -> {
+        MappingUtils.getPropagationItems(provision.getMapping().getItems()).forEach(mapItem -> {
             IntAttrName intAttrName = intAttrNameParser.
                     parse(mapItem.getIntAttrName(), provision.getAnyType().getKind());
             if (intAttrName.getSchemaType() != null) {
@@ -215,7 +215,9 @@ abstract class AbstractAnyDataBinder {
         return missingAttrNames;
     }
 
-    private SyncopeClientException checkMandatoryOnResources(final Any<?> any, final Set<ExternalResource> resources) {
+    private SyncopeClientException checkMandatoryOnResources(
+            final Any<?> any, final Collection<? extends ExternalResource> resources) {
+
         SyncopeClientException reqValMissing = SyncopeClientException.build(ClientExceptionType.RequiredValuesMissing);
 
         resources.forEach(resource -> {
@@ -322,16 +324,21 @@ abstract class AbstractAnyDataBinder {
                 plainAttrDAO.delete(attr.getKey(), anyUtils.plainAttrClass());
         }
 
-        resources.forEach(resource -> {
-            MappingUtils.getPropagationItems(resource.getProvision(any.getType()).get()).stream().
-                    filter(item -> (schema.getKey().equals(item.getIntAttrName()))).
-                    forEachOrdered(item -> {
-                        propByRes.add(ResourceOperation.UPDATE, resource.getKey());
-                        if (item.isConnObjectKey() && !attr.getValuesAsStrings().isEmpty()) {
-                            propByRes.addOldConnObjectKey(resource.getKey(), attr.getValuesAsStrings().get(0));
-                        }
-                    });
-        });
+        resources.stream().
+                filter(resource -> (resource.getProvision(any.getType()).isPresent())
+                && resource.getProvision(any.getType()).get().getMapping() != null).
+                forEach(resource -> {
+                    MappingUtils.getPropagationItems(
+                            resource.getProvision(any.getType()).get().getMapping().getItems()).stream().
+                            filter(item -> (schema.getKey().equals(item.getIntAttrName()))).
+                            forEach(item -> {
+                                propByRes.add(ResourceOperation.UPDATE, resource.getKey());
+
+                                if (item.isConnObjectKey() && !attr.getValuesAsStrings().isEmpty()) {
+                                    propByRes.addOldConnObjectKey(resource.getKey(), attr.getValuesAsStrings().get(0));
+                                }
+                            });
+                });
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -634,7 +641,7 @@ abstract class AbstractAnyDataBinder {
         Map<String, String> connObjectKeys = new HashMap<>();
 
         Iterable<? extends ExternalResource> iterable = anyUtils.getAllResources(any);
-        for (ExternalResource resource : iterable) {
+        anyUtils.getAllResources(any).forEach(resource -> {
             Optional<? extends Provision> provision = resource.getProvision(any.getType());
             if (provision.isPresent() && provision.get().getMapping() != null) {
                 Optional<MappingItem> connObjectKeyItem = MappingUtils.getConnObjectKeyItem(provision.get());
@@ -649,7 +656,7 @@ abstract class AbstractAnyDataBinder {
                     connObjectKeys.put(resource.getKey(), connObjectKey.get());
                 }
             }
-        }
+        });
 
         return connObjectKeys;
     }

@@ -611,7 +611,7 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
                     AttributeBuilder.build(
                             MappingUtils.getConnObjectKeyItem(provision).get().getExtAttrName(), connObjectKey),
                     MappingUtils.buildOperationOptions(new IteratorChain<>(
-                            MappingUtils.getPropagationItems(provision).iterator(),
+                            MappingUtils.getPropagationItems(provision.getMapping().getItems()).iterator(),
                             linkingMappingItems.iterator())));
 
             for (MappingItem item : linkingMappingItems) {
@@ -657,7 +657,8 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         try {
             obj = connector.getObject(new ObjectClass(task.getObjectClassName()),
                     AttributeBuilder.build(orgUnit.getConnObjectKeyItem().get().getExtAttrName(), connObjectKey),
-                    MappingUtils.buildOperationOptions(MappingUtils.getPropagationItems(orgUnit).iterator()));
+                    MappingUtils.buildOperationOptions(
+                            MappingUtils.getPropagationItems(orgUnit.getItems()).iterator()));
         } catch (TimeoutException toe) {
             LOG.debug("Request timeout", toe);
             throw toe;

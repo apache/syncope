@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.types.AnyEntitlement;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
 import org.apache.syncope.core.spring.security.AuthContextUtils;
@@ -195,15 +196,24 @@ public class JPAAnyObjectDAO extends AbstractAnyDAO<AnyObject> implements AnyObj
         return query.getResultList();
     }
 
-    @Override
-    public AnyObject save(final AnyObject anyObject) {
+    private Pair<AnyObject, Pair<Set<String>, Set<String>>> doSave(final AnyObject anyObject) {
         AnyObject merged = super.save(anyObject);
         publisher.publishEvent(new AnyCreatedUpdatedEvent<>(this, merged, AuthContextUtils.getDomain()));
 
-        groupDAO().refreshDynMemberships(merged);
+        Pair<Set<String>, Set<String>> dynGroupMembs = groupDAO().refreshDynMemberships(merged);
         dynRealmDAO().refreshDynMemberships(merged);
 
-        return merged;
+        return Pair.of(merged, dynGroupMembs);
+    }
+
+    @Override
+    public AnyObject save(final AnyObject anyObject) {
+        return doSave(anyObject).getLeft();
+    }
+
+    @Override
+    public Pair<Set<String>, Set<String>> saveAndGetDynGroupMembs(final AnyObject anyObject) {
+        return doSave(anyObject).getRight();
     }
 
     private List<ARelationship> findARelationships(final AnyObject anyObject) {

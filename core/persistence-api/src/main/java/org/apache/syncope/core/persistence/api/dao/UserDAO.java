@@ -21,6 +21,7 @@ package org.apache.syncope.core.persistence.api.dao;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.core.persistence.api.entity.Role;
 import org.apache.syncope.core.persistence.api.entity.group.Group;
@@ -55,4 +56,6 @@ public interface UserDAO extends AnyDAO<User> {
     Collection<ExternalResource> findAllResources(User user);
 
     Pair<Boolean, Boolean> enforcePolicies(User user);
+
+    Pair<Set<String>, Set<String>> saveAndGetDynGroupMembs(User user);
 }

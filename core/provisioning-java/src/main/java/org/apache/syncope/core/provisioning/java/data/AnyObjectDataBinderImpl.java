@@ -27,6 +27,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.SyncopeClientCompositeException;
 import org.apache.syncope.common.lib.SyncopeClientException;
 import org.apache.syncope.common.lib.patch.AnyObjectPatch;
@@ -389,10 +390,8 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
         propByRes.addAll(ResourceOperation.DELETE, toBeDeprovisioned);
         propByRes.addAll(ResourceOperation.UPDATE, toBeProvisioned);
 
-        /**
-         * In case of new memberships all the current resources have to be updated in order to propagate new group and
-         * membership attribute values.
-         */
+        // In case of new memberships all current resources need to be updated in order to propagate new group
+        // attribute values.
         if (!toBeDeprovisioned.isEmpty() || !toBeProvisioned.isEmpty()) {
             currentResources.removeAll(toBeDeprovisioned);
             propByRes.addAll(ResourceOperation.UPDATE, currentResources);
@@ -408,7 +407,36 @@ public class AnyObjectDataBinderImpl extends AbstractAnyDataBinder implements An
                     propByRes.add(ResourceOperation.UPDATE, entry.getKey());
                 });
 
-        anyObjectDAO.save(anyObject);
+        Pair<Set<String>, Set<String>> dynGroupMembs = anyObjectDAO.saveAndGetDynGroupMembs(anyObject);
+
+        // finally check if any resource assignment is to be processed due to dynamic group membership change
+        dynGroupMembs.getLeft().stream().
+                filter(group -> !dynGroupMembs.getRight().contains(group)).
+                forEach(delete -> {
+                    groupDAO.find(delete).getResources().stream().
+                            filter(resource -> !propByRes.contains(resource.getKey())).
+                            forEach(resource -> {
+                                propByRes.add(ResourceOperation.DELETE, resource.getKey());
+                            });
+                });
+        dynGroupMembs.getLeft().stream().
+                filter(group -> dynGroupMembs.getRight().contains(group)).
+                forEach(update -> {
+                    groupDAO.find(update).getResources().stream().
+                            filter(resource -> !propByRes.contains(resource.getKey())).
+                            forEach(resource -> {
+                                propByRes.add(ResourceOperation.UPDATE, resource.getKey());
+                            });
+                });
+        dynGroupMembs.getRight().stream().
+                filter(group -> !dynGroupMembs.getLeft().contains(group)).
+                forEach(create -> {
+                    groupDAO.find(create).getResources().stream().
+                            filter(resource -> !propByRes.contains(resource.getKey())).
+                            forEach(resource -> {
+                                propByRes.add(ResourceOperation.CREATE, resource.getKey());
+                            });
+                });
 
         // Throw composite exception if there is at least one element set in the composing exceptions
         if (scce.hasExceptions()) {

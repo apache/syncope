@@ -21,6 +21,8 @@ package org.apache.syncope.core.persistence.api.dao;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.core.persistence.api.entity.AnyType;
 import org.apache.syncope.core.persistence.api.entity.anyobject.ARelationship;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
@@ -51,4 +53,5 @@ public interface AnyObjectDAO extends AnyDAO<AnyObject> {
 
     Collection<ExternalResource> findAllResources(AnyObject anyObject);
 
+    Pair<Set<String>, Set<String>> saveAndGetDynGroupMembs(AnyObject anyObject);
 }

@@ -25,7 +25,7 @@ import java.util.Map;
 import org.apache.syncope.core.persistence.api.dao.search.AnyCond;
 import org.apache.syncope.core.persistence.api.dao.search.AttributeCond;
 import org.apache.syncope.core.persistence.api.dao.search.SearchCond;
-import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
+import org.apache.syncope.core.persistence.api.entity.resource.Item;
 import org.apache.syncope.core.persistence.api.entity.resource.Provision;
 import org.identityconnectors.framework.common.objects.Attribute;
 import org.identityconnectors.framework.common.objects.ConnectorObject;
@@ -46,8 +46,8 @@ public class PlainAttrsPullCorrelationRule implements PullCorrelationRule {
 
     @Override
     public SearchCond getSearchCond(final ConnectorObject connObj) {
-        Map<String, MappingItem> mappingItems = new HashMap<>();
-        for (MappingItem item : MappingUtils.getPullItems(provision)) {
+        Map<String, Item> mappingItems = new HashMap<>();
+        for (Item item : MappingUtils.getPullItems(provision.getMapping().getItems())) {
             mappingItems.put(item.getIntAttrName(), item);
         }
 
@@ -55,7 +55,7 @@ public class PlainAttrsPullCorrelationRule implements PullCorrelationRule {
         SearchCond searchCond = null;
 
         for (String schema : plainSchemaNames) {
-            MappingItem mappingItem = mappingItems.get(schema);
+            Item mappingItem = mappingItems.get(schema);
             Attribute attr = mappingItem == null
                     ? null
                     : connObj.getAttributeByName(mappingItem.getExtAttrName());

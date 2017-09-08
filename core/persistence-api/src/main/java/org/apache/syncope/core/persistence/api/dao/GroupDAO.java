@@ -21,6 +21,8 @@ package org.apache.syncope.core.persistence.api.dao;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.core.persistence.api.entity.AnyTypeClass;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AMembership;
 import org.apache.syncope.core.persistence.api.entity.anyobject.AnyObject;
@@ -51,16 +53,40 @@ public interface GroupDAO extends AnyDAO<Group> {
 
     void clearADynMembers(Group group);
 
-    void refreshDynMemberships(AnyObject anyObject);
+    /**
+     * Evaluates all the dynamic group membership conditions against the given anyObject (invoked during save).
+     *
+     * @param anyObject anyObject being saved
+     * @return pair of groups dynamically assigned before and after refresh
+     */
+    Pair<Set<String>, Set<String>> refreshDynMemberships(AnyObject anyObject);
 
-    void removeDynMemberships(AnyObject anyObject);
+    /**
+     * Removes the dynamic group memberships of the given anyObject (invoked during delete).
+     *
+     * @param anyObject anyObject being deleted
+     * @return groups dynamically assigned before refresh
+     */
+    Set<String> removeDynMemberships(AnyObject anyObject);
 
     List<String> findUDynMembers(Group group);
 
     void clearUDynMembers(Group group);
 
-    void refreshDynMemberships(User user);
+    /**
+     * Evaluates all the dynamic group membership conditions against the given user (invoked during save).
+     *
+     * @param user user being saved
+     * @return pair of groups dynamically assigned before and after refresh
+     */
+    Pair<Set<String>, Set<String>> refreshDynMemberships(User user);
 
-    void removeDynMemberships(User user);
+    /**
+     * Removes the dynamic group memberships of the given anyObject (invoked during delete).
+     *
+     * @param user user being deleted
+     * @return groups dynamically assigned before refresh
+     */
+    Set<String> removeDynMemberships(User user);
 
 }
