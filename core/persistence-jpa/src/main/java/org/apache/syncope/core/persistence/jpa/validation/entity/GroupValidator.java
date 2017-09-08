@@ -44,7 +44,7 @@ public class GroupValidator extends AbstractValidator<GroupCheck, Group> {
                     addPropertyNode("owner").addConstraintViolation();
         }
 
-        if (isValid && !KEY_PATTERN.matcher(group.getName()).matches()) {
+        if (isValid && (group.getName() == null || !KEY_PATTERN.matcher(group.getName()).matches())) {
             isValid = false;
 
             context.buildConstraintViolationWithTemplate(
