@@ -375,6 +375,10 @@ public class JPAUserDAO extends AbstractAnyDAO<User> implements UserDAO {
         boolean suspend = false;
         boolean propagateSuspension = false;
         try {
+            if (user.getUsername() == null) {
+                throw new AccountPolicyException("Null username");
+            }
+
             if (adminUser.equals(user.getUsername()) || anonymousUser.equals(user.getUsername())) {
                 throw new AccountPolicyException("Not allowed: " + user.getUsername());
             }

@@ -28,7 +28,7 @@ public class AnyObjectValidator extends AbstractValidator<AnyObjectCheck, AnyObj
     public boolean isValid(final AnyObject anyObject, final ConstraintValidatorContext context) {
         context.disableDefaultConstraintViolation();
 
-        boolean isValid = KEY_PATTERN.matcher(anyObject.getName()).matches();
+        boolean isValid = anyObject.getName() != null && KEY_PATTERN.matcher(anyObject.getName()).matches();
 
         if (!isValid) {
             context.buildConstraintViolationWithTemplate(
