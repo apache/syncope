@@ -22,11 +22,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.syncope.common.lib.collections.IteratorChain;
 import org.apache.syncope.common.lib.to.ExecTO;
 import org.apache.syncope.common.lib.to.PropagationTaskTO;
@@ -177,30 +177,6 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
         return result;
     }
 
-    /**
-     * Transform a {@link Collection} of {@link Attribute} instances into a {@link Map}.
-     * The key to each element in the map is the {@code name} of an {@link Attribute}.
-     * The value of each element in the map is the {@link Attribute} instance with that name.
-     * <br/>
-     * Different from the original because:
-     * <ul>
-     * <li>map keys are transformed toUpperCase()</li>
-     * <li>returned map is mutable</li>
-     * </ul>
-     *
-     * @param attributes set of attribute to transform to a map.
-     * @return a map of string and attribute.
-     *
-     * @see org.identityconnectors.framework.common.objects.AttributeUtil#toMap(java.util.Collection)
-     */
-    private Map<String, Attribute> toMap(final Collection<? extends Attribute> attributes) {
-        Map<String, Attribute> map = new HashMap<>();
-        attributes.forEach(attr -> {
-            map.put(attr.getName().toUpperCase(), attr);
-        });
-        return map;
-    }
-
     protected Uid createOrUpdate(
             final PropagationTask task,
             final ConnectorObject beforeObj,
@@ -251,8 +227,10 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
             // 2. check wether anything is actually needing to be propagated, i.e. if there is attribute
             // difference between beforeObj - just read above from the connector - and the values to be propagated
-            Map<String, Attribute> originalAttrMap = toMap(beforeObj.getAttributes());
-            Map<String, Attribute> updateAttrMap = toMap(attributes);
+            Map<String, Attribute> originalAttrMap = beforeObj.getAttributes().stream().
+                    collect(Collectors.toMap(attr -> attr.getName().toUpperCase(), attr -> attr));
+            Map<String, Attribute> updateAttrMap = attributes.stream().
+                    collect(Collectors.toMap(attr -> attr.getName().toUpperCase(), attr -> attr));
 
             // Only compare attribute from beforeObj that are also being updated
             Set<String> skipAttrNames = originalAttrMap.keySet();
