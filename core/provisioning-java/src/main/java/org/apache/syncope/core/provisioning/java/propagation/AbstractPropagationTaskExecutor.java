@@ -51,6 +51,7 @@ import org.apache.syncope.core.spring.ApplicationContextProvider;
 import org.apache.syncope.core.provisioning.java.utils.ConnObjectUtils;
 import org.apache.syncope.core.provisioning.api.utils.ExceptionUtils2;
 import org.apache.syncope.core.persistence.api.dao.AnyObjectDAO;
+import org.apache.syncope.core.persistence.api.dao.ExternalResourceDAO;
 import org.apache.syncope.core.persistence.api.dao.VirSchemaDAO;
 import org.apache.syncope.core.persistence.api.entity.resource.ExternalResource;
 import org.apache.syncope.core.persistence.api.entity.resource.MappingItem;
@@ -119,6 +120,9 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
      */
     @Autowired
     protected TaskDAO taskDAO;
+
+    @Autowired
+    protected ExternalResourceDAO resourceDAO;
 
     @Autowired
     protected VirSchemaDAO virSchemaDAO;
@@ -477,6 +481,9 @@ public abstract class AbstractPropagationTaskExecutor implements PropagationTask
 
                 execution.setTask(task);
                 task.add(execution);
+
+                // ensure that the resource instance is refreshed, as it might have been read from another thread
+                task.setResource(resourceDAO.find(task.getResource().getKey()));
 
                 taskDAO.save(task);
                 // needed to generate a value for the execution key
