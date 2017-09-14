@@ -112,13 +112,15 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
     }
 
     @Override
-    public Pair<String, List<PropagationStatus>> update(final GroupPatch groupPatch, final boolean nullPriorityAsync) {
+    public Pair<GroupPatch, List<PropagationStatus>> update(
+            final GroupPatch groupPatch, final boolean nullPriorityAsync) {
+
         return update(groupPatch, Collections.<String>emptySet(), nullPriorityAsync);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
-    public Pair<String, List<PropagationStatus>> update(
+    public Pair<GroupPatch, List<PropagationStatus>> update(
             final GroupPatch groupPatch, final Set<String> excludedResources, final boolean nullPriorityAsync) {
 
         WorkflowResult<String> updated = gwfAdapter.update(groupPatch);
@@ -133,7 +135,7 @@ public class DefaultGroupProvisioningManager implements GroupProvisioningManager
                 excludedResources);
         PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
 
-        return Pair.of(updated.getResult(), propagationReporter.getStatuses());
+        return Pair.of(groupPatch, propagationReporter.getStatuses());
     }
 
     @Override

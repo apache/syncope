@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.syncope.common.lib.AnyOperations;
 import org.apache.syncope.common.lib.patch.AnyPatch;
 import org.apache.syncope.common.lib.patch.StringPatchItem;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -90,9 +91,9 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
 
     protected abstract ProvisioningManager<?, ?> getProvisioningManager();
 
-    protected abstract AnyTO doCreate(AnyTO anyTO, SyncDelta delta, ProvisioningReport result);
+    protected abstract AnyTO doCreate(AnyTO anyTO, SyncDelta delta);
 
-    protected abstract AnyTO doUpdate(AnyTO before, AnyPatch anyPatch, SyncDelta delta, ProvisioningReport result);
+    protected abstract AnyPatch doUpdate(AnyTO before, AnyPatch anyPatch, SyncDelta delta, ProvisioningReport result);
 
     protected void doDelete(final AnyTypeKind kind, final String key) {
         PropagationByResource propByRes = new PropagationByResource();
@@ -263,16 +264,17 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
         Result resultStatus;
 
         try {
-            AnyTO actual = doCreate(anyTO, delta, result);
-            result.setName(getName(actual));
-            output = actual;
+            AnyTO created = doCreate(anyTO, delta);
+            output = created;
+            result.setKey(created.getKey());
+            result.setName(getName(created));
             resultStatus = Result.SUCCESS;
 
             for (PullActions action : profile.getActions()) {
-                action.after(profile, delta, actual, result);
+                action.after(profile, delta, created, result);
             }
 
-            LOG.debug("{} {} successfully created", actual.getType(), actual.getKey());
+            LOG.debug("{} {} successfully created", created.getType(), created.getKey());
         } catch (PropagationException e) {
             // A propagation failure doesn't imply a pull failure.
             // The propagation exception status will be reported into the propagation task execution.
@@ -344,7 +346,7 @@ public abstract class AbstractPullResultHandler extends AbstractSyncopeResultHan
                             workingDelta = action.beforeUpdate(profile, workingDelta, before, anyPatch);
                         }
 
-                        AnyTO updated = doUpdate(before, anyPatch, workingDelta, result);
+                        AnyTO updated = AnyOperations.patch(before, doUpdate(before, anyPatch, workingDelta, result));
 
                         for (PullActions action : profile.getActions()) {
                             action.after(profile, workingDelta, updated, result);

@@ -402,6 +402,9 @@ public class PullTaskITCase extends AbstractTaskITCase {
 
     @Test
     public void reconcileFromScriptedSQL() {
+        System.out.println("QUAAAAAAAAAAAAAAAAAAAAA");
+        LOG.info("QUAAAAAAAAAAAAAAAa");
+                
         // 0. reset sync token and set MappingItemTransformer
         ResourceTO resource = resourceService.read(RESOURCE_NAME_DBSCRIPTED);
         ResourceTO originalResource = SerializationUtils.clone(resource);
@@ -463,10 +466,10 @@ public class PullTaskITCase extends AbstractTaskITCase {
             assertFalse(pullTask.isPerformDelete());
 
             // 4. pull
-            execProvisioningTask(taskService, "30cfd653-257b-495f-8665-281281dbcb3d", 50, false);
+            execProvisioningTask(taskService, pullTask.getKey(), 50, false);
 
             // 5. verify that printer was re-created in Syncope (implies that location does not start with given prefix,
-            // hence PrefixMappingItemTransformer was applied during pull)
+            // hence PrefixItemTransformer was applied during pull)
             matchingPrinters = anyObjectService.search(new AnyQuery.Builder().realm(SyncopeConstants.ROOT_REALM).
                     fiql(SyncopeClient.getAnyObjectSearchConditionBuilder("PRINTER").
                             is("location").equalTo("pull*").query()).build());

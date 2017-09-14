@@ -87,7 +87,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
     }
 
     @Override
-    public Pair<String, List<PropagationStatus>> update(
+    public Pair<AnyObjectPatch, List<PropagationStatus>> update(
             final AnyObjectPatch anyObjectPatch, final boolean nullPriorityAsync) {
 
         return update(anyObjectPatch, Collections.<String>emptySet(), nullPriorityAsync);
@@ -95,7 +95,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
-    public Pair<String, List<PropagationStatus>> update(
+    public Pair<AnyObjectPatch, List<PropagationStatus>> update(
             final AnyObjectPatch anyObjectPatch, final Set<String> excludedResources, final boolean nullPriorityAsync) {
 
         WorkflowResult<String> updated = awfAdapter.update(anyObjectPatch);
@@ -110,7 +110,7 @@ public class DefaultAnyObjectProvisioningManager implements AnyObjectProvisionin
                 excludedResources);
         PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
 
-        return Pair.of(updated.getResult(), propagationReporter.getStatuses());
+        return Pair.of(anyObjectPatch, propagationReporter.getStatuses());
     }
 
     @Override

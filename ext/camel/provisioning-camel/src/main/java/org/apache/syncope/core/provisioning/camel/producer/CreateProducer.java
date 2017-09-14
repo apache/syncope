@@ -26,7 +26,6 @@ import java.util.Set;
 import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.to.AnyObjectTO;
 import org.apache.syncope.common.lib.to.AnyTO;
@@ -67,7 +66,7 @@ public class CreateProducer extends AbstractProducer {
                         getPropagationTaskExecutor().execute(tasks, nullPriorityAsync);
 
                 exchange.getOut().setBody(
-                        new ImmutablePair<>(created.getResult().getKey(), propagationReporter.getStatuses()));
+                        Pair.of(created.getResult().getKey(), propagationReporter.getStatuses()));
             } else if (actual instanceof AnyTO) {
                 WorkflowResult<String> created = (WorkflowResult<String>) exchange.getIn().getBody();
 
@@ -86,7 +85,7 @@ public class CreateProducer extends AbstractProducer {
                             excludedResources);
                     getPropagationTaskExecutor().execute(tasks, nullPriorityAsync);
 
-                    exchange.getOut().setBody(new ImmutablePair<>(created.getResult(), null));
+                    exchange.getOut().setBody(Pair.of(created.getResult(), null));
                 } else {
                     List<PropagationTask> tasks = getPropagationManager().getCreateTasks(
                             actual instanceof AnyObjectTO ? AnyTypeKind.ANY_OBJECT : AnyTypeKind.GROUP,
@@ -97,8 +96,7 @@ public class CreateProducer extends AbstractProducer {
                     PropagationReporter propagationReporter =
                             getPropagationTaskExecutor().execute(tasks, nullPriorityAsync);
 
-                    exchange.getOut().setBody(new ImmutablePair<>(created.getResult(),
-                            propagationReporter.getStatuses()));
+                    exchange.getOut().setBody(Pair.of(created.getResult(), propagationReporter.getStatuses()));
                 }
             }
         }

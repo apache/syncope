@@ -413,7 +413,10 @@ public final class AnyOperations {
             if (patch.getAttrTO() == null) {
                 LOG.warn("Invalid {} specified: {}", AttrPatch.class.getName(), patch);
             } else {
-                rwattrs.remove(patch.getAttrTO().getSchema());
+                AttrTO removed = rwattrs.remove(patch.getAttrTO().getSchema());
+                if (removed != null && removed.getSchemaInfo() != null) {
+                    patch.getAttrTO().setSchemaInfo(removed.getSchemaInfo());
+                }
                 if (patch.getOperation() == PatchOperation.ADD_REPLACE) {
                     rwattrs.put(patch.getAttrTO().getSchema(), patch.getAttrTO());
                 }
@@ -469,6 +472,19 @@ public final class AnyOperations {
                     result.getResources().remove(resourcePatch.getValue());
             }
         }
+    }
+
+    public static AnyTO patch(final AnyTO anyTO, final AnyPatch anyPatch) {
+        if (anyTO instanceof UserTO) {
+            return patch((UserTO) anyTO, (UserPatch) anyPatch);
+        }
+        if (anyTO instanceof GroupTO) {
+            return patch((GroupTO) anyTO, (GroupPatch) anyPatch);
+        }
+        if (anyTO instanceof AnyObjectTO) {
+            return patch((AnyObjectTO) anyTO, (AnyObjectPatch) anyPatch);
+        }
+        return null;
     }
 
     public static GroupTO patch(final GroupTO groupTO, final GroupPatch groupPatch) {

@@ -137,10 +137,11 @@ public class AnyObjectLogic extends AbstractAnyLogic<AnyObjectTO, AnyObjectPatch
                 realm);
         boolean authDynRealms = securityChecks(effectiveRealms, realm, before.getLeft().getKey());
 
-        Pair<String, List<PropagationStatus>> updated = provisioningManager.update(anyObjectPatch, nullPriorityAsync);
+        Pair<AnyObjectPatch, List<PropagationStatus>> updated =
+                provisioningManager.update(anyObjectPatch, nullPriorityAsync);
 
         return afterUpdate(
-                binder.getAnyObjectTO(updated.getKey()),
+                binder.getAnyObjectTO(updated.getLeft().getKey()),
                 updated.getRight(),
                 before.getRight(),
                 authDynRealms,

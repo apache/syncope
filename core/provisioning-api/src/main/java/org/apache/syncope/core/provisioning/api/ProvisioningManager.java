@@ -30,9 +30,9 @@ public interface ProvisioningManager<T extends AnyTO, P extends AnyPatch> {
 
     Pair<String, List<PropagationStatus>> create(T anyTO, boolean nullPriorityAsync);
 
-    Pair<String, List<PropagationStatus>> update(P patch, boolean nullPriorityAsync);
+    Pair<P, List<PropagationStatus>> update(P patch, boolean nullPriorityAsync);
 
-    Pair<String, List<PropagationStatus>> update(P patch, Set<String> excludedResources, boolean nullPriorityAsync);
+    Pair<P, List<PropagationStatus>> update(P patch, Set<String> excludedResources, boolean nullPriorityAsync);
 
     List<PropagationStatus> delete(String anyKey, boolean nullPriorityAsync);
 

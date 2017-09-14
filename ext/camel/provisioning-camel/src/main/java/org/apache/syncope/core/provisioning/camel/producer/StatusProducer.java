@@ -24,7 +24,7 @@ import java.util.Map.Entry;
 
 import org.apache.camel.Endpoint;
 import org.apache.camel.Exchange;
-import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.StatusPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
 import org.apache.syncope.common.lib.types.AnyTypeKind;
@@ -102,7 +102,7 @@ public class StatusProducer extends AbstractProducer {
                     null);
             PropagationReporter propagationReporter = getPropagationTaskExecutor().execute(tasks, nullPriorityAsync);
 
-            exchange.getOut().setBody(new ImmutablePair<>(updated.getResult(), propagationReporter.getStatuses()));
+            exchange.getOut().setBody(Pair.of(updated.getResult(), propagationReporter.getStatuses()));
         }
     }
 

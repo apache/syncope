@@ -267,8 +267,8 @@ public class SAML2UserManager {
             userPatch = action.beforeUpdate(userPatch, responseTO);
         }
 
-        Pair<String, List<PropagationStatus>> updated = provisioningManager.update(userPatch, false);
-        userTO = binder.getUserTO(updated.getKey());
+        Pair<UserPatch, List<PropagationStatus>> updated = provisioningManager.update(userPatch, false);
+        userTO = binder.getUserTO(updated.getLeft().getKey());
 
         for (SAML2IdPActions action : actions) {
             userTO = action.afterUpdate(userTO, responseTO);

@@ -27,7 +27,6 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.camel.Exchange;
 import org.apache.camel.PollingConsumer;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.syncope.common.lib.patch.StatusPatch;
 import org.apache.syncope.common.lib.patch.UserPatch;
@@ -91,7 +90,7 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
 
     @Override
     @SuppressWarnings("unchecked")
-    public Pair<String, List<PropagationStatus>> update(final UserPatch userPatch, final boolean nullPriorityAsync) {
+    public Pair<UserPatch, List<PropagationStatus>> update(final UserPatch userPatch, final boolean nullPriorityAsync) {
         PollingConsumer pollingConsumer = getConsumer("direct:updatePort");
 
         Map<String, Object> props = new HashMap<>();
@@ -109,7 +108,7 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
     }
 
     @Override
-    public Pair<String, List<PropagationStatus>> update(
+    public Pair<UserPatch, List<PropagationStatus>> update(
             final UserPatch anyPatch, final Set<String> excludedResources, final boolean nullPriorityAsync) {
 
         return update(anyPatch, new ProvisioningReport(), null, excludedResources, nullPriorityAsync);
@@ -317,7 +316,7 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     @SuppressWarnings("unchecked")
-    public Pair<String, List<PropagationStatus>> update(
+    public Pair<UserPatch, List<PropagationStatus>> update(
             final UserPatch userPatch,
             final ProvisioningReport result,
             final Boolean enabled,
@@ -346,7 +345,7 @@ public class CamelUserProvisioningManager extends AbstractCamelProvisioningManag
             result.setMessage("Update failed, trying to pull status anyway (if configured)\n" + ex.getMessage());
 
             WorkflowResult<Pair<UserPatch, Boolean>> updated = new WorkflowResult<>(
-                    new ImmutablePair<>(userPatch, false), new PropagationByResource(),
+                    Pair.of(userPatch, false), new PropagationByResource(),
                     new HashSet<>());
             sendMessage("direct:userInPull", updated, props);
             exchange = pollingConsumer.receive();

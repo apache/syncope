@@ -112,17 +112,17 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
     }
 
     @Override
-    public Pair<String, List<PropagationStatus>> update(final UserPatch userPatch, final boolean nullPriorityAsync) {
+    public Pair<UserPatch, List<PropagationStatus>> update(final UserPatch userPatch, final boolean nullPriorityAsync) {
         WorkflowResult<Pair<UserPatch, Boolean>> updated = uwfAdapter.update(userPatch);
 
         List<PropagationTask> tasks = propagationManager.getUserUpdateTasks(updated);
         PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
 
-        return Pair.of(updated.getResult().getLeft().getKey(), propagationReporter.getStatuses());
+        return Pair.of(updated.getResult().getLeft(), propagationReporter.getStatuses());
     }
 
     @Override
-    public Pair<String, List<PropagationStatus>> update(
+    public Pair<UserPatch, List<PropagationStatus>> update(
             final UserPatch userPatch, final Set<String> excludedResources, final boolean nullPriorityAsync) {
 
         return update(userPatch, new ProvisioningReport(), null, excludedResources, nullPriorityAsync);
@@ -130,7 +130,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
-    public Pair<String, List<PropagationStatus>> update(
+    public Pair<UserPatch, List<PropagationStatus>> update(
             final UserPatch userPatch,
             final ProvisioningReport result,
             final Boolean enabled,
@@ -177,7 +177,7 @@ public class DefaultUserProvisioningManager implements UserProvisioningManager {
                 updated, updated.getResult().getLeft().getPassword() != null, excludedResources);
         PropagationReporter propagationReporter = taskExecutor.execute(tasks, nullPriorityAsync);
 
-        return Pair.of(updated.getResult().getLeft().getKey(), propagationReporter.getStatuses());
+        return Pair.of(updated.getResult().getLeft(), propagationReporter.getStatuses());
     }
 
     @Override

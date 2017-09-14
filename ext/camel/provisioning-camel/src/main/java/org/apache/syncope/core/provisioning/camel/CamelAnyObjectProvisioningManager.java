@@ -66,7 +66,7 @@ public class CamelAnyObjectProvisioningManager
     }
 
     @Override
-    public Pair<String, List<PropagationStatus>> update(
+    public Pair<AnyObjectPatch, List<PropagationStatus>> update(
             final AnyObjectPatch anyPatch, final boolean nullPriorityAsync) {
 
         return update(anyPatch, Collections.<String>emptySet(), nullPriorityAsync);
@@ -75,7 +75,7 @@ public class CamelAnyObjectProvisioningManager
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @Override
     @SuppressWarnings("unchecked")
-    public Pair<String, List<PropagationStatus>> update(
+    public Pair<AnyObjectPatch, List<PropagationStatus>> update(
             final AnyObjectPatch anyPatch, final Set<String> excludedResources, final boolean nullPriorityAsync) {
 
         PollingConsumer pollingConsumer = getConsumer("direct:updateAnyObjectPort");
